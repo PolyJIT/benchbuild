@@ -47,19 +47,30 @@ class Polli(RuntimeExperiment):
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
         opt = local[path.join(bin_path, "opt")]
 
-    @try_catch_log
-    def run_project(self, p):
+    def run_baseline(self, p):
         base_f = p.base_f
         opt_f = p.optimized_f
-        run_f = p.run_f
         bin_f = p.bin_f
-        time_f = p.time_f
-        profbin_f = p.profbin_f
-        prof_f = p.prof_f
-        likwid_f = p.likwid_f
-        csv_f = p.csv_f
-        calls_f = p.calls_f
-        result_f = p.result_f
+
+        # Preoptimize with static preoptimization sequence
+        popt = opt["-load", "LLVMPolly.so"]
+        popt = popt["-basicaa", "-scev-aa", "-polly-canonicalize"]
+        popt = popt["-o", opt_f]
+        popt[base_f] & FG
+
+        self.verify_product(opt_f)
+        mv(opt_f, bin_f)
+        baseline_result_f = p.output(p.result_f + ".baseline")
+        baseline_time_f = p.output(p.time_f + ".baseline")
+        baseline_calls_f = p.output(p.calls_f + ".baseline")
+        baseline_prof_f = p.output(p.prof_f + ".baseline")
+        self.apply_polli(p, baseline_time_f, baseline_result_f,
+                         baseline_calls_f, baseline_prof_f)
+
+    def run_custom(self, p):
+        base_f = p.base_f
+        opt_f = p.optimized_f
+        bin_f = p.bin_f
 
         # Preoptimize with static preoptimization sequence
         popt = opt["-load", "LLVMPolly.so"]
@@ -82,11 +93,18 @@ class Polli(RuntimeExperiment):
         popt[base_f] & FG
 
         self.verify_product(opt_f)
-
         mv(opt_f, bin_f)
+        custom_result_f = p.output(p.result_f + ".custom")
+        custom_time_f = p.output(p.time_f + ".custom")
+        custom_calls_f = p.output(p.calls_f + ".custom")
+        custom_prof_f = p.output(p.prof_f + ".custom")
+        self.apply_polli(p, custom_time_f, custom_result_f, custom_calls_f,
+                         custom_prof_f)
 
-        # Run with PAPI counters enabled, but without own preoptimization
-        # and without recompilation.
+    def apply_polli(self, p, time_f, result_f, calls_f, prof_f):
+        run_f = p.run_f
+        bin_f = p.bin_f
+
         polli_opts = p.ld_flags + p.polli_flags
         polli_c = polli["-fake-argv0=" + run_f, "-O3", "-lpapi", "-lpprof",
                         polli_opts]
@@ -95,8 +113,11 @@ class Polli(RuntimeExperiment):
         p.run(time["-f", "%U,%S,%e", "-a", "-o", time_f, polli_c])
 
         self.verify_product(time_f)
-        self.verify_product(prof_f)
-        rm(bin_f)
+        self.verify_product(p.prof_f)
+        self.verify_product(p.calls_f)
+
+        mv(p.calls_f, calls_f)
+        mv(p.prof_f, prof_f)
 
         # Print header here.
         (echo["---------------------------------------------------------------"]
@@ -107,8 +128,6 @@ class Polli(RuntimeExperiment):
             >> result_f) & FG
 
         (pprof_analyze[prof_f] | tee["-a", result_f]) & FG
-        rm(prof_f)
-
         papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
         if papi_calibration:
             (awk[("{s+=$1} END {"
@@ -126,6 +145,26 @@ class Polli(RuntimeExperiment):
                          " print \"System time - \" sys;"
                          " print \"Wall clock - \" wall;}"), time_f] |
          tee["-a", result_f]) & FG
+
+        rm(bin_f)
+        rm(prof_f)
+
+    @try_catch_log
+    def run_project(self, p):
+        base_f = p.base_f
+        opt_f = p.optimized_f
+        run_f = p.run_f
+        bin_f = p.bin_f
+        time_f = p.time_f
+        profbin_f = p.profbin_f
+        prof_f = p.prof_f
+        likwid_f = p.likwid_f
+        csv_f = p.csv_f
+        calls_f = p.calls_f
+        result_f = p.result_f
+
+        self.run_baseline(p)
+        self.run_custom(p)
 
     def generate_report(self, per_project_results):
         csv_f = self.result_f + ".csv"

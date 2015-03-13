@@ -71,6 +71,9 @@ class Project(object):
         else:
             self.testdir = path.join(config["testdir"], domain, name)
 
+        self.inputs = set()
+        self.outputs = set()
+
         self.products = set()
         self.setup_derived_filenames()
 
@@ -111,6 +114,14 @@ class Project(object):
             with open(ifile) as f:
                 lines = "".join(f.readlines()).strip().split()
         return lines
+
+    def input(self, filename):
+        self.inputs.add(filename)
+        return filename
+
+    def output(self, filename):
+        self.outputs.add(filename)
+        return filename
 
     @property
     def prof_f(self):

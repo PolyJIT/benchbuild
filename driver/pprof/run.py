@@ -20,6 +20,7 @@ class PprofRun(cli.Application):
 
     _experiments = {"polyjit": experiments.polyjit.PolyJIT,
                     "polli": experiments.polli.Polli,
+                    "polli-baseline": experiments.polli.PolliBaseLine,
                     "raw": experiments.raw.RawRuntime}
 
     _experiment_names = []

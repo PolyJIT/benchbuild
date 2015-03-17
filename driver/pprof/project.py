@@ -187,6 +187,13 @@ class Project(object):
         if not path.exists(self.builddir):
             mkdir[self.builddir] & FG
 
+    def print_result_header(self):
+        (echo["---------------------------------------------------------------"]
+            >> self.result_f) & FG
+        (echo[">>> ========= " + self.name + " Program"]
+            >> self.result_f) & FG
+        (echo["---------------------------------------------------------------"]
+            >> self.result_f) & FG
 
 class PprofGroup(Project):
     path_suffix = "src"

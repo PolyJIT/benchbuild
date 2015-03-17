@@ -23,17 +23,17 @@ class Polli(RuntimeExperiment):
     """ Polli experiment """
 
     report = {
-        "Runs": "Total number of program runs - ([0-9]+)",
+        "Runs_n": "Total number of program runs - ([0-9]+)",
         "T_SCoP_ns": "Time Spent in SCoPs \[ns\] - ([0-9]+)",
         "T_SCoP_s": "Time Spent in SCoPs \[s\] - ([0-9.]+)",
         "T_all_ns": "Total run-time \[ns\] - ([0-9.]+)",
         "T_all_s": "Total run-time \[s\] - ([0-9.]+)",
-        "DynCov": "Dynamic SCoP coverage - ([0-9.]+)",
-        "T_papi": "Time spent in libPAPI \(s\) - ([0-9.]+)",
-        "T_perpapi": "Real time per PAPI call \(ns\) - ([0-9.]+)",
-        "T_user": "User time - ([0-9.]+)",
-        "T_system": "System time - ([0-9.]+)",
-        "T_wall": "Wall clock - ([0-9.]+)"
+        "DynCov_pct": "Dynamic SCoP coverage - ([0-9.]+)",
+        "T_papi_s": "Time spent in libPAPI \(s\) - ([0-9.]+)",
+        "T_perpapi_ns": "Real time per PAPI call \(ns\) -  ([0-9.]+)",
+        "T_user_s": "User time - ([0-9.]+)",
+        "T_system_s": "System time - ([0-9.]+)",
+        "T_wall_s": "Wall clock - ([0-9.]+)"
     }
 
     def setup_commands(self):
@@ -47,63 +47,13 @@ class Polli(RuntimeExperiment):
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
         opt = local[path.join(bin_path, "opt")]
 
-    def run_baseline(self, p):
-        base_f = p.base_f
-        opt_f = p.optimized_f
-        bin_f = p.bin_f
-
-        # Preoptimize with static preoptimization sequence
-        popt = opt["-load", "LLVMPolly.so"]
-        popt = popt["-basicaa", "-scev-aa", "-polly-canonicalize"]
-        popt = popt["-o", opt_f]
-        popt[base_f] & FG
-
-        self.verify_product(opt_f)
-        mv(opt_f, bin_f)
-        baseline_result_f = p.output(p.result_f + ".baseline")
-        baseline_time_f = p.output(p.time_f + ".baseline")
-        baseline_calls_f = p.output(p.calls_f + ".baseline")
-        baseline_prof_f = p.output(p.prof_f + ".baseline")
-        self.apply_polli(p, baseline_time_f, baseline_result_f,
-                         baseline_calls_f, baseline_prof_f)
-
-    def run_custom(self, p):
-        base_f = p.base_f
-        opt_f = p.optimized_f
-        bin_f = p.bin_f
-
-        # Preoptimize with static preoptimization sequence
-        popt = opt["-load", "LLVMPolly.so"]
-        popt = popt[
-            "-mem2reg",
-            "-early-cse",
-            "-functionattrs",
-            "-instcombine",
-            "-globalopt",
-            "-sroa",
-            "-gvn",
-            "-ipsccp",
-            "-basicaa",
-            "-simplifycfg",
-            "-jump-threading",
-            "-loop-unroll",
-            "-globaldce",
-            "-polly-prepare"]
-        popt = popt["-o", opt_f]
-        popt[base_f] & FG
-
-        self.verify_product(opt_f)
-        mv(opt_f, bin_f)
-        custom_result_f = p.output(p.result_f + ".custom")
-        custom_time_f = p.output(p.time_f + ".custom")
-        custom_calls_f = p.output(p.calls_f + ".custom")
-        custom_prof_f = p.output(p.prof_f + ".custom")
-        self.apply_polli(p, custom_time_f, custom_result_f, custom_calls_f,
-                         custom_prof_f)
-
-    def apply_polli(self, p, time_f, result_f, calls_f, prof_f):
+    def apply_polli(self, p):
         run_f = p.run_f
         bin_f = p.bin_f
+        time_f = p.time_f
+        result_f = p.result_f
+        calls_f = p.calls_f
+        prof_f = p.prof_f
 
         polli_opts = p.ld_flags + p.polli_flags
         polli_c = polli["-fake-argv0=" + run_f, "-O3", "-lpapi", "-lpprof",
@@ -113,19 +63,10 @@ class Polli(RuntimeExperiment):
         p.run(time["-f", "%U,%S,%e", "-a", "-o", time_f, polli_c])
 
         self.verify_product(time_f)
-        self.verify_product(p.prof_f)
-        self.verify_product(p.calls_f)
+        self.verify_product(prof_f)
+        self.verify_product(calls_f)
 
-        mv(p.calls_f, calls_f)
-        mv(p.prof_f, prof_f)
-
-        # Print header here.
-        (echo["---------------------------------------------------------------"]
-            >> result_f) & FG
-        (echo[">>> ========= " + p.name + " Program"]
-            >> result_f) & FG
-        (echo["---------------------------------------------------------------"]
-            >> result_f) & FG
+        p.print_result_header()
 
         (pprof_analyze[prof_f] | tee["-a", result_f]) & FG
         papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
@@ -153,18 +94,31 @@ class Polli(RuntimeExperiment):
     def run_project(self, p):
         base_f = p.base_f
         opt_f = p.optimized_f
-        run_f = p.run_f
         bin_f = p.bin_f
-        time_f = p.time_f
-        profbin_f = p.profbin_f
-        prof_f = p.prof_f
-        likwid_f = p.likwid_f
-        csv_f = p.csv_f
-        calls_f = p.calls_f
-        result_f = p.result_f
 
-        self.run_baseline(p)
-        self.run_custom(p)
+        # Preoptimize with static preoptimization sequence
+        popt = opt["-load", "LLVMPolly.so"]
+        popt = popt[
+            "-mem2reg",
+            "-early-cse",
+            "-functionattrs",
+            "-instcombine",
+            "-globalopt",
+            "-sroa",
+            "-gvn",
+            "-ipsccp",
+            "-basicaa",
+            "-simplifycfg",
+            "-jump-threading",
+            "-loop-unroll",
+            "-globaldce",
+            "-polly-prepare"]
+        popt = popt["-o", opt_f]
+        popt[base_f] & FG
+
+        self.verify_product(opt_f)
+        mv(opt_f, bin_f)
+        self.apply_polli(p)
 
     def generate_report(self, per_project_results):
         csv_f = self.result_f + ".csv"
@@ -182,3 +136,21 @@ class Polli(RuntimeExperiment):
                 writer.writeheader()
                 for tup in results:
                     writer.writerow(tup)
+
+
+class PolliBaseLine(Polli):
+    @try_catch_log
+    def run_project(self, p):
+        base_f = p.base_f
+        opt_f = p.optimized_f
+        bin_f = p.bin_f
+
+        # Preoptimize with static preoptimization sequence
+        popt = opt["-load", "LLVMPolly.so"]
+        popt = popt["-basicaa", "-scev-aa", "-polly-canonicalize"]
+        popt = popt["-o", opt_f]
+        popt[base_f] & FG
+
+        self.verify_product(opt_f)
+        mv(opt_f, bin_f)
+        self.apply_polli(p)

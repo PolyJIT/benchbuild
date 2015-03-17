@@ -66,8 +66,6 @@ papi <- cast(papi, StartTime + variable ~ Region, sum)
 #5         4 Duration       0 37503 13328 0
 #6         5 Duration       0 38061 13373 0
 
-head(papi)
-
 rownames(papi) <- papi[,1]
 papi_matrix <- t(data.matrix(papi[,4:ncol(papi)]))
 

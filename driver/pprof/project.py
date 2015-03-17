@@ -71,6 +71,9 @@ class Project(object):
         else:
             self.testdir = path.join(config["testdir"], domain, name)
 
+        self.inputs = set()
+        self.outputs = set()
+
         self.products = set()
         self.setup_derived_filenames()
 
@@ -111,6 +114,14 @@ class Project(object):
             with open(ifile) as f:
                 lines = "".join(f.readlines()).strip().split()
         return lines
+
+    def input(self, filename):
+        self.inputs.add(filename)
+        return filename
+
+    def output(self, filename):
+        self.outputs.add(filename)
+        return filename
 
     @property
     def prof_f(self):
@@ -176,6 +187,13 @@ class Project(object):
         if not path.exists(self.builddir):
             mkdir[self.builddir] & FG
 
+    def print_result_header(self):
+        (echo["---------------------------------------------------------------"]
+            >> self.result_f) & FG
+        (echo[">>> ========= " + self.name + " Program"]
+            >> self.result_f) & FG
+        (echo["---------------------------------------------------------------"]
+            >> self.result_f) & FG
 
 class PprofGroup(Project):
     path_suffix = "src"

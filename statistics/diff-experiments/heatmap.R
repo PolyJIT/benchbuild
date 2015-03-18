@@ -6,7 +6,8 @@ spec = matrix(c(
   'help', 'h', 0, "logical",
   'output', 'o', 1, 'character',
   'csv', 'c', 2, 'character',
-  'name', 'n', 1, 'character'
+  'name', 'n', 1, 'character',
+  'quiet', 'q', 2, 'logical'
 ), byrow=TRUE, ncol=4)
 opt = getopt(spec)
 
@@ -18,6 +19,7 @@ if (!is.null(opt$help)) {
 if (is.null(opt$name)) {   opt$name = "UNDEFINED" }
 if (is.null(opt$input)) {  opt$input = "~/src/polyjit/install/bin/pprof-calibrate.profile.events.csv" }
 if (is.null(opt$output)) { opt$output = "pprof-heatmap.pdf" }
+if (is.null(opt$quiet)) { opt$quiet = FALSE }
 
 if(!require("plyr")) {
   install.packages("plyr", dependencies = TRUE)
@@ -73,15 +75,14 @@ if(!is.null(opt$csv)) {
   write.csv2(papi_matrix, file = opt$csv)
 }
 
-my_colors <- colorRampPalette(c("white", "yellow", "red"))(n = 299)
-#          col=colors,
-#          breaks=col_breaks,
-
-heatmap.2(papi_matrix,
-          notecol="black",
-          main=opt$name,
-          trace="none",
-          col=my_colors,
-          scale= c("none"),
-          dendrogram="none",
-          Colv=FALSE)
+if(!opt$quiet) {
+  my_colors <- colorRampPalette(c("white", "yellow", "red"))(n = 299)
+  heatmap.2(papi_matrix,
+            notecol="black",
+            main=opt$name,
+            trace="none",
+            col=my_colors,
+            scale= c("none"),
+            dendrogram="none",
+            Colv=FALSE)
+}

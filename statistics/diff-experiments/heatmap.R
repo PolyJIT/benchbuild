@@ -1,5 +1,9 @@
 #!/usr/bin/env Rscript
-library(getopt)
+if(!require("getopt")) {
+  install.packages("getopt", dependencies = TRUE)
+  library(getopt)
+}
+
 
 spec = matrix(c(
   'input', 'i', 1, 'character',

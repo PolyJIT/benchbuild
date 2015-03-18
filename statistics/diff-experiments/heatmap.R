@@ -1,8 +1,5 @@
 #!/usr/bin/env Rscript
 
-# Uni Münster
-chooseCRANmirror(41)
-
 if(!require("getopt")) {
   install.packages("getopt", dependencies = TRUE)
   library(getopt)

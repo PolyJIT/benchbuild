@@ -51,7 +51,6 @@ papi <- read.csv(opt$input)
 buckets <- 50
 bucket_size <- papi[1,3] %/% buckets
 papi[,1] <- sapply(papi[,1], function(x) x %/% bucket_size)
-papi[1,3] <- 0
 
 papi <- melt(papi, id=1:2)
 #> head(papi_molten)
@@ -74,20 +73,22 @@ papi <- cast(papi, StartTime + variable ~ Region, sum)
 #6         5 Duration       0 38061 13373 0
 
 rownames(papi) <- papi[,1]
-papi_matrix <- t(data.matrix(papi[,4:ncol(papi)]))
-
 if(!is.null(opt$csv)) {
+  papi_matrix <- t(data.matrix(papi[,4:ncol(papi)]))
   write.csv2(papi_matrix, file = opt$csv)
-}
+} else {
+  papi[1,3] <- 0
+  papi_matrix <- t(data.matrix(papi[,4:ncol(papi)]))
 
-if(!opt$quiet) {
-  my_colors <- colorRampPalette(c("white", "yellow", "red"))(n = 299)
-  heatmap.2(papi_matrix,
-            notecol="black",
-            main=opt$name,
-            trace="none",
-            col=my_colors,
-            scale= c("none"),
-            dendrogram="none",
-            Colv=FALSE)
+  if(!opt$quiet) {
+    my_colors <- colorRampPalette(c("white", "yellow", "red"))(n = 299)
+    heatmap.2(papi_matrix,
+              notecol="black",
+              main=opt$name,
+              trace="none",
+              col=my_colors,
+              scale= c("none"),
+              dendrogram="none",
+              Colv=FALSE)
+  }
 }

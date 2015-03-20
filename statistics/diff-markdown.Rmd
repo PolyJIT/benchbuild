@@ -1,0 +1,74 @@
+---
+title: "PolyJIT Profiling"
+author: "Andreas Simbürger"
+date: "03/20/2015"
+output:
+  html_document:
+    highlight: zenburn
+    theme: flatly
+runtime: shiny
+---
+
+## List of polli experiments
+
+```{r, echo=FALSE}
+if(!require("plyr")) {
+  install.packages("plyr", dependencies = TRUE)
+  library(plyr)
+}
+
+if(!require("reshape")) {
+  install.packages("reshape", dependencies = TRUE)
+  library(reshape)
+}
+
+if(!require("scales")) {
+  install.packages("scales", dependencies = TRUE)
+  library(scales)
+}
+
+if(!require("gplots")) {
+  install.packages("gplots", dependencies = TRUE)
+  library(gplots)
+}
+```
+
+## Select project result
+
+```{r, echo=FALSE}
+path.prefix = c("/nfs/scratch/pprof/2015-03-18/")
+result.files = list.files(path=path.prefix, pattern="*.result.csv", recursive = TRUE)
+heatmap.files = list.files(path=path.prefix, pattern="*.r.csv", recursive = TRUE)
+
+inputPanel(
+  selectInput("ifile", label="Input File:", choices = heatmap.files, selected = 1, width="800px")
+)
+
+```
+
+## Table
+
+Transposed table output for the given result data.
+```{r, echo=FALSE}
+renderTable({
+  if(is.null(input$ifile)) { return(NULL)}
+  papi <- data.matrix(read.csv2(file.path(path.prefix, input$ifile)))
+  head(t(papi), 5)
+})
+```
+
+## Plot
+```{r, echo=FALSE}
+renderPlot({
+  if(is.null(input$ifile)) { return(NULL) }
+  papi <- data.matrix(read.csv2(file.path(path.prefix, input$ifile)))
+  if ((ncol(papi) < 2) || (nrow(papi) < 2)) { return(NULL) }
+
+  my_colors <- colorRampPalette(c("white", "yellow", "red"))(n = 299)
+  heatmap.2(papi, notecol="black", main=input$ifile, trace="none",
+            col=my_colors, scale= c("none"), dendrogram="none",
+            Colv=FALSE)
+})
+```
+
+

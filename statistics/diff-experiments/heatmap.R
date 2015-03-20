@@ -47,9 +47,11 @@ if(!require("gplots")) {
 }
 
 papi <- read.csv(opt$input)
-
 buckets <- 50
-bucket_size <- papi[1,3] %/% buckets
+
+# Bucket Size depends on total runtime of the whole test.
+bucket_size <- sum(papi[papi$Region == "START",3]) %/% buckets
+
 papi[,1] <- sapply(papi[,1], function(x) x %/% bucket_size)
 
 papi <- melt(papi, id=1:2)
@@ -74,8 +76,7 @@ papi <- cast(papi, StartTime + variable ~ Region, sum)
 
 rownames(papi) <- papi[,1]
 if(!is.null(opt$csv)) {
-  papi_matrix <- t(data.matrix(papi[,4:ncol(papi)]))
-  write.csv2(papi_matrix, file = opt$csv)
+  write.csv2(papi, file = opt$csv)
 } else {
   papi[1,3] <- 0
   papi_matrix <- t(data.matrix(papi[,4:ncol(papi)]))

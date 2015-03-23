@@ -4,14 +4,17 @@ author: "Andreas Simbürger"
 date: "03/20/2015"
 output:
   html_document:
-    highlight: zenburn
-    theme: flatly
 runtime: shiny
 ---
 
 ## List of polli experiments
 
 ```{r, echo=FALSE}
+if(!require("ggplot2")) {
+  install.packages("ggplot2", dependencies = TRUE)
+  library(ggplot2)
+}
+
 if(!require("plyr")) {
   install.packages("plyr", dependencies = TRUE)
   library(plyr)
@@ -31,44 +34,43 @@ if(!require("gplots")) {
   install.packages("gplots", dependencies = TRUE)
   library(gplots)
 }
-```
 
-## Select project result
-
-```{r, echo=FALSE}
-path.prefix = c("/nfs/scratch/pprof/2015-03-18/")
+path.prefix = c("/nfs/scratch/pprof/2015-03-20/")
 result.files = list.files(path=path.prefix, pattern="*.result.csv", recursive = TRUE)
 heatmap.files = list.files(path=path.prefix, pattern="*.r.csv", recursive = TRUE)
-
-inputPanel(
-  selectInput("ifile", label="Input File:", choices = heatmap.files, selected = 1, width="800px")
-)
-
+selectInput("ifile", "View project", choices = heatmap.files, selected = 1, multiple = FALSE, selectize = TRUE, width="800px")
 ```
 
-## Table
+### Available plots
 
-Transposed table output for the given result data.
 ```{r, echo=FALSE}
-renderTable({
-  if(is.null(input$ifile)) { return(NULL)}
-  papi <- data.matrix(read.csv2(file.path(path.prefix, input$ifile)))
-  head(t(papi), 5)
-})
+tabsetPanel(
+  tabPanel("Table", renderTable({
+    if(is.null(input$ifile)) { return(NULL)}
+    papi <- read.csv2(file.path(path.prefix, input$ifile), header = TRUE)
+    papi[1,3] <- 0
+    head(papi, 5)
+    })),
+  tabPanel("Data Table", renderTable({
+    if(is.null(input$ifile)) { return(NULL)}
+    papi <- read.csv2(file.path(path.prefix, input$ifile), header = TRUE)
+    papi <- t(papi[, 1])
+    head(papi, 5)
+  })),
+  tabPanel("Runtime distribution", renderPlot({
+    if(is.null(input$ifile)) { return(NULL) }
+    papi <- read.csv2(file.path(path.prefix, input$ifile), header = TRUE)
+    rownames(papi) <- papi[, 1]
+    if ((ncol(papi) < 2) || (nrow(papi) < 2)) { return(NULL) }
+
+    papi[1,3] <- 0
+    papi.matrix <- t(data.matrix(papi[,4:ncol(papi)]))
+
+    my_colors <- colorRampPalette(c("white", "yellow", "red"))(n = 299)
+    heatmap.2(papi.matrix, notecol="black", main=input$ifile, trace="none",
+              col=my_colors, scale= c("none"), dendrogram="none",
+              Colv=FALSE)
+    }))
+  )
 ```
-
-## Plot
-```{r, echo=FALSE}
-renderPlot({
-  if(is.null(input$ifile)) { return(NULL) }
-  papi <- data.matrix(read.csv2(file.path(path.prefix, input$ifile)))
-  if ((ncol(papi) < 2) || (nrow(papi) < 2)) { return(NULL) }
-
-  my_colors <- colorRampPalette(c("white", "yellow", "red"))(n = 299)
-  heatmap.2(papi, notecol="black", main=input$ifile, trace="none",
-            col=my_colors, scale= c("none"), dendrogram="none",
-            Colv=FALSE)
-})
-```
-
 

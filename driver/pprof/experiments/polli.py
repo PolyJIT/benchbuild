@@ -87,6 +87,13 @@ class Polli(RuntimeExperiment):
                          " print \"Wall clock - \" wall;}"), time_f] |
          tee["-a", result_f]) & FG
 
+        events_csv = path.join(p.builddir, "papi.profile.events.csv")
+        events_out = p.result_f + ".r.csv"
+        heatmap_r = local[path.join(self.sourcedir, "statistics",
+                          "diff-experiments", "heatmap.R")]
+        heatmap_r("-i", events_csv, "-c", events_out, "-q")
+
+        rm(events_csv)
         rm(bin_f)
         rm(prof_f)
 

@@ -26,7 +26,7 @@ shinyUI(navbarPage("Polli Profiling",
                tabsetPanel(
                  tabPanel("Raw Data", tableOutput("printTable")),
                  tabPanel("Plot by project", uiOutput("plots")),
-                 tabPanel("Plot summary", plotOutput("experimentSummary", width = 800, height = 800))
+                 tabPanel("Plot summary", plotOutput("experimentSummary", width = 1280, height = 800))
                )
            ))),
   tabPanel("Diff",

@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 from plumbum import cli, local, FG
-from pprof import PollyProfiling
+from pprof.driver import PollyProfiling
 from settings import config
 
 llvm_url = "http://llvm.org/git/llvm.git"

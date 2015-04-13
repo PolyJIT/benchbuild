@@ -2,12 +2,12 @@
 # encoding: utf-8
 
 from plumbum import cli
-from pprof import PollyProfiling
-from settings import config
+from pprof.driver import PollyProfiling
+from pprof.settings import config
 
-import experiments.polli
-import experiments.polyjit
-import experiments.raw
+from pprof.experiments import polli
+from pprof.experiments import polyjit
+from pprof.experiments import raw
 import logging
 import pprint
 log = logging.getLogger()
@@ -18,10 +18,10 @@ class PprofRun(cli.Application):
 
     """ Frontend for running experiments in the pprof study framework """
 
-    _experiments = {"polyjit": experiments.polyjit.PolyJIT,
-                    "polli": experiments.polli.Polli,
-                    "polli-baseline": experiments.polli.PolliBaseLine,
-                    "raw": experiments.raw.RawRuntime}
+    _experiments = {"polyjit": polyjit.PolyJIT,
+                    "polli": polli.Polli,
+                    "polli-baseline": polli.PolliBaseLine,
+                    "raw": raw.RawRuntime}
 
     _experiment_names = []
     _project_names = []

@@ -5,12 +5,18 @@ from plumbum import local, cli, FG
 from plumbum.cmd import (cp, chmod, sed, time, echo,
                          tee, mv, touch, awk, rm, mkdir, rmdir, grep, cat)
 from plumbum.commands.processes import ProcessExecutionError
-from settings import config
 
-import project
-from project import ProjectFactory
+from pprof import project
+from pprof.project import ProjectFactory
 
-import lapack
+from pprof import lapack
+from pprof.projects.polybench import polybench
+from pprof.projects.pprof import (sevenz, bzip2, ccrypt, crafty, crocopat,
+        ffmpeg, gzip, js, lammps, leveldb, linpack, luleshomp, lulesh, mcrypt,
+        minisat, openssl, postgres, povray, python, ruby, sdcc, sqlite3, tcc,
+        x264, xz)
+
+from pprof.settings import config
 
 from os import path, listdir
 from sets import Set

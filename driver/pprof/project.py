@@ -141,7 +141,7 @@ class Project(object):
 
     @calls_f.setter
     def calls_f(self, value):
-      old = self.prof_f
+      old = self.calls_f
       self._calls_f = value
       self.products.remove(old)
       self.products.add(value)

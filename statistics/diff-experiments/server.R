@@ -8,7 +8,7 @@ library(shiny)
 library(reshape)
 library(ggplot2)
 
-options(shiny.usecairo=FALSE)
+options(shiny.usecairo=TRUE)
 
 shinyServer(function(input, output) {
   experiment <- reactive({
@@ -57,6 +57,13 @@ shinyServer(function(input, output) {
   })
 
   output$experimentSummary <- renderPlot({
-    plot(experiment())
+    exp <- experiment()
+    dynCov <- subset(exp, exp$variable == "T_SCoP_s")
+    # dynCov <- cast(dynCov, Name + Domain ~ variable, mean)
+
+    p <- ggplot(data=dynCov, aes(x=Name, y=value, fill=Domain)) +
+      geom_bar(stat="identity") +
+      theme(axis.text.x = element_text(angle = 45, hjust=1))
+    p
   })
 })

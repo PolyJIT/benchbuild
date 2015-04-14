@@ -75,6 +75,9 @@ class Project(object):
         self.outputs = set()
 
         self.products = set()
+        self.cflags = []
+        self.ldflags = []
+
         self.setup_derived_filenames()
 
     def setup_derived_filenames(self):
@@ -194,3 +197,37 @@ class Project(object):
             >> self.result_f) & FG
         (echo["---------------------------------------------------------------"]
             >> self.result_f) & FG
+
+        def download(self):
+            pass
+
+        def configure(self):
+            pass
+
+        def build(self):
+            pass
+
+
+def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler_to_call):
+    from plumbum.cmd import chmod
+    with open(filepath, 'w') as wrapper:
+        wrapper.writelines(
+        [
+            "#!/bin/sh\n",
+            'FLAGS="' + " ".join(flags_to_hide) + '"\n',
+            compiler_to_call + " $FLAGS $*\n"
+        ]
+        )
+    chmod("+x", filepath)        
+
+def llvm():
+    return path.join(config["llvmdir"], "bin")
+
+def llvm_libs():
+    return path.join(config["llvmdir"], "lib")
+
+def clang_cxx():
+    return local[path.join(llvm(), "clang++")]
+
+def clang():
+    return local[path.join(llvm(), "clang")]

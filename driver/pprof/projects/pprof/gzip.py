@@ -39,16 +39,49 @@ class Gzip(PprofGroup):
     def run(self, experiment):
         with local.cwd(self.builddir):
             # Compress
-            experiment["-f", "-k", "--best", "text.html"] & FG
-            experiment["-f", "-k", "--best", "chicken.jpg"] & FG
-            experiment["-f", "-k", "--best", "control"] & FG
-            experiment["-f", "-k", "--best", "input.source"] & FG
-            experiment["-f", "-k", "--best", "liberty.jpg"] & FG
+            experiment["-f", "--best", "text.html"] & FG
+            experiment["-f", "--best", "chicken.jpg"] & FG
+            experiment["-f", "--best", "control"] & FG
+            experiment["-f", "--best", "input.source"] & FG
+            experiment["-f", "--best", "liberty.jpg"] & FG
 
             # Decompress
-            experiment["-f", "-k", "--decompress", "text.html.gz"] & FG
-            experiment["-f", "-k", "--decompress", "chicken.jpg.gz"] & FG
-            experiment["-f", "-k", "--decompress", "control.gz"] & FG
-            experiment["-f", "-k", "--decompress", "input.source.gz"] & FG
-            experiment["-f", "-k", "--decompress", "liberty.jpg.gz"] & FG
+            experiment["-f", "--decompress", "text.html.gz"] & FG
+            experiment["-f", "--decompress", "chicken.jpg.gz"] & FG
+            experiment["-f", "--decompress", "control.gz"] & FG
+            experiment["-f", "--decompress", "input.source.gz"] & FG
+            experiment["-f", "--decompress", "liberty.jpg.gz"] & FG
 
+    src_file = "gzip-1.2.4.tar"
+    src_uri = "http://ftpmirror.gnu.org/gzip/" + src_file
+    def download(self):
+        from plumbum.cmd import wget, tar
+
+        with local.cwd(self.builddir):
+            wget(self.src_uri)
+            tar("xf", path.join(self.builddir, self.src_file))
+
+    def configure(self):
+        tar_x, _ = path.splitext(self.src_file)
+        configure = local[path.join(self.builddir, tar_x, "configure")]
+
+        with local.cwd(path.join(self.builddir, tar_x)):
+            configure & FG
+
+    def build(self):
+        from plumbum.cmd import make, ln
+
+        llvm = path.join(config["llvmdir"], "bin")
+        llvm_libs = path.join(config["llvmdir"], "lib")
+
+        clang = local[path.join(llvm, "clang")]
+        tar_x, _ = path.splitext(self.src_file)
+        gzip_dir = path.join(self.builddir, tar_x)
+
+        with local.cwd(gzip_dir):
+            with local.env(LD_LIBRARY_PATH=llvm_libs):
+                make["CC=" + str(clang),
+                     "CFLAGS=" + " ".join(self.cflags),
+                     "LDFLAGS=" + " ".join(self.ldflags), "clean", "all"] & FG
+
+            ln("-sf", path.join(gzip_dir, "gzip"), self.run_f)

@@ -22,3 +22,31 @@ class Linpack(PprofGroup):
             return obj
     ProjectFactory.addFactory("Linpack", Factory())
 
+    src_uri = "http://www.netlib.org/benchmark/linpackc.new"
+    def download(self):
+        from plumbum.cmd import wget, patch
+        
+        lp_patch = path.join(self.sourcedir, "linpack.patch")
+        with local.cwd(self.builddir):
+            wget("-O", path.join(self.builddir, "linpack.c"), self.src_uri)
+            (patch["-p0"] < lp_patch)() 
+        
+    def configure(self):
+        pass
+
+    def build(self):
+        from pprof.settings import config
+
+        cflags = self.cflags
+        ldflags = self.ldflags + ["-lm"]
+        llvm = path.join(config["llvmdir"], "bin")
+        llvm_libs = path.join(config["llvmdir"], "lib")
+
+        clang = local[path.join(llvm, "clang")]
+        with local.cwd(self.builddir):
+            with local.env(LD_LIBRARY_PATH=llvm_libs):
+                clang[cflags,
+                      ldflags,
+                      "-o", self.run_f,
+                      "linpack.c"] & FG
+

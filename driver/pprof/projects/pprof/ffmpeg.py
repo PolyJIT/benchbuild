@@ -52,3 +52,44 @@ class LibAV(PprofGroup):
                 chmod["+x", path.join(self.builddir, self.name)] & FG
                 make["-i", "-f", "Makefile.libav", "fate"] & FG
 
+
+    src_file = "libav-11.3.tar.gz"
+    src_uri = "https://libav.org/releases/" + src_file
+
+    def download(self):
+        from plumbum.cmd import wget
+        from plumbum.cmd import tar
+
+        with local.cwd(self.builddir):
+            wget(self.src_uri)
+            tar('xfz', path.join(self.builddir, self.src_file))
+
+    def configure(self):
+        llvm = path.join(config["llvmdir"], "bin")
+        llvm_libs = path.join(config["llvmdir"], "lib")
+
+        clang = local[path.join(llvm, "clang")]
+        tar_f, _ = path.splitext(self.src_file)
+        tar_x, _ = path.splitext(tar_f)
+        libav_src = path.join(self.builddir, tar_x)
+        configure = local[path.join(libav_src, "configure")]
+
+        with local.cwd(libav_src):
+            configure["--extra-cflags=" + " ".join(self.cflags),
+                      "--extra-ldflags=" + " ".join(self.ldflags),
+                      "--cc=" + str(clang)] & FG
+
+    def build(self):
+        llvm = path.join(config["llvmdir"], "bin")
+        llvm_libs = path.join(config["llvmdir"], "lib")
+        tar_f, _ = path.splitext(self.src_file)
+        tar_x, _ = path.splitext(tar_f)
+        libav_src = path.join(self.builddir, tar_x)
+
+        with local.cwd(libav_src):
+            with local.env(LD_LIBRARY_PATH=llvm_libs):
+                make["clean", "all"] & FG
+
+        with local.cwd(self.builddir):
+            ln("-sf", path.join(libav_src, "avconv"), self.run_f)
+

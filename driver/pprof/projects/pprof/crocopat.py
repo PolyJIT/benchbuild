@@ -29,3 +29,30 @@ class Crocopat(PprofGroup):
             for program in programs:
                 for project in projects:
                     (cat[project] | experiment[program]) & FG(retcode=None)
+
+    src_dir = "crocopat-2.1.4"
+    src_file = src_dir + ".zip"
+    src_uri = "http://crocopat.googlecode.com/files/" + src_file
+    def download(self):
+        from plumbum.cmd import wget, unzip
+
+        crocopat_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(self.builddir):
+            wget(self.src_uri)
+            unzip(path.join(self.builddir, self.src_file))
+
+    def configure(self):
+        pass
+
+    def build(self):
+        from plumbum.cmd import make
+        from pprof.project import clang_cxx
+
+        crocopat_dir = path.join(self.builddir, self.src_dir, "src")
+        with local.cwd(crocopat_dir):
+            cflags = self.cflags + ["-I.", "-ansi"]
+            ldflags = self.ldflags + ["-L.", "-lrelbdd"]
+            make["CXX=" + str(clang_cxx()),
+                 "CFLAGS=" + " ".join(cflags),
+                 "LFLAGS=" + " ".join(ldflags)] & FG
+

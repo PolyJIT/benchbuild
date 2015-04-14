@@ -24,3 +24,18 @@ class Lammps(PprofGroup):
             for test in tests:
                 (experiment < test) & FG
 
+    src_dir = "lammps.git"
+    src_uri = "https://github.com/lammps/lammps"
+
+    def download(self):
+        from plumbum.cmd import git
+        from pprof.project import clang, clang_cxx, llvm_libs, llvm
+
+        with local.cwd(self.builddir):
+            git("clone", "--depth", "1", self.src_uri, self.src_dir) 
+
+    def configure(self):
+        pass
+
+    def build(self):
+        pass

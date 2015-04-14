@@ -44,28 +44,44 @@ class PolyJIT(RuntimeExperiment):
         calls_f = p.calls_f
         result_f = p.result_f
 
-        cp[base_f, bin_f] & FG
-        polli_opts = p.ld_flags + p.polli_flags
-        polli_c = polli["-fake-argv0=" + run_f, "-O3", "-lpapi", "-lpprof",
-                        polli_opts,
-                        "-jitable", "-polly-detect-keep-going",
-                        "-polly-detect-track-failures",
-                        "-polly-use-runtime-alias-checks=false",
-                        "-polly-delinearize=false", bin_f]
+        p.download()
+        llvm_libs = path.join(config["llvmdir"], "lib")
 
-        # 1. Run with PAPI counters
-        p.run(time["-f", "%U,%S,%e", "-a", "-o", time_f,
-                   polli["-fake-argv0=" + run_f, "-O3", "-lpapi", "-lpprof",
-                         "-jitable", "-polly-detect-keep-going",
-                         "-polly-detect-track-failures",
-                         "-polly-use-runtime-alias-checks=false",
-                         "-polly-delinearize=false", "-instrument",
-                         "-no-recompilation", bin_f]])
-
-        # 2. Run with likwid CLOCK group
-        p.run(likwid_perfctr["-O", "-o", likwid_f, "-m", "-C", "-L:0", "-g",
-                             "CLOCK", polli_c]
+        # 1. Likwid
+        with local.env(LD_LIBRARY_PATH=llvm_libs,
+                       POLLI_DISABLE_RECOMPILATION=1):
+            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+            p.cflags = ["-O3",
+                        # Use '-Xcompiler' because libtool can't parse anything
+                        "-Xclang", "-load",
+                        "-Xclang", "LLVMPolyJIT.so",
+                        "-mllvm", "-polli",
+                        "-mllvm", "-jitable",
+                        "-mllvm", "-polly",
+                        "-mllvm", "-polly-detect-keep-going"]
+            p.configure()
+            p.build()
+            p.run(likwid_perfctr["-O", "-o", likwid_f, "-m", "-C", "-L:0",
+                                 "-g", "CLOCK", run_f]
               )
+
+        
+        # 2. Run with likwid CLOCK group
+        with local.env(LD_LIBRARY_PATH=llvm_libs,
+                       POLLI_DISABLE_RECOMPILATION=1):
+            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+            p.cflags = ["-O3",
+                        "-Xclang", "-load",
+                        "-Xclang", "LLVMPolyJIT.so",
+                        "-mllvm", "-polli",
+                        "-mllvm", "-jitable",
+                        "-mllvm", "-instrument",
+                        "-mllvm", "-no-recompilation",
+                        "-mllvm", "-polly",
+                        "-mllvm", "-polly-detect-keep-going"]
+            p.configure()
+            p.build()
+            p.run(time["-f", "%U,%S,%e", "-a", "-o", time_f, run_f])
 
         # 3. Run with likwid DATA GROUP
         # p.run(likwid_perfctr["-O", "-o", csv_f, "-m", "-C", "-L:0", "-g",
@@ -106,5 +122,4 @@ class PolyJIT(RuntimeExperiment):
                          " print \"Wall clock - \" wall;}"), time_f] |
          tee["-a", result_f]) & FG
 
-        rm(bin_f)
         rm(prof_f)

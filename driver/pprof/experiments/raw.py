@@ -42,24 +42,14 @@ class RawRuntime(RuntimeExperiment):
 
     @try_catch_log
     def run_project(self, p):
-        """run projects after compiling the IR file with O3
-
-        :p: the project which we want to run
-
-        """
-        base_f = p.base_f
-        opt_f = p.optimized_f
-        asm_f = p.asm_f
-        obj_f = p.obj_f
         run_f = p.run_f
         time_f = p.time_f
         result_f = p.result_f
 
-        opt["-O3", base_f, "-o", opt_f] & FG
-        llc["-O3", "-mcpu=corei7-avx", opt_f, "-o", asm_f] & FG
-        asm[asm_f, "-o", obj_f] & FG
-        with local.cwd(p.sourcedir):
-            clang[obj_f, p.ld_flags, "-o", run_f] & FG
+        p.download()
+        p.cflags = ["-O3"]
+        p.configure()
+        p.build()
 
         # Print header here.
         (echo["---------------------------------------------------------------"]
@@ -77,9 +67,6 @@ class RawRuntime(RuntimeExperiment):
                          " print \"Wall clock - \" wall;}"), time_f] |
          tee["-a", result_f]) & FG
 
-        rm(opt_f)
-        rm(obj_f)
-        rm(asm_f)
         rm(run_f)
 
     def generate_report(self, per_project_results):

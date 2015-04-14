@@ -1,7 +1,8 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import (ProjectFactory, log_with, log,
+                           print_libtool_sucks_wrapper)
 from pprof.settings import config
 from group import PprofGroup
 
@@ -34,13 +35,62 @@ class Ccrypt(PprofGroup):
 
         super(Ccrypt, self).clean()
 
-    def run(self, experiment):
+    src_dir = "ccrypt-1.10"
+    src_file = "ccrypt-1.10.tar.gz"
+    src_uri = "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
+
+    def download(self):
+        from plumbum.cmd import wget, tar, cp
+
+        ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
+            wget(self.src_uri)
+            tar('xfz', path.join(self.builddir, self.src_file))
+
+    def configure(self):
+        ccrypt_dir = path.join(self.builddir, self.src_dir)
+
+        llvm = path.join(config["llvmdir"], "bin")
+        llvm_libs = path.join(config["llvmdir"], "lib")
+        clang_cxx = local[path.join(llvm, "clang++")]
+        clang = local[path.join(llvm, "clang")]
+
+        with local.cwd(self.builddir):
+            print_libtool_sucks_wrapper("clang", self.cflags, str(clang))
+            print_libtool_sucks_wrapper("clang++", self.cflags, str(clang_cxx))
+
+        clang = local[path.join(self.builddir, "clang")]
+        clang_cxx = local[path.join(self.builddir, "clang++")]
+        
+        with local.cwd(ccrypt_dir):
+            configure = local[path.join(ccrypt_dir, "configure")]
+
+            with local.env(CC=str(clang), CXX=str(clang_cxx),
+                           LDFLAGS=" ".join(self.ldflags)):
+                configure()
+
+    def build(self):
+        from plumbum.cmd import make, ln
+
+        ccrypt_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(ccrypt_dir):
+            make & FG
+        
+        with local.cwd(self.builddir):
+            ln("-sf", path.join(ccrypt_dir, "src", "ccrypt"), self.run_f)
+            
+
+    def run(self, experiment):
+        from plumbum.cmd import make, chmod
+
+        ccrypt_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(ccrypt_dir):
             command = " ".join(experiment["-f"].formulate())
-            crypt_check = path.join(self.builddir, "check", "ccrypt-check.sh")
-            length_check = path.join(self.builddir, "check", "length-check.sh")
-            with local.env(CCRYPT=command,
-                           srcdir=path.join(self.builddir, "check")):
-                local[crypt_check] & FG
-                local[length_check] & FG
+            with local.cwd(self.builddir):
+                with open(self.bin_f, 'w+') as ccrypt:
+                    ccrypt.writelines([ "#!/bin/sh\n", command + " $*\n" ])
+                chmod("+x", self.bin_f)
+
+            with local.env(CHECK_CCRYPT=self.bin_f):
+                make["CHECK_CCRYPT=" + self.bin_f, "check"] & FG
 

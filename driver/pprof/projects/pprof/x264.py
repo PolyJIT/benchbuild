@@ -36,6 +36,42 @@ class X264(PprofGroup):
 
         super(X264, self).clean()
 
+    src_dir = "x264.git"
+    def download(self):
+        from plumbum.cmd import git
+        src_uri = "git://git.videolan.org/x264.git"
+
+        with local.cwd(self.builddir):
+            git("clone", "--depth", "1", src_uri, self.src_dir)
+
+    def configure(self):
+        x264_dir = path.join(self.builddir, self.src_dir)
+        llvm = path.join(config["llvmdir"], "bin")
+        llvm_libs = path.join(config["llvmdir"], "lib")
+        clang = local[path.join(llvm, "clang")]
+
+        with local.cwd(x264_dir):
+            configure = local[path.join(x264_dir, "configure")]
+            with local.env(CC=str(clang)):
+                configure("--extra-cflags=" + " ".join(self.cflags),
+                          "--extra-ldflags=" + " ".join(self.ldflags))
+
+    def build(self):
+        from plumbum.cmd import make, ln
+
+        x264_dir = path.join(self.builddir, self.src_dir)
+        llvm = path.join(config["llvmdir"], "bin")
+        llvm_libs = path.join(config["llvmdir"], "lib")
+        clang = local[path.join(llvm, "clang")]
+
+        with local.cwd(x264_dir):
+            with local.env(CC=str(clang)):
+                make["clean", "all"] & FG
+
+        with local.cwd(self.builddir):
+            ln("-sf", path.join(x264_dir, "x264"), self.run_f)
+
+
     def run(self, experiment):
         testfiles = [path.join(self.testdir, x) for x in self.inputfiles]
         # TODO: Prepare test videos

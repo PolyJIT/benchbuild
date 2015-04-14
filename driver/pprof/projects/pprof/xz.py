@@ -1,7 +1,8 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import (ProjectFactory, log_with, log,
+                           print_libtool_sucks_wrapper)
 from pprof.settings import config
 from group import PprofGroup
 
@@ -29,7 +30,7 @@ class XZ(PprofGroup):
             self.products.add(path.join(self.builddir, x))
             self.products.add(path.join(self.builddir, x + ".xz"))
 
-        super(XZ, self).clean()
+        super(XZ, self).clen()
 
     def prepare(self):
         super(XZ, self).prepare()
@@ -58,3 +59,62 @@ class XZ(PprofGroup):
             experiment["-f", "-k", "--decompress", "input.source.xz"] & FG
             experiment["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
 
+    
+    src_file = "xz-5.2.1.tar.gz"
+    src_uri = "http://tukaani.org/xz/" + src_file
+
+    def download(self):
+        from plumbum.cmd import wget, tar
+
+        with local.cwd(self.builddir):
+            wget(self.src_uri)
+            tar('xfz', path.join(self.builddir, self.src_file))
+        
+    def configure(self):
+        llvm = path.join(config["llvmdir"], "bin")
+        llvm_libs = path.join(config["llvmdir"], "lib")
+        ldflags = ["-L" + llvm_libs] + self.ldflags
+
+        clang = local[path.join(llvm, "clang")]
+        tar_f, _ = path.splitext(self.src_file)
+        tar_x, _ = path.splitext(tar_f)
+        configure = local[path.join(self.builddir, tar_x, "configure")]
+
+        with local.cwd(path.join(self.builddir, tar_x)):
+            with local.env(CC=str(clang),
+                           LD_LIBRARY_PATH=llvm_libs):
+                configure["--enable-threads=no",
+                          "--with-gnu-ld=yes",
+                          "--disable-shared",
+                          "--disable-dependency-tracking",
+                          "--disable-xzdec",
+                          "--disable-lzmadec",
+                          "--disable-lzmainfo",
+                          "--disable-lzma-links",
+                          "--disable-scripts",
+                          "--disable-doc"
+                          ] & FG
+
+    def build(self):
+        from plumbum.cmd import make, ln
+
+        llvm = path.join(config["llvmdir"], "bin")
+        llvm_libs = path.join(config["llvmdir"], "lib")
+
+        clang = local[path.join(llvm, "clang")]
+        tar_f, _ = path.splitext(self.src_file)
+        tar_x, _ = path.splitext(tar_f)
+
+        with local.cwd(self.builddir):
+            print_libtool_sucks_wrapper("clang", self.cflags, str(clang))
+
+        clang = local[path.join(self.builddir, "clang")]
+
+        with local.cwd(path.join(self.builddir, tar_x)):
+            with local.env(LD_LIBRARY_PATH=llvm_libs):
+                make["CC=" + str(clang),
+                     "LDFLAGS=" + " ".join(self.ldflags), "clean", "all"] & FG
+
+        with local.cwd(self.builddir):
+            ln("-sf", path.join(self.builddir, tar_x, "src", "xz", "xz"),
+                      self.run_f)

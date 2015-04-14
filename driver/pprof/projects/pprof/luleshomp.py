@@ -21,3 +21,22 @@ class LuleshOMP(PprofGroup):
         with local.cwd(self.builddir):
             experiment["20"] & FG
 
+    src_file = "LULESH_OMP.cc"
+    src_uri = "https://codesign.llnl.gov/lulesh/" + src_file
+    def download(self):
+        from plumbum.cmd import wget
+
+        with local.cwd(self.builddir):
+            wget(self.src_uri)
+
+    def configure(self):
+        pass
+
+    def build(self):
+        from pprof.project import clang_cxx
+        from plumbum.cmd import gcc
+
+        with local.cwd(self.builddir):
+            myclang = clang_cxx()["-fopenmp", self.cflags, "-o",
+                                  self.run_f, self.ldflags]
+            ( gcc["-E", "-fopenmp", self.cflags, self.src_file] | myclang ) & FG

@@ -17,3 +17,35 @@ class LevelDB(PprofGroup):
             return obj
     ProjectFactory.addFactory("LevelDB", Factory())
 
+    def download(self):
+        src_uri = "https://github.com/google/leveldb"
+
+        from plumbum.cmd import git
+
+        with local.cwd(self.builddir):
+            git("clone", src_uri, "leveldb.src")
+
+    def configure(self):
+        pass
+
+    def build(self):
+        from plumbum.cmd import make, ln
+
+        llvm = path.join(config["llvmdir"], "bin")
+        clang_cxx = local[path.join(llvm, "clang++")]
+        clang     = local[path.join(llvm, "clang")]
+        leveldb_dir = path.join(self.builddir, "leveldb.src")
+
+        with local.cwd(leveldb_dir):
+            with local.env(CXX=str(clang_cxx),
+                           CC=str(clang),
+                           CFLAGS=" ".join(self.cflags),
+                           CXXFLAGS=" ".join(self.cflags),
+                           LDFLAGS=" ".join(self.ldflags)):
+                make["clean", "db_bench"] & FG
+
+        with local.cwd(self.builddir):
+            dbg_ln = ln["-sf", path.join(leveldb_dir, "db_bench"), self.run_f]
+            print dbg_ln
+            dbg_ln & FG
+

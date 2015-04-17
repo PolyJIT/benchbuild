@@ -20,6 +20,35 @@ class OpenSSLGroup(Project):
         self.calls_f = path.join(self.builddir, "papi.calls.out")
         self.prof_f = path.join(self.builddir, "papi.profile.out")
 
+    src_dir = "libressl-2.1.6"
+    src_file = src_dir + ".tar.gz"
+    src_uri = "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/" + src_file
+    def download(self):
+        from plumbum.cmd import wget, tar
+
+        openssl_dir = path.join(self.builddir, self.src_file)
+        with local.cwd(self.builddir):
+            wget(self.src_uri)
+            tar("xfz", openssl_dir)
+
+    def configure(self):
+        from pprof.project import clang
+        openssl_dir = path.join(self.builddir, self.src_dir)
+
+        configure = local[path.join(openssl_dir, "configure")]
+        with local.cwd(openssl_dir):
+            cflags = " ".join(self.cflags)
+            ldflags = " ".join(self.ldflags)
+
+            with local.env(CFLAGS=cflags, LDFLAGS=ldflags, CC=str(clang())):
+                configure("--disable-asm")
+
+    def build(self):
+        from plumbum.cmd import make, ln
+
+        openssl_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(openssl_dir):
+            make()
 
 class Blowfish(OpenSSLGroup):
     class Factory:

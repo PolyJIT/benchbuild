@@ -61,8 +61,7 @@ class Crafty(PprofGroup):
         with local.cwd(self.builddir):
             ln("-sf", path.join(crafty_dir, "crafty"), self.run_f)
 
-    def run(self, experiment):
-        with local.cwd(self.builddir):
-            (cat[path.join(self.testdir, "test1.sh")] | experiment) & FG
-            (cat[path.join(self.testdir, "test2.sh")] | experiment) & FG
+    def run_tests(self, experiment):
+        (cat[path.join(self.testdir, "test1.sh")] | experiment) & FG
+        (cat[path.join(self.testdir, "test2.sh")] | experiment) & FG
 

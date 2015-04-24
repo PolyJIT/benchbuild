@@ -62,10 +62,9 @@ class PolyJIT(RuntimeExperiment):
             p.configure()
             p.build()
             p.run(likwid_perfctr["-O", "-o", likwid_f, "-m", "-C", "-L:0",
-                                 "-g", "CLOCK", run_f]
-              )
+                                 "-g", "CLOCK", run_f])
 
-        
+
         # 2. Run with likwid CLOCK group
         with local.env(LD_LIBRARY_PATH=llvm_libs,
                        POLLI_DISABLE_RECOMPILATION=1):
@@ -83,11 +82,6 @@ class PolyJIT(RuntimeExperiment):
             p.build()
             p.run(time["-f", "%U,%S,%e", "-a", "-o", time_f, run_f])
 
-        # 3. Run with likwid DATA GROUP
-        # p.run(likwid_perfctr["-O", "-o", csv_f, "-m", "-C", "-L:0", "-g",
-        #    "DATA", polli_c]
-        #)
-
         likwid_filter = local["filters/likwid.csv"]
         likwid_filter[likwid_f, "perfctr", "-o", csv_f] & FG
 
@@ -102,7 +96,11 @@ class PolyJIT(RuntimeExperiment):
         (echo["---------------------------------------------------------------"]
             >> result_f) & FG
 
-        (pprof_analyze[prof_f] | tee["-a", result_f]) & FG
+        with local.env(PPROF_USE_DATABASE=1,
+                       PPROF_DB_RUN_GROUP=p.run_uuid,
+                       PPROF_USE_FILE=0,
+                       PPROF_USE_CSV=0):
+            (pprof_analyze[prof_f] | tee["-a", result_f]) & FG
 
         papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
         if papi_calibration:
@@ -121,5 +119,3 @@ class PolyJIT(RuntimeExperiment):
                          " print \"System time - \" sys;"
                          " print \"Wall clock - \" wall;}"), time_f] |
          tee["-a", result_f]) & FG
-
-        rm(prof_f)

@@ -44,13 +44,12 @@ class LibAV(PprofGroup):
         cp[path.join(self.sourcedir, "Makefile.libav"), self.builddir] & FG
 
     @log_with(log)
-    def run(self, experiment):
-        with local.cwd(self.builddir):
-            with local.env(TESTDIR=self.builddir):
-                echo["#!/bin/sh"] >> path.join(self.builddir, self.name) & FG
-                echo[str(experiment)] >> path.join(self.builddir, self.name) & FG
-                chmod["+x", path.join(self.builddir, self.name)] & FG
-                make["-i", "-f", "Makefile.libav", "fate"] & FG
+    def run_tests(self, experiment):
+        with local.env(TESTDIR=self.builddir):
+            echo["#!/bin/sh"] >> path.join(self.builddir, self.name) & FG
+            echo[str(experiment)] >> path.join(self.builddir, self.name) & FG
+            chmod["+x", path.join(self.builddir, self.name)] & FG
+            make["-i", "-f", "Makefile.libav", "fate"] & FG
 
 
     src_file = "libav-11.3.tar.gz"

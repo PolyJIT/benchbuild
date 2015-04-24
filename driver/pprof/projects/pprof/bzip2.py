@@ -82,19 +82,17 @@ class Bzip2(PprofGroup):
         self.pull_in_testfiles()
 
     @log_with(log)
-    def run(self, experiment):
-        with local.cwd(self.builddir):
-            # Compress
-            experiment["-f", "-z", "-k", "--best", "text.html"] & FG
-            experiment["-f", "-z", "-k", "--best", "chicken.jpg"] & FG
-            experiment["-f", "-z", "-k", "--best", "control"] & FG
-            experiment["-f", "-z", "-k", "--best", "input.source"] & FG
-            experiment["-f", "-z", "-k", "--best", "liberty.jpg"] & FG
+    def run_tests(self, experiment):
+        # Compress
+        experiment["-f", "-z", "-k", "--best", "text.html"] & FG
+        experiment["-f", "-z", "-k", "--best", "chicken.jpg"] & FG
+        experiment["-f", "-z", "-k", "--best", "control"] & FG
+        experiment["-f", "-z", "-k", "--best", "input.source"] & FG
+        experiment["-f", "-z", "-k", "--best", "liberty.jpg"] & FG
 
-            # Decompress
-            experiment["-f", "-k", "--decompress", "text.html.bz2"] & FG
-            experiment["-f", "-k", "--decompress", "chicken.jpg.bz2"] & FG
-            experiment["-f", "-k", "--decompress", "control.bz2"] & FG
-            experiment["-f", "-k", "--decompress", "input.source.bz2"] & FG
-            experiment["-f", "-k", "--decompress", "liberty.jpg.bz2"] & FG
-
+        # Decompress
+        experiment["-f", "-k", "--decompress", "text.html.bz2"] & FG
+        experiment["-f", "-k", "--decompress", "chicken.jpg.bz2"] & FG
+        experiment["-f", "-k", "--decompress", "control.bz2"] & FG
+        experiment["-f", "-k", "--decompress", "input.source.bz2"] & FG
+        experiment["-f", "-k", "--decompress", "liberty.jpg.bz2"] & FG

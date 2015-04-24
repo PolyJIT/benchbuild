@@ -22,9 +22,8 @@ class Lulesh(PprofGroup):
     ProjectFactory.addFactory("Lulesh", Factory())
 
     @log_with(log)
-    def run(self, experiment):
-        with local.cwd(self.builddir):
-            experiment["20"] & FG
+    def run_tests(self, experiment):
+        experiment["20"] & FG
 
     src_file = "LULESH.cc"
     src_uri = "https://codesign.llnl.gov/lulesh/" + src_file

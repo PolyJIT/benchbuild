@@ -80,7 +80,7 @@ class Ccrypt(PprofGroup):
             ln("-sf", path.join(ccrypt_dir, "src", "ccrypt"), self.run_f)
             
 
-    def run(self, experiment):
+    def run_tests(self, experiment):
         from plumbum.cmd import make, chmod
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)

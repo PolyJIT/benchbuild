@@ -26,16 +26,15 @@ class SpiderMonkey(PprofGroup):
         self.products.add(path.join(config_path, "autoconf.mk"))
         self.products.add(config_path)
 
-    def run(self, experiment):
-        with local.cwd(self.builddir):
-            for jsfile in glob(path.join(self.testdir, "sunspider", "*.js")):
-                (experiment < jsfile) & FG
+    def run_tests(self, experiment):
+        for jsfile in glob(path.join(self.testdir, "sunspider", "*.js")):
+            (experiment < jsfile) & FG
 
-            sh_script = path.join(self.builddir, self.bin_f + ".sh")
-            (echo["#!/bin/sh"] > sh_script) & FG
-            (echo[str(experiment) + " $*"] >> sh_script) & FG
-            chmod("+x", sh_script)
-            jstests = local[path.join(self.testdir, "tests", "jstests.py")]
-            jstests[sh_script] & FG(retcode=None)
+        sh_script = path.join(self.builddir, self.bin_f + ".sh")
+        (echo["#!/bin/sh"] > sh_script) & FG
+        (echo[str(experiment) + " $*"] >> sh_script) & FG
+        chmod("+x", sh_script)
+        jstests = local[path.join(self.testdir, "tests", "jstests.py")]
+        jstests[sh_script] & FG(retcode=None)
 
     ProjectFactory.addFactory("SpiderMonkey", Factory())

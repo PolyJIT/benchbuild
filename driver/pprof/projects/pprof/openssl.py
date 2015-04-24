@@ -146,12 +146,12 @@ class SSL(OpenSSLGroup):
         def create(self, exp):
             return SSL(exp, "ssl")
 
-    def run(self, experiment):
+    def run_tests(self, experiment):
         ssl = experiment["-time", "-cert",
                 path.join(self.sourcedir, "server.pem"),
                 "-num", 10000, "-named_curve", "c2tnb431r1",
                 "-bytes", 20480]
-        with local.env(self.builddir):
+        with local.cwd(self.builddir):
             ssl["-tls1"] & FG
             ssl["-ssl2"] & FG
 
@@ -165,7 +165,7 @@ class OpenSSL(OpenSSLGroup):
             return OpenSSL(exp, "openssl")
     ProjectFactory.addFactory("OpenSSL", Factory())
 
-    def run(self, experiment):
+    def run_tests(self, experiment):
         with local.env(OPENSSL_CONF=path.join(self.testdir, "openssl.cnf")):
             certs = path.join(self.testdir, "certs", "demo")
             print certs

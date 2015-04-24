@@ -21,18 +21,17 @@ class Minisat(PprofGroup):
             return obj
     ProjectFactory.addFactory("Minisat", Factory())
 
-    def run(self, experiment):
+    def run_tests(self, experiment):
         from pprof.project import llvm_libs
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
         for f in testfiles:
-            with local.cwd(self.builddir):
-                minisat_dir = path.join(self.builddir, self.src_dir)
-                libpath = [
-                        path.join(minisat_dir, "build", "dynamic", "lib"),
-                        llvm_libs()
-                        ]
-                with local.env(LD_LIBRARY_PATH=":".join(libpath)):
-                    (experiment < f) & FG(retcode=None)
+            minisat_dir = path.join(self.builddir, self.src_dir)
+            libpath = [
+                    path.join(minisat_dir, "build", "dynamic", "lib"),
+                    llvm_libs()
+                    ]
+            with local.env(LD_LIBRARY_PATH=":".join(libpath)):
+                (experiment < f) & FG(retcode=None)
 
     src_dir = "minisat.git"
     src_uri = "https://github.com/niklasso/minisat"

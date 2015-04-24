@@ -35,6 +35,25 @@ LOG = logging.getLogger(__name__)
 HANDLER.setLevel(LOG.getEffectiveLevel())
 LOG.addHandler(HANDLER)
 
+def synchronize_project_with_db(p):
+    from pprof.settings import get_db_connection
+    conn = get_db_connection()
+
+    sql_sel = "SELECT name FROM project WHERE name=%s"
+    sql_ins = "INSERT INTO project " \
+              "(name, description, src_url, domain, group_name)" \
+              "VALUES (%s, %s, %s, %s, %s)"
+    #sql_upd = "UPDATE project SET description = %(desc)s, src_url = %(src)s " \
+    #          "domain = %(domain)s, group = %(group)s" \
+    #          "WHERE name = %(name)s"
+    with conn.cursor() as c:
+        c.execute(sql_sel, (p.name, ))
+        if not c.rowcount:
+            c.execute(sql_ins, [p.name, p.name, "TODO",
+                                p.domain, p.group_name])
+
+    conn.commit()
+
 
 def try_catch_log(func):
     def try_catch_func_wrapper(*args, **kwargs):
@@ -93,6 +112,7 @@ class Experiment(object):
         factories = ProjectFactory.factories
         for id in factories:
             project = factories[id].create(self)
+            synchronize_project_with_db(project)
             self.projects[project.name] = project
 
         if projects_to_filter:
@@ -138,7 +158,7 @@ class Experiment(object):
     @try_catch_log
     def run_project(self, p):
         with local.cwd(p.builddir):
-            p.run()
+                p.run()
 
     def run(self):
         self.map_projects(self.run_project, "run")
@@ -211,7 +231,9 @@ class Experiment(object):
             else:
                 print prj.name
             print "============================================================"
-            fun(prj)
+            with local.env(PPROF_EXPERIMENT=self.name,
+                           PPROF_PROJECT=prj.name):
+                fun(prj)
             print "============================================================"
 
     def verify_product(self, filename, log = None):
@@ -228,11 +250,9 @@ class RuntimeExperiment(Experiment):
 
     def get_papi_calibration(self, p, calibrate_call):
         with local.cwd(self.builddir):
-            calib_out = calibrate_call("--file", p.calibrate_prof_f,
-                                       "--calls", p.calibrate_calls_f)
-
-        rm(p.calibrate_prof_f)
-        rm(p.calibrate_calls_f)
+            with local.env(PPROF_USE_DATABASE=0, PPROF_USE_CSV=0,
+                           PPROF_USE_FILE=0):
+                calib_out = calibrate_call()
 
         calib_pattern = regex.compile(
             'Real time per call \(ns\): (?P<val>[0-9]+.[0-9]+)')

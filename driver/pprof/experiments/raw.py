@@ -42,10 +42,6 @@ class RawRuntime(RuntimeExperiment):
 
     @try_catch_log
     def run_project(self, p):
-        run_f = p.run_f
-        time_f = p.time_f
-        result_f = p.result_f
-
         p.download()
         p.cflags = ["-O3"]
         p.configure()
@@ -53,21 +49,19 @@ class RawRuntime(RuntimeExperiment):
 
         # Print header here.
         (echo["---------------------------------------------------------------"]
-            >> result_f) & FG
+            >> p.result_f) & FG
         (echo[">>> ========= " + p.name + " Program"]
-            >> result_f) & FG
+            >> p.result_f) & FG
         (echo["---------------------------------------------------------------"]
-            >> result_f) & FG
+            >> p.result_f) & FG
 
-        p.run(time["-f", "%U,%S,%e", "-a", "-o", time_f, local[run_f]])
+        p.run(time["-f", "%U,%S,%e", "-a", "-o", p.time_f, local[p.run_f]])
         (awk["-F", ",", ("{ usr+=$1; sys+=$2; wall+=$3 }"
                          " END {"
                          " print \"User time - \" usr;"
                          " print \"System time - \" sys;"
                          " print \"Wall clock - \" wall;}"), time_f] |
-         tee["-a", result_f]) & FG
-
-        rm(run_f)
+         tee["-a", p.result_f]) & FG
 
     def generate_report(self, per_project_results):
         csv_f = self.result_f + ".csv"

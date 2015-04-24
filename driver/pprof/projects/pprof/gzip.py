@@ -36,21 +36,20 @@ class Gzip(PprofGroup):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp[testfiles, self.builddir] & FG
 
-    def run(self, experiment):
-        with local.cwd(self.builddir):
-            # Compress
-            experiment["-f", "--best", "text.html"] & FG
-            experiment["-f", "--best", "chicken.jpg"] & FG
-            experiment["-f", "--best", "control"] & FG
-            experiment["-f", "--best", "input.source"] & FG
-            experiment["-f", "--best", "liberty.jpg"] & FG
+    def run_tests(self, experiment):
+        # Compress
+        experiment["-f", "--best", "text.html"] & FG
+        experiment["-f", "--best", "chicken.jpg"] & FG
+        experiment["-f", "--best", "control"] & FG
+        experiment["-f", "--best", "input.source"] & FG
+        experiment["-f", "--best", "liberty.jpg"] & FG
 
-            # Decompress
-            experiment["-f", "--decompress", "text.html.gz"] & FG
-            experiment["-f", "--decompress", "chicken.jpg.gz"] & FG
-            experiment["-f", "--decompress", "control.gz"] & FG
-            experiment["-f", "--decompress", "input.source.gz"] & FG
-            experiment["-f", "--decompress", "liberty.jpg.gz"] & FG
+        # Decompress
+        experiment["-f", "--decompress", "text.html.gz"] & FG
+        experiment["-f", "--decompress", "chicken.jpg.gz"] & FG
+        experiment["-f", "--decompress", "control.gz"] & FG
+        experiment["-f", "--decompress", "input.source.gz"] & FG
+        experiment["-f", "--decompress", "liberty.jpg.gz"] & FG
 
     src_file = "gzip-1.2.4.tar"
     src_uri = "http://ftpmirror.gnu.org/gzip/" + src_file

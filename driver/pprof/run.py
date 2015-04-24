@@ -91,6 +91,7 @@ class PprofRun(cli.Application):
             name = exp_name.lower()
 
             exp = self._experiments[name](name, self._project_names)
+            synchronize_experiment_with_db(exp)
 
             if self._clean:
                 exp.clean()
@@ -103,3 +104,21 @@ class PprofRun(cli.Application):
 
             if self._collect:
                 exp.collect_results()
+
+
+def synchronize_experiment_with_db(exp):
+    from pprof.settings import get_db_connection
+    conn = get_db_connection()
+
+    sql_sel = "SELECT * FROM experiment WHERE name=%s"
+    sql_ins = "INSERT INTO experiment (name, description) VALUES (%s, %s)"
+    sql_upd = "UPDATE experiment SET description = %s WHERE name = %s"
+    with conn.cursor() as c:
+        c.execute(sql_sel, (exp.name, ))
+
+        if not c.rowcount:
+            c.execute(sql_ins, (exp.name, exp.name))
+        else:
+            c.execute(sql_upd, [exp.name, exp.name])
+
+    conn.commit()

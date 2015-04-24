@@ -160,9 +160,23 @@ class Project(object):
         return self.get_file_content(polliflags)
 
     @log_with(log)
+    def run_tests(self, experiment):
+        experiment & FG
+
+
+    run_uuid = None
+
+    @log_with(log)
     def run(self, experiment):
+        import uuid
         with local.cwd(self.builddir):
-            experiment & FG
+            if self.run_uuid is None:
+                self.run_uuid = uuid.uuid5(uuid.NAMESPACE_OID, self.name)
+            with local.env(PPROF_CMD=str(experiment),
+                           PPROF_USE_DATABASE=1,
+                           PPROF_DB_RUN_GROUP=self.run_uuid):
+                print self.run_uuid
+                self.run_tests(experiment)
 
     @log_with(log)
     def clean(self):
@@ -218,7 +232,7 @@ def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler_to_call):
             compiler_to_call + " $FLAGS $*\n"
         ]
         )
-    chmod("+x", filepath)        
+    chmod("+x", filepath)
 
 def llvm():
     return path.join(config["llvmdir"], "bin")

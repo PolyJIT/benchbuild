@@ -37,27 +37,26 @@ class XZ(PprofGroup):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp[testfiles, self.builddir] & FG
 
-    def run(self, experiment):
-        with local.cwd(self.builddir):
-            # Compress
-            experiment["-f", "-k", "--compress", "-e", "-9", "text.html"] & FG
-            experiment["-f", "-k", "--compress", "-e", "-9", "chicken.jpg"] & FG
-            experiment["-f", "-k", "--compress", "-e", "-9", "control"] & FG
-            experiment[
-                "-f",
-                "-k",
-                "--compress",
-                "-e",
-                "-9",
-                "input.source"] & FG
-            experiment["-f", "-k", "--compress", "-e", "-9", "liberty.jpg"] & FG
+    def run_tests(self, experiment):
+        # Compress
+        experiment["-f", "-k", "--compress", "-e", "-9", "text.html"] & FG
+        experiment["-f", "-k", "--compress", "-e", "-9", "chicken.jpg"] & FG
+        experiment["-f", "-k", "--compress", "-e", "-9", "control"] & FG
+        experiment[
+            "-f",
+            "-k",
+            "--compress",
+            "-e",
+            "-9",
+            "input.source"] & FG
+        experiment["-f", "-k", "--compress", "-e", "-9", "liberty.jpg"] & FG
 
-            # Decompress
-            experiment["-f", "-k", "--decompress", "text.html.xz"] & FG
-            experiment["-f", "-k", "--decompress", "chicken.jpg.xz"] & FG
-            experiment["-f", "-k", "--decompress", "control.xz"] & FG
-            experiment["-f", "-k", "--decompress", "input.source.xz"] & FG
-            experiment["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
+        # Decompress
+        experiment["-f", "-k", "--decompress", "text.html.xz"] & FG
+        experiment["-f", "-k", "--decompress", "chicken.jpg.xz"] & FG
+        experiment["-f", "-k", "--decompress", "control.xz"] & FG
+        experiment["-f", "-k", "--decompress", "input.source.xz"] & FG
+        experiment["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
 
     
     src_file = "xz-5.2.1.tar.gz"

@@ -23,13 +23,13 @@ def setup_db_config():
     if db_host:
         config["db_host"] = db_host
 
-    db_port = os.environ.get("PPROF_DB_PORT") 
+    db_port = os.environ.get("PPROF_DB_PORT")
     if db_port:
-        config["db_host"] = db_port
+        config["db_port"] = db_port
 
     db_name = os.environ.get("PPROF_DB_NAME")
     if db_name:
-        config["db_host"] = db_name
+        config["db_name"] = db_name
 
     db_user = os.environ.get("PPROF_DB_USER")
     if db_user:

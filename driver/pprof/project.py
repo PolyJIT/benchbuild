@@ -171,7 +171,7 @@ class Project(object):
         import uuid
         with local.cwd(self.builddir):
             if self.run_uuid is None:
-                self.run_uuid = uuid.uuid5(uuid.NAMESPACE_OID, self.name)
+                self.run_uuid = uuid.uuid4()
             with local.env(PPROF_CMD=str(experiment),
                            PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid):

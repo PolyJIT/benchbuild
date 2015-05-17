@@ -56,7 +56,7 @@ class PolyJIT(RuntimeExperiment):
                         "-Xclang", "LLVMPolyJIT.so",
                         "-mllvm", "-polli",
                         "-mllvm", "-jitable",
-                        "-mllvm", "-polly",
+                        #"-mllvm", "-polly",
                         "-mllvm", "-polly-detect-keep-going"]
             p.configure()
             p.build()
@@ -74,7 +74,7 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-jitable",
                         "-mllvm", "-instrument",
                         "-mllvm", "-no-recompilation",
-                        "-mllvm", "-polly",
+                        #"-mllvm", "-polly",
                         "-mllvm", "-polly-detect-keep-going"]
             p.configure()
             p.build()

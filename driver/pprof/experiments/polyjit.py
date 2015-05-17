@@ -48,8 +48,7 @@ class PolyJIT(RuntimeExperiment):
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         # 1. Likwid
-        with local.env(LD_LIBRARY_PATH=llvm_libs,
-                       POLLI_DISABLE_RECOMPILATION=1):
+        with local.env(LD_LIBRARY_PATH=llvm_libs):
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
             p.cflags = ["-O3",
                         # Use '-Xcompiler' because libtool can't parse anything
@@ -66,8 +65,7 @@ class PolyJIT(RuntimeExperiment):
 
 
         # 2. Run with likwid CLOCK group
-        with local.env(LD_LIBRARY_PATH=llvm_libs,
-                       POLLI_DISABLE_RECOMPILATION=1):
+        with local.env(LD_LIBRARY_PATH=llvm_libs):
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
             p.cflags = ["-O3",
                         "-Xclang", "-load",

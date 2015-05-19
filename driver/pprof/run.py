@@ -105,10 +105,15 @@ class PprofRun(cli.Application):
             if self._collect:
                 exp.collect_results()
 
-
 def synchronize_experiment_with_db(exp):
-    from pprof.settings import get_db_connection
-    conn = get_db_connection()
+    """Synchronize information about the given experiment with the pprof
+    database
+
+    :exp: The experiment we want to synchronize
+
+    """
+    from pprof.db import db
+    conn = db.get_db_connection()
 
     sql_sel = "SELECT * FROM experiment WHERE name=%s"
     sql_ins = "INSERT INTO experiment (name, description) VALUES (%s, %s)"
@@ -120,5 +125,4 @@ def synchronize_experiment_with_db(exp):
             c.execute(sql_ins, (exp.name, exp.name))
         else:
             c.execute(sql_upd, [exp.name, exp.name])
-
     conn.commit()

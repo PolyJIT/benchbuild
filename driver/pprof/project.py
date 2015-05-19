@@ -39,8 +39,10 @@ PROJECT_RESULT_F_EXT = ".result"
 PROJECT_CALIB_CALLS_F_EXT = ".calibrate.calls"
 PROJECT_CALIB_PROFILE_F_EXT = ".calibrate.profile.out"
 
+
 class ProjectFactory:
     factories = {}
+
     def addFactory(id, projectFactory):
         ProjectFactory.factories[id] = projectFactory
     addFactory = staticmethod(addFactory)
@@ -48,9 +50,10 @@ class ProjectFactory:
     def createProject(id, exp):
         if not ProjectFactory.factories.has_key(id):
             ProjectFactory.factories[id] = \
-                    eval(id + '.Factory()')
+                eval(id + '.Factory()')
             return ProjectFactory.factories[id].create(self, exp)
     createProject = staticmethod(createProject)
+
 
 class Project(object):
 
@@ -128,26 +131,26 @@ class Project(object):
 
     @property
     def prof_f(self):
-      return self._prof_f
+        return self._prof_f
 
     @prof_f.setter
     def prof_f(self, value):
-      old = self.prof_f
-      self._prof_f = value
-      if old in self.products:
-        self.products.remove(old)
-      self.products.add(value)
+        old = self.prof_f
+        self._prof_f = value
+        if old in self.products:
+            self.products.remove(old)
+        self.products.add(value)
 
     @property
     def calls_f(self):
-      return self._calls_f
+        return self._calls_f
 
     @calls_f.setter
     def calls_f(self, value):
-      old = self.calls_f
-      self._calls_f = value
-      self.products.remove(old)
-      self.products.add(value)
+        old = self.calls_f
+        self._calls_f = value
+        self.products.remove(old)
+        self.products.add(value)
 
     @property
     def ld_flags(self):
@@ -162,7 +165,6 @@ class Project(object):
     @log_with(log)
     def run_tests(self, experiment):
         experiment & FG
-
 
     run_uuid = None
 
@@ -226,22 +228,26 @@ def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler_to_call):
     from plumbum.cmd import chmod
     with open(filepath, 'w') as wrapper:
         wrapper.writelines(
-        [
-            "#!/bin/sh\n",
-            'FLAGS="' + " ".join(flags_to_hide) + '"\n',
-            compiler_to_call + " $FLAGS $*\n"
-        ]
+            [
+                "#!/bin/sh\n",
+                'FLAGS="' + " ".join(flags_to_hide) + '"\n',
+                compiler_to_call + " $FLAGS $*\n"
+            ]
         )
     chmod("+x", filepath)
+
 
 def llvm():
     return path.join(config["llvmdir"], "bin")
 
+
 def llvm_libs():
     return path.join(config["llvmdir"], "lib")
 
+
 def clang_cxx():
     return local[path.join(llvm(), "clang++")]
+
 
 def clang():
     return local[path.join(llvm(), "clang")]

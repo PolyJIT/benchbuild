@@ -12,11 +12,12 @@ from pprof.project import ProjectFactory
 from pprof import lapack
 from pprof.projects.polybench import polybench
 from pprof.projects.pprof import (sevenz, bzip2, ccrypt, crafty, crocopat,
-        ffmpeg, gzip, js, lammps, leveldb, linpack, luleshomp, lulesh, mcrypt,
-        minisat, openssl, postgres, povray, python, ruby, sdcc, sqlite3, tcc,
-        x264, xz)
+                                  ffmpeg, gzip, js, lammps, leveldb, linpack, luleshomp, lulesh, mcrypt,
+                                  minisat, openssl, postgres, povray, python, ruby, sdcc, sqlite3, tcc,
+                                  x264, xz)
 
 from pprof.settings import config
+from contextlib import contextmanager
 
 from os import path, listdir
 from sets import Set
@@ -34,6 +35,44 @@ HANDLER.setFormatter(FORMATTER)
 LOG = logging.getLogger(__name__)
 HANDLER.setLevel(LOG.getEffectiveLevel())
 LOG.addHandler(HANDLER)
+
+
+def static_var(varname, value):
+    def decorate(func):
+        setattr(func, varname, value)
+        return func
+    return decorate
+
+
+@contextmanager
+@static_var("counter", 0)
+def step(name):
+    step.counter += 1
+
+    print "== STEP  == {}: '{}' begins".format(step.counter, name)
+    yield
+    print "== STEP  == {}: '{}' completed".format(step.counter, name)
+
+
+@contextmanager
+@static_var("counter", 0)
+def substep(name):
+    substep.counter += 1
+
+    print "== STEP  == {}.{}: '{}' begins".format(step.counter, substep.counter, name)
+    yield
+    print "== STEP  == {}.{}: '{}' completed".format(step.counter, substep.counter, name)
+
+
+@contextmanager
+@static_var("counter", 0)
+def phase(name):
+    phase.counter += 1
+
+    print "== PHASE == {}: '{}' begins".format(phase.counter, name)
+    yield
+    print "== PHASE == {}: '{}' completed".format(phase.counter, name)
+
 
 def synchronize_project_with_db(p):
     from pprof.settings import get_db_connection
@@ -76,9 +115,11 @@ def try_catch_log(func):
             LOG.error("keyboard interrupt in " + func.__name__)
             LOG.error("  args   : " + str(args))
             LOG.error("  kwargs : " + str(kwargs))
-            LOG.error("FIXME: Cleanup after user interruption not implemented!")
+            LOG.error(
+                "FIXME: Cleanup after user interruption not implemented!")
             raise
     return try_catch_func_wrapper
+
 
 class Experiment(object):
 
@@ -90,7 +131,6 @@ class Experiment(object):
         config["path"] = bin_path + ":" + config["path"]
         config["ld_library_path"] = path.join(config["llvmdir"], "lib") + \
             config["ld_library_path"]
-
 
     def __init__(self, name, projects=[]):
         self.name = name
@@ -154,14 +194,15 @@ class Experiment(object):
 
         self.map_projects(self.prepare_project, "prepare")
 
-
     @try_catch_log
     def run_project(self, p):
         with local.cwd(p.builddir):
-                p.run()
+            p.run()
 
     def run(self):
-        self.map_projects(self.run_project, "run")
+        llvm_libs = path.join(config["llvmdir"], "lib")
+        with local.env(LD_LIBRARY_PATH=llvm_libs):
+            self.map_projects(self.run_project, "run")
 
     @classmethod
     def parse_result(cls, report, prefix, project_block):
@@ -219,24 +260,18 @@ class Experiment(object):
             file_content = result_f.read()
             split_items = pattern.split(file_content)
             split_items.pop(0)
-            per_project_results = zip(*[iter(split_items)]*2)
+            per_project_results = zip(*[iter(split_items)] * 2)
             self.generate_report(per_project_results)
 
-    def map_projects(self, fun, phase=None):
+    def map_projects(self, fun, p=None):
         for project_name in self.projects:
-            prj = self.projects[project_name]
-            print "============================================================"
-            if phase:
-                print prj.name + " (" + phase + ")"
-            else:
-                print prj.name
-            print "============================================================"
-            with local.env(PPROF_EXPERIMENT=self.name,
-                           PPROF_PROJECT=prj.name):
-                fun(prj)
-            print "============================================================"
+            with phase(p):
+                prj = self.projects[project_name]
+                with local.env(PPROF_EXPERIMENT=self.name,
+                               PPROF_PROJECT=prj.name):
+                    fun(prj)
 
-    def verify_product(self, filename, log = None):
+    def verify_product(self, filename, log=None):
         if not log:
             log = LOG
 

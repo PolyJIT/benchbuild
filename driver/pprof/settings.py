@@ -1,14 +1,15 @@
 import os
 
 config = {
-    "sourcedir"       : os.getcwd(),
-    "builddir"        : os.path.join(os.getcwd(), "results"),
-    "testdir"         : os.path.join(os.getcwd(), "./testinputs"),
-    "llvmdir"         : os.path.join(os.getcwd(), "./install"),
-    "likwiddir"       : os.path.join(os.getcwd(), "/usr"),
-    "path"            : os.environ["PATH"],
-    "ld_library_path" : os.environ["LD_LIBRARY_PATH"]
+    "sourcedir": os.getcwd(),
+    "builddir": os.path.join(os.getcwd(), "results"),
+    "testdir": os.path.join(os.getcwd(), "./testinputs"),
+    "llvmdir": os.path.join(os.getcwd(), "./install"),
+    "likwiddir": os.path.join(os.getcwd(), "/usr"),
+    "path": os.environ["PATH"],
+    "ld_library_path": os.environ["LD_LIBRARY_PATH"]
 }
+
 
 def setup_db_config():
     global config
@@ -41,16 +42,18 @@ def setup_db_config():
 
 
 _db_connection = None
+
+
 def get_db_connection():
     import psycopg2
     global _db_connection
     if not _db_connection:
         setup_db_config()
         _db_connection = psycopg2.connect(
-                host=config["db_host"],
-                port=config["db_port"],
-                user=config["db_user"],
-                password=config["db_pass"],
-                database=config["db_name"]
+            host=config["db_host"],
+            port=config["db_port"],
+            user=config["db_user"],
+            password=config["db_pass"],
+            database=config["db_name"]
         )
     return _db_connection

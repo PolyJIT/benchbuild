@@ -24,11 +24,14 @@ class Linpack(PprofGroup):
 
     src_uri = "http://www.netlib.org/benchmark/linpackc.new"
     def download(self):
-        from plumbum.cmd import wget, patch
+        from pprof.utils.downloader import Wget
+        from plumbum.cmd import patch, cp
         
         lp_patch = path.join(self.sourcedir, "linpack.patch")
         with local.cwd(self.builddir):
-            wget("-O", path.join(self.builddir, "linpack.c"), self.src_uri)
+            Wget(self.src_dir, "linpackc.new")
+            cp("-a", "linpackc.new", "linpack.c")
+
             (patch["-p0"] < lp_patch)() 
         
     def configure(self):

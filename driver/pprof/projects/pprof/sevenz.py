@@ -29,11 +29,12 @@ class SevenZip(PprofGroup):
             src_file
 
     def download(self):
-        from plumbum.cmd import wget, tar, cp
+        from pprof.utils.downloader import Wget
+        from plumbum.cmd import tar, cp
 
         p7z_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             tar('xfj', path.join(self.builddir, self.src_file))
             cp(path.join(p7z_dir, "makefile.linux_clang_amd64_asm"),
                path.join(p7z_dir, "makefile.machine"))

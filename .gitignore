@@ -25,3 +25,6 @@ dump.*
 bmlog-*
 /.project
 testinputs/
+results/
+http/
+*egg-info*/

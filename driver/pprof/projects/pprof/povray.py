@@ -24,9 +24,10 @@ class Povray(PprofGroup):
     src_uri = "https://github.com/POV-Ray/povray"
     src_dir = "povray"
     def download(self):
+        from pprof.utils.downloader import Git
         from plumbum.cmd import git
         with local.cwd(self.builddir):
-            git("clone", "--depth", "1", self.src_uri, self.src_dir)
+            Git(self.src_uri, self.src_dir)
 
     def configure(self):
         povray_dir = path.join(self.builddir, self.src_dir)

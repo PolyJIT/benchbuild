@@ -23,10 +23,10 @@ class LuleshOMP(PprofGroup):
     src_file = "LULESH_OMP.cc"
     src_uri = "https://codesign.llnl.gov/lulesh/" + src_file
     def download(self):
-        from plumbum.cmd import wget
+        from pprof.utils.downloader import Wget
 
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
 
     def configure(self):
         pass

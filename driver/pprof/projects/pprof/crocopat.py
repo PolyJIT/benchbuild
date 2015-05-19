@@ -33,11 +33,12 @@ class Crocopat(PprofGroup):
     src_file = src_dir + ".zip"
     src_uri = "http://crocopat.googlecode.com/files/" + src_file
     def download(self):
-        from plumbum.cmd import wget, unzip
+        from pprof.utils.downloader import Wget
+        from plumbum.cmd import unzip
 
         crocopat_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             unzip(path.join(self.builddir, self.src_file))
 
     def configure(self):

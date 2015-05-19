@@ -38,11 +38,11 @@ class X264(PprofGroup):
 
     src_dir = "x264.git"
     def download(self):
-        from plumbum.cmd import git
+        from pprof.utils.downloader import Git
         src_uri = "git://git.videolan.org/x264.git"
 
         with local.cwd(self.builddir):
-            git("clone", "--depth", "1", src_uri, self.src_dir)
+            Git(src_uri, self.src_dir)
 
     def configure(self):
         x264_dir = path.join(self.builddir, self.src_dir)

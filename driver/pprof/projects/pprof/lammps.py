@@ -36,11 +36,10 @@ class Lammps(PprofGroup):
     src_uri = "https://github.com/lammps/lammps"
 
     def download(self):
-        from plumbum.cmd import git
-        from pprof.project import clang, clang_cxx, llvm_libs, llvm
+        from pprof.utils.downloader import Git
 
         with local.cwd(self.builddir):
-            git("clone", "--depth", "1", self.src_uri, self.src_dir) 
+            Git(self.src_dir, self.src_dir)
 
     def configure(self):
         pass

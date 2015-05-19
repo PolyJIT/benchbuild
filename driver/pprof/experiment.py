@@ -48,6 +48,7 @@ def static_var(varname, value):
 @static_var("counter", 0)
 def step(name):
     step.counter += 1
+    substep.counter = 0
 
     print "== STEP  == {}: '{}' begins".format(step.counter, name)
     yield

@@ -32,7 +32,8 @@ log.addHandler(handler)
 log.setLevel(logging.WARNING)
 
 def main(*args):
-    import run
-    import build
+    print __package__
+    from pprof import run
+    from pprof import build
 
     return PollyProfiling.run(*args)

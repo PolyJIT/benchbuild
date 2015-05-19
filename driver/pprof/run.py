@@ -2,12 +2,12 @@
 # encoding: utf-8
 
 from plumbum import cli
-from pprof import PollyProfiling
-from settings import config
+from pprof.driver import PollyProfiling
+from pprof.settings import config
 
-import experiments.polli
-import experiments.polyjit
-import experiments.raw
+from pprof.experiments import polli
+from pprof.experiments import polyjit
+from pprof.experiments import raw
 import logging
 import pprint
 log = logging.getLogger()
@@ -18,9 +18,10 @@ class PprofRun(cli.Application):
 
     """ Frontend for running experiments in the pprof study framework """
 
-    _experiments = {"polyjit": experiments.polyjit.PolyJIT,
-                    "polli": experiments.polli.Polli,
-                    "raw": experiments.raw.RawRuntime}
+    _experiments = {"polyjit": polyjit.PolyJIT,
+                    "polli": polli.Polli,
+                    "polli-baseline": polli.PolliBaseLine,
+                    "raw": raw.RawRuntime}
 
     _experiment_names = []
     _project_names = []
@@ -90,6 +91,7 @@ class PprofRun(cli.Application):
             name = exp_name.lower()
 
             exp = self._experiments[name](name, self._project_names)
+            synchronize_experiment_with_db(exp)
 
             if self._clean:
                 exp.clean()
@@ -102,3 +104,25 @@ class PprofRun(cli.Application):
 
             if self._collect:
                 exp.collect_results()
+
+def synchronize_experiment_with_db(exp):
+    """Synchronize information about the given experiment with the pprof
+    database
+
+    :exp: The experiment we want to synchronize
+
+    """
+    from pprof.db import db
+    conn = db.get_db_connection()
+
+    sql_sel = "SELECT * FROM experiment WHERE name=%s"
+    sql_ins = "INSERT INTO experiment (name, description) VALUES (%s, %s)"
+    sql_upd = "UPDATE experiment SET description = %s WHERE name = %s"
+    with conn.cursor() as c:
+        c.execute(sql_sel, (exp.name, ))
+
+        if not c.rowcount:
+            c.execute(sql_ins, (exp.name, exp.name))
+        else:
+            c.execute(sql_upd, [exp.name, exp.name])
+    conn.commit()

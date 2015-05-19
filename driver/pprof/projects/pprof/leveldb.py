@@ -20,10 +20,11 @@ class LevelDB(PprofGroup):
     def download(self):
         src_uri = "https://github.com/google/leveldb"
 
+        from pprof.utils.downloader import Git
         from plumbum.cmd import git
 
         with local.cwd(self.builddir):
-            git("clone", src_uri, "leveldb.src")
+            Git(src_uri, "leveldb.src")
 
     def configure(self):
         pass

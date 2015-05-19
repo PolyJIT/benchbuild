@@ -18,10 +18,10 @@ class SDCC(PprofGroup):
     src_dir = "sdcc"
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + src_dir
     def download(self):
-        from plumbum.cmd import svn
+        from pprof.utils.downloader import Svn
 
         with local.cwd(self.builddir):
-            svn("co", self.src_uri, self.src_dir)
+            Svn(self.src_uri, self.src_dir)
 
     def configure(self):
         from pprof.project import clang, clang_cxx

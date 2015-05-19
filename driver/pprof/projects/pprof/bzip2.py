@@ -39,11 +39,11 @@ class Bzip2(PprofGroup):
 
     @log_with(log)
     def download(self):
-        from plumbum.cmd import wget
+        from pprof.utils.downloader import Wget
         from plumbum.cmd import tar
 
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             tar('xfz', path.join(self.builddir, self.src_file))
 
     @log_with(log)

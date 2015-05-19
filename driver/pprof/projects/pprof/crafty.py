@@ -26,11 +26,12 @@ class Crafty(PprofGroup):
     src_uri = "http://www.craftychess.com/crafty-23.4.zip"
 
     def download(self):
+        from pprof.utils.downloader import Wget
         from plumbum.cmd import wget, unzip
 
         book_bin = "http://www.craftychess.com/book.bin"
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             wget(book_bin)
             unzip(path.join(self.builddir, self.src_file))
 

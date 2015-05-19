@@ -24,10 +24,11 @@ class SQLite3(PprofGroup):
     src_file = src_dir + ".zip"
     src_uri = "http://www.sqlite.org/2015/" + src_file
     def download(self):
-        from plumbum.cmd import wget, unzip
+        from pprof.utils.downloader import Wget
+        from plumbum.cmd import unzip
 
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             unzip(self.src_file)
             self.fetch_leveldb()
 
@@ -49,10 +50,9 @@ class SQLite3(PprofGroup):
     def fetch_leveldb(self):
         src_uri = "https://github.com/google/leveldb"
 
-        from plumbum.cmd import git
-
         with local.cwd(self.builddir):
-            git("clone", src_uri, "leveldb.src")
+            from pprof.utils.downloader import Git
+            Git(src_uri, "leveldb.src")
 
     def build_leveldb(self):
         from plumbum.cmd import make, ln

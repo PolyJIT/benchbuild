@@ -54,10 +54,11 @@ class Gzip(PprofGroup):
     src_file = "gzip-1.2.4.tar"
     src_uri = "http://ftpmirror.gnu.org/gzip/" + src_file
     def download(self):
-        from plumbum.cmd import wget, tar
+        from pprof.utils.downloader import Wget
+        from plumbum.cmd import tar
 
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             tar("xf", path.join(self.builddir, self.src_file))
 
     def configure(self):

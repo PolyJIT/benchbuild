@@ -21,10 +21,11 @@ class TCC(PprofGroup):
     src_file = src_dir + ".tar.bz2"
     src_uri = "http://download-mirror.savannah.gnu.org/releases/tinycc/" + src_file
     def download(self):
-        from plumbum.cmd import wget, tar, sed
+        from pprof.utils.downloader import Wget
+        from plumbum.cmd import tar, sed
 
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             tar("xjf", self.src_file)
 
         tcc_dir = path.join(self.builddir, self.src_dir)

@@ -56,11 +56,11 @@ class LibAV(PprofGroup):
     src_uri = "https://libav.org/releases/" + src_file
 
     def download(self):
-        from plumbum.cmd import wget
+        from pprof.utils.downloader import Wget
         from plumbum.cmd import tar
 
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             tar('xfz', path.join(self.builddir, self.src_file))
 
     def configure(self):

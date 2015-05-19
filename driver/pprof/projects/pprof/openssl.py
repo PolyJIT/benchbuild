@@ -24,11 +24,12 @@ class OpenSSLGroup(Project):
     src_file = src_dir + ".tar.gz"
     src_uri = "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/" + src_file
     def download(self):
+        from pprof.utils.downloader import Wget
         from plumbum.cmd import wget, tar
 
         openssl_dir = path.join(self.builddir, self.src_file)
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             tar("xfz", openssl_dir)
 
     def configure(self):

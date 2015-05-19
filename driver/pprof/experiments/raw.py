@@ -42,45 +42,26 @@ class RawRuntime(RuntimeExperiment):
 
     @try_catch_log
     def run_project(self, p):
-        """run projects after compiling the IR file with O3
-
-        :p: the project which we want to run
-
-        """
-        base_f = p.base_f
-        opt_f = p.optimized_f
-        asm_f = p.asm_f
-        obj_f = p.obj_f
-        run_f = p.run_f
-        time_f = p.time_f
-        result_f = p.result_f
-
-        opt["-O3", base_f, "-o", opt_f] & FG
-        llc["-O3", "-mcpu=corei7-avx", opt_f, "-o", asm_f] & FG
-        asm[asm_f, "-o", obj_f] & FG
-        with local.cwd(p.sourcedir):
-            clang[obj_f, p.ld_flags, "-o", run_f] & FG
+        p.download()
+        p.cflags = ["-O3"]
+        p.configure()
+        p.build()
 
         # Print header here.
         (echo["---------------------------------------------------------------"]
-            >> result_f) & FG
+            >> p.result_f) & FG
         (echo[">>> ========= " + p.name + " Program"]
-            >> result_f) & FG
+            >> p.result_f) & FG
         (echo["---------------------------------------------------------------"]
-            >> result_f) & FG
+            >> p.result_f) & FG
 
-        p.run(time["-f", "%U,%S,%e", "-a", "-o", time_f, local[run_f]])
+        p.run(time["-f", "%U,%S,%e", "-a", "-o", p.time_f, local[p.run_f]])
         (awk["-F", ",", ("{ usr+=$1; sys+=$2; wall+=$3 }"
                          " END {"
                          " print \"User time - \" usr;"
                          " print \"System time - \" sys;"
                          " print \"Wall clock - \" wall;}"), time_f] |
-         tee["-a", result_f]) & FG
-
-        rm(opt_f)
-        rm(obj_f)
-        rm(asm_f)
-        rm(run_f)
+         tee["-a", p.result_f]) & FG
 
     def generate_report(self, per_project_results):
         csv_f = self.result_f + ".csv"

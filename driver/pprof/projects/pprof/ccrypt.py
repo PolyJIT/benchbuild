@@ -40,11 +40,12 @@ class Ccrypt(PprofGroup):
     src_uri = "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
 
     def download(self):
-        from plumbum.cmd import wget, tar, cp
+        from pprof.utils.downloader import Wget
+        from plumbum.cmd import tar, cp
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             tar('xfz', path.join(self.builddir, self.src_file))
 
     def configure(self):

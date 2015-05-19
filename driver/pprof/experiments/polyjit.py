@@ -5,7 +5,7 @@ from ..experiment import Experiment, RuntimeExperiment, try_catch_log
 from pprof.experiment import step, substep
 from ..settings import config
 from pprof import likwid
-from ..db.db import create_run, get_db_connection
+from pprof.utils.db import create_run, get_db_connection
 
 from plumbum import local, FG
 from plumbum.cmd import cp, awk, echo, tee, time, sed, rm

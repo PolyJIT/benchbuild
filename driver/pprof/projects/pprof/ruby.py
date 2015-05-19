@@ -22,10 +22,11 @@ class Ruby(PprofGroup):
     src_file = src_dir + ".tar.gz"
     src_uri = "http://cache.ruby-lang.org/pub/ruby/2.2/" + src_file
     def download(self):
-        from plumbum.cmd import wget, tar
+        from pprof.utils.downloader import Wget
+        from plumbum.cmd import tar
 
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             tar("xfz", self.src_file)
 
     def configure(self):

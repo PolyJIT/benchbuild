@@ -30,7 +30,7 @@ class XZ(PprofGroup):
             self.products.add(path.join(self.builddir, x))
             self.products.add(path.join(self.builddir, x + ".xz"))
 
-        super(XZ, self).clen()
+        super(XZ, self).clean()
 
     def prepare(self):
         super(XZ, self).prepare()
@@ -63,10 +63,11 @@ class XZ(PprofGroup):
     src_uri = "http://tukaani.org/xz/" + src_file
 
     def download(self):
-        from plumbum.cmd import wget, tar
+        from pprof.utils.downloader import Wget
+        from plumbum.cmd import tar
 
         with local.cwd(self.builddir):
-            wget(self.src_uri)
+            Wget(self.src_uri, self.src_file)
             tar('xfz', path.join(self.builddir, self.src_file))
         
     def configure(self):

@@ -105,6 +105,7 @@ class PprofRun(cli.Application):
             if self._collect:
                 exp.collect_results()
 
+
 def synchronize_experiment_with_db(exp):
     """Synchronize information about the given experiment with the pprof
     database
@@ -112,7 +113,7 @@ def synchronize_experiment_with_db(exp):
     :exp: The experiment we want to synchronize
 
     """
-    from pprof.db import db
+    from pprof.utils import db
     conn = db.get_db_connection()
 
     sql_sel = "SELECT * FROM experiment WHERE name=%s"

@@ -36,11 +36,12 @@ class Minisat(PprofGroup):
     src_dir = "minisat.git"
     src_uri = "https://github.com/niklasso/minisat"
     def download(self):
+        from pprof.utils.downloader import Git
         from plumbum.cmd import git
 
         minisat_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            git("clone", "--depth", "1", self.src_uri, self.src_dir)
+            Git(self.src_uri, self.src_dir)
             with local.cwd(minisat_dir):
                 git("fetch", "origin", "pull/17/head:clang")
                 git("checkout", "clang")

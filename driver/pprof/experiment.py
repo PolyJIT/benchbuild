@@ -8,17 +8,15 @@ from plumbum.commands.processes import ProcessExecutionError
 
 from pprof import project
 from pprof.project import ProjectFactory
-
-from pprof import lapack
 from pprof.projects.polybench import polybench
 from pprof.projects.pprof import (sevenz, bzip2, ccrypt, crafty, crocopat,
-                                  ffmpeg, gzip, js, lammps, leveldb, linpack, luleshomp, lulesh, mcrypt,
-                                  minisat, openssl, postgres, povray, python, ruby, sdcc, sqlite3, tcc,
-                                  x264, xz)
-
+                                  ffmpeg, gzip, js, lammps, lapack, leveldb,
+                                  linpack, luleshomp, lulesh, mcrypt, minisat,
+                                  openssl, postgres, povray, python, ruby, sdcc,
+                                  sqlite3, tcc, x264, xz)
 from pprof.settings import config
-from contextlib import contextmanager
 
+from contextlib import contextmanager
 from os import path, listdir
 from sets import Set
 from codecs import getwriter
@@ -201,6 +199,8 @@ class Experiment(object):
             p.run()
 
     def run(self):
+        """Run the experiment on all registered projects
+        """
         llvm_libs = path.join(config["llvmdir"], "lib")
         with local.env(LD_LIBRARY_PATH=llvm_libs):
             self.map_projects(self.run_project, "run")
@@ -237,10 +237,11 @@ class Experiment(object):
         pass
 
     def collect_results(self):
-        """
-        Collect all project-specific results into one big result file for
+        """Collect all project-specific results into one big result file for
         further processing. Later processing steps might have to regain
         per-project information from this file again.
+        :returns: TODO
+
         """
         result_files = Set([])
         for project_name in self.projects:

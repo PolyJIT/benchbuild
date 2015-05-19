@@ -9,12 +9,12 @@ from plumbum.commands.processes import ProcessExecutionError
 from pprof import project
 from pprof.project import ProjectFactory
 
-from pprof import lapack
 from pprof.projects.polybench import polybench
 from pprof.projects.pprof import (sevenz, bzip2, ccrypt, crafty, crocopat,
-                                  ffmpeg, gzip, js, lammps, leveldb, linpack, luleshomp, lulesh, mcrypt,
-                                  minisat, openssl, postgres, povray, python, ruby, sdcc, sqlite3, tcc,
-                                  x264, xz)
+                                  ffmpeg, gzip, js, lammps, lapack, leveldb,
+                                  linpack, luleshomp, lulesh, mcrypt, minisat,
+                                  openssl, postgres, povray, python, ruby, sdcc,
+                                  sqlite3, tcc, x264, xz)
 
 from pprof.settings import config
 from contextlib import contextmanager

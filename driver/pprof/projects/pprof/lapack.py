@@ -1,7 +1,7 @@
-from project import *
 from os import path
 
-from settings import config
+from pprof.project import *
+from pprof.settings import config
 
 class Lapack(Project):
     domain = "scientific"

@@ -2,7 +2,10 @@
 # encoding: utf-8
 
 from ..experiment import Experiment, RuntimeExperiment, try_catch_log
+from pprof.experiment import step, substep
 from ..settings import config
+from pprof import likwid
+from ..db.db import create_run, get_db_connection
 
 from plumbum import local, FG
 from plumbum.cmd import cp, awk, echo, tee, time, sed, rm
@@ -13,6 +16,8 @@ likwid_perfctr = None
 pprof_calibrate = None
 pprof_analyze = None
 opt = None
+
+import pdb
 
 
 class PolyJIT(RuntimeExperiment):
@@ -32,88 +37,98 @@ class PolyJIT(RuntimeExperiment):
         opt = local[path.join(bin_path, "opt")]
 
     def run_project(self, p):
-        base_f = p.base_f
-        opt_f = p.optimized_f
-        run_f = p.run_f
-        bin_f = p.bin_f
-        time_f = p.time_f
-        profbin_f = p.profbin_f
-        prof_f = p.prof_f
-        likwid_f = p.likwid_f
-        csv_f = p.csv_f
-        calls_f = p.calls_f
-        result_f = p.result_f
+        from plumbum.cmd import time
 
-        p.download()
         llvm_libs = path.join(config["llvmdir"], "lib")
 
-        # 1. Likwid
-        with local.env(LD_LIBRARY_PATH=llvm_libs):
-            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+        with step("Downloading {}".format(p.name)):
+            p.download()
+
+        with step("RAW -O3"):
+            p.ldflags = ["-L" + llvm_libs, "-lpjit"]
+            p.cflags = ["-O3"]
+            p.configure()
+            p.build()
+            p.run(time[p.run_f])
+
+        with step("JIT, no instrumentation"):
+            p.ldflags = ["-L" + llvm_libs, "-lpjit"]
             p.cflags = ["-O3",
-                        # Use '-Xcompiler' because libtool can't parse anything
                         "-Xclang", "-load",
                         "-Xclang", "LLVMPolyJIT.so",
                         "-mllvm", "-polli",
                         "-mllvm", "-jitable",
-                        #"-mllvm", "-polly",
                         "-mllvm", "-polly-detect-keep-going"]
             p.configure()
             p.build()
-            p.run(likwid_perfctr["-O", "-o", likwid_f, "-m", "-C", "-L:0",
-                                 "-g", "CLOCK", run_f])
+            p.run(time[p.run_f])
 
-
-        # 2. Run with likwid CLOCK group
-        with local.env(LD_LIBRARY_PATH=llvm_libs):
-            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+        with step("JIT, likwid"):
+            p.ldflags = ["-L" + llvm_libs, "-lpjit"]
             p.cflags = ["-O3",
+                        "-Xclang", "-load",
+                        "-Xclang", "LLVMPolyJIT.so",
+                        "-mllvm", "-polli",
+                        "-mllvm", "-jitable",
+                        "-mllvm", "-polly-detect-keep-going"]
+            p.configure()
+            p.build()
+            exp_cmd = likwid_perfctr["-O", "-o", p.likwid_f, "-m", "-C", "-L:0",
+                                     "-g", "CLOCK", p.run_f]
+            p.run(exp_cmd)
+            with substep("Create DB entry & evaluate likwid run"):
+                run_id=create_run(
+                    get_db_connection(), str(exp_cmd), p.name, self.name, p.run_uuid)
+                likwid_measurement=likwid.get_likwid_perfctr(p.likwid_f)
+                likwid.to_db(run_id, likwid_measurement)
+                for (region, name, core_info, li) in likwid_measurement:
+                    print "{} - {} - {} - {}".format(region, name, core_info, li)
+
+        with step("No recompilation, PAPI"):
+            p.ldflags=["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+            p.cflags=["-O3",
                         "-Xclang", "-load",
                         "-Xclang", "LLVMPolyJIT.so",
                         "-mllvm", "-polli",
                         "-mllvm", "-jitable",
                         "-mllvm", "-instrument",
                         "-mllvm", "-no-recompilation",
-                        #"-mllvm", "-polly",
                         "-mllvm", "-polly-detect-keep-going"]
             p.configure()
             p.build()
-            p.run(time["-f", "%U,%S,%e", "-a", "-o", time_f, run_f])
+            p.run(time["-f", "%U,%S,%e", "-a", "-o", p.time_f, p.run_f])
 
-        likwid_filter = local["filters/likwid.csv"]
-        likwid_filter[likwid_f, "perfctr", "-o", csv_f] & FG
+        with step("Evaluation"):
+            # Print header here.
+            (echo["---------------------------------------------------------------"]
+                >> p.result_f) & FG
+            (echo[">>> ========= " + p.name + " Program"]
+                >> p.result_f) & FG
+            (echo["---------------------------------------------------------------"]
+                >> p.result_f) & FG
 
-        sed["-i", "s/^/" + p.domain + ",/", csv_f] & FG
-        sed["-i", "s/^/" + p.name + ",/", csv_f] & FG
+            with substep("pprof analyze"):
+                with local.env(PPROF_USE_DATABASE=1,
+                               PPROF_DB_RUN_GROUP=p.run_uuid,
+                               PPROF_USE_FILE=0,
+                               PPROF_USE_CSV=0):
+                    (pprof_analyze | tee["-a", p.result_f]) & FG
 
-        # Print header here.
-        (echo["---------------------------------------------------------------"]
-            >> result_f) & FG
-        (echo[">>> ========= " + p.name + " Program"]
-            >> result_f) & FG
-        (echo["---------------------------------------------------------------"]
-            >> result_f) & FG
+            with substep("pprof calibrate"):
+                papi_calibration=self.get_papi_calibration(p, pprof_calibrate)
+                if papi_calibration:
+                    (awk[("{s+=$1} END {"
+                          " time = (s*" + papi_calibration + "/1000000000);"
+                          " print \"Time spent in libPAPI (s) - \" time }"
+                          ),
+                         p.calls_f] |
+                     tee["-a", p.result_f]) & FG
+                    (echo["Real time per PAPI call (ns) - ", papi_calibration] |
+                        tee["-a", p.result_f]) & FG
 
-        with local.env(PPROF_USE_DATABASE=1,
-                       PPROF_DB_RUN_GROUP=p.run_uuid,
-                       PPROF_USE_FILE=0,
-                       PPROF_USE_CSV=0):
-            (pprof_analyze[prof_f] | tee["-a", result_f]) & FG
-
-        papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
-        if papi_calibration:
-            (awk[("{s+=$1} END {"
-                  " time = (s*" + papi_calibration + "/1000000000);"
-                  " print \"Time spent in libPAPI (s) - \" time }"
-                  ),
-                 calls_f] |
-             tee["-a", result_f]) & FG
-            (echo["Real time per PAPI call (ns) - ", papi_calibration] |
-                tee["-a", result_f]) & FG
-
-        (awk["-F", ",", ("{ usr+=$1; sys+=$2; wall+=$3 }"
-                         " END {"
-                         " print \"User time - \" usr;"
-                         " print \"System time - \" sys;"
-                         " print \"Wall clock - \" wall;}"), time_f] |
-         tee["-a", result_f]) & FG
+            (awk["-F", ",", ("{ usr+=$1; sys+=$2; wall+=$3 }"
+                             " END {"
+                             " print \"User time - \" usr;"
+                             " print \"System time - \" sys;"
+                             " print \"Wall clock - \" wall;}"), p.time_f] |
+             tee["-a", p.result_f]) & FG

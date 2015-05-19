@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from ..experiment import RuntimeExperiment, try_catch_log
-from ..experiment import Experiment as exp
-from ..settings import config
+from pprof.experiment import RuntimeExperiment, try_catch_log
+from pprof.experiment import Experiment as exp
+from pprof.settings import config
 
 from plumbum import local, FG
 from plumbum.cmd import awk, echo, tee, time, rm, mv

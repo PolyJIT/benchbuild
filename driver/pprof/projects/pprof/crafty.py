@@ -27,13 +27,16 @@ class Crafty(PprofGroup):
 
     def download(self):
         from pprof.utils.downloader import Wget
-        from plumbum.cmd import wget, unzip
+        from plumbum.cmd import wget, unzip, mv
 
-        book_bin = "http://www.craftychess.com/book.bin"
+        book_file = "book.bin"
+        book_bin = "http://www.craftychess.com/" + book_file
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
-            wget(book_bin)
-            unzip(path.join(self.builddir, self.src_file))
+            Wget(book_bin, "book.bin")
+
+            unzip(self.src_file)
+            mv(book_file, self.src_dir)
 
     def configure(self):
         pass
@@ -47,7 +50,7 @@ class Crafty(PprofGroup):
         crafty_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(crafty_dir):
             target_cflags = self.cflags
-            target_cxflags = [] 
+            target_cxflags = []
             target_ldflags = self.ldflags
             target_opts = ["-DINLINE64", "-DCPUS=1"]
 
@@ -58,9 +61,7 @@ class Crafty(PprofGroup):
                  "LDFLAGS=" + " ".join(target_ldflags),
                  "opt=" + " ".join(target_opts),
                  "crafty-make"] & FG
-
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(crafty_dir, "crafty"), self.run_f)
+        self.run_f = path.join(crafty_dir, "crafty")
 
     def run_tests(self, experiment):
         (cat[path.join(self.testdir, "test1.sh")] | experiment) & FG

@@ -38,4 +38,4 @@ class LuleshOMP(PprofGroup):
         with local.cwd(self.builddir):
             myclang = clang_cxx()["-fopenmp", self.cflags, "-o",
                                   self.run_f, self.ldflags]
-            ( gcc["-E", "-fopenmp", self.cflags, self.src_file] | myclang ) & FG
+            myclang & FG

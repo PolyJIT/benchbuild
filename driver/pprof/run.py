@@ -83,7 +83,7 @@ class PprofRun(cli.Application):
         if self._list:
             for exp in self._experiment_names:
                 experiment = self._experiments[exp](exp, self._project_names)
-                print "\n".join(experiment.projects)
+                print_projects(experiment)
             exit(0)
 
         for exp_name in self._experiment_names:
@@ -104,6 +104,33 @@ class PprofRun(cli.Application):
 
             if self._collect:
                 exp.collect_results()
+
+def print_projects(experiment):
+    """Print a list of projects registered for that experiment
+
+    :experiment: TODO
+
+    """
+    grouped_by = {}
+    projects = experiment.projects
+    for name in projects:
+        p = projects[name]
+
+        if not p.group_name in grouped_by:
+            grouped_by[p.group_name] = []
+
+        grouped_by[p.group_name].append(name)
+
+    for name in grouped_by:
+        from textwrap import wrap
+        print ">> {}".format(name)
+        projects = sorted(grouped_by[name])
+        project_paragraph = ""
+        for p in projects:
+            project_paragraph += ", {}".format(p)
+        print "\n".join(wrap(project_paragraph[2:], 80, break_on_hyphens=False,
+                             break_long_words=False))
+        print
 
 
 def synchronize_experiment_with_db(exp):

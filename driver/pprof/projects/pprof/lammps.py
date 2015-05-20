@@ -39,7 +39,7 @@ class Lammps(PprofGroup):
         from pprof.utils.downloader import Git
 
         with local.cwd(self.builddir):
-            Git(self.src_dir, self.src_dir)
+            Git(self.src_uri, self.src_dir)
 
     def configure(self):
         pass

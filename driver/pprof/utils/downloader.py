@@ -88,12 +88,12 @@ def Wget(url, fname, to = None):
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
-        cp("-ar", src_dir, ".")
+        cp("-ar", "--reflink", src_dir, ".")
         return
 
     wget(url, "-P", to)
     update_hash(fname, to)
-    cp("-ar", src_dir, ".")
+    cp("-ar", "--reflink", src_dir, ".")
 
 def Git(url, fname, to = None):
     """get a shallow clone from :src to :to.
@@ -111,12 +111,12 @@ def Git(url, fname, to = None):
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
-        cp("-ar", src_dir, ".")
+        cp("-ar", "--reflink", src_dir, ".")
         return
-    
+
     git("clone", "--depth", "1", url, src_dir)
     update_hash(fname, to)
-    cp("-ar", src_dir, ".")
+    cp("-ar", "--reflink", src_dir, ".")
 
 def Svn(url, fname, to = None):
     """get a shallow clone from :src to :to.
@@ -134,9 +134,9 @@ def Svn(url, fname, to = None):
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
-        cp("-ar", src_dir, ".")
+        cp("-ar", "--reflink", src_dir, ".")
         return
-    
+
     svn("co", url, src_dir)
     update_hash(fname, to)
-    cp("-ar", src_dir, ".")
+    cp("-ar", "--reflink", src_dir, ".")

@@ -59,6 +59,8 @@ def source_required(fname, to):
             from plumbum.cmd import rm
             rm("-r", src_dir)
             rm(hash_file)
+    if not required:
+        print "No download needed: {} is unchanged.".format(src_dir)
     return required
 
 def update_hash(fname, to):

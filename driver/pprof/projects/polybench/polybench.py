@@ -19,28 +19,28 @@ class PolyBenchGroup(Project):
         "bicg": "linear-algebra/kernels",
         "cholesky": "linear-algebra/kernels",
         "doitgen": "linear-algebra/kernels",
-        "gemm": "linear-algebra/kernels",
-        "gemver": "linear-algebra/kernels",
-        "gesummv": "linear-algebra/kernels",
+        "gemm": "linear-algebra/blas",
+        "gemver": "linear-algebra/blas",
+        "gesummv": "linear-algebra/blas",
         "mvt": "linear-algebra/kernels",
-        "symm": "linear-algebra/kernels",
-        "syr2k": "linear-algebra/kernels",
+        "symm": "linear-algebra/blas",
+        "syr2k": "linear-algebra/blas",
         "syrk": "linear-algebra/kernels",
         "trisolv": "linear-algebra/kernels",
-        "trmm": "linear-algebra/kernels",
+        "trmm": "linear-algebra/blas",
         "durbin": "linear-algebra/solvers",
-        "dynprog": "linear-algebra/solvers",
         "gramschmidt": "linear-algebra/solvers",
         "lu": "linear-algebra/solvers",
         "ludcmp": "linear-algebra/solvers",
         "floyd-warshall": "medley",
-        "reg_detect": "medley",
         "adi": "stencils",
         "fdtd-2d": "stencils",
-        "fdtd-apml": "stencils",
-        "jacobi-1d-imper": "stencils",
-        "jacobi-2d-imper": "stencils",
-        "seidel-2d": "stencils"
+        "jacobi-1d": "stencils",
+        "jacobi-2d": "stencils",
+        "seidel-2d": "stencils",
+        "heat-3d": "stencils",
+        "nussinov": "medley",
+        "deriche": "medley"
     }
 
     def __init__(self, exp, name):
@@ -51,6 +51,35 @@ class PolyBenchGroup(Project):
         self.setup_derived_filenames()
         self.calls_f = path.join(self.builddir, "papi.calls.out")
         self.prof_f = path.join(self.builddir, "papi.profile.out")
+
+    src_dir = "polybench-c-4.1"
+    src_file = src_dir + ".tar.gz"
+    src_uri = "http://downloads.sourceforge.net/project/polybench/" + src_file
+
+    def download(self):
+        from pprof.utils.downloader import Wget
+        from plumbum.cmd import tar
+        with local.cwd(self.builddir):
+            Wget(self.src_uri, self.src_file)
+            tar('xfz', path.join(self.builddir, self.src_file))
+
+    def configure(self):
+        from plumbum.cmd import cp
+        with local.cwd(self.builddir):
+            cp("-ar", path.join(self.src_dir, self.path_dict[self.name],
+                                self.name), self.name + ".dir")
+            cp("-ar", path.join(self.src_dir, "utilities"), ".")
+
+    def build(self):
+        from pprof.project import clang
+
+        src_file = path.join(self.name + ".dir", self.name + ".c")
+        with local.cwd(self.builddir):
+            myclang = clang()["-I", "utilities", "-I", self.name,
+                              "utilities/polybench.c", src_file,
+                              self.cflags, "-o", self.run_f, self.ldflags]
+            print myclang
+            myclang()
 
 
 class Correlation(PolyBenchGroup):
@@ -215,13 +244,13 @@ class Durbin(PolyBenchGroup):
     ProjectFactory.addFactory("Durbin", Factory())
 
 
-class Dynprog(PolyBenchGroup):
+class Deriche(PolyBenchGroup):
 
     class Factory:
 
         def create(self, exp):
-            return Dynprog(exp, "dynprog")
-    ProjectFactory.addFactory("Dynprog", Factory())
+            return Deriche(exp, "deriche")
+    ProjectFactory.addFactory("Deriche", Factory())
 
 
 class Gramschmidt(PolyBenchGroup):
@@ -260,15 +289,6 @@ class FloydWarshall(PolyBenchGroup):
     ProjectFactory.addFactory("FloydWarshall", Factory())
 
 
-class RegDetect(PolyBenchGroup):
-
-    class Factory:
-
-        def create(self, exp):
-            return RegDetect(exp, "reg_detect")
-    ProjectFactory.addFactory("RegDetect", Factory())
-
-
 class Adi(PolyBenchGroup):
 
     class Factory:
@@ -287,22 +307,13 @@ class FDTD2D(PolyBenchGroup):
     ProjectFactory.addFactory("FDTD2D", Factory())
 
 
-class FDTDAPML(PolyBenchGroup):
+class Jacobi1D(PolyBenchGroup):
 
     class Factory:
 
         def create(self, exp):
-            return FDTDAPML(exp, "fdtd-apml")
-    ProjectFactory.addFactory("FDTDAPML", Factory())
-
-
-class Jacobi1Dimper(PolyBenchGroup):
-
-    class Factory:
-
-        def create(self, exp):
-            return Jacobi1Dimper(exp, "jacobi-1d-imper")
-    ProjectFactory.addFactory("Jacobi1Dimper", Factory())
+            return Jacobi1D(exp, "jacobi-1d")
+    ProjectFactory.addFactory("Jacobi1D", Factory())
 
 
 class Jacobi2Dimper(PolyBenchGroup):
@@ -310,8 +321,8 @@ class Jacobi2Dimper(PolyBenchGroup):
     class Factory:
 
         def create(self, exp):
-            return Jacobi2Dimper(exp, "jacobi-2d-imper")
-    ProjectFactory.addFactory("Jacobi2Dimper", Factory())
+            return Jacobi2Dimper(exp, "jacobi-2d")
+    ProjectFactory.addFactory("Jacobi2D", Factory())
 
 
 class Seidel2D(PolyBenchGroup):
@@ -321,3 +332,21 @@ class Seidel2D(PolyBenchGroup):
         def create(self, exp):
             return Seidel2D(exp, "seidel-2d")
     ProjectFactory.addFactory("Seidel2D", Factory())
+
+
+class Nussinov(PolyBenchGroup):
+
+    class Factory:
+
+        def create(self, exp):
+            return Nussinov(exp, "nussinov")
+    ProjectFactory.addFactory("Nussinov", Factory())
+
+
+class Heat3D(PolyBenchGroup):
+
+    class Factory:
+
+        def create(self, exp):
+            return Heat3D(exp, "heat-3d")
+    ProjectFactory.addFactory("heat-3d", Factory())

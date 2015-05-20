@@ -140,3 +140,27 @@ def Svn(url, fname, to = None):
     svn("co", url, src_dir)
     update_hash(fname, to)
     cp("-ar", "--reflink", src_dir, ".")
+
+
+def Rsync(url, fname, to = None):
+    """rsync :src to :to.
+
+    :src: TODO
+    :to: TODO
+    :returns: TODO
+
+    """
+    if to is None:
+        to = config["tmpdir"]
+
+    from os import path
+    from plumbum.cmd import rsync, cp
+
+    src_dir = path.join(to, fname)
+    if not source_required(fname, to):
+        cp("-ar", "--reflink", src_dir, ".")
+        return
+
+    rsync("-a", url, src_dir)
+    update_hash(fname, to)
+    cp("-ar", "--reflink", src_dir, ".")

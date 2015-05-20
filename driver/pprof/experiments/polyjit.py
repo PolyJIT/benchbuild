@@ -47,9 +47,12 @@ class PolyJIT(RuntimeExperiment):
         with step("RAW -O3"):
             p.ldflags = ["-L" + llvm_libs, "-lpjit"]
             p.cflags = ["-O3"]
-            p.configure()
-            p.build()
-            p.run(time[p.run_f])
+            with substep("reconfigure"):
+                p.configure()
+            with substep("rebuild"):
+                p.build()
+            with substep("run"):
+                p.run(time[p.run_f])
 
         with step("JIT, no instrumentation"):
             p.ldflags = ["-L" + llvm_libs, "-lpjit"]
@@ -59,9 +62,12 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-polli",
                         "-mllvm", "-jitable",
                         "-mllvm", "-polly-detect-keep-going"]
-            p.configure()
-            p.build()
-            p.run(time[p.run_f])
+            with substep("reconfigure"):
+                p.configure()
+            with substep("rebuild"):
+                p.build()
+            with substep("run"):
+                p.run(time[p.run_f])
 
         with step("JIT, likwid"):
             p.ldflags = ["-L" + llvm_libs, "-lpjit"]
@@ -71,11 +77,14 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-polli",
                         "-mllvm", "-jitable",
                         "-mllvm", "-polly-detect-keep-going"]
-            p.configure()
-            p.build()
+            with substep("reconfigure"):
+                p.configure()
+            with substep("rebuild"):
+                p.build()
             exp_cmd = likwid_perfctr["-O", "-o", p.likwid_f, "-m", "-C", "-L:0",
                                      "-g", "CLOCK", p.run_f]
-            p.run(exp_cmd)
+            with substep("run"):
+                p.run(exp_cmd)
             with substep("Create DB entry & evaluate likwid run"):
                 run_id=create_run(
                     get_db_connection(), str(exp_cmd), p.name, self.name, p.run_uuid)

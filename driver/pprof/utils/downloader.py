@@ -72,6 +72,21 @@ def update_hash(fname, to):
         new_hash = GetHashofDirs(src_path)
         hf.write(new_hash)
 
+
+def Copy(From, To):
+    """Small copy wrapper
+
+    :From: TODO
+    :To: TODO
+
+    """
+    from plumbum.cmd import cp
+    from os import path
+
+    if not path.exists(To):
+        cp("-ar", "--reflink", From, To)
+
+
 def Wget(url, fname, to = None):
     """download :src: to :to: if required
 
@@ -88,12 +103,12 @@ def Wget(url, fname, to = None):
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
-        cp("-ar", "--reflink", src_dir, ".")
+        Copy(src_dir, ".")
         return
 
     wget(url, "-P", to)
     update_hash(fname, to)
-    cp("-ar", "--reflink", src_dir, ".")
+    Copy(src_dir, ".")
 
 def Git(url, fname, to = None):
     """get a shallow clone from :src to :to.
@@ -111,12 +126,12 @@ def Git(url, fname, to = None):
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
-        cp("-ar", "--reflink", src_dir, ".")
+        Copy(src_dir, ".")
         return
 
     git("clone", "--depth", "1", url, src_dir)
     update_hash(fname, to)
-    cp("-ar", "--reflink", src_dir, ".")
+    Copy(src_dir, ".")
 
 def Svn(url, fname, to = None):
     """get a shallow clone from :src to :to.
@@ -134,12 +149,12 @@ def Svn(url, fname, to = None):
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
-        cp("-ar", "--reflink", src_dir, ".")
+        Copy(src_dir, ".")
         return
 
     svn("co", url, src_dir)
     update_hash(fname, to)
-    cp("-ar", "--reflink", src_dir, ".")
+    Copy(src_dir, ".")
 
 
 def Rsync(url, fname, to = None):
@@ -158,9 +173,9 @@ def Rsync(url, fname, to = None):
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
-        cp("-ar", "--reflink", src_dir, ".")
+        Copy(src_dir, ".")
         return
 
     rsync("-a", url, src_dir)
     update_hash(fname, to)
-    cp("-ar", "--reflink", src_dir, ".")
+    Copy(src_dir, ".")

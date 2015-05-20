@@ -44,13 +44,24 @@ def static_var(varname, value):
 
 @contextmanager
 @static_var("counter", 0)
+def phase(name):
+    phase.counter += 1
+    step.counter = 0
+
+    print "{} '{}' START".format(phase.counter, name)
+    yield
+    print "{} '{}' OK".format(phase.counter, name)
+
+
+@contextmanager
+@static_var("counter", 0)
 def step(name):
     step.counter += 1
     substep.counter = 0
 
-    print "== STEP  == {}: '{}' begins".format(step.counter, name)
+    print "{}.{} '{}' START".format(phase.counter, step.counter, name)
     yield
-    print "== STEP  == {}: '{}' completed".format(step.counter, name)
+    print "{}.{} '{}' OK".format(phase.counter, step.counter, name)
 
 
 @contextmanager
@@ -58,19 +69,9 @@ def step(name):
 def substep(name):
     substep.counter += 1
 
-    print "== STEP  == {}.{}: '{}' begins".format(step.counter, substep.counter, name)
+    print "{}.{}.{}: '{}' START".format(phase.counter, step.counter, substep.counter, name)
     yield
-    print "== STEP  == {}.{}: '{}' completed".format(step.counter, substep.counter, name)
-
-
-@contextmanager
-@static_var("counter", 0)
-def phase(name):
-    phase.counter += 1
-
-    print "== PHASE == {}: '{}' begins".format(phase.counter, name)
-    yield
-    print "== PHASE == {}: '{}' completed".format(phase.counter, name)
+    print "{}.{}.{}: '{}' OK".format(phase.counter, step.counter, substep.counter, name)
 
 
 def synchronize_project_with_db(p):

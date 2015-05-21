@@ -29,7 +29,7 @@ class Linpack(PprofGroup):
         
         lp_patch = path.join(self.sourcedir, "linpack.patch")
         with local.cwd(self.builddir):
-            Wget(self.src_dir, "linpackc.new")
+            Wget(self.src_uri, "linpackc.new")
             cp("-a", "linpackc.new", "linpack.c")
 
             (patch["-p0"] < lp_patch)() 

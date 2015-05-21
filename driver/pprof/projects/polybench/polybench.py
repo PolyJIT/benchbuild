@@ -75,11 +75,11 @@ class PolyBenchGroup(Project):
 
         src_file = path.join(self.name + ".dir", self.name + ".c")
         with local.cwd(self.builddir):
-            myclang = clang()["-I", "utilities", "-I", self.name,
-                              "utilities/polybench.c", src_file,
-                              self.cflags, "-o", self.run_f, self.ldflags]
-            print myclang
-            myclang()
+            clang()["-I", "utilities",
+                    "-I", self.name,
+                    "-DPOLYBENCH_USE_C99_PROTO",
+                    "utilities/polybench.c", src_file,
+                    self.cflags, "-o", self.run_f, self.ldflags] & FG
 
 
 class Correlation(PolyBenchGroup):

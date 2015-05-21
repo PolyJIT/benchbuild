@@ -224,6 +224,23 @@ class Project(object):
             pass
 
 
+def wrap_tool(name, wrap_with):
+    from plumbum.cmd import mv
+    from os import path
+
+    if path.exists(name):
+        log.error("{} still exists, move it away and:\n".format(name))
+        log.error(" 1. 'run_f': to the binary you moved away\n")
+        log.error(" 2. build your experiment based on run_f as before\n")
+        log.error(" 3. wrap the tool with the _old_ value of 'run_f'")
+        return False
+
+    with open(name, 'w') as wrapper:
+        povray.write("#!/bin/sh\n")
+        povray.write(str(wrap_with) + " \"$@\"")
+    return True
+
+
 def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler_to_call):
     from plumbum.cmd import chmod
     with open(filepath, 'w') as wrapper:

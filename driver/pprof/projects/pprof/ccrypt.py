@@ -71,14 +71,15 @@ class Ccrypt(PprofGroup):
                 configure()
 
     def build(self):
-        from plumbum.cmd import make, ln
+        from plumbum.cmd import make, mv, rm
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
+            sh_file = path.join("src", "ccrypt")
+            rm("-f", sh_file)
             make & FG
-        
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(ccrypt_dir, "src", "ccrypt"), self.run_f)
+            mv(sh_file, self.bin_f)
+        self.run_f = self.bin_f
             
 
     def run_tests(self, experiment):
@@ -86,12 +87,10 @@ class Ccrypt(PprofGroup):
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
-            command = " ".join(experiment["-f"].formulate())
-            with local.cwd(self.builddir):
-                with open(self.bin_f, 'w+') as ccrypt:
-                    ccrypt.writelines([ "#!/bin/sh\n", command + " $*\n" ])
-                chmod("+x", self.bin_f)
-
-            with local.env(CHECK_CCRYPT=self.bin_f):
-                make["CHECK_CCRYPT=" + self.bin_f, "check"] & FG
+            sh_file = path.join("src", self.name)
+            with open(sh_file, 'w') as ccrypt:
+                ccrypt.write("#!/usr/bin/env bash\n")
+                ccrypt.write("exec " + str(experiment["\"$@\""]))
+            chmod("+x", sh_file)
+            make["check"] & FG
 

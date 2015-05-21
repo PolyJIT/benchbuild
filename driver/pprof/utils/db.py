@@ -76,13 +76,14 @@ def create_run(conn, cmd, prj, exp, grp):
     extras.register_uuid()
 
     sql_insert = ("INSERT INTO run (finished, command, project_name, "
-                  "experiment_name, run_group) "
-                  "VALUES (TIMESTAMP %s, %s, %s, %s, %s) "
+                  "experiment_name, run_group, experiment_group) "
+                  "VALUES (TIMESTAMP %s, %s, %s, %s, %s, %s) "
                   "RETURNING id;")
 
     with conn.cursor() as c:
         c.execute(
-            sql_insert, (datetime.now(), cmd, prj, exp, extensions.adapt(grp)))
+            sql_insert, (datetime.now(), cmd, prj, exp, extensions.adapt(grp),
+                extensions.adapt(config["experiment"])))
         run_id = c.fetchone()[0]
     conn.commit()
     return run_id

@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+from uuid import uuid4
 
 def available_cpu_count():
     """ Number of available virtual or physical CPUs on this system, i.e.
@@ -124,7 +125,8 @@ config = {
     "tmpdir": os.path.join(os.getcwd(), "tmp"),
     "path": os.environ["PATH"],
     "ld_library_path": os.environ["LD_LIBRARY_PATH"],
-    "jobs" : str(available_cpu_count())
+    "jobs" : str(available_cpu_count()),
+    "experiment" : os.getenv("PPROF_EXPERIMENT_ID", uuid4())
 }
 
 

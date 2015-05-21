@@ -197,7 +197,8 @@ class Experiment(object):
     @try_catch_log
     def run_project(self, p):
         with local.cwd(p.builddir):
-            p.run()
+            with local.env(PPROF_EXPERIMENT_ID=config["experiment"]):
+                p.run()
 
     def run(self):
         """Run the experiment on all registered projects

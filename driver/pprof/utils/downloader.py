@@ -83,8 +83,7 @@ def Copy(From, To):
     from plumbum.cmd import cp
     from os import path
 
-    if not path.exists(To):
-        cp("-ar", "--reflink", From, To)
+    cp("-ar", "--reflink=auto", From, To)
 
 
 def Wget(url, fname, to = None):

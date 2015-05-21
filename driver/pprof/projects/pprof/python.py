@@ -30,7 +30,7 @@ class Python(PprofGroup):
 
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
-            tar("xf", self.src_file)
+            tar("xfJ", self.src_file)
 
     def configure(self):
         from pprof.project import clang, clang_cxx

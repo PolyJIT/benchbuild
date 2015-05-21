@@ -80,7 +80,6 @@ class PolyBenchGroup(Project):
                               "-DPOLYBENCH_USE_C99_PROTO",
                               "utilities/polybench.c", src_file,
                               self.cflags, "-o", self.run_f, self.ldflags]
-            print myclang
             myclang()
 
 

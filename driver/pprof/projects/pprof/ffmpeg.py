@@ -20,48 +20,34 @@ class LibAV(PprofGroup):
             return LibAV(exp, "avconv", "multimedia")
     ProjectFactory.addFactory("LibAV", Factory())
 
-    @log_with(log)
-    def clean(self):
-        testfiles = path.join(self.testdir)
-        btestfiles = glob(path.join(self.builddir, "*"))
 
-        self.products.add(path.join(self.builddir, "tests"))
-        for f in btestfiles:
-            if not path.isdir(f):
-                self.products.add(f)
-
-        self.products.add(path.join(self.builddir, "Makefile.libav"))
-        super(LibAV, self).clean()
-
-    @log_with(log)
-    def prepare(self):
-        super(LibAV, self).prepare()
-
-        testfiles = glob(path.join(self.testdir, "*"))
-
-        for f in testfiles:
-            cp["-a", f, self.builddir] & FG
-        cp[path.join(self.sourcedir, "Makefile.libav"), self.builddir] & FG
-
-    @log_with(log)
-    def run_tests(self, experiment):
-        with local.env(TESTDIR=self.builddir):
-            echo["#!/bin/sh"] >> path.join(self.builddir, self.name) & FG
-            echo[str(experiment)] >> path.join(self.builddir, self.name) & FG
-            chmod["+x", path.join(self.builddir, self.name)] & FG
-            make["-i", "-f", "Makefile.libav", "fate"] & FG
-
-
-    src_file = "libav-11.3.tar.gz"
+    src_dir = "libav-11.3"
+    src_file = src_dir + ".tar.gz"
     src_uri = "https://libav.org/releases/" + src_file
+    fate_dir = "fate-samples"
+    fate_uri = "rsync://fate-suite.libav.org/fate-suite/"
+
+    def run_tests(self, experiment):
+        with local.cwd(self.builddir):
+            sh_file = path.join(self.src_dir, self.name)
+            with open(sh_file, 'w') as run_f:
+                run_f.write("#!/usr/bin/env bash\n")
+                run_f.write("{} \"$@\"\n".format(str(experiment)))
+            chmod["+x", sh_file] & FG
+
+        with local.cwd(self.src_dir):
+            make["V=1", "-i", "fate"] & FG
+
 
     def download(self):
-        from pprof.utils.downloader import Wget
+        from pprof.utils.downloader import Wget, Rsync
         from plumbum.cmd import tar
 
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
             tar('xfz', path.join(self.builddir, self.src_file))
+            with local.cwd(self.src_dir):
+                Rsync(self.fate_uri, self.fate_dir)
 
     def configure(self):
         llvm = path.join(config["llvmdir"], "bin")
@@ -76,9 +62,13 @@ class LibAV(PprofGroup):
         with local.cwd(libav_src):
             configure["--extra-cflags=" + " ".join(self.cflags),
                       "--extra-ldflags=" + " ".join(self.ldflags),
-                      "--cc=" + str(clang)] & FG
+                      "--disable-shared",
+                      "--cc=" + str(clang),
+                      "--samples=" + self.fate_dir] & FG
 
     def build(self):
+        from plumbum.cmd import ln, mv
+
         llvm = path.join(config["llvmdir"], "bin")
         llvm_libs = path.join(config["llvmdir"], "lib")
         tar_f, _ = path.splitext(self.src_file)
@@ -87,8 +77,8 @@ class LibAV(PprofGroup):
 
         with local.cwd(libav_src):
             with local.env(LD_LIBRARY_PATH=llvm_libs):
-                make["clean", "all"] & FG
-
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(libav_src, "avconv"), self.run_f)
+                #make["clean", "all"] & FG
+                make["all"] & FG
+                mv[self.name, self.bin_f] & FG
+        self.run_f = self.bin_f
 

@@ -245,14 +245,14 @@ class Experiment(object):
     @try_catch_log
     def run_project(self, p):
         with local.cwd(p.builddir):
-            with local.env(PPROF_EXPERIMENT_ID=config["experiment"]):
-                p.run()
+            p.run()
 
     def run(self):
         """Run the experiment on all registered projects
         """
         llvm_libs = path.join(config["llvmdir"], "lib")
-        with local.env(LD_LIBRARY_PATH=llvm_libs):
+        with local.env(LD_LIBRARY_PATH=llvm_libs,
+                       PPROF_EXPERIMENT_ID=str(config["experiment"])):
             self.map_projects(self.run_project, "run")
 
     @classmethod

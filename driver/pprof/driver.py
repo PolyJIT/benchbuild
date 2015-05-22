@@ -32,7 +32,6 @@ log.addHandler(handler)
 log.setLevel(logging.WARNING)
 
 def main(*args):
-    print __package__
     from pprof import run
     from pprof import build
 

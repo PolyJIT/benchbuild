@@ -146,6 +146,26 @@ def try_catch_log(func):
     return try_catch_func_wrapper
 
 
+def get_group_projects(group, experiment):
+    """Get a list of project names for the given group
+
+    :group: TODO
+    :experiment: TODO
+    :returns: TODO
+
+    """
+    from pprof.experiment import Experiment
+
+    group = []
+    projects = Experiment.projects
+    for name in projects:
+        p = projects[name]
+
+        if p.group_name == group:
+            group.append(name)
+    return group
+
+
 class Experiment(object):
 
     """ An series of commands executed on a project that form an experiment """
@@ -157,7 +177,7 @@ class Experiment(object):
         config["ld_library_path"] = path.join(config["llvmdir"], "lib") + \
             config["ld_library_path"]
 
-    def __init__(self, name, projects=[]):
+    def __init__(self, name, projects=[], group=None):
         self.name = name
         self.products = Set([])
         self.projects = {}
@@ -170,9 +190,9 @@ class Experiment(object):
         self.result_f = path.join(self.builddir, name + ".result")
         self.error_f = path.join(self.builddir, "error.log")
 
-        self.populate_projects(projects)
+        self.populate_projects(projects, group)
 
-    def populate_projects(self, projects_to_filter):
+    def populate_projects(self, projects_to_filter, group = None):
         self.projects = {}
         factories = ProjectFactory.factories
         for id in factories:
@@ -184,6 +204,9 @@ class Experiment(object):
             allkeys = Set(self.projects.keys())
             usrkeys = Set(projects_to_filter)
             self.projects = {x: self.projects[x] for x in allkeys & usrkeys}
+
+        if group:
+            self.projects = { k : v for k, v in self.projects.iteritems() if v.group_name == group }
 
     @try_catch_log
     def clean_project(self, p):

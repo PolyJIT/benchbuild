@@ -47,7 +47,7 @@ def dispatch_collect_job(exp, deps):
     cmd[script] & FG
 
 
-def dump_slurm_script(script_name, log_name, commands):
+def dump_slurm_script(script_name, log_name, commands, uuid=None):
     """Write all commands into a file with the given script name and
         configure slurm to use the given log_name with it
 
@@ -55,13 +55,14 @@ def dump_slurm_script(script_name, log_name, commands):
     :log_name: Where should we put the log output of the SLURM run
     :commands: What commands sould the script execute
     """
-    (true > script_name) & FG
-    (echo["#!/bin/sh"] >> script_name) & FG
-    (echo["#SBATCH -o "+log_name] >> script_name) & FG
-    (echo["set -e"] >> script_name) & FG
-    for c in commands:
-        (echo[c] >> script_name) & FG
-
+    with open(script_name, 'w') as slurm:
+        slurm.write("#!/bin/sh\n")
+        slurm.write("#SBATCH -o {}\n".format(log_name))
+        slurm.write("set -e\n")
+        if uuid:
+            slurm.write("export PPROF_EXPERIMENT_ID=\"{}\"".format(uuid))
+        for c in commands:
+            slurm.write("{}\n".format(str(c)))
     chmod("+x", script_name)
 
 
@@ -130,10 +131,13 @@ def dispatch_jobs(exp, projects):
 
     """
     jobs = []
+    from uuid import uuid4
+
+    experiment_id = uuid4()
     for project in projects:
         if len(project) == 0:
             continue
-        slurm_script = prepare_slurm_script(exp, project)
+        slurm_script = prepare_slurm_script(exp, project, experiment_id)
         job_id = (sbatch[
             "--job-name=" + exp + "-" + project,
             "-A", config["account"],

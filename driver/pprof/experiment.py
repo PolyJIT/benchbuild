@@ -48,9 +48,16 @@ def phase(name):
     phase.counter += 1
     step.counter = 0
 
+    print
     print "{} '{}' START".format(phase.counter, name)
-    yield
-    print "{} '{}' OK".format(phase.counter, name)
+    try:
+        yield
+    except ProcessExecutionError:
+        print
+        print "{} '{}' FAILED".format(phase.counter, name)
+    finally:
+        print
+        print "{} '{}' OK".format(phase.counter, name)
 
 
 @contextmanager
@@ -59,19 +66,37 @@ def step(name):
     step.counter += 1
     substep.counter = 0
 
+    print
     print "{}.{} '{}' START".format(phase.counter, step.counter, name)
-    yield
-    print "{}.{} '{}' OK".format(phase.counter, step.counter, name)
+    try:
+        yield
+    except ProcessExecutionError:
+        print
+        print "{}.{} '{}' FAILED".format(phase.counter, step.counter, name)
+    finally:
+        print
+        print "{}.{} '{}' OK".format(phase.counter, step.counter, name)
 
 
 @contextmanager
 @static_var("counter", 0)
+@static_var("failed", 0)
 def substep(name):
     substep.counter += 1
 
+    print
     print "{}.{}.{}: '{}' START".format(phase.counter, step.counter, substep.counter, name)
-    yield
-    print "{}.{}.{}: '{}' OK".format(phase.counter, step.counter, substep.counter, name)
+    try:
+        yield
+    except ProcessExecutionError:
+        print "{}.{}.{}: '{}' FAILED".format(phase.counter, step.counter, substep.counter, name)
+        substep.failed += 1
+        print
+        print "{} substeps have FAILED so far.".format(substep.failed)
+        print
+    finally:
+        print
+        print "{}.{}.{}: '{}' OK".format(phase.counter, step.counter, substep.counter, name)
 
 
 def synchronize_project_with_db(p):

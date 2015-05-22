@@ -79,10 +79,14 @@ class PprofRun(cli.Application):
     def list(self):
         self._list = True
 
+    @cli.switch(["-G", "--group"], str, requires=["--experiment"], help="Run a group of projects under the given experiments")
+    def group(self, group):
+        self._group_name = group
+
     def main(self):
         if self._list:
             for exp in self._experiment_names:
-                experiment = self._experiments[exp](exp, self._project_names)
+                experiment = self._experiments[exp](exp, self._project_names, self._group_name)
                 print_projects(experiment)
             exit(0)
 
@@ -90,7 +94,7 @@ class PprofRun(cli.Application):
             log.info("Running experiment: " + exp_name)
             name = exp_name.lower()
 
-            exp = self._experiments[name](name, self._project_names)
+            exp = self._experiments[name](name, self._project_names, self._group_name)
             synchronize_experiment_with_db(exp)
 
             if self._clean:
@@ -104,6 +108,7 @@ class PprofRun(cli.Application):
 
             if self._collect:
                 exp.collect_results()
+
 
 def print_projects(experiment):
     """Print a list of projects registered for that experiment

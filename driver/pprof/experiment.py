@@ -48,9 +48,16 @@ def phase(name):
     phase.counter += 1
     step.counter = 0
 
+    print
     print "{} '{}' START".format(phase.counter, name)
-    yield
-    print "{} '{}' OK".format(phase.counter, name)
+    try:
+        yield
+    except ProcessExecutionError:
+        print
+        print "{} '{}' FAILED".format(phase.counter, name)
+    finally:
+        print
+        print "{} '{}' OK".format(phase.counter, name)
 
 
 @contextmanager
@@ -59,19 +66,37 @@ def step(name):
     step.counter += 1
     substep.counter = 0
 
+    print
     print "{}.{} '{}' START".format(phase.counter, step.counter, name)
-    yield
-    print "{}.{} '{}' OK".format(phase.counter, step.counter, name)
+    try:
+        yield
+    except ProcessExecutionError:
+        print
+        print "{}.{} '{}' FAILED".format(phase.counter, step.counter, name)
+    finally:
+        print
+        print "{}.{} '{}' OK".format(phase.counter, step.counter, name)
 
 
 @contextmanager
 @static_var("counter", 0)
+@static_var("failed", 0)
 def substep(name):
     substep.counter += 1
 
+    print
     print "{}.{}.{}: '{}' START".format(phase.counter, step.counter, substep.counter, name)
-    yield
-    print "{}.{}.{}: '{}' OK".format(phase.counter, step.counter, substep.counter, name)
+    try:
+        yield
+    except ProcessExecutionError:
+        print "{}.{}.{}: '{}' FAILED".format(phase.counter, step.counter, substep.counter, name)
+        substep.failed += 1
+        print
+        print "{} substeps have FAILED so far.".format(substep.failed)
+        print
+    finally:
+        print
+        print "{}.{}.{}: '{}' OK".format(phase.counter, step.counter, substep.counter, name)
 
 
 def synchronize_project_with_db(p):
@@ -121,6 +146,26 @@ def try_catch_log(func):
     return try_catch_func_wrapper
 
 
+def get_group_projects(group, experiment):
+    """Get a list of project names for the given group
+
+    :group: TODO
+    :experiment: TODO
+    :returns: TODO
+
+    """
+    from pprof.experiment import Experiment
+
+    group = []
+    projects = Experiment.projects
+    for name in projects:
+        p = projects[name]
+
+        if p.group_name == group:
+            group.append(name)
+    return group
+
+
 class Experiment(object):
 
     """ An series of commands executed on a project that form an experiment """
@@ -132,7 +177,7 @@ class Experiment(object):
         config["ld_library_path"] = path.join(config["llvmdir"], "lib") + \
             config["ld_library_path"]
 
-    def __init__(self, name, projects=[]):
+    def __init__(self, name, projects=[], group=None):
         self.name = name
         self.products = Set([])
         self.projects = {}
@@ -145,9 +190,9 @@ class Experiment(object):
         self.result_f = path.join(self.builddir, name + ".result")
         self.error_f = path.join(self.builddir, "error.log")
 
-        self.populate_projects(projects)
+        self.populate_projects(projects, group)
 
-    def populate_projects(self, projects_to_filter):
+    def populate_projects(self, projects_to_filter, group = None):
         self.projects = {}
         factories = ProjectFactory.factories
         for id in factories:
@@ -159,6 +204,9 @@ class Experiment(object):
             allkeys = Set(self.projects.keys())
             usrkeys = Set(projects_to_filter)
             self.projects = {x: self.projects[x] for x in allkeys & usrkeys}
+
+        if group:
+            self.projects = { k : v for k, v in self.projects.iteritems() if v.group_name == group }
 
     @try_catch_log
     def clean_project(self, p):
@@ -197,14 +245,14 @@ class Experiment(object):
     @try_catch_log
     def run_project(self, p):
         with local.cwd(p.builddir):
-            with local.env(PPROF_EXPERIMENT_ID=config["experiment"]):
-                p.run()
+            p.run()
 
     def run(self):
         """Run the experiment on all registered projects
         """
         llvm_libs = path.join(config["llvmdir"], "lib")
-        with local.env(LD_LIBRARY_PATH=llvm_libs):
+        with local.env(LD_LIBRARY_PATH=llvm_libs,
+                       PPROF_EXPERIMENT_ID=str(config["experiment"])):
             self.map_projects(self.run_project, "run")
 
     @classmethod

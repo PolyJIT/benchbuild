@@ -109,6 +109,7 @@ class PprofRun(cli.Application):
             if self._collect:
                 exp.collect_results()
 
+
 def print_projects(experiment):
     """Print a list of projects registered for that experiment
 

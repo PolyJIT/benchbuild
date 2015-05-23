@@ -47,7 +47,7 @@ class Minisat(PprofGroup):
             with local.cwd(minisat_dir):
                 git("fetch", "origin", "pull/17/head:clang")
                 git("checkout", "clang")
-    
+
     def configure(self):
         from plumbum.cmd import make
 

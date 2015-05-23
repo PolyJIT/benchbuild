@@ -87,17 +87,18 @@ class PolyJIT(RuntimeExperiment):
                     return likwid_perfctr["-O", "-o", p.likwid_f, "-m", "-C",
                                           "-L:0", "-g", "CLOCK", run_f]
                 p.run(runner)
+
             with substep("Create DB entry & evaluate likwid run"):
-                run_id=create_run(
-                    get_db_connection(), str(exp_cmd), p.name, self.name, p.run_uuid)
-                likwid_measurement=likwid.get_likwid_perfctr(p.likwid_f)
+                run_id = create_run(
+                    get_db_connection(), "likwid", p.name, self.name, p.run_uuid)
+                likwid_measurement = likwid.get_likwid_perfctr(p.likwid_f)
                 likwid.to_db(run_id, likwid_measurement)
                 for (region, name, core_info, li) in likwid_measurement:
                     print "{} - {} - {} - {}".format(region, name, core_info, li)
 
         with step("No recompilation, PAPI"):
-            p.ldflags=["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
-            p.cflags=["-O3",
+            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+            p.cflags = ["-O3",
                         "-Xclang", "-load",
                         "-Xclang", "LLVMPolyJIT.so",
                         "-mllvm", "-polli",
@@ -130,7 +131,8 @@ class PolyJIT(RuntimeExperiment):
                     (pprof_analyze | tee["-a", p.result_f]) & FG
 
             with substep("pprof calibrate"):
-                papi_calibration=self.get_papi_calibration(p, pprof_calibrate)
+                papi_calibration = self.get_papi_calibration(
+                    p, pprof_calibrate)
                 if papi_calibration:
                     (awk[("{s+=$1} END {"
                           " time = (s*" + papi_calibration + "/1000000000);"

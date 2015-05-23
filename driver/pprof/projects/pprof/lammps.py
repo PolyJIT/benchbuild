@@ -21,7 +21,7 @@ class Lammps(PprofGroup):
     def prepare(self):
         super(PprofGroup, self).prepare()
         from plumbum.cmd import cp
-        
+
         with local.cwd(self.builddir):
             cp("-vr", self.testdir, "test")
 

@@ -45,6 +45,7 @@ class SDCC(PprofGroup):
 
     def run_tests(self, experiment):
         from plumbum.cmd import make
+        exp = experiment(self.run_f)
 
         log.debug("FIXME: invalid LLVM IR, regenerate from source")
         log.debug("FIXME: test incomplete, port from sdcc/Makefile")

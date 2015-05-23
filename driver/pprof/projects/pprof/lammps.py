@@ -26,10 +26,12 @@ class Lammps(PprofGroup):
             cp("-vr", self.testdir, "test")
 
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
+
         with local.cwd(path.join(self.builddir, "test")):
             tests = glob(path.join(self.testdir, "in.*"))
             for test in tests:
-                cmd = (experiment < test)
+                cmd = (exp < test)
                 cmd & FG(retcode=None)
 
     src_dir = "lammps.git"

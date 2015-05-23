@@ -23,6 +23,8 @@ class Minisat(PprofGroup):
 
     def run_tests(self, experiment):
         from pprof.project import llvm_libs
+        exp = experiment(self.run_f)
+
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
         for f in testfiles:
             minisat_dir = path.join(self.builddir, self.src_dir)
@@ -31,7 +33,7 @@ class Minisat(PprofGroup):
                     llvm_libs()
                     ]
             with local.env(LD_LIBRARY_PATH=":".join(libpath)):
-                (experiment < f) & FG(retcode=None)
+                (exp < f) & FG(retcode=None)
 
     src_dir = "minisat.git"
     src_uri = "https://github.com/niklasso/minisat"

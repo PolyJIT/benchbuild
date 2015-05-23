@@ -18,7 +18,8 @@ class LuleshOMP(PprofGroup):
     ProjectFactory.addFactory("LuleshOMP", Factory())
 
     def run_tests(self, experiment):
-        experiment["20"] & FG
+        exp = experiment(self.run_f)
+        exp["20"] & FG
 
     src_file = "LULESH_OMP.cc"
     src_uri = "https://codesign.llnl.gov/lulesh/" + src_file

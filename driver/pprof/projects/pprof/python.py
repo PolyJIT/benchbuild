@@ -54,9 +54,11 @@ class Python(PprofGroup):
 
     def run_tests(self, experiment):
         from plumbum.cmd import make
+        exp = experiment(self.run_f)
+
         python_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(python_dir):
-            make("TESTPYTHON=" + str(experiment), "-i", "test")
+            make("TESTPYTHON=" + str(exp), "-i", "test")
 
         #testfiles = find(self.testdir, "-name", "*.py").splitlines()
         #for f in testfiles:

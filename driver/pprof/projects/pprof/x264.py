@@ -73,10 +73,12 @@ class X264(PprofGroup):
 
 
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
+
         testfiles = [path.join(self.testdir, x) for x in self.inputfiles]
         # TODO: Prepare test videos
         for ifile in testfiles:
-            experiment[
+            exp[
                 ifile,
                 "--threads", "1",
                 "-o", "/dev/null",
@@ -84,7 +86,7 @@ class X264(PprofGroup):
                 "--crf", "30",
                 "-b1", "-m1", "-r1", "--me", "dia", "--no-cabac",
                 "--direct", "temporal", "--ssim", "--no-weightb"] & FG
-            experiment[
+            exp[
                 ifile,
                 "--threads", "1",
                 "-o", "/dev/null",
@@ -93,7 +95,7 @@ class X264(PprofGroup):
                 "-b2", "-m3", "-r3", "--me", "hex", "--no-8x8dct",
                 "--direct", "spatial", "--no-dct-decimate", "-t0",
                 "--slice-max-mbs", "50"] & FG
-            experiment[
+            exp[
                 ifile,
                 "--threads", "1",
                 "-o", "/dev/null",
@@ -102,28 +104,27 @@ class X264(PprofGroup):
                 "-b4", "-m5", "-r2", "--me", "hex", "--cqm", "jvt",
                 "--nr", "100", "--psnr", "--no-mixed-refs",
                 "--b-adapt", "2", "--slice-max-size", "1500"] & FG
-            experiment[
+            exp[
                 ifile,
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "--crf", "18", "-b3", "-m9", "-r5", "--me", "umh",
                 "-t1", "-A", "all", "--b-pyramid", "normal",
                 "--direct", "auto", "--no-fast-pskip", "--no-mbtree"] & FG
-            experiment[
+            exp[
                 ifile,
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "--crf", "22", "-b3", "-m7", "-r4", "--me", "esa", "-t2",
                 "-A", "all", "--psy-rd", "1.0:1.0", "--slices", "4"] & FG
-            experiment[
+            exp[
                 ifile,
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "--crf", "24", "-b3", "-m10", "-r3", "--me", "tesa",
                 "-t2"] & FG
-            experiment[
+            exp[
                 ifile,
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "-q0", "-m9", "-r2", "--me", "hex", "-Aall"] & FG
-            experiment[
+            exp[
                 ifile,
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "-q0", "-m2", "-r1", "--me", "hex", "--no-cabac"] & FG
-

@@ -36,7 +36,8 @@ class Postgres(PprofGroup):
             cp["-a", f, self.builddir] & FG
 
     def run_tests(self, experiment):
-        echo("foo")
+        exp = experiment(self.run_f)
+
         pg_ctl = local[path.join(self.builddir, "pg_ctl")]
         dropdb = local[path.join(self.builddir, "dropdb")]
         createdb = local[path.join(self.builddir, "createdb")]
@@ -46,7 +47,7 @@ class Postgres(PprofGroup):
         test_data = path.join(self.testdir, "test-data")
 
         echo["#!/bin/sh"] >> bin_name & FG
-        echo[str(experiment)] >> bin_name & FG
+        echo[str(exp)] >> bin_name & FG
         chmod("+x", bin_name)
 
         num_clients = 1

@@ -55,8 +55,9 @@ class TCC(PprofGroup):
     def run_tests(self, experiment):
         from plumbum.cmd import make
 
+        exp = experiment(self.run_f)
+
         with local.cwd(self.builddir):
             make["test"] & FG
         log.debug("FIXME: test incomplete, port from tcc/Makefile")
-        experiment & FG
-
+        exp & FG

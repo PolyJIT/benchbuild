@@ -171,10 +171,10 @@ class Project(object):
 
     @log_with(log)
     def run(self, experiment):
-        import uuid
+        from uuid import uuid4
         with local.cwd(self.builddir):
             if self.run_uuid is None:
-                self.run_uuid = uuid.uuid4()
+                self.run_uuid = uuid4()
             with local.env(PPROF_CMD=str(experiment(self.run_f)),
                            PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid):

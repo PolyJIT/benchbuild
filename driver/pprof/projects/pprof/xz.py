@@ -38,25 +38,27 @@ class XZ(PprofGroup):
         cp[testfiles, self.builddir] & FG
 
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
         # Compress
-        experiment["-f", "-k", "--compress", "-e", "-9", "text.html"] & FG
-        experiment["-f", "-k", "--compress", "-e", "-9", "chicken.jpg"] & FG
-        experiment["-f", "-k", "--compress", "-e", "-9", "control"] & FG
-        experiment[
+        exp["-f", "-k", "--compress", "-e", "-9", "text.html"] & FG
+        exp["-f", "-k", "--compress", "-e", "-9", "chicken.jpg"] & FG
+        exp["-f", "-k", "--compress", "-e", "-9", "control"] & FG
+        exp[
             "-f",
             "-k",
             "--compress",
             "-e",
             "-9",
             "input.source"] & FG
-        experiment["-f", "-k", "--compress", "-e", "-9", "liberty.jpg"] & FG
+        exp["-f", "-k", "--compress", "-e", "-9", "liberty.jpg"] & FG
 
         # Decompress
-        experiment["-f", "-k", "--decompress", "text.html.xz"] & FG
-        experiment["-f", "-k", "--decompress", "chicken.jpg.xz"] & FG
-        experiment["-f", "-k", "--decompress", "control.xz"] & FG
-        experiment["-f", "-k", "--decompress", "input.source.xz"] & FG
-        experiment["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
+        exp["-f", "-k", "--decompress", "text.html.xz"] & FG
+        exp["-f", "-k", "--decompress", "chicken.jpg.xz"] & FG
+        exp["-f", "-k", "--decompress", "control.xz"] & FG
+        exp["-f", "-k", "--decompress", "input.source.xz"] & FG
+        exp["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
+
 
     
     src_file = "xz-5.2.1.tar.gz"

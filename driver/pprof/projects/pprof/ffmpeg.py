@@ -28,11 +28,13 @@ class LibAV(PprofGroup):
     fate_uri = "rsync://fate-suite.libav.org/fate-suite/"
 
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
+
         with local.cwd(self.builddir):
             sh_file = path.join(self.src_dir, self.name)
             with open(sh_file, 'w') as run_f:
                 run_f.write("#!/usr/bin/env bash\n")
-                run_f.write("{} \"$@\"\n".format(str(experiment)))
+                run_f.write("{} \"$@\"\n".format(str(exp)))
             chmod["+x", sh_file] & FG
 
         with local.cwd(self.src_dir):

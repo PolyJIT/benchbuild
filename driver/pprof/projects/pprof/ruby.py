@@ -51,11 +51,12 @@ class Ruby(PprofGroup):
 
     def run_tests(self, experiment):
         from plumbum.cmd import ruby, echo, chmod
+        exp = experiment(self.run_f)
 
         with local.env(RUBYOPT=""):
             sh_script = path.join(self.builddir, self.bin_f + ".sh")
             (echo["#!/bin/sh"] > sh_script) & FG
-            (echo[str(experiment) + " $*"] >> sh_script) & FG
+            (echo[str(exp) + " $*"] >> sh_script) & FG
             chmod("+x", sh_script)
 
             ruby[path.join(self.testdir, "benchmark", "run.rb"),

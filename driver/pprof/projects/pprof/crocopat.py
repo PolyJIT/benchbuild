@@ -23,11 +23,13 @@ class Crocopat(PprofGroup):
     ProjectFactory.addFactory("Crocopat", Factory())
 
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
+
         programs = glob(path.join(self.testdir, "programs", "*.rml"))
         projects = glob(path.join(self.testdir, "projects", "*.rsf"))
         for program in programs:
             for project in projects:
-                (cat[project] | experiment[program]) & FG(retcode=None)
+                (cat[project] | exp[program]) & FG(retcode=None)
 
     src_dir = "crocopat-2.1.4"
     src_file = src_dir + ".zip"

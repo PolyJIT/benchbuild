@@ -85,12 +85,14 @@ class Ccrypt(PprofGroup):
     def run_tests(self, experiment):
         from plumbum.cmd import make, chmod
 
+        exp = experiment(self.run_f)
+
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
             sh_file = path.join("src", self.name)
             with open(sh_file, 'w') as ccrypt:
                 ccrypt.write("#!/usr/bin/env bash\n")
-                ccrypt.write("exec " + str(experiment["\"$@\""]))
+                ccrypt.write("exec " + str(exp["\"$@\""]))
             chmod("+x", sh_file)
             make["check"] & FG
 

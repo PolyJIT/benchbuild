@@ -23,7 +23,8 @@ class Lulesh(PprofGroup):
 
     @log_with(log)
     def run_tests(self, experiment):
-        experiment["20"] & FG
+        exp = experiment(self.run_f)
+        exp["20"] & FG
 
     src_file = "LULESH.cc"
     src_uri = "https://codesign.llnl.gov/lulesh/" + src_file

@@ -64,6 +64,8 @@ class Crafty(PprofGroup):
         self.run_f = path.join(crafty_dir, "crafty")
 
     def run_tests(self, experiment):
-        (cat[path.join(self.testdir, "test1.sh")] | experiment) & FG
-        (cat[path.join(self.testdir, "test2.sh")] | experiment) & FG
+        exp = experiment(self.run_f)
+
+        (cat[path.join(self.testdir, "test1.sh")] | exp) & FG
+        (cat[path.join(self.testdir, "test2.sh")] | exp) & FG
 

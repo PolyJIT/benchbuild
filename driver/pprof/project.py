@@ -164,6 +164,7 @@ class Project(object):
 
     @log_with(log)
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
         experiment & FG
 
     run_uuid = None
@@ -174,7 +175,7 @@ class Project(object):
         with local.cwd(self.builddir):
             if self.run_uuid is None:
                 self.run_uuid = uuid.uuid4()
-            with local.env(PPROF_CMD=str(experiment),
+            with local.env(PPROF_CMD=str(experiment(self.run_f)),
                            PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid):
                 print self.run_uuid

@@ -67,6 +67,7 @@ class Povray(PprofGroup):
 
     def run_tests(self, experiment):
         from plumbum.cmd import mkdir, chmod
+        exp = experiment(self.run_f)
 
         povray_dir = path.join(self.builddir, self.src_dir)
         povray_binary = path.join(povray_dir, "unix", self.name)
@@ -77,7 +78,7 @@ class Povray(PprofGroup):
 
         with open(povray_binary, 'w') as povray:
             povray.write("#!/bin/sh\n")
-            povray.write(str(experiment) + " \"$@\"")
+            povray.write(str(exp) + " \"$@\"")
         chmod("+x", povray_binary)
 
         render = local[path.join(povray_dir, "scripts",

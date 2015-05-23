@@ -83,16 +83,18 @@ class Bzip2(PprofGroup):
 
     @log_with(log)
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
+
         # Compress
-        experiment["-f", "-z", "-k", "--best", "text.html"] & FG
-        experiment["-f", "-z", "-k", "--best", "chicken.jpg"] & FG
-        experiment["-f", "-z", "-k", "--best", "control"] & FG
-        experiment["-f", "-z", "-k", "--best", "input.source"] & FG
-        experiment["-f", "-z", "-k", "--best", "liberty.jpg"] & FG
+        exp["-f", "-z", "-k", "--best", "text.html"] & FG
+        exp["-f", "-z", "-k", "--best", "chicken.jpg"] & FG
+        exp["-f", "-z", "-k", "--best", "control"] & FG
+        exp["-f", "-z", "-k", "--best", "input.source"] & FG
+        exp["-f", "-z", "-k", "--best", "liberty.jpg"] & FG
 
         # Decompress
-        experiment["-f", "-k", "--decompress", "text.html.bz2"] & FG
-        experiment["-f", "-k", "--decompress", "chicken.jpg.bz2"] & FG
-        experiment["-f", "-k", "--decompress", "control.bz2"] & FG
-        experiment["-f", "-k", "--decompress", "input.source.bz2"] & FG
-        experiment["-f", "-k", "--decompress", "liberty.jpg.bz2"] & FG
+        exp["-f", "-k", "--decompress", "text.html.bz2"] & FG
+        exp["-f", "-k", "--decompress", "chicken.jpg.bz2"] & FG
+        exp["-f", "-k", "--decompress", "control.bz2"] & FG
+        exp["-f", "-k", "--decompress", "input.source.bz2"] & FG
+        exp["-f", "-k", "--decompress", "liberty.jpg.bz2"] & FG

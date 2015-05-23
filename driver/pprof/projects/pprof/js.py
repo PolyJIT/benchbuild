@@ -38,5 +38,3 @@ class SpiderMonkey(PprofGroup):
         chmod("+x", sh_script)
         jstests = local[path.join(self.testdir, "tests", "jstests.py")]
         jstests[sh_script] & FG(retcode=None)
-
-    ProjectFactory.addFactory("SpiderMonkey", Factory())

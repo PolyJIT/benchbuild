@@ -9,6 +9,7 @@ from os import path
 from plumbum import FG, local
 from plumbum.cmd import cp
 
+
 class X264(PprofGroup):
 
     """ x264 """
@@ -16,6 +17,7 @@ class X264(PprofGroup):
     inputfiles = ["tbbt-small.y4m"]
 
     class Factory:
+
         def create(self, exp):
             obj = X264(exp, "x264", "multimedia")
             obj.calls_f = path.join(obj.builddir, "papi.calls.out")
@@ -37,6 +39,7 @@ class X264(PprofGroup):
         super(X264, self).clean()
 
     src_dir = "x264.git"
+
     def download(self):
         from pprof.utils.downloader import Git
         src_uri = "git://git.videolan.org/x264.git"
@@ -70,7 +73,6 @@ class X264(PprofGroup):
 
         with local.cwd(self.builddir):
             ln("-sf", path.join(x264_dir, "x264"), self.run_f)
-
 
     def run_tests(self, experiment):
         exp = experiment(self.run_f)

@@ -60,7 +60,6 @@ class XZ(PprofGroup):
         exp["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
 
 
-    
     src_file = "xz-5.2.1.tar.gz"
     src_uri = "http://tukaani.org/xz/" + src_file
 
@@ -71,7 +70,7 @@ class XZ(PprofGroup):
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
             tar('xfz', path.join(self.builddir, self.src_file))
-        
+
     def configure(self):
         llvm = path.join(config["llvmdir"], "bin")
         llvm_libs = path.join(config["llvmdir"], "lib")

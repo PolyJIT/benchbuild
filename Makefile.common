@@ -1,0 +1,105 @@
+# Makefile.common
+#
+# Include this from your experiment directory in the study
+# after you have set the LEVEL and PROJECT variables to the relative position
+# of the study's root.
+#
+# Example:
+#
+# We are in <StudyRoot>/foo/bar/Makefile:
+#
+# LEVEL = ../..
+# include $(LEVEL)/Makefile.common
+
+include $(LEVEL)/Makefile.config
+
+# Initialize file & directory names
+ifdef CONFIG_NUM
+  OUTPUT_SUB = $(CONFIG_NUM)_$(EXPERIMENT)
+else
+  OUTPUT_SUB = $(EXPERIMENT)
+endif
+
+OUTDIR = $(OUTPUT)/$(OUTPUT_SUB)
+PROJECT_OUTDIR = $(OUTPUT)/$(PROJECT)/$(OUTPUT_SUB)/%
+
+PREOPT_F  = $(PROJECT).preopt
+RUN_F     = $(PROJECT_OUTDIR)/$(PROJECT)
+OPT_F     = $(RUN_F).opt
+INST_F    = $(RUN_F).inst
+LIKWID_F  = $(RUN_F).likwid
+CSV_F     = $(RUN_F).csv
+TIME_F    = $(RUN_F)$(TIME_EXT)
+BIN_F     = $(RUN_F)$(BIN_EXT)
+PROFILE_F = $(RUN_F)$(PROFILE_EXT)
+CALLS_F   = $(BIN_F)$(CALLS_EXT)
+PROFBIN_F = $(PROJECT_OUTDIR)/$(PROJECT)-$(EXPERIMENT)$(PROFILE_EXT)
+TAR_F     = %_$(OUTPUT_SUB).tar.gz
+
+GENERATED= $(RUN_F) $(OPT_F) $(INST_F) $(CALLS_F) $(TIME_F) $(BIN_F) \
+	   $(LIKWID_F) $(CSV_F)
+PROFILES = $(PROFILE_F) $(PROFBIN_F)
+
+.PRECIOUS : $(RUN_F) \
+            $(OPT_F) \
+	    $(INST_F) \
+	    $(CALLS_F) \
+	    $(TIME_F) \
+	    $(BIN_F) \
+	    $(PROFILE_F) \
+	    $(PROFBIN_F) \
+	    $(PREOPT_F) \
+	    $(LIKWID_F) \
+	    $(CSV_F)
+
+# Output macros:
+ifndef VERBOSE
+VM = @
+
+ifdef CONFIG_NUM
+VD = "[$(CONFIG_NUM)] " $@ " <- " $^;
+V  = "[$(CONFIG_NUM)] " $@;
+else
+VD = $@ " <- " $^;
+V  = $@;
+endif
+V_CP     = @echo " LN    " $(VD)
+V_CP     = @echo " CP    " $(VD)
+V_MKD    = @echo " MKDIR " $(VD)
+V_MV     = @echo " MV    " $(VD)
+V_RM     = @echo " RM    " $(VD)
+V_TAR    = @echo " TAR   " $(VD)
+V_TCH    = @echo " TOUCH " $(VD)
+V_PRE    = @echo " PRE   " $(VD)
+V_OPT    = @echo " OPT   " $(VD)
+V_DIR    = @echo " DIR   " $(V)
+V_BIN    = @echo " BIN   " $(VD)
+V_RUN    = @echo " RUN   " $(VD)
+V_RM     = @echo " RM    " $(V)
+V_SED    = @echo " SED   " $(V)
+V_LLC    = @echo " LLC   " $(VD)
+V_REP    = @echo " REPRT " $(VD)
+V_AWK    = @echo " AWK   " $(VD)
+V_PPROF  = @echo " PPROF " $(VD)
+V_CLANG  = @echo " CLANG " $(VD)
+V_LIKWID = @echo " LIKWID" $(VD)
+endif
+
+.PHONY:
+$(OUTDIR)/.mkdir:
+	$(V_MKD)mkdir -p $(subst /.mkdir,,$@)
+
+.PHONY:
+$(PROJECT_OUTDIR)/.mkdir:
+	$(V_MKD)mkdir -p $(subst /.mkdir,,$@)
+
+# If we're a single project, include the experiments to execute later.
+ifdef PROJECT
+  include $(LEVEL)/Makefile.project
+endif
+
+# If we're a subdirectory, include the traversal rules.
+ifdef DIRS
+  include $(LEVEL)/Makefile.dirs
+endif
+.SUFFIX:

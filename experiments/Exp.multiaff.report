@@ -1,0 +1,27 @@
+##=== TEST.polly-prof.report - Report for polly-prof tests -----*- perl -*-===##
+#
+# This file defines a report to be generated for the jit test.
+#
+##===----------------------------------------------------------------------===##
+
+# Sort by total execution time
+$SortCol = 0;
+#$TrimRepeatedPrefix = 1;
+$TrimAllDirectories = 1;
+
+# Sort in descending order
+$SortReverse = 0;
+
+# These are the columns for the report.  The first entry is the header for the
+# column, the second is the regex to use to match the value.  Empty list create
+# seperators, and closures may be put in for custom processing.
+(
+# Name
+ ["Name"       , '\'([^\']+)\' Program'],
+ ["Scops"      , '([0-9.]+).*Number of regions that a valid part of Scop'],
+ ["CScops"     , '([0-9.]+).*Number of valid CScops'],
+ ["NonAff"     , '([0-9.]+).*Number of non-affine CScops'],
+ ["NonAlgExp"  , '([0-9.]+).*Number of non-algebraic expressions in TempScops'],
+ ["MultiDim"   , '([0-9.]+).*Number of affine CScops with multi-dimensional arrays'],
+ ["Loop"       , '([0-9.]+).*Number of CScops containing a loop']
+);

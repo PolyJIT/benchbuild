@@ -1,0 +1,87 @@
+include $(TESTDIR)/config.mak
+
+ifndef V
+Q      = @
+ECHO   = printf "$(1)\t%s\n" $(2)
+BRIEF  = CC AS YASM AR LD HOSTCC
+SILENT = DEPCC YASMDEP RM RANLIB
+MSG    = $@
+M      = @$(call ECHO,$(TAG),$@);
+$(foreach VAR,$(BRIEF), \
+    $(eval override $(VAR) = @$$(call ECHO,$(VAR),$$(MSG)); $($(VAR))))
+$(foreach VAR,$(SILENT),$(eval override $(VAR) = @$($(VAR))))
+$(eval INSTALL = @$(call ECHO,INSTALL,$$(^:$(SRC_PATH)/%=%)); $(INSTALL))
+endif
+
+ALLFFLIBS = avcodec avdevice avfilter avformat avutil postproc swscale
+
+IFLAGS     := -I. -I$(SRC_PATH)
+CPPFLAGS   := $(IFLAGS) $(CPPFLAGS)
+CFLAGS     += $(ECFLAGS)
+CCFLAGS     = $(CFLAGS)
+YASMFLAGS  += $(IFLAGS) -I$(SRC_PATH)/libavutil/x86/ -Pconfig.asm
+HOSTCFLAGS += $(IFLAGS)
+LDFLAGS    := $(ALLFFLIBS:%=-Llib%) $(LDFLAGS)
+
+PROGS-$(CONFIG_FFMPEG)   += ffmpeg
+PROGS-$(CONFIG_AVCONV)   += avconv
+PROGS-$(CONFIG_AVPLAY)   += avplay
+PROGS-$(CONFIG_AVPROBE)  += avprobe
+PROGS-$(CONFIG_AVSERVER) += avserver
+
+PROGS      := $(PROGS-yes:%=%$(EXESUF))
+TESTTOOLS   = audiogen videogen rotozoom tiny_psnr base64
+HOSTPROGS  := $(TESTTOOLS:%=tests/%)
+TOOLS       = qt-faststart trasher
+TOOLS-$(CONFIG_ZLIB) += cws2fws
+
+BASENAMES   = ffmpeg avconv avplay avprobe avserver
+ALLPROGS    = $(BASENAMES:%=%$(EXESUF))
+ALLMANPAGES = $(BASENAMES:%=%.1)
+
+FFLIBS-$(CONFIG_AVDEVICE) += avdevice
+FFLIBS-$(CONFIG_AVFILTER) += avfilter
+FFLIBS-$(CONFIG_AVFORMAT) += avformat
+FFLIBS-$(CONFIG_AVCODEC)  += avcodec
+FFLIBS-$(CONFIG_POSTPROC) += postproc
+FFLIBS-$(CONFIG_SWSCALE)  += swscale
+
+FFLIBS := avutil
+
+DATA_FILES := $(wildcard $(SRC_PATH)/ffpresets/*.ffpreset)
+
+SKIPHEADERS = cmdutils_common_opts.h
+
+include $(TESTDIR)/common.mak
+
+FF_EXTRALIBS := $(FFEXTRALIBS)
+FF_DEP_LIBS  := $(DEP_LIBS)
+
+config.h: .config
+.config: $(wildcard $(FFLIBS:%=$(SRC_PATH)/lib%/all*.c))
+	@-tput bold 2>/dev/null
+	@-printf '\nWARNING: $(?F) newer than config.h, rerun configure\n\n'
+	@-tput sgr0 2>/dev/null
+
+SUBDIR_VARS := OBJS FFLIBS CLEANFILES DIRS TESTPROGS EXAMPLES SKIPHEADERS \
+               ALTIVEC-OBJS MMX-OBJS NEON-OBJS X86-OBJS YASM-OBJS-FFT YASM-OBJS \
+               HOSTPROGS BUILT_HEADERS TESTOBJS ARCH_HEADERS ARMV6-OBJS TOOLS
+
+define RESET
+$(1) :=
+$(1)-yes :=
+endef
+
+define DOSUBDIR
+$(foreach V,$(SUBDIR_VARS),$(eval $(call RESET,$(V))))
+SUBDIR := $(1)/
+include $(SRC_PATH)/$(1)/Makefile
+endef
+
+OBJDIRS += tools
+
+VERSION_SH  = $(SRC_PATH)/version.sh
+GIT_LOG     = $(SRC_PATH)/.git/logs/HEAD
+
+include $(TESTDIR)/tests/Makefile
+

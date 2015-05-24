@@ -1,0 +1,60 @@
+##=== TEST.polly-prof.report - Report for polly-prof tests -----*- perl -*-===##
+#
+# This file defines a report to be generated for the jit test.
+#
+##===----------------------------------------------------------------------===##
+
+# Sort by total execution time
+$SortCol = 0;
+#$TrimRepeatedPrefix = 1;
+$TrimAllDirectories = 1;
+
+# Sort in descending order
+$SortReverse = 0;
+
+# These are the columns for the report.  The first entry is the header for the
+# column, the second is the regex to use to match the value.  Empty list create
+# seperators, and closures may be put in for custom processing.
+(
+# Name
+ ["Name"       , '\'([^\']+)\' Program'],
+ ["Scops"      , '([0-9.]+).*Number of regions that a valid part of Scop'],
+ ["JitScops"   , '([0-9.]+).*Number of jitable SCoPs'],
+ ["Dynamic"    , 'Dynamic SCoP coverage\s*- ([0-9.]+)'],
+                 #Time spent in libPAPI (s) - 1.25096
+ ["PapiTime"   , 'Time spent in libPAPI \(s\) - ([0-9.]+)'],
+ ["T_all"      , 'Total run-time \[s\]\s*- ([0-9.]+)'],
+ ["T_user"     , 'User time - ([0-9.]+)'],
+ ["T_system"   , 'System time - ([0-9.]+)'],
+ ["T_wall"     , 'Wall clock - ([0-9.]+)'],
+ ["PapiCalls"  , 'Called libPAPI - ([0-9]+)'],
+ ["Runs"       , 'Total number of program runs\s*- ([0-9.]+)'],
+ ["Domain"     , 'Domain - ([a-zA-Z]+)']
+);
+
+#[],
+# Polly
+# ["Regions"    , '([0-9.]+).*The # of regions'],
+# ["SeSeRegions", '([0-9.]+).*The # of simple regions'],
+# JIT info
+# ["Jitable"          , 'Jitable regions\s*- ([0-9.]+)'],
+# [],
+# Coverage
+# ["Static"     , 'Static SCoP coverage\s*- ([0-9.]+) %'],
+#,
+# Raw No.
+# ["StaTotalInst"     , 'Total instruction count\s*- ([0-9.]+)'],
+# ["DynTotalInst"     , 'Total instructions executed\s*- ([0-9.]+)'],
+# ["StaInstInScop"    , 'Instructions in SCoP\s*- ([0-9.]+)'],
+# ["StaInstInExecScop", 'Instructions in executed SCoP\s*- ([0-9.]+)'],
+# ["DynInstInScop"    , 'Instructions exec\'d in SCoP\s*- ([0-9.]+)'],
+# ["BBsScop"          , 'BasicBlocks in SCoP\s*- ([0-9.]+)'],
+# ["BBs"              , 'BasicBlocks \(total\)\s*- ([0-9.]+)'],
+# ["BBsExec"          , 'BasicBlocks exec\'d \(total\)\s*- ([0-9.]+)'],
+# ["BBsExScop"        , 'BasicBlocks exec\'d in SCoP\s*- ([0-9.]+)'],
+# []
+# Run time
+# Ex:    Total run-time [us]                       - 94068105
+# ["Skipped"    , 'Skipped SCoPs\s*- ([0-9.]+)'],
+# ["StaticExe"  , 'Static SCoP coverage \(exec\'d\)\s*- ([0-9.]+) %'],
+# ["CodeCov"    , 'Code coverage\s*- ([0-9.]+) %'],

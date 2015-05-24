@@ -43,13 +43,8 @@ class Linpack(PprofGroup):
 
         cflags = self.cflags
         ldflags = self.ldflags + ["-lm"]
-        llvm = path.join(config["llvmdir"], "bin")
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with local.cwd(self.builddir):
             with local.env(LD_LIBRARY_PATH=llvm_libs):
-                clang[cflags,
-                      ldflags,
-                      "-o", self.run_f,
-                      "linpack.c"] & FG
-
+                clang()(cflags, ldflags, "-o", self.run_f, "linpack.c")

@@ -8,11 +8,13 @@ from group import PprofGroup
 from os import path
 from plumbum import FG, local
 
+
 class Linpack(PprofGroup):
 
     """ Linpack (C-Version) """
 
     class Factory:
+
         def create(self, exp):
             obj = Linpack(exp, "linpack", "scientific")
 
@@ -23,6 +25,7 @@ class Linpack(PprofGroup):
     ProjectFactory.addFactory("Linpack", Factory())
 
     src_uri = "http://www.netlib.org/benchmark/linpackc.new"
+
     def download(self):
         from pprof.utils.downloader import Wget
         from plumbum.cmd import patch, cp

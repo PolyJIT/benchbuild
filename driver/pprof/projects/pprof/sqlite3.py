@@ -36,7 +36,7 @@ class SQLite3(PprofGroup):
         pass
 
     def build(self):
-        from pprof.project import clang
+        from pprof.utils.compiler import clang
 
         sqlite_dir = path.join(self.builddir, self.src_dir)
 

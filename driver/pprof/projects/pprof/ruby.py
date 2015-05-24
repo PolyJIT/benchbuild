@@ -30,7 +30,7 @@ class Ruby(PprofGroup):
             tar("xfz", self.src_file)
 
     def configure(self):
-        from pprof.project import clang, clang_cxx
+        from pprof.utils.compiler import clang, clang_cxx
         ruby_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ruby_dir):
             with local.env(CC=str(clang()), CXX=str(clang_cxx),

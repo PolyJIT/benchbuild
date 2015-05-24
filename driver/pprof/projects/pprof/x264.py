@@ -48,27 +48,23 @@ class X264(PprofGroup):
             Git(src_uri, self.src_dir)
 
     def configure(self):
+        from pprof.utils.compiler import clang
         x264_dir = path.join(self.builddir, self.src_dir)
-        llvm = path.join(config["llvmdir"], "bin")
-        llvm_libs = path.join(config["llvmdir"], "lib")
-        clang = local[path.join(llvm, "clang")]
 
         with local.cwd(x264_dir):
-            configure = local[path.join(x264_dir, "configure")]
-            with local.env(CC=str(clang)):
+            configure = local["./configure"]
+            with local.env(CC=str(clang())):
                 configure("--extra-cflags=" + " ".join(self.cflags),
                           "--extra-ldflags=" + " ".join(self.ldflags))
 
     def build(self):
         from plumbum.cmd import make, ln
+        from pprof.utils.compiler import clang
 
         x264_dir = path.join(self.builddir, self.src_dir)
-        llvm = path.join(config["llvmdir"], "bin")
-        llvm_libs = path.join(config["llvmdir"], "lib")
-        clang = local[path.join(llvm, "clang")]
 
         with local.cwd(x264_dir):
-            with local.env(CC=str(clang)):
+            with local.env(CC=str(clang())):
                 make["clean", "all"] & FG
 
         with local.cwd(self.builddir):

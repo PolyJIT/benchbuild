@@ -33,7 +33,7 @@ class OpenSSLGroup(Project):
             tar("xfz", openssl_dir)
 
     def configure(self):
-        from pprof.project import clang
+        from pprof.utils.compiler import clang
         openssl_dir = path.join(self.builddir, self.src_dir)
 
         configure = local[path.join(openssl_dir, "configure")]

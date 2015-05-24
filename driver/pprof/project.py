@@ -241,30 +241,7 @@ def wrap_tool(name, wrap_with):
     return True
 
 
-def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler_to_call):
-    from plumbum.cmd import chmod
-    with open(filepath, 'w') as wrapper:
-        wrapper.writelines(
-            [
-                "#!/bin/sh\n",
-                'FLAGS="' + " ".join(flags_to_hide) + '"\n',
-                compiler_to_call + " $FLAGS $*\n"
-            ]
-        )
-    chmod("+x", filepath)
-
-
-def llvm():
-    return path.join(config["llvmdir"], "bin")
-
-
-def llvm_libs():
-    return path.join(config["llvmdir"], "lib")
-
-
-def clang_cxx():
-    return local[path.join(llvm(), "clang++")]
-
-
-def clang():
-    return local[path.join(llvm(), "clang")]
+        wrapper.write("#!/bin/sh\n")
+        wrapper.write(str(wrap(real_f)) + " \"$@\"")
+    chmod("+x", name)
+    return local["./{}".format(name)]

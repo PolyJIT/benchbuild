@@ -48,7 +48,7 @@ class Crocopat(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make
-        from pprof.project import clang_cxx
+        from pprof.utils.compiler import clang_cxx
 
         crocopat_dir = path.join(self.builddir, self.src_dir, "src")
         with local.cwd(crocopat_dir):

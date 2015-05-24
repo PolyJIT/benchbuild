@@ -206,7 +206,7 @@ class Experiment(object):
 
         self.populate_projects(projects, group)
 
-    def populate_projects(self, projects_to_filter, group = None):
+    def populate_projects(self, projects_to_filter, group=None):
         self.projects = {}
         factories = ProjectFactory.factories
         for id in factories:
@@ -220,7 +220,8 @@ class Experiment(object):
             self.projects = {x: self.projects[x] for x in allkeys & usrkeys}
 
         if group:
-            self.projects = { k : v for k, v in self.projects.iteritems() if v.group_name == group }
+            self.projects = {
+                k: v for k, v in self.projects.iteritems() if v.group_name == group}
 
     @try_catch_log
     def clean_project(self, p):

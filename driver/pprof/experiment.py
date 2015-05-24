@@ -44,59 +44,73 @@ def static_var(varname, value):
 
 @contextmanager
 @static_var("counter", 0)
+@static_var("name", "")
 def phase(name):
     phase.counter += 1
+    phase.name = name
     step.counter = 0
 
-    print
-    print "{} '{}' START".format(phase.counter, name)
+    sys.stdout.write("\r\x1b[KPHASE.{} '{}' START".format(phase.counter, name))
+    sys.stdout.flush()
     try:
         yield
-    except ProcessExecutionError:
-        print
-        print "{} '{}' FAILED".format(phase.counter, name)
+    except ProcessExecutionError as e:
+        sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
+        raise e
     finally:
-        print
-        print "{} '{}' OK".format(phase.counter, name)
+        sys.stdout.write("\r\x1b[KPHASE.{} '{}' OK".format(phase.counter, name))
+    sys.stdout.flush()
 
 
 @contextmanager
 @static_var("counter", 0)
+@static_var("name", "")
 def step(name):
     step.counter += 1
+    step.name = name
     substep.counter = 0
 
-    print
-    print "{}.{} '{}' START".format(phase.counter, step.counter, name)
+    sys.stdout.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' START".format(
+        phase.counter, phase.name, step.counter, name))
+    sys.stdout.flush()
     try:
         yield
-    except ProcessExecutionError:
-        print
-        print "{}.{} '{}' FAILED".format(phase.counter, step.counter, name)
+    except ProcessExecutionError as e:
+        sys.stdout.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
+            phase.counter, phase.name, step.counter, name))
+        raise e
     finally:
-        print
-        print "{}.{} '{}' OK".format(phase.counter, step.counter, name)
+        sys.stdout.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' OK".format(
+            phase.counter, phase.name, step.counter, name))
+    sys.stdout.flush()
 
 
 @contextmanager
 @static_var("counter", 0)
+@static_var("name", "")
 @static_var("failed", 0)
 def substep(name):
     substep.counter += 1
+    substep.name = name
 
-    print
-    print "{}.{}.{}: '{}' START".format(phase.counter, step.counter, substep.counter, name)
+    from sys import stdout as o
+
+    o.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
+        phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+    o.flush()
     try:
         yield
-    except ProcessExecutionError:
-        print "{}.{}.{}: '{}' FAILED".format(phase.counter, step.counter, substep.counter, name)
+    except ProcessExecutionError as e:
+        o.write("\n" + e.stderr)
+        o.write("\nPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' FAILED".format(
+            phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+        o.write( "\n{} substeps have FAILED so far.".format(substep.failed))
+        o.flush()
         substep.failed += 1
-        print
-        print "{} substeps have FAILED so far.".format(substep.failed)
-        print
     finally:
-        print
-        print "{}.{}.{}: '{}' OK".format(phase.counter, step.counter, substep.counter, name)
+        o.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
+            phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+    o.flush()
 
 
 def synchronize_project_with_db(p):

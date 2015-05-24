@@ -23,6 +23,8 @@ class Minisat(PprofGroup):
 
     def run_tests(self, experiment):
         from pprof.project import llvm_libs
+        exp = experiment(self.run_f)
+
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
         for f in testfiles:
             minisat_dir = path.join(self.builddir, self.src_dir)
@@ -31,7 +33,7 @@ class Minisat(PprofGroup):
                     llvm_libs()
                     ]
             with local.env(LD_LIBRARY_PATH=":".join(libpath)):
-                (experiment < f) & FG(retcode=None)
+                (exp < f) & FG(retcode=None)
 
     src_dir = "minisat.git"
     src_uri = "https://github.com/niklasso/minisat"
@@ -45,7 +47,7 @@ class Minisat(PprofGroup):
             with local.cwd(minisat_dir):
                 git("fetch", "origin", "pull/17/head:clang")
                 git("checkout", "clang")
-    
+
     def configure(self):
         from plumbum.cmd import make
 
@@ -55,7 +57,7 @@ class Minisat(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
-        from pprof.project import clang_cxx, clang, llvm_libs
+        from pprof.utils.compiler import clang_cxx, clang, llvm_libs
 
         minisat_dir = path.join(self.builddir, self.src_dir)
         cflags = " ".join(self.cflags)

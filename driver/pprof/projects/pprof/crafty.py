@@ -43,10 +43,8 @@ class Crafty(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
+        from pprof.utils.compiler import clang
 
-        llvm = path.join(config["llvmdir"], "bin")
-        llvm_libs = path.join(config["llvmdir"], "lib")
-        clang = local[path.join(llvm, "clang")]
         crafty_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(crafty_dir):
             target_cflags = self.cflags
@@ -55,7 +53,7 @@ class Crafty(PprofGroup):
             target_opts = ["-DINLINE64", "-DCPUS=1"]
 
             make["target=LINUX",
-                 "CC=" + str(clang),
+                 "CC=" + str(clang()),
                  "CFLAGS=" + " ".join(target_cflags),
                  "CXFLAGS=" + " ".join(target_cxflags),
                  "LDFLAGS=" + " ".join(target_ldflags),
@@ -64,6 +62,8 @@ class Crafty(PprofGroup):
         self.run_f = path.join(crafty_dir, "crafty")
 
     def run_tests(self, experiment):
-        (cat[path.join(self.testdir, "test1.sh")] | experiment) & FG
-        (cat[path.join(self.testdir, "test2.sh")] | experiment) & FG
+        exp = experiment(self.run_f)
+
+        (cat[path.join(self.testdir, "test1.sh")] | exp) & FG
+        (cat[path.join(self.testdir, "test2.sh")] | exp) & FG
 

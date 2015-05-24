@@ -16,7 +16,6 @@ import logging
 
 # Configure the log
 formatter = logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s')
-
 handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(formatter)
 
@@ -164,20 +163,20 @@ class Project(object):
 
     @log_with(log)
     def run_tests(self, experiment):
-        experiment & FG
+        exp = experiment(self.run_f)
+        exp()
 
     run_uuid = None
 
     @log_with(log)
     def run(self, experiment):
-        import uuid
+        from uuid import uuid4
         with local.cwd(self.builddir):
             if self.run_uuid is None:
-                self.run_uuid = uuid.uuid4()
-            with local.env(PPROF_CMD=str(experiment),
+                self.run_uuid = uuid4()
+            with local.env(PPROF_CMD=str(experiment(self.run_f)),
                            PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid):
-                print self.run_uuid
                 self.run_tests(experiment)
 
     @log_with(log)
@@ -224,47 +223,16 @@ class Project(object):
             pass
 
 
-def wrap_tool(name, wrap_with):
-    from plumbum.cmd import mv
+def wrap_tool(name, wrap):
+    from plumbum import local
+    from plumbum.cmd import mv, chmod
     from os import path
 
-    if path.exists(name):
-        log.error("{} still exists, move it away and:\n".format(name))
-        log.error(" 1. 'run_f': to the binary you moved away\n")
-        log.error(" 2. build your experiment based on run_f as before\n")
-        log.error(" 3. wrap the tool with the _old_ value of 'run_f'")
-        return False
+    real_f = name + PROJECT_BIN_F_EXT
+    mv(name, real_f)
 
     with open(name, 'w') as wrapper:
-        povray.write("#!/bin/sh\n")
-        povray.write(str(wrap_with) + " \"$@\"")
-    return True
-
-
-def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler_to_call):
-    from plumbum.cmd import chmod
-    with open(filepath, 'w') as wrapper:
-        wrapper.writelines(
-            [
-                "#!/bin/sh\n",
-                'FLAGS="' + " ".join(flags_to_hide) + '"\n',
-                compiler_to_call + " $FLAGS $*\n"
-            ]
-        )
-    chmod("+x", filepath)
-
-
-def llvm():
-    return path.join(config["llvmdir"], "bin")
-
-
-def llvm_libs():
-    return path.join(config["llvmdir"], "lib")
-
-
-def clang_cxx():
-    return local[path.join(llvm(), "clang++")]
-
-
-def clang():
-    return local[path.join(llvm(), "clang")]
+        wrapper.write("#!/bin/sh\n")
+        wrapper.write(str(wrap(real_f)) + " \"$@\"")
+    chmod("+x", name)
+    return local["./{}".format(name)]

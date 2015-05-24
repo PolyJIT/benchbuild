@@ -30,6 +30,7 @@ class PprofRun(cli.Application):
     _list = False
     _execute = False
     _collect = False
+    _group_name = None
 
     @cli.switch(["-T", "--testdir"], str, help="Where are the testinput files")
     def testdir(self, dirname):

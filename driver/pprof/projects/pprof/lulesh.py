@@ -14,6 +14,7 @@ class Lulesh(PprofGroup):
     """ Lulesh """
 
     class Factory:
+
         def create(self, exp):
             obj = Lulesh(exp, "lulesh", "scientific")
             obj.calls_f = path.join(obj.builddir, "papi.calls.out")
@@ -24,10 +25,11 @@ class Lulesh(PprofGroup):
     @log_with(log)
     def run_tests(self, experiment):
         exp = experiment(self.run_f)
-        exp["20"] & FG
+        exp["10"] & FG
 
     src_file = "LULESH.cc"
     src_uri = "https://codesign.llnl.gov/lulesh/" + src_file
+
     def download(self):
         from pprof.utils.downloader import Wget
 
@@ -38,11 +40,8 @@ class Lulesh(PprofGroup):
         pass
 
     def build(self):
-        from pprof.project import clang_cxx
+        from pprof.utils.compiler import clang_cxx
 
         with local.cwd(self.builddir):
-            myclang = clang_cxx()[self.cflags, "-o", self.run_f, self.ldflags,
-                    self.src_file]
-            print myclang
-            myclang()
-
+            clang_cxx()[
+                self.cflags, "-o", self.run_f, self.ldflags, self.src_file] & FG

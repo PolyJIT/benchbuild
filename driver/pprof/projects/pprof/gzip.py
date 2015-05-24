@@ -40,20 +40,21 @@ class Gzip(PprofGroup):
         exp = experiment(self.run_f)
 
         # Compress
-        exp["-f", "--best", "text.html"] & FG
-        exp["-f", "--best", "chicken.jpg"] & FG
-        exp["-f", "--best", "control"] & FG
-        exp["-f", "--best", "input.source"] & FG
-        exp["-f", "--best", "liberty.jpg"] & FG
+        exp["-f", "-k", "--best", "text.html"] & FG
+        exp["-f", "-k", "--best", "chicken.jpg"] & FG
+        exp["-f", "-k", "--best", "control"] & FG
+        exp["-f", "-k", "--best", "input.source"] & FG
+        exp["-f", "-k", "--best", "liberty.jpg"] & FG
 
         # Decompress
-        exp["-f", "--decompress", "text.html.gz"] & FG
-        exp["-f", "--decompress", "chicken.jpg.gz"] & FG
-        exp["-f", "--decompress", "control.gz"] & FG
-        exp["-f", "--decompress", "input.source.gz"] & FG
-        exp["-f", "--decompress", "liberty.jpg.gz"] & FG
+        exp["-f", "-k", "--decompress", "text.html.gz"] & FG
+        exp["-f", "-k", "--decompress", "chicken.jpg.gz"] & FG
+        exp["-f", "-k", "--decompress", "control.gz"] & FG
+        exp["-f", "-k", "--decompress", "input.source.gz"] & FG
+        exp["-f", "-k", "--decompress", "liberty.jpg.gz"] & FG
 
-    src_file = "gzip-1.2.4.tar"
+    src_dir = "gzip-1.6"
+    src_file = src_dir + ".tar.xz"
     src_uri = "http://ftpmirror.gnu.org/gzip/" + src_file
     def download(self):
         from pprof.utils.downloader import Wget
@@ -61,29 +62,28 @@ class Gzip(PprofGroup):
 
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
-            tar("xf", path.join(self.builddir, self.src_file))
+            tar("xfJ", path.join(self.builddir, self.src_file))
 
     def configure(self):
-        tar_x, _ = path.splitext(self.src_file)
-        configure = local[path.join(self.builddir, tar_x, "configure")]
+        from pprof.utils.compiler import clang
+        gzip_dir = path.join(self.builddir, self.src_dir)
 
-        with local.cwd(path.join(self.builddir, tar_x)):
-            configure & FG
+        with local.cwd(gzip_dir):
+            configure = local["./configure"]
+            with local.env(CC=str(clang()),
+                           CFLAGS=" ".join(self.cflags),
+                           LDFLAGS=" ".join(self.ldflags),
+                           LIBS=" ".join(self.ldflags)):
+                configure("--disable-dependency-tracking",
+                          "--disable-silent-rules",
+                          "--with-gnu-ld")
 
     def build(self):
         from plumbum.cmd import make, ln
+        from pprof.utils.compiler import clang, llvm_libs
 
-        llvm = path.join(config["llvmdir"], "bin")
-        llvm_libs = path.join(config["llvmdir"], "lib")
-
-        clang = local[path.join(llvm, "clang")]
-        tar_x, _ = path.splitext(self.src_file)
-        gzip_dir = path.join(self.builddir, tar_x)
-
+        gzip_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(gzip_dir):
-            with local.env(LD_LIBRARY_PATH=llvm_libs):
-                make["CC=" + str(clang),
-                     "CFLAGS=" + " ".join(self.cflags),
-                     "LDFLAGS=" + " ".join(self.ldflags), "clean", "all"] & FG
-
-            ln("-sf", path.join(gzip_dir, "gzip"), self.run_f)
+            with local.env(LD_LIBRARY_PATH=llvm_libs()):
+                make["-j" + config["jobs"], "clean", "all"] & FG
+        ln("-sf", path.join(gzip_dir, "gzip"), self.run_f)

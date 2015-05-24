@@ -8,11 +8,13 @@ from group import PprofGroup
 from os import path
 from plumbum import FG, local
 
+
 class SevenZip(PprofGroup):
 
     """ 7Zip """
 
     class Factory:
+
         def create(self, exp):
             obj = SevenZip(exp, "7z", "compression")
             obj.calls_f = path.join(obj.builddir, "papi.calls.out")
@@ -27,7 +29,7 @@ class SevenZip(PprofGroup):
     src_dir = "p7zip_9.38.1"
     src_file = src_dir + "_src_all.tar.bz2"
     src_uri = "http://downloads.sourceforge.net/project/p7zip/p7zip/9.38.1/" + \
-            src_file
+        src_file
 
     def download(self):
         from pprof.utils.downloader import Wget
@@ -45,19 +47,14 @@ class SevenZip(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
+        from pprof.utils.compiler import clang, clang_cxx
 
-        llvm = path.join(config["llvmdir"], "bin")
-        llvm_libs = path.join(config["llvmdir"], "lib")
-        clang_cxx = local[path.join(llvm, "clang++")]
-        clang = local[path.join(llvm, "clang")]
         p7z_dir = path.join(self.builddir, self.src_dir)
-
         with local.cwd(p7z_dir):
-            with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                make["CC=" + str(clang),
-                     "CXX=" + str(clang_cxx),
-                     "OPTFLAGS=" + " ".join(self.cflags + self.ldflags),
-                     "clean", "all"] & FG
+            make["CC=" + str(clang()),
+                 "CXX=" + str(clang_cxx()),
+                 "OPTFLAGS=" + " ".join(self.cflags + self.ldflags),
+                 "clean", "all"] & FG
 
         with local.cwd(self.builddir):
             ln("-sf", path.join(p7z_dir, "bin", "7za"), self.run_f)

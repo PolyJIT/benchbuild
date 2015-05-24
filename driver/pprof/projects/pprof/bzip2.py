@@ -34,7 +34,8 @@ class Bzip2(PprofGroup):
 
         super(Bzip2, self).clean()
 
-    src_file = "bzip2-1.0.6.tar.gz"
+    src_dir = "bzip2-1.0.6"
+    src_file = src_dir + ".tar.gz"
     src_uri = "http://www.bzip.org/1.0.6/" + src_file
 
     @log_with(log)
@@ -54,22 +55,14 @@ class Bzip2(PprofGroup):
     def build(self):
         from plumbum.cmd import make, ln
         from pprof.settings import config
+        from pprof.utils.compiler import clang, llvm_libs
 
-        llvm = path.join(config["llvmdir"], "bin")
-        llvm_libs = path.join(config["llvmdir"], "lib")
-
-        clang = local[path.join(llvm, "clang")]
-        tar_f, _ = path.splitext(self.src_file)
-        tar_x, _ = path.splitext(tar_f)
-
-        with local.cwd(path.join(self.builddir, tar_x)):
-            with local.env(LD_LIBRARY_PATH=llvm_libs):
-                make["CC=" + str(clang),
+        bzip2_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(bzip2_dir):
+            with local.env(LD_LIBRARY_PATH=llvm_libs()):
+                make["CC=" + str(clang()),
                      "CFLAGS=" + " ".join(self.cflags),
                      "LDFLAGS=" + " ".join(self.ldflags), "clean", "bzip2"] & FG
-
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(self.builddir, tar_x, "bzip2"), self.run_f)
 
     @log_with(log)
     def pull_in_testfiles(self):
@@ -83,7 +76,9 @@ class Bzip2(PprofGroup):
 
     @log_with(log)
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        from pprof.project import wrap_tool
+
+        exp = wrap_tool(path.join(self.src_dir, "bzip2"), experiment)
 
         # Compress
         exp["-f", "-z", "-k", "--best", "text.html"] & FG

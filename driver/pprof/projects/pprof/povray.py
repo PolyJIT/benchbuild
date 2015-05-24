@@ -35,7 +35,7 @@ class Povray(PprofGroup):
             sh("prebuild.sh")
 
         with local.cwd(povray_dir):
-            from pprof.project import clang, clang_cxx
+            from pprof.utils.compiler import clang, clang_cxx
             configure = local["./configure"]
             with local.env(COMPILED_BY="PPROF <no@mail.nono>",
                            CC=clang(),

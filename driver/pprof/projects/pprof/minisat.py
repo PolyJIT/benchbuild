@@ -57,7 +57,7 @@ class Minisat(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
-        from pprof.project import clang_cxx, clang, llvm_libs
+        from pprof.utils.compiler import clang_cxx, clang, llvm_libs
 
         minisat_dir = path.join(self.builddir, self.src_dir)
         cflags = " ".join(self.cflags)

@@ -26,26 +26,26 @@ class Linpack(PprofGroup):
     def download(self):
         from pprof.utils.downloader import Wget
         from plumbum.cmd import patch, cp
-        
+
         lp_patch = path.join(self.sourcedir, "linpack.patch")
         with local.cwd(self.builddir):
             Wget(self.src_uri, "linpackc.new")
             cp("-a", "linpackc.new", "linpack.c")
 
-            (patch["-p0"] < lp_patch)() 
-        
+            (patch["-p0"] < lp_patch)()
+
     def configure(self):
         pass
 
     def build(self):
         from pprof.settings import config
+        from pprof.utils.compiler import clang
 
         cflags = self.cflags
         ldflags = self.ldflags + ["-lm"]
         llvm = path.join(config["llvmdir"], "bin")
         llvm_libs = path.join(config["llvmdir"], "lib")
 
-        clang = local[path.join(llvm, "clang")]
         with local.cwd(self.builddir):
             with local.env(LD_LIBRARY_PATH=llvm_libs):
                 clang[cflags,

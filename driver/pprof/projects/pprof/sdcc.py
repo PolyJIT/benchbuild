@@ -24,17 +24,18 @@ class SDCC(PprofGroup):
             Svn(self.src_uri, self.src_dir)
 
     def configure(self):
-        from pprof.project import clang, clang_cxx
-        sdcc_dir = path.join(self.builddir, self.src_dir)
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
+        sdcc_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(sdcc_dir):
             configure = local["./configure"]
-            with local.env(CC=str(clang()), CXX=str(clang_cxx()),
+            with local.env(CC=str(lt_clang(self.cflags)),
+                           CXX=str(lt_clang_cxx(self.cflags)),
                            CFLAGS=" ".join(self.cflags),
                            CXXFLAGS=" ".join(self.cflags),
                            LIBS=" ".join(self.ldflags)):
-                configure("--without-ccache", "--disable-pic14-port",
-                          "--disable-pic16-port")
+                configure["--without-ccache", "--disable-pic14-port",
+                          "--disable-pic16-port"] & FG
 
     def build(self):
         from plumbum.cmd import make
@@ -49,4 +50,4 @@ class SDCC(PprofGroup):
 
         log.debug("FIXME: invalid LLVM IR, regenerate from source")
         log.debug("FIXME: test incomplete, port from sdcc/Makefile")
-        experiment & FG
+        exp & FG

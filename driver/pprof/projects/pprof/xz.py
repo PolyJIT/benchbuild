@@ -1,14 +1,14 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import (ProjectFactory, log_with, log,
-                           print_libtool_sucks_wrapper)
+from pprof.project import ProjectFactory, log_with, log
 from pprof.settings import config
 from group import PprofGroup
 
 from os import path
 from plumbum import FG, local
 from plumbum.cmd import cp
+
 
 class XZ(PprofGroup):
 
@@ -18,6 +18,7 @@ class XZ(PprofGroup):
                  "liberty.jpg"]
 
     class Factory:
+
         def create(self, exp):
             obj = XZ(exp, "xz", "compression")
             obj.calls_f = path.join(obj.builddir, "papi.calls.out")
@@ -59,8 +60,8 @@ class XZ(PprofGroup):
         exp["-f", "-k", "--decompress", "input.source.xz"] & FG
         exp["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
 
-
-    src_file = "xz-5.2.1.tar.gz"
+    src_dir = "xz-5.2.1"
+    src_file = src_dir + ".tar.gz"
     src_uri = "http://tukaani.org/xz/" + src_file
 
     def download(self):
@@ -72,18 +73,13 @@ class XZ(PprofGroup):
             tar('xfz', path.join(self.builddir, self.src_file))
 
     def configure(self):
-        llvm = path.join(config["llvmdir"], "bin")
-        llvm_libs = path.join(config["llvmdir"], "lib")
-        ldflags = ["-L" + llvm_libs] + self.ldflags
+        from pprof.utils.compiler import lt_clang
 
-        clang = local[path.join(llvm, "clang")]
-        tar_f, _ = path.splitext(self.src_file)
-        tar_x, _ = path.splitext(tar_f)
-        configure = local[path.join(self.builddir, tar_x, "configure")]
-
-        with local.cwd(path.join(self.builddir, tar_x)):
-            with local.env(CC=str(clang),
-                           LD_LIBRARY_PATH=llvm_libs):
+        xz_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(xz_dir):
+            configure = local["./configure"]
+            with local.env(CC=str(lt_clang(self.cflags)),
+                           LD_LIBRARY_PATH=self.ldflags):
                 configure["--enable-threads=no",
                           "--with-gnu-ld=yes",
                           "--disable-shared",
@@ -98,24 +94,14 @@ class XZ(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
+        from pprof.utils.compiler import lt_clang, llvm_libs
 
-        llvm = path.join(config["llvmdir"], "bin")
-        llvm_libs = path.join(config["llvmdir"], "lib")
-
-        clang = local[path.join(llvm, "clang")]
-        tar_f, _ = path.splitext(self.src_file)
-        tar_x, _ = path.splitext(tar_f)
-
-        with local.cwd(self.builddir):
-            print_libtool_sucks_wrapper("clang", self.cflags, str(clang))
-
-        clang = local[path.join(self.builddir, "clang")]
-
-        with local.cwd(path.join(self.builddir, tar_x)):
-            with local.env(LD_LIBRARY_PATH=llvm_libs):
-                make["CC=" + str(clang),
+        xz_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(xz_dir):
+            with local.env(LD_LIBRARY_PATH=llvm_libs()):
+                make["CC=" + str(lt_clang(self.cflags)),
                      "LDFLAGS=" + " ".join(self.ldflags), "clean", "all"] & FG
 
         with local.cwd(self.builddir):
-            ln("-sf", path.join(self.builddir, tar_x, "src", "xz", "xz"),
-                      self.run_f)
+            ln("-sf", path.join(xz_dir, "src", "xz", "xz"),
+               self.run_f)

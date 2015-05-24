@@ -48,7 +48,7 @@ class Lammps(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
-        from pprof.project import clang_cxx, clang
+        from pprof.utils.compiler import clang_cxx, clang
 
         with local.cwd(path.join(self.builddir, self.src_dir, "src")):
             make["CC=" + str(clang_cxx()),

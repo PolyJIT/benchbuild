@@ -1,1 +1,0 @@
--lruby-static -lpthread -lrt -ldl -lcrypt -lm -L.

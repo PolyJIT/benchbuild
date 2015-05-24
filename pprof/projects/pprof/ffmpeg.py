@@ -11,15 +11,16 @@ from glob import glob
 from plumbum import FG, local
 from plumbum.cmd import cp, echo, chmod, make
 
+
 class LibAV(PprofGroup):
 
     """ LibAV benchmark """
 
     class Factory:
+
         def create(self, exp):
             return LibAV(exp, "ffmpeg", "multimedia")
     ProjectFactory.addFactory("LibAV", Factory())
-
 
     src_dir = "ffmpeg-2.6.3"
     src_file = src_dir + ".tar.bz2"
@@ -36,7 +37,6 @@ class LibAV(PprofGroup):
 
         with local.cwd(self.src_dir):
             make["V=1", "-i", "fate"] & FG
-
 
     def download(self):
         from pprof.utils.downloader import Wget, Rsync
@@ -69,7 +69,6 @@ class LibAV(PprofGroup):
         libav_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(libav_dir):
             with local.env(LD_LIBRARY_PATH=llvm_libs()):
-                make["-j"+ config["jobs"], "clean", "all"] & FG
+                make["-j" + config["jobs"], "clean", "all"] & FG
                 mv[self.name, self.bin_f] & FG
         self.run_f = self.bin_f
-

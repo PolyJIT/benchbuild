@@ -41,13 +41,11 @@ class PolyJIT(RuntimeExperiment):
 
         llvm_libs = path.join(config["llvmdir"], "lib")
 
-        with step("Downloading {}".format(p.name)):
-            p.download()
-
         with step("RAW -O3"):
             p.ldflags = ["-L" + llvm_libs]
             p.cflags = ["-O3"]
             with substep("reconf & rebuild"):
+                p.download()
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
@@ -56,6 +54,9 @@ class PolyJIT(RuntimeExperiment):
                 p.run(runner)
 
         with step("JIT, no instrumentation"):
+            p.clean()
+            p.prepare()
+            p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit"]
             p.cflags = ["-O3",
                         "-Xclang", "-load",
@@ -72,6 +73,9 @@ class PolyJIT(RuntimeExperiment):
                 p.run(runner)
 
         with step("JIT, likwid"):
+            p.clean()
+            p.prepare()
+            p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit"]
             p.cflags = ["-O3",
                         "-Xclang", "-load",
@@ -94,6 +98,9 @@ class PolyJIT(RuntimeExperiment):
                 likwid_measurement = likwid.get_likwid_perfctr(p.likwid_f)
                 likwid.to_db(run_id, likwid_measurement)
         with step("No recompilation, PAPI"):
+            p.clean()
+            p.prepare()
+            p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
             p.cflags = ["-O3",
                         "-Xclang", "-load",
@@ -130,7 +137,7 @@ class PolyJIT(RuntimeExperiment):
             with substep("pprof calibrate"):
                 papi_calibration = self.get_papi_calibration(
                     p, pprof_calibrate)
-                ##FIXME: This needs to go into the database.
+                # FIXME: This needs to go into the database.
                 if papi_calibration:
                     (awk[("{s+=$1} END {"
                           " time = (s*" + papi_calibration + "/1000000000);"

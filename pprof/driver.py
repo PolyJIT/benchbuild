@@ -7,6 +7,7 @@ from settings import config
 import sys
 import logging
 
+
 class PollyProfiling(cli.Application):
 
     """ Frontend for running/building the pprof study framework """
@@ -30,6 +31,7 @@ log = logging.getLogger()
 handler = logging.StreamHandler(sys.stderr)
 log.addHandler(handler)
 log.setLevel(logging.WARNING)
+
 
 def main(*args):
     from pprof import run

@@ -9,11 +9,13 @@ from os import path
 from glob import glob
 from plumbum import FG, local
 
+
 class Minisat(PprofGroup):
 
     """ minisat benchmark """
 
     class Factory:
+
         def create(self, exp):
             return Minisat(exp, "minisat", "verification")
     ProjectFactory.addFactory("Minisat", Factory())
@@ -26,14 +28,15 @@ class Minisat(PprofGroup):
         for f in testfiles:
             minisat_dir = path.join(self.builddir, self.src_dir)
             libpath = [
-                    path.join(minisat_dir, "build", "dynamic", "lib"),
-                    llvm_libs()
-                    ]
+                path.join(minisat_dir, "build", "dynamic", "lib"),
+                llvm_libs()
+            ]
             with local.env(LD_LIBRARY_PATH=":".join(libpath)):
                 (exp < f) & FG(retcode=None)
 
     src_dir = "minisat.git"
     src_uri = "https://github.com/niklasso/minisat"
+
     def download(self):
         from pprof.utils.downloader import Git
         from plumbum.cmd import git
@@ -68,4 +71,4 @@ class Minisat(PprofGroup):
 
         with local.cwd(self.builddir):
             ln("-sf", path.join(minisat_dir, "build", "dynamic", "bin",
-               "minisat"), self.run_f)
+                                "minisat"), self.run_f)

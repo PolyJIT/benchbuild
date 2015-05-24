@@ -18,6 +18,7 @@ class Bzip2(PprofGroup):
                  "liberty.jpg"]
 
     class Factory:
+
         def create(self, exp):
             return Bzip2(exp, "bzip2", "compression")
     ProjectFactory.addFactory("Bzip2", Factory())

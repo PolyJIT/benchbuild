@@ -12,14 +12,18 @@ import logging
 
 
 class TCC(PprofGroup):
+
     class Factory:
+
         def create(self, exp):
             return TCC(exp, "tcc", "compilation")
     ProjectFactory.addFactory("TCC", Factory())
 
     src_dir = "tcc-0.9.26"
     src_file = src_dir + ".tar.bz2"
-    src_uri = "http://download-mirror.savannah.gnu.org/releases/tinycc/" + src_file
+    src_uri = "http://download-mirror.savannah.gnu.org/releases/tinycc/" + \
+        src_file
+
     def download(self):
         from pprof.utils.downloader import Wget
         from plumbum.cmd import tar, sed
@@ -50,7 +54,6 @@ class TCC(PprofGroup):
         with local.cwd(path.join(self.builddir, "build")):
             make & FG
             make["TCC=" + str(experiment), "test"] & FG
-
 
     def run_tests(self, experiment):
         from plumbum.cmd import make

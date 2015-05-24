@@ -8,11 +8,13 @@ from group import PprofGroup
 from os import path
 from plumbum import FG, local
 
+
 class SQLite3(PprofGroup):
 
     """ SQLite3 """
 
     class Factory:
+
         def create(self, exp):
             return SQLite3(exp, "sqlite3", "database")
     ProjectFactory.addFactory("SQLite3", Factory())
@@ -20,6 +22,7 @@ class SQLite3(PprofGroup):
     src_dir = "sqlite-amalgamation-3080900"
     src_file = src_dir + ".zip"
     src_uri = "http://www.sqlite.org/2015/" + src_file
+
     def download(self):
         from pprof.utils.downloader import Wget
         from plumbum.cmd import unzip
@@ -56,7 +59,7 @@ class SQLite3(PprofGroup):
 
         llvm = path.join(config["llvmdir"], "bin")
         clang_cxx = local[path.join(llvm, "clang++")]
-        clang     = local[path.join(llvm, "clang")]
+        clang = local[path.join(llvm, "clang")]
 
         leveldb_dir = path.join(self.builddir, "leveldb.src")
         sqlite_dir = path.join(self.builddir, self.src_dir)

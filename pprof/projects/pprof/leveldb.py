@@ -8,8 +8,11 @@ from group import PprofGroup
 from os import path
 from plumbum import FG, local
 
+
 class LevelDB(PprofGroup):
+
     class Factory:
+
         def create(self, exp):
             return LevelDB(exp, "leveldb", "database")
     ProjectFactory.addFactory("LevelDB", Factory())
@@ -31,7 +34,7 @@ class LevelDB(PprofGroup):
 
         llvm = path.join(config["llvmdir"], "bin")
         clang_cxx = local[path.join(llvm, "clang++")]
-        clang     = local[path.join(llvm, "clang")]
+        clang = local[path.join(llvm, "clang")]
         leveldb_dir = path.join(self.builddir, "leveldb.src")
 
         with local.cwd(leveldb_dir):
@@ -46,4 +49,3 @@ class LevelDB(PprofGroup):
             dbg_ln = ln["-sf", path.join(leveldb_dir, "db_bench"), self.run_f]
             print dbg_ln
             dbg_ln & FG
-

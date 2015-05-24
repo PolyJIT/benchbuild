@@ -1,0 +1,6 @@
+DOMAIN=scientific
+TESTDIR = $(TESTINPUT)/$(DOMAIN)/lapack/tests/
+
+POLLI_FLAGS+=-entry-function='MAIN__'
+
+include $(LEVEL)/Makefile.common

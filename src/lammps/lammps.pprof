@@ -1,0 +1,1 @@
+-lm -lmpi -lfftw3 -lstdc++

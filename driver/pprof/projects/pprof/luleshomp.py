@@ -39,6 +39,14 @@ class LuleshOMP(PprofGroup):
         from pprof.utils.compiler import clang_cxx
         from plumbum.cmd import gcc
 
+        log.error("FIXME: clang does not support openmp fully")
+        log.error(" SET THE CORRECT HEADER FOR omp.h")
+        log.error("FIXME: clang does not support openmp fully")
+
+        self.cflags += ["-I",
+                        "/usr/lib64/gcc/x86_64-pc-linux-gnu/4.9.2/include"]
+        self.ldflags += ["-lgomp"]
+
         with local.cwd(self.builddir):
             clang_cxx()[self.cflags, "-o", self.run_f,
                         self.src_file, self.ldflags] & FG

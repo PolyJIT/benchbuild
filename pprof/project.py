@@ -158,11 +158,12 @@ def wrap_tool(name, wrap):
     from plumbum.cmd import mv, chmod
     from os import path
 
-    real_f = name + PROJECT_BIN_F_EXT
-    mv(name, real_f)
+    name_absolute = path.abspath(name)
+    real_f = name_absolute + PROJECT_BIN_F_EXT
+    mv(name_absolute, real_f)
 
     with open(name, 'w') as wrapper:
         wrapper.write("#!/bin/sh\n")
         wrapper.write(str(wrap(real_f)) + " \"$@\"")
-    chmod("+x", name)
-    return local["./{}".format(name)]
+    chmod("+x", name_absolute)
+    return local[name_absolute]

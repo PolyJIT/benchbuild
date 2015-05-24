@@ -126,7 +126,7 @@ config = {
     "tmpdir": os.getenv("PPROF_TMP_DIR", os.path.join(os.getcwd(), "tmp")),
     "path": os.environ["PATH"],
     "ld_library_path": os.environ["LD_LIBRARY_PATH"],
-    "jobs": str(available_cpu_count()),
+    "jobs": os.getenv("PPROF_MAKE_JOBS", str(available_cpu_count())),
     "experiment": os.getenv("PPROF_EXPERIMENT_ID", uuid4())
 }
 

@@ -9,8 +9,11 @@ from os import path
 from plumbum import FG, local
 from plumbum.cmd import chmod
 
+
 class Ruby(PprofGroup):
+
     class Factory:
+
         def create(self, exp):
             return Ruby(exp, "ruby", "compilation")
     ProjectFactory.addFactory("Ruby", Factory())
@@ -18,6 +21,7 @@ class Ruby(PprofGroup):
     src_dir = "ruby-2.2.2"
     src_file = src_dir + ".tar.gz"
     src_uri = "http://cache.ruby-lang.org/pub/ruby/2.2/" + src_file
+
     def download(self):
         from pprof.utils.downloader import Wget
         from plumbum.cmd import tar
@@ -57,8 +61,8 @@ class Ruby(PprofGroup):
             chmod("+x", sh_script)
 
             ruby[path.join(self.testdir, "benchmark", "run.rb"),
-                 "--ruby=\""+str(sh_script)+"\"",
-                 "--opts=\"-I"+path.join(self.testdir, "lib") +
-                 " -I"+path.join(self.testdir, ".")+
-                 " -I"+path.join(self.testdir, ".ext", "common")+
+                 "--ruby=\"" + str(sh_script) + "\"",
+                 "--opts=\"-I" + path.join(self.testdir, "lib") +
+                 " -I" + path.join(self.testdir, ".") +
+                 " -I" + path.join(self.testdir, ".ext", "common") +
                  "\"", "-r"] & FG

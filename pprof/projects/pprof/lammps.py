@@ -9,11 +9,13 @@ from os import path
 from glob import glob
 from plumbum import FG, local
 
+
 class Lammps(PprofGroup):
 
     """ LAMMPS benchmark """
 
     class Factory:
+
         def create(self, exp):
             return Lammps(exp, "lammps", "scientific")
     ProjectFactory.addFactory("Lammps", Factory())

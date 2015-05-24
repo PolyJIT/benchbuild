@@ -79,4 +79,3 @@ class RawRuntime(RuntimeExperiment):
                 writer.writeheader()
                 for tup in results:
                     writer.writerow(tup)
-

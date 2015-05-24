@@ -9,11 +9,13 @@ from os import path
 from plumbum import FG, local
 from plumbum.cmd import find
 
+
 class Python(PprofGroup):
 
     """ python benchmarks """
 
     class Factory:
+
         def create(self, exp):
             return Python(exp, "python", "compilation")
     ProjectFactory.addFactory("Python", Factory())
@@ -21,6 +23,7 @@ class Python(PprofGroup):
     src_dir = "Python-3.4.3"
     src_file = src_dir + ".tar.xz"
     src_uri = "https://www.python.org/ftp/python/3.4.3/" + src_file
+
     def download(self):
         from pprof.utils.downloader import Wget
         from plumbum.cmd import tar
@@ -48,7 +51,6 @@ class Python(PprofGroup):
 
         self.run_f = path.join(python_dir, "python")
 
-
     def run_tests(self, experiment):
         from plumbum.cmd import make
         exp = experiment(self.run_f)
@@ -58,8 +60,7 @@ class Python(PprofGroup):
             make("TESTPYTHON=" + str(exp), "-i", "test")
 
         #testfiles = find(self.testdir, "-name", "*.py").splitlines()
-        #for f in testfiles:
+        # for f in testfiles:
         #    with local.env(PYTHONPATH=self.testdir,
         #                   PYTHONHOME=self.testdir):
         #        experiment[f] & FG(retcode=None)
-

@@ -102,7 +102,7 @@ class Build(cli.Application):
                 cmake_cache = os.path.join(builddir, "CMakeCache.txt")
                 install_path = os.path.join(self._builddir, "install")
                 llvm_cmake = cmake[
-                    "-DCMAKE_INSTALL_PREFIX="+install_path,
+                    "-DCMAKE_INSTALL_PREFIX=" + install_path,
                     "-DCMAKE_BUILD_TYPE=Release",
                     "-DBUILD_SHARED_LIBS=On",
                     "-DCMAKE_USE_RELATIVE_PATHS=On",
@@ -119,8 +119,8 @@ class Build(cli.Application):
                 if os.path.exists(self._papidir):
                     papi_inc = os.path.join(self._papidir, "include")
                     papi_lib = os.path.join(self._papidir, "lib", "libpapi.so")
-                    llvm_cmake = llvm_cmake["-DPAPI_INCLUDE_DIR="+papi_inc]
-                    llvm_cmake = llvm_cmake["-DPAPI_LIBRARY="+papi_lib]
+                    llvm_cmake = llvm_cmake["-DPAPI_INCLUDE_DIR=" + papi_inc]
+                    llvm_cmake = llvm_cmake["-DPAPI_LIBRARY=" + papi_lib]
 
                 if os.path.exists(self._likwiddir):
                     likwid_inc = os.path.join(self._likwiddir, "include")
@@ -128,11 +128,13 @@ class Build(cli.Application):
                         self._likwiddir,
                         "lib",
                         "liblikwid.so")
-                    llvm_cmake = llvm_cmake["-DLIKWID_INCLUDE_DIR="+likwid_inc]
-                    llvm_cmake = llvm_cmake["-DLIKWID_LIBRARY="+likwid_lib]
+                    llvm_cmake = llvm_cmake[
+                        "-DLIKWID_INCLUDE_DIR=" + likwid_inc]
+                    llvm_cmake = llvm_cmake["-DLIKWID_LIBRARY=" + likwid_lib]
 
                 if os.path.exists(self._isldir):
-                    llvm_cmake = llvm_cmake["-DCMAKE_PREFIX_PATH="+self._isldir]
+                    llvm_cmake = llvm_cmake[
+                        "-DCMAKE_PREFIX_PATH=" + self._isldir]
 
                 if not os.path.exists(cmake_cache):
                     cc = None
@@ -166,7 +168,8 @@ class Build(cli.Application):
             self.clone_or_pull(llvm_url, llvm_path)
             tools_path = os.path.join(llvm_path, "tools")
             with local.cwd(tools_path):
-                self.clone_or_pull(clang_url, os.path.join(tools_path, "clang"))
+                self.clone_or_pull(
+                    clang_url, os.path.join(tools_path, "clang"))
                 self.clone_or_pull(
                     polly_url,
                     os.path.join(
@@ -192,4 +195,4 @@ class Build(cli.Application):
         if self._num_jobs:
             build_cmd = build_cmd["-j", self._num_jobs]
 
-        build_cmd["-C"+os.path.join(llvm_path, "build"), "install"] & FG
+        build_cmd["-C" + os.path.join(llvm_path, "build"), "install"] & FG

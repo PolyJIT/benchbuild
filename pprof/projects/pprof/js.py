@@ -10,8 +10,11 @@ from glob import glob
 from plumbum import FG, local
 from plumbum.cmd import chmod, echo, cp
 
+
 class SpiderMonkey(PprofGroup):
+
     class Factory:
+
         def create(self, exp):
             return SpiderMonkey(exp, "js", "compilation")
     ProjectFactory.addFactory("SpiderMonkey", Factory())

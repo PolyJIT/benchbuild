@@ -83,7 +83,7 @@ def create_run(conn, cmd, prj, exp, grp):
     with conn.cursor() as c:
         c.execute(
             sql_insert, (datetime.now(), cmd, prj, exp, extensions.adapt(grp),
-                extensions.adapt(config["experiment"])))
+                         extensions.adapt(config["experiment"])))
         run_id = c.fetchone()[0]
     conn.commit()
     return run_id

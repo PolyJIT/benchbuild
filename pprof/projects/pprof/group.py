@@ -5,6 +5,7 @@ from pprof.project import Project
 from pprof.settings import config
 from os import path
 
+
 class PprofGroup(Project):
     path_suffix = "src"
 

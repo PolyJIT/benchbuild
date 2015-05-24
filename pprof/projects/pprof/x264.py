@@ -19,10 +19,7 @@ class X264(PprofGroup):
     class Factory:
 
         def create(self, exp):
-            obj = X264(exp, "x264", "multimedia")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return X264(exp, "x264", "multimedia")
     ProjectFactory.addFactory("X264", Factory())
 
     def prepare(self):

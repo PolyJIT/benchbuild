@@ -14,10 +14,7 @@ class SQLite3(PprofGroup):
 
     class Factory:
         def create(self, exp):
-            obj = SQLite3(exp, "sqlite3", "database")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return SQLite3(exp, "sqlite3", "database")
     ProjectFactory.addFactory("SQLite3", Factory())
 
     src_dir = "sqlite-amalgamation-3080900"

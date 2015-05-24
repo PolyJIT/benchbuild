@@ -16,10 +16,7 @@ class Lulesh(PprofGroup):
     class Factory:
 
         def create(self, exp):
-            obj = Lulesh(exp, "lulesh", "scientific")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return Lulesh(exp, "lulesh", "scientific")
     ProjectFactory.addFactory("Lulesh", Factory())
 
     @log_with(log)

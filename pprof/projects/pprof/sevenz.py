@@ -16,10 +16,7 @@ class SevenZip(PprofGroup):
     class Factory:
 
         def create(self, exp):
-            obj = SevenZip(exp, "7z", "compression")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return SevenZip(exp, "7z", "compression")
     ProjectFactory.addFactory("SevenZip", Factory())
 
     def run_tests(self, experiment):

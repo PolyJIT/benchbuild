@@ -15,10 +15,7 @@ class Crafty(PprofGroup):
 
     class Factory:
         def create(self, exp):
-            obj = Crafty(exp, "crafty", "scientific")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return Crafty(exp, "crafty", "scientific")
     ProjectFactory.addFactory("Crafty", Factory())
 
     src_dir = "crafty-23.4"

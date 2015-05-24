@@ -12,10 +12,7 @@ from plumbum.cmd import chmod
 class Ruby(PprofGroup):
     class Factory:
         def create(self, exp):
-            obj = Ruby(exp, "ruby", "compilation")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return Ruby(exp, "ruby", "compilation")
     ProjectFactory.addFactory("Ruby", Factory())
 
     src_dir = "ruby-2.2.2"

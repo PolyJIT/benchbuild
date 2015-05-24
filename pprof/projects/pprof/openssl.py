@@ -17,8 +17,6 @@ class OpenSSLGroup(Project):
         super(OpenSSLGroup, self).__init__(exp, name, "encryption", "openssl")
         self.sourcedir = path.join(config["sourcedir"], "src", "openssl", name)
         self.setup_derived_filenames()
-        self.calls_f = path.join(self.builddir, "papi.calls.out")
-        self.prof_f = path.join(self.builddir, "papi.profile.out")
 
     src_dir = "libressl-2.1.6"
     src_file = src_dir + ".tar.gz"

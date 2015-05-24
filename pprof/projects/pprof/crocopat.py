@@ -16,10 +16,7 @@ class Crocopat(PprofGroup):
 
     class Factory:
         def create(self, exp):
-            obj = Crocopat(exp, "crocopat", "verification")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return Crocopat(exp, "crocopat", "verification")
     ProjectFactory.addFactory("Crocopat", Factory())
 
     def run_tests(self, experiment):

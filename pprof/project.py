@@ -80,7 +80,7 @@ class Project(object):
         self.bin_f = self.run_f + PROJECT_BIN_F_EXT
         self.time_f = self.run_f + PROJECT_TIME_F_EXT
         self.calibrate_calls_f = self.run_f + PROJECT_CALIB_CALLS_F_EXT
-        self._calls_f = self.run_f + PROJECT_CALLS_F_EXT
+        self.calls_f = path.join(self.builddir, "papi.calls.out")
         self.likwid_f = self.run_f + PROJECT_LIKWID_F_EXT
 
         self.products.clear()
@@ -105,17 +105,6 @@ class Project(object):
     def output(self, filename):
         self.outputs.add(filename)
         return filename
-
-    @property
-    def calls_f(self):
-        return self._calls_f
-
-    @calls_f.setter
-    def calls_f(self, value):
-        old = self.calls_f
-        self._calls_f = value
-        self.products.remove(old)
-        self.products.add(value)
 
     @log_with(log)
     def run_tests(self, experiment):

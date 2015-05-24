@@ -45,7 +45,7 @@ class PolyJIT(RuntimeExperiment):
             p.download()
 
         with step("RAW -O3"):
-            p.ldflags = ["-L" + llvm_libs, "-lpjit"]
+            p.ldflags = ["-L" + llvm_libs]
             p.cflags = ["-O3"]
             with substep("reconf & rebuild"):
                 p.configure()

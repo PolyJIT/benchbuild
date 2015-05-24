@@ -22,17 +22,9 @@ handler.setFormatter(formatter)
 log = logging.getLogger(__name__)
 log.addHandler(handler)
 
-PROJECT_OPT_F_EXT = ".opt"
-PROJECT_ASM_F_EXT = ".s"
-PROJECT_OBJ_F_EXT = ".o"
-PROJECT_TAR_F_EXT = ".tar.gz"
 PROJECT_LIKWID_F_EXT = ".txt"
-PROJECT_CSV_F_EXT = ".csv"
-PROJECT_INST_F_EXT = ".inst"
 PROJECT_BIN_F_EXT = ".bin"
-PROJECT_PREOPT_F_EXT = ".preopt"
 PROJECT_TIME_F_EXT = ".time"
-PROJECT_PROFILE_F_EXT = ".profile.out"
 PROJECT_CALLS_F_EXT = ".calls"
 PROJECT_RESULT_F_EXT = ".result"
 PROJECT_CALIB_CALLS_F_EXT = ".calibrate.calls"
@@ -83,35 +75,21 @@ class Project(object):
         self.setup_derived_filenames()
 
     def setup_derived_filenames(self):
-        self.base_f = path.join(self.sourcedir, self.name + ".bc")
         self.run_f = path.join(self.builddir, self.name)
         self.result_f = self.run_f + PROJECT_RESULT_F_EXT
-        self.optimized_f = self.run_f + PROJECT_OPT_F_EXT
-        self.asm_f = self.run_f + PROJECT_ASM_F_EXT
-        self.obj_f = self.run_f + PROJECT_OBJ_F_EXT
         self.bin_f = self.run_f + PROJECT_BIN_F_EXT
         self.time_f = self.run_f + PROJECT_TIME_F_EXT
-        self.calibrate_prof_f = self.run_f + PROJECT_CALIB_PROFILE_F_EXT
         self.calibrate_calls_f = self.run_f + PROJECT_CALIB_CALLS_F_EXT
-        self.profbin_f = self.bin_f + PROJECT_PROFILE_F_EXT
-        self.csv_f = self.run_f + PROJECT_CSV_F_EXT
-        self._prof_f = self.run_f + PROJECT_PROFILE_F_EXT
         self._calls_f = self.run_f + PROJECT_CALLS_F_EXT
         self.likwid_f = self.run_f + PROJECT_LIKWID_F_EXT
 
         self.products.clear()
         self.products.add(self.run_f)
-        self.products.add(self.optimized_f)
         self.products.add(self.bin_f)
         self.products.add(self.time_f)
-        self.products.add(self.profbin_f)
-        self.products.add(self.prof_f)
         self.products.add(self.likwid_f)
-        self.products.add(self.csv_f)
         self.products.add(self.calls_f)
         self.products.add(self.result_f)
-        self.products.add(self.asm_f)
-        self.products.add(self.obj_f)
 
     def get_file_content(self, ifile):
         lines = []
@@ -129,18 +107,6 @@ class Project(object):
         return filename
 
     @property
-    def prof_f(self):
-        return self._prof_f
-
-    @prof_f.setter
-    def prof_f(self, value):
-        old = self.prof_f
-        self._prof_f = value
-        if old in self.products:
-            self.products.remove(old)
-        self.products.add(value)
-
-    @property
     def calls_f(self):
         return self._calls_f
 
@@ -151,23 +117,12 @@ class Project(object):
         self.products.remove(old)
         self.products.add(value)
 
-    @property
-    def ld_flags(self):
-        ldflags = path.join(self.sourcedir, self.name + ".pprof")
-        return self.get_file_content(ldflags)
-
-    @property
-    def polli_flags(self):
-        polliflags = path.join(self.sourcedir, self.name + ".polli")
-        return self.get_file_content(polliflags)
-
     @log_with(log)
     def run_tests(self, experiment):
         exp = experiment(self.run_f)
         exp()
 
     run_uuid = None
-
     @log_with(log)
     def run(self, experiment):
         from uuid import uuid4

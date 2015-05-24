@@ -91,21 +91,6 @@ class Project(object):
         self.products.add(self.calls_f)
         self.products.add(self.result_f)
 
-    def get_file_content(self, ifile):
-        lines = []
-        if path.exists(ifile):
-            with open(ifile) as f:
-                lines = "".join(f.readlines()).strip().split()
-        return lines
-
-    def input(self, filename):
-        self.inputs.add(filename)
-        return filename
-
-    def output(self, filename):
-        self.outputs.add(filename)
-        return filename
-
     @log_with(log)
     def run_tests(self, experiment):
         exp = experiment(self.run_f)

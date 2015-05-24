@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from pprof.settings import config
 
+
 def GetHashofDirs(directory):
     import hashlib
     import os
@@ -33,6 +34,7 @@ def GetHashofDirs(directory):
         return -2
     return SHAhash.hexdigest()
 
+
 def source_required(fname, to):
     """Check, if a download is required
 
@@ -59,6 +61,7 @@ def source_required(fname, to):
             rm(hash_file)
     return required
 
+
 def update_hash(fname, to):
     from os import path
 
@@ -82,7 +85,7 @@ def Copy(From, To):
     cp("-ar", "--reflink=auto", From, To)
 
 
-def Wget(url, fname, to = None):
+def Wget(url, fname, to=None):
     """download :src: to :to: if required
 
     :src: TODO
@@ -105,7 +108,8 @@ def Wget(url, fname, to = None):
     update_hash(fname, to)
     Copy(src_dir, ".")
 
-def Git(url, fname, to = None):
+
+def Git(url, fname, to=None):
     """get a shallow clone from :src to :to.
 
     :src: TODO
@@ -128,7 +132,8 @@ def Git(url, fname, to = None):
     update_hash(fname, to)
     Copy(src_dir, ".")
 
-def Svn(url, fname, to = None):
+
+def Svn(url, fname, to=None):
     """get a shallow clone from :src to :to.
 
     :src: TODO
@@ -152,7 +157,7 @@ def Svn(url, fname, to = None):
     Copy(src_dir, ".")
 
 
-def Rsync(url, fname, to = None):
+def Rsync(url, fname, to=None):
     """rsync :src to :to.
 
     :src: TODO

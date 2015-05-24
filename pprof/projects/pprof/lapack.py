@@ -66,12 +66,38 @@ class Lapack(PprofGroup):
     def build(self):
         from plumbum.cmd import make
         lapack_dir = path.join(self.builddir, self.src_dir)
+        jobs = "-j{}".format(config["jobs"])
+
         with local.cwd(lapack_dir):
-            make["-j" + config["jobs"], "clean",
-                 "f2clib", "lapack_install", "lib"] & FG
+            make[jobs, "f2clib", "blaslib"] & FG
+            with local.cwd(path.join("BLAS", "TESTING")):
+                make(jobs, "-f", "Makeblat2")
+                make(jobs, "-f", "Makeblat3")
 
     def run_tests(self, experiment):
-        pass
+        from pprof.project import wrap_tool
+
+        lapack_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(lapack_dir):
+            with local.cwd(path.join("BLAS")):
+                xblat2s = wrap_tool("xblat2s", experiment)
+                xblat2d = wrap_tool("xblat2d", experiment)
+                xblat2c = wrap_tool("xblat2c", experiment)
+                xblat2z = wrap_tool("xblat2z", experiment)
+
+                xblat3s = wrap_tool("xblat3s", experiment)
+                xblat3d = wrap_tool("xblat3d", experiment)
+                xblat3c = wrap_tool("xblat3c", experiment)
+                xblat3z = wrap_tool("xblat3z", experiment)
+
+                (xblat2s < "sblat2.in")()
+                (xblat2d < "dblat2.in")()
+                (xblat2c < "cblat2.in")()
+                (xblat2z < "zblat2.in")()
+                (xblat3s < "sblat3.in")()
+                (xblat3d < "dblat3.in")()
+                (xblat3c < "cblat3.in")()
+                (xblat3z < "zblat3.in")()
 
     class Factory:
 

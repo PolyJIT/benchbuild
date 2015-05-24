@@ -10,11 +10,13 @@ from glob import glob
 from plumbum import FG, local
 from plumbum.cmd import cat
 
+
 class Crocopat(PprofGroup):
 
     """ crocopat benchmark """
 
     class Factory:
+
         def create(self, exp):
             return Crocopat(exp, "crocopat", "verification")
     ProjectFactory.addFactory("Crocopat", Factory())
@@ -31,6 +33,7 @@ class Crocopat(PprofGroup):
     src_dir = "crocopat-2.1.4"
     src_file = src_dir + ".zip"
     src_uri = "http://crocopat.googlecode.com/files/" + src_file
+
     def download(self):
         from pprof.utils.downloader import Wget
         from plumbum.cmd import unzip
@@ -54,4 +57,3 @@ class Crocopat(PprofGroup):
             make["CXX=" + str(clang_cxx()),
                  "CFLAGS=" + " ".join(cflags),
                  "LFLAGS=" + " ".join(ldflags)] & FG
-

@@ -36,6 +36,7 @@ def lt_clang_cxx(flags_to_hide):
 
     return local["./clang++"]
 
+
 def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler):
     """Print a libtool wrapper that hides :flags_to_hide: from libtool.
 
@@ -53,10 +54,11 @@ def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler):
             [
                 "#!/bin/sh\n",
                 'FLAGS="' + " ".join(flags_to_hide) + '"\n',
-                str(compiler()) + " $FLAGS $*\n"
+                str(compiler()) + " $FLAGS \"$@\"\n"
             ]
         )
     chmod("+x", filepath)
+
 
 def llvm():
     return path.join(config["llvmdir"], "bin")

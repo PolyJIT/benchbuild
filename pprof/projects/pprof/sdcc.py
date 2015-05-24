@@ -9,14 +9,18 @@ from os import path
 from plumbum import FG, local
 import logging
 
+
 class SDCC(PprofGroup):
+
     class Factory:
+
         def create(self, exp):
             return SDCC(exp, "sdcc", "compilation")
     ProjectFactory.addFactory("SDCC", Factory())
 
     src_dir = "sdcc"
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + src_dir
+
     def download(self):
         from pprof.utils.downloader import Svn
 

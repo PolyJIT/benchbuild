@@ -9,6 +9,7 @@ from os import path
 from plumbum import FG, local
 from plumbum.cmd import cp, echo, chmod
 
+
 class Postgres(PprofGroup):
 
     """ postgres benchmark """
@@ -16,6 +17,7 @@ class Postgres(PprofGroup):
     testfiles = ["pg_ctl", "dropdb", "createdb", "pgbench"]
 
     class Factory:
+
         def create(self, exp):
             return Postgres(exp, "postgres", "database")
     ProjectFactory.addFactory("Postgres", Factory())
@@ -72,4 +74,3 @@ class Postgres(PprofGroup):
         except Exception:
             pg_ctl("stop", "-t", 360, "-w", "-D", test_data)
             raise
-

@@ -87,7 +87,8 @@ class PprofRun(cli.Application):
     def main(self):
         if self._list:
             for exp in self._experiment_names:
-                experiment = self._experiments[exp](exp, self._project_names, self._group_name)
+                experiment = self._experiments[exp](
+                    exp, self._project_names, self._group_name)
                 print_projects(experiment)
             exit(0)
 
@@ -95,7 +96,8 @@ class PprofRun(cli.Application):
             log.info("Running experiment: " + exp_name)
             name = exp_name.lower()
 
-            exp = self._experiments[name](name, self._project_names, self._group_name)
+            exp = self._experiments[name](
+                name, self._project_names, self._group_name)
             synchronize_experiment_with_db(exp)
 
             if self._clean:

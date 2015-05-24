@@ -54,7 +54,7 @@ def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler):
             [
                 "#!/bin/sh\n",
                 'FLAGS="' + " ".join(flags_to_hide) + '"\n',
-                str(compiler()) + " $FLAGS $*\n"
+                str(compiler()) + " $FLAGS \"$@\"\n"
             ]
         )
     chmod("+x", filepath)

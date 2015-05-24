@@ -16,7 +16,6 @@ import logging
 
 # Configure the log
 formatter = logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s')
-
 handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(formatter)
 
@@ -224,23 +223,15 @@ class Project(object):
             pass
 
 
-def wrap_tool(name, wrap_with):
-    from plumbum.cmd import mv
+def wrap_tool(name, wrap):
+    from plumbum import local
+    from plumbum.cmd import mv, chmod
     from os import path
 
-    if path.exists(name):
-        log.error("{} still exists, move it away and:\n".format(name))
-        log.error(" 1. 'run_f': to the binary you moved away\n")
-        log.error(" 2. build your experiment based on run_f as before\n")
-        log.error(" 3. wrap the tool with the _old_ value of 'run_f'")
-        return False
+    real_f = name + PROJECT_BIN_F_EXT
+    mv(name, real_f)
 
     with open(name, 'w') as wrapper:
-        povray.write("#!/bin/sh\n")
-        povray.write(str(wrap_with) + " \"$@\"")
-    return True
-
-
         wrapper.write("#!/bin/sh\n")
         wrapper.write(str(wrap(real_f)) + " \"$@\"")
     chmod("+x", name)

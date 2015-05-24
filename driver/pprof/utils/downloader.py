@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from pprof.settings import config
 
-def GetHashofDirs(directory, verbose=0):
+def GetHashofDirs(directory):
     import hashlib
     import os
     SHAhash = hashlib.sha512()
@@ -11,8 +11,6 @@ def GetHashofDirs(directory, verbose=0):
     try:
         for root, dirs, files in os.walk(directory):
             for names in files:
-                if verbose == 1:
-                    print 'Hashing', names
                 filepath = os.path.join(root, names)
                 try:
                     f1 = open(filepath, 'rb')
@@ -59,8 +57,6 @@ def source_required(fname, to):
             from plumbum.cmd import rm
             rm("-r", src_dir)
             rm(hash_file)
-    if not required:
-        print "No download needed: {} is unchanged.".format(src_dir)
     return required
 
 def update_hash(fname, to):

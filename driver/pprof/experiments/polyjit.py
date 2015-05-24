@@ -50,7 +50,7 @@ class PolyJIT(RuntimeExperiment):
             with substep("reconf & rebuild"):
                 p.configure()
                 p.build()
-            with substep("run"):
+            with substep("run {}".format(p.name)):
                 def runner(run_f):
                     return time[run_f]
                 p.run(runner)
@@ -66,7 +66,7 @@ class PolyJIT(RuntimeExperiment):
             with substep("reconf & rebuild"):
                 p.configure()
                 p.build()
-            with substep("run"):
+            with substep("run {}".format(p.name)):
                 def runner(run_f):
                     return time[run_f]
                 p.run(runner)
@@ -82,7 +82,7 @@ class PolyJIT(RuntimeExperiment):
             with substep("reconf & rebuild"):
                 p.configure()
                 p.build()
-            with substep("run"):
+            with substep("run {}".format(p.name)):
                 def runner(run_f):
                     return likwid_perfctr["-O", "-o", p.likwid_f, "-m", "-C",
                                           "-L:0", "-g", "CLOCK", run_f]
@@ -93,9 +93,6 @@ class PolyJIT(RuntimeExperiment):
                     get_db_connection(), "likwid", p.name, self.name, p.run_uuid)
                 likwid_measurement = likwid.get_likwid_perfctr(p.likwid_f)
                 likwid.to_db(run_id, likwid_measurement)
-                for (region, name, core_info, li) in likwid_measurement:
-                    print "{} - {} - {} - {}".format(region, name, core_info, li)
-
         with step("No recompilation, PAPI"):
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
             p.cflags = ["-O3",
@@ -117,18 +114,18 @@ class PolyJIT(RuntimeExperiment):
         with step("Evaluation"):
             # Print header here.
             (echo["---------------------------------------------------------------"]
-                >> p.result_f) & FG
+                >> p.result_f)()
             (echo[">>> ========= " + p.name + " Program"]
-                >> p.result_f) & FG
+                >> p.result_f)()
             (echo["---------------------------------------------------------------"]
-                >> p.result_f) & FG
+                >> p.result_f)()
 
             with substep("pprof analyze"):
                 with local.env(PPROF_USE_DATABASE=1,
                                PPROF_DB_RUN_GROUP=p.run_uuid,
                                PPROF_USE_FILE=0,
                                PPROF_USE_CSV=0):
-                    (pprof_analyze | tee["-a", p.result_f]) & FG
+                    (pprof_analyze | tee["-a", p.result_f])()
 
             with substep("pprof calibrate"):
                 papi_calibration = self.get_papi_calibration(
@@ -139,13 +136,13 @@ class PolyJIT(RuntimeExperiment):
                           " print \"Time spent in libPAPI (s) - \" time }"
                           ),
                          p.calls_f] |
-                     tee["-a", p.result_f]) & FG
+                     tee["-a", p.result_f])()
                     (echo["Real time per PAPI call (ns) - ", papi_calibration] |
-                        tee["-a", p.result_f]) & FG
+                        tee["-a", p.result_f])()
 
             (awk["-F", ",", ("{ usr+=$1; sys+=$2; wall+=$3 }"
                              " END {"
                              " print \"User time - \" usr;"
                              " print \"System time - \" sys;"
                              " print \"Wall clock - \" wall;}"), p.time_f] |
-             tee["-a", p.result_f]) & FG
+             tee["-a", p.result_f])()

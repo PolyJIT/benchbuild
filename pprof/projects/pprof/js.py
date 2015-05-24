@@ -13,10 +13,7 @@ from plumbum.cmd import chmod, echo, cp
 class SpiderMonkey(PprofGroup):
     class Factory:
         def create(self, exp):
-            obj = SpiderMonkey(exp, "js", "compilation")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return SpiderMonkey(exp, "js", "compilation")
     ProjectFactory.addFactory("SpiderMonkey", Factory())
 
     def prepare(self):

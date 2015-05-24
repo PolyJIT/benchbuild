@@ -16,12 +16,7 @@ class Linpack(PprofGroup):
     class Factory:
 
         def create(self, exp):
-            obj = Linpack(exp, "linpack", "scientific")
-
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-
-            return obj
+            return Linpack(exp, "linpack", "scientific")
     ProjectFactory.addFactory("Linpack", Factory())
 
     src_uri = "http://www.netlib.org/benchmark/linpackc.new"

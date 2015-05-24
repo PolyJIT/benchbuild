@@ -20,10 +20,7 @@ class XZ(PprofGroup):
     class Factory:
 
         def create(self, exp):
-            obj = XZ(exp, "xz", "compression")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return XZ(exp, "xz", "compression")
     ProjectFactory.addFactory("XZ", Factory())
 
     def clean(self):

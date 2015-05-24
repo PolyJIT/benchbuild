@@ -15,10 +15,7 @@ class Minisat(PprofGroup):
 
     class Factory:
         def create(self, exp):
-            obj = Minisat(exp, "minisat", "verification")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return Minisat(exp, "minisat", "verification")
     ProjectFactory.addFactory("Minisat", Factory())
 
     def run_tests(self, experiment):

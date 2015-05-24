@@ -14,10 +14,7 @@ class MCryptAES(PprofGroup):
 
     class Factory:
         def create(self, exp):
-            obj = MCryptAES(exp, "mcrypt-aes", "encryption")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return MCryptAES(exp, "mcrypt-aes", "encryption")
     ProjectFactory.addFactory("MCryptAES", Factory())
 
 class MCryptCiphers(PprofGroup):
@@ -26,9 +23,6 @@ class MCryptCiphers(PprofGroup):
 
     class Factory:
         def create(self, exp):
-            obj = MCryptCiphers(exp, "mcrypt-ciphers", "encryption")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return MCryptCiphers(exp, "mcrypt-ciphers", "encryption")
     ProjectFactory.addFactory("MCryptCiphers", Factory())
 

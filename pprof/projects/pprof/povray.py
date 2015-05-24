@@ -15,10 +15,7 @@ class Povray(PprofGroup):
 
     class Factory:
         def create(self, exp):
-            obj = Povray(exp, "povray", "multimedia")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return Povray(exp, "povray", "multimedia")
     ProjectFactory.addFactory("Povray", Factory())
 
     src_uri = "https://github.com/POV-Ray/povray"

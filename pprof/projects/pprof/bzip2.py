@@ -19,11 +19,7 @@ class Bzip2(PprofGroup):
 
     class Factory:
         def create(self, exp):
-            obj = Bzip2(exp, "bzip2", "compression")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-
-            return obj
+            return Bzip2(exp, "bzip2", "compression")
     ProjectFactory.addFactory("Bzip2", Factory())
 
     @log_with(log)

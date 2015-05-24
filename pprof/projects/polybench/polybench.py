@@ -49,8 +49,6 @@ class PolyBenchGroup(Project):
         self.sourcedir = path.join(config["sourcedir"],
                                    "polybench", self.path_dict[name], name)
         self.setup_derived_filenames()
-        self.calls_f = path.join(self.builddir, "papi.calls.out")
-        self.prof_f = path.join(self.builddir, "papi.profile.out")
 
     src_dir = "polybench-c-4.1"
     src_file = src_dir + ".tar.gz"

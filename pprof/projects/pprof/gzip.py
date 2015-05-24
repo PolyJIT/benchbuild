@@ -18,10 +18,7 @@ class Gzip(PprofGroup):
 
     class Factory:
         def create(self, exp):
-            obj = Gzip(exp, "gzip", "compression")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return Gzip(exp, "gzip", "compression")
     ProjectFactory.addFactory("Gzip", Factory())
 
     def clean(self):

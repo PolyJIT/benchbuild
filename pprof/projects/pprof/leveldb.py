@@ -11,10 +11,7 @@ from plumbum import FG, local
 class LevelDB(PprofGroup):
     class Factory:
         def create(self, exp):
-            obj = LevelDB(exp, "leveldb", "database")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return LevelDB(exp, "leveldb", "database")
     ProjectFactory.addFactory("LevelDB", Factory())
 
     def download(self):

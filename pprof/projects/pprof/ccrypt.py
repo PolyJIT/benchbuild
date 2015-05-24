@@ -19,10 +19,7 @@ class Ccrypt(PprofGroup):
     class Factory:
 
         def create(self, exp):
-            obj = Ccrypt(exp, "ccrypt", "encryption")
-            obj.calls_f = path.join(obj.builddir, "papi.calls.out")
-            obj.prof_f = path.join(obj.builddir, "papi.profile.out")
-            return obj
+            return Ccrypt(exp, "ccrypt", "encryption")
     ProjectFactory.addFactory("Ccrypt", Factory())
 
     def prepare(self):

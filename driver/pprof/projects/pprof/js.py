@@ -27,14 +27,14 @@ class SpiderMonkey(PprofGroup):
         self.products.add(config_path)
 
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
+
         for jsfile in glob(path.join(self.testdir, "sunspider", "*.js")):
-            (experiment < jsfile) & FG
+            (exp < jsfile) & FG
 
         sh_script = path.join(self.builddir, self.bin_f + ".sh")
         (echo["#!/bin/sh"] > sh_script) & FG
-        (echo[str(experiment) + " $*"] >> sh_script) & FG
+        (echo[str(exp) + " $*"] >> sh_script) & FG
         chmod("+x", sh_script)
         jstests = local[path.join(self.testdir, "tests", "jstests.py")]
         jstests[sh_script] & FG(retcode=None)
-
-    ProjectFactory.addFactory("SpiderMonkey", Factory())

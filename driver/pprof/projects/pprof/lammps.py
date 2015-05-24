@@ -21,15 +21,17 @@ class Lammps(PprofGroup):
     def prepare(self):
         super(PprofGroup, self).prepare()
         from plumbum.cmd import cp
-        
+
         with local.cwd(self.builddir):
             cp("-vr", self.testdir, "test")
 
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
+
         with local.cwd(path.join(self.builddir, "test")):
             tests = glob(path.join(self.testdir, "in.*"))
             for test in tests:
-                cmd = (experiment < test)
+                cmd = (exp < test)
                 cmd & FG(retcode=None)
 
     src_dir = "lammps.git"
@@ -46,7 +48,7 @@ class Lammps(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
-        from pprof.project import clang_cxx, clang
+        from pprof.utils.compiler import clang_cxx, clang
 
         with local.cwd(path.join(self.builddir, self.src_dir, "src")):
             make["CC=" + str(clang_cxx()),

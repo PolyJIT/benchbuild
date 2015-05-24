@@ -23,11 +23,13 @@ class Crocopat(PprofGroup):
     ProjectFactory.addFactory("Crocopat", Factory())
 
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
+
         programs = glob(path.join(self.testdir, "programs", "*.rml"))
         projects = glob(path.join(self.testdir, "projects", "*.rsf"))
         for program in programs:
             for project in projects:
-                (cat[project] | experiment[program]) & FG(retcode=None)
+                (cat[project] | exp[program]) & FG(retcode=None)
 
     src_dir = "crocopat-2.1.4"
     src_file = src_dir + ".zip"
@@ -46,7 +48,7 @@ class Crocopat(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make
-        from pprof.project import clang_cxx
+        from pprof.utils.compiler import clang_cxx
 
         crocopat_dir = path.join(self.builddir, self.src_dir, "src")
         with local.cwd(crocopat_dir):

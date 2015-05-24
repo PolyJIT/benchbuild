@@ -71,15 +71,16 @@ class PolyBenchGroup(Project):
             cp("-ar", path.join(self.src_dir, "utilities"), ".")
 
     def build(self):
-        from pprof.project import clang
+        from pprof.utils.compiler import clang
 
         src_file = path.join(self.name + ".dir", self.name + ".c")
         with local.cwd(self.builddir):
-            clang()["-I", "utilities",
+            clang()("-I", "utilities",
                     "-I", self.name,
                     "-DPOLYBENCH_USE_C99_PROTO",
                     "utilities/polybench.c", src_file,
-                    self.cflags, "-o", self.run_f, self.ldflags] & FG
+                    "-lm",
+                    self.cflags, "-o", self.run_f, self.ldflags)
 
 
 class Correlation(PolyBenchGroup):

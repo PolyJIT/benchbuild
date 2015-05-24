@@ -33,7 +33,7 @@ class OpenSSLGroup(Project):
             tar("xfz", openssl_dir)
 
     def configure(self):
-        from pprof.project import clang
+        from pprof.utils.compiler import clang
         openssl_dir = path.join(self.builddir, self.src_dir)
 
         configure = local[path.join(openssl_dir, "configure")]
@@ -148,7 +148,9 @@ class SSL(OpenSSLGroup):
             return SSL(exp, "ssl")
 
     def run_tests(self, experiment):
-        ssl = experiment["-time", "-cert",
+        exp = experiment(self.run_f)
+
+        ssl = exp["-time", "-cert",
                 path.join(self.sourcedir, "server.pem"),
                 "-num", 10000, "-named_curve", "c2tnb431r1",
                 "-bytes", 20480]
@@ -167,11 +169,13 @@ class OpenSSL(OpenSSLGroup):
     ProjectFactory.addFactory("OpenSSL", Factory())
 
     def run_tests(self, experiment):
+        exp = experiment(self.run_f)
+
         with local.env(OPENSSL_CONF=path.join(self.testdir, "openssl.cnf")):
             certs = path.join(self.testdir, "certs", "demo")
             print certs
             for f in glob(path.join(certs, "*.pem")):
                 print f
                 super(OpenSSL, self).run(
-                    experiment["verify", "-CApath", certs, f])
+                    exp["verify", "-CApath", certs, f])
 

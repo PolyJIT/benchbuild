@@ -9,11 +9,13 @@ from os import path
 from plumbum import FG, local
 from plumbum.cmd import cat
 
+
 class Crafty(PprofGroup):
 
     """ crafty benchmark """
 
     class Factory:
+
         def create(self, exp):
             return Crafty(exp, "crafty", "scientific")
     ProjectFactory.addFactory("Crafty", Factory())
@@ -63,4 +65,3 @@ class Crafty(PprofGroup):
 
         (cat[path.join(self.testdir, "test1.sh")] | exp) & FG
         (cat[path.join(self.testdir, "test2.sh")] | exp) & FG
-

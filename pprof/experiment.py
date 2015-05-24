@@ -58,7 +58,8 @@ def phase(name):
         sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
         raise e
     finally:
-        sys.stdout.write("\r\x1b[KPHASE.{} '{}' OK".format(phase.counter, name))
+        sys.stdout.write(
+            "\r\x1b[KPHASE.{} '{}' OK".format(phase.counter, name))
     sys.stdout.flush()
 
 
@@ -104,7 +105,7 @@ def substep(name):
         o.write("\n" + e.stderr)
         o.write("\nPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, step.name, substep.counter, name))
-        o.write( "\n{} substeps have FAILED so far.".format(substep.failed))
+        o.write("\n{} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
     finally:

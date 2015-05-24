@@ -130,7 +130,7 @@ class PolyJIT(RuntimeExperiment):
             with substep("pprof calibrate"):
                 papi_calibration = self.get_papi_calibration(
                     p, pprof_calibrate)
-                ##FIXME: This needs to go into the database.
+                # FIXME: This needs to go into the database.
                 if papi_calibration:
                     (awk[("{s+=$1} END {"
                           " time = (s*" + papi_calibration + "/1000000000);"

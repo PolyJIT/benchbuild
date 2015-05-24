@@ -58,7 +58,8 @@ class Polli(RuntimeExperiment):
         polli_opts = p.ld_flags + p.polli_flags
         polli_c = polli["-fake-argv0=" + run_f, "-O3", "-lpapi", "-lpprof",
                         polli_opts]
-        polli_c = polli_c["-instrument", "-no-recompilation", "-disable-preopt"]
+        polli_c = polli_c[
+            "-instrument", "-no-recompilation", "-disable-preopt"]
         polli_c = polli_c[bin_f]
         p.run(time["-f", "%U,%S,%e", "-a", "-o", time_f, polli_c])
 
@@ -90,7 +91,7 @@ class Polli(RuntimeExperiment):
         events_csv = path.join(p.builddir, "papi.profile.events.csv")
         events_out = p.result_f + ".r.csv"
         heatmap_r = local[path.join(self.sourcedir, "statistics",
-                          "diff-experiments", "heatmap.R")]
+                                    "diff-experiments", "heatmap.R")]
         heatmap_r("-i", events_csv, "-c", events_out, "-q")
 
         rm(events_csv)
@@ -146,6 +147,7 @@ class Polli(RuntimeExperiment):
 
 
 class PolliBaseLine(Polli):
+
     @try_catch_log
     def run_project(self, p):
         base_f = p.base_f

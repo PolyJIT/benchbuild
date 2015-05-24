@@ -9,6 +9,7 @@ from os import path
 from plumbum import FG, local
 from plumbum.cmd import cp
 
+
 class Gzip(PprofGroup):
 
     """ Gzip """
@@ -17,6 +18,7 @@ class Gzip(PprofGroup):
                  "liberty.jpg"]
 
     class Factory:
+
         def create(self, exp):
             return Gzip(exp, "gzip", "compression")
     ProjectFactory.addFactory("Gzip", Factory())
@@ -53,6 +55,7 @@ class Gzip(PprofGroup):
     src_dir = "gzip-1.6"
     src_file = src_dir + ".tar.xz"
     src_uri = "http://ftpmirror.gnu.org/gzip/" + src_file
+
     def download(self):
         from pprof.utils.downloader import Wget
         from plumbum.cmd import tar

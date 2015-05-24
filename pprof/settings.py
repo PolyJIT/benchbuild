@@ -117,12 +117,12 @@ def available_cpu_count():
 
 
 config = {
-    "sourcedir": os.getcwd(),
-    "builddir": os.path.join(os.getcwd(), "results"),
-    "testdir": os.path.join(os.getcwd(), "testinputs"),
-    "llvmdir": os.path.join(os.getcwd(), "install"),
-    "likwiddir": os.path.join(os.getcwd(), "bin"),
-    "tmpdir": os.path.join(os.getcwd(), "tmp"),
+    "sourcedir": os.getenv("PPROF_SRC_DIR", os.getcwd()),
+    "builddir": os.getenv("PPROF_OBJ_DIR", os.path.join(os.getcwd(), "results")),
+    "testdir": os.getenv("PPROF_TESTINPUTS", os.path.join(os.getcwd(), "testinputs")),
+    "llvmdir": os.getenv("PPROF_LLVM_DIR", os.path.join(os.getcwd(), "install")),
+    "likwiddir": os.getenv("PPROF_LIKWID_DIR", os.path.join(os.getcwd(), "bin")),
+    "tmpdir": os.getenv("PPROF_TMP_DIR", os.path.join(os.getcwd(), "tmp")),
     "path": os.environ["PATH"],
     "ld_library_path": os.environ["LD_LIBRARY_PATH"],
     "jobs" : str(available_cpu_count()),

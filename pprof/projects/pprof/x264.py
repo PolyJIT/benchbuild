@@ -59,16 +59,17 @@ class X264(PprofGroup):
         from pprof.utils.compiler import clang
 
         x264_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(self.builddir):
+            cc = clang()
 
         with local.cwd(x264_dir):
-            with local.env(CC=str(clang())):
-                make["clean", "all"] & FG
-
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(x264_dir, "x264"), self.run_f)
+            with local.env(CC=str(cc)):
+                make("clean", "all")
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        from pprof.project import wrap_tool
+        x264_dir = path.join(self.builddir, self.src_dir)
+        exp = wrap_tool(path.join(x264_dir, "x264"), experiment)
 
         testfiles = [path.join(self.testdir, x) for x in self.inputfiles]
         # TODO: Prepare test videos

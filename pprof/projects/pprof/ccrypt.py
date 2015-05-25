@@ -48,37 +48,36 @@ class Ccrypt(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags)
+            clang_cxx = lt_clang_cxx(self.cflags)
+
         ccrypt_dir = path.join(self.builddir, self.src_dir)
-
         with local.cwd(ccrypt_dir):
-            configure = local[path.join(ccrypt_dir, "configure")]
-
-            with local.env(CC=str(lt_clang(self.cflags)),
-                           CXX=str(lt_clang_cxx(self.cflags)),
+            configure = local["./configure"]
+            with local.env(CC=str(clang),
+                           CXX=str(clang_cxx),
                            LDFLAGS=" ".join(self.ldflags)):
-                configure & FG
+                configure()
 
     def build(self):
-        from plumbum.cmd import make, mv, rm
+        from plumbum.cmd import make
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
-            sh_file = path.join("src", "ccrypt")
-            rm("-f", sh_file)
-            make & FG
-            mv(sh_file, self.bin_f)
-        self.run_f = self.bin_f
+            make("check")
 
     def run_tests(self, experiment):
-        from plumbum.cmd import make, chmod
+        from plumbum.cmd import make
+        from pprof.project import wrap_tool
 
         exp = experiment(self.run_f)
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)
+        wrap_tool(path.join(ccrypt_dir, "src", self.name), experiment)
+        wrap_tool(path.join(ccrypt_dir, "check", "crypt3-check"), experiment)
+        wrap_tool(path.join(ccrypt_dir, "check", "rijndael-check"), experiment)
+
         with local.cwd(ccrypt_dir):
-            sh_file = path.join("src", self.name)
-            with open(sh_file, 'w') as ccrypt:
-                ccrypt.write("#!/usr/bin/env bash\n")
-                ccrypt.write("exec " + str(exp["\"$@\""]))
-            chmod("+x", sh_file)
-            make["check"] & FG
+            make("check")

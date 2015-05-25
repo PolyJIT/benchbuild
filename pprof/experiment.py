@@ -14,6 +14,7 @@ from pprof.projects.pprof import (sevenz, bzip2, ccrypt, crafty, crocopat,
                                   linpack, luleshomp, lulesh, mcrypt, minisat,
                                   openssl, postgres, povray, python, ruby, sdcc,
                                   sqlite3, tcc, x264, xz)
+from pprof.projects.lnt import lnt
 from pprof.settings import config
 
 from contextlib import contextmanager

@@ -38,18 +38,22 @@ class SDCC(PprofGroup):
                            CFLAGS=" ".join(self.cflags),
                            CXXFLAGS=" ".join(self.cflags),
                            LIBS=" ".join(self.ldflags)):
-                configure["--without-ccache", "--disable-pic14-port",
-                          "--disable-pic16-port"] & FG
+                configure("--without-ccache", "--disable-pic14-port",
+                          "--disable-pic16-port")
 
     def build(self):
         from plumbum.cmd import make
         sdcc_dir = path.join(self.builddir, self.src_dir)
 
         with local.cwd(sdcc_dir):
-            make & FG
+            make()
 
     def run_tests(self, experiment):
         from plumbum.cmd import make
+        from pprof.project import wrap_tool
+
+        import pdb
+        pdb.set_trace()
         exp = experiment(self.run_f)
 
         log.debug("FIXME: invalid LLVM IR, regenerate from source")

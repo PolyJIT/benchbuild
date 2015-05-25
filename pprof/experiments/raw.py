@@ -25,7 +25,7 @@ class RawRuntime(RuntimeExperiment):
     """ The polyjit experiment """
 
     def setup_commands(self):
-        super(PolyJIT, self).setup_commands()
+        super(RawRuntime, self).setup_commands()
         global polli, likwid_perfctr, pprof_calibrate, pprof_analyze, opt
         bin_path = path.join(config["llvmdir"], "bin")
         likwid_path = path.join(config["likwiddir"], "bin")

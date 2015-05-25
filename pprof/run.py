@@ -8,6 +8,7 @@ from pprof.settings import config
 from pprof.experiments import polli
 from pprof.experiments import polyjit
 from pprof.experiments import raw
+from pprof.experiments import papi
 import logging
 import pprint
 log = logging.getLogger()
@@ -21,7 +22,9 @@ class PprofRun(cli.Application):
     _experiments = {"polyjit": polyjit.PolyJIT,
                     "polli": polli.Polli,
                     "polli-baseline": polli.PolliBaseLine,
-                    "raw": raw.RawRuntime}
+                    "raw": raw.RawRuntime,
+                    "papi": papi.PapiScopCoverage
+                    }
 
     _experiment_names = []
     _project_names = []

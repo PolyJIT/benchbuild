@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 setup(name='pprof',
-      version='0.7',
+      version='0.8',
       packages= find_packages(),
       author = "Andreas Simbuerger",
       author_email = "simbuerg@fim.uni-passau.de",

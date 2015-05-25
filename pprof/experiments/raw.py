@@ -50,7 +50,7 @@ class RawRuntime(RuntimeExperiment):
                 p.build()
             with substep("run {}".format(p.name)):
                 def runner(run_f):
-                    return time[run_f]
+                    return time["-f", "%U,%S,%e", "-a", "-o", p.time_f, run_f]
                 p.run(runner)
 
         with step("Evaluation"):
@@ -64,7 +64,8 @@ class RawRuntime(RuntimeExperiment):
 
             (awk["-F", ",", ("{ usr+=$1; sys+=$2; wall+=$3 }"
                              " END {"
+                             " print \"\";"
                              " print \"User time - \" usr;"
                              " print \"System time - \" sys;"
                              " print \"Wall clock - \" wall;}"), p.time_f] |
-             tee["-a", p.result_f])()
+             tee["-a", p.result_f]) & FG

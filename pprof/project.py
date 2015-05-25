@@ -167,3 +167,22 @@ def wrap_tool(name, wrap):
         wrapper.write(str(wrap(real_f)) + " \"$@\"")
     chmod("+x", name_absolute)
     return local[name_absolute]
+
+
+def wrap_tool_polymorphic(name, wrap):
+    from plumbum import local
+    from plumbum.cmd import mv, chmod
+    from os import path
+
+    name_absolute = path.abspath(name)
+    if path.exists(name_absolute):
+        log.error("File collision detected! {} already exists in filesystem".format(name_absolute))
+        raise
+
+    with open(name_absolute, 'w') as wrapper:
+        wrapper.write("#!/bin/sh\n")
+        wrapper.write("bin=\"$1\"\n")
+        wrapper.write("shift\n")
+        wrapper.write(str(wrap("$bin")) + " \"$@\"\n")
+    chmod("+x", name_absolute)
+    return local[name_absolute]

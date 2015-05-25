@@ -74,7 +74,7 @@ class PapiScopCoverage(RuntimeExperiment):
                                PPROF_DB_RUN_GROUP=p.run_uuid,
                                PPROF_USE_FILE=0,
                                PPROF_USE_CSV=0):
-                    (pprof_analyze | tee["-a", p.result_f])()
+                    (pprof_analyze | tee["-a", p.result_f]) & FG
 
             with substep("pprof calibrate"):
                 papi_calibration = self.get_papi_calibration(
@@ -92,7 +92,8 @@ class PapiScopCoverage(RuntimeExperiment):
 
             (awk["-F", ",", ("{ usr+=$1; sys+=$2; wall+=$3 }"
                              " END {"
+                             " print \"\";"
                              " print \"User time - \" usr;"
                              " print \"System time - \" sys;"
                              " print \"Wall clock - \" wall;}"), p.time_f] |
-             tee["-a", p.result_f])()
+             tee["-a", p.result_f]) & FG

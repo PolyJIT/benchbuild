@@ -49,8 +49,10 @@ class Ccrypt(PprofGroup):
     def configure(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
-        clang = lt_clang(self.cflags)
-        clang_cxx = lt_clang_cxx(self.cflags)
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags)
+            clang_cxx = lt_clang_cxx(self.cflags)
+
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
             configure = local["./configure"]

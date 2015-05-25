@@ -35,28 +35,6 @@ class XZ(PprofGroup):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp[testfiles, self.builddir] & FG
 
-    def run_tests(self, experiment):
-        exp = experiment(self.run_f)
-        # Compress
-        exp["-f", "-k", "--compress", "-e", "-9", "text.html"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "chicken.jpg"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "control"] & FG
-        exp[
-            "-f",
-            "-k",
-            "--compress",
-            "-e",
-            "-9",
-            "input.source"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "liberty.jpg"] & FG
-
-        # Decompress
-        exp["-f", "-k", "--decompress", "text.html.xz"] & FG
-        exp["-f", "-k", "--decompress", "chicken.jpg.xz"] & FG
-        exp["-f", "-k", "--decompress", "control.xz"] & FG
-        exp["-f", "-k", "--decompress", "input.source.xz"] & FG
-        exp["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
-
     src_dir = "xz-5.2.1"
     src_file = src_dir + ".tar.gz"
     src_uri = "http://tukaani.org/xz/" + src_file
@@ -68,6 +46,26 @@ class XZ(PprofGroup):
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
             tar('xfz', path.join(self.builddir, self.src_file))
+
+    def run_tests(self, experiment):
+        from pprof.project import wrap_tool
+
+        xz_dir = path.join(self.builddir, self.src_dir)
+        exp = wrap_tool(path.join(xz_dir, "src", "xz", "xz"), experiment)
+
+        # Compress
+        exp["-f", "-k", "--compress", "-e", "-9", "text.html"] & FG
+        exp["-f", "-k", "--compress", "-e", "-9", "chicken.jpg"] & FG
+        exp["-f", "-k", "--compress", "-e", "-9", "control"] & FG
+        exp["-f", "-k", "--compress", "-e", "-9", "input.source"] & FG
+        exp["-f", "-k", "--compress", "-e", "-9", "liberty.jpg"] & FG
+
+        # Decompress
+        exp["-f", "-k", "--decompress", "text.html.xz"] & FG
+        exp["-f", "-k", "--decompress", "chicken.jpg.xz"] & FG
+        exp["-f", "-k", "--decompress", "control.xz"] & FG
+        exp["-f", "-k", "--decompress", "input.source.xz"] & FG
+        exp["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
 
     def configure(self):
         from pprof.utils.compiler import lt_clang
@@ -96,9 +94,5 @@ class XZ(PprofGroup):
         xz_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(xz_dir):
             with local.env(LD_LIBRARY_PATH=llvm_libs()):
-                make["CC=" + str(lt_clang(self.cflags)),
-                     "LDFLAGS=" + " ".join(self.ldflags), "clean", "all"] & FG
-
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(xz_dir, "src", "xz", "xz"),
-               self.run_f)
+                make("CC=" + str(lt_clang(self.cflags)),
+                     "LDFLAGS=" + " ".join(self.ldflags), "clean", "all")

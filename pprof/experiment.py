@@ -273,9 +273,7 @@ class Experiment(object):
     def run(self):
         """Run the experiment on all registered projects
         """
-        llvm_libs = path.join(config["llvmdir"], "lib")
-        with local.env(LD_LIBRARY_PATH=llvm_libs,
-                       PPROF_EXPERIMENT_ID=str(config["experiment"])):
+        with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
             self.map_projects(self.run_project, "run")
 
     @classmethod
@@ -342,7 +340,10 @@ class Experiment(object):
         for project_name in self.projects:
             with phase(p):
                 prj = self.projects[project_name]
-                with local.env(PPROF_EXPERIMENT=self.name,
+                llvm_libs = path.join(config["llvmdir"], "lib")
+                ld_lib_path = config["ld_library_path"] + ":" + llvm_libs
+                with local.env(LD_LIBRARY_PATH=ld_lib_path,
+                               PPROF_EXPERIMENT=self.name,
                                PPROF_PROJECT=prj.name):
                     fun(prj)
 

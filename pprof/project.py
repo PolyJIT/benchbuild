@@ -106,7 +106,10 @@ class Project(object):
                 self.run_uuid = uuid4()
             with local.env(PPROF_CMD=str(experiment(self.run_f)),
                            PPROF_USE_DATABASE=1,
-                           PPROF_DB_RUN_GROUP=self.run_uuid):
+                           PPROF_DB_RUN_GROUP=self.run_uuid,
+                           PPROF_DOMAIN=self.domain,
+                           PPROF_GROUP=self.group_name,
+                           PPROF_SRC_URI=self.src_uri):
                 self.run_tests(experiment)
 
     @log_with(log)
@@ -163,8 +166,10 @@ def wrap_tool(name, wrap):
     mv(name_absolute, real_f)
 
     with open(name, 'w') as wrapper:
+        cmd = str(wrap(real_f)) + " \"$@\""
         wrapper.write("#!/bin/sh\n")
-        wrapper.write(str(wrap(real_f)) + " \"$@\"")
+        wrapper.write("export PPROF_CMD=\"{}\"\n".format(cmd))
+        wrapper.write(cmd)
     chmod("+x", name_absolute)
     return local[name_absolute]
 
@@ -180,9 +185,13 @@ def wrap_tool_polymorphic(name, wrap):
         raise
 
     with open(name_absolute, 'w') as wrapper:
+        cmd = str(wrap("$bin")) + " \"$@\""
         wrapper.write("#!/bin/sh\n")
         wrapper.write("bin=\"$1\"\n")
+        wrapper.write("export PPROF_DB_RUN_GROUP=\"$(uuidgen -r)\"\n")
+        wrapper.write("export PPROF_PROJECT=\"$bin\"\n")
+        wrapper.write("export PPROF_CMD=\"{}\"\n".format(cmd))
         wrapper.write("shift\n")
-        wrapper.write(str(wrap("$bin")) + " \"$@\"\n")
+        wrapper.write(cmd + "\n")
     chmod("+x", name_absolute)
     return local[name_absolute]

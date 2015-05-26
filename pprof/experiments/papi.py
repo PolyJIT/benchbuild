@@ -54,6 +54,9 @@ class PapiScopCoverage(RuntimeExperiment):
         with step("No recompilation, PAPI"):
             p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+
+            ld_lib_path = filter(None, config["ld_library_path"].split(":"))
+            p.ldflags = p.ldflags + [ "-L"+el for el in ld_lib_path]
             p.cflags = ["-O3",
                         "-Xclang", "-load",
                         "-Xclang", "LLVMPolyJIT.so",

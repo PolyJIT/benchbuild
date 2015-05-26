@@ -51,11 +51,14 @@ def phase(name):
     phase.name = name
     step.counter = 0
 
+    from sys import stderr as o
+
     sys.stdout.write("\r\x1b[KPHASE.{} '{}' START".format(phase.counter, name))
     sys.stdout.flush()
     try:
         yield
     except ProcessExecutionError as e:
+        o.write("\n" + e.stderr)
         sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
         raise e
     finally:
@@ -72,12 +75,15 @@ def step(name):
     step.name = name
     substep.counter = 0
 
+    from sys import stderr as o
+
     sys.stdout.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' START".format(
         phase.counter, phase.name, step.counter, name))
     sys.stdout.flush()
     try:
         yield
     except ProcessExecutionError as e:
+        o.write("\n" + e.stderr)
         sys.stdout.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, name))
         raise e
@@ -95,7 +101,7 @@ def substep(name):
     substep.counter += 1
     substep.name = name
 
-    from sys import stdout as o
+    from sys import stderr as o
 
     o.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
         phase.counter, phase.name, step.counter, step.name, substep.counter, name))

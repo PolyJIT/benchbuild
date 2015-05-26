@@ -133,7 +133,7 @@ class Build(cli.Application):
                         "-DLIKWID_INCLUDE_DIR=" + likwid_inc]
                     llvm_cmake = llvm_cmake["-DLIKWID_LIBRARY=" + likwid_lib]
 
-                if self._isl is not None and os.path.exists(self._isldir):
+                if self._isldir is not None and os.path.exists(self._isldir):
                     llvm_cmake = llvm_cmake[
                         "-DCMAKE_PREFIX_PATH=" + self._isldir]
 

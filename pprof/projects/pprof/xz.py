@@ -73,7 +73,7 @@ class XZ(PprofGroup):
         xz_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(xz_dir):
             configure = local["./configure"]
-            with local.env(CC=str(lt_clang(self.cflags)),
+            with local.env(CC=str(lt_clang(self.cflags, self.ldflags)),
                            LD_LIBRARY_PATH=self.ldflags):
                 configure["--enable-threads=no",
                           "--with-gnu-ld=yes",
@@ -94,5 +94,5 @@ class XZ(PprofGroup):
         xz_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(xz_dir):
             with local.env(LD_LIBRARY_PATH=llvm_libs()):
-                make("CC=" + str(lt_clang(self.cflags)),
+                make("CC=" + str(lt_clang(self.cflags, self.ldflags)),
                      "LDFLAGS=" + " ".join(self.ldflags), "clean", "all")

@@ -80,8 +80,6 @@ def Copy(From, To):
 
     """
     from plumbum.cmd import cp
-    from os import path
-
     cp("-ar", "--reflink=auto", From, To)
 
 

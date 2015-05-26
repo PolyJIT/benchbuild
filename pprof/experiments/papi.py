@@ -36,6 +36,16 @@ class PapiScopCoverage(RuntimeExperiment):
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
         opt = local[path.join(bin_path, "opt")]
 
+    def run(self):
+        super(PapiScopCoverage, self).run()
+        """ Do the postprocessing, after all projects are done."""
+        with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"]),
+                       PPROF_EXPERIMENT=self.name,
+                       PPROF_USE_DATABASE=1,
+                       PPROF_USE_FILE=0,
+                       PPROF_USE_CSV=0):
+            pprof_analyze()
+
     def run_project(self, p):
         from plumbum.cmd import time
 
@@ -68,13 +78,6 @@ class PapiScopCoverage(RuntimeExperiment):
                 >> p.result_f)()
             (echo["---------------------------------------------------------------"]
                 >> p.result_f)()
-
-            with substep("pprof analyze"):
-                with local.env(PPROF_USE_DATABASE=1,
-                               PPROF_DB_RUN_GROUP=p.run_uuid,
-                               PPROF_USE_FILE=0,
-                               PPROF_USE_CSV=0):
-                    (pprof_analyze | tee["-a", p.result_f]) & FG
 
             with substep("pprof calibrate"):
                 papi_calibration = self.get_papi_calibration(

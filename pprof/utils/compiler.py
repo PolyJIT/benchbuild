@@ -3,41 +3,47 @@ from plumbum import local
 from os import path
 
 
-def lt_clang(flags_to_hide):
-    """Return a clang that hides :flags_to_hide: from reordering of libtool.
+def lt_clang(cflags, ldflags):
+    """Return a clang that hides :cflags: and :ldflags: from reordering of
+    libtool.
 
     This will generate a wrapper script in :p:'s builddir and return a path
     to it.
 
     :flags_to_hide: the flags libtool is not allowed to see.
+    :cflags: the cflags libtool is not allowed to see.
+    :ldflags: the ldflags libtool is not allowed to see.
     :returns: path to the new clang.
 
     """
     from plumbum import local
     from os import path
 
-    print_libtool_sucks_wrapper("clang", flags_to_hide, clang)
+    print_libtool_sucks_wrapper("clang", cflags, ldflags, clang)
     return local["./clang"]
 
 
-def lt_clang_cxx(flags_to_hide):
-    """Return a clang++ that hides :flags_to_hide: from reordering of libtool.
+def lt_clang_cxx(cflags, ldflags):
+    """Return a clang that hides :cflags: and :ldflags: from reordering of
+    libtool.
 
     This will generate a wrapper script in :p:'s builddir and return a path
     to it.
 
     :flags_to_hide: the flags libtool is not allowed to see.
-    :returns: path to the new clang++.
+    :cflags: the cflags libtool is not allowed to see.
+    :ldflags: the ldflags libtool is not allowed to see.
+    :returns: path to the new clang.
 
     """
     from plumbum import local
     from os import path
-    print_libtool_sucks_wrapper("clang++", flags_to_hide, clang_cxx)
+    print_libtool_sucks_wrapper("clang++", cflags, ldflags, clang_cxx)
 
     return local["./clang++"]
 
 
-def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler):
+def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler):
     """Print a libtool wrapper that hides :flags_to_hide: from libtool.
 
     :filepath:
@@ -53,8 +59,9 @@ def print_libtool_sucks_wrapper(filepath, flags_to_hide, compiler):
         wrapper.writelines(
             [
                 "#!/bin/sh\n",
-                'FLAGS="' + " ".join(flags_to_hide) + '"\n',
-                str(compiler()) + " $FLAGS \"$@\"\n"
+                'CFLAGS="' + " ".join(cflags) + '"\n',
+                'LDFLAGS="' + " ".join(ldflags) + '"\n',
+                str(compiler()) + " $CFLAGS \"$@\" $LDFLAGS\n"
             ]
         )
     chmod("+x", filepath)

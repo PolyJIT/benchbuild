@@ -55,12 +55,23 @@ def dump_slurm_script(script_name, log_name, commands, uuid=None):
     :log_name: Where should we put the log output of the SLURM run
     :commands: What commands sould the script execute
     """
+    from pprof.settings import config as ppcfg
+    from os import path
+
     with open(script_name, 'w') as slurm:
         slurm.write("#!/bin/sh\n")
         slurm.write("#SBATCH -o {}\n".format(log_name))
         slurm.write("set -e\n")
+        slurm.write("export LD_LIBRARY_PATH=\"{}:$\{LD_LIBRARY_PATH\}\"\n".format(path.join(config["papi"]), "lib"))
+        slurm.write("export PPROF_TESTINPUTS=\"{}\"\n".format(ppcfg["testdir"]))
+        slurm.write("export PPROF_TMP_DIR=\"{}\"\n".format(ppcfg["tmpdir"]))
+        slurm.write("export PPROF_DB_HOST=\"{}\"\n".format(ppcfg["db_host"]))
+        slurm.write("export PPROF_DB_PORT=\"{}\"\n".format(ppcfg["db_port"]))
+        slurm.write("export PPROF_DB_NAME=\"{}\"\n".format(ppcfg["db_name"]))
+        slurm.write("export PPROF_DB_USER=\"{}\"\n".format(ppcfg["db_user"]))
+        slurm.write("export PPROF_DB_PASS=\"{}\"\n".format(ppcfg["db_pass"]))
         if uuid:
-            slurm.write("export PPROF_EXPERIMENT_ID=\"{}\"".format(uuid))
+            slurm.write("export PPROF_EXPERIMENT_ID=\"{}\"\n".format(uuid))
         for c in commands:
             slurm.write("{}\n".format(str(c)))
     chmod("+x", script_name)
@@ -81,13 +92,12 @@ def prepare_collect_results_script(experiment):
     log_file = os.path.join(config["resultsdir"], experiment + ".log")
     commands.append(pprof["run",
                           "-E", experiment,
-                          "-B", config["resultsdir"],
-                          "-C"])
+                          "-B", config["resultsdir"]])
     dump_slurm_script(slurm_script, log_file, commands)
     return slurm_script
 
 
-def prepare_slurm_script(experiment, project):
+def prepare_slurm_script(experiment, project, experiment_id):
     """Prepare a slurm script that executes the pprof experiment for a
     given project.
 
@@ -119,14 +129,14 @@ def prepare_slurm_script(experiment, project):
         cp["-var", node_results, os.path.join(config["resultsdir"],
                                               experiment)])
     commands.append(mv[node_error_log, error_log])
-    dump_slurm_script(slurm_script, log_file, commands)
+    dump_slurm_script(slurm_script, log_file, commands, experiment_id)
     return slurm_script
 
 
 def dispatch_jobs(exp, projects):
     """Dispatch sbatch scripts to slurm for all projects given
 
-    :projects: List of projects that need to be dispatched to SLURM
+    projects: List of projects that need to be dispatched to SLURM
     :returns: a list of SLURM job ids
 
     """
@@ -207,10 +217,15 @@ class Chimaira(cli.Application):
         config["local_build"] = True
 
     def main(self):
+        import itertools
         for exp in config["experiments"]:
             pprof_list = pprof["run", "-l", "-E", exp]
-            jobs = dispatch_jobs(exp, pprof_list().split("\n"))
-            dispatch_collect_job(exp, jobs)
+            prj_list = pprof_list().split("\n")
+            prj_list = list(itertools.chain(*[ l.split(", ") for l in prj_list if not ">> " in l ]))
+            prj_list = filter(None, prj_list)
+            print prj_list
+            jobs = dispatch_jobs(exp, prj_list)
+        #    dispatch_collect_job(exp, jobs)
 
 if __name__ == '__main__':
     Chimaira.run()

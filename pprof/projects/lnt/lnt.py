@@ -65,11 +65,13 @@ class SingleSourceBenchmarks(LNTGroup):
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
-        lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
-            "--cc", lt_clang(self.cflags + self.ldflags),
+        lnt["runtest", "nt", "-j1", "--sandbox", sandbox_dir,
+            "--cc", lt_clang(self.cflags, self.ldflags),
+            "--cxx", lt_clang_cxx(self.cflags, self.ldflags),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),
+            "--test-style", "simple",
             "--make-param=RUNUNDER=" + str(exp),
-            "--only-test=" + path.join("SingleSource", "Benchmarks"))
+            "--only-test=" + path.join("SingleSource", "Benchmarks"), "-v"] & FG
 
 
 class MultiSourceBenchmarks(LNTGroup):
@@ -82,15 +84,17 @@ class MultiSourceBenchmarks(LNTGroup):
 
     def run_tests(self, experiment):
         from pprof.project import wrap_tool_polymorphic
-        from pprof.utils.compiler import clang, clang_cxx
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
         exp = wrap_tool_polymorphic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
         lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
-            "--cc", clang(self.cflags + self.ldflags),
+            "--cc", lt_clang(self.cflags, self.ldflags),
+            "--cxx", lt_clang_cxx(self.cflags, self.ldflags),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),
+            "--test-style", "simple",
             "--make-param=RUNUNDER=" + str(exp),
             "--only-test=" + path.join("MultiSource", "Benchmarks"))
 
@@ -105,14 +109,16 @@ class MultiSourceApplications(LNTGroup):
 
     def run_tests(self, experiment):
         from pprof.project import wrap_tool_polymorphic
-        from pprof.utils.compiler import clang, clang_cxx
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
         exp = wrap_tool_polymorphic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
         lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
-            "--cc", clang(self.cflags + self.ldflags),
+            "--cc", lt_clang(self.cflags, self.ldflags),
+            "--cxx", lt_clang_cxx(self.cflags, self.ldflags),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),
+            "--test-style", "simple",
             "--make-param=RUNUNDER=" + str(exp),
             "--only-test=" + path.join("MultiSource", "Applications"))

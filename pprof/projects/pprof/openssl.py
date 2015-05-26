@@ -39,7 +39,7 @@ class LibreSSL(PprofGroup):
 
         configure = local[path.join(openssl_dir, "configure")]
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags + self.ldflags)
+            clang = lt_clang(self.cflags, self.ldflags)
 
         with local.cwd(openssl_dir):
             with local.env(CC=str(clang)):

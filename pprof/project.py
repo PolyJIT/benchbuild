@@ -168,6 +168,11 @@ def wrap_tool(name, wrap):
     with open(name, 'w') as wrapper:
         cmd = str(wrap(real_f)) + " \"$@\""
         wrapper.write("#!/bin/sh\n")
+        wrapper.write("export PPROF_DB_HOST=\"{}\"\n".format(config["db_host"]))
+        wrapper.write("export PPROF_DB_PORT=\"{}\"\n".format(config["db_port"]))
+        wrapper.write("export PPROF_DB_NAME=\"{}\"\n".format(config["db_name"]))
+        wrapper.write("export PPROF_DB_USER=\"{}\"\n".format(config["db_user"]))
+        wrapper.write("export PPROF_DB_PASS=\"{}\"\n".format(config["db_pass"]))
         wrapper.write("export PPROF_CMD=\"{}\"\n".format(cmd))
         wrapper.write(cmd)
     chmod("+x", name_absolute)
@@ -191,6 +196,11 @@ def wrap_tool_polymorphic(name, wrap):
         wrapper.write("export PPROF_DB_RUN_GROUP=\"$(uuidgen -r)\"\n")
         wrapper.write("export PPROF_PROJECT=\"$bin\"\n")
         wrapper.write("export PPROF_CMD=\"{}\"\n".format(cmd))
+        wrapper.write("export PPROF_DB_HOST=\"{}\"\n".format(config["db_host"]))
+        wrapper.write("export PPROF_DB_PORT=\"{}\"\n".format(config["db_port"]))
+        wrapper.write("export PPROF_DB_NAME=\"{}\"\n".format(config["db_name"]))
+        wrapper.write("export PPROF_DB_USER=\"{}\"\n".format(config["db_user"]))
+        wrapper.write("export PPROF_DB_PASS=\"{}\"\n".format(config["db_pass"]))
         wrapper.write("shift\n")
         wrapper.write(cmd + "\n")
     chmod("+x", name_absolute)

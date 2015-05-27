@@ -47,21 +47,16 @@ class Ruby(PprofGroup):
         with local.cwd(ruby_dir):
             make & FG
 
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(ruby_dir, "ruby"), self.bin_f)
-
     def run_tests(self, experiment):
         from plumbum.cmd import ruby, echo, chmod
-        exp = experiment(self.run_f)
+        from pprof.project import wrap_tool
+
+        ruby_dir = path.join(self.builddir, self.src_dir)
+        exp = wrap_tool(path.join(ruby_dir, "ruby")
 
         with local.env(RUBYOPT=""):
-            sh_script = path.join(self.builddir, self.bin_f + ".sh")
-            (echo["#!/bin/sh"] > sh_script) & FG
-            (echo[str(exp) + " $*"] >> sh_script) & FG
-            chmod("+x", sh_script)
-
             ruby[path.join(self.testdir, "benchmark", "run.rb"),
-                 "--ruby=\"" + str(sh_script) + "\"",
+                 "--ruby=\"" + str(exp) + "\"",
                  "--opts=\"-I" + path.join(self.testdir, "lib") +
                  " -I" + path.join(self.testdir, ".") +
                  " -I" + path.join(self.testdir, ".ext", "common") +

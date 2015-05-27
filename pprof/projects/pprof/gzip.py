@@ -36,7 +36,9 @@ class Gzip(PprofGroup):
         cp[testfiles, self.builddir] & FG
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        from pprof.project import wrap_tool
+        gzip_dir = path.join(self.builddir, self.src_dir)
+        exp = wrap_tool(path.join(gzip_dir, "gzip", experiment))
 
         # Compress
         exp["-f", "-k", "--best", "text.html"] & FG

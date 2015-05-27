@@ -52,7 +52,7 @@ class Ruby(PprofGroup):
         from pprof.project import wrap_tool
 
         ruby_dir = path.join(self.builddir, self.src_dir)
-        exp = wrap_tool(path.join(ruby_dir, "ruby")
+        exp = wrap_tool(path.join(ruby_dir, "ruby"))
 
         with local.env(RUBYOPT=""):
             ruby[path.join(self.testdir, "benchmark", "run.rb"),

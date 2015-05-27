@@ -61,7 +61,9 @@ class Crafty(PprofGroup):
         self.run_f = path.join(crafty_dir, "crafty")
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        from pprof.project import wrap_tool
+        crafty_dir = path.join(self.builddir, self.src_dir)
+        exp = wrap_tool(path.join(crafty_dir, "crafty"), experiment)
 
         (cat[path.join(self.testdir, "test1.sh")] | exp) & FG
         (cat[path.join(self.testdir, "test2.sh")] | exp) & FG

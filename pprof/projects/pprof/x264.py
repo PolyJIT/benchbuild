@@ -36,13 +36,13 @@ class X264(PprofGroup):
         super(X264, self).clean()
 
     src_dir = "x264.git"
+    src_uri = "git://git.videolan.org/x264.git"
 
     def download(self):
         from pprof.utils.downloader import Git
-        src_uri = "git://git.videolan.org/x264.git"
 
         with local.cwd(self.builddir):
-            Git(src_uri, self.src_dir)
+            Git(self.src_uri, self.src_dir)
 
     def configure(self):
         from pprof.utils.compiler import clang

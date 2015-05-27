@@ -49,13 +49,13 @@ class Python(PprofGroup):
         with local.cwd(python_dir):
             make & FG
 
-        self.run_f = path.join(python_dir, "python")
-
     def run_tests(self, experiment):
         from plumbum.cmd import make
-        exp = experiment(self.run_f)
+        from pprof.project import wrap_tool
 
         python_dir = path.join(self.builddir, self.src_dir)
+        exp = wrap_tool(path.join(python_dir, "python")
+
         with local.cwd(python_dir):
             make("TESTPYTHON=" + str(exp), "-i", "test")
 

@@ -58,6 +58,7 @@ class PolyJIT(RuntimeExperiment):
                 p.build()
             with substep("run {}".format(p.name)):
                 def runner(run_f):
+                    from plumbum.cmd import time
                     return time[run_f]
                 p.run(runner)
 

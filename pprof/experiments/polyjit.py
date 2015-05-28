@@ -66,6 +66,9 @@ class PolyJIT(RuntimeExperiment):
             p.clean()
             p.prepare()
             p.download()
+            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+
+            ld_lib_path = filter(None, config["ld_library_path"].split(":"))
             p.ldflags = ["-L" + llvm_libs, "-lpjit"]
             p.cflags = ["-O3",
                         "-Xclang", "-load",

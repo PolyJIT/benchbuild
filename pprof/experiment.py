@@ -36,6 +36,21 @@ HANDLER.setLevel(LOG.getEffectiveLevel())
 LOG.addHandler(HANDLER)
 
 
+def nl(o):
+    """Break the current line in the stream :o:
+
+    :o: the stream we break on
+    :return: the stream
+
+    """
+
+    if o.isatty():
+        o.write("\r\x1b[L")
+    else:
+        o.write("\n")
+    return o
+
+
 def static_var(varname, value):
     def decorate(func):
         setattr(func, varname, value)
@@ -53,18 +68,17 @@ def phase(name):
 
     from sys import stderr as o
 
-    sys.stdout.write("\r\x1b[KPHASE.{} '{}' START".format(phase.counter, name))
-    sys.stdout.flush()
+    nl(o).write("PHASE.{} '{}' START".format(phase.counter, name))
+    o.flush()
     try:
         yield
     except ProcessExecutionError as e:
         o.write("\n" + str(e))
         sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
         raise e
-    finally:
-        sys.stdout.write(
-            "\r\x1b[KPHASE.{} '{}' OK".format(phase.counter, name))
-    sys.stdout.flush()
+    o.write(
+        "\r\x1b[KPHASE.{} '{}' OK".format(phase.counter, name))
+    o.flush()
 
 
 @contextmanager
@@ -77,20 +91,19 @@ def step(name):
 
     from sys import stderr as o
 
-    sys.stdout.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' START".format(
+    nl(o).write("PHASE.{} '{}' STEP.{} '{}' START".format(
         phase.counter, phase.name, step.counter, name))
-    sys.stdout.flush()
+    o.flush()
     try:
         yield
     except ProcessExecutionError as e:
         o.write("\n" + str(e))
-        sys.stdout.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
+        o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, name))
         raise e
-    finally:
-        sys.stdout.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' OK".format(
-            phase.counter, phase.name, step.counter, name))
-    sys.stdout.flush()
+    nl(o).write("PHASE.{} '{}' STEP.{} '{}' OK".format(
+        phase.counter, phase.name, step.counter, name))
+    o.flush()
 
 
 @contextmanager
@@ -103,7 +116,7 @@ def substep(name):
 
     from sys import stdout as o
 
-    o.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
+    nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
         phase.counter, phase.name, step.counter, step.name, substep.counter, name))
     o.flush()
     try:
@@ -115,9 +128,8 @@ def substep(name):
         o.write("\n{} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
-    finally:
-        o.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
-            phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+    nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
+        phase.counter, phase.name, step.counter, step.name, substep.counter, name))
     o.flush()
 
 

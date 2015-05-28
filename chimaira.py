@@ -61,7 +61,6 @@ def dump_slurm_script(script_name, log_name, commands, uuid=None):
     with open(script_name, 'w') as slurm:
         slurm.write("#!/bin/sh\n")
         slurm.write("#SBATCH -o {}\n".format(log_name))
-        slurm.write("set -e\n")
         slurm.write("export LD_LIBRARY_PATH=\"{}:$LD_LIBRARY_PATH\"\n".format(path.join(config["papi"]), "lib"))
         slurm.write("export PPROF_TESTINPUTS=\"{}\"\n".format(ppcfg["testdir"]))
         slurm.write("export PPROF_TMP_DIR=\"{}\"\n".format(ppcfg["tmpdir"]))

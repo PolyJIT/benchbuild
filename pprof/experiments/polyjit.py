@@ -77,12 +77,18 @@ class PolyJIT(RuntimeExperiment):
                 p.build()
             with substep("run {}".format(p.name)):
                 def runner(run_f):
-                    return likwid_perfctr["-O", "-o", p.likwid_f, "-m", "-C",
-                                          "-L:0", "-g", "CLOCK", run_f]
-                p.run(runner)
+                    from pprof.utils.db import create_run, get_db_connection
+                    from pprof.likwid import get_likwid_perfctr, to_db
+                    from plumbum import local
 
-            with substep("Create DB entry & evaluate likwid run"):
-                run_id = create_run(
-                    get_db_connection(), "likwid", p.name, self.name, p.run_uuid)
-                likwid_measurement = likwid.get_likwid_perfctr(p.likwid_f)
-                likwid.to_db(run_id, likwid_measurement)
+                    likwid_path = path.join(config["likwiddir"], "bin")
+                    likwid_perfctr = local[path.join(likwid_path, "likwid-perfctr")]
+                    likwid_perfctr("-O", "-o", p.likwid_f, "-m", "-C",
+                                   "-L:0", "-g", "CLOCK", run_f)
+
+                    run_id = create_run(
+                        get_db_connection(), "likwid", p.name, self.name, p.run_uuid)
+                    likwid_measurement = get_likwid_perfctr(p.likwid_f)
+                    likwid.to_db(run_id, likwid_measurement)
+
+                p.run(runner)

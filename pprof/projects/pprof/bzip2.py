@@ -66,9 +66,9 @@ class Bzip2(PprofGroup):
         self.pull_in_testfiles()
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_tool
+        from pprof.project import wrap
 
-        exp = wrap_tool(path.join(self.src_dir, "bzip2"), experiment)
+        exp = wrap(path.join(self.src_dir, "bzip2"), experiment)
 
         # Compress
         exp["-f", "-z", "-k", "--best", "text.html"] & FG

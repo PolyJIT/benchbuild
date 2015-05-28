@@ -50,7 +50,7 @@ class SDCC(PprofGroup):
 
     def run_tests(self, experiment):
         from plumbum.cmd import make
-        from pprof.project import wrap_tool
+        from pprof.project import wrap
 
         import pdb
         pdb.set_trace()

@@ -162,8 +162,7 @@ def wrap(name, runner):
     with it and you're fine.
 
     :name: Binary we want to wrap
-    :tool: Tool that should wrap
-    :postproc: postproc function we pickle and load in the module
+    :runner: Function that should run instead of :name:
     :returns: plumbum command, readty to launch.
 
     """
@@ -212,63 +211,55 @@ if __name__ == "__main__":
     return local[name_absolute]
 
 
-def wrap_tool(name, wrap):
+def wrap_dynamic(name, runner):
+    """Wrap the binary :name: with the function :runner:.
+
+    This module generates a python tool :name: that can replace
+    a yet unspecified binary.
+    It behaves similar to the :wrap: function. However, the first
+    argument is the actual binary name.
+
+    :name: name of the python module
+    :runner: Function that should run the real binary
+    :returns: plumbum command, readty to launch.
+
+    """
     from plumbum import local
     from plumbum.cmd import mv, chmod
+    from cloud.serialization import cloudpickle as cp
     from os import path
 
     name_absolute = path.abspath(name)
-    real_f = name_absolute + PROJECT_BIN_F_EXT
-    mv(name_absolute, real_f)
+    blob_f = name_absolute + PROJECT_BLOB_F_EXT
+    with open(blob_f, 'wb') as b:
+        b.write(cp.dumps(runner))
 
-    with open(name, 'w') as wrapper:
-        cmd = str(wrap(real_f)) + " \"$@\""
-        wrapper.write("#!/bin/sh\n")
-        wrapper.write(
-            "export PPROF_DB_HOST=\"{}\"\n".format(config["db_host"]))
-        wrapper.write(
-            "export PPROF_DB_PORT=\"{}\"\n".format(config["db_port"]))
-        wrapper.write(
-            "export PPROF_DB_NAME=\"{}\"\n".format(config["db_name"]))
-        wrapper.write(
-            "export PPROF_DB_USER=\"{}\"\n".format(config["db_user"]))
-        wrapper.write(
-            "export PPROF_DB_PASS=\"{}\"\n".format(config["db_pass"]))
-        wrapper.write("export PPROF_CMD=\"{}\"\n".format(cmd))
-        wrapper.write(cmd)
-    chmod("+x", name_absolute)
-    return local[name_absolute]
+    with open(name_absolute, 'w') as w:
+        lines = '''#!/usr/bin/env python
+# encoding: utf-8
 
+from plumbum import cli, local
 
-def wrap_tool_polymorphic(name, wrap):
-    from plumbum import local
-    from plumbum.cmd import mv, chmod
-    from os import path
+class Wrap(cli.Application):
+    def main(self, run_f):
+        from os import path
+        import pickle
 
-    name_absolute = path.abspath(name)
-    if path.exists(name_absolute):
-        log.error(
-            "File collision detected! {} already exists in filesystem".format(name_absolute))
-        raise
+        if path.exists("{blobf}"):
+            with open("{blobf}", "rb") as p:
+                f = pickle.load(p)
+        with local.env(PPROF_DB_HOST="{db_host}",
+                       PPROF_DB_PORT="{db_port}",
+                       PPROF_DB_NAME="{db_name}",
+                       PPROF_DB_USER="{db_user}",
+                       PPROF_DB_PASS="{db_pass}"):
+            if f is not None:
+                f(run_f)
 
-    with open(name_absolute, 'w') as wrapper:
-        cmd = str(wrap("$bin")) + " \"$@\""
-        wrapper.write("#!/bin/sh\n")
-        wrapper.write("bin=\"$1\"\n")
-        wrapper.write("export PPROF_DB_RUN_GROUP=\"$(uuidgen -r)\"\n")
-        wrapper.write("export PPROF_PROJECT=\"$bin\"\n")
-        wrapper.write("export PPROF_CMD=\"{}\"\n".format(cmd))
-        wrapper.write(
-            "export PPROF_DB_HOST=\"{}\"\n".format(config["db_host"]))
-        wrapper.write(
-            "export PPROF_DB_PORT=\"{}\"\n".format(config["db_port"]))
-        wrapper.write(
-            "export PPROF_DB_NAME=\"{}\"\n".format(config["db_name"]))
-        wrapper.write(
-            "export PPROF_DB_USER=\"{}\"\n".format(config["db_user"]))
-        wrapper.write(
-            "export PPROF_DB_PASS=\"{}\"\n".format(config["db_pass"]))
-        wrapper.write("shift\n")
-        wrapper.write(cmd + "\n")
+if __name__ == "__main__":
+    Wrap.run() '''.format(db_host=config["db_host"], db_port=config["db_port"],
+                          db_name=config["db_port"], db_user=config["db_user"],
+                          db_pass=config["db_pass"], blobf=blob_f)
+        w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]

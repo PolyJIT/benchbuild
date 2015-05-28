@@ -49,10 +49,10 @@ class Ruby(PprofGroup):
 
     def run_tests(self, experiment):
         from plumbum.cmd import ruby, echo, chmod
-        from pprof.project import wrap_tool
+        from pprof.project import wrap
 
         ruby_dir = path.join(self.builddir, self.src_dir)
-        exp = wrap_tool(path.join(ruby_dir, "ruby"))
+        exp = wrap(path.join(ruby_dir, "ruby"))
 
         with local.env(RUBYOPT=""):
             ruby[path.join(self.testdir, "benchmark", "run.rb"),

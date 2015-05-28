@@ -75,20 +75,20 @@ class Lapack(PprofGroup):
                 make(jobs, "-f", "Makeblat3")
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_tool
+        from pprof.project import wrap
 
         lapack_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(lapack_dir):
             with local.cwd(path.join("BLAS")):
-                xblat2s = wrap_tool("xblat2s", experiment)
-                xblat2d = wrap_tool("xblat2d", experiment)
-                xblat2c = wrap_tool("xblat2c", experiment)
-                xblat2z = wrap_tool("xblat2z", experiment)
+                xblat2s = wrap("xblat2s", experiment)
+                xblat2d = wrap("xblat2d", experiment)
+                xblat2c = wrap("xblat2c", experiment)
+                xblat2z = wrap("xblat2z", experiment)
 
-                xblat3s = wrap_tool("xblat3s", experiment)
-                xblat3d = wrap_tool("xblat3d", experiment)
-                xblat3c = wrap_tool("xblat3c", experiment)
-                xblat3z = wrap_tool("xblat3z", experiment)
+                xblat3s = wrap("xblat3s", experiment)
+                xblat3d = wrap("xblat3d", experiment)
+                xblat3c = wrap("xblat3c", experiment)
+                xblat3z = wrap("xblat3z", experiment)
 
                 (xblat2s < "sblat2.in")()
                 (xblat2d < "dblat2.in")()

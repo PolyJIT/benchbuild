@@ -67,9 +67,9 @@ class X264(PprofGroup):
                 make("clean", "all")
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_tool
+        from pprof.project import wrap
         x264_dir = path.join(self.builddir, self.src_dir)
-        exp = wrap_tool(path.join(x264_dir, "x264"), experiment)
+        exp = wrap(path.join(x264_dir, "x264"), experiment)
 
         testfiles = [path.join(self.testdir, x) for x in self.inputfiles]
         # TODO: Prepare test videos

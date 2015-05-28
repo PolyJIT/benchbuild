@@ -57,12 +57,12 @@ class LibreSSL(PprofGroup):
 
     def run_tests(self, experiment):
         from plumbum.cmd import find, make
-        from pprof.project import wrap_tool
+        from pprof.project import wrap
 
         with local.cwd(path.join(self.src_dir, "tests", ".libs")):
             files = find(".", "-type", "f", "-executable")
             for f in files.split("\n"):
                 if len(f) > 0:
-                    wrap_tool(f, experiment)
+                    wrap(f, experiment)
         with local.cwd(self.src_dir):
             make("V=1", "check")

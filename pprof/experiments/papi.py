@@ -74,14 +74,6 @@ class PapiScopCoverage(RuntimeExperiment):
                 p.run(runner)
 
         with step("Evaluation"):
-            # Print header here.
-            (echo["---------------------------------------------------------------"]
-                >> p.result_f)()
-            (echo[">>> ========= " + p.name + " Program"]
-                >> p.result_f)()
-            (echo["---------------------------------------------------------------"]
-                >> p.result_f)()
-
             with substep("pprof calibrate"):
                 papi_calibration = self.get_papi_calibration(
                     p, pprof_calibrate)

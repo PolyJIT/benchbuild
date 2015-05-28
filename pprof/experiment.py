@@ -128,6 +128,7 @@ def substep(name):
         o.write("\n{} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
+        raise e
     nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
         phase.counter, phase.name, step.counter, step.name, substep.counter, name))
     o.flush()

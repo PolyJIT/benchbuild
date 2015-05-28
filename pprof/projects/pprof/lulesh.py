@@ -1,7 +1,7 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import ProjectFactory, log
 from pprof.settings import config
 from group import PprofGroup
 
@@ -19,7 +19,6 @@ class Lulesh(PprofGroup):
             return Lulesh(exp, "lulesh", "scientific")
     ProjectFactory.addFactory("Lulesh", Factory())
 
-    @log_with(log)
     def run_tests(self, experiment):
         exp = experiment(self.run_f)
         exp["10"] & FG

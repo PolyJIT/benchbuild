@@ -1,7 +1,7 @@
 from os import path
 
 from group import PprofGroup
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import ProjectFactory, log
 from pprof.settings import config
 from plumbum import FG, local
 from os import path

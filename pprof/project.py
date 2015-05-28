@@ -8,7 +8,6 @@ from plumbum.cmd import find, echo, rm, mkdir, rmdir, cp, ln, cat, make, chmod
 from os import path, listdir
 from glob import glob
 from functools import wraps
-from pplog import log_with
 from settings import config
 
 import sys
@@ -91,14 +90,12 @@ class Project(object):
         self.products.add(self.calls_f)
         self.products.add(self.result_f)
 
-    @log_with(log)
     def run_tests(self, experiment):
         exp = experiment(self.run_f)
         exp()
 
     run_uuid = None
 
-    @log_with(log)
     def run(self, experiment):
         from uuid import uuid4
         with local.cwd(self.builddir):
@@ -112,7 +109,6 @@ class Project(object):
                            PPROF_SRC_URI=self.src_uri):
                 self.run_tests(experiment)
 
-    @log_with(log)
     def clean(self):
         dirs_to_remove = set([])
 
@@ -133,7 +129,6 @@ class Project(object):
                      self.builddir)
             rm["-rf", self.builddir] & FG
 
-    @log_with(log)
     def prepare(self):
         if not path.exists(self.builddir):
             mkdir[self.builddir] & FG

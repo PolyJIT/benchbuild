@@ -122,7 +122,7 @@ def prepare_slurm_script(experiment, project, experiment_id):
         commands.append(pprof["build", "-j", config["cpus-per-task"],
                               "-B", config["nodedir"], "-I", config["isl"],
                               "-L", config["likwid"], "-P", config["papi"]])
-    commands.append(pprof["-v", "run", "-P", project, "-E", experiment, "-B",
+    commands.append(pprof["run", "-P", project, "-E", experiment, "-B",
                           config["nodedir"], "-c", "-x", "-C", "-L",
                           config["llvm"]])
     commands.append(

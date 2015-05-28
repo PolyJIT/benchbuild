@@ -57,10 +57,10 @@ class PolyJIT(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
-                def runner(run_f):
+                def run_with_time(run_f):
                     from plumbum.cmd import time
                     return time[run_f]
-                p.run(runner)
+                p.run(run_with_time)
 
         with step("JIT, likwid"):
             p.clean()
@@ -77,7 +77,7 @@ class PolyJIT(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
-                def runner(run_f):
+                def run_with_likwid(run_f):
                     from pprof.utils.db import create_run, get_db_connection
                     from pprof.likwid import get_likwid_perfctr, to_db
                     from plumbum import local
@@ -92,4 +92,4 @@ class PolyJIT(RuntimeExperiment):
                     likwid_measurement = get_likwid_perfctr(p.likwid_f)
                     likwid.to_db(run_id, likwid_measurement)
 
-                p.run(runner)
+                p.run(run_with_likwid)

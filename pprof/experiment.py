@@ -72,7 +72,7 @@ def phase(name):
     o.flush()
     try:
         yield
-    except ProcessExecutionError as e:
+    except (OSError, ProcessExecutionError) as e:
         o.write("\n" + str(e))
         sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
         raise e
@@ -96,7 +96,7 @@ def step(name):
     o.flush()
     try:
         yield
-    except ProcessExecutionError as e:
+    except (OSError, ProcessExecutionError) as e:
         o.write("\n" + str(e))
         o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, name))
@@ -121,7 +121,7 @@ def substep(name):
     o.flush()
     try:
         yield
-    except ProcessExecutionError as e:
+    except (OSError, ProcessExecutionError) as e:
         o.write("\n" + str(e))
         o.write("\nPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, step.name, substep.counter, name))

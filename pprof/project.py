@@ -23,6 +23,7 @@ log.addHandler(handler)
 
 PROJECT_LIKWID_F_EXT = ".txt"
 PROJECT_BIN_F_EXT = ".bin"
+PROJECT_BLOB_F_EXT = ".postproc"
 PROJECT_TIME_F_EXT = ".time"
 PROJECT_CALLS_F_EXT = ".calls"
 PROJECT_RESULT_F_EXT = ".result"
@@ -91,7 +92,7 @@ class Project(object):
         self.products.add(self.result_f)
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        exp = wrap(self.run_f, experiment)
         exp()
 
     run_uuid = None
@@ -149,6 +150,66 @@ class Project(object):
 
         def build(self):
             pass
+
+
+def wrap(name, runner):
+    """Wrap the binary :name: with the function :runner:.
+
+    This module generates a python tool that replaces :name:
+    The function in runner only accepts the replaced binaries
+    name as argument. We use PiCloud's cloudpickle library to
+    perform the serialization, make sure :runner: can be serialized
+    with it and you're fine.
+
+    :name: Binary we want to wrap
+    :tool: Tool that should wrap
+    :postproc: postproc function we pickle and load in the module
+    :returns: plumbum command, readty to launch.
+
+    """
+    from plumbum import local
+    from plumbum.cmd import mv, chmod
+    from cloud.serialization import cloudpickle as cp
+    from os import path
+
+    name_absolute = path.abspath(name)
+    real_f = name_absolute + PROJECT_BIN_F_EXT
+    mv(name_absolute, real_f)
+
+    blob_f = name_absolute + PROJECT_BLOB_F_EXT
+    with open(blob_f, 'wb') as b:
+        b.write(cp.dumps(runner))
+
+    with open(name_absolute, 'w') as w:
+        lines = '''#!/usr/bin/env python
+# encoding: utf-8
+
+from plumbum import cli, local
+
+class Wrap(cli.Application):
+    def main(self):
+        from os import path
+        import pickle
+
+        run_f = "{runf}"
+        if path.exists("{blobf}"):
+            with open("{blobf}", "rb") as p:
+                f = pickle.load(p)
+        with local.env(PPROF_DB_HOST="{db_host}",
+                       PPROF_DB_PORT="{db_port}",
+                       PPROF_DB_NAME="{db_name}",
+                       PPROF_DB_USER="{db_user}",
+                       PPROF_DB_PASS="{db_pass}"):
+            if f is not None:
+                f(run_f)
+
+if __name__ == "__main__":
+    Wrap.run() '''.format(db_host=config["db_host"], db_port=config["db_port"],
+                          db_name=config["db_port"], db_user=config["db_user"],
+                          db_pass=config["db_pass"], blobf=blob_f, runf=real_f)
+        w.write(lines)
+    chmod("+x", name_absolute)
+    return local[name_absolute]
 
 
 def wrap_tool(name, wrap):

@@ -95,7 +95,7 @@ def phase(name):
     except (OSError, ProcessExecutionError) as e:
         o.write("\n" + to_utf8(str(e)))
         sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
-        raise e
+#        raise e
     o.write(
         "\r\x1b[KPHASE.{} '{}' OK".format(phase.counter, name))
     o.flush()
@@ -120,7 +120,7 @@ def step(name):
         o.write("\n" + to_utf8(str(e)))
         o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, name))
-        raise e
+#        raise e
     nl(o).write("PHASE.{} '{}' STEP.{} '{}' OK".format(
         phase.counter, phase.name, step.counter, name))
     o.flush()

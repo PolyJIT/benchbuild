@@ -51,6 +51,26 @@ def nl(o):
     return o
 
 
+def to_utf8(text):
+    """Convert given text to UTF-8 encoding (as far as possible)."""
+    if not text:
+        return text
+
+    try: # unicode or pure ascii
+        return text.encode("utf8")
+    except UnicodeDecodeError:
+        try: # successful UTF-8 decode means it's pretty sure UTF-8 already
+            text.decode("utf8")
+            return text
+        except UnicodeDecodeError:
+            try: # get desperate; and yes, this has a western hemisphere bias
+                return text.decode("cp1252").encode("utf8")
+            except UnicodeDecodeError:
+                pass
+
+    return text # return unchanged, hope for the best
+
+
 def static_var(varname, value):
     def decorate(func):
         setattr(func, varname, value)
@@ -73,7 +93,7 @@ def phase(name):
     try:
         yield
     except (OSError, ProcessExecutionError) as e:
-        o.write("\n" + str(e))
+        o.write("\n" + to_utf8(str(e)))
         sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
         raise e
     o.write(
@@ -97,7 +117,7 @@ def step(name):
     try:
         yield
     except (OSError, ProcessExecutionError) as e:
-        o.write("\n" + str(e))
+        o.write("\n" + to_utf8(str(e)))
         o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, name))
         raise e
@@ -122,7 +142,7 @@ def substep(name):
     try:
         yield
     except (OSError, ProcessExecutionError) as e:
-        o.write("\n" + str(e))
+        o.write("\n" + to_utf8(str(e)))
         o.write("\nPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, step.name, substep.counter, name))
         o.write("\n{} substeps have FAILED so far.".format(substep.failed))

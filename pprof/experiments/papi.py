@@ -70,6 +70,7 @@ class PapiScopCoverage(RuntimeExperiment):
                 p.build()
             with substep("run"):
                 def runner(run_f):
+                    from plumbum.cmd import time
                     return time["-f", "%U,%S,%e", "-a", "-o", p.time_f, run_f]
                 p.run(runner)
 

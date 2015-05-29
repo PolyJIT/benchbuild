@@ -48,7 +48,6 @@ plot_dyncov <- function(experiment, connection) {
 }
 
 plot_experiment <- function(experiment, connection) {
-  cat(experiment)
   rt_query <- sprintf(paste("SELECT project_name, region, metric, SUM(value) ",
                             "FROM public.run, public.likwid ",
                             "WHERE run.id = likwid.run_id ",

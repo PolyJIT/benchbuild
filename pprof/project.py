@@ -102,7 +102,7 @@ class Project(object):
         with local.cwd(self.builddir):
             if self.run_uuid is None:
                 self.run_uuid = uuid4()
-            with local.env(PPROF_CMD=str(experiment(self.run_f)),
+            with local.env(PPROF_CMD="FIXME: {}".format(self.name),
                            PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid,
                            PPROF_DOMAIN=self.domain,
@@ -204,7 +204,7 @@ class Wrap(cli.Application):
 
 if __name__ == "__main__":
     Wrap.run() '''.format(db_host=config["db_host"], db_port=config["db_port"],
-                          db_name=config["db_port"], db_user=config["db_user"],
+                          db_name=config["db_name"], db_user=config["db_user"],
                           db_pass=config["db_pass"], blobf=blob_f, runf=real_f)
         w.write(lines)
     chmod("+x", name_absolute)
@@ -258,7 +258,7 @@ class Wrap(cli.Application):
 
 if __name__ == "__main__":
     Wrap.run() '''.format(db_host=config["db_host"], db_port=config["db_port"],
-                          db_name=config["db_port"], db_user=config["db_user"],
+                          db_name=config["db_name"], db_user=config["db_user"],
                           db_pass=config["db_pass"], blobf=blob_f)
         w.write(lines)
     chmod("+x", name_absolute)

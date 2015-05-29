@@ -8,7 +8,6 @@ from plumbum.cmd import find, echo, rm, mkdir, rmdir, cp, ln, cat, make, chmod
 from os import path, listdir
 from glob import glob
 from functools import wraps
-from pplog import log_with
 from settings import config
 
 import sys
@@ -24,6 +23,7 @@ log.addHandler(handler)
 
 PROJECT_LIKWID_F_EXT = ".txt"
 PROJECT_BIN_F_EXT = ".bin"
+PROJECT_BLOB_F_EXT = ".postproc"
 PROJECT_TIME_F_EXT = ".time"
 PROJECT_CALLS_F_EXT = ".calls"
 PROJECT_RESULT_F_EXT = ".result"
@@ -91,20 +91,18 @@ class Project(object):
         self.products.add(self.calls_f)
         self.products.add(self.result_f)
 
-    @log_with(log)
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        exp = wrap(self.run_f, experiment)
         exp()
 
     run_uuid = None
 
-    @log_with(log)
     def run(self, experiment):
         from uuid import uuid4
         with local.cwd(self.builddir):
             if self.run_uuid is None:
                 self.run_uuid = uuid4()
-            with local.env(PPROF_CMD=str(experiment(self.run_f)),
+            with local.env(PPROF_CMD="FIXME: {}".format(self.name),
                            PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid,
                            PPROF_DOMAIN=self.domain,
@@ -112,7 +110,6 @@ class Project(object):
                            PPROF_SRC_URI=self.src_uri):
                 self.run_tests(experiment)
 
-    @log_with(log)
     def clean(self):
         dirs_to_remove = set([])
 
@@ -133,7 +130,6 @@ class Project(object):
                      self.builddir)
             rm["-rf", self.builddir] & FG
 
-    @log_with(log)
     def prepare(self):
         if not path.exists(self.builddir):
             mkdir[self.builddir] & FG
@@ -156,42 +152,116 @@ class Project(object):
             pass
 
 
-def wrap_tool(name, wrap):
+def wrap(name, runner):
+    """Wrap the binary :name: with the function :runner:.
+
+    This module generates a python tool that replaces :name:
+    The function in runner only accepts the replaced binaries
+    name as argument. We use PiCloud's cloudpickle library to
+    perform the serialization, make sure :runner: can be serialized
+    with it and you're fine.
+
+    :name: Binary we want to wrap
+    :runner: Function that should run instead of :name:
+    :returns: plumbum command, readty to launch.
+
+    """
     from plumbum import local
     from plumbum.cmd import mv, chmod
+    from cloud.serialization import cloudpickle as cp
     from os import path
 
     name_absolute = path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
     mv(name_absolute, real_f)
 
-    with open(name, 'w') as wrapper:
-        cmd = str(wrap(real_f)) + " \"$@\""
-        wrapper.write("#!/bin/sh\n")
-        wrapper.write("export PPROF_CMD=\"{}\"\n".format(cmd))
-        wrapper.write(cmd)
+    blob_f = name_absolute + PROJECT_BLOB_F_EXT
+    with open(blob_f, 'wb') as b:
+        b.write(cp.dumps(runner))
+
+    with open(name_absolute, 'w') as w:
+        lines = '''#!/usr/bin/env python
+# encoding: utf-8
+
+from plumbum import cli, local
+
+class Wrap(cli.Application):
+    def main(self):
+        from os import path
+        import pickle
+
+        run_f = "{runf}"
+        f = None
+        if path.exists("{blobf}"):
+            with open("{blobf}", "rb") as p:
+                f = pickle.load(p)
+        with local.env(PPROF_DB_HOST="{db_host}",
+                       PPROF_DB_PORT="{db_port}",
+                       PPROF_DB_NAME="{db_name}",
+                       PPROF_DB_USER="{db_user}",
+                       PPROF_DB_PASS="{db_pass}"):
+            if f is not None:
+                f(run_f)
+
+if __name__ == "__main__":
+    Wrap.run() '''.format(db_host=config["db_host"], db_port=config["db_port"],
+                          db_name=config["db_name"], db_user=config["db_user"],
+                          db_pass=config["db_pass"], blobf=blob_f, runf=real_f)
+        w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
 
 
-def wrap_tool_polymorphic(name, wrap):
+def wrap_dynamic(name, runner):
+    """Wrap the binary :name: with the function :runner:.
+
+    This module generates a python tool :name: that can replace
+    a yet unspecified binary.
+    It behaves similar to the :wrap: function. However, the first
+    argument is the actual binary name.
+
+    :name: name of the python module
+    :runner: Function that should run the real binary
+    :returns: plumbum command, readty to launch.
+
+    """
     from plumbum import local
     from plumbum.cmd import mv, chmod
+    from cloud.serialization import cloudpickle as cp
     from os import path
 
     name_absolute = path.abspath(name)
-    if path.exists(name_absolute):
-        log.error("File collision detected! {} already exists in filesystem".format(name_absolute))
-        raise
+    blob_f = name_absolute + PROJECT_BLOB_F_EXT
+    with open(blob_f, 'wb') as b:
+        b.write(cp.dumps(runner))
 
-    with open(name_absolute, 'w') as wrapper:
-        cmd = str(wrap("$bin")) + " \"$@\""
-        wrapper.write("#!/bin/sh\n")
-        wrapper.write("bin=\"$1\"\n")
-        wrapper.write("export PPROF_DB_RUN_GROUP=\"$(uuidgen -r)\"\n")
-        wrapper.write("export PPROF_PROJECT=\"$bin\"\n")
-        wrapper.write("export PPROF_CMD=\"{}\"\n".format(cmd))
-        wrapper.write("shift\n")
-        wrapper.write(cmd + "\n")
+    with open(name_absolute, 'w') as w:
+        lines = '''#!/usr/bin/env python
+# encoding: utf-8
+
+from plumbum import cli, local
+
+class Wrap(cli.Application):
+    def main(self, run_f):
+        from os import path
+        import pickle
+
+        f = None
+        if path.exists("{blobf}"):
+            with open("{blobf}", "rb") as p:
+                f = pickle.load(p)
+        with local.env(PPROF_DB_HOST="{db_host}",
+                       PPROF_DB_PORT="{db_port}",
+                       PPROF_DB_NAME="{db_name}",
+                       PPROF_DB_USER="{db_user}",
+                       PPROF_DB_PASS="{db_pass}"):
+            if f is not None:
+                f(run_f)
+
+if __name__ == "__main__":
+    Wrap.run() '''.format(db_host=config["db_host"], db_port=config["db_port"],
+                          db_name=config["db_name"], db_user=config["db_user"],
+                          db_pass=config["db_pass"], blobf=blob_f)
+        w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]

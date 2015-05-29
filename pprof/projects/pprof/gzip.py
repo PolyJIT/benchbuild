@@ -1,7 +1,7 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import ProjectFactory, log
 from pprof.settings import config
 from group import PprofGroup
 
@@ -36,7 +36,9 @@ class Gzip(PprofGroup):
         cp[testfiles, self.builddir] & FG
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        from pprof.project import wrap
+        gzip_dir = path.join(self.builddir, self.src_dir)
+        exp = wrap(path.join(gzip_dir, "gzip", experiment))
 
         # Compress
         exp["-f", "-k", "--best", "text.html"] & FG

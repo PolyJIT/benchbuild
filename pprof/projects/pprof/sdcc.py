@@ -1,7 +1,7 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import ProjectFactory, log
 from pprof.settings import config
 from group import PprofGroup
 
@@ -50,7 +50,7 @@ class SDCC(PprofGroup):
 
     def run_tests(self, experiment):
         from plumbum.cmd import make
-        from pprof.project import wrap_tool
+        from pprof.project import wrap
 
         import pdb
         pdb.set_trace()

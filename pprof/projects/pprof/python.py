@@ -1,7 +1,7 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import ProjectFactory, log
 from pprof.settings import config
 from group import PprofGroup
 
@@ -49,13 +49,13 @@ class Python(PprofGroup):
         with local.cwd(python_dir):
             make & FG
 
-        self.run_f = path.join(python_dir, "python")
-
     def run_tests(self, experiment):
         from plumbum.cmd import make
-        exp = experiment(self.run_f)
+        from pprof.project import wrap
 
         python_dir = path.join(self.builddir, self.src_dir)
+        exp = wrap(path.join(python_dir, "python"))
+
         with local.cwd(python_dir):
             make("TESTPYTHON=" + str(exp), "-i", "test")
 

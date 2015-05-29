@@ -1,7 +1,7 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import ProjectFactory, log
 from pprof.settings import config
 from group import PprofGroup
 
@@ -36,13 +36,13 @@ class X264(PprofGroup):
         super(X264, self).clean()
 
     src_dir = "x264.git"
+    src_uri = "git://git.videolan.org/x264.git"
 
     def download(self):
         from pprof.utils.downloader import Git
-        src_uri = "git://git.videolan.org/x264.git"
 
         with local.cwd(self.builddir):
-            Git(src_uri, self.src_dir)
+            Git(self.src_uri, self.src_dir)
 
     def configure(self):
         from pprof.utils.compiler import clang
@@ -67,9 +67,9 @@ class X264(PprofGroup):
                 make("clean", "all")
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_tool
+        from pprof.project import wrap
         x264_dir = path.join(self.builddir, self.src_dir)
-        exp = wrap_tool(path.join(x264_dir, "x264"), experiment)
+        exp = wrap(path.join(x264_dir, "x264"), experiment)
 
         testfiles = [path.join(self.testdir, x) for x in self.inputfiles]
         # TODO: Prepare test videos

@@ -17,14 +17,8 @@ The resource management system used on chimaira is SLURM.
 
 from plumbum import cli, local, FG
 from plumbum.cmd import awk, mv, cp, true, sbatch, echo, chmod, pprof
+from pprof.settings import config
 import os
-
-config = {"nodedir": "/local/hdd/simbuerg/",
-          "slurm_script": "chimaira-slurm.sh",
-          "cpus-per-task": 10,
-          "local_build": False,
-          "account": "cl",
-          "partition": "chimaira"}
 
 
 def dispatch_collect_job(exp, deps):
@@ -193,7 +187,7 @@ class Chimaira(cli.Application):
 
     @cli.switch(["-L"], str, help="Likwid prefix")
     def likwid(self, likwid_prefix):
-        config["likwid"] = likwid_prefix
+        config["likwiddir"] = likwid_prefix
 
     @cli.switch(["-P"], str, help="PAPI prefix")
     def papi(self, papi_prefix):

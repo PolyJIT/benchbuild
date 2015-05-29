@@ -209,7 +209,7 @@ class Experiment(object):
         bin_path = path.join(config["llvmdir"], "bin")
 
         config["path"] = bin_path + ":" + config["path"]
-        config["ld_library_path"] = path.join(config["llvmdir"], "lib") + \
+        config["ld_library_path"] = path.join(config["llvmdir"], "lib") + ":" +\
             config["ld_library_path"]
 
     def __init__(self, name, projects=[], group=None):

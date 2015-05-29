@@ -28,6 +28,7 @@ class Build(cli.Application):
     _use_make = False
     _use_gcc = False
     _num_jobs = None
+    _isldir = None
 
     def setup_commands(self):
         global git, cmake
@@ -132,7 +133,7 @@ class Build(cli.Application):
                         "-DLIKWID_INCLUDE_DIR=" + likwid_inc]
                     llvm_cmake = llvm_cmake["-DLIKWID_LIBRARY=" + likwid_lib]
 
-                if os.path.exists(self._isldir):
+                if self._isldir is not None and os.path.exists(self._isldir):
                     llvm_cmake = llvm_cmake[
                         "-DCMAKE_PREFIX_PATH=" + self._isldir]
 

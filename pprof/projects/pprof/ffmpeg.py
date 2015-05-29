@@ -1,7 +1,7 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import ProjectFactory, log
 from pprof.settings import config
 from group import PprofGroup
 
@@ -29,11 +29,11 @@ class LibAV(PprofGroup):
     fate_uri = "rsync://fate-suite.libav.org/fate-suite/"
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_tool
+        from pprof.project import wrap
         exp = experiment(self.run_f)
 
         with local.cwd(self.src_dir):
-            wrap_tool(self.name, experiment)
+            wrap(self.name, experiment)
 
         with local.cwd(self.src_dir):
             make["V=1", "-i", "fate"] & FG

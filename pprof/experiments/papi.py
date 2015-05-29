@@ -54,6 +54,9 @@ class PapiScopCoverage(RuntimeExperiment):
         with step("No recompilation, PAPI"):
             p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+
+            ld_lib_path = filter(None, config["ld_library_path"].split(":"))
+            p.ldflags = [ "-L"+el for el in ld_lib_path] + p.ldflags
             p.cflags = ["-O3",
                         "-Xclang", "-load",
                         "-Xclang", "LLVMPolyJIT.so",
@@ -67,18 +70,11 @@ class PapiScopCoverage(RuntimeExperiment):
                 p.build()
             with substep("run"):
                 def runner(run_f):
+                    from plumbum.cmd import time
                     return time["-f", "%U,%S,%e", "-a", "-o", p.time_f, run_f]
                 p.run(runner)
 
         with step("Evaluation"):
-            # Print header here.
-            (echo["---------------------------------------------------------------"]
-                >> p.result_f)()
-            (echo[">>> ========= " + p.name + " Program"]
-                >> p.result_f)()
-            (echo["---------------------------------------------------------------"]
-                >> p.result_f)()
-
             with substep("pprof calibrate"):
                 papi_calibration = self.get_papi_calibration(
                     p, pprof_calibrate)

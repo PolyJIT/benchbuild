@@ -42,10 +42,11 @@ class PolyJIT(RuntimeExperiment):
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("JIT, no instrumentation"):
-            p.clean()
-            p.prepare()
             p.download()
-            p.ldflags = ["-L" + llvm_libs, "-lpjit"]
+            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+
+            ld_lib_path = filter(None, config["ld_library_path"].split(":"))
+            p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
             p.cflags = ["-O3",
                         "-Xclang", "-load",
                         "-Xclang", "LLVMPolyJIT.so",
@@ -56,15 +57,18 @@ class PolyJIT(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
-                def runner(run_f):
-                    return time[run_f]
-                p.run(runner)
+                def run_with_time(run_f):
+                    from plumbum.cmd import time
+                    time(run_f)
+                p.run(run_with_time)
 
         with step("JIT, likwid"):
             p.clean()
             p.prepare()
             p.download()
-            p.ldflags = ["-L" + llvm_libs, "-lpjit"]
+            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+            ld_lib_path = filter(None, config["ld_library_path"].split(":"))
+            p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
             p.cflags = ["-O3",
                         "-Xclang", "-load",
                         "-Xclang", "LLVMPolyJIT.so",
@@ -75,13 +79,19 @@ class PolyJIT(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
-                def runner(run_f):
-                    return likwid_perfctr["-O", "-o", p.likwid_f, "-m", "-C",
-                                          "-L:0", "-g", "CLOCK", run_f]
-                p.run(runner)
+                def run_with_likwid(run_f):
+                    from pprof.utils.db import create_run, get_db_connection
+                    from pprof.likwid import get_likwid_perfctr, to_db
+                    from plumbum import local
 
-            with substep("Create DB entry & evaluate likwid run"):
-                run_id = create_run(
-                    get_db_connection(), "likwid", p.name, self.name, p.run_uuid)
-                likwid_measurement = likwid.get_likwid_perfctr(p.likwid_f)
-                likwid.to_db(run_id, likwid_measurement)
+                    likwid_path = path.join(config["likwiddir"], "bin")
+                    likwid_perfctr = local[path.join(likwid_path, "likwid-perfctr")]
+                    cmd = likwid_perfctr["-O", "-o", p.likwid_f, "-m", "-C",
+                                         "-L:0", "-g", "CLOCK", run_f]
+                    cmd()
+
+                    run_id = create_run(
+                        get_db_connection(), "likwid", p.name, self.name, p.run_uuid)
+                    likwid_measurement = get_likwid_perfctr(p.likwid_f)
+                    likwid.to_db(run_id, likwid_measurement)
+                p.run(run_with_likwid)

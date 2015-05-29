@@ -1,7 +1,7 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import ProjectFactory, log
 from pprof.settings import config
 from group import PprofGroup
 
@@ -48,10 +48,10 @@ class XZ(PprofGroup):
             tar('xfz', path.join(self.builddir, self.src_file))
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_tool
+        from pprof.project import wrap
 
         xz_dir = path.join(self.builddir, self.src_dir)
-        exp = wrap_tool(path.join(xz_dir, "src", "xz", "xz"), experiment)
+        exp = wrap(path.join(xz_dir, "src", "xz", "xz"), experiment)
 
         # Compress
         exp["-f", "-k", "--compress", "-e", "-9", "text.html"] & FG

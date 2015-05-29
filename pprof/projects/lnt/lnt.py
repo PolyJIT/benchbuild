@@ -1,7 +1,7 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import Project, ProjectFactory, log_with, log
+from pprof.project import Project, ProjectFactory, log
 from pprof.settings import config
 
 from os import path
@@ -58,10 +58,10 @@ class SingleSourceBenchmarks(LNTGroup):
     ProjectFactory.addFactory("SingleSourceBenchmarks", Factory())
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_tool_polymorphic
+        from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
-        exp = wrap_tool_polymorphic("lnt_runner", experiment)
+        exp = wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
@@ -83,10 +83,10 @@ class MultiSourceBenchmarks(LNTGroup):
     ProjectFactory.addFactory("MultiSourceBenchmarks", Factory())
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_tool_polymorphic
+        from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
-        exp = wrap_tool_polymorphic("lnt_runner", experiment)
+        exp = wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
@@ -108,10 +108,10 @@ class MultiSourceApplications(LNTGroup):
     ProjectFactory.addFactory("MultiSourceApplications", Factory())
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_tool_polymorphic
+        from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
-        exp = wrap_tool_polymorphic("lnt_runner", experiment)
+        exp = wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 

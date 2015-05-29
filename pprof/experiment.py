@@ -36,6 +36,41 @@ HANDLER.setLevel(LOG.getEffectiveLevel())
 LOG.addHandler(HANDLER)
 
 
+def nl(o):
+    """Break the current line in the stream :o:
+
+    :o: the stream we break on
+    :return: the stream
+
+    """
+
+    if o.isatty():
+        o.write("\r\x1b[L")
+    else:
+        o.write("\n")
+    return o
+
+
+def to_utf8(text):
+    """Convert given text to UTF-8 encoding (as far as possible)."""
+    if not text:
+        return text
+
+    try: # unicode or pure ascii
+        return text.encode("utf8")
+    except UnicodeDecodeError:
+        try: # successful UTF-8 decode means it's pretty sure UTF-8 already
+            text.decode("utf8")
+            return text
+        except UnicodeDecodeError:
+            try: # get desperate; and yes, this has a western hemisphere bias
+                return text.decode("cp1252").encode("utf8")
+            except UnicodeDecodeError:
+                pass
+
+    return text # return unchanged, hope for the best
+
+
 def static_var(varname, value):
     def decorate(func):
         setattr(func, varname, value)
@@ -53,18 +88,17 @@ def phase(name):
 
     from sys import stderr as o
 
-    sys.stdout.write("\r\x1b[KPHASE.{} '{}' START".format(phase.counter, name))
-    sys.stdout.flush()
+    nl(o).write("PHASE.{} '{}' START".format(phase.counter, name))
+    o.flush()
     try:
         yield
-    except ProcessExecutionError as e:
-        o.write("\n" + e.stderr)
+    except (OSError, ProcessExecutionError) as e:
+        o.write("\n" + to_utf8(str(e)))
         sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
-        raise e
-    finally:
-        sys.stdout.write(
-            "\r\x1b[KPHASE.{} '{}' OK".format(phase.counter, name))
-    sys.stdout.flush()
+#        raise e
+    o.write(
+        "\r\x1b[KPHASE.{} '{}' OK".format(phase.counter, name))
+    o.flush()
 
 
 @contextmanager
@@ -77,20 +111,19 @@ def step(name):
 
     from sys import stderr as o
 
-    sys.stdout.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' START".format(
+    nl(o).write("PHASE.{} '{}' STEP.{} '{}' START".format(
         phase.counter, phase.name, step.counter, name))
-    sys.stdout.flush()
+    o.flush()
     try:
         yield
-    except ProcessExecutionError as e:
-        o.write("\n" + e.stderr)
-        sys.stdout.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
+    except (OSError, ProcessExecutionError) as e:
+        o.write("\n" + to_utf8(str(e)))
+        o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, name))
-        raise e
-    finally:
-        sys.stdout.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' OK".format(
-            phase.counter, phase.name, step.counter, name))
-    sys.stdout.flush()
+#        raise e
+    nl(o).write("PHASE.{} '{}' STEP.{} '{}' OK".format(
+        phase.counter, phase.name, step.counter, name))
+    o.flush()
 
 
 @contextmanager
@@ -101,23 +134,23 @@ def substep(name):
     substep.counter += 1
     substep.name = name
 
-    from sys import stderr as o
+    from sys import stdout as o
 
-    o.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
+    nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
         phase.counter, phase.name, step.counter, step.name, substep.counter, name))
     o.flush()
     try:
         yield
-    except ProcessExecutionError as e:
-        o.write("\n" + e.stderr)
+    except (OSError, ProcessExecutionError) as e:
+        o.write("\n" + to_utf8(str(e)))
         o.write("\nPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, step.name, substep.counter, name))
         o.write("\n{} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
-    finally:
-        o.write("\r\x1b[KPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
-            phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+        raise e
+    nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
+        phase.counter, phase.name, step.counter, step.name, substep.counter, name))
     o.flush()
 
 
@@ -196,7 +229,7 @@ class Experiment(object):
         bin_path = path.join(config["llvmdir"], "bin")
 
         config["path"] = bin_path + ":" + config["path"]
-        config["ld_library_path"] = path.join(config["llvmdir"], "lib") + \
+        config["ld_library_path"] = path.join(config["llvmdir"], "lib") + ":" +\
             config["ld_library_path"]
 
     def __init__(self, name, projects=[], group=None):
@@ -273,9 +306,7 @@ class Experiment(object):
     def run(self):
         """Run the experiment on all registered projects
         """
-        llvm_libs = path.join(config["llvmdir"], "lib")
-        with local.env(LD_LIBRARY_PATH=llvm_libs,
-                       PPROF_EXPERIMENT_ID=str(config["experiment"])):
+        with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
             self.map_projects(self.run_project, "run")
 
     @classmethod
@@ -342,7 +373,10 @@ class Experiment(object):
         for project_name in self.projects:
             with phase(p):
                 prj = self.projects[project_name]
-                with local.env(PPROF_EXPERIMENT=self.name,
+                llvm_libs = path.join(config["llvmdir"], "lib")
+                ld_lib_path = config["ld_library_path"] + ":" + llvm_libs
+                with local.env(LD_LIBRARY_PATH=ld_lib_path,
+                               PPROF_EXPERIMENT=self.name,
                                PPROF_PROJECT=prj.name):
                     fun(prj)
 

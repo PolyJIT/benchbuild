@@ -1,7 +1,7 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log_with, log
+from pprof.project import ProjectFactory, log
 from pprof.settings import config
 from group import PprofGroup
 
@@ -41,8 +41,6 @@ class Linpack(PprofGroup):
 
         cflags = self.cflags
         ldflags = self.ldflags + ["-lm"]
-        llvm_libs = path.join(config["llvmdir"], "lib")
 
         with local.cwd(self.builddir):
-            with local.env(LD_LIBRARY_PATH=llvm_libs):
-                clang()(cflags, ldflags, "-o", self.run_f, "linpack.c")
+            clang()(cflags, "-o", self.run_f, "linpack.c", ldflags)

@@ -191,6 +191,7 @@ class Wrap(cli.Application):
         import pickle
 
         run_f = "{runf}"
+        f = None
         if path.exists("{blobf}"):
             with open("{blobf}", "rb") as p:
                 f = pickle.load(p)
@@ -245,6 +246,7 @@ class Wrap(cli.Application):
         from os import path
         import pickle
 
+        f = None
         if path.exists("{blobf}"):
             with open("{blobf}", "rb") as p:
                 f = pickle.load(p)

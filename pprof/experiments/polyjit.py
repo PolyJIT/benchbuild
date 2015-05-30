@@ -85,7 +85,8 @@ class PolyJIT(RuntimeExperiment):
                     from plumbum import local
 
                     likwid_path = path.join(config["likwiddir"], "bin")
-                    likwid_perfctr = local[path.join(likwid_path, "likwid-perfctr")]
+                    likwid_perfctr = local[
+                        path.join(likwid_path, "likwid-perfctr")]
                     cmd = likwid_perfctr["-O", "-o", p.likwid_f, "-m", "-C",
                                          "-L:0", "-g", "CLOCK", run_f]
                     cmd()

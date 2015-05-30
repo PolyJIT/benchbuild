@@ -254,7 +254,8 @@ class Wrap(cli.Application):
                        PPROF_DB_PORT="{db_port}",
                        PPROF_DB_NAME="{db_name}",
                        PPROF_DB_USER="{db_user}",
-                       PPROF_DB_PASS="{db_pass}"):
+                       PPROF_DB_PASS="{db_pass}",
+                       PPROF_CMD="\{\}".format(run_f)):
             if f is not None:
                 f(run_f)
 

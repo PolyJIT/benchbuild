@@ -174,33 +174,6 @@ def synchronize_project_with_db(p):
     conn.commit()
 
 
-def try_catch_log(func):
-    def try_catch_func_wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except ProcessExecutionError as e:
-            LOG.error("error while executing command in " + func.__name__)
-            LOG.error(unicode(e))
-            LOG.error(e.message)
-            if len(e.stdout) > 0:
-                LOG.error("\n   |".join(e.stdout.splitlines()))
-            if len(e.stderr) > 0:
-                LOG.error("\n   |".join(e.stderr.splitlines()))
-        except Exception as e:
-            LOG.error("error in " + func.__name__)
-            LOG.error("  args   : " + str(args))
-            LOG.error("  kwargs : " + str(kwargs))
-            LOG.error(unicode(e))
-        except KeyboardInterrupt as kb:
-            LOG.error("keyboard interrupt in " + func.__name__)
-            LOG.error("  args   : " + str(args))
-            LOG.error("  kwargs : " + str(kwargs))
-            LOG.error(
-                "FIXME: Cleanup after user interruption not implemented!")
-            raise
-    return try_catch_func_wrapper
-
-
 def get_group_projects(group, experiment):
     """Get a list of project names for the given group
 
@@ -264,7 +237,6 @@ class Experiment(object):
             self.projects = {
                 k: v for k, v in self.projects.iteritems() if v.group_name == group}
 
-    @try_catch_log
     def clean_project(self, p):
         p.clean()
 
@@ -282,7 +254,6 @@ class Experiment(object):
             rm[calibrate_calls_f]
             rm[calibrate_prof_f]
 
-    @try_catch_log
     def prepare_project(self, p):
         p.prepare()
 
@@ -298,7 +269,6 @@ class Experiment(object):
 
         self.map_projects(self.prepare_project, "prepare")
 
-    @try_catch_log
     def run_project(self, p):
         with local.cwd(p.builddir):
             p.run()

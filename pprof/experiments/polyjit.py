@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from ..experiment import Experiment, RuntimeExperiment, try_catch_log
+from ..experiment import Experiment, RuntimeExperiment
 from pprof.experiment import step, substep
 from ..settings import config
 from pprof import likwid

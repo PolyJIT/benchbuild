@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from pprof.experiment import RuntimeExperiment, try_catch_log
+from pprof.experiment import RuntimeExperiment
 from pprof.experiment import Experiment as exp
 from pprof.settings import config
 
@@ -98,7 +98,6 @@ class Polli(RuntimeExperiment):
         rm(bin_f)
         rm(prof_f)
 
-    @try_catch_log
     def run_project(self, p):
         base_f = p.base_f
         opt_f = p.optimized_f
@@ -148,7 +147,6 @@ class Polli(RuntimeExperiment):
 
 class PolliBaseLine(Polli):
 
-    @try_catch_log
     def run_project(self, p):
         base_f = p.base_f
         opt_f = p.optimized_f

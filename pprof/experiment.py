@@ -39,6 +39,8 @@ LOG.addHandler(HANDLER)
 def nl(o):
     """Break the current line in the stream :o:
 
+    Don't reuse the current line, if :o: is not attached to a tty.
+
     :o: the stream we break on
     :return: the stream
 

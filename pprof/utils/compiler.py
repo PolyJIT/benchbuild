@@ -59,23 +59,34 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler):
         lines = '''#!/usr/bin/env python
 # encoding: utf-8
 
-from plumbum import local, FG
+from plumbum import ProcessExecutionError, local, FG
+from pprof.experiment import to_utf8
 
 cc=local[\"{CC}\"]
 cflags={CFLAGS}
 ldflags={LDFLAGS}
 
 from sys import argv
+import os
+import sys
 
-input_files = [ x for x in argv if not '-' is x[0] ]
+input_files = [ x for x in argv[1:] if not '-' is x[0] ]
+flags = argv[1:]
 
-if len(input_files) > 0:
-    if "-c" in argv:
-        cc[cflags, argv[1:]] & FG
+try:
+    if len(input_files) > 0:
+        if "-c" in argv:
+            cc["-Qunused-arguments", cflags, flags] & FG
+        else:
+            cc["-Qunused-arguments", cflags, flags, ldflags] & FG
     else:
-        cc[cflags, argv[1:], ldflags] & FG
-else:
-    cc[argv[1:]] & FG
+        cc["-Qunused-arguments", flags] & FG
+except ProcessExecutionError as e:
+    sys.stderr.write(to_utf8(str(e.stderr)))
+    sys.stderr.flush()
+    sys.exit(e.retcode)
+
+
 '''.format(CC=str(compiler()), CFLAGS=cflags, LDFLAGS=ldflags)
         wrapper.write(lines)
     chmod("+x", filepath)

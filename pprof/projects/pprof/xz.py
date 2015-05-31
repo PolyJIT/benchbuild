@@ -54,18 +54,18 @@ class XZ(PprofGroup):
         exp = wrap(path.join(xz_dir, "src", "xz", "xz"), experiment)
 
         # Compress
-        exp["-f", "-k", "--compress", "-e", "-9", "text.html"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "chicken.jpg"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "control"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "input.source"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "liberty.jpg"] & FG
+        exp["--compress", "-f", "-k",  "-e", "-9", "text.html"] & FG
+        exp["--compress", "-f", "-k",  "-e", "-9", "chicken.jpg"] & FG
+        exp["--compress", "-f", "-k",  "-e", "-9", "control"] & FG
+        exp["--compress", "-f", "-k",  "-e", "-9", "input.source"] & FG
+        exp["--compress", "-f", "-k",  "-e", "-9", "liberty.jpg"] & FG
 
         # Decompress
-        exp["-f", "-k", "--decompress", "text.html.xz"] & FG
-        exp["-f", "-k", "--decompress", "chicken.jpg.xz"] & FG
-        exp["-f", "-k", "--decompress", "control.xz"] & FG
-        exp["-f", "-k", "--decompress", "input.source.xz"] & FG
-        exp["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
+        exp["--decompress", "-f", "-k", "text.html.xz"] & FG
+        exp["--decompress", "-f", "-k", "chicken.jpg.xz"] & FG
+        exp["--decompress", "-f", "-k", "control.xz"] & FG
+        exp["--decompress", "-f", "-k", "input.source.xz"] & FG
+        exp["--decompress", "-f", "-k", "liberty.jpg.xz"] & FG
 
     def configure(self):
         from pprof.utils.compiler import lt_clang

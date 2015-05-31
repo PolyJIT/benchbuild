@@ -56,14 +56,28 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler):
     from plumbum.cmd import chmod
 
     with open(filepath, 'w') as wrapper:
-        wrapper.writelines(
-            [
-                "#!/bin/sh\n",
-                'CFLAGS="' + " ".join(cflags) + '"\n',
-                'LDFLAGS="' + " ".join(ldflags) + '"\n',
-                str(compiler()) + " $CFLAGS \"$@\" $LDFLAGS\n"
-            ]
-        )
+        lines = '''#!/usr/bin/env python
+# encoding: utf-8
+
+from plumbum import local, FG
+
+cc=local[\"{CC}\"]
+cflags={CFLAGS}
+ldflags={LDFLAGS}
+
+from sys import argv
+
+input_files = [ x for x in argv if not '-' is x[0] ]
+
+if len(input_files) > 0:
+    if "-c" in argv:
+        cc[cflags, argv[1:]] & FG
+    else:
+        cc[cflags, argv[1:], ldflags] & FG
+else:
+    cc[argv[1:]] & FG
+'''.format(CC=str(compiler()), CFLAGS=cflags, LDFLAGS=ldflags)
+        wrapper.write(lines)
     chmod("+x", filepath)
 
 

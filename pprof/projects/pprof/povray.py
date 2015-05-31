@@ -22,13 +22,31 @@ class Povray(PprofGroup):
 
     src_uri = "https://github.com/POV-Ray/povray"
     src_dir = "povray.git"
+    boost_src_dir = "boost_1_58_0"
+    boost_src_file = boost_src_dir + ".tar.bz2"
+    boost_src_uri = "http://sourceforge.net/projects/boost/files/boost/1.58.0/" + boost_src_file
 
     def download(self):
-        from pprof.utils.downloader import Git
+        from pprof.utils.downloader import Git, Wget
+        from plumbum.cmd import tar
+
         with local.cwd(self.builddir):
+            Wget(self.boost_src_uri, self.boost_src_file)
             Git(self.src_uri, self.src_dir)
+            tar("xfj", self.boost_src_file)
 
     def configure(self):
+        # First we have to prepare boost for lady povray...
+        boost_dir = path.join(self.builddir, self.boost_src_dir)
+        boost_prefix = path.join(self.builddir, "boost-install")
+        with local.cwd(boost_dir):
+            from plumbum.cmd import mkdir
+            mkdir(boost_prefix)
+            bootstrap = local["./bootstrap.sh"]
+            b2 = local["./b2"]
+            bootstrap("--prefix=\"{}\"".format(boost_prefix))
+            b2("install")
+
         povray_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(path.join(povray_dir, "unix")):
             from plumbum.cmd import sh
@@ -43,7 +61,7 @@ class Povray(PprofGroup):
                            CXX=clang_cxx(),
                            CXXFLAGS=" ".join(self.cflags),
                            LDFLAGS=" ".join(self.ldflags)):
-                configure()
+                configure("--with-boost=" + boost_prefix)
 
     def build(self):
         from plumbum.cmd import make, ln, mv, rm

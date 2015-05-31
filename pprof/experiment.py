@@ -95,7 +95,10 @@ def phase(name):
     try:
         yield
     except (OSError, ProcessExecutionError) as e:
-        o.write("\n" + to_utf8(str(e)))
+        try:
+            o.write(to_utf8("\n" + str(e)))
+        except UnicodeEncodeError:
+            o.write("\nCouldn't figure out what encoding to use, sorry...")
         sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
 #        raise e
     o.write(
@@ -119,7 +122,10 @@ def step(name):
     try:
         yield
     except (OSError, ProcessExecutionError) as e:
-        o.write("\n" + to_utf8(str(e)))
+        try:
+            o.write(to_utf8("\n" + str(e)))
+        except UnicodeEncodeError:
+            o.write("\nCouldn't figure out what encoding to use, sorry...")
         o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, name))
 #        raise e
@@ -144,7 +150,10 @@ def substep(name):
     try:
         yield
     except (OSError, ProcessExecutionError) as e:
-        o.write("\n" + to_utf8(str(e)))
+        try:
+            o.write(to_utf8("\n" + str(e)))
+        except UnicodeEncodeError:
+            o.write("\nCouldn't figure out what encoding to use, sorry...")
         o.write("\nPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, step.name, substep.counter, name))
         o.write("\n{} substeps have FAILED so far.".format(substep.failed))

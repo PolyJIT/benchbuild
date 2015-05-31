@@ -54,18 +54,18 @@ class XZ(PprofGroup):
         exp = wrap(path.join(xz_dir, "src", "xz", "xz"), experiment)
 
         # Compress
-        exp["-f", "-k", "--compress", "-e", "-9", "text.html"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "chicken.jpg"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "control"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "input.source"] & FG
-        exp["-f", "-k", "--compress", "-e", "-9", "liberty.jpg"] & FG
+        exp["--compress", "-f", "-k",  "-e", "-9", "text.html"] & FG
+        exp["--compress", "-f", "-k",  "-e", "-9", "chicken.jpg"] & FG
+        exp["--compress", "-f", "-k",  "-e", "-9", "control"] & FG
+        exp["--compress", "-f", "-k",  "-e", "-9", "input.source"] & FG
+        exp["--compress", "-f", "-k",  "-e", "-9", "liberty.jpg"] & FG
 
         # Decompress
-        exp["-f", "-k", "--decompress", "text.html.xz"] & FG
-        exp["-f", "-k", "--decompress", "chicken.jpg.xz"] & FG
-        exp["-f", "-k", "--decompress", "control.xz"] & FG
-        exp["-f", "-k", "--decompress", "input.source.xz"] & FG
-        exp["-f", "-k", "--decompress", "liberty.jpg.xz"] & FG
+        exp["--decompress", "-f", "-k", "text.html.xz"] & FG
+        exp["--decompress", "-f", "-k", "chicken.jpg.xz"] & FG
+        exp["--decompress", "-f", "-k", "control.xz"] & FG
+        exp["--decompress", "-f", "-k", "input.source.xz"] & FG
+        exp["--decompress", "-f", "-k", "liberty.jpg.xz"] & FG
 
     def configure(self):
         from pprof.utils.compiler import lt_clang
@@ -73,9 +73,8 @@ class XZ(PprofGroup):
         xz_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(xz_dir):
             configure = local["./configure"]
-            with local.env(CC=str(lt_clang(self.cflags, self.ldflags)),
-                           LD_LIBRARY_PATH=self.ldflags):
-                configure["--enable-threads=no",
+            with local.env(CC=str(lt_clang(self.cflags, self.ldflags))):
+                configure("--enable-threads=no",
                           "--with-gnu-ld=yes",
                           "--disable-shared",
                           "--disable-dependency-tracking",
@@ -84,8 +83,7 @@ class XZ(PprofGroup):
                           "--disable-lzmainfo",
                           "--disable-lzma-links",
                           "--disable-scripts",
-                          "--disable-doc"
-                          ] & FG
+                          "--disable-doc")
 
     def build(self):
         from plumbum.cmd import make, ln

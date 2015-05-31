@@ -48,6 +48,21 @@ plot_dyncov <- function(experiment, connection) {
 }
 
 plot_experiment <- function(experiment, connection) {
+  jit_query <- strwrap(sprintf(paste(
+    "SELECT
+      project_name,
+      region,
+      metric,
+      SUM(value)
+    FROM run, likwid
+    WHERE
+      run.id = likwid.run_id AND
+      metric = 'RDTSC Runtime [s]' AND
+      ( region = 'CodgeGenJIT' OR
+        region = 'GetOrParsePrototype' OR
+        region = 'JitSelectParams' ) AND
+      NOT region = 'main' AND experiment_group = '%s'
+    GROUP BY project_name, region, metric;"), experiment), width=10000, simplify=TRUE)
   rt_query <- sprintf(paste("SELECT project_name, region, metric, SUM(value) ",
                             "FROM public.run, public.likwid ",
                             "WHERE run.id = likwid.run_id ",
@@ -65,21 +80,21 @@ plot_experiment <- function(experiment, connection) {
 
   rt_data <- melt(dbGetQuery(connection, rt_query))
   main_data <- melt(dbGetQuery(connection, main_query))
-
+  jit_data <- melt(dbGetQuery(connection, jit_query))
 
   if (nrow(rt_data) > 0 && nrow(main_data) > 0) {
     rt_data[,3] <- "Runtime Breakdown"
     main_data[,3] <- "Total Runtime"
+    jit_data[,3] <- "Time in JIT"
     all <- rbind(rt_data, main_data)
-    plot <- ggplot() +
-      #all, aes(x = metric, y = value, fill=region)) +
+    all <- rbind(all, jit_data)
+    plot <- ggplot(data=all) +
+      aes(x = metric, y = value, fill=region) +
       scale_y_continuous(name="Time [s]") +
       geom_bar(stat = "identity") +
-      geom_abline(data=main_data, mapping=aes(x = project_name, y=value)) +
-      geom_abline(data=rt_data, mapping=aes(x = project_name, y=value)) +
-      #facet_wrap(~ project_name, scales = "free_y", ncol = 8) +
+      facet_wrap(~ project_name, scales = "free_y", ncol = 8) +
       ggtitle(paste("Experiment ID ", experiment)) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      theme(legend.position="none", axis.ticks = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1))
     plot
    }
 }
@@ -136,9 +151,9 @@ drv <- dbDriver("PostgreSQL")
 con <- dbConnect(drv, dbname="pprof", user="pprof", host="localhost", port=32768, password="pprof")
 
 exps = get_experiments(connection = con)
-lapply(X = exps, FUN = plot_heatmap, connection = con)
+#lapply(X = exps, FUN = plot_heatmap, connection = con)
 #lapply(X = exps, FUN = plot_dyncov, connection = con)
-#lapply(X = exps, FUN = plot_experiment, connection = con)
+lapply(X = exps, FUN = plot_experiment, connection = con)
 
 dbDisconnect(con)
 dbUnloadDriver(drv)

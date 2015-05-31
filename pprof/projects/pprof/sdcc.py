@@ -34,10 +34,7 @@ class SDCC(PprofGroup):
         with local.cwd(sdcc_dir):
             configure = local["./configure"]
             with local.env(CC=str(lt_clang(self.cflags, self.ldflags)),
-                           CXX=str(lt_clang_cxx(self.cflags, self.ldflags)),
-                           CFLAGS=" ".join(self.cflags),
-                           CXXFLAGS=" ".join(self.cflags),
-                           LIBS=" ".join(self.ldflags)):
+                    CXX=str(lt_clang_cxx(self.cflags, self.ldflags))):
                 configure("--without-ccache", "--disable-pic14-port",
                           "--disable-pic16-port")
 
@@ -46,7 +43,7 @@ class SDCC(PprofGroup):
         sdcc_dir = path.join(self.builddir, self.src_dir)
 
         with local.cwd(sdcc_dir):
-            make()
+            make("-j", config["jobs"])
 
     def run_tests(self, experiment):
         from plumbum.cmd import make

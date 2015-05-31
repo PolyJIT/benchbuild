@@ -184,29 +184,31 @@ def wrap(name, runner):
 # encoding: utf-8
 
 from plumbum import cli, local
+from os import path
+import sys
+import pickle
 
-class Wrap(cli.Application):
-    def main(self):
-        from os import path
-        import pickle
-
-        run_f = "{runf}"
-        f = None
-        if path.exists("{blobf}"):
-            with open("{blobf}", "rb") as p:
-                f = pickle.load(p)
-        with local.env(PPROF_DB_HOST="{db_host}",
-                       PPROF_DB_PORT="{db_port}",
-                       PPROF_DB_NAME="{db_name}",
-                       PPROF_DB_USER="{db_user}",
-                       PPROF_DB_PASS="{db_pass}"):
-            if f is not None:
-                f(run_f)
-
-if __name__ == "__main__":
-    Wrap.run() '''.format(db_host=config["db_host"], db_port=config["db_port"],
-                          db_name=config["db_name"], db_user=config["db_user"],
-                          db_pass=config["db_pass"], blobf=blob_f, runf=real_f)
+run_f = "{runf}"
+args = sys.argv[1:]
+f = None
+if path.exists("{blobf}"):
+    with open("{blobf}", "rb") as p:
+        f = pickle.load(p)
+    with local.env(PPROF_DB_HOST="{db_host}",
+               PPROF_DB_PORT="{db_port}",
+               PPROF_DB_NAME="{db_name}",
+               PPROF_DB_USER="{db_user}",
+               PPROF_DB_PASS="{db_pass}"):
+        if f is not None:
+            f(run_f, *args)
+        else:
+            raise'''.format(db_host=config["db_host"],
+                            db_port=config["db_port"],
+                            db_name=config["db_name"],
+                            db_user=config["db_user"],
+                            db_pass=config["db_pass"],
+                            blobf=blob_f,
+                            runf=real_f)
         w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
@@ -240,29 +242,29 @@ def wrap_dynamic(name, runner):
 # encoding: utf-8
 
 from plumbum import cli, local
+from os import path
+import sys
+import pickle
 
-class Wrap(cli.Application):
-    def main(self, run_f):
-        from os import path
-        import pickle
-
-        f = None
-        if path.exists("{blobf}"):
-            with open("{blobf}", "rb") as p:
-                f = pickle.load(p)
-        with local.env(PPROF_DB_HOST="{db_host}",
-                       PPROF_DB_PORT="{db_port}",
-                       PPROF_DB_NAME="{db_name}",
-                       PPROF_DB_USER="{db_user}",
-                       PPROF_DB_PASS="{db_pass}",
-                       PPROF_CMD=run_f):
-            if f is not None:
-                f(run_f)
-
-if __name__ == "__main__":
-    Wrap.run() '''.format(db_host=config["db_host"], db_port=config["db_port"],
-                          db_name=config["db_name"], db_user=config["db_user"],
-                          db_pass=config["db_pass"], blobf=blob_f)
+f = None
+args = sys.argv[1:]
+run_f = sys.argv[0]
+if path.exists("{blobf}"):
+    with open("{blobf}", "rb") as p:
+        f = pickle.load(p)
+    with local.env(PPROF_DB_HOST="{db_host}",
+               PPROF_DB_PORT="{db_port}",
+               PPROF_DB_NAME="{db_name}",
+               PPROF_DB_USER="{db_user}",
+               PPROF_DB_PASS="{db_pass}",
+               PPROF_CMD=run_f):
+        if f is not None:
+            f(run_f, *args)'''.format(db_host=config["db_host"],
+                                              db_port=config["db_port"],
+                                              db_name=config["db_name"],
+                                              db_user=config["db_user"],
+                                              db_pass=config["db_pass"],
+                                              blobf=blob_f)
         w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]

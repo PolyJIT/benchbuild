@@ -73,9 +73,8 @@ class XZ(PprofGroup):
         xz_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(xz_dir):
             configure = local["./configure"]
-            with local.env(CC=str(lt_clang(self.cflags, self.ldflags)),
-                           LD_LIBRARY_PATH=self.ldflags):
-                configure["--enable-threads=no",
+            with local.env(CC=str(lt_clang(self.cflags, self.ldflags))):
+                configure("--enable-threads=no",
                           "--with-gnu-ld=yes",
                           "--disable-shared",
                           "--disable-dependency-tracking",
@@ -84,8 +83,7 @@ class XZ(PprofGroup):
                           "--disable-lzmainfo",
                           "--disable-lzma-links",
                           "--disable-scripts",
-                          "--disable-doc"
-                          ] & FG
+                          "--disable-doc")
 
     def build(self):
         from plumbum.cmd import make, ln

@@ -43,7 +43,7 @@ class SDCC(PprofGroup):
         sdcc_dir = path.join(self.builddir, self.src_dir)
 
         with local.cwd(sdcc_dir):
-            make()
+            make("-j", config["jobs"])
 
     def run_tests(self, experiment):
         from plumbum.cmd import make

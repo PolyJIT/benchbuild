@@ -19,22 +19,49 @@ class SpiderMonkey(PprofGroup):
             return SpiderMonkey(exp, "js", "compilation")
     ProjectFactory.addFactory("SpiderMonkey", Factory())
 
+    src_uri = "https://github.com/mozilla/gecko-dev.git"
+    src_dir = "gecko-dev.git"
+
+    def download(self):
+        from pprof.utils.downloader import Git
+
+        with local.cwd(self.builddir):
+            Git(self.src_uri, self.src_dir)
+
+    def configure(self):
+        from pprof.utils.compiler import clang, clang_cxx
+        from plumbum.cmd import mkdir
+        js_dir = path.join(self.builddir, self.src_dir, "js", "src")
+        with local.cwd(js_dir):
+            autoconf = local["autoconf_2.13"]
+            autoconf()
+            mkdir("build_OPT.OBJ")
+            with local.cwd("build_OPT.OBJ"):
+                with local.env(CC=clang(),
+                               CXX=clang_cxx(),
+                               CFLAGS=" ".join(self.cflags),
+                               LDFLAGS=" ".join(self.ldflags),
+                               CXXFLAGS=" ".join(self.cflags)):
+                    configure = local["../configure"]
+                    configure()
+
+    def build(self):
+        from plumbum.cmd import make
+        js_dir = path.join(self.builddir, self.src_dir, "js", "src")
+
+        with local.cwd(path.join(js_dir, "build_OPT.OBJ")):
+            make("-j", config["available_cpu_count"])
+
     def prepare(self):
-        super(SpiderMonkey, self).prepare()
-        config_path = path.join(self.testdir, "config")
-        cp["-var", config_path, self.builddir] & FG
-        self.products.add(path.join(config_path, "autoconf.mk"))
-        self.products.add(config_path)
+        pass
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        from pprof import wrap
+        from plumbum.cmd import make
 
-        for jsfile in glob(path.join(self.testdir, "sunspider", "*.js")):
-            (exp < jsfile) & FG
+        js_dir = path.join(self.builddir, self.src_dir, "js", "src")
+        js_build_dir = path.join(js_dir, "build_OPT.OBJ")
+        exp = wrap(path.join(js_build_dir, "bin", "js"), experiment)
 
-        sh_script = path.join(self.builddir, self.bin_f + ".sh")
-        (echo["#!/bin/sh"] > sh_script) & FG
-        (echo[str(exp) + " $*"] >> sh_script) & FG
-        chmod("+x", sh_script)
-        jstests = local[path.join(self.testdir, "tests", "jstests.py")]
-        jstests[sh_script] & FG(retcode=None)
+        with local.cwd(js_build_dir):
+            make("check")

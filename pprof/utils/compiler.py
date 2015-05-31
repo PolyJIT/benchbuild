@@ -56,14 +56,39 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler):
     from plumbum.cmd import chmod
 
     with open(filepath, 'w') as wrapper:
-        wrapper.writelines(
-            [
-                "#!/bin/sh\n",
-                'CFLAGS="' + " ".join(cflags) + '"\n',
-                'LDFLAGS="' + " ".join(ldflags) + '"\n',
-                str(compiler()) + " $CFLAGS \"$@\" $LDFLAGS\n"
-            ]
-        )
+        lines = '''#!/usr/bin/env python
+# encoding: utf-8
+
+from plumbum import ProcessExecutionError, local, FG
+from pprof.experiment import to_utf8
+
+cc=local[\"{CC}\"]
+cflags={CFLAGS}
+ldflags={LDFLAGS}
+
+from sys import argv
+import os
+import sys
+
+input_files = [ x for x in argv[1:] if not '-' is x[0] ]
+flags = argv[1:]
+
+try:
+    if len(input_files) > 0:
+        if "-c" in argv:
+            cc["-Qunused-arguments", cflags, flags] & FG
+        else:
+            cc["-Qunused-arguments", cflags, flags, ldflags] & FG
+    else:
+        cc["-Qunused-arguments", flags] & FG
+except ProcessExecutionError as e:
+    sys.stderr.write(to_utf8(str(e.stderr)))
+    sys.stderr.flush()
+    sys.exit(e.retcode)
+
+
+'''.format(CC=str(compiler()), CFLAGS=cflags, LDFLAGS=ldflags)
+        wrapper.write(lines)
     chmod("+x", filepath)
 
 

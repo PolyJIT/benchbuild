@@ -102,8 +102,7 @@ class Project(object):
         with local.cwd(self.builddir):
             if self.run_uuid is None:
                 self.run_uuid = uuid4()
-            with local.env(PPROF_CMD="FIXME: {}".format(self.name),
-                           PPROF_USE_DATABASE=1,
+            with local.env( PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid,
                            PPROF_DOMAIN=self.domain,
                            PPROF_GROUP=self.group_name,
@@ -198,7 +197,8 @@ if path.exists("{blobf}"):
                PPROF_DB_PORT="{db_port}",
                PPROF_DB_NAME="{db_name}",
                PPROF_DB_USER="{db_user}",
-               PPROF_DB_PASS="{db_pass}"):
+               PPROF_DB_PASS="{db_pass}",
+               PPROF_CMD=run_f + " ".join(args)):
         if f is not None:
             f(run_f, *args)
         else:

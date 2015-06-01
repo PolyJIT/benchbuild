@@ -2,9 +2,6 @@
 # encoding: utf-8
 
 """
-PPROF Experiment
-================
-
 An pprof.experiment defines a series of phases that constitute a pprof
 compatible experiment. This is the default implementation of an experiment.
 
@@ -85,7 +82,14 @@ def nl(o):
 
 
 def to_utf8(text):
-    """Convert given text to UTF-8 encoding (as far as possible)."""
+    """
+    Convert given text to UTF-8 encoding (as far as possible).
+
+    :text:
+        Text object we wish to convert to utf8
+    :return:
+        Hopefully some text encoded in utf8, we might bail.
+    """
     if not text:
         return text
 
@@ -105,16 +109,46 @@ def to_utf8(text):
 
 
 def static_var(varname, value):
+    """
+    Decorate something with a static variable
+
+    Example:
+        .. code-block:: python
+
+            @staticvar(bar, 0)
+            def foo():
+                foo.bar = 1
+                return foo.bar
+
+    :varname:
+        Name of the variable
+    :value:
+        Initial value of the static variable
+    """
     def decorate(func):
         setattr(func, varname, value)
         return func
     return decorate
 
 
+class SubStepError(Exception):
+    def __init__(self, *args):
+        self.args = args
+
+    def __str__(self):
+        return repr(self.args)
+
 @contextmanager
 @static_var("counter", 0)
 @static_var("name", "")
 def phase(name):
+    """
+    Introduce a new phase.
+
+    :name:
+        Name of the phase.
+    """
+
     phase.counter += 1
     phase.name = name
     step.counter = 0
@@ -127,7 +161,7 @@ def phase(name):
         yield
         nl(o).write(
             "PHASE.{} '{}' OK".format(phase.counter, name))
-    except (OSError, ProcessExecutionError) as e:
+    except (OSError, ProcessExecutionError, SubStepError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
@@ -140,6 +174,13 @@ def phase(name):
 @static_var("counter", 0)
 @static_var("name", "")
 def step(name):
+    """
+    Introduce a new step.
+
+    :name:
+        Name of the step.
+    """
+
     step.counter += 1
     step.name = name
     substep.counter = 0
@@ -159,7 +200,9 @@ def step(name):
             o.write("\nCouldn't figure out what encoding to use, sorry...")
         o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, name))
-#        raise e
+        raise SubStepError(name, e)
+    except SubStepError as e:
+        raise e
     o.flush()
 
 
@@ -168,6 +211,13 @@ def step(name):
 @static_var("name", "")
 @static_var("failed", 0)
 def substep(name):
+    """
+    Introduce a new substep.
+
+    :name:
+        Name of the substep.
+    """
+
     substep.counter += 1
     substep.name = name
 
@@ -189,10 +239,18 @@ def substep(name):
         o.write("\n{} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
+        raise SubStepError(name, e)
     o.flush()
 
 
 def synchronize_project_with_db(p):
+    """
+    Synchronize a project with the database. This inserts a new entry
+    in the database, if it doesn't exist yet.
+
+    :p:
+        The projec we synchronize.
+    """
     from pprof.settings import get_db_connection
     conn = get_db_connection()
 
@@ -213,15 +271,17 @@ def synchronize_project_with_db(p):
 
 
 def get_group_projects(group, experiment):
-    """Get a list of project names for the given group
-
-    :group: TODO
-    :experiment: TODO
-    :returns: TODO
-
     """
-    from pprof.experiment import Experiment
+    Get a list of project names for the given group.
 
+    :group:
+        The group.
+    :experiment:
+        The experiment we collect the supported project names for.
+    :returns:
+        A list of project names for the group that are supported by this
+        experiment.
+    """
     group = []
     projects = Experiment.projects
     for name in projects:
@@ -234,7 +294,17 @@ def get_group_projects(group, experiment):
 
 class Experiment(object):
 
-    """ An series of commands executed on a project that form an experiment """
+    """
+    A series of commands executed on a project that form an experiment.
+    The default implementation should provide a sane environment for all
+    derivates.
+
+    One important task executed by the basic implementation is setting up
+    the default set of projects that belong to this project.
+    As every project gets registered in the ProjectFactory, the experiment
+    gets a list of experiment names that work as a filter.
+
+    """
 
     def setup_commands(self):
         bin_path = path.join(config["llvmdir"], "bin")
@@ -259,6 +329,17 @@ class Experiment(object):
         self.populate_projects(projects, group)
 
     def populate_projects(self, projects_to_filter, group=None):
+        """
+        Populate the list of projects that belong to this experiment.
+
+        :projects_to_filter:
+            List of projects we want to assign to this experiment. We intersect
+            the list of projects with the list of supported projects to get
+            the list of projects that belong to this experiment.
+        :group:
+            In addition to the project filter, we provide a way to filter whole
+            groups.
+        """
         self.projects = {}
         factories = ProjectFactory.factories
         for id in factories:
@@ -276,9 +357,31 @@ class Experiment(object):
                 k: v for k, v in self.projects.iteritems() if v.group_name == group}
 
     def clean_project(self, p):
-        p.clean()
+            p.clean()
+
+    def prepare_project(self, p):
+            p.prepare()
+
+    def run_project(self, p):
+        with local.cwd(p.builddir):
+            p.run()
+
+    def map_projects(self, fun, p=None):
+        for project_name in self.projects:
+            with phase(p):
+                prj = self.projects[project_name]
+                llvm_libs = path.join(config["llvmdir"], "lib")
+                ld_lib_path = config["ld_library_path"] + ":" + llvm_libs
+                with local.env(LD_LIBRARY_PATH=ld_lib_path,
+                               PPROF_EXPERIMENT=self.name,
+                               PPROF_PROJECT=prj.name):
+                    fun(prj)
 
     def clean(self):
+        """
+        Cleans the experiment.
+        """
+
         self.map_projects(self.clean_project, "clean")
         if (path.exists(self.builddir)) and listdir(self.builddir) == []:
             rmdir[self.builddir] & FG
@@ -292,10 +395,13 @@ class Experiment(object):
             rm[calibrate_calls_f]
             rm[calibrate_prof_f]
 
-    def prepare_project(self, p):
-        p.prepare()
-
     def prepare(self):
+        """
+        Prepare the experiment. This includes creation of a build directory
+        and setting up the logging. Afterwards we call the prepare method
+        of the project.
+        """
+
         if not path.exists(self.builddir):
             mkdir[self.builddir] & FG(retcode=None)
 
@@ -307,12 +413,11 @@ class Experiment(object):
 
         self.map_projects(self.prepare_project, "prepare")
 
-    def run_project(self, p):
-        with local.cwd(p.builddir):
-            p.run()
-
     def run(self):
-        """Run the experiment on all registered projects
+        """
+        Run the experiment on all registered projects.
+
+        Setup the environment and call run_project method on all projects.
         """
         with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
             self.map_projects(self.run_project, "run")
@@ -324,10 +429,16 @@ class Experiment(object):
         report dictionary that assigns a fieldname to a regex with at most 1
         matchgroup.
 
-        :report: The report we should parse out of this project block.
-        :prefix: An existing dictionary to work with
-        :project_block: A string region, taken from an arbitrary result file
-        :return: A dictionary of name-value pairs
+        :cls:
+            The class.
+        :report:
+            The report we should parse out of this project block.
+        :prefix:
+            An existing dictionary to work with
+        :project_block:
+            A string region, taken from an arbitrary result file
+        :return:
+            A dictionary of name-value pairs
         """
         res = prefix
         for key in report:
@@ -345,15 +456,22 @@ class Experiment(object):
         Provide users with per project results in the form of a dictionary:
             [{ "<project_name>": "project payload" },...]
         Let users do what they want with it.
+
+        :perf_project_results:
+            TODO
+        :return:
+            TODO
         """
         pass
 
     def collect_results(self):
-        """Collect all project-specific results into one big result file for
+        """
+        Collect all project-specific results into one big result file for
         further processing. Later processing steps might have to regain
         per-project information from this file again.
-        :returns: TODO
 
+        :return:
+            TODO
         """
         result_files = Set([])
         for project_name in self.projects:
@@ -377,18 +495,15 @@ class Experiment(object):
             per_project_results = zip(*[iter(split_items)] * 2)
             self.generate_report(per_project_results)
 
-    def map_projects(self, fun, p=None):
-        for project_name in self.projects:
-            with phase(p):
-                prj = self.projects[project_name]
-                llvm_libs = path.join(config["llvmdir"], "lib")
-                ld_lib_path = config["ld_library_path"] + ":" + llvm_libs
-                with local.env(LD_LIBRARY_PATH=ld_lib_path,
-                               PPROF_EXPERIMENT=self.name,
-                               PPROF_PROJECT=prj.name):
-                    fun(prj)
-
     def verify_product(self, filename, log=None):
+        """
+        Verify if a specified product has been created by the experiment.
+
+        :filename:
+            The product we expect to exist.
+        :log:
+            Optional. Log any errors.
+        """
         if not log:
             log = LOG
 

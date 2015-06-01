@@ -36,9 +36,8 @@ class PolyJIT(RuntimeExperiment):
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
         opt = local[path.join(bin_path, "opt")]
 
-    def run_project(self, p):
+    def run_step_jit(self, p):
         from plumbum.cmd import time
-
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("JIT, no instrumentation"):
@@ -53,10 +52,10 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-polli",
                         "-mllvm", "-jitable",
                         "-mllvm", "-polly-detect-keep-going"]
-            with substep("reconf & rebuild"):
+            with substep("Build"):
                 p.configure()
                 p.build()
-            with substep("run {}".format(p.name)):
+            with substep("Execute {}".format(p.name)):
                 def run_with_time(run_f, *args):
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
@@ -79,6 +78,9 @@ class PolyJIT(RuntimeExperiment):
                     submit(timings)
                 p.run(run_with_time)
 
+    def run_step_likwid(self, p):
+        llvm_libs = path.join(config["llvmdir"], "lib")
+
         with step("JIT, likwid"):
             p.clean()
             p.prepare()
@@ -92,10 +94,10 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-polli",
                         "-mllvm", "-jitable",
                         "-mllvm", "-polly-detect-keep-going"]
-            with substep("reconf & rebuild"):
+            with substep("Build"):
                 p.configure()
                 p.build()
-            with substep("run {}".format(p.name)):
+            with substep("Execute {}".format(p.name)):
                 def run_with_likwid(run_f, *args):
                     from pprof.utils.db import create_run, get_db_connection
                     from pprof.likwid import get_likwid_perfctr, to_db
@@ -113,3 +115,8 @@ class PolyJIT(RuntimeExperiment):
                     likwid_measurement = get_likwid_perfctr(p.likwid_f)
                     likwid.to_db(run_id, likwid_measurement)
                 p.run(run_with_likwid)
+
+
+    def run_project(self, p):
+        run_step_jit(p)
+        run_step_likwid(p)

@@ -125,15 +125,14 @@ def phase(name):
     o.flush()
     try:
         yield
+        nl(o).write(
+            "PHASE.{} '{}' OK".format(phase.counter, name))
     except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
         sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
-#        raise e
-    o.write(
-        "\r\x1b[KPHASE.{} '{}' OK".format(phase.counter, name))
     o.flush()
 
 
@@ -149,9 +148,10 @@ def step(name):
 
     nl(o).write("PHASE.{} '{}' STEP.{} '{}' START".format(
         phase.counter, phase.name, step.counter, name))
-    o.flush()
     try:
         yield
+        nl(o).write("PHASE.{} '{}' STEP.{} '{}' OK".format(
+            phase.counter, phase.name, step.counter, name))
     except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
@@ -160,8 +160,6 @@ def step(name):
         o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, name))
 #        raise e
-    nl(o).write("PHASE.{} '{}' STEP.{} '{}' OK".format(
-        phase.counter, phase.name, step.counter, name))
     o.flush()
 
 
@@ -177,9 +175,10 @@ def substep(name):
 
     nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
         phase.counter, phase.name, step.counter, step.name, substep.counter, name))
-    o.flush()
     try:
         yield
+        nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
+            phase.counter, phase.name, step.counter, step.name, substep.counter, name))
     except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
@@ -190,9 +189,6 @@ def substep(name):
         o.write("\n{} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
-        raise e
-    nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
-        phase.counter, phase.name, step.counter, step.name, substep.counter, name))
     o.flush()
 
 

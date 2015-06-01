@@ -1,6 +1,37 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+"""
+PPROF Experiment
+================
+
+An pprof.experiment defines a series of phases that constitute a pprof
+compatible experiment. This is the default implementation of an experiment.
+
+Clients can derive from class class::pprof.experiment.Experiment and override
+the methods relvant to their experiment.
+
+An experiment can have a variable number of phases / steps / substeps.
+
+Phases / Steps / Substeps
+-------------------------
+
+All phases/steps/substeps support being used as a context manager. All 3 of them
+catch ProcessExecutionErrors that may be thrown from plumbum, without
+aborting the whole experiment. However, an error is tracked.
+
+Actions
+-------
+
+An experiment performs the following actions in order:
+    1. clean - Clean any previous runs that collide with our directory
+    2. prepare - Prepare the experiment, this is a good place to copy relevant
+                 files over for testing.
+    3. run (run_tests) - Run the experiment. The 'meat' lies here. Override
+        This to perform all your experiment needs.
+
+"""
+
 from plumbum import local, cli, FG
 from plumbum.cmd import (cp, chmod, sed, time, echo,
                          tee, mv, touch, awk, rm, mkdir, rmdir, grep, cat)

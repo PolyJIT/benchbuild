@@ -1,6 +1,11 @@
 pprof package
 =============
 
+.. automodule:: pprof
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -23,10 +28,3 @@ Submodules
    pprof.run
    pprof.settings
 
-Module contents
----------------
-
-.. automodule:: pprof
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -35,17 +35,17 @@ class TCC(PprofGroup):
         tcc_dir = path.join(self.builddir, self.src_dir)
 
     def configure(self):
-        from pprof.project import llvm, llvm_libs, clang, mkdir
+        from pprof.utils.compiler import lt_clang
+        from plumbum.cmd import mkdir
         tcc_dir = path.join(self.builddir, self.src_dir)
 
         with local.cwd(self.builddir):
             mkdir("build")
+            clang = lt_clang(self.cflags, self.ldflags)
         with local.cwd(path.join(self.builddir, "build")):
             configure = local[path.join(tcc_dir, "configure")]
-            configure["--cc=" + str(clang()),
-                      "--libdir=/usr/lib64",
-                      "--extra-cflags=" + " ".join(self.cflags),
-                      "--extra-ldflags=" + " ".join(self.ldflags)] & FG
+            configure["--cc=" + str(clang),
+                      "--libdir=/usr/lib64"] & FG
 
     def build(self):
         from plumbum.cmd import make, ln

@@ -357,7 +357,25 @@ class Experiment(object):
                 k: v for k, v in self.projects.iteritems() if v.group_name == group}
 
     def clean_project(self, p):
-        p.clean()
+            p.clean()
+
+    def prepare_project(self, p):
+            p.prepare()
+
+    def run_project(self, p):
+        with local.cwd(p.builddir):
+            p.run()
+
+    def map_projects(self, fun, p=None):
+        for project_name in self.projects:
+            with phase(p):
+                prj = self.projects[project_name]
+                llvm_libs = path.join(config["llvmdir"], "lib")
+                ld_lib_path = config["ld_library_path"] + ":" + llvm_libs
+                with local.env(LD_LIBRARY_PATH=ld_lib_path,
+                               PPROF_EXPERIMENT=self.name,
+                               PPROF_PROJECT=prj.name):
+                    fun(prj)
 
     def clean(self):
         """
@@ -377,9 +395,6 @@ class Experiment(object):
             rm[calibrate_calls_f]
             rm[calibrate_prof_f]
 
-    def prepare_project(self, p):
-        p.prepare()
-
     def prepare(self):
         """
         Prepare the experiment. This includes creation of a build directory
@@ -397,10 +412,6 @@ class Experiment(object):
         LOG.addHandler(handler)
 
         self.map_projects(self.prepare_project, "prepare")
-
-    def run_project(self, p):
-        with local.cwd(p.builddir):
-            p.run()
 
     def run(self):
         """
@@ -483,17 +494,6 @@ class Experiment(object):
             split_items.pop(0)
             per_project_results = zip(*[iter(split_items)] * 2)
             self.generate_report(per_project_results)
-
-    def map_projects(self, fun, p=None):
-        for project_name in self.projects:
-            with phase(p):
-                prj = self.projects[project_name]
-                llvm_libs = path.join(config["llvmdir"], "lib")
-                ld_lib_path = config["ld_library_path"] + ":" + llvm_libs
-                with local.env(LD_LIBRARY_PATH=ld_lib_path,
-                               PPROF_EXPERIMENT=self.name,
-                               PPROF_PROJECT=prj.name):
-                    fun(prj)
 
     def verify_product(self, filename, log=None):
         """

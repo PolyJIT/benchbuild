@@ -22,7 +22,9 @@ class Crocopat(PprofGroup):
     ProjectFactory.addFactory("Crocopat", Factory())
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        from pprof.project import wrap
+
+        exp = wrap(self.run_f)
 
         programs = glob(path.join(self.testdir, "programs", "*.rml"))
         projects = glob(path.join(self.testdir, "projects", "*.rsf"))

@@ -31,21 +31,27 @@ class LevelDB(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
-        llvm = path.join(config["llvmdir"], "bin")
-        clang_cxx = local[path.join(llvm, "clang++")]
-        clang = local[path.join(llvm, "clang")]
         leveldb_dir = path.join(self.builddir, "leveldb.src")
+
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
         with local.cwd(leveldb_dir):
             with local.env(CXX=str(clang_cxx),
-                           CC=str(clang),
-                           CFLAGS=" ".join(self.cflags),
-                           CXXFLAGS=" ".join(self.cflags),
-                           LDFLAGS=" ".join(self.ldflags)):
+                    CC=str(clang)):
                 make["clean", "db_bench"] & FG
 
-        with local.cwd(self.builddir):
-            dbg_ln = ln["-sf", path.join(leveldb_dir, "db_bench"), self.run_f]
-            print dbg_ln
-            dbg_ln & FG
+    def run_tests(self, experiment):
+        from pprof.project import wrap
+
+        """execute leveldb's db_bench script
+
+        :experiment: the experiment's runner function
+
+        """
+        leveldb_dir = path.join(self.builddir, "leveldb.src")
+        exp = wrap(path.join(leveldb_dir, "db_bench"), experiment)
+        exp()

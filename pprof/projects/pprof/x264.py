@@ -69,7 +69,7 @@ class X264(PprofGroup):
 
         with local.cwd(x264_dir):
             with local.env(CC=str(cc)):
-                make("clean", "all")
+                make("clean", "all", "-j", config["jobs"])
 
     def run_tests(self, experiment):
         from pprof.project import wrap

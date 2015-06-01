@@ -87,3 +87,54 @@ def create_run(conn, cmd, prj, exp, grp):
         run_id = c.fetchone()[0]
     conn.commit()
     return run_id
+
+
+def submit(metrics):
+    """
+    Submit a dictionary of metrics to the database. The dictionary should
+    encode all necessary information about the db schema.
+
+    Example:
+        {
+            "table" : <name>,
+            "columns" : [ col1, col2, col3, col4],
+            "values" : [ (col1, col2, col3, col4 ), ... ]
+        }
+
+    :metrics:
+        A dictionary conforming to this format:
+        {
+            "table" : <name>,
+            "columns" : <columns>,
+            "values" : [ (col1, col2, col3, col4 ), ... ]
+        }
+    """
+    if not (metrics.has_key("table") and
+            metrics.has_key("columns") and
+            metrics.has_key("values")):
+        raise Exception("Dictionary format not as expected!")
+
+    columns = metrics["columns"]
+    query = "INSERT INTO {} (".format(metrics["table"])
+    query += "{}".format(columns[0])
+    for column in columns[1:]:
+        query += ", {}".format(column)
+    query += ") "
+
+    value_cnt = len(columns)
+    query += " VALUES ( "
+    for i in range(value_cnt):
+        if i == 0:
+            query += "%s"
+        else:
+            query += ", %s"
+
+    values = metrics["values"]
+    query += ");"
+
+    conn = get_db_connection()
+    with conn.cursor() as c:
+        for value in values:
+            c.execute(query, value)
+    conn.commit()
+

@@ -1,6 +1,11 @@
 pprof.projects.polybench package
 ================================
 
+.. automodule:: pprof.projects.polybench
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -8,10 +13,3 @@ Submodules
 
    pprof.projects.polybench.polybench
 
-Module contents
----------------
-
-.. automodule:: pprof.projects.polybench
-    :members:
-    :undoc-members:
-    :show-inheritance:

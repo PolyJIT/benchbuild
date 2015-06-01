@@ -1,6 +1,11 @@
 pprof.projects.pprof package
 ============================
 
+.. automodule:: pprof.projects.pprof
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -34,10 +39,3 @@ Submodules
    pprof.projects.pprof.x264
    pprof.projects.pprof.xz
 
-Module contents
----------------
-
-.. automodule:: pprof.projects.pprof
-    :members:
-    :undoc-members:
-    :show-inheritance:

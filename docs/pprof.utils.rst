@@ -1,6 +1,11 @@
 pprof.utils package
 ===================
 
+.. automodule:: pprof.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -10,10 +15,3 @@ Submodules
    pprof.utils.db
    pprof.utils.downloader
 
-Module contents
----------------
-
-.. automodule:: pprof.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:

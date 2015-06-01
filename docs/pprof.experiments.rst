@@ -1,6 +1,11 @@
 pprof.experiments package
 =========================
 
+.. automodule:: pprof.experiments
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -11,10 +16,3 @@ Submodules
    pprof.experiments.polyjit
    pprof.experiments.raw
 
-Module contents
----------------
-
-.. automodule:: pprof.experiments
-    :members:
-    :undoc-members:
-    :show-inheritance:

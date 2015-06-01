@@ -72,8 +72,6 @@ class Ccrypt(PprofGroup):
         from plumbum.cmd import make
         from pprof.project import wrap
 
-        exp = experiment(self.run_f)
-
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         wrap(path.join(ccrypt_dir, "src", self.name), experiment)
         wrap(path.join(ccrypt_dir, "check", "crypt3-check"), experiment)

@@ -109,7 +109,7 @@ class PolyJIT(RuntimeExperiment):
                     cmd(*args)
 
                     run_id = create_run(
-                        get_db_connection(), "likwid", p.name, self.name, p.run_uuid)
+                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
                     likwid_measurement = get_likwid_perfctr(p.likwid_f)
                     likwid.to_db(run_id, likwid_measurement)
                 p.run(run_with_likwid)

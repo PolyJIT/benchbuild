@@ -20,7 +20,7 @@ class Lulesh(PprofGroup):
     ProjectFactory.addFactory("Lulesh", Factory())
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        exp = wrap(self.run_f, experiment)
         exp["10"] & FG
 
     src_file = "LULESH.cc"

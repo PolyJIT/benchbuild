@@ -85,7 +85,14 @@ def nl(o):
 
 
 def to_utf8(text):
-    """Convert given text to UTF-8 encoding (as far as possible)."""
+    """
+    Convert given text to UTF-8 encoding (as far as possible).
+
+    :text:
+        Text object we wish to convert to utf8
+    :return:
+        Hopefully some text encoded in utf8, we might bail.
+    """
     if not text:
         return text
 
@@ -105,6 +112,22 @@ def to_utf8(text):
 
 
 def static_var(varname, value):
+    """
+    Decorate something with a static variable
+
+    Example:
+        ..code-block:: python
+
+            @staticvar(bar, 0)
+            def foo():
+                foo.bar = 1
+                return foo.bar
+
+    :varname:
+        Name of the variable
+    :value:
+        Initial value of the static variable
+    """
     def decorate(func):
         setattr(func, varname, value)
         return func

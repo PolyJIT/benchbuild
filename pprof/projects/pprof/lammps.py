@@ -28,7 +28,9 @@ class Lammps(PprofGroup):
             cp("-vr", self.testdir, "test")
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        from pprof.project import wrap
+
+        exp = wrap(self.run_f, experiment)
 
         with local.cwd(path.join(self.builddir, "test")):
             tests = glob(path.join(self.testdir, "in.*"))

@@ -45,14 +45,19 @@ class X264(PprofGroup):
             Git(self.src_uri, self.src_dir)
 
     def configure(self):
-        from pprof.utils.compiler import clang
+        from pprof.utils.compiler import lt_clang
         x264_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(self.builddir):
+            x264 = lt_clang(self.cflags, self.ldflags)
 
         with local.cwd(x264_dir):
             configure = local["./configure"]
-            with local.env(CC=str(clang())):
-                configure("--extra-cflags=" + " ".join(self.cflags),
-                          "--extra-ldflags=" + " ".join(self.ldflags))
+
+            with local.env(CC=str(x264)):
+                configure("--enable-static",
+                        "--disable-shared",
+                        "--disable-opencl",
+                        "--enable-pic")
 
     def build(self):
         from plumbum.cmd import make, ln

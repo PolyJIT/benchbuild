@@ -2,9 +2,6 @@
 # encoding: utf-8
 
 """
-PPROF Experiment
-================
-
 An pprof.experiment defines a series of phases that constitute a pprof
 compatible experiment. This is the default implementation of an experiment.
 

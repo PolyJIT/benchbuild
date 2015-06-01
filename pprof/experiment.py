@@ -1,6 +1,37 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+"""
+PPROF Experiment
+================
+
+An pprof.experiment defines a series of phases that constitute a pprof
+compatible experiment. This is the default implementation of an experiment.
+
+Clients can derive from class class::pprof.experiment.Experiment and override
+the methods relvant to their experiment.
+
+An experiment can have a variable number of phases / steps / substeps.
+
+Phases / Steps / Substeps
+-------------------------
+
+All phases/steps/substeps support being used as a context manager. All 3 of them
+catch ProcessExecutionErrors that may be thrown from plumbum, without
+aborting the whole experiment. However, an error is tracked.
+
+Actions
+-------
+
+An experiment performs the following actions in order:
+    1. clean - Clean any previous runs that collide with our directory
+    2. prepare - Prepare the experiment, this is a good place to copy relevant
+                 files over for testing.
+    3. run (run_tests) - Run the experiment. The 'meat' lies here. Override
+        This to perform all your experiment needs.
+
+"""
+
 from plumbum import local, cli, FG
 from plumbum.cmd import (cp, chmod, sed, time, echo,
                          tee, mv, touch, awk, rm, mkdir, rmdir, grep, cat)
@@ -94,15 +125,14 @@ def phase(name):
     o.flush()
     try:
         yield
+        nl(o).write(
+            "PHASE.{} '{}' OK".format(phase.counter, name))
     except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
         sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
-#        raise e
-    o.write(
-        "\r\x1b[KPHASE.{} '{}' OK".format(phase.counter, name))
     o.flush()
 
 
@@ -118,9 +148,10 @@ def step(name):
 
     nl(o).write("PHASE.{} '{}' STEP.{} '{}' START".format(
         phase.counter, phase.name, step.counter, name))
-    o.flush()
     try:
         yield
+        nl(o).write("PHASE.{} '{}' STEP.{} '{}' OK".format(
+            phase.counter, phase.name, step.counter, name))
     except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
@@ -129,8 +160,6 @@ def step(name):
         o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
             phase.counter, phase.name, step.counter, name))
 #        raise e
-    nl(o).write("PHASE.{} '{}' STEP.{} '{}' OK".format(
-        phase.counter, phase.name, step.counter, name))
     o.flush()
 
 
@@ -146,9 +175,10 @@ def substep(name):
 
     nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
         phase.counter, phase.name, step.counter, step.name, substep.counter, name))
-    o.flush()
     try:
         yield
+        nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
+            phase.counter, phase.name, step.counter, step.name, substep.counter, name))
     except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
@@ -159,9 +189,6 @@ def substep(name):
         o.write("\n{} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
-        raise e
-    nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
-        phase.counter, phase.name, step.counter, step.name, substep.counter, name))
     o.flush()
 
 

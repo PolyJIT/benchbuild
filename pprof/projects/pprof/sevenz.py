@@ -20,8 +20,11 @@ class SevenZip(PprofGroup):
     ProjectFactory.addFactory("SevenZip", Factory())
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
-        exp["b", "-mmt1"] & FG
+        from pprof.project import wrap
+
+        p7z_dir = path.join(self.builddir, self.src_dir)
+        exp = wrap(path.join(p7z_dir, "bin", "7za", experiment))
+        exp("b", "-mmt1")
 
     src_dir = "p7zip_9.38.1"
     src_file = src_dir + "_src_all.tar.bz2"

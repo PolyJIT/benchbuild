@@ -2,7 +2,7 @@
 INSTALL_LLVM_TO=/scratch/simbuerg/pprof/install
 BUILD_LLVM_IN=/scratch/simbuerg/pprof
 PAPI_DIR=${HOME}/opt/papi
-export PPROF_OBJ_DIR=/scratch/simbuerg/pprof/obj/$(date -I)
+export PPROF_OBJ_DIR=/scratch/simbuerg/pprof/obj/$(date -Ihours)
 
 # Adjust these, if necessary
 export PPROF_DB_PASS=pprof

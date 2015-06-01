@@ -5,7 +5,7 @@ from pprof.project import ProjectFactory, log
 from pprof.settings import config
 from group import PprofGroup
 
-from os import path
+from os import path, getenv
 from glob import glob
 from plumbum import FG, local
 
@@ -21,17 +21,19 @@ class Minisat(PprofGroup):
     ProjectFactory.addFactory("Minisat", Factory())
 
     def run_tests(self, experiment):
-        from pprof.project import llvm_libs
-        exp = experiment(self.run_f)
+        from pprof.project import wrap
+
+        minisat_dir = path.join(self.builddir, self.src_dir)
+
+        exp = wrap(
+            path.join(minisat_dir, "build", "dynamic", "bin", "minisat"))
 
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
+        minisat_dir = path.join(self.builddir, self.src_dir)
+        minisat_lib_path = path.join(minisat_dir, "build", "dynamic", "lib")
+
         for f in testfiles:
-            minisat_dir = path.join(self.builddir, self.src_dir)
-            libpath = [
-                path.join(minisat_dir, "build", "dynamic", "lib"),
-                llvm_libs()
-            ]
-            with local.env(LD_LIBRARY_PATH=":".join(libpath)):
+            with local.env(LD_LIBRARY_PATH=minisat_lib_path + ":" + getenv("LD_LIBRARY_PATH", "")):
                 (exp < f) & FG(retcode=None)
 
     src_dir = "minisat.git"
@@ -57,18 +59,13 @@ class Minisat(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
-        from pprof.utils.compiler import clang_cxx, clang, llvm_libs
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
         minisat_dir = path.join(self.builddir, self.src_dir)
-        cflags = " ".join(self.cflags)
-        ldflags = " ".join(self.ldflags)
-        with local.cwd(minisat_dir):
-            with local.env(VERB="1"):
-                make("CXX=" + str(clang_cxx()),
-                     "CXXFLAGS=" + cflags,
-                     "LDFLAGS=" + ldflags,
-                     "clean", "lsh", "sh")
+        clang = lt_clang(self.cflags, self.ldflags)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(minisat_dir, "build", "dynamic", "bin",
-                                "minisat"), self.run_f)
+        with local.cwd(minisat_dir):
+            make("CC=" + str(clang),
+                 "CXX=" + str(clang_cxx),
+                 "clean", "lsh", "sh")

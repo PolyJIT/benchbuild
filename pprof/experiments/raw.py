@@ -49,23 +49,22 @@ class RawRuntime(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
-                def runner(run_f):
-                    return time["-f", "%U,%S,%e", "-a", "-o", p.time_f, run_f]
-                p.run(runner)
-
-        with step("Evaluation"):
-            # Print header here.
-            (echo["---------------------------------------------------------------"]
-                >> p.result_f)()
-            (echo[">>> ========= " + p.name + " Program"]
-                >> p.result_f)()
-            (echo["---------------------------------------------------------------"]
-                >> p.result_f)()
-
-            (awk["-F", ",", ("{ usr+=$1; sys+=$2; wall+=$3 }"
-                             " END {"
-                             " print \"\";"
-                             " print \"User time - \" usr;"
-                             " print \"System time - \" sys;"
-                             " print \"Wall clock - \" wall;}"), p.time_f] |
-             tee["-a", p.result_f]) & FG
+                def run_with_time(run_f, *args):
+                    from plumbum.cmd import time
+                    from pprof.utils.db import submit
+                    cmd = time["-f", "%U-%S-%e", run_f, args]
+                    retcode, stdou, stderr = cmd.run()
+                    run_id = create_run(
+                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
+                    timings = stderr.split('-')
+                    timings = {
+                        "table": "metrics",
+                        "columns": ["name", "value", "run_id"],
+                        "values": [
+                            ("raw.time.user_s", timings[0], run_id),
+                            ("raw.time.system_s", timings[1], run_id),
+                            ("raw.time.real_s", timings[2], run_id)
+                        ]
+                    }
+                    submit(timings)
+                p.run(run_with_time)

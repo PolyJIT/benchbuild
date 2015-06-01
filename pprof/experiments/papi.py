@@ -56,7 +56,7 @@ class PapiScopCoverage(RuntimeExperiment):
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
 
             ld_lib_path = filter(None, config["ld_library_path"].split(":"))
-            p.ldflags = [ "-L"+el for el in ld_lib_path] + p.ldflags
+            p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
             p.cflags = ["-O3",
                         "-Xclang", "-load",
                         "-Xclang", "LLVMPolyJIT.so",
@@ -69,30 +69,41 @@ class PapiScopCoverage(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run"):
-                def runner(run_f):
+                def run_with_time(run_f, *args):
                     from plumbum.cmd import time
-                    return time["-f", "%U,%S,%e", "-a", "-o", p.time_f, run_f]
-                p.run(runner)
+                    from pprof.utils.db import submit
+                    cmd = time["-f", "%U-%S-%e", run_f, args]
+                    retcode, stdou, stderr = cmd.run()
+                    run_id = create_run(
+                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
+                    timings = stderr.split('-')
+                    timings = {
+                        "table": "metrics",
+                        "columns": ["name", "value", "run_id"],
+                        "values": [
+                            ("papi.time.user_s", timings[0], run_id),
+                            ("papi.time.system_s", timings[1], run_id),
+                            ("papi.time.real_s", timings[2], run_id)
+                        ]
+                    }
+                    submit(timings)
+                p.run(run_with_time)
 
         with step("Evaluation"):
-            with substep("pprof calibrate"):
-                papi_calibration = self.get_papi_calibration(
-                    p, pprof_calibrate)
-                # FIXME: This needs to go into the database.
-                if papi_calibration:
-                    (awk[("{s+=$1} END {"
-                          " time = (s*" + papi_calibration + "/1000000000);"
-                          " print \"Time spent in libPAPI (s) - \" time }"
-                          ),
-                         p.calls_f] |
-                     tee["-a", p.result_f])()
-                    (echo["Real time per PAPI call (ns) - ", papi_calibration] |
-                        tee["-a", p.result_f])()
+            papi_calibration = self.get_papi_calibration(
+                p, pprof_calibrate)
+            if papi_calibration:
+                from pprof.utils.db import submit
 
-            (awk["-F", ",", ("{ usr+=$1; sys+=$2; wall+=$3 }"
-                             " END {"
-                             " print \"\";"
-                             " print \"User time - \" usr;"
-                             " print \"System time - \" sys;"
-                             " print \"Wall clock - \" wall;}"), p.time_f] |
-             tee["-a", p.result_f]) & FG
+                run_id = create_run(
+                    get_db_connection(), str(pprof_calibrate), p.name,
+                    self.name, p.run_uuid)
+                metrics = {
+                    "table": "metrics",
+                    "columns": ["name", "value", "run_id"],
+                    "values": []
+                }
+
+                metrics["values"].append(
+                    ("papi.calibration.time_ns", papi_calibration, run_id))
+                submit(metrics)

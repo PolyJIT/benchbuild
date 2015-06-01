@@ -36,9 +36,8 @@ class PolyJIT(RuntimeExperiment):
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
         opt = local[path.join(bin_path, "opt")]
 
-    def run_project(self, p):
+    def run_step_jit(self, p):
         from plumbum.cmd import time
-
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("JIT, no instrumentation"):
@@ -53,14 +52,34 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-polli",
                         "-mllvm", "-jitable",
                         "-mllvm", "-polly-detect-keep-going"]
-            with substep("reconf & rebuild"):
+            with substep("Build"):
                 p.configure()
                 p.build()
-            with substep("run {}".format(p.name)):
+            with substep("Execute {}".format(p.name)):
                 def run_with_time(run_f, *args):
                     from plumbum.cmd import time
-                    time(run_f, *args)
+                    from pprof.utils.db import submit
+                    cmd = time["-f", "%U-%S-%e", run_f, args]
+                    retcode, stdou, stderr = cmd.run()
+                    run_id = create_run(
+                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
+                    timings = stderr.split('-')
+                    timings = {
+                        "table": "metrics",
+                        "columns": ["name", "value", "run_id"],
+                        "values": [
+                            ("polyjit.time.user_s", timings[0], run_id),
+                            ("polyjit.time.system_s", timings[1], run_id),
+                            ("polyjit.time.real_s", timings[2], run_id)
+                        ]
+                    }
+                    with open("./dbg.file", 'w') as f:
+                        f.write(str(timings))
+                    submit(timings)
                 p.run(run_with_time)
+
+    def run_step_likwid(self, p):
+        llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("JIT, likwid"):
             p.clean()
@@ -75,10 +94,10 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-polli",
                         "-mllvm", "-jitable",
                         "-mllvm", "-polly-detect-keep-going"]
-            with substep("reconf & rebuild"):
+            with substep("Build"):
                 p.configure()
                 p.build()
-            with substep("run {}".format(p.name)):
+            with substep("Execute {}".format(p.name)):
                 def run_with_likwid(run_f, *args):
                     from pprof.utils.db import create_run, get_db_connection
                     from pprof.likwid import get_likwid_perfctr, to_db
@@ -92,7 +111,13 @@ class PolyJIT(RuntimeExperiment):
                     cmd(*args)
 
                     run_id = create_run(
-                        get_db_connection(), "likwid", p.name, self.name, p.run_uuid)
+                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
                     likwid_measurement = get_likwid_perfctr(p.likwid_f)
                     likwid.to_db(run_id, likwid_measurement)
                 p.run(run_with_likwid)
+
+
+    def run_project(self, p):
+        with local.env(PPROF_ENABLE=0):
+            self.run_step_jit(p)
+            self.run_step_likwid(p)

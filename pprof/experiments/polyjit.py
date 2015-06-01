@@ -59,7 +59,24 @@ class PolyJIT(RuntimeExperiment):
             with substep("run {}".format(p.name)):
                 def run_with_time(run_f, *args):
                     from plumbum.cmd import time
-                    time(run_f, *args)
+                    from pprof.utils.db import submit
+                    cmd = time["-f", "%U-%S-%e", run_f, args]
+                    retcode, stdou, stderr = cmd.run()
+                    run_id = create_run(
+                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
+                    timings = stderr.split('-')
+                    timings = {
+                        "table": "metrics",
+                        "columns": ["name", "value", "run_id"],
+                        "values": [
+                            ("polyjit.jit.time.user_s", timings[0], run_id),
+                            ("polyjit.jit.time.system_s", timings[1], run_id),
+                            ("polyjit.jit.time.real_s", timings[2], run_id)
+                        ]
+                    }
+                    with open("./dbg.file", 'w') as f:
+                        f.write(str(timings))
+                    submit(timings)
                 p.run(run_with_time)
 
         with step("JIT, likwid"):

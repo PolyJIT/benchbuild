@@ -118,5 +118,6 @@ class PolyJIT(RuntimeExperiment):
 
 
     def run_project(self, p):
-        run_step_jit(p)
-        run_step_likwid(p)
+        with local.env(PPROF_ENABLE=0):
+            self.run_step_jit(p)
+            self.run_step_likwid(p)

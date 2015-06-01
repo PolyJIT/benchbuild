@@ -69,9 +69,9 @@ class PolyJIT(RuntimeExperiment):
                         "table": "metrics",
                         "columns": ["name", "value", "run_id"],
                         "values": [
-                            ("polyjit.jit.time.user_s", timings[0], run_id),
-                            ("polyjit.jit.time.system_s", timings[1], run_id),
-                            ("polyjit.jit.time.real_s", timings[2], run_id)
+                            ("polyjit.time.user_s", timings[0], run_id),
+                            ("polyjit.time.system_s", timings[1], run_id),
+                            ("polyjit.time.real_s", timings[2], run_id)
                         ]
                     }
                     with open("./dbg.file", 'w') as f:

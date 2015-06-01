@@ -243,8 +243,6 @@ def get_group_projects(group, experiment):
     :returns: TODO
 
     """
-    from pprof.experiment import Experiment
-
     group = []
     projects = Experiment.projects
     for name in projects:

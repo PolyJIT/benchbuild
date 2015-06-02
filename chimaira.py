@@ -213,11 +213,12 @@ class Chimaira(cli.Application):
     def main(self):
         import itertools
         for exp in config["experiments"]:
+            print "Experiment: {}".format(exp)
             pprof_list = pprof["run", "-l", "-E", exp]
-            prj_list = pprof_list().split("\n")
-            prj_list = list(itertools.chain(*[ l.split(", ") for l in prj_list if not ">> " in l ]))
+            prj_list = pprof_list().split(',')
+            prj_list = map(unicode.strip, prj_list)
             prj_list = filter(None, prj_list)
-            print prj_list
+            prj_list = filter(lambda x : not '>>' in x, prj_list)
             jobs = dispatch_jobs(exp, prj_list)
         #    dispatch_collect_job(exp, jobs)
 

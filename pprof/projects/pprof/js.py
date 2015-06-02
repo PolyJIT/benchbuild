@@ -52,9 +52,6 @@ class SpiderMonkey(PprofGroup):
         with local.cwd(path.join(js_dir, "build_OPT.OBJ")):
             make("-j", config["available_cpu_count"])
 
-    def prepare(self):
-        pass
-
     def run_tests(self, experiment):
         from pprof import wrap
         from plumbum.cmd import make

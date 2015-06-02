@@ -119,10 +119,10 @@ def prepare_slurm_script(experiment, project, experiment_id):
     commands.append(pprof["run", "-P", project, "-E", experiment, "-B",
                           config["nodedir"], "-c", "-x", "-L",
                           config["llvm"]])
-    commands.append(
-        cp["-ar", node_results, os.path.join(config["resultsdir"],
-                                              experiment)])
-    commands.append(mv[node_error_log, error_log])
+    #commands.append(
+    #    cp["-ar", node_results, os.path.join(config["resultsdir"],
+    #                                          experiment)])
+    #commands.append(mv[node_error_log, error_log])
     dump_slurm_script(slurm_script, log_file, commands, experiment_id)
     return slurm_script
 

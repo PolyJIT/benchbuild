@@ -248,9 +248,14 @@ from os import path
 import sys
 import pickle
 
+if not len(sys.argv) >= 2):
+    os.stderr.write("Not enough arguments provided!\n")
+    os.stderr.write("Got: {}\n".format(sys.argv))
+    sys.exit(1)
+
 f = None
-args = sys.argv[1:]
-run_f = sys.argv[0]
+run_f = sys.argv[1]
+args = sys.argv[2:]
 if path.exists("{blobf}"):
     with open("{blobf}", "rb") as p:
         f = pickle.load(p)

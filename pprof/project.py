@@ -102,7 +102,7 @@ class Project(object):
         with local.cwd(self.builddir):
             if self.run_uuid is None:
                 self.run_uuid = uuid4()
-            with local.env( PPROF_USE_DATABASE=1,
+            with local.env(PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid,
                            PPROF_DOMAIN=self.domain,
                            PPROF_GROUP=self.group_name,
@@ -269,11 +269,11 @@ if path.exists("{blobf}"):
             f(run_f, args, has_stdin = True)
         if f is not None:
             f(run_f, args)'''.format(db_host=config["db_host"],
-                                              db_port=config["db_port"],
-                                              db_name=config["db_name"],
-                                              db_user=config["db_user"],
-                                              db_pass=config["db_pass"],
-                                              blobf=blob_f)
+                                     db_port=config["db_port"],
+                                     db_name=config["db_name"],
+                                     db_user=config["db_user"],
+                                     db_pass=config["db_pass"],
+                                     blobf=blob_f)
         w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]

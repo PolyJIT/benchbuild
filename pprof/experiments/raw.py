@@ -49,13 +49,17 @@ class RawRuntime(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
-                def run_with_time(run_f, *args):
+                def run_with_time(run_f, args, has_stdin = False):
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
-                    cmd = time["-f", "%U-%S-%e", run_f, args]
-                    retcode, stdou, stderr = cmd.run()
+                    run_cmd = time["-f", "%U-%S-%e", run_f]
+                    if has_stdin:
+                        run_cmd = ( run_cmd[args] < sys.stdin )
+                    else:
+                        run_cmd = run_cmd[args]
+                    retcode, stdou, stderr = run_cmd.run()
                     run_id = create_run(
-                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
+                        get_db_connection(), str(run_cmd), p.name, self.name, p.run_uuid)
                     timings = stderr.split('-')
                     timings = {
                         "table": "metrics",

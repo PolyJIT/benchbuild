@@ -20,7 +20,8 @@ class LuleshOMP(PprofGroup):
     ProjectFactory.addFactory("LuleshOMP", Factory())
 
     def run_tests(self, experiment):
-        exp = experiment(self.run_f)
+        from pprof.project import wrap
+        exp = wrap(self.run_f, experiment)
         exp("10") & FG
 
     src_file = "LULESH_OMP.cc"

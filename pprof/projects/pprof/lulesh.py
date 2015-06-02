@@ -20,6 +20,8 @@ class Lulesh(PprofGroup):
     ProjectFactory.addFactory("Lulesh", Factory())
 
     def run_tests(self, experiment):
+        from pprof.project import wrap
+
         exp = wrap(self.run_f, experiment)
         exp("10")
 

@@ -259,6 +259,7 @@ if not len(sys.argv) >= 2:
 f = None
 run_f = sys.argv[1]
 args = sys.argv[2:]
+p_name = path.basename(run_f)
 if path.exists("{blobf}"):
     with open("{blobf}", "rb") as p:
         f = pickle.load(p)
@@ -267,13 +268,13 @@ if path.exists("{blobf}"):
                PPROF_DB_NAME="{db_name}",
                PPROF_DB_USER="{db_user}",
                PPROF_DB_PASS="{db_pass}",
+               PPROF_PROJECT=p_name
                PPROF_CMD=run_f):
         if f is not None:
             if not sys.stdin.isatty():
-                f(run_f, args, has_stdin = True,
-                  project_name = path.basename(run_f))
+                f(run_f, args, has_stdin = True, project_name = p_name)
             else:
-                f(run_f, args, project_name = path.basename(run_f))
+                f(run_f, args, project_name = p_name)
         else:
             sys.exit(1)
 

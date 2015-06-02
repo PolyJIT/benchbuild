@@ -26,7 +26,7 @@ class Minisat(PprofGroup):
         minisat_dir = path.join(self.builddir, self.src_dir)
 
         exp = wrap(
-            path.join(minisat_dir, "build", "dynamic", "bin", "minisat"))
+            path.join(minisat_dir, "build", "dynamic", "bin", "minisat"), experiment)
 
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
         minisat_dir = path.join(self.builddir, self.src_dir)

@@ -45,7 +45,7 @@ class Ruby(PprofGroup):
 
         ruby_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ruby_dir):
-            make & FG
+            make("-j", config["jobs"])
 
     def run_tests(self, experiment):
         from plumbum.cmd import ruby, echo, chmod

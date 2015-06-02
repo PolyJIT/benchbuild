@@ -40,7 +40,7 @@ class RawRuntime(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
-                def run_with_time(run_f, args, has_stdin=False):
+                def run_with_time(run_f, args, **kwargs):
                     """
                     Function runner for the raw experiment.
                     This executes the given project command wrapped in the
@@ -62,10 +62,17 @@ class RawRuntime(RuntimeExperiment):
                     :has_stdin:
                         If the program requires access to a file redirected
                         via stdin, say so.
+                    :project_name:
+                        Name of the project to enter into the db.
+                    :kwargs:
+                        Rest.
                     """
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
                     import sys
+
+                    has_stdin = kwargs.get("has_stdin", False)
+                    project_name = kwargs.get("project_name", p.name)
 
                     run_cmd = time["-f", "%U-%S-%e", run_f]
                     if has_stdin:
@@ -74,7 +81,8 @@ class RawRuntime(RuntimeExperiment):
                         run_cmd = run_cmd[args]
                     _, _, stderr = run_cmd.run()
                     run_id = create_run(
-                        get_db_connection(), str(run_cmd), p.name, self.name, p.run_uuid)
+                        get_db_connection(), str(run_cmd), project_name,
+                        self.name, p.run_uuid)
                     timings = stderr.split('-')
                     timings = {
                         "table": "metrics",

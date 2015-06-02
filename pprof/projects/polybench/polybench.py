@@ -44,7 +44,7 @@ class PolyBenchGroup(Project):
         "seidel-2d": "stencils",
 
         "nussinov": "medley",
-        "deriche": "medley"
+        "deriche": "medley",
         "floyd-warshall": "medley",
     }
 

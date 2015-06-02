@@ -66,13 +66,12 @@ class Lapack(PprofGroup):
     def build(self):
         from plumbum.cmd import make
         lapack_dir = path.join(self.builddir, self.src_dir)
-        jobs = "-j{}".format(config["jobs"])
 
         with local.cwd(lapack_dir):
-            make[jobs, "f2clib", "blaslib"] & FG
+            make["-j", config["jobs"], "f2clib", "blaslib"] & FG
             with local.cwd(path.join("BLAS", "TESTING")):
-                make(jobs, "-f", "Makeblat2")
-                make(jobs, "-f", "Makeblat3")
+                make("-j", config["jobs"], "-f", "Makeblat2")
+                make("-j", config["jobs"], "-f", "Makeblat3")
 
     def run_tests(self, experiment):
         from pprof.project import wrap

@@ -62,9 +62,13 @@ class SingleSourceBenchmarks(LNTGroup):
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+
         lnt["runtest", "nt", "-j1", "--sandbox", sandbox_dir,
-            "--cc", lt_clang(self.cflags, self.ldflags),
-            "--cxx", lt_clang_cxx(self.cflags, self.ldflags),
+            "--cc", str(clang),
+            "--cxx", str(clang_cxx),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),
             "--test-style", "simple",
             "--make-param=RUNUNDER=" + str(exp),
@@ -87,9 +91,13 @@ class MultiSourceBenchmarks(LNTGroup):
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
-        lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
-            "--cc", lt_clang(self.cflags, self.ldflags),
-            "--cxx", lt_clang_cxx(self.cflags, self.ldflags),
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+
+        lnt["runtest", "nt", "-j1", "--sandbox", sandbox_dir,
+            "--cc", str(clang),
+            "--cxx", str(clang_cxx),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),
             "--test-style", "simple",
             "--make-param=RUNUNDER=" + str(exp),
@@ -112,9 +120,13 @@ class MultiSourceApplications(LNTGroup):
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
-        lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
-            "--cc", lt_clang(self.cflags, self.ldflags),
-            "--cxx", lt_clang_cxx(self.cflags, self.ldflags),
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+
+        lnt["runtest", "nt", "-j1", "--sandbox", sandbox_dir,
+            "--cc", str(clang),
+            "--cxx", str(clang_cxx),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),
             "--test-style", "simple",
             "--make-param=RUNUNDER=" + str(exp),

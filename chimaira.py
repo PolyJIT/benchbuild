@@ -117,7 +117,7 @@ def prepare_slurm_script(experiment, project, experiment_id):
                               "-B", config["nodedir"], "-I", config["isl"],
                               "-L", config["likwid"], "-P", config["papi"]])
     commands.append(pprof["run", "-P", project, "-E", experiment, "-B",
-                          config["nodedir"], "-c", "-x", "-C", "-L",
+                          config["nodedir"], "-c", "-x", "-L",
                           config["llvm"]])
     commands.append(
         cp["-ar", node_results, os.path.join(config["resultsdir"],

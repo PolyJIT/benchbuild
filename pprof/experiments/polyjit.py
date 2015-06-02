@@ -53,8 +53,9 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-jitable",
                         "-mllvm", "-polly-detect-keep-going"]
             with substep("Build"):
-                p.configure()
-                p.build()
+                with local.env(PPROF_ENABLE=0):
+                    p.configure()
+                    p.build()
             with substep("Execute {}".format(p.name)):
                 def run_with_time(run_f, *args):
                     from plumbum.cmd import time
@@ -93,8 +94,9 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-jitable",
                         "-mllvm", "-polly-detect-keep-going"]
             with substep("Build"):
-                p.configure()
-                p.build()
+                with local.env(PPROF_ENABLE=0):
+                    p.configure()
+                    p.build()
             with substep("Execute {}".format(p.name)):
                 def run_with_likwid(run_f, *args):
                     from pprof.utils.db import create_run, get_db_connection

@@ -66,13 +66,13 @@ class SingleSourceBenchmarks(LNTGroup):
             clang = lt_clang(self.cflags, self.ldflags)
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
-        lnt["runtest", "nt", "-j1", "--sandbox", sandbox_dir,
+        lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
             "--cc", str(clang),
             "--cxx", str(clang_cxx),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),
             "--test-style", "simple",
             "--make-param=RUNUNDER=" + str(exp),
-            "--only-test=" + path.join("SingleSource", "Benchmarks"), "-v"] & FG
+            "--only-test=" + path.join("SingleSource", "Benchmarks"), "-v")
 
 
 class MultiSourceBenchmarks(LNTGroup):
@@ -95,7 +95,7 @@ class MultiSourceBenchmarks(LNTGroup):
             clang = lt_clang(self.cflags, self.ldflags)
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
-        lnt["runtest", "nt", "-j1", "--sandbox", sandbox_dir,
+        lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
             "--cc", str(clang),
             "--cxx", str(clang_cxx),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),
@@ -124,7 +124,7 @@ class MultiSourceApplications(LNTGroup):
             clang = lt_clang(self.cflags, self.ldflags)
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
-        lnt["runtest", "nt", "-j1", "--sandbox", sandbox_dir,
+        lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
             "--cc", str(clang),
             "--cxx", str(clang_cxx),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),

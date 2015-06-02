@@ -59,6 +59,7 @@ class PolyJIT(RuntimeExperiment):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
+                    import sys
 
                     has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
@@ -110,6 +111,7 @@ class PolyJIT(RuntimeExperiment):
                     from pprof.utils.db import create_run, get_db_connection
                     from pprof.likwid import get_likwid_perfctr, to_db
                     from plumbum import local
+                    import sys
 
                     has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)

@@ -57,7 +57,7 @@ class RawRuntime(RuntimeExperiment):
                         run_cmd = ( run_cmd[args] < sys.stdin )
                     else:
                         run_cmd = run_cmd[args]
-                    retcode, stdou, stderr = run_cmd.run()
+                    retcode, stdout, stderr = run_cmd.run()
                     run_id = create_run(
                         get_db_connection(), str(run_cmd), p.name, self.name, p.run_uuid)
                     timings = stderr.split('-')

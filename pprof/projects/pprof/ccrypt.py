@@ -66,16 +66,16 @@ class Ccrypt(PprofGroup):
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
-            make("check")
+            make()
 
     def run_tests(self, experiment):
         from plumbum.cmd import make
         from pprof.project import wrap
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)
-        wrap(path.join(ccrypt_dir, "src", self.name), experiment)
-        wrap(path.join(ccrypt_dir, "check", "crypt3-check"), experiment)
-        wrap(path.join(ccrypt_dir, "check", "rijndael-check"), experiment)
-
         with local.cwd(ccrypt_dir):
+            make("check")
+            wrap(path.join(ccrypt_dir, "src", self.name), experiment)
+            wrap(path.join(ccrypt_dir, "check", "crypt3-check"), experiment)
+            wrap(path.join(ccrypt_dir, "check", "rijndael-check"), experiment)
             make("check")

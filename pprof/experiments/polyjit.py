@@ -73,8 +73,6 @@ class PolyJIT(RuntimeExperiment):
                             ("polyjit.time.real_s", timings[2], run_id)
                         ]
                     }
-                    with open("./dbg.file", 'w') as f:
-                        f.write(str(timings))
                     submit(timings)
                 p.run(run_with_time)
 

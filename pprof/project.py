@@ -199,8 +199,10 @@ if path.exists("{blobf}"):
                PPROF_DB_USER="{db_user}",
                PPROF_DB_PASS="{db_pass}",
                PPROF_CMD=run_f + " ".join(args)):
+        if not sys.stdin.isatty():
+            f(run_f, args, has_stdin = True)
         if f is not None:
-            f(run_f, *args)
+            f(run_f, args)
         else:
             raise'''.format(db_host=config["db_host"],
                             db_port=config["db_port"],
@@ -258,8 +260,10 @@ if path.exists("{blobf}"):
                PPROF_DB_USER="{db_user}",
                PPROF_DB_PASS="{db_pass}",
                PPROF_CMD=run_f):
+        if not sys.stdin.isatty():
+            f(run_f, args, has_stdin = True)
         if f is not None:
-            f(run_f, *args)'''.format(db_host=config["db_host"],
+            f(run_f, args)'''.format(db_host=config["db_host"],
                                               db_port=config["db_port"],
                                               db_name=config["db_name"],
                                               db_user=config["db_user"],

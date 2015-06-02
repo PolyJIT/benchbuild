@@ -57,21 +57,25 @@ class PolyJIT(RuntimeExperiment):
                     p.configure()
                     p.build()
             with substep("Execute {}".format(p.name)):
-                def run_with_time(run_f, *args):
+                def run_with_time(run_f, args, has_stdin = False):
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
-                    cmd = time["-f", "%U-%S-%e", run_f, args]
-                    retcode, stdou, stderr = cmd.run()
+                    run_cmd = time["-f", "%U-%S-%e", run_f]
+                    if has_stdin:
+                        run_cmd = ( run_cmd[args] < sys.stdin )
+                    else:
+                        run_cmd = run_cmd[args]
+                    retcode, stdout, stderr = run_cmd.run()
                     run_id = create_run(
-                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
+                        get_db_connection(), str(run_cmd), p.name, self.name, p.run_uuid)
                     timings = stderr.split('-')
                     timings = {
                         "table": "metrics",
                         "columns": ["name", "value", "run_id"],
                         "values": [
-                            ("polyjit.time.user_s", timings[0], run_id),
-                            ("polyjit.time.system_s", timings[1], run_id),
-                            ("polyjit.time.real_s", timings[2], run_id)
+                            ("raw.time.user_s", timings[0], run_id),
+                            ("raw.time.system_s", timings[1], run_id),
+                            ("raw.time.real_s", timings[2], run_id)
                         ]
                     }
                     submit(timings)

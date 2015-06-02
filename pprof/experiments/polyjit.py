@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from ..experiment import Experiment, RuntimeExperiment
-from pprof.experiment import step, substep
-from ..settings import config
 from pprof import likwid
+from pprof.experiment import step, substep, Experiment, RuntimeExperiment
+from pprof.settings import config
 from pprof.utils.db import create_run, get_db_connection
 
 from plumbum import local, FG
@@ -57,17 +56,22 @@ class PolyJIT(RuntimeExperiment):
                     p.configure()
                     p.build()
             with substep("Execute {}".format(p.name)):
-                def run_with_time(run_f, args, has_stdin = False):
+                def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
+
+                    has_stdin = kwargs.get("has_stdin", False)
+                    project_name = kwargs.get("project_name", p.name)
+
                     run_cmd = time["-f", "%U-%S-%e", run_f]
                     if has_stdin:
-                        run_cmd = ( run_cmd[args] < sys.stdin )
+                        run_cmd = (run_cmd[args] < sys.stdin)
                     else:
                         run_cmd = run_cmd[args]
                     retcode, stdout, stderr = run_cmd.run()
                     run_id = create_run(
-                        get_db_connection(), str(run_cmd), p.name, self.name, p.run_uuid)
+                        get_db_connection(), str(run_cmd), project_name,
+                        self.name, p.run_uuid)
                     timings = stderr.split('-')
                     timings = {
                         "table": "metrics",
@@ -102,10 +106,13 @@ class PolyJIT(RuntimeExperiment):
                     p.configure()
                     p.build()
             with substep("Execute {}".format(p.name)):
-                def run_with_likwid(run_f, args, has_stdin = False):
+                def run_with_likwid(run_f, args, **kwargs):
                     from pprof.utils.db import create_run, get_db_connection
                     from pprof.likwid import get_likwid_perfctr, to_db
                     from plumbum import local
+
+                    has_stdin = kwargs.get("has_stdin", False)
+                    project_name = kwargs.get("project_name", p.name)
 
                     likwid_f = p.name + "_%p.txt"
 
@@ -122,7 +129,8 @@ class PolyJIT(RuntimeExperiment):
                     run_cmd()
 
                     run_id = create_run(
-                        get_db_connection(), str(run_cmd), p.name, self.name, p.run_uuid)
+                        get_db_connection(), str(run_cmd), project_name,
+                        self.name, p.run_uuid)
                     likwid_measurement = get_likwid_perfctr(likwid_f)
                     likwid.to_db(run_id, likwid_measurement)
                 p.run(run_with_likwid)

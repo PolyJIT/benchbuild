@@ -54,7 +54,7 @@ class Python(PprofGroup):
         from pprof.project import wrap
 
         python_dir = path.join(self.builddir, self.src_dir)
-        exp = wrap(path.join(python_dir, "python"))
+        exp = wrap(path.join(python_dir, "python"), experiment)
 
         with local.cwd(python_dir):
             make("TESTPYTHON=" + str(exp), "-i", "test")

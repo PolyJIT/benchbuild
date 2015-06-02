@@ -13,34 +13,39 @@ class PolyBenchGroup(Project):
     path_dict = {
         "correlation": "datamining",
         "covariance": "datamining",
+
         "2mm": "linear-algebra/kernels",
         "3mm": "linear-algebra/kernels",
         "atax": "linear-algebra/kernels",
         "bicg": "linear-algebra/kernels",
-        "cholesky": "linear-algebra/kernels",
         "doitgen": "linear-algebra/kernels",
+        "mvt": "linear-algebra/kernels",
+
+        "cholesky": "linear-algebra/solvers",
+        "durbin": "linear-algebra/solvers",
+        "lu": "linear-algebra/solvers",
+        "ludcmp": "linear-algebra/solvers",
+        "gramschmidt": "linear-algebra/solvers",
+        "trisolv": "linear-algebra/solvers",
+
         "gemm": "linear-algebra/blas",
         "gemver": "linear-algebra/blas",
         "gesummv": "linear-algebra/blas",
-        "mvt": "linear-algebra/kernels",
         "symm": "linear-algebra/blas",
         "syr2k": "linear-algebra/blas",
-        "syrk": "linear-algebra/kernels",
-        "trisolv": "linear-algebra/kernels",
+        "syrk": "linear-algebra/blas",
         "trmm": "linear-algebra/blas",
-        "durbin": "linear-algebra/solvers",
-        "gramschmidt": "linear-algebra/solvers",
-        "lu": "linear-algebra/solvers",
-        "ludcmp": "linear-algebra/solvers",
-        "floyd-warshall": "medley",
+
         "adi": "stencils",
         "fdtd-2d": "stencils",
+        "heat-3d": "stencils",
         "jacobi-1d": "stencils",
         "jacobi-2d": "stencils",
         "seidel-2d": "stencils",
-        "heat-3d": "stencils",
+
         "nussinov": "medley",
         "deriche": "medley"
+        "floyd-warshall": "medley",
     }
 
     def __init__(self, exp, name):
@@ -81,6 +86,8 @@ class PolyBenchGroup(Project):
                     self.cflags, "-o", self.run_f, self.ldflags)
 
 
+# Datamining
+
 class Correlation(PolyBenchGroup):
 
     class Factory:
@@ -98,6 +105,7 @@ class Covariance(PolyBenchGroup):
             return Covariance(exp, "covariance")
     ProjectFactory.addFactory("Covariance", Factory())
 
+# Linear Algebra / Kernels
 
 class TwoMM(PolyBenchGroup):
 
@@ -135,15 +143,6 @@ class BicG(PolyBenchGroup):
     ProjectFactory.addFactory("BicG", Factory())
 
 
-class Cholesky(PolyBenchGroup):
-
-    class Factory:
-
-        def create(self, exp):
-            return Cholesky(exp, "cholesky")
-    ProjectFactory.addFactory("Cholesky", Factory())
-
-
 class Doitgen(PolyBenchGroup):
 
     class Factory:
@@ -152,6 +151,17 @@ class Doitgen(PolyBenchGroup):
             return Doitgen(exp, "doitgen")
     ProjectFactory.addFactory("Doitgen", Factory())
 
+
+class Mvt(PolyBenchGroup):
+
+    class Factory:
+
+        def create(self, exp):
+            return Mvt(exp, "mvt")
+    ProjectFactory.addFactory("Mvt", Factory())
+
+
+# Linear Algebra / Blas
 
 class Gemm(PolyBenchGroup):
 
@@ -178,15 +188,6 @@ class Gesummv(PolyBenchGroup):
         def create(self, exp):
             return Gesummv(exp, "gesummv")
     ProjectFactory.addFactory("Gesummv", Factory())
-
-
-class Mvt(PolyBenchGroup):
-
-    class Factory:
-
-        def create(self, exp):
-            return Mvt(exp, "mvt")
-    ProjectFactory.addFactory("Mvt", Factory())
 
 
 class Symm(PolyBenchGroup):
@@ -216,15 +217,6 @@ class Syrk(PolyBenchGroup):
     ProjectFactory.addFactory("Syrk", Factory())
 
 
-class Trisolv(PolyBenchGroup):
-
-    class Factory:
-
-        def create(self, exp):
-            return Trisolv(exp, "trisolv")
-    ProjectFactory.addFactory("Trisolv", Factory())
-
-
 class Trmm(PolyBenchGroup):
 
     class Factory:
@@ -232,6 +224,16 @@ class Trmm(PolyBenchGroup):
         def create(self, exp):
             return Trmm(exp, "trmm")
     ProjectFactory.addFactory("Trmm", Factory())
+
+# Linear Algebra / Solvers
+
+class Cholesky(PolyBenchGroup):
+
+    class Factory:
+
+        def create(self, exp):
+            return Cholesky(exp, "cholesky")
+    ProjectFactory.addFactory("Cholesky", Factory())
 
 
 class Durbin(PolyBenchGroup):
@@ -241,15 +243,6 @@ class Durbin(PolyBenchGroup):
         def create(self, exp):
             return Durbin(exp, "durbin")
     ProjectFactory.addFactory("Durbin", Factory())
-
-
-class Deriche(PolyBenchGroup):
-
-    class Factory:
-
-        def create(self, exp):
-            return Deriche(exp, "deriche")
-    ProjectFactory.addFactory("Deriche", Factory())
 
 
 class Gramschmidt(PolyBenchGroup):
@@ -279,6 +272,27 @@ class LuDCMP(PolyBenchGroup):
     ProjectFactory.addFactory("LuDCMP", Factory())
 
 
+class Trisolv(PolyBenchGroup):
+
+    class Factory:
+
+        def create(self, exp):
+            return Trisolv(exp, "trisolv")
+    ProjectFactory.addFactory("Trisolv", Factory())
+
+
+# Medley
+
+
+class Deriche(PolyBenchGroup):
+
+    class Factory:
+
+        def create(self, exp):
+            return Deriche(exp, "deriche")
+    ProjectFactory.addFactory("Deriche", Factory())
+
+
 class FloydWarshall(PolyBenchGroup):
 
     class Factory:
@@ -287,6 +301,17 @@ class FloydWarshall(PolyBenchGroup):
             return FloydWarshall(exp, "floyd-warshall")
     ProjectFactory.addFactory("FloydWarshall", Factory())
 
+
+class Nussinov(PolyBenchGroup):
+
+    class Factory:
+
+        def create(self, exp):
+            return Nussinov(exp, "nussinov")
+    ProjectFactory.addFactory("Nussinov", Factory())
+
+
+# Stencils
 
 class Adi(PolyBenchGroup):
 
@@ -331,15 +356,6 @@ class Seidel2D(PolyBenchGroup):
         def create(self, exp):
             return Seidel2D(exp, "seidel-2d")
     ProjectFactory.addFactory("Seidel2D", Factory())
-
-
-class Nussinov(PolyBenchGroup):
-
-    class Factory:
-
-        def create(self, exp):
-            return Nussinov(exp, "nussinov")
-    ProjectFactory.addFactory("Nussinov", Factory())
 
 
 class Heat3D(PolyBenchGroup):

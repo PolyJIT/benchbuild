@@ -248,9 +248,9 @@ from os import path
 import sys
 import pickle
 
-if not len(sys.argv) >= 2):
-    os.stderr.write("Not enough arguments provided!\n")
-    os.stderr.write("Got: " + sys.argv + "\n")
+if not len(sys.argv) >= 2:
+    os.stderr.write("Not enough arguments provided!\\n")
+    os.stderr.write("Got: " + sys.argv + "\\n")
     sys.exit(1)
 
 f = None

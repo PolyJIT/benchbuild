@@ -66,8 +66,9 @@ class PapiScopCoverage(RuntimeExperiment):
                         "-mllvm", "-no-recompilation",
                         "-mllvm", "-polly-detect-keep-going"]
             with substep("reconf & rebuild"):
-                p.configure()
-                p.build()
+                with local.env(PPROF_ENABLE=0):
+                    p.configure()
+                    p.build()
             with substep("run"):
                 def run_with_time(run_f, args, has_stdin = False):
                     from plumbum.cmd import time

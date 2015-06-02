@@ -1,44 +1,35 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from ..experiment import Experiment, RuntimeExperiment
-from pprof.experiment import step, substep
-from ..settings import config
-from pprof import likwid
+"""
+The 'raw' Experiment
+====================
+
+This experiment is the basic experiment in the pprof study. It simply runs
+all projects after compiling it with -O3. The binaries are wrapped
+with the time command and results are written to the database.
+
+This forms the baseline numbers for the other experiments.
+
+Measurements
+------------
+
+3 Metrics are generated during this experiment:
+    raw.time.user_s - The time spent in user space in seconds (aka virtual time)
+    raw.time.system_s - The time spent in kernel space in seconds (aka system time)
+    raw.time.real_s - The time spent overall in seconds (aka Wall clock)
+"""
+
+from pprof.experiment import step, substep, RuntimeExperiment
+from pprof.settings import config
 from pprof.utils.db import create_run, get_db_connection
-
-from plumbum import local, FG
-from plumbum.cmd import cp, awk, echo, tee, time, sed, rm
 from os import path
-
-polli = None
-likwid_perfctr = None
-pprof_calibrate = None
-pprof_analyze = None
-opt = None
-
-import pdb
-
 
 class RawRuntime(RuntimeExperiment):
 
     """ The polyjit experiment """
 
-    def setup_commands(self):
-        super(RawRuntime, self).setup_commands()
-        global polli, likwid_perfctr, pprof_calibrate, pprof_analyze, opt
-        bin_path = path.join(config["llvmdir"], "bin")
-        likwid_path = path.join(config["likwiddir"], "bin")
-
-        likwid_perfctr = local[path.join(likwid_path, "likwid-perfctr")]
-        polli = local[path.join(bin_path, "polli")]
-        pprof_calibrate = local[path.join(bin_path, "pprof-calibrate")]
-        pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
-        opt = local[path.join(bin_path, "opt")]
-
     def run_project(self, p):
-        from plumbum.cmd import time
-
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("RAW -O3"):
@@ -49,15 +40,39 @@ class RawRuntime(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
-                def run_with_time(run_f, args, has_stdin = False):
+                def run_with_time(run_f, args, has_stdin=False):
+                    """
+                    Function runner for the raw experiment.
+                    This executes the given project command wrapped in the
+                    time command. Afterwards the result is sent to the
+                    database.
+
+                    3 Metrics are generated during this experiment:
+                        raw.time.user_s - The time spent in user space in
+                                          seconds (aka virtual time)
+                        raw.time.system_s - The time spent in kernel space in
+                                            seconds (aka system time)
+                        raw.time.real_s - The time spent overall in seconds
+                                          (aka Wall clock)
+
+                    :run_f:
+                        The file we actually execute.
+                    :args:
+                        Arguments to forwards to :run_f:
+                    :has_stdin:
+                        If the program requires access to a file redirected
+                        via stdin, say so.
+                    """
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
+                    import sys
+
                     run_cmd = time["-f", "%U-%S-%e", run_f]
                     if has_stdin:
-                        run_cmd = ( run_cmd[args] < sys.stdin )
+                        run_cmd = (run_cmd[args] < sys.stdin)
                     else:
                         run_cmd = run_cmd[args]
-                    retcode, stdout, stderr = run_cmd.run()
+                    _, _, stderr = run_cmd.run()
                     run_id = create_run(
                         get_db_connection(), str(run_cmd), p.name, self.name, p.run_uuid)
                     timings = stderr.split('-')

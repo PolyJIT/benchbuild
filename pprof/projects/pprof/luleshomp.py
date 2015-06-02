@@ -21,7 +21,7 @@ class LuleshOMP(PprofGroup):
 
     def run_tests(self, experiment):
         exp = experiment(self.run_f)
-        exp["3"] & FG
+        exp("10") & FG
 
     src_file = "LULESH_OMP.cc"
     src_uri = "https://codesign.llnl.gov/lulesh/" + src_file

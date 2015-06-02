@@ -21,7 +21,7 @@ class Lulesh(PprofGroup):
 
     def run_tests(self, experiment):
         exp = wrap(self.run_f, experiment)
-        exp["10"] & FG
+        exp("10")
 
     src_file = "LULESH.cc"
     src_uri = "https://codesign.llnl.gov/lulesh/" + src_file

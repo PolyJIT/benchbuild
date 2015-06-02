@@ -357,9 +357,11 @@ class Experiment(object):
                 k: v for k, v in self.projects.iteritems() if v.group_name == group}
 
     def clean_project(self, p):
+        with local.env(PPROF_ENABLE=0):
             p.clean()
 
     def prepare_project(self, p):
+        with local.env(PPROF_ENABLE=0):
             p.prepare()
 
     def run_project(self, p):

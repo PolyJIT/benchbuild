@@ -270,9 +270,10 @@ if path.exists("{blobf}"):
                PPROF_CMD=run_f):
         if f is not None:
             if not sys.stdin.isatty():
-                f(run_f, args, has_stdin = True, project_name = run_f)
+                f(run_f, args, has_stdin = True,
+                  project_name = path.basename(run_f))
             else:
-                f(run_f, args, project_name = run_f)
+                f(run_f, args, project_name = path.basename(run_f))
         else:
             sys.exit(1)
 

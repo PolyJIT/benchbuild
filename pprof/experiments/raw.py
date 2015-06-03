@@ -25,6 +25,7 @@ from pprof.settings import config
 from pprof.utils.db import create_run, get_db_connection
 from os import path
 
+
 class RawRuntime(RuntimeExperiment):
 
     """ The polyjit experiment """
@@ -69,7 +70,7 @@ class RawRuntime(RuntimeExperiment):
                     """
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
-                    from parse import parse
+                    from pprof.project import fetch_time_output
                     import sys
 
                     has_stdin = kwargs.get("has_stdin", False)
@@ -85,13 +86,10 @@ class RawRuntime(RuntimeExperiment):
                         get_db_connection(), str(run_cmd), project_name,
                         self.name, p.run_uuid)
 
-                    timings = filter(lambda x: "PPROF-RAW: " in x,
-                                     list(stderr))
-                    for timing in timings:
-                        t = parse("PPROF-RAW: %U-%S-%e", timing)
-                        if t is None:
-                            continue
-
+                    timings = fetch_time_output("PPROF-RAW: ",
+                                                "PPROF-RAW: %U-%S-%e",
+                                                list(stderr))
+                    for t in timings:
                         d = {
                             "table": "metrics",
                             "columns": ["name", "value", "run_id"],

@@ -69,12 +69,13 @@ class RawRuntime(RuntimeExperiment):
                     """
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
+                    from parse import parse
                     import sys
 
                     has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
 
-                    run_cmd = time["-f", "%U-%S-%e", run_f]
+                    run_cmd = time["-f", "PPROF-RAW: %U-%S-%e", run_f]
                     if has_stdin:
                         run_cmd = (run_cmd[args] < sys.stdin)
                     else:
@@ -83,15 +84,23 @@ class RawRuntime(RuntimeExperiment):
                     run_id = create_run(
                         get_db_connection(), str(run_cmd), project_name,
                         self.name, p.run_uuid)
-                    timings = stderr.split('-')
-                    timings = {
-                        "table": "metrics",
-                        "columns": ["name", "value", "run_id"],
-                        "values": [
-                            ("raw.time.user_s", timings[0], run_id),
-                            ("raw.time.system_s", timings[1], run_id),
-                            ("raw.time.real_s", timings[2], run_id)
-                        ]
-                    }
-                    submit(timings)
+
+                    timings = filter(lambda x: "PPROF-RAW: " in x,
+                                     list(stderr))
+                    for timing in timings:
+                        t = parse("PPROF-RAW: %U-%S-%e", timing)
+                        if t is None:
+                            continue
+
+                        d = {
+                            "table": "metrics",
+                            "columns": ["name", "value", "run_id"],
+                            "values": [
+                                ("raw.time.user_s", t[0], run_id),
+                                ("raw.time.system_s", t[1], run_id),
+                                ("raw.time.real_s", t[2], run_id)
+                            ]
+                        }
+                        submit(d)
+
                 p.run(run_with_time)

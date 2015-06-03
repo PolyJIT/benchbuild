@@ -246,9 +246,10 @@ def wrap_dynamic(name, runner):
         lines = '''#!/usr/bin/env python
 # encoding: utf-8
 
-from pprof.project import Project, synchronize_project_with_db
+from pprof.project import Project
+from pprof.experiment import Experiment, synchronize_project_with_db
 from plumbum import cli, local
-from os import path
+from os import path, getenv
 import sys
 import pickle
 
@@ -260,7 +261,7 @@ if not len(sys.argv) >= 2:
 f = None
 run_f = sys.argv[1]
 args = sys.argv[2:]
-p_name = path.basename(run_f)
+project_name = path.basename(run_f)
 if path.exists("{blobf}"):
     with open("{blobf}", "rb") as p:
         f = pickle.load(p)
@@ -269,19 +270,20 @@ if path.exists("{blobf}"):
                PPROF_DB_NAME="{db_name}",
                PPROF_DB_USER="{db_user}",
                PPROF_DB_PASS="{db_pass}",
-               PPROF_PROJECT=p_name
+               PPROF_PROJECT=project_name,
                PPROF_CMD=run_f):
         if f is not None:
-            exp_name = os.getenv("PPROF_EXPERIMENT", "unknown")
-            domain_name = os.getenv("PPROF_DOMAIN", "unknown")
-            group_name = os.getenv("PPROF_GROUP", "unknwon")
-            p = Project(exp_name, project_name, domain_name, group_name)
+            exp_name = getenv("PPROF_EXPERIMENT", "unknown")
+            domain_name = getenv("PPROF_DOMAIN", "unknown")
+            group_name = getenv("PPROF_GROUP", "unknwon")
+            e = Experiment(exp_name, [], group_name)
+            p = Project(e, project_name, domain_name, group_name)
             synchronize_project_with_db(p)
 
             if not sys.stdin.isatty():
-                f(run_f, args, has_stdin = True, project_name = p_name)
+                f(run_f, args, has_stdin = True, project_name = project_name)
             else:
-                f(run_f, args, project_name = p_name)
+                f(run_f, args, project_name = project_name)
         else:
             sys.exit(1)
 

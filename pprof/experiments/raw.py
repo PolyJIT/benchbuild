@@ -82,13 +82,13 @@ class RawRuntime(RuntimeExperiment):
                     else:
                         run_cmd = run_cmd[args]
                     _, _, stderr = run_cmd.run()
+                    timings = fetch_time_output("PPROF-RAW: ",
+                                                "PPROF-RAW: {:g}-{:g}-{:g}",
+                                                stderr.split("\n"))
                     run_id = create_run(
                         get_db_connection(), str(run_cmd), project_name,
                         self.name, p.run_uuid)
 
-                    timings = fetch_time_output("PPROF-RAW: ",
-                                                "PPROF-RAW: {:g}-{:g}-{:g}",
-                                                list(stderr))
                     for t in timings:
                         d = {
                             "table": "metrics",

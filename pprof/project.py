@@ -296,3 +296,24 @@ if path.exists("{blobf}"):
         w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
+
+def fetch_time_output(marker, format_s, ins):
+    """
+    Fetch the output /usr/bin/time from a
+
+    :marker:
+        The marker that limits the time output
+    :format_s:
+        The format string used to parse the timings
+    :ins:
+        The stream we look for timings in
+
+    :returns:
+        A list of timing tuples
+    """
+    from parse import parse
+
+    timings = filter(lambda x: marker in x, list(ins))
+    res = [ parse(format_s, t) for t in timings ]
+    return filter(None, res)
+

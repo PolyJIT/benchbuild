@@ -246,6 +246,7 @@ def wrap_dynamic(name, runner):
         lines = '''#!/usr/bin/env python
 # encoding: utf-8
 
+from pprof.project import Project, synchronize_project_with_db
 from plumbum import cli, local
 from os import path
 import sys
@@ -271,6 +272,12 @@ if path.exists("{blobf}"):
                PPROF_PROJECT=p_name
                PPROF_CMD=run_f):
         if f is not None:
+            exp_name = os.getenv("PPROF_EXPERIMENT", "unknown")
+            domain_name = os.getenv("PPROF_DOMAIN", "unknown")
+            group_name = os.getenv("PPROF_GROUP", "unknwon")
+            p = Project(exp_name, project_name, domain_name, group_name)
+            synchronize_project_with_db(p)
+
             if not sys.stdin.isatty():
                 f(run_f, args, has_stdin = True, project_name = p_name)
             else:

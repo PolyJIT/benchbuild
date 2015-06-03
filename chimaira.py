@@ -224,6 +224,7 @@ class Chimaira(cli.Application):
             prj_list = filter(None, prj_list)
             prj_list = list(chain.from_iterable(prj_list))
             prj_list = filter(lambda x : not '>>' in x, prj_list)
+            prj_list = filter(None, prj_list)
             print "  {} projects".format(len(prj_list))
             print
             print ", ".join(prj_list)

@@ -87,7 +87,7 @@ class RawRuntime(RuntimeExperiment):
                         self.name, p.run_uuid)
 
                     timings = fetch_time_output("PPROF-RAW: ",
-                                                "PPROF-RAW: %U-%S-%e",
+                                                "PPROF-RAW: {:g}-{:g}-{:g}",
                                                 list(stderr))
                     for t in timings:
                         d = {

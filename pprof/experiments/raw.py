@@ -85,6 +85,9 @@ class RawRuntime(RuntimeExperiment):
                     timings = fetch_time_output("PPROF-RAW: ",
                                                 "PPROF-RAW: {:g}-{:g}-{:g}",
                                                 stderr.split("\n"))
+                    if len(timings) == 0:
+                        return
+
                     run_id = create_run(
                         get_db_connection(), str(run_cmd), project_name,
                         self.name, p.run_uuid)

@@ -102,7 +102,7 @@ class Project(object):
         with local.cwd(self.builddir):
             if self.run_uuid is None:
                 self.run_uuid = uuid4()
-            with local.env( PPROF_USE_DATABASE=1,
+            with local.env(PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid,
                            PPROF_DOMAIN=self.domain,
                            PPROF_GROUP=self.group_name,
@@ -200,15 +200,20 @@ if path.exists("{blobf}"):
                PPROF_DB_PASS="{db_pass}",
                PPROF_CMD=run_f + " ".join(args)):
         if f is not None:
-            f(run_f, *args)
+            if not sys.stdin.isatty():
+                f(run_f, args, has_stdin = True)
+            else:
+                f(run_f, args)
         else:
-            raise'''.format(db_host=config["db_host"],
-                            db_port=config["db_port"],
-                            db_name=config["db_name"],
-                            db_user=config["db_user"],
-                            db_pass=config["db_pass"],
-                            blobf=blob_f,
-                            runf=real_f)
+            sys.exit(1)
+
+'''.format(db_host=config["db_host"],
+           db_port=config["db_port"],
+           db_name=config["db_name"],
+           db_user=config["db_user"],
+           db_pass=config["db_pass"],
+           blobf=blob_f,
+           runf=real_f)
         w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
@@ -241,14 +246,22 @@ def wrap_dynamic(name, runner):
         lines = '''#!/usr/bin/env python
 # encoding: utf-8
 
+from pprof.project import Project
+from pprof.experiment import Experiment, synchronize_project_with_db
 from plumbum import cli, local
-from os import path
+from os import path, getenv
 import sys
 import pickle
 
+if not len(sys.argv) >= 2:
+    os.stderr.write("Not enough arguments provided!\\n")
+    os.stderr.write("Got: " + sys.argv + "\\n")
+    sys.exit(1)
+
 f = None
-args = sys.argv[1:]
-run_f = sys.argv[0]
+run_f = sys.argv[1]
+args = sys.argv[2:]
+project_name = path.basename(run_f)
 if path.exists("{blobf}"):
     with open("{blobf}", "rb") as p:
         f = pickle.load(p)
@@ -257,14 +270,50 @@ if path.exists("{blobf}"):
                PPROF_DB_NAME="{db_name}",
                PPROF_DB_USER="{db_user}",
                PPROF_DB_PASS="{db_pass}",
+               PPROF_PROJECT=project_name,
                PPROF_CMD=run_f):
         if f is not None:
-            f(run_f, *args)'''.format(db_host=config["db_host"],
-                                              db_port=config["db_port"],
-                                              db_name=config["db_name"],
-                                              db_user=config["db_user"],
-                                              db_pass=config["db_pass"],
-                                              blobf=blob_f)
+            exp_name = getenv("PPROF_EXPERIMENT", "unknown")
+            domain_name = getenv("PPROF_DOMAIN", "unknown")
+            group_name = getenv("PPROF_GROUP", "unknwon")
+            e = Experiment(exp_name, [], group_name)
+            p = Project(e, project_name, domain_name, group_name)
+            synchronize_project_with_db(p)
+
+            if not sys.stdin.isatty():
+                f(run_f, args, has_stdin = True, project_name = project_name)
+            else:
+                f(run_f, args, project_name = project_name)
+        else:
+            sys.exit(1)
+
+'''.format(db_host=config["db_host"],
+           db_port=config["db_port"],
+           db_name=config["db_name"],
+           db_user=config["db_user"],
+           db_pass=config["db_pass"],
+           blobf=blob_f)
         w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
+
+def fetch_time_output(marker, format_s, ins):
+    """
+    Fetch the output /usr/bin/time from a
+
+    :marker:
+        The marker that limits the time output
+    :format_s:
+        The format string used to parse the timings
+    :ins:
+        A list of lines we look for the output.
+
+    :returns:
+        A list of timing tuples
+    """
+    from parse import parse
+
+    timings = filter(lambda x: marker in x, ins)
+    res = [ parse(format_s, t) for t in timings ]
+    return filter(None, res)
+

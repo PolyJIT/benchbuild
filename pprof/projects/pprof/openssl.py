@@ -50,15 +50,13 @@ class LibreSSL(PprofGroup):
 
         openssl_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(openssl_dir):
-            """ This could double the number of runs in the database
-            because we need to run the new binaries before replacing them
-            """
             make("-j", config["jobs"], "check")
 
     def run_tests(self, experiment):
         from plumbum.cmd import find, make
         from pprof.project import wrap
 
+        openssl_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(path.join(self.src_dir, "tests", ".libs")):
             files = find(".", "-type", "f", "-executable")
             for f in files.split("\n"):

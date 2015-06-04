@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from ..experiment import Experiment, RuntimeExperiment
-from pprof.experiment import step, substep
-from ..settings import config
 from pprof import likwid
+from pprof.experiment import step, substep, Experiment, RuntimeExperiment
+from pprof.settings import config
 from pprof.utils.db import create_run, get_db_connection
 
 from plumbum import local, FG
@@ -53,28 +52,37 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-jitable",
                         "-mllvm", "-polly-detect-keep-going"]
             with substep("Build"):
-                p.configure()
-                p.build()
+                with local.env(PPROF_ENABLE=0):
+                    p.configure()
+                    p.build()
             with substep("Execute {}".format(p.name)):
-                def run_with_time(run_f, *args):
+                def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
-                    cmd = time["-f", "%U-%S-%e", run_f, args]
-                    retcode, stdou, stderr = cmd.run()
+                    import sys
+
+                    has_stdin = kwargs.get("has_stdin", False)
+                    project_name = kwargs.get("project_name", p.name)
+
+                    run_cmd = time["-f", "%U-%S-%e", run_f]
+                    if has_stdin:
+                        run_cmd = (run_cmd[args] < sys.stdin)
+                    else:
+                        run_cmd = run_cmd[args]
+                    retcode, stdout, stderr = run_cmd.run()
                     run_id = create_run(
-                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
+                        get_db_connection(), str(run_cmd), project_name,
+                        self.name, p.run_uuid)
                     timings = stderr.split('-')
                     timings = {
                         "table": "metrics",
                         "columns": ["name", "value", "run_id"],
                         "values": [
-                            ("polyjit.time.user_s", timings[0], run_id),
-                            ("polyjit.time.system_s", timings[1], run_id),
-                            ("polyjit.time.real_s", timings[2], run_id)
+                            ("raw.time.user_s", timings[0], run_id),
+                            ("raw.time.system_s", timings[1], run_id),
+                            ("raw.time.real_s", timings[2], run_id)
                         ]
                     }
-                    with open("./dbg.file", 'w') as f:
-                        f.write(str(timings))
                     submit(timings)
                 p.run(run_with_time)
 
@@ -95,27 +103,39 @@ class PolyJIT(RuntimeExperiment):
                         "-mllvm", "-jitable",
                         "-mllvm", "-polly-detect-keep-going"]
             with substep("Build"):
-                p.configure()
-                p.build()
+                with local.env(PPROF_ENABLE=0):
+                    p.configure()
+                    p.build()
             with substep("Execute {}".format(p.name)):
-                def run_with_likwid(run_f, *args):
+                def run_with_likwid(run_f, args, **kwargs):
                     from pprof.utils.db import create_run, get_db_connection
                     from pprof.likwid import get_likwid_perfctr, to_db
                     from plumbum import local
+                    import sys
+
+                    has_stdin = kwargs.get("has_stdin", False)
+                    project_name = kwargs.get("project_name", p.name)
+
+                    likwid_f = p.name + "_%p.txt"
 
                     likwid_path = path.join(config["likwiddir"], "bin")
                     likwid_perfctr = local[
                         path.join(likwid_path, "likwid-perfctr")]
-                    cmd = likwid_perfctr["-O", "-o", p.likwid_f, "-m", "-C",
-                                         "-L:0", "-g", "CLOCK", run_f]
-                    cmd(*args)
+                    run_cmd = likwid_perfctr["-O", "-o", likwid_f, "-m", "-C",
+                                             "-L:0", "-g", "CLOCK", run_f]
+                    if has_stdin:
+                        run_cmd = (run_cmd[args] < sys.stdin)
+                    else:
+                        run_cmd = run_cmd[args]
+
+                    run_cmd()
 
                     run_id = create_run(
-                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
-                    likwid_measurement = get_likwid_perfctr(p.likwid_f)
+                        get_db_connection(), str(run_cmd), project_name,
+                        self.name, p.run_uuid)
+                    likwid_measurement = get_likwid_perfctr(likwid_f)
                     likwid.to_db(run_id, likwid_measurement)
                 p.run(run_with_likwid)
-
 
     def run_project(self, p):
         with local.env(PPROF_ENABLE=0):

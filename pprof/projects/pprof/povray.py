@@ -85,7 +85,7 @@ class Povray(PprofGroup):
 
     def run_tests(self, experiment):
         from plumbum.cmd import mkdir, chmod
-        exp = experiment(self.run_f)
+        exp = wrap(self.run_f, experiment(self.run_f))
 
         povray_dir = path.join(self.builddir, self.src_dir)
         povray_binary = path.join(povray_dir, "unix", self.name)

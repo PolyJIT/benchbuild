@@ -118,13 +118,14 @@ class PolyJIT(RuntimeExperiment):
                 def run_with_likwid(run_f, args, **kwargs):
                     from pprof.utils.db import create_run, get_db_connection
                     from pprof.likwid import get_likwid_perfctr, to_db
+                    from plumbum.cmd import rm
                     from plumbum import local
                     import sys
 
                     has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
 
-                    likwid_f = p.name + "_%p.txt"
+                    likwid_f = p.name + ".txt"
 
                     likwid_path = path.join(config["likwiddir"], "bin")
                     likwid_perfctr = local[
@@ -143,6 +144,7 @@ class PolyJIT(RuntimeExperiment):
                         self.name, p.run_uuid)
                     likwid_measurement = get_likwid_perfctr(likwid_f)
                     likwid.to_db(run_id, likwid_measurement)
+                    rm("-f", likwid_f)
                 p.run(run_with_likwid)
 
     def run_project(self, p):

@@ -2,9 +2,9 @@
 
 from setuptools import setup, find_packages
 setup(name='pprof',
-      version='0.8.5',
+      version='0.9',
       packages= find_packages(),
-      setup_requires=['plumbum', 'cloud', 'psycopg2', 'virtualenv', 'regex'],
+      setup_requires=['parse', 'plumbum', 'cloud', 'psycopg2', 'virtualenv', 'regex'],
       author = "Andreas Simbuerger",
       author_email = "simbuerg@fim.uni-passau.de",
       description = "This is the experiment driver for the pprof study",

@@ -66,16 +66,28 @@ class PapiScopCoverage(RuntimeExperiment):
                         "-mllvm", "-no-recompilation",
                         "-mllvm", "-polly-detect-keep-going"]
             with substep("reconf & rebuild"):
-                p.configure()
-                p.build()
+                with local.env(PPROF_ENABLE=0):
+                    p.configure()
+                    p.build()
             with substep("run"):
-                def run_with_time(run_f, *args):
+                def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
-                    cmd = time["-f", "%U-%S-%e", run_f, args]
-                    retcode, stdou, stderr = cmd.run()
+                    import sys
+
+                    has_stdin = kwargs.get("has_stdin", False)
+                    project_name = kwargs.get("project_name", p.name)
+
+                    run_cmd = time["-f", "%U-%S-%e", run_f]
+                    if has_stdin:
+                        run_cmd = (run_cmd[args] < sys.stdin)
+                    else:
+                        run_cmd = run_cmd[args]
+
+                    retcode, stdout, stderr = run_cmd.run()
                     run_id = create_run(
-                        get_db_connection(), str(cmd), p.name, self.name, p.run_uuid)
+                        get_db_connection(), str(run_cmd), project_name,
+                        self.name, p.run_uuid)
                     timings = stderr.split('-')
                     timings = {
                         "table": "metrics",

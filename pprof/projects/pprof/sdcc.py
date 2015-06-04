@@ -49,9 +49,7 @@ class SDCC(PprofGroup):
         from plumbum.cmd import make
         from pprof.project import wrap
 
-        import pdb
-        pdb.set_trace()
-        exp = experiment(self.run_f)
+        exp = wrap(self.run_f, experiment(self.run_f))
 
         log.debug("FIXME: invalid LLVM IR, regenerate from source")
         log.debug("FIXME: test incomplete, port from sdcc/Makefile")

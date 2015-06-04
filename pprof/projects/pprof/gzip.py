@@ -38,7 +38,7 @@ class Gzip(PprofGroup):
     def run_tests(self, experiment):
         from pprof.project import wrap
         gzip_dir = path.join(self.builddir, self.src_dir)
-        exp = wrap(path.join(gzip_dir, "gzip", experiment))
+        exp = wrap(path.join(gzip_dir, "gzip"), experiment)
 
         # Compress
         exp["-f", "-k", "--best", "text.html"] & FG
@@ -82,10 +82,6 @@ class Gzip(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
-        from pprof.utils.compiler import clang, llvm_libs
-
         gzip_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(gzip_dir):
-            with local.env(LD_LIBRARY_PATH=llvm_libs()):
-                make["-j" + config["jobs"], "clean", "all"] & FG
-        ln("-sf", path.join(gzip_dir, "gzip"), self.run_f)
+            make["-j" + config["jobs"], "clean", "all"] & FG

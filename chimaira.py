@@ -117,12 +117,12 @@ def prepare_slurm_script(experiment, project, experiment_id):
                               "-B", config["nodedir"], "-I", config["isl"],
                               "-L", config["likwid"], "-P", config["papi"]])
     commands.append(pprof["run", "-P", project, "-E", experiment, "-B",
-                          config["nodedir"], "-c", "-x", "-C", "-L",
+                          config["nodedir"], "-c", "-x", "-L",
                           config["llvm"]])
-    commands.append(
-        cp["-ar", node_results, os.path.join(config["resultsdir"],
-                                              experiment)])
-    commands.append(mv[node_error_log, error_log])
+    #commands.append(
+    #    cp["-ar", node_results, os.path.join(config["resultsdir"],
+    #                                          experiment)])
+    #commands.append(mv[node_error_log, error_log])
     dump_slurm_script(slurm_script, log_file, commands, experiment_id)
     return slurm_script
 
@@ -211,13 +211,23 @@ class Chimaira(cli.Application):
         config["local_build"] = True
 
     def main(self):
-        import itertools
+        from itertools import chain
+
+        # That is an awful lot of filtering required for parsing that
+        # output... grmpf
         for exp in config["experiments"]:
+            print "Experiment: {}".format(exp)
             pprof_list = pprof["run", "-l", "-E", exp]
-            prj_list = pprof_list().split("\n")
-            prj_list = list(itertools.chain(*[ l.split(", ") for l in prj_list if not ">> " in l ]))
+            prj_list = pprof_list().split(',')
+            prj_list = map(unicode.strip, prj_list)
+            prj_list = map(lambda x : x.split('\n'), prj_list)
             prj_list = filter(None, prj_list)
-            print prj_list
+            prj_list = list(chain.from_iterable(prj_list))
+            prj_list = filter(lambda x : not '>>' in x, prj_list)
+            prj_list = filter(None, prj_list)
+            print "  {} projects".format(len(prj_list))
+            print
+            print ", ".join(prj_list)
             jobs = dispatch_jobs(exp, prj_list)
         #    dispatch_collect_job(exp, jobs)
 

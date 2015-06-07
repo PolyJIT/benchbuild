@@ -30,9 +30,9 @@ class LibAV(PprofGroup):
 
     def run_tests(self, experiment):
         from pprof.project import wrap
-        exp = experiment(self.run_f)
 
-        with local.cwd(self.src_dir):
+        libav_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(libav_dir):
             wrap(self.name, experiment)
 
         with local.cwd(self.src_dir):
@@ -69,6 +69,5 @@ class LibAV(PprofGroup):
         libav_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(libav_dir):
             with local.env(LD_LIBRARY_PATH=llvm_libs()):
-                make["-j" + config["jobs"], "clean", "all"] & FG
-                mv[self.name, self.bin_f] & FG
-        self.run_f = self.bin_f
+                #make["-j" + config["jobs"], "clean", "all"] & FG
+                make["clean", "all"] & FG

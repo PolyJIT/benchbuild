@@ -51,7 +51,7 @@ class PapiScopCoverage(RuntimeExperiment):
 
         llvm_libs = path.join(config["llvmdir"], "lib")
 
-        with step("No recompilation, PAPI"):
+        with step("Class: Dynamic, PAPI"):
             p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
 
@@ -128,3 +128,91 @@ class PapiScopCoverage(RuntimeExperiment):
                 metrics["values"].append(
                     ("papi.calibration.time_ns", papi_calibration, run_id))
                 submit(metrics)
+
+
+class PapiStandardScopCoverage(PapiScopCoverage):
+
+    """ PAPI Scop Coverage, without JIT """
+
+    def run_project(self, p):
+        from plumbum.cmd import time
+
+        llvm_libs = path.join(config["llvmdir"], "lib")
+
+        with step("Class: Standard - PAPI"):
+            p.download()
+            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+
+            ld_lib_path = filter(None, config["ld_library_path"].split(":"))
+            p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
+            p.cflags = ["-O3",
+                        "-Xclang", "-load",
+                        "-Xclang", "LLVMPolyJIT.so",
+                        "-mllvm", "-polli",
+                        "-mllvm", "-instrument",
+                        "-mllvm", "-no-recompilation",
+                        "-mllvm", "-polly-detect-keep-going"]
+            with substep("reconf & rebuild"):
+                with local.env(PPROF_ENABLE=0):
+                    p.configure()
+                    p.build()
+            with substep("run"):
+                def run_with_time(run_f, args, **kwargs):
+                    from plumbum.cmd import time
+                    from pprof.utils.db import submit
+                    from pprof.project import fetch_time_output
+                    import sys
+
+                    has_stdin = kwargs.get("has_stdin", False)
+                    project_name = kwargs.get("project_name", p.name)
+
+                    run_cmd = time["-f", "%U-%S-%e", run_f]
+                    if has_stdin:
+                        run_cmd = (run_cmd[args] < sys.stdin)
+                    else:
+                        run_cmd = run_cmd[args]
+
+                    retcode, stdout, stderr = run_cmd.run()
+                    timings = fetch_time_output("PPROF-PAPI: ",
+                                                "PPROF-PAPI: {:g}-{:g}-{:g}",
+                                                stderr.split("\n"))
+                    if len(timings) == 0:
+                        return
+
+                    run_id = create_run(
+                        get_db_connection(), str(run_cmd), project_name,
+                        self.name, p.run_uuid)
+
+                    for t in timings:
+                        d = {
+                            "table": "metrics",
+                            "columns": ["name", "value", "run_id"],
+                            "values": [
+                                ("papi.time.user_s", t[0], run_id),
+                                ("papi.time.system_s", t[1], run_id),
+                                ("papi.time.real_s", t[2], run_id)
+                            ]
+                        }
+                        submit(d)
+
+                p.run(run_with_time)
+
+        with step("Evaluation"):
+            papi_calibration = self.get_papi_calibration(
+                p, pprof_calibrate)
+            if papi_calibration:
+                from pprof.utils.db import submit
+
+                run_id = create_run(
+                    get_db_connection(), str(pprof_calibrate), p.name,
+                    self.name, p.run_uuid)
+                metrics = {
+                    "table": "metrics",
+                    "columns": ["name", "value", "run_id"],
+                    "values": []
+                }
+
+                metrics["values"].append(
+                    ("papi.calibration.time_ns", papi_calibration, run_id))
+                submit(metrics)
+

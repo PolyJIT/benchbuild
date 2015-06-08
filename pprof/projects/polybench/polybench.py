@@ -84,7 +84,7 @@ class PolyBenchGroup(Project):
                   "-DPOLYBENCH_USE_C99_PROTO",
                   "utilities/polybench.c", src_file,
                   "-lm",
-                  self.cflags, "-o", self.run_f, self.ldflags)
+                  "-o", self.run_f)
 
 
 # Datamining

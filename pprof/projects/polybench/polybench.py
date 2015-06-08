@@ -74,16 +74,17 @@ class PolyBenchGroup(Project):
             cp("-ar", path.join(self.src_dir, "utilities"), ".")
 
     def build(self):
-        from pprof.utils.compiler import clang
+        from pprof.utils.compiler import lt_clang
 
         src_file = path.join(self.name + ".dir", self.name + ".c")
         with local.cwd(self.builddir):
-            clang()("-I", "utilities",
-                    "-I", self.name,
-                    "-DPOLYBENCH_USE_C99_PROTO",
-                    "utilities/polybench.c", src_file,
-                    "-lm",
-                    self.cflags, "-o", self.run_f, self.ldflags)
+            clang = lt_clang(self.cflags, self.ldflags)
+            clang("-I", "utilities",
+                  "-I", self.name,
+                  "-DPOLYBENCH_USE_C99_PROTO",
+                  "utilities/polybench.c", src_file,
+                  "-lm",
+                  self.cflags, "-o", self.run_f, self.ldflags)
 
 
 # Datamining

@@ -128,24 +128,25 @@ class PolyJIT(RuntimeExperiment):
 
                     likwid_f = p.name + ".txt"
 
-                    likwid_path = path.join(config["likwiddir"], "bin")
-                    likwid_perfctr = local[
-                        path.join(likwid_path, "likwid-perfctr")]
-                    run_cmd = likwid_perfctr["-O", "-o", likwid_f, "-m", "-C",
-                                             "-L:0", "-g", "CLOCK", run_f]
-                    if has_stdin:
-                        run_cmd = (run_cmd[args] < sys.stdin)
-                    else:
-                        run_cmd = run_cmd[args]
+                    for group in ["CLOCK", "DATA", "ENERGY"]:
+                        likwid_path = path.join(config["likwiddir"], "bin")
+                        likwid_perfctr = local[
+                            path.join(likwid_path, "likwid-perfctr")]
+                        run_cmd = likwid_perfctr["-O", "-o", likwid_f, "-m", "-C",
+                                                 "-L:0", "-g", group, run_f]
+                        if has_stdin:
+                            run_cmd = (run_cmd[args] < sys.stdin)
+                        else:
+                            run_cmd = run_cmd[args]
 
-                    run_cmd()
+                        run_cmd()
 
-                    run_id = create_run(
-                        get_db_connection(), str(run_cmd), project_name,
-                        self.name, p.run_uuid)
-                    likwid_measurement = get_likwid_perfctr(likwid_f)
-                    likwid.to_db(run_id, likwid_measurement)
-                    rm("-f", likwid_f)
+                        run_id = create_run(
+                            get_db_connection(), str(run_cmd), project_name,
+                            self.name, p.run_uuid)
+                        likwid_measurement = get_likwid_perfctr(likwid_f)
+                        likwid.to_db(run_id, likwid_measurement)
+                        rm("-f", likwid_f)
                 p.run(run_with_likwid)
 
     def run_project(self, p):

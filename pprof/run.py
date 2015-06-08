@@ -23,7 +23,8 @@ class PprofRun(cli.Application):
                     "polli": polli.Polli,
                     "polli-baseline": polli.PolliBaseLine,
                     "raw": raw.RawRuntime,
-                    "papi": papi.PapiScopCoverage
+                    "papi": papi.PapiScopCoverage,
+                    "papi-std" : papi.PapiStandardScopCoverage
                     }
 
     _experiment_names = []

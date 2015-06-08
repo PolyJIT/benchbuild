@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from ..experiment import Experiment, RuntimeExperiment
+from pprof.experiment import Experiment, RuntimeExperiment
 from pprof.experiment import step, substep
-from ..settings import config
+from pprof.settings import config
 from pprof import likwid
 from pprof.utils.db import create_run, get_db_connection
 

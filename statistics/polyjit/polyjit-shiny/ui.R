@@ -47,45 +47,4 @@ shinyUI(navbarPage("PolyJIT Experiments",
       )
     )
   )
-#  ,
-#   tabPanel("polly",
-#      sidebarLayout(
-#        sidebarPanel(
-#          selectInput("rawExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
-#        ),
-#        mainPanel(
-#          plotOutput("timing", width = "100%", height = "700px")
-#        )
-#      )
-#   ),
-#   tabPanel("polly-openmp",
-#      sidebarLayout(
-#        sidebarPanel(
-#          selectInput("rawExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
-#        ),
-#        mainPanel(
-#          plotOutput("timing", width = "100%", height = "700px")
-#        )
-#      )
-#   ),
-#   tabPanel("polly-openmpvect",
-#      sidebarLayout(
-#        sidebarPanel(
-#          selectInput("rawExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
-#        ),
-#        mainPanel(
-#          plotOutput("timing", width = "100%", height = "700px")
-#        )
-#      )
-#   ),
-#   tabPanel("polly-vectorize",
-#      sidebarLayout(
-#        sidebarPanel(
-#          selectInput("rawExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
-#        ),
-#        mainPanel(
-#          plotOutput("timing", width = "100%", height = "700px")
-#        )
-#      )
-#   )
 ))

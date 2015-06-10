@@ -9,6 +9,7 @@ from pprof.experiments import polli
 from pprof.experiments import polyjit
 from pprof.experiments import raw
 from pprof.experiments import papi
+from pprof.experiments import polly
 import logging
 import pprint
 log = logging.getLogger()
@@ -19,12 +20,18 @@ class PprofRun(cli.Application):
 
     """ Frontend for running experiments in the pprof study framework """
 
-    _experiments = {"polyjit": polyjit.PolyJIT,
-                    "polli": polli.Polli,
-                    "polli-baseline": polli.PolliBaseLine,
-                    "raw": raw.RawRuntime,
-                    "papi": papi.PapiScopCoverage
-                    }
+    _experiments = {
+        "polyjit": polyjit.PolyJIT,
+        "polli": polli.Polli,
+        "polli-baseline": polli.PolliBaseLine,
+        "raw": raw.RawRuntime,
+        "papi": papi.PapiScopCoverage,
+        "papi-std": papi.PapiStandardScopCoverage,
+        "polly": polly.polly,
+        "polly-openmp": polly.openmp,
+        "polly-openmpvect": polly.openmpvect,
+        "polly-vectorize": polly.vectorize
+    }
 
     _experiment_names = []
     _project_names = []
@@ -83,7 +90,8 @@ class PprofRun(cli.Application):
     def list(self):
         self._list = True
 
-    @cli.switch(["-G", "--group"], str, requires=["--experiment"], help="Run a group of projects under the given experiments")
+    @cli.switch(["-G", "--group"], str, requires=["--experiment"],
+                help="Run a group of projects under the given experiments")
     def group(self, group):
         self._group_name = group
 

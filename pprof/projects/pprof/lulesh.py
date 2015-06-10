@@ -1,11 +1,9 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
+from pprof.project import ProjectFactory
 from group import PprofGroup
 
-from os import path
 from plumbum import FG, local
 
 
@@ -23,7 +21,8 @@ class Lulesh(PprofGroup):
         from pprof.project import wrap
 
         exp = wrap(self.run_f, experiment)
-        exp("10")
+        for i in range(1, 21):
+            exp(str(i))
 
     src_file = "LULESH.cc"
     src_uri = "https://codesign.llnl.gov/lulesh/" + src_file
@@ -38,8 +37,9 @@ class Lulesh(PprofGroup):
         pass
 
     def build(self):
-        from pprof.utils.compiler import clang_cxx
+        from pprof.utils.compiler import lt_clang_cxx
+
+        clang_cxx = lt_clang_cxx(self.cflags, sel.fldflags)
 
         with local.cwd(self.builddir):
-            clang_cxx()[
-                self.cflags, "-o", self.run_f, self.ldflags, self.src_file] & FG
+            clang_cxx("-o", self.run_f, self.src_file)

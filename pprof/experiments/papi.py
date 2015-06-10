@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from pprof.experiment import Experiment, RuntimeExperiment
+from pprof.experiment import RuntimeExperiment
 from pprof.experiment import step, substep
 from pprof.settings import config
-from pprof import likwid
 from pprof.utils.db import create_run, get_db_connection
 
-from plumbum import local, FG
-from plumbum.cmd import cp, awk, echo, tee, time, sed, rm
+from plumbum import local
 from os import path
 
 polli = None
@@ -16,8 +14,6 @@ likwid_perfctr = None
 pprof_calibrate = None
 pprof_analyze = None
 opt = None
-
-import pdb
 
 
 class PapiScopCoverage(RuntimeExperiment):
@@ -135,8 +131,6 @@ class PapiStandardScopCoverage(PapiScopCoverage):
     """ PAPI Scop Coverage, without JIT """
 
     def run_project(self, p):
-        from plumbum.cmd import time
-
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("Class: Standard - PAPI"):
@@ -172,7 +166,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                     else:
                         run_cmd = run_cmd[args]
 
-                    retcode, stdout, stderr = run_cmd.run()
+                    _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-PAPI: ",
                                                 "PPROF-PAPI: {:g}-{:g}-{:g}",
                                                 stderr.split("\n"))

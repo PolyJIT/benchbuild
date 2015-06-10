@@ -29,3 +29,6 @@ testinputs/
 results/
 http/
 *egg-info*/
+.Rproj.user
+.Rhistory
+.RData

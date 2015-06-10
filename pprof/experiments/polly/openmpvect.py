@@ -34,7 +34,7 @@ class PollyOpenMPVectorizer(RuntimeExperiment):
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("Polly, OpenMP & Vectorizer=stripmine"):
-            p.ldflags = ["-L" + llvm_libs]
+            p.ldflags = ["-L" + llvm_libs, "-lgomp"]
             p.cflags = ["-O3",
                         "-Xclang", "-load",
                         "-Xclang", "LLVMPolyJIT.so",

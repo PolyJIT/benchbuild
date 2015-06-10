@@ -19,13 +19,18 @@ class PprofRun(cli.Application):
 
     """ Frontend for running experiments in the pprof study framework """
 
-    _experiments = {"polyjit": polyjit.PolyJIT,
-                    "polli": polli.Polli,
-                    "polli-baseline": polli.PolliBaseLine,
-                    "raw": raw.RawRuntime,
-                    "papi": papi.PapiScopCoverage,
-                    "papi-std" : papi.PapiStandardScopCoverage
-                    }
+    _experiments = {
+        "polyjit": polyjit.PolyJIT,
+        "polli": polli.Polli,
+        "polli-baseline": polli.PolliBaseLine,
+        "raw": raw.RawRuntime,
+        "papi": papi.PapiScopCoverage,
+        "papi-std": papi.PapiStandardScopCoverage,
+        "polly": polly.polly,
+        "polly-openmp": polly.openmp,
+        "polly-openmpvect": polly.openmpvect,
+        "polly-vectorize": polly.vectorize
+    }
 
     _experiment_names = []
     _project_names = []

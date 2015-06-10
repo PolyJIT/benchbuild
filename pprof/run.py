@@ -90,7 +90,8 @@ class PprofRun(cli.Application):
     def list(self):
         self._list = True
 
-    @cli.switch(["-G", "--group"], str, requires=["--experiment"], help="Run a group of projects under the given experiments")
+    @cli.switch(["-G", "--group"], str, requires=["--experiment"],
+                help="Run a group of projects under the given experiments")
     def group(self, group):
         self._group_name = group
 

@@ -30,7 +30,8 @@ class Lammps(PprofGroup):
     def run_tests(self, experiment):
         from pprof.project import wrap
 
-        exp = wrap(self.run_f, experiment)
+        lammps_dir = path.join(self.builddir, self.src_dir, "src")
+        exp = wrap(path.join(lammps_dir, "lmp_serial"), experiment)
 
         with local.cwd(path.join(self.builddir, "test")):
             tests = glob(path.join(self.testdir, "in.*"))
@@ -52,14 +53,11 @@ class Lammps(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
-        from pprof.utils.compiler import clang_cxx, clang
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
+
+        clang = lt_clang(self.cflags, self.ldflags)
+        clang_cxx = lt_clang_cxx(self.cfalgs, self.ldflags)
 
         with local.cwd(path.join(self.builddir, self.src_dir, "src")):
             make["CC=" + str(clang_cxx()),
-                 "CCFLAGS=" + " ".join(self.cflags),
-                 "LINKFLAGS=" + " ".join(self.ldflags), "-j4",
                  "clean", "serial"] & FG
-
-        lammps_dir = path.join(self.builddir, self.src_dir, "src")
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(lammps_dir, "lmp_serial"), self.run_f)

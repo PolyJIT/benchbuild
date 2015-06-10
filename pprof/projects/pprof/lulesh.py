@@ -21,7 +21,8 @@ class Lulesh(PprofGroup):
         from pprof.project import wrap
 
         exp = wrap(self.run_f, experiment)
-        exp("10")
+        for i in range(1, 21):
+            exp(str(i))
 
     src_file = "LULESH.cc"
     src_uri = "https://codesign.llnl.gov/lulesh/" + src_file

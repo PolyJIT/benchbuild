@@ -9,6 +9,7 @@ from pprof.experiments import polli
 from pprof.experiments import polyjit
 from pprof.experiments import raw
 from pprof.experiments import papi
+from pprof.experiments import polly
 import logging
 import pprint
 log = logging.getLogger()

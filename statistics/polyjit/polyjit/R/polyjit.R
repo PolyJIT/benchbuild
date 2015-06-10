@@ -20,15 +20,15 @@ get_experiments <- function(connection) {
   return(res)
 }
 
-get_raw_runtime <- function(experiment, connection) {
+get_raw_runtime <- function(name, experiment, connection) {
   query <- strwrap(sprintf(paste(
     "SELECT project_name, name, SUM(value) as sumval
      FROM run, metrics WHERE run.id = metrics.run_id
-     AND experiment_name = 'raw'
+     AND experiment_name = '%s'
      AND experiment_group = '%s'::uuid
      GROUP BY run_group, project_name, name, value
      ORDER BY sumval DESC;
-    "), experiment), width=10000, simplify=TRUE)
+    "), name, experiment), width=10000, simplify=TRUE)
   query_res <- dbSendQuery(connection, query)
   res <- melt(dbFetch(query_res))
   dbClearResult(query_res)

@@ -1,11 +1,9 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
+from pprof.project import ProjectFactory
 from group import PprofGroup
 
-from os import path
 from plumbum import FG, local
 
 

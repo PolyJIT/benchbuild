@@ -14,7 +14,7 @@ class X264(PprofGroup):
 
     """ x264 """
 
-    inputfiles = ["tbbt-small.y4m"]
+    inputfiles = ["tbbt-small.y4m", "Sintel.2010.720p.mkv"]
 
     class Factory:
 

@@ -3,6 +3,7 @@ from pprof.settings import config
 
 """Manage database interaction for pprof
 """
+from abc import ABCMeta, abstractproperty
 
 
 def setup_db_config():
@@ -138,3 +139,55 @@ def submit(metrics):
             c.execute(query, value)
     conn.commit()
 
+
+class RunResult(object):
+
+    """
+    Base class for result submission.
+    """
+
+    __metaclass__ = ABCMeta
+
+    def __init__(self):
+        self.values = []
+
+    @abstractproperty
+    def table(self):
+        """
+        Returns the name of the table we write our values to
+        """
+        pass
+
+    @abstractproperty
+    def columns(self):
+        """
+        Returns the name of the columns of our table.
+        """
+        pass
+
+    def append(self, result):
+        """
+        Append a single value to the result set
+
+        :result: A tuple suitable for sending it to the pprof.utils.db.submit
+                 function, e.g. ("colVal1", "colVal2"), if the table of this
+                 result supports 2 columns.
+        """
+        assert isinstance(result, tuple)
+        assert len(result) == len(self.columns)
+        self.values.append(result)
+
+    def commit(self):
+        """
+        Commit the stored values to the database.
+        """
+
+        if len(self.values) == 0:
+            return
+
+        result_dict = {
+            "table": self.table,
+            "columns": self.columns,
+            "values": self.values
+        }
+        submit(result_dict)

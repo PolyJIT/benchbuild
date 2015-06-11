@@ -4,8 +4,7 @@ library(ggplot2)
 library(RPostgres)
 library(polyjit)
 
-options(repr.plot.family = 'mono', repr.plot.width = 8, repr.plot.height = 6, warn = -1)
-mytheme <- theme(plot.title = element_text(family="Fantasque Mono", size = 10))
+source("./shiny-data.R")
 
 con <- dbConnect(RPostgres::Postgres(),
                  dbname="pprof",
@@ -13,6 +12,9 @@ con <- dbConnect(RPostgres::Postgres(),
                  host="debussy.fim.uni-passau.de",
                  port=32769,
                  password="pprof")
+
+options(repr.plot.family = 'mono', repr.plot.width = 8, repr.plot.height = 6, warn = -1)
+mytheme <- theme(plot.title = element_text(family="Fantasque Mono", size = 10))
 
 getSelections <- function(name, exps) {
   exps.filtered <- exps[exps$experiment_name == name, ]
@@ -29,11 +31,8 @@ timingPlot <- function(id, exps) {
   exp.name <- exps[exps$experiment_group == exp.id, "experiment_name"]
   exp.date <- exps[exps$experiment_group == exp.id, "completed"]
 
-  d <- get_raw_runtime(exp.name, exp.id, con)
-  d.cast <- subset(d, value < 100)
-  d.cast <- cast(data = d.cast, project_name ~ name, fun.aggregate = sum)
-
-  p <- ggplot(data = d.cast, aes(x = project_name))
+  d <- timingPlotData(exp.id, exp.name, con)
+  p <- ggplot(data = d, aes(x = project_name))
   p <- p + theme(axis.ticks.x = element_blank(),
                  axis.title.x = element_blank(),
                  axis.text.x  = element_blank(),
@@ -42,17 +41,17 @@ timingPlot <- function(id, exps) {
                  plot.title = element_text(size = 10))
   p <- p + mytheme
   p <- p + ggtitle(sprintf("Runtime breakdown '%s' @ '%s'\n(%s)", exp.name, exp.date, exp.id))
-  if (is.element("raw.time.real_s", names(d.cast))) {
+  if (is.element("raw.time.real_s", names(d))) {
     p <- p + geom_point(aes(y = raw.time.real_s), size = 1.5, colour = "red")
   }
-  if (is.element("raw.time.user_s", names(d.cast))) {
+  if (is.element("raw.time.user_s", names(d))) {
     p <- p + geom_point(aes(y = raw.time.user_s), size = 1.5, colour = "blue")
   }
 
-  if (is.element("time.real_s", names(d.cast))) {
+  if (is.element("time.real_s", names(d))) {
     p <- p + geom_point(aes(y = time.real_s), size = 1.5, colour = "red")
   }
-  if (is.element("time.user_s", names(d.cast))) {
+  if (is.element("time.user_s", names(d))) {
     p <- p + geom_point(aes(y = time.user_s), size = 1.5, colour = "blue")
   }
   return(p)
@@ -63,11 +62,8 @@ papiPlot <- function(id, exps) {
   exp.name <- exps[exps$experiment_group == exp.id, "experiment_name"]
   exp.date <- exps[exps$experiment_group == exp.id, "completed"]
 
-  cov.dom <- get_papi_dyncov(exp.id, con, "project.domain")
-  cov.value <- get_papi_dyncov(exp.id, con, "metrics.value")
-
-  cov.dom <- subset(cov.dom, value > 0)
-  p <- ggplot(data = cov.dom, aes(x = project_name))
+  d <- papiPlotData(exp.id, con)
+  p <- ggplot(data = d, aes(x = project_name))
   p <- p + theme(axis.ticks.x = element_blank(),
                  axis.text.x = element_blank(),
                  legend.position = "right",
@@ -84,8 +80,8 @@ papiBoxplot <- function(id, exps) {
   exp.name <- exps[exps$experiment_group == exp.id, "experiment_name"]
   exp.date <- exps[exps$experiment_group == exp.id, "completed"]
 
-  cov.dom <- get_papi_dyncov(exp.id, con, "project.domain")
-  cov0 <- cov.dom[cov.dom$value > 1,]
+  d <- papiPlotData(exp.id, con)
+  cov0 <- d[d$value > 1,]
 
   p <- qplot(data = cov0, x = domain, y = value)
   p <- p + ggtitle(sprintf(" Runtime breakdown '%s' @ '%s' (%s)", exp.name, exp.date, exp.id))
@@ -95,13 +91,13 @@ papiBoxplot <- function(id, exps) {
   return(p)
 }
 
-polyjitPlot <- function(id, metric, exps) {
+polyjitPlot <- function(id, metric, aggregation, exps) {
   exp.name <- exps[exps$experiment_group == id, "experiment_name"]
   exp.date <- exps[exps$experiment_group == id, "completed"]
 
-  lw.total <- likwid.total(con, id, metric)
-  lw.runtime <- likwid.runtime(con, id, metric)
-  lw.overhead <- likwid.overhead(con, id, metric)
+  lw.total <- likwid.total(con, id, aggregation, metric)
+  lw.runtime <- likwid.runtime(con, id, aggregation, metric)
+  lw.overhead <- likwid.overhead(con, id, aggregation, metric)
 
   lw <- rbind(lw.runtime, lw.overhead)
 
@@ -116,13 +112,8 @@ polyjitPlot <- function(id, metric, exps) {
 }
 
 shinyServer(function(input, output, session) {
-  experiments <- reactive({
-    get_experiments(con)
-  })
-
-  likwid.metrics <- reactive({
-    likwid.get_metrics(con)
-  })
+  experiments <- reactive({ get_experiments(con) })
+  likwid.metrics <- reactive({ likwid.get_metrics(con) })
 
   observe({
     exps <- experiments()
@@ -132,7 +123,6 @@ shinyServer(function(input, output, session) {
                                   getSelections("polly-openmp", exps),
                                   getSelections("polly-vectorize", exps),
                                   getSelections("polly-openmpvect", exps)))
-
     updateSelectInput(session, "papiExperiments", choices = getSelections("papi", exps))
     updateSelectInput(session, "papiStdExperiments", choices = getSelections("papi-std", exps))
     updateSelectInput(session, "polyjitExperiments", choices = getSelections("polyjit", exps))
@@ -140,37 +130,23 @@ shinyServer(function(input, output, session) {
 
   observe({
     metrics <- likwid.metrics()
-
     updateSelectInput(session, "polyjitMetrics", choices = metrics)
   })
 
-  output$timing <- renderPlot({
+  output$timingTable <- renderDataTable({
     exps <- experiments()
-    timingPlot(input$rawExperiments, exps)
+    exp.name <- exps[exps$experiment_group == input$rawExperiments, "experiment_name"]
+    timingPlotData(input$rawExperiments, exp.name, con)
   })
 
-  output$papi <- renderPlot({
-    exps <- experiments()
-    papiPlot(input$papiExperiments, exps)
-  })
-
-  output$papiBoxplot <- renderPlot({
-    exps <- experiments()
-    papiBoxplot(input$papiExperiments, exps)
-  })
-
-  output$papiStd <- renderPlot({
-    exps <- experiments()
-    papiPlot(input$papiStdExperiments, exps)
-  })
-
-  output$papiStdBoxplot <- renderPlot({
-    exps <- experiments()
-    papiBoxplot(input$papiStdExperiments, exps)
-  })
-
-  output$polyjit <- renderPlot({
-    exps <- experiments()
-    polyjitPlot(input$polyjitExperiments, input$polyjitMetrics, exps)
+  output$timing <- renderPlot({ timingPlot(input$rawExperiments, experiments()) })
+  output$papi <- renderPlot({ papiPlot(input$papiExperiments, experiments()) })
+  output$papiBoxplot <- renderPlot({ papiBoxplot(input$papiExperiments, experiments()) })
+  output$papiStd <- renderPlot({ papiPlot(input$papiStdExperiments, experiments()) })
+  output$papiStdBoxplot <- renderPlot({ papiBoxplot(input$papiStdExperiments, experiments()) })
+  output$polyjit <- renderPlot({ polyjitPlot(input$polyjitExperiments,
+                                             input$polyjitMetrics,
+                                             input$polyjitAggregation,
+                                             experiments())
   })
 })

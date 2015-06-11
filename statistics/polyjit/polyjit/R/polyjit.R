@@ -111,8 +111,8 @@ likwid.get_metrics <- function(c) {
   return(res)
 }
 
-likwid.total <- function(c, exp, metric) {
-  q <- strwrap(sprintf(paste("SELECT project_name, SUM(value) as Total
+likwid.total <- function(c, exp, aggr, metric) {
+  q <- strwrap(sprintf(paste("SELECT project_name, %s(value) as Total
                              FROM run, likwid 
                              WHERE run.id = likwid.run_id 
                              AND experiment_group = '%s'::uuid
@@ -120,15 +120,16 @@ likwid.total <- function(c, exp, metric) {
                              AND metric = '%s'
                              AND region = 'main' 
                              GROUP BY project_name 
-                             ORDER BY project_name;"), exp, metric), width=10000, simplify=TRUE)
+                             ORDER BY project_name;"),
+                       aggr, exp, metric), width=10000, simplify=TRUE)
   qr <- dbSendQuery(c, q)
   res <- melt(dbFetch(qr))
   dbClearResult(qr)
   return(res)
 }
 
-likwid.overhead <- function(c, exp, metric) {
-  q <- strwrap(sprintf(paste("SELECT project_name, SUM(value) as Overhead
+likwid.overhead <- function(c, exp, aggr, metric) {
+  q <- strwrap(sprintf(paste("SELECT project_name, %s(value) as Overhead
                              FROM run, likwid 
                              WHERE run.id = likwid.run_id 
                              AND experiment_group = '%s'::uuid
@@ -139,15 +140,16 @@ likwid.overhead <- function(c, exp, metric) {
                              OR region = 'GetOrParsePrototype'
                              )
                              GROUP BY project_name 
-                             ORDER BY project_name;"), exp, metric), width=10000, simplify=TRUE)
+                             ORDER BY project_name;"),
+                       aggr, exp, metric), width=10000, simplify=TRUE)
     qr <- dbSendQuery(c, q)
     res <- melt(dbFetch(qr))
     dbClearResult(qr)
     return(res)
 }
 
-likwid.runtime <- function(c, exp, metric) {
-    q <- strwrap(sprintf(paste("SELECT project_name, SUM(value) as Runtime
+likwid.runtime <- function(c, exp, aggr, metric) {
+    q <- strwrap(sprintf(paste("SELECT project_name, %s(value) as Runtime
                                FROM run, likwid 
                                WHERE run.id = likwid.run_id 
                                AND experiment_group = '%s'::uuid
@@ -159,7 +161,8 @@ likwid.runtime <- function(c, exp, metric) {
                                OR region = 'main'
                                )
                                GROUP BY project_name 
-                               ORDER BY project_name;"), exp, metric), width=10000, simplify=TRUE)
+                               ORDER BY project_name;"),
+                         aggr, exp, metric), width=10000, simplify=TRUE)
     qr <- dbSendQuery(c, q)
     res <- melt(dbFetch(qr))
     dbClearResult(qr)

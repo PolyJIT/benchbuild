@@ -1,12 +1,11 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
+from pprof.project import ProjectFactory
 from group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 
 
 class SQLite3(PprofGroup):
@@ -36,15 +35,15 @@ class SQLite3(PprofGroup):
         pass
 
     def build(self):
-        from pprof.utils.compiler import clang
+        from pprof.utils.compiler import lt_clang
 
         sqlite_dir = path.join(self.builddir, self.src_dir)
+        clang = lt_clang(self.cflags, self.ldflags)
 
         with local.cwd(sqlite_dir):
-            clang()(self.cflags, "-fPIC", "-c", "sqlite3.c")
-            clang()("-shared", "-Wl,-soname,libsqlite3.so.0", "-o",
-                    "libsqlite3.so",
-                    "sqlite3.o", self.ldflags + ["-ldl"])
+            clang("-fPIC", "-c", "sqlite3.c")
+            clang("-shared", "-Wl,-soname,libsqlite3.so.0",
+                  "-o", "libsqlite3.so", "sqlite3.o", "-ldl")
         self.build_leveldb()
 
     def fetch_leveldb(self):
@@ -55,22 +54,26 @@ class SQLite3(PprofGroup):
             Git(src_uri, "leveldb.src")
 
     def build_leveldb(self):
-        from plumbum.cmd import make, ln
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from plumbum.cmd import make
 
-        llvm = path.join(config["llvmdir"], "bin")
-        clang_cxx = local[path.join(llvm, "clang++")]
-        clang = local[path.join(llvm, "clang")]
-
-        leveldb_dir = path.join(self.builddir, "leveldb.src")
         sqlite_dir = path.join(self.builddir, self.src_dir)
+        leveldb_dir = path.join(self.builddir, "leveldb.src")
+
+        self.ldflags += ["-L", sqlite_dir]
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+        clang = lt_clang(self.cflags, self.ldflags)
+
         with local.cwd(leveldb_dir):
             with local.env(CXX=str(clang_cxx),
-                           CC=str(clang),
-                           CFLAGS=" ".join(self.cflags),
-                           CXXFLAGS=" ".join(self.cflags),
-                           LDFLAGS=" ".join(self.ldflags + ["-L", sqlite_dir]),
-                           ):
-                make["clean", "db_bench_sqlite3"] & FG
+                           CC=str(clang)):
+                make("clean", "db_bench_sqlite3")
 
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(leveldb_dir, "db_bench_sqlite3"), self.run_f)
+    def run_tests(self, experiment):
+        from pprof.project import wrap
+
+        leveldb_dir = path.join(self.builddir, "leveldb.src")
+        with local.cwd(leveldb_dir):
+            sqlite = wrap(
+                path.join(leveldb_dir, "db_bench_sqlite3"), experiment)
+            sqlite()

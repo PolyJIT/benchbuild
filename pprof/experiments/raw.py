@@ -15,14 +15,13 @@ Measurements
 ------------
 
 3 Metrics are generated during this experiment:
-    raw.time.user_s - The time spent in user space in seconds (aka virtual time)
-    raw.time.system_s - The time spent in kernel space in seconds (aka system time)
-    raw.time.real_s - The time spent overall in seconds (aka Wall clock)
+    time.user_s - The time spent in user space in seconds (aka virtual time)
+    time.system_s - The time spent in kernel space in seconds (aka system time)
+    time.real_s - The time spent overall in seconds (aka Wall clock)
 """
 
 from pprof.experiment import step, substep, RuntimeExperiment
 from pprof.settings import config
-from pprof.utils.db import create_run, RunResult
 from os import path
 
 
@@ -69,6 +68,7 @@ class RawRuntime(RuntimeExperiment):
                         Rest.
                     """
                     from plumbum.cmd import time
+                    from pprof.utils.db import create_run, TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
@@ -82,22 +82,18 @@ class RawRuntime(RuntimeExperiment):
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output(timing_tag, timing_unformat,
                                                 stderr.split("\n"))
+
                     if len(timings) == 0:
                         return
 
                     run_id = create_run(str(run_cmd), project_name, self.name,
                                         p.run_uuid)
 
-                    for t in timings:
-                        d = {
-                            "table": "metrics",
-                            "columns": ["name", "value", "run_id"],
-                            "values": [
-                                ("raw.time.user_s", t[0], run_id),
-                                ("raw.time.system_s", t[1], run_id),
-                                ("raw.time.real_s", t[2], run_id)
-                            ]
-                        }
-                        submit(d)
+                    result = TimeResult()
+                    for timing in timings:
+                        result.append(("time.user_s", timing[0], run_id))
+                        result.append(("time.system_s", timing[1], run_id))
+                        result.append(("time.real_s", timing[2], run_id))
+                    result.commit()
 
                 p.run(run_with_time)

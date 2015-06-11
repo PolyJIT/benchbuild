@@ -68,6 +68,5 @@ class LibAV(PprofGroup):
 
         libav_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(libav_dir):
-            with local.env(LD_LIBRARY_PATH=llvm_libs()):
-                #make["-j" + config["jobs"], "clean", "all"] & FG
-                make["clean", "all"] & FG
+            #make["-j" + config["jobs"], "clean", "all"] & FG
+            make["clean", "all"] & FG

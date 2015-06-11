@@ -52,10 +52,9 @@ class Bzip2(PprofGroup):
 
         bzip2_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(bzip2_dir):
-            with local.env(LD_LIBRARY_PATH=llvm_libs()):
-                make["CC=" + str(clang()),
-                     "CFLAGS=" + " ".join(self.cflags),
-                     "LDFLAGS=" + " ".join(self.ldflags), "clean", "bzip2"] & FG
+            make["CC=" + str(clang()),
+                 "CFLAGS=" + " ".join(self.cflags),
+                 "LDFLAGS=" + " ".join(self.ldflags), "clean", "bzip2"] & FG
 
     def pull_in_testfiles(self):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]

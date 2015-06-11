@@ -107,5 +107,3 @@ class PollyVectorizer(RuntimeExperiment):
                         submit(d)
 
                 p.run(run_with_time)
-
-

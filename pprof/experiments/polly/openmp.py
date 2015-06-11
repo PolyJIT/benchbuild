@@ -72,7 +72,7 @@ class PollyOpenMP(RuntimeExperiment):
                         Rest.
                     """
                     from plumbum.cmd import time
-                    from pprof.utils.db import submit
+                    from pprof.utils.db import TimeResult
                     from pprof.utils.run import fetch_time_output
                     import sys
 
@@ -94,16 +94,11 @@ class PollyOpenMP(RuntimeExperiment):
                     run_id = create_run(
                         str(run_cmd), project_name, self.name, p.run_uuid)
 
-                    for t in timings:
-                        d = {
-                            "table": "metrics",
-                            "columns": ["name", "value", "run_id"],
-                            "values": [
-                                ("time.user_s", t[0], run_id),
-                                ("time.system_s", t[1], run_id),
-                                ("time.real_s", t[2], run_id)
-                            ]
-                        }
-                        submit(d)
+                    result = TimeResult()
+                    for timing in timings:
+                        result.append(("time.user_s", timing[0], run_id))
+                        result.append(("time.system_s", timing[1], run_id))
+                        result.append(("time.real_s", timing[2], run_id))
+                    result.commit()
 
                 p.run(run_with_time)

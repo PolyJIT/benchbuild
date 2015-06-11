@@ -190,3 +190,18 @@ class RunResult(object):
             "values": self.values
         }
         submit(result_dict)
+
+
+class TimeResult(RunResult):
+
+    """
+    Database result implementation for Raw Runtime experiments
+    """
+
+    @property
+    def table(self):
+        return "metrics"
+
+    @property
+    def columns(self):
+        return ["name", "value", "run_id"]

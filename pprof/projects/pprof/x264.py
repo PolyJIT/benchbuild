@@ -56,9 +56,9 @@ class X264(PprofGroup):
 
             with local.env(CC=str(x264)):
                 configure("--enable-static",
-                        "--disable-shared",
-                        "--disable-opencl",
-                        "--enable-pic")
+                          "--disable-shared",
+                          "--disable-opencl",
+                          "--enable-pic")
 
     def build(self):
         from plumbum.cmd import make, ln

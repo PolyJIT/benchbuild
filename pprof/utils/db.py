@@ -80,11 +80,11 @@ def create_run(conn, cmd, prj, exp, grp):
                   "VALUES (TIMESTAMP %s, %s, %s, %s, %s, %s) "
                   "RETURNING id;")
 
-    with conn.cursor() as c:
-        c.execute(
-            sql_insert, (datetime.now(), cmd, prj, exp, extensions.adapt(grp),
-                         extensions.adapt(config["experiment"])))
-        run_id = c.fetchone()[0]
+    with conn.cursor() as insert:
+        insert.execute(sql_insert, (datetime.now(), cmd, prj, exp,
+                                    extensions.adapt(grp),
+                                    extensions.adapt(config["experiment"])))
+        run_id = insert.fetchone()[0]
     conn.commit()
     return run_id
 
@@ -133,9 +133,9 @@ def submit(metrics):
     query += ");"
 
     conn = get_db_connection()
-    with conn.cursor() as c:
+    with conn.cursor() as insert:
         for value in values:
-            c.execute(query, value)
+            insert.execute(query, value)
     conn.commit()
 
 

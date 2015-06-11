@@ -1,13 +1,26 @@
 library(shiny)
 
 shinyUI(navbarPage("PolyJIT Experiments",
-  tabPanel("raw",
-    sidebarLayout(
-      sidebarPanel(
-        selectInput("rawExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
+  tabPanel("Raw Timings",
+    p("Simple timing plots that have been generated using Raw-like experiments."),
+    tabsetPanel("Plots",
+      tabPanel("Single Plots",
+        sidebarPanel(
+         selectInput("rawExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
+        ),
+        mainPanel(
+          tabsetPanel("Visualisation Type",
+            tabPanel("Table",
+                    dataTableOutput("timingTable")
+            ),
+            tabPanel("Single",
+                    plotOutput("timing", width = "100%", height = "700px")
+            )
+          )
+        )
       ),
-      mainPanel(
-        plotOutput("timing", width = "100%", height = "700px")
+      tabPanel("Diffs",
+               wellPanel()
       )
     )
   ),
@@ -40,7 +53,10 @@ shinyUI(navbarPage("PolyJIT Experiments",
     sidebarLayout(
       sidebarPanel(
         selectInput("polyjitExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'),
-        selectInput("polyjitMetrics", label = "Metric", multiple = FALSE, choices = NULL, width = '100%'), width = 3
+        selectInput("polyjitMetrics", label = "Metric", multiple = FALSE, choices = NULL, width = '100%'),
+        selectInput("polyjitAggregation", label = "Aggregation", multiple = FALSE,
+                    choices = c("SUM", "MAX", "MIN", "AVG")),
+        width = 3
       ),
       mainPanel(
         plotOutput("polyjit", width = "100%", height = "700px")

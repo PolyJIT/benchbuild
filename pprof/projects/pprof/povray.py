@@ -1,13 +1,12 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
+from pprof.project import ProjectFactory
 from group import PprofGroup
 
 from os import path
 from plumbum import FG, local
-from plumbum.cmd import cp, echo, chmod, find
+from plumbum.cmd import cp, chmod, find
 
 
 class Povray(PprofGroup):
@@ -53,14 +52,14 @@ class Povray(PprofGroup):
             sh("prebuild.sh")
 
         with local.cwd(povray_dir):
-            from pprof.utils.compiler import clang, clang_cxx
+            from pprof.utils.compiler import lt_clang, lt_clang_cxx
+            with local.cwd(self.builddir):
+                clang = lt_clang(self.cflags, self.ldflags)
+                clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
             configure = local["./configure"]
             with local.env(COMPILED_BY="PPROF <no@mail.nono>",
-                           CC=clang(),
-                           CFLAGS=" ".join(self.cflags),
-                           CXX=clang_cxx(),
-                           CXXFLAGS=" ".join(self.cflags),
-                           LDFLAGS=" ".join(self.ldflags)):
+                           CC=str(clang),
+                           CXX=str(clang_cxx)):
                 configure("--with-boost=" + boost_prefix)
 
     def build(self):
@@ -70,22 +69,19 @@ class Povray(PprofGroup):
 
         with local.cwd(povray_dir):
             rm("-f", povray_binary)
-            make & FG
-            #make["clean", "all"] & FG
-        mv(path.join(povray_dir, "unix", self.name), self.bin_f)
-        self.run_f = self.bin_f
+            make("clean", "all")
 
     def prepare(self):
         super(Povray, self).prepare()
-        cp["-ar", path.join(self.testdir, "cfg"), self.builddir] & FG
-        cp["-ar", path.join(self.testdir, "etc"), self.builddir] & FG
-        cp["-ar", path.join(self.testdir, "scenes"), self.builddir] & FG
-        cp["-ar", path.join(self.testdir, "share"), self.builddir] & FG
-        cp["-ar", path.join(self.testdir, "test"), self.builddir] & FG
+        cp("-ar", path.join(self.testdir, "cfg"), self.builddir)
+        cp("-ar", path.join(self.testdir, "etc"), self.builddir)
+        cp("-ar", path.join(self.testdir, "scenes"), self.builddir)
+        cp("-ar", path.join(self.testdir, "share"), self.builddir)
+        cp("-ar", path.join(self.testdir, "test"), self.builddir)
 
     def run_tests(self, experiment):
         from plumbum.cmd import mkdir, chmod
-        exp = wrap(self.run_f, experiment(self.run_f))
+        from pprof.project import wrap
 
         povray_dir = path.join(self.builddir, self.src_dir)
         povray_binary = path.join(povray_dir, "unix", self.name)
@@ -95,10 +91,7 @@ class Povray(PprofGroup):
         scene_dir = path.join(self.builddir, "share", "povray-3.6", "scenes")
         mkdir(tmpdir, retcode=None)
 
-        with open(povray_binary, 'w') as povray:
-            povray.write("#!/bin/sh\n")
-            povray.write(str(exp) + " \"$@\"")
-        chmod("+x", povray_binary)
+        povray = wrap(povray_binary, experiment)
 
         render = local[path.join(povray_dir, "scripts",
                                  "render_scene.sh")]
@@ -111,6 +104,5 @@ class Povray(PprofGroup):
                               grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]) |
                              head["-n", "1"]) |
                             sed["s?^//[ ]*??"]) & FG)
-                povray = local[povray_binary]
                 povray("+L" + scene_dir, "+L" + tmpdir, "-i" + pov_f,
                        "-o" + tmpdir, options, "-p", retcode=None)

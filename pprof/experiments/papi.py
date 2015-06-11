@@ -69,19 +69,15 @@ class PapiScopCoverage(RuntimeExperiment):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
                     from pprof.utils.db import TimeResult
-                    from pprof.utils.run import fetch_time_output
+                    from pprof.utils.run import fetch_time_output, handle_stdin
                     import sys
 
-                    has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
 
-                    run_cmd = time["-f", "%U-%S-%e", run_f]
-                    if has_stdin:
-                        run_cmd = (run_cmd[args] < sys.stdin)
-                    else:
-                        run_cmd = run_cmd[args]
+                    run_cmd = handle_stdin(
+                        time["-f", "%U-%S-%e", run_f, args], kwargs)
 
-                    retcode, stdout, stderr = run_cmd.run()
+                    _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-PAPI: ",
                                                 "PPROF-PAPI: {:g}-{:g}-{:g}",
                                                 stderr.split("\n"))
@@ -142,17 +138,13 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
                     from pprof.utils.db import TimeResult
-                    from pprof.utils.run import fetch_time_output
+                    from pprof.utils.run import fetch_time_output, handle_stdin
                     import sys
 
-                    has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
 
-                    run_cmd = time["-f", "%U-%S-%e", run_f]
-                    if has_stdin:
-                        run_cmd = (run_cmd[args] < sys.stdin)
-                    else:
-                        run_cmd = run_cmd[args]
+                    run_cmd = handle_stdin(
+                        time["-f", "%U-%S-%e", run_f, args], kwargs)
 
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-PAPI: ",

@@ -33,14 +33,16 @@ class Python(PprofGroup):
             tar("xfJ", self.src_file)
 
     def configure(self):
-        from pprof.utils.compiler import clang, clang_cxx
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
         python_dir = path.join(self.builddir, self.src_dir)
+
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
         with local.cwd(python_dir):
             configure = local["./configure"]
-            with local.env(CC=str(clang()), CXX=str(clang_cxx),
-                           CFLAGS=" ".join(self.cflags),
-                           LIBS=" ".join(self.ldflags)):
+            with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure("--disable-shared", "--without-gcc")
 
     def build(self):
@@ -58,9 +60,3 @@ class Python(PprofGroup):
 
         with local.cwd(python_dir):
             make("TESTPYTHON=" + str(exp), "-i", "test")
-
-        #testfiles = find(self.testdir, "-name", "*.py").splitlines()
-        # for f in testfiles:
-        #    with local.env(PYTHONPATH=self.testdir,
-        #                   PYTHONHOME=self.testdir):
-        #        experiment[f] & FG(retcode=None)

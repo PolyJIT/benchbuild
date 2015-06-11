@@ -31,17 +31,17 @@ class Ruby(PprofGroup):
             tar("xfz", self.src_file)
 
     def configure(self):
-        from pprof.utils.compiler import clang, clang_cxx
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
         ruby_dir = path.join(self.builddir, self.src_dir)
+        clang = lt_clang(self.cflags, self.ldflags)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
         with local.cwd(ruby_dir):
-            with local.env(CC=str(clang()), CXX=str(clang_cxx),
-                           CFLAGS=" ".join(self.cflags),
-                           LIBS=" ".join(self.ldflags)):
+            with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure = local["./configure"]
-                configure["--with-static-linked-ext", "--disable-shared"] & FG
+                configure("--with-static-linked-ext", "--disable-shared")
 
     def build(self):
-        from plumbum.cmd import make, ln
+        from plumbum.cmd import make
 
         ruby_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ruby_dir):

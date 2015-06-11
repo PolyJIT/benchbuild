@@ -90,7 +90,7 @@ class XZ(PprofGroup):
         from pprof.utils.compiler import lt_clang, llvm_libs
 
         xz_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(xz_dir):
-            with local.env(LD_LIBRARY_PATH=llvm_libs()):
-                make("CC=" + str(lt_clang(self.cflags, self.ldflags)),
-                     "LDFLAGS=" + " ".join(self.ldflags), "clean", "all")
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
+            with local.cwd(xz_dir):
+                make("CC=" + str(clang()), "clean", "all")

@@ -22,7 +22,7 @@ Measurements
 
 from pprof.experiment import step, substep, RuntimeExperiment
 from pprof.settings import config
-from pprof.utils.db import create_run, get_db_connection
+from pprof.utils.db import create_run
 from os import path
 
 
@@ -74,18 +74,14 @@ class PollyOpenMPVectorizer(RuntimeExperiment):
                         Rest.
                     """
                     from plumbum.cmd import time
-                    from pprof.utils.db import submit
-                    from pprof.project import fetch_time_output
+                    from pprof.utils.db import TimeResult
+                    from pprof.utils.run import fetch_time_output, handle_stdin
                     import sys
 
-                    has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
 
-                    run_cmd = time["-f", "PPROF-POLLY: %U-%S-%e", run_f]
-                    if has_stdin:
-                        run_cmd = (run_cmd[args] < sys.stdin)
-                    else:
-                        run_cmd = run_cmd[args]
+                    run_cmd = handle_stdin(
+                        time["-f", "PPROF-POLLY: %U-%S-%e", run_f, args], kwargs)
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-POLLY: ",
                                                 "PPROF-POLLY: {:g}-{:g}-{:g}",
@@ -94,19 +90,13 @@ class PollyOpenMPVectorizer(RuntimeExperiment):
                         return
 
                     run_id = create_run(
-                        get_db_connection(), str(run_cmd), project_name,
-                        self.name, p.run_uuid)
+                        str(run_cmd), project_name, self.name, p.run_uuid)
 
-                    for t in timings:
-                        d = {
-                            "table": "metrics",
-                            "columns": ["name", "value", "run_id"],
-                            "values": [
-                                ("time.user_s", t[0], run_id),
-                                ("time.system_s", t[1], run_id),
-                                ("time.real_s", t[2], run_id)
-                            ]
-                        }
-                        submit(d)
+                    result = TimeResult()
+                    for timing in timings:
+                        result.append(("time.user_s", timing[0], run_id))
+                        result.append(("time.system_s", timing[1], run_id))
+                        result.append(("time.real_s", timing[2], run_id))
+                    result.commit()
 
                 p.run(run_with_time)

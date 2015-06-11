@@ -1,9 +1,9 @@
 from os import path
 
 from group import PprofGroup
-from pprof.project import ProjectFactory, log
+from pprof.project import ProjectFactory
 from pprof.settings import config
-from plumbum import FG, local
+from plumbum import local
 from os import path
 
 
@@ -33,21 +33,23 @@ class Lapack(PprofGroup):
 
     def configure(self):
         lapack_dir = path.join(self.builddir, self.src_dir)
-        from pprof.utils.compiler import clang
+        from pprof.utils.compiler import lt_clang
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
         with local.cwd(lapack_dir):
             with open("make.inc", 'w') as Makefile:
                 content = [
                     "SHELL     = /bin/sh\n",
                     "PLAT      = _LINUX\n",
-                    "CC        = " + str(clang()) + "\n",
-                    "CFLAGS    = -I$(TOPDIR)/INCLUDE " +
-                    " ".join(self.cflags) + "\n",
-                    "LOADER    = " + str(clang()) + "\n",
-                    "LOADOPTS  = " + " ".join(self.ldflags) + "\n",
-                    "NOOPT     = -O0 -I$(TOPDIR)/INCLUDE " +
-                    " ".join(self.cflags) + "\n",
-                    "DRVCFLAGS = $(CFLAGS) " + " ".join(self.cflags) + "\n",
-                    "F2CCFLAGS = $(CFLAGS) " + " ".join(self.cflags) + "\n",
+                    "CC        = " + str(clang) + "\n",
+                    "CXX       = " + str(clang_cxx) + "\n",
+                    "CFLAGS    = -I$(TOPDIR)/INCLUDE\n",
+                    "LOADER    = " + str(clang) + "\n",
+                    "LOADOPTS  = \n",
+                    "NOOPT     = -O0 -I$(TOPDIR)/INCLUDE\n",
+                    "DRVCFLAGS = $(CFLAGS)\n",
+                    "F2CCFLAGS = $(CFLAGS)\n",
                     "TIMER     = INT_CPU_TIME\n",
                     "ARCH      = ar\n",
                     "ARCHFLAGS = cr\n",
@@ -68,7 +70,7 @@ class Lapack(PprofGroup):
         lapack_dir = path.join(self.builddir, self.src_dir)
 
         with local.cwd(lapack_dir):
-            make["-j", config["jobs"], "f2clib", "blaslib"] & FG
+            make("-j", config["jobs"], "f2clib", "blaslib")
             with local.cwd(path.join("BLAS", "TESTING")):
                 make("-j", config["jobs"], "-f", "Makeblat2")
                 make("-j", config["jobs"], "-f", "Makeblat3")

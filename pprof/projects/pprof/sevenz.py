@@ -1,12 +1,11 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
+from pprof.project import ProjectFactory
 from group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 
 
 class SevenZip(PprofGroup):
@@ -47,14 +46,13 @@ class SevenZip(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make, ln
-        from pprof.utils.compiler import clang, clang_cxx
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
         p7z_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(p7z_dir):
-            make["CC=" + str(clang()),
-                 "CXX=" + str(clang_cxx()),
-                 "OPTFLAGS=" + " ".join(self.cflags + self.ldflags),
-                 "clean", "all"] & FG
+        clang = lt_clang(self.cflags, self.ldflags)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
-        with local.cwd(self.builddir):
-            ln("-sf", path.join(p7z_dir, "bin", "7za"), self.run_f)
+        with local.cwd(p7z_dir):
+            make("CC=" + str(clang),
+                 "CXX=" + str(clang_cxx),
+                 "clean", "all")

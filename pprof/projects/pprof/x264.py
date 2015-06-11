@@ -14,7 +14,8 @@ class X264(PprofGroup):
 
     """ x264 """
 
-    inputfiles = ["tbbt-small.y4m", "Sintel.2010.720p.raw"]
+    inputfiles = {"tbbt-small.y4m": [],
+                  "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}
 
     class Factory:
 
@@ -80,6 +81,7 @@ class X264(PprofGroup):
         for ifile in testfiles:
             exp[
                 ifile,
+                self.inputfiles[ifile],
                 "--threads", "1",
                 "-o", "/dev/null",
                 "--frames", "5",
@@ -88,6 +90,7 @@ class X264(PprofGroup):
                 "--direct", "temporal", "--ssim", "--no-weightb"] & FG
             exp[
                 ifile,
+                self.inputfiles[ifile],
                 "--threads", "1",
                 "-o", "/dev/null",
                 "--frames", "5",
@@ -97,6 +100,7 @@ class X264(PprofGroup):
                 "--slice-max-mbs", "50"] & FG
             exp[
                 ifile,
+                self.inputfiles[ifile],
                 "--threads", "1",
                 "-o", "/dev/null",
                 "--frames", "5",
@@ -106,25 +110,30 @@ class X264(PprofGroup):
                 "--b-adapt", "2", "--slice-max-size", "1500"] & FG
             exp[
                 ifile,
+                self.inputfiles[ifile],
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "--crf", "18", "-b3", "-m9", "-r5", "--me", "umh",
                 "-t1", "-A", "all", "--b-pyramid", "normal",
                 "--direct", "auto", "--no-fast-pskip", "--no-mbtree"] & FG
             exp[
                 ifile,
+                self.inputfiles[ifile],
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "--crf", "22", "-b3", "-m7", "-r4", "--me", "esa", "-t2",
                 "-A", "all", "--psy-rd", "1.0:1.0", "--slices", "4"] & FG
             exp[
                 ifile,
+                self.inputfiles[ifile],
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "--crf", "24", "-b3", "-m10", "-r3", "--me", "tesa",
                 "-t2"] & FG
             exp[
                 ifile,
+                self.inputfiles[ifile],
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "-q0", "-m9", "-r2", "--me", "hex", "-Aall"] & FG
             exp[
                 ifile,
+                self.inputfiles[ifile],
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "-q0", "-m2", "-r1", "--me", "hex", "--no-cabac"] & FG

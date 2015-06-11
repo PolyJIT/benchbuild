@@ -109,10 +109,10 @@ def submit(metrics):
             "values" : [ (col1, col2, col3, col4 ), ... ]
         }
     """
-    if not (metrics.has_key("table") and
-            metrics.has_key("columns") and
-            metrics.has_key("values")):
-        raise Exception("Dictionary format not as expected!")
+    assert isinstance(metrics, dict)
+    assert metrics.has_key("table")
+    assert metrics.has_key("columns")
+    assert metrics.has_key("values")
 
     columns = metrics["columns"]
     query = "INSERT INTO {} (".format(metrics["table"])

@@ -1,7 +1,7 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
+from pprof.project import ProjectFactory
 from pprof.settings import config
 from group import PprofGroup
 

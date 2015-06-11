@@ -75,12 +75,10 @@ class RawRuntime(RuntimeExperiment):
 
                     has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
+                    run_cmd = handle_stdin(
+                        time["-f", timing_format, run_f, args], kwargs)
 
                     run_cmd = time["-f", "PPROF-RAW: %U-%S-%e", run_f]
-                    if has_stdin:
-                        run_cmd = (run_cmd[args] < sys.stdin)
-                    else:
-                        run_cmd = run_cmd[args]
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-RAW: ",
                                                 "PPROF-RAW: {:g}-{:g}-{:g}",

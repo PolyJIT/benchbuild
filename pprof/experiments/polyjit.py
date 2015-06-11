@@ -60,16 +60,12 @@ class PolyJIT(RuntimeExperiment):
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
                     import sys
-                    from pprof.utils.run import fetch_time_output
+                    from pprof.utils.run import fetch_time_output, handle_stdin
 
-                    has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
 
                     run_cmd = time["-f", "PPROF-JIT: %U-%S-%e", run_f]
-                    if has_stdin:
-                        run_cmd = (run_cmd[args] < sys.stdin)
-                    else:
-                        run_cmd = run_cmd[args]
+                    run_cmd = handle_stdin(run_cmd[args], kwargs)
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-JIT: ",
                                                 "PPROF-JIT: {:g}-{:g}-{:g}",
@@ -119,11 +115,11 @@ class PolyJIT(RuntimeExperiment):
                 def run_with_likwid(run_f, args, **kwargs):
                     from pprof.utils.db import create_run, get_db_connection
                     from pprof.likwid import get_likwid_perfctr, to_db
+                    from pprof.utils.run import handle_stdin
                     from plumbum.cmd import rm
                     from plumbum import local
                     import sys
 
-                    has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
 
                     likwid_f = p.name + ".txt"
@@ -134,11 +130,8 @@ class PolyJIT(RuntimeExperiment):
                             path.join(likwid_path, "likwid-perfctr")]
                         run_cmd = likwid_perfctr["-O", "-o", likwid_f, "-m", "-C",
                                                  "-L:0", "-g", group, run_f]
-                        if has_stdin:
-                            run_cmd = (run_cmd[args] < sys.stdin)
-                        else:
-                            run_cmd = run_cmd[args]
 
+                        run_cmd = handle_stdin(run_cmd[args], kwargs)
                         run_cmd()
 
                         run_id = create_run(

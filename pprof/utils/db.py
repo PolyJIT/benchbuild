@@ -13,8 +13,6 @@ def setup_db_config():
     """Query the environment for database connection information
     """
 
-    global config
-
     config["db_host"] = "localhost"
     config["db_port"] = 49153
     config["db_name"] = "pprof"

@@ -205,4 +205,3 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                 metrics["values"].append(
                     ("papi.calibration.time_ns", papi_calibration, run_id))
                 submit(metrics)
-

@@ -70,8 +70,8 @@ class RawRuntime(RuntimeExperiment):
                     """
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
-                    from pprof.project import fetch_time_output
                     import sys
+                    from pprof.utils.run import fetch_time_output, handle_stdin
 
                     has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)

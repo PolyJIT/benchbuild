@@ -73,7 +73,7 @@ class Polly(RuntimeExperiment):
                     """
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
-                    from pprof.project import fetch_time_output
+                    from pprof.utils.run import fetch_time_output
                     import sys
 
                     has_stdin = kwargs.get("has_stdin", False)

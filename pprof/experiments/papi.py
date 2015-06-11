@@ -69,7 +69,7 @@ class PapiScopCoverage(RuntimeExperiment):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
-                    from pprof.project import fetch_time_output
+                    from pprof.utils.run import fetch_time_output
                     import sys
 
                     has_stdin = kwargs.get("has_stdin", False)
@@ -154,7 +154,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
                     from pprof.utils.db import submit
-                    from pprof.project import fetch_time_output
+                    from pprof.utils.run import fetch_time_output
                     import sys
 
                     has_stdin = kwargs.get("has_stdin", False)

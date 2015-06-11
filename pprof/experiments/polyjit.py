@@ -58,9 +58,8 @@ class PolyJIT(RuntimeExperiment):
                     if len(timings) == 0:
                         return
 
-                    run_id = create_run(
-                        get_db_connection(), str(run_cmd), project_name,
-                        self.name, p.run_uuid)
+                    run_id = create_run(str(run_cmd), project_name, self.name,
+                                        p.run_uuid)
 
                     for t in timings:
                         d = {
@@ -98,7 +97,7 @@ class PolyJIT(RuntimeExperiment):
                     p.build()
             with substep("Execute {}".format(p.name)):
                 def run_with_likwid(run_f, args, **kwargs):
-                    from pprof.utils.db import create_run, get_db_connection
+                    from pprof.utils.db import create_run
                     from pprof.utils.run import handle_stdin
                     from pprof.likwid import get_likwid_perfctr
                     from plumbum.cmd import rm
@@ -118,8 +117,7 @@ class PolyJIT(RuntimeExperiment):
                         run_cmd()
 
                         run_id = create_run(
-                            get_db_connection(), str(run_cmd), project_name,
-                            self.name, p.run_uuid)
+                            str(run_cmd), project_name, self.name, p.run_uuid)
                         likwid_measurement = get_likwid_perfctr(likwid_f)
                         likwid.to_db(run_id, likwid_measurement)
                         rm("-f", likwid_f)

@@ -1,13 +1,12 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
+from pprof.project import ProjectFactory
 from pprof.settings import config
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from plumbum import FG, local
-from plumbum.cmd import chmod
+from plumbum import local
 
 
 class Ruby(PprofGroup):
@@ -48,16 +47,16 @@ class Ruby(PprofGroup):
             make("-j", config["jobs"])
 
     def run_tests(self, experiment):
-        from plumbum.cmd import ruby, echo, chmod
+        from plumbum.cmd import ruby
         from pprof.project import wrap
 
         ruby_dir = path.join(self.builddir, self.src_dir)
         exp = wrap(path.join(ruby_dir, "ruby"), experiment)
 
         with local.env(RUBYOPT=""):
-            ruby[path.join(self.testdir, "benchmark", "run.rb"),
+            ruby(path.join(self.testdir, "benchmark", "run.rb"),
                  "--ruby=\"" + str(exp) + "\"",
                  "--opts=\"-I" + path.join(self.testdir, "lib") +
                  " -I" + path.join(self.testdir, ".") +
                  " -I" + path.join(self.testdir, ".ext", "common") +
-                 "\"", "-r"] & FG
+                 "\"", "-r")

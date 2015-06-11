@@ -1,9 +1,8 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
-from group import PprofGroup
+from pprof.project import ProjectFactory
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from plumbum import FG, local
@@ -46,10 +45,10 @@ class Python(PprofGroup):
                 configure("--disable-shared", "--without-gcc")
 
     def build(self):
-        from plumbum.cmd import make, ln
+        from plumbum.cmd import make
         python_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(python_dir):
-            make & FG
+            make()
 
     def run_tests(self, experiment):
         from plumbum.cmd import make

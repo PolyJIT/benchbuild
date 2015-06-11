@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 from pprof.project import ProjectFactory
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from plumbum import local
@@ -52,7 +52,7 @@ class Bzip2(PprofGroup):
         with local.cwd(self.builddir):
             clang = lt_clang(self.cflags, self.ldflags)
         with local.cwd(bzip2_dir):
-            make("CC=" + str(clang),"clean", "bzip2")
+            make("CC=" + str(clang), "clean", "bzip2")
 
     def pull_in_testfiles(self):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]

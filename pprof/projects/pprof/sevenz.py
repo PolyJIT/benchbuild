@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 from pprof.project import ProjectFactory
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from plumbum import local
@@ -45,7 +45,7 @@ class SevenZip(PprofGroup):
         pass
 
     def build(self):
-        from plumbum.cmd import make, ln
+        from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
         p7z_dir = path.join(self.builddir, self.src_dir)

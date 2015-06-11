@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import argparse
-import os
 import regex
 
 
@@ -21,20 +19,17 @@ def extract_line_info(line):
     return '', None
 
 
-core_info_pattern = regex.compile('(Event|Metric|Region Info),(.+)')
-
-
 def extract_core_info(line):
+    core_info_pattern = regex.compile('(Event|Metric|Region Info),(.+)')
     res = regex.search(core_info_pattern, line)
     if res:
         return res.group(2).split(',')
     return None
 
-run_info_separator = regex.compile(
-    '-------------------------------------------------------------')
-
 
 def extract_run_info(infile):
+    run_info_separator = regex.compile(
+        '-------------------------------------------------------------')
     header = []
     found = 0
     for line in infile:
@@ -64,13 +59,13 @@ def get_likwid_perfctr(infile):
     region = ''
     core_info = []
 
-    with open(infile, 'r') as fileIn:
-        header = extract_run_info(fileIn)
+    with open(infile, 'r') as in_file:
+        header = extract_run_info(in_file)
 
         # Let's hope the stdout of the application does not screw us.
-        region = find_first_region(fileIn)
+        region = find_first_region(in_file)
 
-        for line in fileIn:
+        for line in in_file:
             ri = extract_region(line, region)
             if ri != region:
                 region = ri
@@ -83,9 +78,6 @@ def get_likwid_perfctr(infile):
 
             name, li = extract_line_info(line)
             if li:
-                eltstr = ''
-                if len(region) > 0:
-                    eltstr = region + ','
                 for i in range(len(li)):
                     element = (region, name, core_info[i], li[i])
                     metrics.append(element)
@@ -99,7 +91,7 @@ def to_db(run_id, measurements):
 
     sql_insert = ("INSERT INTO likwid (region, metric, core, value, run_id) "
                   "VALUES (%s, %s, %s, %s, %s)")
-    with conn.cursor() as c:
+    with conn.cursor() as insert:
         for (region, name, core, value) in measurements:
-            c.execute(sql_insert, (region, name, core, value, run_id))
+            insert.execute(sql_insert, (region, name, core, value, run_id))
     conn.commit()

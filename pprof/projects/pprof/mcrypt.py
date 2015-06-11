@@ -1,12 +1,12 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
+from pprof.project import ProjectFactory
 from pprof.settings import config
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 
 
 class MCrypt(PprofGroup):
@@ -51,7 +51,6 @@ class MCrypt(PprofGroup):
     def configure(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
         from plumbum.cmd import make
-        import os
 
         mcrypt_dir = path.join(self.builddir, self.src_dir)
         mhash_dir = path.join(self.builddir, self.mhash_dir)
@@ -94,6 +93,7 @@ class MCrypt(PprofGroup):
         from pprof.project import wrap
 
         mcrypt_dir = path.join(self.builddir, self.src_dir, "src", ".libs")
-        aestest = wrap(path.join(mcrypt_dir, "lt-aestest"), experiment)()
-        ciphertest = wrap(path.join(mcrypt_dir, "lt-ciphertest"), experiment)()
-
+        aestest = wrap(path.join(mcrypt_dir, "lt-aestest"), experiment)
+        aestest()
+        ciphertest = wrap(path.join(mcrypt_dir, "lt-ciphertest"), experiment)
+        ciphertest()

@@ -1,9 +1,8 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
-from group import PprofGroup
+from pprof.project import ProjectFactory
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from plumbum import FG, local
@@ -24,8 +23,8 @@ class Postgres(PprofGroup):
 
     def clean(self):
         testfiles = [path.join(self.builddir, x) for x in self.testfiles]
-        for f in testfiles:
-            self.products.add(f)
+        for test_f in testfiles:
+            self.products.add(test_f)
         self.products.add(path.join(self.builddir, self.name + ".sh"))
 
         super(Postgres, self).clean()
@@ -34,8 +33,8 @@ class Postgres(PprofGroup):
         super(Postgres, self).prepare()
 
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
-        for f in testfiles:
-            cp["-a", f, self.builddir] & FG
+        for test_f in testfiles:
+            cp("-a", test_f, self.builddir)
 
     def run_tests(self, experiment):
         exp = experiment(self.run_f)
@@ -48,8 +47,8 @@ class Postgres(PprofGroup):
         bin_name = path.join(self.builddir, self.name + ".sh")
         test_data = path.join(self.testdir, "test-data")
 
-        echo["#!/bin/sh"] >> bin_name & FG
-        echo[str(exp)] >> bin_name & FG
+        (echo["#!/bin/sh"] >> bin_name) & FG
+        (echo[str(exp)] >> bin_name) & FG
         chmod("+x", bin_name)
 
         num_clients = 1
@@ -58,19 +57,19 @@ class Postgres(PprofGroup):
         pg_ctl("stop", "-t", 360, "-w", "-D", test_data, retcode=None)
         try:
             with local.cwd(test_data):
-                pg_ctl["start", "-p", bin_name, "-w", "-D", test_data] & FG
+                pg_ctl("start", "-p", bin_name, "-w", "-D", test_data)
             dropdb["pgbench"] & FG(retcode=None)
-            createdb["pgbench"] & FG
-            pgbench["-i", "pgbench"] & FG
-            pgbench[
+            createdb("pgbench")
+            pgbench("-i", "pgbench")
+            pgbench(
                 "-c",
                 num_clients,
                 "-S",
                 "-t",
                 num_transactions,
-                "pgbench"] & FG
-            dropdb["pgbench"] & FG
-            pg_ctl["stop", "-t", 360, "-w", "-D", test_data] & FG
+                "pgbench")
+            dropdb("pgbench")
+            pg_ctl("stop", "-t", 360, "-w", "-D", test_data)
         except Exception:
             pg_ctl("stop", "-t", 360, "-w", "-D", test_data)
             raise

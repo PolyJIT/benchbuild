@@ -1,14 +1,11 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
-from group import PprofGroup
+from pprof.project import ProjectFactory
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from plumbum import FG, local
-
-import logging
+from plumbum import local
 
 
 class TCC(PprofGroup):
@@ -26,13 +23,11 @@ class TCC(PprofGroup):
 
     def download(self):
         from pprof.utils.downloader import Wget
-        from plumbum.cmd import tar, sed
+        from plumbum.cmd import tar
 
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
             tar("xjf", self.src_file)
-
-        tcc_dir = path.join(self.builddir, self.src_dir)
 
     def configure(self):
         from pprof.utils.compiler import lt_clang
@@ -44,23 +39,19 @@ class TCC(PprofGroup):
             clang = lt_clang(self.cflags, self.ldflags)
         with local.cwd(path.join(self.builddir, "build")):
             configure = local[path.join(tcc_dir, "configure")]
-            configure["--cc=" + str(clang),
-                      "--libdir=/usr/lib64"] & FG
+            configure("--cc=" + str(clang),
+                      "--libdir=/usr/lib64")
 
     def build(self):
-        from plumbum.cmd import make, ln
+        from plumbum.cmd import make
 
-        tcc_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(path.join(self.builddir, "build")):
-            make & FG
-            make["TCC=" + str(experiment), "test"] & FG
+            make()
 
     def run_tests(self, experiment):
         from plumbum.cmd import make
+        from pprof.project import wrap
 
-        exp = experiment(self.run_f)
-
+        wrap(self.run_f, experiment)
         with local.cwd(self.builddir):
-            make["test"] & FG
-        log.debug("FIXME: test incomplete, port from tcc/Makefile")
-        exp & FG
+            make("test")

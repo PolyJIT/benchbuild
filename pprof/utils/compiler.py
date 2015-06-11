@@ -1,6 +1,4 @@
 from pprof.settings import config
-from plumbum import local
-from os import path
 
 
 def lt_clang(cflags, ldflags):
@@ -17,7 +15,6 @@ def lt_clang(cflags, ldflags):
 
     """
     from plumbum import local
-    from os import path
 
     print_libtool_sucks_wrapper("clang", cflags, ldflags, clang)
     return local["./clang"]
@@ -37,7 +34,6 @@ def lt_clang_cxx(cflags, ldflags):
 
     """
     from plumbum import local
-    from os import path
     print_libtool_sucks_wrapper("clang++", cflags, ldflags, clang_cxx)
 
     return local["./clang++"]
@@ -93,16 +89,22 @@ except ProcessExecutionError as e:
 
 
 def llvm():
+    from os import path
     return path.join(config["llvmdir"], "bin")
 
 
 def llvm_libs():
+    from os import path
     return path.join(config["llvmdir"], "lib")
 
 
 def clang_cxx():
+    from os import path
+    from plumbum import local
     return local[path.join(llvm(), "clang++")]
 
 
 def clang():
+    from os import path
+    from plumbum import local
     return local[path.join(llvm(), "clang")]

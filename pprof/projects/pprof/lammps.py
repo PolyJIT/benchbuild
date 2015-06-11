@@ -1,9 +1,8 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
-from group import PprofGroup
+from pprof.project import ProjectFactory
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from glob import glob
@@ -21,7 +20,7 @@ class Lammps(PprofGroup):
     ProjectFactory.addFactory("Lammps", Factory())
 
     def prepare(self):
-        super(PprofGroup, self).prepare()
+        super(Lammps, self).prepare()
         from plumbum.cmd import cp
 
         with local.cwd(self.builddir):
@@ -52,12 +51,10 @@ class Lammps(PprofGroup):
         pass
 
     def build(self):
-        from plumbum.cmd import make, ln
-        from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from plumbum.cmd import make
+        from pprof.utils.compiler import lt_clang_cxx
 
-        clang = lt_clang(self.cflags, self.ldflags)
-        clang_cxx = lt_clang_cxx(self.cfalgs, self.ldflags)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
         with local.cwd(path.join(self.builddir, self.src_dir, "src")):
-            make["CC=" + str(clang_cxx()),
-                 "clean", "serial"] & FG
+            make("CC=" + str(clang_cxx), "clean", "serial")

@@ -6,6 +6,7 @@ Database support module for the pprof study.
 import os
 from pprof.settings import config
 from abc import ABCMeta, abstractproperty
+from pprof.experiment import static_var
 
 
 def setup_db_config():
@@ -40,25 +41,23 @@ def setup_db_config():
     if db_pass:
         config["db_pass"] = db_pass
 
-_db_connection = None
 
-
+@static_var(db, None)
 def get_db_connection():
     """Get or create the database connection using the information stored
     in the global config
     """
     import psycopg2
-    global _db_connection
-    if not _db_connection:
+    if not get_db_connection.db is None:
         setup_db_config()
-        _db_connection = psycopg2.connect(
+        get_db_connection.db = psycopg2.connect(
             host=config["db_host"],
             port=config["db_port"],
             user=config["db_user"],
             password=config["db_pass"],
             database=config["db_name"]
         )
-    return _db_connection
+    return get_db_connection.db
 
 
 def create_run(conn, cmd, prj, exp, grp):

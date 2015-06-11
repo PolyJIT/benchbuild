@@ -14,7 +14,7 @@ class X264(PprofGroup):
 
     """ x264 """
 
-    inputfiles = ["tbbt-small.y4m", "Sintel.2010.720p.mkv"]
+    inputfiles = ["tbbt-small.y4m", "Sintel.2010.720p.raw"]
 
     class Factory:
 
@@ -77,7 +77,6 @@ class X264(PprofGroup):
         exp = wrap(path.join(x264_dir, "x264"), experiment)
 
         testfiles = [path.join(self.testdir, x) for x in self.inputfiles]
-        # TODO: Prepare test videos
         for ifile in testfiles:
             exp[
                 ifile,

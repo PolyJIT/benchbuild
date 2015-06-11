@@ -63,12 +63,14 @@ class PolyJIT(RuntimeExperiment):
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
+                    timing_tag = "PPROF-JIT: "
 
-                    run_cmd = time["-f", "PPROF-JIT: %U-%S-%e", run_f]
+                    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
                     run_cmd = handle_stdin(run_cmd[args], kwargs)
                     _, _, stderr = run_cmd.run()
-                    timings = fetch_time_output("PPROF-JIT: ",
-                                                "PPROF-JIT: {:g}-{:g}-{:g}",
+
+                    timings = fetch_time_output(timing_tag,
+                                                timing_tag + "{:g}-{:g}-{:g}",
                                                 stderr.split("\n"))
                     if len(timings) == 0:
                         return

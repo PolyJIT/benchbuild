@@ -48,6 +48,13 @@ timingPlot <- function(id, exps) {
     p <- p + geom_point(aes(y = raw.time.user_s), size = 1.5, colour = "blue")
   }
 
+  if (is.element("papi.time.real_s", names(d))) {
+    p <- p + geom_point(aes(y = papi.time.real_s), size = 1.5, colour = "red")
+  }
+  if (is.element("papi.time.user_s", names(d))) {
+    p <- p + geom_point(aes(y = papi.time.user_s), size = 1.5, colour = "blue")
+  }
+
   if (is.element("time.real_s", names(d))) {
     p <- p + geom_point(aes(y = time.real_s), size = 1.5, colour = "red")
   }
@@ -122,7 +129,9 @@ shinyServer(function(input, output, session) {
                                   getSelections("polly", exps),
                                   getSelections("polly-openmp", exps),
                                   getSelections("polly-vectorize", exps),
-                                  getSelections("polly-openmpvect", exps)))
+                                  getSelections("polly-openmpvect", exps),
+                                  getSelections("papi", exps),
+                                  getSelections("papi-std", exps)))
     updateSelectInput(session, "papiExperiments",
                       choices = c(getSelections("papi", exps),
                                   getSelections("papi-std", exps)))

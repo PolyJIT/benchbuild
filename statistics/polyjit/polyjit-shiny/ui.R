@@ -20,7 +20,7 @@ shinyUI(navbarPage("PolyJIT Experiments",
         )
       ),
       tabPanel("Diffs",
-               wellPanel()
+               wellPanel(p("Not implemented yet."))
       )
     )
   ),
@@ -44,7 +44,7 @@ shinyUI(navbarPage("PolyJIT Experiments",
         )
       ),
       tabPanel("Diffs",
-               wellPanel()
+               wellPanel(p("Not implemented yet."))
       )
     )
   ),
@@ -63,7 +63,11 @@ shinyUI(navbarPage("PolyJIT Experiments",
       ),
       mainPanel(
         plotOutput("polyjit", width = "100%", height = "700px")
-      )
-    )
+      ))
+  ),
+  tabPanel("Settings",
+     p(withMathJax(strwrap(
+       "Small & Easy interface to delete bogus experiments."))),
+     wellPanel(p("Not implemented yet"))
   )
 ))

@@ -69,8 +69,6 @@ class RawRuntime(RuntimeExperiment):
                         Rest.
                     """
                     from plumbum.cmd import time
-                    from pprof.utils.db import submit
-                    import sys
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)

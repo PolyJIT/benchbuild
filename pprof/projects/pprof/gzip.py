@@ -3,7 +3,7 @@
 
 from pprof.project import ProjectFactory
 from pprof.settings import config
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from plumbum import FG, local
@@ -24,16 +24,16 @@ class Gzip(PprofGroup):
     ProjectFactory.addFactory("Gzip", Factory())
 
     def clean(self):
-        for x in self.testfiles:
-            self.products.add(path.join(self.builddir, x))
-            self.products.add(path.join(self.builddir, x + ".gz"))
+        for test_f in self.testfiles:
+            self.products.add(path.join(self.builddir, test_f))
+            self.products.add(path.join(self.builddir, test_f + ".gz"))
 
         super(Gzip, self).clean()
 
     def prepare(self):
         super(Gzip, self).prepare()
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
-        cp[testfiles, self.builddir] & FG
+        cp(testfiles, self.builddir)
 
     def run_tests(self, experiment):
         from pprof.project import wrap
@@ -41,18 +41,18 @@ class Gzip(PprofGroup):
         exp = wrap(path.join(gzip_dir, "gzip"), experiment)
 
         # Compress
-        exp["-f", "-k", "--best", "text.html"] & FG
-        exp["-f", "-k", "--best", "chicken.jpg"] & FG
-        exp["-f", "-k", "--best", "control"] & FG
-        exp["-f", "-k", "--best", "input.source"] & FG
-        exp["-f", "-k", "--best", "liberty.jpg"] & FG
+        exp("-f", "-k", "--best", "text.html")
+        exp("-f", "-k", "--best", "chicken.jpg")
+        exp("-f", "-k", "--best", "control")
+        exp("-f", "-k", "--best", "input.source")
+        exp("-f", "-k", "--best", "liberty.jpg")
 
         # Decompress
-        exp["-f", "-k", "--decompress", "text.html.gz"] & FG
-        exp["-f", "-k", "--decompress", "chicken.jpg.gz"] & FG
-        exp["-f", "-k", "--decompress", "control.gz"] & FG
-        exp["-f", "-k", "--decompress", "input.source.gz"] & FG
-        exp["-f", "-k", "--decompress", "liberty.jpg.gz"] & FG
+        exp("-f", "-k", "--decompress", "text.html.gz")
+        exp("-f", "-k", "--decompress", "chicken.jpg.gz")
+        exp("-f", "-k", "--decompress", "control.gz")
+        exp("-f", "-k", "--decompress", "input.source.gz")
+        exp("-f", "-k", "--decompress", "liberty.jpg.gz")
 
     src_dir = "gzip-1.6"
     src_file = src_dir + ".tar.xz"
@@ -74,7 +74,7 @@ class Gzip(PprofGroup):
             with local.cwd(self.builddir):
                 clang = lt_clang(self.cflags, self.ldflags)
             configure = local["./configure"]
-            with local.env(CC=str(clang))
+            with local.env(CC=str(clang)):
                 configure("--disable-dependency-tracking",
                           "--disable-silent-rules",
                           "--with-gnu-ld")
@@ -83,4 +83,4 @@ class Gzip(PprofGroup):
         from plumbum.cmd import make
         gzip_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(gzip_dir):
-            make["-j" + config["jobs"], "clean", "all"] & FG
+            make("-j" + config["jobs"], "clean", "all")

@@ -11,7 +11,7 @@ class PollyProfiling(cli.Application):
 
     """ Frontend for running/building the pprof study framework """
 
-    VERSION = "0.9.3"
+    VERSION = "0.9.4"
 
     @cli.switch(["-v", "--verbose"], help="Enable verbose output")
     def verbose(self):

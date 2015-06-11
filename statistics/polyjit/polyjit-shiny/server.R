@@ -123,9 +123,13 @@ shinyServer(function(input, output, session) {
                                   getSelections("polly-openmp", exps),
                                   getSelections("polly-vectorize", exps),
                                   getSelections("polly-openmpvect", exps)))
-    updateSelectInput(session, "papiExperiments", choices = getSelections("papi", exps))
-    updateSelectInput(session, "papiStdExperiments", choices = getSelections("papi-std", exps))
-    updateSelectInput(session, "polyjitExperiments", choices = getSelections("polyjit", exps))
+    updateSelectInput(session, "papiExperiments",
+                      choices = c(getSelections("papi", exps),
+                                  getSelections("papi-std", exps)))
+    updateSelectInput(session, "papiStdExperiments",
+                      choices = getSelections("papi-std", exps))
+    updateSelectInput(session, "polyjitExperiments",
+                      choices = getSelections("polyjit", exps))
   })
 
   observe({
@@ -140,7 +144,9 @@ shinyServer(function(input, output, session) {
   })
 
   output$timing <- renderPlot({ timingPlot(input$rawExperiments, experiments()) })
+
   output$papi <- renderPlot({ papiPlot(input$papiExperiments, experiments()) })
+  output$papiTable <- renderDataTable({ papiPlotData(input$papiExperiments, con) })
   output$papiBoxplot <- renderPlot({ papiBoxplot(input$papiExperiments, experiments()) })
   output$papiStd <- renderPlot({ papiPlot(input$papiStdExperiments, experiments()) })
   output$papiStdBoxplot <- renderPlot({ papiBoxplot(input$papiStdExperiments, experiments()) })

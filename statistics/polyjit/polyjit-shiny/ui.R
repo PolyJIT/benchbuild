@@ -13,7 +13,7 @@ shinyUI(navbarPage("PolyJIT Experiments",
             tabPanel("Table",
                     dataTableOutput("timingTable")
             ),
-            tabPanel("Single",
+            tabPanel("Plot",
                     plotOutput("timing", width = "100%", height = "700px")
             )
           )
@@ -24,32 +24,35 @@ shinyUI(navbarPage("PolyJIT Experiments",
       )
     )
   ),
-  tabPanel("papi",
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-      sidebarPanel(
-        selectInput("papiExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
+  tabPanel("Dynamic SCoP coverage",
+    p("Dynamic SCoP coverage grouped/sorted by domain, depending on the plot type."),
+    p(withMathJax(strwrap(
+      "Let \\(t_{SCoPs}\\) denote the time spent inside SCoPs and \\(t_{Total}\\)
+       denote the total runtime of a program \\(P\\), dynamic SCoP coverage is
+       then defined as: $$DynCov_{P} = \\frac{t_{SCoPs}}{t_{t_{Total}}}$$"))),
+    tabsetPanel("DynCov",
+      tabPanel("Single Plots",
+        sidebarPanel(
+          selectInput("papiExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
+        ),
+        mainPanel(
+          tabsetPanel("Visualisation Type",
+            tabPanel("Table", dataTableOutput("papiTable")),
+            tabPanel("Default", plotOutput("papi", width = "100%", height = "700px")),
+            tabPanel("Boxplot", plotOutput("papiBoxplot", width = "100%", height = "700px"))
+          )
+        )
       ),
-      mainPanel(
-        plotOutput("papi", width = "100%", height = "700px"),
-        plotOutput("papiBoxplot", width = "100%", height = "700px")
+      tabPanel("Diffs",
+               wellPanel()
       )
     )
   ),
-  tabPanel("papi-std",
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-      sidebarPanel(
-        selectInput("papiStdExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
-      ),
-      mainPanel(
-        plotOutput("papiStd", width = "100%", height = "700px"),
-        plotOutput("papiStdBoxplot", width = "100%", height = "700px")
-      )
-    )
-  ),
-  tabPanel("polyjit",
-    # Sidebar with a slider input for number of bins
+  tabPanel("Likwid",
+    p(withMathJax(strwrap(
+      "Likwid measurements have to generated/submitted via the pprof helper
+      functions. Nothing special is done with the measurements itself, we're
+      just dumping them."))),
     sidebarLayout(
       sidebarPanel(
         selectInput("polyjitExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'),

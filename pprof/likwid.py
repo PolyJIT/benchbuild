@@ -94,7 +94,7 @@ def get_likwid_perfctr(infile):
 
 
 def to_db(run_id, measurements):
-    from pprof.settings import get_db_connection
+    from pprof.utils.db import get_db_connection
     conn = get_db_connection()
 
     sql_insert = ("INSERT INTO likwid (region, metric, core, value, run_id) "

@@ -141,24 +141,3 @@ config = {
     "partition" : os.getenv("PPROF_CLUSTER_PARTITION", "chimaira"),
 }
 
-
-def setup_db_config():
-    global config
-    pass
-
-_db_connection = None
-
-
-def get_db_connection():
-    import psycopg2
-    global _db_connection
-    if not _db_connection:
-        setup_db_config()
-        _db_connection = psycopg2.connect(
-            host=config["db_host"],
-            port=config["db_port"],
-            user=config["db_user"],
-            password=config["db_pass"],
-            database=config["db_name"]
-        )
-    return _db_connection

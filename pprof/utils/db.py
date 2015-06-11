@@ -40,21 +40,30 @@ def setup_db_config():
         config["db_pass"] = db_pass
 
 
-@static_var(db, None)
+@static_var("db", None)
 def get_db_connection():
     """Get or create the database connection using the information stored
     in the global config
     """
     import psycopg2
-    if not get_db_connection.db is None:
+    import sys
+    if get_db_connection.db is None:
         setup_db_config()
-        get_db_connection.db = psycopg2.connect(
-            host=config["db_host"],
-            port=config["db_port"],
-            user=config["db_user"],
-            password=config["db_pass"],
-            database=config["db_name"]
-        )
+        try:
+            get_db_connection.db = psycopg2.connect(
+                host=config["db_host"],
+                port=config["db_port"],
+                user=config["db_user"],
+                password=config["db_pass"],
+                database=config["db_name"]
+            )
+        except psycopg2.Error, e:
+            sys.stderr.write("FATAL: Could not open database connection.\n")
+            sys.stderr.write("{}@{}:{} db: {}\n".format(
+                config["db_user"], config["db_host"], config["db_port"], config["db_name"]))
+            sys.stderr.write("Details:\n")
+            sys.stderr.write(str(e))
+            sys.exit(1)
     return get_db_connection.db
 
 

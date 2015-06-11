@@ -1,12 +1,11 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
+from pprof.project import ProjectFactory
 from group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 from plumbum.cmd import cp
 
 
@@ -46,19 +45,18 @@ class Bzip2(PprofGroup):
         pass
 
     def build(self):
-        from plumbum.cmd import make, ln
-        from pprof.settings import config
-        from pprof.utils.compiler import clang, llvm_libs
+        from plumbum.cmd import make
+        from pprof.utils.compiler import lt_clang
 
         bzip2_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
         with local.cwd(bzip2_dir):
-            make["CC=" + str(clang()),
-                 "CFLAGS=" + " ".join(self.cflags),
-                 "LDFLAGS=" + " ".join(self.ldflags), "clean", "bzip2"] & FG
+            make("CC=" + str(clang),"clean", "bzip2")
 
     def pull_in_testfiles(self):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
-        cp[testfiles, self.builddir] & FG
+        cp(testfiles, self.builddir)
 
     def prepare(self):
         super(Bzip2, self).prepare()
@@ -70,15 +68,15 @@ class Bzip2(PprofGroup):
         exp = wrap(path.join(self.src_dir, "bzip2"), experiment)
 
         # Compress
-        exp["-f", "-z", "-k", "--best", "text.html"] & FG
-        exp["-f", "-z", "-k", "--best", "chicken.jpg"] & FG
-        exp["-f", "-z", "-k", "--best", "control"] & FG
-        exp["-f", "-z", "-k", "--best", "input.source"] & FG
-        exp["-f", "-z", "-k", "--best", "liberty.jpg"] & FG
+        exp("-f", "-z", "-k", "--best", "text.html")
+        exp("-f", "-z", "-k", "--best", "chicken.jpg")
+        exp("-f", "-z", "-k", "--best", "control")
+        exp("-f", "-z", "-k", "--best", "input.source")
+        exp("-f", "-z", "-k", "--best", "liberty.jpg")
 
         # Decompress
-        exp["-f", "-k", "--decompress", "text.html.bz2"] & FG
-        exp["-f", "-k", "--decompress", "chicken.jpg.bz2"] & FG
-        exp["-f", "-k", "--decompress", "control.bz2"] & FG
-        exp["-f", "-k", "--decompress", "input.source.bz2"] & FG
-        exp["-f", "-k", "--decompress", "liberty.jpg.bz2"] & FG
+        exp("-f", "-k", "--decompress", "text.html.bz2")
+        exp("-f", "-k", "--decompress", "chicken.jpg.bz2")
+        exp("-f", "-k", "--decompress", "control.bz2")
+        exp("-f", "-k", "--decompress", "input.source.bz2")
+        exp("-f", "-k", "--decompress", "liberty.jpg.bz2")

@@ -1,15 +1,14 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
+from pprof.project import ProjectFactory
 from pprof.settings import config
 from group import PprofGroup
 
 from os import path
-from glob import glob
 
 from plumbum import FG, local
-from plumbum.cmd import cp, echo, chmod, make
+from plumbum.cmd import make
 
 
 class LibAV(PprofGroup):
@@ -36,7 +35,7 @@ class LibAV(PprofGroup):
             wrap(self.name, experiment)
 
         with local.cwd(self.src_dir):
-            make["V=1", "-i", "fate"] & FG
+            make("V=1", "-i", "fate")
 
     def download(self):
         from pprof.utils.downloader import Wget, Rsync
@@ -49,24 +48,20 @@ class LibAV(PprofGroup):
                 Rsync(self.fate_uri, self.fate_dir)
 
     def configure(self):
-        from pprof.utils.compiler import clang
+        from pprof.utils.compiler import lt_clang
         llvm = path.join(config["llvmdir"], "bin")
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         libav_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
         with local.cwd(libav_dir):
             configure = local["./configure"]
-            configure["--extra-cflags=" + " ".join(self.cflags),
-                      "--extra-ldflags=" + " ".join(self.ldflags),
-                      "--disable-shared",
-                      "--cc=" + str(clang()),
-                      "--samples=" + self.fate_dir] & FG
+            configure("--disable-shared",
+                      "--cc=" + str(clang),
+                      "--samples=" + self.fate_dir)
 
     def build(self):
-        from plumbum.cmd import ln, mv
-        from pprof.utils.compiler import llvm_libs
-
         libav_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(libav_dir):
-            #make["-j" + config["jobs"], "clean", "all"] & FG
-            make["clean", "all"] & FG
+            make("clean", "all")

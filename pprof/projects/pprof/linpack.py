@@ -1,12 +1,11 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
-from group import PprofGroup
+from pprof.project import ProjectFactory
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 
 
 class Linpack(PprofGroup):
@@ -36,7 +35,6 @@ class Linpack(PprofGroup):
         pass
 
     def build(self):
-        from pprof.settings import config
         from pprof.utils.compiler import lt_clang
 
         cflags = self.cflags

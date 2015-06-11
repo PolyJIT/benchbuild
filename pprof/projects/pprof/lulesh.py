@@ -2,9 +2,8 @@
 # encoding: utf-8
 
 from pprof.project import ProjectFactory
-from group import PprofGroup
-
-from plumbum import FG, local
+from pprof.projects.pprof.group import PprofGroup
+from plumbum import local
 
 
 class Lulesh(PprofGroup):
@@ -39,7 +38,7 @@ class Lulesh(PprofGroup):
     def build(self):
         from pprof.utils.compiler import lt_clang_cxx
 
-        clang_cxx = lt_clang_cxx(self.cflags, sel.fldflags)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
         with local.cwd(self.builddir):
             clang_cxx("-o", self.run_f, self.src_file)

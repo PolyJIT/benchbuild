@@ -41,7 +41,7 @@ class PolyJIT(RuntimeExperiment):
             with substep("Execute {}".format(p.name)):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
-                    from pprof.utils.db import TimeResult
+                    from pprof.utils.db import TimeResult, create_run
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
@@ -94,7 +94,6 @@ class PolyJIT(RuntimeExperiment):
                     from pprof.utils.run import handle_stdin
                     from pprof.likwid import get_likwid_perfctr
                     from plumbum.cmd import rm
-                    from plumbum import local
 
                     project_name = kwargs.get("project_name", p.name)
                     likwid_f = p.name + ".txt"

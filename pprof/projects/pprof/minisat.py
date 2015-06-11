@@ -1,9 +1,8 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
-from group import PprofGroup
+from pprof.project import ProjectFactory
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path, getenv
 from glob import glob
@@ -32,9 +31,9 @@ class Minisat(PprofGroup):
         minisat_dir = path.join(self.builddir, self.src_dir)
         minisat_lib_path = path.join(minisat_dir, "build", "dynamic", "lib")
 
-        for f in testfiles:
+        for test_f in testfiles:
             with local.env(LD_LIBRARY_PATH=minisat_lib_path + ":" + getenv("LD_LIBRARY_PATH", "")):
-                (exp < f) & FG(retcode=None)
+                (exp < test_f) & FG(retcode=None)
 
     src_dir = "minisat.git"
     src_uri = "https://github.com/niklasso/minisat"
@@ -58,7 +57,7 @@ class Minisat(PprofGroup):
             make("config")
 
     def build(self):
-        from plumbum.cmd import make, ln
+        from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
         minisat_dir = path.join(self.builddir, self.src_dir)

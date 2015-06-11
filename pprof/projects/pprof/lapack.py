@@ -1,10 +1,8 @@
 from os import path
-
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 from pprof.project import ProjectFactory
 from pprof.settings import config
 from plumbum import local
-from os import path
 
 
 class Lapack(PprofGroup):
@@ -33,12 +31,12 @@ class Lapack(PprofGroup):
 
     def configure(self):
         lapack_dir = path.join(self.builddir, self.src_dir)
-        from pprof.utils.compiler import lt_clang
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
         with local.cwd(self.builddir):
             clang = lt_clang(self.cflags, self.ldflags)
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
         with local.cwd(lapack_dir):
-            with open("make.inc", 'w') as Makefile:
+            with open("make.inc", 'w') as makefile:
                 content = [
                     "SHELL     = /bin/sh\n",
                     "PLAT      = _LINUX\n",
@@ -63,7 +61,7 @@ class Lapack(PprofGroup):
                     "LINSRCLIB = linsrc$(PLAT).a\n",
                     "F2CLIB    = ../../F2CLIBS/libf2c.a\n"
                 ]
-                Makefile.writelines(content)
+                makefile.writelines(content)
 
     def build(self):
         from plumbum.cmd import make

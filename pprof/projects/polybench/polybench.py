@@ -5,7 +5,7 @@ from pprof.project import Project, ProjectFactory
 from pprof.settings import config
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 
 
 class PolyBenchGroup(Project):

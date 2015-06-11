@@ -1,10 +1,8 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
-from group import PprofGroup
-
+from pprof.project import ProjectFactory
+from pprof.projects.pprof.group import PprofGroup
 from os import path
 from plumbum import FG, local
 
@@ -30,7 +28,7 @@ class LevelDB(PprofGroup):
         pass
 
     def build(self):
-        from plumbum.cmd import make, ln
+        from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
         leveldb_dir = path.join(self.builddir, "leveldb.src")
@@ -40,9 +38,8 @@ class LevelDB(PprofGroup):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
         with local.cwd(leveldb_dir):
-            with local.env(CXX=str(clang_cxx),
-                    CC=str(clang)):
-                make["clean", "db_bench"] & FG
+            with local.env(CXX=str(clang_cxx), CC=str(clang)):
+                make("clean", "db_bench")
 
     def run_tests(self, experiment):
         from pprof.project import wrap

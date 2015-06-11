@@ -1,9 +1,8 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
-from group import PprofGroup
+from pprof.project import ProjectFactory
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from plumbum import FG, local
@@ -41,7 +40,7 @@ class Crafty(PprofGroup):
         pass
 
     def build(self):
-        from plumbum.cmd import make, ln
+        from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
         crafty_dir = path.join(self.builddir, self.src_dir)
@@ -55,15 +54,14 @@ class Crafty(PprofGroup):
                 clang = lt_clang(self.cflags, self.ldflags)
                 clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
 
-            make["target=LINUX",
+            make("target=LINUX",
                  "CC=" + str(clang),
                  "CXX=" + str(clang_cxx),
                  "CFLAGS=" + " ".join(target_cflags),
                  "CXFLAGS=" + " ".join(target_cxflags),
                  "LDFLAGS=" + " ".join(target_ldflags),
                  "opt=" + " ".join(target_opts),
-                 "crafty-make"] & FG
-        self.run_f = path.join(crafty_dir, "crafty")
+                 "crafty-make")
 
     def run_tests(self, experiment):
         from pprof.project import wrap

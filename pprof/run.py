@@ -12,7 +12,7 @@ from pprof.experiments import papi
 from pprof.experiments.polly import polly, openmp, openmpvect, vectorize
 import logging
 import pprint
-log = logging.getLogger()
+LOG = logging.getLogger()
 
 
 @PollyProfiling.subcommand("run")
@@ -104,7 +104,7 @@ class PprofRun(cli.Application):
             exit(0)
 
         for exp_name in self._experiment_names:
-            log.info("Running experiment: " + exp_name)
+            LOG.info("Running experiment: " + exp_name)
             name = exp_name.lower()
 
             exp = self._experiments[name](
@@ -115,7 +115,7 @@ class PprofRun(cli.Application):
                 exp.clean()
 
             if self._execute:
-                log.info("Configuration: ")
+                LOG.info("Configuration: ")
                 pprint.pprint(config)
                 exp.prepare()
                 exp.run()
@@ -133,20 +133,20 @@ def print_projects(experiment):
     grouped_by = {}
     projects = experiment.projects
     for name in projects:
-        p = projects[name]
+        prj = projects[name]
 
-        if not p.group_name in grouped_by:
-            grouped_by[p.group_name] = []
+        if not prj.group_name in grouped_by:
+            grouped_by[prj.group_name] = []
 
-        grouped_by[p.group_name].append(name)
+        grouped_by[prj.group_name].append(name)
 
     for name in grouped_by:
         from textwrap import wrap
         print ">> {}".format(name)
         projects = sorted(grouped_by[name])
         project_paragraph = ""
-        for p in projects:
-            project_paragraph += ", {}".format(p)
+        for prj in projects:
+            project_paragraph += ", {}".format(prj)
         print "\n".join(wrap(project_paragraph[2:], 80, break_on_hyphens=False,
                              break_long_words=False))
         print
@@ -165,11 +165,11 @@ def synchronize_experiment_with_db(exp):
     sql_sel = "SELECT * FROM experiment WHERE name=%s"
     sql_ins = "INSERT INTO experiment (name, description) VALUES (%s, %s)"
     sql_upd = "UPDATE experiment SET description = %s WHERE name = %s"
-    with conn.cursor() as c:
-        c.execute(sql_sel, (exp.name, ))
+    with conn.cursor() as sync:
+        sync.execute(sql_sel, (exp.name, ))
 
-        if not c.rowcount:
-            c.execute(sql_ins, (exp.name, exp.name))
+        if not sync.rowcount:
+            sync.execute(sql_ins, (exp.name, exp.name))
         else:
-            c.execute(sql_upd, [exp.name, exp.name])
+            sync.execute(sql_upd, [exp.name, exp.name])
     conn.commit()

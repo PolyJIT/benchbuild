@@ -2,7 +2,6 @@
 # encoding: utf-8
 
 from plumbum import cli
-from settings import config
 
 import sys
 import logging
@@ -12,11 +11,11 @@ class PollyProfiling(cli.Application):
 
     """ Frontend for running/building the pprof study framework """
 
-    VERSION = "0.9.2"
+    VERSION = "0.9.3"
 
     @cli.switch(["-v", "--verbose"], help="Enable verbose output")
     def verbose(self):
-        log.setLevel(logging.DEBUG)
+        LOG.setLevel(logging.DEBUG)
 
     def main(self, *args):
         if args:
@@ -27,10 +26,9 @@ class PollyProfiling(cli.Application):
             return 1
 
 
-log = logging.getLogger()
-handler = logging.StreamHandler(sys.stderr)
-log.addHandler(handler)
-log.setLevel(logging.WARNING)
+LOG = logging.getLogger()
+LOG.addHandler(logging.StreamHandler(sys.stderr))
+LOG.setLevel(logging.WARNING)
 
 
 def main(*args):

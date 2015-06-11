@@ -73,7 +73,6 @@ class RawRuntime(RuntimeExperiment):
                     import sys
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
-                    has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
                     run_cmd = handle_stdin(
                         time["-f", timing_format, run_f, args], kwargs)

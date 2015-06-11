@@ -74,13 +74,15 @@ class RawRuntime(RuntimeExperiment):
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
+                    timing_tag = "PPROF-RAW: "
+                    timing_format = timing_tag + "%U-%S-%e"
+                    timing_unformat = timing_tag + "{:g}-{:g}-{:g}"
+
                     run_cmd = handle_stdin(
                         time["-f", timing_format, run_f, args], kwargs)
 
-                    run_cmd = time["-f", "PPROF-RAW: %U-%S-%e", run_f]
                     _, _, stderr = run_cmd.run()
-                    timings = fetch_time_output("PPROF-RAW: ",
-                                                "PPROF-RAW: {:g}-{:g}-{:g}",
+                    timings = fetch_time_output(timing_tag, timing_unformat,
                                                 stderr.split("\n"))
                     if len(timings) == 0:
                         return

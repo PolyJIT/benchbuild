@@ -3,7 +3,7 @@
 
 from pprof.project import ProjectFactory
 from pprof.settings import config
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from plumbum import local
@@ -31,8 +31,8 @@ class X264(PprofGroup):
             cp(testfile, self.builddir)
 
     def clean(self):
-        for x in self.inputfiles:
-            self.products.add(path.join(self.builddir, x))
+        for input_f in self.inputfiles:
+            self.products.add(path.join(self.builddir, input_f))
 
         super(X264, self).clean()
 

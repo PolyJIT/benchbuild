@@ -3,11 +3,11 @@
 
 from pprof.project import ProjectFactory
 from pprof.settings import config
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 
-from plumbum import FG, local
+from plumbum import local
 from plumbum.cmd import make
 
 
@@ -49,8 +49,6 @@ class LibAV(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang
-        llvm = path.join(config["llvmdir"], "bin")
-        llvm_libs = path.join(config["llvmdir"], "lib")
 
         libav_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):

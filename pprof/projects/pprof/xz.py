@@ -1,13 +1,11 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
-from pprof.settings import config
-from group import PprofGroup
+from pprof.project import ProjectFactory
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from plumbum import FG, local
-from plumbum.cmd import cp
+from plumbum import local
 
 
 class XZ(PprofGroup):
@@ -24,16 +22,17 @@ class XZ(PprofGroup):
     ProjectFactory.addFactory("XZ", Factory())
 
     def clean(self):
-        for x in self.testfiles:
-            self.products.add(path.join(self.builddir, x))
-            self.products.add(path.join(self.builddir, x + ".xz"))
+        for test_f in self.testfiles:
+            self.products.add(path.join(self.builddir, test_f))
+            self.products.add(path.join(self.builddir, test_f + ".xz"))
 
         super(XZ, self).clean()
 
     def prepare(self):
         super(XZ, self).prepare()
+        from plumbum.cmd import cp
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
-        cp[testfiles, self.builddir] & FG
+        cp(testfiles, self.builddir)
 
     src_dir = "xz-5.2.1"
     src_file = src_dir + ".tar.gz"
@@ -54,26 +53,28 @@ class XZ(PprofGroup):
         exp = wrap(path.join(xz_dir, "src", "xz", "xz"), experiment)
 
         # Compress
-        exp["--compress", "-f", "-k",  "-e", "-9", "text.html"] & FG
-        exp["--compress", "-f", "-k",  "-e", "-9", "chicken.jpg"] & FG
-        exp["--compress", "-f", "-k",  "-e", "-9", "control"] & FG
-        exp["--compress", "-f", "-k",  "-e", "-9", "input.source"] & FG
-        exp["--compress", "-f", "-k",  "-e", "-9", "liberty.jpg"] & FG
+        exp("--compress", "-f", "-k", "-e", "-9", "text.html")
+        exp("--compress", "-f", "-k", "-e", "-9", "chicken.jpg")
+        exp("--compress", "-f", "-k", "-e", "-9", "control")
+        exp("--compress", "-f", "-k", "-e", "-9", "input.source")
+        exp("--compress", "-f", "-k", "-e", "-9", "liberty.jpg")
 
         # Decompress
-        exp["--decompress", "-f", "-k", "text.html.xz"] & FG
-        exp["--decompress", "-f", "-k", "chicken.jpg.xz"] & FG
-        exp["--decompress", "-f", "-k", "control.xz"] & FG
-        exp["--decompress", "-f", "-k", "input.source.xz"] & FG
-        exp["--decompress", "-f", "-k", "liberty.jpg.xz"] & FG
+        exp("--decompress", "-f", "-k", "text.html.xz")
+        exp("--decompress", "-f", "-k", "chicken.jpg.xz")
+        exp("--decompress", "-f", "-k", "control.xz")
+        exp("--decompress", "-f", "-k", "input.source.xz")
+        exp("--decompress", "-f", "-k", "liberty.jpg.xz")
 
     def configure(self):
         from pprof.utils.compiler import lt_clang
 
         xz_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
         with local.cwd(xz_dir):
             configure = local["./configure"]
-            with local.env(CC=str(lt_clang(self.cflags, self.ldflags))):
+            with local.env(CC=str(clang)):
                 configure("--enable-threads=no",
                           "--with-gnu-ld=yes",
                           "--disable-shared",
@@ -86,8 +87,8 @@ class XZ(PprofGroup):
                           "--disable-doc")
 
     def build(self):
-        from plumbum.cmd import make, ln
-        from pprof.utils.compiler import lt_clang, llvm_libs
+        from plumbum.cmd import make
+        from pprof.utils.compiler import lt_clang
 
         xz_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):

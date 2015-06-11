@@ -29,12 +29,11 @@ An experiment performs the following actions in order:
 
 """
 
-from plumbum import local, cli, FG
+from plumbum import local, FG
 from plumbum.cmd import (cp, chmod, sed, time, echo,
                          tee, mv, touch, awk, rm, mkdir, rmdir, grep, cat)
 from plumbum.commands.processes import ProcessExecutionError
 
-from pprof import project
 from pprof.project import ProjectFactory
 from pprof.projects.polybench import polybench
 from pprof.projects.pprof import (sevenz, bzip2, ccrypt, crafty, crocopat,
@@ -48,7 +47,6 @@ from pprof.settings import config
 from contextlib import contextmanager
 from os import path, listdir
 from sets import Set
-from codecs import getwriter
 
 import re
 import sys
@@ -93,19 +91,19 @@ def to_utf8(text):
     if not text:
         return text
 
-    try: # unicode or pure ascii
+    try:  # unicode or pure ascii
         return text.encode("utf8")
     except UnicodeDecodeError:
-        try: # successful UTF-8 decode means it's pretty sure UTF-8 already
+        try:  # successful UTF-8 decode means it's pretty sure UTF-8 already
             text.decode("utf8")
             return text
         except UnicodeDecodeError:
-            try: # get desperate; and yes, this has a western hemisphere bias
+            try:  # get desperate; and yes, this has a western hemisphere bias
                 return text.decode("cp1252").encode("utf8")
             except UnicodeDecodeError:
                 pass
 
-    return text # return unchanged, hope for the best
+    return text  # return unchanged, hope for the best
 
 
 def static_var(varname, value):
@@ -132,11 +130,14 @@ def static_var(varname, value):
 
 
 class SubStepError(Exception):
+
     def __init__(self, *args):
+        super(SubStepError, self).__init__()
         self.args = args
 
     def __str__(self):
         return repr(self.args)
+
 
 @contextmanager
 @static_var("counter", 0)
@@ -342,8 +343,8 @@ class Experiment(object):
         """
         self.projects = {}
         factories = ProjectFactory.factories
-        for id in factories:
-            project = factories[id].create(self)
+        for fact_id in factories:
+            project = factories[fact_id].create(self)
             synchronize_project_with_db(project)
             self.projects[project.name] = project
 
@@ -386,16 +387,16 @@ class Experiment(object):
 
         self.map_projects(self.clean_project, "clean")
         if (path.exists(self.builddir)) and listdir(self.builddir) == []:
-            rmdir[self.builddir] & FG
+            rmdir(self.builddir)
         if path.exists(self.result_f):
-            rm[self.result_f]
+            rm(self.result_f)
 
         calibrate_calls_f = path.join(self.builddir, "pprof-calibrate.calls")
         calibrate_prof_f = path.join(self.builddir,
                                      "pprof-calibrate.profile.out")
         if path.exists(calibrate_calls_f):
-            rm[calibrate_calls_f]
-            rm[calibrate_prof_f]
+            rm(calibrate_calls_f)
+            rm(calibrate_prof_f)
 
     def prepare(self):
         """
@@ -405,7 +406,7 @@ class Experiment(object):
         """
 
         if not path.exists(self.builddir):
-            mkdir[self.builddir] & FG(retcode=None)
+            (mkdir[self.builddir] & FG(retcode=None))
 
         # Setup experiment logger
         handler = logging.FileHandler(self.error_f)
@@ -487,7 +488,7 @@ class Experiment(object):
             for res in result_files:
                 prep_cat = prep_cat[res]
             prep_cat = (prep_cat > self.result_f)
-            prep_cat & FG
+            prep_cat()
 
         with open(self.result_f) as result_f:
             pattern = re.compile("-{63}\n>>> =+ ([-\\w]+) Program\n-{63}\n")

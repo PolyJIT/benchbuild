@@ -1,13 +1,12 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import Project, ProjectFactory, log
+from pprof.project import ProjectFactory
 from pprof.settings import config
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from glob import glob
-from plumbum import FG, local
+from plumbum import local
 
 
 class LibreSSL(PprofGroup):
@@ -26,7 +25,7 @@ class LibreSSL(PprofGroup):
 
     def download(self):
         from pprof.utils.downloader import Wget
-        from plumbum.cmd import wget, tar
+        from plumbum.cmd import tar
 
         openssl_dir = path.join(self.builddir, self.src_file)
         with local.cwd(self.builddir):
@@ -46,7 +45,7 @@ class LibreSSL(PprofGroup):
                 configure("--disable-asm")
 
     def build(self):
-        from plumbum.cmd import make, ln
+        from plumbum.cmd import make
 
         openssl_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(openssl_dir):
@@ -56,11 +55,10 @@ class LibreSSL(PprofGroup):
         from plumbum.cmd import find, make
         from pprof.project import wrap
 
-        openssl_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(path.join(self.src_dir, "tests", ".libs")):
             files = find(".", "-type", "f", "-executable")
-            for f in files.split("\n"):
-                if len(f) > 0:
-                    wrap(f, experiment)
+            for wrap_f in files.split("\n"):
+                if len(wrap_f) > 0:
+                    wrap(wrap_f, experiment)
         with local.cwd(self.src_dir):
             make("V=1", "check")

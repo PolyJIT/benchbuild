@@ -1,23 +1,18 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from plumbum import cli, local, FG
+from plumbum import cli, local
 from pprof.driver import PollyProfiling
-from settings import config
 
-llvm_url = "http://llvm.org/git/llvm.git"
-polly_url = "http://github.com/simbuerg/polly.git"
-clang_url = "http://llvm.org/git/clang.git"
-polli_url = "http://github.com/simbuerg/polli.git"
+LLVM_URL = "http://llvm.org/git/llvm.git"
+POLLY_URL = "http://github.com/simbuerg/polly.git"
+CLANG_URL = "http://llvm.org/git/clang.git"
+POLLI_URL = "http://github.com/simbuerg/polli.git"
 
 from plumbum.cmd import mkdir
-import sys
 import os
 import logging
-log = logging.getLogger()
-
-git = None
-cmake = None
+LOG = logging.getLogger()
 
 
 @PollyProfiling.subcommand("build")
@@ -29,11 +24,6 @@ class Build(cli.Application):
     _use_gcc = False
     _num_jobs = None
     _isldir = None
-
-    def setup_commands(self):
-        global git, cmake
-        git = local["git"]
-        cmake = local["cmake"]
 
     @cli.switch(
         ["--use-make"],
@@ -69,32 +59,34 @@ class Build(cli.Application):
         self._isldir = dirname
 
     def clone_or_pull(self, url, to_dir, branch=None):
+        from plumbum.cmd import git
         if not os.path.exists(os.path.join(to_dir, ".git/")):
             git_clone = git["clone", url, to_dir, "--recursive", "--depth=1"]
             if branch:
                 git_clone = git_clone["--branch", branch]
-            git_clone & FG
+            git_clone()
         else:
             with local.cwd(to_dir):
-                git["remote", "update"] & FG
+                git("remote", "update")
 
                 locl = git("rev-parse", "@{0}")
                 remote = git("rev-parse", "@{u}")
                 base = git("merge-base", "@", "@{u}")
 
                 if locl == remote:
-                    log.info(url + " is up-to-date.")
+                    LOG.info(url + " is up-to-date.")
                 elif locl == base:
-                    git["pull", "--rebase"] & FG
-                    git["submodule", "update"] & FG
+                    git("pull", "--rebase")
+                    git("submodule", "update")
                 elif remote == base:
-                    log.error("push required")
+                    LOG.error("push required")
                     exit(1)
                 else:
-                    log.error(to_dir + "has diverged from its remote.")
+                    LOG.error(to_dir + "has diverged from its remote.")
                     exit(1)
 
     def configure_llvm(self, llvm_path):
+        from plumbum.cmd import cmake
         with local.cwd(llvm_path):
             builddir = os.path.join(llvm_path, "build")
             if not os.path.exists(builddir):
@@ -138,8 +130,6 @@ class Build(cli.Application):
                         "-DCMAKE_PREFIX_PATH=" + self._isldir]
 
                 if not os.path.exists(cmake_cache):
-                    cc = None
-                    cpp = None
                     if self._use_gcc:
                         cc = local["gcc"]
                         cpp = local["g++"]
@@ -155,24 +145,23 @@ class Build(cli.Application):
                 else:
                     llvm_cmake = llvm_cmake["."]
 
-                llvm_cmake & FG
+                llvm_cmake()
 
     def main(self):
-        log.info("Building in: " + self._builddir)
-        self.setup_commands()
+        LOG.info("Building in: " + self._builddir)
 
         if not os.path.exists(self._builddir):
             mkdir(self._builddir)
 
         llvm_path = os.path.join(self._builddir, "pprof-llvm")
         with local.cwd(self._builddir):
-            self.clone_or_pull(llvm_url, llvm_path)
+            self.clone_or_pull(LLVM_URL, llvm_path)
             tools_path = os.path.join(llvm_path, "tools")
             with local.cwd(tools_path):
                 self.clone_or_pull(
-                    clang_url, os.path.join(tools_path, "clang"))
+                    CLANG_URL, os.path.join(tools_path, "clang"))
                 self.clone_or_pull(
-                    polly_url,
+                    POLLY_URL,
                     os.path.join(
                         tools_path,
                         "polly"),
@@ -180,7 +169,7 @@ class Build(cli.Application):
                 polli_path = os.path.join(tools_path, "polly", "tools")
                 with (local.cwd(polli_path)):
                     self.clone_or_pull(
-                        polli_url,
+                        POLLI_URL,
                         os.path.join(
                             polli_path,
                             "polli"))
@@ -196,4 +185,4 @@ class Build(cli.Application):
         if self._num_jobs:
             build_cmd = build_cmd["-j", self._num_jobs]
 
-        build_cmd["-C" + os.path.join(llvm_path, "build"), "install"] & FG
+        build_cmd("-C" + os.path.join(llvm_path, "build"), "install")

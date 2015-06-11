@@ -54,7 +54,7 @@ def source_required(fname, to):
         new_hash = GetHashofDirs(src_dir)
         with open(hash_file, 'r') as hf:
             old_hash = hf.readline()
-        required = not (new_hash == old_hash)
+        required = not new_hash == old_hash
         if required:
             from plumbum.cmd import rm
             rm("-r", src_dir)
@@ -95,7 +95,7 @@ def Wget(url, fname, to=None):
         to = config["tmpdir"]
 
     from os import path
-    from plumbum.cmd import wget, cp
+    from plumbum.cmd import wget
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
@@ -119,7 +119,7 @@ def Git(url, fname, to=None):
         to = config["tmpdir"]
 
     from os import path
-    from plumbum.cmd import git, cp
+    from plumbum.cmd import git
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
@@ -143,7 +143,7 @@ def Svn(url, fname, to=None):
         to = config["tmpdir"]
 
     from os import path
-    from plumbum.cmd import svn, cp
+    from plumbum.cmd import svn
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
@@ -167,7 +167,7 @@ def Rsync(url, fname, to=None):
         to = config["tmpdir"]
 
     from os import path
-    from plumbum.cmd import rsync, cp
+    from plumbum.cmd import rsync
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):

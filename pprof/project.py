@@ -2,24 +2,20 @@
 # encoding: utf-8
 
 from plumbum import FG, local
-from plumbum.commands import ProcessExecutionError
 from plumbum.cmd import find, echo, rm, mkdir, rmdir, cp, ln, cat, make, chmod
 
 from os import path, listdir
-from glob import glob
-from functools import wraps
-from settings import config
+from pprof.settings import config
 
 import sys
 import logging
 
 # Configure the log
-formatter = logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s')
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(formatter)
+HANDLER = logging.StreamHandler(sys.stdout)
+HANDLER.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s'))
 
-log = logging.getLogger(__name__)
-log.addHandler(handler)
+LOG = logging.getLogger(__name__)
+LOG.addHandler(HANDLER)
 
 PROJECT_LIKWID_F_EXT = ".txt"
 PROJECT_BIN_F_EXT = ".bin"
@@ -34,14 +30,14 @@ PROJECT_CALIB_PROFILE_F_EXT = ".calibrate.profile.out"
 class ProjectFactory:
     factories = {}
 
-    def addFactory(id, projectFactory):
-        ProjectFactory.factories[id] = projectFactory
+    def addFactory(fact_id, projectFactory):
+        ProjectFactory.factories[fact_id] = projectFactory
     addFactory = staticmethod(addFactory)
 
-    def createProject(id, exp):
-        if not ProjectFactory.factories.has_key(id):
-            ProjectFactory.factories[id] = \
-                eval(id + '.Factory()')
+    def createProject(fact_id, exp):
+        if not ProjectFactory.factories.has_key(fact_id):
+            ProjectFactory.factories[fact_id] = \
+                eval(fact_id + '.Factory()')
             return ProjectFactory.factories[id].create(self, exp)
     createProject = staticmethod(createProject)
 
@@ -57,6 +53,7 @@ class Project(object):
         self.name = name
         self.domain = domain
         self.group_name = group
+        self.src_uri = ""
 
         self.sourcedir = path.join(config["sourcedir"], self.name)
         self.builddir = path.join(config["builddir"], exp.name, self.name)
@@ -114,24 +111,24 @@ class Project(object):
 
         for product in self.products:
             if path.exists(product) and not path.isdir(product):
-                rm[product] & FG
+                rm(product)
             elif path.isdir(product):
                 dirs_to_remove.add(product)
 
-        for d in dirs_to_remove:
-            if listdir(d) == []:
-                rmdir[d] & FG
+        for dir_to_rm in dirs_to_remove:
+            if listdir(dir_to_rm) == []:
+                rmdir(dir_to_rm)
 
         if path.exists(self.builddir) and listdir(self.builddir) == []:
-            rmdir[self.builddir] & FG
+            rmdir(self.builddir)
         elif path.exists(self.builddir) and listdir(self.builddir) != []:
-            log.warn(self.name + " project unclean, force removing " +
+            LOG.warn(self.name + " project unclean, force removing " +
                      self.builddir)
-            rm["-rf", self.builddir] & FG
+            rm("-rf", self.builddir)
 
     def prepare(self):
         if not path.exists(self.builddir):
-            mkdir[self.builddir] & FG
+            mkdir(self.builddir)
 
     def print_result_header(self):
         (echo["---------------------------------------------------------------"]

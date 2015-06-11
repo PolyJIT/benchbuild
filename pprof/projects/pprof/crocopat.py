@@ -2,8 +2,7 @@
 # encoding: utf-8
 
 from pprof.project import ProjectFactory, log
-from pprof.settings import config
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from glob import glob
@@ -24,7 +23,7 @@ class Crocopat(PprofGroup):
     def run_tests(self, experiment):
         from pprof.project import wrap
 
-        exp = wrap(self.run_f)
+        exp = wrap(self.run_f, experiment)
 
         programs = glob(path.join(self.testdir, "programs", "*.rml"))
         projects = glob(path.join(self.testdir, "projects", "*.rsf"))
@@ -40,7 +39,6 @@ class Crocopat(PprofGroup):
         from pprof.utils.downloader import Wget
         from plumbum.cmd import unzip
 
-        crocopat_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
             unzip(path.join(self.builddir, self.src_file))

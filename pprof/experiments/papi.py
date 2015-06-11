@@ -9,11 +9,8 @@ from pprof.utils.db import create_run
 from plumbum import local
 from os import path
 
-polli = None
-likwid_perfctr = None
 pprof_calibrate = None
 pprof_analyze = None
-opt = None
 
 
 class PapiScopCoverage(RuntimeExperiment):
@@ -22,19 +19,17 @@ class PapiScopCoverage(RuntimeExperiment):
 
     def setup_commands(self):
         super(PapiScopCoverage, self).setup_commands()
-        global polli, likwid_perfctr, pprof_calibrate, pprof_analyze, opt
+        global pprof_calibrate, pprof_analyze
         bin_path = path.join(config["llvmdir"], "bin")
-        likwid_path = path.join(config["likwiddir"], "bin")
 
-        likwid_perfctr = local[path.join(likwid_path, "likwid-perfctr")]
-        polli = local[path.join(bin_path, "polli")]
         pprof_calibrate = local[path.join(bin_path, "pprof-calibrate")]
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
-        opt = local[path.join(bin_path, "opt")]
 
     def run(self):
+        """
+        Do the postprocessing, after all projects are done.
+        """
         super(PapiScopCoverage, self).run()
-        """ Do the postprocessing, after all projects are done."""
         with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"]),
                        PPROF_EXPERIMENT=self.name,
                        PPROF_USE_DATABASE=1,
@@ -70,7 +65,6 @@ class PapiScopCoverage(RuntimeExperiment):
                     from plumbum.cmd import time
                     from pprof.utils.db import TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
-                    import sys
 
                     project_name = kwargs.get("project_name", p.name)
 
@@ -139,7 +133,6 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                     from plumbum.cmd import time
                     from pprof.utils.db import TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
-                    import sys
 
                     project_name = kwargs.get("project_name", p.name)
 

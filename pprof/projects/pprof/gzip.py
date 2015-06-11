@@ -74,7 +74,7 @@ class Gzip(PprofGroup):
             with local.cwd(self.builddir):
                 clang = lt_clang(self.cflags, self.ldflags)
             configure = local["./configure"]
-            with local.env(CC=str(clang))
+            with local.env(CC=str(clang)):
                 configure("--disable-dependency-tracking",
                           "--disable-silent-rules",
                           "--with-gnu-ld")

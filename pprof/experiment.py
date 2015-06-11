@@ -251,7 +251,7 @@ def synchronize_project_with_db(p):
     :p:
         The projec we synchronize.
     """
-    from pprof.settings import get_db_connection
+    from pprof.utils.db import get_db_connection
     conn = get_db_connection()
 
     sql_sel = "SELECT name FROM project WHERE name=%s"

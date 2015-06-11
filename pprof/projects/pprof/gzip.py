@@ -67,21 +67,20 @@ class Gzip(PprofGroup):
             tar("xfJ", path.join(self.builddir, self.src_file))
 
     def configure(self):
-        from pprof.utils.compiler import clang
+        from pprof.utils.compiler import lt_clang
         gzip_dir = path.join(self.builddir, self.src_dir)
 
         with local.cwd(gzip_dir):
+            with local.cwd(self.builddir):
+                clang = lt_clang(self.cflags, self.ldflags)
             configure = local["./configure"]
-            with local.env(CC=str(clang()),
-                           CFLAGS=" ".join(self.cflags),
-                           LDFLAGS=" ".join(self.ldflags),
-                           LIBS=" ".join(self.ldflags)):
+            with local.env(CC=str(clang))
                 configure("--disable-dependency-tracking",
                           "--disable-silent-rules",
                           "--with-gnu-ld")
 
     def build(self):
-        from plumbum.cmd import make, ln
+        from plumbum.cmd import make
         gzip_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(gzip_dir):
             make["-j" + config["jobs"], "clean", "all"] & FG

@@ -9,7 +9,7 @@ from pprof.experiments import polli
 from pprof.experiments import polyjit
 from pprof.experiments import raw
 from pprof.experiments import papi
-from pprof.experiments import polly
+from pprof.experiments.polly import polly, openmp, openmpvect, vectorize
 import logging
 import pprint
 log = logging.getLogger()
@@ -27,10 +27,10 @@ class PprofRun(cli.Application):
         "raw": raw.RawRuntime,
         "papi": papi.PapiScopCoverage,
         "papi-std": papi.PapiStandardScopCoverage,
-        "polly": polly.polly,
-        "polly-openmp": polly.openmp,
-        "polly-openmpvect": polly.openmpvect,
-        "polly-vectorize": polly.vectorize
+        "polly": polly.Polly,
+        "polly-openmp": openmp.PollyOpenMP,
+        "polly-openmpvect": openmpvect.PollyOpenMPVectorizer,
+        "polly-vectorize": vectorize.PollyVectorizer
     }
 
     _experiment_names = []

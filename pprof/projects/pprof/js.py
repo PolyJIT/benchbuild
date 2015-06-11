@@ -29,19 +29,19 @@ class SpiderMonkey(PprofGroup):
             Git(self.src_uri, self.src_dir)
 
     def configure(self):
-        from pprof.utils.compiler import clang, clang_cxx
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
         from plumbum.cmd import mkdir
         js_dir = path.join(self.builddir, self.src_dir, "js", "src")
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
         with local.cwd(js_dir):
             autoconf = local["autoconf_2.13"]
             autoconf()
             mkdir("build_OPT.OBJ")
             with local.cwd("build_OPT.OBJ"):
-                with local.env(CC=clang(),
-                               CXX=clang_cxx(),
-                               CFLAGS=" ".join(self.cflags),
-                               LDFLAGS=" ".join(self.ldflags),
-                               CXXFLAGS=" ".join(self.cflags)):
+                with local.env(CC=str(clang),
+                               CXX=str(clang_cxx):
                     configure = local["../configure"]
                     configure()
 

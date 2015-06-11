@@ -4,7 +4,7 @@
 from pprof.experiment import RuntimeExperiment
 from pprof.experiment import step, substep
 from pprof.settings import config
-from pprof.utils.db import create_run, get_db_connection
+from pprof.utils.db import create_run
 
 from plumbum import local
 from os import path
@@ -68,20 +68,16 @@ class PapiScopCoverage(RuntimeExperiment):
             with substep("run"):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
-                    from pprof.utils.db import submit
-                    from pprof.project import fetch_time_output
+                    from pprof.utils.db import TimeResult
+                    from pprof.utils.run import fetch_time_output, handle_stdin
                     import sys
 
-                    has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
 
-                    run_cmd = time["-f", "%U-%S-%e", run_f]
-                    if has_stdin:
-                        run_cmd = (run_cmd[args] < sys.stdin)
-                    else:
-                        run_cmd = run_cmd[args]
+                    run_cmd = handle_stdin(
+                        time["-f", "%U-%S-%e", run_f, args], kwargs)
 
-                    retcode, stdout, stderr = run_cmd.run()
+                    _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-PAPI: ",
                                                 "PPROF-PAPI: {:g}-{:g}-{:g}",
                                                 stderr.split("\n"))
@@ -89,41 +85,29 @@ class PapiScopCoverage(RuntimeExperiment):
                         return
 
                     run_id = create_run(
-                        get_db_connection(), str(run_cmd), project_name,
-                        self.name, p.run_uuid)
+                        str(run_cmd), project_name, self.name, p.run_uuid)
 
-                    for t in timings:
-                        d = {
-                            "table": "metrics",
-                            "columns": ["name", "value", "run_id"],
-                            "values": [
-                                ("papi.time.user_s", t[0], run_id),
-                                ("papi.time.system_s", t[1], run_id),
-                                ("papi.time.real_s", t[2], run_id)
-                            ]
-                        }
-                        submit(d)
-
+                    result = TimeResult()
+                    for timing in timings:
+                        result.append(("time.user_s", timing[0], run_id))
+                        result.append(("time.system_s", timing[1], run_id))
+                        result.append(("time.real_s", timing[2], run_id))
+                    result.commit()
                 p.run(run_with_time)
 
         with step("Evaluation"):
             papi_calibration = self.get_papi_calibration(
                 p, pprof_calibrate)
             if papi_calibration:
-                from pprof.utils.db import submit
+                from pprof.utils.db import TimeResult
 
                 run_id = create_run(
-                    get_db_connection(), str(pprof_calibrate), p.name,
-                    self.name, p.run_uuid)
-                metrics = {
-                    "table": "metrics",
-                    "columns": ["name", "value", "run_id"],
-                    "values": []
-                }
+                    str(pprof_calibrate), p.name, self.name, p.run_uuid)
 
-                metrics["values"].append(
+                result = TimeResult()
+                result.append(
                     ("papi.calibration.time_ns", papi_calibration, run_id))
-                submit(metrics)
+                result.commit()
 
 
 class PapiStandardScopCoverage(PapiScopCoverage):
@@ -153,18 +137,14 @@ class PapiStandardScopCoverage(PapiScopCoverage):
             with substep("run"):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
-                    from pprof.utils.db import submit
-                    from pprof.project import fetch_time_output
+                    from pprof.utils.db import TimeResult
+                    from pprof.utils.run import fetch_time_output, handle_stdin
                     import sys
 
-                    has_stdin = kwargs.get("has_stdin", False)
                     project_name = kwargs.get("project_name", p.name)
 
-                    run_cmd = time["-f", "%U-%S-%e", run_f]
-                    if has_stdin:
-                        run_cmd = (run_cmd[args] < sys.stdin)
-                    else:
-                        run_cmd = run_cmd[args]
+                    run_cmd = handle_stdin(
+                        time["-f", "%U-%S-%e", run_f, args], kwargs)
 
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-PAPI: ",
@@ -174,39 +154,25 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                         return
 
                     run_id = create_run(
-                        get_db_connection(), str(run_cmd), project_name,
-                        self.name, p.run_uuid)
+                        str(run_cmd), project_name, self.name, p.run_uuid)
 
-                    for t in timings:
-                        d = {
-                            "table": "metrics",
-                            "columns": ["name", "value", "run_id"],
-                            "values": [
-                                ("papi.time.user_s", t[0], run_id),
-                                ("papi.time.system_s", t[1], run_id),
-                                ("papi.time.real_s", t[2], run_id)
-                            ]
-                        }
-                        submit(d)
-
+                    result = TimeResult()
+                    for timing in timings:
+                        result.append(("time.user_s", timing[0], run_id))
+                        result.append(("time.system_s", timing[1], run_id))
+                        result.append(("time.real_s", timing[2], run_id))
+                    result.commit()
                 p.run(run_with_time)
 
         with step("Evaluation"):
             papi_calibration = self.get_papi_calibration(
                 p, pprof_calibrate)
             if papi_calibration:
-                from pprof.utils.db import submit
+                from pprof.utils.db import TimeResult
 
                 run_id = create_run(
-                    get_db_connection(), str(pprof_calibrate), p.name,
-                    self.name, p.run_uuid)
-                metrics = {
-                    "table": "metrics",
-                    "columns": ["name", "value", "run_id"],
-                    "values": []
-                }
-
-                metrics["values"].append(
+                    str(pprof_calibrate), p.name, self.name, p.run_uuid)
+                result = TimeResult()
+                result.append(
                     ("papi.calibration.time_ns", papi_calibration, run_id))
-                submit(metrics)
-
+                result.commit()

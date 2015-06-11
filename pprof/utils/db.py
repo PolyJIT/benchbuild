@@ -1,15 +1,17 @@
+"""
+
+Database support module for the pprof study.
+
+"""
 import os
 from pprof.settings import config
-
-"""Manage database interaction for pprof
-"""
+from abc import ABCMeta, abstractproperty
+from pprof.experiment import static_var
 
 
 def setup_db_config():
     """Query the environment for database connection information
     """
-
-    global config
 
     config["db_host"] = "localhost"
     config["db_port"] = 49153
@@ -37,33 +39,39 @@ def setup_db_config():
     if db_pass:
         config["db_pass"] = db_pass
 
-_db_connection = None
 
-
+@static_var("db", None)
 def get_db_connection():
     """Get or create the database connection using the information stored
     in the global config
     """
     import psycopg2
-    global _db_connection
-    if not _db_connection:
+    import sys
+    if get_db_connection.db is None:
         setup_db_config()
-        _db_connection = psycopg2.connect(
-            host=config["db_host"],
-            port=config["db_port"],
-            user=config["db_user"],
-            password=config["db_pass"],
-            database=config["db_name"]
-        )
-    return _db_connection
+        try:
+            get_db_connection.db = psycopg2.connect(
+                host=config["db_host"],
+                port=config["db_port"],
+                user=config["db_user"],
+                password=config["db_pass"],
+                database=config["db_name"]
+            )
+        except psycopg2.Error, e:
+            sys.stderr.write("FATAL: Could not open database connection.\n")
+            sys.stderr.write("{}@{}:{} db: {}\n".format(
+                config["db_user"], config["db_host"], config["db_port"], config["db_name"]))
+            sys.stderr.write("Details:\n")
+            sys.stderr.write(str(e))
+            sys.exit(1)
+    return get_db_connection.db
 
 
-def create_run(conn, cmd, prj, exp, grp):
+def create_run(cmd, prj, exp, grp):
     """Create a new 'run' in the database. The returned ID from this call
     can be used for subsequent entries into the database.
 
-    :conn: The database connection we should use.
-    :cmd: The command that is/has been executed.
+    :cmd: The command that has been executed.
     :prj: The project this run belongs to.
     :exp: The experiment this run belongs to.
     :grp: The run_group (uuid) we blong to.
@@ -73,6 +81,7 @@ def create_run(conn, cmd, prj, exp, grp):
     from datetime import datetime
     from psycopg2 import extras, extensions
 
+    conn = get_db_connection()
     extras.register_uuid()
 
     sql_insert = ("INSERT INTO run (finished, command, project_name, "
@@ -80,11 +89,11 @@ def create_run(conn, cmd, prj, exp, grp):
                   "VALUES (TIMESTAMP %s, %s, %s, %s, %s, %s) "
                   "RETURNING id;")
 
-    with conn.cursor() as c:
-        c.execute(
-            sql_insert, (datetime.now(), cmd, prj, exp, extensions.adapt(grp),
-                         extensions.adapt(config["experiment"])))
-        run_id = c.fetchone()[0]
+    with conn.cursor() as insert:
+        insert.execute(sql_insert, (datetime.now(), cmd, prj, exp,
+                                    extensions.adapt(grp),
+                                    extensions.adapt(config["experiment"])))
+        run_id = insert.fetchone()[0]
     conn.commit()
     return run_id
 
@@ -109,10 +118,10 @@ def submit(metrics):
             "values" : [ (col1, col2, col3, col4 ), ... ]
         }
     """
-    if not (metrics.has_key("table") and
-            metrics.has_key("columns") and
-            metrics.has_key("values")):
-        raise Exception("Dictionary format not as expected!")
+    assert isinstance(metrics, dict)
+    assert metrics.has_key("table")
+    assert metrics.has_key("columns")
+    assert metrics.has_key("values")
 
     columns = metrics["columns"]
     query = "INSERT INTO {} (".format(metrics["table"])
@@ -133,8 +142,75 @@ def submit(metrics):
     query += ");"
 
     conn = get_db_connection()
-    with conn.cursor() as c:
+    with conn.cursor() as insert:
         for value in values:
-            c.execute(query, value)
+            insert.execute(query, value)
     conn.commit()
 
+
+class RunResult(object):
+
+    """
+    Base class for result submission.
+    """
+
+    __metaclass__ = ABCMeta
+
+    def __init__(self):
+        self.values = []
+
+    @abstractproperty
+    def table(self):
+        """
+        Returns the name of the table we write our values to
+        """
+        pass
+
+    @abstractproperty
+    def columns(self):
+        """
+        Returns the name of the columns of our table.
+        """
+        pass
+
+    def append(self, result):
+        """
+        Append a single value to the result set
+
+        :result: A tuple suitable for sending it to the pprof.utils.db.submit
+                 function, e.g. ("colVal1", "colVal2"), if the table of this
+                 result supports 2 columns.
+        """
+        assert isinstance(result, tuple)
+        assert len(result) == len(self.columns)
+        self.values.append(result)
+
+    def commit(self):
+        """
+        Commit the stored values to the database.
+        """
+
+        if len(self.values) == 0:
+            return
+
+        result_dict = {
+            "table": self.table,
+            "columns": self.columns,
+            "values": self.values
+        }
+        submit(result_dict)
+
+
+class TimeResult(RunResult):
+
+    """
+    Database result implementation for Raw Runtime experiments
+    """
+
+    @property
+    def table(self):
+        return "metrics"
+
+    @property
+    def columns(self):
+        return ["name", "value", "run_id"]

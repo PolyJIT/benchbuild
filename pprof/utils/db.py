@@ -1,8 +1,10 @@
+"""
+
+Database support module for the pprof study.
+
+"""
 import os
 from pprof.settings import config
-
-"""Manage database interaction for pprof
-"""
 from abc import ABCMeta, abstractproperty
 
 

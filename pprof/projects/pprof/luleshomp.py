@@ -6,7 +6,7 @@ from pprof.settings import config
 from group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 
 
 class LuleshOMP(PprofGroup):
@@ -22,7 +22,7 @@ class LuleshOMP(PprofGroup):
     def run_tests(self, experiment):
         from pprof.project import wrap
         exp = wrap(self.run_f, experiment)
-        exp("10") & FG
+        exp("10")
 
     src_file = "LULESH_OMP.cc"
     src_uri = "https://codesign.llnl.gov/lulesh/" + src_file
@@ -37,13 +37,9 @@ class LuleshOMP(PprofGroup):
         pass
 
     def build(self):
-        from pprof.utils.compiler import clang_cxx
-        from plumbum.cmd import gcc
-
+        from pprof.utils.compiler import lt_clang_cxx
         self.ldflags += ["-lgomp"]
 
-        from pprof.utils.compiler import clang_cxx
-
         with local.cwd(self.builddir):
-            clang_cxx()[
-                self.cflags, "-o", self.run_f, self.ldflags, self.src_file] & FG
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+            clang_cxx("-o", self.run_f, self.src_file)

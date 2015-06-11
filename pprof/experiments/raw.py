@@ -22,7 +22,7 @@ Measurements
 
 from pprof.experiment import step, substep, RuntimeExperiment
 from pprof.settings import config
-from pprof.utils.db import create_run, get_db_connection
+from pprof.utils.db import create_run, RunResult
 from os import path
 
 
@@ -85,9 +85,8 @@ class RawRuntime(RuntimeExperiment):
                     if len(timings) == 0:
                         return
 
-                    run_id = create_run(
-                        get_db_connection(), str(run_cmd), project_name,
-                        self.name, p.run_uuid)
+                    run_id = create_run(str(run_cmd), project_name, self.name,
+                                        p.run_uuid)
 
                     for t in timings:
                         d = {

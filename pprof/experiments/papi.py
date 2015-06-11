@@ -4,7 +4,7 @@
 from pprof.experiment import RuntimeExperiment
 from pprof.experiment import step, substep
 from pprof.settings import config
-from pprof.utils.db import create_run, get_db_connection
+from pprof.utils.db import create_run
 
 from plumbum import local
 from os import path
@@ -89,8 +89,7 @@ class PapiScopCoverage(RuntimeExperiment):
                         return
 
                     run_id = create_run(
-                        get_db_connection(), str(run_cmd), project_name,
-                        self.name, p.run_uuid)
+                        str(run_cmd), project_name, self.name, p.run_uuid)
 
                     for t in timings:
                         d = {
@@ -113,8 +112,7 @@ class PapiScopCoverage(RuntimeExperiment):
                 from pprof.utils.db import submit
 
                 run_id = create_run(
-                    get_db_connection(), str(pprof_calibrate), p.name,
-                    self.name, p.run_uuid)
+                    str(pprof_calibrate), p.name, self.name, p.run_uuid)
                 metrics = {
                     "table": "metrics",
                     "columns": ["name", "value", "run_id"],
@@ -174,8 +172,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                         return
 
                     run_id = create_run(
-                        get_db_connection(), str(run_cmd), project_name,
-                        self.name, p.run_uuid)
+                        str(run_cmd), project_name, self.name, p.run_uuid)
 
                     for t in timings:
                         d = {
@@ -198,8 +195,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                 from pprof.utils.db import submit
 
                 run_id = create_run(
-                    get_db_connection(), str(pprof_calibrate), p.name,
-                    self.name, p.run_uuid)
+                    str(pprof_calibrate), p.name, self.name, p.run_uuid)
                 metrics = {
                     "table": "metrics",
                     "columns": ["name", "value", "run_id"],

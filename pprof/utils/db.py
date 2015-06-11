@@ -58,12 +58,11 @@ def get_db_connection():
     return get_db_connection.db
 
 
-def create_run(conn, cmd, prj, exp, grp):
+def create_run(cmd, prj, exp, grp):
     """Create a new 'run' in the database. The returned ID from this call
     can be used for subsequent entries into the database.
 
-    :conn: The database connection we should use.
-    :cmd: The command that is/has been executed.
+    :cmd: The command that has been executed.
     :prj: The project this run belongs to.
     :exp: The experiment this run belongs to.
     :grp: The run_group (uuid) we blong to.
@@ -73,6 +72,7 @@ def create_run(conn, cmd, prj, exp, grp):
     from datetime import datetime
     from psycopg2 import extras, extensions
 
+    conn = get_db_connection()
     extras.register_uuid()
 
     sql_insert = ("INSERT INTO run (finished, command, project_name, "

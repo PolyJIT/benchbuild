@@ -1,12 +1,11 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import (ProjectFactory, log)
-from pprof.settings import config
-from group import PprofGroup
+from pprof.project import ProjectFactory
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 from plumbum.cmd import ln
 
 
@@ -41,7 +40,6 @@ class Ccrypt(PprofGroup):
         from pprof.utils.downloader import Wget
         from plumbum.cmd import tar, cp
 
-        ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
             tar('xfz', path.join(self.builddir, self.src_file))

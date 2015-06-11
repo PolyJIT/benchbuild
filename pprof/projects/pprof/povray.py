@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 from pprof.project import ProjectFactory
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from plumbum import FG, local
@@ -93,8 +93,6 @@ class Povray(PprofGroup):
 
         povray = wrap(povray_binary, experiment)
 
-        render = local[path.join(povray_dir, "scripts",
-                                 "render_scene.sh")]
         pov_files = find(scene_dir, "-name", "*.pov").splitlines()
         for pov_f in pov_files:
             from plumbum.cmd import head, grep, sed

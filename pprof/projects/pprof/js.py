@@ -1,14 +1,12 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
+from pprof.project import ProjectFactory
 from pprof.settings import config
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from glob import glob
-from plumbum import FG, local
-from plumbum.cmd import chmod, echo, cp
+from plumbum import local
 
 
 class SpiderMonkey(PprofGroup):
@@ -41,7 +39,7 @@ class SpiderMonkey(PprofGroup):
             mkdir("build_OPT.OBJ")
             with local.cwd("build_OPT.OBJ"):
                 with local.env(CC=str(clang),
-                               CXX=str(clang_cxx):
+                               CXX=str(clang_cxx)):
                     configure = local["../configure"]
                     configure()
 
@@ -53,12 +51,12 @@ class SpiderMonkey(PprofGroup):
             make("-j", config["available_cpu_count"])
 
     def run_tests(self, experiment):
-        from pprof import wrap
+        from pprof.project import wrap
         from plumbum.cmd import make
 
         js_dir = path.join(self.builddir, self.src_dir, "js", "src")
         js_build_dir = path.join(js_dir, "build_OPT.OBJ")
-        exp = wrap(path.join(js_build_dir, "bin", "js"), experiment)
+        wrap(path.join(js_build_dir, "bin", "js"), experiment)
 
         with local.cwd(js_build_dir):
             make("check")

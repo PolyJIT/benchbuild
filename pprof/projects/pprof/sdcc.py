@@ -1,13 +1,12 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
-from pprof.project import ProjectFactory, log
+from pprof.project import ProjectFactory
 from pprof.settings import config
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from plumbum import FG, local
-import logging
 
 
 class SDCC(PprofGroup):
@@ -31,10 +30,14 @@ class SDCC(PprofGroup):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
         sdcc_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+
         with local.cwd(sdcc_dir):
             configure = local["./configure"]
-            with local.env(CC=str(lt_clang(self.cflags, self.ldflags)),
-                    CXX=str(lt_clang_cxx(self.cflags, self.ldflags))):
+            with local.env(CC=str(clang),
+                           CXX=str(clang_cxx)):
                 configure("--without-ccache", "--disable-pic14-port",
                           "--disable-pic16-port")
 
@@ -46,11 +49,7 @@ class SDCC(PprofGroup):
             make("-j", config["jobs"])
 
     def run_tests(self, experiment):
-        from plumbum.cmd import make
         from pprof.project import wrap
 
         exp = wrap(self.run_f, experiment(self.run_f))
-
-        log.debug("FIXME: invalid LLVM IR, regenerate from source")
-        log.debug("FIXME: test incomplete, port from sdcc/Makefile")
-        exp & FG
+        exp()

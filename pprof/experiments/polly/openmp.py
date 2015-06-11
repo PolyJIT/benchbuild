@@ -74,7 +74,6 @@ class PollyOpenMP(RuntimeExperiment):
                     from plumbum.cmd import time
                     from pprof.utils.db import TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
-                    import sys
 
                     project_name = kwargs.get("project_name", p.name)
 

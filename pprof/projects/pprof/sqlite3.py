@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 from pprof.project import ProjectFactory
-from group import PprofGroup
+from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from plumbum import local

@@ -69,7 +69,7 @@ class PapiScopCoverage(RuntimeExperiment):
                     project_name = kwargs.get("project_name", p.name)
 
                     run_cmd = handle_stdin(
-                        time["-f", "%U-%S-%e", run_f, args], kwargs)
+                        time["-f", "PPROF-PAPI: %U-%S-%e", run_f, args], kwargs)
 
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-PAPI: ",

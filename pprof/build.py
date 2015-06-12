@@ -24,6 +24,8 @@ class Build(cli.Application):
     _use_gcc = False
     _num_jobs = None
     _isldir = None
+    _likwiddir = None
+    _papidir = None
 
     @cli.switch(
         ["--use-make"],

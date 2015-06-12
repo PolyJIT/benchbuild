@@ -8,7 +8,6 @@ def lt_clang(cflags, ldflags):
     This will generate a wrapper script in :p:'s builddir and return a path
     to it.
 
-    :flags_to_hide: the flags libtool is not allowed to see.
     :cflags: the cflags libtool is not allowed to see.
     :ldflags: the ldflags libtool is not allowed to see.
     :returns: path to the new clang.
@@ -27,7 +26,6 @@ def lt_clang_cxx(cflags, ldflags):
     This will generate a wrapper script in :p:'s builddir and return a path
     to it.
 
-    :flags_to_hide: the flags libtool is not allowed to see.
     :cflags: the cflags libtool is not allowed to see.
     :ldflags: the ldflags libtool is not allowed to see.
     :returns: path to the new clang.

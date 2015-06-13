@@ -1,14 +1,27 @@
+"""
+Settings module for pprof.
+
+All settings are stored in a simple dictionary. Each
+setting should be modifiable via environment variable.
+"""
 import os
 import re
 import subprocess
 from uuid import uuid4
+from os import getenv as e
 
 
 def available_cpu_count():
-    """ Number of available virtual or physical CPUs on this system, i.e.
-    user/real as output by time(1) when called with an optimally scaling
-    userspace-only program"""
+    """
+    Get the number of available CPUs.
 
+    Number of available virtual or physical CPUs on this system, i.e.
+    user/real as output by time(1) when called with an optimally scaling
+    userspace-only program.
+
+    :return:
+        Number of avaialable CPUs.
+    """
     # cpuset
     # cpuset may restrict the number of *available* processors
     try:
@@ -118,26 +131,26 @@ def available_cpu_count():
 
 
 config = {
-    "sourcedir": os.getenv("PPROF_SRC_DIR", os.getcwd()),
-    "builddir": os.getenv("PPROF_OBJ_DIR", os.path.join(os.getcwd(), "results")),
-    "testdir": os.getenv("PPROF_TESTINPUTS", os.path.join(os.getcwd(), "testinputs")),
-    "llvmdir": os.getenv("PPROF_LLVM_DIR", os.path.join(os.getcwd(), "install")),
-    "likwiddir": os.getenv("PPROF_LIKWID_DIR", os.getcwd()),
-    "tmpdir": os.getenv("PPROF_TMP_DIR", os.path.join(os.getcwd(), "tmp")),
-    "path": os.environ["PATH"],
-    "ld_library_path": os.getenv("LD_LIBRARY_PATH", ""),
-    "jobs": os.getenv("PPROF_MAKE_JOBS", str(available_cpu_count())),
-    "experiment": os.getenv("PPROF_EXPERIMENT_ID", uuid4()),
-    "db_host" : os.getenv("PPROF_DB_HOST", "localhost"),
-    "db_port" : os.getenv("PPROF_DB_PORT", 49153),
-    "db_name" : os.getenv("PPROF_DB_NAME", "pprof"),
-    "db_user" : os.getenv("PPROF_DB_USER", "pprof"),
-    "db_pass" : os.getenv("PPROF_DB_PASS", "pprof"),
-    "nodedir" : os.getenv("PPROF_CLUSTER_NODEDIR", os.path.join(os.getcwd(), "results")),
-    "slurm_script" : os.getenv("PPROF_CLUSTER_SCRIPT_NAME", "chimaira-slurm.sh"),
-    "cpus-per-task": os.getenv("PPROF_CLUSTER_CPUS_PER_TASK", 10),
-    "local_build" : os.getenv("PPROF_CLUSTER_BUILD_LOCAL", False),
-    "account" : os.getenv("PPROF_CLUSTER_ACCOUNT", "cl"),
-    "partition" : os.getenv("PPROF_CLUSTER_PARTITION", "chimaira"),
+    "sourcedir": e("PPROF_SRC_DIR", os.getcwd()),
+    "builddir": e("PPROF_OBJ_DIR", os.path.join(os.getcwd(), "results")),
+    "testdir": e("PPROF_TESTINPUTS", os.path.join(os.getcwd(), "testinputs")),
+    "llvmdir": e("PPROF_LLVM_DIR", os.path.join(os.getcwd(), "install")),
+    "likwiddir": e("PPROF_LIKWID_DIR", os.getcwd()),
+    "tmpdir": e("PPROF_TMP_DIR", os.path.join(os.getcwd(), "tmp")),
+    "path": e("PATH", ""),
+    "ld_library_path": e("LD_LIBRARY_PATH", ""),
+    "jobs": e("PPROF_MAKE_JOBS", str(available_cpu_count())),
+    "experiment": e("PPROF_EXPERIMENT_ID", uuid4()),
+    "db_host": e("PPROF_DB_HOST", "localhost"),
+    "db_port": e("PPROF_DB_PORT", 5432),
+    "db_name": e("PPROF_DB_NAME", "pprof"),
+    "db_user": e("PPROF_DB_USER", "pprof"),
+    "db_pass": e("PPROF_DB_PASS", "pprof"),
+    "nodedir": e("PPROF_CLUSTER_NODEDIR",
+                 os.path.join(os.getcwd(), "results")),
+    "slurm_script": e("PPROF_CLUSTER_SCRIPT_NAME", "chimaira-slurm.sh"),
+    "cpus-per-task": e("PPROF_CLUSTER_CPUS_PER_TASK", 10),
+    "local_build": e("PPROF_CLUSTER_BUILD_LOCAL", False),
+    "account": e("PPROF_CLUSTER_ACCOUNT", "cl"),
+    "partition": e("PPROF_CLUSTER_PARTITION", "chimaira"),
 }
-

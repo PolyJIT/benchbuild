@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """
-The 'raw' Experiment
-====================
+The 'raw' Experiment.
 
 This experiment is the basic experiment in the pprof study. It simply runs
 all projects after compiling it with -O3. The binaries are wrapped
@@ -27,9 +25,10 @@ from os import path
 
 class RawRuntime(RuntimeExperiment):
 
-    """ The polyjit experiment """
+    """The polyjit experiment."""
 
     def run_project(self, p):
+        """Compile & Run the experiment with -O3 enabled."""
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("RAW -O3"):
@@ -43,16 +42,17 @@ class RawRuntime(RuntimeExperiment):
                 def run_with_time(run_f, args, **kwargs):
                     """
                     Function runner for the raw experiment.
+
                     This executes the given project command wrapped in the
                     time command. Afterwards the result is sent to the
                     database.
 
                     3 Metrics are generated during this experiment:
-                        raw.time.user_s - The time spent in user space in
+                        time.user_s - The time spent in user space in
                                           seconds (aka virtual time)
-                        raw.time.system_s - The time spent in kernel space in
+                        time.system_s - The time spent in kernel space in
                                             seconds (aka system time)
-                        raw.time.real_s - The time spent overall in seconds
+                        time.real_s - The time spent overall in seconds
                                           (aka Wall clock)
 
                     :run_f:

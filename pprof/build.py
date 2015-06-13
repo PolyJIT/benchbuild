@@ -3,15 +3,14 @@
 
 from plumbum import cli, local
 from pprof.driver import PollyProfiling
+from plumbum.cmd import mkdir
+import os
+import logging
 
 LLVM_URL = "http://llvm.org/git/llvm.git"
 POLLY_URL = "http://github.com/simbuerg/polly.git"
 CLANG_URL = "http://llvm.org/git/clang.git"
 POLLI_URL = "http://github.com/simbuerg/polli.git"
-
-from plumbum.cmd import mkdir
-import os, os.path
-import logging
 LOG = logging.getLogger()
 
 

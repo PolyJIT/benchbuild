@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """
-The 'polyjit' experiment. This experiment uses likwid to measure the
-performance of all binaries when running with polyjit support enabled.
-"""
+The 'polyjit' experiment.
 
+This experiment uses likwid to measure the performance of all binaries
+when running with polyjit support enabled.
+"""
 from pprof import likwid
 from pprof.experiment import step, substep, RuntimeExperiment
 from pprof.settings import config
@@ -16,10 +16,10 @@ from os import path
 
 class PolyJIT(RuntimeExperiment):
 
-    """ The polyjit experiment """
+    """The polyjit experiment."""
 
     def run_step_jit(self, p):
-        from plumbum.cmd import time
+        """Run the experiment without likwid."""
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("JIT, no instrumentation"):
@@ -69,6 +69,7 @@ class PolyJIT(RuntimeExperiment):
                 p.run(run_with_time)
 
     def run_step_likwid(self, p):
+        """Run the experiment with likwid."""
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("JIT, likwid"):
@@ -102,8 +103,9 @@ class PolyJIT(RuntimeExperiment):
                         likwid_path = path.join(config["likwiddir"], "bin")
                         likwid_perfctr = local[
                             path.join(likwid_path, "likwid-perfctr")]
-                        run_cmd = likwid_perfctr["-O", "-o", likwid_f, "-m", "-C",
-                                                 "-L:0", "-g", group, run_f]
+                        run_cmd = likwid_perfctr["-O", "-o", likwid_f, "-m",
+                                                 "-C", "-L:0", "-g", group,
+                                                 run_f]
 
                         run_cmd = handle_stdin(run_cmd[args], kwargs)
                         run_cmd()
@@ -116,6 +118,13 @@ class PolyJIT(RuntimeExperiment):
                 p.run(run_with_likwid)
 
     def run_project(self, p):
+        """
+        Execute the pprof experiment.
+
+        We perform this experiment in 2 steps:
+            1. with likwid disabled.
+            2. with likwid enabled.
+        """
         with local.env(PPROF_ENABLE=0):
             self.run_step_jit(p)
             self.run_step_likwid(p)

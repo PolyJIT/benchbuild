@@ -2,14 +2,12 @@
 # encoding: utf-8
 
 """
-The 'polly-openmp-vectorize' Experiment
-====================
+The 'polly-openmp-vectorize' Experiment.
 
 This experiment applies polly's transformations with openmp code generation
 enabled to all projects and measures the runtime.
 
 This forms the baseline numbers for the other experiments.
-
 
 Measurements
 ------------
@@ -28,7 +26,7 @@ from os import path
 
 class PollyOpenMPVectorizer(RuntimeExperiment):
 
-    """ The polyjit experiment """
+    """Timing experiment with Polly & OpenMP+Vectorizer support."""
 
     def run_project(self, p):
         llvm_libs = path.join(config["llvmdir"], "lib")

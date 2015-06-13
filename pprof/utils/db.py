@@ -1,54 +1,20 @@
-"""
-
-Database support module for the pprof study.
-
-"""
-import os
+"""Database support module for the pprof study."""
 from pprof.settings import config
 from abc import ABCMeta, abstractproperty
 from pprof.experiment import static_var
 
 
-def setup_db_config():
-    """Query the environment for database connection information
-    """
-
-    config["db_host"] = "localhost"
-    config["db_port"] = 49153
-    config["db_name"] = "pprof"
-    config["db_user"] = "pprof"
-    config["db_pass"] = "pprof"
-
-    db_host = os.environ.get("PPROF_DB_HOST")
-    if db_host:
-        config["db_host"] = db_host
-
-    db_port = os.environ.get("PPROF_DB_PORT")
-    if db_port:
-        config["db_port"] = db_port
-
-    db_name = os.environ.get("PPROF_DB_NAME")
-    if db_name:
-        config["db_name"] = db_name
-
-    db_user = os.environ.get("PPROF_DB_USER")
-    if db_user:
-        config["db_user"] = db_user
-
-    db_pass = os.environ.get("PPROF_DB_PASS")
-    if db_pass:
-        config["db_pass"] = db_pass
-
-
 @static_var("db", None)
 def get_db_connection():
-    """Get or create the database connection using the information stored
-    in the global config
+    """
+    Get or create the database connection.
+
+    :return:
+        An established database connection.
     """
     import psycopg2
     import sys
     if get_db_connection.db is None:
-        setup_db_config()
         try:
             get_db_connection.db = psycopg2.connect(
                 host=config["db_host"],
@@ -60,7 +26,8 @@ def get_db_connection():
         except psycopg2.Error, e:
             sys.stderr.write("FATAL: Could not open database connection.\n")
             sys.stderr.write("{}@{}:{} db: {}\n".format(
-                config["db_user"], config["db_host"], config["db_port"], config["db_name"]))
+                config["db_user"], config["db_host"], config["db_port"],
+                config["db_name"]))
             sys.stderr.write("Details:\n")
             sys.stderr.write(str(e))
             sys.exit(1)
@@ -68,8 +35,11 @@ def get_db_connection():
 
 
 def create_run(cmd, prj, exp, grp):
-    """Create a new 'run' in the database. The returned ID from this call
-    can be used for subsequent entries into the database.
+    """
+    Create a new 'run' in the database.
+
+    The returned ID from this call can be used for subsequent entries
+    into the database.
 
     :cmd: The command that has been executed.
     :prj: The project this run belongs to.
@@ -100,8 +70,10 @@ def create_run(cmd, prj, exp, grp):
 
 def submit(metrics):
     """
-    Submit a dictionary of metrics to the database. The dictionary should
-    encode all necessary information about the db schema.
+    Submit a dictionary of metrics to the database.
+
+    The dictionary should encode all necessary information about the db
+    schema.
 
     Example:
         {
@@ -119,9 +91,9 @@ def submit(metrics):
         }
     """
     assert isinstance(metrics, dict)
-    assert metrics.has_key("table")
-    assert metrics.has_key("columns")
-    assert metrics.has_key("values")
+    assert "table" in metrics
+    assert "columns" in metrics
+    assert "values" in metrics
 
     columns = metrics["columns"]
     query = "INSERT INTO {} (".format(metrics["table"])
@@ -150,9 +122,7 @@ def submit(metrics):
 
 class RunResult(object):
 
-    """
-    Base class for result submission.
-    """
+    """Base class for result submission."""
 
     __metaclass__ = ABCMeta
 
@@ -161,21 +131,16 @@ class RunResult(object):
 
     @abstractproperty
     def table(self):
-        """
-        Returns the name of the table we write our values to
-        """
+        """Return the name of the table we write our values to."""
         pass
 
     @abstractproperty
     def columns(self):
-        """
-        Returns the name of the columns of our table.
-        """
+        """Return the name of the columns of our table."""
         pass
 
     def append(self, result):
-        """
-        Append a single value to the result set
+        """Append a single value to the result set.
 
         :result: A tuple suitable for sending it to the pprof.utils.db.submit
                  function, e.g. ("colVal1", "colVal2"), if the table of this
@@ -186,10 +151,7 @@ class RunResult(object):
         self.values.append(result)
 
     def commit(self):
-        """
-        Commit the stored values to the database.
-        """
-
+        """Commit the stored values to the database."""
         if len(self.values) == 0:
             return
 
@@ -203,9 +165,7 @@ class RunResult(object):
 
 class TimeResult(RunResult):
 
-    """
-    Database result implementation for Raw Runtime experiments
-    """
+    """Database result implementation for Raw Runtime experiments."""
 
     @property
     def table(self):

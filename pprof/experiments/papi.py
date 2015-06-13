@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
+"""
+PAPI based experiments.
 
+These types of experiments (papi & papi-std) need to instrument the
+project with libpprof support to work.
+
+"""
 from pprof.experiment import RuntimeExperiment
 from pprof.experiment import step, substep
 from pprof.settings import config
@@ -15,9 +21,10 @@ pprof_analyze = None
 
 class PapiScopCoverage(RuntimeExperiment):
 
-    """ The polyjit experiment """
+    """PAPI-based dynamic SCoP coverage measurement."""
 
     def setup_commands(self):
+        """Setup pprof_calibrate and pprof_analyze."""
         super(PapiScopCoverage, self).setup_commands()
         global pprof_calibrate, pprof_analyze
         bin_path = path.join(config["llvmdir"], "bin")
@@ -26,9 +33,7 @@ class PapiScopCoverage(RuntimeExperiment):
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
 
     def run(self):
-        """
-        Do the postprocessing, after all projects are done.
-        """
+        """Do the postprocessing, after all projects are done."""
         super(PapiScopCoverage, self).run()
         with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"]),
                        PPROF_EXPERIMENT=self.name,
@@ -38,8 +43,12 @@ class PapiScopCoverage(RuntimeExperiment):
             pprof_analyze()
 
     def run_project(self, p):
-        from plumbum.cmd import time
+        """
+        Create & Run a papi-instrumented version of the project.
 
+        This experiment uses the -jitable flag of libPolyJIT to generate
+        dynamic SCoP coverage.
+        """
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("Class: Dynamic, PAPI"):
@@ -69,7 +78,8 @@ class PapiScopCoverage(RuntimeExperiment):
                     project_name = kwargs.get("project_name", p.name)
 
                     run_cmd = handle_stdin(
-                        time["-f", "PPROF-PAPI: %U-%S-%e", run_f, args], kwargs)
+                        time["-f", "PPROF-PAPI: %U-%S-%e", run_f, args],
+                        kwargs)
 
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-PAPI: ",
@@ -106,9 +116,15 @@ class PapiScopCoverage(RuntimeExperiment):
 
 class PapiStandardScopCoverage(PapiScopCoverage):
 
-    """ PAPI Scop Coverage, without JIT """
+    """PAPI Scop Coverage, without JIT."""
 
     def run_project(self, p):
+        """
+        Create & Run a papi-instrumented version of the project.
+
+        This experiment does not use the -jitable flag of libPolyJIT.
+        Therefore, we get the static (aka Standard) SCoP coverage.
+        """
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("Class: Standard - PAPI"):

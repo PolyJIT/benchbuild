@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """
-The 'polly-openmp' Experiment
-====================
+The 'polly-openmp' Experiment.
 
 This experiment applies polly's transformations with openmp code generation
 enabled to all projects and measures the runtime.
@@ -27,9 +25,10 @@ from os import path
 
 class PollyOpenMP(RuntimeExperiment):
 
-    """ The polyjit experiment """
+    """Timing experiment with Polly & OpenMP support."""
 
     def run_project(self, p):
+        """Build & Run each project with Polly & OpenMP support."""
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("Polly, OpenMP"):
@@ -46,7 +45,8 @@ class PollyOpenMP(RuntimeExperiment):
             with substep("run {}".format(p.name)):
                 def run_with_time(run_f, args, **kwargs):
                     """
-                    Function runner for the raw experiment.
+                    Function runner for the polly experiment.
+
                     This executes the given project command wrapped in the
                     time command. Afterwards the result is sent to the
                     database.

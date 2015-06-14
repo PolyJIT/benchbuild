@@ -10,7 +10,7 @@ CLANG_URL = "http://llvm.org/git/clang.git"
 POLLI_URL = "http://github.com/simbuerg/polli.git"
 
 from plumbum.cmd import mkdir
-import os
+import os, os.path
 import logging
 LOG = logging.getLogger()
 
@@ -42,21 +42,22 @@ class Build(cli.Application):
 
     @cli.switch(
         ["-B", "--builddir"], str,
-        help="Where should we build our dependencies?")
+        help="Where should we build our dependencies?",
+        mandatory=True)
     def builddir(self, dirname):
-        self._builddir = dirname
+        self._builddir = os.path.abspath(dirname)
 
-    @cli.switch(["-P", "--papidir"], str, help="Where is libPAPI?")
+    @cli.switch(["-P", "--papidir"], str, help="Where is libPAPI?", mandatory=True)
     def papidir(self, dirname):
-        self._papidir = dirname
+        self._papidir = os.path.abspath(dirname)
 
-    @cli.switch(["-L", "--likwiddir"], str, help="Where is likwid?")
+    @cli.switch(["-L", "--likwiddir"], str, help="Where is likwid?", mandatory=True)
     def likwiddir(self, dirname):
-        self._likwiddir = dirname
+        self._likwiddir = os.path.abspath(dirname)
 
     @cli.switch(["-I", "--isldir"], str, help="Where is isl?")
     def isldir(self, dirname):
-        self._isldir = dirname
+        self._isldir = os.path.abspath(dirname)
 
     def clone_or_pull(self, url, to_dir, branch=None):
         from plumbum.cmd import git

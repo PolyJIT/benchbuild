@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from plumbum import FG, local
-from plumbum.cmd import find, echo, rm, mkdir, rmdir, cp, ln, cat, make, chmod
-
+from plumbum import local
+from plumbum.cmd import rm, mkdir, rmdir
 from os import path, listdir
 from pprof.settings import config
 
@@ -130,22 +129,17 @@ class Project(object):
         if not path.exists(self.builddir):
             mkdir(self.builddir)
 
-    def print_result_header(self):
-        (echo["---------------------------------------------------------------"]
-            >> self.result_f) & FG
-        (echo[">>> ========= " + self.name + " Program"]
-            >> self.result_f) & FG
-        (echo["---------------------------------------------------------------"]
-            >> self.result_f) & FG
+    @abstractmethod
+    def download(self):
+        pass
 
-        def download(self):
-            pass
+    @abstractmethod
+    def configure(self):
+        pass
 
-        def configure(self):
-            pass
-
-        def build(self):
-            pass
+    @abstractmethod
+    def build(self):
+        pass
 
 
 def wrap(name, runner):
@@ -293,4 +287,3 @@ if path.exists("{blobf}"):
         w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
-

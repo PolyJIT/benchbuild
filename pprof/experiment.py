@@ -71,7 +71,6 @@ def nl(o):
     :return: the stream
 
     """
-
     if o.isatty():
         o.write("\r\x1b[L")
     else:
@@ -149,7 +148,6 @@ def phase(name):
     :name:
         Name of the phase.
     """
-
     phase.counter += 1
     phase.name = name
     step.counter = 0
@@ -181,7 +179,6 @@ def step(name):
     :name:
         Name of the step.
     """
-
     step.counter += 1
     step.name = name
     substep.counter = 0
@@ -218,25 +215,27 @@ def substep(name):
     :name:
         Name of the substep.
     """
-
     substep.counter += 1
     substep.name = name
 
     from sys import stdout as o
 
     nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
-        phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+        phase.counter, phase.name, step.counter, step.name, substep.counter,
+        name))
     try:
         yield
         nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
-            phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+            phase.counter, phase.name, step.counter, step.name,
+            substep.counter, name))
     except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
         o.write("\nPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' FAILED".format(
-            phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+            phase.counter, phase.name, step.counter, step.name,
+            substep.counter, name))
         o.write("\n{} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
@@ -370,6 +369,14 @@ class Experiment(object):
             p.run()
 
     def map_projects(self, fun, p=None):
+        """
+        Map a function over all projects.
+
+        :fun:
+            Function that gets mapped over all projects.
+        :p:
+            Phase name
+        """
         for project_name in self.projects:
             with phase(p):
                 prj = self.projects[project_name]
@@ -381,10 +388,7 @@ class Experiment(object):
                     fun(prj)
 
     def clean(self):
-        """
-        Cleans the experiment.
-        """
-
+        """Clean the experiment."""
         self.map_projects(self.clean_project, "clean")
         if (path.exists(self.builddir)) and listdir(self.builddir) == []:
             rmdir(self.builddir)
@@ -400,11 +404,11 @@ class Experiment(object):
 
     def prepare(self):
         """
-        Prepare the experiment. This includes creation of a build directory
-        and setting up the logging. Afterwards we call the prepare method
-        of the project.
-        """
+        Prepare the experiment.
 
+        This includes creation of a build directory and setting up the logging.
+        Afterwards we call the prepare method of the project.
+        """
         if not path.exists(self.builddir):
             (mkdir[self.builddir] & FG(retcode=None))
 
@@ -428,9 +432,10 @@ class Experiment(object):
     @classmethod
     def parse_result(cls, report, prefix, project_block):
         """
-        Parse a given project result block into a dictionary. We take a
-        report dictionary that assigns a fieldname to a regex with at most 1
-        matchgroup.
+        Parse a given project result block into a dictionary.
+
+        We take a report dictionary that assigns a fieldname to a regex with at
+        most 1 matchgroup.
 
         :cls:
             The class.
@@ -456,7 +461,9 @@ class Experiment(object):
 
     def generate_report(self, perf_project_results):
         """
-        Provide users with per project results in the form of a dictionary:
+        Provide users with per project results in the form of a dictionary.
+
+        Example:
             [{ "<project_name>": "project payload" },...]
         Let users do what they want with it.
 
@@ -469,9 +476,11 @@ class Experiment(object):
 
     def collect_results(self):
         """
-        Collect all project-specific results into one big result file for
-        further processing. Later processing steps might have to regain
-        per-project information from this file again.
+        Collect all project-specific results.
+
+        Fetch all data into one big result file for further processing.
+        Later processing steps might have to regain per-project information
+        from this file again.
 
         :return:
             TODO
@@ -516,7 +525,7 @@ class Experiment(object):
 
 class RuntimeExperiment(Experiment):
 
-    """ Additional runtime only features for experiments """
+    """ Additional runtime only features for experiments. """
 
     def get_papi_calibration(self, p, calibrate_call):
         with local.cwd(self.builddir):

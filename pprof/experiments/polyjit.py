@@ -6,7 +6,6 @@ The 'polyjit' experiment.
 This experiment uses likwid to measure the performance of all binaries
 when running with polyjit support enabled.
 """
-from pprof import likwid
 from pprof.experiment import step, substep, RuntimeExperiment
 from pprof.settings import config
 

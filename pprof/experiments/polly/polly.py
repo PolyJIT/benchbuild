@@ -46,6 +46,7 @@ class Polly(RuntimeExperiment):
                 def run_with_time(run_f, args, **kwargs):
                     """
                     Function runner for the raw experiment.
+
                     This executes the given project command wrapped in the
                     time command. Afterwards the result is sent to the
                     database.
@@ -76,7 +77,8 @@ class Polly(RuntimeExperiment):
                     project_name = kwargs.get("project_name", p.name)
 
                     run_cmd = handle_stdin(
-                        time["-f", "PPROF-POLLY: %U-%S-%e", run_f, args], kwargs)
+                        time["-f", "PPROF-POLLY: %U-%S-%e", run_f, args],
+                        kwargs)
 
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-POLLY: ",

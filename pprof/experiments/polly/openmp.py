@@ -76,7 +76,8 @@ class PollyOpenMP(RuntimeExperiment):
                     project_name = kwargs.get("project_name", p.name)
 
                     run_cmd = handle_stdin(
-                        time["-f", "PPROF-POLLY: %U-%S-%e", run_f, args], kwargs)
+                        time["-f", "PPROF-POLLY: %U-%S-%e", run_f, args],
+                        kwargs)
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-POLLY: ",
                                                 "PPROF-POLLY: {:g}-{:g}-{:g}",

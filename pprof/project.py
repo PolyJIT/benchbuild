@@ -12,7 +12,8 @@ import logging
 
 # Configure the log
 HANDLER = logging.StreamHandler(sys.stdout)
-HANDLER.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s'))
+HANDLER.setFormatter(
+    logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s'))
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(HANDLER)

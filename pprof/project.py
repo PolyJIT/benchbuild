@@ -56,8 +56,6 @@ class Project(object):
         self.name = name
         self.domain = domain
         self.group_name = group
-        self.src_uri = ""
-
         self.sourcedir = path.join(config["sourcedir"], self.name)
         self.builddir = path.join(config["builddir"], exp.name, self.name)
         if group:

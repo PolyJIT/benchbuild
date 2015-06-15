@@ -104,7 +104,8 @@ class Build(cli.Application):
                     "-DPOLLY_BUILD_POLLI=On",
                     "-DLLVM_TARGETS_TO_BUILD=X86",
                     "-DLLVM_BINUTILS_INCDIR=/usr/include/",
-                    "-DLLVM_ENABLE_PIC=On"]
+                    "-DLLVM_ENABLE_PIC=On",
+                    "-DLLVM_ENABLE_ASSERTIONS=On"]
 
                 if self._use_make:
                     llvm_cmake = llvm_cmake["-G", "Unix Makefiles"]

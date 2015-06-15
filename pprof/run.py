@@ -134,7 +134,7 @@ def print_projects(experiment):
     for name in projects:
         prj = projects[name]
 
-        if not prj.group_name in grouped_by:
+        if prj.group_name not in grouped_by:
             grouped_by[prj.group_name] = []
 
         grouped_by[prj.group_name].append(name)

@@ -83,15 +83,3 @@ def get_likwid_perfctr(infile):
                     metrics.append(element)
 
     return metrics
-
-
-def to_db(run_id, measurements):
-    from pprof.utils.db import get_db_connection
-    conn = get_db_connection()
-
-    sql_insert = ("INSERT INTO likwid (region, metric, core, value, run_id) "
-                  "VALUES (%s, %s, %s, %s, %s)")
-    with conn.cursor() as insert:
-        for (region, name, core, value) in measurements:
-            insert.execute(sql_insert, (region, name, core, value, run_id))
-    conn.commit()

@@ -47,6 +47,7 @@ from pprof.settings import config
 from contextlib import contextmanager
 from os import path, listdir
 from sets import Set
+from pprof.utils.db import persist_experiment
 
 import re
 import sys
@@ -243,33 +244,6 @@ def substep(name):
     o.flush()
 
 
-def synchronize_project_with_db(p):
-    """
-    Synchronize a project with the database. This inserts a new entry
-    in the database, if it doesn't exist yet.
-
-    :p:
-        The projec we synchronize.
-    """
-    from pprof.utils.db import get_db_connection
-    conn = get_db_connection()
-
-    sql_sel = "SELECT name FROM project WHERE name=%s"
-    sql_ins = "INSERT INTO project " \
-              "(name, description, src_url, domain, group_name)" \
-              "VALUES (%s, %s, %s, %s, %s)"
-    #sql_upd = "UPDATE project SET description = %(desc)s, src_url = %(src)s " \
-    #          "domain = %(domain)s, group = %(group)s" \
-    #          "WHERE name = %(name)s"
-    with conn.cursor() as c:
-        c.execute(sql_sel, (p.name, ))
-        if not c.rowcount:
-            c.execute(sql_ins, [p.name, p.name, "TODO",
-                                p.domain, p.group_name])
-
-    conn.commit()
-
-
 def get_group_projects(group, experiment):
     """
     Get a list of project names for the given group.
@@ -326,6 +300,7 @@ class Experiment(object):
         self.result_f = path.join(self.builddir, name + ".result")
         self.error_f = path.join(self.builddir, "error.log")
 
+        persist_experiment(self)
         self.populate_projects(projects, group)
 
     def populate_projects(self, projects_to_filter, group=None):
@@ -343,8 +318,7 @@ class Experiment(object):
         self.projects = {}
         factories = ProjectFactory.factories
         for fact_id in factories:
-            project = factories[fact_id].create(self)
-            synchronize_project_with_db(project)
+            project = ProjectFactory.createProject(fact_id, self)
             self.projects[project.name] = project
 
         if projects_to_filter:
@@ -540,3 +514,32 @@ class RuntimeExperiment(Experiment):
             if res:
                 return res.group('val')
         return None
+
+    def persist_calibration(self, p, cmd, calibration):
+        """ Persist the result of a calibration call. """
+        if calibration:
+            from pprof.utils.db import create_run
+            from pprof.utils import schema as s
+
+            run, session = create_run(str(cmd), p.name, self.name, p.run_uuid)
+            m = s.Metric(name="papi.calibration.time_ns", value=calibration,
+                         run_id=run.id)
+            session.add(m)
+            session.commit()
+
+    def persist_run(self, cmd, project_name, run_uuid, timings):
+        """ Persist the run results in the database."""
+        from pprof.utils import schema as s
+        from pprof.utils.db import create_run
+
+        run, session = create_run(cmd, project_name, self.name, run_uuid)
+
+        for timing in timings:
+            session.add(s.Metric(name="time.user_s", value=timing[0],
+                                 run_id=run.id))
+            session.add(s.Metric(name="time.system_s", value=timing[1],
+                                 run_id=run.id))
+            session.add(s.Metric(name="time.real_s", value=timing[2],
+                                 run_id=run.id))
+
+        session.commit()

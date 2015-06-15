@@ -68,7 +68,6 @@ class RawRuntime(RuntimeExperiment):
                         Rest.
                     """
                     from plumbum.cmd import time
-                    from pprof.utils.db import create_run, TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
@@ -86,14 +85,7 @@ class RawRuntime(RuntimeExperiment):
                     if len(timings) == 0:
                         return
 
-                    run_id = create_run(str(run_cmd), project_name, self.name,
-                                        p.run_uuid)
-
-                    result = TimeResult()
-                    for timing in timings:
-                        result.append(("time.user_s", timing[0], run_id))
-                        result.append(("time.system_s", timing[1], run_id))
-                        result.append(("time.real_s", timing[2], run_id))
-                    result.commit()
+                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
+                                     timings)
 
                 p.run(run_with_time)

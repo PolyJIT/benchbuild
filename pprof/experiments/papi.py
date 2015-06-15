@@ -10,7 +10,6 @@ project with libpprof support to work.
 from pprof.experiment import RuntimeExperiment
 from pprof.experiment import step, substep
 from pprof.settings import config
-from pprof.utils.db import create_run
 
 from plumbum import local
 from os import path
@@ -72,7 +71,6 @@ class PapiScopCoverage(RuntimeExperiment):
             with substep("run"):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
-                    from pprof.utils.db import TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
@@ -88,30 +86,14 @@ class PapiScopCoverage(RuntimeExperiment):
                     if len(timings) == 0:
                         return
 
-                    run_id = create_run(
-                        str(run_cmd), project_name, self.name, p.run_uuid)
+                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
+                                     timings)
 
-                    result = TimeResult()
-                    for timing in timings:
-                        result.append(("time.user_s", timing[0], run_id))
-                        result.append(("time.system_s", timing[1], run_id))
-                        result.append(("time.real_s", timing[2], run_id))
-                    result.commit()
                 p.run(run_with_time)
 
         with step("Evaluation"):
-            papi_calibration = self.get_papi_calibration(
-                p, pprof_calibrate)
-            if papi_calibration:
-                from pprof.utils.db import TimeResult
-
-                run_id = create_run(
-                    str(pprof_calibrate), p.name, self.name, p.run_uuid)
-
-                result = TimeResult()
-                result.append(
-                    ("papi.calibration.time_ns", papi_calibration, run_id))
-                result.commit()
+            papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
+            self.persist_calibration(p, pprof_calibrate, papi_calibration)
 
 
 class PapiStandardScopCoverage(PapiScopCoverage):
@@ -147,7 +129,6 @@ class PapiStandardScopCoverage(PapiScopCoverage):
             with substep("run"):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
-                    from pprof.utils.db import TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
@@ -162,26 +143,12 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                     if len(timings) == 0:
                         return
 
-                    run_id = create_run(
-                        str(run_cmd), project_name, self.name, p.run_uuid)
+                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
+                                     timings)
 
-                    result = TimeResult()
-                    for timing in timings:
-                        result.append(("time.user_s", timing[0], run_id))
-                        result.append(("time.system_s", timing[1], run_id))
-                        result.append(("time.real_s", timing[2], run_id))
-                    result.commit()
                 p.run(run_with_time)
 
         with step("Evaluation"):
             papi_calibration = self.get_papi_calibration(
                 p, pprof_calibrate)
-            if papi_calibration:
-                from pprof.utils.db import TimeResult
-
-                run_id = create_run(
-                    str(pprof_calibrate), p.name, self.name, p.run_uuid)
-                result = TimeResult()
-                result.append(
-                    ("papi.calibration.time_ns", papi_calibration, run_id))
-                result.commit()
+            self.persist_calibration(p, pprof_calibrate, papi_calibration)

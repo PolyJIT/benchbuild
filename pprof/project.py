@@ -37,10 +37,11 @@ class ProjectFactory:
     addFactory = staticmethod(addFactory)
 
     def createProject(fact_id, exp):
-        if not ProjectFactory.factories.has_key(fact_id):
+        if fact_id not in ProjectFactory.factories:
             ProjectFactory.factories[fact_id] = \
                 eval(fact_id + '.Factory()')
-            return ProjectFactory.factories[id].create(self, exp)
+
+        return ProjectFactory.factories[fact_id].create(exp)
     createProject = staticmethod(createProject)
 
 

@@ -18,7 +18,7 @@ LOG = logging.getLogger()
 @PollyProfiling.subcommand("run")
 class PprofRun(cli.Application):
 
-    """ Frontend for running experiments in the pprof study framework """
+    """ Frontend for running experiments in the pprof study framework. """
 
     _experiments = {
         "polyjit": polyjit.PolyJIT,

@@ -27,7 +27,7 @@ from os import path
 
 class Polly(RuntimeExperiment):
 
-    """ The polyjit experiment """
+    """ The polly experiment. """
 
     def run_project(self, p):
         llvm_libs = path.join(config["llvmdir"], "lib")

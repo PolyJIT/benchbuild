@@ -502,6 +502,7 @@ class RuntimeExperiment(Experiment):
     """ Additional runtime only features for experiments. """
 
     def get_papi_calibration(self, p, calibrate_call):
+        """ Get calibration values for PAPI based measurements. """
         with local.cwd(self.builddir):
             with local.env(PPROF_USE_DATABASE=0, PPROF_USE_CSV=0,
                            PPROF_USE_FILE=0):

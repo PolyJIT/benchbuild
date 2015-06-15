@@ -109,7 +109,6 @@ class PprofRun(cli.Application):
 
             exp = self._experiments[name](
                 name, self._project_names, self._group_name)
-            synchronize_experiment_with_db(exp)
 
             if self._clean:
                 exp.clean()
@@ -150,26 +149,3 @@ def print_projects(experiment):
         print "\n".join(wrap(project_paragraph[2:], 80, break_on_hyphens=False,
                              break_long_words=False))
         print
-
-
-def synchronize_experiment_with_db(exp):
-    """Synchronize information about the given experiment with the pprof
-    database
-
-    :exp: The experiment we want to synchronize
-
-    """
-    from pprof.utils import db
-    conn = db.get_db_connection()
-
-    sql_sel = "SELECT * FROM experiment WHERE name=%s"
-    sql_ins = "INSERT INTO experiment (name, description) VALUES (%s, %s)"
-    sql_upd = "UPDATE experiment SET description = %s WHERE name = %s"
-    with conn.cursor() as sync:
-        sync.execute(sql_sel, (exp.name, ))
-
-        if not sync.rowcount:
-            sync.execute(sql_ins, (exp.name, exp.name))
-        else:
-            sync.execute(sql_upd, [exp.name, exp.name])
-    conn.commit()

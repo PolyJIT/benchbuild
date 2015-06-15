@@ -5,6 +5,7 @@ from plumbum import local
 from plumbum.cmd import rm, mkdir, rmdir
 from os import path, listdir
 from pprof.settings import config
+from pprof.utils.db import persist_project
 
 import sys
 import logging
@@ -69,6 +70,8 @@ class Project(object):
         self.ldflags = []
 
         self.setup_derived_filenames()
+
+        persist_project(self)
 
     def setup_derived_filenames(self):
         self.run_f = path.join(self.builddir, self.name)
@@ -238,7 +241,7 @@ def wrap_dynamic(name, runner):
 # encoding: utf-8
 
 from pprof.project import Project
-from pprof.experiment import Experiment, synchronize_project_with_db
+from pprof.experiment import Experiment
 from plumbum import cli, local
 from os import path, getenv
 import sys
@@ -269,7 +272,6 @@ if path.exists("{blobf}"):
             group_name = getenv("PPROF_GROUP", "unknwon")
             e = Experiment(exp_name, [], group_name)
             p = Project(e, project_name, domain_name, group_name)
-            synchronize_project_with_db(p)
 
             if not sys.stdin.isatty():
                 f(run_f, args, has_stdin = True, project_name = project_name)

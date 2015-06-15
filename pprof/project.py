@@ -47,7 +47,10 @@ class ProjectFactory:
 
 class Project(object):
 
-    """ A project defines how run-time testing and cleaning is done for this
+    """
+    pprof's Project class.
+
+    A project defines how run-time testing and cleaning is done for this
         IR project
     """
 

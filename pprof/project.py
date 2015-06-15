@@ -6,6 +6,7 @@ from plumbum.cmd import rm, mkdir, rmdir
 from os import path, listdir
 from pprof.settings import config
 from pprof.utils.db import persist_project
+from abc import abstractmethod
 
 import sys
 import logging

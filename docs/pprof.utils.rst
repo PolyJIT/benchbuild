@@ -14,4 +14,6 @@ Submodules
    pprof.utils.compiler
    pprof.utils.db
    pprof.utils.downloader
+   pprof.utils.run
+   pprof.utils.schema
 

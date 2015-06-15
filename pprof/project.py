@@ -230,7 +230,7 @@ def wrap_dynamic(name, runner):
 
     """
     from plumbum import local
-    from plumbum.cmd import mv, chmod
+    from plumbum.cmd import chmod
     from cloud.serialization import cloudpickle as cp
     from os import path
 

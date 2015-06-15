@@ -98,13 +98,8 @@ class Project(object):
         exp = wrap(self.run_f, experiment)
         exp()
 
-    run_uuid = None
-
     def run(self, experiment):
-        from uuid import uuid4
         with local.cwd(self.builddir):
-            if self.run_uuid is None:
-                self.run_uuid = uuid4()
             with local.env(PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid,
                            PPROF_DOMAIN=self.domain,
@@ -131,6 +126,17 @@ class Project(object):
             LOG.warn(self.name + " project unclean, force removing " +
                      self.builddir)
             rm("-rf", self.builddir)
+
+    @property
+    def run_uuid(self):
+        from os import getenv
+        from uuid import uuid4
+        try:
+            if self._run_uuid is None:
+                self._run_uuid = getenv("PPROF_DB_RUN_GROUP", uuid4())
+        except AttributeError:
+            self._run_uuid = getenv("PPROF_DB_RUN_GROUP", uuid4())
+        return self._run_uuid
 
     def prepare(self):
         if not path.exists(self.builddir):

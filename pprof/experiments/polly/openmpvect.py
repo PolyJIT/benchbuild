@@ -45,7 +45,8 @@ class PollyOpenMPVectorizer(RuntimeExperiment):
             with substep("run {}".format(p.name)):
                 def run_with_time(run_f, args, **kwargs):
                     """
-                    Function runner for the raw experiment.
+                    Function runner for the polly experiment.
+
                     This executes the given project command wrapped in the
                     time command. Afterwards the result is sent to the
                     database.

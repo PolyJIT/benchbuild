@@ -10,6 +10,7 @@ from pprof.experiments import polyjit
 from pprof.experiments import raw
 from pprof.experiments import papi
 from pprof.experiments.polly import polly, openmp, openmpvect, vectorize
+from pprof.experiments import compilestats
 import logging
 import pprint
 LOG = logging.getLogger()
@@ -30,7 +31,8 @@ class PprofRun(cli.Application):
         "polly": polly.Polly,
         "polly-openmp": openmp.PollyOpenMP,
         "polly-openmpvect": openmpvect.PollyOpenMPVectorizer,
-        "polly-vectorize": vectorize.PollyVectorizer
+        "polly-vectorize": vectorize.PollyVectorizer,
+        "stats": compilestats.CompilestatsExperiment
     }
 
     _experiment_names = []

@@ -23,7 +23,8 @@ class Povray(PprofGroup):
     src_dir = "povray.git"
     boost_src_dir = "boost_1_58_0"
     boost_src_file = boost_src_dir + ".tar.bz2"
-    boost_src_uri = "http://sourceforge.net/projects/boost/files/boost/1.58.0/" + boost_src_file
+    boost_src_uri = "http://sourceforge.net/projects/boost/files/boost/1.58.0/" + \
+        boost_src_file
 
     def download(self):
         from pprof.utils.downloader import Git, Wget

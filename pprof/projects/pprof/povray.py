@@ -54,8 +54,10 @@ class Povray(PprofGroup):
         with local.cwd(povray_dir):
             from pprof.utils.compiler import lt_clang, lt_clang_cxx
             with local.cwd(self.builddir):
-                clang = lt_clang(self.cflags, self.ldflags)
-                clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+                clang = lt_clang(self.cflags, self.ldflags,
+                                 self.compiler_extension)
+                clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                         self.compiler_extension)
             configure = local["./configure"]
             with local.env(COMPILED_BY="PPROF <no@mail.nono>",
                            CC=str(clang),

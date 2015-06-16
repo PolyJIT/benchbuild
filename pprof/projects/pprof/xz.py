@@ -92,6 +92,7 @@ class XZ(PprofGroup):
 
         xz_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags)
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
             with local.cwd(xz_dir):
-                make("CC=" + str(clang()), "clean", "all")
+                make("CC=" + str(clang), "clean", "all")

@@ -59,23 +59,29 @@ class MCrypt(PprofGroup):
         # Build mhash dependency
         with local.cwd(mhash_dir):
             configure = local["./configure"]
-            with local.env(CC=lt_clang(self.cflags, self.ldflags),
-                           CXX=lt_clang_cxx(self.cflags, self.ldflags)):
+            with local.env(CC=lt_clang(self.cflags, self.ldflags,
+                                       self.compiler_extension),
+                           CXX=lt_clang_cxx(self.cflags, self.ldflags,
+                                            self.compiler_extension)):
                 configure("--prefix=" + self.builddir)
                 make("-j", config["jobs"], "install")
 
         # Builder libmcrypt dependency
         with local.cwd(libmcrypt_dir):
             configure = local["./configure"]
-            with local.env(CC=lt_clang(self.cflags, self.ldflags),
-                           CXX=lt_clang_cxx(self.cflags, self.ldflags)):
+            with local.env(CC=lt_clang(self.cflags, self.ldflags,
+                                       self.compiler_extension),
+                           CXX=lt_clang_cxx(self.cflags, self.ldflags,
+                                            self.compiler_extension)):
                 configure("--prefix=" + self.builddir)
                 make("-j", config["jobs"], "install")
 
         with local.cwd(mcrypt_dir):
             configure = local["./configure"]
-            with local.env(CC=lt_clang(self.cflags, self.ldflags),
-                           CXX=lt_clang_cxx(self.cflags, self.ldflags),
+            with local.env(CC=lt_clang(self.cflags, self.ldflags,
+                                       self.compiler_extension),
+                           CXX=lt_clang_cxx(self.cflags, self.ldflags,
+                                            self.compiler_extension),
                            LD_LIBRARY_PATH=path.join(
                                self.builddir, "lib") + ":" + config["ld_library_path"],
                            LDFLAGS="-L" + path.join(self.builddir, "lib"),

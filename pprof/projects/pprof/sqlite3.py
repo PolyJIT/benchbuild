@@ -38,7 +38,7 @@ class SQLite3(PprofGroup):
         from pprof.utils.compiler import lt_clang
 
         sqlite_dir = path.join(self.builddir, self.src_dir)
-        clang = lt_clang(self.cflags, self.ldflags)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
 
         with local.cwd(sqlite_dir):
             clang("-fPIC", "-c", "sqlite3.c")

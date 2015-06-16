@@ -57,9 +57,10 @@ class CompilestatsExperiment(RuntimeExperiment):
                             stats.append(c)
                         self.persist_run(str(new_cc), p.name, p.run_uuid,
                                          stats)
+                p.compiler_extension = track_compilestats
                 p.configure()
             with substep("Build Project"):
-                p.build(track_compilestats)
+                p.build()
 
 
 def get_compilestats(prog_out):

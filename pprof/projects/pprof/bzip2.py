@@ -50,7 +50,7 @@ class Bzip2(PprofGroup):
 
         bzip2_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags)
+            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         with local.cwd(bzip2_dir):
             make("CC=" + str(clang), "clean", "bzip2")
 

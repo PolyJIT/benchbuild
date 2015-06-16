@@ -55,5 +55,6 @@ class Crocopat(PprofGroup):
             cflags = self.cflags + ["-I.", "-ansi"]
             ldflags = self.ldflags + ["-L.", "-lrelbdd"]
             with local.cwd(self.builddir):
-                clang_cxx = lt_clang_cxx(cflags, ldflags)
+                clang_cxx = lt_clang_cxx(cflags, ldflags,
+                                         self.compiler_extension)
             make("CXX=" + str(clang_cxx))

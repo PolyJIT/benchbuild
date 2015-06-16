@@ -72,7 +72,8 @@ class Gzip(PprofGroup):
 
         with local.cwd(gzip_dir):
             with local.cwd(self.builddir):
-                clang = lt_clang(self.cflags, self.ldflags)
+                clang = lt_clang(self.cflags, self.ldflags,
+                                 self.compiler_extension)
             configure = local["./configure"]
             with local.env(CC=str(clang)):
                 configure("--disable-dependency-tracking",

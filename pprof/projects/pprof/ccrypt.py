@@ -48,8 +48,10 @@ class Ccrypt(PprofGroup):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
 
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):

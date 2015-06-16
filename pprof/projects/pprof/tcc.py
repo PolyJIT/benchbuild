@@ -36,7 +36,7 @@ class TCC(PprofGroup):
 
         with local.cwd(self.builddir):
             mkdir("build")
-            clang = lt_clang(self.cflags, self.ldflags)
+            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         with local.cwd(path.join(self.builddir, "build")):
             configure = local[path.join(tcc_dir, "configure")]
             configure("--cc=" + str(clang),

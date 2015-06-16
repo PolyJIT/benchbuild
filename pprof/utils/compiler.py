@@ -114,7 +114,6 @@ with local.env(PPROF_DB_HOST="{db_host}",
     retcode, final_cc = call_original_compiler(input_files, cc, cflags,
                                                ldflags, flags)
     with local.env(PPROF_CMD=str(final_cc)):
-        print "Fun: {{}}".format(f)
         if f is not None:
             if not sys.stdin.isatty():
                 f(final_cc, has_stdin = True)

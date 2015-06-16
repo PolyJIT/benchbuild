@@ -31,8 +31,10 @@ class SDCC(PprofGroup):
 
         sdcc_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+            clang = lt_clang(self.cflags, self.ldflags,
+            self.compiler_extension)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+            self.compiler_extension)
 
         with local.cwd(sdcc_dir):
             configure = local["./configure"]

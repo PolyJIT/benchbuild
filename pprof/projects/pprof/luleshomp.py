@@ -38,5 +38,6 @@ class LuleshOMP(PprofGroup):
         self.ldflags += ["-lgomp"]
 
         with local.cwd(self.builddir):
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
             clang_cxx("-o", self.run_f, self.src_file)

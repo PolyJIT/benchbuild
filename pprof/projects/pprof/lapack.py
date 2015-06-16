@@ -33,8 +33,10 @@ class Lapack(PprofGroup):
         lapack_dir = path.join(self.builddir, self.src_dir)
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
         with local.cwd(lapack_dir):
             with open("make.inc", 'w') as makefile:
                 content = [

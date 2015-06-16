@@ -32,8 +32,10 @@ class Ruby(PprofGroup):
     def configure(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
         ruby_dir = path.join(self.builddir, self.src_dir)
-        clang = lt_clang(self.cflags, self.ldflags)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+        clang = lt_clang(self.cflags, self.ldflags,
+                         self.compiler_extension)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                 self.compiler_extension)
         with local.cwd(ruby_dir):
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure = local["./configure"]

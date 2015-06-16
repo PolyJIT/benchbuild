@@ -25,10 +25,10 @@ class Run(Base):
     id = Column(Integer, primary_key=True)
     finished = Column(DateTime(timezone=False))
     command = Column(String)
-    project_name = Column(String, ForeignKey("project.name"))
-    experiment_name = Column(String, ForeignKey("experiment.name"))
-    run_group = Column(postgresql.UUID)
-    experiment_group = Column(postgresql.UUID)
+    project_name = Column(String, ForeignKey("project.name"), index=True)
+    experiment_name = Column(String, ForeignKey("experiment.name"), index=True)
+    run_group = Column(postgresql.UUID, index=True)
+    experiment_group = Column(postgresql.UUID, index=True)
 
     def __repr__(self):
         return dedent(
@@ -58,8 +58,8 @@ class Likwid(Base):
 
     __tablename__ = 'likwid'
 
-    metric = Column(String, primary_key=True)
-    region = Column(String, primary_key=True)
+    metric = Column(String, primary_key=True, index=True)
+    region = Column(String, primary_key=True, index=True)
     value = Column(postgresql.DOUBLE_PRECISION)
     core = Column(String, primary_key=True)
     run_id = Column(Integer,
@@ -81,7 +81,7 @@ class Metric(Base):
 
     __tablename__ = 'metrics'
 
-    name = Column(String, primary_key=True, nullable=False)
+    name = Column(String, primary_key=True, index=True, nullable=False)
     value = Column(postgresql.DOUBLE_PRECISION)
     run_id = Column(Integer,
                     ForeignKey("run.id",

@@ -130,4 +130,25 @@ class Project(Base):
         return "<Project(name='{}', description='{}', src_url='{}', domain'{}', group_name='{}')>".format(
             self.name, self.description, self.src_url, self.domain, self.group_name)
 
+
+class CompileStat(Base):
+
+    """Store compilestats as given by LLVM's '-stats' commoand."""
+
+    __tablename__ = 'compilestats'
+
+    id = Column(postgresql.BIGINT, primary_key=True)
+    name = Column(String, index=True)
+    component = Column(String, index=True)
+    value = Column(postgresql.NUMERIC)
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE", ondelete="CASCADE"))
+
+    def __repr__(self):
+        return dedent(
+            """<CompileStat(name='{}', component={}, value={}, run_id='{}')>
+            """.format(self.name, self.component, self.value, self.run_id))
+
+
 Base.metadata.create_all(Engine, checkfirst=True)

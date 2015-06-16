@@ -52,7 +52,7 @@ class LibAV(PprofGroup):
 
         libav_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags)
+            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         with local.cwd(libav_dir):
             configure = local["./configure"]
             configure("--disable-shared",

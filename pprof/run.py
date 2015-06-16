@@ -10,6 +10,7 @@ from pprof.experiments import polyjit
 from pprof.experiments import raw
 from pprof.experiments import papi
 from pprof.experiments.polly import polly, openmp, openmpvect, vectorize
+from pprof.experiments import compilestats
 import logging
 import pprint
 LOG = logging.getLogger()
@@ -18,7 +19,7 @@ LOG = logging.getLogger()
 @PollyProfiling.subcommand("run")
 class PprofRun(cli.Application):
 
-    """ Frontend for running experiments in the pprof study framework """
+    """ Frontend for running experiments in the pprof study framework. """
 
     _experiments = {
         "polyjit": polyjit.PolyJIT,
@@ -30,7 +31,8 @@ class PprofRun(cli.Application):
         "polly": polly.Polly,
         "polly-openmp": openmp.PollyOpenMP,
         "polly-openmpvect": openmpvect.PollyOpenMPVectorizer,
-        "polly-vectorize": vectorize.PollyVectorizer
+        "polly-vectorize": vectorize.PollyVectorizer,
+        "stats": compilestats.CompilestatsExperiment
     }
 
     _experiment_names = []
@@ -109,7 +111,6 @@ class PprofRun(cli.Application):
 
             exp = self._experiments[name](
                 name, self._project_names, self._group_name)
-            synchronize_experiment_with_db(exp)
 
             if self._clean:
                 exp.clean()
@@ -135,7 +136,7 @@ def print_projects(experiment):
     for name in projects:
         prj = projects[name]
 
-        if not prj.group_name in grouped_by:
+        if prj.group_name not in grouped_by:
             grouped_by[prj.group_name] = []
 
         grouped_by[prj.group_name].append(name)
@@ -150,26 +151,3 @@ def print_projects(experiment):
         print "\n".join(wrap(project_paragraph[2:], 80, break_on_hyphens=False,
                              break_long_words=False))
         print
-
-
-def synchronize_experiment_with_db(exp):
-    """Synchronize information about the given experiment with the pprof
-    database
-
-    :exp: The experiment we want to synchronize
-
-    """
-    from pprof.utils import db
-    conn = db.get_db_connection()
-
-    sql_sel = "SELECT * FROM experiment WHERE name=%s"
-    sql_ins = "INSERT INTO experiment (name, description) VALUES (%s, %s)"
-    sql_upd = "UPDATE experiment SET description = %s WHERE name = %s"
-    with conn.cursor() as sync:
-        sync.execute(sql_sel, (exp.name, ))
-
-        if not sync.rowcount:
-            sync.execute(sql_ins, (exp.name, exp.name))
-        else:
-            sync.execute(sql_upd, [exp.name, exp.name])
-    conn.commit()

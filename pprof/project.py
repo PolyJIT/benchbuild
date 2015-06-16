@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from plumbum import FG, local
-from plumbum.cmd import find, echo, rm, mkdir, rmdir, cp, ln, cat, make, chmod
-
+from plumbum import local
+from plumbum.cmd import rm, mkdir, rmdir
 from os import path, listdir
 from pprof.settings import config
+from pprof.utils.db import persist_project
+from abc import abstractmethod
 
 import sys
 import logging
 
 # Configure the log
 HANDLER = logging.StreamHandler(sys.stdout)
-HANDLER.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s'))
+HANDLER.setFormatter(
+    logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s'))
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(HANDLER)
@@ -35,16 +37,20 @@ class ProjectFactory:
     addFactory = staticmethod(addFactory)
 
     def createProject(fact_id, exp):
-        if not ProjectFactory.factories.has_key(fact_id):
+        if fact_id not in ProjectFactory.factories:
             ProjectFactory.factories[fact_id] = \
                 eval(fact_id + '.Factory()')
-            return ProjectFactory.factories[id].create(self, exp)
+
+        return ProjectFactory.factories[fact_id].create(exp)
     createProject = staticmethod(createProject)
 
 
 class Project(object):
 
-    """ A project defines how run-time testing and cleaning is done for this
+    """
+    pprof's Project class.
+
+    A project defines how run-time testing and cleaning is done for this
         IR project
     """
 
@@ -53,8 +59,6 @@ class Project(object):
         self.name = name
         self.domain = domain
         self.group_name = group
-        self.src_uri = ""
-
         self.sourcedir = path.join(config["sourcedir"], self.name)
         self.builddir = path.join(config["builddir"], exp.name, self.name)
         if group:
@@ -70,6 +74,8 @@ class Project(object):
         self.ldflags = []
 
         self.setup_derived_filenames()
+
+        persist_project(self)
 
     def setup_derived_filenames(self):
         self.run_f = path.join(self.builddir, self.name)
@@ -92,13 +98,8 @@ class Project(object):
         exp = wrap(self.run_f, experiment)
         exp()
 
-    run_uuid = None
-
     def run(self, experiment):
-        from uuid import uuid4
         with local.cwd(self.builddir):
-            if self.run_uuid is None:
-                self.run_uuid = uuid4()
             with local.env(PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid,
                            PPROF_DOMAIN=self.domain,
@@ -126,26 +127,53 @@ class Project(object):
                      self.builddir)
             rm("-rf", self.builddir)
 
+    @property
+    def compiler_extension(self):
+        """ Return the compiler extension registered to this project. """
+        try:
+            return self._compiler_extension
+        except AttributeError:
+            self._compiler_extension = None
+            return self._compiler_extension
+
+    @compiler_extension.setter
+    def compiler_extension(self, func):
+        """
+        Set a function as compiler extension.
+
+        :func:
+            The compiler extension function. Minimum signature required:
+            f(cc, **kwargs), where cc is the original compiler command.
+
+        """
+        self._compiler_extension = func
+
+    @property
+    def run_uuid(self):
+        from os import getenv
+        from uuid import uuid4
+        try:
+            if self._run_uuid is None:
+                self._run_uuid = getenv("PPROF_DB_RUN_GROUP", uuid4())
+        except AttributeError:
+            self._run_uuid = getenv("PPROF_DB_RUN_GROUP", uuid4())
+        return self._run_uuid
+
     def prepare(self):
         if not path.exists(self.builddir):
             mkdir(self.builddir)
 
-    def print_result_header(self):
-        (echo["---------------------------------------------------------------"]
-            >> self.result_f) & FG
-        (echo[">>> ========= " + self.name + " Program"]
-            >> self.result_f) & FG
-        (echo["---------------------------------------------------------------"]
-            >> self.result_f) & FG
+    @abstractmethod
+    def download(self):
+        pass
 
-        def download(self):
-            pass
+    @abstractmethod
+    def configure(self):
+        pass
 
-        def configure(self):
-            pass
-
-        def build(self):
-            pass
+    @abstractmethod
+    def build(self):
+        pass
 
 
 def wrap(name, runner):
@@ -230,7 +258,7 @@ def wrap_dynamic(name, runner):
 
     """
     from plumbum import local
-    from plumbum.cmd import mv, chmod
+    from plumbum.cmd import chmod
     from cloud.serialization import cloudpickle as cp
     from os import path
 
@@ -244,7 +272,7 @@ def wrap_dynamic(name, runner):
 # encoding: utf-8
 
 from pprof.project import Project
-from pprof.experiment import Experiment, synchronize_project_with_db
+from pprof.experiment import Experiment
 from plumbum import cli, local
 from os import path, getenv
 import sys
@@ -275,7 +303,6 @@ if path.exists("{blobf}"):
             group_name = getenv("PPROF_GROUP", "unknwon")
             e = Experiment(exp_name, [], group_name)
             p = Project(e, project_name, domain_name, group_name)
-            synchronize_project_with_db(p)
 
             if not sys.stdin.isatty():
                 f(run_f, args, has_stdin = True, project_name = project_name)
@@ -293,4 +320,3 @@ if path.exists("{blobf}"):
         w.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
-

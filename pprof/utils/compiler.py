@@ -1,14 +1,13 @@
 from pprof.settings import config
 
 
-def lt_clang(cflags, ldflags):
+def lt_clang(cflags, ldflags, func=None):
     """Return a clang that hides :cflags: and :ldflags: from reordering of
     libtool.
 
     This will generate a wrapper script in :p:'s builddir and return a path
     to it.
 
-    :flags_to_hide: the flags libtool is not allowed to see.
     :cflags: the cflags libtool is not allowed to see.
     :ldflags: the ldflags libtool is not allowed to see.
     :returns: path to the new clang.
@@ -16,30 +15,29 @@ def lt_clang(cflags, ldflags):
     """
     from plumbum import local
 
-    print_libtool_sucks_wrapper("clang", cflags, ldflags, clang)
+    print_libtool_sucks_wrapper("clang", cflags, ldflags, clang, func)
     return local["./clang"]
 
 
-def lt_clang_cxx(cflags, ldflags):
+def lt_clang_cxx(cflags, ldflags, func=None):
     """Return a clang that hides :cflags: and :ldflags: from reordering of
     libtool.
 
     This will generate a wrapper script in :p:'s builddir and return a path
     to it.
 
-    :flags_to_hide: the flags libtool is not allowed to see.
     :cflags: the cflags libtool is not allowed to see.
     :ldflags: the ldflags libtool is not allowed to see.
     :returns: path to the new clang.
 
     """
     from plumbum import local
-    print_libtool_sucks_wrapper("clang++", cflags, ldflags, clang_cxx)
 
+    print_libtool_sucks_wrapper("clang++", cflags, ldflags, clang_cxx, func)
     return local["./clang++"]
 
 
-def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler):
+def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
     """Print a libtool wrapper that hides :flags_to_hide: from libtool.
 
     :filepath:
@@ -50,6 +48,14 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler):
         The compiler we should actually call
     """
     from plumbum.cmd import chmod
+    from cloud.serialization import cloudpickle as cp
+    from pprof.project import PROJECT_BLOB_F_EXT
+    from os.path import abspath
+
+    blob_f = abspath(filepath + PROJECT_BLOB_F_EXT)
+    if func is not None:
+        with open(blob_f, 'wb') as b:
+            b.write(cp.dumps(func))
 
     with open(filepath, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
@@ -57,6 +63,8 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler):
 
 from plumbum import ProcessExecutionError, local, FG
 from pprof.experiment import to_utf8
+from os import path
+import pickle
 
 cc=local[\"{CC}\"]
 cflags={CFLAGS}
@@ -66,26 +74,60 @@ from sys import argv
 import os
 import sys
 
+def call_original_compiler(input_files, cc, cflags, ldflags, flags):
+    final_command = None
+    retcode=0
+    try:
+        if len(input_files) > 0:
+            if "-c" in flags:
+                final_command = cc["-Qunused-arguments", cflags, flags]
+            else:
+                final_command = cc["-Qunused-arguments", cflags, flags, ldflags]
+        else:
+            final_command = cc["-Qunused-arguments", flags]
+
+        retcode, stdout, stderr = final_command.run()
+        if len(stdout) > 0:
+            print stdout
+        if len(stderr) > 0:
+            print stderr
+    except ProcessExecutionError as e:
+        sys.stderr.write(to_utf8(str(e.stderr)))
+        sys.stderr.flush()
+        sys.exit(e.retcode)
+    return (retcode, final_command)
+
+
 input_files = [ x for x in argv[1:] if not '-' is x[0] ]
 flags = argv[1:]
+f = None
 
-try:
-    if len(input_files) > 0:
-        if "-c" in argv:
-            cc["-Qunused-arguments", cflags, flags] & FG
-        else:
-            cc["-Qunused-arguments", cflags, flags, ldflags] & FG
-    else:
-        cc["-Qunused-arguments", flags] & FG
-except ProcessExecutionError as e:
-    sys.stderr.write(to_utf8(str(e.stderr)))
-    sys.stderr.flush()
-    sys.exit(e.retcode)
+if path.exists("{blobf}"):
+    with open("{blobf}", "rb") as p:
+        f = pickle.load(p)
 
-
-'''.format(CC=str(compiler()), CFLAGS=cflags, LDFLAGS=ldflags)
+with local.env(PPROF_DB_HOST="{db_host}",
+           PPROF_DB_PORT="{db_port}",
+           PPROF_DB_NAME="{db_name}",
+           PPROF_DB_USER="{db_user}",
+           PPROF_DB_PASS="{db_pass}"):
+    retcode, final_cc = call_original_compiler(input_files, cc, cflags,
+                                               ldflags, flags)
+    """ FIXME: This is just a quick workaround. """
+    if "conftest.c" not in input_files:
+        with local.env(PPROF_CMD=str(final_cc)):
+            if f is not None:
+                if not sys.stdin.isatty():
+                    f(final_cc, has_stdin = True)
+                else:
+                    f(final_cc)
+    sys.exit(retcode)
+'''.format(CC=str(compiler()), CFLAGS=cflags, LDFLAGS=ldflags,
+           blobf=blob_f, db_host=config["db_host"],
+           db_name=config["db_name"], db_user=config["db_user"],
+           db_pass=config["db_pass"], db_port=config["db_port"])
         wrapper.write(lines)
-    chmod("+x", filepath)
+        chmod("+x", filepath)
 
 
 def llvm():

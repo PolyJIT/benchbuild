@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """
-The 'raw' Experiment
-====================
+The 'raw' Experiment.
 
 This experiment is the basic experiment in the pprof study. It simply runs
 all projects after compiling it with -O3. The binaries are wrapped
@@ -27,9 +25,10 @@ from os import path
 
 class RawRuntime(RuntimeExperiment):
 
-    """ The polyjit experiment """
+    """The polyjit experiment."""
 
     def run_project(self, p):
+        """Compile & Run the experiment with -O3 enabled."""
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("RAW -O3"):
@@ -43,16 +42,17 @@ class RawRuntime(RuntimeExperiment):
                 def run_with_time(run_f, args, **kwargs):
                     """
                     Function runner for the raw experiment.
+
                     This executes the given project command wrapped in the
                     time command. Afterwards the result is sent to the
                     database.
 
                     3 Metrics are generated during this experiment:
-                        raw.time.user_s - The time spent in user space in
+                        time.user_s - The time spent in user space in
                                           seconds (aka virtual time)
-                        raw.time.system_s - The time spent in kernel space in
+                        time.system_s - The time spent in kernel space in
                                             seconds (aka system time)
-                        raw.time.real_s - The time spent overall in seconds
+                        time.real_s - The time spent overall in seconds
                                           (aka Wall clock)
 
                     :run_f:
@@ -68,7 +68,6 @@ class RawRuntime(RuntimeExperiment):
                         Rest.
                     """
                     from plumbum.cmd import time
-                    from pprof.utils.db import create_run, TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
@@ -86,14 +85,7 @@ class RawRuntime(RuntimeExperiment):
                     if len(timings) == 0:
                         return
 
-                    run_id = create_run(str(run_cmd), project_name, self.name,
-                                        p.run_uuid)
-
-                    result = TimeResult()
-                    for timing in timings:
-                        result.append(("time.user_s", timing[0], run_id))
-                        result.append(("time.system_s", timing[1], run_id))
-                        result.append(("time.real_s", timing[2], run_id))
-                    result.commit()
+                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
+                                     timings)
 
                 p.run(run_with_time)

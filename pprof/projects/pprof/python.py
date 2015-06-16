@@ -37,9 +37,9 @@ class Python(PprofGroup):
 
         with local.cwd(self.builddir):
             clang = lt_clang(self.cflags, self.ldflags,
-            self.compiler_extension)
+                             self.compiler_extension)
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-            self.compiler_extension)
+                                     self.compiler_extension)
 
         with local.cwd(python_dir):
             configure = local["./configure"]

@@ -48,7 +48,7 @@ class LibreSSL(PprofGroup):
         from plumbum.cmd import make
 
         openssl_dir = path.join(self.builddir, self.src_dir,
-        self.compiler_extension)
+                                self.compiler_extension)
         with local.cwd(openssl_dir):
             make("-j", config["jobs"], "check")
 

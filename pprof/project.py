@@ -128,6 +128,27 @@ class Project(object):
             rm("-rf", self.builddir)
 
     @property
+    def compiler_extension(self):
+        """ Return the compiler extension registered to this project. """
+        try:
+            return self._compiler_extension
+        except AttributeError:
+            self._compiler_extension = None
+            return self._compiler_extension
+
+    @compiler_extension.setter
+    def compiler_extension(self, func):
+        """
+        Set a function as compiler extension.
+
+        :func:
+            The compiler extension function. Minimum signature required:
+            f(cc, **kwargs), where cc is the original compiler command.
+
+        """
+        self._compiler_extension = func
+
+    @property
     def run_uuid(self):
         from os import getenv
         from uuid import uuid4

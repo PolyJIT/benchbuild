@@ -113,12 +113,14 @@ with local.env(PPROF_DB_HOST="{db_host}",
            PPROF_DB_PASS="{db_pass}"):
     retcode, final_cc = call_original_compiler(input_files, cc, cflags,
                                                ldflags, flags)
-    with local.env(PPROF_CMD=str(final_cc)):
-        if f is not None:
-            if not sys.stdin.isatty():
-                f(final_cc, has_stdin = True)
-            else:
-                f(final_cc)
+    """ FIXME: This is just a quick workaround. """
+    if "conftest.c" not in input_files:
+        with local.env(PPROF_CMD=str(final_cc)):
+            if f is not None:
+                if not sys.stdin.isatty():
+                    f(final_cc, has_stdin = True)
+                else:
+                    f(final_cc)
     sys.exit(retcode)
 '''.format(CC=str(compiler()), CFLAGS=cflags, LDFLAGS=ldflags,
            blobf=blob_f, db_host=config["db_host"],

@@ -22,13 +22,12 @@ Measurements
 
 from pprof.experiment import step, substep, RuntimeExperiment
 from pprof.settings import config
-from pprof.utils.db import create_run
 from os import path
 
 
 class Polly(RuntimeExperiment):
 
-    """ The polyjit experiment """
+    """ The polly experiment. """
 
     def run_project(self, p):
         llvm_libs = path.join(config["llvmdir"], "lib")
@@ -47,6 +46,7 @@ class Polly(RuntimeExperiment):
                 def run_with_time(run_f, args, **kwargs):
                     """
                     Function runner for the raw experiment.
+
                     This executes the given project command wrapped in the
                     time command. Afterwards the result is sent to the
                     database.
@@ -72,13 +72,13 @@ class Polly(RuntimeExperiment):
                         Rest.
                     """
                     from plumbum.cmd import time
-                    from pprof.utils.db import TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
 
                     run_cmd = handle_stdin(
-                        time["-f", "PPROF-POLLY: %U-%S-%e", run_f, args], kwargs)
+                        time["-f", "PPROF-POLLY: %U-%S-%e", run_f, args],
+                        kwargs)
 
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-POLLY: ",
@@ -87,14 +87,7 @@ class Polly(RuntimeExperiment):
                     if len(timings) == 0:
                         return
 
-                    run_id = create_run(
-                        str(run_cmd), project_name, self.name, p.run_uuid)
-
-                    result = TimeResult()
-                    for timing in timings:
-                        result.append(("time.user_s", timing[0], run_id))
-                        result.append(("time.system_s", timing[1], run_id))
-                        result.append(("time.real_s", timing[2], run_id))
-                    result.commit()
+                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
+                                     timings)
 
                 p.run(run_with_time)

@@ -2,14 +2,12 @@
 # encoding: utf-8
 
 """
-The 'polly-openmp-vectorize' Experiment
-====================
+The 'polly-openmp-vectorize' Experiment.
 
 This experiment applies polly's transformations with openmp code generation
 enabled to all projects and measures the runtime.
 
 This forms the baseline numbers for the other experiments.
-
 
 Measurements
 ------------
@@ -22,13 +20,12 @@ Measurements
 
 from pprof.experiment import step, substep, RuntimeExperiment
 from pprof.settings import config
-from pprof.utils.db import create_run
 from os import path
 
 
 class PollyOpenMPVectorizer(RuntimeExperiment):
 
-    """ The polyjit experiment """
+    """Timing experiment with Polly & OpenMP+Vectorizer support."""
 
     def run_project(self, p):
         llvm_libs = path.join(config["llvmdir"], "lib")
@@ -48,7 +45,8 @@ class PollyOpenMPVectorizer(RuntimeExperiment):
             with substep("run {}".format(p.name)):
                 def run_with_time(run_f, args, **kwargs):
                     """
-                    Function runner for the raw experiment.
+                    Function runner for the polly experiment.
+
                     This executes the given project command wrapped in the
                     time command. Afterwards the result is sent to the
                     database.
@@ -74,13 +72,13 @@ class PollyOpenMPVectorizer(RuntimeExperiment):
                         Rest.
                     """
                     from plumbum.cmd import time
-                    from pprof.utils.db import TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
 
                     run_cmd = handle_stdin(
-                        time["-f", "PPROF-POLLY: %U-%S-%e", run_f, args], kwargs)
+                        time["-f", "PPROF-POLLY: %U-%S-%e", run_f, args],
+                        kwargs)
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-POLLY: ",
                                                 "PPROF-POLLY: {:g}-{:g}-{:g}",
@@ -88,14 +86,7 @@ class PollyOpenMPVectorizer(RuntimeExperiment):
                     if len(timings) == 0:
                         return
 
-                    run_id = create_run(
-                        str(run_cmd), project_name, self.name, p.run_uuid)
-
-                    result = TimeResult()
-                    for timing in timings:
-                        result.append(("time.user_s", timing[0], run_id))
-                        result.append(("time.system_s", timing[1], run_id))
-                        result.append(("time.real_s", timing[2], run_id))
-                    result.commit()
+                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
+                                     timings)
 
                 p.run(run_with_time)

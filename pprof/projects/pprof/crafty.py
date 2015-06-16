@@ -51,8 +51,10 @@ class Crafty(PprofGroup):
             target_opts = ["-DINLINE64", "-DCPUS=1"]
 
             with local.cwd(self.builddir):
-                clang = lt_clang(self.cflags, self.ldflags)
-                clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+                clang = lt_clang(self.cflags, self.ldflags,
+                                 self.compiler_extension)
+                clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                         self.compiler_extension)
 
             make("target=LINUX",
                  "CC=" + str(clang),

@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # encoding: utf-8
+"""
+PAPI based experiments.
 
+These types of experiments (papi & papi-std) need to instrument the
+project with libpprof support to work.
+
+"""
 from pprof.experiment import RuntimeExperiment
 from pprof.experiment import step, substep
 from pprof.settings import config
-from pprof.utils.db import create_run
 
 from plumbum import local
 from os import path
@@ -15,9 +20,10 @@ pprof_analyze = None
 
 class PapiScopCoverage(RuntimeExperiment):
 
-    """ The polyjit experiment """
+    """PAPI-based dynamic SCoP coverage measurement."""
 
     def setup_commands(self):
+        """Setup pprof_calibrate and pprof_analyze."""
         super(PapiScopCoverage, self).setup_commands()
         global pprof_calibrate, pprof_analyze
         bin_path = path.join(config["llvmdir"], "bin")
@@ -26,9 +32,7 @@ class PapiScopCoverage(RuntimeExperiment):
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
 
     def run(self):
-        """
-        Do the postprocessing, after all projects are done.
-        """
+        """Do the postprocessing, after all projects are done."""
         super(PapiScopCoverage, self).run()
         with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"]),
                        PPROF_EXPERIMENT=self.name,
@@ -38,8 +42,12 @@ class PapiScopCoverage(RuntimeExperiment):
             pprof_analyze()
 
     def run_project(self, p):
-        from plumbum.cmd import time
+        """
+        Create & Run a papi-instrumented version of the project.
 
+        This experiment uses the -jitable flag of libPolyJIT to generate
+        dynamic SCoP coverage.
+        """
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("Class: Dynamic, PAPI"):
@@ -63,13 +71,13 @@ class PapiScopCoverage(RuntimeExperiment):
             with substep("run"):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
-                    from pprof.utils.db import TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
 
                     run_cmd = handle_stdin(
-                        time["-f", "%U-%S-%e", run_f, args], kwargs)
+                        time["-f", "PPROF-PAPI: %U-%S-%e", run_f, args],
+                        kwargs)
 
                     _, _, stderr = run_cmd.run()
                     timings = fetch_time_output("PPROF-PAPI: ",
@@ -78,37 +86,27 @@ class PapiScopCoverage(RuntimeExperiment):
                     if len(timings) == 0:
                         return
 
-                    run_id = create_run(
-                        str(run_cmd), project_name, self.name, p.run_uuid)
+                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
+                                     timings)
 
-                    result = TimeResult()
-                    for timing in timings:
-                        result.append(("time.user_s", timing[0], run_id))
-                        result.append(("time.system_s", timing[1], run_id))
-                        result.append(("time.real_s", timing[2], run_id))
-                    result.commit()
                 p.run(run_with_time)
 
         with step("Evaluation"):
-            papi_calibration = self.get_papi_calibration(
-                p, pprof_calibrate)
-            if papi_calibration:
-                from pprof.utils.db import TimeResult
-
-                run_id = create_run(
-                    str(pprof_calibrate), p.name, self.name, p.run_uuid)
-
-                result = TimeResult()
-                result.append(
-                    ("papi.calibration.time_ns", papi_calibration, run_id))
-                result.commit()
+            papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
+            self.persist_calibration(p, pprof_calibrate, papi_calibration)
 
 
 class PapiStandardScopCoverage(PapiScopCoverage):
 
-    """ PAPI Scop Coverage, without JIT """
+    """PAPI Scop Coverage, without JIT."""
 
     def run_project(self, p):
+        """
+        Create & Run a papi-instrumented version of the project.
+
+        This experiment does not use the -jitable flag of libPolyJIT.
+        Therefore, we get the static (aka Standard) SCoP coverage.
+        """
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("Class: Standard - PAPI"):
@@ -131,7 +129,6 @@ class PapiStandardScopCoverage(PapiScopCoverage):
             with substep("run"):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
-                    from pprof.utils.db import TimeResult
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
                     project_name = kwargs.get("project_name", p.name)
@@ -146,26 +143,12 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                     if len(timings) == 0:
                         return
 
-                    run_id = create_run(
-                        str(run_cmd), project_name, self.name, p.run_uuid)
+                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
+                                     timings)
 
-                    result = TimeResult()
-                    for timing in timings:
-                        result.append(("time.user_s", timing[0], run_id))
-                        result.append(("time.system_s", timing[1], run_id))
-                        result.append(("time.real_s", timing[2], run_id))
-                    result.commit()
                 p.run(run_with_time)
 
         with step("Evaluation"):
             papi_calibration = self.get_papi_calibration(
                 p, pprof_calibrate)
-            if papi_calibration:
-                from pprof.utils.db import TimeResult
-
-                run_id = create_run(
-                    str(pprof_calibrate), p.name, self.name, p.run_uuid)
-                result = TimeResult()
-                result.append(
-                    ("papi.calibration.time_ns", papi_calibration, run_id))
-                result.commit()
+            self.persist_calibration(p, pprof_calibrate, papi_calibration)

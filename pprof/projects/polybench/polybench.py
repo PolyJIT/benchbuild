@@ -78,7 +78,7 @@ class PolyBenchGroup(Project):
 
         src_file = path.join(self.name + ".dir", self.name + ".c")
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags)
+            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
             clang("-I", "utilities",
                   "-I", self.name,
                   "-DPOLYBENCH_USE_C99_PROTO",

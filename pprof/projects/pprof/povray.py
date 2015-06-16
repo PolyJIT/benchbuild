@@ -23,7 +23,8 @@ class Povray(PprofGroup):
     src_dir = "povray.git"
     boost_src_dir = "boost_1_58_0"
     boost_src_file = boost_src_dir + ".tar.bz2"
-    boost_src_uri = "http://sourceforge.net/projects/boost/files/boost/1.58.0/" + boost_src_file
+    boost_src_uri = "http://sourceforge.net/projects/boost/files/boost/1.58.0/" + \
+        boost_src_file
 
     def download(self):
         from pprof.utils.downloader import Git, Wget
@@ -54,8 +55,10 @@ class Povray(PprofGroup):
         with local.cwd(povray_dir):
             from pprof.utils.compiler import lt_clang, lt_clang_cxx
             with local.cwd(self.builddir):
-                clang = lt_clang(self.cflags, self.ldflags)
-                clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
+                clang = lt_clang(self.cflags, self.ldflags,
+                                 self.compiler_extension)
+                clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                         self.compiler_extension)
             configure = local["./configure"]
             with local.env(COMPILED_BY="PPROF <no@mail.nono>",
                            CC=str(clang),

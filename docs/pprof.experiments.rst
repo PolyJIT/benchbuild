@@ -6,6 +6,13 @@ pprof.experiments package
     :undoc-members:
     :show-inheritance:
 
+Subpackages
+-----------
+
+.. toctree::
+
+    pprof.experiments.polly
+
 Submodules
 ----------
 

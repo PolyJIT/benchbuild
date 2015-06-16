@@ -47,6 +47,7 @@ from pprof.settings import config
 from contextlib import contextmanager
 from os import path, listdir
 from sets import Set
+from pprof.utils.db import persist_experiment
 
 import re
 import sys
@@ -71,7 +72,6 @@ def nl(o):
     :return: the stream
 
     """
-
     if o.isatty():
         o.write("\r\x1b[L")
     else:
@@ -149,7 +149,6 @@ def phase(name):
     :name:
         Name of the phase.
     """
-
     phase.counter += 1
     phase.name = name
     step.counter = 0
@@ -181,7 +180,6 @@ def step(name):
     :name:
         Name of the step.
     """
-
     step.counter += 1
     step.name = name
     substep.counter = 0
@@ -218,57 +216,32 @@ def substep(name):
     :name:
         Name of the substep.
     """
-
     substep.counter += 1
     substep.name = name
 
     from sys import stdout as o
 
     nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
-        phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+        phase.counter, phase.name, step.counter, step.name, substep.counter,
+        name))
     try:
         yield
         nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
-            phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+            phase.counter, phase.name, step.counter, step.name,
+            substep.counter, name))
     except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
         o.write("\nPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' FAILED".format(
-            phase.counter, phase.name, step.counter, step.name, substep.counter, name))
+            phase.counter, phase.name, step.counter, step.name,
+            substep.counter, name))
         o.write("\n{} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
         raise SubStepError(name, e)
     o.flush()
-
-
-def synchronize_project_with_db(p):
-    """
-    Synchronize a project with the database. This inserts a new entry
-    in the database, if it doesn't exist yet.
-
-    :p:
-        The projec we synchronize.
-    """
-    from pprof.utils.db import get_db_connection
-    conn = get_db_connection()
-
-    sql_sel = "SELECT name FROM project WHERE name=%s"
-    sql_ins = "INSERT INTO project " \
-              "(name, description, src_url, domain, group_name)" \
-              "VALUES (%s, %s, %s, %s, %s)"
-    #sql_upd = "UPDATE project SET description = %(desc)s, src_url = %(src)s " \
-    #          "domain = %(domain)s, group = %(group)s" \
-    #          "WHERE name = %(name)s"
-    with conn.cursor() as c:
-        c.execute(sql_sel, (p.name, ))
-        if not c.rowcount:
-            c.execute(sql_ins, [p.name, p.name, "TODO",
-                                p.domain, p.group_name])
-
-    conn.commit()
 
 
 def get_group_projects(group, experiment):
@@ -327,6 +300,7 @@ class Experiment(object):
         self.result_f = path.join(self.builddir, name + ".result")
         self.error_f = path.join(self.builddir, "error.log")
 
+        persist_experiment(self)
         self.populate_projects(projects, group)
 
     def populate_projects(self, projects_to_filter, group=None):
@@ -344,8 +318,7 @@ class Experiment(object):
         self.projects = {}
         factories = ProjectFactory.factories
         for fact_id in factories:
-            project = factories[fact_id].create(self)
-            synchronize_project_with_db(project)
+            project = ProjectFactory.createProject(fact_id, self)
             self.projects[project.name] = project
 
         if projects_to_filter:
@@ -370,6 +343,14 @@ class Experiment(object):
             p.run()
 
     def map_projects(self, fun, p=None):
+        """
+        Map a function over all projects.
+
+        :fun:
+            Function that gets mapped over all projects.
+        :p:
+            Phase name
+        """
         for project_name in self.projects:
             with phase(p):
                 prj = self.projects[project_name]
@@ -381,10 +362,7 @@ class Experiment(object):
                     fun(prj)
 
     def clean(self):
-        """
-        Cleans the experiment.
-        """
-
+        """Clean the experiment."""
         self.map_projects(self.clean_project, "clean")
         if (path.exists(self.builddir)) and listdir(self.builddir) == []:
             rmdir(self.builddir)
@@ -400,11 +378,11 @@ class Experiment(object):
 
     def prepare(self):
         """
-        Prepare the experiment. This includes creation of a build directory
-        and setting up the logging. Afterwards we call the prepare method
-        of the project.
-        """
+        Prepare the experiment.
 
+        This includes creation of a build directory and setting up the logging.
+        Afterwards we call the prepare method of the project.
+        """
         if not path.exists(self.builddir):
             (mkdir[self.builddir] & FG(retcode=None))
 
@@ -428,9 +406,10 @@ class Experiment(object):
     @classmethod
     def parse_result(cls, report, prefix, project_block):
         """
-        Parse a given project result block into a dictionary. We take a
-        report dictionary that assigns a fieldname to a regex with at most 1
-        matchgroup.
+        Parse a given project result block into a dictionary.
+
+        We take a report dictionary that assigns a fieldname to a regex with at
+        most 1 matchgroup.
 
         :cls:
             The class.
@@ -456,7 +435,9 @@ class Experiment(object):
 
     def generate_report(self, perf_project_results):
         """
-        Provide users with per project results in the form of a dictionary:
+        Provide users with per project results in the form of a dictionary.
+
+        Example:
             [{ "<project_name>": "project payload" },...]
         Let users do what they want with it.
 
@@ -469,9 +450,11 @@ class Experiment(object):
 
     def collect_results(self):
         """
-        Collect all project-specific results into one big result file for
-        further processing. Later processing steps might have to regain
-        per-project information from this file again.
+        Collect all project-specific results.
+
+        Fetch all data into one big result file for further processing.
+        Later processing steps might have to regain per-project information
+        from this file again.
 
         :return:
             TODO
@@ -516,9 +499,10 @@ class Experiment(object):
 
 class RuntimeExperiment(Experiment):
 
-    """ Additional runtime only features for experiments """
+    """ Additional runtime only features for experiments. """
 
     def get_papi_calibration(self, p, calibrate_call):
+        """ Get calibration values for PAPI based measurements. """
         with local.cwd(self.builddir):
             with local.env(PPROF_USE_DATABASE=0, PPROF_USE_CSV=0,
                            PPROF_USE_FILE=0):
@@ -531,3 +515,32 @@ class RuntimeExperiment(Experiment):
             if res:
                 return res.group('val')
         return None
+
+    def persist_calibration(self, p, cmd, calibration):
+        """ Persist the result of a calibration call. """
+        if calibration:
+            from pprof.utils.db import create_run
+            from pprof.utils import schema as s
+
+            run, session = create_run(str(cmd), p.name, self.name, p.run_uuid)
+            m = s.Metric(name="papi.calibration.time_ns", value=calibration,
+                         run_id=run.id)
+            session.add(m)
+            session.commit()
+
+    def persist_run(self, cmd, project_name, run_uuid, timings):
+        """ Persist the run results in the database."""
+        from pprof.utils import schema as s
+        from pprof.utils.db import create_run
+
+        run, session = create_run(cmd, project_name, self.name, run_uuid)
+
+        for timing in timings:
+            session.add(s.Metric(name="time.user_s", value=timing[0],
+                                 run_id=run.id))
+            session.add(s.Metric(name="time.system_s", value=timing[1],
+                                 run_id=run.id))
+            session.add(s.Metric(name="time.real_s", value=timing[2],
+                                 run_id=run.id))
+
+        session.commit()

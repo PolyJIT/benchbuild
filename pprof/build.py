@@ -3,15 +3,14 @@
 
 from plumbum import cli, local
 from pprof.driver import PollyProfiling
+from plumbum.cmd import mkdir
+import os
+import logging
 
 LLVM_URL = "http://llvm.org/git/llvm.git"
 POLLY_URL = "http://github.com/simbuerg/polly.git"
 CLANG_URL = "http://llvm.org/git/clang.git"
 POLLI_URL = "http://github.com/simbuerg/polli.git"
-
-from plumbum.cmd import mkdir
-import os, os.path
-import logging
 LOG = logging.getLogger()
 
 
@@ -24,6 +23,8 @@ class Build(cli.Application):
     _use_gcc = False
     _num_jobs = None
     _isldir = None
+    _likwiddir = None
+    _papidir = None
 
     @cli.switch(
         ["--use-make"],
@@ -103,7 +104,8 @@ class Build(cli.Application):
                     "-DPOLLY_BUILD_POLLI=On",
                     "-DLLVM_TARGETS_TO_BUILD=X86",
                     "-DLLVM_BINUTILS_INCDIR=/usr/include/",
-                    "-DLLVM_ENABLE_PIC=On"]
+                    "-DLLVM_ENABLE_PIC=On",
+                    "-DLLVM_ENABLE_ASSERTIONS=On"]
 
                 if self._use_make:
                     llvm_cmake = llvm_cmake["-G", "Unix Makefiles"]

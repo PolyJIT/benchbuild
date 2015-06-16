@@ -16,18 +16,19 @@ The resource management system used on chimaira is SLURM.
 """
 
 from plumbum import cli, local, FG
-from plumbum.cmd import awk, mv, cp, true, sbatch, echo, chmod, pprof
+from plumbum.cmd import awk, sbatch, chmod, pprof
 from pprof.settings import config
 import os
 
 
 def dispatch_collect_job(exp, deps):
-    """Dispatch a collect job that waits for all jobs to finish and collects
-    the results afterwards
-
-    :exp: Which experiment do you want to collect results for
     """
-    cmd = sbatch["--job-name=collect-"+exp]
+    Dispatch a collect job that waits for all jobs to finish.
+
+    :exp:
+        Which experiment do you want to collect results for
+    """
+    cmd = sbatch["--job-name=collect-" + exp]
     dep_string = ""
     if len(deps) > 0:
         dep_string = "--dependency=afterany"
@@ -56,8 +57,10 @@ def dump_slurm_script(script_name, log_name, commands, uuid=None):
         slurm.write("#!/bin/sh\n")
         slurm.write("#SBATCH -o {}\n".format(log_name))
         slurm.write("#SBATCH -t \"4:00:00\"\n")
-        slurm.write("export LD_LIBRARY_PATH=\"{}:$LD_LIBRARY_PATH\"\n".format(path.join(config["papi"]), "lib"))
-        slurm.write("export PPROF_TESTINPUTS=\"{}\"\n".format(ppcfg["testdir"]))
+        slurm.write("export LD_LIBRARY_PATH=\"{}:$LD_LIBRARY_PATH\"\n".format(
+            path.join(config["papi"], "lib")))
+        slurm.write(
+            "export PPROF_TESTINPUTS=\"{}\"\n".format(ppcfg["testdir"]))
         slurm.write("export PPROF_TMP_DIR=\"{}\"\n".format(ppcfg["tmpdir"]))
         slurm.write("export PPROF_DB_HOST=\"{}\"\n".format(ppcfg["db_host"]))
         slurm.write("export PPROF_DB_PORT=\"{}\"\n".format(ppcfg["db_port"]))
@@ -92,8 +95,8 @@ def prepare_collect_results_script(experiment):
 
 
 def prepare_slurm_script(experiment, project, experiment_id):
-    """Prepare a slurm script that executes the pprof experiment for a
-    given project.
+    """
+    Prepare a slurm script that executes the pprof experiment for a given project.
 
     :experiment: The experiment we want to execute
     :project: Filter all but the given project
@@ -119,7 +122,7 @@ def prepare_slurm_script(experiment, project, experiment_id):
     commands.append(pprof["run", "-P", project, "-E", experiment, "-B",
                           config["nodedir"], "-c", "-x", "-L",
                           config["llvm"]])
-    #commands.append(
+    # commands.append(
     #    cp["-ar", node_results, os.path.join(config["resultsdir"],
     #                                          experiment)])
     #commands.append(mv[node_error_log, error_log])
@@ -220,10 +223,10 @@ class Chimaira(cli.Application):
             pprof_list = pprof["run", "-l", "-E", exp]
             prj_list = pprof_list().split(',')
             prj_list = map(unicode.strip, prj_list)
-            prj_list = map(lambda x : x.split('\n'), prj_list)
+            prj_list = map(lambda x: x.split('\n'), prj_list)
             prj_list = filter(None, prj_list)
             prj_list = list(chain.from_iterable(prj_list))
-            prj_list = filter(lambda x : not '>>' in x, prj_list)
+            prj_list = filter(lambda x: not '>>' in x, prj_list)
             prj_list = filter(None, prj_list)
             print "  {} projects".format(len(prj_list))
             print

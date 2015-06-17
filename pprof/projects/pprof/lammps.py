@@ -54,6 +54,8 @@ class Lammps(PprofGroup):
         from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang_cxx
 
+        self.ldflags += ["-lgomp"]
+
         clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                  self.compiler_extension)
 

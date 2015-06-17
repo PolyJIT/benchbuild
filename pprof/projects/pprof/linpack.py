@@ -42,4 +42,4 @@ class Linpack(PprofGroup):
 
         with local.cwd(self.builddir):
             clang = lt_clang(cflags, ldflags, self.compiler_extension)
-            clang(cflags, "-o", self.run_f, "linpack.c", ldflags)
+            clang("-o", self.run_f, "linpack.c")

@@ -55,8 +55,10 @@ class PolyJIT(RuntimeExperiment):
                     if len(timings) == 0:
                         return
 
-                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
-                                     timings)
+                    super(PolyJIT, self).persist_run(str(run_cmd),
+                                                     project_name,
+                                                     p.run_uuid,
+                                                     timings)
                 p.run(run_with_time)
 
     def run_step_likwid(self, p):

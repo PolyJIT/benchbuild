@@ -37,14 +37,18 @@ class SQLite3(PprofGroup):
     def build(self):
         from pprof.utils.compiler import lt_clang
 
-        sqlite_dir = path.join(self.builddir, self.src_dir)
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        with local.cwd(self.builddir):
+            sqlite_dir = path.join(self.builddir, self.src_dir)
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
 
         with local.cwd(sqlite_dir):
             clang("-fPIC", "-I.", "-c", "sqlite3.c")
             clang("-shared", "-Wl,-soname,libsqlite3.so.0",
                   "-o", "libsqlite3.so", "sqlite3.o", "-ldl")
-        self.build_leveldb()
+
+        with local.cwd(self.builddir):
+            self.build_leveldb()
 
     def fetch_leveldb(self):
         src_uri = "https://github.com/google/leveldb"

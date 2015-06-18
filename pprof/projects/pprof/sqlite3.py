@@ -41,7 +41,7 @@ class SQLite3(PprofGroup):
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
 
         with local.cwd(sqlite_dir):
-            clang("-fPIC", "-c", "sqlite3.c")
+            clang("-fPIC", "-I.", "-c", "sqlite3.c")
             clang("-shared", "-Wl,-soname,libsqlite3.so.0",
                   "-o", "libsqlite3.so", "sqlite3.o", "-ldl")
         self.build_leveldb()
@@ -61,6 +61,7 @@ class SQLite3(PprofGroup):
         leveldb_dir = path.join(self.builddir, "leveldb.src")
 
         self.ldflags += ["-L", sqlite_dir]
+        self.cflags += ["-I", sqlite_dir]
         clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
         clang = lt_clang(self.cflags, self.ldflags)
 

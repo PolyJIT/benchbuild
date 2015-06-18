@@ -9,6 +9,7 @@ import logging
 import pprint
 LOG = logging.getLogger()
 
+
 @PollyProfiling.subcommand("run")
 class PprofRun(cli.Application):
 
@@ -76,12 +77,13 @@ class PprofRun(cli.Application):
     def group(self, group):
         self._group_name = group
 
-    def __init__(self):
+    def main(self):
         from pprof.experiments import polli
         from pprof.experiments import polyjit
         from pprof.experiments import raw
         from pprof.experiments import papi
-        from pprof.experiments.polly import polly, openmp, openmpvect, vectorize
+        from pprof.experiments.polly import (polly, openmp, openmpvect,
+                                             vectorize)
         from pprof.experiments import compilestats
 
         self._experiments = {
@@ -98,8 +100,6 @@ class PprofRun(cli.Application):
             "stats": compilestats.CompilestatsExperiment
         }
 
-
-    def main(self):
         if self._list:
             for exp in self._experiment_names:
                 experiment = self._experiments[exp](

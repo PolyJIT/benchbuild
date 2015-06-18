@@ -45,9 +45,6 @@ class Crafty(PprofGroup):
 
         crafty_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(crafty_dir):
-            target_cflags = self.cflags
-            target_cxflags = []
-            target_ldflags = self.ldflags
             target_opts = ["-DINLINE64", "-DCPUS=1"]
 
             with local.cwd(self.builddir):
@@ -59,9 +56,6 @@ class Crafty(PprofGroup):
             make("target=LINUX",
                  "CC=" + str(clang),
                  "CXX=" + str(clang_cxx),
-                 "CFLAGS=" + " ".join(target_cflags),
-                 "CXFLAGS=" + " ".join(target_cxflags),
-                 "LDFLAGS=" + " ".join(target_ldflags),
                  "opt=" + " ".join(target_opts),
                  "crafty-make")
 

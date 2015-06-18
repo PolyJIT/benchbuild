@@ -5,35 +5,14 @@ from plumbum import cli
 from pprof.driver import PollyProfiling
 from pprof.settings import config
 
-from pprof.experiments import polli
-from pprof.experiments import polyjit
-from pprof.experiments import raw
-from pprof.experiments import papi
-from pprof.experiments.polly import polly, openmp, openmpvect, vectorize
-from pprof.experiments import compilestats
 import logging
 import pprint
 LOG = logging.getLogger()
-
 
 @PollyProfiling.subcommand("run")
 class PprofRun(cli.Application):
 
     """ Frontend for running experiments in the pprof study framework. """
-
-    _experiments = {
-        "polyjit": polyjit.PolyJIT,
-        "polli": polli.Polli,
-        "polli-baseline": polli.PolliBaseLine,
-        "raw": raw.RawRuntime,
-        "papi": papi.PapiScopCoverage,
-        "papi-std": papi.PapiStandardScopCoverage,
-        "polly": polly.Polly,
-        "polly-openmp": openmp.PollyOpenMP,
-        "polly-openmpvect": openmpvect.PollyOpenMPVectorizer,
-        "polly-vectorize": vectorize.PollyVectorizer,
-        "stats": compilestats.CompilestatsExperiment
-    }
 
     _experiment_names = []
     _project_names = []
@@ -96,6 +75,29 @@ class PprofRun(cli.Application):
                 help="Run a group of projects under the given experiments")
     def group(self, group):
         self._group_name = group
+
+    def __init__(self):
+        from pprof.experiments import polli
+        from pprof.experiments import polyjit
+        from pprof.experiments import raw
+        from pprof.experiments import papi
+        from pprof.experiments.polly import polly, openmp, openmpvect, vectorize
+        from pprof.experiments import compilestats
+
+        self._experiments = {
+            "polyjit": polyjit.PolyJIT,
+            "polli": polli.Polli,
+            "polli-baseline": polli.PolliBaseLine,
+            "raw": raw.RawRuntime,
+            "papi": papi.PapiScopCoverage,
+            "papi-std": papi.PapiStandardScopCoverage,
+            "polly": polly.Polly,
+            "polly-openmp": openmp.PollyOpenMP,
+            "polly-openmpvect": openmpvect.PollyOpenMPVectorizer,
+            "polly-vectorize": vectorize.PollyVectorizer,
+            "stats": compilestats.CompilestatsExperiment
+        }
+
 
     def main(self):
         if self._list:

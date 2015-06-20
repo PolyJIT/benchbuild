@@ -32,7 +32,7 @@ class Ccrypt(PprofGroup):
 
     def download(self):
         from pprof.utils.downloader import Wget
-        from plumbum.cmd import tar, cp
+        from plumbum.cmd import tar
 
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)

@@ -59,10 +59,11 @@ class PolyJIT(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("Execute {}".format(p.name)):
+                from pprof.settings import config
+
                 def run_with_likwid(run_f, args, **kwargs):
                     from pprof.utils.run import handle_stdin
                     from pprof.likwid import get_likwid_perfctr
-                    from pprof.settings import config
                     from plumbum.cmd import rm
 
                     project_name = kwargs.get("project_name", p.name)

@@ -176,6 +176,8 @@ if path.exists("{blobf}"):
                PPROF_DB_NAME="{db_name}",
                PPROF_DB_USER="{db_user}",
                PPROF_DB_PASS="{db_pass}",
+               PPROF_LIKWID_DIR="{likwiddir}",
+               LD_LIBRARY_PATH="{ld_lib_path}",
                PPROF_CMD=run_f + " ".join(args)):
         if f is not None:
             if not sys.stdin.isatty():
@@ -190,6 +192,8 @@ if path.exists("{blobf}"):
            db_name=config["db_name"],
            db_user=config["db_user"],
            db_pass=config["db_pass"],
+           likwiddir=config["likwiddir"],
+           ld_lib_path=config["ld_library_path"],
            blobf=blob_f,
            runf=real_f)
         w.write(lines)
@@ -249,6 +253,8 @@ if path.exists("{blobf}"):
                PPROF_DB_USER="{db_user}",
                PPROF_DB_PASS="{db_pass}",
                PPROF_PROJECT=project_name,
+               PPROF_LIKWID_DIR="{likwiddir}",
+               LD_LIBRARY_PATH="{ld_lib_path}",
                PPROF_CMD=run_f):
         if f is not None:
             exp_name = getenv("PPROF_EXPERIMENT", "unknown")
@@ -269,6 +275,8 @@ if path.exists("{blobf}"):
            db_name=config["db_name"],
            db_user=config["db_user"],
            db_pass=config["db_pass"],
+           likwiddir=config["likwiddir"],
+           ld_lib_path=config["ld_library_path"],
            blobf=blob_f)
         w.write(lines)
     chmod("+x", name_absolute)

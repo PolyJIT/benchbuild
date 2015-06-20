@@ -21,14 +21,6 @@ class Postgres(PprofGroup):
             return Postgres(exp, "postgres", "database")
     ProjectFactory.addFactory("Postgres", Factory())
 
-    def clean(self):
-        testfiles = [path.join(self.builddir, x) for x in self.testfiles]
-        for test_f in testfiles:
-            self.products.add(test_f)
-        self.products.add(path.join(self.builddir, self.name + ".sh"))
-
-        super(Postgres, self).clean()
-
     def prepare(self):
         super(Postgres, self).prepare()
 

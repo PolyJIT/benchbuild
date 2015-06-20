@@ -30,12 +30,6 @@ class X264(PprofGroup):
         for testfile in testfiles:
             cp(testfile, self.builddir)
 
-    def clean(self):
-        for input_f in self.inputfiles:
-            self.products.add(path.join(self.builddir, input_f))
-
-        super(X264, self).clean()
-
     src_dir = "x264.git"
     src_uri = "git://git.videolan.org/x264.git"
 

@@ -21,13 +21,6 @@ class XZ(PprofGroup):
             return XZ(exp, "xz", "compression")
     ProjectFactory.addFactory("XZ", Factory())
 
-    def clean(self):
-        for test_f in self.testfiles:
-            self.products.add(path.join(self.builddir, test_f))
-            self.products.add(path.join(self.builddir, test_f + ".xz"))
-
-        super(XZ, self).clean()
-
     def prepare(self):
         super(XZ, self).prepare()
         from plumbum.cmd import cp

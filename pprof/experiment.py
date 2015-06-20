@@ -275,7 +275,6 @@ class Experiment(object):
 
     def __init__(self, name, projects=[], group=None):
         self.name = name
-        self.products = Set([])
         self.projects = {}
         self.setup_commands()
 
@@ -460,21 +459,6 @@ class Experiment(object):
             split_items.pop(0)
             per_project_results = zip(*[iter(split_items)] * 2)
             self.generate_report(per_project_results)
-
-    def verify_product(self, filename, log=None):
-        """
-        Verify if a specified product has been created by the experiment.
-
-        :filename:
-            The product we expect to exist.
-        :log:
-            Optional. Log any errors.
-        """
-        if not log:
-            log = LOG
-
-        if not path.exists(filename):
-            log.error("{0} not created by project.".format(filename))
 
 
 class RuntimeExperiment(Experiment):

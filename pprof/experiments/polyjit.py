@@ -22,9 +22,8 @@ class PolyJIT(RuntimeExperiment):
         with step("JIT, no instrumentation"):
             p.download()
             with substep("Build"):
-                with local.env(PPROF_ENABLE=0):
-                    p.configure()
-                    p.build()
+                p.configure()
+                p.build()
             with substep("Execute {}".format(p.name)):
                 def run_with_time(run_f, args, **kwargs):
                     from plumbum.cmd import time
@@ -57,9 +56,8 @@ class PolyJIT(RuntimeExperiment):
             p.download()
 
             with substep("Build"):
-                with local.env(PPROF_ENABLE=0):
-                    p.configure()
-                    p.build()
+                p.configure()
+                p.build()
             with substep("Execute {}".format(p.name)):
                 def run_with_likwid(run_f, args, **kwargs):
                     from pprof.utils.run import handle_stdin

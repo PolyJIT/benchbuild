@@ -26,12 +26,6 @@ class Ccrypt(PprofGroup):
         check_f = path.join(self.testdir, self.check_f)
         ln("-s", check_f, path.join(self.builddir, self.check_f))
 
-    def clean(self):
-        check_f = path.join(self.builddir, self.check_f)
-        self.products.add(check_f)
-
-        super(Ccrypt, self).clean()
-
     src_dir = "ccrypt-1.10"
     src_file = "ccrypt-1.10.tar.gz"
     src_uri = "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"

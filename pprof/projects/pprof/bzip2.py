@@ -22,13 +22,6 @@ class Bzip2(PprofGroup):
             return Bzip2(exp, "bzip2", "compression")
     ProjectFactory.addFactory("Bzip2", Factory())
 
-    def clean(self):
-        for x in self.testfiles:
-            self.products.add(path.join(self.builddir, x))
-            self.products.add(path.join(self.builddir, x + ".bz2"))
-
-        super(Bzip2, self).clean()
-
     src_dir = "bzip2-1.0.6"
     src_file = src_dir + ".tar.gz"
     src_uri = "http://www.bzip.org/1.0.6/" + src_file

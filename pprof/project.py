@@ -58,10 +58,6 @@ class Project(object):
         else:
             self.testdir = path.join(config["testdir"], domain, name)
 
-        self.inputs = set()
-        self.outputs = set()
-
-        self.products = set()
         self.cflags = []
         self.ldflags = []
 
@@ -78,14 +74,6 @@ class Project(object):
         self.calls_f = path.join(self.builddir, "papi.calls.out")
         self.likwid_f = self.run_f + PROJECT_LIKWID_F_EXT
 
-        self.products.clear()
-        self.products.add(self.run_f)
-        self.products.add(self.bin_f)
-        self.products.add(self.time_f)
-        self.products.add(self.likwid_f)
-        self.products.add(self.calls_f)
-        self.products.add(self.result_f)
-
     def run_tests(self, experiment):
         exp = wrap(self.run_f, experiment)
         exp()
@@ -100,18 +88,6 @@ class Project(object):
                 self.run_tests(experiment)
 
     def clean(self):
-        dirs_to_remove = set([])
-
-        for product in self.products:
-            if path.exists(product) and not path.isdir(product):
-                rm(product)
-            elif path.isdir(product):
-                dirs_to_remove.add(product)
-
-        for dir_to_rm in dirs_to_remove:
-            if listdir(dir_to_rm) == []:
-                rmdir(dir_to_rm)
-
         if path.exists(self.builddir) and listdir(self.builddir) == []:
             rmdir(self.builddir)
         elif path.exists(self.builddir) and listdir(self.builddir) != []:

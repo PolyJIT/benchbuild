@@ -23,13 +23,6 @@ class Gzip(PprofGroup):
             return Gzip(exp, "gzip", "compression")
     ProjectFactory.addFactory("Gzip", Factory())
 
-    def clean(self):
-        for test_f in self.testfiles:
-            self.products.add(path.join(self.builddir, test_f))
-            self.products.add(path.join(self.builddir, test_f + ".gz"))
-
-        super(Gzip, self).clean()
-
     def prepare(self):
         super(Gzip, self).prepare()
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]

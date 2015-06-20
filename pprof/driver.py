@@ -3,6 +3,7 @@
 
 from plumbum import cli
 from pprof import *
+from sys import stderr
 import logging
 
 
@@ -15,6 +16,7 @@ class PollyProfiling(cli.Application):
     @cli.switch(["-v", "--verbose"], help="Enable verbose output")
     def verbose(self):
         LOG = logging.getLogger()
+        LOG.addHandler(logging.StreamHandler(stderr))
         LOG.setLevel(logging.DEBUG)
 
     def main(self, *args):

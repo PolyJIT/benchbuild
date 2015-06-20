@@ -78,7 +78,6 @@ class PprofRun(cli.Application):
         self._group_name = group
 
     def main(self):
-        from pprof.experiments import polli
         from pprof.experiments import polyjit
         from pprof.experiments import raw
         from pprof.experiments import papi
@@ -88,8 +87,6 @@ class PprofRun(cli.Application):
 
         self._experiments = {
             "polyjit": polyjit.PolyJIT,
-            "polli": polli.Polli,
-            "polli-baseline": polli.PolliBaseLine,
             "raw": raw.RawRuntime,
             "papi": papi.PapiScopCoverage,
             "papi-std": papi.PapiStandardScopCoverage,

@@ -8,17 +8,9 @@ from pprof.settings import config
 from pprof.utils.db import persist_project
 from abc import abstractmethod
 
-import sys
-import logging
 
-PROJECT_LIKWID_F_EXT = ".txt"
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
-PROJECT_TIME_F_EXT = ".time"
-PROJECT_CALLS_F_EXT = ".calls"
-PROJECT_RESULT_F_EXT = ".result"
-PROJECT_CALIB_CALLS_F_EXT = ".calibrate.calls"
-PROJECT_CALIB_PROFILE_F_EXT = ".calibrate.profile.out"
 
 
 class ProjectFactory:
@@ -67,12 +59,7 @@ class Project(object):
 
     def setup_derived_filenames(self):
         self.run_f = path.join(self.builddir, self.name)
-        self.result_f = self.run_f + PROJECT_RESULT_F_EXT
         self.bin_f = self.run_f + PROJECT_BIN_F_EXT
-        self.time_f = self.run_f + PROJECT_TIME_F_EXT
-        self.calibrate_calls_f = self.run_f + PROJECT_CALIB_CALLS_F_EXT
-        self.calls_f = path.join(self.builddir, "papi.calls.out")
-        self.likwid_f = self.run_f + PROJECT_LIKWID_F_EXT
 
     def run_tests(self, experiment):
         exp = wrap(self.run_f, experiment)

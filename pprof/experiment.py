@@ -277,13 +277,9 @@ class Experiment(object):
         self.name = name
         self.projects = {}
         self.setup_commands()
-
-        self.name = name
         self.sourcedir = config["sourcedir"]
         self.builddir = path.join(config["builddir"], name)
         self.testdir = config["testdir"]
-        self.result_f = path.join(self.builddir, name + ".result")
-        self.error_f = path.join(self.builddir, "error.log")
 
         persist_experiment(self)
         self.populate_projects(projects, group)
@@ -351,15 +347,6 @@ class Experiment(object):
         self.map_projects(self.clean_project, "clean")
         if (path.exists(self.builddir)) and listdir(self.builddir) == []:
             rmdir(self.builddir)
-        if path.exists(self.result_f):
-            rm(self.result_f)
-
-        calibrate_calls_f = path.join(self.builddir, "pprof-calibrate.calls")
-        calibrate_prof_f = path.join(self.builddir,
-                                     "pprof-calibrate.profile.out")
-        if path.exists(calibrate_calls_f):
-            rm(calibrate_calls_f)
-            rm(calibrate_prof_f)
 
     def prepare(self):
         """
@@ -381,84 +368,6 @@ class Experiment(object):
         """
         with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
             self.map_projects(self.run_project, "run")
-
-    @classmethod
-    def parse_result(cls, report, prefix, project_block):
-        """
-        Parse a given project result block into a dictionary.
-
-        We take a report dictionary that assigns a fieldname to a regex with at
-        most 1 matchgroup.
-
-        :cls:
-            The class.
-        :report:
-            The report we should parse out of this project block.
-        :prefix:
-            An existing dictionary to work with
-        :project_block:
-            A string region, taken from an arbitrary result file
-        :return:
-            A dictionary of name-value pairs
-        """
-        res = prefix
-        for key in report:
-            res[key] = "NaN"
-
-        for key, val in report.iteritems():
-            mval = re.search(val, project_block)
-            if mval is not None:
-                res[key] = mval.group(1)
-
-        return res
-
-    def generate_report(self, perf_project_results):
-        """
-        Provide users with per project results in the form of a dictionary.
-
-        Example:
-            [{ "<project_name>": "project payload" },...]
-        Let users do what they want with it.
-
-        :perf_project_results:
-            TODO
-        :return:
-            TODO
-        """
-        pass
-
-    def collect_results(self):
-        """
-        Collect all project-specific results.
-
-        Fetch all data into one big result file for further processing.
-        Later processing steps might have to regain per-project information
-        from this file again.
-
-        :return:
-            TODO
-        """
-        result_files = Set([])
-        for project_name in self.projects:
-            prj = self.projects[project_name]
-            print prj.result_f
-            if path.exists(prj.result_f):
-                result_files.add(prj.result_f)
-
-        if len(result_files) > 0:
-            prep_cat = cat
-            for res in result_files:
-                prep_cat = prep_cat[res]
-            prep_cat = (prep_cat > self.result_f)
-            prep_cat()
-
-        with open(self.result_f) as result_f:
-            pattern = re.compile("-{63}\n>>> =+ ([-\\w]+) Program\n-{63}\n")
-            file_content = result_f.read()
-            split_items = pattern.split(file_content)
-            split_items.pop(0)
-            per_project_results = zip(*[iter(split_items)] * 2)
-            self.generate_report(per_project_results)
 
 
 class RuntimeExperiment(Experiment):

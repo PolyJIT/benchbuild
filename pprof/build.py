@@ -5,13 +5,11 @@ from plumbum import cli, local
 from pprof.driver import PollyProfiling
 from plumbum.cmd import mkdir
 import os
-import logging
 
 LLVM_URL = "http://llvm.org/git/llvm.git"
 POLLY_URL = "http://github.com/simbuerg/polly.git"
 CLANG_URL = "http://llvm.org/git/clang.git"
 POLLI_URL = "http://github.com/simbuerg/polli.git"
-LOG = logging.getLogger()
 
 
 @PollyProfiling.subcommand("build")
@@ -76,15 +74,15 @@ class Build(cli.Application):
                 base = git("merge-base", "@", "@{u}")
 
                 if locl == remote:
-                    LOG.info(url + " is up-to-date.")
+                    print "{:s} is up-to-date.".format(url)
                 elif locl == base:
                     git("pull", "--rebase")
                     git("submodule", "update")
                 elif remote == base:
-                    LOG.error("push required")
+                    print "push required"
                     exit(1)
                 else:
-                    LOG.error(to_dir + "has diverged from its remote.")
+                    print "{:d} has diverged from its remote.".format(to_dir)
                     exit(1)
 
     def configure_llvm(self, llvm_path):
@@ -151,7 +149,7 @@ class Build(cli.Application):
                 llvm_cmake()
 
     def main(self):
-        LOG.info("Building in: " + self._builddir)
+        print "Building in: {:s}".format(self._builddir)
 
         if not os.path.exists(self._builddir):
             mkdir(self._builddir)

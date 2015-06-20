@@ -47,14 +47,6 @@ import sys
 import logging
 import regex
 
-# Configure the log
-FORMATTER = logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s')
-HANDLER = logging.StreamHandler(sys.stdout)
-HANDLER.setFormatter(FORMATTER)
-LOG = logging.getLogger(__name__)
-HANDLER.setLevel(LOG.getEffectiveLevel())
-LOG.addHandler(HANDLER)
-
 
 def nl(o):
     """Break the current line in the stream :o:.

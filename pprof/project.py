@@ -115,8 +115,6 @@ class Project(object):
         if path.exists(self.builddir) and listdir(self.builddir) == []:
             rmdir(self.builddir)
         elif path.exists(self.builddir) and listdir(self.builddir) != []:
-            LOG.warn(self.name + " project unclean, force removing " +
-                     self.builddir)
             rm("-rf", self.builddir)
 
     @property

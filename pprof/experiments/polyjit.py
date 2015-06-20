@@ -19,20 +19,8 @@ class PolyJIT(RuntimeExperiment):
 
     def run_step_jit(self, p):
         """Run the experiment without likwid."""
-        llvm_libs = path.join(config["llvmdir"], "lib")
-
         with step("JIT, no instrumentation"):
             p.download()
-            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
-
-            ld_lib_path = filter(None, config["ld_library_path"].split(":"))
-            p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
-            p.cflags = ["-O3",
-                        "-Xclang", "-load",
-                        "-Xclang", "LLVMPolyJIT.so",
-                        "-mllvm", "-polli",
-                        "-mllvm", "-jitable",
-                        "-mllvm", "-polly-detect-keep-going"]
             with substep("Build"):
                 with local.env(PPROF_ENABLE=0):
                     p.configure()
@@ -63,21 +51,11 @@ class PolyJIT(RuntimeExperiment):
 
     def run_step_likwid(self, p):
         """Run the experiment with likwid."""
-        llvm_libs = path.join(config["llvmdir"], "lib")
-
         with step("JIT, likwid"):
             p.clean()
             p.prepare()
             p.download()
-            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
-            ld_lib_path = filter(None, config["ld_library_path"].split(":"))
-            p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
-            p.cflags = ["-O3",
-                        "-Xclang", "-load",
-                        "-Xclang", "LLVMPolyJIT.so",
-                        "-mllvm", "-polli",
-                        "-mllvm", "-jitable",
-                        "-mllvm", "-polly-detect-keep-going"]
+
             with substep("Build"):
                 with local.env(PPROF_ENABLE=0):
                     p.configure()
@@ -86,6 +64,7 @@ class PolyJIT(RuntimeExperiment):
                 def run_with_likwid(run_f, args, **kwargs):
                     from pprof.utils.run import handle_stdin
                     from pprof.likwid import get_likwid_perfctr
+                    from pprof.settings import config
                     from plumbum.cmd import rm
 
                     project_name = kwargs.get("project_name", p.name)
@@ -95,20 +74,22 @@ class PolyJIT(RuntimeExperiment):
                         likwid_path = path.join(config["likwiddir"], "bin")
                         likwid_perfctr = local[
                             path.join(likwid_path, "likwid-perfctr")]
-                        run_cmd = likwid_perfctr["-O", "-o", likwid_f, "-m",
-                                                 "-C", "-L:0", "-g", group,
-                                                 run_f]
+                        for i in range(int(config["jobs"])):
+                            run_cmd = \
+                                likwid_perfctr["-O", "-o", likwid_f, "-m",
+                                               "-C", "-L:0-{:d}".format(i),
+                                               "-g", group, run_f]
 
-                        run_cmd = handle_stdin(run_cmd[args], kwargs)
-                        run_cmd()
+                            run_cmd = handle_stdin(run_cmd[args], kwargs)
+                            run_cmd()
 
-                        likwid_measurement = get_likwid_perfctr(likwid_f)
-                        """ Use the project_name from the binary, because we
-                            might encounter dynamically generated projects.
-                        """
-                        self.persist_run(project_name, p.run_uuid,
-                                         str(run_cmd), likwid_measurement)
-                        rm("-f", likwid_f)
+                            likwid_measurement = get_likwid_perfctr(likwid_f)
+                            """ Use the project_name from the binary, because we
+                                might encounter dynamically generated projects.
+                            """
+                            self.persist_run(project_name, p.run_uuid,
+                                             str(run_cmd), likwid_measurement)
+                            rm("-f", likwid_f)
                 p.run(run_with_likwid)
 
     def run_project(self, p):
@@ -119,6 +100,18 @@ class PolyJIT(RuntimeExperiment):
             1. with likwid disabled.
             2. with likwid enabled.
         """
+        llvm_libs = path.join(config["llvmdir"], "lib")
+        p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+
+        ld_lib_path = filter(None, config["ld_library_path"].split(":"))
+        p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
+        p.cflags = ["-O3",
+                    "-Xclang", "-load",
+                    "-Xclang", "LLVMPolyJIT.so",
+                    "-mllvm", "-polli",
+                    "-mllvm", "-polly-parallel",
+                    "-mllvm", "-jitable",
+                    "-mllvm", "-polly-detect-keep-going"]
         with local.env(PPROF_ENABLE=0):
             self.run_step_jit(p)
             self.run_step_likwid(p)

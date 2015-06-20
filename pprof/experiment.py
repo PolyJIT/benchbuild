@@ -13,8 +13,8 @@ An experiment can have a variable number of phases / steps / substeps.
 Phases / Steps / Substeps
 -------------------------
 
-All phases/steps/substeps support being used as a context manager. All 3 of them
-catch ProcessExecutionErrors that may be thrown from plumbum, without
+All phases/steps/substeps support being used as a context manager. All 3 of
+them catch ProcessExecutionErrors that may be thrown from plumbum, without
 aborting the whole experiment. However, an error is tracked.
 
 Actions
@@ -30,18 +30,11 @@ An experiment performs the following actions in order:
 """
 
 from plumbum import local, FG
-from plumbum.cmd import (cp, chmod, sed, time, echo,
-                         tee, mv, touch, awk, rm, mkdir, rmdir, grep, cat)
+from plumbum.cmd import (rm, mkdir, rmdir, cat)
 from plumbum.commands.processes import ProcessExecutionError
 
 from pprof.project import ProjectFactory
-from pprof.projects.polybench import polybench
-from pprof.projects.pprof import (sevenz, bzip2, ccrypt, crafty, crocopat,
-                                  ffmpeg, gzip, js, lammps, lapack, leveldb,
-                                  linpack, luleshomp, lulesh, mcrypt, minisat,
-                                  openssl, postgres, povray, python, ruby, sdcc,
-                                  sqlite3, tcc, x264, xz)
-from pprof.projects.lnt import lnt
+from pprof.projects import *
 from pprof.settings import config
 
 from contextlib import contextmanager
@@ -64,7 +57,7 @@ LOG.addHandler(HANDLER)
 
 
 def nl(o):
-    """Break the current line in the stream :o:
+    """Break the current line in the stream :o:.
 
     Don't reuse the current line, if :o: is not attached to a tty.
 
@@ -108,7 +101,7 @@ def to_utf8(text):
 
 def static_var(varname, value):
     """
-    Decorate something with a static variable
+    Decorate something with a static variable.
 
     Example:
         .. code-block:: python
@@ -270,6 +263,7 @@ class Experiment(object):
 
     """
     A series of commands executed on a project that form an experiment.
+
     The default implementation should provide a sane environment for all
     derivates.
 

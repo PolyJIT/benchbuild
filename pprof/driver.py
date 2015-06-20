@@ -2,8 +2,7 @@
 # encoding: utf-8
 
 from plumbum import cli
-
-import sys
+from pprof import *
 import logging
 
 
@@ -28,7 +27,4 @@ class PollyProfiling(cli.Application):
 
 
 def main(*args):
-    from pprof import run
-    from pprof import build
-
     return PollyProfiling.run(*args)

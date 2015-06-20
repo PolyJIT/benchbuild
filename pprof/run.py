@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+
 from plumbum import cli
 from pprof.driver import PollyProfiling
 from pprof.settings import config
@@ -17,11 +18,7 @@ class PprofRun(cli.Application):
 
     _experiment_names = []
     _project_names = []
-    _verbose = False
-    _clean = False
     _list = False
-    _execute = False
-    _collect = False
     _group_name = None
 
     @cli.switch(["-T", "--testdir"], str, help="Where are the testinput files")
@@ -51,21 +48,10 @@ class PprofRun(cli.Application):
         self._experiment_names = experiments
 
     @cli.switch(
-        ["-P", "--project"], str, list=True, help="Specify projects to run")
+        ["-P", "--project"], str, list=True, requires=["--experiment"],
+        help="Specify projects to run")
     def projects(self, projects):
         self._project_names = projects
-
-    @cli.switch(["-c", "--clean"], help="Clean products")
-    def clean(self):
-        self._clean = True
-
-    @cli.switch(["-x", "--execute"], help="Execute experiments")
-    def execute(self):
-        self._execute = True
-
-    @cli.switch(["-C", "--collect"], help="Collect results")
-    def collect(self):
-        self._collect = True
 
     @cli.switch(["-l", "--list"], requires=["--experiment"],
                 help="List available projects for experiment")
@@ -104,28 +90,22 @@ class PprofRun(cli.Application):
                 print_projects(experiment)
             exit(0)
 
+        LOG.info("Configuration: ")
+        pprint.pprint(config)
+
         for exp_name in self._experiment_names:
             LOG.info("Running experiment: " + exp_name)
             name = exp_name.lower()
 
             exp = self._experiments[name](
                 name, self._project_names, self._group_name)
-
-            if self._clean:
-                exp.clean()
-
-            if self._execute:
-                LOG.info("Configuration: ")
-                pprint.pprint(config)
-                exp.prepare()
-                exp.run()
-
-            if self._collect:
-                exp.collect_results()
+            exp.clean()
+            exp.prepare()
+            exp.run()
 
 
 def print_projects(experiment):
-    """Print a list of projects registered for that experiment
+    """Print a list of projects registered for that experiment.
 
     :experiment: TODO
 

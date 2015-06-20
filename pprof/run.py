@@ -6,9 +6,7 @@ from plumbum import cli
 from pprof.driver import PollyProfiling
 from pprof.settings import config
 
-import logging
 import pprint
-LOG = logging.getLogger()
 
 
 @PollyProfiling.subcommand("run")
@@ -41,9 +39,8 @@ class PprofRun(cli.Application):
     def llvmdir(self, dirname):
         config["llvmdir"] = dirname
 
-    @cli.switch(
-        ["-E", "--experiment"], str, list=True,
-        help="Specify experiments to run")
+    @cli.switch(["-E", "--experiment"], str, list=True,
+                help="Specify experiments to run")
     def experiments(self, experiments):
         self._experiment_names = experiments
 
@@ -90,11 +87,11 @@ class PprofRun(cli.Application):
                 print_projects(experiment)
             exit(0)
 
-        LOG.info("Configuration: ")
+        print "Configuration: "
         pprint.pprint(config)
 
         for exp_name in self._experiment_names:
-            LOG.info("Running experiment: " + exp_name)
+            print "Running experiment: " + exp_name
             name = exp_name.lower()
 
             exp = self._experiments[name](

@@ -30,7 +30,7 @@ An experiment performs the following actions in order:
 """
 
 from plumbum import local, FG
-from plumbum.cmd import (rm, mkdir, rmdir, cat)
+from plumbum.cmd import mkdir, rmdir
 from plumbum.commands.processes import ProcessExecutionError
 
 from pprof.project import ProjectFactory
@@ -42,9 +42,7 @@ from os import path, listdir
 from sets import Set
 from pprof.utils.db import persist_experiment
 
-import re
 import sys
-import logging
 import regex
 
 
@@ -127,7 +125,7 @@ class SubStepError(Exception):
 @contextmanager
 @static_var("counter", 0)
 @static_var("name", "")
-def phase(name):
+def phase(name, pname="FIXME: Unset"):
     """
     Introduce a new phase.
 
@@ -139,19 +137,20 @@ def phase(name):
     step.counter = 0
 
     from sys import stderr as o
+    main_msg = "PHASE.{} '{}' {}".format(phase.counter, name, pname)
 
-    nl(o).write("PHASE.{} '{}' START".format(phase.counter, name))
+    nl(o).write(main_msg + " START")
     o.flush()
     try:
         yield
-        nl(o).write(
-            "PHASE.{} '{}' OK".format(phase.counter, name))
+        nl(o).write(main_msg + " OK")
     except (OSError, ProcessExecutionError, SubStepError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
-        sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
+        sys.stdout.write("\n" + main_msg + " FAILED")
+    o.write("\n")
     o.flush()
 
 
@@ -170,20 +169,18 @@ def step(name):
     substep.counter = 0
 
     from sys import stderr as o
+    main_msg = "    STEP.{} '{}'".format(step.counter, name)
 
-    nl(o).write("PHASE.{} '{}' STEP.{} '{}' START".format(
-        phase.counter, phase.name, step.counter, name))
     try:
+        nl(o).write(main_msg + " START")
         yield
-        nl(o).write("PHASE.{} '{}' STEP.{} '{}' OK".format(
-            phase.counter, phase.name, step.counter, name))
+        nl(o).write(main_msg + " OK")
     except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
-        o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
-            phase.counter, phase.name, step.counter, name))
+        o.write("\n" + main_msg + " FAILED")
         raise SubStepError(name, e)
     except SubStepError as e:
         raise e
@@ -205,24 +202,19 @@ def substep(name):
     substep.name = name
 
     from sys import stdout as o
+    main_msg = "        SUBSTEP.{} '{}'".format(substep.counter, name)
 
-    nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
-        phase.counter, phase.name, step.counter, step.name, substep.counter,
-        name))
+    nl(o).write(main_msg + " START")
     try:
         yield
-        nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
-            phase.counter, phase.name, step.counter, step.name,
-            substep.counter, name))
+        nl(o).write(main_msg + " OK")
     except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
-        o.write("\nPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' FAILED".format(
-            phase.counter, phase.name, step.counter, step.name,
-            substep.counter, name))
-        o.write("\n{} substeps have FAILED so far.".format(substep.failed))
+        o.write("\n" + main_msg + "FAILED")
+        o.write("\n    {} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
         raise SubStepError(name, e)
@@ -335,7 +327,7 @@ class Experiment(object):
             Phase name
         """
         for project_name in self.projects:
-            with phase(p):
+            with phase(p, project_name):
                 prj = self.projects[project_name]
                 llvm_libs = path.join(config["llvmdir"], "lib")
                 ld_lib_path = config["ld_library_path"] + ":" + llvm_libs

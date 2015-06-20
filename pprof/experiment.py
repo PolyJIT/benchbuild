@@ -140,6 +140,7 @@ def phase(name, pname="FIXME: Unset"):
     main_msg = "PHASE.{} '{}' {}".format(phase.counter, name, pname)
 
     nl(o).write(main_msg + " START")
+    o.write("\n")
     o.flush()
     try:
         yield

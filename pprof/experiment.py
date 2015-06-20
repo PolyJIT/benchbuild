@@ -34,8 +34,8 @@ from plumbum.cmd import (rm, mkdir, rmdir, cat)
 from plumbum.commands.processes import ProcessExecutionError
 
 from pprof.project import ProjectFactory
-from pprof.projects import *
 from pprof.settings import config
+from pprof.projects import *
 
 from contextlib import contextmanager
 from os import path, listdir
@@ -379,12 +379,6 @@ class Experiment(object):
         """
         if not path.exists(self.builddir):
             (mkdir[self.builddir] & FG(retcode=None))
-
-        # Setup experiment logger
-        handler = logging.FileHandler(self.error_f)
-        handler.setLevel(logging.DEBUG)
-        handler.setFormatter(FORMATTER)
-        LOG.addHandler(handler)
 
         self.map_projects(self.prepare_project, "prepare")
 

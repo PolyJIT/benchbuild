@@ -11,14 +11,6 @@ from abc import abstractmethod
 import sys
 import logging
 
-# Configure the log
-HANDLER = logging.StreamHandler(sys.stdout)
-HANDLER.setFormatter(
-    logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s'))
-
-LOG = logging.getLogger(__name__)
-LOG.addHandler(HANDLER)
-
 PROJECT_LIKWID_F_EXT = ".txt"
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"

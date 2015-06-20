@@ -15,6 +15,7 @@ class PollyProfiling(cli.Application):
 
     @cli.switch(["-v", "--verbose"], help="Enable verbose output")
     def verbose(self):
+        LOG = logging.getLogger()
         LOG.setLevel(logging.DEBUG)
 
     def main(self, *args):
@@ -24,11 +25,6 @@ class PollyProfiling(cli.Application):
         if not self.nested_command:
             print "No command given"
             return 1
-
-
-LOG = logging.getLogger()
-LOG.addHandler(logging.StreamHandler(sys.stderr))
-LOG.setLevel(logging.WARNING)
 
 
 def main(*args):

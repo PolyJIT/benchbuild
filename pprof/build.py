@@ -12,6 +12,56 @@ CLANG_URL = "http://llvm.org/git/clang.git"
 POLLI_URL = "http://github.com/simbuerg/polli.git"
 
 
+def configure_papi(cmake, root):
+    """ Configure cmake with libpapi. """
+    llvm_cmake = cmake
+    if os.path.exists(root):
+        papi_inc = os.path.join(root, "include")
+        papi_lib = os.path.join(root, "lib", "libpapi.so")
+        llvm_cmake = llvm_cmake["-DPAPI_INCLUDE_DIR=" + papi_inc]
+        llvm_cmake = llvm_cmake["-DPAPI_LIBRARY=" + papi_lib]
+
+    return llvm_cmake
+
+
+def configure_likwid(cmake, root):
+    """ Configure cmake with likwid. """
+    llvm_cmake = cmake
+    if os.path.exists(root):
+        likwid_inc = os.path.join(root, "include")
+        likwid_lib = os.path.join(root, "lib", "liblikwid.so")
+        llvm_cmake = llvm_cmake["-DLIKWID_INCLUDE_DIR=" + likwid_inc]
+        llvm_cmake = llvm_cmake["-DLIKWID_LIBRARY=" + likwid_lib]
+
+    return llvm_cmake
+
+
+def configure_isl(cmake, root):
+    """ Configure cmake with isl. """
+    llvm_cmake = cmake
+    if root is not None and os.path.exists(root):
+        llvm_cmake = llvm_cmake["-DCMAKE_PREFIX_PATH=" + root]
+
+    return llvm_cmake
+
+
+def configure_compiler(cmake, use_gcc):
+    """ Configure cmake with the desired compiler. """
+    if use_gcc:
+        cc = local["gcc"]
+        cpp = local["g++"]
+    else:
+        cc = local["clang"]
+        cpp = local["clang++"]
+
+    if cc and cpp:
+        llvm_cmake = cmake
+        llvm_cmake = llvm_cmake[
+            "-DCMAKE_CXX_COMPILER=" + str(cpp),
+            "-DCMAKE_C_COMPILER=" + str(cc)]
+    return llvm_cmake
+
+
 @PollyProfiling.subcommand("build")
 class Build(cli.Application):
 
@@ -110,38 +160,12 @@ class Build(cli.Application):
                 else:
                     llvm_cmake = llvm_cmake["-G", "Ninja"]
 
-                if os.path.exists(self._papidir):
-                    papi_inc = os.path.join(self._papidir, "include")
-                    papi_lib = os.path.join(self._papidir, "lib", "libpapi.so")
-                    llvm_cmake = llvm_cmake["-DPAPI_INCLUDE_DIR=" + papi_inc]
-                    llvm_cmake = llvm_cmake["-DPAPI_LIBRARY=" + papi_lib]
-
-                if os.path.exists(self._likwiddir):
-                    likwid_inc = os.path.join(self._likwiddir, "include")
-                    likwid_lib = os.path.join(
-                        self._likwiddir,
-                        "lib",
-                        "liblikwid.so")
-                    llvm_cmake = llvm_cmake[
-                        "-DLIKWID_INCLUDE_DIR=" + likwid_inc]
-                    llvm_cmake = llvm_cmake["-DLIKWID_LIBRARY=" + likwid_lib]
-
-                if self._isldir is not None and os.path.exists(self._isldir):
-                    llvm_cmake = llvm_cmake[
-                        "-DCMAKE_PREFIX_PATH=" + self._isldir]
+                llvm_cmake = configure_papi(llvm_cmake, self._papidir)
+                llvm_cmake = configure_likwid(llvm_cmake, self._likwiddir)
+                llvm_cmake = configure_isl(llvm_cmake, self._isldir)
 
                 if not os.path.exists(cmake_cache):
-                    if self._use_gcc:
-                        cc = local["gcc"]
-                        cpp = local["g++"]
-                    else:
-                        cc = local["clang"]
-                        cpp = local["clang++"]
-
-                    if cc and cpp:
-                        llvm_cmake = llvm_cmake[
-                            "-DCMAKE_CXX_COMPILER=" + str(cpp),
-                            "-DCMAKE_C_COMPILER=" + str(cc)]
+                    llvm_cmake = configure_compiler(llvm_cmake, self._use_gcc)
                     llvm_cmake = llvm_cmake[llvm_path]
                 else:
                     llvm_cmake = llvm_cmake["."]

@@ -65,7 +65,7 @@ def configure_compiler(cmake, use_gcc):
 @PollyProfiling.subcommand("build")
 class Build(cli.Application):
 
-    """ Build all dependences required to run the pprof study """
+    """ Build all dependences required to run the pprof study. """
 
     _use_make = False
     _use_gcc = False
@@ -186,18 +186,11 @@ class Build(cli.Application):
                 self.clone_or_pull(
                     CLANG_URL, os.path.join(tools_path, "clang"))
                 self.clone_or_pull(
-                    POLLY_URL,
-                    os.path.join(
-                        tools_path,
-                        "polly"),
-                    "devel")
+                    POLLY_URL, os.path.join(tools_path, "polly"), "devel")
                 polli_path = os.path.join(tools_path, "polly", "tools")
                 with (local.cwd(polli_path)):
                     self.clone_or_pull(
-                        POLLI_URL,
-                        os.path.join(
-                            polli_path,
-                            "polli"))
+                        POLLI_URL, os.path.join(polli_path, "polli"))
 
         self.configure_llvm(llvm_path)
 

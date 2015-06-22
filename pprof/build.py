@@ -132,7 +132,7 @@ class Build(cli.Application):
                     print "push required"
                     exit(1)
                 else:
-                    print "{:d} has diverged from its remote.".format(to_dir)
+                    print "{:s} has diverged from its remote.".format(to_dir)
                     exit(1)
 
     def configure_llvm(self, llvm_path):

@@ -153,4 +153,8 @@ config = {
     "local_build": e("PPROF_CLUSTER_BUILD_LOCAL", False),
     "account": e("PPROF_CLUSTER_ACCOUNT", "cl"),
     "partition": e("PPROF_CLUSTER_PARTITION", "chimaira"),
+    "llvm_url": e("PPROF_LLVM_URL", "http://llvm.org/git/llvm.git"),
+    "polly_url": e("PPROF_POLLY_URL", "http://github.com/simbuerg/polly.git"),
+    "clang_url": e("PPROF_CLANG_URL", "http://llvm.org/git/clang.git"),
+    "polli_url": e("PPROF_POLLI_URL", "http://github.com/simbuerg/polli.git")
 }

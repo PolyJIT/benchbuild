@@ -8,8 +8,8 @@ import os
 import re
 import subprocess
 from uuid import uuid4
-from os import getenv as e
-
+from os import getenv
+import json
 
 def available_cpu_count():
     """
@@ -129,28 +129,165 @@ def available_cpu_count():
 
     raise Exception('Can not determine number of CPUs on this system')
 
+def load_config(config_path, config):
+    with open(config_path) as config_file:
+        globs, locs = {}, {}
+        execfile(config_path, globs, locs)
+        out_config = locs["config"]
 
-config = {
-    "sourcedir": e("PPROF_SRC_DIR", os.getcwd()),
-    "builddir": e("PPROF_OBJ_DIR", os.path.join(os.getcwd(), "results")),
-    "testdir": e("PPROF_TESTINPUTS", os.path.join(os.getcwd(), "testinputs")),
-    "llvmdir": e("PPROF_LLVM_DIR", os.path.join(os.getcwd(), "install")),
-    "likwiddir": e("PPROF_LIKWID_DIR", os.getcwd()),
-    "tmpdir": e("PPROF_TMP_DIR", os.path.join(os.getcwd(), "tmp")),
-    "path": e("PATH", ""),
-    "ld_library_path": e("LD_LIBRARY_PATH", ""),
-    "jobs": e("PPROF_MAKE_JOBS", str(available_cpu_count())),
-    "experiment": e("PPROF_EXPERIMENT_ID", uuid4()),
-    "db_host": e("PPROF_DB_HOST", "localhost"),
-    "db_port": e("PPROF_DB_PORT", 5432),
-    "db_name": e("PPROF_DB_NAME", "pprof"),
-    "db_user": e("PPROF_DB_USER", "pprof"),
-    "db_pass": e("PPROF_DB_PASS", "pprof"),
-    "nodedir": e("PPROF_CLUSTER_NODEDIR",
-                 os.path.join(os.getcwd(), "results")),
-    "slurm_script": e("PPROF_CLUSTER_SCRIPT_NAME", "chimaira-slurm.sh"),
-    "cpus-per-task": e("PPROF_CLUSTER_CPUS_PER_TASK", 10),
-    "local_build": e("PPROF_CLUSTER_BUILD_LOCAL", False),
-    "account": e("PPROF_CLUSTER_ACCOUNT", "cl"),
-    "partition": e("PPROF_CLUSTER_PARTITION", "chimaira"),
-}
+        if not isinstance(out_config, dict):
+            print("Config file " + config_path + " does not specify a config object.")
+            return False
+
+        # Merge in only the settings that were specified
+        for key in out_config.keys():
+            config[key] = out_config[key]
+
+        return True
+
+config_metadata = [
+    {
+        "name": "sourcedir",
+        "desc": "TODO",
+        "env": "PPROF_SRC_DIR",
+        "default": os.getcwd()
+    },
+    {
+        "name": "builddir",
+        "desc": "TODO",
+        "env": "PPROF_OBJ_DIR",
+        "default": os.path.join(os.getcwd(), "results")
+    },
+    {
+        "name": "testdir",
+        "desc": "TODO",
+        "env": "PPROF_TESTINPUTS",
+        "default": os.path.join(os.getcwd(), "testinputs")
+    },
+    {
+        "name": "llvmdir",
+        "desc": "TODO",
+        "env": "PPROF_LLVM_DIR",
+        "default": os.path.join(os.getcwd(), "install")
+    },
+    {
+        "name": "tmpdir",
+        "desc": "TODO",
+        "env": "PPROF_TMP_DIR",
+        "default": os.path.join(os.getcwd(), "tmp")
+    },
+    {
+        "name": "path",
+        "desc": "TODO",
+        "env": "PATH",
+        "default": ""
+    },
+    {
+        "name": "nodedir",
+        "desc": "TODO",
+        "env": "PPROF_CLUSTER_NODEDIR",
+        "default": os.path.join(os.getcwd(), "results")
+    },
+    {
+        "name": "ld_library_path",
+        "desc": "TODO",
+        "env": "LD_LIBRARY_PATH",
+        "default": ""
+    },
+    {
+        "name": "jobs",
+        "desc": "TODO",
+        "env": "PPROF_MAKE_JOBS",
+        "default": str(available_cpu_count())
+    },
+    {
+        "name": "experiment",
+        "desc": "TODO",
+        "env": "PPROF_EXPERIMENT_ID",
+        "default": uuid4()
+    },
+    {
+        "name": "db_host",
+        "desc": "TODO",
+        "env": "PPROF_DB_HOST",
+        "default": "localhost"
+    },
+    {
+        "name": "db_port",
+        "desc": "TODO",
+        "env": "PPROF_DB_PORT",
+        "default": 5432
+    },
+    {
+        "name": "db_name",
+        "desc": "TODO",
+        "env": "PPROF_DB_NAME",
+        "default": "pprof"
+    },
+    {
+        "name": "db_user",
+        "desc": "TODO",
+        "env": "PPROF_DB_USER",
+        "default": "pprof"
+    },
+    {
+        "name": "db_pass",
+        "desc": "TODO",
+        "env": "PPROF_DB_PASS",
+        "default": "pprof"
+    },
+    {
+        "name": "slurm_script",
+        "desc": "TODO",
+        "env": "PPROF_CLUSTER_SCRIPT_NAME",
+        "default": "chimaira-slurm.sh"
+    },
+    {
+        "name": "cpus-per-task",
+        "desc": "TODO",
+        "env": "PPROF_CLUSTER_CPUS_PER_TASK",
+        "default": 10
+    },
+    {
+        "name": "local_build",
+        "env": "PPROF_CLUSTER_BUILD_LOCAL",
+        "default": False
+    },
+    {
+        "name": "account",
+        "env": "PPROF_CLUSTER_ACCOUNT",
+        "default": "cl"
+    },
+    {
+        "name": "partition",
+        "env": "PPROF_CLUSTER_PARTITION",
+        "default": "chimaira"
+    },
+    {
+        "name": "llvm_repo",
+        "default": { "url": "http://llvm.org/git/llvm.git", "branch": None }
+    },
+    {
+        "name": "polly_repo",
+        "default": { "url": "http://github.com/simbuerg/polly.git", "branch": "devel" }
+    },
+    {
+        "name": "clang_repo",
+        "default": { "url": "http://llvm.org/git/clang.git", "branch": None }
+    },
+    {
+        "name": "polli_repo",
+        "default": { "url": "http://github.com/simbuerg/polli.git", "branch": None }
+    }
+]
+
+def default_config(config_metadata):
+    config = {}
+    for setting in config_metadata:
+        if "env" in setting:
+            config[setting["name"]] = getenv(setting["env"], setting["default"])
+        else:
+            config[setting["name"]] = setting["default"]
+    return config
+
+config = default_config(config_metadata)

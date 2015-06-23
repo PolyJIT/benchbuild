@@ -225,17 +225,17 @@ class Build(cli.Application):
         llvm_path = os.path.join(self._builddir, "pprof-llvm")
         openmp_path = os.path.join(self._builddir, "openmp-runtime")
         with local.cwd(self._builddir):
-            clone_or_pull(config["llvm_url"], llvm_path)
+            clone_or_pull(config["llvm_repo"]["url"], llvm_path, config["llvm_repo"]["branch"])
             tools_path = os.path.join(llvm_path, "tools")
             with local.cwd(tools_path):
                 clone_or_pull(
-                    config["clang_url"], os.path.join(tools_path, "clang"))
+                    config["clang_repo"]["url"], os.path.join(tools_path, "clang"), config["clang_repo"]["branch"])
                 clone_or_pull(
-                    config["polly_url"], os.path.join(tools_path, "polly"), "devel")
+                    config["polly_repo"]["url"], os.path.join(tools_path, "polly"), config["polly_repo"]["branch"])
                 polli_path = os.path.join(tools_path, "polly", "tools")
                 with (local.cwd(polli_path)):
                     clone_or_pull(
-                        config["polli_url"], os.path.join(polli_path, "polli"))
+                        config["polli_repo"]["url"], os.path.join(polli_path, "polli"), config["polli_repo"]["branch"])
             clone_or_pull(OPENMP_URL, openmp_path)
 
         self.configure_llvm(llvm_path)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from plumbum import cli, local
+from plumbum import cli, local, FG
 from pprof.driver import PollyProfiling
 from plumbum.cmd import mkdir
 import os
@@ -10,6 +10,7 @@ LLVM_URL = "http://llvm.org/git/llvm.git"
 POLLY_URL = "http://github.com/simbuerg/polly.git"
 CLANG_URL = "http://llvm.org/git/clang.git"
 POLLI_URL = "http://github.com/simbuerg/polli.git"
+OPENMP_URL = "http://llvm.org/git/openmp.git"
 
 
 def clone_or_pull(url, to_dir, branch=None):
@@ -150,9 +151,35 @@ class Build(cli.Application):
     def isldir(self, dirname):
         self._isldir = os.path.abspath(dirname)
 
+    def configure_openmp(self, openmp_path):
+        """ Configure LLVM/Clang's own OpenMP runtime. """
+        from plumbum.cmd import cmake
+        with local.cwd(openmp_path):
+            builddir = os.path.join(openmp_path, "build")
+            if not os.path.exists(builddir):
+                mkdir(builddir)
+            with local.cwd(builddir):
+                cmake_cache = os.path.join(builddir, "CMakeCache.txt")
+                install_path = os.path.join(self._builddir, "install")
+                openmp_cmake = cmake[
+                    "-DCMAKE_INSTALL_PREFIX=" + install_path,
+                    "-DCMAKE_BUILD_TYPE=Release",
+                    "-DCMAKE_USE_RELATIVE_PATHS=On",
+                    "-DLIBOMP_ENABLE_ASSERTIONS=Off"]
 
-
+                if self._use_make:
+                    openmp_cmake = openmp_cmake["-G", "Unix Makefiles"]
                 else:
+                    openmp_cmake = openmp_cmake["-G", "Ninja"]
+
+                if not os.path.exists(cmake_cache):
+                    openmp_cmake = configure_compiler(openmp_cmake,
+                                                      use_gcc=False)
+                    openmp_cmake = openmp_cmake[openmp_path]
+                else:
+                    openmp_cmake = openmp_cmake["."]
+
+                openmp_cmake()
 
     def configure_llvm(self, llvm_path):
         """ Configure LLVM and all subprojects. """
@@ -173,7 +200,8 @@ class Build(cli.Application):
                     "-DLLVM_TARGETS_TO_BUILD=X86",
                     "-DLLVM_BINUTILS_INCDIR=/usr/include/",
                     "-DLLVM_ENABLE_PIC=On",
-                    "-DLLVM_ENABLE_ASSERTIONS=On"]
+                    "-DLLVM_ENABLE_ASSERTIONS=On",
+                    "-DCLANG_DEFAULT_OPENMP_RUNTIME=libomp"]
 
                 if self._use_make:
                     llvm_cmake = llvm_cmake["-G", "Unix Makefiles"]
@@ -199,6 +227,7 @@ class Build(cli.Application):
             mkdir(self._builddir)
 
         llvm_path = os.path.join(self._builddir, "pprof-llvm")
+        openmp_path = os.path.join(self._builddir, "openmp-runtime")
         with local.cwd(self._builddir):
             clone_or_pull(LLVM_URL, llvm_path)
             tools_path = os.path.join(llvm_path, "tools")
@@ -209,8 +238,10 @@ class Build(cli.Application):
                 polli_path = os.path.join(tools_path, "polly", "tools")
                 with (local.cwd(polli_path)):
                     clone_or_pull(POLLI_URL, os.path.join(polli_path, "polli"))
+            clone_or_pull(OPENMP_URL, openmp_path)
 
         self.configure_llvm(llvm_path)
+        self.configure_openmp(openmp_path)
 
         build_cmd = None
         if self._use_make:
@@ -221,4 +252,5 @@ class Build(cli.Application):
         if self._num_jobs:
             build_cmd = build_cmd["-j", self._num_jobs]
 
-        build_cmd("-C", os.path.join(llvm_path, "build"), "install")
+        build_cmd["-C", os.path.join(llvm_path, "build"), "install"] & FG
+        build_cmd["-C", os.path.join(openmp_path, "build"), "install"] & FG

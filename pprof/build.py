@@ -3,13 +3,10 @@
 
 from plumbum import cli, local, FG
 from pprof.driver import PollyProfiling
+from pprof.settings import config
 from plumbum.cmd import mkdir
 import os
 
-LLVM_URL = "http://llvm.org/git/llvm.git"
-POLLY_URL = "http://github.com/simbuerg/polly.git"
-CLANG_URL = "http://llvm.org/git/clang.git"
-POLLI_URL = "http://github.com/simbuerg/polli.git"
 OPENMP_URL = "http://llvm.org/git/openmp.git"
 
 
@@ -103,7 +100,6 @@ def configure_compiler(cmake, use_gcc):
             "-DCMAKE_CXX_COMPILER=" + str(cpp),
             "-DCMAKE_C_COMPILER=" + str(cc)]
     return llvm_cmake
-
 
 @PollyProfiling.subcommand("build")
 class Build(cli.Application):
@@ -229,15 +225,17 @@ class Build(cli.Application):
         llvm_path = os.path.join(self._builddir, "pprof-llvm")
         openmp_path = os.path.join(self._builddir, "openmp-runtime")
         with local.cwd(self._builddir):
-            clone_or_pull(LLVM_URL, llvm_path)
+            clone_or_pull(config["llvm_repo"]["url"], llvm_path, config["llvm_repo"]["branch"])
             tools_path = os.path.join(llvm_path, "tools")
             with local.cwd(tools_path):
-                clone_or_pull(CLANG_URL, os.path.join(tools_path, "clang"))
                 clone_or_pull(
-                    POLLY_URL, os.path.join(tools_path, "polly"), "devel")
+                    config["clang_repo"]["url"], os.path.join(tools_path, "clang"), config["clang_repo"]["branch"])
+                clone_or_pull(
+                    config["polly_repo"]["url"], os.path.join(tools_path, "polly"), config["polly_repo"]["branch"])
                 polli_path = os.path.join(tools_path, "polly", "tools")
                 with (local.cwd(polli_path)):
-                    clone_or_pull(POLLI_URL, os.path.join(polli_path, "polli"))
+                    clone_or_pull(
+                        config["polli_repo"]["url"], os.path.join(polli_path, "polli"), config["polli_repo"]["branch"])
             clone_or_pull(OPENMP_URL, openmp_path)
 
         self.configure_llvm(llvm_path)

@@ -203,4 +203,4 @@ class Build(cli.Application):
         if self._num_jobs:
             build_cmd = build_cmd["-j", self._num_jobs]
 
-        build_cmd("-C" + os.path.join(llvm_path, "build"), "install")
+        build_cmd("-C", os.path.join(llvm_path, "build"), "install")

@@ -12,6 +12,48 @@ CLANG_URL = "http://llvm.org/git/clang.git"
 POLLI_URL = "http://github.com/simbuerg/polli.git"
 
 
+def clone_or_pull(url, to_dir, branch=None):
+    """
+    Clone or pull a repository and switch to the desired branch.
+
+    If the directory already exists, we will try to du a pull with
+    --rebase. In case anything goes wrong, we exit and print a simple
+    diagnostic message.
+
+    :url:
+        Where is the remote repository?
+    :to_dir:
+        Where should we clone/update to?
+    :branch:
+        Which branch should we check out? Defaults to the repo's master.
+    """
+    from plumbum.cmd import git
+    if not os.path.exists(os.path.join(to_dir, ".git/")):
+        git_clone = git["clone", url, to_dir, "--recursive", "--depth=1"]
+        if branch:
+            git_clone = git_clone["--branch", branch]
+        git_clone()
+    else:
+        with local.cwd(to_dir):
+            git("remote", "update")
+
+            locl = git("rev-parse", "@{0}")
+            remote = git("rev-parse", "@{u}")
+            base = git("merge-base", "@", "@{u}")
+
+            if locl == remote:
+                print "{:s} is up-to-date.".format(url)
+            elif locl == base:
+                git("pull", "--rebase")
+                git("submodule", "update")
+            elif remote == base:
+                print "push required"
+                exit(1)
+            else:
+                print "{:s} has diverged from its remote.".format(to_dir)
+                exit(1)
+
+
 def configure_papi(cmake, root):
     """ Configure cmake with libpapi. """
     llvm_cmake = cmake
@@ -108,34 +150,12 @@ class Build(cli.Application):
     def isldir(self, dirname):
         self._isldir = os.path.abspath(dirname)
 
-    def clone_or_pull(self, url, to_dir, branch=None):
-        from plumbum.cmd import git
-        if not os.path.exists(os.path.join(to_dir, ".git/")):
-            git_clone = git["clone", url, to_dir, "--recursive", "--depth=1"]
-            if branch:
-                git_clone = git_clone["--branch", branch]
-            git_clone()
-        else:
-            with local.cwd(to_dir):
-                git("remote", "update")
 
-                locl = git("rev-parse", "@{0}")
-                remote = git("rev-parse", "@{u}")
-                base = git("merge-base", "@", "@{u}")
 
-                if locl == remote:
-                    print "{:s} is up-to-date.".format(url)
-                elif locl == base:
-                    git("pull", "--rebase")
-                    git("submodule", "update")
-                elif remote == base:
-                    print "push required"
-                    exit(1)
                 else:
-                    print "{:s} has diverged from its remote.".format(to_dir)
-                    exit(1)
 
     def configure_llvm(self, llvm_path):
+        """ Configure LLVM and all subprojects. """
         from plumbum.cmd import cmake
         with local.cwd(llvm_path):
             builddir = os.path.join(llvm_path, "build")
@@ -180,17 +200,15 @@ class Build(cli.Application):
 
         llvm_path = os.path.join(self._builddir, "pprof-llvm")
         with local.cwd(self._builddir):
-            self.clone_or_pull(LLVM_URL, llvm_path)
+            clone_or_pull(LLVM_URL, llvm_path)
             tools_path = os.path.join(llvm_path, "tools")
             with local.cwd(tools_path):
-                self.clone_or_pull(
-                    CLANG_URL, os.path.join(tools_path, "clang"))
-                self.clone_or_pull(
+                clone_or_pull(CLANG_URL, os.path.join(tools_path, "clang"))
+                clone_or_pull(
                     POLLY_URL, os.path.join(tools_path, "polly"), "devel")
                 polli_path = os.path.join(tools_path, "polly", "tools")
                 with (local.cwd(polli_path)):
-                    self.clone_or_pull(
-                        POLLI_URL, os.path.join(polli_path, "polli"))
+                    clone_or_pull(POLLI_URL, os.path.join(polli_path, "polli"))
 
         self.configure_llvm(llvm_path)
 

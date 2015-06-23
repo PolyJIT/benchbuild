@@ -14,7 +14,7 @@ class PollyProfiling(cli.Application):
     """ Frontend for running/building the pprof study framework """
 
     VERSION = "0.9.6"
-    _config_path = "./pprof_config.py"
+    _config_path = "./.pprof_config.py"
     _list_env = False
 
     @cli.switch(["-v", "--verbose"], help="Enable verbose output")

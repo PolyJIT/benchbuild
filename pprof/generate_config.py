@@ -1,20 +1,20 @@
 from plumbum import cli
 from pprof.driver import PollyProfiling
-
+import sys
 import os.path
 
 @PollyProfiling.subcommand("config")
 class PprofGenConfig(cli.Application):
     """ Generate a default configuration that can be edited in a text editor. """
 
-    _outpath = "./pprof_config.py"
+    _outpath = "./.pprof_config.py"
 
     @cli.switch(["-o"], str, help="Where to write the default config file? File type is *.py")
     def set_output(self, dirname):
         self._outpath = dirname
 
     def main(self):
-        import settings
+        from pprof import settings
 
         self._outpath = os.path.abspath(self._outpath)
 
@@ -34,7 +34,6 @@ class PprofGenConfig(cli.Application):
 
         print("Configuration file has been written to " + self._outpath)
 
-import sys
 
 # Taken from the following recipe: http://code.activestate.com/recipes/577058/
 def query_yes_no(question, default="yes"):

@@ -87,8 +87,9 @@ class PolyJIT(RuntimeExperiment):
                             """ Use the project_name from the binary, because we
                                 might encounter dynamically generated projects.
                             """
-                            self.persist_run(project_name, p.run_uuid,
-                                             str(run_cmd), likwid_measurement)
+                            self.persist_run(
+                                project_name, p.run_uuid, str(run_cmd),
+                                likwid_measurement)
                             rm("-f", likwid_f)
                 p.run(run_with_likwid)
 
@@ -106,11 +107,13 @@ class PolyJIT(RuntimeExperiment):
         ld_lib_path = filter(None, config["ld_library_path"].split(":"))
         p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
         p.cflags = ["-O3",
+                    "-fopenmp",
+                    "-I", path.join(config["llvmdir"], "include"),
                     "-Xclang", "-load",
                     "-Xclang", "LLVMPolyJIT.so",
                     "-mllvm", "-polli",
-                    "-mllvm", "-polly-parallel",
                     "-mllvm", "-jitable",
+                    "-mllvm", "-polly-parallel",
                     "-mllvm", "-polly-detect-keep-going"]
         with local.env(PPROF_ENABLE=0):
             self.run_step_jit(p)

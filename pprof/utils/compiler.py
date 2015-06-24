@@ -102,10 +102,6 @@ input_files = [ x for x in argv[1:] if not '-' is x[0] ]
 flags = argv[1:]
 f = None
 
-if path.exists("{blobf}"):
-    with open("{blobf}", "rb") as p:
-        f = pickle.load(p)
-
 with local.env(PPROF_DB_HOST="{db_host}",
            PPROF_DB_PORT="{db_port}",
            PPROF_DB_NAME="{db_name}",
@@ -116,6 +112,10 @@ with local.env(PPROF_DB_HOST="{db_host}",
     """ FIXME: This is just a quick workaround. """
     if "conftest.c" not in input_files:
         with local.env(PPROF_CMD=str(final_cc)):
+            if path.exists("{blobf}"):
+                with open("{blobf}", "rb") as p:
+                    f = pickle.load(p)
+
             if f is not None:
                 if not sys.stdin.isatty():
                     f(final_cc, has_stdin = True)

@@ -80,7 +80,8 @@ class PolyJIT(RuntimeExperiment):
                                                "-g", group, run_f]
 
                             run_cmd = handle_stdin(run_cmd[args], kwargs)
-                            run_cmd()
+                            with local.env(OMP_NUM_THREADS=i):
+                                run_cmd()
 
                             likwid_measurement = get_likwid_perfctr(likwid_f)
                             """ Use the project_name from the binary, because we

@@ -36,7 +36,8 @@ def GetHashofDirs(directory):
 
 
 def source_required(fname, to):
-    """Check, if a download is required
+    """
+    Check, if a download is required.
 
     :fname: TODO
     :to: TODO
@@ -73,7 +74,8 @@ def update_hash(fname, to):
 
 
 def Copy(From, To):
-    """Small copy wrapper
+    """
+    Small copy wrapper.
 
     :From: TODO
     :To: TODO
@@ -84,7 +86,8 @@ def Copy(From, To):
 
 
 def Wget(url, fname, to=None):
-    """download :src: to :to: if required
+    """
+    Download :src: to :to: if required.
 
     :src: TODO
     :to: TODO
@@ -108,7 +111,8 @@ def Wget(url, fname, to=None):
 
 
 def Git(url, fname, to=None):
-    """get a shallow clone from :src to :to.
+    """
+    Get a shallow clone from :src: to :to:.
 
     :src: TODO
     :to: TODO

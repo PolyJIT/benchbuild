@@ -66,6 +66,13 @@ from pprof.experiment import to_utf8
 from os import path
 import pickle
 
+from pprof.settings import config
+config["db_host"] = "{db_host}"
+config["db_port"] = "{db_port}"
+config["db_name"] = "{db_name}"
+config["db_user"] = "{db_user}"
+config["db_pass"] = "{db_pass}"
+
 cc=local[\"{CC}\"]
 cflags={CFLAGS}
 ldflags={LDFLAGS}

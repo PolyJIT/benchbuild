@@ -66,7 +66,7 @@ class PprofRun(cli.Application):
         from pprof.experiments import papi
         from pprof.experiments.polly import (polly, openmp, openmpvect,
                                              vectorize)
-        from pprof.experiments import compilestats
+        from pprof.experiments import compilestats, compilestats_ewpt
 
         self._experiments = {
             "polyjit": polyjit.PolyJIT,
@@ -77,7 +77,8 @@ class PprofRun(cli.Application):
             "polly-openmp": openmp.PollyOpenMP,
             "polly-openmpvect": openmpvect.PollyOpenMPVectorizer,
             "polly-vectorize": vectorize.PollyVectorizer,
-            "stats": compilestats.CompilestatsExperiment
+            "stats": compilestats.CompilestatsExperiment,
+            "ewpt": compilestats_ewpt.EWPTCompilestatsExperiment,
         }
 
         if self._list:

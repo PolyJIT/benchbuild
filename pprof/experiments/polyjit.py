@@ -80,7 +80,7 @@ class PolyJIT(RuntimeExperiment):
                                                "-g", group, run_f]
 
                             run_cmd = handle_stdin(run_cmd[args], kwargs)
-                            with local.env(OMP_NUM_THREADS=i):
+                            with local.env(OMP_NUM_THREADS=i+1):
                                 run_cmd()
 
                             likwid_measurement = get_likwid_perfctr(likwid_f)

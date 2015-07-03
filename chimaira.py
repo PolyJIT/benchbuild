@@ -109,11 +109,6 @@ def prepare_slurm_script(experiment, project, experiment_id):
     slurm_script = os.path.join(os.getcwd(), config["slurm_script"])
     log_file = os.path.join(config["resultsdir"],
                             experiment + "-" + project + ".log")
-    node_experiment_results = os.path.join(config["nodedir"], experiment)
-    node_results = os.path.join(node_experiment_results, project)
-    node_error_log = os.path.join(node_experiment_results, "error.log")
-    error_log = os.path.join(config["resultsdir"], experiment, "error." +
-                             project)
 
     if config["local_build"]:
         commands.append(pprof["build", "-j", config["cpus-per-task"],

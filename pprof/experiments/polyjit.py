@@ -54,6 +54,7 @@ class PolyJIT(RuntimeExperiment):
             p.clean()
             p.prepare()
             p.download()
+            p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
 
             with substep("Build"):
                 p.configure()
@@ -107,7 +108,6 @@ class PolyJIT(RuntimeExperiment):
         ld_lib_path = filter(None, config["ld_library_path"].split(":"))
         p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
         p.cflags = [
-                    "-DLIKWID_PERFMON",
                     "-Xclang", "-load",
                     "-Xclang", "LLVMPolyJIT.so",
                     "-O3",
@@ -117,7 +117,6 @@ class PolyJIT(RuntimeExperiment):
                     "-mllvm", "-polli",
                     "-fopenmp",
                     "-I", path.join(config["llvmdir"], "include")
-                    # "-mllvm", "-polly-parallel",
                     ]
         with local.env(PPROF_ENABLE=0):
             self.run_step_jit(p)

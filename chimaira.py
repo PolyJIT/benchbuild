@@ -56,7 +56,8 @@ def dump_slurm_script(script_name, log_name, commands, uuid=None):
     with open(script_name, 'w') as slurm:
         slurm.write("#!/bin/sh\n")
         slurm.write("#SBATCH -o {}\n".format(log_name))
-        slurm.write("#SBATCH -t \"4:00:00\"\n")
+        slurm.write("#SBATCH -t \"12:00:00\"\n")
+        slurm.write("#SBATCH -mem 16384\n")
         slurm.write("export LD_LIBRARY_PATH=\"{}:$LD_LIBRARY_PATH\"\n".format(
             path.join(config["papi"], "lib")))
         slurm.write(
@@ -149,7 +150,7 @@ def dispatch_jobs(exp, projects):
             "-p", config["partition"],
             "--ntasks", "1",
             "--cpus-per-task", config["cpus-per-task"],
-            "--hint=nomultithread",
+            "--exclusive",
             slurm_script] | awk['{ print $4 }'])()
         jobs.append(job_id)
     return jobs

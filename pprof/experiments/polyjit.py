@@ -76,7 +76,7 @@ class PolyJIT(RuntimeExperiment):
                         for i in range(int(config["jobs"])):
                             run_cmd = \
                                 likwid_perfctr["-O", "-o", likwid_f, "-m",
-                                               "-C", "-L:0-{:d}".format(i),
+                                               "-C", "0-{:d}".format(i),
                                                "-g", group, run_f]
 
                             run_cmd = handle_stdin(run_cmd[args], kwargs)

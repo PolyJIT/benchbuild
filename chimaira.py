@@ -114,8 +114,12 @@ def prepare_slurm_script(experiment, project, experiment_id):
         commands.append(pprof["build", "-j", config["cpus-per-task"],
                               "-B", config["nodedir"], "-I", config["isl"],
                               "-L", config["likwid"], "-P", config["papi"]])
-    commands.append(pprof["run", "-P", project, "-E", experiment, "-B",
-                          config["nodedir"], "-L", config["llvm"]])
+    commands.append(pprof["run",
+                          "-P", project,
+                          "-E", experiment,
+                          "-B", config["nodedir"],
+                          "--likwid-prefix", config["likwid"],
+                          "-L", config["llvm"]])
     # commands.append(
     #    cp["-ar", node_results, os.path.join(config["resultsdir"],
     #                                          experiment)])

@@ -106,15 +106,19 @@ class PolyJIT(RuntimeExperiment):
 
         ld_lib_path = filter(None, config["ld_library_path"].split(":"))
         p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
-        p.cflags = ["-O3",
-                    "-fopenmp",
-                    "-I", path.join(config["llvmdir"], "include"),
+        p.cflags = [
+                    "-DLIKWID_PERFMON",
                     "-Xclang", "-load",
                     "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polli",
+                    "-O3",
+                    "-mllvm", "-polly-detect-keep-going",
                     "-mllvm", "-jitable",
-                    "-mllvm", "-polly-parallel",
-                    "-mllvm", "-polly-detect-keep-going"]
+                    "-mllvm", "-polly-delinearize=false",
+                    "-mllvm", "-polli",
+                    "-fopenmp",
+                    "-I", path.join(config["llvmdir"], "include")
+                    # "-mllvm", "-polly-parallel",
+                    ]
         with local.env(PPROF_ENABLE=0):
             self.run_step_jit(p)
             self.run_step_likwid(p)

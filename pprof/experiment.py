@@ -112,16 +112,6 @@ def static_var(varname, value):
     return decorate
 
 
-class SubStepError(Exception):
-
-    def __init__(self, *args):
-        super(SubStepError, self).__init__()
-        self.args = args
-
-    def __str__(self):
-        return repr(self.args)
-
-
 @contextmanager
 @static_var("counter", 0)
 @static_var("name", "")
@@ -145,7 +135,7 @@ def phase(name, pname="FIXME: Unset"):
     try:
         yield
         nl(o).write(main_msg + " OK")
-    except (OSError, ProcessExecutionError, SubStepError) as e:
+    except (OSError, ProcessExecutionError) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
@@ -182,9 +172,6 @@ def step(name):
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
         o.write("\n" + main_msg + " FAILED")
-        raise SubStepError(name, e)
-    except SubStepError as e:
-        raise e
     o.flush()
 
 
@@ -218,7 +205,6 @@ def substep(name):
         o.write("\n    {} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
-        raise SubStepError(name, e)
     o.flush()
 
 

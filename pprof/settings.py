@@ -219,31 +219,31 @@ config_metadata = [
     },
     {
         "name": "db_host",
-        "desc": "TODO",
+        "desc": "Host address of the database to connect to.",
         "env": "PPROF_DB_HOST",
         "default": "localhost"
     },
     {
         "name": "db_port",
-        "desc": "TODO",
+        "desc": "Port number of the database to connect to.",
         "env": "PPROF_DB_PORT",
         "default": 5432
     },
     {
         "name": "db_name",
-        "desc": "TODO",
+        "desc": "The name of the PostgreSQL database that will be used.",
         "env": "PPROF_DB_NAME",
         "default": "pprof"
     },
     {
         "name": "db_user",
-        "desc": "TODO",
+        "desc": "The name of the PostgreSQL user to connect to the database with.",
         "env": "PPROF_DB_USER",
         "default": "pprof"
     },
     {
         "name": "db_pass",
-        "desc": "TODO",
+        "desc": "The password for the PostgreSQL user used to connect to the database with.",
         "env": "PPROF_DB_PASS",
         "default": "pprof"
     },
@@ -276,19 +276,23 @@ config_metadata = [
     },
     {
         "name": "llvm_repo",
-        "default": { "url": "http://llvm.org/git/llvm.git", "branch": None }
+        "default": { "url": "http://llvm.org/git/llvm.git", "branch": None, "commit_hash": None }
     },
     {
         "name": "polly_repo",
-        "default": { "url": "http://github.com/simbuerg/polly.git", "branch": "devel" }
+        "default": { "url": "http://github.com/simbuerg/polly.git", "branch": "devel", "commit_hash": None }
     },
     {
         "name": "clang_repo",
-        "default": { "url": "http://llvm.org/git/clang.git", "branch": None }
+        "default": { "url": "http://llvm.org/git/clang.git", "branch": None, "commit_hash": None }
     },
     {
         "name": "polli_repo",
-        "default": { "url": "http://github.com/simbuerg/polli.git", "branch": None }
+        "default": { "url": "http://github.com/simbuerg/polli.git", "branch": None, "commit_hash": None }
+    },
+    {
+        "name": "openmp_repo",
+        "default": { "url": "http://llvm.org/git/openmp.git", "branch": None, "commit_hash": None }
     }
 ]
 

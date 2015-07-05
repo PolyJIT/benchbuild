@@ -73,6 +73,7 @@ class Project(object):
                            PPROF_GROUP=self.group_name,
                            PPROF_SRC_URI=self.src_uri):
                 self.run_tests(experiment)
+                self.clean()
 
     def clean(self):
         if path.exists(self.builddir) and listdir(self.builddir) == []:

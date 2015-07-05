@@ -71,7 +71,7 @@ class X264(PprofGroup):
         for ifile in testfiles:
             exp(
                 ifile,
-                self.inputfiles[ifile],
+                self.inputfiles[path.basename(ifile)],
                 "--threads", "1",
                 "-o", "/dev/null",
                 "--frames", "5",

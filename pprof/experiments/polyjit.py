@@ -119,7 +119,7 @@ class PolyJIT(RuntimeExperiment):
                     "-I", path.join(config["llvmdir"], "include")
                     ]
         with local.env(PPROF_ENABLE=0):
-            self.run_step_jit(p)
+            #self.run_step_jit(p)
             self.run_step_likwid(p)
 
     def persist_run(self, project_name, group, cmd, measurements):

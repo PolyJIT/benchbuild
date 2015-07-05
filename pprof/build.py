@@ -7,10 +7,7 @@ from pprof.settings import config
 from plumbum.cmd import mkdir
 import os
 
-OPENMP_URL = "http://llvm.org/git/openmp.git"
-
-
-def clone_or_pull(url, to_dir, branch=None):
+def clone_or_pull(repo_dict, to_dir):
     """
     Clone or pull a repository and switch to the desired branch.
 
@@ -25,13 +22,20 @@ def clone_or_pull(url, to_dir, branch=None):
     :branch:
         Which branch should we check out? Defaults to the repo's master.
     """
+
+    url = repo_dict["url"]
+    branch = repo_dict.get("branch")
+    commit_hash = repo_dict.get("commit_hash")
+
     from plumbum.cmd import git
     if not os.path.exists(os.path.join(to_dir, ".git/")):
         git_clone = git["clone", url, to_dir, "--recursive", "--depth=1"]
         if branch:
             git_clone = git_clone["--branch", branch]
         git_clone()
-    else:
+    elif not commit_hash:
+        # If we haven't specified a commit hash,
+        # fetch the latest version.
         with local.cwd(to_dir):
             git("remote", "update")
 
@@ -50,6 +54,16 @@ def clone_or_pull(url, to_dir, branch=None):
             else:
                 print "{:s} has diverged from its remote.".format(to_dir)
                 exit(1)
+    elif commit_hash:
+        with local.cwd(to_dir):
+            # We only need to do something if we aren't already at the
+            # latest commit hash
+            current_hash = git("rev-parse", "--verify", "HEAD").rstrip("\n")
+            if current_hash != commit_hash:
+                # Make sure we have a full history, not just depth 1
+                print("HEAD for repository {:s} is not at configured commit hash {:s}, fetching and checking out.".format(url, commit_hash))
+                git("fetch", "--unshallow")
+                git_checkout = git["checkout", commit_hash]
 
 
 def configure_papi(cmake, root):
@@ -225,18 +239,17 @@ class Build(cli.Application):
         llvm_path = os.path.join(self._builddir, "pprof-llvm")
         openmp_path = os.path.join(self._builddir, "openmp-runtime")
         with local.cwd(self._builddir):
-            clone_or_pull(config["llvm_repo"]["url"], llvm_path, config["llvm_repo"]["branch"])
+            clone_or_pull(config["llvm_repo"], llvm_path)
             tools_path = os.path.join(llvm_path, "tools")
             with local.cwd(tools_path):
                 clone_or_pull(
-                    config["clang_repo"]["url"], os.path.join(tools_path, "clang"), config["clang_repo"]["branch"])
+                    config["clang_repo"], os.path.join(tools_path, "clang"))
                 clone_or_pull(
-                    config["polly_repo"]["url"], os.path.join(tools_path, "polly"), config["polly_repo"]["branch"])
+                    config["polly_repo"], os.path.join(tools_path, "polly"))
                 polli_path = os.path.join(tools_path, "polly", "tools")
                 with (local.cwd(polli_path)):
-                    clone_or_pull(
-                        config["polli_repo"]["url"], os.path.join(polli_path, "polli"), config["polli_repo"]["branch"])
-            clone_or_pull(OPENMP_URL, openmp_path)
+                    clone_or_pull(config["polli_repo"], os.path.join(polli_path, "polli"))
+            clone_or_pull(config["openmp_repo"], openmp_path)
 
         self.configure_llvm(llvm_path)
         self.configure_openmp(openmp_path)

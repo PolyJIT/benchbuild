@@ -1,85 +1,92 @@
 #!/usr/bin/env python
 
-import regex
+def fetch_cols(fstream, split_char = ','):
+    return fstream.readline().strip().split(split_char)
 
 
-def extract_region(line, region):
-    region_pattern = regex.compile('Region: (?P<name>[\w.:]+)')
-    m = region_pattern.search(line)
-    if m:
-        return m.group('name')
-    return region
+def read_struct(fstream):
+    from parse import parse
+    line = fstream.readline().strip()
+    p = parse("{struct},{info},{num_lines},,,", line)
+    struct = None
+    if p is not None and p["struct"] == "STRUCT":
+        num_lines = int(p["num_lines"])
+        struct = {}
+        for _ in range(num_lines):
+            cols = fetch_cols(fstream)
+            struct.update({cols[0]: cols[1:]})
+    return struct
 
 
-def extract_line_info(line):
-    line_pattern = regex.compile('(?P<name>[\w\(\)\[\].: ]+),(.+)')
-    res = line_pattern.search(line)
-    if res:
-        return res.group('name'), res.group(2).split(',')
-    return '', None
+def read_table(fstream):
+    from parse import parse
+    pos = fstream.tell()
+    line = fstream.readline().strip()
+    p = parse("{table},{group},{set},{num_lines},,,", line)
+    struct = None
+    if p is not None and p["table"] == "TABLE":
+        num_lines = int(p["num_lines"])
+        struct = {}
+        header = fetch_cols(fstream)
+
+        struct.update({header[0]: header[1:]})
+        for _ in range(num_lines):
+            cols = fetch_cols(fstream)
+            struct.update({cols[0]: cols[1:]})
+    else:
+        fstream.seek(pos)
+
+    return struct
 
 
-def extract_core_info(line):
-    core_info_pattern = regex.compile('(Event|Metric|Region Info),(.+)')
-    res = regex.search(core_info_pattern, line)
-    if res:
-        return res.group(2).split(',')
-    return None
+def read_structs(fstream):
+    struct = read_struct(fstream)
+    while struct is not None:
+        yield struct
+        struct = read_struct(fstream)
 
 
-def extract_run_info(infile):
-    run_info_separator = regex.compile(
-        '-------------------------------------------------------------')
-    header = []
-    found = 0
-    for line in infile:
-        if found == 3:
-            return header
+def read_tables(fstream):
+    table = read_table(fstream)
+    while table is not None:
+        yield table
+        table = read_table(fstream)
 
-        m = run_info_separator.search(line)
-        if m and found < 3:
-            found = found + 1
-        else:
-            header.append(line)
-
-    return header
-
-
-def find_first_region(infile):
-    region = ''
-    for line in infile:
-        ri = extract_region(line, region)
-        if ri != region:
-            return ri
-    return region
-
+def get_measurements(region, core_info, data):
+    measurements = []
+    for k in data:
+        if k not in ["1", "Region Info", "Event", "Metric"]:
+            clean_core_info = [x for x in core_info if x]
+            cores = len(clean_core_info)
+            slot = data[k]
+            offset = len(slot) - cores
+            if offset >= 0:
+                for i in range(cores):
+                    off_i = offset + i
+                    core = core_info[i]
+                    if core and slot[off_i]:
+                        measurements.append((region, k, core, slot[off_i]))
+    return measurements
 
 def get_likwid_perfctr(infile):
-    metrics = []
-    region = ''
-    core_info = []
-
+    measurements = []
     with open(infile, 'r') as in_file:
-        header = extract_run_info(in_file)
+        read_struct(in_file)
+        for region_struct in read_structs(in_file):
+            region = region_struct["1"][1]
+            core_info = region_struct["Region Info"]
+            measurements += get_measurements(region, core_info, region_struct)
 
-        # Let's hope the stdout of the application does not screw us.
-        region = find_first_region(in_file)
+            for table_struct in read_tables(in_file):
+                core_info = None
+                if "Event" in table_struct:
+                    core_info = table_struct["Event"][1:]
+                elif "Metric" in table_struct:
+                    core_info = table_struct["Metric"]
 
-        for line in in_file:
-            ri = extract_region(line, region)
-            if ri != region:
-                region = ri
-                continue
+                if core_info:
+                    measurements += get_measurements(region, core_info,
+                                                     table_struct)
+                # print pprint(table_struct)
 
-            ci = extract_core_info(line)
-            if ci:
-                core_info = ci
-                continue
-
-            name, li = extract_line_info(line)
-            if li:
-                for i in range(len(li)):
-                    element = (region, name, core_info[i], li[i])
-                    metrics.append(element)
-
-    return metrics
+    return measurements

@@ -70,7 +70,7 @@ class PolyJIT(RuntimeExperiment):
                     project_name = kwargs.get("project_name", p.name)
                     likwid_f = p.name + ".txt"
 
-                    for group in ["CLOCK", "DATA"]:
+                    for group in ["CLOCK"]:
                         likwid_path = path.join(config["likwiddir"], "bin")
                         likwid_perfctr = local[
                             path.join(likwid_path, "likwid-perfctr")]

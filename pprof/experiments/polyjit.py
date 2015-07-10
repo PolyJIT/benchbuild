@@ -101,24 +101,21 @@ class PolyJIT(RuntimeExperiment):
             1. with likwid disabled.
             2. with likwid enabled.
         """
-        llvm_libs = path.join(config["llvmdir"], "lib")
-        p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi", "-lgomp"]
+        p.ldflags = ["-lpjit", "-lgomp"]
 
         ld_lib_path = filter(None, config["ld_library_path"].split(":"))
         p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
-        p.cflags = [
+        p.cflags = ["-Rpass=\"polyjit*\"",
                     "-Xclang", "-load",
                     "-Xclang", "LLVMPolyJIT.so",
                     "-O3",
-                    "-mllvm", "-polly-detect-keep-going",
                     "-mllvm", "-jitable",
                     "-mllvm", "-polly-delinearize=false",
-                    "-mllvm", "-polli",
-                    "-I", path.join(config["llvmdir"], "include")
-                    ]
+                    "-mllvm", "-polly-detect-keep-going",
+                    "-mllvm", "-polli"]
         with local.env(PPROF_ENABLE=0):
-            #self.run_step_jit(p)
             self.run_step_likwid(p)
+            self.run_step_jit(p)
 
     def persist_run(self, project_name, group, cmd, measurements):
         """ Persist all likwid results. """

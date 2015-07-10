@@ -114,7 +114,6 @@ class PolyJIT(RuntimeExperiment):
                     "-mllvm", "-jitable",
                     "-mllvm", "-polly-delinearize=false",
                     "-mllvm", "-polli",
-                    "-fopenmp",
                     "-I", path.join(config["llvmdir"], "include")
                     ]
         with local.env(PPROF_ENABLE=0):

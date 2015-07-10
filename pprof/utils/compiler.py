@@ -87,10 +87,9 @@ def call_original_compiler(input_files, cc, cflags, ldflags, flags):
     try:
         if len(input_files) > 0:
             if "-c" in flags:
-                final_command = cc["-Qunused-arguments", cflags, flags]
+                final_command = cc["-Qunused-arguments", cflags, ldflags, flags]
             else:
-                final_command = cc["-Qunused-arguments", cflags, flags,
-                                   ldflags]
+                final_command = cc["-Qunused-arguments", cflags, ldflags, flags]
         else:
             final_command = cc["-Qunused-arguments", flags]
 
@@ -99,7 +98,9 @@ def call_original_compiler(input_files, cc, cflags, ldflags, flags):
             print stdout
         if len(stderr) > 0:
             print stderr
-    except ProcessExecutionError:
+    except ProcessExecutionError as e:
+        #FIXME: Write the fact that we had to fall back to the default
+        #compiler somewhere
         cc(flags)
     return (retcode, final_command)
 

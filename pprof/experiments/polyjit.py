@@ -102,7 +102,7 @@ class PolyJIT(RuntimeExperiment):
             2. with likwid enabled.
         """
         llvm_libs = path.join(config["llvmdir"], "lib")
-        p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+        p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi", "-lgomp"]
 
         ld_lib_path = filter(None, config["ld_library_path"].split(":"))
         p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags

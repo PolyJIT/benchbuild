@@ -118,7 +118,7 @@ likwid.total <- function(c, exp, aggr, metric) {
                              AND experiment_group = '%s'::uuid
                              AND experiment_name = 'polyjit' 
                              AND metric = '%s'
-                             AND region = 'main' 
+                             AND region = 'polyjit.main'
                              GROUP BY project_name 
                              ORDER BY project_name;"),
                        aggr, exp, metric), width=10000, simplify=TRUE)
@@ -135,9 +135,9 @@ likwid.overhead <- function(c, exp, aggr, metric) {
                              AND experiment_group = '%s'::uuid
                              AND experiment_name = 'polyjit' 
                              AND metric = '%s'
-                             AND (    region = 'JitSelectParams'
-                             OR region = 'CodeGenJIT'
-                             OR region = 'GetOrParsePrototype'
+                             AND (    region = 'polyjit.params.select'
+                             OR region = 'polyjit.codegen'
+                             OR region = 'polyjit.prototype.get'
                              )
                              GROUP BY project_name 
                              ORDER BY project_name;"),
@@ -155,10 +155,10 @@ likwid.runtime <- function(c, exp, aggr, metric) {
                                AND experiment_group = '%s'::uuid
                                AND experiment_name = 'polyjit' 
                                AND metric = '%s'
-                               AND NOT (    region = 'JitSelectParams'
-                               OR region = 'CodeGenJIT'
-                               OR region = 'GetOrParsePrototype'
-                               OR region = 'main'
+                               AND NOT (    region = 'polyjit.params.select'
+                               OR region = 'polyjit.codegen'
+                               OR region = 'polyjit.prototype.get'
+                               OR region = 'polyjit.main'
                                )
                                GROUP BY project_name 
                                ORDER BY project_name;"),

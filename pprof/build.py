@@ -63,7 +63,7 @@ def clone_or_pull(repo_dict, to_dir):
                 # Make sure we have a full history, not just depth 1
                 print("HEAD for repository {:s} is not at configured commit hash {:s}, fetching and checking out.".format(url, commit_hash))
                 git("fetch", "--unshallow")
-                git_checkout = git["checkout", commit_hash]
+                git_checkout = git("checkout", commit_hash)
 
 
 def configure_papi(cmake, root):

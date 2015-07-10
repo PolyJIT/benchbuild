@@ -170,8 +170,6 @@ run_f = "{runf}"
 args = sys.argv[1:]
 f = None
 if path.exists("{blobf}"):
-    with open("{blobf}", "rb") as p:
-        f = pickle.load(p)
     with local.env(PPROF_DB_HOST="{db_host}",
                PPROF_DB_PORT="{db_port}",
                PPROF_DB_NAME="{db_name}",
@@ -180,6 +178,8 @@ if path.exists("{blobf}"):
                PPROF_LIKWID_DIR="{likwiddir}",
                LD_LIBRARY_PATH="{ld_lib_path}",
                PPROF_CMD=run_f + " ".join(args)):
+        with open("{blobf}", "rb") as p:
+            f = pickle.load(p)
         if f is not None:
             if not sys.stdin.isatty():
                 f(run_f, args, has_stdin = True)
@@ -246,8 +246,6 @@ run_f = sys.argv[1]
 args = sys.argv[2:]
 project_name = path.basename(run_f)
 if path.exists("{blobf}"):
-    with open("{blobf}", "rb") as p:
-        f = pickle.load(p)
     with local.env(PPROF_DB_HOST="{db_host}",
                PPROF_DB_PORT="{db_port}",
                PPROF_DB_NAME="{db_name}",
@@ -257,6 +255,8 @@ if path.exists("{blobf}"):
                PPROF_LIKWID_DIR="{likwiddir}",
                LD_LIBRARY_PATH="{ld_lib_path}",
                PPROF_CMD=run_f):
+        with open("{blobf}", "rb") as p:
+            f = pickle.load(p)
         if f is not None:
             exp_name = getenv("PPROF_EXPERIMENT", "unknown")
             domain_name = getenv("PPROF_DOMAIN", "unknown")

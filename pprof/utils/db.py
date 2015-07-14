@@ -69,3 +69,33 @@ def persist_experiment(experiment):
 
     session.add(e)
     session.commit()
+
+
+def persist_likwid(run, session, measurements):
+    """ Persist all likwid results. """
+    from pprof.utils import schema as s
+
+    for (region, name, core, value) in measurements:
+        m = s.Likwid(metric=name, region=region, value=value, core=core,
+                     run_id=run.id)
+        session.add(m)
+
+
+def persist_time(run, session, timings):
+    """ Persist the run results in the database."""
+    from pprof.utils import schema as s
+
+    for timing in timings:
+        session.add(s.Metric(name="time.user_s", value=timing[0],
+                             run_id=run.id))
+        session.add(s.Metric(name="time.system_s", value=timing[1],
+                             run_id=run.id))
+        session.add(s.Metric(name="time.real_s", value=timing[2],
+                             run_id=run.id))
+
+
+def persist_compilestats(run, session, stats):
+    """ Persist the run results in the database."""
+    for stat in stats:
+        stat.run_id = run.id
+        session.add(stat)

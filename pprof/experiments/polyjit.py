@@ -21,8 +21,6 @@ class PolyJIT(RuntimeExperiment):
 
     def run_step_compilestats(self, p):
         """ Compile the project and track the compilestats. """
-        llvm_libs = path.join(config["llvmdir"], "lib")
-
         with step("Track Compilestats @ -O3"):
             p.clean()
             p.prepare()

@@ -101,7 +101,7 @@ def call_original_compiler(input_files, cc, cflags, ldflags, flags):
     except ProcessExecutionError as e:
         #FIXME: Write the fact that we had to fall back to the default
         #compiler somewhere
-        cc(flags)
+        retcode, _, _ = cc.run(flags)
     return (retcode, final_command)
 
 

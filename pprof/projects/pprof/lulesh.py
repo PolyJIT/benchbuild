@@ -38,8 +38,7 @@ class Lulesh(PprofGroup):
     def build(self):
         from pprof.utils.compiler import lt_clang_cxx
 
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
-
         with local.cwd(self.builddir):
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
             clang_cxx("-o", self.run_f, self.src_file)

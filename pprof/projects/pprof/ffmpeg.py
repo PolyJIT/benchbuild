@@ -57,6 +57,7 @@ class LibAV(PprofGroup):
             configure = local["./configure"]
             configure("--disable-shared",
                       "--cc=" + str(clang),
+                      "--extra-ldflags=" + " ".join(self.ldflags),
                       "--samples=" + self.fate_dir)
 
     def build(self):

@@ -7,10 +7,11 @@ def fetch_cols(fstream, split_char = ','):
 def read_struct(fstream):
     from parse import parse
     line = fstream.readline().strip()
-    p = parse("{struct},{info},{num_lines},,,", line)
+    line = line.replace(",", " ")
+    p = parse("{struct} {info} {num_lines}", line)
     struct = None
     if p is not None and p["struct"] == "STRUCT":
-        num_lines = int(p["num_lines"])
+        num_lines = int(p["num_lines"].strip())
         struct = {}
         for _ in range(num_lines):
             cols = fetch_cols(fstream)

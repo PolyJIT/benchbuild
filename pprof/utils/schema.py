@@ -151,4 +151,25 @@ class CompileStat(Base):
             """.format(self.name, self.component, self.value, self.run_id))
 
 
+class RunLog(Base):
+
+    """
+    Store log information for every run.
+
+    Properties like, start time, finish time, exit code, stderr, stdout
+    are stored here.
+    """
+
+    __tablename__ = 'log'
+
+    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
+                    ondelete="CASCADE"), primary_key=True,
+                    )
+    begin = Column(DateTime(timezone=False))
+    end = Column(DateTime(timezone=False))
+    status = Column(Integer)
+    config = Column(String)
+    stderr = Column(String)
+    stdout = Column(String)
+
 Base.metadata.create_all(Engine, checkfirst=True)

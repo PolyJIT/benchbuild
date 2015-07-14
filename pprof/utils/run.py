@@ -40,3 +40,81 @@ def fetch_time_output(marker, format_s, ins):
     timings = [x for x in ins if marker in x]
     res = [parse(format_s, t) for t in timings]
     return filter(None, res)
+
+
+def RunException(Exception):
+    """
+    PPROF Run exception.
+
+    Contains an exception that ocurred during execution of a pprof
+    experiment.
+    """
+    def __init__(self, what, run, session):
+        self.what = what
+
+        if isinstance(what, KeyboardInterrupt):
+            session.rollback()
+        # We caught an exception, so just end the current run.
+        fail(run, session, what.stdout, what.stderr)
+
+    def __str__(self):
+        return self.what.__str__()
+
+    def __repr__(self):
+        return self.what.__repr__()
+
+
+def begin(command, pname, ename, group):
+    """
+    Begin a run in the database log.
+
+    :command
+        The command that will be executed.
+    :pname
+        The project name we belong to.
+    :ename
+        The experiment name we belong to.
+    :group
+        The run group we belong to.
+    """
+    from pprof.utils.db import create_run
+    from pprof.utils import schema as s
+    from pprof.settings import config
+    from datetime import datetime
+
+    run, session = create_run(command, pname, ename, group)
+    log = s.RunLog()
+    log.run_id = run.id
+    log.begin = datetime.now()
+    log.config = str(config)
+
+    session.add(log)
+    session.commit()
+
+    return run, session
+
+
+def end(run, session, stdout, stderr):
+    """ End a run in the database log (Successfully). """
+    from pprof.utils.schema import RunLog
+    from datetime import datetime
+    log = session.query(RunLog).filter(RunLog.run_id == run.id).one()
+    log.stderr = stderr
+    log.stdout = stdout
+    log.status = 0
+    log.end = datetime.now()
+    session.add(log)
+    session.commit()
+
+
+def fail(run, session, retcode, stdout, stderr):
+    """ End a run in the database log (Unsuccessfully). """
+    from pprof.utils.schema import RunLog
+    from datetime import datetime
+    log = session.query(RunLog).filter(RunLog.run_id == run.id).one()
+    log.stderr = stderr
+    log.stdout = stdout
+    log.status = retcode
+    log.end = datetime.now()
+    session.add(log)
+    session.commit()

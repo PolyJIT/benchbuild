@@ -5,10 +5,17 @@ def fetch_cols(fstream, split_char = ','):
 
 
 def read_struct(fstream):
-    from parse import parse
     line = fstream.readline().strip()
-    line = line.replace(",", " ")
-    p = parse("{struct} {info} {num_lines}", line)
+    fragments = line.split(",")
+    fragments = [x for x in fragments if x is not None]
+    p = dict()
+    if not len(fragments) >= 3:
+        return None
+
+    p["struct"] = fragments[0]
+    p["info"] = fragments[1]
+    p["num_lines"] = fragments[2]
+
     struct = None
     if p is not None and p["struct"] == "STRUCT":
         num_lines = int(p["num_lines"].strip())
@@ -20,11 +27,19 @@ def read_struct(fstream):
 
 
 def read_table(fstream):
-    from parse import parse
     pos = fstream.tell()
     line = fstream.readline().strip()
-    line = line.replace(",", " ")
-    p = parse("{table} {group} {set} {num_lines}", line)
+    fragments = line.split(",")
+    fragments = [x for x in fragments if x is not None]
+    p = dict()
+    if not len(fragments) >= 4:
+        return None
+
+    p["table"] = fragments[0]
+    p["group"] = fragments[1]
+    p["set"] = fragments[2]
+    p["num_lines"] = fragments[3]
+
     struct = None
     if p is not None and p["table"] == "TABLE":
         num_lines = int(p["num_lines"].strip())

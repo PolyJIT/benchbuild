@@ -7,7 +7,9 @@ This experiment uses likwid to measure the performance of all binaries
 when running with polyjit support enabled.
 """
 from pprof.experiment import step, substep, RuntimeExperiment
+from pprof.experiment import compilestats
 from pprof.settings import config
+from pprof.utils.schema import CompileStat
 
 from plumbum import local
 from os import path
@@ -16,6 +18,35 @@ from os import path
 class PolyJIT(RuntimeExperiment):
 
     """The polyjit experiment."""
+
+    def run_step_compilestats(self, p):
+        """ Compile the project and track the compilestats. """
+        llvm_libs = path.join(config["llvmdir"], "lib")
+
+        with step("Track Compilestats @ -O3"):
+            with substep("Configure Project"):
+                p.download()
+
+                def track_compilestats(cc, **kwargs):
+                    from pprof.utils.run import handle_stdin
+                    new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
+
+                    retcode, stdout, stderr = new_cc.run()
+                    if retcode == 0:
+                        stats = []
+                        for stat in compilestats.get_compilestats(stderr):
+                            c = CompileStat()
+                            c.name = stat["desc"].rstrip()
+                            c.component = stat["component"].rstrip()
+                            c.value = stat["value"]
+                            stats.append(c)
+                        self.persist_run(str(new_cc), p.name, p.run_uuid,
+                                         stats)
+
+                p.compiler_extension = track_compilestats
+                p.configure()
+            with substep("Build Project"):
+                p.build()
 
     def run_step_jit(self, p):
         """Run the experiment without likwid."""
@@ -116,6 +147,7 @@ class PolyJIT(RuntimeExperiment):
         with local.env(PPROF_ENABLE=0):
             self.run_step_likwid(p)
             self.run_step_jit(p)
+            self.run_step_compilestats(p)
 
     def persist_run(self, project_name, group, cmd, measurements):
         """ Persist all likwid results. """

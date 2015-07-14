@@ -28,6 +28,7 @@ class PolyJIT(RuntimeExperiment):
                 p.download()
 
                 def track_compilestats(cc, **kwargs):
+                    from pprof.utils.db import persist_compilestats
                     from pprof.utils.run import handle_stdin
                     new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
 
@@ -40,8 +41,7 @@ class PolyJIT(RuntimeExperiment):
                             c.component = stat["component"].rstrip()
                             c.value = stat["value"]
                             stats.append(c)
-                        self.persist_run(str(new_cc), p.name, p.run_uuid,
-                                         stats)
+                        persist_compilestats(run, session, stats)
 
                 p.compiler_extension = track_compilestats
                 p.configure()
@@ -57,6 +57,7 @@ class PolyJIT(RuntimeExperiment):
                 p.build()
             with substep("Execute {}".format(p.name)):
                 def run_with_time(run_f, args, **kwargs):
+                    from pprof.utils.db import persist_time
                     from plumbum.cmd import time
                     from pprof.utils.run import fetch_time_output, handle_stdin
 
@@ -73,10 +74,7 @@ class PolyJIT(RuntimeExperiment):
                     if len(timings) == 0:
                         return
 
-                    super(PolyJIT, self).persist_run(str(run_cmd),
-                                                     project_name,
-                                                     p.run_uuid,
-                                                     timings)
+                    persist_time(run, session, timings)
                 p.run(run_with_time)
 
     def run_step_likwid(self, p):
@@ -94,7 +92,7 @@ class PolyJIT(RuntimeExperiment):
                 from pprof.settings import config
 
                 def run_with_likwid(run_f, args, **kwargs):
-                    from pprof.utils.run import handle_stdin
+                    from pprof.utils.db import persist_likwid
                     from pprof.likwid import get_likwid_perfctr
                     from plumbum.cmd import rm
 
@@ -118,9 +116,7 @@ class PolyJIT(RuntimeExperiment):
                             """ Use the project_name from the binary, because we
                                 might encounter dynamically generated projects.
                             """
-                            self.persist_run(
-                                project_name, p.run_uuid, str(run_cmd),
-                                likwid_measurement)
+                            persist_likwid(run, session, likwid_measurement)
                             rm("-f", likwid_f)
                 p.run(run_with_likwid)
 
@@ -148,15 +144,3 @@ class PolyJIT(RuntimeExperiment):
             self.run_step_likwid(p)
             self.run_step_jit(p)
             self.run_step_compilestats(p)
-
-    def persist_run(self, project_name, group, cmd, measurements):
-        """ Persist all likwid results. """
-        from pprof.utils import schema as s
-        from pprof.utils.db import create_run
-
-        run, session = create_run(str(cmd), project_name, self.name, group)
-        for (region, name, core, value) in measurements:
-            m = s.Likwid(metric=name, region=region, value=value, core=core,
-                         run_id=run.id)
-            session.add(m)
-        session.commit()

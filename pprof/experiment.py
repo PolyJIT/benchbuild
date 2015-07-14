@@ -382,20 +382,3 @@ class RuntimeExperiment(Experiment):
                          run_id=run.id)
             session.add(m)
             session.commit()
-
-    def persist_run(self, cmd, project_name, run_uuid, timings):
-        """ Persist the run results in the database."""
-        from pprof.utils import schema as s
-        from pprof.utils.db import create_run
-
-        run, session = create_run(cmd, project_name, self.name, run_uuid)
-
-        for timing in timings:
-            session.add(s.Metric(name="time.user_s", value=timing[0],
-                                 run_id=run.id))
-            session.add(s.Metric(name="time.system_s", value=timing[1],
-                                 run_id=run.id))
-            session.add(s.Metric(name="time.real_s", value=timing[2],
-                                 run_id=run.id))
-
-        session.commit()

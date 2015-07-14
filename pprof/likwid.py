@@ -23,10 +23,11 @@ def read_table(fstream):
     from parse import parse
     pos = fstream.tell()
     line = fstream.readline().strip()
-    p = parse("{table},{group},{set},{num_lines},,,", line)
+    line = line.replace(",", " ")
+    p = parse("{table} {group} {set} {num_lines}", line)
     struct = None
     if p is not None and p["table"] == "TABLE":
-        num_lines = int(p["num_lines"])
+        num_lines = int(p["num_lines"].strip())
         struct = {}
         header = fetch_cols(fstream)
 

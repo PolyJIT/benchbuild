@@ -24,8 +24,10 @@ class PolyJIT(RuntimeExperiment):
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("Track Compilestats @ -O3"):
+            p.clean()
+            p.prepare()
+            p.download()
             with substep("Configure Project"):
-                p.download()
 
                 def track_compilestats(cc, **kwargs):
                     from pprof.utils.db import persist_compilestats
@@ -51,6 +53,8 @@ class PolyJIT(RuntimeExperiment):
     def run_step_jit(self, p):
         """Run the experiment without likwid."""
         with step("JIT, no instrumentation"):
+            p.clean()
+            p.prepare()
             p.download()
             with substep("Build"):
                 p.configure()

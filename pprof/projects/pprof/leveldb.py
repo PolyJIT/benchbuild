@@ -9,6 +9,8 @@ from plumbum import FG, local
 
 class LevelDB(PprofGroup):
 
+    src_uri = "https://github.com/google/leveldb"
+
     class Factory:
 
         def create(self, exp):
@@ -16,13 +18,12 @@ class LevelDB(PprofGroup):
     ProjectFactory.addFactory("LevelDB", Factory())
 
     def download(self):
-        src_uri = "https://github.com/google/leveldb"
 
         from pprof.utils.downloader import Git
         from plumbum.cmd import git
 
         with local.cwd(self.builddir):
-            Git(src_uri, "leveldb.src")
+            Git(self.src_uri, "leveldb.src")
 
     def configure(self):
         pass

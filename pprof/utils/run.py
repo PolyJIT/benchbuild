@@ -2,7 +2,6 @@
 Experiment helpers
 """
 
-
 def handle_stdin(cmd, kwargs):
     """
     Handle stdin for wrapped runtime executors.
@@ -23,7 +22,7 @@ def handle_stdin(cmd, kwargs):
 
 def fetch_time_output(marker, format_s, ins):
     """
-    Fetch the output /usr/bin/time from a
+    Fetch the output /usr/bin/time from a.
 
     :marker:
         The marker that limits the time output

@@ -6,8 +6,8 @@ The 'polyjit' experiment.
 This experiment uses likwid to measure the performance of all binaries
 when running with polyjit support enabled.
 """
+from pprof.experiments.compilestats import get_compilestats
 from pprof.experiment import step, substep, RuntimeExperiment
-from pprof.experiment import compilestats
 from pprof.settings import config
 from pprof.utils.schema import CompileStat
 
@@ -37,7 +37,7 @@ class PolyJIT(RuntimeExperiment):
                     retcode, stdout, stderr = new_cc.run()
                     if retcode == 0:
                         stats = []
-                        for stat in compilestats.get_compilestats(stderr):
+                        for stat in get_compilestats(stderr):
                             c = CompileStat()
                             c.name = stat["desc"].rstrip()
                             c.component = stat["component"].rstrip()

@@ -67,7 +67,7 @@ class SingleSourceBenchmarks(LNTGroup):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                      self.compiler_extension)
 
-        lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
+        lnt("runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
             "--cc", str(clang),
             "--cxx", str(clang_cxx),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),
@@ -98,7 +98,7 @@ class MultiSourceBenchmarks(LNTGroup):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                      self.compiler_extension)
 
-        lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
+        lnt("runtest", "nt", "-v" "-j1", "--sandbox", sandbox_dir,
             "--cc", str(clang),
             "--cxx", str(clang_cxx),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),
@@ -129,7 +129,7 @@ class MultiSourceApplications(LNTGroup):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                      self.compiler_extension)
 
-        lnt("runtest", "nt", "-j1", "--sandbox", sandbox_dir,
+        lnt("runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
             "--cc", str(clang),
             "--cxx", str(clang_cxx),
             "--test-suite", path.join(self.builddir, self.test_suite_dir),

@@ -109,13 +109,14 @@ input_files = [ x for x in argv[1:] if not '-' is x[0] ]
 flags = argv[1:]
 f = None
 
+retcode, final_cc = call_original_compiler(input_files, cc, cflags, ldflags,
+                                           flags)
+
 with local.env(PPROF_DB_HOST="{db_host}",
            PPROF_DB_PORT="{db_port}",
            PPROF_DB_NAME="{db_name}",
            PPROF_DB_USER="{db_user}",
            PPROF_DB_PASS="{db_pass}"):
-    retcode, final_cc = call_original_compiler(input_files, cc, cflags,
-                                               ldflags, flags)
     """ FIXME: This is just a quick workaround. """
     if "conftest.c" not in input_files:
         with local.env(PPROF_CMD=str(final_cc)):

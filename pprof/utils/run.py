@@ -63,6 +63,21 @@ def RunException(Exception):
         return self.what.__repr__()
 
 
+def guarded_exec(cmd):
+    """
+    Guard the execution of the given command.
+
+    :cmd
+    """
+    from plumbum.commands import ProcessExecutionError
+
+    try:
+        retcode, stdout, stderr = cmd.run()
+    except ProcessExecutionError as e:
+        raise RunException(e, e.retcode, e.stdout, e.stderr)
+    return (retcode, stdout, stderr)
+
+
 def begin(command, pname, ename, group):
     """
     Begin a run in the database log.

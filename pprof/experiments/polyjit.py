@@ -30,14 +30,11 @@ class PolyJIT(RuntimeExperiment):
                     from pprof.utils import run as r
                     from pprof.utils.db import persist_compilestats
                     from pprof.utils.run import handle_stdin
-                    from plumbum.commands import ProcessExecutionError
+
                     new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
 
                     run, session = r.begin(new_cc, p.name, self.name, p.run_uuid)
-                    try:
-                        retcode, stdout, stderr = new_cc.run()
-                    except ProcessExecutionError as e:
-                        raise r.RunException(e, retcode, stdout, stderr)
+                    retcode, stdout, stderr = r.guarded_exec(new_cc)
 
                     if retcode == 0:
                         stats = []
@@ -70,7 +67,6 @@ class PolyJIT(RuntimeExperiment):
                     from pprof.utils import run as r
                     from pprof.utils.db import persist_time
                     from plumbum.cmd import time
-                    from plumbum.commands import ProcessExecutionError
 
                     project_name = kwargs.get("project_name", p.name)
                     timing_tag = "PPROF-JIT: "
@@ -80,11 +76,8 @@ class PolyJIT(RuntimeExperiment):
 
                     run, session = r.begin(str(run_cmd), project_name,
                                            self.name, p.run_uuid)
-                    try:
-                        retcode, stdout, stderr = run_cmd.run()
-                    except ProcessExecutionError as e:
-                        raise r.RunException(e, retcode, stdout, stderr)
 
+                    retcode, stdout, stderr = r.guarded_exec(run_cmd)
                     timings = r.fetch_time_output(timing_tag,
                                                   timing_tag + "{:g}-{:g}-{:g}",
                                                   stderr.split("\n"))
@@ -132,10 +125,8 @@ class PolyJIT(RuntimeExperiment):
                             run_cmd = r.handle_stdin(run_cmd[args], kwargs)
                             run, session = r.begin(run_cmd, project_name,
                                                    self.name, p.run_uuid)
-                            try:
-                                retcode, stdout, stderr = run_cmd.run()
-                            except ProcessExecutionError as e:
-                                raise r.RunException(e, run, session)
+
+                            retcode, stdout, stderr = r.guarded_exec(run_cmd)
 
                             likwid_measurement = get_likwid_perfctr(likwid_f)
                             """ Use the project_name from the binary, because we

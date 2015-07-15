@@ -168,3 +168,15 @@ likwid.runtime <- function(c, exp, aggr, metric) {
     dbClearResult(qr)
     return(res)
 }
+
+runlog <- function(c, exp) {
+  q <- strwrap(sprintf(paste("SELECT project_name as project, command, begin, 'end', status, stdout, stderr
+                              FROM run, log
+                              WHERE run.id = log.run_id
+                              AND experiment_group = '%s'::uuid;"), exp),
+               width=10000, simplify=TRUE)
+  qr <- dbSendQuery(c, q)
+  res <- dbFetch(qr)
+  dbClearResult(qr)
+  return(res)
+}

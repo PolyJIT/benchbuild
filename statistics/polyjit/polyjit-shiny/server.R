@@ -3,6 +3,7 @@ library(reshape)
 library(ggplot2)
 library(RPostgres)
 library(polyjit)
+if (!require("DT")) install.packages('DT')
 
 source("./shiny-data.R")
 
@@ -10,7 +11,7 @@ con <- dbConnect(RPostgres::Postgres(),
                  dbname="pprof",
                  user="pprof",
                  host="debussy.fim.uni-passau.de",
-                 port=32769,
+                 port=32768,
                  password="pprof")
 
 options(repr.plot.family = 'mono', repr.plot.width = 8, repr.plot.height = 6, warn = -1)
@@ -163,5 +164,8 @@ shinyServer(function(input, output, session) {
                                              input$polyjitMetrics,
                                              input$polyjitAggregation,
                                              experiments())
+
+  # Log table.
+  output$polyjitLog <- DT::renderDataTable({ runlog(con, input$polyjitExperiments) })
   })
 })

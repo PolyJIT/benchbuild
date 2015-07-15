@@ -1,58 +1,60 @@
 library(shiny)
 
-shinyUI(navbarPage("PolyJIT Experiments",
-  tabPanel("Raw Timings",
-    p("Simple timing plots that have been generated using Raw-like experiments."),
-    tabsetPanel("Plots",
-      tabPanel("Single Plots",
-        sidebarPanel(
-         selectInput("rawExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
+shinyUI(
+navbarPage(
+  "PolyJIT Experiments", theme="css/bootstrap.css",
+  
+  # Raw Experiment
+  tabPanel(
+    "Raw",
+    sidebarPanel(
+      selectInput("rawExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
+    ),
+    mainPanel(
+      p("Simple timing plots that have been generated using Raw-like experiments."),
+      tabsetPanel(
+        "Visualisation Type",
+        tabPanel(
+          "Table",
+          dataTableOutput("timingTable")
         ),
-        mainPanel(
-          tabsetPanel("Visualisation Type",
-            tabPanel("Table",
-                    dataTableOutput("timingTable")
-            ),
-            tabPanel("Plot",
-                    plotOutput("timing", width = "100%", height = "700px")
-            )
-          )
+        tabPanel(
+          "Plot",
+          plotOutput("timing", width = "100%", height = "700px")
+        ),
+        tabPanel(
+          "Logs",
+          wellPanel(p("Not implemented yet."))
         )
-      ),
-      tabPanel("Diffs",
-               wellPanel(p("Not implemented yet."))
       )
     )
   ),
-  tabPanel("Dynamic SCoP coverage",
-    p("Dynamic SCoP coverage grouped/sorted by domain, depending on the plot type."),
-    p(withMathJax(strwrap(
-      "Let \\(t_{SCoPs}\\) denote the time spent inside SCoPs and \\(t_{Total}\\)
-       denote the total runtime of a program \\(P\\), dynamic SCoP coverage is
-       then defined as: $$DynCov_{P} = \\frac{t_{SCoPs}}{t_{t_{Total}}}$$"))),
-    tabsetPanel("DynCov",
-      tabPanel("Single Plots",
-        sidebarPanel(
-          selectInput("papiExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
-        ),
-        mainPanel(
-          tabsetPanel("Visualisation Type",
-            tabPanel("Table", dataTableOutput("papiTable")),
-            tabPanel("Default", plotOutput("papi", width = "100%", height = "700px")),
-            tabPanel("Boxplot", plotOutput("papiBoxplot", width = "100%", height = "700px"))
-          )
-        )
-      ),
-      tabPanel("Diffs",
-               wellPanel(p("Not implemented yet."))
+  
+  # DynCov Experiment
+  tabPanel(
+    "DynCov",
+    sidebarPanel(
+      selectInput("papiExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'), width = 3
+    ),
+    mainPanel(
+      p("Dynamic SCoP coverage grouped/sorted by domain, depending on the plot type."),
+      p(withMathJax(strwrap(
+        "Let \\(t_{SCoPs}\\) denote the time spent inside SCoPs and \\(t_{Total}\\)
+         denote the total runtime of a program \\(P\\), dynamic SCoP coverage is
+         then defined as: $$DynCov_{P} = \\frac{t_{SCoPs}}{t_{t_{Total}}}$$"))),
+      tabsetPanel(
+        "Visualisation Type",
+        tabPanel("Table", dataTableOutput("papiTable")),
+        tabPanel("Default", plotOutput("papi", width = "100%", height = "700px")),
+        tabPanel("Boxplot", plotOutput("papiBoxplot", width = "100%", height = "700px")),
+        tabPanel("Logs", wellPanel(p("Not implemented yet.")))
       )
     )
   ),
-  tabPanel("Likwid",
-    p(withMathJax(strwrap(
-      "Likwid measurements have to generated/submitted via the pprof helper
-      functions. Nothing special is done with the measurements itself, we're
-      just dumping them."))),
+  
+  # Likwid Experiment
+  tabPanel(
+    "Likwid",
     sidebarLayout(
       sidebarPanel(
         selectInput("polyjitExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'),
@@ -62,12 +64,22 @@ shinyUI(navbarPage("PolyJIT Experiments",
         width = 3
       ),
       mainPanel(
-        plotOutput("polyjit", width = "100%", height = "700px")
-      ))
-  ),
-  tabPanel("Settings",
-     p(withMathJax(strwrap(
-       "Small & Easy interface to delete bogus experiments."))),
-     wellPanel(p("Not implemented yet"))
+        p(withMathJax(strwrap(
+          "Likwid measurements have to generated/submitted via the pprof helper
+             functions. Nothing special is done with the measurements itself, we're
+             just dumping them."))),
+        tabsetPanel(
+          "Items",
+          tabPanel(
+            "Plots",
+            plotOutput("polyjit", width = "100%", height = "700px")
+          ),
+          tabPanel(
+            "Log",
+            mainPanel(dataTableOutput("polyjitLog"))
+          )
+        )
+      )
+    )
   )
 ))

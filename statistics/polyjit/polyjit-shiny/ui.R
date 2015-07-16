@@ -2,7 +2,7 @@ library(shiny)
 
 shinyUI(
 navbarPage(
-  "PolyJIT Experiments", theme="css/bootstrap.css",
+  "PolyJIT Experiments", theme="css/bootstrap.min.css",
   
   # Raw Experiment
   tabPanel(

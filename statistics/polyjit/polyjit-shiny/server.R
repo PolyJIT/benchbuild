@@ -1,7 +1,7 @@
 library(shiny)
 library(reshape)
 library(ggplot2)
-library(RPostgres)
+if (!require("RPostgres")) install.packages("RPostgres")
 library(polyjit)
 if (!require("DT")) install.packages('DT')
 
@@ -166,6 +166,30 @@ shinyServer(function(input, output, session) {
                                              experiments())
 
   # Log table.
-  output$polyjitLog <- DT::renderDataTable({ runlog(con, input$polyjitExperiments) })
+  output$polyjitLog <- DT::renderDataTable({ runlog(con, input$polyjitExperiments) },
+                                           options = list(
+                                             pageLength = 50,
+                                             rownames = FALSE,
+                                             columnDefs = list(
+                                               list(targets = 1, render = JS(
+                                                 "function(data, type, row, meta) {",
+                                                 "  if (type === 'display') {",
+                                                 "    if (data === '0') {",
+                                                 "      return '<span class=\"label label-success\" title=\"' + data + '\">OK</span>';",
+                                                 "    }",
+                                                 "    return '<span class=\"label label-danger\" title=\"' + data + '\">Failed</span>';",
+                                                 "  } else {",
+                                                 "    return data;",
+                                                 "  }",
+                                                 "}")
+                                               ),
+                                               list(targets = 6, render = JS(
+                                                 "function(data, type, row, meta) {",
+                                                 "return type === 'display' && data.length > 80 ?",
+                                                 "'<span title=\"' + data + '\">' + data.substr(0, 80) + '...</span>' : data;",
+                                                 "}")
+                                               )
+                                             ))
+                                          )
   })
 })

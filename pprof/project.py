@@ -134,7 +134,7 @@ class Project(object):
         self._compiler_extension = func
 
     @property
-    def run_uuid(self, create_new=False):
+    def run_uuid(self):
         """
         Get the UUID that groups all tests for one project run.
 
@@ -143,12 +143,25 @@ class Project(object):
         """
         from os import getenv
         from uuid import uuid4
+
         try:
             if self._run_uuid is None:
                 self._run_uuid = getenv("PPROF_DB_RUN_GROUP", uuid4())
         except AttributeError:
             self._run_uuid = getenv("PPROF_DB_RUN_GROUP", uuid4())
         return self._run_uuid
+
+    @run_uuid.setter
+    def run_uuid(self, value):
+        """
+        Set a new UUID for this project.
+
+        Args:
+            value: The new value to set.
+        """
+        from uuid import UUID
+        if isinstance(value, UUID):
+            self._run_uuid = value
 
     def prepare(self):
         """ Prepare the build diretory. """

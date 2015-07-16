@@ -1,19 +1,54 @@
 pprof.utils package
 ===================
 
-.. automodule:: pprof.utils
+Submodules
+----------
+
+pprof.utils.compiler module
+---------------------------
+
+.. automodule:: pprof.utils.compiler
     :members:
     :undoc-members:
     :show-inheritance:
 
-Submodules
-----------
+pprof.utils.db module
+---------------------
 
-.. toctree::
+.. automodule:: pprof.utils.db
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-   pprof.utils.compiler
-   pprof.utils.db
-   pprof.utils.downloader
-   pprof.utils.run
-   pprof.utils.schema
+pprof.utils.downloader module
+-----------------------------
 
+.. automodule:: pprof.utils.downloader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pprof.utils.run module
+----------------------
+
+.. automodule:: pprof.utils.run
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pprof.utils.schema module
+-------------------------
+
+.. automodule:: pprof.utils.schema
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: pprof.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:

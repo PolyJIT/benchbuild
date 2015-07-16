@@ -169,7 +169,11 @@ likwid.runtime <- function(c, exp, aggr, metric) {
 }
 
 runlog <- function(c, exp) {
-  q <- strwrap(sprintf(paste("SELECT status as \"Exit Code\", project_name as \"Project\", experiment_name as \"Experiment\", \"begin\" as \"von\", \"end\" as \"bis\", command as \"Command\" FROM run_log
+  dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_log WITH DATA;")
+  q <- strwrap(sprintf(paste("SELECT status as s, project_name as p,
+                                     experiment_name as e,
+                                     (\"end\" - \"begin\") as d,
+                                     command as c FROM run_log
                               WHERE experiment_group = '%s'::uuid;"), exp),
                width=10000, simplify=TRUE)
   qr <- dbSendQuery(c, q)

@@ -108,6 +108,7 @@ class PolyJIT(RuntimeExperiment):
                     from pprof.utils.db import persist_likwid
                     from pprof.likwid import get_likwid_perfctr
                     from plumbum.cmd import rm
+                    from uuid import uuid4
 
                     project_name = kwargs.get("project_name", p.name)
                     likwid_f = p.name + ".txt"
@@ -135,6 +136,7 @@ class PolyJIT(RuntimeExperiment):
                             persist_likwid(run, session, likwid_measurement)
                             r.end(run, session, stdout, stderr)
                             rm("-f", likwid_f)
+                            p.run_uuid = uuid4()
                 p.run(run_with_likwid)
 
     def run_project(self, p):

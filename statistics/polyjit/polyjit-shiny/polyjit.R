@@ -168,13 +168,48 @@ likwid.runtime <- function(c, exp, aggr, metric) {
     return(res)
 }
 
+compilestats <- function(c, exp, name, component) {
+  q <- strwrap(sprintf(paste("
+    SELECT project_name, experiment_name, name, SUM(value)
+    FROM run, compilestats
+    WHERE run.id = compilestats.run_id AND
+          experiment_group = '%s'::uuid AND
+          component = '%s' AND
+          name = '%s'
+    GROUP BY project_name, experiment_name, name;"), exp, component, name),
+               width = 10000, simplify = TRUE)
+  qr <- dbSendQuery(c, q)
+  res <- dbFetch(qr)
+  dbClearResult(qr)
+  return(res)
+}
+
+compilestats.names <- function(c, component) {
+  if (is.null(component) || length(component) == 0)
+    return (c("No data..."))
+
+  q <- strwrap(sprintf(paste("SELECT DISTINCT(name) FROM compilestats WHERE component = '%s';"), component), width=10000, simplify=TRUE)
+  qr <- dbSendQuery(c, q)
+  res <- melt(dbFetch(qr))
+  dbClearResult(qr)
+  return(res)
+}
+
+compilestats.components <- function(c) {
+  q <- strwrap(paste("SELECT DISTINCT(component) FROM compilestats;"), width=10000, simplify=TRUE)
+  qr <- dbSendQuery(c, q)
+  res <- melt(dbFetch(qr))
+  dbClearResult(qr)
+  return(res)
+}
+
 runlog <- function(c, exp) {
   dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_log WITH DATA;")
   q <- strwrap(sprintf(paste("SELECT status, project_name as project,
                                      experiment_name as experiment,
                                      (\"end\" - \"begin\") as duration,
                                      command FROM run_log
-                              WHERE experiment_group = '%s'::uuid;"), exp),
+                              WHERE experiment_group = '%s'::uuid ORDER BY status, project ASC;"), exp),
                width=10000, simplify=TRUE)
   qr <- dbSendQuery(c, q)
   res <- dbFetch(qr)

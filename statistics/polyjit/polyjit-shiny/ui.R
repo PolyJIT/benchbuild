@@ -71,6 +71,10 @@ navbarPage(
         tabsetPanel(
           "Items",
           tabPanel(
+            "Table",
+            dataTableOutput("polyjitTable")
+          ),
+          tabPanel(
             "Plots",
             plotOutput("polyjit", width = "100%", height = "700px")
           ),

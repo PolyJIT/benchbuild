@@ -14,3 +14,14 @@ papiPlotData <- function(id, con) {
   cov.dom <- subset(cov.dom, value > 0)
   return(cov.dom)
 }
+polyjitData <- function(id, metric, aggregation, exps, con) {
+  exp.name <- exps[exps$experiment_group == id, "experiment_name"]
+  exp.date <- exps[exps$experiment_group == id, "completed"]
+
+  lw.total <- likwid.total(con, id, aggregation, metric)
+  #lw.runtime <- likwid.runtime(con, id, aggregation, metric)
+  lw.overhead <- likwid.overhead(con, id, aggregation, metric)
+
+  lw <- lw.overhead
+  return(lw)
+}

@@ -18,11 +18,14 @@ papiPlotData <- function(id, con) {
 }
 
 getSelections <- function(name, exps) {
-  exps.filtered <- exps[exps$experiment_name == name, ]
-  newNames <- paste0(exps.filtered[,"experiment_name"],
-                     rep(" @ ", nrow(exps.filtered)),
-                     exps.filtered[,"completed"])
-  groups <- exps.filtered[, "experiment_group"]
+  if (!is.null(name)) {
+    exps <- exps[exps$experiment_name == name, ]
+  }
+
+  newNames <- paste0(exps[,"experiment_name"],
+                     rep(" @ ", nrow(exps)),
+                     exps[,"completed"])
+  groups <- exps[, "experiment_group"]
   names(groups) <- newNames
   return(groups)
 }
@@ -130,3 +133,8 @@ polyjitPlot <- function(id, metric, aggregation, exps, con) {
   p <- p + mytheme
   return(p)
 }
+
+compilestatsData <- function(id, name, component, con) {
+  return(compilestats(con, id, name, component))
+}
+

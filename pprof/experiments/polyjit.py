@@ -33,7 +33,8 @@ class PolyJIT(RuntimeExperiment):
 
                     new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
 
-                    run, session = r.begin(new_cc, p.name, self.name, p.run_uuid)
+                    run, session = r.begin(new_cc, p.name, self.name,
+                                           p.run_uuid)
                     retcode, stdout, stderr = r.guarded_exec(new_cc)
 
                     if retcode == 0:
@@ -78,9 +79,9 @@ class PolyJIT(RuntimeExperiment):
                                            self.name, p.run_uuid)
 
                     retcode, stdout, stderr = r.guarded_exec(run_cmd)
-                    timings = r.fetch_time_output(timing_tag,
-                                                  timing_tag + "{:g}-{:g}-{:g}",
-                                                  stderr.split("\n"))
+                    timings = r.fetch_time_output(
+                        timing_tag, timing_tag + "{:g}-{:g}-{:g}",
+                        stderr.split("\n"))
                     if len(timings) == 0:
                         return
 
@@ -106,7 +107,6 @@ class PolyJIT(RuntimeExperiment):
                     from pprof.utils import run as r
                     from pprof.utils.db import persist_likwid
                     from pprof.likwid import get_likwid_perfctr
-                    from plumbum.commands import ProcessExecutionError
                     from plumbum.cmd import rm
 
                     project_name = kwargs.get("project_name", p.name)

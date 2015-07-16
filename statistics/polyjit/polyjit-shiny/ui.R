@@ -76,7 +76,7 @@ navbarPage(
           ),
           tabPanel(
             "Log",
-            mainPanel(dataTableOutput("polyjitLog"))
+            dataTableOutput("polyjitLog")
           )
         )
       )

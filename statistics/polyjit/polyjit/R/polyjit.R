@@ -1,10 +1,9 @@
 library(ggplot2)
 library(DBI)
 library(RPostgres)
-library(reshape)
+library(reshape2)
 library(ggthemes)
 library(scales)
-library(repr)
 library(sm)
 library(vioplot)
 
@@ -170,10 +169,8 @@ likwid.runtime <- function(c, exp, aggr, metric) {
 }
 
 runlog <- function(c, exp) {
-  q <- strwrap(sprintf(paste("SELECT project_name as project, command, begin, 'end', status, stdout, stderr
-                              FROM run, log
-                              WHERE run.id = log.run_id
-                              AND experiment_group = '%s'::uuid;"), exp),
+  q <- strwrap(sprintf(paste("SELECT status as \"Exit Code\", project_name as \"Project\", experiment_name as \"Experiment\", \"begin\" as \"von\", \"end\" as \"bis\", command as \"Command\" FROM run_log
+                              WHERE experiment_group = '%s'::uuid;"), exp),
                width=10000, simplify=TRUE)
   qr <- dbSendQuery(c, q)
   res <- dbFetch(qr)

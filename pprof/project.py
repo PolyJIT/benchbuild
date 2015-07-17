@@ -81,8 +81,9 @@ class Project(object):
         Args:
             experiment: The experiment we run this project under
         """
+        from plumbum import FG
         exp = wrap(self.run_f, experiment)
-        exp()
+        exp & FG
 
     def run(self, experiment):
         """

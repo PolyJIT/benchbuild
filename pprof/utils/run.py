@@ -42,12 +42,14 @@ def fetch_time_output(marker, format_s, ins):
 
 
 class GuardedRunException(Exception):
+
     """
     PPROF Run exception.
 
     Contains an exception that ocurred during execution of a pprof
     experiment.
     """
+
     def __init__(self, what, run, session):
         """
         Exception raised when a binary failed to execute properly.

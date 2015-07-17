@@ -42,10 +42,10 @@ log.tableOptions <- list(
     list(targets = 1, render = JS(
       "function(data, type, row, meta) {",
       "  if (type === 'display') {",
-      "    if (data === '0') {",
-      "      return '<span class=\"label label-success\" title=\"' + data + '\">' + data + '</span>';",
+      "    if (data == 0) {",
+      "      return '<span class=\"label label-success\" title=\"' + data + '\">OK (' + data + ')</span>';",
       "    }",
-      "    return '<span class=\"label label-danger\" title=\"' + data + '\">'+ data + '</span>';",
+      "    return '<span class=\"label label-danger\" title=\"' + data + '\">Failed ('+ data + ')</span>';",
       "  } else {",
       "    return data;",
       "  }",

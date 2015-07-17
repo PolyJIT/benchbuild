@@ -34,7 +34,7 @@ from plumbum.cmd import mkdir, rmdir
 from plumbum.commands.processes import ProcessExecutionError
 
 from pprof.project import ProjectFactory
-from pprof.utils.run import RunException
+from pprof.utils.run import GuardedRunException
 from pprof.settings import config
 from pprof.projects import *
 
@@ -136,7 +136,7 @@ def phase(name, pname="FIXME: Unset"):
     try:
         yield
         nl(o).write(main_msg + " OK")
-    except (OSError, ProcessExecutionError, RunException) as e:
+    except (OSError, ProcessExecutionError, GuardedRunException) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
@@ -167,7 +167,7 @@ def step(name):
         nl(o).write(main_msg + " START")
         yield
         nl(o).write(main_msg + " OK")
-    except (OSError, ProcessExecutionError, RunException) as e:
+    except (OSError, ProcessExecutionError, GuardedRunException) as e:
         try:
             o.write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
@@ -197,9 +197,9 @@ def substep(name):
     try:
         yield
         nl(o).write(main_msg + " OK")
-    except (OSError, ProcessExecutionError, RunException) as e:
+    except (OSError, ProcessExecutionError, GuardedRunException) as e:
         try:
-            o.write(to_utf8("\n" + str(e)))
+            nl(o).write(to_utf8("\n" + str(e)))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
         o.write("\n" + main_msg + "FAILED")

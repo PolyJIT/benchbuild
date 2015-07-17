@@ -204,13 +204,15 @@ compilestats.components <- function(c) {
 }
 
 runlog <- function(c, exp) {
-  dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_log WITH DATA;")
   q <- strwrap(sprintf(paste("SELECT status, project_name as project,
                                      experiment_name as experiment,
                                      (\"end\" - \"begin\") as duration,
                                      command FROM run_log
                               WHERE experiment_group = '%s'::uuid ORDER BY status, project ASC;"), exp),
                width=10000, simplify=TRUE)
+  qr <- dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_log WITH DATA;")
+  dbFetch(qr)
+  dbClearResult(qr)
   qr <- dbSendQuery(c, q)
   res <- dbFetch(qr)
   dbClearResult(qr)

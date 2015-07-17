@@ -69,20 +69,19 @@ def read_tables(fstream):
         yield table
         table = read_table(fstream)
 
-def get_measurements(region, core_info, data):
+def get_measurements(region, core_info, data, extra_offset = 0):
     measurements = []
+    clean_core_info = [x for x in core_info if x]
+    cores = len(clean_core_info)
     for k in data:
-        if k not in ["1", "Region Info", "Event", "Metric"]:
-            clean_core_info = [x for x in core_info if x]
-            cores = len(clean_core_info)
+        if k not in ["1", "Region Info", "Event", "Metric", "CPU clock"]:
             slot = data[k]
-            offset = len(slot) - cores
-            if offset >= 0:
-                for i in range(cores):
-                    off_i = offset + i
-                    core = core_info[i]
-                    if core and slot[off_i]:
-                        measurements.append((region, k, core, slot[off_i]))
+            for i in range(cores):
+                core = core_info[i]
+                idx = extra_offset + i
+                if core and slot[idx]:
+                    measurements.append((region, k, core, slot[idx]))
+
     return measurements
 
 def get_likwid_perfctr(infile):
@@ -92,18 +91,18 @@ def get_likwid_perfctr(infile):
         for region_struct in read_structs(in_file):
             region = region_struct["1"][1]
             core_info = region_struct["Region Info"]
-            measurements += get_measurements(region, core_info, region_struct)
+            measurements += \
+                get_measurements(region, core_info, region_struct)
 
             for table_struct in read_tables(in_file):
                 core_info = None
                 if "Event" in table_struct:
-                    core_info = table_struct["Event"][1:]
+                    offset = 1
+                    core_info = table_struct["Event"][offset:]
+                    measurements += get_measurements(region, core_info,
+                                                     table_struct, offset)
                 elif "Metric" in table_struct:
                     core_info = table_struct["Metric"]
-
-                if core_info:
                     measurements += get_measurements(region, core_info,
                                                      table_struct)
-                # print pprint(table_struct)
-
     return measurements

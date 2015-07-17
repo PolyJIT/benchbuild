@@ -79,6 +79,7 @@ def persist_likwid(run, session, measurements):
         m = s.Likwid(metric=name, region=region, value=value, core=core,
                      run_id=run.id)
         session.add(m)
+    session.commit()
 
 
 def persist_time(run, session, timings):
@@ -92,6 +93,7 @@ def persist_time(run, session, timings):
                              run_id=run.id))
         session.add(s.Metric(name="time.real_s", value=timing[2],
                              run_id=run.id))
+    session.commit()
 
 
 def persist_compilestats(run, session, stats):
@@ -99,3 +101,4 @@ def persist_compilestats(run, session, stats):
     for stat in stats:
         stat.run_id = run.id
         session.add(stat)
+    session.commit()

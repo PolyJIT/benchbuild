@@ -91,6 +91,43 @@ class PolyJIT(RuntimeExperiment):
 
     def run_step_likwid(self, p):
         """Run the experiment with likwid."""
+        from pprof.settings import config
+        def run_with_likwid(run_f, args, **kwargs):
+            from pprof.utils import run as r
+            from pprof.utils.db import persist_likwid
+            from pprof.likwid import get_likwid_perfctr
+            from plumbum.cmd import rm
+            from uuid import uuid4
+
+            project_name = kwargs.get("project_name", p.name)
+            likwid_f = p.name + ".txt"
+
+            for group in ["CLOCK"]:
+                likwid_path = path.join(config["likwiddir"], "bin")
+                likwid_perfctr = local[
+                    path.join(likwid_path, "likwid-perfctr")]
+                for i in range(int(config["jobs"])):
+                    with substep("{} cores & uuid {}".format(i+1, p.run_uuid)):
+                        run_cmd = \
+                            likwid_perfctr["-O", "-o", likwid_f, "-m",
+                                           "-C", "0-{:d}".format(i),
+                                           "-g", group, run_f]
+                        run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+
+                        run, session = r.begin(run_cmd, project_name,
+                                               self.name, p.run_uuid)
+
+                        retcode, stdout, stderr = r.guarded_exec(run_cmd)
+
+                        likwid_measurement = get_likwid_perfctr(likwid_f)
+                        """ Use the project_name from the binary, because we
+                            might encounter dynamically generated projects.
+                        """
+                        persist_likwid(run, session, likwid_measurement)
+                        r.end(run, session, stdout, stderr)
+                        rm("-f", likwid_f)
+                        p.run_uuid = uuid4()
+
         with step("JIT, likwid"):
             p.clean()
             p.prepare()
@@ -101,42 +138,6 @@ class PolyJIT(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("Execute {}".format(p.name)):
-                from pprof.settings import config
-
-                def run_with_likwid(run_f, args, **kwargs):
-                    from pprof.utils import run as r
-                    from pprof.utils.db import persist_likwid
-                    from pprof.likwid import get_likwid_perfctr
-                    from plumbum.cmd import rm
-                    from uuid import uuid4
-
-                    project_name = kwargs.get("project_name", p.name)
-                    likwid_f = p.name + ".txt"
-
-                    for group in ["CLOCK"]:
-                        likwid_path = path.join(config["likwiddir"], "bin")
-                        likwid_perfctr = local[
-                            path.join(likwid_path, "likwid-perfctr")]
-                        for i in range(int(config["jobs"])):
-                            run_cmd = \
-                                likwid_perfctr["-O", "-o", likwid_f, "-m",
-                                               "-C", "0-{:d}".format(i),
-                                               "-g", group, run_f]
-
-                            run_cmd = r.handle_stdin(run_cmd[args], kwargs)
-                            run, session = r.begin(run_cmd, project_name,
-                                                   self.name, p.run_uuid)
-
-                            retcode, stdout, stderr = r.guarded_exec(run_cmd)
-
-                            likwid_measurement = get_likwid_perfctr(likwid_f)
-                            """ Use the project_name from the binary, because we
-                                might encounter dynamically generated projects.
-                            """
-                            persist_likwid(run, session, likwid_measurement)
-                            r.end(run, session, stdout, stderr)
-                            rm("-f", likwid_f)
-                            p.run_uuid = uuid4()
                 p.run(run_with_likwid)
 
     def run_project(self, p):

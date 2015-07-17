@@ -107,10 +107,11 @@ polyjitData <- function(id, metric, aggregation, exps, con) {
   exp.date <- exps[exps$experiment_group == id, "completed"]
 
   lw.total <- likwid.total(con, id, aggregation, metric)
-  #lw.runtime <- likwid.runtime(con, id, aggregation, metric)
+  lw.runtime <- likwid.runtime(con, id, aggregation, metric)
   lw.overhead <- likwid.overhead(con, id, aggregation, metric)
 
-  lw <- lw.overhead
+  lw <- rbind(lw.overhead, lw.runtime)
+  lw <- rbind(lw, lw.total)
   return(lw)
 }
 

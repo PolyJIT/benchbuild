@@ -111,7 +111,7 @@ polyjitData <- function(id, metric, aggregation, exps, con) {
   lw.overhead <- likwid.overhead(con, id, aggregation, metric)
 
   lw <- rbind(lw.overhead, lw.runtime)
-  lw <- rbind(lw, lw.total)
+  #lw <- rbind(lw, lw.total)
   return(lw)
 }
 
@@ -124,14 +124,15 @@ polyjitPlot <- function(id, metric, aggregation, exps, con) {
   lw.overhead <- likwid.overhead(con, id, aggregation, metric)
 
   lw <- rbind(lw.runtime, lw.overhead)
+#  lw <- rbind(lw, lw.total)
 
-  p <- ggplot(data = lw, aes(x = project_name, y = value, fill = variable))
-  p <- p + ggtitle(sprintf("Overhead vs. Runtime of jitte'd functions '%s' @ '%s'\nMetric '%s' (%s)",
-                           exp.name, exp.date, metric, id))
-  p <- p + labs(y = metric, x = "Project")
-  p <- p + geom_bar(position = "dodge", stat= "identity")
-  p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1), plot.title = element_text(size = 8))
-  p <- p + mytheme
+  options(repr.plot.family = 'mono', repr.plot.width = 10, repr.plot.height = 64, warn = -1)
+  p <- ggplot(data=lw, aes(x=num_cores, y=value, fill=variable))
+  p <- p + geom_bar(position="dodge", stat="identity")
+  p <- p + facet_wrap( ~ project, scales = "free", ncol = 3)
+  p <- p + ggtitle(label = "Runtime vs. Overhead per run group")
+  p <- p + theme(plot.title = element_text(size = 8))
+
   return(p)
 }
 

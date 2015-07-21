@@ -57,6 +57,7 @@ def dump_slurm_script(script_name, log_name, commands, uuid=None):
         slurm.write("#!/bin/sh\n")
         slurm.write("#SBATCH -o {}\n".format(log_name))
         slurm.write("#SBATCH -t \"12:00:00\"\n")
+        slurm.write("#SBATCH --hint=nomultithread")
         slurm.write("export LD_LIBRARY_PATH=\"{}:$LD_LIBRARY_PATH\"\n".format(
             path.join(config["papi"], "lib")))
         slurm.write(
@@ -143,14 +144,17 @@ def dispatch_jobs(exp, projects):
         if len(project) == 0:
             continue
         slurm_script = prepare_slurm_script(exp, project, experiment_id)
-        job_id = (sbatch[
+        sbatch_cmd = sbatch[
             "--job-name=" + exp + "-" + project,
             "-A", config["account"],
             "-p", config["partition"],
             "--ntasks", "1",
-            "--cpus-per-task", config["cpus-per-task"],
-            "--exclusive",
-            slurm_script] | awk['{ print $4 }'])()
+            "--exclusive", slurm_script]
+
+        if "cpus-per-task" in config:
+            sbatch_cmd = sbatch_cmd["--cpus-per-task", config["cpus-per-task"]]
+
+        job_id = (sbatch_cmd | awk['{ print $4 }'])()
         jobs.append(job_id)
     return jobs
 

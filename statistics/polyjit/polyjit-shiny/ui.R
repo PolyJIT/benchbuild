@@ -134,7 +134,7 @@ shinyUI(
               ),
               tabPanel(
                 "Plots",
-                plotOutput("polyjit", width = "100%", height = "700px")
+                plotOutput("polyjit", width = "100%", height = "8000px")
               )
             )
           )

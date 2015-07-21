@@ -67,11 +67,11 @@ class X264(PprofGroup):
         x264_dir = path.join(self.builddir, self.src_dir)
         exp = wrap(path.join(x264_dir, "x264"), experiment)
 
-        testfiles = [path.join(self.testdir, x) for x in self.inputfiles]
-        for ifile in testfiles:
+        for ifile in self.inputfiles:
+            testfile = path.join(self.testdir, ifile)
             exp(
-                ifile,
-                self.inputfiles[path.basename(ifile)],
+                testfile,
+                self.inputfiles[ifile],
                 "--threads", "1",
                 "-o", "/dev/null",
                 "--frames", "5",
@@ -79,7 +79,7 @@ class X264(PprofGroup):
                 "-b1", "-m1", "-r1", "--me", "dia", "--no-cabac",
                 "--direct", "temporal", "--ssim", "--no-weightb")
             exp(
-                ifile,
+                testfile,
                 self.inputfiles[ifile],
                 "--threads", "1",
                 "-o", "/dev/null",
@@ -89,7 +89,7 @@ class X264(PprofGroup):
                 "--direct", "spatial", "--no-dct-decimate", "-t0",
                 "--slice-max-mbs", "50")
             exp(
-                ifile,
+                testfile,
                 self.inputfiles[ifile],
                 "--threads", "1",
                 "-o", "/dev/null",
@@ -99,14 +99,14 @@ class X264(PprofGroup):
                 "--nr", "100", "--psnr", "--no-mixed-refs",
                 "--b-adapt", "2", "--slice-max-size", "1500")
             exp(
-                ifile,
+                testfile,
                 self.inputfiles[ifile],
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "--crf", "18", "-b3", "-m9", "-r5", "--me", "umh",
                 "-t1", "-A", "all", "--b-pyramid", "normal",
                 "--direct", "auto", "--no-fast-pskip", "--no-mbtree")
             exp(
-                ifile,
+                testfile,
                 self.inputfiles[ifile],
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "--crf", "22", "-b3", "-m7", "-r4", "--me", "esa", "-t2",
@@ -123,7 +123,7 @@ class X264(PprofGroup):
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "-q0", "-m9", "-r2", "--me", "hex", "-Aall")
             exp(
-                ifile,
+                testfile,
                 self.inputfiles[ifile],
                 "--threads", "1", "-o", "/dev/null", "--frames", "5",
                 "-q0", "-m2", "-r1", "--me", "hex", "--no-cabac")

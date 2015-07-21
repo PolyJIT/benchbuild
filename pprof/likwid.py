@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-def fetch_cols(fstream, split_char = ','):
+
+def fetch_cols(fstream, split_char=','):
     return fstream.readline().strip().split(split_char)
 
 
@@ -83,6 +84,7 @@ def get_measurements(region, core_info, data, extra_offset = 0):
                     measurements.append((region, k, core, slot[idx]))
 
     return measurements
+
 
 def get_likwid_perfctr(infile):
     measurements = []

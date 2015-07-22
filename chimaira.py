@@ -57,7 +57,7 @@ def dump_slurm_script(script_name, log_name, commands, uuid=None):
         slurm.write("#!/bin/sh\n")
         slurm.write("#SBATCH -o {}\n".format(log_name))
         slurm.write("#SBATCH -t \"12:00:00\"\n")
-        slurm.write("#SBATCH --hint=nomultithread")
+        slurm.write("#SBATCH --hint=nomultithread\n")
         slurm.write("export LD_LIBRARY_PATH=\"{}:$LD_LIBRARY_PATH\"\n".format(
             path.join(config["papi"], "lib")))
         slurm.write(

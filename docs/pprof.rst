@@ -53,6 +53,14 @@ pprof.likwid module
     :undoc-members:
     :show-inheritance:
 
+pprof.log module
+----------------
+
+.. automodule:: pprof.log
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pprof.project module
 --------------------
 

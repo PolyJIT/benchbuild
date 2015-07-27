@@ -54,7 +54,7 @@ def clone_or_pull(repo_dict, to_dir):
             else:
                 print "{:s} has diverged from its remote.".format(to_dir)
                 exit(1)
-    elif commit_hash:
+    if commit_hash:
         with local.cwd(to_dir):
             # We only need to do something if we aren't already at the
             # latest commit hash

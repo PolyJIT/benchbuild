@@ -49,7 +49,8 @@ class Experiment(Base):
     description = Column(String)
 
     def __repr__(self):
-        return "<Experiment(name='{}', description='{}')>".format(self.name, self.description)
+        return "<Experiment(name='{}', description='{}')>".format(
+                self.name, self.description)
 
 
 class Likwid(Base):

@@ -130,11 +130,14 @@ def prepare_slurm_script(experiment, project, experiment_id):
 
 
 def dispatch_jobs(exp, projects):
-    """Dispatch sbatch scripts to slurm for all projects given
+    """
+    Dispatch sbatch scripts to slurm for all given projects.
 
-    projects: List of projects that need to be dispatched to SLURM
-    :returns: a list of SLURM job ids
+    Args:
+        projects: List of projects that need to be dispatched to SLURM
 
+    Return:
+        The list of SLURM job ids.
     """
     jobs = []
     from uuid import uuid4

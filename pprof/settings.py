@@ -134,11 +134,11 @@ def load_config(config_path, config):
     """
     Load pprof's configuration from a config file.
 
-    :config_path
-        Path where we find our configuration.
-    :config
-        Dictionary where our configuration should be loaded into.
-    :return
+    Args:
+        config_path: Path where we find our configuration.
+        config: Dictionary where our configuration should be loaded into.
+
+    Return:
         True, if we could load the configuration successfully.
     """
     with open(config_path) as config_file:

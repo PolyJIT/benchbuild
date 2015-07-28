@@ -109,5 +109,5 @@ def persist_config(run, session, config):
     from pprof.utils import schema as s
 
     for c in config:
-        session.add(s.Config(name=c, value=config[c]))
+        session.add(s.Config(name=c, value=config[c]), run_id=run.id)
     session.commit()

@@ -164,8 +164,7 @@ class RunLog(Base):
     __tablename__ = 'log'
 
     run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), primary_key=True,
-                    )
+                    ondelete="CASCADE"), primary_key=True)
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Integer)

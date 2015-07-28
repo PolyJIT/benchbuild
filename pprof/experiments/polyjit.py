@@ -37,7 +37,7 @@ def run_with_likwid(run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.utils import run as r
-    from pprof.utils.db import persist_likwid
+    from pprof.utils.db import persist_likwid, persist_config
     from pprof.likwid import get_likwid_perfctr
     from pprof.settings import config
     from plumbum.cmd import rm
@@ -77,6 +77,10 @@ def run_with_likwid(run_f, args, **kwargs):
             might encounter dynamically generated projects.
         """
         persist_likwid(run, session, likwid_measurement)
+        persist_config(run, session, {
+            "cores": str(jobs),
+            "likwid.group": group
+        })
         rm("-f", likwid_f)
 
 
@@ -100,7 +104,7 @@ def run_with_time(run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.utils import run as r
-    from pprof.utils.db import persist_time
+    from pprof.utils.db import persist_time, persist_config
     from plumbum.cmd import time
 
     p = run_with_time.project
@@ -133,6 +137,9 @@ def run_with_time(run_f, args, **kwargs):
             return
 
     persist_time(run, session, timings)
+    persist_config(run, session, {
+        "cores": str(jobs)
+    })
 
 
 class PolyJIT(RuntimeExperiment):

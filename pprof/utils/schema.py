@@ -172,4 +172,21 @@ class RunLog(Base):
     stderr = Column(String)
     stdout = Column(String)
 
+
+class Config(Base):
+
+    """
+    Store customized information about a run.
+
+    You can store arbitrary configuration information about a run here.
+    Use it for extended filtering against the run table.
+    """
+
+    __tablename__ = 'config'
+
+    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
+                    ondelete="CASCADE"), primary_key=True)
+    name = Column(String)
+    value = Column(String)
+
 Base.metadata.create_all(Engine, checkfirst=True)

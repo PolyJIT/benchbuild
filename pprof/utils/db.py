@@ -102,3 +102,12 @@ def persist_compilestats(run, session, stats):
         stat.run_id = run.id
         session.add(stat)
     session.commit()
+
+
+def persist_config(run, session, config):
+    """ Persist the configuration in as key-value pairs."""
+    from pprof.utils import schema as s
+
+    for c in config:
+        session.add(s.Config(name=c, value=config[c]))
+    session.commit()

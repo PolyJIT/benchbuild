@@ -3,9 +3,12 @@
 
 
 from plumbum import cli
+from plumbum.cmd import mkdir
 from pprof.driver import PollyProfiling
 from pprof.settings import config
+from pprof.utils.user_interface import query_yes_no
 
+import os, os.path
 import pprint
 
 
@@ -90,6 +93,14 @@ class PprofRun(cli.Application):
 
         print "Configuration: "
         pprint.pprint(config)
+
+        if self._project_names:
+            # Only try to create the build dir if we're actually running some projects.
+            builddir = os.path.abspath(config["builddir"])
+            if not os.path.exists(builddir):
+                response = query_yes_no("The build directory {dirname} does not exist yet. Create it?".format(dirname=builddir), "no")
+                if response:
+                    mkdir("-p", builddir)
 
         for exp_name in self._experiment_names:
             print "Running experiment: " + exp_name

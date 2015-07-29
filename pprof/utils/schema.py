@@ -186,7 +186,7 @@ class Config(Base):
 
     run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
                     ondelete="CASCADE"), primary_key=True)
-    name = Column(String)
+    name = Column(String, primary_key=True)
     value = Column(String)
 
 Base.metadata.create_all(Engine, checkfirst=True)

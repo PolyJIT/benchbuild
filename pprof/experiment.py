@@ -62,7 +62,6 @@ def nl(o):
         o.write("\n")
     return o
 
-
 def to_utf8(text):
     """
     Convert given text to UTF-8 encoding (as far as possible).
@@ -136,11 +135,10 @@ def phase(name, pname="FIXME: Unset"):
     try:
         yield
         nl(o).write(main_msg + " OK")
+    except ProcessExecutionError as e:
+        o.write("\n" + e.stderr.encode("utf8"))
     except (OSError, ProcessExecutionError, GuardedRunException) as e:
-        try:
-            o.write(to_utf8("\n" + str(e)))
-        except UnicodeEncodeError:
-            o.write("\nCouldn't figure out what encoding to use, sorry...")
+        o.write("\n" + str(e.stderr))
         sys.stdout.write("\n" + main_msg + " FAILED")
     o.write("\n")
     o.flush()
@@ -167,12 +165,10 @@ def step(name):
         nl(o).write(main_msg + " START")
         yield
         nl(o).write(main_msg + " OK")
-    except (OSError, ProcessExecutionError, GuardedRunException) as e:
-        try:
-            o.write(to_utf8("\n" + str(e)))
-        except UnicodeEncodeError:
-            o.write("\nCouldn't figure out what encoding to use, sorry...")
-        o.write("\n" + main_msg + " FAILED")
+    except ProcessExecutionError as e:
+        o.write("\n" + e.stderr.encode("utf8"))
+    except (OSError, GuardedRunException) as e:
+        o.write("\n" + str(e))
     o.flush()
 
 
@@ -197,9 +193,11 @@ def substep(name):
     try:
         yield
         nl(o).write(main_msg + " OK")
-    except (OSError, ProcessExecutionError, GuardedRunException) as e:
+    except ProcessExecutionError as e:
+        o.write("\n" + e.stderr.encode("utf8"))
+    except (OSError, GuardedRunException) as e:
         try:
-            nl(o).write(to_utf8("\n" + str(e)))
+            nl(o).write("\n" + str(e))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
         o.write("\n" + main_msg + "FAILED")

@@ -204,6 +204,7 @@ class PolyJIT(RuntimeExperiment):
         from pprof.settings import config
         from uuid import uuid4
 
+        old_cflags = p.cflags
         p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
 
         for i in range(1, int(config["jobs"])):
@@ -220,6 +221,8 @@ class PolyJIT(RuntimeExperiment):
                 run_with_likwid.project = p
                 run_with_likwid.jobs = i
                 p.run(run_with_likwid)
+
+        p.cflags = old_cflags
 
     def run_project(self, p):
         """
@@ -242,9 +245,9 @@ class PolyJIT(RuntimeExperiment):
                     "-mllvm", "-polly-detect-keep-going",
                     "-mllvm", "-polli"]
         with local.env(PPROF_ENABLE=0):
-            with step("JIT, likwid"):
-                self.run_step_likwid(p)
             with step("JIT, no instrumentation"):
                 self.run_step_jit(p)
+            with step("JIT, likwid"):
+                self.run_step_likwid(p)
             with step("Track Compilestats @ -O3"):
                 self.run_step_compilestats(p)

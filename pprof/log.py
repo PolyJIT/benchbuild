@@ -34,6 +34,7 @@ def print_logs(query, types=None):
             run.finished, run.experiment_name, run.project_name,
             run.experiment_group, run.run_group,
             log.status))
+        print("command: {}".format(run.command))
         if "stderr" in types:
             print "StdErr:"
             print(log.stderr)

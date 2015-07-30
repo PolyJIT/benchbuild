@@ -112,20 +112,24 @@ likwid.get_metrics <- function(c) {
 
 likwid.total <- function(c, exp, aggr, metric) {
   q <- strwrap(sprintf(paste("
-SELECT project, num_cores, SUM(total) as total FROM
+
+ SELECT project, num_cores, SUM(total) as total FROM
   (
-    SELECT project_name as Project, region, COUNT(region) as num_cores, %s(value) as total
+    SELECT project_name as Project, region, num_cores, %s(value) as total
     FROM run_likwid
     WHERE metric = '%s'
     AND experiment_group = '%s'::uuid
     AND experiment_name = 'polyjit'
     AND (core != 'Min' AND core != 'Max' AND core != 'Avg')
     AND region = 'polyjit.main'
-    GROUP BY Project, run_group, region, metric ORDER BY num_cores, project, run_group
+    GROUP BY Project, num_cores, region, metric ORDER BY project, num_cores
   ) as run_likwid_f
-GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
+ GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
   qr <- dbSendQuery(c, q)
-  res <- melt(dbFetch(qr), id.vars = c("project", "num_cores"))
+  res <- dbFetch(qr)
+  if (dbGetRowCount(qr) > 0) {
+    res <- melt(res, id.vars = c("project", "num_cores"))
+  }
   dbClearResult(qr)
   return(res)
 }
@@ -134,18 +138,21 @@ likwid.runtime <- function(c, exp, aggr, metric) {
   q <- strwrap(sprintf(paste("
 SELECT project, num_cores, SUM(runtime) as runtime FROM
   (
-    SELECT project_name as Project, region, COUNT(region) as num_cores, %s(value) as runtime
+    SELECT project_name as Project, region, num_cores, %s(value) as runtime
     FROM run_likwid
     WHERE metric = '%s'
     AND experiment_group = '%s'::uuid
     AND experiment_name = 'polyjit'
     AND (core != 'Min' AND core != 'Max' AND core != 'Avg')
     AND region not like 'po%%yjit.%%'
-    GROUP BY Project, run_group, region, metric ORDER BY num_cores, project, run_group
+    GROUP BY Project, num_cores, region, metric ORDER BY project, num_cores
   ) as run_likwid_f
 GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
   qr <- dbSendQuery(c, q)
-  res <- melt(dbFetch(qr), id.vars = c("project", "num_cores"))
+  res <- dbFetch(qr)
+  if (dbGetRowCount(qr) > 0) {
+    res <- melt(res, id.vars = c("project", "num_cores"))
+  }
   dbClearResult(qr)
   return(res)
 }
@@ -154,18 +161,22 @@ likwid.overhead <- function(c, exp, aggr, metric) {
   q <- strwrap(sprintf(paste("
 SELECT project, num_cores, SUM(overhead) as overhead FROM
     (
-      SELECT project_name as Project, region, COUNT(region) as num_cores, %s(value) as overhead
+      SELECT project_name as Project, region, num_cores, %s(value) as overhead
       FROM run_likwid
       WHERE metric = '%s'
       AND experiment_group = '%s'::uuid
       AND experiment_name = 'polyjit'
       AND (core != 'Min' AND core != 'Max' AND core != 'Avg')
       AND region like 'po%%yjit%%' AND not region = 'polyjit.main'
-      GROUP BY Project, run_group, region, metric ORDER BY num_cores, project, run_group
+      GROUP BY Project, num_cores, region, metric ORDER BY project, num_cores
     ) as run_likwid_f
 GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
   qr <- dbSendQuery(c, q)
-  res <- melt(dbFetch(qr), id.vars = c("project", "num_cores"))
+
+  res <- dbFetch(qr)
+  if (dbGetRowCount(qr) > 0) {
+    res <- melt(res, id.vars = c("project", "num_cores"))
+  }
   dbClearResult(qr)
   return(res)
 }

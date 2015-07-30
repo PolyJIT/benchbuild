@@ -119,7 +119,7 @@ def run_with_time(run_f, args, **kwargs):
     assert c is not None, "run_with_likwid.config attribute is None."
     assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
     assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: Experiment" % e
+    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
 
     project_name = kwargs.get("project_name", p.name)
     timing_tag = "PPROF-JIT: "
@@ -183,6 +183,8 @@ class PolyJIT(RuntimeExperiment):
         """Run the experiment without likwid."""
         from pprof.settings import config
         from uuid import uuid4
+
+        old_cflags = p.cflags
 
         for i in range(1, int(config["jobs"])):
             with substep("{} cores & uuid {}".format(i+1, p.run_uuid)):

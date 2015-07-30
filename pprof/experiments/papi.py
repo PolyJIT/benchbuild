@@ -7,33 +7,94 @@ These types of experiments (papi & papi-std) need to instrument the
 project with libpprof support to work.
 
 """
-from pprof.experiment import RuntimeExperiment
-from pprof.experiment import step, substep
+from pprof.experiment import (Experiment, RuntimeExperiment, step, substep,
+                              static_var)
+from pprof.project import Project
 from pprof.settings import config
 
 from plumbum import local
 from os import path
 
-pprof_calibrate = None
-pprof_analyze = None
+
+@static_var("experiment", None)
+@static_var("project", None)
+@static_var("jobs", 0)
+@static_var("config", None)
+def run_with_time(run_f, args, **kwargs):
+    """
+    Run the given binary wrapped with time.
+
+    Args:
+        run_f: The file we want to execute.
+        args: List of arguments that should be passed to the wrapped binary.
+        **kwargs: Dictionary with our keyword args. We support the following
+            entries:
+
+            project_name: The real name of our project. This might not
+                be the same as the configured project name, if we got wrapped
+                with ::pprof.project.wrap_dynamic
+            has_stdin: Signals whether we should take care of stdin.
+
+    You can (read: should) set the following attributes on this functions to
+    further configure its run behavior. These are static args, so make sure you
+    use them outside of a threaded environment, bad things may happen.
+
+    Static Args:
+        experiment: The experiment instance we run under.
+        project: The project instance we run under.
+        jobs: The number of tasks we should allow, default 0.
+        config: The whole configuration pprof was launched with.
+
+    """
+    from pprof.utils import run as r
+    from pprof.utils.db import persist_time, persist_config
+    from plumbum.cmd import time
+
+    p = run_with_time.project
+    e = run_with_time.experiment
+    c = run_with_time.config
+    jobs = run_with_time.jobs
+
+    config.update(c)
+
+    assert p is not None, "run_with_time.project attribute is None."
+    assert e is not None, "run_with_time.experiment attribute is None."
+    assert c is not None, "run_with_time.config attribute is None."
+    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
+    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
+    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+
+    project_name = kwargs.get("project_name", p.name)
+    timing_tag = "PPROF-PAPI: "
+
+    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
+    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+
+    run, session, retcode, stdout, stderr = \
+        r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
+    timings = r.fetch_time_output(
+        timing_tag, timing_tag + "{:g}-{:g}-{:g}",
+        stderr.split("\n"))
+    if len(timings) == 0:
+        return
+
+    persist_time(run, session, timings)
+    persist_config(run, session, {
+        "cores": str(jobs)
+    })
 
 
 class PapiScopCoverage(RuntimeExperiment):
 
     """PAPI-based dynamic SCoP coverage measurement."""
 
-    def setup_commands(self):
-        """Setup pprof_calibrate and pprof_analyze."""
-        super(PapiScopCoverage, self).setup_commands()
-        global pprof_calibrate, pprof_analyze
-        bin_path = path.join(config["llvmdir"], "bin")
-
-        pprof_calibrate = local[path.join(bin_path, "pprof-calibrate")]
-        pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
-
     def run(self):
         """Do the postprocessing, after all projects are done."""
         super(PapiScopCoverage, self).run()
+
+        bin_path = path.join(config["llvmdir"], "bin")
+        pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
+
         with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"]),
                        PPROF_EXPERIMENT=self.name,
                        PPROF_USE_DATABASE=1,
@@ -69,30 +130,18 @@ class PapiScopCoverage(RuntimeExperiment):
                     p.configure()
                     p.build()
             with substep("run"):
-                def run_with_time(run_f, args, **kwargs):
-                    from plumbum.cmd import time
-                    from pprof.utils.run import fetch_time_output, handle_stdin
-
-                    project_name = kwargs.get("project_name", p.name)
-
-                    run_cmd = handle_stdin(
-                        time["-f", "PPROF-PAPI: %U-%S-%e", run_f, args],
-                        kwargs)
-
-                    _, _, stderr = run_cmd.run()
-                    timings = fetch_time_output("PPROF-PAPI: ",
-                                                "PPROF-PAPI: {:g}-{:g}-{:g}",
-                                                stderr.split("\n"))
-                    if len(timings) == 0:
-                        return
-
-                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
-                                     timings)
+                run_with_time.config = config
+                run_with_time.experiment = self
+                run_with_time.project = p
+                run_with_time.jobs = 1
 
                 p.run(run_with_time)
 
         with step("Evaluation"):
+            bin_path = path.join(config["llvmdir"], "bin")
+            pprof_calibrate = local[path.join(bin_path, "pprof-calibrate")]
             papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
+
             self.persist_calibration(p, pprof_calibrate, papi_calibration)
 
 
@@ -127,28 +176,15 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                     p.configure()
                     p.build()
             with substep("run"):
-                def run_with_time(run_f, args, **kwargs):
-                    from plumbum.cmd import time
-                    from pprof.utils.run import fetch_time_output, handle_stdin
-
-                    project_name = kwargs.get("project_name", p.name)
-
-                    run_cmd = handle_stdin(
-                        time["-f", "%U-%S-%e", run_f, args], kwargs)
-
-                    _, _, stderr = run_cmd.run()
-                    timings = fetch_time_output("PPROF-PAPI: ",
-                                                "PPROF-PAPI: {:g}-{:g}-{:g}",
-                                                stderr.split("\n"))
-                    if len(timings) == 0:
-                        return
-
-                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
-                                     timings)
+                run_with_time.config = config
+                run_with_time.experiment = self
+                run_with_time.project = p
+                run_with_time.jobs = 1
 
                 p.run(run_with_time)
 
         with step("Evaluation"):
-            papi_calibration = self.get_papi_calibration(
-                p, pprof_calibrate)
+            bin_path = path.join(config["llvmdir"], "bin")
+            pprof_calibrate = local[path.join(bin_path, "pprof-calibrate")]
+            papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
             self.persist_calibration(p, pprof_calibrate, papi_calibration)

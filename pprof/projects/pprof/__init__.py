@@ -4,7 +4,7 @@ import crafty
 import crocopat
 import ffmpeg
 import gzip
-import json
+import js
 import lammps
 import lapack
 import leveldb

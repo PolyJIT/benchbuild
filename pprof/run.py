@@ -20,6 +20,7 @@ class PprofRun(cli.Application):
     _experiment_names = []
     _project_names = []
     _list = False
+    _list_experiments = False
     _group_name = None
 
     @cli.switch(["-T", "--testdir"], str, help="Where are the testinput files")
@@ -53,6 +54,11 @@ class PprofRun(cli.Application):
     def projects(self, projects):
         self._project_names = projects
 
+    @cli.switch(["--list-experiments"],
+                help="List available experiments")
+    def list_experiments(self):
+        self._list_experiments = True
+
     @cli.switch(["-l", "--list"], requires=["--experiment"],
                 help="List available projects for experiment")
     def list(self):
@@ -83,6 +89,14 @@ class PprofRun(cli.Application):
             "stats": compilestats.CompilestatsExperiment,
             "ewpt": compilestats_ewpt.EWPTCompilestatsExperiment,
         }
+
+        if self._list_experiments:
+            for experiment_name, experiment in self._experiments.items():
+                print(experiment_name)
+                docstring = experiment.__doc__ or "-- no docstring --"
+                docstring = docstring.strip()
+                print("    " + docstring)
+            exit(0)
 
         if self._list:
             for exp in self._experiment_names:

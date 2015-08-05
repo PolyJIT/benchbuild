@@ -182,6 +182,12 @@ config_metadata = [
         "default": os.path.join(os.getcwd(), "install")
     },
     {
+	"name": "likwiddir",
+	"desc": "Prefix to which the likwid library was installed.",
+	"env": "PPROF_LIKWID_DIR",
+	"default": "/usr/"
+    },
+    {
         "name": "tmpdir",
         "desc": "TODO",
         "env": "PPROF_TMP_DIR",

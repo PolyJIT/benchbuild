@@ -21,6 +21,60 @@ from os import path
 @static_var("experiment", None)
 @static_var("project", None)
 @static_var("jobs", 0)
+def run_with_papi(run_f, args, **kwargs):
+    """
+    Run the given file with PAPI support.
+
+    This just runs the project as PAPI support should be compiled in
+    already. If not, this won't do a lot.
+
+    Args:
+        run_f: The file we want to execute.
+        args: List of arguments that should be passed to the wrapped binary.
+        **kwargs: Dictionary with our keyword args. We support the following
+            entries:
+
+            project_name: The real name of our project. This might not
+                be the same as the configured project name, if we got wrapped
+                with ::pprof.project.wrap_dynamic
+            has_stdin: Signals whether we should take care of stdin.
+    """
+    from pprof.utils import run as r
+    from pprof.utils.db import persist_config
+    from pprof.settings import config
+
+    p = run_with_papi.project
+    e = run_with_papi.experiment
+    c = run_with_papi.config
+    jobs = run_with_papi.jobs
+
+    config.update(c)
+
+    assert p is not None, "run_with_likwid.project attribute is None."
+    assert e is not None, "run_with_likwid.experiment attribute is None."
+    assert c is not None, "run_with_likwid.config attribute is None."
+    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
+    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
+    assert isinstance(c, dict), "Wrong type: %r Want: Experiment" % e
+
+    project_name = kwargs.get("project_name", p.name)
+
+    run_cmd = local[run_f]
+    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+
+    with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
+        run, session, _, _, _ = \
+            r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
+
+    persist_config(run, session, {
+        "cores": str(jobs)
+    })
+
+
+@static_var("config", None)
+@static_var("experiment", None)
+@static_var("project", None)
+@static_var("jobs", 0)
 def run_with_likwid(run_f, args, **kwargs):
     """
     Run the given file wrapped by likwid.
@@ -226,6 +280,33 @@ class PolyJIT(RuntimeExperiment):
 
         p.cflags = old_cflags
 
+    def run_step_papi(self, p):
+        """Run the experiment with papi support."""
+        from uuid import uuid4
+
+        old_cflags = p.cflags
+        old_ldflags = p.ldflags
+        p.cflags = ["-DPOLLI_ENABLE_PAPI"] + p.cflags
+        p.ldflags = p.ldflags + ["-lpprof"]
+
+        for i in range(1, int(config["jobs"])):
+            with substep("{} cores & uuid {}".format(i+1, p.run_uuid)):
+                p.clean()
+                p.prepare()
+                p.download()
+                p.configure()
+                p.build()
+
+                p.run_uuid = uuid4()
+                run_with_papi.config = config
+                run_with_papi.experiment = self
+                run_with_papi.project = p
+                run_with_papi.jobs = i
+                p.run(run_with_papi)
+
+        p.cflags = old_cflags
+        p.ldflags = old_ldflags
+
     def run_project(self, p):
         """
         Execute the pprof experiment.
@@ -246,6 +327,9 @@ class PolyJIT(RuntimeExperiment):
                     "-mllvm", "-polly-delinearize=false",
                     "-mllvm", "-polly-detect-keep-going",
                     "-mllvm", "-polli"]
+        #with local.env(PPROF_ENABLE=1):
+        #    with step("JIT, papi instrumentation"):
+        #        self.run_step_papi(p)
         with local.env(PPROF_ENABLE=0):
             with step("JIT, no instrumentation"):
                 self.run_step_jit(p)

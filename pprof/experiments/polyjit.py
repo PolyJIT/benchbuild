@@ -123,8 +123,9 @@ def run_with_likwid(run_f, args, **kwargs):
                            "-g", group, run_f]
         run_cmd = r.handle_stdin(run_cmd[args], kwargs)
 
-        run, session, retcode, stdout, stderr = \
-            r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
+        with local.env(POLLI_ENABLE_LIKWID=1):
+            run, session, _, _, _ = \
+                r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
 
         likwid_measurement = get_likwid_perfctr(likwid_f)
         """ Use the project_name from the binary, because we
@@ -182,7 +183,7 @@ def run_with_time(run_f, args, **kwargs):
     run_cmd = r.handle_stdin(run_cmd[args], kwargs)
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
-        run, session, retcode, stdout, stderr = \
+        run, session, _, _, stderr = \
             r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
         timings = r.fetch_time_output(
             timing_tag, timing_tag + "{:g}-{:g}-{:g}",
@@ -213,7 +214,7 @@ class PolyJIT(RuntimeExperiment):
 
                 new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
 
-                run, session, retcode, stdout, stderr = \
+                run, session, retcode, _, stderr = \
                     r.guarded_exec(new_cc, p.name, self.name,
                                    p.run_uuid)
 
@@ -235,10 +236,7 @@ class PolyJIT(RuntimeExperiment):
 
     def run_step_jit(self, p):
         """Run the experiment without likwid."""
-        from pprof.settings import config
         from uuid import uuid4
-
-        old_cflags = p.cflags
 
         for i in range(1, int(config["jobs"])):
             with substep("{} cores & uuid {}".format(i+1, p.run_uuid)):
@@ -257,7 +255,6 @@ class PolyJIT(RuntimeExperiment):
 
     def run_step_likwid(self, p):
         """Run the experiment with likwid."""
-        from pprof.settings import config
         from uuid import uuid4
 
         old_cflags = p.cflags

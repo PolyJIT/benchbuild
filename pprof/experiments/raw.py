@@ -18,9 +18,71 @@ Measurements
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
 
-from pprof.experiment import step, substep, RuntimeExperiment
+from pprof.experiment import step, substep, static_var, RuntimeExperiment
 from pprof.settings import config
+from pprof.project import Project
+from pprof.experiment import Experiment
+
+from plumbum import local
 from os import path
+
+
+@static_var("config", None)
+@static_var("experiment", None)
+@static_var("project", None)
+@static_var("jobs", 0)
+def run_with_time(run_f, args, **kwargs):
+    """
+    Run the given binary wrapped with time.
+
+    Args:
+        run_f: The file we want to execute.
+        args: List of arguments that should be passed to the wrapped binary.
+        **kwargs: Dictionary with our keyword args. We support the following
+            entries:
+
+            project_name: The real name of our project. This might not
+                be the same as the configured project name, if we got wrapped
+                with ::pprof.project.wrap_dynamic
+            has_stdin: Signals whether we should take care of stdin.
+    """
+    from pprof.utils import run as r
+    from pprof.utils.db import persist_time, persist_config
+    from plumbum.cmd import time
+
+    p = run_with_time.project
+    e = run_with_time.experiment
+    c = run_with_time.config
+    jobs = run_with_time.jobs
+
+    config.update(c)
+
+    assert p is not None, "run_with_time.project attribute is None."
+    assert e is not None, "run_with_time.experiment attribute is None."
+    assert c is not None, "run_with_time.config attribute is None."
+    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
+    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
+    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+
+    project_name = kwargs.get("project_name", p.name)
+    timing_tag = "PPROF-TIME: "
+
+    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
+    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+
+    with local.env(OMP_NUM_THREADS=str(jobs)):
+        run, session, _, _, stderr = \
+            r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
+        timings = r.fetch_time_output(
+            timing_tag, timing_tag + "{:g}-{:g}-{:g}",
+            stderr.split("\n"))
+        if len(timings) == 0:
+            return
+
+    persist_time(run, session, timings)
+    persist_config(run, session, {
+        "cores": str(jobs)
+    })
 
 
 class RawRuntime(RuntimeExperiment):
@@ -39,53 +101,8 @@ class RawRuntime(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
-                def run_with_time(run_f, args, **kwargs):
-                    """
-                    Function runner for the raw experiment.
-
-                    This executes the given project command wrapped in the
-                    time command. Afterwards the result is sent to the
-                    database.
-
-                    3 Metrics are generated during this experiment:
-                        time.user_s - The time spent in user space in
-                                          seconds (aka virtual time)
-                        time.system_s - The time spent in kernel space in
-                                            seconds (aka system time)
-                        time.real_s - The time spent overall in seconds
-                                          (aka Wall clock)
-
-                    :run_f:
-                        The file we actually execute.
-                    :args:
-                        Arguments to forwards to :run_f:
-                    :has_stdin:
-                        If the program requires access to a file redirected
-                        via stdin, say so.
-                    :project_name:
-                        Name of the project to enter into the db.
-                    :kwargs:
-                        Rest.
-                    """
-                    from plumbum.cmd import time
-                    from pprof.utils.run import fetch_time_output, handle_stdin
-
-                    project_name = kwargs.get("project_name", p.name)
-                    timing_tag = "PPROF-RAW: "
-                    timing_format = timing_tag + "%U-%S-%e"
-                    timing_unformat = timing_tag + "{:g}-{:g}-{:g}"
-
-                    run_cmd = handle_stdin(
-                        time["-f", timing_format, run_f, args], kwargs)
-
-                    _, _, stderr = run_cmd.run()
-                    timings = fetch_time_output(timing_tag, timing_unformat,
-                                                stderr.split("\n"))
-
-                    if len(timings) == 0:
-                        return
-
-                    self.persist_run(str(run_cmd), project_name, p.run_uuid,
-                                     timings)
-
+                run_with_time.config = config
+                run_with_time.experiment = self
+                run_with_time.project = p
+                run_with_time.jobs = config["jobs"]
                 p.run(run_with_time)

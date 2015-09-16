@@ -333,5 +333,5 @@ class PolyJIT(RuntimeExperiment):
                 self.run_step_jit(p)
             with step("JIT, likwid"):
                 self.run_step_likwid(p)
-            with step("Track Compilestats @ -O3"):
-                self.run_step_compilestats(p)
+            #with step("Track Compilestats @ -O3"):
+            #    self.run_step_compilestats(p)

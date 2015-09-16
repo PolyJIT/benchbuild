@@ -103,10 +103,11 @@ papiBoxplot <- function(id, exps, con) {
 }
 
 polyjitData <- function(id, metric, aggregation, exps, con) {
+  cat("polyjit.data\n")
   exp.name <- exps[exps$experiment_group == id, "experiment_name"]
   exp.date <- exps[exps$experiment_group == id, "completed"]
 
-  lw.total <- likwid.total(con, id, aggregation, metric)
+  #lw.total <- likwid.total(con, id, aggregation, metric)
   lw.runtime <- likwid.runtime(con, id, aggregation, metric)
   lw.overhead <- likwid.overhead(con, id, aggregation, metric)
 
@@ -119,11 +120,13 @@ polyjitPlot <- function(id, metric, aggregation, exps, con) {
   exp.name <- exps[exps$experiment_group == id, "experiment_name"]
   exp.date <- exps[exps$experiment_group == id, "completed"]
 
-  lw.total <- likwid.total(con, id, aggregation, metric)
+#  lw.total <- likwid.total(con, id, aggregation, metric)
   lw.runtime <- likwid.runtime(con, id, aggregation, metric)
   lw.overhead <- likwid.overhead(con, id, aggregation, metric)
 
+  cat("polyjit.plot (fetch)\n")
   lw <- rbind(lw.runtime, lw.overhead)
+  cat("polyjit.plot (rbind): ", nrow(lw))
 #  lw <- rbind(lw, lw.total)
 
   options(repr.plot.family = 'mono', repr.plot.width = 10, repr.plot.height = 64, warn = -1)

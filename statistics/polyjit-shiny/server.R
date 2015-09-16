@@ -1,14 +1,16 @@
+if (!require("shiny")) install.packages("shiny")
 library(shiny)
+if (!require("reshape")) install.packages("reshape")
 library(reshape)
+if (!require("ggplot2")) install.packages("ggplot2")
 library(ggplot2)
 if (!require("RPostgres")) install.packages("RPostgres")
 library(RPostgres)
 if (!require("DT")) install.packages('DT')
+library(DT)
 
 # options(
-#   shiny.trace = TRUE,
-#   shiny.reactlog = TRUE,
-#   shiny.error = recover
+#  shiny.error = recover
 # )
 
 con <- dbConnect(RPostgres::Postgres(),
@@ -29,6 +31,20 @@ con <- dbConnect(RPostgres::Postgres(),
 #                  dbname="pprof",
 #                  user="pprof",
 #                  host="192.168.1.135",
+#                  port=32769,
+#                  password="pprof")
+
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname="pprof",
+#                  user="pprof",
+#                  host="192.168.1.107",
+#                  port=32769,
+#                  password="pprof")
+
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname="pprof",
+#                  user="pprof",
+#                  host="localhost",
 #                  port=32769,
 #                  password="pprof")
 

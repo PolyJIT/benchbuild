@@ -111,11 +111,12 @@ likwid.get_metrics <- function(c) {
 }
 
 likwid.total <- function(c, exp, aggr, metric) {
+  cat("likwid.total (input): ", exp, aggr, metric, "\n")
   q <- strwrap(sprintf(paste("
 
  SELECT project, num_cores, SUM(total) as total FROM
   (
-    SELECT project_name as Project, region, num_cores, %s(value) as total
+    SELECT project_name as Project, region, CAST(num_cores as Integer), %s(value) as total
     FROM run_likwid
     WHERE metric = '%s'
     AND experiment_group = '%s'::uuid
@@ -125,7 +126,13 @@ likwid.total <- function(c, exp, aggr, metric) {
     GROUP BY Project, num_cores, region, metric ORDER BY project, num_cores
   ) as run_likwid_f
  GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
+  
+  qr <- dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_likwid WITH DATA;")
+  dbFetch(qr)
+  dbClearResult(qr)
+  
   qr <- dbSendQuery(c, q)
+  cat("likwid.total: ", dbGetRowCount(qr), "\n")
   res <- dbFetch(qr)
   if (dbGetRowCount(qr) > 0) {
     res <- melt(res, id.vars = c("project", "num_cores"))
@@ -135,10 +142,11 @@ likwid.total <- function(c, exp, aggr, metric) {
 }
 
 likwid.runtime <- function(c, exp, aggr, metric) {
+  cat("likwid.runtime (input): ", exp, aggr, metric, "\n")
   q <- strwrap(sprintf(paste("
 SELECT project, num_cores, SUM(runtime) as runtime FROM
   (
-    SELECT project_name as Project, region, num_cores, %s(value) as runtime
+    SELECT project_name as Project, region, CAST(num_cores as Integer), %s(value) as runtime
     FROM run_likwid
     WHERE metric = '%s'
     AND experiment_group = '%s'::uuid
@@ -148,7 +156,13 @@ SELECT project, num_cores, SUM(runtime) as runtime FROM
     GROUP BY Project, num_cores, region, metric ORDER BY project, num_cores
   ) as run_likwid_f
 GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
+  
+  qr <- dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_likwid WITH DATA;")
+  dbFetch(qr)
+  dbClearResult(qr)
+  
   qr <- dbSendQuery(c, q)
+  cat("likwid.runtime: ", dbGetRowCount(qr), "\n")
   res <- dbFetch(qr)
   if (dbGetRowCount(qr) > 0) {
     res <- melt(res, id.vars = c("project", "num_cores"))
@@ -158,10 +172,11 @@ GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
 }
 
 likwid.overhead <- function(c, exp, aggr, metric) {
+  cat("likwid.overhead (input): ", exp, aggr, metric, "\n")
   q <- strwrap(sprintf(paste("
 SELECT project, num_cores, SUM(overhead) as overhead FROM
     (
-      SELECT project_name as Project, region, num_cores, %s(value) as overhead
+      SELECT project_name as Project, region, CAST(num_cores as Integer), %s(value) as overhead
       FROM run_likwid
       WHERE metric = '%s'
       AND experiment_group = '%s'::uuid
@@ -171,7 +186,13 @@ SELECT project, num_cores, SUM(overhead) as overhead FROM
       GROUP BY Project, num_cores, region, metric ORDER BY project, num_cores
     ) as run_likwid_f
 GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
+  
+  qr <- dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_likwid WITH DATA;")
+  dbFetch(qr)
+  dbClearResult(qr)
+  
   qr <- dbSendQuery(c, q)
+  cat("likwid.overhead: ", dbGetRowCount(qr), "\n")
 
   res <- dbFetch(qr)
   if (dbGetRowCount(qr) > 0) {

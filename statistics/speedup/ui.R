@@ -23,13 +23,20 @@ shinyUI(
           column(width = 4,
             selectInput("groups", label = "Groups", multiple = TRUE, choices = NULL, width = '100%'))
         ),
-        fluidRow(
-        ),
-        fluidRow(column(width = 8,
+        fluidRow(column(width = 12,
             tabsetPanel(
               "Visualisation",
               tabPanel("Table", dataTableOutput("speedupTable")),
-              tabPanel("Plot", plotOutput("speedup", width = "100%", height = "700px"))
+              tabPanel("Plot",
+                       fluidRow(
+                         column(width = 2,
+                                numericInput("plotSize", label = "Plot Height (px):", 1200, min = 480, max = 64000)),
+                         column(width = 2,
+                                numericInput("numCols", label = "Number of facet columns:", 4, min = 1, max = 42))
+                       ),
+                       fluidRow(
+                         uiOutput("speedup.ui"))
+                      )
             )
           )
         )))))

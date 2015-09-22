@@ -238,6 +238,7 @@ get_experiments <- function(c) {
 
 speedup <- function(c, base, jit, projects = NULL, groups = NULL) {
   extra_filter <- ""
+  range_filter <- ""
   if (!is.null(projects)) {
     extra_filter <- sprintf("AND project.name IN (%s)",
                             paste(lapply(as.vector(projects),
@@ -251,7 +252,7 @@ speedup <- function(c, base, jit, projects = NULL, groups = NULL) {
                                          function(x) sprintf("\'%s\'", x)),
                                   collapse=", ")))
   }
-  
+
   q <- sprintf(paste(
 "SELECT spd.project_name, spd.cores, spd.ptime, spd.time, spd.speedup,
     CASE WHEN spd.speedup >= 1 OR spd.speedup = 0 THEN spd.speedup

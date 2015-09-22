@@ -1,0 +1,299 @@
+library(ggplot2)
+library(DBI)
+library(RPostgres)
+library(reshape2)
+#library(ggthemes)
+library(scales)
+
+if (!require("sm")) install.packages('sm')
+library(sm)
+
+if (!require("vioplot")) install.packages('vioplot')
+library(vioplot)
+
+sql.get <- function(c, query) {
+  qr <- dbSendQuery(c, query)
+  res <- dbFetch(qr)
+  dbClearResult(qr)
+  return(res)
+}
+
+get_experiments <- function(c) {
+  q <- strwrap(paste(
+        "SELECT experiment_group, experiment_name, MAX(finished) as completed
+         FROM run
+         WHERE NOT experiment_group = '00000000-0000-0000-0000-000000000000'::uuid
+         GROUP BY experiment_group, experiment_name ORDER BY completed;"), width=10000, simplify=TRUE)
+  return(sql.get(c, q))
+}
+
+get_raw_runtime <- function(name, experiment, connection) {
+  query <- strwrap(sprintf(paste(
+    "SELECT project_name, name, SUM(value) as sumval
+     FROM run, metrics WHERE run.id = metrics.run_id
+     AND experiment_name = '%s'
+     AND experiment_group = '%s'::uuid
+     GROUP BY run_group, project_name, name, value
+     ORDER BY sumval DESC;
+    "), name, experiment), width=10000, simplify=TRUE)
+  query_res <- dbSendQuery(connection, query)
+  res <- melt(dbFetch(query_res))
+  dbClearResult(query_res)
+  if (nrow(res) > 0) {
+    res$project_name <- factor(res$project_name, levels = res$project_name)
+  }
+
+  return(res)
+}
+
+get_papi_dyncov <- function(experiment, connection, order_by) {
+  query <- strwrap(sprintf(paste(
+    "SELECT run.project_name, metrics.value, project.domain
+    FROM run, metrics, project
+    WHERE experiment_group = '%s'
+    AND run.id = metrics.run_id
+    AND run.project_name = project.name
+    AND metrics.name = 'pprof.dyncov' ORDER BY %s;
+    "), experiment, order_by), width=10000, simplify=TRUE)
+  query_res <- dbSendQuery(connection, query)
+  res <- melt(dbFetch(query_res))
+
+  if (nrow(res) > 0) {
+    res$project_name <- factor(res$project_name, levels = res$project_name)
+  }
+  dbClearResult(query_res)
+  return(res)
+}
+
+papi_dyncov <- function(c, exp) {
+  q <- strwrap(sprintf(paste("SELECT project_name, name, MAX(value)
+                             FROM run, metrics
+                             WHERE run.id = metrics.run_id
+                             AND experiment_group = '%s'
+                             AND experiment_name = 'papi'
+                             AND name = 'pprof.dyncov'
+                             GROUP BY project_name, name
+                             ORDER BY project_name;"), exp), width=10000, simplify=TRUE)
+  return(sql.get(c, q))
+}
+
+papi_time <- function(c, exp) {
+  q <- strwrap(sprintf(paste("SELECT project_name, name, SUM(value)
+                             FROM run, metrics
+                             WHERE run.id = metrics.run_id
+                             AND experiment_group = '%s'
+                             AND experiment_name = 'papi'
+                             AND name = 'pprof.time.total_s'
+                             GROUP BY project_name, name
+                             ORDER BY project_name;"), exp), width=10000, simplify=TRUE)
+  return(sql.get(c, q))
+}
+
+papi_time_scops <- function(c, exp) {
+  q <- strwrap(sprintf(paste("SELECT project_name, name, SUM(value)
+                             FROM run, metrics
+                             WHERE run.id = metrics.run_id
+                             AND experiment_group = '%s'::uuid
+                             AND experiment_name = 'papi'
+                             AND name = 'pprof.time.scops_s'
+                             GROUP BY project_name, name
+                             ORDER BY project_name;"), exp), width=10000, simplify=TRUE)
+  return(sql.get(c, q))
+}
+
+likwid.get_metrics <- function(c) {
+  q <- strwrap(paste("SELECT DISTINCT(metric) FROM likwid;"), width=10000, simplify=TRUE)
+  return(sql.get(c, q))
+}
+
+likwid.total <- function(c, exp, aggr, metric) {
+  cat("likwid.total (input): ", exp, aggr, metric, "\n")
+  q <- strwrap(sprintf(paste("
+
+ SELECT project, num_cores, SUM(total) as total FROM
+  (
+    SELECT project_name as Project, region, CAST(num_cores as Integer), %s(value) as total
+    FROM run_likwid
+    WHERE metric = '%s'
+    AND experiment_group = '%s'::uuid
+    AND experiment_name = 'polyjit'
+    AND (core != 'Min' AND core != 'Max' AND core != 'Avg')
+    AND region = 'polyjit.main'
+    GROUP BY Project, num_cores, region, metric ORDER BY project, num_cores
+  ) as run_likwid_f
+ GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
+  
+  qr <- dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_likwid WITH DATA;")
+  dbFetch(qr)
+  dbClearResult(qr)
+  
+  qr <- dbSendQuery(c, q)
+  cat("likwid.total: ", dbGetRowCount(qr), "\n")
+  res <- dbFetch(qr)
+  if (dbGetRowCount(qr) > 0) {
+    res <- melt(res, id.vars = c("project", "num_cores"))
+  }
+  dbClearResult(qr)
+  return(res)
+}
+
+likwid.runtime <- function(c, exp, aggr, metric) {
+  cat("likwid.runtime (input): ", exp, aggr, metric, "\n")
+  q <- strwrap(sprintf(paste("
+SELECT project, num_cores, SUM(runtime) as runtime FROM
+  (
+    SELECT project_name as Project, region, CAST(num_cores as Integer), %s(value) as runtime
+    FROM run_likwid
+    WHERE metric = '%s'
+    AND experiment_group = '%s'::uuid
+    AND experiment_name = 'polyjit'
+    AND (core != 'Min' AND core != 'Max' AND core != 'Avg')
+    AND region not like 'po%%yjit.%%'
+    GROUP BY Project, num_cores, region, metric ORDER BY project, num_cores
+  ) as run_likwid_f
+GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
+  
+  qr <- dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_likwid WITH DATA;")
+  dbFetch(qr)
+  dbClearResult(qr)
+  
+  qr <- dbSendQuery(c, q)
+  cat("likwid.runtime: ", dbGetRowCount(qr), "\n")
+  res <- dbFetch(qr)
+  if (dbGetRowCount(qr) > 0) {
+    res <- melt(res, id.vars = c("project", "num_cores"))
+  }
+  dbClearResult(qr)
+  return(res)
+}
+
+likwid.overhead <- function(c, exp, aggr, metric) {
+  cat("likwid.overhead (input): ", exp, aggr, metric, "\n")
+  q <- strwrap(sprintf(paste("
+SELECT project, num_cores, SUM(overhead) as overhead FROM
+    (
+      SELECT project_name as Project, region, CAST(num_cores as Integer), %s(value) as overhead
+      FROM run_likwid
+      WHERE metric = '%s'
+      AND experiment_group = '%s'::uuid
+      AND experiment_name = 'polyjit'
+      AND (core != 'Min' AND core != 'Max' AND core != 'Avg')
+      AND region like 'po%%yjit%%' AND not region = 'polyjit.main'
+      GROUP BY Project, num_cores, region, metric ORDER BY project, num_cores
+    ) as run_likwid_f
+GROUP BY project, num_cores;"), aggr, metric, exp), width=10000, simplify=TRUE)
+  
+  qr <- dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_likwid WITH DATA;")
+  dbFetch(qr)
+  dbClearResult(qr)
+  
+  qr <- dbSendQuery(c, q)
+  cat("likwid.overhead: ", dbGetRowCount(qr), "\n")
+
+  res <- dbFetch(qr)
+  if (dbGetRowCount(qr) > 0) {
+    res <- melt(res, id.vars = c("project", "num_cores"))
+  }
+  dbClearResult(qr)
+  return(res)
+}
+
+compilestats <- function(c, exp, name, component) {
+  q <- strwrap(sprintf(paste("
+    SELECT project_name, experiment_name, name, SUM(value)
+    FROM run, compilestats
+    WHERE run.id = compilestats.run_id AND
+          experiment_group = '%s'::uuid AND
+          component = '%s' AND
+          name = '%s'
+    GROUP BY project_name, experiment_name, name;"), exp, component, name),
+               width = 10000, simplify = TRUE)
+  return(sql.get(c, q))
+}
+
+compilestats.names <- function(c, component) {
+  if (is.null(component) || length(component) == 0)
+    return (c("No data..."))
+
+  q <- strwrap(sprintf(paste("SELECT DISTINCT(name) FROM compilestats WHERE component = '%s';"), component), width=10000, simplify=TRUE)
+  return(sql.get(c, q))
+}
+
+compilestats.components <- function(c) {
+  q <- strwrap(paste("SELECT DISTINCT(component) FROM compilestats;"), width=10000, simplify=TRUE)
+  return(sql.get(c, q))
+}
+
+runlog <- function(c, exp) {
+  q <- strwrap(sprintf(paste("SELECT status, project_name as project,
+                                     experiment_name as experiment,
+                                     (\"end\" - \"begin\") as duration,
+                                     command FROM run_log
+                              WHERE experiment_group = '%s'::uuid ORDER BY status, project ASC;"), exp),
+               width=10000, simplify=TRUE)
+  sql.get(c, "REFRESH MATERIALIZED VIEW run_log WITH DATA;")
+
+  return(sql.get(c, q))
+}
+
+speedup <- function(c, base, jit, projects = NULL, groups = NULL) {
+  extra_filter <- ""
+  if (!is.null(projects)) {
+    extra_filter <- sprintf("AND project.name IN (%s)",
+                            paste(lapply(as.vector(projects),
+                                         function(x) sprintf("\'%s\'", x)),
+                                  collapse=", "))
+  }
+  if (!is.null(groups)) {
+    extra_filter <- paste(extra_filter,
+                          sprintf(" AND project.group_name IN (%s)",
+                            paste(lapply(as.vector(groups),
+                                         function(x) sprintf("\'%s\'", x)),
+                                  collapse=", ")))
+  }
+  
+
+  q <- sprintf(paste(
+"SELECT spd.project_name, spd.cores, spd.ptime, spd.time, spd.speedup,
+    CASE WHEN spd.speedup >= 1 OR spd.speedup = 0 THEN spd.speedup
+     
+    WHEN spd.speedup > 0 AND spd.speedup < 1 THEN -1/spd.speedup
+    END AS speedup_corrected
+ FROM
+ (
+    SELECT pjit.project_name, pjit.cval AS cores,  pjit.sum AS ptime, raw.sum AS time,
+           (raw.sum / pjit.sum) AS speedup
+    FROM
+    (
+      SELECT project_name, metrics.name, SUM(metrics.value), config.name,
+             cast ( config.value AS INTEGER) AS cval
+      FROM run, metrics, config
+      WHERE (experiment_name = 'polyjit' AND experiment_group = '%s'::uuid) AND run.id = metrics.run_id AND run.id = config.run_id AND metrics.name = 'time.real_s'
+      GROUP BY project_name, metrics.name, config.name, cval
+      ORDER BY project_name, cval
+    ) AS pjit,
+    (
+      SELECT project_name, metrics.name, SUM(metrics.value), config.name, cast ( config.value AS INTEGER) AS cval
+      FROM run, metrics, config
+      WHERE (experiment_name = 'raw' AND experiment_group = '%s'::uuid) AND run.id = metrics.run_id AND run.id = config.run_id AND metrics.name = 'time.real_s'
+      GROUP BY project_name, metrics.name, config.name, cval
+      ORDER BY project_name, cval
+    ) AS raw
+    WHERE pjit.project_name = raw.project_name
+    ORDER BY cores ASC
+ ) AS spd, project
+ WHERE spd.project_name = project.name %s
+;"), jit, base, extra_filter)
+
+  return(sql.get(c, q))
+}
+
+projects <- function(c) {
+  q <- "SELECT name from project;"
+  return(sql.get(c, q))
+}
+
+groups <- function(c) {
+  q <- "SELECT DISTINCT group_name from project;"
+  return(sql.get(c, q))
+}

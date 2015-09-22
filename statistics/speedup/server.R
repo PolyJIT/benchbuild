@@ -51,19 +51,27 @@ shinyServer(function(input, output, session) {
   })
 
 
+  output$speedup.ui = renderUI({
+    plotOutput("speedup", width = "100%", height = input$plotSize)
+  })
   output$speedup = renderPlot({
     validate(
       need(input$rawExperiments, "Select a RAW-compatible experiment as baseline first."),
       need(input$jitExperiments, "Select a JIT-compatible experiment first.")
     )
-    d <- speedup(con, input$rawExperiments, input$jitExperiments, input$projects, input$groups)
+    d <- speedup(con,
+                 input$rawExperiments,
+                 input$jitExperiments,
+                 input$projects,
+                 input$groups)
     
     if (nrow(d) > 0) {
       ggplot(data=d,
              aes(x = cores, y = speedup_corrected, fill = cores, color = cores)) +
         geom_point(aes(color = cores)) +
         geom_line() +
-        facet_grid(project_name ~ .)
+        facet_wrap(~ project_name, ncol = input$numCols, scales = "free_y")
+        #facet_grid(project_name ~ .)
     }
   })
 
@@ -72,7 +80,11 @@ shinyServer(function(input, output, session) {
         need(input$rawExperiments, "Select a RAW-compatible experiment as baseline first."),
         need(input$jitExperiments, "Select a JIT-compatible experiment first.")
       )
-      return(speedup(con, input$rawExperiments, input$jitExperiments, input$projects, input$groups))
+      return(speedup(con,
+                     input$rawExperiments,
+                     input$jitExperiments,
+                     input$projects,
+                     input$groups))
     },
     options = list(
       style = 'bootstrap',

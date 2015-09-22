@@ -17,19 +17,6 @@ papiPlotData <- function(id, con) {
   return(cov.dom)
 }
 
-getSelections <- function(name, exps) {
-  if (!is.null(name)) {
-    exps <- exps[exps$experiment_name == name, ]
-  }
-
-  newNames <- paste0(exps[,"experiment_name"],
-                     rep(" @ ", nrow(exps)),
-                     exps[,"completed"])
-  groups <- exps[, "experiment_group"]
-  names(groups) <- newNames
-  return(groups)
-}
-
 timingPlot <- function(id, exps, con) {
   exp.id <- id
   exp.name <- exps[exps$experiment_group == exp.id, "experiment_name"]

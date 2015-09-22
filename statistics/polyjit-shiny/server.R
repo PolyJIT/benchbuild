@@ -20,34 +20,6 @@ con <- dbConnect(RPostgres::Postgres(),
                  port=32768,
                  password="pprof")
 
-# con <- dbConnect(RPostgres::Postgres(),
-#                  dbname="pprof",
-#                  user="pprof",
-#                  host="132.231.65.195",
-#                  port=32769,
-#                  password="pprof")
-
-# con <- dbConnect(RPostgres::Postgres(),
-#                  dbname="pprof",
-#                  user="pprof",
-#                  host="192.168.1.135",
-#                  port=32769,
-#                  password="pprof")
-
-# con <- dbConnect(RPostgres::Postgres(),
-#                  dbname="pprof",
-#                  user="pprof",
-#                  host="192.168.1.107",
-#                  port=32769,
-#                  password="pprof")
-
-# con <- dbConnect(RPostgres::Postgres(),
-#                  dbname="pprof",
-#                  user="pprof",
-#                  host="localhost",
-#                  port=32769,
-#                  password="pprof")
-
 source("./polyjit.R")
 source("./shiny-data.R")
 

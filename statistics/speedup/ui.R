@@ -1,4 +1,5 @@
 library(shiny)
+library(DT)
 
 shinyUI(
   navbarPage(
@@ -27,7 +28,7 @@ shinyUI(
         fluidRow(column(width = 8,
             tabsetPanel(
               "Visualisation",
-              tabPanel("Table", dataTableOutput("speedupT")),
+              tabPanel("Table", dataTableOutput("speedupTable")),
               tabPanel("Plot", plotOutput("speedup", width = "100%", height = "700px"))
             )
           )

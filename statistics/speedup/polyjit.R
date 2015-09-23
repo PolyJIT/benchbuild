@@ -255,9 +255,9 @@ speedup <- function(c, base, jit, projects = NULL, groups = NULL) {
 
   q <- sprintf(paste(
 "SELECT spd.project_name, spd.cores, spd.ptime, spd.time, spd.speedup,
-    CASE WHEN spd.speedup >= 0.8 OR spd.speedup = 0 THEN spd.speedup
+    CASE WHEN spd.speedup >= 0.5 OR spd.speedup = 0 THEN spd.speedup
      
-    WHEN spd.speedup > 0 AND spd.speedup < 0.8 THEN -1/spd.speedup
+    WHEN spd.speedup > 0 AND spd.speedup < 0.5 THEN -1/spd.speedup
     END AS speedup_corrected
  FROM
  (

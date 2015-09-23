@@ -29,10 +29,12 @@ shinyUI(
               tabPanel("Table", dataTableOutput("speedupTable")),
               tabPanel("Plot",
                        fluidRow(
-                         column(width = 2,
+                         column(width = 4,
                                 numericInput("plotSize", label = "Plot Height (px):", 1200, min = 480, max = 64000)),
+                         column(width = 4,
+                                numericInput("numCols", label = "Number of facet columns:", 4, min = 1, max = 42)),
                          column(width = 2,
-                                numericInput("numCols", label = "Number of facet columns:", 4, min = 1, max = 42))
+                                checkboxInput("plotTime", label = "Plot absolute timings", value = FALSE))
                        ),
                        fluidRow(
                          uiOutput("speedup.ui"))

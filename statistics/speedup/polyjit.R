@@ -255,9 +255,9 @@ speedup <- function(c, base, jit, projects = NULL, groups = NULL) {
 
   q <- sprintf(paste(
 "SELECT spd.project_name, spd.cores, spd.ptime, spd.time, spd.speedup,
-    CASE WHEN spd.speedup >= 1 OR spd.speedup = 0 THEN spd.speedup
+    CASE WHEN spd.speedup >= 0.8 OR spd.speedup = 0 THEN spd.speedup
      
-    WHEN spd.speedup > 0 AND spd.speedup < 1 THEN -1/spd.speedup
+    WHEN spd.speedup > 0 AND spd.speedup < 0.8 THEN -1/spd.speedup
     END AS speedup_corrected
  FROM
  (
@@ -268,14 +268,14 @@ speedup <- function(c, base, jit, projects = NULL, groups = NULL) {
       SELECT project_name, metrics.name, SUM(metrics.value), config.name,
              cast ( config.value AS INTEGER) AS cval
       FROM run, metrics, config
-      WHERE (experiment_name = 'polyjit' AND experiment_group = '%s') AND run.id = metrics.run_id AND run.id = config.run_id AND metrics.name = 'time.real_s'
+      WHERE experiment_group = '%s' AND run.id = metrics.run_id AND run.id = config.run_id AND metrics.name = 'time.real_s'
       GROUP BY project_name, metrics.name, config.name, cval
       ORDER BY project_name, cval
     ) AS pjit,
     (
       SELECT project_name, metrics.name, SUM(metrics.value), config.name, cast ( config.value AS INTEGER) AS cval
       FROM run, metrics, config
-      WHERE (experiment_name = 'raw' AND experiment_group = '%s') AND run.id = metrics.run_id AND run.id = config.run_id AND metrics.name = 'time.real_s'
+      WHERE experiment_group = '%s' AND run.id = metrics.run_id AND run.id = config.run_id AND metrics.name = 'time.real_s' AND (experiment_name = 'raw' OR config.value = '1')
       GROUP BY project_name, metrics.name, config.name, cval
       ORDER BY project_name, cval
     ) AS raw

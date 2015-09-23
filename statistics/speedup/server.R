@@ -66,12 +66,21 @@ shinyServer(function(input, output, session) {
                  input$groups)
     
     if (nrow(d) > 0) {
-      ggplot(data=d,
-             aes(x = cores, y = speedup_corrected, fill = cores, color = cores)) +
-        geom_point(aes(color = cores)) +
-        geom_line() +
-        facet_wrap(~ project_name, ncol = input$numCols, scales = "free_y")
-        #facet_grid(project_name ~ .)
+      p <- ggplot(data=d, aes(x = cores, y = speedup_corrected, fill = cores, color = cores))
+ 
+      if (input$plotTime) {
+        p <- p + geom_line(aes(y = time), color = "red") +
+                 geom_line(aes(y = ptime), color = "green") +
+                 ylab("Runtime in [s]")
+      } else {
+        p <- p + geom_line() +
+                 geom_point(aes(color = cores)) +
+                 geom_smooth(color = "red") +
+                 ylab("Speedup Factor")
+      }
+
+      p <- p + facet_wrap(~ project_name, ncol = input$numCols) + xlab("Number of cores")
+      p
     }
   })
 

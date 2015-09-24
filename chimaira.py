@@ -115,12 +115,15 @@ def prepare_slurm_script(experiment, project, experiment_id):
         commands.append(pprof["build", "-j", config["cpus-per-task"],
                               "-B", config["nodedir"], "-I", config["isl"],
                               "-L", config["likwidir"], "-P", config["papi"]])
-    commands.append(pprof["run",
-                          "-P", project,
-                          "-E", experiment,
-                          "-B", config["nodedir"],
-                          "--likwid-prefix", config["likwiddir"],
-                          "-L", config["llvm"]])
+
+    # We need to wrap the pprof run inside srun to avoid HyperThreading.
+    srun = local["srun", "--hint=nomultithread"]
+    commands.append(srun[pprof["run",
+                               "-P", project,
+                               "-E", experiment,
+                               "-B", config["nodedir"],
+                               "--likwid-prefix", config["likwiddir"],
+                               "-L", config["llvm"]]])
     # commands.append(
     #    cp["-ar", node_results, os.path.join(config["resultsdir"],
     #                                          experiment)])

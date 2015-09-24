@@ -108,8 +108,10 @@ shinyServer(function(input, output, session) {
                                                getSelections("polly-openmpvect", exps),
                                                getSelections("papi", exps),
                                                getSelections("papi-std", exps),
-                                               getSelections("polyjit", exps)), selected = 0)
-  updateSelectInput(session, "jitExperiments", choices = getSelections("polyjit", exps), selected = 0)
+                                               getSelections("polyjit", exps),
+                                               getSelections("pj-raw", exps)), selected = 0)
+  updateSelectInput(session, "jitExperiments", choices = c(getSelections("polyjit", exps),
+                                                           getSelections("pj-raw", exps)), selected = 0)
   updateSelectInput(session, "projects", choices = projects(con), selected = 0)
   updateSelectInput(session, "groups", choices = groups(con), selected = 0)
   

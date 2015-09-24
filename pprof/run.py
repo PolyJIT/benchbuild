@@ -78,7 +78,10 @@ class PprofRun(cli.Application):
         from pprof.experiments import compilestats, compilestats_ewpt
 
         self._experiments = {
-            "polyjit": polyjit.PolyJIT,
+            "pj-raw": polyjit.PJITRaw,
+            "pj-likwid": polyjit.PJITlikwid,
+            "pj-cs": polyjit.PJITcs,
+            "pj-papi": polyjit.PJITpapi,
             "raw": raw.RawRuntime,
             "papi": papi.PapiScopCoverage,
             "papi-std": papi.PapiStandardScopCoverage,

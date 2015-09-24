@@ -201,110 +201,7 @@ class PolyJIT(RuntimeExperiment):
 
     """The polyjit experiment."""
 
-    def run_step_compilestats(self, p):
-        """ Compile the project and track the compilestats. """
-        p.clean()
-        p.prepare()
-        p.download()
-        with substep("Configure Project"):
-            def track_compilestats(cc, **kwargs):
-                from pprof.utils import run as r
-                from pprof.utils.db import persist_compilestats
-                from pprof.utils.run import handle_stdin
-
-                new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
-
-                run, session, retcode, _, stderr = \
-                    r.guarded_exec(new_cc, p.name, self.name,
-                                   p.run_uuid)
-
-                if retcode == 0:
-                    stats = []
-                    for stat in get_compilestats(stderr):
-                        c = CompileStat()
-                        c.name = stat["desc"].rstrip()
-                        c.component = stat["component"].rstrip()
-                        c.value = stat["value"]
-                        stats.append(c)
-                    persist_compilestats(run, session, stats)
-
-            p.compiler_extension = track_compilestats
-            p.configure()
-
-        with substep("Build Project"):
-            p.build()
-
-    def run_step_jit(self, p):
-        """Run the experiment without likwid."""
-        from uuid import uuid4
-
-        for i in range(1, int(config["jobs"])):
-            with substep("{} cores & uuid {}".format(i+1, p.run_uuid)):
-                p.clean()
-                p.prepare()
-                p.download()
-                p.configure()
-                p.build()
-
-                p.run_uuid = uuid4()
-                run_with_time.config = config
-                run_with_time.experiment = self
-                run_with_time.project = p
-                run_with_time.jobs = i
-                p.run(run_with_time)
-
-    def run_step_likwid(self, p):
-        """Run the experiment with likwid."""
-        from uuid import uuid4
-
-        old_cflags = p.cflags
-        p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
-
-        for i in range(1, int(config["jobs"])):
-            with substep("{} cores & uuid {}".format(i+1, p.run_uuid)):
-                p.clean()
-                p.prepare()
-                p.download()
-                p.configure()
-                p.build()
-
-                p.run_uuid = uuid4()
-                run_with_likwid.config = config
-                run_with_likwid.experiment = self
-                run_with_likwid.project = p
-                run_with_likwid.jobs = i
-                p.run(run_with_likwid)
-
-        p.cflags = old_cflags
-
-    def run_step_papi(self, p):
-        """Run the experiment with papi support."""
-        from uuid import uuid4
-
-        old_cflags = p.cflags
-        old_ldflags = p.ldflags
-        p.cflags = ["-DPOLLI_ENABLE_PAPI"] + p.cflags
-        p.ldflags = p.ldflags + ["-lpprof"]
-
-        for i in range(1, int(config["jobs"])):
-            with substep("{} cores & uuid {}".format(i+1, p.run_uuid)):
-                p.clean()
-                p.prepare()
-                p.download()
-                p.configure()
-                p.build()
-
-                p.run_uuid = uuid4()
-                run_with_papi.config = config
-                run_with_papi.experiment = self
-                run_with_papi.project = p
-                run_with_papi.jobs = i
-                p.run(run_with_papi)
-
-        p.cflags = old_cflags
-        p.ldflags = old_ldflags
-
-    def run_project(self, p):
+    def init_project(self, p):
         """
         Execute the pprof experiment.
 
@@ -325,13 +222,127 @@ class PolyJIT(RuntimeExperiment):
                     "-mllvm", "-polly-delinearize=false",
                     "-mllvm", "-polly-detect-keep-going",
                     "-mllvm", "-polli"]
-        #with local.env(PPROF_ENABLE=1):
-        #    with step("JIT, papi instrumentation"):
-        #        self.run_step_papi(p)
+        return p
+
+    def run_project(self, p):
+        pass
+
+
+class PJITRaw(PolyJIT):
+    def run_project(self, p):
+        p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
-            with step("JIT, no instrumentation"):
-                self.run_step_jit(p)
-            with step("JIT, likwid"):
-                self.run_step_likwid(p)
-            #with step("Track Compilestats @ -O3"):
-            #    self.run_step_compilestats(p)
+            """Run the experiment without likwid."""
+            from uuid import uuid4
+
+            for i in range(1, int(config["jobs"])):
+                with step("{} cores & uuid {}".format(i+1, p.run_uuid)):
+                    p.clean()
+                    p.prepare()
+                    p.download()
+                    p.configure()
+                    p.build()
+
+                    p.run_uuid = uuid4()
+                    run_with_time.config = config
+                    run_with_time.experiment = self
+                    run_with_time.project = p
+                    run_with_time.jobs = i
+                    p.run(run_with_time)
+
+
+class PJITlikwid(PolyJIT):
+    def run_project(self, p):
+        p = self.init_project(p)
+        with local.env(PPROF_ENABLE=0):
+            """Run the experiment with likwid."""
+            from uuid import uuid4
+
+            old_cflags = p.cflags
+            p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
+
+            for i in range(1, int(config["jobs"])):
+                with step("{} cores & uuid {}".format(i+1, p.run_uuid)):
+                    p.clean()
+                    p.prepare()
+                    p.download()
+                    p.configure()
+                    p.build()
+
+                    p.run_uuid = uuid4()
+                    run_with_likwid.config = config
+                    run_with_likwid.experiment = self
+                    run_with_likwid.project = p
+                    run_with_likwid.jobs = i
+                    p.run(run_with_likwid)
+
+            p.cflags = old_cflags
+
+
+class PJITcs(PolyJIT):
+    def run_project(self, p):
+        p = self.init_project(p)
+        with local.env(PPROF_ENABLE=0):
+            """ Compile the project and track the compilestats. """
+            p.clean()
+            p.prepare()
+            p.download()
+            with substep("Configure Project"):
+                def track_compilestats(cc, **kwargs):
+                    from pprof.utils import run as r
+                    from pprof.utils.db import persist_compilestats
+                    from pprof.utils.run import handle_stdin
+
+                    new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
+
+                    run, session, retcode, _, stderr = \
+                        r.guarded_exec(new_cc, p.name, self.name,
+                                       p.run_uuid)
+
+                    if retcode == 0:
+                        stats = []
+                        for stat in get_compilestats(stderr):
+                            c = CompileStat()
+                            c.name = stat["desc"].rstrip()
+                            c.component = stat["component"].rstrip()
+                            c.value = stat["value"]
+                            stats.append(c)
+                        persist_compilestats(run, session, stats)
+
+                p.compiler_extension = track_compilestats
+                p.configure()
+
+        with substep("Build Project"):
+            p.build()
+
+
+class PJITpapi(PolyJIT):
+
+    def run_project(self, p):
+        p = self.init_project(p)
+        with local.env(PPROF_ENABLE=1):
+            """Run the experiment with papi support."""
+            from uuid import uuid4
+
+            old_cflags = p.cflags
+            old_ldflags = p.ldflags
+            p.cflags = ["-DPOLLI_ENABLE_PAPI"] + p.cflags
+            p.ldflags = p.ldflags + ["-lpprof"]
+
+            for i in range(1, int(config["jobs"])):
+                with step("{} cores & uuid {}".format(i+1, p.run_uuid)):
+                    p.clean()
+                    p.prepare()
+                    p.download()
+                    p.configure()
+                    p.build()
+
+                    p.run_uuid = uuid4()
+                    run_with_papi.config = config
+                    run_with_papi.experiment = self
+                    run_with_papi.project = p
+                    run_with_papi.jobs = i
+                    p.run(run_with_papi)
+
+            p.cflags = old_cflags
+            p.ldflags = old_ldflags

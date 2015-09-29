@@ -197,6 +197,62 @@ def run_with_time(run_f, args, **kwargs):
     })
 
 
+@static_var("config", None)
+@static_var("experiment", None)
+@static_var("project", None)
+@static_var("jobs", 0)
+def run_with_perf(run_f, args, **kwargs):
+    """
+    Run the given binary wrapped with time.
+
+    Args:
+        run_f: The file we want to execute.
+        args: List of arguments that should be passed to the wrapped binary.
+        **kwargs: Dictionary with our keyword args. We support the following
+            entries:
+
+            project_name: The real name of our project. This might not
+                be the same as the configured project name, if we got wrapped
+                with ::pprof.project.wrap_dynamic
+            has_stdin: Signals whether we should take care of stdin.
+    """
+    from pprof.utils import run as r
+    from plumbum.cmd import perf
+    from plumbum import FG, local
+    from os import path
+
+    p = run_with_perf.project
+    e = run_with_perf.experiment
+    c = run_with_perf.config
+    jobs = run_with_perf.jobs
+
+    config.update(c)
+
+    assert p is not None, "run_with_likwid.project attribute is None."
+    assert e is not None, "run_with_likwid.experiment attribute is None."
+    assert c is not None, "run_with_likwid.config attribute is None."
+    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
+    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
+    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+
+    run_cmd = perf["record", "-q", "-F", 999, "-g", run_f]
+    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+
+    with local.env(OMP_NUM_THREADS=str(jobs)):
+        run_cmd & FG
+
+    fg_path = path.join(config["sourcedir"], "extern/FlameGraph")
+    if path.exists(fg_path):
+        sc_perf = local[path.join(fg_path, "stackcollapse-perf.pl")]
+        flamegraph = local[path.join(fg_path, "flamegraph.pl")]
+
+        fold_cmd = ((perf["script"] | sc_perf) > run_f + ".folded")
+        graph_cmd = (flamegraph[run_f + ".folded"] > run_f + ".svg")
+
+        fold_cmd & FG
+        graph_cmd & FG
+
+
 class PolyJIT(RuntimeExperiment):
 
     """The polyjit experiment."""

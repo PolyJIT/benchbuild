@@ -95,7 +95,7 @@ class RawRuntime(RuntimeExperiment):
 
         with step("RAW -O3"):
             p.ldflags = ["-L" + llvm_libs]
-            p.cflags = ["-O3"]
+            p.cflags = ["-O3", "-fno-omit-frame-pointer"]
             with substep("reconf & rebuild"):
                 p.download()
                 p.configure()

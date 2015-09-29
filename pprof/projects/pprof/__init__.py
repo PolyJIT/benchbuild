@@ -17,6 +17,7 @@ import openssl
 import postgres
 import povray
 import python
+import rasdaman
 import ruby
 import sdcc
 import sevenz

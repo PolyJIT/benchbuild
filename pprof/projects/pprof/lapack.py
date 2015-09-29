@@ -5,6 +5,43 @@ from pprof.settings import config
 from plumbum import local
 
 
+class OpenBlas(PprofGroup):
+    domain = "scientific"
+
+    class Factory:
+
+        def create(self, exp):
+            return OpenBlas(exp, "openblas", "scientific")
+    ProjectFactory.addFactory("OpenBlas", Factory())
+
+    src_dir = "OpenBLAS"
+    src_uri = "https://github.com/xianyi/" + src_dir
+
+    def download(self):
+        from pprof.utils.downloader import Git
+
+        with local.cwd(self.builddir):
+            Git(self.src_uri, self.src_dir)
+
+    def configure(self):
+        pass
+
+    def build(self):
+        from plumbum.cmd import make
+        from pprof.utils.compiler import lt_clang
+
+        blas_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        with local.cwd(blas_dir):
+            make("CC=" + str(clang))
+
+    def run_tests(self, experiment):
+        from pprof.project import wrap
+
+        pass
+
+
 class Lapack(PprofGroup):
     domain = "scientific"
 

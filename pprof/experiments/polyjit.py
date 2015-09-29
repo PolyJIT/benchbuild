@@ -217,6 +217,7 @@ def run_with_perf(run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.utils import run as r
+    from pprof.utils.db import persist_perf, persist_config
     from plumbum.cmd import perf
     from plumbum import FG, local
     from os import path
@@ -235,22 +236,31 @@ def run_with_perf(run_f, args, **kwargs):
     assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
     assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
 
+    project_name = kwargs.get("project_name", p.name)
     run_cmd = perf["record", "-q", "-F", 999, "-g", run_f]
     run_cmd = r.handle_stdin(run_cmd[args], kwargs)
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
         run_cmd & FG
+        run, session, _, _, stderr = \
+            r.guarded_exec(local["/bin/true"], project_name, e.name,
+                           p.run_uuid)
 
-    fg_path = path.join(config["sourcedir"], "extern/FlameGraph")
-    if path.exists(fg_path):
-        sc_perf = local[path.join(fg_path, "stackcollapse-perf.pl")]
-        flamegraph = local[path.join(fg_path, "flamegraph.pl")]
+        fg_path = path.join(config["sourcedir"], "extern/FlameGraph")
+        if path.exists(fg_path):
+            sc_perf = local[path.join(fg_path, "stackcollapse-perf.pl")]
+            flamegraph = local[path.join(fg_path, "flamegraph.pl")]
 
-        fold_cmd = ((perf["script"] | sc_perf) > run_f + ".folded")
-        graph_cmd = (flamegraph[run_f + ".folded"] > run_f + ".svg")
+            fold_cmd = ((perf["script"] | sc_perf) > run_f + ".folded")
+            graph_cmd = (flamegraph[run_f + ".folded"] > run_f + ".svg")
 
-        fold_cmd & FG
-        graph_cmd & FG
+            fold_cmd & FG
+            graph_cmd & FG
+        persist_perf(run, session, run_f + ".svg")
+        persist_config(run, session, {
+            "cores": str(jobs)
+        })
+
 
 
 class PolyJIT(RuntimeExperiment):

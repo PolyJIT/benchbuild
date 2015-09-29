@@ -173,6 +173,23 @@ class RunLog(Base):
     stdout = Column(String)
 
 
+class Metadata(Base):
+
+    """
+    Store metadata information for every run.
+
+    If you happen to have some free-form data that belongs to the database,
+    this is the place for it.
+    """
+
+    __tablename__ = "metadata"
+
+    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
+                    ondelete="CASCADE"), primary_key=True)
+    name = Column(String)
+    value = Column(String)
+
+
 class Config(Base):
 
     """

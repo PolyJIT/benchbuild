@@ -96,6 +96,17 @@ def persist_time(run, session, timings):
     session.commit()
 
 
+def persist_perf(run, session, svg_path):
+    """ Persist the flamegraph in the database."""
+    from pprof.utils import schema as s
+
+    with open(svg_path, 'r') as svg_file:
+        svg_data = svg_file.read()
+        session.add(s.Metadata(name="perf.flamegraph", value=svg_data,
+                               run_id=run.id))
+    session.commit()
+
+
 def persist_compilestats(run, session, stats):
     """ Persist the run results in the database."""
     for stat in stats:

@@ -79,6 +79,7 @@ class PprofRun(cli.Application):
 
         self._experiments = {
             "pj-raw": polyjit.PJITRaw,
+            "pj-perf": polyjit.PJITperf,
             "pj-likwid": polyjit.PJITlikwid,
             "pj-cs": polyjit.PJITcs,
             "pj-papi": polyjit.PJITpapi,

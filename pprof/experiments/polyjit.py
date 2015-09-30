@@ -305,20 +305,6 @@ class PJITRaw(PolyJIT):
 
             for i in range(1, int(config["jobs"]) + 1):
                 p.run_uuid = uuid4()
-                with step("perf: {} cores & uuid {}".format(i, p.run_uuid)):
-                    p.clean()
-                    p.prepare()
-                    p.download()
-                    p.configure()
-                    p.build()
-
-                    run_with_perf.config = config
-                    run_with_perf.experiment = self
-                    run_with_perf.project = p
-                    run_with_perf.jobs = i
-                    p.run(run_with_perf)
-
-                p.run_uuid = uuid4()
                 with step("time: {} cores & uuid {}".format(i, p.run_uuid)):
                     p.clean()
                     p.prepare()
@@ -332,6 +318,29 @@ class PJITRaw(PolyJIT):
                     run_with_time.jobs = i
                     p.run(run_with_time)
 
+
+class PJITperf(PolyJIT):
+    def run_project(self, p):
+        p = self.init_project(p)
+        with local.env(PPROF_ENABLE=0):
+            """Run the experiment without likwid."""
+            from uuid import uuid4
+
+            p.cflags += ["-fno-omit-frame-pointer"]
+            for i in range(1, int(config["jobs"]) + 1):
+                p.run_uuid = uuid4()
+                with step("perf: {} cores & uuid {}".format(i, p.run_uuid)):
+                    p.clean()
+                    p.prepare()
+                    p.download()
+                    p.configure()
+                    p.build()
+
+                    run_with_perf.config = config
+                    run_with_perf.experiment = self
+                    run_with_perf.project = p
+                    run_with_perf.jobs = i
+                    p.run(run_with_perf)
 
 
 class PJITlikwid(PolyJIT):

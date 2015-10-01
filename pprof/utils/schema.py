@@ -104,6 +104,7 @@ class Event(Base):
     duration = Column(postgresql.NUMERIC)
     id = Column(Integer, primary_key=True)
     type = Column(postgresql.SMALLINT)
+    tid = Column(postgresql.BIGINT)
     run_id = Column(Integer,
                     ForeignKey("run.id",
                                onupdate="CASCADE", ondelete="CASCADE"),

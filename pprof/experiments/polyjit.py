@@ -237,7 +237,7 @@ def run_with_perf(run_f, args, **kwargs):
     assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
 
     project_name = kwargs.get("project_name", p.name)
-    run_cmd = perf["record", "-q", "-F", 999, "-g", run_f]
+    run_cmd = perf["record", "-q", "-F", 19999, "-g", run_f]
     run_cmd = r.handle_stdin(run_cmd[args], kwargs)
 
     with local.env(OMP_NUM_THREADS=str(jobs)):

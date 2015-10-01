@@ -41,7 +41,7 @@ shinyServer(function(input, output, session) {
   con <- dbConnect(RPostgres::Postgres(),
                    dbname="pprof", user="pprof", host="debussy.fim.uni-passau.de", port=32768, password="pprof")
   exps <- get_experiments(con)
-  
+
   data.projects <- reactive({
     validate(
       need(input$rawExperiments, "Select a RAW-compatible experiment as baseline first."),
@@ -64,10 +64,10 @@ shinyServer(function(input, output, session) {
                  input$jitExperiments,
                  input$projects,
                  input$groups)
-    
+
     if (nrow(d) > 0) {
       p <- ggplot(data=d, aes(x = cores, y = speedup_corrected, fill = cores, color = cores))
- 
+
       if (input$plotTime) {
         p <- p + geom_line(aes(y = time), color = "red") +
                  geom_line(aes(y = ptime), color = "green") +
@@ -101,6 +101,15 @@ shinyServer(function(input, output, session) {
     )
   )
 
+  output$flamegraph = renderText({
+    validate(
+      need(input$perfExperiments, "Select a PERF-compatible experiment first."),
+      need(input$perfProjects, "Select a Project first.")
+    )
+
+    return(flamegraph(con, input$perfExperiments, input$perfProjects))
+  })
+
   updateSelectInput(session, "rawExperiments", choices = c(getSelections("raw", exps),
                                                getSelections("polly", exps),
                                                getSelections("polly-openmp", exps),
@@ -114,7 +123,9 @@ shinyServer(function(input, output, session) {
                                                            getSelections("pj-raw", exps)), selected = 0)
   updateSelectInput(session, "projects", choices = projects(con), selected = 0)
   updateSelectInput(session, "groups", choices = groups(con), selected = 0)
-  
+  updateSelectInput(session, "perfExperiments", choices = c(getSelections("pj-perf", exps)), selected = 0)
+  updateSelectInput(session, "perfProjects", choices = perfProjects(con), selected = 0)
+
   session$onSessionEnded(function() {
     dbDisconnect(con)
   })

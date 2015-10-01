@@ -211,7 +211,8 @@ class Build(cli.Application):
                     "-DLLVM_BINUTILS_INCDIR=/usr/include/",
                     "-DLLVM_ENABLE_PIC=On",
                     "-DLLVM_ENABLE_ASSERTIONS=On",
-                    "-DCLANG_DEFAULT_OPENMP_RUNTIME=libomp"]
+                    "-DCLANG_DEFAULT_OPENMP_RUNTIME=libomp",
+                    "-DCMAKE_CXX_FLAGS_RELEASE='-O3 -DNDEBUG -fno-omit-frame-pointer'"]
 
                 if self._use_make:
                     llvm_cmake = llvm_cmake["-G", "Unix Makefiles"]

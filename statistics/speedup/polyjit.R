@@ -210,6 +210,7 @@
 sql.get <- function(c, query) {
   qr <- dbSendQuery(c, query)
   res <- dbFetch(qr)
+  cat("nrow: ", dbGetRowCount(qr), " query: ", query, "\n")
   dbClearResult(qr)
   return(res)
 }
@@ -292,7 +293,19 @@ projects <- function(c) {
   return(sql.get(c, q))
 }
 
+perfProjects <- function(c) {
+  q <- "SELECT DISTINCT project.name FROM project, run, metadata WHERE run.id = metadata.run_id AND project.name = run.project_name and experiment_name = 'pj-perf';"
+  return(sql.get(c, q))
+}
+
 groups <- function(c) {
   q <- "SELECT DISTINCT group_name from project;"
   return(sql.get(c, q))
+}
+
+flamegraph <- function(c, exp, project) {
+  q <- sprintf(paste(
+    "SELECT metadata.value FROM run, metadata WHERE run.id = metadata.run_id AND run.experiment_group = '%s' AND run.project_name = '%s' AND metadata.name = 'perf.flamegraph'
+;"), exp, project)
+  return(sql.get(c, q)$value)
 }

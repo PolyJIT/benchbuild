@@ -6,6 +6,22 @@ shinyUI(
     "PolyJIT Speedup Measurements", theme="css/bootstrap.min.css",
     # Raw Experiment
     tabPanel(
+      "Profiles",
+      fluidPage(
+        fluidRow(
+          column(width = 4,
+                 selectInput("perfExperiments", label = "Profile Experiment", multiple = FALSE, choices = NULL, width = '100%')),
+          column(width = 4,
+                 selectInput("perfProjects", label = "Projects", multiple = FALSE, choices = NULL, width = '100%'))
+        ),
+        fluidRow(
+          p("Run-time profile per project, presented as flamegraph.")
+        ),
+        fluidRow(column(width = 12,
+                        htmlOutput("flamegraph")))
+      )
+    ),
+    tabPanel(
       "Home",
       fluidPage(
         fluidRow(

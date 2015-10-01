@@ -46,15 +46,19 @@ class SevenZip(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make
+        from plumbum import FG
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.settings import config
 
         p7z_dir = path.join(self.builddir, self.src_dir)
-        clang = lt_clang(self.cflags, self.ldflags,
-                         self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
 
         with local.cwd(p7z_dir):
-            make("CC=" + str(clang),
+            make["CC=" + str(clang),
                  "CXX=" + str(clang_cxx),
-                 "clean", "all")
+                 "-j", config["jobs"],
+                 "clean", "all"] & FG

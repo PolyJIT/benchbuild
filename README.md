@@ -1,29 +1,15 @@
-# README #
+# PPROF - PolyJIT Profiling #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This is a small python framework for measuring various case studies using
+PolyJIT.
 
-### What is this repository for? ###
+### Features. ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Download and hash case studies once.
+* Build PolyJIT + All dependencies automatically.
+* Apply arbitrary experiments to all case studies.
+* Database support for storage of our results.
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
 
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact

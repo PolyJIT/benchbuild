@@ -40,12 +40,13 @@ class Bzip2(PprofGroup):
     def build(self):
         from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang
+        from pprof.utils.run import run
 
         bzip2_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
             clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         with local.cwd(bzip2_dir):
-            make("CC=" + str(clang), "clean", "bzip2")
+            run(make["CC=" + str(clang), "clean", "bzip2"])
 
     def pull_in_testfiles(self):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
@@ -57,19 +58,20 @@ class Bzip2(PprofGroup):
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         exp = wrap(path.join(self.src_dir, "bzip2"), experiment)
 
         # Compress
-        exp("-f", "-z", "-k", "--best", "text.html")
-        exp("-f", "-z", "-k", "--best", "chicken.jpg")
-        exp("-f", "-z", "-k", "--best", "control")
-        exp("-f", "-z", "-k", "--best", "input.source")
-        exp("-f", "-z", "-k", "--best", "liberty.jpg")
+        run(exp["-f", "-z", "-k", "--best", "text.html"])
+        run(exp["-f", "-z", "-k", "--best", "chicken.jpg"])
+        run(exp["-f", "-z", "-k", "--best", "control"])
+        run(exp["-f", "-z", "-k", "--best", "input.source"])
+        run(exp["-f", "-z", "-k", "--best", "liberty.jpg"])
 
         # Decompress
-        exp("-f", "-k", "--decompress", "text.html.bz2")
-        exp("-f", "-k", "--decompress", "chicken.jpg.bz2")
-        exp("-f", "-k", "--decompress", "control.bz2")
-        exp("-f", "-k", "--decompress", "input.source.bz2")
-        exp("-f", "-k", "--decompress", "liberty.jpg.bz2")
+        run(exp["-f", "-k", "--decompress", "text.html.bz2"])
+        run(exp["-f", "-k", "--decompress", "chicken.jpg.bz2"])
+        run(exp["-f", "-k", "--decompress", "control.bz2"])
+        run(exp["-f", "-k", "--decompress", "input.source.bz2"])
+        run(exp["-f", "-k", "--decompress", "liberty.jpg.bz2"])

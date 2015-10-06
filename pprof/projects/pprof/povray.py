@@ -36,6 +36,8 @@ class Povray(PprofGroup):
             tar("xfj", self.boost_src_file)
 
     def configure(self):
+        from pprof.utils.run import run
+
         # First we have to prepare boost for lady povray...
         boost_dir = path.join(self.builddir, self.boost_src_dir)
         boost_prefix = path.join(self.builddir, "boost-install")
@@ -44,8 +46,8 @@ class Povray(PprofGroup):
             mkdir(boost_prefix)
             bootstrap = local["./bootstrap.sh"]
             b2 = local["./b2"]
-            bootstrap("--prefix=\"{}\"".format(boost_prefix))
-            b2("install")
+            run(bootstrap["--prefix=\"{}\"".format(boost_prefix)])
+            run(b2["install"])
 
         povray_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(path.join(povray_dir, "unix")):
@@ -63,16 +65,17 @@ class Povray(PprofGroup):
             with local.env(COMPILED_BY="PPROF <no@mail.nono>",
                            CC=str(clang),
                            CXX=str(clang_cxx)):
-                configure("--with-boost=" + boost_prefix)
+                run(configure["--with-boost=" + boost_prefix])
 
     def build(self):
-        from plumbum.cmd import make, ln, mv, rm
+        from plumbum.cmd import make, rm
+        from pprof.utils.run import run
         povray_dir = path.join(self.builddir, self.src_dir)
         povray_binary = path.join(povray_dir, "unix", self.name)
 
         with local.cwd(povray_dir):
             rm("-f", povray_binary)
-            make("clean", "all")
+            run(make["clean", "all"])
 
     def prepare(self):
         super(Povray, self).prepare()
@@ -85,6 +88,7 @@ class Povray(PprofGroup):
     def run_tests(self, experiment):
         from plumbum.cmd import mkdir, chmod
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         povray_dir = path.join(self.builddir, self.src_dir)
         povray_binary = path.join(povray_dir, "unix", self.name)
@@ -105,5 +109,5 @@ class Povray(PprofGroup):
                               grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]) |
                              head["-n", "1"]) |
                             sed["s?^//[ ]*??"]) & FG)
-                povray("+L" + scene_dir, "+L" + tmpdir, "-i" + pov_f,
-                       "-o" + tmpdir, options, "-p", retcode=None)
+                run(povray["+L" + scene_dir, "+L" + tmpdir, "-i" + pov_f,
+                           "-o" + tmpdir, options, "-p"], retcode=None)

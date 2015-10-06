@@ -293,8 +293,16 @@ projects <- function(c) {
   return(sql.get(c, q))
 }
 
-perfProjects <- function(c) {
-  q <- "SELECT DISTINCT project.name FROM project, run, metadata WHERE run.id = metadata.run_id AND project.name = run.project_name and experiment_name = 'pj-perf';"
+perfProjects <- function(c, exp = NULL) {
+  if (is.null(exp) || (is.character(exp) && exp == ''))
+    q <- "SELECT DISTINCT project.name FROM project, run, metadata WHERE run.id = metadata.run_id AND project.name = run.project_name and experiment_name = 'pj-perf';"
+  else
+    q <- sprintf(paste(
+      "SELECT DISTINCT project.name FROM project, run, metadata
+       WHERE run.id = metadata.run_id AND
+             project.name = run.project_name AND
+             experiment_name = 'pj-perf' AND
+             experiment_group = '%s';"), exp)
   return(sql.get(c, q))
 }
 

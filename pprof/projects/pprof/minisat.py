@@ -21,6 +21,7 @@ class Minisat(PprofGroup):
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         minisat_dir = path.join(self.builddir, self.src_dir)
 
@@ -33,7 +34,7 @@ class Minisat(PprofGroup):
 
         for test_f in testfiles:
             with local.env(LD_LIBRARY_PATH=minisat_lib_path + ":" + getenv("LD_LIBRARY_PATH", "")):
-                (exp < test_f) & FG(retcode=None)
+                run((exp < test_f), None)
 
     src_dir = "minisat.git"
     src_uri = "https://github.com/niklasso/minisat"
@@ -51,14 +52,16 @@ class Minisat(PprofGroup):
 
     def configure(self):
         from plumbum.cmd import make
+        from pprof.utils.run import run
 
         minisat_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(minisat_dir):
-            make("config")
+            run(make["config"])
 
     def build(self):
         from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
 
         minisat_dir = path.join(self.builddir, self.src_dir)
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
@@ -66,6 +69,6 @@ class Minisat(PprofGroup):
                                  self.compiler_extension)
 
         with local.cwd(minisat_dir):
-            make("CC=" + str(clang),
-                 "CXX=" + str(clang_cxx),
-                 "clean", "lsh", "sh")
+            run(make["CC=" + str(clang),
+                     "CXX=" + str(clang_cxx),
+                     "clean", "lsh", "sh"])

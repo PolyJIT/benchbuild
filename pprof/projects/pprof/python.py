@@ -33,6 +33,7 @@ class Python(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
         python_dir = path.join(self.builddir, self.src_dir)
 
         with local.cwd(self.builddir):
@@ -44,20 +45,22 @@ class Python(PprofGroup):
         with local.cwd(python_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                configure("--disable-shared", "--without-gcc")
+                run(configure["--disable-shared", "--without-gcc"])
 
     def build(self):
         from plumbum.cmd import make
+        from pprof.utils.run import run
         python_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(python_dir):
-            make()
+            run(make)
 
     def run_tests(self, experiment):
         from plumbum.cmd import make
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         python_dir = path.join(self.builddir, self.src_dir)
         exp = wrap(path.join(python_dir, "python"), experiment)
 
         with local.cwd(python_dir):
-            make("TESTPYTHON=" + str(exp), "-i", "test")
+            run(make["TESTPYTHON=" + str(exp), "-i", "test"])

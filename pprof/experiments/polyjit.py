@@ -237,8 +237,9 @@ def run_with_perf(run_f, args, **kwargs):
     assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
 
     project_name = kwargs.get("project_name", p.name)
-    run_cmd = perf["record", "-q", "-F", 19999, "-g", run_f]
+    run_cmd = local[run_f]
     run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    run_cmd = perf["record", "-q", "-F", 6249, "-g", run_cmd]
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
         run_cmd & FG
@@ -256,11 +257,10 @@ def run_with_perf(run_f, args, **kwargs):
 
             fold_cmd & FG
             graph_cmd & FG
-        persist_perf(run, session, run_f + ".svg")
-        persist_config(run, session, {
-            "cores": str(jobs)
-        })
-
+            persist_perf(run, session, run_f + ".svg")
+            persist_config(run, session, {
+                "cores": str(jobs)
+            })
 
 
 class PolyJIT(RuntimeExperiment):

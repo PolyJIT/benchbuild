@@ -29,13 +29,14 @@ class LibAV(PprofGroup):
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         libav_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(libav_dir):
             wrap(self.name, experiment)
 
         with local.cwd(self.src_dir):
-            make("V=1", "-i", "fate")
+            run(make["V=1", "-i", "fate"])
 
     def download(self):
         from pprof.utils.downloader import Wget, Rsync
@@ -49,17 +50,20 @@ class LibAV(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang
+        from pprof.utils.run import run
 
         libav_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
             clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         with local.cwd(libav_dir):
             configure = local["./configure"]
-            configure("--disable-shared",
-                      "--cc=" + str(clang),
-                      "--samples=" + self.fate_dir)
+            run(configure["--disable-shared",
+                          "--cc=" + str(clang),
+                          "--extra-ldflags=" + " ".join(self.ldflags),
+                          "--samples=" + self.fate_dir])
 
     def build(self):
+        from pprof.utils.run import run
         libav_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(libav_dir):
-            make("clean", "all")
+            run(make["clean", "all"])

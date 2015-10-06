@@ -19,6 +19,12 @@ class CompilestatsExperiment(RuntimeExperiment):
 
     """The compilestats experiment."""
 
+    def extra_ldflags(self):
+        return []
+
+    def extra_cflags(self):
+        return ["-O3"]
+
     def persist_run(self, cmd, project_name, run_uuid, stats):
         """ Persist the run results in the database."""
         from pprof.utils.db import create_run
@@ -37,8 +43,8 @@ class CompilestatsExperiment(RuntimeExperiment):
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("Track Compilestats @ -O3"):
-            p.ldflags = ["-L" + llvm_libs]
-            p.cflags = ["-O3"]
+            p.ldflags = ["-L" + llvm_libs] + self.extra_ldflags()
+            p.cflags = self.extra_cflags()
             with substep("Configure Project"):
                 p.download()
 

@@ -6,7 +6,7 @@ from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from glob import glob
-from plumbum import FG, local
+from plumbum import local
 
 
 class Lammps(PprofGroup):
@@ -28,6 +28,7 @@ class Lammps(PprofGroup):
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         lammps_dir = path.join(self.builddir, self.src_dir, "src")
         exp = wrap(path.join(lammps_dir, "lmp_serial"), experiment)
@@ -36,7 +37,7 @@ class Lammps(PprofGroup):
             tests = glob(path.join(self.testdir, "in.*"))
             for test in tests:
                 cmd = (exp < test)
-                cmd & FG(retcode=None)
+                run(cmd, None)
 
     src_dir = "lammps.git"
     src_uri = "https://github.com/lammps/lammps"
@@ -53,9 +54,12 @@ class Lammps(PprofGroup):
     def build(self):
         from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang_cxx
+        from pprof.utils.run import run
+
+        self.ldflags += ["-lgomp"]
 
         clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                  self.compiler_extension)
 
         with local.cwd(path.join(self.builddir, self.src_dir, "src")):
-            make("CC=" + str(clang_cxx), "clean", "serial")
+            run(make["CC=" + str(clang_cxx), "clean", "serial"])

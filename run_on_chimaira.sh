@@ -29,5 +29,4 @@ fi
   -P $PAPI_DIR \
   -L /usr \
   --llvm-prefix $INSTALL_LLVM_TO \
-  --cpus-per-task 2 \
   $*

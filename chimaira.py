@@ -56,7 +56,12 @@ def dump_slurm_script(script_name, log_name, commands, uuid=None):
     with open(script_name, 'w') as slurm:
         slurm.write("#!/bin/sh\n")
         slurm.write("#SBATCH -o {}\n".format(log_name))
-        slurm.write("#SBATCH -t \"4:00:00\"\n")
+        slurm.write("#SBATCH -t \"12:00:00\"\n")
+        slurm.write("#SBATCH --hint=nomultithread\n")
+        slurm.write("#SBATCH --ntasks 1\n")
+        slurm.write("#SBATCH --exclusive\n")
+        slurm.write("#SBATCH --cpus-per-task {}\n".format(
+            config["cpus-per-task"]))
         slurm.write("export LD_LIBRARY_PATH=\"{}:$LD_LIBRARY_PATH\"\n".format(
             path.join(config["papi"], "lib")))
         slurm.write(
@@ -109,33 +114,37 @@ def prepare_slurm_script(experiment, project, experiment_id):
     slurm_script = os.path.join(os.getcwd(), config["slurm_script"])
     log_file = os.path.join(config["resultsdir"],
                             experiment + "-" + project + ".log")
-    node_experiment_results = os.path.join(config["nodedir"], experiment)
-    node_results = os.path.join(node_experiment_results, project)
-    node_error_log = os.path.join(node_experiment_results, "error.log")
-    error_log = os.path.join(config["resultsdir"], experiment, "error." +
-                             project)
 
     if config["local_build"]:
         commands.append(pprof["build", "-j", config["cpus-per-task"],
                               "-B", config["nodedir"], "-I", config["isl"],
-                              "-L", config["likwid"], "-P", config["papi"]])
-    commands.append(pprof["run", "-P", project, "-E", experiment, "-B",
-                          config["nodedir"], "-c", "-x", "-L",
-                          config["llvm"]])
+                              "-L", config["likwidir"], "-P", config["papi"]])
+
+    # We need to wrap the pprof run inside srun to avoid HyperThreading.
+    srun = local["srun"]
+    commands.append(srun["--hint=nomultithread", pprof["run",
+                         "-P", project,
+                         "-E", experiment,
+                         "-B", config["nodedir"],
+                         "--likwid-prefix", config["likwiddir"],
+                         "-L", config["llvm"]]])
     # commands.append(
     #    cp["-ar", node_results, os.path.join(config["resultsdir"],
     #                                          experiment)])
-    #commands.append(mv[node_error_log, error_log])
+    # commands.append(mv[node_error_log, error_log])
     dump_slurm_script(slurm_script, log_file, commands, experiment_id)
     return slurm_script
 
 
 def dispatch_jobs(exp, projects):
-    """Dispatch sbatch scripts to slurm for all projects given
+    """
+    Dispatch sbatch scripts to slurm for all given projects.
 
-    projects: List of projects that need to be dispatched to SLURM
-    :returns: a list of SLURM job ids
+    Args:
+        projects: List of projects that need to be dispatched to SLURM
 
+    Return:
+        The list of SLURM job ids.
     """
     jobs = []
     from uuid import uuid4
@@ -145,14 +154,13 @@ def dispatch_jobs(exp, projects):
         if len(project) == 0:
             continue
         slurm_script = prepare_slurm_script(exp, project, experiment_id)
-        job_id = (sbatch[
+        sbatch_cmd = sbatch[
             "--job-name=" + exp + "-" + project,
             "-A", config["account"],
             "-p", config["partition"],
-            "--ntasks", "1",
-            "--cpus-per-task", config["cpus-per-task"],
-            "--hint=nomultithread",
-            slurm_script] | awk['{ print $4 }'])()
+            slurm_script]
+
+        job_id = (sbatch_cmd | awk['{ print $4 }'])()
         jobs.append(job_id)
     return jobs
 

@@ -9,6 +9,8 @@ from plumbum import FG, local
 
 class LevelDB(PprofGroup):
 
+    src_uri = "https://github.com/google/leveldb"
+
     class Factory:
 
         def create(self, exp):
@@ -16,13 +18,10 @@ class LevelDB(PprofGroup):
     ProjectFactory.addFactory("LevelDB", Factory())
 
     def download(self):
-        src_uri = "https://github.com/google/leveldb"
-
         from pprof.utils.downloader import Git
-        from plumbum.cmd import git
 
         with local.cwd(self.builddir):
-            Git(src_uri, "leveldb.src")
+            Git(self.src_uri, "leveldb.src")
 
     def configure(self):
         pass
@@ -30,6 +29,7 @@ class LevelDB(PprofGroup):
     def build(self):
         from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
 
         leveldb_dir = path.join(self.builddir, "leveldb.src")
 
@@ -41,10 +41,11 @@ class LevelDB(PprofGroup):
 
         with local.cwd(leveldb_dir):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
-                make("clean", "db_bench")
+                run(make["clean", "db_bench"])
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         """execute leveldb's db_bench script
 
@@ -53,4 +54,4 @@ class LevelDB(PprofGroup):
         """
         leveldb_dir = path.join(self.builddir, "leveldb.src")
         exp = wrap(path.join(leveldb_dir, "db_bench"), experiment)
-        exp()
+        run(exp)

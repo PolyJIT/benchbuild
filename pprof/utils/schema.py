@@ -49,7 +49,8 @@ class Experiment(Base):
     description = Column(String)
 
     def __repr__(self):
-        return "<Experiment(name='{}', description='{}')>".format(self.name, self.description)
+        return "<Experiment(name='{}', description='{}')>".format(
+                self.name, self.description)
 
 
 class Likwid(Base):
@@ -103,6 +104,7 @@ class Event(Base):
     duration = Column(postgresql.NUMERIC)
     id = Column(Integer, primary_key=True)
     type = Column(postgresql.SMALLINT)
+    tid = Column(postgresql.BIGINT)
     run_id = Column(Integer,
                     ForeignKey("run.id",
                                onupdate="CASCADE", ondelete="CASCADE"),
@@ -150,5 +152,59 @@ class CompileStat(Base):
             """<CompileStat(name='{}', component={}, value={}, run_id='{}')>
             """.format(self.name, self.component, self.value, self.run_id))
 
+
+class RunLog(Base):
+
+    """
+    Store log information for every run.
+
+    Properties like, start time, finish time, exit code, stderr, stdout
+    are stored here.
+    """
+
+    __tablename__ = 'log'
+
+    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
+                    ondelete="CASCADE"), primary_key=True)
+    begin = Column(DateTime(timezone=False))
+    end = Column(DateTime(timezone=False))
+    status = Column(Integer)
+    config = Column(String)
+    stderr = Column(String)
+    stdout = Column(String)
+
+
+class Metadata(Base):
+
+    """
+    Store metadata information for every run.
+
+    If you happen to have some free-form data that belongs to the database,
+    this is the place for it.
+    """
+
+    __tablename__ = "metadata"
+
+    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
+                    ondelete="CASCADE"), primary_key=True)
+    name = Column(String)
+    value = Column(String)
+
+
+class Config(Base):
+
+    """
+    Store customized information about a run.
+
+    You can store arbitrary configuration information about a run here.
+    Use it for extended filtering against the run table.
+    """
+
+    __tablename__ = 'config'
+
+    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
+                    ondelete="CASCADE"), primary_key=True)
+    name = Column(String, primary_key=True)
+    value = Column(String)
 
 Base.metadata.create_all(Engine, checkfirst=True)

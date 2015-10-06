@@ -1,19 +1,15 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+
 from plumbum import cli
+from plumbum.cmd import mkdir
 from pprof.driver import PollyProfiling
 from pprof.settings import config
+from pprof.utils.user_interface import query_yes_no
 
-from pprof.experiments import polli
-from pprof.experiments import polyjit
-from pprof.experiments import raw
-from pprof.experiments import papi
-from pprof.experiments.polly import polly, openmp, openmpvect, vectorize
-from pprof.experiments import compilestats
-import logging
+import os, os.path
 import pprint
-LOG = logging.getLogger()
 
 
 @PollyProfiling.subcommand("run")
@@ -21,27 +17,10 @@ class PprofRun(cli.Application):
 
     """ Frontend for running experiments in the pprof study framework. """
 
-    _experiments = {
-        "polyjit": polyjit.PolyJIT,
-        "polli": polli.Polli,
-        "polli-baseline": polli.PolliBaseLine,
-        "raw": raw.RawRuntime,
-        "papi": papi.PapiScopCoverage,
-        "papi-std": papi.PapiStandardScopCoverage,
-        "polly": polly.Polly,
-        "polly-openmp": openmp.PollyOpenMP,
-        "polly-openmpvect": openmpvect.PollyOpenMPVectorizer,
-        "polly-vectorize": vectorize.PollyVectorizer,
-        "stats": compilestats.CompilestatsExperiment
-    }
-
     _experiment_names = []
     _project_names = []
-    _verbose = False
-    _clean = False
     _list = False
-    _execute = False
-    _collect = False
+    _list_experiments = False
     _group_name = None
 
     @cli.switch(["-T", "--testdir"], str, help="Where are the testinput files")
@@ -64,28 +43,21 @@ class PprofRun(cli.Application):
     def llvmdir(self, dirname):
         config["llvmdir"] = dirname
 
-    @cli.switch(
-        ["-E", "--experiment"], str, list=True,
-        help="Specify experiments to run")
+    @cli.switch(["-E", "--experiment"], str, list=True,
+                help="Specify experiments to run")
     def experiments(self, experiments):
         self._experiment_names = experiments
 
     @cli.switch(
-        ["-P", "--project"], str, list=True, help="Specify projects to run")
+        ["-P", "--project"], str, list=True, requires=["--experiment"],
+        help="Specify projects to run")
     def projects(self, projects):
         self._project_names = projects
 
-    @cli.switch(["-c", "--clean"], help="Clean products")
-    def clean(self):
-        self._clean = True
-
-    @cli.switch(["-x", "--execute"], help="Execute experiments")
-    def execute(self):
-        self._execute = True
-
-    @cli.switch(["-C", "--collect"], help="Collect results")
-    def collect(self):
-        self._collect = True
+    @cli.switch(["--list-experiments"],
+                help="List available experiments")
+    def list_experiments(self):
+        self._list_experiments = True
 
     @cli.switch(["-l", "--list"], requires=["--experiment"],
                 help="List available projects for experiment")
@@ -98,6 +70,38 @@ class PprofRun(cli.Application):
         self._group_name = group
 
     def main(self):
+        from pprof.experiments import polyjit
+        from pprof.experiments import raw
+        from pprof.experiments import papi
+        from pprof.experiments.polly import (polly, openmp, openmpvect,
+                                             vectorize)
+        from pprof.experiments import compilestats, compilestats_ewpt
+
+        self._experiments = {
+            "pj-raw": polyjit.PJITRaw,
+            "pj-perf": polyjit.PJITperf,
+            "pj-likwid": polyjit.PJITlikwid,
+            "pj-cs": polyjit.PJITcs,
+            "pj-papi": polyjit.PJITpapi,
+            "raw": raw.RawRuntime,
+            "papi": papi.PapiScopCoverage,
+            "papi-std": papi.PapiStandardScopCoverage,
+            "polly": polly.Polly,
+            "polly-openmp": openmp.PollyOpenMP,
+            "polly-openmpvect": openmpvect.PollyOpenMPVectorizer,
+            "polly-vectorize": vectorize.PollyVectorizer,
+            "stats": compilestats.CompilestatsExperiment,
+            "ewpt": compilestats_ewpt.EWPTCompilestatsExperiment,
+        }
+
+        if self._list_experiments:
+            for experiment_name, experiment in self._experiments.items():
+                print(experiment_name)
+                docstring = experiment.__doc__ or "-- no docstring --"
+                docstring = docstring.strip()
+                print("    " + docstring)
+            exit(0)
+
         if self._list:
             for exp in self._experiment_names:
                 experiment = self._experiments[exp](
@@ -105,28 +109,30 @@ class PprofRun(cli.Application):
                 print_projects(experiment)
             exit(0)
 
+        print "Configuration: "
+        pprint.pprint(config)
+
+        if self._project_names:
+            # Only try to create the build dir if we're actually running some projects.
+            builddir = os.path.abspath(config["builddir"])
+            if not os.path.exists(builddir):
+                response = query_yes_no("The build directory {dirname} does not exist yet. Create it?".format(dirname=builddir), "no")
+                if response:
+                    mkdir("-p", builddir)
+
         for exp_name in self._experiment_names:
-            LOG.info("Running experiment: " + exp_name)
+            print "Running experiment: " + exp_name
             name = exp_name.lower()
 
             exp = self._experiments[name](
                 name, self._project_names, self._group_name)
-
-            if self._clean:
-                exp.clean()
-
-            if self._execute:
-                LOG.info("Configuration: ")
-                pprint.pprint(config)
-                exp.prepare()
-                exp.run()
-
-            if self._collect:
-                exp.collect_results()
+            exp.clean()
+            exp.prepare()
+            exp.run()
 
 
 def print_projects(experiment):
-    """Print a list of projects registered for that experiment
+    """Print a list of projects registered for that experiment.
 
     :experiment: TODO
 

@@ -20,7 +20,7 @@ class Lulesh(PprofGroup):
         from pprof.project import wrap
 
         exp = wrap(self.run_f, experiment)
-        for i in range(1, 10):
+        for i in range(10):
             exp(str(i))
 
     src_file = "LULESH.cc"

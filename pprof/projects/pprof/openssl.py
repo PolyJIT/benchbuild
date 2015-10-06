@@ -34,6 +34,7 @@ class LibreSSL(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang
+        from pprof.utils.run import run
         openssl_dir = path.join(self.builddir, self.src_dir)
 
         configure = local[path.join(openssl_dir, "configure")]
@@ -42,18 +43,20 @@ class LibreSSL(PprofGroup):
 
         with local.cwd(openssl_dir):
             with local.env(CC=str(clang)):
-                configure("--disable-asm")
+                run(configure["--disable-asm"])
 
     def build(self):
         from plumbum.cmd import make
+        from pprof.utils.run import run
 
         openssl_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(openssl_dir):
-            make("check")
+            run(make["check"])
 
     def run_tests(self, experiment):
         from plumbum.cmd import find, make
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         with local.cwd(path.join(self.src_dir, "tests", ".libs")):
             files = find(".", "-type", "f", "-executable")
@@ -61,4 +64,4 @@ class LibreSSL(PprofGroup):
                 if len(wrap_f) > 0:
                     wrap(wrap_f, experiment)
         with local.cwd(self.src_dir):
-            make("V=1", "check")
+            run(make["V=1", "check"])

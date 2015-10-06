@@ -62,6 +62,8 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
 # encoding: utf-8
 
 from plumbum import ProcessExecutionError, local, FG
+from plumbum.commands.modifiers import TEE
+from pprof.utils.run import GuardedRunException
 from pprof.experiment import to_utf8
 from os import path
 import pickle
@@ -93,7 +95,8 @@ def call_original_compiler(input_files, cc, cflags, ldflags, flags):
         else:
             final_command = cc["-Qunused-arguments", flags]
 
-        retcode, stdout, stderr = final_command.run()
+        retcode, stdout, stderr = final_command & TEE
+
         if len(stdout) > 0:
             print stdout
         if len(stderr) > 0:
@@ -101,7 +104,8 @@ def call_original_compiler(input_files, cc, cflags, ldflags, flags):
     except ProcessExecutionError as e:
         #FIXME: Write the fact that we had to fall back to the default
         #compiler somewhere
-        retcode, _, _ = cc.run(flags)
+        retcode, _, _ = cc[flags] & TEE
+
     return (retcode, final_command)
 
 

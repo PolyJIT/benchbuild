@@ -4,9 +4,10 @@
 from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
+from pprof.utils.run import run
 
 from os import path
-from plumbum import local
+from plumbum import local, FG
 from plumbum.cmd import cp
 
 
@@ -50,18 +51,18 @@ class X264(PprofGroup):
             configure = local["./configure"]
 
             with local.env(CC=str(clang)):
-                configure("--enable-static",
-                          "--disable-shared",
-                          "--disable-thread",
-                          "--disable-opencl",
-                          "--enable-pic")
+                run(configure["--enable-static",
+                              "--disable-shared",
+                              "--disable-thread",
+                              "--disable-opencl",
+                              "--enable-pic"])
 
     def build(self):
         from plumbum.cmd import make
 
         x264_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(x264_dir):
-            make("clean", "all", "-j", config["jobs"])
+            run(make["clean", "all", "-j", config["jobs"]])
 
     def run_tests(self, experiment):
         from pprof.project import wrap
@@ -82,5 +83,5 @@ class X264(PprofGroup):
         for ifile in self.inputfiles:
             testfile = path.join(self.testdir, ifile)
             for i in range(len(tests)):
-                exp(testfile, self.inputfiles[ifile], "--threads", "1",
-                    "-o", "/dev/null", tests[i].split(" "))
+                run(exp[testfile, self.inputfiles[ifile], "--threads", "1",
+                        "-o", "/dev/null", tests[i].split(" ")])

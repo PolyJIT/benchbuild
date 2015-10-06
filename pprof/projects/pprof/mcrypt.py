@@ -50,6 +50,7 @@ class MCrypt(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
         from plumbum.cmd import make
 
         mcrypt_dir = path.join(self.builddir, self.src_dir)
@@ -63,8 +64,8 @@ class MCrypt(PprofGroup):
                                        self.compiler_extension),
                            CXX=lt_clang_cxx(self.cflags, self.ldflags,
                                             self.compiler_extension)):
-                configure("--prefix=" + self.builddir)
-                make("-j", config["jobs"], "install")
+                run(configure["--prefix=" + self.builddir])
+                run(make["-j", config["jobs"], "install"])
 
         # Builder libmcrypt dependency
         with local.cwd(libmcrypt_dir):
@@ -73,8 +74,8 @@ class MCrypt(PprofGroup):
                                        self.compiler_extension),
                            CXX=lt_clang_cxx(self.cflags, self.ldflags,
                                             self.compiler_extension)):
-                configure("--prefix=" + self.builddir)
-                make("-j", config["jobs"], "install")
+                run(configure["--prefix=" + self.builddir])
+                run(make["-j", config["jobs"], "install"])
 
         with local.cwd(mcrypt_dir):
             configure = local["./configure"]
@@ -86,20 +87,23 @@ class MCrypt(PprofGroup):
                                self.builddir, "lib") + ":" + config["ld_library_path"],
                            LDFLAGS="-L" + path.join(self.builddir, "lib"),
                            CFLAGS="-I" + path.join(self.builddir, "include")):
-                configure("--disable-dependency-tracking",
-                          "--with-libmhash=" + self.builddir)
+                run(configure["--disable-dependency-tracking",
+                              "--with-libmhash=" + self.builddir])
 
     def build(self):
         from plumbum.cmd import make
+        from pprof.utils.run import run
+
         mcrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(mcrypt_dir):
-            make("-j", config["jobs"])
+            run(make["-j", config["jobs"]])
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         mcrypt_dir = path.join(self.builddir, self.src_dir, "src", ".libs")
         aestest = wrap(path.join(mcrypt_dir, "lt-aestest"), experiment)
-        aestest()
+        run(aestest)
         ciphertest = wrap(path.join(mcrypt_dir, "lt-ciphertest"), experiment)
-        ciphertest()
+        run(ciphertest)

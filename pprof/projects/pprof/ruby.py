@@ -31,6 +31,8 @@ class Ruby(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
+
         ruby_dir = path.join(self.builddir, self.src_dir)
         clang = lt_clang(self.cflags, self.ldflags,
                          self.compiler_extension)
@@ -39,26 +41,28 @@ class Ruby(PprofGroup):
         with local.cwd(ruby_dir):
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure = local["./configure"]
-                configure("--with-static-linked-ext", "--disable-shared")
+                run(configure["--with-static-linked-ext", "--disable-shared"])
 
     def build(self):
         from plumbum.cmd import make
+        from pprof.utils.run import run
 
         ruby_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ruby_dir):
-            make("-j", config["jobs"])
+            run(make["-j", config["jobs"]])
 
     def run_tests(self, experiment):
         from plumbum.cmd import ruby
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         ruby_dir = path.join(self.builddir, self.src_dir)
         exp = wrap(path.join(ruby_dir, "ruby"), experiment)
 
         with local.env(RUBYOPT=""):
-            ruby(path.join(self.testdir, "benchmark", "run.rb"),
-                 "--ruby=\"" + str(exp) + "\"",
-                 "--opts=\"-I" + path.join(self.testdir, "lib") +
-                 " -I" + path.join(self.testdir, ".") +
-                 " -I" + path.join(self.testdir, ".ext", "common") +
-                 "\"", "-r")
+            run(ruby[path.join(self.testdir, "benchmark", "run.rb"),
+                     "--ruby=\"" + str(exp) + "\"",
+                     "--opts=\"-I" + path.join(self.testdir, "lib") +
+                     " -I" + path.join(self.testdir, ".") +
+                     " -I" + path.join(self.testdir, ".ext", "common") +
+                     "\"", "-r"])

@@ -56,6 +56,7 @@ class SingleSourceBenchmarks(LNTGroup):
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
 
         exp = wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
@@ -67,13 +68,13 @@ class SingleSourceBenchmarks(LNTGroup):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                      self.compiler_extension)
 
-        lnt("runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
-            "--cc", str(clang),
-            "--cxx", str(clang_cxx),
-            "--test-suite", path.join(self.builddir, self.test_suite_dir),
-            "--test-style", "simple",
-            "--make-param=RUNUNDER=" + str(exp),
-            "--only-test=" + path.join("SingleSource", "Benchmarks"), "-v")
+        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("SingleSource", "Benchmarks"), "-v"])
 
 
 class MultiSourceBenchmarks(LNTGroup):
@@ -87,6 +88,7 @@ class MultiSourceBenchmarks(LNTGroup):
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
 
         exp = wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
@@ -98,13 +100,13 @@ class MultiSourceBenchmarks(LNTGroup):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                      self.compiler_extension)
 
-        lnt("runtest", "nt", "-v" "-j1", "--sandbox", sandbox_dir,
-            "--cc", str(clang),
-            "--cxx", str(clang_cxx),
-            "--test-suite", path.join(self.builddir, self.test_suite_dir),
-            "--test-style", "simple",
-            "--make-param=RUNUNDER=" + str(exp),
-            "--only-test=" + path.join("MultiSource", "Benchmarks"))
+        run(lnt["runtest", "nt", "-v" "-j1", "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("MultiSource", "Benchmarks")])
 
 
 class MultiSourceApplications(LNTGroup):
@@ -118,6 +120,7 @@ class MultiSourceApplications(LNTGroup):
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
 
         exp = wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
@@ -129,10 +132,10 @@ class MultiSourceApplications(LNTGroup):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                      self.compiler_extension)
 
-        lnt("runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
-            "--cc", str(clang),
-            "--cxx", str(clang_cxx),
-            "--test-suite", path.join(self.builddir, self.test_suite_dir),
-            "--test-style", "simple",
-            "--make-param=RUNUNDER=" + str(exp),
-            "--only-test=" + path.join("MultiSource", "Applications"))
+        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("MultiSource", "Applications")])

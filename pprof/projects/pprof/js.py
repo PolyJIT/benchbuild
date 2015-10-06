@@ -28,7 +28,9 @@ class SpiderMonkey(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
         from plumbum.cmd import mkdir
+
         js_dir = path.join(self.builddir, self.src_dir, "js", "src")
         with local.cwd(self.builddir):
             clang = lt_clang(self.cflags, self.ldflags,
@@ -43,22 +45,25 @@ class SpiderMonkey(PprofGroup):
                 with local.env(CC=str(clang),
                                CXX=str(clang_cxx)):
                     configure = local["../configure"]
-                    configure()
+                    run(configure)
 
     def build(self):
         from plumbum.cmd import make
+        from pprof.utils.run import run
+
         js_dir = path.join(self.builddir, self.src_dir, "js", "src")
 
         with local.cwd(path.join(js_dir, "build_OPT.OBJ")):
-            make("-j", config["available_cpu_count"])
+            run(make["-j", config["available_cpu_count"]])
 
     def run_tests(self, experiment):
         from pprof.project import wrap
         from plumbum.cmd import make
+        from pprof.utils.run import run
 
         js_dir = path.join(self.builddir, self.src_dir, "js", "src")
         js_build_dir = path.join(js_dir, "build_OPT.OBJ")
         wrap(path.join(js_build_dir, "bin", "js"), experiment)
 
         with local.cwd(js_build_dir):
-            make("check")
+            run(make["check"])

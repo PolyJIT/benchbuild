@@ -152,3 +152,11 @@ def guarded_exec(cmd, pname, ename, run_group):
     except ProcessExecutionError as e:
         fail(run, session, e.retcode, e.stdout, e.stderr)
         raise GuardedRunException(e, run, session)
+
+
+def run(command, retcode=0):
+    """
+    Execute a plumbum command, depending on the user's settings.
+    """
+    from plumbum import FG
+    command & FG(retcode)

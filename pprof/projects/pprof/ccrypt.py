@@ -40,6 +40,7 @@ class Ccrypt(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
 
         with local.cwd(self.builddir):
             clang = lt_clang(self.cflags, self.ldflags,
@@ -53,22 +54,24 @@ class Ccrypt(PprofGroup):
             with local.env(CC=str(clang),
                            CXX=str(clang_cxx),
                            LDFLAGS=" ".join(self.ldflags)):
-                configure()
+                run(configure)
 
     def build(self):
         from plumbum.cmd import make
+        from pprof.utils.run import run
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
-            make("check")
+            run(make["check"])
 
     def run_tests(self, experiment):
         from plumbum.cmd import make
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
             wrap(path.join(ccrypt_dir, "src", self.name), experiment)
             wrap(path.join(ccrypt_dir, "check", "crypt3-check"), experiment)
             wrap(path.join(ccrypt_dir, "check", "rijndael-check"), experiment)
-            make("check")
+            run(make["check"])

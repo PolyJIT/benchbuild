@@ -36,6 +36,7 @@ class SQLite3(PprofGroup):
 
     def build(self):
         from pprof.utils.compiler import lt_clang
+        from pprof.utils.run import run
 
         with local.cwd(self.builddir):
             sqlite_dir = path.join(self.builddir, self.src_dir)
@@ -43,9 +44,9 @@ class SQLite3(PprofGroup):
                              self.compiler_extension)
 
         with local.cwd(sqlite_dir):
-            clang("-fPIC", "-I.", "-c", "sqlite3.c")
-            clang("-shared", "-Wl,-soname,libsqlite3.so.0",
-                  "-o", "libsqlite3.so", "sqlite3.o", "-ldl")
+            run(clang["-fPIC", "-I.", "-c", "sqlite3.c"])
+            run(clang["-shared", "-Wl,-soname,libsqlite3.so.0",
+                      "-o", "libsqlite3.so", "sqlite3.o", "-ldl"])
 
         with local.cwd(self.builddir):
             self.build_leveldb()
@@ -59,6 +60,7 @@ class SQLite3(PprofGroup):
 
     def build_leveldb(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
         from plumbum.cmd import make
 
         sqlite_dir = path.join(self.builddir, self.src_dir)
@@ -72,13 +74,14 @@ class SQLite3(PprofGroup):
         with local.cwd(leveldb_dir):
             with local.env(CXX=str(clang_cxx),
                            CC=str(clang)):
-                make("clean", "db_bench_sqlite3")
+                run(make["clean", "db_bench_sqlite3"])
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         leveldb_dir = path.join(self.builddir, "leveldb.src")
         with local.cwd(leveldb_dir):
             sqlite = wrap(
                 path.join(leveldb_dir, "db_bench_sqlite3"), experiment)
-            sqlite()
+            run(sqlite)

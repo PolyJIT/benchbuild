@@ -13,8 +13,8 @@ An experiment can have a variable number of phases / steps / substeps.
 Phases / Steps / Substeps
 -------------------------
 
-All phases/steps/substeps support being used as a context manager. All 3 of them
-catch ProcessExecutionErrors that may be thrown from plumbum, without
+All phases/steps/substeps support being used as a context manager. All 3 of
+them catch ProcessExecutionErrors that may be thrown from plumbum, without
 aborting the whole experiment. However, an error is tracked.
 
 Actions
@@ -30,41 +30,25 @@ An experiment performs the following actions in order:
 """
 
 from plumbum import local, FG
-from plumbum.cmd import (cp, chmod, sed, time, echo,
-                         tee, mv, touch, awk, rm, mkdir, rmdir, grep, cat)
+from plumbum.cmd import mkdir, rmdir
 from plumbum.commands.processes import ProcessExecutionError
 
 from pprof.project import ProjectFactory
-from pprof.projects.polybench import polybench
-from pprof.projects.pprof import (sevenz, bzip2, ccrypt, crafty, crocopat,
-                                  ffmpeg, gzip, js, lammps, lapack, leveldb,
-                                  linpack, luleshomp, lulesh, mcrypt, minisat,
-                                  openssl, postgres, povray, python, ruby, sdcc,
-                                  sqlite3, tcc, x264, xz)
-from pprof.projects.lnt import lnt
+from pprof.utils.run import GuardedRunException
 from pprof.settings import config
+from pprof.projects import *
 
 from contextlib import contextmanager
 from os import path, listdir
 from sets import Set
 from pprof.utils.db import persist_experiment
 
-import re
 import sys
-import logging
 import regex
-
-# Configure the log
-FORMATTER = logging.Formatter('%(asctime)s - %(levelname)s :: %(message)s')
-HANDLER = logging.StreamHandler(sys.stdout)
-HANDLER.setFormatter(FORMATTER)
-LOG = logging.getLogger(__name__)
-HANDLER.setLevel(LOG.getEffectiveLevel())
-LOG.addHandler(HANDLER)
 
 
 def nl(o):
-    """Break the current line in the stream :o:
+    """Break the current line in the stream :o:.
 
     Don't reuse the current line, if :o: is not attached to a tty.
 
@@ -77,7 +61,6 @@ def nl(o):
     else:
         o.write("\n")
     return o
-
 
 def to_utf8(text):
     """
@@ -93,7 +76,7 @@ def to_utf8(text):
 
     try:  # unicode or pure ascii
         return text.encode("utf8")
-    except UnicodeDecodeError:
+    except UnicodeEncodeError:
         try:  # successful UTF-8 decode means it's pretty sure UTF-8 already
             text.decode("utf8")
             return text
@@ -108,7 +91,7 @@ def to_utf8(text):
 
 def static_var(varname, value):
     """
-    Decorate something with a static variable
+    Decorate something with a static variable.
 
     Example:
         .. code-block:: python
@@ -129,20 +112,10 @@ def static_var(varname, value):
     return decorate
 
 
-class SubStepError(Exception):
-
-    def __init__(self, *args):
-        super(SubStepError, self).__init__()
-        self.args = args
-
-    def __str__(self):
-        return repr(self.args)
-
-
 @contextmanager
 @static_var("counter", 0)
 @static_var("name", "")
-def phase(name):
+def phase(name, pname="FIXME: Unset"):
     """
     Introduce a new phase.
 
@@ -154,19 +127,20 @@ def phase(name):
     step.counter = 0
 
     from sys import stderr as o
+    main_msg = "PHASE.{} '{}' {}".format(phase.counter, name, pname)
 
-    nl(o).write("PHASE.{} '{}' START".format(phase.counter, name))
+    nl(o).write(main_msg + " START")
+    o.write("\n")
     o.flush()
     try:
         yield
-        nl(o).write(
-            "PHASE.{} '{}' OK".format(phase.counter, name))
-    except (OSError, ProcessExecutionError, SubStepError) as e:
-        try:
-            o.write(to_utf8("\n" + str(e)))
-        except UnicodeEncodeError:
-            o.write("\nCouldn't figure out what encoding to use, sorry...")
-        sys.stdout.write("\nPHASE.{} '{}' FAILED".format(phase.counter, name))
+        nl(o).write(main_msg + " OK")
+    except ProcessExecutionError as e:
+        o.write("\n" + e.stderr.encode("utf8"))
+    except (OSError, ProcessExecutionError, GuardedRunException) as e:
+        o.write("\n" + str(e.stderr))
+        sys.stdout.write("\n" + main_msg + " FAILED")
+    o.write("\n")
     o.flush()
 
 
@@ -185,23 +159,16 @@ def step(name):
     substep.counter = 0
 
     from sys import stderr as o
+    main_msg = "    STEP.{} '{}'".format(step.counter, name)
 
-    nl(o).write("PHASE.{} '{}' STEP.{} '{}' START".format(
-        phase.counter, phase.name, step.counter, name))
     try:
+        nl(o).write(main_msg + " START")
         yield
-        nl(o).write("PHASE.{} '{}' STEP.{} '{}' OK".format(
-            phase.counter, phase.name, step.counter, name))
-    except (OSError, ProcessExecutionError) as e:
-        try:
-            o.write(to_utf8("\n" + str(e)))
-        except UnicodeEncodeError:
-            o.write("\nCouldn't figure out what encoding to use, sorry...")
-        o.write("\nPHASE.{} '{}' STEP.{} '{}' FAILED".format(
-            phase.counter, phase.name, step.counter, name))
-        raise SubStepError(name, e)
-    except SubStepError as e:
-        raise e
+        nl(o).write(main_msg + " OK")
+    except ProcessExecutionError as e:
+        o.write("\n" + e.stderr.encode("utf8"))
+    except (OSError, GuardedRunException) as e:
+        o.write("\n" + str(e))
     o.flush()
 
 
@@ -220,27 +187,23 @@ def substep(name):
     substep.name = name
 
     from sys import stdout as o
+    main_msg = "        SUBSTEP.{} '{}'".format(substep.counter, name)
 
-    nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' START".format(
-        phase.counter, phase.name, step.counter, step.name, substep.counter,
-        name))
+    nl(o).write(main_msg + " START")
     try:
         yield
-        nl(o).write("PHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' OK".format(
-            phase.counter, phase.name, step.counter, step.name,
-            substep.counter, name))
-    except (OSError, ProcessExecutionError) as e:
+        nl(o).write(main_msg + " OK")
+    except ProcessExecutionError as e:
+        o.write("\n" + e.stderr.encode("utf8"))
+    except (OSError, GuardedRunException) as e:
         try:
-            o.write(to_utf8("\n" + str(e)))
+            nl(o).write("\n" + str(e))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
-        o.write("\nPHASE.{} '{}' STEP.{} '{}' SUBSTEP.{} '{}' FAILED".format(
-            phase.counter, phase.name, step.counter, step.name,
-            substep.counter, name))
-        o.write("\n{} substeps have FAILED so far.".format(substep.failed))
+        o.write("\n" + main_msg + "FAILED")
+        o.write("\n    {} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
-        raise SubStepError(name, e)
     o.flush()
 
 
@@ -270,6 +233,7 @@ class Experiment(object):
 
     """
     A series of commands executed on a project that form an experiment.
+
     The default implementation should provide a sane environment for all
     derivates.
 
@@ -284,21 +248,18 @@ class Experiment(object):
         bin_path = path.join(config["llvmdir"], "bin")
 
         config["path"] = bin_path + ":" + config["path"]
-        config["ld_library_path"] = path.join(config["llvmdir"], "lib") + ":" +\
+        config["ld_library_path"] = ":".join([
+            path.join(config["llvmdir"], "lib"),
             config["ld_library_path"]
+        ])
 
     def __init__(self, name, projects=[], group=None):
         self.name = name
-        self.products = Set([])
         self.projects = {}
         self.setup_commands()
-
-        self.name = name
         self.sourcedir = config["sourcedir"]
         self.builddir = path.join(config["builddir"], name)
         self.testdir = config["testdir"]
-        self.result_f = path.join(self.builddir, name + ".result")
-        self.error_f = path.join(self.builddir, "error.log")
 
         persist_experiment(self)
         self.populate_projects(projects, group)
@@ -352,7 +313,7 @@ class Experiment(object):
             Phase name
         """
         for project_name in self.projects:
-            with phase(p):
+            with phase(p, project_name):
                 prj = self.projects[project_name]
                 llvm_libs = path.join(config["llvmdir"], "lib")
                 ld_lib_path = config["ld_library_path"] + ":" + llvm_libs
@@ -366,15 +327,6 @@ class Experiment(object):
         self.map_projects(self.clean_project, "clean")
         if (path.exists(self.builddir)) and listdir(self.builddir) == []:
             rmdir(self.builddir)
-        if path.exists(self.result_f):
-            rm(self.result_f)
-
-        calibrate_calls_f = path.join(self.builddir, "pprof-calibrate.calls")
-        calibrate_prof_f = path.join(self.builddir,
-                                     "pprof-calibrate.profile.out")
-        if path.exists(calibrate_calls_f):
-            rm(calibrate_calls_f)
-            rm(calibrate_prof_f)
 
     def prepare(self):
         """
@@ -386,12 +338,6 @@ class Experiment(object):
         if not path.exists(self.builddir):
             (mkdir[self.builddir] & FG(retcode=None))
 
-        # Setup experiment logger
-        handler = logging.FileHandler(self.error_f)
-        handler.setLevel(logging.DEBUG)
-        handler.setFormatter(FORMATTER)
-        LOG.addHandler(handler)
-
         self.map_projects(self.prepare_project, "prepare")
 
     def run(self):
@@ -402,99 +348,6 @@ class Experiment(object):
         """
         with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
             self.map_projects(self.run_project, "run")
-
-    @classmethod
-    def parse_result(cls, report, prefix, project_block):
-        """
-        Parse a given project result block into a dictionary.
-
-        We take a report dictionary that assigns a fieldname to a regex with at
-        most 1 matchgroup.
-
-        :cls:
-            The class.
-        :report:
-            The report we should parse out of this project block.
-        :prefix:
-            An existing dictionary to work with
-        :project_block:
-            A string region, taken from an arbitrary result file
-        :return:
-            A dictionary of name-value pairs
-        """
-        res = prefix
-        for key in report:
-            res[key] = "NaN"
-
-        for key, val in report.iteritems():
-            mval = re.search(val, project_block)
-            if mval is not None:
-                res[key] = mval.group(1)
-
-        return res
-
-    def generate_report(self, perf_project_results):
-        """
-        Provide users with per project results in the form of a dictionary.
-
-        Example:
-            [{ "<project_name>": "project payload" },...]
-        Let users do what they want with it.
-
-        :perf_project_results:
-            TODO
-        :return:
-            TODO
-        """
-        pass
-
-    def collect_results(self):
-        """
-        Collect all project-specific results.
-
-        Fetch all data into one big result file for further processing.
-        Later processing steps might have to regain per-project information
-        from this file again.
-
-        :return:
-            TODO
-        """
-        result_files = Set([])
-        for project_name in self.projects:
-            prj = self.projects[project_name]
-            print prj.result_f
-            if path.exists(prj.result_f):
-                result_files.add(prj.result_f)
-
-        if len(result_files) > 0:
-            prep_cat = cat
-            for res in result_files:
-                prep_cat = prep_cat[res]
-            prep_cat = (prep_cat > self.result_f)
-            prep_cat()
-
-        with open(self.result_f) as result_f:
-            pattern = re.compile("-{63}\n>>> =+ ([-\\w]+) Program\n-{63}\n")
-            file_content = result_f.read()
-            split_items = pattern.split(file_content)
-            split_items.pop(0)
-            per_project_results = zip(*[iter(split_items)] * 2)
-            self.generate_report(per_project_results)
-
-    def verify_product(self, filename, log=None):
-        """
-        Verify if a specified product has been created by the experiment.
-
-        :filename:
-            The product we expect to exist.
-        :log:
-            Optional. Log any errors.
-        """
-        if not log:
-            log = LOG
-
-        if not path.exists(filename):
-            log.error("{0} not created by project.".format(filename))
 
 
 class RuntimeExperiment(Experiment):
@@ -527,20 +380,3 @@ class RuntimeExperiment(Experiment):
                          run_id=run.id)
             session.add(m)
             session.commit()
-
-    def persist_run(self, cmd, project_name, run_uuid, timings):
-        """ Persist the run results in the database."""
-        from pprof.utils import schema as s
-        from pprof.utils.db import create_run
-
-        run, session = create_run(cmd, project_name, self.name, run_uuid)
-
-        for timing in timings:
-            session.add(s.Metric(name="time.user_s", value=timing[0],
-                                 run_id=run.id))
-            session.add(s.Metric(name="time.system_s", value=timing[1],
-                                 run_id=run.id))
-            session.add(s.Metric(name="time.real_s", value=timing[2],
-                                 run_id=run.id))
-
-        session.commit()

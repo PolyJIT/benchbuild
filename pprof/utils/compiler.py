@@ -62,9 +62,18 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
 # encoding: utf-8
 
 from plumbum import ProcessExecutionError, local, FG
+from plumbum.commands.modifiers import TEE
+from pprof.utils.run import GuardedRunException
 from pprof.experiment import to_utf8
 from os import path
 import pickle
+
+from pprof.settings import config
+config["db_host"] = "{db_host}"
+config["db_port"] = "{db_port}"
+config["db_name"] = "{db_name}"
+config["db_user"] = "{db_user}"
+config["db_pass"] = "{db_pass}"
 
 cc=local[\"{CC}\"]
 cflags={CFLAGS}
@@ -80,21 +89,23 @@ def call_original_compiler(input_files, cc, cflags, ldflags, flags):
     try:
         if len(input_files) > 0:
             if "-c" in flags:
-                final_command = cc["-Qunused-arguments", cflags, flags]
+                final_command = cc["-Qunused-arguments", cflags, ldflags, flags]
             else:
-                final_command = cc["-Qunused-arguments", cflags, flags, ldflags]
+                final_command = cc["-Qunused-arguments", cflags, ldflags, flags]
         else:
             final_command = cc["-Qunused-arguments", flags]
 
-        retcode, stdout, stderr = final_command.run()
+        retcode, stdout, stderr = final_command & TEE
+
         if len(stdout) > 0:
             print stdout
         if len(stderr) > 0:
             print stderr
     except ProcessExecutionError as e:
-        sys.stderr.write(to_utf8(str(e.stderr)))
-        sys.stderr.flush()
-        sys.exit(e.retcode)
+        #FIXME: Write the fact that we had to fall back to the default
+        #compiler somewhere
+        retcode, _, _ = cc[flags] & TEE
+
     return (retcode, final_command)
 
 
@@ -102,20 +113,21 @@ input_files = [ x for x in argv[1:] if not '-' is x[0] ]
 flags = argv[1:]
 f = None
 
-if path.exists("{blobf}"):
-    with open("{blobf}", "rb") as p:
-        f = pickle.load(p)
+retcode, final_cc = call_original_compiler(input_files, cc, cflags, ldflags,
+                                           flags)
 
 with local.env(PPROF_DB_HOST="{db_host}",
            PPROF_DB_PORT="{db_port}",
            PPROF_DB_NAME="{db_name}",
            PPROF_DB_USER="{db_user}",
            PPROF_DB_PASS="{db_pass}"):
-    retcode, final_cc = call_original_compiler(input_files, cc, cflags,
-                                               ldflags, flags)
     """ FIXME: This is just a quick workaround. """
     if "conftest.c" not in input_files:
         with local.env(PPROF_CMD=str(final_cc)):
+            if path.exists("{blobf}"):
+                with open("{blobf}", "rb") as p:
+                    f = pickle.load(p)
+
             if f is not None:
                 if not sys.stdin.isatty():
                     f(final_cc, has_stdin = True)

@@ -1,11 +1,6 @@
 pprof.experiments package
 =========================
 
-.. automodule:: pprof.experiments
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Subpackages
 -----------
 
@@ -16,10 +11,59 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
+pprof.experiments.compilestats module
+-------------------------------------
 
-   pprof.experiments.papi
-   pprof.experiments.polli
-   pprof.experiments.polyjit
-   pprof.experiments.raw
+.. automodule:: pprof.experiments.compilestats
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
+pprof.experiments.compilestats_ewpt module
+------------------------------------------
+
+.. automodule:: pprof.experiments.compilestats_ewpt
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pprof.experiments.papi module
+-----------------------------
+
+.. automodule:: pprof.experiments.papi
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pprof.experiments.polli module
+------------------------------
+
+.. automodule:: pprof.experiments.polli
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pprof.experiments.polyjit module
+--------------------------------
+
+.. automodule:: pprof.experiments.polyjit
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pprof.experiments.raw module
+----------------------------
+
+.. automodule:: pprof.experiments.raw
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: pprof.experiments
+    :members:
+    :undoc-members:
+    :show-inheritance:

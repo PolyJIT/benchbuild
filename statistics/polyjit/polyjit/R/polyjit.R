@@ -1,10 +1,9 @@
 library(ggplot2)
 library(DBI)
 library(RPostgres)
-library(reshape)
+library(reshape2)
 library(ggthemes)
 library(scales)
-library(repr)
 library(sm)
 library(vioplot)
 
@@ -118,7 +117,7 @@ likwid.total <- function(c, exp, aggr, metric) {
                              AND experiment_group = '%s'::uuid
                              AND experiment_name = 'polyjit' 
                              AND metric = '%s'
-                             AND region = 'main' 
+                             AND region = 'polyjit.main'
                              GROUP BY project_name 
                              ORDER BY project_name;"),
                        aggr, exp, metric), width=10000, simplify=TRUE)
@@ -135,9 +134,9 @@ likwid.overhead <- function(c, exp, aggr, metric) {
                              AND experiment_group = '%s'::uuid
                              AND experiment_name = 'polyjit' 
                              AND metric = '%s'
-                             AND (    region = 'JitSelectParams'
-                             OR region = 'CodeGenJIT'
-                             OR region = 'GetOrParsePrototype'
+                             AND (    region = 'polyjit.params.select'
+                             OR region = 'polyjit.codegen'
+                             OR region = 'polyjit.prototype.get'
                              )
                              GROUP BY project_name 
                              ORDER BY project_name;"),
@@ -155,10 +154,10 @@ likwid.runtime <- function(c, exp, aggr, metric) {
                                AND experiment_group = '%s'::uuid
                                AND experiment_name = 'polyjit' 
                                AND metric = '%s'
-                               AND NOT (    region = 'JitSelectParams'
-                               OR region = 'CodeGenJIT'
-                               OR region = 'GetOrParsePrototype'
-                               OR region = 'main'
+                               AND NOT (    region = 'polyjit.params.select'
+                               OR region = 'polyjit.codegen'
+                               OR region = 'polyjit.prototype.get'
+                               OR region = 'polyjit.main'
                                )
                                GROUP BY project_name 
                                ORDER BY project_name;"),
@@ -167,4 +166,18 @@ likwid.runtime <- function(c, exp, aggr, metric) {
     res <- melt(dbFetch(qr))
     dbClearResult(qr)
     return(res)
+}
+
+runlog <- function(c, exp) {
+  dbSendQuery(c, "REFRESH MATERIALIZED VIEW run_log WITH DATA;")
+  q <- strwrap(sprintf(paste("SELECT status as s, project_name as p,
+                                     experiment_name as e,
+                                     (\"end\" - \"begin\") as d,
+                                     command as c FROM run_log
+                              WHERE experiment_group = '%s'::uuid;"), exp),
+               width=10000, simplify=TRUE)
+  qr <- dbSendQuery(c, q)
+  res <- dbFetch(qr)
+  dbClearResult(qr)
+  return(res)
 }

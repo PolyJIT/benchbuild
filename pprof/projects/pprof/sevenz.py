@@ -20,10 +20,11 @@ class SevenZip(PprofGroup):
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         p7z_dir = path.join(self.builddir, self.src_dir)
         exp = wrap(path.join(p7z_dir, "bin", "7za"), experiment)
-        exp("b", "-mmt1")
+        run(exp["b", "-mmt1"])
 
     src_dir = "p7zip_9.38.1"
     src_file = src_dir + "_src_all.tar.bz2"
@@ -47,14 +48,18 @@ class SevenZip(PprofGroup):
     def build(self):
         from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.settings import config
+        from pprof.utils.run import run
 
         p7z_dir = path.join(self.builddir, self.src_dir)
-        clang = lt_clang(self.cflags, self.ldflags,
-                         self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
 
         with local.cwd(p7z_dir):
-            make("CC=" + str(clang),
-                 "CXX=" + str(clang_cxx),
-                 "clean", "all")
+            run(make["CC=" + str(clang),
+                     "CXX=" + str(clang_cxx),
+                     "-j", config["jobs"],
+                     "clean", "all"])

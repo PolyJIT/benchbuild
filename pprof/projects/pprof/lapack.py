@@ -5,6 +5,44 @@ from pprof.settings import config
 from plumbum import local
 
 
+class OpenBlas(PprofGroup):
+    domain = "scientific"
+
+    class Factory:
+
+        def create(self, exp):
+            return OpenBlas(exp, "openblas", "scientific")
+    ProjectFactory.addFactory("OpenBlas", Factory())
+
+    src_dir = "OpenBLAS"
+    src_uri = "https://github.com/xianyi/" + src_dir
+
+    def download(self):
+        from pprof.utils.downloader import Git
+
+        with local.cwd(self.builddir):
+            Git(self.src_uri, self.src_dir)
+
+    def configure(self):
+        pass
+
+    def build(self):
+        from plumbum.cmd import make
+        from pprof.utils.compiler import lt_clang
+        from pprof.utils.run import run
+
+        blas_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        with local.cwd(blas_dir):
+            run(make["CC=" + str(clang)])
+
+    def run_tests(self, experiment):
+        from pprof.project import wrap
+
+        pass
+
+
 class Lapack(PprofGroup):
     domain = "scientific"
 
@@ -32,6 +70,7 @@ class Lapack(PprofGroup):
     def configure(self):
         lapack_dir = path.join(self.builddir, self.src_dir)
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+
         with local.cwd(self.builddir):
             clang = lt_clang(self.cflags, self.ldflags,
                              self.compiler_extension)
@@ -67,16 +106,19 @@ class Lapack(PprofGroup):
 
     def build(self):
         from plumbum.cmd import make
+        from pprof.utils.run import run
+
         lapack_dir = path.join(self.builddir, self.src_dir)
 
         with local.cwd(lapack_dir):
-            make("-j", config["jobs"], "f2clib", "blaslib")
+            run(make["-j", config["jobs"], "f2clib", "blaslib"])
             with local.cwd(path.join("BLAS", "TESTING")):
-                make("-j", config["jobs"], "-f", "Makeblat2")
-                make("-j", config["jobs"], "-f", "Makeblat3")
+                run(make["-j", config["jobs"], "-f", "Makeblat2"])
+                run(make["-j", config["jobs"], "-f", "Makeblat3"])
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         lapack_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(lapack_dir):
@@ -91,14 +133,14 @@ class Lapack(PprofGroup):
                 xblat3c = wrap("xblat3c", experiment)
                 xblat3z = wrap("xblat3z", experiment)
 
-                (xblat2s < "sblat2.in")()
-                (xblat2d < "dblat2.in")()
-                (xblat2c < "cblat2.in")()
-                (xblat2z < "zblat2.in")()
-                (xblat3s < "sblat3.in")()
-                (xblat3d < "dblat3.in")()
-                (xblat3c < "cblat3.in")()
-                (xblat3z < "zblat3.in")()
+                run((xblat2s < "sblat2.in"))
+                run((xblat2d < "dblat2.in"))
+                run((xblat2c < "cblat2.in"))
+                run((xblat2z < "zblat2.in"))
+                run((xblat3s < "sblat3.in"))
+                run((xblat3d < "dblat3.in"))
+                run((xblat3c < "cblat3.in"))
+                run((xblat3z < "zblat3.in"))
 
     class Factory:
 

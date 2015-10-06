@@ -5,7 +5,7 @@ from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 from plumbum.cmd import cat
 
 
@@ -25,7 +25,7 @@ class Crafty(PprofGroup):
 
     def download(self):
         from pprof.utils.downloader import Wget
-        from plumbum.cmd import wget, unzip, mv
+        from plumbum.cmd import unzip, mv
 
         book_file = "book.bin"
         book_bin = "http://www.craftychess.com/" + book_file
@@ -42,12 +42,10 @@ class Crafty(PprofGroup):
     def build(self):
         from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
 
         crafty_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(crafty_dir):
-            target_cflags = self.cflags
-            target_cxflags = []
-            target_ldflags = self.ldflags
             target_opts = ["-DINLINE64", "-DCPUS=1"]
 
             with local.cwd(self.builddir):
@@ -56,19 +54,17 @@ class Crafty(PprofGroup):
                 clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                          self.compiler_extension)
 
-            make("target=LINUX",
-                 "CC=" + str(clang),
-                 "CXX=" + str(clang_cxx),
-                 "CFLAGS=" + " ".join(target_cflags),
-                 "CXFLAGS=" + " ".join(target_cxflags),
-                 "LDFLAGS=" + " ".join(target_ldflags),
-                 "opt=" + " ".join(target_opts),
-                 "crafty-make")
+            run(make["target=LINUX",
+                     "CC=" + str(clang),
+                     "CXX=" + str(clang_cxx),
+                     "opt=" + " ".join(target_opts),
+                     "crafty-make"])
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
         crafty_dir = path.join(self.builddir, self.src_dir)
         exp = wrap(path.join(crafty_dir, "crafty"), experiment)
 
-        (cat[path.join(self.testdir, "test1.sh")] | exp) & FG
-        (cat[path.join(self.testdir, "test2.sh")] | exp) & FG
+        run((cat[path.join(self.testdir, "test1.sh")] | exp))
+        run((cat[path.join(self.testdir, "test2.sh")] | exp))

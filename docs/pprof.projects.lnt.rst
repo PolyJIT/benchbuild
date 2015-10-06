@@ -1,15 +1,22 @@
 pprof.projects.lnt package
 ==========================
 
-.. automodule:: pprof.projects.lnt
+Submodules
+----------
+
+pprof.projects.lnt.lnt module
+-----------------------------
+
+.. automodule:: pprof.projects.lnt.lnt
     :members:
     :undoc-members:
     :show-inheritance:
 
-Submodules
-----------
 
-.. toctree::
+Module contents
+---------------
 
-   pprof.projects.lnt.lnt
-
+.. automodule:: pprof.projects.lnt
+    :members:
+    :undoc-members:
+    :show-inheritance:

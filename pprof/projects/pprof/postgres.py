@@ -21,14 +21,6 @@ class Postgres(PprofGroup):
             return Postgres(exp, "postgres", "database")
     ProjectFactory.addFactory("Postgres", Factory())
 
-    def clean(self):
-        testfiles = [path.join(self.builddir, x) for x in self.testfiles]
-        for test_f in testfiles:
-            self.products.add(test_f)
-        self.products.add(path.join(self.builddir, self.name + ".sh"))
-
-        super(Postgres, self).clean()
-
     def prepare(self):
         super(Postgres, self).prepare()
 
@@ -37,6 +29,8 @@ class Postgres(PprofGroup):
             cp("-a", test_f, self.builddir)
 
     def run_tests(self, experiment):
+        from pprof.utils.run import run
+
         exp = experiment(self.run_f)
 
         pg_ctl = local[path.join(self.builddir, "pg_ctl")]
@@ -60,14 +54,14 @@ class Postgres(PprofGroup):
                 pg_ctl("start", "-p", bin_name, "-w", "-D", test_data)
             dropdb["pgbench"] & FG(retcode=None)
             createdb("pgbench")
-            pgbench("-i", "pgbench")
-            pgbench(
+            run(pgbench["-i", "pgbench"])
+            run(pgbench[
                 "-c",
                 num_clients,
                 "-S",
                 "-t",
                 num_transactions,
-                "pgbench")
+                "pgbench"])
             dropdb("pgbench")
             pg_ctl("stop", "-t", 360, "-w", "-D", test_data)
         except Exception:

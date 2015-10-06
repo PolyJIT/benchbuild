@@ -1,15 +1,22 @@
 pprof.projects.polybench package
 ================================
 
-.. automodule:: pprof.projects.polybench
+Submodules
+----------
+
+pprof.projects.polybench.polybench module
+-----------------------------------------
+
+.. automodule:: pprof.projects.polybench.polybench
     :members:
     :undoc-members:
     :show-inheritance:
 
-Submodules
-----------
 
-.. toctree::
+Module contents
+---------------
 
-   pprof.projects.polybench.polybench
-
+.. automodule:: pprof.projects.polybench
+    :members:
+    :undoc-members:
+    :show-inheritance:

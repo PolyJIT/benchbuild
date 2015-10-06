@@ -69,3 +69,56 @@ def persist_experiment(experiment):
 
     session.add(e)
     session.commit()
+
+
+def persist_likwid(run, session, measurements):
+    """ Persist all likwid results. """
+    from pprof.utils import schema as s
+
+    for (region, name, core, value) in measurements:
+        m = s.Likwid(metric=name, region=region, value=value, core=core,
+                     run_id=run.id)
+        session.add(m)
+    session.commit()
+
+
+def persist_time(run, session, timings):
+    """ Persist the run results in the database."""
+    from pprof.utils import schema as s
+
+    for timing in timings:
+        session.add(s.Metric(name="time.user_s", value=timing[0],
+                             run_id=run.id))
+        session.add(s.Metric(name="time.system_s", value=timing[1],
+                             run_id=run.id))
+        session.add(s.Metric(name="time.real_s", value=timing[2],
+                             run_id=run.id))
+    session.commit()
+
+
+def persist_perf(run, session, svg_path):
+    """ Persist the flamegraph in the database."""
+    from pprof.utils import schema as s
+
+    with open(svg_path, 'r') as svg_file:
+        svg_data = svg_file.read()
+        session.add(s.Metadata(name="perf.flamegraph", value=svg_data,
+                               run_id=run.id))
+    session.commit()
+
+
+def persist_compilestats(run, session, stats):
+    """ Persist the run results in the database."""
+    for stat in stats:
+        stat.run_id = run.id
+        session.add(stat)
+    session.commit()
+
+
+def persist_config(run, session, config):
+    """ Persist the configuration in as key-value pairs."""
+    from pprof.utils import schema as s
+
+    for c in config:
+        session.add(s.Config(name=c, value=config[c], run_id=run.id))
+    session.commit()

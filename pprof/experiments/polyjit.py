@@ -376,6 +376,8 @@ class PJITcs(PolyJIT):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
             """ Compile the project and track the compilestats. """
+            from uuid import uuid4
+
             p.clean()
             p.prepare()
             p.download()
@@ -388,8 +390,7 @@ class PJITcs(PolyJIT):
                     new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
 
                     run, session, retcode, _, stderr = \
-                        r.guarded_exec(new_cc, p.name, self.name,
-                                       p.run_uuid)
+                        r.guarded_exec(new_cc, p.name, self.name, p.run_uuid)
 
                     if retcode == 0:
                         stats = []
@@ -401,6 +402,7 @@ class PJITcs(PolyJIT):
                             stats.append(c)
                         persist_compilestats(run, session, stats)
 
+                p.run_uuid = uuid4()
                 p.compiler_extension = track_compilestats
                 p.configure()
 

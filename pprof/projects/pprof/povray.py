@@ -86,7 +86,7 @@ class Povray(PprofGroup):
         cp("-ar", path.join(self.testdir, "test"), self.builddir)
 
     def run_tests(self, experiment):
-        from plumbum.cmd import mkdir, chmod
+        from plumbum.cmd import mkdir
         from pprof.project import wrap
         from pprof.utils.run import run
 

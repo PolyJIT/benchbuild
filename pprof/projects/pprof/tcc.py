@@ -31,6 +31,7 @@ class TCC(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang
+        from pprof.utils.run import run
         from plumbum.cmd import mkdir
         tcc_dir = path.join(self.builddir, self.src_dir)
 
@@ -39,19 +40,21 @@ class TCC(PprofGroup):
             clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         with local.cwd(path.join(self.builddir, "build")):
             configure = local[path.join(tcc_dir, "configure")]
-            configure("--cc=" + str(clang),
-                      "--libdir=/usr/lib64")
+            run(configure["--cc=" + str(clang),
+                          "--libdir=/usr/lib64"])
 
     def build(self):
         from plumbum.cmd import make
+        from pprof.utils.run import run
 
         with local.cwd(path.join(self.builddir, "build")):
-            make()
+            run(make)
 
     def run_tests(self, experiment):
         from plumbum.cmd import make
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         wrap(self.run_f, experiment)
         with local.cwd(self.builddir):
-            make("test")
+            run(make["test"])

@@ -22,6 +22,7 @@ class Crocopat(PprofGroup):
 
     def run_tests(self, experiment):
         from pprof.project import wrap
+        from pprof.utils.run import run
 
         exp = wrap(self.run_f, experiment)
 
@@ -29,7 +30,7 @@ class Crocopat(PprofGroup):
         projects = glob(path.join(self.testdir, "projects", "*.rsf"))
         for program in programs:
             for project in projects:
-                (cat[project] | exp[program]) & FG(retcode=None)
+                run((cat[project] | exp[program]), None)
 
     src_dir = "crocopat-2.1.4"
     src_file = src_dir + ".zip"

@@ -36,10 +36,11 @@ class Linpack(PprofGroup):
 
     def build(self):
         from pprof.utils.compiler import lt_clang
+        from pprof.utils.run import run
 
         cflags = self.cflags
         ldflags = self.ldflags + ["-lm"]
 
         with local.cwd(self.builddir):
             clang = lt_clang(cflags, ldflags, self.compiler_extension)
-            clang("-o", self.run_f, "linpack.c")
+            run(clang["-o", self.run_f, "linpack.c"])

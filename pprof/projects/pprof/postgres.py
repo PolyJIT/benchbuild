@@ -29,6 +29,8 @@ class Postgres(PprofGroup):
             cp("-a", test_f, self.builddir)
 
     def run_tests(self, experiment):
+        from pprof.utils.run import run
+
         exp = experiment(self.run_f)
 
         pg_ctl = local[path.join(self.builddir, "pg_ctl")]
@@ -52,14 +54,14 @@ class Postgres(PprofGroup):
                 pg_ctl("start", "-p", bin_name, "-w", "-D", test_data)
             dropdb["pgbench"] & FG(retcode=None)
             createdb("pgbench")
-            pgbench("-i", "pgbench")
-            pgbench(
+            run(pgbench["-i", "pgbench"])
+            run(pgbench[
                 "-c",
                 num_clients,
                 "-S",
                 "-t",
                 num_transactions,
-                "pgbench")
+                "pgbench"])
             dropdb("pgbench")
             pg_ctl("stop", "-t", 360, "-w", "-D", test_data)
         except Exception:

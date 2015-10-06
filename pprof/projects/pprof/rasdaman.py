@@ -35,6 +35,7 @@ class Rasdaman(PprofGroup):
 
     def configure(self):
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
         from plumbum.cmd import autoreconf, make
         rasdaman_dir = path.join(self.builddir, self.src_dir)
         gdal_dir = path.join(self.builddir, self.gdal_dir, self.gdal_dir)
@@ -48,33 +49,34 @@ class Rasdaman(PprofGroup):
             configure = local["./configure"]
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                configure("--with-pic",
-                          "--enable-static",
-                          "--disable-debug",
-                          "--with-gnu-ld",
-                          "--without-ld-shared",
-                          "--without-libtool")
-                make("-j", config["jobs"])
+                run(configure["--with-pic",
+                              "--enable-static",
+                              "--disable-debug",
+                              "--with-gnu-ld",
+                              "--without-ld-shared",
+                              "--without-libtool"])
+                run(make["-j", config["jobs"]])
 
         with local.cwd(rasdaman_dir):
             autoreconf("-i")
             configure = local["./configure"]
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                configure("--without-debug-symbols",
-                          "--enable-benchmark",
-                          "--with-static-libs",
-                          "--disable-java",
-                          "--with-pic",
-                          "--disable-debug",
-                          "--without-docs")
+                run(configure["--without-debug-symbols",
+                              "--enable-benchmark",
+                              "--with-static-libs",
+                              "--disable-java",
+                              "--with-pic",
+                              "--disable-debug",
+                              "--without-docs"])
 
     def build(self):
         from plumbum.cmd import make
+        from pprof.utils.run import run
 
         rasdaman_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(rasdaman_dir):
-            make("clean", "all", "-j", config["jobs"])
+            run(make["clean", "all", "-j", config["jobs"]])
 
     def run_tests(self, experiment):
         from pprof.project import wrap

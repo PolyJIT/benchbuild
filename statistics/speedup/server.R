@@ -126,6 +126,12 @@ shinyServer(function(input, output, session) {
   updateSelectInput(session, "perfExperiments", choices = c(getSelections("pj-perf", exps)), selected = 0)
   updateSelectInput(session, "perfProjects", choices = perfProjects(con), selected = 0)
 
+  observe({
+    if (!is.null(input$perfExperiments)) {
+      updateSelectInput(session, "perfProjects", choices = perfProjects(con, input$perfExperiments), selected = 0)
+    }
+  })
+
   session$onSessionEnded(function() {
     dbDisconnect(con)
   })

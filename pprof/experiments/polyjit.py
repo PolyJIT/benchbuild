@@ -284,6 +284,7 @@ class PolyJIT(RuntimeExperiment):
                     "-Xclang", "LLVMPolyJIT.so",
                     "-O3",
                     "-mllvm", "-jitable",
+                    "-mllvm", "-polly-only-scop-detection",
                     "-mllvm", "-polly-detect-unprofitable",
                     "-mllvm", "-polly-delinearize=false",
                     "-mllvm", "-polly-detect-keep-going",

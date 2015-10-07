@@ -66,6 +66,7 @@ from plumbum.commands.modifiers import TEE
 from pprof.utils.run import GuardedRunException
 from pprof.experiment import to_utf8
 from os import path
+import logging
 import pickle
 
 from pprof.settings import config
@@ -83,6 +84,18 @@ from sys import argv
 import os
 import sys
 
+log = logging.getLogger("clang")
+log.addHandler(logging.StreamHandler(stream=sys.stderr))
+
+def really_exec(cmd):
+    try:
+        log.info("Trying - %s", str(cmd))
+        return ( cmd & TEE )
+    except (GuardedRunException, ProcessExecutionError) as e:
+        log.error("Failed to execute - %s", str(cmd))
+        raise e
+
+
 def call_original_compiler(input_files, cc, cflags, ldflags, flags):
     final_command = None
     retcode=0
@@ -95,16 +108,12 @@ def call_original_compiler(input_files, cc, cflags, ldflags, flags):
         else:
             final_command = cc["-Qunused-arguments", flags]
 
-        retcode, stdout, stderr = final_command & TEE
+        retcode, stdout, stderr = really_exec(final_command)
 
-        if len(stdout) > 0:
-            print stdout
-        if len(stderr) > 0:
-            print stderr
-    except ProcessExecutionError as e:
-        #FIXME: Write the fact that we had to fall back to the default
-        #compiler somewhere
-        retcode, _, _ = cc[flags] & TEE
+    except (GuardedRunException, ProcessExecutionError) as e:
+        log.warn("Fallback to original flags and retry.")
+        final_command = cc[flags]
+        retcode, _, _ = really_exec(final_command)
 
     return (retcode, final_command)
 

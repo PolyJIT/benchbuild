@@ -88,9 +88,10 @@ log = logging.getLogger("clang")
 log.addHandler(logging.StreamHandler(stream=sys.stderr))
 
 def really_exec(cmd):
+    from plumbum.cmd import timeout
     try:
         log.info("Trying - %s", str(cmd))
-        return ( cmd & TEE )
+        return ( timeout["2m", cmd.formulate()] & TEE )
     except (GuardedRunException, ProcessExecutionError) as e:
         log.error("Failed to execute - %s", str(cmd))
         raise e

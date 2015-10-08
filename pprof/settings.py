@@ -299,8 +299,14 @@ config_metadata = [
     {
         "name": "openmp_repo",
         "default": { "url": "http://llvm.org/git/openmp.git", "branch": None, "commit_hash": None }
+    },
+    {
+        "name": "keep",
+        "default": False,
+        "env": "PPROF_KEEP_RESULTS"
     }
 ]
+
 
 def default_config(config_metadata):
     config = {}

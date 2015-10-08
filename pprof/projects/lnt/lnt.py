@@ -100,7 +100,7 @@ class MultiSourceBenchmarks(LNTGroup):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                      self.compiler_extension)
 
-        run(lnt["runtest", "nt", "-v" "-j1", "--sandbox", sandbox_dir,
+        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
                 "--cc", str(clang),
                 "--cxx", str(clang_cxx),
                 "--test-suite", path.join(self.builddir, self.test_suite_dir),

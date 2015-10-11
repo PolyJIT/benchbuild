@@ -105,7 +105,7 @@ def call_original_compiler(input_files, cc, cflags, ldflags, flags):
             if "-c" in flags:
                 final_command = cc["-Qunused-arguments", cflags, ldflags, flags]
             else:
-                final_command = cc["-Qunused-arguments", cflags, ldflags, flags]
+                final_command = cc["-Qunused-arguments", cflags, flags, ldflags]
         else:
             final_command = cc["-Qunused-arguments", flags]
 
@@ -113,7 +113,8 @@ def call_original_compiler(input_files, cc, cflags, ldflags, flags):
 
     except (GuardedRunException, ProcessExecutionError) as e:
         log.warn("Fallback to original flags and retry.")
-        final_command = cc[flags]
+        final_command = cc[flags, ldflags]
+        log.warn("New Command: %s", str(final_command))
         retcode, _, _ = really_exec(final_command)
 
     return (retcode, final_command)

@@ -77,8 +77,9 @@ shinyServer(function(input, output, session) {
       } else {
         p <- p + geom_line() +
                  geom_point(aes(color = cores)) +
+                 geom_bar(aes(color = cores), stat = "identity") +
                  geom_smooth(color = "red") +
-                 geom_hline(yintercept=1) +
+                 geom_hline(yintercept=1, colour="blue") +
                  geom_abline(slope=1, intercept=0, colour="green") +
                  coord_cartesian(ylim=c(input$minY, input$maxY)) +
                  scale_x_discrete() +

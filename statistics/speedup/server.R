@@ -57,7 +57,9 @@ shinyServer(function(input, output, session) {
   output$speedup = renderPlot({
     validate(
       need(input$rawExperiments, "Select a RAW-compatible experiment as baseline first."),
-      need(input$jitExperiments, "Select a JIT-compatible experiment first.")
+      need(input$jitExperiments, "Select a JIT-compatible experiment first."),
+      need(input$minY, "Select a minimum for y-axis."),
+      need(input$minY, "Select a maximum for y-axis.")
     )
     d <- speedup(con,
                  input$rawExperiments,
@@ -76,6 +78,10 @@ shinyServer(function(input, output, session) {
         p <- p + geom_line() +
                  geom_point(aes(color = cores)) +
                  geom_smooth(color = "red") +
+                 geom_hline(yintercept=1) +
+                 geom_abline(slope=1, intercept=1, colour="green") +
+                 coord_cartesian(ylim=c(input$minY, input$maxY)) +
+                 scale_x_discrete() +
                  ylab("Speedup Factor")
       }
 

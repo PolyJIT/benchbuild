@@ -5,7 +5,6 @@ from pprof.project import Project, ProjectFactory
 
 from os import path
 from plumbum import local
-from plumbum.cmd import cp
 
 
 class LNTGroup(Project):

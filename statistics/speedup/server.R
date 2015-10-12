@@ -123,6 +123,7 @@ shinyServer(function(input, output, session) {
                                                getSelections("polly-openmpvect", exps),
                                                getSelections("papi", exps),
                                                getSelections("papi-std", exps),
+                                               getSelections("pj-papi", exps),
                                                getSelections("polyjit", exps),
                                                getSelections("pj-raw", exps)), selected = 0)
   updateSelectInput(session, "jitExperiments", choices = c(getSelections("polyjit", exps),
@@ -131,6 +132,8 @@ shinyServer(function(input, output, session) {
   updateSelectInput(session, "groups", choices = groups(con), selected = 0)
   updateSelectInput(session, "perfExperiments", choices = c(getSelections("pj-perf", exps)), selected = 0)
   updateSelectInput(session, "perfProjects", choices = perfProjects(con), selected = 0)
+  updateSelectInput(session, "papiExperiments", choices = c(getSelections("pj-papi", exps),
+                                                            getSelections("papi", exps)), selected = 0)
 
   observe({
     if (!is.null(input$perfExperiments)) {

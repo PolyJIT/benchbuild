@@ -79,7 +79,7 @@ shinyServer(function(input, output, session) {
                  geom_point(aes(color = cores)) +
                  geom_smooth(color = "red") +
                  geom_hline(yintercept=1) +
-                 geom_abline(slope=1, intercept=1, colour="green") +
+                 geom_abline(slope=1, intercept=0, colour="green") +
                  coord_cartesian(ylim=c(input$minY, input$maxY)) +
                  scale_x_discrete() +
                  ylab("Speedup Factor")

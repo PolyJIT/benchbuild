@@ -64,6 +64,11 @@ class PprofRun(cli.Application):
     def list(self):
         self._list = True
 
+    @cli.switch(["-k", "--keep"], requires=["--experiment"],
+                help="Keep intermediate results")
+    def keep(self):
+        config["keep"] = True
+
     @cli.switch(["-G", "--group"], str, requires=["--experiment"],
                 help="Run a group of projects under the given experiments")
     def group(self, group):

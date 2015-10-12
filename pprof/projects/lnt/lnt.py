@@ -21,13 +21,11 @@ class LNTGroup(Project):
 
     def download(self):
         from pprof.utils.downloader import Git
-
+        from plumbum.cmd import virtualenv
         with local.cwd(self.builddir):
             Git(self.src_uri, self.src_dir)
             Git(self.test_suite_uri, self.test_suite_dir)
 
-        from plumbum.cmd import virtualenv
-        with local.cwd(self.builddir):
             virtualenv("local")
             python = local[path.join("local", "bin", "python")]
             python(path.join(self.src_dir, "setup.py"), "develop")
@@ -145,20 +143,21 @@ class SPEC2006(LNTGroup):
     class Factory:
 
         def create(self, exp):
-            return MultiSourceApplications(exp, "SPEC2006")
+            return SPEC2006(exp, "SPEC2006")
     ProjectFactory.addFactory("SPEC2006", Factory())
 
     def download(self):
-        super(LNTGroup, self).download()
-
         from pprof.utils.downloader import CopyNoFail
         from pprof.settings import config
 
-        if not CopyNoFail('speccpu2006'):
-            print('======================================================')
-            print('SPECCPU2006 not found in %s. This project will fail.',
-                  config['tmpdir'])
-            print('======================================================')
+        with local.cwd(self.builddir):
+            if CopyNoFail('speccpu2006'):
+                super(SPEC2006, self).download()
+            else:
+                print('======================================================')
+                print('SPECCPU2006 not found in %s. This project will fail.',
+                      config['tmpdir'])
+                print('======================================================')
 
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
@@ -180,6 +179,6 @@ class SPEC2006(LNTGroup):
                 "--cxx", str(clang_cxx),
                 "--test-suite", path.join(self.builddir, self.test_suite_dir),
                 "--test-style", "simple",
-                "--test-external", path.join(self.builddir, self.spec_dir),
+                "--test-external", self.builddir,
                 "--make-param=RUNUNDER=" + str(exp),
                 "--only-test=" + path.join("External", "SPEC")])

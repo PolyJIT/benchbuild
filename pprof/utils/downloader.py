@@ -85,6 +85,30 @@ def Copy(From, To):
     cp("-ar", "--reflink=auto", From, To)
 
 
+def CopyNoFail(fName, srcDir=None):
+    """
+    Just copy :fname from the into the current working directory, if it exists.
+
+    No action is executed, if :fName does not exist. No Hash is checked.
+
+    Args:
+        fName: The filename we want to copy to '.'.
+        srcDir: The optional source dir we should pull fName from. Defaults
+            to pprof.settings.config["tmpdir"].
+    Returns:
+        True, if we copied something.
+    """
+    from os import path
+    if srcDir is None:
+        srcDir = config["tmpdir"]
+    src_url = path.join(srcDir, fName)
+
+    if path.exists(src_url):
+        Copy(src_url, '.')
+        return True
+    return False
+
+
 def Wget(url, fname, to=None):
     """
     Download :src: to :to: if required.

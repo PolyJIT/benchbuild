@@ -139,3 +139,48 @@ class MultiSourceApplications(LNTGroup):
                 "--test-style", "simple",
                 "--make-param=RUNUNDER=" + str(exp),
                 "--only-test=" + path.join("MultiSource", "Applications")])
+
+
+class SPEC2006(LNTGroup):
+
+    class Factory:
+
+        def create(self, exp):
+            return MultiSourceApplications(exp, "SPEC2006")
+    ProjectFactory.addFactory("SPEC2006", Factory())
+
+    def download(self):
+        super(LNTGroup, self).download()
+
+        from pprof.utils.downloader import CopyNoFail
+        from pprof.settings import config
+
+        if not CopyNoFail('speccpu2006'):
+            print('======================================================')
+            print('SPECCPU2006 not found in %s. This project will fail.',
+                  config['tmpdir'])
+            print('======================================================')
+
+    def run_tests(self, experiment):
+        from pprof.project import wrap_dynamic
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
+
+        exp = wrap_dynamic("lnt_runner", experiment)
+        lnt = local[path.join("local", "bin", "lnt")]
+        sandbox_dir = path.join(self.builddir, "run")
+
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
+
+        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--test-external", path.join(self.builddir, self.spec_dir),
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("External", "SPEC")])

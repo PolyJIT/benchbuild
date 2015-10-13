@@ -423,8 +423,8 @@ class PJITpapi(PolyJIT):
             p.cflags = ["-DPOLLI_ENABLE_PAPI"] + p.cflags
             p.ldflags = p.ldflags + ["-lpprof"]
 
-            for i in range(1, int(config["jobs"])):
-                with step("{} cores & uuid {}".format(i+1, p.run_uuid)):
+            for i in range(1, int(config["jobs"] + 1)):
+                with step("{} cores & uuid {}".format(i, p.run_uuid)):
                     p.clean()
                     p.prepare()
                     p.download()

@@ -44,6 +44,14 @@ pprof.utils.schema module
     :undoc-members:
     :show-inheritance:
 
+pprof.utils.user_interface module
+---------------------------------
+
+.. automodule:: pprof.utils.user_interface
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

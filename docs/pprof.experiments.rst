@@ -35,14 +35,6 @@ pprof.experiments.papi module
     :undoc-members:
     :show-inheritance:
 
-pprof.experiments.polli module
-------------------------------
-
-.. automodule:: pprof.experiments.polli
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pprof.experiments.polyjit module
 --------------------------------
 

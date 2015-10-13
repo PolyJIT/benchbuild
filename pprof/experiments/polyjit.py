@@ -411,6 +411,29 @@ class PJITcs(PolyJIT):
 
 
 class PJITpapi(PolyJIT):
+    """
+        Experiment that uses PolyJIT's instrumentation facilities.
+
+        This uses PolyJIT to instrument all projects with libPAPI based
+        region measurements. In the end the region measurements are
+        aggregated and metrics like the dynamic SCoP coverage are extracted.
+
+        This uses the same set of flags as all other PolyJIT based experiments.
+    """
+
+    def run(self):
+        """Do the postprocessing, after all projects are done."""
+        super(PJITpapi, self).run()
+
+        bin_path = path.join(config["llvmdir"], "bin")
+        pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
+
+        with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"]),
+                       PPROF_EXPERIMENT=self.name,
+                       PPROF_USE_DATABASE=1,
+                       PPROF_USE_FILE=0,
+                       PPROF_USE_CSV=0):
+            pprof_analyze()
 
     def run_project(self, p):
         p = self.init_project(p)

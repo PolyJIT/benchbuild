@@ -350,7 +350,6 @@ class PJITlikwid(PolyJIT):
             """Run the experiment with likwid."""
             from uuid import uuid4
 
-            old_cflags = p.cflags
             p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
 
             for i in range(1, int(config["jobs"]) + 1):
@@ -367,8 +366,6 @@ class PJITlikwid(PolyJIT):
                     run_with_likwid.project = p
                     run_with_likwid.jobs = i
                     p.run(run_with_likwid)
-
-            p.cflags = old_cflags
 
 
 class PJITcs(PolyJIT):
@@ -441,8 +438,6 @@ class PJITpapi(PolyJIT):
             """Run the experiment with papi support."""
             from uuid import uuid4
 
-            old_cflags = p.cflags
-            old_ldflags = p.ldflags
             p.cflags = ["-DPOLLI_ENABLE_PAPI"] + p.cflags
             p.ldflags = p.ldflags + ["-lpprof"]
 
@@ -460,6 +455,3 @@ class PJITpapi(PolyJIT):
                     run_with_papi.project = p
                     run_with_papi.jobs = i
                     p.run(run_with_papi)
-
-            p.cflags = old_cflags
-            p.ldflags = old_ldflags

@@ -237,6 +237,14 @@ get_experiments <- function(c) {
   return(sql.get(c, q))
 }
 
+get_experiments_per_project <- function(c, project) {
+  q <- strwrap(sprintf(paste(
+    "SELECT CAST(experiment_group AS VARCHAR) as \"UUID\", experiment_name as \"Name\", MAX(finished) as \"Completed at\"
+         FROM run WHERE project_name = '%s'
+         GROUP BY experiment_group, experiment_name ORDER BY \"Completed at\";"), project), width=10000, simplify=TRUE)
+  return(sql.get(c, q))
+}
+
 speedup <- function(c, base, jit, projects = NULL, groups = NULL) {
   extra_filter <- ""
   range_filter <- ""
@@ -283,9 +291,54 @@ speedup <- function(c, base, jit, projects = NULL, groups = NULL) {
     WHERE pjit.project_name = raw.project_name
     ORDER BY cores ASC
  ) AS spd, project
- WHERE spd.project_name = project.name %s
+ WHERE spd.project_name = project.name %s ORDER BY speedup_corrected
 ;"), jit, base, extra_filter)
   return(sql.get(c,q))
+}
+
+speedup_per_project <- function(c, project, base, exps = NULL) {
+  exp_filter <- ""
+  if (!is.null(exps) && length(exps) > 0) {
+    exp_filter <- sprintf("AND experiment_group IN (%s)",
+                          paste(lapply(as.vector(exps),
+                                       function(x) sprintf("\'%s\'", x)),
+                                collapse=", "))
+  }
+  cat(paste(exp_filter))
+  q <- sprintf(paste(
+"
+SELECT CAST(spd.experiment_group AS VARCHAR), spd.project_name, spd.cores, spd.ptime, spd.time, spd.speedup,
+    CASE WHEN spd.speedup >= 0.5 OR spd.speedup = 0 THEN spd.speedup
+     
+    WHEN spd.speedup > 0 AND spd.speedup < 0.5 THEN -1/spd.speedup
+    END AS speedup_corrected
+ FROM
+ (
+    SELECT pjit.experiment_group, pjit.project_name, pjit.cval AS cores,  pjit.sum AS ptime, raw.sum AS time,
+           (raw.sum / pjit.sum) AS speedup
+    FROM
+    (
+      SELECT experiment_group, project_name, metrics.name, SUM(metrics.value), config.name,
+             cast ( config.value AS INTEGER) AS cval
+      FROM run, metrics, config
+      WHERE project_name = '%s' and run.id = metrics.run_id AND run.id = config.run_id AND metrics.name = 'time.real_s' %s
+      GROUP BY experiment_group, project_name, metrics.name, config.name, cval
+      ORDER BY project_name, cval
+    ) AS pjit,
+    (
+      SELECT experiment_group, project_name, metrics.name, SUM(metrics.value), config.name, cast ( config.value AS INTEGER) AS cval
+      FROM run, metrics, config
+      WHERE project_name = '%s' and experiment_group = '%s' AND run.id = metrics.run_id AND run.id = config.run_id AND metrics.name = 'time.real_s' AND (experiment_name = 'raw' OR config.value = '1')
+      GROUP BY experiment_group, project_name, metrics.name, config.name, cval
+      ORDER BY project_name, cval
+    ) AS raw
+    WHERE pjit.project_name = raw.project_name
+    ORDER BY cores ASC
+ ) AS spd, project
+ WHERE spd.project_name = project.name ORDER BY speedup_corrected
+;
+"), project, exp_filter, project, base)
+  return(sql.get(c, q))
 }
 
 projects <- function(c) {

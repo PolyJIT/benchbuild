@@ -134,7 +134,7 @@ shinyServer(function(input, output, session) {
     style = 'bootstrap',
     class = 'table-condensed',
     paging = FALSE,
-    server = TRUE
+    server = FALSE
   ))
   
   output$t1Plot = renderPlot({

@@ -1,35 +1,35 @@
 #!/usr/bin/env python
 
-from plumbum import local, cli
+from plumbum import local
 from plumbum.cmd import git
 
 from pprof.settings import config
-import os
+from os import path
 
-def getLLVMVersion():
-    if config["llvm-srcdir"] is not None:
-      to_dir = os.path.join(config["llvm-srcdir"],".git/")
-      with local.cwd(to_dir):
-          return git("rev-parse", "HEAD")
-    return ""
 
-def getClangVersion():
-    if config["llvm-srcdir"] is not None:
-      to_dir = os.path.join(config["llvm-srcdir"],"tools/clang/.git/")
-      with local.cwd(to_dir):
-          return git("rev-parse", "HEAD")
-    return ""
+def get_git_hash(from_url):
+    """
+    Get the git commit hash of HEAD from :from_url.
 
-def getPollyVersion():
-    if config["llvm-srcdir"] is not None:
-      to_dir = os.path.join(config["llvm-srcdir"],"tools/polly/.git/")
-      with local.cwd(to_dir):
-         return git("rev-parse", "HEAD")
-    return ""
+    Args:
+        from_url: The file system url of our git repository.
+    Returns:
+        git commit hash of HEAD, or empty string.
+    """
+    if from_url is None:
+        return ""
 
-def getPolliVersion():
-    if config["llvm-srcdir"] is not None:
-      to_dir = os.path.join(config["llvm-srcdir"],"tools/polly/tools/polli/.git/")
-      with local.cwd(to_dir):
+    if not path.exists(from_url):
+        return ""
+
+    with local.cwd(from_url):
         return git("rev-parse", "HEAD")
-    return ""
+
+
+LLVM_VERSION = get_git_hash(config["llvm-srcdir"])
+CLANG_VERSION = get_git_hash(
+    path.join(config["llvm-srcdir"], "tools", "clang"))
+POLLY_VERSION = get_git_hash(
+    path.join(config["llvm-srcdir"], "tools", "polly"))
+POLLI_VERSION = get_git_hash(
+    path.join(config["llvm-srcdir"], "tools", "polly", "tools", "polli"))

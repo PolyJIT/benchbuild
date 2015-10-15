@@ -304,9 +304,13 @@ config_metadata = [
         "name": "keep",
         "default": False,
         "env": "PPROF_KEEP_RESULTS"
+    },
+    {
+        "name": "llvm-srcdir",
+        "env": "PPROF_LLVM_SRC_DIR",
+        "default": None
     }
 ]
-
 
 def default_config(config_metadata):
     config = {}

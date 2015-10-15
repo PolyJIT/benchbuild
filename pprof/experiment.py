@@ -349,10 +349,10 @@ class Experiment(object):
         import pprof.utils.versions as v
 
         persist_globalconfig(config['experiment'], {
-            "llvm-version" : v.getLLVMVersion(),
-            "clang-version" : v.getClangVersion(),
-            "polly-version" : v.getPollyVersion(),
-            "polli-version" : v.getPolliVersion()
+            "llvm-version": v.LLVM_VERSION,
+            "clang-version": v.CLANG_VERSION,
+            "polly-version": v.POLLY_VERSION,
+            "polli-version": v.POLLI_VERSION
             })
 
         with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):

@@ -60,12 +60,15 @@ def persist_experiment(experiment):
 
     session = schema.Session()
 
+    from pprof.settings import config
+    from sqlalchemy.dialects.postgresql import UUID
     e = session.query(schema.Experiment).filter(
-        schema.Experiment.name == experiment.name).first()
+        schema.Experiment.id == config['experiment']).first()
     if e is None:
         e = schema.Experiment()
     e.name = experiment.name
     e.description = experiment.__doc__
+    e.id = config['experiment']
 
     session.add(e)
     session.commit()
@@ -121,4 +124,20 @@ def persist_config(run, session, config):
 
     for c in config:
         session.add(s.Config(name=c, value=config[c], run_id=run.id))
+    session.commit()
+
+def persist_globalconfig(experiment_group, config):
+    """ Persist the global configuration in as key-value pairs."""
+    from pprof.utils import schema as s
+
+    session = s.Session()
+
+    e = session.query(s.GlobalConfig).filter(
+        s.GlobalConfig.experiment_group == experiment_group).first()
+    if e is None:
+        print "adding"
+        for c in config:
+            gconfig = s.GlobalConfig(experiment_group=experiment_group,
+                                     name=c, value=config[c])
+            session.add(gconfig)
     session.commit()

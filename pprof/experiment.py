@@ -41,7 +41,7 @@ from pprof.projects import *
 from contextlib import contextmanager
 from os import path, listdir
 from sets import Set
-from pprof.utils.db import persist_experiment
+from pprof.utils.db import persist_experiment, persist_globalconfig
 
 import sys
 import regex
@@ -261,7 +261,6 @@ class Experiment(object):
         self.builddir = path.join(config["builddir"], name)
         self.testdir = config["testdir"]
 
-        persist_experiment(self)
         self.populate_projects(projects, group)
 
     def populate_projects(self, projects_to_filter, group=None):
@@ -346,6 +345,16 @@ class Experiment(object):
 
         Setup the environment and call run_project method on all projects.
         """
+        persist_experiment(self)
+        import pprof.utils.versions as v
+
+        persist_globalconfig(config['experiment'], {
+            "llvm-version" : v.getLLVMVersion(),
+            "clang-version" : v.getClangVersion(),
+            "polly-version" : v.getPollyVersion(),
+            "polli-version" : v.getPolliVersion()
+            })
+
         with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
             self.map_projects(self.run_project, "run")
 

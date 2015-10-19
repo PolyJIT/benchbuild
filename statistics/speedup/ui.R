@@ -20,7 +20,9 @@ shinyUI(
                    ),
                    fluidRow(
                      column(width = 4,
-                            selectInput("papiExperiments", label = "Dyn Cov", multiple = FALSE, choices = NULL, width = '100%'))
+                            selectInput("papiExperiments", label = "Dyn Cov", multiple = FALSE, choices = NULL, width = '100%')),
+                     column(width = 4,
+                            checkboxInput("plotAmdahl", label = "Plot Amdahl speedup", value = TRUE))
                    ),
                    fluidRow(column(width = 8,
                                    p("Compare PolyJIT Runtime to a Baseline experiment of your choice."))
@@ -64,6 +66,7 @@ shinyUI(
                             selectInput("projects_per", label = "Project", multiple = FALSE, choices = NULL, width = '100%'))),
                    fluidRow(
                      column(width = 12,
+                            h4("Speedup measurements"),
                             plotOutput("t1Plot"))),
                    fluidRow(
                      column(width = 12,

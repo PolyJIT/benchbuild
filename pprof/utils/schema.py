@@ -26,9 +26,9 @@ class Run(Base):
     finished = Column(DateTime(timezone=False))
     command = Column(String)
     project_name = Column(String, ForeignKey("project.name"), index=True)
-    experiment_name = Column(String, ForeignKey("experiment.name"), index=True)
+    experiment_name = Column(String, index=True)
     run_group = Column(postgresql.UUID, index=True)
-    experiment_group = Column(postgresql.UUID, index=True)
+    experiment_group = Column(postgresql.UUID, ForeignKey("experiment.id"), index=True)
 
     def __repr__(self):
         return dedent(
@@ -45,8 +45,9 @@ class Experiment(Base):
 
     __tablename__ = 'experiment'
 
-    name = Column(String, primary_key=True)
+    name = Column(String)
     description = Column(String)
+    id = Column(postgresql.UUID(as_uuid=True), primary_key=True)
 
     def __repr__(self):
         return "<Experiment(name='{}', description='{}')>".format(
@@ -203,6 +204,22 @@ class Config(Base):
     __tablename__ = 'config'
 
     run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
+                    ondelete="CASCADE"), primary_key=True)
+    name = Column(String, primary_key=True)
+    value = Column(String)
+
+class GlobalConfig(Base):
+
+    """
+    Store customized information about a run.
+
+    You can store arbitrary configuration information about a run here.
+    Use it for extended filtering against the run table.
+    """
+
+    __tablename__ = 'globalconfig'
+
+    experiment_group = Column(postgresql.UUID(as_uuid=True), ForeignKey("experiment.id", onupdate="CASCADE",
                     ondelete="CASCADE"), primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)

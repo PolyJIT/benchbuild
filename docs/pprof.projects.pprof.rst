@@ -164,6 +164,14 @@ pprof.projects.pprof.python module
     :undoc-members:
     :show-inheritance:
 
+pprof.projects.pprof.rasdaman module
+------------------------------------
+
+.. automodule:: pprof.projects.pprof.rasdaman
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pprof.projects.pprof.ruby module
 --------------------------------
 

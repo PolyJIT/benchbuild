@@ -5,7 +5,6 @@ from pprof.project import Project, ProjectFactory
 
 from os import path
 from plumbum import local
-from plumbum.cmd import cp
 
 
 class LNTGroup(Project):
@@ -22,13 +21,11 @@ class LNTGroup(Project):
 
     def download(self):
         from pprof.utils.downloader import Git
-
+        from plumbum.cmd import virtualenv
         with local.cwd(self.builddir):
             Git(self.src_uri, self.src_dir)
             Git(self.test_suite_uri, self.test_suite_dir)
 
-        from plumbum.cmd import virtualenv
-        with local.cwd(self.builddir):
             virtualenv("local")
             python = local[path.join("local", "bin", "python")]
             python(path.join(self.src_dir, "setup.py"), "develop")
@@ -100,7 +97,7 @@ class MultiSourceBenchmarks(LNTGroup):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                      self.compiler_extension)
 
-        run(lnt["runtest", "nt", "-v" "-j1", "--sandbox", sandbox_dir,
+        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
                 "--cc", str(clang),
                 "--cxx", str(clang_cxx),
                 "--test-suite", path.join(self.builddir, self.test_suite_dir),
@@ -139,3 +136,49 @@ class MultiSourceApplications(LNTGroup):
                 "--test-style", "simple",
                 "--make-param=RUNUNDER=" + str(exp),
                 "--only-test=" + path.join("MultiSource", "Applications")])
+
+
+class SPEC2006(LNTGroup):
+
+    class Factory:
+
+        def create(self, exp):
+            return SPEC2006(exp, "SPEC2006")
+    ProjectFactory.addFactory("SPEC2006", Factory())
+
+    def download(self):
+        from pprof.utils.downloader import CopyNoFail
+        from pprof.settings import config
+
+        with local.cwd(self.builddir):
+            if CopyNoFail('speccpu2006'):
+                super(SPEC2006, self).download()
+            else:
+                print('======================================================')
+                print('SPECCPU2006 not found in %s. This project will fail.',
+                      config['tmpdir'])
+                print('======================================================')
+
+    def run_tests(self, experiment):
+        from pprof.project import wrap_dynamic
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
+
+        exp = wrap_dynamic("lnt_runner", experiment)
+        lnt = local[path.join("local", "bin", "lnt")]
+        sandbox_dir = path.join(self.builddir, "run")
+
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
+
+        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--test-external", self.builddir,
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("External", "SPEC")])

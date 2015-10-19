@@ -31,6 +31,10 @@ class PprofRun(cli.Application):
     def sourcedir(self, dirname):
         config["sourcedir"] = dirname
 
+    @cli.switch(["--llvm-srcdir"], str, help="Where are the llvm source files")
+    def sourcedir(self, dirname):
+        config["llvm-srcdir"] = dirname
+
     @cli.switch(["-B", "--builddir"], str, help="Where should we build")
     def builddir(self, dirname):
         config["builddir"] = dirname
@@ -63,6 +67,11 @@ class PprofRun(cli.Application):
                 help="List available projects for experiment")
     def list(self):
         self._list = True
+
+    @cli.switch(["-k", "--keep"], requires=["--experiment"],
+                help="Keep intermediate results")
+    def keep(self):
+        config["keep"] = True
 
     @cli.switch(["-G", "--group"], str, requires=["--experiment"],
                 help="Run a group of projects under the given experiments")

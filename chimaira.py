@@ -122,7 +122,7 @@ def prepare_slurm_script(experiment, project, experiment_id):
 
     # We need to wrap the pprof run inside srun to avoid HyperThreading.
     srun = local["srun"]
-    commands.append(srun["--hint=nomultithread", pprof["run",
+    commands.append(srun["--hint=nomultithread", pprof["-v", "run",
                          "-P", project,
                          "-E", experiment,
                          "-B", config["nodedir"],

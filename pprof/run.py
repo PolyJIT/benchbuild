@@ -31,6 +31,10 @@ class PprofRun(cli.Application):
     def sourcedir(self, dirname):
         config["sourcedir"] = dirname
 
+    @cli.switch(["--llvm-srcdir"], str, help="Where are the llvm source files")
+    def sourcedir(self, dirname):
+        config["llvm-srcdir"] = dirname
+
     @cli.switch(["-B", "--builddir"], str, help="Where should we build")
     def builddir(self, dirname):
         config["builddir"] = dirname

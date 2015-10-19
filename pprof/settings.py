@@ -308,7 +308,7 @@ config_metadata = [
     {
         "name": "llvm-srcdir",
         "env": "PPROF_LLVM_SRC_DIR",
-        "default": None
+        "default": os.path.join(os.getcwd(), "pprof-llvm")
     }
 ]
 

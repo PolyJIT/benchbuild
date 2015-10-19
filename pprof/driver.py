@@ -13,7 +13,7 @@ class PollyProfiling(cli.Application):
 
     """ Frontend for running/building the pprof study framework """
 
-    VERSION = "0.9.7"
+    VERSION = "0.9.8"
     _config_path = "./.pprof_config.py"
     _list_env = False
 

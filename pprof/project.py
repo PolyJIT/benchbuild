@@ -102,7 +102,8 @@ class Project(object):
                            PPROF_GROUP=self.group_name,
                            PPROF_SRC_URI=self.src_uri):
                 self.run_tests(experiment)
-                self.clean()
+                if not config["keep"]:
+                    self.clean()
 
     def clean(self):
         """ Clean the project build directory. """

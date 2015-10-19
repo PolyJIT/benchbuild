@@ -299,6 +299,16 @@ config_metadata = [
     {
         "name": "openmp_repo",
         "default": { "url": "http://llvm.org/git/openmp.git", "branch": None, "commit_hash": None }
+    },
+    {
+        "name": "keep",
+        "default": False,
+        "env": "PPROF_KEEP_RESULTS"
+    },
+    {
+        "name": "llvm-srcdir",
+        "env": "PPROF_LLVM_SRC_DIR",
+        "default": os.path.join(os.getcwd(), "pprof-llvm")
     }
 ]
 

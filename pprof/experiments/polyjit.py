@@ -284,7 +284,7 @@ class PolyJIT(RuntimeExperiment):
                     "-Xclang", "LLVMPolyJIT.so",
                     "-O3",
                     "-mllvm", "-jitable",
-                    "-mllvm", "-polly-detect-unprofitable",
+                    "-mllvm", "-polly-only-scop-detection",
                     "-mllvm", "-polly-delinearize=false",
                     "-mllvm", "-polly-detect-keep-going",
                     "-mllvm", "-polli"]
@@ -350,7 +350,6 @@ class PJITlikwid(PolyJIT):
             """Run the experiment with likwid."""
             from uuid import uuid4
 
-            old_cflags = p.cflags
             p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
 
             for i in range(1, int(config["jobs"]) + 1):
@@ -367,8 +366,6 @@ class PJITlikwid(PolyJIT):
                     run_with_likwid.project = p
                     run_with_likwid.jobs = i
                     p.run(run_with_likwid)
-
-            p.cflags = old_cflags
 
 
 class PJITcs(PolyJIT):
@@ -411,6 +408,29 @@ class PJITcs(PolyJIT):
 
 
 class PJITpapi(PolyJIT):
+    """
+        Experiment that uses PolyJIT's instrumentation facilities.
+
+        This uses PolyJIT to instrument all projects with libPAPI based
+        region measurements. In the end the region measurements are
+        aggregated and metrics like the dynamic SCoP coverage are extracted.
+
+        This uses the same set of flags as all other PolyJIT based experiments.
+    """
+
+    def run(self):
+        """Do the postprocessing, after all projects are done."""
+        super(PJITpapi, self).run()
+
+        bin_path = path.join(config["llvmdir"], "bin")
+        pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
+
+        with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"]),
+                       PPROF_EXPERIMENT=self.name,
+                       PPROF_USE_DATABASE=1,
+                       PPROF_USE_FILE=0,
+                       PPROF_USE_CSV=0):
+            pprof_analyze()
 
     def run_project(self, p):
         p = self.init_project(p)
@@ -418,13 +438,11 @@ class PJITpapi(PolyJIT):
             """Run the experiment with papi support."""
             from uuid import uuid4
 
-            old_cflags = p.cflags
-            old_ldflags = p.ldflags
             p.cflags = ["-DPOLLI_ENABLE_PAPI"] + p.cflags
             p.ldflags = p.ldflags + ["-lpprof"]
 
-            for i in range(1, int(config["jobs"])):
-                with step("{} cores & uuid {}".format(i+1, p.run_uuid)):
+            for i in range(1, int(config["jobs"]) + 1):
+                with step("{} cores & uuid {}".format(i, p.run_uuid)):
                     p.clean()
                     p.prepare()
                     p.download()
@@ -437,6 +455,3 @@ class PJITpapi(PolyJIT):
                     run_with_papi.project = p
                     run_with_papi.jobs = i
                     p.run(run_with_papi)
-
-            p.cflags = old_cflags
-            p.ldflags = old_ldflags

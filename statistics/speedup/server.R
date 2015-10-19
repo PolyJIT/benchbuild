@@ -44,7 +44,7 @@ shinyServer(function(input, output, session) {
 
   data.projects <- reactive({
     validate(
-      need(input$rawExperiments, "Select a RAW-compatible experiment as baseline first."),
+      need(input$baseline, "Select a RAW-compatible experiment as baseline first."),
       need(input$jitExperiments, "Select a JIT-compatible experiment first.")
     )
     return(data.speedup()[, "project_name"])
@@ -56,12 +56,21 @@ shinyServer(function(input, output, session) {
   })
   output$speedup = renderPlot({
     validate(
-      need(input$rawExperiments, "Select a RAW-compatible experiment as baseline first."),
-      need(input$jitExperiments, "Select a JIT-compatible experiment first.")
+      need(input$baseline, "Select a RAW-compatible experiment as baseline first."),
+      need(input$jitExperiments, "Select a JIT-compatible experiment first."),
+      need(input$minY, "Select a minimum for y-axis."),
+      need(input$minY, "Select a maximum for y-axis.")
     )
+
+    papi <- trim(input$papiExperiments)
+    if (nchar(papi) <= 1 || !input$plotAmdahl) {
+      papi <- NULL
+    }
+
     d <- speedup(con,
-                 input$rawExperiments,
+                 input$baseline,
                  input$jitExperiments,
+                 papi,
                  input$projects,
                  input$groups)
 
@@ -73,10 +82,17 @@ shinyServer(function(input, output, session) {
                  geom_line(aes(y = ptime), color = "green") +
                  ylab("Runtime in [s]")
       } else {
-        p <- p + geom_line() +
-                 geom_point(aes(color = cores)) +
-                 geom_smooth(color = "red") +
-                 ylab("Speedup Factor")
+        p <- p + geom_bar(aes(color = cores), stat = "identity") +
+          geom_point(aes(color = cores)) +
+          geom_smooth(color = "red") +
+          geom_hline(yintercept=1, colour="blue", label = "baseline") +
+          geom_abline(slope=1, intercept=0, colour="green", label = "speedup")
+        if (input$plotAmdahl && !is.null(papi)) {
+          p <- p + geom_line(aes(x = cores, y = speedup_amdahl), color = "orange", label = "amdahl")
+        }
+        p <- p + coord_cartesian(ylim=c(input$minY, input$maxY)) +
+          scale_x_discrete() +
+          ylab("Speedup Factor")
       }
 
       p <- p + facet_wrap(~ project_name, ncol = input$numCols) + xlab("Number of cores")
@@ -86,12 +102,22 @@ shinyServer(function(input, output, session) {
 
   output$speedupTable = renderDataTable({
       validate(
-        need(input$rawExperiments, "Select a RAW-compatible experiment as baseline first."),
+        need(input$baseline, "Select a RAW-compatible experiment as baseline first."),
         need(input$jitExperiments, "Select a JIT-compatible experiment first.")
       )
+      papi <- trim(as.character(input$papiExperiments))
+
+      cat("spd.table:", papi, "\n")
+      if (nchar(papi) <= 1 || !input$plotAmdahl) {
+        cat("spd.table:", length(papi), "\n")
+        papi <- NULL
+      }
+      cat("spd.table:", papi, "\n")
+
       return(speedup(con,
-                     input$rawExperiments,
+                     input$baseline,
                      input$jitExperiments,
+                     papi,
                      input$projects,
                      input$groups))
     },
@@ -110,21 +136,73 @@ shinyServer(function(input, output, session) {
     return(flamegraph(con, input$perfExperiments, input$perfProjects))
   })
 
-  updateSelectInput(session, "rawExperiments", choices = c(getSelections("raw", exps),
+
+  expTable <- reactive({ get_experiments_per_project(con, input$projects_per) })
+
+  output$t1 = renderDataTable({
+    validate(
+      need(input$projects_per, "Select a project first.")
+    )
+
+    t <- expTable()
+    rownames(t) <- t[,1]
+
+    return(t[,2:3])
+  },
+  options = list(
+    style = 'bootstrap',
+    class = 'table-condensed',
+    paging = FALSE,
+    server = FALSE
+  ))
+
+  output$t1Plot = renderPlot({
+    validate(
+      need(input$baseline, "Select a baseline for plotting."),
+      need(input$projects_per, "Select a project first.")
+    )
+
+    t <- expTable()
+    if (length(input$t1_rows_selected) > 0) {
+      t <- t[input$t1_rows_selected, ]
+    }
+
+    d <- speedup_per_project(con, input$projects_per, input$baseline, t[, 1])
+
+    if (nrow(d) > 0) {
+      p <- ggplot(data=d, aes(x = cores, y = speedup_corrected, group=experiment_group, fill = cores, color = cores))
+      p <- p + geom_line(aes(color = experiment_group)) +
+        #geom_smooth(color = "red") +
+        geom_hline(yintercept=1, colour="blue") +
+        geom_abline(slope=1, intercept=0, colour="green") +
+        coord_cartesian(ylim=c(input$minY, input$maxY)) +
+        scale_x_discrete() +
+        ylab("Speedup Factor")
+
+      p <- p + facet_wrap(~ project_name, ncol = input$numCols) + xlab("Number of cores")
+      p
+    }
+  })
+
+  updateSelectInput(session, "baseline", choices = c(getSelections("raw", exps),
                                                getSelections("polly", exps),
                                                getSelections("polly-openmp", exps),
                                                getSelections("polly-vectorize", exps),
                                                getSelections("polly-openmpvect", exps),
                                                getSelections("papi", exps),
                                                getSelections("papi-std", exps),
+                                               getSelections("pj-papi", exps),
                                                getSelections("polyjit", exps),
                                                getSelections("pj-raw", exps)), selected = 0)
   updateSelectInput(session, "jitExperiments", choices = c(getSelections("polyjit", exps),
                                                            getSelections("pj-raw", exps)), selected = 0)
   updateSelectInput(session, "projects", choices = projects(con), selected = 0)
+  updateSelectInput(session, "projects_per", choices = projects(con), selected = 0)
   updateSelectInput(session, "groups", choices = groups(con), selected = 0)
   updateSelectInput(session, "perfExperiments", choices = c(getSelections("pj-perf", exps)), selected = 0)
   updateSelectInput(session, "perfProjects", choices = perfProjects(con), selected = 0)
+  updateSelectInput(session, "papiExperiments", choices = c(getSelections("pj-papi", exps),
+                                                            getSelections("papi", exps)), selected = 0)
 
   observe({
     if (!is.null(input$perfExperiments)) {

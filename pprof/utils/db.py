@@ -135,7 +135,6 @@ def persist_globalconfig(experiment_group, config):
     e = session.query(s.GlobalConfig).filter(
         s.GlobalConfig.experiment_group == experiment_group).first()
     if e is None:
-        print "adding"
         for c in config:
             gconfig = s.GlobalConfig(experiment_group=experiment_group,
                                      name=c, value=config[c])

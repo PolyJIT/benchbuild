@@ -464,7 +464,7 @@ class PJITpapi(PolyJIT):
             """Run the experiment with papi support."""
             from uuid import uuid4
 
-            p.cflags = ["-DPOLLI_ENABLE_PAPI"] + p.cflags
+            p.cflags = ["-mllvm", "-instrument"] + p.cflags
             p.ldflags = p.ldflags + ["-lpprof"]
 
             for i in range(1, int(config["jobs"]) + 1):

@@ -62,6 +62,7 @@ def nl(o):
         o.write("\n")
     return o
 
+
 def to_utf8(text):
     """
     Convert given text to UTF-8 encoding (as far as possible).
@@ -74,19 +75,7 @@ def to_utf8(text):
     if not text:
         return text
 
-    try:  # unicode or pure ascii
-        return text.encode("utf8")
-    except UnicodeEncodeError:
-        try:  # successful UTF-8 decode means it's pretty sure UTF-8 already
-            text.decode("utf8")
-            return text
-        except UnicodeDecodeError:
-            try:  # get desperate; and yes, this has a western hemisphere bias
-                return text.decode("cp1252").encode("utf8")
-            except UnicodeDecodeError:
-                pass
-
-    return text  # return unchanged, hope for the best
+    return text.encode("utf8", errors="replace")
 
 
 def static_var(varname, value):

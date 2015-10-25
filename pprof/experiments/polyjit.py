@@ -295,6 +295,12 @@ class PolyJIT(RuntimeExperiment):
 
 
 class PJITRaw(PolyJIT):
+    """
+        An experiment that executes all projects with PolyJIT support.
+
+        This is our default experiment for speedup measurements.
+    """
+
     def run_project(self, p):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
@@ -320,6 +326,10 @@ class PJITRaw(PolyJIT):
 
 
 class PJITperf(PolyJIT):
+    """
+        An experiment that uses linux perf tools to generate flamegraphs.
+    """
+
     def run_project(self, p):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
@@ -344,6 +354,15 @@ class PJITperf(PolyJIT):
 
 
 class PJITlikwid(PolyJIT):
+    """
+        An experiment that uses likwid's instrumentation API for profiling.
+
+        This instruments all projects with likwid instrumentation API calls
+        in key regions of the JIT.
+
+        This allows for arbitrary profiling of PolyJIT's overhead and run-time
+    """
+
     def run_project(self, p):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
@@ -369,6 +388,13 @@ class PJITlikwid(PolyJIT):
 
 
 class PJITcs(PolyJIT):
+    """
+        A simple compile-stats based experiment.
+
+        This enables PolyJIT during the compilation of the project and
+        extracts all stats from LLVM's -stats output.
+    """
+
     def run_project(self, p):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):

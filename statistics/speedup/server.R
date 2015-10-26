@@ -38,9 +38,20 @@ if (!require("vioplot")) {
 }
 
 shinyServer(function(input, output, session) {
-  con <- dbConnect(RPostgres::Postgres(),
-                   dbname="pprof", user="pprof", host="debussy.fim.uni-passau.de", port=32768, password="pprof")
-  exps <- get_experiments(con)
+  con <- NULL
+
+  db <- reactive({
+    if (!is.null(con)) {
+      dbDisconnect(conn = con)
+    }
+    validate(need(input$db, "Select a Database."))
+    if (input$db == 'buildbot')
+      con <- dbConnect(RPostgres::Postgres(), dbname='pprof-bb', user='bb', password='bb', port=32768, host='debussy.fim.uni-passau.de')
+    else if (input$db == 'develop')
+      con <- dbConnect(RPostgres::Postgres(), dbname='pprof', user='pprof', password='pprof', port=32768, host='debussy.fim.uni-passau.de')
+    cat("DB:", input$db, "\n")
+    return(con)
+  })
 
   data.projects <- reactive({
     validate(
@@ -67,7 +78,7 @@ shinyServer(function(input, output, session) {
       papi <- NULL
     }
 
-    d <- speedup(con,
+    d <- speedup(db(),
                  input$baseline,
                  input$jitExperiments,
                  papi,
@@ -114,7 +125,7 @@ shinyServer(function(input, output, session) {
       }
       cat("spd.table:", papi, "\n")
 
-      return(speedup(con,
+      return(speedup(db(),
                      input$baseline,
                      input$jitExperiments,
                      papi,
@@ -133,11 +144,11 @@ shinyServer(function(input, output, session) {
       need(input$perfProjects, "Select a Project first.")
     )
 
-    return(flamegraph(con, input$perfExperiments, input$perfProjects))
+    return(flamegraph(db(), input$perfExperiments, input$perfProjects))
   })
 
 
-  expTable <- reactive({ get_experiments_per_project(con, input$projects_per) })
+  expTable <- reactive({ get_experiments_per_project(db(), input$projects_per) })
 
   output$t1 = renderDataTable({
     validate(
@@ -167,7 +178,7 @@ shinyServer(function(input, output, session) {
       t <- t[input$t1_rows_selected, ]
     }
 
-    d <- speedup_per_project(con, input$projects_per, input$baseline, t[, 1])
+    d <- speedup_per_project(db(), input$projects_per, input$baseline, t[, 1])
 
     if (nrow(d) > 0) {
       p <- ggplot(data=d, aes(x = cores, y = speedup_corrected, group=experiment_group, fill = cores, color = cores))
@@ -184,33 +195,38 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  updateSelectInput(session, "baseline", choices = c(getSelections("raw", exps),
-                                               getSelections("polly", exps),
-                                               getSelections("polly-openmp", exps),
-                                               getSelections("polly-vectorize", exps),
-                                               getSelections("polly-openmpvect", exps),
-                                               getSelections("papi", exps),
-                                               getSelections("papi-std", exps),
-                                               getSelections("pj-papi", exps),
-                                               getSelections("polyjit", exps),
-                                               getSelections("pj-raw", exps)), selected = 0)
-  updateSelectInput(session, "jitExperiments", choices = c(getSelections("polyjit", exps),
-                                                           getSelections("pj-raw", exps)), selected = 0)
-  updateSelectInput(session, "projects", choices = projects(con), selected = 0)
-  updateSelectInput(session, "projects_per", choices = projects(con), selected = 0)
-  updateSelectInput(session, "groups", choices = groups(con), selected = 0)
-  updateSelectInput(session, "perfExperiments", choices = c(getSelections("pj-perf", exps)), selected = 0)
-  updateSelectInput(session, "perfProjects", choices = perfProjects(con), selected = 0)
-  updateSelectInput(session, "papiExperiments", choices = c(getSelections("pj-papi", exps),
-                                                            getSelections("papi", exps)), selected = 0)
-
   observe({
+    db <- db()
+    projects = projects(db)
+    exps <- get_experiments(db)
+
+    updateSelectInput(session, "baseline", choices = c(getSelections("raw", exps),
+                                                 getSelections("polly", exps),
+                                                 getSelections("polly-openmp", exps),
+                                                 getSelections("polly-vectorize", exps),
+                                                 getSelections("polly-openmpvect", exps),
+                                                 getSelections("papi", exps),
+                                                 getSelections("papi-std", exps),
+                                                 getSelections("pj-papi", exps),
+                                                 getSelections("polyjit", exps),
+                                                 getSelections("pj-raw", exps)), selected = 0)
+    updateSelectInput(session, "jitExperiments", choices = c(getSelections("polyjit", exps),
+                                                             getSelections("pj-raw", exps)), selected = 0)
+    updateSelectInput(session, "projects", choices = projects, selected = 0)
+
+    updateSelectInput(session, "projects_per", choices = projects, selected = 0)
+    updateSelectInput(session, "groups", choices = groups(db), selected = 0)
+    updateSelectInput(session, "perfExperiments", choices = c(getSelections("pj-perf", exps)), selected = 0)
+    updateSelectInput(session, "perfProjects", choices = perfProjects(db), selected = 0)
+    updateSelectInput(session, "papiExperiments", choices = c(getSelections("pj-papi", exps),
+                                                              getSelections("papi", exps)), selected = 0)
     if (!is.null(input$perfExperiments)) {
-      updateSelectInput(session, "perfProjects", choices = perfProjects(con, input$perfExperiments), selected = 0)
+      updateSelectInput(session, "perfProjects", choices = perfProjects(db, input$perfExperiments), selected = 0)
     }
   })
 
   session$onSessionEnded(function() {
-    dbDisconnect(con)
+    if (!is.null(con))
+      dbDisconnect(con)
   })
 })

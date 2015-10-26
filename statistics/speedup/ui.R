@@ -9,6 +9,7 @@ shinyUI(
       "Speedup",
       fluidPage(
         fluidRow(
+          column(width = 4, selectInput("db", label = "Database", choices = c("buildbot", "develop"), multiple = FALSE, selected = 0)),
           column(width = 4,
                  selectInput("baseline", label = "Baseline", multiple = FALSE, choices = NULL, width = '100%'))
         ),

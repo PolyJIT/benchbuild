@@ -207,15 +207,28 @@
 #   return(sql.get(c, q))
 # }
 
+createCounter <- function(value) {
+  function(i) {
+    value <<- value + i
+  }
+}
+
+inc <- createCounter(0)
+
 sql.get <- function(c, query) {
+  n <- inc(1)
+  cat(n,"-", "query: ", query, "\n")
+  cat(n,"-", "typeof(c):", typeof(c), " ", "typeof(query)", typeof(query), "\n")
   qr <- dbSendQuery(c, query)
   res <- dbFetch(qr)
-  cat("nrow: ", dbGetRowCount(qr), " query: ", query, "\n")
+  cat(n,"-", "nrow: ", dbGetRowCount(qr), "\n")
   dbClearResult(qr)
   return(res)
 }
 
 getSelections <- function(name, exps) {
+  if (is.null(exps))
+    return(NULL)
   if (!is.null(name)) {
     exps <- exps[exps$experiment_name == name, ]
   }
@@ -274,13 +287,13 @@ query_speedup_papi <- function(extra_filter, base, jit, papi) {
     (
       SELECT project_name, metrics.name, SUM(metrics.value)
       FROM run, metrics
-      WHERE experiment_group = '%s' AND run.id = metrics.run_id AND metrics.name = 'pprof.time.total_s'
+      WHERE experiment_group = '%s' AND run.id = metrics.run_id AND metrics.name = 'pprof.time.total_s' 
       GROUP BY project_name, metrics.name
     ) AS pprof_total,
     (
       SELECT project_name, metrics.name, SUM(metrics.value)
       FROM run, metrics
-      WHERE experiment_group = '%s' AND run.id = metrics.run_id AND metrics.name = 'pprof.time.scops_s'
+      WHERE experiment_group = '%s' AND run.id = metrics.run_id AND metrics.name = 'pprof.time.scops_s' 
       GROUP BY project_name, metrics.name
   ) AS pprof_scops
     WHERE pjit.project_name = raw.project_name AND pjit.project_name = pprof_total.project_name AND pjit.project_name = pprof_scops.project_name

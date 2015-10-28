@@ -61,13 +61,12 @@ def persist_experiment(experiment):
     session = schema.Session()
 
     from pprof.settings import config
-    from sqlalchemy.dialects.postgresql import UUID
     e = session.query(schema.Experiment).filter(
         schema.Experiment.id == config['experiment']).first()
     if e is None:
         e = schema.Experiment()
     e.name = experiment.name
-    e.description = experiment.__doc__
+    e.description = config["experiment_description"]
     e.id = config['experiment']
 
     session.add(e)

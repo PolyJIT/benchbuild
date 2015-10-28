@@ -52,6 +52,11 @@ class PprofRun(cli.Application):
     def experiments(self, experiments):
         self._experiment_names = experiments
 
+    @cli.switch(["-D", "--description"], str,
+                help="A description for this experiment run")
+    def experiment_tag(self, description):
+        config["experiment_description"] = description
+
     @cli.switch(
         ["-P", "--project"], str, list=True, requires=["--experiment"],
         help="Specify projects to run")

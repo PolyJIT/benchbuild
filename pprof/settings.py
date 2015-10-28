@@ -7,6 +7,7 @@ setting should be modifiable via environment variable.
 import os
 import re
 import subprocess
+from datetime import datetime
 from uuid import uuid4
 from os import getenv
 import json
@@ -309,6 +310,11 @@ config_metadata = [
         "name": "llvm-srcdir",
         "env": "PPROF_LLVM_SRC_DIR",
         "default": os.path.join(os.getcwd(), "pprof-llvm")
+    },
+    {
+        "name": "experiment_description",
+        "env": "PPROF_EXPERIMENT_DESCRIPTION",
+        "default": str(datetime.now())
     }
 ]
 

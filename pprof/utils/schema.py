@@ -67,7 +67,8 @@ class Likwid(Base):
     run_id = Column(Integer,
                     ForeignKey("run.id",
                                onupdate="CASCADE", ondelete="CASCADE"),
-                    nullable=False, primary_key=True)
+                    nullable=False,
+                    primary_key=True)
 
     def __repr__(self):
         return dedent(
@@ -88,6 +89,7 @@ class Metric(Base):
     run_id = Column(Integer,
                     ForeignKey("run.id",
                                onupdate="CASCADE", ondelete="CASCADE"),
+                    index=True,
                     primary_key=True)
 
     def __repr__(self):
@@ -100,7 +102,7 @@ class Event(Base):
 
     __tablename__ = 'pprof_events'
 
-    name = Column(String)
+    name = Column(String, index=True)
     start = Column(postgresql.NUMERIC, primary_key=True)
     duration = Column(postgresql.NUMERIC)
     id = Column(Integer, primary_key=True)
@@ -110,6 +112,7 @@ class Event(Base):
                     ForeignKey("run.id",
                                onupdate="CASCADE", ondelete="CASCADE"),
                     nullable=False,
+                    index=True,
                     primary_key=True)
 
     def __repr__(self):
@@ -146,7 +149,8 @@ class CompileStat(Base):
     value = Column(postgresql.NUMERIC)
     run_id = Column(Integer,
                     ForeignKey("run.id",
-                               onupdate="CASCADE", ondelete="CASCADE"))
+                               onupdate="CASCADE", ondelete="CASCADE"),
+                    index=True)
 
     def __repr__(self):
         return dedent(
@@ -166,7 +170,7 @@ class RunLog(Base):
     __tablename__ = 'log'
 
     run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), primary_key=True)
+                    ondelete="CASCADE"), index=True, primary_key=True)
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Integer)
@@ -187,7 +191,7 @@ class Metadata(Base):
     __tablename__ = "metadata"
 
     run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), primary_key=True)
+                    ondelete="CASCADE"), index=True, primary_key=True)
     name = Column(String)
     value = Column(String)
 
@@ -204,7 +208,7 @@ class Config(Base):
     __tablename__ = 'config'
 
     run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), primary_key=True)
+                    ondelete="CASCADE"), index=True, primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)
 

@@ -218,10 +218,9 @@ inc <- createCounter(0)
 sql.get <- function(c, query) {
   n <- inc(1)
   cat(n,"-", "query: ", query, "\n")
-  cat(n,"-", "typeof(c):", typeof(c), " ", "typeof(query)", typeof(query), "\n")
   qr <- dbSendQuery(c, query)
   res <- dbFetch(qr)
-  cat(n,"-", "nrow: ", dbGetRowCount(qr), "\n")
+  cat(n,"-", "result set: ", dbGetRowCount(qr), "\n")
   dbClearResult(qr)
   return(res)
 }

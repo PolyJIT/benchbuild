@@ -229,23 +229,20 @@ getSelections <- function(name, exps) {
   if (is.null(exps))
     return(NULL)
   if (!is.null(name)) {
-    exps <- exps[exps$experiment_name == name, ]
+    exps <- exps[exps$name == name, ]
   }
 
-  newNames <- paste0(exps[,"experiment_name"],
+  newNames <- paste0(exps[,"name"],
                      rep(" @ ", nrow(exps)),
-                     exps[,"completed"])
-  groups <- exps[, "experiment_group"]
+                     exps[,"description"])
+  groups <- exps[, "id"]
   names(groups) <- newNames
   return(groups)
 }
 
 get_experiments <- function(c) {
   q <- strwrap(paste(
-    "SELECT CAST(experiment_group AS VARCHAR), experiment_name, MAX(finished) as completed
-         FROM run
-         WHERE NOT experiment_group = '00000000-0000-0000-0000-000000000000'::uuid
-         GROUP BY experiment_group, experiment_name ORDER BY completed;"), width=10000, simplify=TRUE)
+    "SELECT name, cast(id as VARCHAR) as id, description FROM experiment;"), width=10000, simplify=TRUE)
   return(sql.get(c, q))
 }
 

@@ -13,6 +13,12 @@ shinyUI(
           column(width = 4,
                  selectInput("baseline", label = "Baseline", multiple = FALSE, choices = NULL, width = '100%'))
         ),
+        fluidRow(
+          column(width = 12,
+                 wellPanel(
+                   dataTableOutput("summary-table")
+                 ))
+        ),
         tabsetPanel(
           tabPanel("Per Experiment",
                    fluidRow(

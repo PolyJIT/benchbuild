@@ -61,6 +61,12 @@ shinyServer(function(input, output, session) {
     return(data.speedup()[, "project_name"])
   })
 
+  output$`summary-table` = DT::renderDataTable({
+    validate(
+      need( input$baseline, "Select a RAW-comptible experiment as baseline first.")
+    )
+    get_projects_per_experiment(db(), input$baseline)
+  })
 
   output$speedup.ui = renderUI({
     plotOutput("speedup", width = "100%", height = input$plotSize)

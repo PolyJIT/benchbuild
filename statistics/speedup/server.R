@@ -131,12 +131,9 @@ shinyServer(function(input, output, session) {
       )
       papi <- trim(as.character(input$papiExperiments))
 
-      cat("spd.table:", papi, "\n")
       if (nchar(papi) <= 1 || !input$plotAmdahl) {
-        cat("spd.table:", length(papi), "\n")
         papi <- NULL
       }
-      cat("spd.table:", papi, "\n")
 
       return(speedup(db(),
                      input$baseline,

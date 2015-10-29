@@ -65,7 +65,7 @@ shinyServer(function(input, output, session) {
     validate(
       need( input$all, "Select an experiment first.")
     )
-    get_projects_per_experiment(db(), input$baseline)
+    get_projects_per_experiment(db(), input$all)
   })
 
   output$`experiments-table` = DT::renderDataTable({

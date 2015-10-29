@@ -52,6 +52,14 @@ pprof.utils.user_interface module
     :undoc-members:
     :show-inheritance:
 
+pprof.utils.versions module
+---------------------------
+
+.. automodule:: pprof.utils.versions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

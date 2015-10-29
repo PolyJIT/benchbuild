@@ -191,8 +191,12 @@ shinyServer(function(input, output, session) {
     d <- speedup_per_project(db(), input$projects_per, input$baseline, t[, 1])
 
     if (nrow(d) > 0) {
-      p <- ggplot(data=d, aes(x = cores, y = speedup_corrected, group=experiment_group, fill = cores, color = cores))
-      p <- p + geom_line(aes(color = experiment_group)) +
+      p <- ggplot(data=d, aes(x = cores, y = speedup_corrected, group=experiment_group))
+      p <- p +
+        geom_bar(aes(color = experiment_group,
+                     fill = experiment_group),
+                 stat = "identity", position = "dodge") +
+        #geom_line(aes(color = experiment_group)) +
         #geom_smooth(color = "red") +
         geom_hline(yintercept=1, colour="blue") +
         geom_abline(slope=1, intercept=0, colour="green") +

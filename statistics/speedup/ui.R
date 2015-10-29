@@ -4,20 +4,44 @@ library(DT)
 shinyUI(
   navbarPage(
     "PolyJIT", theme="css/bootstrap.min.css",
+    footer = fluidRow(
+      column(width = 1, {}),
+      column(width = 4, selectInput("db", label = "Database", choices = c("buildbot", "develop"), multiple = FALSE, selected = 0))
+    ),
+    tabPanel(
+      "Summary",
+      fluidPage(
+        fluidRow(
+          h3("Experiments"),
+          p("The following experiments are available in this database instance of the pprof-study.")
+        ),
+        fluidRow(
+          column(width = 12,
+                 dataTableOutput("experiments-table")
+          )
+        ),
+        fluidRow(
+          h3("Summary per experiment"),
+          p("This shows a quick summary for all projects that were executed for a given experiment")
+        ),
+        fluidRow(
+          column(width = 4,
+                 selectInput("all", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%')),
+          column(width = 12,
+                 wellPanel(
+                   dataTableOutput("summary-table")
+                 ))
+        )
+      )
+    ),
     # Raw Experiment
     tabPanel(
       "Speedup",
       fluidPage(
         fluidRow(
-          column(width = 4, selectInput("db", label = "Database", choices = c("buildbot", "develop"), multiple = FALSE, selected = 0)),
+          #column(width = 4, ),
           column(width = 4,
                  selectInput("baseline", label = "Baseline", multiple = FALSE, choices = NULL, width = '100%'))
-        ),
-        fluidRow(
-          column(width = 12,
-                 wellPanel(
-                   dataTableOutput("summary-table")
-                 ))
         ),
         tabsetPanel(
           tabPanel("Per Experiment",

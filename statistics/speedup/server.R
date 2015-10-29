@@ -63,9 +63,16 @@ shinyServer(function(input, output, session) {
 
   output$`summary-table` = DT::renderDataTable({
     validate(
-      need( input$baseline, "Select a RAW-comptible experiment as baseline first.")
+      need( input$all, "Select an experiment first.")
     )
     get_projects_per_experiment(db(), input$baseline)
+  })
+
+  output$`experiments-table` = DT::renderDataTable({
+    validate(
+      need( input$db, "I need a database connection first.")
+    )
+    get_experiments(db())
   })
 
   output$speedup.ui = renderUI({
@@ -206,6 +213,7 @@ shinyServer(function(input, output, session) {
     projects = projects(db)
     exps <- get_experiments(db)
 
+    updateSelectInput(session, "all", choices = c(getSelections(NULL, exps)), selected = 0)
     updateSelectInput(session, "baseline", choices = c(getSelections("raw", exps),
                                                  getSelections("polly", exps),
                                                  getSelections("polly-openmp", exps),

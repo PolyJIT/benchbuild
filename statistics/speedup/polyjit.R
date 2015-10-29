@@ -254,6 +254,11 @@ get_experiments_per_project <- function(c, project) {
   return(sql.get(c, q))
 }
 
+get_projects_per_experiment <- function(c, exp_id) {
+  q <- sprintf("SELECT project_name, status, MAX(finished) FROM run, log WHERE run.id = log.run_id AND experiment_group = '%s'::uuid GROUP BY project_name, status;", exp_id)
+  return(sql.get(c, q))
+}
+
 query_speedup_papi <- function(extra_filter, base, jit, papi) {
   q <- sprintf(paste(
 "SELECT spd.project_name, spd.cores, spd.ptime, spd.time, spd.speedup,

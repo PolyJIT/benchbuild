@@ -124,14 +124,14 @@ def Wget(url, fname, to=None):
     from os import path
     from plumbum.cmd import wget
 
-    src_dir = path.join(to, fname)
+    src_path = path.join(to, fname)
     if not source_required(fname, to):
-        Copy(src_dir, ".")
+        Copy(src_path, ".")
         return
 
-    wget(url, "-P", to)
+    wget(url, "-O", src_path)
     update_hash(fname, to)
-    Copy(src_dir, ".")
+    Copy(src_path, ".")
 
 
 def Git(url, fname, to=None):

@@ -142,11 +142,13 @@ def guarded_exec(cmd, pname, ename, run_group):
             in a RunException and re-raise. This ends the run unsuccessfully.
     """
     from plumbum.commands import ProcessExecutionError
+    from plumbum import local
 
     run, session = \
         begin(cmd, pname, ename, run_group)
     try:
-        retcode, stdout, stderr = cmd.run()
+        with local.env(PPROF_DB_RUN_ID=run.id):
+            retcode, stdout, stderr = cmd.run()
         end(run, session, stdout, stderr)
         return (run, session, retcode, stdout, stderr)
     except ProcessExecutionError as e:

@@ -410,7 +410,9 @@ class PJITcs(PolyJIT):
                     from pprof.utils.db import persist_compilestats
                     from pprof.utils.run import handle_stdin
 
-                    new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
+                    new_cc = handle_stdin(
+                        cc["-mllvm", "-polli-collect-modules", "-mllvm",
+                           "-stats"], kwargs)
 
                     run, session, retcode, _, stderr = \
                         r.guarded_exec(new_cc, p.name, self.name, p.run_uuid)

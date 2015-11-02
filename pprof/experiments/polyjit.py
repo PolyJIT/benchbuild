@@ -387,6 +387,38 @@ class PJITlikwid(PolyJIT):
                     p.run(run_with_likwid)
 
 
+class PJITRegression(PolyJIT):
+    """
+        This experiment will generate a series of regression tests.
+
+        This can be used every time a new revision is produced for PolyJIT, as
+        it will automatically collect any new SCoPs detected, using the JIT.
+
+        The collection of the tests itself is intgrated into the JIT, so this
+        experiment looks a lot like a RAW experiment, except we don't run
+        anything.
+    """
+
+    def run_project(self, p):
+        """
+        Execute the experiment on a single projects.
+
+        Args:
+            p - The project we run this experiment on.
+        """
+        p = self.init_project(p)
+        with local.env(PPROF_ENABLE=0):
+            """ Compile the project and track the compilestats. """
+
+            p.cflags = p.cflags + ["-mllvm", "-polli-collect-modules"]
+            with step("Extract regression test modules."):
+                p.clean()
+                p.prepare()
+                p.download()
+                p.configure()
+                p.build()
+
+
 class PJITcs(PolyJIT):
     """
         A simple compile-stats based experiment.

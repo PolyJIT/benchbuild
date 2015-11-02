@@ -96,6 +96,7 @@ class PprofRun(cli.Application):
             "pj-perf": polyjit.PJITperf,
             "pj-likwid": polyjit.PJITlikwid,
             "pj-cs": polyjit.PJITcs,
+            "pj-collect": polyjit.PJITRegression,
             "pj-papi": polyjit.PJITpapi,
             "raw": raw.RawRuntime,
             "papi": papi.PapiScopCoverage,

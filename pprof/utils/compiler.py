@@ -1,3 +1,29 @@
+"""
+Helper functions for dealing with compiler replacement.
+
+This provides a few key functions to deal with varying/measuring the compilers
+used inside the pprof study.
+From a high-level view, there are 2 interesting functions:
+    * lt_clang(cflags, ldflags, func)
+    * lt_clang_cxx(cflags, ldflags, func)
+
+These generate a wrapped clang/clang++ in the current working directory and
+hide the given cflags/ldflags from the calling build system. Both will
+give you a working plumbum command and call a python script that redirects
+to the real clang/clang++ given the additional cflags&ldflags.
+
+The wrapper-script generated for both functions can be found inside:
+    * print_libtool_sucks_wrapper()
+
+The remaining methods:
+    * llvm()
+    * llvm_libs()
+    * clang()
+    * clang_cxx()
+
+Are just convencience methods that can be used when interacting with the
+configured llvm/clang source directories.
+"""
 from pprof.settings import config
 
 
@@ -54,8 +80,8 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
 
     blob_f = abspath(filepath + PROJECT_BLOB_F_EXT)
     if func is not None:
-        with open(blob_f, 'wb') as b:
-            b.write(cp.dumps(func))
+        with open(blob_f, 'wb') as blob:
+            blob.write(cp.dumps(func))
 
     with open(filepath, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
@@ -154,22 +180,57 @@ with local.env(PPROF_DB_HOST="{db_host}",
 
 
 def llvm():
+    """
+    Get the path where all llvm binaries can be found.
+
+    Environment variable:
+        PPROF_LLVM_DIR
+    Returns:
+        LLVM binary path.
+    """
+
     from os import path
     return path.join(config["llvmdir"], "bin")
 
 
 def llvm_libs():
+    """
+    Get the path where all llvm libraries can be found.
+
+    Environment variable:
+        PPROF_LLVM_DIR
+    Returns:
+        LLVM library path.
+    """
     from os import path
     return path.join(config["llvmdir"], "lib")
 
 
 def clang_cxx():
+    """
+    Get a usable clang++ plumbum command.
+
+    This searches for a usable clang++ in the llvm binary path (See llvm()) and
+    returns a plumbum command to call it.
+
+    Returns:
+        plumbum Command that executes clang++
+    """
     from os import path
     from plumbum import local
     return local[path.join(llvm(), "clang++")]
 
 
 def clang():
+    """
+    Get a usable clang plumbum command.
+
+    This searches for a usable clang in the llvm binary path (See llvm()) and
+    returns a plumbum command to call it.
+
+    Returns:
+        plumbum Command that executes clang++
+    """
     from os import path
     from plumbum import local
     return local[path.join(llvm(), "clang")]

@@ -448,9 +448,8 @@ class PJITRegression(PolyJIT):
         """
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
-            """ Compile the project and track the compilestats. """
-
             def track_compilestats(cc, **kwargs):
+                """ Compile the project and track the compilestats. """
                 from pprof.utils import run as r
                 from pprof.utils.run import handle_stdin
 
@@ -546,9 +545,9 @@ class PJITpapi(PolyJIT):
             pprof_analyze()
 
     def run_project(self, p):
+        """Run the experiment with papi support."""
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=1):
-            """Run the experiment with papi support."""
             from uuid import uuid4
 
             p.cflags = ["-mllvm", "-instrument"] + p.cflags

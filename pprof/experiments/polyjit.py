@@ -20,6 +20,46 @@ from os import path
 @static_var("config", None)
 @static_var("experiment", None)
 @static_var("project", None)
+def run_raw(run_f, args, **kwargs):
+    """
+    Run the given binary wrapped with nothing.
+
+    Args:
+        run_f: The file we want to execute.
+        args: List of arguments that should be passed to the wrapped binary.
+        **kwargs: Dictionary with our keyword args. We support the following
+            entries:
+
+            project_name: The real name of our project. This might not
+                be the same as the configured project name, if we got wrapped
+                with ::pprof.project.wrap_dynamic
+            has_stdin: Signals whether we should take care of stdin.
+    """
+    from pprof.utils import run as r
+
+    p = run_raw.project
+    e = run_raw.experiment
+    c = run_raw.config
+
+    config.update(c)
+
+    assert p is not None, "run_raw.project attribute is None."
+    assert e is not None, "run_raw.experiment attribute is None."
+    assert c is not None, "run_raw.config attribute is None."
+    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
+    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
+    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+
+    project_name = kwargs.get("project_name", p.name)
+
+    run_cmd = run_f
+    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
+
+
+@static_var("config", None)
+@static_var("experiment", None)
+@static_var("project", None)
 @static_var("jobs", 0)
 def run_with_papi(run_f, args, **kwargs):
     """
@@ -418,6 +458,11 @@ class PJITRegression(PolyJIT):
                     cc["-mllvm", "-polli-collect-modules"], kwargs)
                 r.guarded_exec(new_cc, p.name, self.name, p.run_uuid)
 
+            run_raw.config = config
+            run_raw.experiment = self
+            run_raw.project = p
+            run_raw.jobs = 1
+
             with step("Extract regression test modules."):
                 p.clean()
                 p.prepare()
@@ -425,6 +470,7 @@ class PJITRegression(PolyJIT):
                 p.compiler_extension = track_compilestats
                 p.configure()
                 p.build()
+                p.run(run_raw)
 
 
 class PJITcs(PolyJIT):

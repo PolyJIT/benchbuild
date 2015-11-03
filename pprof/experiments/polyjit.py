@@ -410,11 +410,19 @@ class PJITRegression(PolyJIT):
         with local.env(PPROF_ENABLE=0):
             """ Compile the project and track the compilestats. """
 
-            p.cflags = p.cflags + ["-mllvm", "-polli-collect-modules"]
+            def track_compilestats(cc, **kwargs):
+                from pprof.utils import run as r
+                from pprof.utils.run import handle_stdin
+
+                new_cc = handle_stdin(
+                    cc["-mllvm", "-polli-collect-modules"], kwargs)
+                r.guarded_exec(new_cc, p.name, self.name, p.run_uuid)
+
             with step("Extract regression test modules."):
                 p.clean()
                 p.prepare()
                 p.download()
+                p.compiler_extension = track_compilestats
                 p.configure()
                 p.build()
 
@@ -443,8 +451,7 @@ class PJITcs(PolyJIT):
                     from pprof.utils.run import handle_stdin
 
                     new_cc = handle_stdin(
-                        cc["-mllvm", "-polli-collect-modules", "-mllvm",
-                           "-stats"], kwargs)
+                        cc["-mllvm", "-stats"], kwargs)
 
                     run, session, retcode, _, stderr = \
                         r.guarded_exec(new_cc, p.name, self.name, p.run_uuid)

@@ -52,7 +52,7 @@ def run_raw(run_f, args, **kwargs):
 
     project_name = kwargs.get("project_name", p.name)
 
-    run_cmd = run_f
+    run_cmd = local[run_f]
     run_cmd = r.handle_stdin(run_cmd[args], kwargs)
     r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
 
@@ -99,8 +99,7 @@ def run_with_papi(run_f, args, **kwargs):
 
     project_name = kwargs.get("project_name", p.name)
 
-    run_cmd = local[run_f]
-    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    run_cmd = r.handle_stdin(run_f[args], kwargs)
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
         run, session, _, _, _ = \

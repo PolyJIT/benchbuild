@@ -315,6 +315,11 @@ config_metadata = [
         "name": "experiment_description",
         "env": "PPROF_EXPERIMENT_DESCRIPTION",
         "default": str(datetime.now())
+    },
+    {
+        "name": "regression-prefix",
+        "env": "PPROF_REGRESSION_PREFIX",
+        "default": os.path.join("/", "tmp", "pprof-regressions")
     }
 ]
 

@@ -1,6 +1,10 @@
 #!/usr/bin/evn python
 # encoding: utf-8
 
+"""
+LNT based measurements.
+
+"""
 from pprof.project import Project, ProjectFactory
 
 from os import path
@@ -154,10 +158,10 @@ class SPEC2006(LNTGroup):
             if CopyNoFail('speccpu2006'):
                 super(SPEC2006, self).download()
             else:
-                print('======================================================')
+                print '======================================================'
                 print('SPECCPU2006 not found in %s. This project will fail.',
                       config['tmpdir'])
-                print('======================================================')
+                print '======================================================'
 
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
@@ -182,3 +186,44 @@ class SPEC2006(LNTGroup):
                 "--test-external", self.builddir,
                 "--make-param=RUNUNDER=" + str(exp),
                 "--only-test=" + path.join("External", "SPEC")])
+
+
+class Povray(LNTGroup):
+    class Factory:
+        def create(self, exp):
+            return Povray(exp, "Povray")
+    ProjectFactory.addFactory("Povray", Factory())
+
+    povray_url = "https://github.com/POV-Ray/povray"
+    povray_src_dir = "Povray"
+
+    def download(self):
+
+        from pprof.utils.downloader import Git
+        with local.cwd(self.builddir):
+            super(Povray, self).download()
+            Git(self.povray_url, self.povray_src_dir)
+
+    def run_tests(self, experiment):
+        from pprof.project import wrap_dynamic
+        from pprof.utils.compiler import lt_clang, lt_clang_cxx
+        from pprof.utils.run import run
+
+        exp = wrap_dynamic("lnt_runner", experiment)
+        lnt = local[path.join("local", "bin", "lnt")]
+        sandbox_dir = path.join(self.builddir, "run")
+
+        with local.cwd(self.builddir):
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
+
+        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--test-external", self.builddir,
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("External", "Povray")])

@@ -58,8 +58,13 @@ class Lammps(PprofGroup):
 
         self.ldflags += ["-lgomp"]
 
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        with local.cwd(self.builddir):
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
 
         with local.cwd(path.join(self.builddir, self.src_dir, "src")):
-            run(make["CC=" + str(clang_cxx), "clean", "serial"])
+            run(make[
+                "CC=" + str(clang_cxx),
+                "LINK=" + str(clang_cxx),
+                "clean", "serial"
+            ])

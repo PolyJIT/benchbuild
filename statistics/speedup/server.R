@@ -46,9 +46,9 @@ shinyServer(function(input, output, session) {
     }
     validate(need(input$db, "Select a Database."))
     if (input$db == 'buildbot')
-      con <- dbConnect(RPostgres::Postgres(), dbname='pprof-bb', user='bb', password='bb', port=32768, host='debussy.fim.uni-passau.de')
+      con <- dbConnect(RPostgres::Postgres(), dbname='pprof-bb', user='bb', password='bb', port=5432, host='debussy.fim.uni-passau.de')
     else if (input$db == 'develop')
-      con <- dbConnect(RPostgres::Postgres(), dbname='pprof', user='pprof', password='pprof', port=32768, host='debussy.fim.uni-passau.de')
+      con <- dbConnect(RPostgres::Postgres(), dbname='pprof', user='pprof', password='pprof', port=5432, host='debussy.fim.uni-passau.de')
     cat("DB:", input$db, "\n")
     return(con)
   })

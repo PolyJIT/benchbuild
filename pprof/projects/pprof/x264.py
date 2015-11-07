@@ -53,6 +53,7 @@ class X264(PprofGroup):
             with local.env(CC=str(clang)):
                 run(configure["--enable-static",
                               "--disable-shared",
+                              "--disable-asm",
                               "--disable-thread",
                               "--disable-opencl",
                               "--enable-pic"])

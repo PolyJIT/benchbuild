@@ -20,17 +20,43 @@ def create_run(cmd, prj, exp, grp):
         the new run. Don't forget to commit it at some point.
 
     """
-    from datetime import datetime
     from pprof.utils import schema as s
 
     session = s.Session()
-    run = s.Run(finished=datetime.now(), command=str(cmd),
-                project_name=prj, experiment_name=exp, run_group=str(grp),
-                experiment_group=str(config["experiment"]))
+    run = s.Run(command=str(cmd), project_name=prj, experiment_name=exp,
+                run_group=str(grp), experiment_group=str(config["experiment"]))
     session.add(run)
     session.flush()
 
     return (run, session)
+
+
+def create_run_group(prj):
+    """
+    Create a new 'run_group' in the database.
+
+    This creates a new transaction in the database and creates a new run_group
+    within this transaction. Afterwards we return both the transaction as well
+    as the run_group itself. The user is responsible for committing it when the
+    time comes.
+
+    Args:
+        prj - The project for which we open the run_group.
+
+    Returns:
+        A tuple (group, session) containing both the newly created run_group and
+        the transaction object.
+    """
+    from pprof.utils import schema
+    from pprof.settings import config
+
+    session = schema.Session()
+    group = schema.RunGroup(id=prj.run_uuid, project=prj.name,
+                            experiment=config["experiment"])
+    session.add(group)
+    session.flush()
+
+    return (group, session)
 
 
 def persist_project(project):
@@ -60,7 +86,6 @@ def persist_experiment(experiment):
 
     session = schema.Session()
 
-    from pprof.settings import config
     e = session.query(schema.Experiment).filter(
         schema.Experiment.id == config['experiment']).first()
     if e is None:
@@ -71,6 +96,7 @@ def persist_experiment(experiment):
 
     session.add(e)
     session.commit()
+    return (e, session)
 
 
 def persist_likwid(run, session, measurements):
@@ -117,25 +143,25 @@ def persist_compilestats(run, session, stats):
     session.commit()
 
 
-def persist_config(run, session, config):
+def persist_config(run, session, cfg):
     """ Persist the configuration in as key-value pairs."""
     from pprof.utils import schema as s
 
-    for c in config:
-        session.add(s.Config(name=c, value=config[c], run_id=run.id))
+    for c in cfg:
+        session.add(s.Config(name=c, value=cfg[c], run_id=run.id))
     session.commit()
 
-def persist_globalconfig(experiment_group, config):
-    """ Persist the global configuration in as key-value pairs."""
+def persist_globalconfig(experiment, session, cfg):
+    """
+    Persist the global configuration in as key-value pairs.
+
+    Args:
+        experiment - The experiment object we persist the config for.
+        cfg - The config dictionary we want to persist in the database.
+    """
     from pprof.utils import schema as s
-
-    session = s.Session()
-
-    e = session.query(s.GlobalConfig).filter(
-        s.GlobalConfig.experiment_group == experiment_group).first()
-    if e is None:
-        for c in config:
-            gconfig = s.GlobalConfig(experiment_group=experiment_group,
-                                     name=c, value=config[c])
-            session.add(gconfig)
-    session.commit()
+    for c in cfg:
+        gconfig = s.GlobalConfig(experiment_group=experiment.id, name=c,
+                                 value=cfg[c])
+        session.add(gconfig)
+    session.flush()

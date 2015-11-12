@@ -2,7 +2,7 @@
 """Database schema for pprof."""
 
 from sqlalchemy import create_engine
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -23,20 +23,40 @@ class Run(Base):
     __tablename__ = 'run'
 
     id = Column(Integer, primary_key=True)
-    finished = Column(DateTime(timezone=False))
     command = Column(String)
     project_name = Column(String, ForeignKey("project.name"), index=True)
     experiment_name = Column(String, index=True)
     run_group = Column(postgresql.UUID, index=True)
     experiment_group = Column(postgresql.UUID, ForeignKey("experiment.id"), index=True)
+    begin = Column(DateTime(timezone=False))
+    end = Column(DateTime(timezone=False))
+    status = Column(Enum('completed', 'running', 'failed', name = "run_state"))
 
     def __repr__(self):
         return dedent(
             """<Run(id={}, command='{}', project_name='{}',
                     experiment_name='{}', run_group='{}',
-                    experiment_group='{}')>""".format(
-                self.id, self.finished, self.command, self.project_name,
-                self.experiment_name, self.run_group, self.experiment_group))
+                    experiment_group='{}', begin='{}', end='{}')>""".format(
+            self.id, self.command, self.project_name, self.experiment_name,
+            self.run_group, self.experiment_group, self.begin, self.end)
+        )
+
+
+class RunGroup(Base):
+    """ Store information about a run group. """
+
+    __tablename__ = 'rungroup'
+
+    id = Column(postgresql.UUID(as_uuid=True), primary_key=True,
+                index=True)
+    project = Column(String, ForeignKey("project.name"), index=True)
+    experiment = Column(postgresql.UUID(as_uuid=True),
+                        ForeignKey("experiment.id", ondelete="CASCADE",
+                                   onupdate="CASCADE"), index=True)
+
+    begin = Column(DateTime(timezone=False))
+    end = Column(DateTime(timezone=False))
+    status = Column(Enum('completed', 'running', 'failed', name="run_state"))
 
 
 class Experiment(Base):
@@ -48,10 +68,13 @@ class Experiment(Base):
     name = Column(String)
     description = Column(String)
     id = Column(postgresql.UUID(as_uuid=True), primary_key=True)
+    begin = Column(DateTime(timezone=False))
+    end = Column(DateTime(timezone=False))
 
     def __repr__(self):
-        return "<Experiment(name='{}', description='{}')>".format(
-                self.name, self.description)
+        return dedent("""<Experiment(name='{}', description='{}', begin='{}',
+                              end='{}')>""".format(
+                    self.name, self.description, self.begin, self.end))
 
 
 class Likwid(Base):

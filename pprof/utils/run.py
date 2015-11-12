@@ -60,6 +60,7 @@ class GuardedRunException(Exception):
             session -- the db session we want to log to.
         """
         self.what = what
+        self.run = run
 
         if isinstance(what, KeyboardInterrupt):
             session.rollback()
@@ -69,6 +70,61 @@ class GuardedRunException(Exception):
 
     def __repr__(self):
         return self.what.__repr__()
+
+
+def begin_run_group(project):
+    """
+    Begin a run_group in the database.
+
+    A run_group groups a set of runs for a given project. This models a series
+    of runs that form a complete binary runtime test.
+
+    Args:
+        project - The project we begin a new run_group for.
+
+    Returns:
+        (group, session) where group is the created group in the database and
+        session is the database session this group lives in.
+    """
+    from pprof.utils.db import create_run_group
+    from datetime import datetime
+
+    group, session = create_run_group(project)
+    group.begin = datetime.now()
+    group.status = 'running'
+
+    session.commit()
+    return group, session
+
+
+def end_run_group(group, session):
+    """
+    End the run_group successfully.
+
+    Args:
+        group - The run_group we want to complete.
+        session - The database transaction we will finish.
+    """
+    from datetime import datetime
+
+    group.end = datetime.now()
+    group.status = 'completed'
+    session.commit()
+
+
+def fail_run_group(group, session):
+    """
+    End the run_group unsuccessfully.
+
+    Args:
+        group - The run_group we want to complete.
+        session - The database transaction we will finish.
+    """
+    from datetime import datetime
+
+    group.end = datetime.now()
+    group.status = 'failed'
+    session.commit()
 
 
 def begin(command, pname, ename, group):
@@ -91,6 +147,8 @@ def begin(command, pname, ename, group):
     from datetime import datetime
 
     run, session = create_run(command, pname, ename, group)
+    run.begin = datetime.now()
+    run.status = 'running'
     log = s.RunLog()
     log.run_id = run.id
     log.begin = datetime.now()
@@ -111,6 +169,8 @@ def end(run, session, stdout, stderr):
     log.stdout = stdout
     log.status = 0
     log.end = datetime.now()
+    run.end = datetime.now()
+    run.status = 'completed'
     session.add(log)
     session.commit()
 
@@ -124,6 +184,8 @@ def fail(run, session, retcode, stdout, stderr):
     log.stdout = stdout
     log.status = retcode
     log.end = datetime.now()
+    run.end = datetime.now()
+    run.status = 'failed'
     session.add(log)
     session.commit()
 
@@ -144,6 +206,7 @@ def guarded_exec(cmd, pname, ename, run_group):
     """
     from plumbum.commands import ProcessExecutionError
     from plumbum import local
+    from logging import warn
 
     run, session = begin(cmd, pname, ename, run_group)
     try:
@@ -154,11 +217,23 @@ def guarded_exec(cmd, pname, ename, run_group):
     except ProcessExecutionError as e:
         fail(run, session, e.retcode, e.stdout, e.stderr)
         raise GuardedRunException(e, run, session)
-
+    except KeyboardInterrupt as e:
+        fail(run, session, -1, "", "KeyboardInterrupt")
+        warn("Interrupted by user input")
+        raise e
 
 def run(command, retcode=0):
     """
     Execute a plumbum command, depending on the user's settings.
     """
+    from logging import error
     from plumbum import FG
-    command & FG(retcode)
+    try:
+        command & FG(retcode)
+    except KeyboardInterrupt as e:
+        error("Interrupted by user input")
+        raise e
+    except Exception as e:
+        error("Exception:")
+        error("   | {}".format(e))
+        raise GuardedRunException(e, None, None)

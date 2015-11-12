@@ -42,6 +42,7 @@ from contextlib import contextmanager
 from os import path, listdir
 from sets import Set
 from pprof.utils.db import persist_experiment, persist_globalconfig
+from abc import abstractmethod
 
 import sys
 import regex
@@ -96,6 +97,7 @@ def static_var(varname, value):
         Initial value of the static variable
     """
     def decorate(func):
+        """ Decorate func. """
         setattr(func, varname, value)
         return func
     return decorate
@@ -234,6 +236,9 @@ class Experiment(object):
     """
 
     def setup_commands(self):
+        """
+        Precompute some often used path variables used throughout all projects.
+        """
         bin_path = path.join(config["llvmdir"], "bin")
 
         config["path"] = bin_path + ":" + config["path"]
@@ -295,10 +300,9 @@ class Experiment(object):
         """
         Map a function over all projects.
 
-        :fun:
-            Function that gets mapped over all projects.
-        :p:
-            Phase name
+        Args:
+            fun - The function that is applied to all projects.
+            p - The project phase name.
         """
         for project_name in self.projects:
             with phase(p, project_name):

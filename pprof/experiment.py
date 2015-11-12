@@ -287,9 +287,9 @@ class Experiment(object):
         with local.env(PPROF_ENABLE=0):
             p.prepare()
 
+    @abstractmethod
     def run_project(self, p):
-        with local.cwd(p.builddir):
-            p.run()
+        pass
 
     def map_projects(self, fun, p=None):
         """

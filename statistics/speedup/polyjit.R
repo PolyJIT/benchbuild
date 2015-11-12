@@ -433,6 +433,21 @@ groups <- function(c) {
   return(sql.get(c, q))
 }
 
+taskGroups <- function(c, exp) {
+  q <- sprintf(paste(
+    "SELECT
+      CAST(id as VARCHAR) as id,
+      project,
+      to_char(\"end\" - \"begin\", 'HH24h MIm SSs') as \"Duration\",
+      to_char(\"begin\", 'HH24:MI:SS') as \"Started\",
+      to_char(\"end\", 'HH24:MI:SS') as \"Finished\",
+      CAST(status as VARCHAR) as status
+    FROM rungroup
+    WHERE experiment = '%s'
+    ORDER BY project;"), exp)
+  return(sql.get(c, q))
+}
+
 flamegraph <- function(c, exp, project) {
   q <- sprintf(paste(
     "SELECT metadata.value FROM run, metadata WHERE run.id = metadata.run_id AND run.experiment_group = '%s' AND run.project_name = '%s' AND metadata.name = 'perf.flamegraph'

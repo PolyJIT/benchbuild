@@ -31,7 +31,8 @@ shinyUI(
                  wellPanel(
                    dataTableOutput("summary-table")
                  ))
-        )
+        ),
+        hr()
       )
     ),
     # Raw Experiment
@@ -106,7 +107,8 @@ shinyUI(
                      column(width = 12, dataTableOutput("t1"))
                    )
           )
-        )
+        ),
+        hr()
       )
     ),
     tabPanel(
@@ -122,7 +124,23 @@ shinyUI(
           p("Run-time profile per project, presented as flamegraph.")
         ),
         fluidRow(column(width = 12,
-                        htmlOutput("flamegraph")))
+                        htmlOutput("flamegraph"))),
+        hr()
+      )
+    ),
+    tabPanel(
+      "Tasks",
+      fluidPage(
+        fluidRow(
+          column(width = 4,
+                 selectInput("taskExperiments", label = "Experiment", multiple = FALSE, choices = NULL, width = '100%'))
+        ),
+        fluidRow(
+          p("Running tasks for a given experiment.")
+        ),
+        fluidRow(column(width = 12,
+                        dataTableOutput("taskTable"))),
+        hr()
       )
     )
   ))

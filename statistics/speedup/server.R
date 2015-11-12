@@ -176,6 +176,33 @@ shinyServer(function(input, output, session) {
     paging = FALSE,
     server = TRUE
   ))
+  
+  output$taskTable = renderDataTable({
+    validate(
+      need(input$taskExperiments, "Select an experiment first.")
+    )
+    t <- taskGroups(db(), input$taskExperiments)
+    return(t[,2:ncol(t)])
+  }, options = list(
+    pageLength = 50,
+    rownames = TRUE,
+    columnDefs = list(
+      list(targets = 5, render = JS(
+        "function(data, type, row, meta) {",
+        "  if (type === 'display') {",
+        "    style = 'label-default';",
+        "    if (data === 'completed')",
+        "      style = 'label-success';",
+        "    if (data === 'running')",
+        "      style = 'label-primary';",
+        "    if (data === 'failed')",
+        "      style = 'label-danger';",
+        "    return '<span class=\"label '+ style +'\" title=\"' + data + '\">' + data + '</span>';",
+        "  } else {",
+        "    return data;",
+        "  }",
+        "}")
+      ))), style = 'bootstrap', class = 'table-condensed')
 
   output$t1Plot = renderPlot({
     validate(
@@ -215,6 +242,7 @@ shinyServer(function(input, output, session) {
     exps <- get_experiments(db)
 
     updateSelectInput(session, "all", choices = c(getSelections(NULL, exps)), selected = 0)
+    updateSelectInput(session, "taskExperiments", choices = c(getSelections(NULL, exps)), selected = 0)
     updateSelectInput(session, "baseline", choices = c(getSelections("raw", exps),
                                                  getSelections("polly", exps),
                                                  getSelections("polly-openmp", exps),
@@ -232,7 +260,6 @@ shinyServer(function(input, output, session) {
                                                              getSelections("polly-vectorize", exps),
                                                              getSelections("polly", exps)), selected = 0)
     updateSelectInput(session, "projects", choices = projects, selected = 0)
-
     updateSelectInput(session, "projects_per", choices = projects, selected = 0)
     updateSelectInput(session, "groups", choices = groups(db), selected = 0)
     updateSelectInput(session, "perfExperiments", choices = c(getSelections("pj-perf", exps)), selected = 0)

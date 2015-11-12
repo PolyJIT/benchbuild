@@ -15,6 +15,7 @@ from pprof.utils.schema import CompileStat
 
 from plumbum import local
 from os import path
+from abc import abstractmethod
 
 
 @static_var("config", None)
@@ -329,6 +330,7 @@ class PolyJIT(RuntimeExperiment):
                     "-mllvm", "-polli"]
         return p
 
+    @abstractmethod
     def run_project(self, p):
         pass
 

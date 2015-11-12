@@ -6,8 +6,10 @@ from pprof import *
 from sys import stderr
 import os.path
 import logging
-import settings
+from pprof import settings
 
+logging.basicConfig(format='%(asctime)s [%(levelname)s] %(filename)s.%(funcName)s:%(lineno)s - %(message)s', datefmt='%H:%M:%S',
+                    level=logging.WARN)
 
 class PollyProfiling(cli.Application):
 
@@ -19,6 +21,7 @@ class PollyProfiling(cli.Application):
 
     @cli.switch(["-v", "--verbose"], help="Enable verbose output")
     def verbose(self):
+        """Enable verbose output."""
         LOG = logging.getLogger()
         LOG.addHandler(logging.StreamHandler(stderr))
         LOG.setLevel(logging.DEBUG)
@@ -32,9 +35,13 @@ class PollyProfiling(cli.Application):
         self._list_env = True
 
     def do_list_env(self):
+        """List config metadata."""
         for setting in settings.config_metadata:
             if "env" in setting:
-                print(setting["env"] + "\t-\t" + (setting["desc"] if "desc" in setting else ''))
+                print("{env}\t-\t{desc}".format(
+                    env=setting["env"],
+                    desc=setting["desc"] if "desc" in setting else ''))
+
 
     def main(self, *args):
         if self._list_env:
@@ -56,4 +63,5 @@ class PollyProfiling(cli.Application):
 
 
 def main(*args):
+    """Main function."""
     return PollyProfiling.run(*args)

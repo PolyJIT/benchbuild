@@ -75,14 +75,15 @@ def begin(command, pname, ename, group):
     """
     Begin a run in the database log.
 
-    :command
-        The command that will be executed.
-    :pname
-        The project name we belong to.
-    :ename
-        The experiment name we belong to.
-    :group
-        The run group we belong to.
+    Args:
+        command - The command that will be executed.
+        pname - The project name we belong to.
+        ename - The experiment name we belong to.
+        group - The run group we belong to.
+
+    Returns:
+        (run, session), where run is the generated run instance and session the
+        associated transaction for later use.
     """
     from pprof.utils.db import create_run
     from pprof.utils import schema as s
@@ -144,8 +145,7 @@ def guarded_exec(cmd, pname, ename, run_group):
     from plumbum.commands import ProcessExecutionError
     from plumbum import local
 
-    run, session = \
-        begin(cmd, pname, ename, run_group)
+    run, session = begin(cmd, pname, ename, run_group)
     try:
         with local.env(PPROF_DB_RUN_ID=run.id):
             retcode, stdout, stderr = cmd.run()

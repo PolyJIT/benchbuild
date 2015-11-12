@@ -41,7 +41,7 @@ from pprof.projects import *
 from contextlib import contextmanager
 from os import path, listdir
 from sets import Set
-from pprof.utils.db import persist_experiment, persist_globalconfig
+from pprof.utils.db import persist_experiment
 from abc import abstractmethod
 
 import sys
@@ -359,13 +359,6 @@ class Experiment(object):
         from logging import error, info
 
         e, session = persist_experiment(self)
-        persist_globalconfig(e, session, {
-            "llvm-version": v.LLVM_VERSION,
-            "clang-version": v.CLANG_VERSION,
-            "polly-version": v.POLLY_VERSION,
-            "polli-version": v.POLLI_VERSION
-            })
-
         if e.begin is None:
             e.begin = datetime.now()
         else:

@@ -150,18 +150,3 @@ def persist_config(run, session, cfg):
     for c in cfg:
         session.add(s.Config(name=c, value=cfg[c], run_id=run.id))
     session.commit()
-
-def persist_globalconfig(experiment, session, cfg):
-    """
-    Persist the global configuration in as key-value pairs.
-
-    Args:
-        experiment - The experiment object we persist the config for.
-        cfg - The config dictionary we want to persist in the database.
-    """
-    from pprof.utils import schema as s
-    for c in cfg:
-        gconfig = s.GlobalConfig(experiment_group=experiment.id, name=c,
-                                 value=cfg[c])
-        session.add(gconfig)
-    session.flush()

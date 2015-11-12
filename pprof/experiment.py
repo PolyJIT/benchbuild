@@ -323,7 +323,7 @@ class Experiment(object):
         Afterwards we call the prepare method of the project.
         """
         if not path.exists(self.builddir):
-            (mkdir[self.builddir] & FG(retcode=None))
+            mkdir[self.builddir] & FG(retcode=None)
 
         self.map_projects(self.prepare_project, "prepare")
 

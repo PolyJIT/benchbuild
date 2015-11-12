@@ -356,6 +356,7 @@ class Experiment(object):
         """
         import pprof.utils.versions as v
         from datetime import datetime
+        from logging import error, info
 
         e, session = persist_experiment(self)
         persist_globalconfig(e, session, {
@@ -373,9 +374,11 @@ class Experiment(object):
         try:
             with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
                 self.map_projects(self.run_this_project, "run")
+        except KeyboardInterrupt:
+            error("User requested termination.")
         except Exception as ex:
-            print("[Error] - {}".format(ex))
-            session.rollback()
+            error("{}".format(ex))
+            info("Shutting down.")
             print "Shutting down..."
         finally:
             if e.end is None:

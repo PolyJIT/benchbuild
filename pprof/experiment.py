@@ -152,14 +152,9 @@ def step(name):
     from sys import stderr as o
     main_msg = "    STEP.{} '{}'".format(step.counter, name)
 
-    try:
-        nl(o).write(main_msg + " START")
-        yield
-        nl(o).write(main_msg + " OK")
-    except ProcessExecutionError as e:
-        o.write("\n" + e.stderr.encode("utf8"))
-    except (OSError, GuardedRunException) as e:
-        o.write("\n" + str(e))
+    nl(o).write(main_msg + " START")
+    yield
+    nl(o).write(main_msg + " OK")
     o.flush()
 
 

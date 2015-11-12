@@ -291,6 +291,27 @@ class Experiment(object):
     def run_project(self, p):
         pass
 
+    def run_this_project(self, p):
+        """
+        Execute the project wrapped in a database session.
+
+        Args:
+            p - The project we wrap.
+        """
+        from pprof.utils.run import (begin_run_group, end_run_group,
+                                     fail_run_group)
+
+        group, session = begin_run_group(p)
+        try:
+            self.run_project(p)
+            end_run_group(group, session)
+        except GuardedRunException:
+            fail_run_group(group, session)
+        except KeyboardInterrupt as e:
+            fail_run_group(group, session)
+            raise e
+
+
     def map_projects(self, fun, p=None):
         """
         Map a function over all projects.
@@ -333,18 +354,35 @@ class Experiment(object):
 
         Setup the environment and call run_project method on all projects.
         """
-        persist_experiment(self)
         import pprof.utils.versions as v
+        from datetime import datetime
 
-        persist_globalconfig(config['experiment'], {
+        e, session = persist_experiment(self)
+        persist_globalconfig(e, session, {
             "llvm-version": v.LLVM_VERSION,
             "clang-version": v.CLANG_VERSION,
             "polly-version": v.POLLY_VERSION,
             "polli-version": v.POLLI_VERSION
             })
 
-        with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
-            self.map_projects(self.run_project, "run")
+        if e.begin is None:
+            e.begin = datetime.now()
+        else:
+            e.begin = min(e.begin, datetime.now())
+
+        try:
+            with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
+                self.map_projects(self.run_this_project, "run")
+        except Exception as ex:
+            print("[Error] - {}".format(ex))
+            session.rollback()
+            print "Shutting down..."
+        finally:
+            if e.end is None:
+                e.end = e.end
+            else:
+                e.end = max(e.end, datetime.now())
+            session.commit()
 
 
 class RuntimeExperiment(Experiment):

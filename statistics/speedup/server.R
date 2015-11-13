@@ -37,6 +37,25 @@ if (!require("vioplot")) {
   library(vioplot)
 }
 
+taskTableRenderOpts <- JS(
+        "function(data, type, row, meta) {",
+        "  if (type === 'display') {",
+        "    style = 'label-default'; icon = 'glyphicon-ok';",
+        "    if (data === 'completed') { style = 'label-success'; icon = 'glyphicon-ok'; }",
+        "    if (data === 'running') { style = 'label-primary'; icon = 'glyphicon-refresh'; }",
+        "    if (data === 'failed') { style = 'label-danger'; icon = 'glyphicon-remove'; }",
+        "    return '<span class=\"label '+ style +'\" title=\"' + data + '\"><span class=\"glyphicon '+ icon +'\"></span></span>';",
+        "  } else {",
+        "    return data;",
+        "  }",
+        "}")
+taskTableOpts <- list(
+    pageLength = 50,
+    rownames = TRUE,
+    columnDefs = list(
+      list(targets = 5, render = taskTableRenderOpts
+      )))
+
 shinyServer(function(input, output, session) {
   con <- NULL
 
@@ -181,27 +200,31 @@ shinyServer(function(input, output, session) {
     validate(
       need(input$taskExperiments, "Select an experiment first.")
     )
+
+    tg <- taskGroups(db(), input$taskExperiments)
+    if (length(input$taskGroupTable_rows_selected) > 0) {
+      tg <- tg[input$taskGroupTable_rows_selected, ]
+    }
+    t <- tasks(db(), input$taskExperiments, tg[, 1])
+    return(t)
+  }, options = list(
+    pageLength = -1,
+    rownames = TRUE,
+    columnDefs = list(
+      list(targets = 2, render = taskTableRenderOpts
+      ))), style = 'bootstrap', class = 'table-c0ndensed')
+  
+  output$taskGroupTable = renderDataTable({
+    validate(
+      need(input$taskExperiments, "Select an experiment first.")
+    )
     t <- taskGroups(db(), input$taskExperiments)
     return(t[,2:ncol(t)])
   }, options = list(
     pageLength = 50,
     rownames = TRUE,
     columnDefs = list(
-      list(targets = 5, render = JS(
-        "function(data, type, row, meta) {",
-        "  if (type === 'display') {",
-        "    style = 'label-default';",
-        "    if (data === 'completed')",
-        "      style = 'label-success';",
-        "    if (data === 'running')",
-        "      style = 'label-primary';",
-        "    if (data === 'failed')",
-        "      style = 'label-danger';",
-        "    return '<span class=\"label '+ style +'\" title=\"' + data + '\">' + data + '</span>';",
-        "  } else {",
-        "    return data;",
-        "  }",
-        "}")
+      list(targets = 5, render = taskTableRenderOpts
       ))), style = 'bootstrap', class = 'table-condensed')
 
   output$t1Plot = renderPlot({

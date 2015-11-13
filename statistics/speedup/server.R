@@ -195,7 +195,7 @@ shinyServer(function(input, output, session) {
     paging = FALSE,
     server = TRUE
   ))
-  
+
   output$taskTable = renderDataTable({
     validate(
       need(input$taskExperiments, "Select an experiment first.")
@@ -206,26 +206,69 @@ shinyServer(function(input, output, session) {
       tg <- tg[input$taskGroupTable_rows_selected, ]
     }
     t <- tasks(db(), input$taskExperiments, tg[, 1])
-    return(t)
+    return(t[,2:ncol(t)])
   }, options = list(
     pageLength = -1,
-    rownames = TRUE,
+    rownames = FALSE,
     columnDefs = list(
       list(targets = 2, render = taskTableRenderOpts
-      ))), style = 'bootstrap', class = 'table-c0ndensed')
-  
+      ))), style = 'bootstrap', class = 'table-c0ndensed', selection = 'single')
+
   output$taskGroupTable = renderDataTable({
+      validate(
+        need(input$taskExperiments, "Select an experiment first.")
+      )
+      t <- taskGroups(db(), input$taskExperiments)
+      return(t[,2:ncol(t)])
+    },
+    options = list(
+    pageLength = 50,
+    rownames = FALSE,
+    columnDefs = list(
+      list(targets = 5, render = taskTableRenderOpts)
+    )
+  ), style = 'bootstrap', class = 'table-condensed')
+
+  get_selected_run <- reactive({
     validate(
       need(input$taskExperiments, "Select an experiment first.")
     )
-    t <- taskGroups(db(), input$taskExperiments)
-    return(t[,2:ncol(t)])
-  }, options = list(
-    pageLength = 50,
-    rownames = TRUE,
-    columnDefs = list(
-      list(targets = 5, render = taskTableRenderOpts
-      ))), style = 'bootstrap', class = 'table-condensed')
+
+    tg <- taskGroups(db(), input$taskExperiments)
+    if (length(input$taskGroupTable_rows_selected) > 0) {
+      tg <- tg[input$taskGroupTable_rows_selected, ]
+    }
+    t <- tasks(db(), input$taskExperiments, tg[, 1])
+    r <- as.numeric(t[input$taskTable_rows_selected, 1])
+    return(r)
+  })
+
+  output$stdout = renderText({
+    validate(
+      need(input$taskTable_rows_selected, "No selection yet.")
+    )
+    r <- get_selected_run()
+
+    if (!is.null(r)) {
+      return(paste("\n", stdout(db(), r)))
+    }
+
+    return("No stdout found.")
+  })
+
+  output$stderr = renderText({
+    validate(
+      need(input$taskTable_rows_selected, "No selection yet.")
+    )
+    r <- get_selected_run()
+
+    if (!is.null(r)) {
+      return(paste("\n", stderr(db(), r)))
+    }
+
+    return("No stderr found.")
+  })
+
 
   output$t1Plot = renderPlot({
     validate(

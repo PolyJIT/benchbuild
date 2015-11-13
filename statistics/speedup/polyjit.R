@@ -444,7 +444,23 @@ taskGroups <- function(c, exp) {
       CAST(status as VARCHAR) as status
     FROM rungroup
     WHERE experiment = '%s'
-    ORDER BY project;"), exp)
+    ORDER BY status, project;"), exp)
+  return(sql.get(c, q))
+}
+
+tasks <- function(c, exp, groups = NULL) {
+  run_filter <- ""
+  if (!is.null(groups) && length(groups) > 0) {
+    run_filter <- sprintf("AND run_group IN (%s)",
+                          paste(lapply(as.vector(groups),
+                                       function(x) sprintf("\'%s\'", x)),
+                                collapse=", "))
+  }
+
+  q <- sprintf(paste(
+    "SELECT command, CAST(status as VARCHAR) as Status, to_char(\"end\" - \"begin\", 'HH24h MIm SSs') as Duration
+     FROM run
+     WHERE experiment_group = '%s' %s;"), exp, run_filter)
   return(sql.get(c, q))
 }
 

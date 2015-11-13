@@ -138,7 +138,9 @@ shinyUI(
         fluidRow(
           p("Running tasks for a given experiment.")
         ),
-        fluidRow(column(width = 12,
+        fluidRow(column(width = 6,
+                        dataTableOutput("taskGroupTable")),
+                 column(width = 6,
                         dataTableOutput("taskTable"))),
         hr()
       )

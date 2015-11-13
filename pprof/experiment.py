@@ -298,19 +298,7 @@ class Experiment(object):
         Args:
             p - The project we wrap.
         """
-        from pprof.utils.run import (begin_run_group, end_run_group,
-                                     fail_run_group)
-
-        group, session = begin_run_group(p)
-        try:
-            self.run_project(p)
-            end_run_group(group, session)
-        except GuardedRunException:
-            fail_run_group(group, session)
-        except KeyboardInterrupt as e:
-            fail_run_group(group, session)
-            raise e
-
+        self.run_project(p)
 
     def map_projects(self, fun, p=None):
         """

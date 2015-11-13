@@ -95,13 +95,25 @@ class Project(object):
         Args:
             experiment: The experiment we run this project under
         """
+        from pprof.utils.run import GuardedRunException
+        from pprof.utils.run import (begin_run_group, end_run_group,
+                                     fail_run_group)
         with local.cwd(self.builddir):
             with local.env(PPROF_USE_DATABASE=1,
                            PPROF_DB_RUN_GROUP=self.run_uuid,
                            PPROF_DOMAIN=self.domain,
                            PPROF_GROUP=self.group_name,
                            PPROF_SRC_URI=self.src_uri):
-                self.run_tests(experiment)
+
+                group, session = begin_run_group(self)
+                try:
+                    self.run_tests(experiment)
+                    end_run_group(group, session)
+                except GuardedRunException:
+                    fail_run_group(group, session)
+                except KeyboardInterrupt as e:
+                    fail_run_group(group, session)
+                    raise e
         if not config["keep"]:
             self.clean()
 

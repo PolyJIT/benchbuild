@@ -458,9 +458,19 @@ tasks <- function(c, exp, groups = NULL) {
   }
 
   q <- sprintf(paste(
-    "SELECT command, CAST(status as VARCHAR) as Status, to_char(\"end\" - \"begin\", 'HH24h MIm SSs') as Duration
+    "SELECT id, command, CAST(status as VARCHAR) as Status, to_char(\"end\" - \"begin\", 'HH24h MIm SSs') as Duration
      FROM run
      WHERE experiment_group = '%s' %s;"), exp, run_filter)
+  return(sql.get(c, q))
+}
+
+stdout <- function(c, run) {
+  q <- sprintf("SELECT stderr FROM log where run_id = %s;", run)
+  return(sql.get(c, q))
+}
+
+stderr <- function(c, run) {
+  q <- sprintf("SELECT stdout FROM log where run_id = %s;", run)
   return(sql.get(c, q))
 }
 

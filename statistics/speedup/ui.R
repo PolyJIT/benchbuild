@@ -6,7 +6,7 @@ shinyUI(
     "PolyJIT", theme="css/bootstrap.min.css",
     footer = fluidRow(
       column(width = 1, {}),
-      column(width = 4, selectInput("db", label = "Database", choices = c("buildbot", "develop"), multiple = FALSE, selected = 0))
+      column(width = 4, selectInput("db", label = "Database", choices = c("buildbot", "develop", "home"), multiple = FALSE, selected = 0))
     ),
     tabPanel(
       "Summary",
@@ -137,6 +137,17 @@ shinyUI(
         ),
         fluidRow(
           p("Running tasks for a given experiment.")
+        ),
+        fluidRow(
+          h3("Tool status output:"),
+          column(width = 6,
+                 hr(),
+                 verbatimTextOutput("stdout"),
+                 hr()),
+          column(width = 6,
+                 hr(),
+                 verbatimTextOutput("stderr"),
+                 hr())
         ),
         fluidRow(column(width = 6,
                         dataTableOutput("taskGroupTable")),

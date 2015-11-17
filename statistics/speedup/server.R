@@ -37,6 +37,11 @@ if (!require("vioplot")) {
   library(vioplot)
 }
 
+if (!require("shinydashboard")) {
+  install.packages("shinydashboard")
+  library(shinydashboard)
+}
+
 taskTableRenderOpts <- JS(
         "function(data, type, row, meta) {",
         "  if (type === 'display') {",
@@ -68,6 +73,10 @@ shinyServer(function(input, output, session) {
       con <- dbConnect(RPostgres::Postgres(), dbname='pprof-bb', user='bb', password='bb', port=5432, host='debussy.fim.uni-passau.de')
     else if (input$db == 'develop')
       con <- dbConnect(RPostgres::Postgres(), dbname='pprof', user='pprof', password='pprof', port=5432, host='debussy.fim.uni-passau.de')
+    else if (input$db == 'home')
+      con <- dbConnect(RPostgres::Postgres(), dbname='pprof', user='pprof', password='pprof', port=32769, host='192.168.1.107')
+    else if (input$db == 'uni')
+      con <- dbConnect(RPostgres::Postgres(), dbname='pprof', user='pprof', password='pprof', port=32769, host='132.231.65.195')
     cat("DB:", input$db, "\n")
     return(con)
   })
@@ -198,14 +207,14 @@ shinyServer(function(input, output, session) {
 
   output$taskTable = renderDataTable({
     validate(
-      need(input$taskExperiments, "Select an experiment first.")
+      need(input$baseline, "Select an experiment first.")
     )
 
-    tg <- taskGroups(db(), input$taskExperiments)
+    tg <- taskGroups(db(), input$baseline)
     if (length(input$taskGroupTable_rows_selected) > 0) {
       tg <- tg[input$taskGroupTable_rows_selected, ]
     }
-    t <- tasks(db(), input$taskExperiments, tg[, 1])
+    t <- tasks(db(), input$baseline, tg[, 1])
     return(t[,2:ncol(t)])
   }, options = list(
     pageLength = -1,
@@ -216,9 +225,9 @@ shinyServer(function(input, output, session) {
 
   output$taskGroupTable = renderDataTable({
       validate(
-        need(input$taskExperiments, "Select an experiment first.")
+        need(input$baseline, "Select an experiment first.")
       )
-      t <- taskGroups(db(), input$taskExperiments)
+      t <- taskGroups(db(), input$baseline)
       return(t[,2:ncol(t)])
     },
     options = list(
@@ -231,14 +240,14 @@ shinyServer(function(input, output, session) {
 
   get_selected_run <- reactive({
     validate(
-      need(input$taskExperiments, "Select an experiment first.")
+      need(input$baseline, "Select an experiment first.")
     )
 
-    tg <- taskGroups(db(), input$taskExperiments)
+    tg <- taskGroups(db(), input$baseline)
     if (length(input$taskGroupTable_rows_selected) > 0) {
       tg <- tg[input$taskGroupTable_rows_selected, ]
     }
-    t <- tasks(db(), input$taskExperiments, tg[, 1])
+    t <- tasks(db(), input$baseline, tg[, 1])
     r <- as.numeric(t[input$taskTable_rows_selected, 1])
     return(r)
   })
@@ -267,6 +276,30 @@ shinyServer(function(input, output, session) {
     }
 
     return("No stderr found.")
+  })
+  
+  base_vs_pivot <- reactive({
+    baseline_vs_pivot(db())
+  })
+
+  output$speedup_cores_vs_baseline_barplot = renderPlot({
+    d <- base_vs_pivot()
+    p <- ggplot(data = d, aes(x = gname, y = speedup, colour = pid)) +
+      geom_boxplot(aes(group = gname), outlier.size = 0) +
+      facet_grid(bid ~ num_cores) +
+      scale_x_discrete() +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    p
+  })
+  
+  output$speedup_diff = renderPlot({
+    d <- base_vs_pivot()
+    p <- ggplot(data = d, aes(x = num_cores, y = speedup, colour = pid)) +
+      geom_boxplot(aes(group = num_cores), outlier.size = 0) +
+      facet_grid(bid ~ gname) +
+      scale_x_discrete() +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    p
   })
 
 
@@ -301,6 +334,38 @@ shinyServer(function(input, output, session) {
       p
     }
   })
+  
+  output$groupsCompleted <- renderInfoBox({
+    infoBox(
+      "Completed (G)", icon = icon("thumbs-up", lib = "glyphicon"), color = "green"
+    )
+  })
+  output$groupsFailed <- renderInfoBox({
+    infoBox(
+      "Failed (G)", icon = icon("thumbs-up", lib = "glyphicon"), color = "red"
+    )
+  })
+  output$groupsCount <- renderInfoBox({
+    infoBox(
+      "Total (G)", icon = icon("thumbs-up", lib = "glyphicon"), color = "yellow"
+    )
+  })
+
+  output$tasksCompleted <- renderInfoBox({
+    infoBox(
+      "Completed (T)", icon = icon("thumbs-up", lib = "glyphicon"), color = "green"
+    )
+  })
+  output$tasksFailed <- renderInfoBox({
+    infoBox(
+      "Failed (T)", icon = icon("thumbs-up", lib = "glyphicon"), color = "red"
+    )
+  })
+  output$tasksCount <- renderInfoBox({
+    infoBox(
+      "Count (T)", icon = icon("thumbs-up", lib = "glyphicon"), color = "yellow"
+    )
+  })
 
   observe({
     db <- db()
@@ -308,17 +373,7 @@ shinyServer(function(input, output, session) {
     exps <- get_experiments(db)
 
     updateSelectInput(session, "all", choices = c(getSelections(NULL, exps)), selected = 0)
-    updateSelectInput(session, "taskExperiments", choices = c(getSelections(NULL, exps)), selected = 0)
-    updateSelectInput(session, "baseline", choices = c(getSelections("raw", exps),
-                                                 getSelections("polly", exps),
-                                                 getSelections("polly-openmp", exps),
-                                                 getSelections("polly-vectorize", exps),
-                                                 getSelections("polly-openmpvect", exps),
-                                                 getSelections("papi", exps),
-                                                 getSelections("papi-std", exps),
-                                                 getSelections("pj-papi", exps),
-                                                 getSelections("polyjit", exps),
-                                                 getSelections("pj-raw", exps)), selected = 0)
+    updateSelectInput(session, "baseline", choices = c(getSelections(NULL, exps)), selected = 0)
     updateSelectInput(session, "jitExperiments", choices = c(getSelections("polyjit", exps),
                                                              getSelections("pj-raw", exps),
                                                              getSelections("polly-openmp", exps),

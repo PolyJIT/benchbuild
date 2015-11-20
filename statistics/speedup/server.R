@@ -279,7 +279,15 @@ shinyServer(function(input, output, session) {
   })
   
   base_vs_pivot <- reactive({
-    baseline_vs_pivot(db())
+    validate(
+      need(input$compBaselines, "Select baselines to compare."),
+      need(input$compExperiments, "Select experiments to compare.")
+    )
+    if (length(input$compBaselines) == 0 ||
+        length(input$compExperiments) == 0 )
+      return(NULL)
+
+    baseline_vs_pivot(db(), input$compBaselines, input$compExperiments, input$compProjects, input$compGroups)
   })
 
   output$speedup_cores_vs_baseline_barplot = renderPlot({
@@ -290,17 +298,17 @@ shinyServer(function(input, output, session) {
       scale_x_discrete() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
     p
-  })
+  }, height = 2400)
   
   output$speedup_diff = renderPlot({
     d <- base_vs_pivot()
     p <- ggplot(data = d, aes(x = num_cores, y = speedup, colour = pid)) +
       geom_boxplot(aes(group = num_cores), outlier.size = 0) +
-      facet_grid(bid ~ gname) +
+      facet_grid(gname ~ bid) +
       scale_x_discrete() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
     p
-  })
+  }, height = 2400)
 
 
   output$t1Plot = renderPlot({
@@ -374,6 +382,11 @@ shinyServer(function(input, output, session) {
 
     updateSelectInput(session, "all", choices = c(getSelections(NULL, exps)), selected = 0)
     updateSelectInput(session, "baseline", choices = c(getSelections(NULL, exps)), selected = 0)
+    updateSelectInput(session, "compBaselines", choices = c(getSelections(NULL, exps)), selected = 0)
+    updateSelectInput(session, "compExperiments", choices = c(getSelections(NULL, exps)), selected = 0)
+    updateSelectInput(session, "compProjects", choices = projects, selected = 0)
+    updateSelectInput(session, "compGroups", choices = groups(db), selected = 0)
+
     updateSelectInput(session, "jitExperiments", choices = c(getSelections("polyjit", exps),
                                                              getSelections("pj-raw", exps),
                                                              getSelections("polly-openmp", exps),

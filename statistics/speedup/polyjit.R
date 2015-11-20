@@ -274,8 +274,25 @@ flamegraph <- function(c, exp, project) {
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
-baseline_vs_pivot <- function(c) {
-  q <- paste("
+in_set_expr <- function(key, elems = NULL) {
+  set_expr <- ""
+  if (!is.null(elems)) {
+    set_expr <- paste(set_expr,
+                      sprintf(" AND %s IN (%s)", key,
+                              paste(lapply(as.vector(elems),
+                                           function(x) sprintf("\'%s\'", x)),
+                                    collapse=", ")))
+  }
+  return(set_expr)
+}
+
+baseline_vs_pivot <- function(c, baselines, experiments, projects, groups) {
+  in_baselines <- in_set_expr("experiment_group", baselines)
+  in_experiments <- in_set_expr("experiment_group", experiments)
+  in_projects <- in_set_expr("project.name", projects)
+  in_groups <- in_set_expr("project.group_name", groups)
+
+  q <- sprintf(paste("
 SELECT * FROM
 (
 SELECT
@@ -283,8 +300,8 @@ SELECT
 	baseline.description AS bdesc,
 	pivot.name AS pname,
 	baseline.name AS bname,
-	FORMAT('%s (%s)', baseline.name, baseline.description) as bid,
-    FORMAT('%s (%s)', pivot.name, pivot.description) as gname, 
+	FORMAT('%%s (%%s)', baseline.name, baseline.description) as bid,
+    FORMAT('%%s (%%s)', pivot.name, pivot.description) as gname, 
 	CAST(pivot.id AS TEXT) AS pid,
 	baseline.time AS seq_time,
 	pivot.time AS par_time,
@@ -302,13 +319,18 @@ FROM
 	FROM 	run,
 		metrics,
 		config,
-		experiment
+		experiment,
+    project
 	WHERE 	experiment.id = run.experiment_group AND
 		run.id = metrics.run_id AND 
 		run.id = config.run_id AND
 		metrics.name = 'time.real_s' AND
 		config.name = 'cores' AND
+    run.project_name = project.name AND
 		experiment_name IN ('raw', 'pj-raw')
+    %s
+    %s
+    %s
 	GROUP BY experiment.name, experiment.id, project_name, config.value
 ) baseline JOIN
 (
@@ -328,12 +350,13 @@ FROM
 		run.id = config.run_id AND
 		metrics.name = 'time.real_s' AND
 		config.name = 'cores' AND
-		experiment_name IN ('pj-raw', 'polly-openmp') AND
-		metrics.value <> 0
+    metrics.value <> 0 AND
+		experiment_name IN ('pj-raw', 'polly-openmp')
+    %s
 	GROUP BY experiment.id, experiment.name, project_name, config.value
 ) pivot ON (baseline.project = pivot.project AND baseline.num_cores = pivot.num_cores)
 ORDER BY baseline.project, baseline.description, pivot.project, pivot.description
-) p WHERE speedup >= 1.01 AND speedup <= 10;"
-	 )
+) p;"
+	 ), in_baselines, in_projects, in_groups, in_experiments)
 	 return(sql.get(c, query = q))
 }

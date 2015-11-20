@@ -12,9 +12,7 @@ shinyUI(
     dashboardSidebar(
       sidebarMenu(
         menuItem("Summary", tabName = "summary"),
-        menuItem("Comparison",
-                 menuSubItem("Single-Core", tabName = "comparisonSingleCore"),
-                 menuSubItem("Pairwise", tabName = "comparisonPairwise")),
+        menuItem("Comparison", tabName = "comparison"),
         selectInput("baseline", label = "Baseline", multiple = FALSE, choices = NULL, width = '100%'),
         menuItem("Speedup", tabName = "speedup",
                  menuSubItem("Per experiment", tabName = "speedupExperiment"),
@@ -49,23 +47,32 @@ shinyUI(
                          ))
                 )
         ),
-        tabItem(tabName = "comparisonSingleCore",
+        tabItem(tabName = "comparison",
                 fluidRow(
-                  box(title = "Single-Core baseline vs. All Run-Time configurations.",
-                      status = "primary", solidHeader = TRUE, width = 12,
-                      "Comparison between the single-core configuration of each possible baseline and all configurations of the run-time experiments.", br(),
-                      plotOutput("speedup_cores_vs_baseline_barplot", width = "100%", height = 4000)
-                  )
-                )
-        ),
-        tabItem(tabName = "comparisonPairwise",
+                  box(title = "Baselines", solidHeader = TRUE, width = 3,
+                      selectInput("compBaselines", label = "Baselines", multiple = TRUE, choices = NULL, width = '100%')),
+                  box(title = "Experiments", solidHeader = TRUE, width = 3,
+                      selectInput("compExperiments", label = "Experiments", multiple = TRUE, choices = NULL, width = '100%')),
+                  box(title = "Projects", solidHeader = TRUE, width = 3,
+                      selectInput("compProjects", label = "Projects", multiple = TRUE, choices = NULL, width = '100%')),
+                  box(title = "Groups", solidHeader = TRUE, width = 3,
+                      selectInput("compGroups", label = "Groups", multiple = TRUE, choices = NULL, width = '100%'))
+                ),
                 fluidRow(
-                  box(title = "Pair-Wise matching between identical configurations for all experiments.",
-                      status = "primary", solidHeader = TRUE, width = 12,
-                      paste("For each configuration of each experiment compare it to a matching
-                             configuration for each experiment. A configuration matches, if it
-                             uses the same number of cores."), br(),
-                      plotOutput("speedup_diff", width = "100%", height = 4000)
+                  tabBox(title = 'Compare experiments', width = 12, height = 3000,
+                         tabPanel("Single-Core", height = 3000,
+                                  paste("Comparison between the single-core configuration of each possible
+                                         baseline and all configurations of the run-time experiments."),
+                                  br(),
+                                  plotOutput("speedup_cores_vs_baseline_barplot")
+                         ),
+                         tabPanel("Pairwise", height = 3000,
+                                  paste("For each configuration of each experiment compare it to a matching
+                                         configuration for each experiment. A configuration matches, if it
+                                         uses the same number of cores."),
+                                  br(),
+                                  plotOutput("speedup_diff")
+                         )
                   )
                 )
         ),

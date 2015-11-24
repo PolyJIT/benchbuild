@@ -19,6 +19,7 @@ class GentooGroup(Project):
 
   src_dir = "gentoo"
   src_file = src_dir + ".tar.bz2"
+  # TODO always new stage3
   src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/20151022/stage3-amd64-20151022.tar.bz2"
   test_suite_dir = "TODO"
   test_suite_uri = "TODO"
@@ -71,6 +72,10 @@ class Eix(GentooGroup):
 
   def build(self):
     # cd into chroot
+    with local.cwd(self.builddir):
+        print "\n"
+        print self.builddir
+        print local.env["PWD"]
     pass
 
   def run_tests(self, experiment):

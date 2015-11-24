@@ -41,7 +41,8 @@ from pprof.projects import *
 from contextlib import contextmanager
 from os import path, listdir
 from sets import Set
-from pprof.utils.db import persist_experiment, persist_globalconfig
+from pprof.utils.db import persist_experiment
+from abc import abstractmethod
 
 import sys
 import regex
@@ -62,6 +63,7 @@ def nl(o):
         o.write("\n")
     return o
 
+
 def to_utf8(text):
     """
     Convert given text to UTF-8 encoding (as far as possible).
@@ -74,19 +76,7 @@ def to_utf8(text):
     if not text:
         return text
 
-    try:  # unicode or pure ascii
-        return text.encode("utf8")
-    except UnicodeEncodeError:
-        try:  # successful UTF-8 decode means it's pretty sure UTF-8 already
-            text.decode("utf8")
-            return text
-        except UnicodeDecodeError:
-            try:  # get desperate; and yes, this has a western hemisphere bias
-                return text.decode("cp1252").encode("utf8")
-            except UnicodeDecodeError:
-                pass
-
-    return text  # return unchanged, hope for the best
+    return text.encode("utf8", errors="replace")
 
 
 def static_var(varname, value):
@@ -107,6 +97,7 @@ def static_var(varname, value):
         Initial value of the static variable
     """
     def decorate(func):
+        """ Decorate func. """
         setattr(func, varname, value)
         return func
     return decorate
@@ -161,14 +152,9 @@ def step(name):
     from sys import stderr as o
     main_msg = "    STEP.{} '{}'".format(step.counter, name)
 
-    try:
-        nl(o).write(main_msg + " START")
-        yield
-        nl(o).write(main_msg + " OK")
-    except ProcessExecutionError as e:
-        o.write("\n" + e.stderr.encode("utf8"))
-    except (OSError, GuardedRunException) as e:
-        o.write("\n" + str(e))
+    nl(o).write(main_msg + " START")
+    yield
+    nl(o).write(main_msg + " OK")
     o.flush()
 
 
@@ -245,6 +231,9 @@ class Experiment(object):
     """
 
     def setup_commands(self):
+        """
+        Precompute some often used path variables used throughout all projects.
+        """
         bin_path = path.join(config["llvmdir"], "bin")
 
         config["path"] = bin_path + ":" + config["path"]
@@ -298,18 +287,26 @@ class Experiment(object):
         with local.env(PPROF_ENABLE=0):
             p.prepare()
 
+    @abstractmethod
     def run_project(self, p):
-        with local.cwd(p.builddir):
-            p.run()
+        pass
+
+    def run_this_project(self, p):
+        """
+        Execute the project wrapped in a database session.
+
+        Args:
+            p - The project we wrap.
+        """
+        self.run_project(p)
 
     def map_projects(self, fun, p=None):
         """
         Map a function over all projects.
 
-        :fun:
-            Function that gets mapped over all projects.
-        :p:
-            Phase name
+        Args:
+            fun - The function that is applied to all projects.
+            p - The project phase name.
         """
         for project_name in self.projects:
             with phase(p, project_name):
@@ -335,7 +332,7 @@ class Experiment(object):
         Afterwards we call the prepare method of the project.
         """
         if not path.exists(self.builddir):
-            (mkdir[self.builddir] & FG(retcode=None))
+            mkdir[self.builddir] & FG(retcode=None)
 
         self.map_projects(self.prepare_project, "prepare")
 
@@ -345,18 +342,31 @@ class Experiment(object):
 
         Setup the environment and call run_project method on all projects.
         """
-        persist_experiment(self)
         import pprof.utils.versions as v
+        from datetime import datetime
+        from logging import error, info
 
-        persist_globalconfig(config['experiment'], {
-            "llvm-version": v.LLVM_VERSION,
-            "clang-version": v.CLANG_VERSION,
-            "polly-version": v.POLLY_VERSION,
-            "polli-version": v.POLLI_VERSION
-            })
+        e, session = persist_experiment(self)
+        if e.begin is None:
+            e.begin = datetime.now()
+        else:
+            e.begin = min(e.begin, datetime.now())
 
-        with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
-            self.map_projects(self.run_project, "run")
+        try:
+            with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
+                self.map_projects(self.run_this_project, "run")
+        except KeyboardInterrupt:
+            error("User requested termination.")
+        except Exception as ex:
+            error("{}".format(ex))
+            info("Shutting down.")
+            print "Shutting down..."
+        finally:
+            if e.end is None:
+                e.end = e.end
+            else:
+                e.end = max(e.end, datetime.now())
+            session.commit()
 
 
 class RuntimeExperiment(Experiment):

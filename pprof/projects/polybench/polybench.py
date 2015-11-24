@@ -84,6 +84,7 @@ class PolyBenchGroup(Project):
             run(clang["-I", "utilities",
                       "-I", self.name,
                       "-DPOLYBENCH_USE_C99_PROTO",
+                      "-DEXTRALARGE_DATASET",
                       "utilities/polybench.c", src_file,
                       "-lm",
                       "-o", self.run_f])

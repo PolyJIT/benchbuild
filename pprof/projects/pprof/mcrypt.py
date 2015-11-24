@@ -88,6 +88,9 @@ class MCrypt(PprofGroup):
                            LDFLAGS="-L" + path.join(self.builddir, "lib"),
                            CFLAGS="-I" + path.join(self.builddir, "include")):
                 run(configure["--disable-dependency-tracking",
+                              "--enable-static",
+                              "--disable-shared",
+                              "--with-libmcrypt=" + self.builddir,
                               "--with-libmhash=" + self.builddir])
 
     def build(self):

@@ -15,6 +15,47 @@ from pprof.utils.schema import CompileStat
 
 from plumbum import local
 from os import path
+from abc import abstractmethod
+
+
+@static_var("config", None)
+@static_var("experiment", None)
+@static_var("project", None)
+def run_raw(run_f, args, **kwargs):
+    """
+    Run the given binary wrapped with nothing.
+
+    Args:
+        run_f: The file we want to execute.
+        args: List of arguments that should be passed to the wrapped binary.
+        **kwargs: Dictionary with our keyword args. We support the following
+            entries:
+
+            project_name: The real name of our project. This might not
+                be the same as the configured project name, if we got wrapped
+                with ::pprof.project.wrap_dynamic
+            has_stdin: Signals whether we should take care of stdin.
+    """
+    from pprof.utils import run as r
+
+    p = run_raw.project
+    e = run_raw.experiment
+    c = run_raw.config
+
+    config.update(c)
+
+    assert p is not None, "run_raw.project attribute is None."
+    assert e is not None, "run_raw.experiment attribute is None."
+    assert c is not None, "run_raw.config attribute is None."
+    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
+    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
+    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+
+    project_name = kwargs.get("project_name", p.name)
+
+    run_cmd = local[run_f]
+    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
 
 
 @static_var("config", None)
@@ -59,8 +100,7 @@ def run_with_papi(run_f, args, **kwargs):
 
     project_name = kwargs.get("project_name", p.name)
 
-    run_cmd = local[run_f]
-    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    run_cmd = r.handle_stdin(run_f[args], kwargs)
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
         run, session, _, _, _ = \
@@ -290,11 +330,18 @@ class PolyJIT(RuntimeExperiment):
                     "-mllvm", "-polli"]
         return p
 
+    @abstractmethod
     def run_project(self, p):
         pass
 
 
 class PJITRaw(PolyJIT):
+    """
+        An experiment that executes all projects with PolyJIT support.
+
+        This is our default experiment for speedup measurements.
+    """
+
     def run_project(self, p):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
@@ -320,6 +367,10 @@ class PJITRaw(PolyJIT):
 
 
 class PJITperf(PolyJIT):
+    """
+        An experiment that uses linux perf tools to generate flamegraphs.
+    """
+
     def run_project(self, p):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
@@ -344,6 +395,15 @@ class PJITperf(PolyJIT):
 
 
 class PJITlikwid(PolyJIT):
+    """
+        An experiment that uses likwid's instrumentation API for profiling.
+
+        This instruments all projects with likwid instrumentation API calls
+        in key regions of the JIT.
+
+        This allows for arbitrary profiling of PolyJIT's overhead and run-time
+    """
+
     def run_project(self, p):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
@@ -368,7 +428,59 @@ class PJITlikwid(PolyJIT):
                     p.run(run_with_likwid)
 
 
+class PJITRegression(PolyJIT):
+    """
+        This experiment will generate a series of regression tests.
+
+        This can be used every time a new revision is produced for PolyJIT, as
+        it will automatically collect any new SCoPs detected, using the JIT.
+
+        The collection of the tests itself is intgrated into the JIT, so this
+        experiment looks a lot like a RAW experiment, except we don't run
+        anything.
+    """
+
+    def run_project(self, p):
+        """
+        Execute the experiment on a single projects.
+
+        Args:
+            p - The project we run this experiment on.
+        """
+        p = self.init_project(p)
+        with local.env(PPROF_ENABLE=0):
+            def track_compilestats(cc, **kwargs):
+                """ Compile the project and track the compilestats. """
+                from pprof.utils import run as r
+                from pprof.utils.run import handle_stdin
+
+                new_cc = handle_stdin(
+                    cc["-mllvm", "-polli-collect-modules"], kwargs)
+                r.guarded_exec(new_cc, p.name, self.name, p.run_uuid)
+
+            run_raw.config = config
+            run_raw.experiment = self
+            run_raw.project = p
+            run_raw.jobs = 1
+
+            with step("Extract regression test modules."):
+                p.clean()
+                p.prepare()
+                p.download()
+                p.compiler_extension = track_compilestats
+                p.configure()
+                p.build()
+                p.run(run_raw)
+
+
 class PJITcs(PolyJIT):
+    """
+        A simple compile-stats based experiment.
+
+        This enables PolyJIT during the compilation of the project and
+        extracts all stats from LLVM's -stats output.
+    """
+
     def run_project(self, p):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
@@ -384,7 +496,8 @@ class PJITcs(PolyJIT):
                     from pprof.utils.db import persist_compilestats
                     from pprof.utils.run import handle_stdin
 
-                    new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
+                    new_cc = handle_stdin(
+                        cc["-mllvm", "-stats"], kwargs)
 
                     run, session, retcode, _, stderr = \
                         r.guarded_exec(new_cc, p.name, self.name, p.run_uuid)
@@ -433,12 +546,12 @@ class PJITpapi(PolyJIT):
             pprof_analyze()
 
     def run_project(self, p):
+        """Run the experiment with papi support."""
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=1):
-            """Run the experiment with papi support."""
             from uuid import uuid4
 
-            p.cflags = ["-DPOLLI_ENABLE_PAPI"] + p.cflags
+            p.cflags = ["-mllvm", "-instrument"] + p.cflags
             p.ldflags = p.ldflags + ["-lpprof"]
 
             for i in range(1, int(config["jobs"]) + 1):

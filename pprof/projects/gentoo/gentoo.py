@@ -45,11 +45,19 @@ class GentooGroup(Project):
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 
+FEATURES="-sandbox -usersandbox fakeroot -usersync -xattr"
+
 # set compiler
 CC="/usr/bin/gcc"
 CXX="/usr/bin/gcc++"
 #CC="/usr/bin/clang"
 #CXX="/usr/bin/clang++"
+
+PORTAGE_USERNAME = "root"
+PORTAGE_GRPNAME = "root"
+PORTAGE_INST_GID = 0
+PORTAGE_INST_UID = 0
+
 # WARNING: Changing your CHOST is not something that should be done lightly.
 # Please consult http://www.gentoo.org/doc/en/change-chost.xml before changing.
 CHOST="x86_64-pc-linux-gnu"

@@ -2,7 +2,7 @@
 """Database schema for pprof."""
 
 from sqlalchemy import create_engine
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -23,20 +23,40 @@ class Run(Base):
     __tablename__ = 'run'
 
     id = Column(Integer, primary_key=True)
-    finished = Column(DateTime(timezone=False))
     command = Column(String)
     project_name = Column(String, ForeignKey("project.name"), index=True)
     experiment_name = Column(String, index=True)
     run_group = Column(postgresql.UUID, index=True)
     experiment_group = Column(postgresql.UUID, ForeignKey("experiment.id"), index=True)
+    begin = Column(DateTime(timezone=False))
+    end = Column(DateTime(timezone=False))
+    status = Column(Enum('completed', 'running', 'failed', name = "run_state"))
 
     def __repr__(self):
         return dedent(
             """<Run(id={}, command='{}', project_name='{}',
                     experiment_name='{}', run_group='{}',
-                    experiment_group='{}')>""".format(
-                self.id, self.finished, self.command, self.project_name,
-                self.experiment_name, self.run_group, self.experiment_group))
+                    experiment_group='{}', begin='{}', end='{}')>""".format(
+            self.id, self.command, self.project_name, self.experiment_name,
+            self.run_group, self.experiment_group, self.begin, self.end)
+        )
+
+
+class RunGroup(Base):
+    """ Store information about a run group. """
+
+    __tablename__ = 'rungroup'
+
+    id = Column(postgresql.UUID(as_uuid=True), primary_key=True,
+                index=True)
+    project = Column(String, ForeignKey("project.name"), index=True)
+    experiment = Column(postgresql.UUID(as_uuid=True),
+                        ForeignKey("experiment.id", ondelete="CASCADE",
+                                   onupdate="CASCADE"), index=True)
+
+    begin = Column(DateTime(timezone=False))
+    end = Column(DateTime(timezone=False))
+    status = Column(Enum('completed', 'running', 'failed', name="run_state"))
 
 
 class Experiment(Base):
@@ -48,10 +68,13 @@ class Experiment(Base):
     name = Column(String)
     description = Column(String)
     id = Column(postgresql.UUID(as_uuid=True), primary_key=True)
+    begin = Column(DateTime(timezone=False))
+    end = Column(DateTime(timezone=False))
 
     def __repr__(self):
-        return "<Experiment(name='{}', description='{}')>".format(
-                self.name, self.description)
+        return dedent("""<Experiment(name='{}', description='{}', begin='{}',
+                              end='{}')>""".format(
+                    self.name, self.description, self.begin, self.end))
 
 
 class Likwid(Base):
@@ -67,7 +90,8 @@ class Likwid(Base):
     run_id = Column(Integer,
                     ForeignKey("run.id",
                                onupdate="CASCADE", ondelete="CASCADE"),
-                    nullable=False, primary_key=True)
+                    nullable=False,
+                    primary_key=True)
 
     def __repr__(self):
         return dedent(
@@ -88,6 +112,7 @@ class Metric(Base):
     run_id = Column(Integer,
                     ForeignKey("run.id",
                                onupdate="CASCADE", ondelete="CASCADE"),
+                    index=True,
                     primary_key=True)
 
     def __repr__(self):
@@ -100,7 +125,7 @@ class Event(Base):
 
     __tablename__ = 'pprof_events'
 
-    name = Column(String)
+    name = Column(String, index=True)
     start = Column(postgresql.NUMERIC, primary_key=True)
     duration = Column(postgresql.NUMERIC)
     id = Column(Integer, primary_key=True)
@@ -110,6 +135,7 @@ class Event(Base):
                     ForeignKey("run.id",
                                onupdate="CASCADE", ondelete="CASCADE"),
                     nullable=False,
+                    index=True,
                     primary_key=True)
 
     def __repr__(self):
@@ -146,7 +172,8 @@ class CompileStat(Base):
     value = Column(postgresql.NUMERIC)
     run_id = Column(Integer,
                     ForeignKey("run.id",
-                               onupdate="CASCADE", ondelete="CASCADE"))
+                               onupdate="CASCADE", ondelete="CASCADE"),
+                    index=True)
 
     def __repr__(self):
         return dedent(
@@ -166,7 +193,7 @@ class RunLog(Base):
     __tablename__ = 'log'
 
     run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), primary_key=True)
+                    ondelete="CASCADE"), index=True, primary_key=True)
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Integer)
@@ -187,7 +214,7 @@ class Metadata(Base):
     __tablename__ = "metadata"
 
     run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), primary_key=True)
+                    ondelete="CASCADE"), index=True, primary_key=True)
     name = Column(String)
     value = Column(String)
 
@@ -204,7 +231,7 @@ class Config(Base):
     __tablename__ = 'config'
 
     run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), primary_key=True)
+                    ondelete="CASCADE"), index=True, primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)
 
@@ -223,5 +250,28 @@ class GlobalConfig(Base):
                     ondelete="CASCADE"), primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)
+
+class RegressionTest(Base):
+
+    """
+    Store regression tests for all projects.
+
+    This relation is filled from the PolyJIT side, not from pprof-study.
+    We collect all JIT SCoPs found by PolyJIT in this relation for
+    regression-test generation.
+
+    """
+
+    __tablename__ = 'regressions'
+    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
+                    ondelete="CASCADE"), index=True, primary_key=True)
+    name = Column(String)
+    module = Column(String)
+    project_name = Column(String)
+
+    def __repr__(self):
+        return dedent(
+            """<RegressionTest(name='{}', project_name={}, module=<omitted>, run_id='{}')>
+            """.format(self.name, self.project_name, self.run_id))
 
 Base.metadata.create_all(Engine, checkfirst=True)

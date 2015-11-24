@@ -21,9 +21,9 @@ class Povray(PprofGroup):
 
     src_uri = "https://github.com/POV-Ray/povray"
     src_dir = "povray.git"
-    boost_src_dir = "boost_1_58_0"
+    boost_src_dir = "boost_1_59_0"
     boost_src_file = boost_src_dir + ".tar.bz2"
-    boost_src_uri = "http://sourceforge.net/projects/boost/files/boost/1.58.0/" + \
+    boost_src_uri = "http://sourceforge.net/projects/boost/files/boost/1.59.0/" + \
         boost_src_file
 
     def download(self):
@@ -45,9 +45,11 @@ class Povray(PprofGroup):
             from plumbum.cmd import mkdir
             mkdir(boost_prefix)
             bootstrap = local["./bootstrap.sh"]
+            run(bootstrap["--with-toolset=clang",
+                          "--prefix=\"{}\"".format(boost_prefix)])
             b2 = local["./b2"]
-            run(bootstrap["--prefix=\"{}\"".format(boost_prefix)])
-            run(b2["install"])
+            run(b2["--ignore-site-config", "variant=release", "link=static",
+                   "threading=multi", "optimization=speed", "install"])
 
         povray_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(path.join(povray_dir, "unix")):

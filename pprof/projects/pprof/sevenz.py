@@ -61,5 +61,4 @@ class SevenZip(PprofGroup):
         with local.cwd(p7z_dir):
             run(make["CC=" + str(clang),
                      "CXX=" + str(clang_cxx),
-                     "-j", config["jobs"],
                      "clean", "all"])

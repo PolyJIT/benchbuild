@@ -7,7 +7,6 @@ export PPROF_OBJ_DIR=/scratch/${USER}/pprof/obj/$(date -Ihours)
 # Adjust these, if necessary
 export PPROF_DB_PASS=pprof
 export PPROF_USE_DATABASE=1
-export PPROF_DB_PORT=32769
 export PPROF_DB_HOST=debussy
 export PPROF_TMP_DIR=/scratch/${USER}/pprof/src
 export PPROF_TESTINPUTS=${HOME}/src/polyjit/pprof-test-data

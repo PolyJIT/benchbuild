@@ -32,7 +32,7 @@ class PprofRun(cli.Application):
         config["sourcedir"] = dirname
 
     @cli.switch(["--llvm-srcdir"], str, help="Where are the llvm source files")
-    def sourcedir(self, dirname):
+    def llvm_sourcedir(self, dirname):
         config["llvm-srcdir"] = dirname
 
     @cli.switch(["-B", "--builddir"], str, help="Where should we build")
@@ -51,6 +51,11 @@ class PprofRun(cli.Application):
                 help="Specify experiments to run")
     def experiments(self, experiments):
         self._experiment_names = experiments
+
+    @cli.switch(["-D", "--description"], str,
+                help="A description for this experiment run")
+    def experiment_tag(self, description):
+        config["experiment_description"] = description
 
     @cli.switch(
         ["-P", "--project"], str, list=True, requires=["--experiment"],
@@ -91,6 +96,7 @@ class PprofRun(cli.Application):
             "pj-perf": polyjit.PJITperf,
             "pj-likwid": polyjit.PJITlikwid,
             "pj-cs": polyjit.PJITcs,
+            "pj-collect": polyjit.PJITRegression,
             "pj-papi": polyjit.PJITpapi,
             "raw": raw.RawRuntime,
             "papi": papi.PapiScopCoverage,

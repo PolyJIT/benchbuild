@@ -125,6 +125,7 @@ def prepare_slurm_script(experiment, project, experiment_id):
     commands.append(srun["--hint=nomultithread", pprof["-v", "run",
                          "-P", project,
                          "-E", experiment,
+                         "-D", config["experiment_description"],
                          "-B", config["nodedir"],
                          "--likwid-prefix", config["likwiddir"],
                          "-L", config["llvm"]]])
@@ -220,6 +221,11 @@ class Chimaira(cli.Application):
     @cli.switch(["--build"], help="Build LLVM/Polly/Polli/Clang on the node")
     def local_build(self):
         config["local_build"] = True
+
+    @cli.switch(["-D", "--description"], str,
+                help="A description for this experiment run")
+    def experiment_tag(self, description):
+        config["experiment_description"] = description
 
     def main(self):
         from itertools import chain

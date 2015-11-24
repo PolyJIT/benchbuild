@@ -204,7 +204,7 @@ class Build(cli.Application):
                 llvm_cmake = cmake[
                     "-DCMAKE_INSTALL_PREFIX=" + install_path,
                     "-DCMAKE_BUILD_TYPE=Release",
-                    "-DBUILD_SHARED_LIBS=On",
+                    "-DBUILD_SHARED_LIBS=Off",
                     "-DCMAKE_USE_RELATIVE_PATHS=On",
                     "-DPOLLY_BUILD_POLLI=On",
                     "-DLLVM_TARGETS_TO_BUILD=X86",

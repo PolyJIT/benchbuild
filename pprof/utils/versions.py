@@ -23,7 +23,7 @@ def get_git_hash(from_url):
         return ""
 
     with local.cwd(from_url):
-        return git("rev-parse", "HEAD")
+        return git("rev-parse", "HEAD", retcode=None)
 
 
 LLVM_VERSION = get_git_hash(config["llvm-srcdir"])

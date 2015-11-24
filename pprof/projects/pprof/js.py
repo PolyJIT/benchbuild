@@ -38,7 +38,7 @@ class SpiderMonkey(PprofGroup):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                      self.compiler_extension)
         with local.cwd(js_dir):
-            autoconf = local["autoconf_2.13"]
+            autoconf = local["autoconf"]
             autoconf()
             mkdir("build_OPT.OBJ")
             with local.cwd("build_OPT.OBJ"):

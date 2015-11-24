@@ -1,5 +1,7 @@
 # PPROF - PolyJIT Profiling #
 
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/0220d2cf77f543e182d93eb55edf4199)](https://www.codacy.com/app/simbuerg/pprof-study)
+
 This is a small python framework for measuring various case studies using
 PolyJIT. By design it encodes ways to download/configure and run arbitrary
 projects with your desired compiler / runtime wrappers.

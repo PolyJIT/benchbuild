@@ -23,6 +23,12 @@ PostgreSQL, but the backend is not configurable at the moment).
 In addition to the PostgreSQL server, you need libpqxx/libpq available for
 the psycopg2 package that pprof uses to connect.
 
+### Python Headers ###
+
+For `pip install --user .` to succeed, python headers are required.
+
+On Ubuntu you can install `python-dev` to get the correct headers.
+
 ## How to install ##
 
 After you have installed all necessary libraries, you can just clone this
@@ -48,6 +54,35 @@ This mode provides a simple way to build a working LLVM/Clang/Polly/Polli
 installation from scratch. Everything will be built _static_ for the X86
 target architecture. You can specify which compiler you want to use and which
 buildsystem should be used (ninja is the default).
+
+#### libPAPI ####
+
+Some experiments require libPAPI to run. The `pprof build` command only
+accepts a single prefix, therefore you might need to adjust some symlinks.
+
+On Ubuntu you can install `libpapi` and create a symlink for libpapi.so
+in `/usr/lib`
+
+#### Boost ####
+
+`pprof build` requires some headers from libboost. On Ubuntu you can
+install `libboost-dev`.
+
+#### libpqxx ####
+
+`pprof build` requires `libpqxx` for polyjit to communicate with the
+postgres database.
+
+On Ubuntu you can install `libpqxx-dev`.
+
+#### cmake ####
+
+LLVM requires `cmake` to build.
+
+#### ninja ####
+
+The build mode uses the `ninja` build system by default, you can switch
+to `make`, if needed.
 
 ```
 $> pprof build --help

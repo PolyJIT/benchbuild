@@ -137,6 +137,19 @@ def prepare_slurm_script(experiment, project, experiment_id):
     return slurm_script
 
 
+def prepare_directories(dirs):
+    """
+    Make sure that the required directories exist.
+
+    Args:
+        dirs - the directories we want.
+    """
+    from plumbum.cmd import mkdir
+
+    for directory in dirs:
+        mkdir("-p", directory, retcode=None)
+
+
 def dispatch_jobs(exp, projects):
     """
     Dispatch sbatch scripts to slurm for all given projects.
@@ -155,6 +168,7 @@ def dispatch_jobs(exp, projects):
         if len(project) == 0:
             continue
         slurm_script = prepare_slurm_script(exp, project, experiment_id)
+        prepare_directories([config["resultsdir"]])
         sbatch_cmd = sbatch[
             "--job-name=" + exp + "-" + project,
             "-A", config["account"],

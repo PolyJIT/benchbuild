@@ -19,8 +19,19 @@ class GentooGroup(Project):
 
   src_dir = "gentoo"
   src_file = src_dir + ".tar.bz2"
-  # TODO always new stage3
-  src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/20151022/stage3-amd64-20151022.tar.bz2"
+
+  # download location for gentoo stage3 tarball
+  ## TODO always new stage3
+  #import time
+  #day = time.strftime("%Y%m%d")
+  day = "20151119"
+  src_uri = "http://distfiles.gentoo.org/releases/amd64/current-stage3-amd64/" + "stage3-amd64-" + day + ".tar.bz2"
+
+  # download location for portage files
+  src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gentoo/snapshots/portage-latest.tar.bz2"
+  src_file_portage = "portage_snap.tar.bz2"
+
+  # test dirs
   test_suite_dir = "TODO"
   test_suite_uri = "TODO"
 
@@ -35,6 +46,12 @@ class GentooGroup(Project):
       from plumbum.cmd import tar, fakeroot
       from plumbum import FG
       fakeroot["tar", "xfj", self.src_file]& FG
+      rm[self.src_file]()
+      with local.cwd(self.builddir + "/usr"):
+        from plumbum.cmd import rm
+        Wget(self.src_uri_portage, self.src_file_portage)
+        fakeroot["tar", "xfj", self.src_file_portage]& FG
+        rm[self.src_file_portage]()
 
   def configure(self):
     from plumbum.cmd import mkdir, rm

@@ -51,7 +51,7 @@ FEATURES="-sandbox -usersandbox fakeroot -usersync -xattr"
 
 # set compiler
 CC="/usr/bin/gcc"
-CXX="/usr/bin/gcc++"
+CXX="/usr/bin/g++"
 #CC="/usr/bin/clang"
 #CXX="/usr/bin/clang++"
 

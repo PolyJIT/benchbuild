@@ -30,6 +30,8 @@ class GentooGroup(Project):
     with local.cwd(self.builddir):
       Wget(self.src_uri, self.src_file)
 
+      from plumbum.cmd import cp
+      cp["/home/sattlerf/gentoo/uchroot","uchroot"]()
       from plumbum.cmd import tar, fakeroot
       from plumbum import FG
       fakeroot["tar", "xfj", self.src_file]& FG
@@ -79,13 +81,12 @@ class Eix(GentooGroup):
   ProjectFactory.addFactory("Eix", Factory())
 
   def build(self):
-    # cd into chroot
     with local.cwd(self.builddir):
-        print "\n"
-        print self.builddir
-        print local.env["PWD"]
+        from plumbum.cmd import binddev
+        binddev["-r",".","--","./uchroot","-w", "/", "-r", ".", "-u", "0", "-g", "0", "--","/usr/bin/emerge", "eix"]()
     pass
 
   def run_tests(self, experiment):
     pass
+
 

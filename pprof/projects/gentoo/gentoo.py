@@ -42,13 +42,14 @@ class GentooGroup(Project):
       Wget(self.src_uri, self.src_file)
 
       from plumbum.cmd import cp
+      # TODO replace with standart path
       cp["/home/sattlerf/gentoo/uchroot","uchroot"]()
       from plumbum.cmd import tar, fakeroot
       from plumbum import FG
       fakeroot["tar", "xfj", self.src_file]& FG
+      from plumbum.cmd import rm
       rm[self.src_file]()
       with local.cwd(self.builddir + "/usr"):
-        from plumbum.cmd import rm
         Wget(self.src_uri_portage, self.src_file_portage)
         fakeroot["tar", "xfj", self.src_file_portage]& FG
         rm[self.src_file_portage]()

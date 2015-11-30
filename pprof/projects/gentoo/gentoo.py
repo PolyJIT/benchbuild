@@ -70,6 +70,16 @@ PORTDIR="/usr/portage"
 DISTDIR="${PORTDIR}/distfiles"
 PKGDIR="${PORTDIR}/packages"'''
         makeconf.write(lines)
+      mkdir["etc/portage/metadata"]()
+      with open("etc/portage/metadata/layout.conf", 'w') as layoutconf:
+          lines = '''masters = gentoo'''
+          layoutconf.write(lines)
+      with open("etc/resolv.conf", 'w') as resolfconf:
+          lines = '''nameserver 132.231.51.4
+nameserver 132.231.1.24
+nameserver 132.231.1.19
+search fim.uni-passau.de'''
+          resolfconf.write(lines)
         # cp jit into gentoo
 
 class Eix(GentooGroup):

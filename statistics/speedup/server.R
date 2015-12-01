@@ -290,7 +290,24 @@ shinyServer(function(input, output, session) {
     baseline_vs_pivot(db(), input$compBaselines, input$compExperiments, input$compProjects, input$compGroups)
   })
 
-  output$speedup_cores_vs_baseline_barplot = renderPlot({
+  compHeight <- reactive({
+    if (is.null(input$compExperiments))
+      h <- 0
+    else
+      h <- length(input$compExperiments)
+    return(h)
+  })
+
+  output$comparison_single_ui <- renderUI({
+    plotOutput("comparison_single", height = 400 * compHeight())
+  })
+
+  output$comparison_pairwise_ui <- renderUI({
+    plotOutput("comparison_pairwise", height = 400 * compHeight())
+  })
+
+
+  output$comparison_single = renderPlot({
     d <- base_vs_pivot()
     p <- ggplot(data = d, aes(x = gname, y = speedup, colour = pid)) +
       geom_boxplot(aes(group = gname), outlier.size = 0) +
@@ -298,9 +315,9 @@ shinyServer(function(input, output, session) {
       scale_x_discrete() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
     p
-  }, height = 2400)
-  
-  output$speedup_diff = renderPlot({
+  })
+
+  output$comparison_pairwise = renderPlot({
     d <- base_vs_pivot()
     p <- ggplot(data = d, aes(x = num_cores, y = speedup, colour = pid)) +
       geom_boxplot(aes(group = num_cores), outlier.size = 0) +
@@ -308,8 +325,7 @@ shinyServer(function(input, output, session) {
       scale_x_discrete() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
     p
-  }, height = 2400)
-
+  })
 
   output$t1Plot = renderPlot({
     validate(

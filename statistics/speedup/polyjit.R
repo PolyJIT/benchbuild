@@ -33,7 +33,7 @@ getSelections <- function(name, exps) {
 
 get_experiments <- function(c) {
   q <- strwrap(paste(
-    "SELECT name, cast(id as VARCHAR) as id, description FROM experiment;"), width=10000, simplify=TRUE)
+    "SELECT name, cast(id as VARCHAR) as id, description FROM experiment ORDER BY name, begin ASC;"), width=10000, simplify=TRUE)
   return(sql.get(c, q))
 }
 

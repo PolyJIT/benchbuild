@@ -49,29 +49,25 @@ shinyUI(
         ),
         tabItem(tabName = "comparison",
                 fluidRow(
-                  box(title = "Baselines", solidHeader = TRUE, width = 3,
-                      selectInput("compBaselines", label = "Baselines", multiple = TRUE, choices = NULL, width = '100%')),
-                  box(title = "Experiments", solidHeader = TRUE, width = 3,
+                  box(title = "Experiments", solidHeader = TRUE, width = 6,
+                      selectInput("compBaselines", label = "Baselines", multiple = TRUE, choices = NULL, width = '100%'),
                       selectInput("compExperiments", label = "Experiments", multiple = TRUE, choices = NULL, width = '100%')),
-                  box(title = "Projects", solidHeader = TRUE, width = 3,
-                      selectInput("compProjects", label = "Projects", multiple = TRUE, choices = NULL, width = '100%')),
-                  box(title = "Groups", solidHeader = TRUE, width = 3,
+                  box(title = "Filters", solidHeader = TRUE, width = 6,
+                      selectInput("compProjects", label = "Projects", multiple = TRUE, choices = NULL, width = '100%'),
                       selectInput("compGroups", label = "Groups", multiple = TRUE, choices = NULL, width = '100%'))
                 ),
                 fluidRow(
-                  tabBox(title = 'Compare experiments', width = 12, height = 3000,
-                         tabPanel("Single-Core", height = 3000,
+                  tabBox(title = 'Compare experiments', width = 12,
+                         tabPanel("Single-Core", id = "tabBox",
                                   paste("Comparison between the single-core configuration of each possible
                                          baseline and all configurations of the run-time experiments."),
-                                  br(),
-                                  plotOutput("speedup_cores_vs_baseline_barplot")
+                                  htmlOutput("comparison_single_ui")
                          ),
-                         tabPanel("Pairwise", height = 3000,
+                         tabPanel("Pairwise",
                                   paste("For each configuration of each experiment compare it to a matching
                                          configuration for each experiment. A configuration matches, if it
                                          uses the same number of cores."),
-                                  br(),
-                                  plotOutput("speedup_diff")
+                                  htmlOutput("comparison_pairwise_ui")
                          )
                   )
                 )

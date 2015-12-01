@@ -277,7 +277,7 @@ shinyServer(function(input, output, session) {
 
     return("No stderr found.")
   })
-  
+
   base_vs_pivot <- reactive({
     validate(
       need(input$compBaselines, "Select baselines to compare."),
@@ -358,7 +358,7 @@ shinyServer(function(input, output, session) {
       p
     }
   })
-  
+
   output$groupsCompleted <- renderInfoBox({
     infoBox(
       "Completed (G)", icon = icon("thumbs-up", lib = "glyphicon"), color = "green"

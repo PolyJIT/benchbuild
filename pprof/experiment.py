@@ -256,13 +256,15 @@ class Experiment(object):
         """
         Populate the list of projects that belong to this experiment.
 
-        :projects_to_filter:
-            List of projects we want to assign to this experiment. We intersect
-            the list of projects with the list of supported projects to get
-            the list of projects that belong to this experiment.
-        :group:
-            In addition to the project filter, we provide a way to filter whole
-            groups.
+        Args:
+            projects_to_filter (list):
+                List of projects we want to assign to this experiment.
+                We intersect the list of projects with the list of supported
+                projects to get the list of projects that belong to this
+                experiment.
+            group (str):
+                In addition to the project filter, we provide a way to filter
+                whole groups.
         """
         self.projects = {}
         factories = ProjectFactory.factories
@@ -280,15 +282,33 @@ class Experiment(object):
                 k: v for k, v in self.projects.iteritems() if v.group_name == group}
 
     def clean_project(self, p):
+        """
+        Invoke the clean phase of the given project.
+
+        Args:
+            p (pprof.Project): The project we want to clean.
+        """
         with local.env(PPROF_ENABLE=0):
             p.clean()
 
     def prepare_project(self, p):
+        """
+        Invoke the prepare phase of the given project.
+
+        Args:
+            p (pprof.Project): The project we want to prepare.
+        """
         with local.env(PPROF_ENABLE=0):
             p.prepare()
 
     @abstractmethod
     def run_project(self, p):
+        """
+        Invoke the run phase of the given project.
+
+        Args:
+            p (pprof.project): the project we want to run.
+        """
         pass
 
     def run_this_project(self, p):

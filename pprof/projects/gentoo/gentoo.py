@@ -34,17 +34,14 @@ class GentooGroup(Project):
 
   def download(self):
     from pprof.utils.downloader import Wget
-    from plumbum.cmd import virtualenv
+    from plumbum import FG
+    from plumbum.cmd import virtualenv, cp, tar, fakeroot, rm
     with local.cwd(self.builddir):
       Wget(self.src_uri, self.src_file)
 
-      from plumbum.cmd import cp
       # TODO replace with standart path
       cp["/home/sattlerf/gentoo/uchroot","uchroot"]()
-      from plumbum.cmd import tar, fakeroot
-      from plumbum import FG
       fakeroot["tar", "xfj", self.src_file]& FG
-      from plumbum.cmd import rm
       rm[self.src_file]()
       with local.cwd(self.builddir + "/usr"):
         Wget(self.src_uri_portage, self.src_file_portage)
@@ -106,8 +103,8 @@ class Eix(GentooGroup):
   ProjectFactory.addFactory("Eix", Factory())
 
   def build(self):
+    from plumbum.cmd import binddev
     with local.cwd(self.builddir):
-        from plumbum.cmd import binddev
         binddev["-r",".","--","./uchroot","-w", "/", "-r", ".", "-u", "0", "-g", "0", "--","/usr/bin/emerge", "eix"]()
     pass
 

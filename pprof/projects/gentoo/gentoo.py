@@ -50,7 +50,7 @@ class GentooGroup(Project):
                 rm(self.src_file_portage)
 
     def configure(self):
-        from plumbum.cmd import mkdir, rm
+        from plumbum.cmd import mkdir, rm, cp
         with local.cwd(self.builddir):
             with open("etc/portage/make.conf", 'w') as makeconf:
                 lines = '''# These settings were set by the catalyst build script that automatically
@@ -90,12 +90,12 @@ PKGDIR="${PORTDIR}/packages"'''
                 lines = '''masters = gentoo'''
                 layoutconf.write(lines)
             with open("etc/resolv.conf", 'w') as resolfconf:
-                #cp("/etc/resolv.conf","etc/resolv.conf")
-                lines = '''nameserver 132.231.51.4
-nameserver 132.231.1.24
-nameserver 132.231.1.19
-search fim.uni-passau.de'''
-                resolfconf.write(lines)
+                cp("/etc/resolv.conf","etc/resolv.conf")
+                #lines = '''nameserver 132.231.51.4
+#nameserver 132.231.1.24
+#nameserver 132.231.1.19
+#search fim.uni-passau.de'''
+                #resolfconf.write(lines)
             # cp jit into gentoo
 
     @property

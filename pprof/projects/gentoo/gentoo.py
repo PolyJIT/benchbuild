@@ -21,9 +21,6 @@ class GentooGroup(Project):
   src_file = src_dir + ".tar.bz2"
 
   # download location for gentoo stage3 tarball
-  ## TODO always new stage3
-  #import time
-  #day = time.strftime("%Y%m%d")
   day = "20151119"
   src_uri = "http://distfiles.gentoo.org/releases/amd64/current-stage3-amd64/" + "stage3-amd64-" + day + ".tar.bz2"
 

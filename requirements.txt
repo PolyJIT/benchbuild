@@ -9,7 +9,6 @@ parse==1.6.6
 pbr==1.8.1
 plumbum==1.6.0
 pockets==0.3
-pprof==1.0
 psycopg2==2.6.1
 Pygments==2.0.2
 pytz==2015.7

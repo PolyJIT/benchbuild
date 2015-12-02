@@ -110,8 +110,14 @@ def phase(name, pname="FIXME: Unset"):
     """
     Introduce a new phase.
 
-    :name:
-        Name of the phase.
+    This just introduces a new (cosmetic) phase distinction between
+    different experiment phases.
+    This can be used as a contextmanager to distinguish different experiment
+    phases.
+
+    Args:
+        name (str): Name of the phase.
+        pname (str): Project Name this phase will be started for.
     """
     phase.counter += 1
     phase.name = name
@@ -126,8 +132,8 @@ def phase(name, pname="FIXME: Unset"):
     try:
         yield
         nl(o).write(main_msg + " OK")
-    except ProcessExecutionError as e:
-        o.write("\n" + e.stderr.encode("utf8"))
+    except ProcessExecutionError as proc_ex:
+        o.write("\n" + proc_ex.stderr.encode("utf8"))
     except (OSError, ProcessExecutionError, GuardedRunException) as e:
         o.write("\n" + str(e.stderr))
         sys.stdout.write("\n" + main_msg + " FAILED")
@@ -142,8 +148,13 @@ def step(name):
     """
     Introduce a new step.
 
-    :name:
-        Name of the step.
+    This just introduces a new (cosmetic) step distinction between different
+    experiment steps.
+    This can be used as a contextmanager to distinguish different experiment
+    steps.
+
+    Args:
+        name (str): The name of the step
     """
     step.counter += 1
     step.name = name
@@ -166,8 +177,13 @@ def substep(name):
     """
     Introduce a new substep.
 
-    :name:
-        Name of the substep.
+    This just introduces a new (cosmetic) substep distinction between different
+    experiment steps.
+    This can be used as a contextmanager to distinguish different experiment
+    steps.
+
+    Args:
+        name (str): The name of the substep
     """
     substep.counter += 1
     substep.name = name
@@ -197,11 +213,14 @@ def get_group_projects(group, experiment):
     """
     Get a list of project names for the given group.
 
-    :group:
-        The group.
-    :experiment:
-        The experiment we collect the supported project names for.
-    :returns:
+    Filter the projects assigned to this experiment by group.
+
+    Args:
+        group (str): The group.
+        experiment (pprof.Experiment): The experiment we draw our projects to
+            filter from.
+
+    Returns (list):
         A list of project names for the group that are supported by this
         experiment.
     """
@@ -394,28 +413,47 @@ class RuntimeExperiment(Experiment):
     """ Additional runtime only features for experiments. """
 
     def get_papi_calibration(self, p, calibrate_call):
-        """ Get calibration values for PAPI based measurements. """
+        """
+        Get calibration values for PAPI based measurements.
+
+        Args:
+            p (pprof.Project):
+                Unused (deprecated).
+            calibrate_call (plumbum.cmd):
+                The calibration command we will use.
+        """
         with local.cwd(self.builddir):
             with local.env(PPROF_USE_DATABASE=0, PPROF_USE_CSV=0,
                            PPROF_USE_FILE=0):
                 calib_out = calibrate_call()
 
         calib_pattern = regex.compile(
-            'Real time per call \(ns\): (?P<val>[0-9]+.[0-9]+)')
+            r'Real time per call \(ns\): (?P<val>[0-9]+.[0-9]+)')
         for line in calib_out.split('\n'):
             res = calib_pattern.search(line)
             if res:
                 return res.group('val')
         return None
 
-    def persist_calibration(self, p, cmd, calibration):
-        """ Persist the result of a calibration call. """
+    def persist_calibration(self, project, cmd, calibration):
+        """
+        Persist the result of a calibration call.
+
+        Args:
+            project (pprof.Project):
+                The calibration values will be assigned to this project.
+            cmd (plumbum.cmd):
+                The command we used to generate the calibration values.
+            calibration (int):
+                The calibration time in nanoseconds.
+        """
         if calibration:
             from pprof.utils.db import create_run
             from pprof.utils import schema as s
 
-            run, session = create_run(str(cmd), p.name, self.name, p.run_uuid)
-            m = s.Metric(name="papi.calibration.time_ns", value=calibration,
-                         run_id=run.id)
-            session.add(m)
+            run, session = create_run(str(cmd), project.name,
+                                      self.name, project.run_uuid)
+            metric = s.Metric(name="papi.calibration.time_ns",
+                              value=calibration, run_id=run.id)
+            session.add(metric)
             session.commit()

@@ -34,19 +34,20 @@ class GentooGroup(Project):
 
   def download(self):
     from pprof.utils.downloader import Wget
+    from pprof.utils.run import run
     from plumbum import FG
     from plumbum.cmd import virtualenv, cp, tar, fakeroot, rm
     with local.cwd(self.builddir):
       Wget(self.src_uri, self.src_file)
 
       # TODO replace with standart path
-      cp["/home/sattlerf/gentoo/uchroot","uchroot"]()
-      fakeroot["tar", "xfj", self.src_file]& FG
-      rm[self.src_file]()
+      cp("/home/sattlerf/gentoo/uchroot","uchroot")
+      run(fakeroot["tar", "xfj", self.src_file])
+      rm(self.src_file)
       with local.cwd(self.builddir + "/usr"):
         Wget(self.src_uri_portage, self.src_file_portage)
-        fakeroot["tar", "xfj", self.src_file_portage]& FG
-        rm[self.src_file_portage]()
+        run(tar["xfj", self.src_file_portage])
+        rm(self.src_file_portage)
 
   def configure(self):
     from plumbum.cmd import mkdir, rm
@@ -82,7 +83,7 @@ PORTDIR="/usr/portage"
 DISTDIR="${PORTDIR}/distfiles"
 PKGDIR="${PORTDIR}/packages"'''
         makeconf.write(lines)
-      mkdir["etc/portage/metadata"]()
+      mkdir("etc/portage/metadata")
       with open("etc/portage/metadata/layout.conf", 'w') as layoutconf:
           lines = '''masters = gentoo'''
           layoutconf.write(lines)
@@ -105,7 +106,7 @@ class Eix(GentooGroup):
   def build(self):
     from plumbum.cmd import binddev
     with local.cwd(self.builddir):
-        binddev["-r",".","--","./uchroot","-w", "/", "-r", ".", "-u", "0", "-g", "0", "--","/usr/bin/emerge", "eix"]()
+        binddev("-r",".","--","./uchroot","-w", "/", "-r", ".", "-u", "0", "-g", "0", "--","/usr/bin/emerge", "eix")
     pass
 
   def run_tests(self, experiment):

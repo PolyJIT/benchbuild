@@ -1,60 +1,83 @@
 #!/usr/bin/env python
+"""
+Downloading helper functions for pprof.
+
+The helpers defined in this module provide access to some common Downloading
+methods for the source code of pprof projects.
+All downloads will be cached in PPROF_TMP_DIR and locked down with a hash that
+is generated after the first download. If the hash matches the file/folder found
+in PPROF_TMP_DIR, nothing will be downloaded at all.
+
+Supported methods:
+        Copy, CopyNoFail, Wget, Git, Svn, Rsync
+"""
 from pprof.settings import config
 
 
-def GetHashofDirs(directory):
+def get_hash_of_dirs(directory):
+    """
+    Recursively hash the contents of the given directory.
+
+    Args:
+        directory (str): The root directory we want to hash.
+
+    Returns:
+        A hash of all the contents in the directory.
+    """
     import hashlib
     import os
-    SHAhash = hashlib.sha512()
+    sha = hashlib.sha512()
     if not os.path.exists(directory):
         return -1
 
     try:
-        for root, dirs, files in os.walk(directory):
+        for root, _, files in os.walk(directory):
             for names in files:
                 filepath = os.path.join(root, names)
                 try:
-                    f1 = open(filepath, 'rb')
+                    next_file = open(filepath, 'rb')
                 except:
                     # You can't open the file for some reason
-                    f1.close()
+                    next_file.close()
                     continue
 
                 while 1:
                     # Read file in as little chunks
-                    buf = f1.read(4096)
+                    buf = next_file.read(4096)
                     if not buf:
                         break
-                    SHAhash.update(hashlib.sha512(buf).hexdigest())
-            f1.close()
+                    sha.update(hashlib.sha512(buf).hexdigest())
+            next_file.close()
     except:
         import traceback
         # Print the stack traceback
         traceback.print_exc()
         return -2
-    return SHAhash.hexdigest()
+    return sha.hexdigest()
 
 
-def source_required(fname, to):
+def source_required(src_file, src_root):
     """
     Check, if a download is required.
 
-    :fname: TODO
-    :to: TODO
-    :returns: TODO
+    Args:
+        src_file: The filename to check for.
+        src_root: The path we find the file in.
 
+    Returns:
+        True, if we need to download something, False otherwise.
     """
     from os import path
 
     # Check if we need to do something
-    src_dir = path.join(to, fname)
-    hash_file = path.join(to, fname + ".hash")
+    src_dir = path.join(src_root, src_file)
+    hash_file = path.join(src_root, src_file + ".hash")
 
     required = True
     if path.exists(src_dir) and path.exists(hash_file):
-        new_hash = GetHashofDirs(src_dir)
-        with open(hash_file, 'r') as hf:
-            old_hash = hf.readline()
+        new_hash = get_hash_of_dirs(src_dir)
+        with open(hash_file, 'r') as h_file:
+            old_hash = h_file.readline()
         required = not new_hash == old_hash
         if required:
             from plumbum.cmd import rm
@@ -63,45 +86,53 @@ def source_required(fname, to):
     return required
 
 
-def update_hash(fname, to):
+def update_hash(src, root):
+    """
+    Update the hash for the given file.
+
+    Args:
+        src: The file name.
+        root: The path of the given file.
+    """
     from os import path
 
-    hash_file = path.join(to, fname + ".hash")
-    with open(hash_file, 'w') as hf:
-        src_path = path.join(to, fname)
-        new_hash = GetHashofDirs(src_path)
-        hf.write(new_hash)
+    hash_file = path.join(root, src + ".hash")
+    with open(hash_file, 'w') as h_file:
+        src_path = path.join(root, src)
+        new_hash = get_hash_of_dirs(src_path)
+        h_file.write(new_hash)
 
 
 def Copy(From, To):
     """
     Small copy wrapper.
 
-    :From: TODO
-    :To: TODO
-
+    Args:
+        From (str): Path to the SOURCE.
+        To (str): Path to the TARGET.
     """
     from plumbum.cmd import cp
     cp("-ar", "--reflink=auto", From, To)
 
 
-def CopyNoFail(fName, srcDir=None):
+def CopyNoFail(src, root=None):
     """
-    Just copy :fname from the into the current working directory, if it exists.
+    Just copy fName into the current working directory, if it exists.
 
-    No action is executed, if :fName does not exist. No Hash is checked.
+    No action is executed, if fName does not exist. No Hash is checked.
 
     Args:
-        fName: The filename we want to copy to '.'.
-        srcDir: The optional source dir we should pull fName from. Defaults
+        src: The filename we want to copy to '.'.
+        root: The optional source dir we should pull fName from. Defaults
             to pprof.settings.config["tmpdir"].
+
     Returns:
         True, if we copied something.
     """
     from os import path
-    if srcDir is None:
-        srcDir = config["tmpdir"]
-    src_url = path.join(srcDir, fName)
+    if root is None:
+        root = config["tmpdir"]
+    src_url = path.join(root, src)
 
     if path.exists(src_url):
         Copy(src_url, '.')
@@ -109,63 +140,67 @@ def CopyNoFail(fName, srcDir=None):
     return False
 
 
-def Wget(url, fname, to=None):
+def Wget(src_url, tgt_name, tgt_root=None):
     """
-    Download :src: to :to: if required.
+    Download url, if required.
 
-    :src: TODO
-    :to: TODO
-    :returns: TODO
-
+    Args:
+        src_url (str): Our SOURCE url.
+        tgt_name (str): The filename we want to have on disk.
+        tgt_root (str): The TARGET directory for the download.
+            Defaults to ``config["tmpdir"]``.
     """
-    if to is None:
-        to = config["tmpdir"]
+    if tgt_root is None:
+        tgt_root = config["tmpdir"]
 
     from os import path
     from plumbum.cmd import wget
 
-    src_path = path.join(to, fname)
-    if not source_required(fname, to):
+    src_path = path.join(tgt_root, tgt_name)
+    if not source_required(tgt_name, tgt_root):
         Copy(src_path, ".")
         return
 
-    wget(url, "-O", src_path)
-    update_hash(fname, to)
+    wget(src_url, "-O", src_path)
+    update_hash(tgt_name, tgt_root)
     Copy(src_path, ".")
 
 
-def Git(url, fname, to=None):
+def Git(src_url, tgt_name, tgt_root=None):
     """
-    Get a shallow clone from :src: to :to:.
+    Get a shallow clone of the given respo
 
-    :src: TODO
-    :to: TODO
-    :returns: TODO
-
+    Args:
+        src_url (str): Git URL of the SOURCE repo.
+        tgt_name (str): Name of the repo folder on disk.
+        tgt_root (str): TARGET folder for the git repo.
+            Defaults to ``config["tmpdir"]``
     """
-    if to is None:
-        to = config["tmpdir"]
+    if tgt_root is None:
+        tgt_root = config["tmpdir"]
 
     from os import path
     from plumbum.cmd import git
 
-    src_dir = path.join(to, fname)
-    if not source_required(fname, to):
+    src_dir = path.join(tgt_root, tgt_name)
+    if not source_required(tgt_name, tgt_root):
         Copy(src_dir, ".")
         return
 
-    git("clone", "--depth", "1", url, src_dir)
-    update_hash(fname, to)
+    git("clone", "--depth", "1", src_url, src_dir)
+    update_hash(tgt_name, src_dir)
     Copy(src_dir, ".")
 
 
 def Svn(url, fname, to=None):
-    """get a shallow clone from :src to :to.
+    """
+    Checkout the SVN repo.
 
-    :src: TODO
-    :to: TODO
-    :returns: TODO
-
+    Args:
+        url (str): The SVN SOURCE repo.
+        fname (str): The name of the repo on disk.
+        to (str): The name of the TARGET folder on disk.
+            Defaults to ``config["tmpdir"]``
     """
     if to is None:
         to = config["tmpdir"]
@@ -183,25 +218,27 @@ def Svn(url, fname, to=None):
     Copy(src_dir, ".")
 
 
-def Rsync(url, fname, to=None):
-    """rsync :src to :to.
-
-    :src: TODO
-    :to: TODO
-    :returns: TODO
-
+def Rsync(url, tgt_name, tgt_root=None):
     """
-    if to is None:
-        to = config["tmpdir"]
+    RSync a folder.
+
+    Args:
+        url (str): The url of the SOURCE location.
+        fname (str): The name of the TARGET.
+        to (str): Path of the target location.
+            Defaults to ``config["tmpdir"]``.
+    """
+    if tgt_root is None:
+        tgt_root = config["tmpdir"]
 
     from os import path
     from plumbum.cmd import rsync
 
-    src_dir = path.join(to, fname)
-    if not source_required(fname, to):
+    src_dir = path.join(tgt_root, tgt_name)
+    if not source_required(tgt_name, tgt_root):
         Copy(src_dir, ".")
         return
 
     rsync("-a", url, src_dir)
-    update_hash(fname, to)
+    update_hash(tgt_name, tgt_root)
     Copy(src_dir, ".")

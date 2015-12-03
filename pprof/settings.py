@@ -323,6 +323,18 @@ CONFIG_METADATA = [
 
 
 def default_config(config_metadata):
+    """
+    Fill the config object.
+
+    Args:
+        config_metadata (list(dict(str,_))): Contains a list of dictionaries
+            which indicate the name, environment variable and default value
+            for each configuration option of pprof.
+            Environment settings take precedence over defaults and command line
+            options take precedence over environment settings.
+
+    Returns (dict(str, _)): Dictionary with all configuration options.
+    """
     def_config = {}
     for setting in config_metadata:
         if "env" in setting:

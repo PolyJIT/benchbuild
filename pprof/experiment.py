@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """
 An pprof.experiment defines a series of phases that constitute a pprof
 compatible experiment. This is the default implementation of an experiment.
@@ -48,29 +47,32 @@ import sys
 import regex
 
 
-def nl(o):
-    """Break the current line in the stream :o:.
+def newline(ostream):
+    """
+    Break the current line in the output stream.
 
     Don't reuse the current line, if :o: is not attached to a tty.
 
-    :o: the stream we break on
-    :return: the stream
+    Args:
+        o (stream): The stream we insert a newline.
 
+    Returns (stream): The stream
     """
-    if o.isatty():
-        o.write("\r\x1b[L")
+    if ostream.isatty():
+        ostream.write("\r\x1b[L")
     else:
-        o.write("\n")
-    return o
+        ostream.write("\n")
+    return ostream
 
 
 def to_utf8(text):
     """
     Convert given text to UTF-8 encoding (as far as possible).
 
-    :text:
-        Text object we wish to convert to utf8
-    :return:
+    Args:
+        text (str): Text object we wish to convert to utf8
+
+    Returns (str):
         Hopefully some text encoded in utf8, we might bail.
     """
     if not text:
@@ -91,15 +93,19 @@ def static_var(varname, value):
                 foo.bar = 1
                 return foo.bar
 
-    :varname:
-        Name of the variable
-    :value:
-        Initial value of the static variable
+    Args:
+        varname (str): The name of the static variable.
+        value: The initial value of the static variable.
+
+    Returns:
+        A decorator that adds a new attribute to the given object.
     """
+
     def decorate(func):
         """ Decorate func. """
         setattr(func, varname, value)
         return func
+
     return decorate
 
 
@@ -126,16 +132,16 @@ def phase(name, pname="FIXME: Unset"):
     from sys import stderr as o
     main_msg = "PHASE.{} '{}' {}".format(phase.counter, name, pname)
 
-    nl(o).write(main_msg + " START")
+    newline(o).write(main_msg + " START")
     o.write("\n")
     o.flush()
     try:
         yield
-        nl(o).write(main_msg + " OK")
+        newline(o).write(main_msg + " OK")
     except ProcessExecutionError as proc_ex:
         o.write("\n" + proc_ex.stderr.encode("utf8"))
-    except (OSError, ProcessExecutionError, GuardedRunException) as e:
-        o.write("\n" + str(e.stderr))
+    except (OSError, ProcessExecutionError, GuardedRunException) as os_ex:
+        o.write("\n" + str(os_ex.stderr))
         sys.stdout.write("\n" + main_msg + " FAILED")
     o.write("\n")
     o.flush()
@@ -163,9 +169,9 @@ def step(name):
     from sys import stderr as o
     main_msg = "    STEP.{} '{}'".format(step.counter, name)
 
-    nl(o).write(main_msg + " START")
+    newline(o).write(main_msg + " START")
     yield
-    nl(o).write(main_msg + " OK")
+    newline(o).write(main_msg + " OK")
     o.flush()
 
 
@@ -191,15 +197,15 @@ def substep(name):
     from sys import stdout as o
     main_msg = "        SUBSTEP.{} '{}'".format(substep.counter, name)
 
-    nl(o).write(main_msg + " START")
+    newline(o).write(main_msg + " START")
     try:
         yield
-        nl(o).write(main_msg + " OK")
-    except ProcessExecutionError as e:
-        o.write("\n" + e.stderr.encode("utf8"))
-    except (OSError, GuardedRunException) as e:
+        newline(o).write(main_msg + " OK")
+    except ProcessExecutionError as proc_ex:
+        o.write("\n" + proc_ex.stderr.encode("utf8"))
+    except (OSError, GuardedRunException) as os_ex:
         try:
-            nl(o).write("\n" + str(e))
+            newline(o).write("\n" + str(os_ex))
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
         o.write("\n" + main_msg + "FAILED")
@@ -227,15 +233,14 @@ def get_group_projects(group, experiment):
     group = []
     projects = Experiment.projects
     for name in projects:
-        p = projects[name]
+        project = projects[name]
 
-        if p.group_name == group:
+        if project.group_name == group:
             group.append(name)
     return group
 
 
 class Experiment(object):
-
     """
     A series of commands executed on a project that form an experiment.
 
@@ -257,8 +262,7 @@ class Experiment(object):
 
         config["path"] = bin_path + ":" + config["path"]
         config["ld_library_path"] = ":".join([
-            path.join(config["llvmdir"], "lib"),
-            config["ld_library_path"]
+            path.join(config["llvmdir"], "lib"), config["ld_library_path"]
         ])
 
     def __init__(self, name, projects=[], group=None):
@@ -298,57 +302,59 @@ class Experiment(object):
 
         if group:
             self.projects = {
-                k: v for k, v in self.projects.iteritems() if v.group_name == group}
+                k: v
+                for k, v in self.projects.iteritems() if v.group_name == group
+            }
 
-    def clean_project(self, p):
+    def clean_project(self, project):
         """
         Invoke the clean phase of the given project.
 
         Args:
-            p (pprof.Project): The project we want to clean.
+            project (pprof.Project): The project we want to clean.
         """
         with local.env(PPROF_ENABLE=0):
-            p.clean()
+            project.clean()
 
-    def prepare_project(self, p):
+    def prepare_project(self, project):
         """
         Invoke the prepare phase of the given project.
 
         Args:
-            p (pprof.Project): The project we want to prepare.
+            project (pprof.Project): The project we want to prepare.
         """
         with local.env(PPROF_ENABLE=0):
-            p.prepare()
+            project.prepare()
 
     @abstractmethod
-    def run_project(self, p):
+    def run_project(self, project):
         """
         Invoke the run phase of the given project.
 
         Args:
-            p (pprof.project): the project we want to run.
+            project (pprof.Project): the project we want to run.
         """
         pass
 
-    def run_this_project(self, p):
+    def run_this_project(self, project):
         """
         Execute the project wrapped in a database session.
 
         Args:
-            p - The project we wrap.
+            project (pprof.Project): The project we wrap.
         """
-        self.run_project(p)
+        self.run_project(project)
 
-    def map_projects(self, fun, p=None):
+    def map_projects(self, fun, project=None):
         """
         Map a function over all projects.
 
         Args:
-            fun - The function that is applied to all projects.
-            p - The project phase name.
+            fun: The function that is applied to all projects.
+            project (pprof.Project): The project phase name.
         """
         for project_name in self.projects:
-            with phase(p, project_name):
+            with phase(project, project_name):
                 prj = self.projects[project_name]
                 llvm_libs = path.join(config["llvmdir"], "lib")
                 ld_lib_path = config["ld_library_path"] + ":" + llvm_libs
@@ -381,15 +387,14 @@ class Experiment(object):
 
         Setup the environment and call run_project method on all projects.
         """
-        import pprof.utils.versions as v
         from datetime import datetime
         from logging import error, info
 
-        e, session = persist_experiment(self)
-        if e.begin is None:
-            e.begin = datetime.now()
+        experiment, session = persist_experiment(self)
+        if experiment.begin is None:
+            experiment.begin = datetime.now()
         else:
-            e.begin = min(e.begin, datetime.now())
+            experiment.begin = min(experiment.begin, datetime.now())
 
         try:
             with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
@@ -401,29 +406,29 @@ class Experiment(object):
             info("Shutting down.")
             print "Shutting down..."
         finally:
-            if e.end is None:
-                e.end = e.end
+            if experiment.end is None:
+                experiment.end = experiment.end
             else:
-                e.end = max(e.end, datetime.now())
+                experiment.end = max(experiment.end, datetime.now())
             session.commit()
 
 
 class RuntimeExperiment(Experiment):
-
     """ Additional runtime only features for experiments. """
 
-    def get_papi_calibration(self, p, calibrate_call):
+    def get_papi_calibration(self, project, calibrate_call):
         """
         Get calibration values for PAPI based measurements.
 
         Args:
-            p (pprof.Project):
+            project (Project):
                 Unused (deprecated).
             calibrate_call (plumbum.cmd):
                 The calibration command we will use.
         """
         with local.cwd(self.builddir):
-            with local.env(PPROF_USE_DATABASE=0, PPROF_USE_CSV=0,
+            with local.env(PPROF_USE_DATABASE=0,
+                           PPROF_USE_CSV=0,
                            PPROF_USE_FILE=0):
                 calib_out = calibrate_call()
 
@@ -451,9 +456,10 @@ class RuntimeExperiment(Experiment):
             from pprof.utils.db import create_run
             from pprof.utils import schema as s
 
-            run, session = create_run(str(cmd), project.name,
-                                      self.name, project.run_uuid)
+            run, session = create_run(
+                str(cmd), project.name, self.name, project.run_uuid)
             metric = s.Metric(name="papi.calibration.time_ns",
-                              value=calibration, run_id=run.id)
+                              value=calibration,
+                              run_id=run.id)
             session.add(metric)
             session.commit()

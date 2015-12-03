@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-
 from plumbum import cli
 from plumbum.cmd import mkdir
 from pprof.driver import PollyProfiling
@@ -14,7 +13,6 @@ import pprint
 
 @PollyProfiling.subcommand("run")
 class PprofRun(cli.Application):
-
     """ Frontend for running experiments in the pprof study framework. """
 
     _experiment_names = []
@@ -47,38 +45,46 @@ class PprofRun(cli.Application):
     def llvmdir(self, dirname):
         config["llvmdir"] = dirname
 
-    @cli.switch(["-E", "--experiment"], str, list=True,
+    @cli.switch(["-E", "--experiment"],
+                str,
+                list=True,
                 help="Specify experiments to run")
     def experiments(self, experiments):
         self._experiment_names = experiments
 
-    @cli.switch(["-D", "--description"], str,
+    @cli.switch(["-D", "--description"],
+                str,
                 help="A description for this experiment run")
     def experiment_tag(self, description):
         config["experiment_description"] = description
 
-    @cli.switch(
-        ["-P", "--project"], str, list=True, requires=["--experiment"],
-        help="Specify projects to run")
+    @cli.switch(["-P", "--project"],
+                str,
+                list=True,
+                requires=["--experiment"],
+                help="Specify projects to run")
     def projects(self, projects):
         self._project_names = projects
 
-    @cli.switch(["--list-experiments"],
-                help="List available experiments")
+    @cli.switch(["--list-experiments"], help="List available experiments")
     def list_experiments(self):
         self._list_experiments = True
 
-    @cli.switch(["-l", "--list"], requires=["--experiment"],
+    @cli.switch(["-l", "--list"],
+                requires=["--experiment"],
                 help="List available projects for experiment")
     def list(self):
         self._list = True
 
-    @cli.switch(["-k", "--keep"], requires=["--experiment"],
+    @cli.switch(["-k", "--keep"],
+                requires=["--experiment"],
                 help="Keep intermediate results")
     def keep(self):
         config["keep"] = True
 
-    @cli.switch(["-G", "--group"], str, requires=["--experiment"],
+    @cli.switch(["-G", "--group"],
+                str,
+                requires=["--experiment"],
                 help="Run a group of projects under the given experiments")
     def group(self, group):
         self._group_name = group
@@ -119,8 +125,8 @@ class PprofRun(cli.Application):
 
         if self._list:
             for exp in self._experiment_names:
-                experiment = self._experiments[exp](
-                    exp, self._project_names, self._group_name)
+                experiment = self._experiments[exp](exp, self._project_names,
+                                                    self._group_name)
                 print_projects(experiment)
             exit(0)
 
@@ -131,7 +137,10 @@ class PprofRun(cli.Application):
             # Only try to create the build dir if we're actually running some projects.
             builddir = os.path.abspath(config["builddir"])
             if not os.path.exists(builddir):
-                response = query_yes_no("The build directory {dirname} does not exist yet. Create it?".format(dirname=builddir), "no")
+                response = query_yes_no(
+                    "The build directory {dirname} does not exist yet. Create it?".format(
+                        dirname=builddir),
+                    "no")
                 if response:
                     mkdir("-p", builddir)
 
@@ -139,8 +148,8 @@ class PprofRun(cli.Application):
             print "Running experiment: " + exp_name
             name = exp_name.lower()
 
-            exp = self._experiments[name](
-                name, self._project_names, self._group_name)
+            exp = self._experiments[name](name, self._project_names,
+                                          self._group_name)
             exp.clean()
             exp.prepare()
             exp.run()
@@ -169,6 +178,8 @@ def print_projects(experiment):
         project_paragraph = ""
         for prj in projects:
             project_paragraph += ", {}".format(prj)
-        print "\n".join(wrap(project_paragraph[2:], 80, break_on_hyphens=False,
+        print "\n".join(wrap(project_paragraph[2:],
+                             80,
+                             break_on_hyphens=False,
                              break_long_words=False))
         print

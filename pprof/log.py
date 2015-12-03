@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """ Analyze the PPROF database. """
 
 from plumbum import cli
@@ -15,8 +14,7 @@ def print_runs(query):
 
     for tup in query:
         print("{} @ {} - {} id: {} group: {}".format(
-            tup.finished,
-            tup.experiment_name, tup.project_name,
+            tup.finished, tup.experiment_name, tup.project_name,
             tup.experiment_group, tup.run_group))
 
 
@@ -32,8 +30,7 @@ def print_logs(query, types=None):
     for run, log in query:
         print("{} @ {} - {} id: {} group: {} status: {}".format(
             run.finished, run.experiment_name, run.project_name,
-            run.experiment_group, run.run_group,
-            log.status))
+            run.experiment_group, run.run_group, log.status))
         print("command: {}".format(run.command))
         if "stderr" in types:
             print "StdErr:"
@@ -46,34 +43,43 @@ def print_logs(query, types=None):
 
 @PollyProfiling.subcommand("log")
 class PprofLog(cli.Application):
-
     """ Frontend command to the pprof database. """
 
-    @cli.switch(["-E", "--experiment"], str, list=True,
+    @cli.switch(["-E", "--experiment"],
+                str,
+                list=True,
                 help="Experiments to fetch the log for.")
     def experiment(self, experiments):
         """ Set the experiments to fetch the log for. """
         self._experiments = experiments
 
-    @cli.switch(["-e", "--experiment-id"], str, list=True,
+    @cli.switch(["-e", "--experiment-id"],
+                str,
+                list=True,
                 help="Experiment IDs to fetch the log for.")
     def experiment_ids(self, experiment_ids):
         """ Set the experiment ids to fetch the log for. """
         self._experiment_ids = experiment_ids
 
-    @cli.switch(["-P", "--project"], str, list=True,
+    @cli.switch(["-P", "--project"],
+                str,
+                list=True,
                 help="Projects to fetch the log for.")
     def project(self, projects):
         """ Set the projects to fetch the log for. """
         self._projects = projects
 
-    @cli.switch(["-p", "--project-id"], str, list=True,
+    @cli.switch(["-p", "--project-id"],
+                str,
+                list=True,
                 help="Project IDs to fetch the log for.")
     def project_ids(self, project_ids):
         """ Set the project ids to fetch the log for. """
         self._project_ids = project_ids
 
-    @cli.switch(["-t", "--type"], cli.Set("stdout", "stderr"), list=True,
+    @cli.switch(["-t", "--type"],
+                cli.Set("stdout", "stderr"),
+                list=True,
                 help="Set the output types to print.")
     def log_type(self, types):
         """ Set the output types to print. """

@@ -7,6 +7,7 @@ from pprof.settings import config
 from plumbum.cmd import mkdir
 import os
 
+
 def clone_or_pull(repo_dict, to_dir):
     """
     Clone or pull a repository and switch to the desired branch.
@@ -15,12 +16,11 @@ def clone_or_pull(repo_dict, to_dir):
     --rebase. In case anything goes wrong, we exit and print a simple
     diagnostic message.
 
-    :url:
-        Where is the remote repository?
-    :to_dir:
-        Where should we clone/update to?
-    :branch:
-        Which branch should we check out? Defaults to the repo's master.
+    Args:
+        url (str): Where is the remote repository?
+        to_dir (str): Where should we clone/update to?
+        branch (str): Which branch should we check out? Defaults to the repo's
+            master.
     """
 
     url = repo_dict["url"]
@@ -54,6 +54,7 @@ def clone_or_pull(repo_dict, to_dir):
             else:
                 print "{:s} has diverged from its remote.".format(to_dir)
                 exit(1)
+
     if commit_hash:
         with local.cwd(to_dir):
             # We only need to do something if we aren't already at the
@@ -61,7 +62,9 @@ def clone_or_pull(repo_dict, to_dir):
             current_hash = git("rev-parse", "--verify", "HEAD").rstrip("\n")
             if current_hash != commit_hash:
                 # Make sure we have a full history, not just depth 1
-                print("HEAD for repository {:s} is not at configured commit hash {:s}, fetching and checking out.".format(url, commit_hash))
+                print(
+                    "HEAD for repository {:s} is not at configured commit hash {:s}, fetching and checking out.".format(
+                        url, commit_hash))
                 git("fetch", "--unshallow")
                 git_checkout = git("checkout", commit_hash)
 
@@ -111,13 +114,12 @@ def configure_compiler(cmake, use_gcc):
     if cc and cpp:
         llvm_cmake = cmake
         llvm_cmake = llvm_cmake[
-            "-DCMAKE_CXX_COMPILER=" + str(cpp),
-            "-DCMAKE_C_COMPILER=" + str(cc)]
+            "-DCMAKE_CXX_COMPILER=" + str(cpp), "-DCMAKE_C_COMPILER=" + str(cc)]
     return llvm_cmake
+
 
 @PollyProfiling.subcommand("build")
 class Build(cli.Application):
-
     """ Build all dependences required to run the pprof study. """
 
     _use_make = False
@@ -127,14 +129,14 @@ class Build(cli.Application):
     _likwiddir = None
     _papidir = None
 
-    @cli.switch(
-        ["--use-make"],
-        help="Use make instead of ninja as build system")
+    @cli.switch(["--use-make"],
+                help="Use make instead of ninja as build system")
     def use_make(self):
         self._use_make = True
 
-    @cli.switch(
-        ["-j", "--jobs"], int, help="Number of jobs to use for building")
+    @cli.switch(["-j", "--jobs"],
+                int,
+                help="Number of jobs to use for building")
     def jobs(self, num):
         self._num_jobs = num
 
@@ -142,18 +144,24 @@ class Build(cli.Application):
     def use_gcc(self):
         self._use_gcc = True
 
-    @cli.switch(
-        ["-B", "--builddir"], str,
-        help="Where should we build our dependencies?",
-        mandatory=True)
+    @cli.switch(["-B", "--builddir"],
+                str,
+                help="Where should we build our dependencies?",
+                mandatory=True)
     def builddir(self, dirname):
         self._builddir = os.path.abspath(dirname)
 
-    @cli.switch(["-P", "--papidir"], str, help="Where is libPAPI?", mandatory=True)
+    @cli.switch(["-P", "--papidir"],
+                str,
+                help="Where is libPAPI?",
+                mandatory=True)
     def papidir(self, dirname):
         self._papidir = os.path.abspath(dirname)
 
-    @cli.switch(["-L", "--likwiddir"], str, help="Where is likwid?", mandatory=True)
+    @cli.switch(["-L", "--likwiddir"],
+                str,
+                help="Where is likwid?",
+                mandatory=True)
     def likwiddir(self, dirname):
         self._likwiddir = os.path.abspath(dirname)
 
@@ -203,14 +211,11 @@ class Build(cli.Application):
                 install_path = os.path.join(self._builddir, "install")
                 llvm_cmake = cmake[
                     "-DCMAKE_INSTALL_PREFIX=" + install_path,
-                    "-DCMAKE_BUILD_TYPE=Release",
-                    "-DBUILD_SHARED_LIBS=Off",
-                    "-DCMAKE_USE_RELATIVE_PATHS=On",
-                    "-DPOLLY_BUILD_POLLI=On",
+                    "-DCMAKE_BUILD_TYPE=Release", "-DBUILD_SHARED_LIBS=Off",
+                    "-DCMAKE_USE_RELATIVE_PATHS=On", "-DPOLLY_BUILD_POLLI=On",
                     "-DLLVM_TARGETS_TO_BUILD=X86",
                     "-DLLVM_BINUTILS_INCDIR=/usr/include/",
-                    "-DLLVM_ENABLE_PIC=On",
-                    "-DLLVM_ENABLE_ASSERTIONS=On",
+                    "-DLLVM_ENABLE_PIC=On", "-DLLVM_ENABLE_ASSERTIONS=On",
                     "-DCLANG_DEFAULT_OPENMP_RUNTIME=libomp",
                     "-DCMAKE_CXX_FLAGS_RELEASE='-O3 -DNDEBUG -fno-omit-frame-pointer'"]
 
@@ -243,13 +248,14 @@ class Build(cli.Application):
             clone_or_pull(config["llvm_repo"], llvm_path)
             tools_path = os.path.join(llvm_path, "tools")
             with local.cwd(tools_path):
-                clone_or_pull(
-                    config["clang_repo"], os.path.join(tools_path, "clang"))
-                clone_or_pull(
-                    config["polly_repo"], os.path.join(tools_path, "polly"))
+                clone_or_pull(config["clang_repo"],
+                              os.path.join(tools_path, "clang"))
+                clone_or_pull(config["polly_repo"],
+                              os.path.join(tools_path, "polly"))
                 polli_path = os.path.join(tools_path, "polly", "tools")
                 with (local.cwd(polli_path)):
-                    clone_or_pull(config["polli_repo"], os.path.join(polli_path, "polli"))
+                    clone_or_pull(config["polli_repo"], os.path.join(polli_path,
+                                                                     "polli"))
             clone_or_pull(config["openmp_repo"], openmp_path)
 
         self.configure_llvm(llvm_path)

@@ -22,10 +22,12 @@ class GentooGroup(Project):
 
     # download location for gentoo stage3 tarball
     day = "20151119"
-    src_uri = "http://distfiles.gentoo.org/releases/amd64/current-stage3-amd64/" + "stage3-amd64-" + day + ".tar.bz2"
+    src_uri = "http://distfiles.gentoo.org/releases/amd64/current-stage3-"\
+            "amd64/" + "stage3-amd64-" + day + ".tar.bz2"
 
     # download location for portage files
-    src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/gentoo/snapshots/portage-latest.tar.bz2"
+    src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/"\
+                    "gentoo/snapshots/portage-latest.tar.bz2"
     src_file_portage = "portage_snap.tar.bz2"
 
     # test dirs
@@ -53,7 +55,8 @@ class GentooGroup(Project):
         from plumbum.cmd import mkdir, rm, cp
         with local.cwd(self.builddir):
             with open("etc/portage/make.conf", 'w') as makeconf:
-                lines = '''# These settings were set by the catalyst build script that automatically
+                lines = '''# These settings were set by the catalyst build '''\
+                        '''script that automatically
 # built this stage.
 # Please consult /usr/share/portage/config/make.conf.example for a more
 # detailed example.
@@ -93,7 +96,13 @@ PKGDIR="${PORTDIR}/packages"'''
 
     @property
     def execWithChroot(self):
-        '''  '''
+        """
+        Returns a plumbum cmd object that allows the user to call a cmd in
+        the uchroot.
+
+        Return:
+            chroot cmd object
+        """
 
         from plumbum.cmd import binddev
         uchroot = local["./uchroot"]

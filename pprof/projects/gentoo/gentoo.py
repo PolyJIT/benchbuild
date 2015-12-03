@@ -66,8 +66,10 @@ CXXFLAGS="${CFLAGS}"
 FEATURES="-sandbox -usersandbox fakeroot -usersync -xattr"
 
 # set compiler
-CC="/usr/bin/gcc"
-CXX="/usr/bin/g++"
+#CC="/usr/bin/gcc"
+#CXX="/usr/bin/g++"
+CC="/llvm/bin/clang"
+CXX="/llvm/bin/clang++"
 #CC="/usr/bin/clang"
 #CXX="/usr/bin/clang++"
 
@@ -75,6 +77,8 @@ PORTAGE_USERNAME = "root"
 PORTAGE_GRPNAME = "root"
 PORTAGE_INST_GID = 0
 PORTAGE_INST_UID = 0
+
+LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/llvm/lib"
 
 # WARNING: Changing your CHOST is not something that should be done lightly.
 # Please consult http://www.gentoo.org/doc/en/change-chost.xml before changing.
@@ -86,7 +90,7 @@ PORTDIR="/usr/portage"
 DISTDIR="${PORTDIR}/distfiles"
 PKGDIR="${PORTDIR}/packages"'''
                 makeconf.write(lines)
-            mkdir("etc/portage/metadata")
+            mkdir("-p", "etc/portage/metadata")
             with open("etc/portage/metadata/layout.conf", 'w') as layoutconf:
                 lines = '''masters = gentoo'''
                 layoutconf.write(lines)
@@ -108,6 +112,15 @@ PKGDIR="${PORTDIR}/packages"'''
         uchroot = local["./uchroot"]
         return uchroot["-C", "-w", "/", "-r", ".", "-u", "0", "-g", "0", "--"]
 
+    @property
+    def execWithChrootJIT(self):
+        from pprof.settings import config
+        from plumbum.cmd import mkdir
+
+        mkdir("-p", "llvm")
+        uchroot = local["./uchroot"]
+        return uchroot["-C", "-w", "/", "-r", ".", "-m", config["llvmdir"] + ":llvm","-u", "0", "-g", "0", "--"]
+
 class Eix(GentooGroup):
 
     class Factory:
@@ -117,9 +130,11 @@ class Eix(GentooGroup):
     ProjectFactory.addFactory("Eix", Factory())
 
     def build(self):
+        from pprof.utils.run import run
         with local.cwd(self.builddir):
-            print self.execWithChroot["/usr/bin/emerge", "eix"]
-            self.execWithChroot("/usr/bin/emerge", "eix")
+            with local.env(CC="/usr/bin/gcc", CXX="/usr/bin/g++", USE="tinfo"):
+                run(self.execWithChrootJIT["/usr/bin/emerge", "ncurses"])
+            run(self.execWithChrootJIT["/usr/bin/emerge", "eix"])
 
     def run_tests(self, experiment):
         pass

@@ -89,11 +89,6 @@ PKGDIR="${PORTDIR}/packages"'''
                 layoutconf.write(lines)
             with open("etc/resolv.conf", 'w') as resolfconf:
                 cp("/etc/resolv.conf","etc/resolv.conf")
-                #lines = '''nameserver 132.231.51.4
-#nameserver 132.231.1.24
-#nameserver 132.231.1.19
-#search fim.uni-passau.de'''
-                #resolfconf.write(lines)
             # cp jit into gentoo
 
     @property

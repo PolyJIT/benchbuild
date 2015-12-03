@@ -28,16 +28,22 @@ from pprof.settings import config
 
 
 def lt_clang(cflags, ldflags, func=None):
-    """Return a clang that hides :cflags: and :ldflags: from reordering of
-    libtool.
+    """
+    Return a clang that hides CFLAGS and LDFLAGS.
 
-    This will generate a wrapper script in :p:'s builddir and return a path
-    to it.
+    This will generate a wrapper script in the current directory
+    and return a complete plumbum command to it.
 
-    :cflags: the cflags libtool is not allowed to see.
-    :ldflags: the ldflags libtool is not allowed to see.
-    :returns: path to the new clang.
+    Args:
+        cflags: The CFLAGS we want to hide.
+        ldflags: The LDFLAGS we want to hide.
+        func (optional): A function that will be pickled alongside the compiler.
+            It will be called before the actual compilation took place. This
+            way you can intercept the compilation process with arbitrary python
+            code.
 
+    Returns (plumbum.cmd):
+        Path to the new clang command.
     """
     from plumbum import local
 
@@ -46,16 +52,22 @@ def lt_clang(cflags, ldflags, func=None):
 
 
 def lt_clang_cxx(cflags, ldflags, func=None):
-    """Return a clang that hides :cflags: and :ldflags: from reordering of
-    libtool.
+    """
+    Return a clang++ that hides CFLAGS and LDFLAGS.
 
-    This will generate a wrapper script in :p:'s builddir and return a path
-    to it.
+    This will generate a wrapper script in the current directory
+    and return a complete plumbum command to it.
 
-    :cflags: the cflags libtool is not allowed to see.
-    :ldflags: the ldflags libtool is not allowed to see.
-    :returns: path to the new clang.
+    Args:
+        cflags: The CFLAGS we want to hide.
+        ldflags: The LDFLAGS we want to hide.
+        func (optional): A function that will be pickled alongside the compiler.
+            It will be called before the actual compilation took place. This
+            way you can intercept the compilation process with arbitrary python
+            code.
 
+    Returns (plumbum.cmd):
+        Path to the new clang command.
     """
     from plumbum import local
 
@@ -64,14 +76,21 @@ def lt_clang_cxx(cflags, ldflags, func=None):
 
 
 def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
-    """Print a libtool wrapper that hides :flags_to_hide: from libtool.
+    """
+    Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
 
-    :filepath:
-        Where should the new compiler be?
-    :flags_to_hide:
-        List of flags that should be hidden from libtool
-    :compiler:
-        The compiler we should actually call
+    This will generate a wrapper script in the current directory
+    and return a complete plumbum command to it.
+
+    Args:
+        filepath (str): Path to the wrapper script.
+        cflags (list(str)): The CFLAGS we want to hide.
+        ldflags (list(str)): The LDFLAGS we want to hide.
+        compiler (plumbum.cmd): Real compiler command we should call in the
+            script.
+
+    Returns (plumbum.cmd):
+        Command of the new compiler we can call.
     """
     from plumbum.cmd import chmod
     from cloud.serialization import cloudpickle as cp
@@ -171,10 +190,15 @@ with local.env(PPROF_DB_HOST="{db_host}",
                 else:
                     f(final_cc)
     sys.exit(retcode)
-'''.format(CC=str(compiler()), CFLAGS=cflags, LDFLAGS=ldflags,
-           blobf=blob_f, db_host=config["db_host"],
-           db_name=config["db_name"], db_user=config["db_user"],
-           db_pass=config["db_pass"], db_port=config["db_port"])
+'''.format(CC=str(compiler()),
+           CFLAGS=cflags,
+           LDFLAGS=ldflags,
+           blobf=blob_f,
+           db_host=config["db_host"],
+           db_name=config["db_name"],
+           db_user=config["db_user"],
+           db_pass=config["db_pass"],
+           db_port=config["db_port"])
         wrapper.write(lines)
         chmod("+x", filepath)
 
@@ -185,6 +209,7 @@ def llvm():
 
     Environment variable:
         PPROF_LLVM_DIR
+
     Returns:
         LLVM binary path.
     """
@@ -199,6 +224,7 @@ def llvm_libs():
 
     Environment variable:
         PPROF_LLVM_DIR
+
     Returns:
         LLVM library path.
     """

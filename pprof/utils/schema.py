@@ -7,17 +7,18 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pprof.settings import config
-from textwrap import dedent
 
-Engine = create_engine("postgresql+psycopg2://{u}:{p}@{h}:{P}/{db}".format(
-    u=config["db_user"], h=config["db_host"], P=config["db_port"],
-    p=config["db_pass"], db=config["db_name"]))
-Session = sessionmaker(bind=Engine)
+ENGINE = create_engine(
+    "postgresql+psycopg2://{u}:{p}@{h}:{P}/{db}".format(u=config["db_user"],
+                                                        h=config["db_host"],
+                                                        P=config["db_port"],
+                                                        p=config["db_pass"],
+                                                        db=config["db_name"]))
+Session = sessionmaker(bind=ENGINE)
 Base = declarative_base()
 
 
 class Run(Base):
-
     """Store a run for each executed test binary."""
 
     __tablename__ = 'run'
@@ -27,19 +28,12 @@ class Run(Base):
     project_name = Column(String, ForeignKey("project.name"), index=True)
     experiment_name = Column(String, index=True)
     run_group = Column(postgresql.UUID, index=True)
-    experiment_group = Column(postgresql.UUID, ForeignKey("experiment.id"), index=True)
+    experiment_group = Column(postgresql.UUID,
+                              ForeignKey("experiment.id"),
+                              index=True)
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
-    status = Column(Enum('completed', 'running', 'failed', name = "run_state"))
-
-    def __repr__(self):
-        return dedent(
-            """<Run(id={}, command='{}', project_name='{}',
-                    experiment_name='{}', run_group='{}',
-                    experiment_group='{}', begin='{}', end='{}')>""".format(
-            self.id, self.command, self.project_name, self.experiment_name,
-            self.run_group, self.experiment_group, self.begin, self.end)
-        )
+    status = Column(Enum('completed', 'running', 'failed', name="run_state"))
 
 
 class RunGroup(Base):
@@ -47,12 +41,14 @@ class RunGroup(Base):
 
     __tablename__ = 'rungroup'
 
-    id = Column(postgresql.UUID(as_uuid=True), primary_key=True,
-                index=True)
+    id = Column(postgresql.UUID(as_uuid=True), primary_key=True, index=True)
     project = Column(String, ForeignKey("project.name"), index=True)
-    experiment = Column(postgresql.UUID(as_uuid=True),
-                        ForeignKey("experiment.id", ondelete="CASCADE",
-                                   onupdate="CASCADE"), index=True)
+    experiment = Column(
+        postgresql.UUID(as_uuid=True),
+        ForeignKey("experiment.id",
+                   ondelete="CASCADE",
+                   onupdate="CASCADE"),
+        index=True)
 
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
@@ -60,7 +56,6 @@ class RunGroup(Base):
 
 
 class Experiment(Base):
-
     """Store metadata about experiments."""
 
     __tablename__ = 'experiment'
@@ -71,14 +66,8 @@ class Experiment(Base):
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
 
-    def __repr__(self):
-        return dedent("""<Experiment(name='{}', description='{}', begin='{}',
-                              end='{}')>""".format(
-                    self.name, self.description, self.begin, self.end))
-
 
 class Likwid(Base):
-
     """Store measurement results of likwid based experiments."""
 
     __tablename__ = 'likwid'
@@ -89,20 +78,13 @@ class Likwid(Base):
     core = Column(String, primary_key=True)
     run_id = Column(Integer,
                     ForeignKey("run.id",
-                               onupdate="CASCADE", ondelete="CASCADE"),
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
                     nullable=False,
                     primary_key=True)
 
-    def __repr__(self):
-        return dedent(
-            """<Likwid(metric='{}', region='{}', value={}, core='{}',
-                   run_id={})>""".format(
-                self.metric, self.region, self.value,
-                self.core, self.run_id))
-
 
 class Metric(Base):
-
     """Store default metrics, simple name value store."""
 
     __tablename__ = 'metrics'
@@ -111,16 +93,13 @@ class Metric(Base):
     value = Column(postgresql.DOUBLE_PRECISION)
     run_id = Column(Integer,
                     ForeignKey("run.id",
-                               onupdate="CASCADE", ondelete="CASCADE"),
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
                     index=True,
                     primary_key=True)
 
-    def __repr__(self):
-        return "<Metric(name='{}', value={}, run_id='{}')>".format(self.name, self.value, self.run_id)
-
 
 class Event(Base):
-
     """Store PAPI profiling based events."""
 
     __tablename__ = 'pprof_events'
@@ -133,18 +112,14 @@ class Event(Base):
     tid = Column(postgresql.BIGINT)
     run_id = Column(Integer,
                     ForeignKey("run.id",
-                               onupdate="CASCADE", ondelete="CASCADE"),
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
                     nullable=False,
                     index=True,
                     primary_key=True)
 
-    def __repr__(self):
-        return "<Event(name='{}', start={}, duration={}, id={}, type={}, run_id={})>".format(
-            self.name, self.start, self.duration, self.id, self.type, self.run_id)
-
 
 class Project(Base):
-
     """Store project metadata."""
 
     __tablename__ = 'project'
@@ -155,13 +130,8 @@ class Project(Base):
     domain = Column(String)
     group_name = Column(String)
 
-    def __repr__(self):
-        return "<Project(name='{}', description='{}', src_url='{}', domain'{}', group_name='{}')>".format(
-            self.name, self.description, self.src_url, self.domain, self.group_name)
-
 
 class CompileStat(Base):
-
     """Store compilestats as given by LLVM's '-stats' commoand."""
 
     __tablename__ = 'compilestats'
@@ -172,17 +142,12 @@ class CompileStat(Base):
     value = Column(postgresql.NUMERIC)
     run_id = Column(Integer,
                     ForeignKey("run.id",
-                               onupdate="CASCADE", ondelete="CASCADE"),
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
                     index=True)
-
-    def __repr__(self):
-        return dedent(
-            """<CompileStat(name='{}', component={}, value={}, run_id='{}')>
-            """.format(self.name, self.component, self.value, self.run_id))
 
 
 class RunLog(Base):
-
     """
     Store log information for every run.
 
@@ -192,8 +157,12 @@ class RunLog(Base):
 
     __tablename__ = 'log'
 
-    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), index=True, primary_key=True)
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Integer)
@@ -203,7 +172,6 @@ class RunLog(Base):
 
 
 class Metadata(Base):
-
     """
     Store metadata information for every run.
 
@@ -213,14 +181,17 @@ class Metadata(Base):
 
     __tablename__ = "metadata"
 
-    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), index=True, primary_key=True)
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
     name = Column(String)
     value = Column(String)
 
 
 class Config(Base):
-
     """
     Store customized information about a run.
 
@@ -230,13 +201,17 @@ class Config(Base):
 
     __tablename__ = 'config'
 
-    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), index=True, primary_key=True)
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)
 
-class GlobalConfig(Base):
 
+class GlobalConfig(Base):
     """
     Store customized information about a run.
 
@@ -246,13 +221,17 @@ class GlobalConfig(Base):
 
     __tablename__ = 'globalconfig'
 
-    experiment_group = Column(postgresql.UUID(as_uuid=True), ForeignKey("experiment.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), primary_key=True)
+    experiment_group = Column(
+        postgresql.UUID(as_uuid=True),
+        ForeignKey("experiment.id",
+                   onupdate="CASCADE",
+                   ondelete="CASCADE"),
+        primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)
 
-class RegressionTest(Base):
 
+class RegressionTest(Base):
     """
     Store regression tests for all projects.
 
@@ -263,15 +242,15 @@ class RegressionTest(Base):
     """
 
     __tablename__ = 'regressions'
-    run_id = Column(Integer, ForeignKey("run.id", onupdate="CASCADE",
-                    ondelete="CASCADE"), index=True, primary_key=True)
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
     name = Column(String)
     module = Column(String)
     project_name = Column(String)
 
-    def __repr__(self):
-        return dedent(
-            """<RegressionTest(name='{}', project_name={}, module=<omitted>, run_id='{}')>
-            """.format(self.name, self.project_name, self.run_id))
 
-Base.metadata.create_all(Engine, checkfirst=True)
+Base.metadata.create_all(ENGINE, checkfirst=True)

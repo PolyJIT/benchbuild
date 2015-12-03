@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Gather version information for PPROF.
+"""
 
 from plumbum import local
 from plumbum.cmd import git
@@ -13,6 +16,7 @@ def get_git_hash(from_url):
 
     Args:
         from_url: The file system url of our git repository.
+
     Returns:
         git commit hash of HEAD, or empty string.
     """
@@ -27,9 +31,9 @@ def get_git_hash(from_url):
 
 
 LLVM_VERSION = get_git_hash(config["llvm-srcdir"])
-CLANG_VERSION = get_git_hash(
-    path.join(config["llvm-srcdir"], "tools", "clang"))
-POLLY_VERSION = get_git_hash(
-    path.join(config["llvm-srcdir"], "tools", "polly"))
-POLLI_VERSION = get_git_hash(
-    path.join(config["llvm-srcdir"], "tools", "polly", "tools", "polli"))
+CLANG_VERSION = get_git_hash(path.join(config["llvm-srcdir"], "tools",
+                                       "clang"))
+POLLY_VERSION = get_git_hash(path.join(config["llvm-srcdir"], "tools",
+                                       "polly"))
+POLLI_VERSION = get_git_hash(path.join(config["llvm-srcdir"], "tools", "polly",
+                                       "tools", "polli"))

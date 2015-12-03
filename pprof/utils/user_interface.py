@@ -1,18 +1,24 @@
+"""
+User interface helpers for pprof.
+"""
 import sys
+
 
 # Taken from the following recipe: http://code.activestate.com/recipes/577058/
 def query_yes_no(question, default="yes"):
-    """Ask a yes/no question via raw_input() and return their answer.
-
-    "question" is a string that is presented to the user.
-    "default" is the presumed answer if the user just hits <Enter>.
-        It must be "yes" (the default), "no" or None (meaning
-        an answer is required of the user).
-
-    The "answer" return value is True for "yes" or False for "no".
     """
-    valid = {"yes": True, "y": True, "ye": True,
-             "no": False, "n": False}
+    Ask a yes/no question via raw_input() and return their answer.
+
+    Args:
+        question (str): Question hat is presented to the user.
+        default (str): The presumed answer, if the user just hits <Enter>.
+            It must be "yes" (the default), "no" or None (meaning
+            an answer is required of the user).
+
+    Returns (boolean):
+        True, if 'yes', False otherwise.
+    """
+    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
     if default is None:
         prompt = " [y/n] "
     elif default == "yes":
@@ -32,4 +38,3 @@ def query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
-

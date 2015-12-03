@@ -2,10 +2,21 @@
 Experiment helpers
 """
 
+
 def handle_stdin(cmd, kwargs):
     """
     Handle stdin for wrapped runtime executors.
-    :return:
+
+    This little helper checks the kwargs for a `has_stdin` key containing
+    a boolean value. If necessary it will pipe in the stdin of this process
+    into the plumbum command.
+
+    Args:
+        cmd (plumbum.cmd): Command to wrap a stdin handler around.
+        kwargs: Dictionary containing the kwargs.
+            We check for they key `has_stdin`
+
+    Returns:
         A new plumbum command that deals with stdin redirection, if needed.
     """
     assert isinstance(kwargs, dict)
@@ -24,14 +35,12 @@ def fetch_time_output(marker, format_s, ins):
     """
     Fetch the output /usr/bin/time from a.
 
-    :marker:
-        The marker that limits the time output
-    :format_s:
-        The format string used to parse the timings
-    :ins:
-        A list of lines we look for the output.
+    Args:
+        marker: The marker that limits the time output
+        format_s: The format string used to parse the timings
+        ins: A list of lines we look for the output.
 
-    :returns:
+    Returns:
         A list of timing tuples
     """
     from parse import parse
@@ -42,7 +51,6 @@ def fetch_time_output(marker, format_s, ins):
 
 
 class GuardedRunException(Exception):
-
     """
     PPROF Run exception.
 
@@ -50,17 +58,19 @@ class GuardedRunException(Exception):
     experiment.
     """
 
-    def __init__(self, what, run, session):
+    def __init__(self, what, db_run, session):
         """
         Exception raised when a binary failed to execute properly.
 
         Args:
-            what -- the original exception.
-            run -- the run during which we encountered :what.
-            session -- the db session we want to log to.
+            what: the original exception.
+            run: the run during which we encountered ``what``.
+            session: the db session we want to log to.
         """
+        super(GuardedRunException, self).__init__()
+
         self.what = what
-        self.run = run
+        self.run = db_run
 
         if isinstance(what, KeyboardInterrupt):
             session.rollback()
@@ -80,11 +90,11 @@ def begin_run_group(project):
     of runs that form a complete binary runtime test.
 
     Args:
-        project - The project we begin a new run_group for.
+        project: The project we begin a new run_group for.
 
     Returns:
-        (group, session) where group is the created group in the database and
-        session is the database session this group lives in.
+        ``(group, session)`` where group is the created group in the
+        database and session is the database session this group lives in.
     """
     from pprof.utils.db import create_run_group
     from datetime import datetime
@@ -102,8 +112,8 @@ def end_run_group(group, session):
     End the run_group successfully.
 
     Args:
-        group - The run_group we want to complete.
-        session - The database transaction we will finish.
+        group: The run_group we want to complete.
+        session: The database transaction we will finish.
     """
     from datetime import datetime
 
@@ -117,8 +127,8 @@ def fail_run_group(group, session):
     End the run_group unsuccessfully.
 
     Args:
-        group - The run_group we want to complete.
-        session - The database transaction we will finish.
+        group: The run_group we want to complete.
+        session: The database transaction we will finish.
     """
     from datetime import datetime
 
@@ -132,10 +142,10 @@ def begin(command, pname, ename, group):
     Begin a run in the database log.
 
     Args:
-        command - The command that will be executed.
-        pname - The project name we belong to.
-        ename - The experiment name we belong to.
-        group - The run group we belong to.
+        command: The command that will be executed.
+        pname: The project name we belong to.
+        ename: The experiment name we belong to.
+        group: The run group we belong to.
 
     Returns:
         (run, session), where run is the generated run instance and session the
@@ -146,11 +156,11 @@ def begin(command, pname, ename, group):
     from pprof.settings import config
     from datetime import datetime
 
-    run, session = create_run(command, pname, ename, group)
-    run.begin = datetime.now()
-    run.status = 'running'
+    db_run, session = create_run(command, pname, ename, group)
+    db_run.begin = datetime.now()
+    db_run.status = 'running'
     log = s.RunLog()
-    log.run_id = run.id
+    log.run_id = db_run.id
     log.begin = datetime.now()
     log.config = str(config)
 
@@ -160,11 +170,22 @@ def begin(command, pname, ename, group):
     return run, session
 
 
-def end(run, session, stdout, stderr):
-    """ End a run in the database log (Successfully). """
+def end(db_run, session, stdout, stderr):
+    """
+    End a run in the database log (Successfully).
+
+    This will persist the log information in the database and commit the
+    transaction.
+
+    Args:
+        db_run: The ``run`` schema object we belong to
+        session: The db transaction we belong to.
+        stdout: The stdout we captured of the run.
+        stderr: The stderr we capture of the run.
+    """
     from pprof.utils.schema import RunLog
     from datetime import datetime
-    log = session.query(RunLog).filter(RunLog.run_id == run.id).one()
+    log = session.query(RunLog).filter(RunLog.run_id == db_run.id).one()
     log.stderr = stderr
     log.stdout = stdout
     log.status = 0
@@ -175,17 +196,29 @@ def end(run, session, stdout, stderr):
     session.commit()
 
 
-def fail(run, session, retcode, stdout, stderr):
-    """ End a run in the database log (Unsuccessfully). """
+def fail(db_run, session, retcode, stdout, stderr):
+    """
+    End a run in the database log (Unsuccessfully).
+
+    This will persist the log information in the database and commit the
+    transaction.
+
+    Args:
+        db_run: The ``run`` schema object we belong to
+        session: The db transaction we belong to.
+        retcode: The return code we captured of the run.
+        stdout: The stdout we captured of the run.
+        stderr: The stderr we capture of the run.
+    """
     from pprof.utils.schema import RunLog
     from datetime import datetime
-    log = session.query(RunLog).filter(RunLog.run_id == run.id).one()
+    log = session.query(RunLog).filter(RunLog.run_id == db_run.id).one()
     log.stderr = stderr
     log.stdout = stdout
     log.status = retcode
     log.end = datetime.now()
-    run.end = datetime.now()
-    run.status = 'failed'
+    db_run.end = datetime.now()
+    db_run.status = 'failed'
     session.add(log)
     session.commit()
 
@@ -195,32 +228,33 @@ def guarded_exec(cmd, pname, ename, run_group):
     Guard the execution of the given command.
 
     Args:
-        cmd -- the command we guard.
-        pname -- the database run we run under.
-        ename -- the database session this run belongs to.
-        run_group -- the run group this execution will belong to.
+        cmd: the command we guard.
+        pname: the database run we run under.
+        ename: the database session this run belongs to.
+        run_group: the run group this execution will belong to.
 
     Raises:
-        RunException -- If the :cmd encounters an error we wrap the exception
+        RunException: If the ``cmd`` encounters an error we wrap the exception
             in a RunException and re-raise. This ends the run unsuccessfully.
     """
     from plumbum.commands import ProcessExecutionError
     from plumbum import local
     from logging import warn
 
-    run, session = begin(cmd, pname, ename, run_group)
+    db_run, session = begin(cmd, pname, ename, run_group)
     try:
-        with local.env(PPROF_DB_RUN_ID=run.id):
+        with local.env(PPROF_DB_RUN_ID=db_run.id):
             retcode, stdout, stderr = cmd.run()
-        end(run, session, stdout, stderr)
-        return (run, session, retcode, stdout, stderr)
-    except ProcessExecutionError as e:
-        fail(run, session, e.retcode, e.stdout, e.stderr)
-        raise GuardedRunException(e, run, session)
-    except KeyboardInterrupt as e:
-        fail(run, session, -1, "", "KeyboardInterrupt")
+        end(db_run, session, stdout, stderr)
+        return (db_run, session, retcode, stdout, stderr)
+    except ProcessExecutionError as proc_ex:
+        fail(db_run, session, proc_ex.retcode, proc_ex.stdout, proc_ex.stderr)
+        raise GuardedRunException(proc_ex, db_run, session)
+    except KeyboardInterrupt as key_int:
+        fail(db_run, session, -1, "", "KeyboardInterrupt")
         warn("Interrupted by user input")
-        raise e
+        raise key_int
+
 
 def run(command, retcode=0):
     """
@@ -230,10 +264,10 @@ def run(command, retcode=0):
     from plumbum import FG
     try:
         command & FG(retcode)
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt as key_int:
         error("Interrupted by user input")
-        raise e
-    except Exception as e:
+        raise key_int
+    except Exception as exception:
         error("Exception:")
-        error("   | {}".format(e))
-        raise GuardedRunException(e, None, None)
+        error("   | {}".format(exception))
+        raise GuardedRunException(exception, None, None)

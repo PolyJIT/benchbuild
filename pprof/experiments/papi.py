@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+#
 """
 PAPI based experiments.
 

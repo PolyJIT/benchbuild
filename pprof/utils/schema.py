@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Database schema for pprof."""
 
 from sqlalchemy import create_engine

@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+#
 """ Analyze the PPROF database. """
 
 from plumbum import cli

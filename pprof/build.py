@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
+#!/usr/bin/env python3
 from plumbum import cli, local, FG
 from pprof.driver import PollyProfiling
 from pprof.settings import config

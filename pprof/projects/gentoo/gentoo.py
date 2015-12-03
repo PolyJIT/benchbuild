@@ -41,7 +41,7 @@ class GentooGroup(Project):
             Wget(self.src_uri, self.src_file)
 
             # TODO replace with standart path
-            cp("/home/sattlerf/gentoo/uchroot","uchroot")
+            cp("/home/sattlerf/gentoo/uchroot_2","uchroot")
             run(fakeroot["tar", "xfj", self.src_file])
             rm(self.src_file)
             with local.cwd(self.builddir + "/usr"):
@@ -83,8 +83,6 @@ PORTDIR="/usr/portage"
 DISTDIR="${PORTDIR}/distfiles"
 PKGDIR="${PORTDIR}/packages"'''
                 makeconf.write(lines)
-            print self.builddir
-            print mkdir["etc/portage/metadata"]
             mkdir("etc/portage/metadata")
             with open("etc/portage/metadata/layout.conf", 'w') as layoutconf:
                 lines = '''masters = gentoo'''
@@ -104,7 +102,7 @@ PKGDIR="${PORTDIR}/packages"'''
 
         from plumbum.cmd import binddev
         uchroot = local["./uchroot"]
-        return binddev["-r",".","--", uchroot["-w", "/", "-r", ".", "-u", "0", "-g", "0", "--"]]
+        return uchroot["-C", "-w", "/", "-r", ".", "-u", "0", "-g", "0", "--"]
 
 class Eix(GentooGroup):
 
@@ -116,7 +114,6 @@ class Eix(GentooGroup):
 
     def build(self):
         with local.cwd(self.builddir):
-            print "Foo code"
             print self.execWithChroot["/usr/bin/emerge", "eix"]
             self.execWithChroot("/usr/bin/emerge", "eix")
 

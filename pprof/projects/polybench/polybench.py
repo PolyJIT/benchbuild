@@ -1,5 +1,5 @@
 #!/usr/bin/evn python
-# encoding: utf-8
+#
 
 from pprof.project import Project, ProjectFactory
 from pprof.settings import config

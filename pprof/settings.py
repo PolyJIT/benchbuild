@@ -10,7 +10,7 @@ import subprocess
 from datetime import datetime
 from uuid import uuid4
 from os import getenv
-import json
+
 
 def available_cpu_count():
     """
@@ -20,16 +20,16 @@ def available_cpu_count():
     user/real as output by time(1) when called with an optimally scaling
     userspace-only program.
 
-    :return:
+    Returns:
         Number of avaialable CPUs.
     """
     # cpuset
     # cpuset may restrict the number of *available* processors
     try:
-        m = re.search(r'(?m)^Cpus_allowed:\s*(.*)$',
-                      open('/proc/self/status').read())
-        if m:
-            res = bin(int(m.group(1).replace(',', ''), 16)).count('1')
+        match = re.search(r'(?m)^Cpus_allowed:\s*(.*)$',
+                          open('/proc/self/status').read())
+        if match:
+            res = bin(int(match.group(1).replace(',', ''), 16)).count('1')
             if res > 0:
                 return res
     except IOError:
@@ -45,7 +45,7 @@ def available_cpu_count():
     # http://code.google.com/p/psutil/
     try:
         import psutil
-        return psutil.cpu_count()   # psutil.NUM_CPUS on old versions
+        return psutil.cpu_count()  # psutil.NUM_CPUS on old versions
     except (ImportError, AttributeError):
         pass
 
@@ -79,10 +79,11 @@ def available_cpu_count():
 
     # BSD
     try:
-        sysctl = subprocess.Popen(['sysctl', '-n', 'hw.ncpu'],
-                                  stdout=subprocess.PIPE)
-        scStdout = sysctl.communicate()[0]
-        res = int(scStdout)
+        sysctl = subprocess.Popen(
+            ['sysctl', '-n', 'hw.ncpu'],
+            stdout=subprocess.PIPE)
+        sc_stdout = sysctl.communicate()[0]
+        res = int(sc_stdout)
 
         if res > 0:
             return res
@@ -100,10 +101,10 @@ def available_cpu_count():
 
     # Solaris
     try:
-        pseudoDevices = os.listdir('/devices/pseudo/')
+        pseudo_devs = os.listdir('/devices/pseudo/')
         res = 0
-        for pd in pseudoDevices:
-            if re.match(r'^cpuid@[0-9]+$', pd):
+        for pseudo_dev in pseudo_devs:
+            if re.match(r'^cpuid@[0-9]+$', pseudo_dev):
                 res += 1
 
         if res > 0:
@@ -116,8 +117,8 @@ def available_cpu_count():
         try:
             dmesg = open('/var/run/dmesg.boot').read()
         except IOError:
-            dmesgProcess = subprocess.Popen(['dmesg'], stdout=subprocess.PIPE)
-            dmesg = dmesgProcess.communicate()[0]
+            dmesg_proc = subprocess.Popen(['dmesg'], stdout=subprocess.PIPE)
+            dmesg = dmesg_proc.communicate()[0]
 
         res = 0
         while '\ncpu' + str(res) + ':' in dmesg:
@@ -131,13 +132,13 @@ def available_cpu_count():
     raise Exception('Can not determine number of CPUs on this system')
 
 
-def load_config(config_path, config):
+def load_config(config_path, new_config):
     """
     Load pprof's configuration from a config file.
 
     Args:
         config_path: Path where we find our configuration.
-        config: Dictionary where our configuration should be loaded into.
+        new_config: Dictionary where our configuration should be loaded into.
 
     Return:
         True, if we could load the configuration successfully.
@@ -148,188 +149,188 @@ def load_config(config_path, config):
         out_config = locs["config"]
 
         if not isinstance(out_config, dict):
-            print("Config file " + config_path + " does not specify a config object.")
+            print("Config file " + config_path +
+                  " does not specify a config object.")
             return False
 
         # Merge in only the settings that were specified
         for key in out_config.keys():
-            config[key] = out_config[key]
+            new_config[key] = out_config[key]
 
         return True
 
-config_metadata = [
+
+CONFIG_METADATA = [
     {
         "name": "sourcedir",
-        "desc": "TODO",
+        "desc": "Source directory of pprof. Usually the git repo root dir.",
         "env": "PPROF_SRC_DIR",
         "default": os.getcwd()
-    },
-    {
+    }, {
         "name": "builddir",
-        "desc": "TODO",
+        "desc": "Build directory of pprof. All intermediate projects will be"
+                "placed here",
         "env": "PPROF_OBJ_DIR",
         "default": os.path.join(os.getcwd(), "results")
-    },
-    {
+    }, {
         "name": "testdir",
-        "desc": "TODO",
+        "desc": "Additional test inputs, required for (some) run-time tests."
+                "These can be obtained from the a different repo. Most "
+                "projects don't need it",
         "env": "PPROF_TESTINPUTS",
         "default": os.path.join(os.getcwd(), "testinputs")
-    },
-    {
+    }, {
         "name": "llvmdir",
-        "desc": "TODO",
+        "desc": "Path to LLVM. This will be required.",
         "env": "PPROF_LLVM_DIR",
         "default": os.path.join(os.getcwd(), "install")
-    },
-    {
-	"name": "likwiddir",
-	"desc": "Prefix to which the likwid library was installed.",
-	"env": "PPROF_LIKWID_DIR",
-	"default": "/usr/"
-    },
-    {
+    }, {
+        "name": "likwiddir",
+        "desc": "Prefix to which the likwid library was installed.",
+        "env": "PPROF_LIKWID_DIR",
+        "default": "/usr/"
+    }, {
         "name": "tmpdir",
-        "desc": "TODO",
+        "desc": "Temporary dir. This will be used for caching downloads.",
         "env": "PPROF_TMP_DIR",
         "default": os.path.join(os.getcwd(), "tmp")
-    },
-    {
+    }, {
         "name": "path",
-        "desc": "TODO",
+        "desc": "Additional PATH variable for pprof.",
         "env": "PATH",
         "default": ""
-    },
-    {
+    }, {
         "name": "nodedir",
-        "desc": "TODO",
+        "desc":
+        "Node directory, when executing on a cluster node. This is not "
+        "used by pprof directly, but by external scripts.",
         "env": "PPROF_CLUSTER_NODEDIR",
         "default": os.path.join(os.getcwd(), "results")
-    },
-    {
+    }, {
         "name": "ld_library_path",
-        "desc": "TODO",
+        "desc": "Additional library path for pprof.",
         "env": "LD_LIBRARY_PATH",
         "default": ""
-    },
-    {
+    }, {
         "name": "jobs",
-        "desc": "TODO",
+        "desc": "Number of jobs that can be used for building and running.",
         "env": "PPROF_MAKE_JOBS",
         "default": str(available_cpu_count())
-    },
-    {
+    }, {
         "name": "experiment",
-        "desc": "TODO",
+        "desc":
+        "The experiment UUID we run everything under. This groups the project "
+        "runs in the database.",
         "env": "PPROF_EXPERIMENT_ID",
         "default": uuid4()
-    },
-    {
+    }, {
         "name": "db_host",
         "desc": "Host address of the database to connect to.",
         "env": "PPROF_DB_HOST",
         "default": "localhost"
-    },
-    {
+    }, {
         "name": "db_port",
         "desc": "Port number of the database to connect to.",
         "env": "PPROF_DB_PORT",
         "default": 5432
-    },
-    {
+    }, {
         "name": "db_name",
         "desc": "The name of the PostgreSQL database that will be used.",
         "env": "PPROF_DB_NAME",
         "default": "pprof"
-    },
-    {
+    }, {
         "name": "db_user",
-        "desc": "The name of the PostgreSQL user to connect to the database with.",
+        "desc":
+        "The name of the PostgreSQL user to connect to the database with.",
         "env": "PPROF_DB_USER",
         "default": "pprof"
-    },
-    {
+    }, {
         "name": "db_pass",
-        "desc": "The password for the PostgreSQL user used to connect to the database with.",
+        "desc":
+        "The password for the PostgreSQL user used to connect to the database with.",
         "env": "PPROF_DB_PASS",
         "default": "pprof"
-    },
-    {
+    }, {
         "name": "slurm_script",
-        "desc": "TODO",
+        "desc":
+        "Name of the script that can be passed to SLURM. Used by external tools.",
         "env": "PPROF_CLUSTER_SCRIPT_NAME",
         "default": "chimaira-slurm.sh"
-    },
-    {
+    }, {
         "name": "cpus-per-task",
-        "desc": "TODO",
+        "desc":
+        "Number of CPUs that should be requested from SLURM. Used by external tools.",
         "env": "PPROF_CLUSTER_CPUS_PER_TASK",
         "default": 10
-    },
-    {
+    }, {
         "name": "local_build",
         "env": "PPROF_CLUSTER_BUILD_LOCAL",
+        "desc": "Perform a local build on the cluster nodes.",
         "default": False
-    },
-    {
+    }, {
         "name": "account",
         "env": "PPROF_CLUSTER_ACCOUNT",
+        "desc": "The SLURM account to use by default.",
         "default": "cl"
-    },
-    {
+    }, {
         "name": "partition",
         "env": "PPROF_CLUSTER_PARTITION",
+        "desc": "The SLURM partition to use by default.",
         "default": "chimaira"
-    },
-    {
+    }, {
         "name": "llvm_repo",
-        "default": { "url": "http://llvm.org/git/llvm.git", "branch": None, "commit_hash": None }
-    },
-    {
+        "default": {"url": "http://llvm.org/git/llvm.git",
+                    "branch": None,
+                    "commit_hash": None}
+    }, {
         "name": "polly_repo",
-        "default": { "url": "http://github.com/simbuerg/polly.git", "branch": "devel", "commit_hash": None }
-    },
-    {
+        "default": {"url": "http://github.com/simbuerg/polly.git",
+                    "branch": "devel",
+                    "commit_hash": None}
+    }, {
         "name": "clang_repo",
-        "default": { "url": "http://llvm.org/git/clang.git", "branch": None, "commit_hash": None }
-    },
-    {
+        "default": {"url": "http://llvm.org/git/clang.git",
+                    "branch": None,
+                    "commit_hash": None}
+    }, {
         "name": "polli_repo",
-        "default": { "url": "http://github.com/simbuerg/polli.git", "branch": None, "commit_hash": None }
-    },
-    {
+        "default": {"url": "http://github.com/simbuerg/polli.git",
+                    "branch": None,
+                    "commit_hash": None}
+    }, {
         "name": "openmp_repo",
-        "default": { "url": "http://llvm.org/git/openmp.git", "branch": None, "commit_hash": None }
-    },
-    {
+        "default": {"url": "http://llvm.org/git/openmp.git",
+                    "branch": None,
+                    "commit_hash": None}
+    }, {
         "name": "keep",
         "default": False,
         "env": "PPROF_KEEP_RESULTS"
-    },
-    {
+    }, {
         "name": "llvm-srcdir",
         "env": "PPROF_LLVM_SRC_DIR",
         "default": os.path.join(os.getcwd(), "pprof-llvm")
-    },
-    {
+    }, {
         "name": "experiment_description",
         "env": "PPROF_EXPERIMENT_DESCRIPTION",
         "default": str(datetime.now())
-    },
-    {
+    }, {
         "name": "regression-prefix",
         "env": "PPROF_REGRESSION_PREFIX",
         "default": os.path.join("/", "tmp", "pprof-regressions")
     }
 ]
 
+
 def default_config(config_metadata):
-    config = {}
+    def_config = {}
     for setting in config_metadata:
         if "env" in setting:
-            config[setting["name"]] = getenv(setting["env"], setting["default"])
+            def_config[setting["name"]] = getenv(setting["env"],
+                                                 setting["default"])
         else:
-            config[setting["name"]] = setting["default"]
+            def_config[setting["name"]] = setting["default"]
     return config
 
-config = default_config(config_metadata)
+
+config = default_config(CONFIG_METADATA)

@@ -6,6 +6,7 @@ from pprof.driver import PollyProfiling
 from pprof.settings import config
 import os
 
+
 @PollyProfiling.subcommand("test")
 class PprofTest(cli.Application):
     """
@@ -16,38 +17,34 @@ class PprofTest(cli.Application):
     def llvmdir(self, dirname):
         config["llvmdir"] = dirname
 
-    @cli.switch(["-P", "--prefix"], str,
+    @cli.switch(["-P", "--prefix"],
+                str,
                 help="Prefix for our regression-test image.")
     def prefix(self, prefix):
         config["regression-prefix"] = os.path.abspath(prefix)
 
     def opt_flags(self):
-        return ["-load", "LLVMPolyJIT.so",
-                "-O3",
-                "-jitable",
-                "-polli",
-                "-polly-only-scop-detection",
-                "-polly-delinearize=false",
-                "-polly-detect-keep-going",
-                "-no-recompilation",
-                "-polli-analyze",
-                "-disable-output", "-stats"]
+        return ["-load", "LLVMPolyJIT.so", "-O3", "-jitable", "-polli",
+                "-polly-only-scop-detection", "-polly-delinearize=false",
+                "-polly-detect-keep-going", "-no-recompilation",
+                "-polli-analyze", "-disable-output", "-stats"]
 
     def get_check_line(self, name, module):
         from plumbum import local
         from pprof.utils.compiler import llvm, llvm_libs
-        from plumbum.cmd import sed, grep
+        from plumbum.cmd import sed
+
         with local.env(LD_LIBRARY_PATH=llvm_libs()):
             opt_binary = os.path.join(llvm(), "opt")
-            if (os.path.exists(opt_binary)):
+            if os.path.exists(opt_binary):
                 opt = local[opt_binary]
                 # Magic. ;-)
-                ret, out, err = \
+                ret, _, err = \
                     (opt[self.opt_flags()] << \
                         (sed[r"0,/\#0/s///"] << module)()).run(retcode=None)
                 if not ret == 0:
                     print("{0} is broken:".format(name))
-                    print err
+                    print(err)
 
         return """
 ; CHECK: 1 polyjit          - Number of jitable SCoPs
@@ -62,17 +59,18 @@ class PprofTest(cli.Application):
         if not os.path.exists(prefix):
             mkdir("-p", prefix)
 
-        s = Session()
-        for e in s.query(RegressionTest).order_by(RegressionTest.project_name):
-            sub_dir = os.path.join(prefix, e.project_name)
+        session = Session()
+        for elem in session.query(RegressionTest).order_by(
+                RegressionTest.project_name):
+            sub_dir = os.path.join(prefix, elem.project_name)
             if not os.path.exists(sub_dir):
                 mkdir("-p", sub_dir)
 
-            test_path = os.path.join(sub_dir, e.name + ".ll")
+            test_path = os.path.join(sub_dir, elem.name + ".ll")
             with open(test_path, 'w') as test_f:
                 test_f.write("""
 ; RUN: opt {opt_flags} < %s 2>&1 | FileCheck %s
 """.format(opt_flags=" ".join(self.opt_flags())))
-                test_f.write(self.get_check_line(test_path, e.module))
-                test_f.write(e.module)
+                test_f.write(self.get_check_line(test_path, elem.module))
+                test_f.write(elem.module)
             (sed["-i", r"0,/\#0/s///", test_path])()

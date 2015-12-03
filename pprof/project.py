@@ -8,16 +8,16 @@ from pprof.settings import config
 from pprof.utils.db import persist_project
 from abc import abstractmethod
 
-
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
 
 
-class ProjectFactory:
+class ProjectFactory(object):
     factories = {}
 
-    def addFactory(fact_id, projectFactory):
-        ProjectFactory.factories[fact_id] = projectFactory
+    def addFactory(fact_id, project_factory):
+        ProjectFactory.factories[fact_id] = project_factory
+
     addFactory = staticmethod(addFactory)
 
     def createProject(fact_id, exp):
@@ -26,11 +26,11 @@ class ProjectFactory:
                 eval(fact_id + '.Factory()')
 
         return ProjectFactory.factories[fact_id].create(exp)
+
     createProject = staticmethod(createProject)
 
 
 class Project(object):
-
     """
     pprof's Project class.
 
@@ -111,9 +111,9 @@ class Project(object):
                     end_run_group(group, session)
                 except GuardedRunException:
                     fail_run_group(group, session)
-                except KeyboardInterrupt as e:
+                except KeyboardInterrupt as key_int:
                     fail_run_group(group, session)
-                    raise e
+                    raise key_int
         if not config["keep"]:
             self.clean()
 
@@ -214,20 +214,18 @@ def wrap(name, runner):
     Returns:
         A plumbum command, ready to launch.
     """
-    from plumbum import local
     from plumbum.cmd import mv, chmod
     from cloud.serialization import cloudpickle as cp
-    from os import path
 
     name_absolute = path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
     mv(name_absolute, real_f)
 
     blob_f = name_absolute + PROJECT_BLOB_F_EXT
-    with open(blob_f, 'wb') as b:
-        b.write(cp.dumps(runner))
+    with open(blob_f, 'wb') as blob:
+        blob.write(cp.dumps(runner))
 
-    with open(name_absolute, 'w') as w:
+    with open(name_absolute, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
 # encoding: utf-8
 
@@ -267,7 +265,7 @@ if path.exists("{blobf}"):
            ld_lib_path=config["ld_library_path"],
            blobf=blob_f,
            runf=real_f)
-        w.write(lines)
+        wrapper.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
 
@@ -288,17 +286,15 @@ def wrap_dynamic(name, runner):
     Returns: plumbum command, readty to launch.
 
     """
-    from plumbum import local
     from plumbum.cmd import chmod
     from cloud.serialization import cloudpickle as cp
-    from os import path
 
     name_absolute = path.abspath(name)
     blob_f = name_absolute + PROJECT_BLOB_F_EXT
-    with open(blob_f, 'wb') as b:
-        b.write(cp.dumps(runner))
+    with open(blob_f, 'wb') as blob:
+        blob.write(cp.dumps(runner))
 
-    with open(name_absolute, 'w') as w:
+    with open(name_absolute, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
 # encoding: utf-8
 
@@ -352,6 +348,6 @@ if path.exists("{blobf}"):
            likwiddir=config["likwiddir"],
            ld_lib_path=config["ld_library_path"],
            blobf=blob_f)
-        w.write(lines)
+        wrapper.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]

@@ -10,13 +10,12 @@ from plumbum import FG, local
 
 
 class Minisat(PprofGroup):
-
     """ minisat benchmark """
 
     class Factory:
-
         def create(self, exp):
             return Minisat(exp, "minisat", "verification")
+
     ProjectFactory.addFactory("Minisat", Factory())
 
     def run_tests(self, experiment):
@@ -26,14 +25,16 @@ class Minisat(PprofGroup):
         minisat_dir = path.join(self.builddir, self.src_dir)
 
         exp = wrap(
-            path.join(minisat_dir, "build", "dynamic", "bin", "minisat"), experiment)
+            path.join(minisat_dir, "build", "dynamic", "bin", "minisat"),
+            experiment)
 
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
         minisat_dir = path.join(self.builddir, self.src_dir)
         minisat_lib_path = path.join(minisat_dir, "build", "dynamic", "lib")
 
         for test_f in testfiles:
-            with local.env(LD_LIBRARY_PATH=minisat_lib_path + ":" + getenv("LD_LIBRARY_PATH", "")):
+            with local.env(LD_LIBRARY_PATH=minisat_lib_path + ":" + getenv(
+                    "LD_LIBRARY_PATH", "")):
                 run((exp < test_f), None)
 
     src_dir = "minisat.git"
@@ -69,6 +70,5 @@ class Minisat(PprofGroup):
                                  self.compiler_extension)
 
         with local.cwd(minisat_dir):
-            run(make["CC=" + str(clang),
-                     "CXX=" + str(clang_cxx),
-                     "clean", "lsh", "sh"])
+            run(make["CC=" + str(clang), "CXX=" + str(clang_cxx), "clean",
+                     "lsh", "sh"])

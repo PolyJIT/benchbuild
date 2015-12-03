@@ -10,13 +10,12 @@ from plumbum import local
 
 
 class Lammps(PprofGroup):
-
     """ LAMMPS benchmark """
 
     class Factory:
-
         def create(self, exp):
             return Lammps(exp, "lammps", "scientific")
+
     ProjectFactory.addFactory("Lammps", Factory())
 
     def prepare(self):
@@ -64,7 +63,5 @@ class Lammps(PprofGroup):
 
         with local.cwd(path.join(self.builddir, self.src_dir, "src")):
             run(make[
-                "CC=" + str(clang_cxx),
-                "LINK=" + str(clang_cxx),
-                "clean", "serial"
-            ])
+                "CC=" + str(clang_cxx), "LINK=" + str(
+                    clang_cxx), "clean", "serial"])

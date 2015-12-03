@@ -114,7 +114,8 @@ def configure_compiler(cmake, use_gcc):
     if cc and cpp:
         llvm_cmake = cmake
         llvm_cmake = llvm_cmake[
-            "-DCMAKE_CXX_COMPILER=" + str(cpp), "-DCMAKE_C_COMPILER=" + str(cc)]
+            "-DCMAKE_CXX_COMPILER=" + str(cpp), "-DCMAKE_C_COMPILER=" + str(
+                cc)]
     return llvm_cmake
 
 
@@ -254,8 +255,8 @@ class Build(cli.Application):
                               os.path.join(tools_path, "polly"))
                 polli_path = os.path.join(tools_path, "polly", "tools")
                 with (local.cwd(polli_path)):
-                    clone_or_pull(config["polli_repo"], os.path.join(polli_path,
-                                                                     "polli"))
+                    clone_or_pull(config["polli_repo"],
+                                  os.path.join(polli_path, "polli"))
             clone_or_pull(config["openmp_repo"], openmp_path)
 
         self.configure_llvm(llvm_path)

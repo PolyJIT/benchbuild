@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """
 The 'polly-openmp-vectorize' Experiment.
 
@@ -24,7 +23,6 @@ from os import path
 
 
 class PollyOpenMPVectorizer(RuntimeExperiment):
-
     """Timing experiment with Polly & OpenMP+Vectorizer support."""
 
     def run_project(self, p):
@@ -33,12 +31,9 @@ class PollyOpenMPVectorizer(RuntimeExperiment):
 
         llvm_libs = path.join(config["llvmdir"], "lib")
         p.ldflags = ["-L" + llvm_libs, "-lgomp"]
-        p.cflags = ["-O3",
-                    "-Xclang", "-load",
-                    "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polly",
-                    "-mllvm", "-polly-parallel",
-                    "-mllvm", "-polly-vectorizer=stripmine"]
+        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                    "-mllvm", "-polly", "-mllvm", "-polly-parallel", "-mllvm",
+                    "-polly-vectorizer=stripmine"]
 
         for i in range(1, int(config["jobs"]) + 1):
             p.run_uuid = uuid4()

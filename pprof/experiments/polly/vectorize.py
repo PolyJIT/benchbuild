@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """
 The 'polly-vectorize' Experiment
 ====================
@@ -25,7 +24,6 @@ from os import path
 
 
 class PollyVectorizer(RuntimeExperiment):
-
     """ The polly experiment with vectorization enabled. """
 
     def run_project(self, p):
@@ -34,11 +32,9 @@ class PollyVectorizer(RuntimeExperiment):
 
         llvm_libs = path.join(config["llvmdir"], "lib")
         p.ldflags = ["-L" + llvm_libs]
-        p.cflags = ["-O3",
-                    "-Xclang", "-load",
-                    "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polly",
-                    "-mllvm", "-polly-vectorizer=stripmine"]
+        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                    "-mllvm", "-polly", "-mllvm",
+                    "-polly-vectorizer=stripmine"]
 
         for i in range(1, int(config["jobs"]) + 1):
             p.run_uuid = uuid4()

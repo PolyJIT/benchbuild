@@ -12,13 +12,12 @@ from plumbum.cmd import make
 
 
 class LibAV(PprofGroup):
-
     """ LibAV benchmark """
 
     class Factory:
-
         def create(self, exp):
             return LibAV(exp, "ffmpeg", "multimedia")
+
     ProjectFactory.addFactory("LibAV", Factory())
 
     src_dir = "ffmpeg-2.6.3"
@@ -54,12 +53,12 @@ class LibAV(PprofGroup):
 
         libav_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
         with local.cwd(libav_dir):
             configure = local["./configure"]
-            run(configure["--disable-shared",
-                          "--cc=" + str(clang),
-                          "--extra-ldflags=" + " ".join(self.ldflags),
+            run(configure["--disable-shared", "--cc=" + str(
+                clang), "--extra-ldflags=" + " ".join(self.ldflags),
                           "--samples=" + self.fate_dir])
 
     def build(self):

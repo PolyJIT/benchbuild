@@ -9,13 +9,12 @@ from plumbum import local
 
 
 class SQLite3(PprofGroup):
-
     """ SQLite3 """
 
     class Factory:
-
         def create(self, exp):
             return SQLite3(exp, "sqlite3", "database")
+
     ProjectFactory.addFactory("SQLite3", Factory())
 
     src_dir = "sqlite-amalgamation-3080900"
@@ -45,8 +44,8 @@ class SQLite3(PprofGroup):
 
         with local.cwd(sqlite_dir):
             run(clang["-fPIC", "-I.", "-c", "sqlite3.c"])
-            run(clang["-shared", "-Wl,-soname,libsqlite3.so.0",
-                      "-o", "libsqlite3.so", "sqlite3.o", "-ldl"])
+            run(clang["-shared", "-Wl,-soname,libsqlite3.so.0", "-o",
+                      "libsqlite3.so", "sqlite3.o", "-ldl"])
 
         with local.cwd(self.builddir):
             self.build_leveldb()
@@ -72,8 +71,7 @@ class SQLite3(PprofGroup):
         clang = lt_clang(self.cflags, self.ldflags)
 
         with local.cwd(leveldb_dir):
-            with local.env(CXX=str(clang_cxx),
-                           CC=str(clang)):
+            with local.env(CXX=str(clang_cxx), CC=str(clang)):
                 run(make["clean", "db_bench_sqlite3"])
 
     def run_tests(self, experiment):

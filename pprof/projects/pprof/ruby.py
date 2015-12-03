@@ -10,11 +10,10 @@ from plumbum import local
 
 
 class Ruby(PprofGroup):
-
     class Factory:
-
         def create(self, exp):
             return Ruby(exp, "ruby", "compilation")
+
     ProjectFactory.addFactory("Ruby", Factory())
 
     src_dir = "ruby-2.2.2"
@@ -34,8 +33,7 @@ class Ruby(PprofGroup):
         from pprof.utils.run import run
 
         ruby_dir = path.join(self.builddir, self.src_dir)
-        clang = lt_clang(self.cflags, self.ldflags,
-                         self.compiler_extension)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                  self.compiler_extension)
         with local.cwd(ruby_dir):
@@ -61,8 +59,7 @@ class Ruby(PprofGroup):
 
         with local.env(RUBYOPT=""):
             run(ruby[path.join(self.testdir, "benchmark", "run.rb"),
-                     "--ruby=\"" + str(exp) + "\"",
-                     "--opts=\"-I" + path.join(self.testdir, "lib") +
-                     " -I" + path.join(self.testdir, ".") +
-                     " -I" + path.join(self.testdir, ".ext", "common") +
-                     "\"", "-r"])
+                     "--ruby=\"" + str(exp) + "\"", "--opts=\"-I" + path.join(
+                         self.testdir, "lib") + " -I" + path.join(
+                             self.testdir, ".") + " -I" + path.join(
+                                 self.testdir, ".ext", "common") + "\"", "-r"])

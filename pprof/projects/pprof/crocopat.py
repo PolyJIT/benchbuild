@@ -11,13 +11,12 @@ from plumbum.cmd import cat
 
 
 class Crocopat(PprofGroup):
-
     """ crocopat benchmark """
 
     class Factory:
-
         def create(self, exp):
             return Crocopat(exp, "crocopat", "verification")
+
     ProjectFactory.addFactory("Crocopat", Factory())
 
     def run_tests(self, experiment):

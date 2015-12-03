@@ -9,11 +9,10 @@ from plumbum import local
 
 
 class TCC(PprofGroup):
-
     class Factory:
-
         def create(self, exp):
             return TCC(exp, "tcc", "compilation")
+
     ProjectFactory.addFactory("TCC", Factory())
 
     src_dir = "tcc-0.9.26"
@@ -37,11 +36,11 @@ class TCC(PprofGroup):
 
         with local.cwd(self.builddir):
             mkdir("build")
-            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
         with local.cwd(path.join(self.builddir, "build")):
             configure = local[path.join(tcc_dir, "configure")]
-            run(configure["--cc=" + str(clang),
-                          "--libdir=/usr/lib64"])
+            run(configure["--cc=" + str(clang), "--libdir=/usr/lib64"])
 
     def build(self):
         from plumbum.cmd import make

@@ -16,7 +16,6 @@ from pprof.utils.schema import CompileStat
 
 
 class CompilestatsExperiment(RuntimeExperiment):
-
     """The compilestats experiment."""
 
     def extra_ldflags(self):
@@ -61,8 +60,9 @@ class CompilestatsExperiment(RuntimeExperiment):
                             c.component = stat["component"].rstrip()
                             c.value = stat["value"]
                             stats.append(c)
-                        self.persist_run(str(new_cc), p.name, p.run_uuid,
-                                         stats)
+                        self.persist_run(
+                            str(new_cc), p.name, p.run_uuid, stats)
+
                 p.compiler_extension = track_compilestats
                 p.configure()
             with substep("Build Project"):

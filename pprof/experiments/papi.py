@@ -72,20 +72,16 @@ def run_with_time(run_f, args, **kwargs):
 
     run, session, retcode, stdout, stderr = \
         r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
-    timings = r.fetch_time_output(
-        timing_tag, timing_tag + "{:g}-{:g}-{:g}",
-        stderr.split("\n"))
+    timings = r.fetch_time_output(timing_tag, timing_tag + "{:g}-{:g}-{:g}",
+                                  stderr.split("\n"))
     if len(timings) == 0:
         return
 
     persist_time(run, session, timings)
-    persist_config(run, session, {
-        "cores": str(jobs)
-    })
+    persist_config(run, session, {"cores": str(jobs)})
 
 
 class PapiScopCoverage(RuntimeExperiment):
-
     """PAPI-based dynamic SCoP coverage measurement."""
 
     def run(self):
@@ -115,16 +111,14 @@ class PapiScopCoverage(RuntimeExperiment):
             p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
 
-            ld_lib_path = [_f for _f in config["ld_library_path"].split(":") if _f]
+            ld_lib_path = [_f
+                           for _f in config["ld_library_path"].split(":")
+                           if _f]
             p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
-            p.cflags = ["-O3",
-                        "-Xclang", "-load",
-                        "-Xclang", "LLVMPolyJIT.so",
-                        "-mllvm", "-polli",
-                        "-mllvm", "-jitable",
-                        "-mllvm", "-instrument",
-                        "-mllvm", "-no-recompilation",
-                        "-mllvm", "-polly-detect-keep-going"]
+            p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                        "-mllvm", "-polli", "-mllvm", "-jitable", "-mllvm",
+                        "-instrument", "-mllvm", "-no-recompilation", "-mllvm",
+                        "-polly-detect-keep-going"]
             with substep("reconf & rebuild"):
                 with local.env(PPROF_ENABLE=0):
                     p.configure()
@@ -146,7 +140,6 @@ class PapiScopCoverage(RuntimeExperiment):
 
 
 class PapiStandardScopCoverage(PapiScopCoverage):
-
     """PAPI Scop Coverage, without JIT."""
 
     def run_project(self, p):
@@ -162,15 +155,14 @@ class PapiStandardScopCoverage(PapiScopCoverage):
             p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
 
-            ld_lib_path = [_f for _f in config["ld_library_path"].split(":") if _f]
+            ld_lib_path = [_f
+                           for _f in config["ld_library_path"].split(":")
+                           if _f]
             p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
-            p.cflags = ["-O3",
-                        "-Xclang", "-load",
-                        "-Xclang", "LLVMPolyJIT.so",
-                        "-mllvm", "-polli",
-                        "-mllvm", "-instrument",
-                        "-mllvm", "-no-recompilation",
-                        "-mllvm", "-polly-detect-keep-going"]
+            p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                        "-mllvm", "-polli", "-mllvm", "-instrument", "-mllvm",
+                        "-no-recompilation", "-mllvm",
+                        "-polly-detect-keep-going"]
             with substep("reconf & rebuild"):
                 with local.env(PPROF_ENABLE=0):
                     p.configure()

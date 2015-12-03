@@ -11,13 +11,12 @@ from plumbum import local
 
 # git clone git://rasdaman.org/rasdaman.git
 class Rasdaman(PprofGroup):
-
     """ Rasdaman """
 
     class Factory:
-
         def create(self, exp):
             return Rasdaman(exp, "Rasdaman", "database")
+
     ProjectFactory.addFactory("Rasdaman", Factory())
 
     src_dir = "rasdaman.git"
@@ -49,12 +48,9 @@ class Rasdaman(PprofGroup):
             configure = local["./configure"]
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                run(configure["--with-pic",
-                              "--enable-static",
-                              "--disable-debug",
-                              "--with-gnu-ld",
-                              "--without-ld-shared",
-                              "--without-libtool"])
+                run(configure["--with-pic", "--enable-static",
+                              "--disable-debug", "--with-gnu-ld",
+                              "--without-ld-shared", "--without-libtool"])
                 run(make["-j", config["jobs"]])
 
         with local.cwd(rasdaman_dir):
@@ -62,12 +58,9 @@ class Rasdaman(PprofGroup):
             configure = local["./configure"]
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                run(configure["--without-debug-symbols",
-                              "--enable-benchmark",
-                              "--with-static-libs",
-                              "--disable-java",
-                              "--with-pic",
-                              "--disable-debug",
+                run(configure["--without-debug-symbols", "--enable-benchmark",
+                              "--with-static-libs", "--disable-java",
+                              "--with-pic", "--disable-debug",
                               "--without-docs"])
 
     def build(self):

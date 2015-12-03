@@ -9,16 +9,15 @@ from plumbum import local
 
 
 class XZ(PprofGroup):
-
     """ XZ """
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
 
     class Factory:
-
         def create(self, exp):
             return XZ(exp, "xz", "compression")
+
     ProjectFactory.addFactory("XZ", Factory())
 
     def prepare(self):
@@ -70,16 +69,12 @@ class XZ(PprofGroup):
         with local.cwd(xz_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang)):
-                run(configure["--enable-threads=no",
-                              "--with-gnu-ld=yes",
+                run(configure["--enable-threads=no", "--with-gnu-ld=yes",
                               "--disable-shared",
                               "--disable-dependency-tracking",
-                              "--disable-xzdec",
-                              "--disable-lzmadec",
-                              "--disable-lzmainfo",
-                              "--disable-lzma-links",
-                              "--disable-scripts",
-                              "--disable-doc"])
+                              "--disable-xzdec", "--disable-lzmadec",
+                              "--disable-lzmainfo", "--disable-lzma-links",
+                              "--disable-scripts", "--disable-doc"])
 
     def build(self):
         from plumbum.cmd import make

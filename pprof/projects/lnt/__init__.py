@@ -1,1 +1,1 @@
-import lnt
+from . import lnt

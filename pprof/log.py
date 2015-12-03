@@ -13,9 +13,9 @@ def print_runs(query):
         return
 
     for tup in query:
-        print("{} @ {} - {} id: {} group: {}".format(
+        print(("{} @ {} - {} id: {} group: {}".format(
             tup.finished, tup.experiment_name, tup.project_name,
-            tup.experiment_group, tup.run_group))
+            tup.experiment_group, tup.run_group)))
 
 
 def print_logs(query, types=None):
@@ -28,17 +28,17 @@ def print_logs(query, types=None):
     query = query.filter(RunLog.status != 0)
 
     for run, log in query:
-        print("{} @ {} - {} id: {} group: {} status: {}".format(
+        print(("{} @ {} - {} id: {} group: {} status: {}".format(
             run.finished, run.experiment_name, run.project_name,
-            run.experiment_group, run.run_group, log.status))
-        print("command: {}".format(run.command))
+            run.experiment_group, run.run_group, log.status)))
+        print(("command: {}".format(run.command)))
         if "stderr" in types:
-            print "StdErr:"
-            print(log.stderr)
+            print("StdErr:")
+            print((log.stderr))
         if "stdout" in types:
-            print "StdOut:"
-            print(log.stdout)
-        print
+            print("StdOut:")
+            print((log.stdout))
+        print()
 
 
 @PollyProfiling.subcommand("log")

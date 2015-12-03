@@ -47,7 +47,7 @@ def fetch_time_output(marker, format_s, ins):
 
     timings = [x for x in ins if marker in x]
     res = [parse(format_s, t) for t in timings]
-    return filter(None, res)
+    return [_f for _f in res if _f]
 
 
 class GuardedRunException(Exception):

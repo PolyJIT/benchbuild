@@ -54,4 +54,4 @@ class PprofGenConfig(cli.Application):
                 outfile.write("#config[" + repr(setting["name"]) + "] = \n")
                 outfile.write("\n\n")
 
-        print("Configuration file has been written to " + self._outpath)
+        print(("Configuration file has been written to " + self._outpath))

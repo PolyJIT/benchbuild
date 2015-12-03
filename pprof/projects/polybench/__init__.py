@@ -1,1 +1,1 @@
-import polybench
+from . import polybench

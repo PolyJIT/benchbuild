@@ -116,11 +116,11 @@ class PprofRun(cli.Application):
         }
 
         if self._list_experiments:
-            for experiment_name, experiment in self._experiments.items():
+            for experiment_name, experiment in list(self._experiments.items()):
                 print(experiment_name)
                 docstring = experiment.__doc__ or "-- no docstring --"
                 docstring = docstring.strip()
-                print("    " + docstring)
+                print(("    " + docstring))
             exit(0)
 
         if self._list:
@@ -130,7 +130,7 @@ class PprofRun(cli.Application):
                 print_projects(experiment)
             exit(0)
 
-        print "Configuration: "
+        print("Configuration: ")
         pprint.pprint(config)
 
         if self._project_names:
@@ -145,7 +145,7 @@ class PprofRun(cli.Application):
                     mkdir("-p", builddir)
 
         for exp_name in self._experiment_names:
-            print "Running experiment: " + exp_name
+            print("Running experiment: " + exp_name)
             name = exp_name.lower()
 
             exp = self._experiments[name](name, self._project_names,
@@ -173,13 +173,13 @@ def print_projects(experiment):
 
     for name in grouped_by:
         from textwrap import wrap
-        print ">> {}".format(name)
+        print(">> {}".format(name))
         projects = sorted(grouped_by[name])
         project_paragraph = ""
         for prj in projects:
             project_paragraph += ", {}".format(prj)
-        print "\n".join(wrap(project_paragraph[2:],
+        print("\n".join(wrap(project_paragraph[2:],
                              80,
                              break_on_hyphens=False,
-                             break_long_words=False))
-        print
+                             break_long_words=False)))
+        print()

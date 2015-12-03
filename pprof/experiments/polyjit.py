@@ -10,12 +10,11 @@ from pprof.experiments.compilestats import get_compilestats
 from pprof.experiment import step, substep, static_var, RuntimeExperiment
 from pprof.project import Project
 from pprof.experiment import Experiment
-from pprof.settings import config
 from pprof.utils.schema import CompileStat
 
 from plumbum import local
-from os import path
 from abc import abstractmethod
+from os import path
 
 
 @static_var("config", None)
@@ -37,25 +36,28 @@ def run_raw(run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.utils import run as r
+    from pprof.settings import config
 
-    p = run_raw.project
-    e = run_raw.experiment
-    c = run_raw.config
+    project = run_raw.project
+    experiment = run_raw.experiment
+    cfg = run_raw.config
 
-    config.update(c)
+    config.update(cfg)
 
-    assert p is not None, "run_raw.project attribute is None."
-    assert e is not None, "run_raw.experiment attribute is None."
-    assert c is not None, "run_raw.config attribute is None."
-    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
-    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+    assert project is not None, "run_raw.project attribute is None."
+    assert experiment is not None, "run_raw.experiment attribute is None."
+    assert cfg is not None, "run_raw.config attribute is None."
+    assert isinstance(project,
+                      Project), "Wrong type: %r Want: Project" % project
+    assert isinstance(
+        experiment, Experiment), "Wrong type: %r Want: Experiment" % experiment
+    assert isinstance(cfg, dict), "Wrong type: %r Want: dict" % cfg
 
-    project_name = kwargs.get("project_name", p.name)
+    project_name = kwargs.get("project_name", project.name)
 
     run_cmd = local[run_f]
     run_cmd = r.handle_stdin(run_cmd[args], kwargs)
-    r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
+    r.guarded_exec(run_cmd, project_name, experiment.name, project.run_uuid)
 
 
 @static_var("config", None)
@@ -84,31 +86,32 @@ def run_with_papi(run_f, args, **kwargs):
     from pprof.utils.db import persist_config
     from pprof.settings import config
 
-    p = run_with_papi.project
-    e = run_with_papi.experiment
-    c = run_with_papi.config
+    project = run_with_papi.project
+    experiment = run_with_papi.experiment
+    cfg = run_with_papi.config
     jobs = run_with_papi.jobs
 
-    config.update(c)
+    config.update(cfg)
 
-    assert p is not None, "run_with_likwid.project attribute is None."
-    assert e is not None, "run_with_likwid.experiment attribute is None."
-    assert c is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
-    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: Experiment" % e
+    assert project is not None, "run_with_likwid.project attribute is None."
+    assert experiment is not None, "run_with_likwid.experiment attribute is None."
+    assert cfg is not None, "run_with_likwid.config attribute is None."
+    assert isinstance(project,
+                      Project), "Wrong type: %r Want: Project" % project
+    assert isinstance(
+        experiment, Experiment), "Wrong type: %r Want: Experiment" % experiment
+    assert isinstance(cfg, dict), "Wrong type: %r Want: dict" % cfg
 
-    project_name = kwargs.get("project_name", p.name)
+    project_name = kwargs.get("project_name", project.name)
 
     run_cmd = r.handle_stdin(run_f[args], kwargs)
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
         run, session, _, _, _ = \
-            r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
+            r.guarded_exec(run_cmd, project_name, experiment.name,
+                           project.run_uuid)
 
-    persist_config(run, session, {
-        "cores": str(jobs)
-    })
+    persist_config(run, session, {"cores": str(jobs)})
 
 
 @static_var("config", None)
@@ -136,27 +139,28 @@ def run_with_likwid(run_f, args, **kwargs):
     from pprof.settings import config
     from plumbum.cmd import rm
 
-    p = run_with_likwid.project
-    e = run_with_likwid.experiment
-    c = run_with_likwid.config
+    project = run_with_likwid.project
+    experiment = run_with_likwid.experiment
+    cfg = run_with_likwid.config
     jobs = run_with_likwid.jobs
 
-    config.update(c)
+    config.update(cfg)
 
-    assert p is not None, "run_with_likwid.project attribute is None."
-    assert e is not None, "run_with_likwid.experiment attribute is None."
-    assert c is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
-    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: Experiment" % e
+    assert project is not None, "run_with_likwid.project attribute is None."
+    assert experiment is not None, "run_with_likwid.experiment attribute is None."
+    assert cfg is not None, "run_with_likwid.config attribute is None."
+    assert isinstance(project,
+                      Project), "Wrong type: %r Want: Project" % project
+    assert isinstance(
+        experiment, Experiment), "Wrong type: %r Want: Experiment" % experiment
+    assert isinstance(cfg, dict), "Wrong type: %r Want: Experiment" % cfg
 
-    project_name = kwargs.get("project_name", p.name)
+    project_name = kwargs.get("project_name", project.name)
     likwid_f = project_name + ".txt"
 
     for group in ["CLOCK"]:
-        likwid_path = path.join(c["likwiddir"], "bin")
-        likwid_perfctr = local[
-            path.join(likwid_path, "likwid-perfctr")]
+        likwid_path = path.join(cfg["likwiddir"], "bin")
+        likwid_perfctr = local[path.join(likwid_path, "likwid-perfctr")]
         run_cmd = \
             likwid_perfctr["-O", "-o", likwid_f, "-m",
                            "-C", "0-{:d}".format(jobs),
@@ -165,7 +169,8 @@ def run_with_likwid(run_f, args, **kwargs):
 
         with local.env(POLLI_ENABLE_LIKWID=1):
             run, session, _, _, _ = \
-                r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
+                r.guarded_exec(run_cmd, project_name, experiment.name,
+                               project.run_uuid)
 
         likwid_measurement = get_likwid_perfctr(likwid_f)
         """ Use the project_name from the binary, because we
@@ -200,23 +205,26 @@ def run_with_time(run_f, args, **kwargs):
     """
     from pprof.utils import run as r
     from pprof.utils.db import persist_time, persist_config
+    from pprof.settings import config
     from plumbum.cmd import time
 
-    p = run_with_time.project
-    e = run_with_time.experiment
-    c = run_with_time.config
+    project = run_with_time.project
+    experiment = run_with_time.experiment
+    cfg = run_with_time.config
     jobs = run_with_time.jobs
 
-    config.update(c)
+    config.update(cfg)
 
-    assert p is not None, "run_with_likwid.project attribute is None."
-    assert e is not None, "run_with_likwid.experiment attribute is None."
-    assert c is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
-    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+    assert project is not None, "run_with_likwid.project attribute is None."
+    assert experiment is not None, "run_with_likwid.experiment attribute is None."
+    assert cfg is not None, "run_with_likwid.config attribute is None."
+    assert isinstance(project,
+                      Project), "Wrong type: %r Want: Project" % project
+    assert isinstance(
+        experiment, Experiment), "Wrong type: %r Want: Experiment" % experiment
+    assert isinstance(cfg, dict), "Wrong type: %r Want: dict" % cfg
 
-    project_name = kwargs.get("project_name", p.name)
+    project_name = kwargs.get("project_name", project.name)
     timing_tag = "PPROF-JIT: "
 
     run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
@@ -224,17 +232,15 @@ def run_with_time(run_f, args, **kwargs):
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
         run, session, _, _, stderr = \
-            r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
+            r.guarded_exec(run_cmd, project_name, experiment.name,
+                           project.run_uuid)
         timings = r.fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}",
-            stderr.split("\n"))
+            timing_tag, timing_tag + "{:g}-{:g}-{:g}", stderr.split("\n"))
         if len(timings) == 0:
             return
 
     persist_time(run, session, timings)
-    persist_config(run, session, {
-        "cores": str(jobs)
-    })
+    persist_config(run, session, {"cores": str(jobs)})
 
 
 @static_var("config", None)
@@ -258,34 +264,35 @@ def run_with_perf(run_f, args, **kwargs):
     """
     from pprof.utils import run as r
     from pprof.utils.db import persist_perf, persist_config
+    from pprof.settings import config
     from plumbum.cmd import perf
-    from plumbum import FG, local
-    from os import path
 
-    p = run_with_perf.project
-    e = run_with_perf.experiment
-    c = run_with_perf.config
+    project = run_with_perf.project
+    experiment = run_with_perf.experiment
+    cfg = run_with_perf.config
     jobs = run_with_perf.jobs
 
-    config.update(c)
+    config.update(cfg)
 
-    assert p is not None, "run_with_likwid.project attribute is None."
-    assert e is not None, "run_with_likwid.experiment attribute is None."
-    assert c is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
-    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+    assert project is not None, "run_with_likwid.project attribute is None."
+    assert experiment is not None, "run_with_likwid.experiment attribute is None."
+    assert cfg is not None, "run_with_likwid.config attribute is None."
+    assert isinstance(project,
+                      Project), "Wrong type: %r Want: Project" % project
+    assert isinstance(
+        experiment, Experiment), "Wrong type: %r Want: Experiment" % experiment
+    assert isinstance(cfg, dict), "Wrong type: %r Want: dict" % cfg
 
-    project_name = kwargs.get("project_name", p.name)
+    project_name = kwargs.get("project_name", project.name)
     run_cmd = local[run_f]
     run_cmd = r.handle_stdin(run_cmd[args], kwargs)
     run_cmd = perf["record", "-q", "-F", 6249, "-g", run_cmd]
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
-        run_cmd & FG
-        run, session, _, _, stderr = \
-            r.guarded_exec(local["/bin/true"], project_name, e.name,
-                           p.run_uuid)
+        run_cmd()
+        run, session, _, _, _ = \
+            r.guarded_exec(local["/bin/true"], project_name, experiment.name,
+                           project.run_uuid)
 
         fg_path = path.join(config["sourcedir"], "extern/FlameGraph")
         if path.exists(fg_path):
@@ -295,40 +302,40 @@ def run_with_perf(run_f, args, **kwargs):
             fold_cmd = ((perf["script"] | sc_perf) > run_f + ".folded")
             graph_cmd = (flamegraph[run_f + ".folded"] > run_f + ".svg")
 
-            fold_cmd & FG
-            graph_cmd & FG
+            fold_cmd()
+            graph_cmd()
             persist_perf(run, session, run_f + ".svg")
-            persist_config(run, session, {
-                "cores": str(jobs)
-            })
+            persist_config(run, session, {"cores": str(jobs)})
 
 
 class PolyJIT(RuntimeExperiment):
-
     """The polyjit experiment."""
 
-    def init_project(self, p):
+    def init_project(self, project):
         """
         Execute the pprof experiment.
 
         We perform this experiment in 2 steps:
             1. with likwid disabled.
             2. with likwid enabled.
+
+        Args:
+            project: The project we initialize.
+
+        Returns:
+            The initialized project.
         """
-        p.ldflags = ["-lpjit", "-lgomp"]
+        from pprof.settings import config
+        project.ldflags = ["-lpjit", "-lgomp"]
 
         ld_lib_path = filter(None, config["ld_library_path"].split(":"))
-        p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
-        p.cflags = ["-Rpass=\"polyjit*\"",
-                    "-Xclang", "-load",
-                    "-Xclang", "LLVMPolyJIT.so",
-                    "-O3",
-                    "-mllvm", "-jitable",
-                    "-mllvm", "-polly-only-scop-detection",
-                    "-mllvm", "-polly-delinearize=false",
-                    "-mllvm", "-polly-detect-keep-going",
-                    "-mllvm", "-polli"]
-        return p
+        project.ldflags = ["-L" + el for el in ld_lib_path] + project.ldflags
+        project.cflags = ["-Rpass=\"polyjit*\"", "-Xclang", "-load", "-Xclang",
+                          "LLVMPolyJIT.so", "-O3", "-mllvm", "-jitable",
+                          "-mllvm", "-polly-only-scop-detection", "-mllvm",
+                          "-polly-delinearize=false", "-mllvm",
+                          "-polly-detect-keep-going", "-mllvm", "-polli"]
+        return project
 
     @abstractmethod
     def run_project(self, p):
@@ -343,9 +350,10 @@ class PJITRaw(PolyJIT):
     """
 
     def run_project(self, p):
+        from pprof.settings import config
+
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
-            """Run the experiment without likwid."""
             from uuid import uuid4
 
             p.cflags += ["-fno-omit-frame-pointer"]
@@ -372,9 +380,9 @@ class PJITperf(PolyJIT):
     """
 
     def run_project(self, p):
+        from pprof.settings import config
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
-            """Run the experiment without likwid."""
             from uuid import uuid4
 
             p.cflags += ["-fno-omit-frame-pointer"]
@@ -405,9 +413,10 @@ class PJITlikwid(PolyJIT):
     """
 
     def run_project(self, p):
+        from pprof.settings import config
+
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
-            """Run the experiment with likwid."""
             from uuid import uuid4
 
             p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
@@ -447,16 +456,19 @@ class PJITRegression(PolyJIT):
         Args:
             p - The project we run this experiment on.
         """
+        from pprof.settings import config
+
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
-            def track_compilestats(cc, **kwargs):
+
+            def track_compilestats(clang, **kwargs):
                 """ Compile the project and track the compilestats. """
                 from pprof.utils import run as r
                 from pprof.utils.run import handle_stdin
 
-                new_cc = handle_stdin(
-                    cc["-mllvm", "-polli-collect-modules"], kwargs)
-                r.guarded_exec(new_cc, p.name, self.name, p.run_uuid)
+                clang = handle_stdin(clang["-mllvm", "-polli-collect-modules"],
+                                     kwargs)
+                r.guarded_exec(clang, p.name, self.name, p.run_uuid)
 
             run_raw.config = config
             run_raw.experiment = self
@@ -484,32 +496,39 @@ class PJITcs(PolyJIT):
     def run_project(self, p):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
-            """ Compile the project and track the compilestats. """
             from uuid import uuid4
 
             p.clean()
             p.prepare()
             p.download()
             with substep("Configure Project"):
-                def track_compilestats(cc, **kwargs):
+
+                def track_compilestats(clang, **kwargs):
+                    """
+                    Track the compilation stats of clang.
+
+                    Args:
+                        clang: The clang compiler command we invoke(d),
+                        **kwargs: So far, we only check for ``has_stdin`` in
+                            the dictionary.
+                    """
                     from pprof.utils import run as r
                     from pprof.utils.db import persist_compilestats
                     from pprof.utils.run import handle_stdin
 
-                    new_cc = handle_stdin(
-                        cc["-mllvm", "-stats"], kwargs)
+                    clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
                     run, session, retcode, _, stderr = \
-                        r.guarded_exec(new_cc, p.name, self.name, p.run_uuid)
+                        r.guarded_exec(clang, p.name, self.name, p.run_uuid)
 
                     if retcode == 0:
                         stats = []
                         for stat in get_compilestats(stderr):
-                            c = CompileStat()
-                            c.name = stat["desc"].rstrip()
-                            c.component = stat["component"].rstrip()
-                            c.value = stat["value"]
-                            stats.append(c)
+                            compile_s = CompileStat()
+                            compile_s.name = stat["desc"].rstrip()
+                            compile_s.component = stat["component"].rstrip()
+                            compile_s.value = stat["value"]
+                            stats.append(compile_s)
                         persist_compilestats(run, session, stats)
 
                 p.run_uuid = uuid4()
@@ -535,6 +554,8 @@ class PJITpapi(PolyJIT):
         """Do the postprocessing, after all projects are done."""
         super(PJITpapi, self).run()
 
+        from pprof.settings import config
+
         bin_path = path.join(config["llvmdir"], "bin")
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
 
@@ -546,7 +567,14 @@ class PJITpapi(PolyJIT):
             pprof_analyze()
 
     def run_project(self, p):
-        """Run the experiment with papi support."""
+        """
+        Run the experiment with papi support.
+
+        Args:
+            p: The project we run.
+        """
+        from pprof.settings import config
+
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=1):
             from uuid import uuid4

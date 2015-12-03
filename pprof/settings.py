@@ -330,7 +330,7 @@ def default_config(config_metadata):
                                                  setting["default"])
         else:
             def_config[setting["name"]] = setting["default"]
-    return config
+    return def_config
 
 
 config = default_config(CONFIG_METADATA)

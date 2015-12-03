@@ -43,7 +43,7 @@ class PprofTest(cli.Application):
                     (opt[self.opt_flags()] << \
                         (sed[r"0,/\#0/s///"] << module)()).run(retcode=None)
                 if not ret == 0:
-                    print("{0} is broken:".format(name))
+                    print(("{0} is broken:".format(name)))
                     print(err)
 
         return """

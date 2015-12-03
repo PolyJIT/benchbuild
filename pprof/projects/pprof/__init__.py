@@ -1,27 +1,27 @@
-import bzip2
-import ccrypt
-import crafty
-import crocopat
-import ffmpeg
-import gzip
-import js
-import lammps
-import lapack
-import leveldb
-import linpack
-import lulesh
-import luleshomp
-import mcrypt
-import minisat
-import openssl
-import postgres
-import povray
-import python
-import rasdaman
-import ruby
-import sdcc
-import sevenz
-import sqlite3
-import tcc
-import x264
-import xz
+from . import bzip2
+from . import ccrypt
+from . import crafty
+from . import crocopat
+from . import ffmpeg
+from . import gzip
+from . import js
+from . import lammps
+from . import lapack
+from . import leveldb
+from . import linpack
+from . import lulesh
+from . import luleshomp
+from . import mcrypt
+from . import minisat
+from . import openssl
+from . import postgres
+from . import povray
+from . import python
+from . import rasdaman
+from . import ruby
+from . import sdcc
+from . import sevenz
+from . import sqlite3
+from . import tcc
+from . import x264
+from . import xz

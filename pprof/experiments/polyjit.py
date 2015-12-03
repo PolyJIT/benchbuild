@@ -328,7 +328,7 @@ class PolyJIT(RuntimeExperiment):
         from pprof.settings import config
         project.ldflags = ["-lpjit", "-lgomp"]
 
-        ld_lib_path = filter(None, config["ld_library_path"].split(":"))
+        ld_lib_path = [_f for _f in config["ld_library_path"].split(":") if _f]
         project.ldflags = ["-L" + el for el in ld_lib_path] + project.ldflags
         project.cflags = ["-Rpass=\"polyjit*\"", "-Xclang", "-load", "-Xclang",
                           "LLVMPolyJIT.so", "-O3", "-mllvm", "-jitable",

@@ -115,7 +115,7 @@ class PapiScopCoverage(RuntimeExperiment):
             p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
 
-            ld_lib_path = filter(None, config["ld_library_path"].split(":"))
+            ld_lib_path = [_f for _f in config["ld_library_path"].split(":") if _f]
             p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
             p.cflags = ["-O3",
                         "-Xclang", "-load",
@@ -162,7 +162,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
             p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
 
-            ld_lib_path = filter(None, config["ld_library_path"].split(":"))
+            ld_lib_path = [_f for _f in config["ld_library_path"].split(":") if _f]
             p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
             p.cflags = ["-O3",
                         "-Xclang", "-load",

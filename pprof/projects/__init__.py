@@ -1,3 +1,3 @@
-import lnt
-import polybench
-import pprof
+from . import lnt
+from . import polybench
+from . import pprof

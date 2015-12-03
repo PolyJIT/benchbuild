@@ -296,14 +296,14 @@ class Experiment(object):
             self.projects[project.name] = project
 
         if projects_to_filter:
-            allkeys = Set(self.projects.keys())
+            allkeys = Set(list(self.projects.keys()))
             usrkeys = Set(projects_to_filter)
             self.projects = {x: self.projects[x] for x in allkeys & usrkeys}
 
         if group:
             self.projects = {
                 k: v
-                for k, v in self.projects.iteritems() if v.group_name == group
+                for k, v in self.projects.items() if v.group_name == group
             }
 
     def clean_project(self, project):
@@ -404,7 +404,7 @@ class Experiment(object):
         except Exception as ex:
             error("{}".format(ex))
             info("Shutting down.")
-            print "Shutting down..."
+            print("Shutting down...")
         finally:
             if experiment.end is None:
                 experiment.end = experiment.end

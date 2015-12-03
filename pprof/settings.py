@@ -145,16 +145,16 @@ def load_config(config_path, new_config):
     """
     with open(config_path) as config_file:
         globs, locs = {}, {}
-        execfile(config_path, globs, locs)
+        exec(compile(open(config_path).read(), config_path, 'exec'), globs, locs)
         out_config = locs["config"]
 
         if not isinstance(out_config, dict):
-            print("Config file " + config_path +
-                  " does not specify a config object.")
+            print(("Config file " + config_path +
+                  " does not specify a config object."))
             return False
 
         # Merge in only the settings that were specified
-        for key in out_config.keys():
+        for key in list(out_config.keys()):
             new_config[key] = out_config[key]
 
         return True

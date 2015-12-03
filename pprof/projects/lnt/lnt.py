@@ -158,10 +158,10 @@ class SPEC2006(LNTGroup):
             if CopyNoFail('speccpu2006'):
                 super(SPEC2006, self).download()
             else:
-                print '======================================================'
-                print('SPECCPU2006 not found in %s. This project will fail.',
-                      config['tmpdir'])
-                print '======================================================'
+                print('======================================================')
+                print(('SPECCPU2006 not found in %s. This project will fail.',
+                      config['tmpdir']))
+                print('======================================================')
 
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic

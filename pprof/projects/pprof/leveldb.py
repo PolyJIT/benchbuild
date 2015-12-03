@@ -12,9 +12,9 @@ class LevelDB(PprofGroup):
     src_uri = "https://github.com/google/leveldb"
 
     class Factory:
-
         def create(self, exp):
             return LevelDB(exp, "leveldb", "database")
+
     ProjectFactory.addFactory("LevelDB", Factory())
 
     def download(self):
@@ -46,7 +46,6 @@ class LevelDB(PprofGroup):
     def run_tests(self, experiment):
         from pprof.project import wrap
         from pprof.utils.run import run
-
         """execute leveldb's db_bench script
 
         :experiment: the experiment's runner function

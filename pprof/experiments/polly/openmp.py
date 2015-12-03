@@ -23,7 +23,6 @@ from os import path
 
 
 class PollyOpenMP(RuntimeExperiment):
-
     """Timing experiment with Polly & OpenMP support."""
 
     def run_project(self, p):
@@ -33,11 +32,8 @@ class PollyOpenMP(RuntimeExperiment):
 
         llvm_libs = path.join(config["llvmdir"], "lib")
         p.ldflags = ["-L" + llvm_libs, "-lgomp"]
-        p.cflags = ["-O3",
-                    "-Xclang", "-load",
-                    "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polly",
-                    "-mllvm", "-polly-parallel"]
+        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                    "-mllvm", "-polly", "-mllvm", "-polly-parallel"]
 
         for i in range(1, int(config["jobs"]) + 1):
             p.run_uuid = uuid4()

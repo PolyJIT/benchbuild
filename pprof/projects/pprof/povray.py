@@ -10,13 +10,12 @@ from plumbum.cmd import cp, chmod, find
 
 
 class Povray(PprofGroup):
-
     """ povray benchmark """
 
     class Factory:
-
         def create(self, exp):
             return Povray(exp, "povray", "multimedia")
+
     ProjectFactory.addFactory("Povray", Factory())
 
     src_uri = "https://github.com/POV-Ray/povray"
@@ -45,8 +44,8 @@ class Povray(PprofGroup):
             from plumbum.cmd import mkdir
             mkdir(boost_prefix)
             bootstrap = local["./bootstrap.sh"]
-            run(bootstrap["--with-toolset=clang",
-                          "--prefix=\"{}\"".format(boost_prefix)])
+            run(bootstrap["--with-toolset=clang", "--prefix=\"{}\"".format(
+                boost_prefix)])
             b2 = local["./b2"]
             run(b2["--ignore-site-config", "variant=release", "link=static",
                    "threading=multi", "optimization=speed", "install"])
@@ -95,8 +94,8 @@ class Povray(PprofGroup):
         povray_dir = path.join(self.builddir, self.src_dir)
         povray_binary = path.join(povray_dir, "unix", self.name)
         tmpdir = path.join(self.builddir, "tmp")
-        povini = path.join(
-            self.builddir, "cfg", ".povray", "3.6", "povray.ini")
+        povini = path.join(self.builddir, "cfg", ".povray", "3.6",
+                           "povray.ini")
         scene_dir = path.join(self.builddir, "share", "povray-3.6", "scenes")
         mkdir(tmpdir, retcode=None)
 
@@ -105,11 +104,13 @@ class Povray(PprofGroup):
         pov_files = find(scene_dir, "-name", "*.pov").splitlines()
         for pov_f in pov_files:
             from plumbum.cmd import head, grep, sed
-            with local.env(POVRAY=povray_binary, INSTALL_DIR=self.builddir,
-                           OUTPUT_DIR=tmpdir, POVINI=povini):
-                options = ((((head["-n", "50", "\"" + pov_f + "\""] |
-                              grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]) |
-                             head["-n", "1"]) |
-                            sed["s?^//[ ]*??"]) & FG)
-                run(povray["+L" + scene_dir, "+L" + tmpdir, "-i" + pov_f,
-                           "-o" + tmpdir, options, "-p"], retcode=None)
+            with local.env(POVRAY=povray_binary,
+                           INSTALL_DIR=self.builddir,
+                           OUTPUT_DIR=tmpdir,
+                           POVINI=povini):
+                options = ((((head["-n", "50", "\"" + pov_f + "\""]
+                              | grep["-E", "'^//[ ]+[-+]{1}[^ -]'"])
+                             | head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
+                run(povray["+L" + scene_dir, "+L" + tmpdir, "-i" + pov_f, "-o"
+                           + tmpdir, options, "-p"],
+                    retcode=None)

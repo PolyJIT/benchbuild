@@ -10,11 +10,10 @@ from plumbum import FG, local
 
 
 class SDCC(PprofGroup):
-
     class Factory:
-
         def create(self, exp):
             return SDCC(exp, "sdcc", "compilation")
+
     ProjectFactory.addFactory("SDCC", Factory())
 
     src_dir = "sdcc"
@@ -39,8 +38,7 @@ class SDCC(PprofGroup):
 
         with local.cwd(sdcc_dir):
             configure = local["./configure"]
-            with local.env(CC=str(clang),
-                           CXX=str(clang_cxx)):
+            with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 run(configure["--without-ccache", "--disable-pic14-port",
                               "--disable-pic16-port"])
 

@@ -11,16 +11,15 @@ from plumbum.cmd import cp
 
 
 class Gzip(PprofGroup):
-
     """ Gzip """
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
 
     class Factory:
-
         def create(self, exp):
             return Gzip(exp, "gzip", "compression")
+
     ProjectFactory.addFactory("Gzip", Factory())
 
     def prepare(self):
@@ -74,8 +73,7 @@ class Gzip(PprofGroup):
             configure = local["./configure"]
             with local.env(CC=str(clang)):
                 run(configure["--disable-dependency-tracking",
-                              "--disable-silent-rules",
-                              "--with-gnu-ld"])
+                              "--disable-silent-rules", "--with-gnu-ld"])
 
     def build(self):
         from plumbum.cmd import make

@@ -12,16 +12,15 @@ from plumbum.cmd import cp
 
 
 class X264(PprofGroup):
-
     """ x264 """
 
     inputfiles = {"tbbt-small.y4m": [],
                   "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}
 
     class Factory:
-
         def create(self, exp):
             return X264(exp, "x264", "multimedia")
+
     ProjectFactory.addFactory("X264", Factory())
 
     def prepare(self):
@@ -51,12 +50,9 @@ class X264(PprofGroup):
             configure = local["./configure"]
 
             with local.env(CC=str(clang)):
-                run(configure["--enable-static",
-                              "--disable-shared",
-                              "--disable-asm",
-                              "--disable-thread",
-                              "--disable-opencl",
-                              "--enable-pic"])
+                run(configure["--enable-static", "--disable-shared",
+                              "--disable-asm", "--disable-thread",
+                              "--disable-opencl", "--enable-pic"])
 
     def build(self):
         from plumbum.cmd import make

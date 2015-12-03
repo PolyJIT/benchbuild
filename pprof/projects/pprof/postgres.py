@@ -10,15 +10,14 @@ from plumbum.cmd import cp, echo, chmod
 
 
 class Postgres(PprofGroup):
-
     """ postgres benchmark """
 
     testfiles = ["pg_ctl", "dropdb", "createdb", "pgbench"]
 
     class Factory:
-
         def create(self, exp):
             return Postgres(exp, "postgres", "database")
+
     ProjectFactory.addFactory("Postgres", Factory())
 
     def prepare(self):
@@ -56,12 +55,7 @@ class Postgres(PprofGroup):
             createdb("pgbench")
             run(pgbench["-i", "pgbench"])
             run(pgbench[
-                "-c",
-                num_clients,
-                "-S",
-                "-t",
-                num_transactions,
-                "pgbench"])
+                "-c", num_clients, "-S", "-t", num_transactions, "pgbench"])
             dropdb("pgbench")
             pg_ctl("stop", "-t", 360, "-w", "-D", test_data)
         except Exception:

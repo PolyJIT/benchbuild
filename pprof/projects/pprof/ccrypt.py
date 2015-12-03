@@ -10,15 +10,14 @@ from plumbum.cmd import ln
 
 
 class Ccrypt(PprofGroup):
-
     """ ccrypt benchmark """
 
     check_f = "check"
 
     class Factory:
-
         def create(self, exp):
             return Ccrypt(exp, "ccrypt", "encryption")
+
     ProjectFactory.addFactory("Ccrypt", Factory())
 
     def prepare(self):

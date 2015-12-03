@@ -74,19 +74,15 @@ def run_with_time(run_f, args, **kwargs):
         run, session, _, _, stderr = \
             r.guarded_exec(run_cmd, project_name, e.name, p.run_uuid)
         timings = r.fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}",
-            stderr.split("\n"))
+            timing_tag, timing_tag + "{:g}-{:g}-{:g}", stderr.split("\n"))
         if len(timings) == 0:
             return
 
     persist_time(run, session, timings)
-    persist_config(run, session, {
-        "cores": str(jobs)
-    })
+    persist_config(run, session, {"cores": str(jobs)})
 
 
 class RawRuntime(RuntimeExperiment):
-
     """The polyjit experiment."""
 
     def run_project(self, p):

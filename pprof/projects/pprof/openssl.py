@@ -10,13 +10,12 @@ from plumbum import local
 
 
 class LibreSSL(PprofGroup):
-
     """ OpenSSL """
 
     class Factory:
-
         def create(self, exp):
             return LibreSSL(exp, "libressl", "encryption")
+
     ProjectFactory.addFactory("LibreSSL", Factory())
 
     src_dir = "libressl-2.1.6"

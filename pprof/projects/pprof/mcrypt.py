@@ -10,13 +10,12 @@ from plumbum import local
 
 
 class MCrypt(PprofGroup):
-
     """ MCrypt benchmark """
 
     class Factory:
-
         def create(self, exp):
             return MCrypt(exp, "mcrypt", "encryption")
+
     ProjectFactory.addFactory("MCrypt", Factory())
 
     src_dir = "mcrypt-2.6.8"
@@ -83,13 +82,12 @@ class MCrypt(PprofGroup):
                                        self.compiler_extension),
                            CXX=lt_clang_cxx(self.cflags, self.ldflags,
                                             self.compiler_extension),
-                           LD_LIBRARY_PATH=path.join(
-                               self.builddir, "lib") + ":" + config["ld_library_path"],
+                           LD_LIBRARY_PATH=path.join(self.builddir, "lib") +
+                           ":" + config["ld_library_path"],
                            LDFLAGS="-L" + path.join(self.builddir, "lib"),
                            CFLAGS="-I" + path.join(self.builddir, "include")):
                 run(configure["--disable-dependency-tracking",
-                              "--enable-static",
-                              "--disable-shared",
+                              "--enable-static", "--disable-shared",
                               "--with-libmcrypt=" + self.builddir,
                               "--with-libmhash=" + self.builddir])
 

@@ -10,11 +10,10 @@ from plumbum import local
 
 
 class SpiderMonkey(PprofGroup):
-
     class Factory:
-
         def create(self, exp):
             return SpiderMonkey(exp, "js", "compilation")
+
     ProjectFactory.addFactory("SpiderMonkey", Factory())
 
     src_uri = "https://github.com/mozilla/gecko-dev.git"
@@ -42,8 +41,7 @@ class SpiderMonkey(PprofGroup):
             autoconf()
             mkdir("build_OPT.OBJ")
             with local.cwd("build_OPT.OBJ"):
-                with local.env(CC=str(clang),
-                               CXX=str(clang_cxx)):
+                with local.env(CC=str(clang), CXX=str(clang_cxx)):
                     configure = local["../configure"]
                     run(configure)
 

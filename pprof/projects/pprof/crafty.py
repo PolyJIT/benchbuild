@@ -10,13 +10,12 @@ from plumbum.cmd import cat
 
 
 class Crafty(PprofGroup):
-
     """ crafty benchmark """
 
     class Factory:
-
         def create(self, exp):
             return Crafty(exp, "crafty", "scientific")
+
     ProjectFactory.addFactory("Crafty", Factory())
 
     src_dir = "crafty-23.4"
@@ -54,11 +53,8 @@ class Crafty(PprofGroup):
                 clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                          self.compiler_extension)
 
-            run(make["target=LINUX",
-                     "CC=" + str(clang),
-                     "CXX=" + str(clang_cxx),
-                     "opt=" + " ".join(target_opts),
-                     "crafty-make"])
+            run(make["target=LINUX", "CC=" + str(clang), "CXX=" + str(
+                clang_cxx), "opt=" + " ".join(target_opts), "crafty-make"])
 
     def run_tests(self, experiment):
         from pprof.project import wrap

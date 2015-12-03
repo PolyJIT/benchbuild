@@ -10,16 +10,15 @@ from plumbum.cmd import cp
 
 
 class Bzip2(PprofGroup):
-
     """ Bzip2 """
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
 
     class Factory:
-
         def create(self, exp):
             return Bzip2(exp, "bzip2", "compression")
+
     ProjectFactory.addFactory("Bzip2", Factory())
 
     src_dir = "bzip2-1.0.6"
@@ -44,7 +43,8 @@ class Bzip2(PprofGroup):
 
         bzip2_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
         with local.cwd(bzip2_dir):
             run(make["CC=" + str(clang), "clean", "bzip2"])
 

@@ -7,13 +7,12 @@ from plumbum import local
 
 
 class LuleshOMP(PprofGroup):
-
     """ Lulesh-OMP """
 
     class Factory:
-
         def create(self, exp):
             return LuleshOMP(exp, "lulesh-omp", "scientific")
+
     ProjectFactory.addFactory("LuleshOMP", Factory())
 
     def run_tests(self, experiment):

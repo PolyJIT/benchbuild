@@ -9,13 +9,12 @@ from plumbum import local
 
 
 class Linpack(PprofGroup):
-
     """ Linpack (C-Version) """
 
     class Factory:
-
         def create(self, exp):
             return Linpack(exp, "linpack", "scientific")
+
     ProjectFactory.addFactory("Linpack", Factory())
 
     src_uri = "http://www.netlib.org/benchmark/linpackc.new"

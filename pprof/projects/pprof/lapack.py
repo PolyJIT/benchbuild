@@ -9,9 +9,9 @@ class OpenBlas(PprofGroup):
     domain = "scientific"
 
     class Factory:
-
         def create(self, exp):
             return OpenBlas(exp, "openblas", "scientific")
+
     ProjectFactory.addFactory("OpenBlas", Factory())
 
     src_dir = "OpenBLAS"
@@ -33,7 +33,8 @@ class OpenBlas(PprofGroup):
 
         blas_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
         with local.cwd(blas_dir):
             run(make["CC=" + str(clang)])
 
@@ -49,8 +50,8 @@ class Lapack(PprofGroup):
     def __init__(self, exp, name):
         super(Lapack, self).__init__(exp, name, self.domain)
         self.sourcedir = path.join(config["sourcedir"], "src", "lapack", name)
-        self.testdir = path.join(
-            config["testdir"], self.domain, "lapack", "tests")
+        self.testdir = path.join(config["testdir"], self.domain, "lapack",
+                                 "tests")
 
         self.setup_derived_filenames()
         self.tests = []
@@ -79,22 +80,16 @@ class Lapack(PprofGroup):
         with local.cwd(lapack_dir):
             with open("make.inc", 'w') as makefile:
                 content = [
-                    "SHELL     = /bin/sh\n",
-                    "PLAT      = _LINUX\n",
+                    "SHELL     = /bin/sh\n", "PLAT      = _LINUX\n",
                     "CC        = " + str(clang) + "\n",
                     "CXX       = " + str(clang_cxx) + "\n",
                     "CFLAGS    = -I$(TOPDIR)/INCLUDE\n",
-                    "LOADER    = " + str(clang) + "\n",
-                    "LOADOPTS  = \n",
+                    "LOADER    = " + str(clang) + "\n", "LOADOPTS  = \n",
                     "NOOPT     = -O0 -I$(TOPDIR)/INCLUDE\n",
-                    "DRVCFLAGS = $(CFLAGS)\n",
-                    "F2CCFLAGS = $(CFLAGS)\n",
-                    "TIMER     = INT_CPU_TIME\n",
-                    "ARCH      = ar\n",
-                    "ARCHFLAGS = cr\n",
-                    "RANLIB    = ranlib\n",
-                    "BLASLIB   = ../../blas$(PLAT).a\n",
-                    "XBLASLIB  = \n",
+                    "DRVCFLAGS = $(CFLAGS)\n", "F2CCFLAGS = $(CFLAGS)\n",
+                    "TIMER     = INT_CPU_TIME\n", "ARCH      = ar\n",
+                    "ARCHFLAGS = cr\n", "RANLIB    = ranlib\n",
+                    "BLASLIB   = ../../blas$(PLAT).a\n", "XBLASLIB  = \n",
                     "LAPACKLIB = lapack$(PLAT).a\n",
                     "F2CLIB    = ../../F2CLIBS/libf2c.a\n",
                     "TMGLIB    = tmglib$(PLAT).a\n",
@@ -143,7 +138,7 @@ class Lapack(PprofGroup):
                 run((xblat3z < "zblat3.in"))
 
     class Factory:
-
         def create(self, exp):
             return Lapack(exp, "lapack")
+
     ProjectFactory.addFactory("Lapack", Factory())

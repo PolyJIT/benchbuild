@@ -9,13 +9,12 @@ from plumbum import local
 
 
 class SevenZip(PprofGroup):
-
     """ 7Zip """
 
     class Factory:
-
         def create(self, exp):
             return SevenZip(exp, "7z", "compression")
+
     ProjectFactory.addFactory("SevenZip", Factory())
 
     def run_tests(self, experiment):
@@ -39,8 +38,9 @@ class SevenZip(PprofGroup):
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
             tar('xfj', path.join(self.builddir, self.src_file))
-            cp(path.join(p7z_dir, "makefile.linux_clang_amd64_asm"),
-               path.join(p7z_dir, "makefile.machine"))
+            cp(
+                path.join(p7z_dir, "makefile.linux_clang_amd64_asm"),
+                path.join(p7z_dir, "makefile.machine"))
 
     def configure(self):
         pass
@@ -59,6 +59,5 @@ class SevenZip(PprofGroup):
                                      self.compiler_extension)
 
         with local.cwd(p7z_dir):
-            run(make["CC=" + str(clang),
-                     "CXX=" + str(clang_cxx),
-                     "clean", "all"])
+            run(make["CC=" + str(clang), "CXX=" + str(clang_cxx), "clean",
+                     "all"])

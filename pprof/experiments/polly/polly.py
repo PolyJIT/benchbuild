@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """
 The 'polly' Experiment
 ====================
@@ -26,7 +25,6 @@ from os import path
 
 
 class Polly(RuntimeExperiment):
-
     """ The polly experiment. """
 
     def run_project(self, p):
@@ -35,9 +33,7 @@ class Polly(RuntimeExperiment):
 
         llvm_libs = path.join(config["llvmdir"], "lib")
         p.ldflags = ["-L" + llvm_libs]
-        p.cflags = ["-O3",
-                    "-Xclang", "-load",
-                    "-Xclang", "LLVMPolyJIT.so",
+        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                     "-mllvm", "-polly"]
 
         for i in range(1, int(config["jobs"]) + 1):

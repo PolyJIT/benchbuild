@@ -10,13 +10,12 @@ from plumbum.cmd import find
 
 
 class Python(PprofGroup):
-
     """ python benchmarks """
 
     class Factory:
-
         def create(self, exp):
             return Python(exp, "python", "compilation")
+
     ProjectFactory.addFactory("Python", Factory())
 
     src_dir = "Python-3.4.3"

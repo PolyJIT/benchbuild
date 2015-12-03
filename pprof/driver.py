@@ -50,9 +50,9 @@ class PollyProfiling(cli.Application):
         """List config metadata."""
         for setting in settings.config_metadata:
             if "env" in setting:
-                print(("{env}\t-\t{desc}".format(
-                    env=setting["env"],
-                    desc=setting["desc"] if "desc" in setting else '')))
+                print(("{env}\t-\t{desc}".format(env=setting["env"],
+                                                 desc=setting["desc"] if "desc"
+                                                 in setting else '')))
 
     def main(self, *args):
         if self._list_env:
@@ -66,7 +66,7 @@ class PollyProfiling(cli.Application):
                 print(("Configuration loaded from file " + self._config_path))
 
         if args:
-            print("Unknown command %r" % (args[0],))
+            print("Unknown command %r" % (args[0], ))
             return 1
         if not self.nested_command:
             print("No command given")

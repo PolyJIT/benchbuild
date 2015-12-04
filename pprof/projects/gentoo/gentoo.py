@@ -1,3 +1,8 @@
+"""
+The Gentoo module handles the
+TODO
+"""
+
 from pprof.project import Project, ProjectFactory
 from plumbum import local
 
@@ -13,7 +18,8 @@ def latest_src_uri():
     from plumbum import ProcessExecutionError
     from logging import error
 
-    latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/latest-stage3-amd64.txt"
+    latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
+            "latest-stage3-amd64.txt"
     try:
         src_uri = (curl[latest_txt] | tail["-n", "+3"]
                    | cut["-f1", "-d "])().strip()
@@ -23,6 +29,7 @@ def latest_src_uri():
     return src_uri
 
 
+from abc import ABCMeta
 class GentooGroup(Project):
     """
     Gentoo ProjectGroup for running the gentoo test suite.
@@ -37,17 +44,13 @@ class GentooGroup(Project):
 
     src_dir = "gentoo"
     src_file = src_dir + ".tar.bz2"
-    src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}".format(
-        latest_src_uri())
+    src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}".\
+    format(latest_src_uri())
 
     # download location for portage files
     src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/"\
                     "gentoo/snapshots/portage-latest.tar.bz2"
     src_file_portage = "portage_snap.tar.bz2"
-
-    # test dirs
-    test_suite_dir = "TODO"
-    test_suite_uri = "TODO"
 
     def download(self):
         from pprof.utils.downloader import Wget

@@ -4,6 +4,28 @@
 from pprof.project import Project, ProjectFactory
 from plumbum import local
 
+
+def latest_src_uri():
+    """
+    Get the latest src_uri for a stage 3 tarball.
+
+    Returns (str)
+
+    """
+    from plumbum.cmd import curl, cut, tail
+    from plumbum import ProcessExecutionError
+    from logging import error
+
+    latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/latest-stage3-amd64.txt"
+    try:
+        src_uri = (curl[latest_txt] | tail["-n", "+3"]
+                   | cut["-f1", "-d "])().strip()
+    except ProcessExecutionError as proc_ex:
+        src_uri = "NOT-FOUND"
+        error("Could not determine latest stage3 src uri: {0}", str(proc_ex))
+    return src_uri
+
+
 class GentooGroup(Project):
     """
     Gentoo ProjectGroup for running the gentoo test suite.
@@ -18,11 +40,8 @@ class GentooGroup(Project):
 
     src_dir = "gentoo"
     src_file = src_dir + ".tar.bz2"
-
-    # download location for gentoo stage3 tarball
-    day = "20151119"
-    src_uri = "http://distfiles.gentoo.org/releases/amd64/current-stage3-"\
-            "amd64/" + "stage3-amd64-" + day + ".tar.bz2"
+    src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}".format(
+        latest_src_uri())
 
     # download location for portage files
     src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/"\

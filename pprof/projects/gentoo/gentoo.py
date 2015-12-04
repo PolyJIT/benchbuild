@@ -1,3 +1,10 @@
+"""
+The Gentoo module for running tests on builds from the portage tree.
+
+The following packages are required to run GentooGroup:
+    * fakeroot
+"""
+
 from pprof.project import Project, ProjectFactory
 from plumbum import local
 
@@ -13,7 +20,8 @@ def latest_src_uri():
     from plumbum import ProcessExecutionError
     from logging import error
 
-    latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/latest-stage3-amd64.txt"
+    latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
+            "latest-stage3-amd64.txt"
     try:
         src_uri = (curl[latest_txt] | tail["-n", "+3"]
                    | cut["-f1", "-d "])().strip()
@@ -25,11 +33,7 @@ def latest_src_uri():
 
 class GentooGroup(Project):
     """
-    Gentoo ProjectGroup for running the gentoo test suite.
-
-    The following packages are required to run GentooGroup:
-        * fakeroot
-
+    Gentoo ProjectGroup is the base class for every portage build.
     """
 
     def __init__(self, exp, name):
@@ -37,27 +41,23 @@ class GentooGroup(Project):
 
     src_dir = "gentoo"
     src_file = src_dir + ".tar.bz2"
-    src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}".format(
-        latest_src_uri())
+    src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}".\
+    format(latest_src_uri())
 
     # download location for portage files
     src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/"\
                     "gentoo/snapshots/portage-latest.tar.bz2"
     src_file_portage = "portage_snap.tar.bz2"
 
-    # test dirs
-    test_suite_dir = "TODO"
-    test_suite_uri = "TODO"
-
     def download(self):
         from pprof.utils.downloader import Wget
         from pprof.utils.run import run
+        from pprof.settings import config
         from plumbum.cmd import cp, tar, fakeroot, rm
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
 
-            # TODO replace with standart path
-            cp("/home/sattlerf/gentoo/uchroot_2", "uchroot")
+            cp(config["sourcedir"] + "/bin/uchroot", "uchroot")
             run(fakeroot["tar", "xfj", self.src_file])
             rm(self.src_file)
             with local.cwd(self.builddir + "/usr"):
@@ -112,43 +112,37 @@ PKGDIR="${PORTDIR}/packages"'''
             cp("/etc/resolv.conf", "etc/resolv.conf")
             # cp jit into gentoo
 
-    @property
-    def execWithChroot(self):
-        """
-        Returns a plumbum cmd object that allows the user to call a cmd in
-        the uchroot.
-
-        Return:
-            chroot cmd object
-        """
-
-        uchroot = local["./uchroot"]
-        return uchroot["-C", "-w", "/", "-r", ".", "-u", "0", "-g", "0", "--"]
-
-    @property
-    def execWithChrootJIT(self):
-        from pprof.settings import config
-        from plumbum.cmd import mkdir
-
-        mkdir("-p", "llvm")
-        uchroot = local["./uchroot"]
-        return uchroot["-C", "-w", "/", "-r", ".", "-m", config["llvmdir"] +
-                       ":llvm", "-u", "0", "-g", "0", "--"]
 
 
 class Eix(GentooGroup):
+    """
+    Represents the package eix from the portage tree.
+
+    Building this class will create bare gentoo and compile eix.
+    """
+
     class Factory:
+        """
+        The factory class for the package eix.
+        """
+
         def create(self, exp):
+            """
+            Creates an instance of the Eix class.
+
+            Return:
+                Eix object
+            """
             return Eix(exp, "eix")
 
     ProjectFactory.addFactory("Eix", Factory())
 
     def build(self):
-        from pprof.utils.run import run
+        from pprof.utils.run import run, uchroot
         with local.cwd(self.builddir):
             with local.env(CC="/usr/bin/gcc", CXX="/usr/bin/g++", USE="tinfo"):
-                run(self.execWithChrootJIT["/usr/bin/emerge", "ncurses"])
-            run(self.execWithChrootJIT["/usr/bin/emerge", "eix"])
+                run(uchroot()["/usr/bin/emerge", "ncurses"])
+            run(uchroot()["/usr/bin/emerge", "eix"])
 
     def run_tests(self, experiment):
         pass

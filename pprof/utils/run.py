@@ -274,3 +274,19 @@ def run(command, retcode=0):
         error("Exception:")
         error("   | {}".format(exception))
         raise GuardedRunException(exception, None, None)
+
+def uchroot():
+    """
+    Returns a uchroot command which can be called with other args to be
+            executed in the uchroot.
+    Return:
+        chroot_cmd
+    """
+    from pprof.settings import config
+    from plumbum.cmd import mkdir
+    from plumbum import local
+
+    mkdir("-p", "llvm")
+    uchroot_cmd = local["./uchroot"]
+    return uchroot_cmd["-C", "-w", "/", "-r", ".", "-m", config["llvmdir"] +
+                   ":llvm", "-u", "0", "-g", "0", "--"]

@@ -167,7 +167,7 @@ def begin(command, pname, ename, group):
     session.add(log)
     session.commit()
 
-    return run, session
+    return db_run, session
 
 
 def end(db_run, session, stdout, stderr):

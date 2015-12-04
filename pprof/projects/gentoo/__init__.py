@@ -1,1 +1,1 @@
-import gentoo
+from . import gentoo

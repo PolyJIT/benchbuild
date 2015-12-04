@@ -52,8 +52,7 @@ class GentooGroup(Project):
     def download(self):
         from pprof.utils.downloader import Wget
         from pprof.utils.run import run
-        from plumbum import FG
-        from plumbum.cmd import virtualenv, cp, tar, fakeroot, rm
+        from plumbum.cmd import cp, tar, fakeroot, rm
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
 
@@ -67,7 +66,7 @@ class GentooGroup(Project):
                 rm(self.src_file_portage)
 
     def configure(self):
-        from plumbum.cmd import mkdir, rm, cp
+        from plumbum.cmd import mkdir, cp
         with local.cwd(self.builddir):
             with open("etc/portage/make.conf", 'w') as makeconf:
                 lines = '''# These settings were set by the catalyst build '''\
@@ -110,8 +109,7 @@ PKGDIR="${PORTDIR}/packages"'''
             with open("etc/portage/metadata/layout.conf", 'w') as layoutconf:
                 lines = '''masters = gentoo'''
                 layoutconf.write(lines)
-            with open("etc/resolv.conf", 'w') as resolfconf:
-                cp("/etc/resolv.conf", "etc/resolv.conf")
+            cp("/etc/resolv.conf", "etc/resolv.conf")
             # cp jit into gentoo
 
     @property
@@ -124,7 +122,6 @@ PKGDIR="${PORTDIR}/packages"'''
             chroot cmd object
         """
 
-        from plumbum.cmd import binddev
         uchroot = local["./uchroot"]
         return uchroot["-C", "-w", "/", "-r", ".", "-u", "0", "-g", "0", "--"]
 

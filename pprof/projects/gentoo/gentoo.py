@@ -1,6 +1,8 @@
 """
-The Gentoo module handles the
-TODO
+The Gentoo module for running tests on builds from the portage tree.
+
+The following packages are required to run GentooGroup:
+    * fakeroot
 """
 
 from pprof.project import Project, ProjectFactory
@@ -29,14 +31,9 @@ def latest_src_uri():
     return src_uri
 
 
-from abc import ABCMeta
 class GentooGroup(Project):
     """
-    Gentoo ProjectGroup for running the gentoo test suite.
-
-    The following packages are required to run GentooGroup:
-        * fakeroot
-
+    Gentoo ProjectGroup is the base class for every portage build.
     """
 
     def __init__(self, exp, name):
@@ -119,14 +116,22 @@ PKGDIR="${PORTDIR}/packages"'''
 
 class Eix(GentooGroup):
     """
+    Represents the package eix from the portage tree.
+
+    Building this class will create bare gentoo and compile eix.
     """
 
     class Factory:
         """
+        The factory class for the package eix.
         """
 
         def create(self, exp):
             """
+            Creates an instance of the Eix class.
+
+            Return:
+                Eix object
             """
             return Eix(exp, "eix")
 

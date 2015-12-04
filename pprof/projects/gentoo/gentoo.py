@@ -112,43 +112,29 @@ PKGDIR="${PORTDIR}/packages"'''
             cp("/etc/resolv.conf", "etc/resolv.conf")
             # cp jit into gentoo
 
-    @property
-    def execWithChroot(self):
-        """
-        Returns a plumbum cmd object that allows the user to call a cmd in
-        the uchroot.
-
-        Return:
-            chroot cmd object
-        """
-
-        uchroot = local["./uchroot"]
-        return uchroot["-C", "-w", "/", "-r", ".", "-u", "0", "-g", "0", "--"]
-
-    @property
-    def execWithChrootJIT(self):
-        from pprof.settings import config
-        from plumbum.cmd import mkdir
-
-        mkdir("-p", "llvm")
-        uchroot = local["./uchroot"]
-        return uchroot["-C", "-w", "/", "-r", ".", "-m", config["llvmdir"] +
-                       ":llvm", "-u", "0", "-g", "0", "--"]
 
 
 class Eix(GentooGroup):
+    """
+    """
+
     class Factory:
+        """
+        """
+
         def create(self, exp):
+            """
+            """
             return Eix(exp, "eix")
 
     ProjectFactory.addFactory("Eix", Factory())
 
     def build(self):
-        from pprof.utils.run import run
+        from pprof.utils.run import run, uchroot
         with local.cwd(self.builddir):
             with local.env(CC="/usr/bin/gcc", CXX="/usr/bin/g++", USE="tinfo"):
-                run(self.execWithChrootJIT["/usr/bin/emerge", "ncurses"])
-            run(self.execWithChrootJIT["/usr/bin/emerge", "eix"])
+                run(uchroot["/usr/bin/emerge", "ncurses"])
+            run(uchroot["/usr/bin/emerge", "eix"])
 
     def run_tests(self, experiment):
         pass

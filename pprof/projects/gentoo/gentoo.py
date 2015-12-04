@@ -52,12 +52,12 @@ class GentooGroup(Project):
     def download(self):
         from pprof.utils.downloader import Wget
         from pprof.utils.run import run
+        from pprof.settings import config
         from plumbum.cmd import cp, tar, fakeroot, rm
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
 
-            # TODO replace with standart path
-            cp("/home/sattlerf/gentoo/uchroot_2", "uchroot")
+            cp(config["sourcedir"] + "/bin/uchroot", "uchroot")
             run(fakeroot["tar", "xfj", self.src_file])
             rm(self.src_file)
             with local.cwd(self.builddir + "/usr"):

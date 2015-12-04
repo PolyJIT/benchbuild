@@ -141,8 +141,8 @@ class Eix(GentooGroup):
         from pprof.utils.run import run, uchroot
         with local.cwd(self.builddir):
             with local.env(CC="/usr/bin/gcc", CXX="/usr/bin/g++", USE="tinfo"):
-                run(uchroot["/usr/bin/emerge", "ncurses"])
-            run(uchroot["/usr/bin/emerge", "eix"])
+                run(uchroot()["/usr/bin/emerge", "ncurses"])
+            run(uchroot()["/usr/bin/emerge", "eix"])
 
     def run_tests(self, experiment):
         pass

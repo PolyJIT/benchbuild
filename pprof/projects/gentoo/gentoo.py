@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 from pprof.project import Project, ProjectFactory
 from plumbum import local
 

@@ -5,12 +5,11 @@ from pprof.project import Project, ProjectFactory
 from plumbum import local
 
 class GentooGroup(Project):
-
     """
     Gentoo ProjectGroup for running the gentoo test suite.
 
-    The following packages are required to run GentooGroup
-    * fakeroot
+    The following packages are required to run GentooGroup:
+        * fakeroot
 
     """
 
@@ -43,7 +42,7 @@ class GentooGroup(Project):
             Wget(self.src_uri, self.src_file)
 
             # TODO replace with standart path
-            cp("/home/sattlerf/gentoo/uchroot_2","uchroot")
+            cp("/home/sattlerf/gentoo/uchroot_2", "uchroot")
             run(fakeroot["tar", "xfj", self.src_file])
             rm(self.src_file)
             with local.cwd(self.builddir + "/usr"):
@@ -89,13 +88,14 @@ USE="bindist mmx sse sse2"
 PORTDIR="/usr/portage"
 DISTDIR="${PORTDIR}/distfiles"
 PKGDIR="${PORTDIR}/packages"'''
+
                 makeconf.write(lines)
             mkdir("-p", "etc/portage/metadata")
             with open("etc/portage/metadata/layout.conf", 'w') as layoutconf:
                 lines = '''masters = gentoo'''
                 layoutconf.write(lines)
             with open("etc/resolv.conf", 'w') as resolfconf:
-                cp("/etc/resolv.conf","etc/resolv.conf")
+                cp("/etc/resolv.conf", "etc/resolv.conf")
             # cp jit into gentoo
 
     @property
@@ -119,14 +119,15 @@ PKGDIR="${PORTDIR}/packages"'''
 
         mkdir("-p", "llvm")
         uchroot = local["./uchroot"]
-        return uchroot["-C", "-w", "/", "-r", ".", "-m", config["llvmdir"] + ":llvm","-u", "0", "-g", "0", "--"]
+        return uchroot["-C", "-w", "/", "-r", ".", "-m", config["llvmdir"] +
+                       ":llvm", "-u", "0", "-g", "0", "--"]
+
 
 class Eix(GentooGroup):
-
     class Factory:
-
         def create(self, exp):
             return Eix(exp, "eix")
+
     ProjectFactory.addFactory("Eix", Factory())
 
     def build(self):
@@ -138,5 +139,3 @@ class Eix(GentooGroup):
 
     def run_tests(self, experiment):
         pass
-
-

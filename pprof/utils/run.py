@@ -259,6 +259,9 @@ def guarded_exec(cmd, pname, ename, run_group):
 def run(command, retcode=0):
     """
     Execute a plumbum command, depending on the user's settings.
+
+    Args:
+        command: The plumbumb command to execute.
     """
     from logging import error
     from plumbum import FG

@@ -13,8 +13,8 @@ def latest_src_uri():
     """
     Get the latest src_uri for a stage 3 tarball.
 
-    Returns (str)
-
+    Returns (str):
+        Latest src_uri from gentoo's distfiles mirror.
     """
     from plumbum.cmd import curl, cut, tail
     from plumbum import ProcessExecutionError
@@ -41,8 +41,8 @@ class GentooGroup(Project):
 
     src_dir = "gentoo"
     src_file = src_dir + ".tar.bz2"
-    src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}".\
-    format(latest_src_uri())
+    src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
+        .format(latest_src_uri())
 
     # download location for portage files
     src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/"\
@@ -69,8 +69,8 @@ class GentooGroup(Project):
         from plumbum.cmd import mkdir, cp
         with local.cwd(self.builddir):
             with open("etc/portage/make.conf", 'w') as makeconf:
-                lines = '''# These settings were set by the catalyst build '''\
-                        '''script that automatically
+                lines = '''
+# These settings were set by the catalyst build script that automatically
 # built this stage.
 # Please consult /usr/share/portage/config/make.conf.example for a more
 # detailed example.
@@ -80,12 +80,8 @@ CXXFLAGS="${CFLAGS}"
 FEATURES="-sandbox -usersandbox fakeroot -usersync -xattr"
 
 # set compiler
-#CC="/usr/bin/gcc"
-#CXX="/usr/bin/g++"
 CC="/llvm/bin/clang"
 CXX="/llvm/bin/clang++"
-#CC="/usr/bin/clang"
-#CXX="/usr/bin/clang++"
 
 PORTAGE_USERNAME = "root"
 PORTAGE_GRPNAME = "root"
@@ -110,8 +106,6 @@ PKGDIR="${PORTDIR}/packages"'''
                 lines = '''masters = gentoo'''
                 layoutconf.write(lines)
             cp("/etc/resolv.conf", "etc/resolv.conf")
-            # cp jit into gentoo
-
 
 
 class Eix(GentooGroup):

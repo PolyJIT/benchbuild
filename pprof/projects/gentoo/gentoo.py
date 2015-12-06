@@ -79,16 +79,9 @@ class GentooGroup(Project):
         with local.cwd(self.builddir):
             with open("etc/portage/make.conf", 'w') as makeconf:
                 lines = '''
-# These settings were set by the catalyst build script that automatically
-# built this stage.
-# Please consult /usr/share/portage/config/make.conf.example for a more
-# detailed example.
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
-
-FEATURES="-sandbox -usersandbox fakeroot -usersync -xattr"
-
-# set compiler
+FEATURES="-sandbox -usersandbox -usersync -xattr"
 CC="/llvm/bin/clang"
 CXX="/llvm/bin/clang++"
 
@@ -98,18 +91,15 @@ PORTAGE_INST_GID = 0
 PORTAGE_INST_UID = 0
 
 LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/llvm/lib"
-
-# WARNING: Changing your CHOST is not something that should be done lightly.
-# Please consult http://www.gentoo.org/doc/en/change-chost.xml before changing.
 CHOST="x86_64-pc-linux-gnu"
-# These are the USE flags that were used in addition to what is provided by the
-# profile used for building.
 USE="bindist mmx sse sse2"
 PORTDIR="/usr/portage"
 DISTDIR="${PORTDIR}/distfiles"
-PKGDIR="${PORTDIR}/packages"'''
+PKGDIR="${PORTDIR}/packages"
+'''
 
                 makeconf.write(lines)
+
             mkdir("-p", "etc/portage/metadata")
             with open("etc/portage/metadata/layout.conf", 'w') as layoutconf:
                 lines = '''masters = gentoo'''
@@ -143,9 +133,13 @@ class Eix(GentooGroup):
     def build(self):
         from pprof.utils.run import run, uchroot
         with local.cwd(self.builddir):
-            with local.env(CC="/usr/bin/gcc", CXX="/usr/bin/g++", USE="tinfo"):
-                run(uchroot()["/usr/bin/emerge", "ncurses"])
-            run(uchroot()["/usr/bin/emerge", "eix"])
+            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+            with local.env(ACCEPT_KEYWORDS="~amd64",
+                           CC="/usr/bin/gcc",
+                           CXX="/usr/bin/g++",
+                           USE="tinfo"):
+                run(emerge_in_chroot["--nodeps", "ncurses"])
+            run(emerge_in_chroot["eix"])
 
     def run_tests(self, experiment):
         pass

@@ -1,6 +1,15 @@
 """
 The Gentoo module for running tests on builds from the portage tree.
 
+This will install a stage3 image of gentoo together with a recent snapshot
+of the portage tree. For building / executing arbitrary projects successfully it
+is necessary to keep the installed image as close to the host system as
+possible.
+In order to speed up your experience, you can replace the stage3 image that
+we pull from the distfiles mirror with a new image that contains all necessary
+dependencies for your experiments. Make sure you update the hash alongside
+the gentoo image in pprof's source directory.
+
 The following packages are required to run GentooGroup:
     * fakeroot
 """

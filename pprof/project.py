@@ -1,5 +1,6 @@
-#
-
+"""
+Project handling for the pprof study.
+"""
 from plumbum import local
 from plumbum.cmd import rm, mkdir, rmdir
 from os import path, listdir

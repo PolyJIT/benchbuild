@@ -55,6 +55,14 @@ class Project(object, metaclass=ProjectRegistry):
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
         new_self = super(Project, cls).__new__(cls)
+        if cls.NAME is None:
+            raise AttributeError(
+                "{} @ {} does not define a NAME class attribute.".format(
+                    cls.__name__, cls.__module__))
+        if cls.DOMAIN is None:
+            raise AttributeError(
+                "{} @ {} does not define a DOMAIN class attribute.".format(
+                    cls.__name__, cls.__module__))
         new_self.name = cls.NAME
         new_self.domain = cls.DOMAIN
         return new_self

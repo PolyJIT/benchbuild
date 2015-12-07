@@ -228,7 +228,7 @@ def get_group_projects(group, experiment):
         experiment.
     """
     group = []
-    projects = Experiment.projects
+    projects = experiment.projects
     for name in projects:
         project = projects[name]
 

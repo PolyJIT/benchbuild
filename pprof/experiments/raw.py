@@ -18,8 +18,6 @@ Measurements
 """
 
 from pprof.experiment import step, substep, RuntimeExperiment
-from pprof.settings import config
-
 from plumbum import local
 from os import path
 
@@ -29,6 +27,13 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     Run the given binary wrapped with time.
 
     Args:
+        project: The pprof project that has called us.
+        experiment: The pprof experiment which we operate under.
+        config: The pprof configuration we are running with.
+        jobs: The number of cores we are allowed to use. This may differ
+            from the actual amount of available cores, obey it.
+            We should enforce this from the outside. However, at the moment we
+            do not do this.
         run_f: The file we want to execute.
         args: List of arguments that should be passed to the wrapped binary.
         **kwargs: Dictionary with our keyword args. We support the following
@@ -40,9 +45,11 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.utils import run as r
+    from pprof.settings import config as c
     from pprof.utils.db import persist_time, persist_config
     from plumbum.cmd import time
 
+    c.update(config)
     project_name = kwargs.get("project_name", project.name)
     timing_tag = "PPROF-TIME: "
 
@@ -67,6 +74,7 @@ class RawRuntime(RuntimeExperiment):
 
     def run_project(self, p):
         """Compile & Run the experiment with -O3 enabled."""
+        from pprof.settings import config
         from pprof.utils.run import partial
         llvm_libs = path.join(config["llvmdir"], "lib")
 

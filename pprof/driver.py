@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-#
-
 from plumbum import cli
 from pprof import *
 from sys import stderr

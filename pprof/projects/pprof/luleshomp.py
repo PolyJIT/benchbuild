@@ -1,6 +1,3 @@
-#!/usr/bin/evn python
-#
-
 from pprof.projects.pprof.group import PprofGroup
 from plumbum import local
 

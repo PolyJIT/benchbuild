@@ -1,4 +1,3 @@
-#
 """
 The 'polyjit' experiment.
 

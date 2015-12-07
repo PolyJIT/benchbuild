@@ -1,10 +1,6 @@
-#!/usr/bin/evn python
-#
-
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
 from pprof.utils.run import run
-
 from os import path
 from plumbum import local
 from plumbum.cmd import cp

@@ -1,8 +1,4 @@
-#!/usr/bin/evn python
-#
-
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path, getenv
 from glob import glob
 from plumbum import local

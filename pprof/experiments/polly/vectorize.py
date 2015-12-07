@@ -1,4 +1,3 @@
-#
 """
 The 'polly-vectorize' Experiment
 ====================

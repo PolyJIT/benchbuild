@@ -1,6 +1,3 @@
-#!/usr/bin/evn python
-#
-
 from pprof.project import Project
 from pprof.settings import config
 from os import path

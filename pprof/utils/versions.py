@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Gather version information for PPROF.
 """

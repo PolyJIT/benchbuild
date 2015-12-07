@@ -16,6 +16,7 @@ The following packages are required to run GentooGroup:
 
 from pprof.project import Project, ProjectFactory
 from plumbum import local
+from lazy import lazy
 
 
 def latest_src_uri():
@@ -50,8 +51,11 @@ class GentooGroup(Project):
 
     src_dir = "gentoo"
     src_file = src_dir + ".tar.bz2"
-    src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
-        .format(latest_src_uri())
+
+    @lazy
+    def src_uri(self):
+        return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
+                .format(latest_src_uri())
 
     # download location for portage files
     src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/"\

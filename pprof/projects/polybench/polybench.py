@@ -7,6 +7,7 @@ from plumbum import local, FG
 
 class PolyBenchGroup(Project):
     DOMAIN = 'polybench'
+    GROUP = 'polybench'
 
     path_dict = {
         "correlation": "datamining",
@@ -41,11 +42,10 @@ class PolyBenchGroup(Project):
         "floyd-warshall": "medley",
     }
 
-    def __init__(self, exp, name):
-        super(PolyBenchGroup, self).__init__(exp, name, "polybench",
-                                             "polybench")
+    def __init__(self, exp):
+        super(PolyBenchGroup, self).__init__(exp, "polybench")
         self.sourcedir = path.join(config["sourcedir"], "polybench",
-                                   self.path_dict[name], name)
+                                   self.path_dict[self.name], self.name)
         self.setup_derived_filenames()
 
     src_dir = "polybench-c-4.1"

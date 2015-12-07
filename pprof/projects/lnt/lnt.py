@@ -14,9 +14,10 @@ class LNTGroup(Project):
     """LNT ProjectGroup for running the lnt test suite."""
 
     DOMAIN = 'lnt'
+    GROUP = 'lnt'
 
-    def __init__(self, exp, name):
-        super(LNTGroup, self).__init__(exp, name, "lnt", "lnt")
+    def __init__(self, exp):
+        super(LNTGroup, self).__init__(exp, "lnt")
 
     src_dir = "lnt"
     src_uri = "http://llvm.org/git/lnt"

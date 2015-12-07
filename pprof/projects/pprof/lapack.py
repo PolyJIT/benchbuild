@@ -49,9 +49,10 @@ class Lapack(PprofGroup):
     NAME = 'lapack'
     DOMAIN = 'scientific'
 
-    def __init__(self, exp, name):
-        super(Lapack, self).__init__(exp, name, self.domain)
-        self.sourcedir = path.join(config["sourcedir"], "src", "lapack", name)
+    def __init__(self, exp):
+        super(Lapack, self).__init__(exp)
+        self.sourcedir = path.join(config["sourcedir"], "src", "lapack",
+                                   self.name)
         self.testdir = path.join(config["testdir"], self.domain, "lapack",
                                  "tests")
 

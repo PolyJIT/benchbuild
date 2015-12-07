@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -11,12 +10,6 @@ from plumbum import local
 class TCC(PprofGroup):
     NAME = 'tcc'
     DOMAIN = 'compilation'
-
-    class Factory:
-        def create(self, exp):
-            return TCC(exp, "tcc", "compilation")
-
-    ProjectFactory.addFactory("TCC", Factory())
 
     src_dir = "tcc-0.9.26"
     src_file = src_dir + ".tar.bz2"

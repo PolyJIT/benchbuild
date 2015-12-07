@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -14,12 +13,6 @@ class Povray(PprofGroup):
 
     NAME = 'povray'
     DOMAIN = 'multimedia'
-
-    class Factory:
-        def create(self, exp):
-            return Povray(exp, "povray", "multimedia")
-
-    ProjectFactory.addFactory("Povray", Factory())
 
     src_uri = "https://github.com/POV-Ray/povray"
     src_dir = "povray.git"

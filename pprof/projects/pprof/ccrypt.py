@@ -1,7 +1,5 @@
 #!/usr/bin/evn python
 #
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -16,12 +14,6 @@ class Ccrypt(PprofGroup):
     DOMAIN = 'encryption'
 
     check_f = "check"
-
-    class Factory:
-        def create(self, exp):
-            return Ccrypt(exp, "ccrypt", "encryption")
-
-    ProjectFactory.addFactory("Ccrypt", Factory())
 
     def prepare(self):
         super(Ccrypt, self).prepare()

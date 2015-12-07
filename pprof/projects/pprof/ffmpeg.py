@@ -1,8 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
-from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -15,12 +13,6 @@ class LibAV(PprofGroup):
     """ LibAV benchmark """
     NAME = 'ffmpeg'
     DOMAIN = 'multimedia'
-
-    class Factory:
-        def create(self, exp):
-            return LibAV(exp, "ffmpeg", "multimedia")
-
-    ProjectFactory.addFactory("LibAV", Factory())
 
     src_dir = "ffmpeg-2.6.3"
     src_file = src_dir + ".tar.bz2"

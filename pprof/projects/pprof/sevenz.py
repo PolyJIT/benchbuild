@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -13,12 +12,6 @@ class SevenZip(PprofGroup):
 
     NAME = '7z'
     DOMAIN = 'compression'
-
-    class Factory:
-        def create(self, exp):
-            return SevenZip(exp, "7z", "compression")
-
-    ProjectFactory.addFactory("SevenZip", Factory())
 
     def run_tests(self, experiment):
         from pprof.project import wrap
@@ -51,7 +44,6 @@ class SevenZip(PprofGroup):
     def build(self):
         from plumbum.cmd import make
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
-        from pprof.settings import config
         from pprof.utils.run import run
 
         p7z_dir = path.join(self.builddir, self.src_dir)

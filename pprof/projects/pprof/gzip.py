@@ -1,12 +1,11 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 from plumbum.cmd import cp
 
 
@@ -18,12 +17,6 @@ class Gzip(PprofGroup):
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
-
-    class Factory:
-        def create(self, exp):
-            return Gzip(exp, "gzip", "compression")
-
-    ProjectFactory.addFactory("Gzip", Factory())
 
     def prepare(self):
         super(Gzip, self).prepare()

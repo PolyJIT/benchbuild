@@ -1,8 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
-from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -14,12 +12,6 @@ class LibreSSL(PprofGroup):
 
     NAME = 'libressl'
     DOMAIN = 'encryption'
-
-    class Factory:
-        def create(self, exp):
-            return LibreSSL(exp, "libressl", "encryption")
-
-    ProjectFactory.addFactory("LibreSSL", Factory())
 
     src_dir = "libressl-2.1.6"
     src_file = src_dir + ".tar.gz"

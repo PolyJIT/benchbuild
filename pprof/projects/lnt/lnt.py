@@ -4,8 +4,7 @@
 LNT based measurements.
 
 """
-from pprof.project import Project, ProjectFactory
-
+from pprof.project import Project
 from os import path
 from plumbum import local
 
@@ -50,12 +49,6 @@ class LNTGroup(Project):
 class SingleSourceBenchmarks(LNTGroup):
     NAME = 'SingleSourceBenchmarks'
 
-    class Factory:
-        def create(self, exp):
-            return SingleSourceBenchmarks(exp, "SingleSourceBenchmarks")
-
-    ProjectFactory.addFactory("SingleSourceBenchmarks", Factory())
-
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
@@ -80,12 +73,6 @@ class SingleSourceBenchmarks(LNTGroup):
 
 class MultiSourceBenchmarks(LNTGroup):
     NAME = 'MultiSourceBenchmarks'
-
-    class Factory:
-        def create(self, exp):
-            return MultiSourceBenchmarks(exp, "MultiSourceBenchmarks")
-
-    ProjectFactory.addFactory("MultiSourceBenchmarks", Factory())
 
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
@@ -112,12 +99,6 @@ class MultiSourceBenchmarks(LNTGroup):
 class MultiSourceApplications(LNTGroup):
     NAME = 'MultiSourceApplications'
 
-    class Factory:
-        def create(self, exp):
-            return MultiSourceApplications(exp, "MultiSourceApplications")
-
-    ProjectFactory.addFactory("MultiSourceApplications", Factory())
-
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
@@ -142,12 +123,6 @@ class MultiSourceApplications(LNTGroup):
 
 class SPEC2006(LNTGroup):
     NAME = 'SPEC2006'
-
-    class Factory:
-        def create(self, exp):
-            return SPEC2006(exp, "SPEC2006")
-
-    ProjectFactory.addFactory("SPEC2006", Factory())
 
     def download(self):
         from pprof.utils.downloader import CopyNoFail
@@ -187,12 +162,6 @@ class SPEC2006(LNTGroup):
 
 class Povray(LNTGroup):
     NAME = 'Povray'
-
-    class Factory:
-        def create(self, exp):
-            return Povray(exp, "Povray")
-
-    ProjectFactory.addFactory("Povray", Factory())
 
     povray_url = "https://github.com/POV-Ray/povray"
     povray_src_dir = "Povray"

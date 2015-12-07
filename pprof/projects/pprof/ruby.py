@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
 
@@ -12,12 +11,6 @@ from plumbum import local
 class Ruby(PprofGroup):
     NAME = 'ruby'
     DOMAIN = 'compilation'
-
-    class Factory:
-        def create(self, exp):
-            return Ruby(exp, "ruby", "compilation")
-
-    ProjectFactory.addFactory("Ruby", Factory())
 
     src_dir = "ruby-2.2.2"
     src_file = src_dir + ".tar.gz"

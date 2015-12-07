@@ -1,7 +1,5 @@
 #!/usr/bin/evn python
 #
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -17,13 +15,6 @@ class Bzip2(PprofGroup):
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
-
-    class Factory:
-        def create(self, exp):
-            return Bzip2(exp, "bzip2", "compression")
-
-    ProjectFactory.addFactory("Bzip2", Factory())
-
     src_dir = "bzip2-1.0.6"
     src_file = src_dir + ".tar.gz"
     src_uri = "http://www.bzip.org/1.0.6/" + src_file

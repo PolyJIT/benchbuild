@@ -14,7 +14,7 @@ The following packages are required to run GentooGroup:
     * fakeroot
 """
 
-from pprof.project import Project, ProjectFactory
+from pprof.project import Project
 from plumbum import local
 from lazy import lazy
 
@@ -120,22 +120,6 @@ class Eix(GentooGroup):
     """
     NAME = 'eix'
     DOMAIN = 'debug'
-
-    class Factory:
-        """
-        The factory class for the package eix.
-        """
-
-        def create(self, exp):
-            """
-            Creates an instance of the Eix class.
-
-            Return:
-                Eix object
-            """
-            return Eix(exp, "eix")
-
-    ProjectFactory.addFactory("Eix", Factory())
 
     def build(self):
         from pprof.utils.run import run, uchroot

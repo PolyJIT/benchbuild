@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -14,12 +13,6 @@ class Crafty(PprofGroup):
 
     NAME = 'crafty'
     DOMAIN = 'scientific'
-
-    class Factory:
-        def create(self, exp):
-            return Crafty(exp, "crafty", "scientific")
-
-    ProjectFactory.addFactory("Crafty", Factory())
 
     src_dir = "crafty-23.4"
     src_file = src_dir + ".zip"

@@ -1,12 +1,11 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
 from glob import glob
-from plumbum import FG, local
+from plumbum import local
 from plumbum.cmd import cat
 
 
@@ -15,12 +14,6 @@ class Crocopat(PprofGroup):
 
     NAME = 'crocopat'
     DOMAIN = 'verification'
-
-    class Factory:
-        def create(self, exp):
-            return Crocopat(exp, "crocopat", "verification")
-
-    ProjectFactory.addFactory("Crocopat", Factory())
 
     def run_tests(self, experiment):
         from pprof.project import wrap

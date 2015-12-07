@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
 
@@ -9,18 +8,11 @@ from os import path
 from plumbum import local
 
 
-# git clone git://rasdaman.org/rasdaman.git
 class Rasdaman(PprofGroup):
     """ Rasdaman """
 
     NAME = 'Rasdaman'
     DOMAIN = 'database'
-
-    class Factory:
-        def create(self, exp):
-            return Rasdaman(exp, "Rasdaman", "database")
-
-    ProjectFactory.addFactory("Rasdaman", Factory())
 
     src_dir = "rasdaman.git"
     src_uri = "git://rasdaman.org/rasdaman.git"

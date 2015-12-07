@@ -1,7 +1,5 @@
 #!/usr/bin/evn python
 #
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -13,12 +11,6 @@ class Linpack(PprofGroup):
 
     NAME = 'linpack'
     DOMAIN = 'scientific'
-
-    class Factory:
-        def create(self, exp):
-            return Linpack(exp, "linpack", "scientific")
-
-    ProjectFactory.addFactory("Linpack", Factory())
 
     src_uri = "http://www.netlib.org/benchmark/linpackc.new"
 

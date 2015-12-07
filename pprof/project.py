@@ -51,6 +51,7 @@ class Project(object, metaclass=ProjectRegistry):
 
     NAME = None
     DOMAIN = None
+    GROUP = None
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -63,8 +64,13 @@ class Project(object, metaclass=ProjectRegistry):
             raise AttributeError(
                 "{} @ {} does not define a DOMAIN class attribute.".format(
                     cls.__name__, cls.__module__))
+        if cls.GROUP is None:
+            raise AttributeError(
+                "{} @ {} does not define a GROUP class attribute.".format(
+                    cls.__name__, cls.__module__))
         new_self.name = cls.NAME
         new_self.domain = cls.DOMAIN
+        new_self.group = cls.GROUP
         return new_self
 
     def __init__(self, exp, name, domain, group=None):

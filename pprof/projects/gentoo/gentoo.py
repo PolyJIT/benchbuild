@@ -45,9 +45,10 @@ class GentooGroup(Project):
     """
     Gentoo ProjectGroup is the base class for every portage build.
     """
+    GROUP = 'gentoo'
 
-    def __init__(self, exp, name):
-        super(GentooGroup, self).__init__(exp, name, "gentoo", "gentoo")
+    def __init__(self, exp):
+        super(GentooGroup, self).__init__(exp, "gentoo")
 
     src_dir = "gentoo"
     src_file = src_dir + ".tar.bz2"

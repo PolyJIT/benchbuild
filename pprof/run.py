@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-#
-
 from plumbum import cli
 from plumbum.cmd import mkdir
 from pprof.driver import PollyProfiling

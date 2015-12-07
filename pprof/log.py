@@ -1,4 +1,4 @@
-#
+#!/usr/bin/env python3
 """ Analyze the PPROF database. """
 
 from plumbum import cli

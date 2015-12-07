@@ -1,4 +1,3 @@
-#
 """
 The 'raw' Experiment.
 

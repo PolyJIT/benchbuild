@@ -1,9 +1,5 @@
-#!/usr/bin/evn python
-#
-
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import local
 

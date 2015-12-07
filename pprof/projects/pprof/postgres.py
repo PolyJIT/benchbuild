@@ -1,8 +1,4 @@
-#!/usr/bin/evn python
-#
-
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import FG, local
 from plumbum.cmd import cp, echo, chmod

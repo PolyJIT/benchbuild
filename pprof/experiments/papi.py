@@ -1,4 +1,3 @@
-#
 """
 PAPI based experiments.
 

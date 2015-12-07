@@ -1,4 +1,3 @@
-#
 """
 The 'polly-openmp-vectorize' Experiment.
 

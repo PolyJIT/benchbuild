@@ -1,18 +1,12 @@
 from os import path
 from pprof.projects.pprof.group import PprofGroup
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from plumbum import local
 
 
 class OpenBlas(PprofGroup):
-    domain = "scientific"
-
-    class Factory:
-        def create(self, exp):
-            return OpenBlas(exp, "openblas", "scientific")
-
-    ProjectFactory.addFactory("OpenBlas", Factory())
+    NAME = 'openblas'
+    DOMAIN = 'scientific'
 
     src_dir = "OpenBLAS"
     src_uri = "https://github.com/xianyi/" + src_dir
@@ -45,11 +39,13 @@ class OpenBlas(PprofGroup):
 
 
 class Lapack(PprofGroup):
-    domain = "scientific"
+    NAME = 'lapack'
+    DOMAIN = 'scientific'
 
-    def __init__(self, exp, name):
-        super(Lapack, self).__init__(exp, name, self.domain)
-        self.sourcedir = path.join(config["sourcedir"], "src", "lapack", name)
+    def __init__(self, exp):
+        super(Lapack, self).__init__(exp)
+        self.sourcedir = path.join(config["sourcedir"], "src", "lapack",
+                                   self.name)
         self.testdir = path.join(config["testdir"], self.domain, "lapack",
                                  "tests")
 
@@ -136,9 +132,3 @@ class Lapack(PprofGroup):
                 run((xblat3d < "dblat3.in"))
                 run((xblat3c < "cblat3.in"))
                 run((xblat3z < "zblat3.in"))
-
-    class Factory:
-        def create(self, exp):
-            return Lapack(exp, "lapack")
-
-    ProjectFactory.addFactory("Lapack", Factory())

@@ -1,27 +1,19 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
 from pprof.utils.run import run
-
 from os import path
-from plumbum import local, FG
+from plumbum import local
 from plumbum.cmd import cp
 
 
 class X264(PprofGroup):
     """ x264 """
 
+    NAME = "x264"
+    DOMAIN = "multimedia"
+
     inputfiles = {"tbbt-small.y4m": [],
                   "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}
-
-    class Factory:
-        def create(self, exp):
-            return X264(exp, "x264", "multimedia")
-
-    ProjectFactory.addFactory("X264", Factory())
 
     def prepare(self):
         super(X264, self).prepare()

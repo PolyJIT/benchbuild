@@ -1,7 +1,3 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 from plumbum import local
 
@@ -9,11 +5,8 @@ from plumbum import local
 class LuleshOMP(PprofGroup):
     """ Lulesh-OMP """
 
-    class Factory:
-        def create(self, exp):
-            return LuleshOMP(exp, "lulesh-omp", "scientific")
-
-    ProjectFactory.addFactory("LuleshOMP", Factory())
+    NAME = 'lulesh-omp'
+    DOMAIN = 'scientific'
 
     def run_tests(self, experiment):
         from pprof.project import wrap

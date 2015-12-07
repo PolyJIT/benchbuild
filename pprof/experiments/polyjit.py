@@ -1,4 +1,3 @@
-#
 """
 The 'polyjit' experiment.
 
@@ -6,9 +5,8 @@ This experiment uses likwid to measure the performance of all binaries
 when running with polyjit support enabled.
 """
 from pprof.experiments.compilestats import get_compilestats
-from pprof.experiment import step, substep, static_var, RuntimeExperiment
-from pprof.project import Project
-from pprof.experiment import Experiment
+from pprof.experiment import step, substep, RuntimeExperiment
+from pprof.utils.run import partial
 from pprof.utils.schema import CompileStat
 
 from plumbum import local
@@ -16,14 +14,14 @@ from abc import abstractmethod
 from os import path
 
 
-@static_var("config", None)
-@static_var("experiment", None)
-@static_var("project", None)
-def run_raw(run_f, args, **kwargs):
+def run_raw(project, experiment, config, run_f, args, **kwargs):
     """
     Run the given binary wrapped with nothing.
 
     Args:
+        project: The pprof.project.
+        experiment: The pprof.experiment.
+        config: The pprof.settings.config.
         run_f: The file we want to execute.
         args: List of arguments that should be passed to the wrapped binary.
         **kwargs: Dictionary with our keyword args. We support the following
@@ -35,23 +33,9 @@ def run_raw(run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.utils import run as r
-    from pprof.settings import config
+    from pprof.settings import config as c
 
-    project = run_raw.project
-    experiment = run_raw.experiment
-    cfg = run_raw.config
-
-    config.update(cfg)
-
-    assert project is not None, "run_raw.project attribute is None."
-    assert experiment is not None, "run_raw.experiment attribute is None."
-    assert cfg is not None, "run_raw.config attribute is None."
-    assert isinstance(project,
-                      Project), "Wrong type: %r Want: Project" % project
-    assert isinstance(
-        experiment, Experiment), "Wrong type: %r Want: Experiment" % experiment
-    assert isinstance(cfg, dict), "Wrong type: %r Want: dict" % cfg
-
+    c.update(config)
     project_name = kwargs.get("project_name", project.name)
 
     run_cmd = local[run_f]
@@ -59,11 +43,7 @@ def run_raw(run_f, args, **kwargs):
     r.guarded_exec(run_cmd, project_name, experiment.name, project.run_uuid)
 
 
-@static_var("config", None)
-@static_var("experiment", None)
-@static_var("project", None)
-@static_var("jobs", 0)
-def run_with_papi(run_f, args, **kwargs):
+def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
     """
     Run the given file with PAPI support.
 
@@ -71,6 +51,10 @@ def run_with_papi(run_f, args, **kwargs):
     already. If not, this won't do a lot.
 
     Args:
+        project: The pprof.project.
+        experiment: The pprof.experiment.
+        config: The pprof.settings.config.
+        jobs: Number of cores we should use for this exection.
         run_f: The file we want to execute.
         args: List of arguments that should be passed to the wrapped binary.
         **kwargs: Dictionary with our keyword args. We support the following
@@ -81,28 +65,12 @@ def run_with_papi(run_f, args, **kwargs):
                 with ::pprof.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
+    from pprof.settings import config as c
     from pprof.utils import run as r
     from pprof.utils.db import persist_config
-    from pprof.settings import config
 
-    project = run_with_papi.project
-    experiment = run_with_papi.experiment
-    cfg = run_with_papi.config
-    jobs = run_with_papi.jobs
-
-    config.update(cfg)
-
-    assert project is not None, "run_with_likwid.project attribute is None."
-    assert experiment is not None, "run_with_likwid.experiment attribute is None."
-    assert cfg is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(project,
-                      Project), "Wrong type: %r Want: Project" % project
-    assert isinstance(
-        experiment, Experiment), "Wrong type: %r Want: Experiment" % experiment
-    assert isinstance(cfg, dict), "Wrong type: %r Want: dict" % cfg
-
+    c.update(config)
     project_name = kwargs.get("project_name", project.name)
-
     run_cmd = r.handle_stdin(run_f[args], kwargs)
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
@@ -113,15 +81,15 @@ def run_with_papi(run_f, args, **kwargs):
     persist_config(run, session, {"cores": str(jobs)})
 
 
-@static_var("config", None)
-@static_var("experiment", None)
-@static_var("project", None)
-@static_var("jobs", 0)
-def run_with_likwid(run_f, args, **kwargs):
+def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
     """
     Run the given file wrapped by likwid.
 
     Args:
+        project: The pprof.project.
+        experiment: The pprof.experiment.
+        config: The pprof.settings.config.
+        jobs: Number of cores we should use for this exection.
         run_f: The file we want to execute.
         args: List of arguments that should be passed to the wrapped binary.
         **kwargs: Dictionary with our keyword args. We support the following
@@ -132,33 +100,18 @@ def run_with_likwid(run_f, args, **kwargs):
                 with ::pprof.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
+    from pprof.settings import config as c
     from pprof.utils import run as r
     from pprof.utils.db import persist_likwid, persist_config
     from pprof.likwid import get_likwid_perfctr
-    from pprof.settings import config
     from plumbum.cmd import rm
 
-    project = run_with_likwid.project
-    experiment = run_with_likwid.experiment
-    cfg = run_with_likwid.config
-    jobs = run_with_likwid.jobs
-
-    config.update(cfg)
-
-    assert project is not None, "run_with_likwid.project attribute is None."
-    assert experiment is not None, "run_with_likwid.experiment attribute is None."
-    assert cfg is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(project,
-                      Project), "Wrong type: %r Want: Project" % project
-    assert isinstance(
-        experiment, Experiment), "Wrong type: %r Want: Experiment" % experiment
-    assert isinstance(cfg, dict), "Wrong type: %r Want: Experiment" % cfg
-
+    c.update(config)
     project_name = kwargs.get("project_name", project.name)
     likwid_f = project_name + ".txt"
 
     for group in ["CLOCK"]:
-        likwid_path = path.join(cfg["likwiddir"], "bin")
+        likwid_path = path.join(c["likwiddir"], "bin")
         likwid_perfctr = local[path.join(likwid_path, "likwid-perfctr")]
         run_cmd = \
             likwid_perfctr["-O", "-o", likwid_f, "-m",
@@ -183,15 +136,15 @@ def run_with_likwid(run_f, args, **kwargs):
         rm("-f", likwid_f)
 
 
-@static_var("config", None)
-@static_var("experiment", None)
-@static_var("project", None)
-@static_var("jobs", 0)
-def run_with_time(run_f, args, **kwargs):
+def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     """
     Run the given binary wrapped with time.
 
     Args:
+        project: The pprof.project.
+        experiment: The pprof.experiment.
+        config: The pprof.settings.config.
+        jobs: Number of cores we should use for this exection.
         run_f: The file we want to execute.
         args: List of arguments that should be passed to the wrapped binary.
         **kwargs: Dictionary with our keyword args. We support the following
@@ -203,26 +156,11 @@ def run_with_time(run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.utils import run as r
+    from pprof.settings import config as c
     from pprof.utils.db import persist_time, persist_config
-    from pprof.settings import config
     from plumbum.cmd import time
 
-    project = run_with_time.project
-    experiment = run_with_time.experiment
-    cfg = run_with_time.config
-    jobs = run_with_time.jobs
-
-    config.update(cfg)
-
-    assert project is not None, "run_with_likwid.project attribute is None."
-    assert experiment is not None, "run_with_likwid.experiment attribute is None."
-    assert cfg is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(project,
-                      Project), "Wrong type: %r Want: Project" % project
-    assert isinstance(
-        experiment, Experiment), "Wrong type: %r Want: Experiment" % experiment
-    assert isinstance(cfg, dict), "Wrong type: %r Want: dict" % cfg
-
+    c.update(config)
     project_name = kwargs.get("project_name", project.name)
     timing_tag = "PPROF-JIT: "
 
@@ -242,15 +180,15 @@ def run_with_time(run_f, args, **kwargs):
     persist_config(run, session, {"cores": str(jobs)})
 
 
-@static_var("config", None)
-@static_var("experiment", None)
-@static_var("project", None)
-@static_var("jobs", 0)
-def run_with_perf(run_f, args, **kwargs):
+def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
     """
     Run the given binary wrapped with time.
 
     Args:
+        project: The pprof.project.
+        experiment: The pprof.experiment.
+        config: The pprof.settings.config.
+        jobs: Number of cores we should use for this exection.
         run_f: The file we want to execute.
         args: List of arguments that should be passed to the wrapped binary.
         **kwargs: Dictionary with our keyword args. We support the following
@@ -261,27 +199,12 @@ def run_with_perf(run_f, args, **kwargs):
                 with ::pprof.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
+    from pprof.settings import config as c
     from pprof.utils import run as r
     from pprof.utils.db import persist_perf, persist_config
-    from pprof.settings import config
     from plumbum.cmd import perf
 
-    project = run_with_perf.project
-    experiment = run_with_perf.experiment
-    cfg = run_with_perf.config
-    jobs = run_with_perf.jobs
-
-    config.update(cfg)
-
-    assert project is not None, "run_with_likwid.project attribute is None."
-    assert experiment is not None, "run_with_likwid.experiment attribute is None."
-    assert cfg is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(project,
-                      Project), "Wrong type: %r Want: Project" % project
-    assert isinstance(
-        experiment, Experiment), "Wrong type: %r Want: Experiment" % experiment
-    assert isinstance(cfg, dict), "Wrong type: %r Want: dict" % cfg
-
+    c.update(config)
     project_name = kwargs.get("project_name", project.name)
     run_cmd = local[run_f]
     run_cmd = r.handle_stdin(run_cmd[args], kwargs)
@@ -293,7 +216,7 @@ def run_with_perf(run_f, args, **kwargs):
             r.guarded_exec(local["/bin/true"], project_name, experiment.name,
                            project.run_uuid)
 
-        fg_path = path.join(config["sourcedir"], "extern/FlameGraph")
+        fg_path = path.join(c["sourcedir"], "extern/FlameGraph")
         if path.exists(fg_path):
             sc_perf = local[path.join(fg_path, "stackcollapse-perf.pl")]
             flamegraph = local[path.join(fg_path, "flamegraph.pl")]
@@ -365,12 +288,7 @@ class PJITRaw(PolyJIT):
                     p.download()
                     p.configure()
                     p.build()
-
-                    run_with_time.config = config
-                    run_with_time.experiment = self
-                    run_with_time.project = p
-                    run_with_time.jobs = i
-                    p.run(run_with_time)
+                    p.run(partial(run_with_time, p, self, config, i))
 
 
 class PJITperf(PolyJIT):
@@ -393,12 +311,7 @@ class PJITperf(PolyJIT):
                     p.download()
                     p.configure()
                     p.build()
-
-                    run_with_perf.config = config
-                    run_with_perf.experiment = self
-                    run_with_perf.project = p
-                    run_with_perf.jobs = i
-                    p.run(run_with_perf)
+                    p.run(partial(run_with_perf, p, self, config, i))
 
 
 class PJITlikwid(PolyJIT):
@@ -433,7 +346,7 @@ class PJITlikwid(PolyJIT):
                     run_with_likwid.experiment = self
                     run_with_likwid.project = p
                     run_with_likwid.jobs = i
-                    p.run(run_with_likwid)
+                    p.run(partial(run_with_likwid, p, self, config, i))
 
 
 class PJITRegression(PolyJIT):
@@ -460,28 +373,30 @@ class PJITRegression(PolyJIT):
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
 
-            def track_compilestats(clang, **kwargs):
+            def _track_compilestats(project, experiment, config, clang,
+                                    **kwargs):
                 """ Compile the project and track the compilestats. """
                 from pprof.utils import run as r
+                from pprof.settings import config as c
                 from pprof.utils.run import handle_stdin
 
+                c.update(config)
                 clang = handle_stdin(clang["-mllvm", "-polli-collect-modules"],
                                      kwargs)
-                r.guarded_exec(clang, p.name, self.name, p.run_uuid)
-
-            run_raw.config = config
-            run_raw.experiment = self
-            run_raw.project = p
-            run_raw.jobs = 1
+                pname = project.name
+                ename = experiment.name
+                ruuid = project.run_uuid
+                r.guarded_exec(clang, pname, ename, ruuid)
 
             with step("Extract regression test modules."):
                 p.clean()
                 p.prepare()
                 p.download()
-                p.compiler_extension = track_compilestats
+                p.compiler_extension = partial(_track_compilestats, p, self,
+                                               config)
                 p.configure()
                 p.build()
-                p.run(run_raw)
+                p.run(partial(run_raw, p, self, config, 1))
 
 
 class PJITcs(PolyJIT):
@@ -493,6 +408,8 @@ class PJITcs(PolyJIT):
     """
 
     def run_project(self, p):
+        from pprof.settings import config
+
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
             from uuid import uuid4
@@ -502,23 +419,18 @@ class PJITcs(PolyJIT):
             p.download()
             with substep("Configure Project"):
 
-                def track_compilestats(clang, **kwargs):
-                    """
-                    Track the compilation stats of clang.
-
-                    Args:
-                        clang: The clang compiler command we invoke(d),
-                        **kwargs: So far, we only check for ``has_stdin`` in
-                            the dictionary.
-                    """
+                def _track_compilestats(project, experiment, config, clang,
+                                        **kwargs):
                     from pprof.utils import run as r
+                    from pprof.settings import config as c
                     from pprof.utils.db import persist_compilestats
                     from pprof.utils.run import handle_stdin
 
+                    c.update(config)
                     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
                     run, session, retcode, _, stderr = \
-                        r.guarded_exec(clang, p.name, self.name, p.run_uuid)
+                        r.guarded_exec(clang, project.name, experiment.name, project.run_uuid)
 
                     if retcode == 0:
                         stats = []
@@ -531,7 +443,8 @@ class PJITcs(PolyJIT):
                         persist_compilestats(run, session, stats)
 
                 p.run_uuid = uuid4()
-                p.compiler_extension = track_compilestats
+                p.compiler_extension = partial(_track_compilestats, p, self,
+                                               config)
                 p.configure()
 
         with substep("Build Project"):
@@ -590,8 +503,4 @@ class PJITpapi(PolyJIT):
                     p.build()
 
                     p.run_uuid = uuid4()
-                    run_with_papi.config = config
-                    run_with_papi.experiment = self
-                    run_with_papi.project = p
-                    run_with_papi.jobs = i
-                    p.run(run_with_papi)
+                    p.run(partial(run_with_papi, p, self, config, i))

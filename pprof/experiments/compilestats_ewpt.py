@@ -1,4 +1,3 @@
-#
 """
 The 'compilestats_ewpt' Experiment.
 

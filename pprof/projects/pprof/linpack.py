@@ -1,9 +1,4 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import local
 
@@ -11,11 +6,8 @@ from plumbum import local
 class Linpack(PprofGroup):
     """ Linpack (C-Version) """
 
-    class Factory:
-        def create(self, exp):
-            return Linpack(exp, "linpack", "scientific")
-
-    ProjectFactory.addFactory("Linpack", Factory())
+    NAME = 'linpack'
+    DOMAIN = 'scientific'
 
     src_uri = "http://www.netlib.org/benchmark/linpackc.new"
 

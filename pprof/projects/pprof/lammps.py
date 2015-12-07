@@ -1,9 +1,4 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from glob import glob
 from plumbum import local
@@ -12,11 +7,8 @@ from plumbum import local
 class Lammps(PprofGroup):
     """ LAMMPS benchmark """
 
-    class Factory:
-        def create(self, exp):
-            return Lammps(exp, "lammps", "scientific")
-
-    ProjectFactory.addFactory("Lammps", Factory())
+    NAME = 'lammps'
+    DOMAIN = 'scientific'
 
     def prepare(self):
         super(Lammps, self).prepare()

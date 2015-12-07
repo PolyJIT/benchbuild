@@ -1,23 +1,14 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import local
 
 
-# git clone git://rasdaman.org/rasdaman.git
 class Rasdaman(PprofGroup):
     """ Rasdaman """
 
-    class Factory:
-        def create(self, exp):
-            return Rasdaman(exp, "Rasdaman", "database")
-
-    ProjectFactory.addFactory("Rasdaman", Factory())
+    NAME = 'Rasdaman'
+    DOMAIN = 'database'
 
     src_dir = "rasdaman.git"
     src_uri = "git://rasdaman.org/rasdaman.git"

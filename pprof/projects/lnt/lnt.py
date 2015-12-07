@@ -1,11 +1,8 @@
-#!/usr/bin/evn python
-#
 """
 LNT based measurements.
 
 """
-from pprof.project import Project, ProjectFactory
-
+from pprof.project import Project
 from os import path
 from plumbum import local
 
@@ -13,8 +10,11 @@ from plumbum import local
 class LNTGroup(Project):
     """LNT ProjectGroup for running the lnt test suite."""
 
-    def __init__(self, exp, name):
-        super(LNTGroup, self).__init__(exp, name, "lnt", "lnt")
+    DOMAIN = 'lnt'
+    GROUP = 'lnt'
+
+    def __init__(self, exp):
+        super(LNTGroup, self).__init__(exp, "lnt")
 
     src_dir = "lnt"
     src_uri = "http://llvm.org/git/lnt"
@@ -45,11 +45,7 @@ class LNTGroup(Project):
 
 
 class SingleSourceBenchmarks(LNTGroup):
-    class Factory:
-        def create(self, exp):
-            return SingleSourceBenchmarks(exp, "SingleSourceBenchmarks")
-
-    ProjectFactory.addFactory("SingleSourceBenchmarks", Factory())
+    NAME = 'SingleSourceBenchmarks'
 
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
@@ -74,11 +70,7 @@ class SingleSourceBenchmarks(LNTGroup):
 
 
 class MultiSourceBenchmarks(LNTGroup):
-    class Factory:
-        def create(self, exp):
-            return MultiSourceBenchmarks(exp, "MultiSourceBenchmarks")
-
-    ProjectFactory.addFactory("MultiSourceBenchmarks", Factory())
+    NAME = 'MultiSourceBenchmarks'
 
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
@@ -103,11 +95,7 @@ class MultiSourceBenchmarks(LNTGroup):
 
 
 class MultiSourceApplications(LNTGroup):
-    class Factory:
-        def create(self, exp):
-            return MultiSourceApplications(exp, "MultiSourceApplications")
-
-    ProjectFactory.addFactory("MultiSourceApplications", Factory())
+    NAME = 'MultiSourceApplications'
 
     def run_tests(self, experiment):
         from pprof.project import wrap_dynamic
@@ -132,11 +120,7 @@ class MultiSourceApplications(LNTGroup):
 
 
 class SPEC2006(LNTGroup):
-    class Factory:
-        def create(self, exp):
-            return SPEC2006(exp, "SPEC2006")
-
-    ProjectFactory.addFactory("SPEC2006", Factory())
+    NAME = 'SPEC2006'
 
     def download(self):
         from pprof.utils.downloader import CopyNoFail
@@ -175,11 +159,7 @@ class SPEC2006(LNTGroup):
 
 
 class Povray(LNTGroup):
-    class Factory:
-        def create(self, exp):
-            return Povray(exp, "Povray")
-
-    ProjectFactory.addFactory("Povray", Factory())
+    NAME = 'Povray'
 
     povray_url = "https://github.com/POV-Ray/povray"
     povray_src_dir = "Povray"

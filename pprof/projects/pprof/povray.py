@@ -1,9 +1,4 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import FG, local
 from plumbum.cmd import cp, chmod, find
@@ -12,11 +7,8 @@ from plumbum.cmd import cp, chmod, find
 class Povray(PprofGroup):
     """ povray benchmark """
 
-    class Factory:
-        def create(self, exp):
-            return Povray(exp, "povray", "multimedia")
-
-    ProjectFactory.addFactory("Povray", Factory())
+    NAME = 'povray'
+    DOMAIN = 'multimedia'
 
     src_uri = "https://github.com/POV-Ray/povray"
     src_dir = "povray.git"

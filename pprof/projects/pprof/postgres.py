@@ -1,9 +1,4 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import FG, local
 from plumbum.cmd import cp, echo, chmod
@@ -12,13 +7,10 @@ from plumbum.cmd import cp, echo, chmod
 class Postgres(PprofGroup):
     """ postgres benchmark """
 
+    NAME = 'postgres'
+    DOMAIN = 'database'
+
     testfiles = ["pg_ctl", "dropdb", "createdb", "pgbench"]
-
-    class Factory:
-        def create(self, exp):
-            return Postgres(exp, "postgres", "database")
-
-    ProjectFactory.addFactory("Postgres", Factory())
 
     def prepare(self):
         super(Postgres, self).prepare()

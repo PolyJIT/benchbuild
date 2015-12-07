@@ -202,7 +202,7 @@ def wrap(name, runner):
 
     This module generates a python tool that replaces :name:
     The function in runner only accepts the replaced binaries
-    name as argument. We use PiCloud's cloudpickle library to
+    name as argument. We use the cloudpickle package to
     perform the serialization, make sure :runner: can be serialized
     with it and you're fine.
 
@@ -214,7 +214,7 @@ def wrap(name, runner):
         A plumbum command, ready to launch.
     """
     from plumbum.cmd import mv, chmod
-    from cloud.serialization import cloudpickle as cp
+    import cloudpickle as cp
 
     name_absolute = path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
@@ -286,7 +286,7 @@ def wrap_dynamic(name, runner):
 
     """
     from plumbum.cmd import chmod
-    from cloud.serialization import cloudpickle as cp
+    import cloudpickle as cp
 
     name_absolute = path.abspath(name)
     blob_f = name_absolute + PROJECT_BLOB_F_EXT

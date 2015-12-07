@@ -226,7 +226,7 @@ def wrap(name, runner):
 
     with open(name_absolute, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
-# 
+#
 
 from plumbum import cli, local
 from os import path
@@ -295,7 +295,7 @@ def wrap_dynamic(name, runner):
 
     with open(name_absolute, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
-# 
+#
 
 from pprof.project import Project
 from pprof.experiment import Experiment

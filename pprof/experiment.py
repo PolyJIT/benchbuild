@@ -30,7 +30,7 @@ from plumbum import local, FG
 from plumbum.cmd import mkdir, rmdir
 from plumbum.commands.processes import ProcessExecutionError
 
-from pprof.project import ProjectFactory
+from pprof.project import ProjectRegistry
 from pprof.utils.run import GuardedRunException
 from pprof.settings import config
 from pprof.projects import *
@@ -287,21 +287,20 @@ class Experiment(object):
                 whole groups.
         """
         self.projects = {}
-        factories = ProjectFactory.factories
-        for fact_id in factories:
-            project = ProjectFactory.createProject(fact_id, self)
-            self.projects[project.name] = project
 
+        projects = ProjectRegistry.projects
         if projects_to_filter:
-            allkeys = set(list(self.projects.keys()))
+            allkeys = set(list(projects.keys()))
             usrkeys = set(projects_to_filter)
-            self.projects = {x: self.projects[x] for x in allkeys & usrkeys}
+            projects = {x: projects[x] for x in allkeys & usrkeys}
 
         if group:
-            self.projects = {
-                k: v
-                for k, v in self.projects.items() if v.group_name == group
+            projects = {
+                name: cls
+                for name, cls in projects.items() if cls.GROUP == group
             }
+
+        self.projects = {k: projects[k](self) for k in projects}
 
     def clean_project(self, project):
         """

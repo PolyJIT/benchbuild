@@ -8,6 +8,8 @@ from plumbum import FG, local
 
 
 class LevelDB(PprofGroup):
+    NAME = 'leveldb'
+    DOMAIN = 'database'
 
     src_uri = "https://github.com/google/leveldb"
 

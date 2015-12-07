@@ -12,6 +12,9 @@ from plumbum import local
 class Lammps(PprofGroup):
     """ LAMMPS benchmark """
 
+    NAME = 'lammps'
+    DOMAIN = 'scientific'
+
     class Factory:
         def create(self, exp):
             return Lammps(exp, "lammps", "scientific")

@@ -12,6 +12,9 @@ from plumbum import local
 class LibreSSL(PprofGroup):
     """ OpenSSL """
 
+    NAME = 'libressl'
+    DOMAIN = 'encryption'
+
     class Factory:
         def create(self, exp):
             return LibreSSL(exp, "libressl", "encryption")

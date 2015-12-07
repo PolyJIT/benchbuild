@@ -11,6 +11,9 @@ from plumbum import local
 class SevenZip(PprofGroup):
     """ 7Zip """
 
+    NAME = '7z'
+    DOMAIN = 'compression'
+
     class Factory:
         def create(self, exp):
             return SevenZip(exp, "7z", "compression")

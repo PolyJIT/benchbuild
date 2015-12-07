@@ -13,6 +13,9 @@ from plumbum import local
 class Rasdaman(PprofGroup):
     """ Rasdaman """
 
+    NAME = 'Rasdaman'
+    DOMAIN = 'database'
+
     class Factory:
         def create(self, exp):
             return Rasdaman(exp, "Rasdaman", "database")

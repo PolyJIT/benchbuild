@@ -13,6 +13,9 @@ from plumbum.cmd import cp
 class Gzip(PprofGroup):
     """ Gzip """
 
+    NAME = 'gzip'
+    DOMAIN = 'compression'
+
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
 

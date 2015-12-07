@@ -10,6 +10,9 @@ from plumbum import FG, local
 
 
 class SDCC(PprofGroup):
+    NAME = 'sdcc'
+    DOMAIN = 'compilation'
+
     class Factory:
         def create(self, exp):
             return SDCC(exp, "sdcc", "compilation")

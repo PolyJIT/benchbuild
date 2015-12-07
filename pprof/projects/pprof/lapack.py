@@ -6,7 +6,8 @@ from plumbum import local
 
 
 class OpenBlas(PprofGroup):
-    domain = "scientific"
+    NAME = 'openblas'
+    DOMAIN = 'scientific'
 
     class Factory:
         def create(self, exp):
@@ -45,7 +46,8 @@ class OpenBlas(PprofGroup):
 
 
 class Lapack(PprofGroup):
-    domain = "scientific"
+    NAME = 'lapack'
+    DOMAIN = 'scientific'
 
     def __init__(self, exp, name):
         super(Lapack, self).__init__(exp, name, self.domain)

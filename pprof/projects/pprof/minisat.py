@@ -12,6 +12,9 @@ from plumbum import FG, local
 class Minisat(PprofGroup):
     """ minisat benchmark """
 
+    NAME = 'minisat'
+    DOMAIN = 'verification'
+
     class Factory:
         def create(self, exp):
             return Minisat(exp, "minisat", "verification")

@@ -12,6 +12,9 @@ from plumbum.cmd import ln
 class Ccrypt(PprofGroup):
     """ ccrypt benchmark """
 
+    NAME = 'ccrypt'
+    DOMAIN = 'encryption'
+
     check_f = "check"
 
     class Factory:

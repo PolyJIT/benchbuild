@@ -10,6 +10,9 @@ from plumbum import local
 
 
 class Ruby(PprofGroup):
+    NAME = 'ruby'
+    DOMAIN = 'compilation'
+
     class Factory:
         def create(self, exp):
             return Ruby(exp, "ruby", "compilation")

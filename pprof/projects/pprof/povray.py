@@ -12,6 +12,9 @@ from plumbum.cmd import cp, chmod, find
 class Povray(PprofGroup):
     """ povray benchmark """
 
+    NAME = 'povray'
+    DOMAIN = 'multimedia'
+
     class Factory:
         def create(self, exp):
             return Povray(exp, "povray", "multimedia")

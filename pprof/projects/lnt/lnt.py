@@ -13,6 +13,8 @@ from plumbum import local
 class LNTGroup(Project):
     """LNT ProjectGroup for running the lnt test suite."""
 
+    DOMAIN = 'lnt'
+
     def __init__(self, exp, name):
         super(LNTGroup, self).__init__(exp, name, "lnt", "lnt")
 
@@ -45,6 +47,8 @@ class LNTGroup(Project):
 
 
 class SingleSourceBenchmarks(LNTGroup):
+    NAME = 'SingleSourceBenchmarks'
+
     class Factory:
         def create(self, exp):
             return SingleSourceBenchmarks(exp, "SingleSourceBenchmarks")
@@ -74,6 +78,8 @@ class SingleSourceBenchmarks(LNTGroup):
 
 
 class MultiSourceBenchmarks(LNTGroup):
+    NAME = 'MultiSourceBenchmarks'
+
     class Factory:
         def create(self, exp):
             return MultiSourceBenchmarks(exp, "MultiSourceBenchmarks")
@@ -103,6 +109,8 @@ class MultiSourceBenchmarks(LNTGroup):
 
 
 class MultiSourceApplications(LNTGroup):
+    NAME = 'MultiSourceApplications'
+
     class Factory:
         def create(self, exp):
             return MultiSourceApplications(exp, "MultiSourceApplications")
@@ -132,6 +140,8 @@ class MultiSourceApplications(LNTGroup):
 
 
 class SPEC2006(LNTGroup):
+    NAME = 'SPEC2006'
+
     class Factory:
         def create(self, exp):
             return SPEC2006(exp, "SPEC2006")
@@ -175,6 +185,8 @@ class SPEC2006(LNTGroup):
 
 
 class Povray(LNTGroup):
+    NAME = 'Povray'
+
     class Factory:
         def create(self, exp):
             return Povray(exp, "Povray")

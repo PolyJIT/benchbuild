@@ -117,6 +117,8 @@ class Eix(GentooGroup):
 
     Building this class will create bare gentoo and compile eix.
     """
+    NAME = 'eix'
+    DOMAIN = 'debug'
 
     class Factory:
         """

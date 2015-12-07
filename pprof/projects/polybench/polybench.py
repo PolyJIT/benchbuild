@@ -6,6 +6,7 @@ from plumbum import local, FG
 
 
 class PolyBenchGroup(Project):
+    DOMAIN = 'polybench'
 
     path_dict = {
         "correlation": "datamining",
@@ -82,6 +83,8 @@ class PolyBenchGroup(Project):
 
 
 class Correlation(PolyBenchGroup):
+    NAME = 'correlation'
+
     class Factory:
         def create(self, exp):
             return Correlation(exp, "correlation")
@@ -90,6 +93,8 @@ class Correlation(PolyBenchGroup):
 
 
 class Covariance(PolyBenchGroup):
+    NAME = 'covariance'
+
     class Factory:
         def create(self, exp):
             return Covariance(exp, "covariance")
@@ -100,6 +105,8 @@ class Covariance(PolyBenchGroup):
 
 
 class TwoMM(PolyBenchGroup):
+    NAME = '2mm'
+
     class Factory:
         def create(self, exp):
             return TwoMM(exp, "2mm")
@@ -108,6 +115,8 @@ class TwoMM(PolyBenchGroup):
 
 
 class ThreeMM(PolyBenchGroup):
+    NAME = '3mm'
+
     class Factory:
         def create(self, exp):
             return ThreeMM(exp, "3mm")
@@ -116,6 +125,8 @@ class ThreeMM(PolyBenchGroup):
 
 
 class Atax(PolyBenchGroup):
+    NAME = 'atax'
+
     class Factory:
         def create(self, exp):
             return Atax(exp, "atax")
@@ -124,6 +135,8 @@ class Atax(PolyBenchGroup):
 
 
 class BicG(PolyBenchGroup):
+    NAME = 'bicg'
+
     class Factory:
         def create(self, exp):
             return BicG(exp, "bicg")
@@ -132,6 +145,8 @@ class BicG(PolyBenchGroup):
 
 
 class Doitgen(PolyBenchGroup):
+    NAME = 'doitgen'
+
     class Factory:
         def create(self, exp):
             return Doitgen(exp, "doitgen")
@@ -140,6 +155,8 @@ class Doitgen(PolyBenchGroup):
 
 
 class Mvt(PolyBenchGroup):
+    NAME = 'mvt'
+
     class Factory:
         def create(self, exp):
             return Mvt(exp, "mvt")
@@ -150,6 +167,8 @@ class Mvt(PolyBenchGroup):
 
 
 class Gemm(PolyBenchGroup):
+    NAME = 'gemm'
+
     class Factory:
         def create(self, exp):
             return Gemm(exp, "gemm")
@@ -158,6 +177,8 @@ class Gemm(PolyBenchGroup):
 
 
 class Gemver(PolyBenchGroup):
+    NAME = 'gemver'
+
     class Factory:
         def create(self, exp):
             return Gemver(exp, "gemver")
@@ -166,6 +187,8 @@ class Gemver(PolyBenchGroup):
 
 
 class Gesummv(PolyBenchGroup):
+    NAME = 'gesummv'
+
     class Factory:
         def create(self, exp):
             return Gesummv(exp, "gesummv")
@@ -174,6 +197,8 @@ class Gesummv(PolyBenchGroup):
 
 
 class Symm(PolyBenchGroup):
+    NAME = 'symm'
+
     class Factory:
         def create(self, exp):
             return Symm(exp, "symm")
@@ -182,6 +207,8 @@ class Symm(PolyBenchGroup):
 
 
 class Syr2k(PolyBenchGroup):
+    NAME = 'syr2k'
+
     class Factory:
         def create(self, exp):
             return Syr2k(exp, "syr2k")
@@ -190,6 +217,8 @@ class Syr2k(PolyBenchGroup):
 
 
 class Syrk(PolyBenchGroup):
+    NAME = 'syrk'
+
     class Factory:
         def create(self, exp):
             return Syrk(exp, "syrk")
@@ -198,6 +227,8 @@ class Syrk(PolyBenchGroup):
 
 
 class Trmm(PolyBenchGroup):
+    NAME = 'trmm'
+
     class Factory:
         def create(self, exp):
             return Trmm(exp, "trmm")
@@ -208,6 +239,8 @@ class Trmm(PolyBenchGroup):
 
 
 class Cholesky(PolyBenchGroup):
+    NAME = 'cholesky'
+
     class Factory:
         def create(self, exp):
             return Cholesky(exp, "cholesky")
@@ -216,6 +249,8 @@ class Cholesky(PolyBenchGroup):
 
 
 class Durbin(PolyBenchGroup):
+    NAME = 'durbin'
+
     class Factory:
         def create(self, exp):
             return Durbin(exp, "durbin")
@@ -224,6 +259,8 @@ class Durbin(PolyBenchGroup):
 
 
 class Gramschmidt(PolyBenchGroup):
+    NAME = 'gramschmidt'
+
     class Factory:
         def create(self, exp):
             return Gramschmidt(exp, "gramschmidt")
@@ -232,6 +269,8 @@ class Gramschmidt(PolyBenchGroup):
 
 
 class Lu(PolyBenchGroup):
+    NAME = 'lu'
+
     class Factory:
         def create(self, exp):
             return Lu(exp, "lu")
@@ -240,6 +279,8 @@ class Lu(PolyBenchGroup):
 
 
 class LuDCMP(PolyBenchGroup):
+    NAME = 'ludcmp'
+
     class Factory:
         def create(self, exp):
             return LuDCMP(exp, "ludcmp")
@@ -248,6 +289,8 @@ class LuDCMP(PolyBenchGroup):
 
 
 class Trisolv(PolyBenchGroup):
+    NAME = 'trisolv'
+
     class Factory:
         def create(self, exp):
             return Trisolv(exp, "trisolv")
@@ -258,6 +301,8 @@ class Trisolv(PolyBenchGroup):
 
 
 class Deriche(PolyBenchGroup):
+    NAME = 'deriche'
+
     class Factory:
         def create(self, exp):
             return Deriche(exp, "deriche")
@@ -266,6 +311,8 @@ class Deriche(PolyBenchGroup):
 
 
 class FloydWarshall(PolyBenchGroup):
+    NAME = 'floyd-warshall'
+
     class Factory:
         def create(self, exp):
             return FloydWarshall(exp, "floyd-warshall")
@@ -274,6 +321,8 @@ class FloydWarshall(PolyBenchGroup):
 
 
 class Nussinov(PolyBenchGroup):
+    NAME = 'nussinov'
+
     class Factory:
         def create(self, exp):
             return Nussinov(exp, "nussinov")
@@ -284,6 +333,8 @@ class Nussinov(PolyBenchGroup):
 
 
 class Adi(PolyBenchGroup):
+    NAME = 'adi'
+
     class Factory:
         def create(self, exp):
             return Adi(exp, "adi")
@@ -292,6 +343,8 @@ class Adi(PolyBenchGroup):
 
 
 class FDTD2D(PolyBenchGroup):
+    NAME = 'fdtd-2d'
+
     class Factory:
         def create(self, exp):
             return FDTD2D(exp, "fdtd-2d")
@@ -300,6 +353,8 @@ class FDTD2D(PolyBenchGroup):
 
 
 class Jacobi1D(PolyBenchGroup):
+    NAME = 'jacobi-1d'
+
     class Factory:
         def create(self, exp):
             return Jacobi1D(exp, "jacobi-1d")
@@ -308,6 +363,8 @@ class Jacobi1D(PolyBenchGroup):
 
 
 class Jacobi2Dimper(PolyBenchGroup):
+    NAME = 'jacobi-2d'
+
     class Factory:
         def create(self, exp):
             return Jacobi2Dimper(exp, "jacobi-2d")
@@ -316,6 +373,8 @@ class Jacobi2Dimper(PolyBenchGroup):
 
 
 class Seidel2D(PolyBenchGroup):
+    NAME = 'seidel-2d'
+
     class Factory:
         def create(self, exp):
             return Seidel2D(exp, "seidel-2d")
@@ -324,6 +383,8 @@ class Seidel2D(PolyBenchGroup):
 
 
 class Heat3D(PolyBenchGroup):
+    NAME = 'heat-3d'
+
     class Factory:
         def create(self, exp):
             return Heat3D(exp, "heat-3d")

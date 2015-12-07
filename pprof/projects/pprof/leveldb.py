@@ -1,21 +1,13 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 from os import path
-from plumbum import FG, local
+from plumbum import local
 
 
 class LevelDB(PprofGroup):
+    NAME = 'leveldb'
+    DOMAIN = 'database'
 
     src_uri = "https://github.com/google/leveldb"
-
-    class Factory:
-        def create(self, exp):
-            return LevelDB(exp, "leveldb", "database")
-
-    ProjectFactory.addFactory("LevelDB", Factory())
 
     def download(self):
         from pprof.utils.downloader import Git

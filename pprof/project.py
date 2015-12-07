@@ -1,5 +1,6 @@
-#
-
+"""
+Project handling for the pprof study.
+"""
 from plumbum import local
 from plumbum.cmd import rm, mkdir, rmdir
 from os import path, listdir
@@ -11,25 +12,20 @@ PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
 
 
-class ProjectFactory(object):
-    factories = {}
+class ProjectRegistry(type):
+    """Registry for pprof projects."""
 
-    def addFactory(fact_id, project_factory):
-        ProjectFactory.factories[fact_id] = project_factory
+    projects = {}
 
-    addFactory = staticmethod(addFactory)
+    def __init__(cls, name, bases, dict):
+        """Registers a project in the registry."""
+        super(ProjectRegistry, cls).__init__(name, bases, dict)
 
-    def createProject(fact_id, exp):
-        if fact_id not in ProjectFactory.factories:
-            ProjectFactory.factories[fact_id] = \
-                eval(fact_id + '.Factory()')
-
-        return ProjectFactory.factories[fact_id].create(exp)
-
-    createProject = staticmethod(createProject)
+        if cls.NAME is not None and cls.DOMAIN is not None:
+            ProjectRegistry.projects[cls.NAME] = cls
 
 
-class Project(object):
+class Project(object, metaclass=ProjectRegistry):
     """
     pprof's Project class.
 
@@ -37,27 +33,48 @@ class Project(object):
         IR project
     """
 
-    def __init__(self, exp, name, domain, group=None):
+    NAME = None
+    DOMAIN = None
+    GROUP = None
+
+    def __new__(cls, *args, **kwargs):
+        """Create a new project instance and set some defaults."""
+        new_self = super(Project, cls).__new__(cls)
+        if cls.NAME is None:
+            raise AttributeError(
+                "{} @ {} does not define a NAME class attribute.".format(
+                    cls.__name__, cls.__module__))
+        if cls.DOMAIN is None:
+            raise AttributeError(
+                "{} @ {} does not define a DOMAIN class attribute.".format(
+                    cls.__name__, cls.__module__))
+        if cls.GROUP is None:
+            raise AttributeError(
+                "{} @ {} does not define a GROUP class attribute.".format(
+                    cls.__name__, cls.__module__))
+        new_self.name = cls.NAME
+        new_self.domain = cls.DOMAIN
+        new_self.group = cls.GROUP
+        return new_self
+
+    def __init__(self, exp, group=None):
         """
         Setup a new project.
 
         Args:
             exp: The experiment this project belongs to.
-            name: The name of this project.
-            domain: The domain this project belongs to, e.g. 'Scientific'
             group: The group this project belongs to. This is useful for
                 finding group specific test input files.
         """
         self.experiment = exp
-        self.name = name
-        self.domain = domain
         self.group_name = group
         self.sourcedir = path.join(config["sourcedir"], self.name)
         self.builddir = path.join(config["builddir"], exp.name, self.name)
         if group:
-            self.testdir = path.join(config["testdir"], domain, group, name)
+            self.testdir = path.join(config["testdir"], self.domain, group,
+                                     self.name)
         else:
-            self.testdir = path.join(config["testdir"], domain, name)
+            self.testdir = path.join(config["testdir"], self.domain, self.name)
 
         self.cflags = []
         self.ldflags = []
@@ -202,7 +219,7 @@ def wrap(name, runner):
 
     This module generates a python tool that replaces :name:
     The function in runner only accepts the replaced binaries
-    name as argument. We use PiCloud's cloudpickle library to
+    name as argument. We use the cloudpickle package to
     perform the serialization, make sure :runner: can be serialized
     with it and you're fine.
 
@@ -214,7 +231,7 @@ def wrap(name, runner):
         A plumbum command, ready to launch.
     """
     from plumbum.cmd import mv, chmod
-    from cloud.serialization import cloudpickle as cp
+    import dill
 
     name_absolute = path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
@@ -222,16 +239,16 @@ def wrap(name, runner):
 
     blob_f = name_absolute + PROJECT_BLOB_F_EXT
     with open(blob_f, 'wb') as blob:
-        blob.write(cp.dumps(runner))
+        dill.dump(runner, blob, protocol=-1, recurse=True)
 
     with open(name_absolute, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
-# 
+#
 
 from plumbum import cli, local
 from os import path
 import sys
-import pickle
+import dill
 
 run_f = "{runf}"
 args = sys.argv[1:]
@@ -246,7 +263,7 @@ if path.exists("{blobf}"):
                LD_LIBRARY_PATH="{ld_lib_path}",
                PPROF_CMD=run_f + " ".join(args)):
         with open("{blobf}", "rb") as p:
-            f = pickle.load(p)
+            f = dill.load(p)
         if f is not None:
             if not sys.stdin.isatty():
                 f(run_f, args, has_stdin = True)
@@ -286,23 +303,23 @@ def wrap_dynamic(name, runner):
 
     """
     from plumbum.cmd import chmod
-    from cloud.serialization import cloudpickle as cp
+    import dill
 
     name_absolute = path.abspath(name)
     blob_f = name_absolute + PROJECT_BLOB_F_EXT
     with open(blob_f, 'wb') as blob:
-        blob.write(cp.dumps(runner))
+        blob.write(dill.dumps(runner))
 
     with open(name_absolute, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
-# 
+#
 
 from pprof.project import Project
 from pprof.experiment import Experiment
 from plumbum import cli, local
 from os import path, getenv
 import sys
-import pickle
+import dill
 
 if not len(sys.argv) >= 2:
     os.stderr.write("Not enough arguments provided!\\n")
@@ -324,7 +341,7 @@ if path.exists("{blobf}"):
                LD_LIBRARY_PATH="{ld_lib_path}",
                PPROF_CMD=run_f):
         with open("{blobf}", "rb") as p:
-            f = pickle.load(p)
+            f = dill.load(p)
         if f is not None:
             exp_name = getenv("PPROF_EXPERIMENT", "unknown")
             domain_name = getenv("PPROF_DOMAIN", "unknown")

@@ -1,10 +1,5 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import local
 
@@ -12,11 +7,8 @@ from plumbum import local
 class MCrypt(PprofGroup):
     """ MCrypt benchmark """
 
-    class Factory:
-        def create(self, exp):
-            return MCrypt(exp, "mcrypt", "encryption")
-
-    ProjectFactory.addFactory("MCrypt", Factory())
+    NAME = 'mcrypt'
+    DOMAIN = 'encryption'
 
     src_dir = "mcrypt-2.6.8"
     src_file = src_dir + ".tar.gz"

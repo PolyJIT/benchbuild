@@ -1,11 +1,13 @@
-from pprof.project import Project, ProjectFactory
+from pprof.project import Project
 from pprof.settings import config
 
 from os import path
-from plumbum import local, FG
+from plumbum import local
 
 
 class PolyBenchGroup(Project):
+    DOMAIN = 'polybench'
+    GROUP = 'polybench'
 
     path_dict = {
         "correlation": "datamining",
@@ -40,11 +42,10 @@ class PolyBenchGroup(Project):
         "floyd-warshall": "medley",
     }
 
-    def __init__(self, exp, name):
-        super(PolyBenchGroup, self).__init__(exp, name, "polybench",
-                                             "polybench")
+    def __init__(self, exp):
+        super(PolyBenchGroup, self).__init__(exp, "polybench")
         self.sourcedir = path.join(config["sourcedir"], "polybench",
-                                   self.path_dict[name], name)
+                                   self.path_dict[self.name], self.name)
         self.setup_derived_filenames()
 
     src_dir = "polybench-c-4.1"
@@ -82,250 +83,120 @@ class PolyBenchGroup(Project):
 
 
 class Correlation(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Correlation(exp, "correlation")
-
-    ProjectFactory.addFactory("Correlation", Factory())
+    NAME = 'correlation'
 
 
 class Covariance(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Covariance(exp, "covariance")
-
-    ProjectFactory.addFactory("Covariance", Factory())
-
-# Linear Algebra / Kernels
+    NAME = 'covariance'
 
 
 class TwoMM(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return TwoMM(exp, "2mm")
-
-    ProjectFactory.addFactory("TwoMM", Factory())
+    NAME = '2mm'
 
 
 class ThreeMM(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return ThreeMM(exp, "3mm")
-
-    ProjectFactory.addFactory("ThreeMM", Factory())
+    NAME = '3mm'
 
 
 class Atax(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Atax(exp, "atax")
-
-    ProjectFactory.addFactory("Atax", Factory())
+    NAME = 'atax'
 
 
 class BicG(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return BicG(exp, "bicg")
-
-    ProjectFactory.addFactory("BicG", Factory())
+    NAME = 'bicg'
 
 
 class Doitgen(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Doitgen(exp, "doitgen")
-
-    ProjectFactory.addFactory("Doitgen", Factory())
+    NAME = 'doitgen'
 
 
 class Mvt(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Mvt(exp, "mvt")
-
-    ProjectFactory.addFactory("Mvt", Factory())
-
-# Linear Algebra / Blas
+    NAME = 'mvt'
 
 
 class Gemm(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Gemm(exp, "gemm")
-
-    ProjectFactory.addFactory("Gemm", Factory())
+    NAME = 'gemm'
 
 
 class Gemver(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Gemver(exp, "gemver")
-
-    ProjectFactory.addFactory("Gemver", Factory())
+    NAME = 'gemver'
 
 
 class Gesummv(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Gesummv(exp, "gesummv")
-
-    ProjectFactory.addFactory("Gesummv", Factory())
+    NAME = 'gesummv'
 
 
 class Symm(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Symm(exp, "symm")
-
-    ProjectFactory.addFactory("Symm", Factory())
+    NAME = 'symm'
 
 
 class Syr2k(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Syr2k(exp, "syr2k")
-
-    ProjectFactory.addFactory("Syr2k", Factory())
+    NAME = 'syr2k'
 
 
 class Syrk(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Syrk(exp, "syrk")
-
-    ProjectFactory.addFactory("Syrk", Factory())
+    NAME = 'syrk'
 
 
 class Trmm(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Trmm(exp, "trmm")
-
-    ProjectFactory.addFactory("Trmm", Factory())
-
-# Linear Algebra / Solvers
+    NAME = 'trmm'
 
 
 class Cholesky(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Cholesky(exp, "cholesky")
-
-    ProjectFactory.addFactory("Cholesky", Factory())
+    NAME = 'cholesky'
 
 
 class Durbin(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Durbin(exp, "durbin")
-
-    ProjectFactory.addFactory("Durbin", Factory())
+    NAME = 'durbin'
 
 
 class Gramschmidt(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Gramschmidt(exp, "gramschmidt")
-
-    ProjectFactory.addFactory("Gramschmidt", Factory())
+    NAME = 'gramschmidt'
 
 
 class Lu(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Lu(exp, "lu")
-
-    ProjectFactory.addFactory("Lu", Factory())
+    NAME = 'lu'
 
 
 class LuDCMP(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return LuDCMP(exp, "ludcmp")
-
-    ProjectFactory.addFactory("LuDCMP", Factory())
+    NAME = 'ludcmp'
 
 
 class Trisolv(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Trisolv(exp, "trisolv")
-
-    ProjectFactory.addFactory("Trisolv", Factory())
-
-# Medley
+    NAME = 'trisolv'
 
 
 class Deriche(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Deriche(exp, "deriche")
-
-    ProjectFactory.addFactory("Deriche", Factory())
+    NAME = 'deriche'
 
 
 class FloydWarshall(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return FloydWarshall(exp, "floyd-warshall")
-
-    ProjectFactory.addFactory("FloydWarshall", Factory())
+    NAME = 'floyd-warshall'
 
 
 class Nussinov(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Nussinov(exp, "nussinov")
-
-    ProjectFactory.addFactory("Nussinov", Factory())
-
-# Stencils
+    NAME = 'nussinov'
 
 
 class Adi(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Adi(exp, "adi")
-
-    ProjectFactory.addFactory("Adi", Factory())
+    NAME = 'adi'
 
 
 class FDTD2D(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return FDTD2D(exp, "fdtd-2d")
-
-    ProjectFactory.addFactory("FDTD2D", Factory())
+    NAME = 'fdtd-2d'
 
 
 class Jacobi1D(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Jacobi1D(exp, "jacobi-1d")
-
-    ProjectFactory.addFactory("Jacobi1D", Factory())
+    NAME = 'jacobi-1d'
 
 
 class Jacobi2Dimper(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Jacobi2Dimper(exp, "jacobi-2d")
-
-    ProjectFactory.addFactory("Jacobi2D", Factory())
+    NAME = 'jacobi-2d'
 
 
 class Seidel2D(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Seidel2D(exp, "seidel-2d")
-
-    ProjectFactory.addFactory("Seidel2D", Factory())
+    NAME = 'seidel-2d'
 
 
 class Heat3D(PolyBenchGroup):
-    class Factory:
-        def create(self, exp):
-            return Heat3D(exp, "heat-3d")
-
-    ProjectFactory.addFactory("heat-3d", Factory())
+    NAME = 'heat-3d'

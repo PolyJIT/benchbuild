@@ -14,8 +14,9 @@ The following packages are required to run GentooGroup:
     * fakeroot
 """
 
-from pprof.project import Project, ProjectFactory
+from pprof.project import Project
 from plumbum import local
+from lazy import lazy
 
 
 def latest_src_uri():
@@ -44,14 +45,18 @@ class GentooGroup(Project):
     """
     Gentoo ProjectGroup is the base class for every portage build.
     """
+    GROUP = 'gentoo'
 
-    def __init__(self, exp, name):
-        super(GentooGroup, self).__init__(exp, name, "gentoo", "gentoo")
+    def __init__(self, exp):
+        super(GentooGroup, self).__init__(exp, "gentoo")
 
     src_dir = "gentoo"
     src_file = src_dir + ".tar.bz2"
-    src_uri = "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
-        .format(latest_src_uri())
+
+    @lazy
+    def src_uri(self):
+        return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
+                .format(latest_src_uri())
 
     # download location for portage files
     src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/"\
@@ -113,22 +118,8 @@ class Eix(GentooGroup):
 
     Building this class will create bare gentoo and compile eix.
     """
-
-    class Factory:
-        """
-        The factory class for the package eix.
-        """
-
-        def create(self, exp):
-            """
-            Creates an instance of the Eix class.
-
-            Return:
-                Eix object
-            """
-            return Eix(exp, "eix")
-
-    ProjectFactory.addFactory("Eix", Factory())
+    NAME = 'eix'
+    DOMAIN = 'debug'
 
     def build(self):
         from pprof.utils.run import run, uchroot

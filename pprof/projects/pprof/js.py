@@ -1,20 +1,12 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import local
 
 
 class SpiderMonkey(PprofGroup):
-    class Factory:
-        def create(self, exp):
-            return SpiderMonkey(exp, "js", "compilation")
-
-    ProjectFactory.addFactory("SpiderMonkey", Factory())
+    NAME = 'js'
+    DOMAIN = 'compilation'
 
     src_uri = "https://github.com/mozilla/gecko-dev.git"
     src_dir = "gecko-dev.git"

@@ -93,18 +93,18 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
         Command of the new compiler we can call.
     """
     from plumbum.cmd import chmod
-    from cloud.serialization import cloudpickle as cp
+    import dill
     from pprof.project import PROJECT_BLOB_F_EXT
     from os.path import abspath
 
     blob_f = abspath(filepath + PROJECT_BLOB_F_EXT)
     if func is not None:
         with open(blob_f, 'wb') as blob:
-            blob.write(cp.dumps(func))
+            blob.write(dill.dumps(func))
 
     with open(filepath, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
-# 
+#
 
 from plumbum import ProcessExecutionError, local, FG
 from plumbum.commands.modifiers import TEE
@@ -112,7 +112,7 @@ from pprof.utils.run import GuardedRunException
 from pprof.experiment import to_utf8
 from os import path
 import logging
-import pickle
+import dill
 
 from pprof.settings import config
 config["db_host"] = "{db_host}"
@@ -182,7 +182,7 @@ with local.env(PPROF_DB_HOST="{db_host}",
         with local.env(PPROF_CMD=str(final_cc)):
             if path.exists("{blobf}"):
                 with open("{blobf}", "rb") as p:
-                    f = pickle.load(p)
+                    f = dill.load(p)
 
             if f is not None:
                 if not sys.stdin.isatty():

@@ -1,20 +1,12 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import local
 
 
 class Ruby(PprofGroup):
-    class Factory:
-        def create(self, exp):
-            return Ruby(exp, "ruby", "compilation")
-
-    ProjectFactory.addFactory("Ruby", Factory())
+    NAME = 'ruby'
+    DOMAIN = 'compilation'
 
     src_dir = "ruby-2.2.2"
     src_file = src_dir + ".tar.gz"

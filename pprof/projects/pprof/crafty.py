@@ -1,9 +1,4 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import local
 from plumbum.cmd import cat
@@ -12,11 +7,8 @@ from plumbum.cmd import cat
 class Crafty(PprofGroup):
     """ crafty benchmark """
 
-    class Factory:
-        def create(self, exp):
-            return Crafty(exp, "crafty", "scientific")
-
-    ProjectFactory.addFactory("Crafty", Factory())
+    NAME = 'crafty'
+    DOMAIN = 'scientific'
 
     src_dir = "crafty-23.4"
     src_file = src_dir + ".zip"

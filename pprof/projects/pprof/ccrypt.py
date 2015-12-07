@@ -1,9 +1,4 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
 from plumbum import local
 from plumbum.cmd import ln
@@ -12,13 +7,10 @@ from plumbum.cmd import ln
 class Ccrypt(PprofGroup):
     """ ccrypt benchmark """
 
+    NAME = 'ccrypt'
+    DOMAIN = 'encryption'
+
     check_f = "check"
-
-    class Factory:
-        def create(self, exp):
-            return Ccrypt(exp, "ccrypt", "encryption")
-
-    ProjectFactory.addFactory("Ccrypt", Factory())
 
     def prepare(self):
         super(Ccrypt, self).prepare()

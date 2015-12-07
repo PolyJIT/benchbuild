@@ -1,4 +1,3 @@
-#
 """
 The 'polly-openmp' Experiment.
 
@@ -28,10 +27,11 @@ class PollyOpenMP(RuntimeExperiment):
         """Build & Run each project with Polly & OpenMP support."""
         from uuid import uuid4
         from pprof.experiments.raw import run_with_time
+        from pprof.utils.run import partial
 
         llvm_libs = path.join(config["llvmdir"], "lib")
         p.ldflags = ["-L" + llvm_libs, "-lgomp"]
-        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolly.so",
                     "-mllvm", "-polly", "-mllvm", "-polly-parallel"]
 
         for i in range(1, int(config["jobs"]) + 1):
@@ -42,9 +42,4 @@ class PollyOpenMP(RuntimeExperiment):
                 p.download()
                 p.configure()
                 p.build()
-
-                run_with_time.config = config
-                run_with_time.experiment = self
-                run_with_time.project = p
-                run_with_time.jobs = i
-                p.run(run_with_time)
+                p.run(partial(run_with_time, p, self, config, i))

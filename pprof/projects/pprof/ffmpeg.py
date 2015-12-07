@@ -1,24 +1,13 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
-from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path
-
 from plumbum import local
 from plumbum.cmd import make
 
 
 class LibAV(PprofGroup):
     """ LibAV benchmark """
-
-    class Factory:
-        def create(self, exp):
-            return LibAV(exp, "ffmpeg", "multimedia")
-
-    ProjectFactory.addFactory("LibAV", Factory())
+    NAME = 'ffmpeg'
+    DOMAIN = 'multimedia'
 
     src_dir = "ffmpeg-2.6.3"
     src_file = src_dir + ".tar.bz2"

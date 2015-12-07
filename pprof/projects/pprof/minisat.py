@@ -1,22 +1,14 @@
-#!/usr/bin/evn python
-#
-
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
-
 from os import path, getenv
 from glob import glob
-from plumbum import FG, local
+from plumbum import local
 
 
 class Minisat(PprofGroup):
     """ minisat benchmark """
 
-    class Factory:
-        def create(self, exp):
-            return Minisat(exp, "minisat", "verification")
-
-    ProjectFactory.addFactory("Minisat", Factory())
+    NAME = 'minisat'
+    DOMAIN = 'verification'
 
     def run_tests(self, experiment):
         from pprof.project import wrap

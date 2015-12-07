@@ -12,6 +12,9 @@ from plumbum.cmd import find
 class Python(PprofGroup):
     """ python benchmarks """
 
+    NAME = 'python'
+    DOMAIN = 'compilation'
+
     class Factory:
         def create(self, exp):
             return Python(exp, "python", "compilation")

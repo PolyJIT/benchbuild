@@ -9,6 +9,9 @@ from plumbum import local
 class LuleshOMP(PprofGroup):
     """ Lulesh-OMP """
 
+    NAME = 'lulesh-omp'
+    DOMAIN = 'scientific'
+
     class Factory:
         def create(self, exp):
             return LuleshOMP(exp, "lulesh-omp", "scientific")

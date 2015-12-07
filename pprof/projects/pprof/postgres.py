@@ -12,6 +12,9 @@ from plumbum.cmd import cp, echo, chmod
 class Postgres(PprofGroup):
     """ postgres benchmark """
 
+    NAME = 'postgres'
+    DOMAIN = 'database'
+
     testfiles = ["pg_ctl", "dropdb", "createdb", "pgbench"]
 
     class Factory:

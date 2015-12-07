@@ -13,6 +13,8 @@ from plumbum.cmd import make
 
 class LibAV(PprofGroup):
     """ LibAV benchmark """
+    NAME = 'ffmpeg'
+    DOMAIN = 'multimedia'
 
     class Factory:
         def create(self, exp):

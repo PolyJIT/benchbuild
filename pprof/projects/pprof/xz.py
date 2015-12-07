@@ -10,6 +10,8 @@ from plumbum import local
 
 class XZ(PprofGroup):
     """ XZ """
+    NAME = 'xz'
+    DOMAIN = 'compression'
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]

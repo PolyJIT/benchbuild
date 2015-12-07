@@ -14,6 +14,9 @@ from plumbum.cmd import cp
 class X264(PprofGroup):
     """ x264 """
 
+    NAME = "x264"
+    DOMAIN = "multimedia"
+
     inputfiles = {"tbbt-small.y4m": [],
                   "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}
 

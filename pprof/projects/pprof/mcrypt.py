@@ -12,6 +12,9 @@ from plumbum import local
 class MCrypt(PprofGroup):
     """ MCrypt benchmark """
 
+    NAME = 'mcrypt'
+    DOMAIN = 'encryption'
+
     class Factory:
         def create(self, exp):
             return MCrypt(exp, "mcrypt", "encryption")

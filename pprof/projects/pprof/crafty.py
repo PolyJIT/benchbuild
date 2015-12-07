@@ -12,6 +12,9 @@ from plumbum.cmd import cat
 class Crafty(PprofGroup):
     """ crafty benchmark """
 
+    NAME = 'crafty'
+    DOMAIN = 'scientific'
+
     class Factory:
         def create(self, exp):
             return Crafty(exp, "crafty", "scientific")

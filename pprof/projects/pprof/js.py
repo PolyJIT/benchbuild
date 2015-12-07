@@ -10,6 +10,9 @@ from plumbum import local
 
 
 class SpiderMonkey(PprofGroup):
+    NAME = 'js'
+    DOMAIN = 'compilation'
+
     class Factory:
         def create(self, exp):
             return SpiderMonkey(exp, "js", "compilation")

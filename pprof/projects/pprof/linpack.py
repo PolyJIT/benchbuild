@@ -11,6 +11,9 @@ from plumbum import local
 class Linpack(PprofGroup):
     """ Linpack (C-Version) """
 
+    NAME = 'linpack'
+    DOMAIN = 'scientific'
+
     class Factory:
         def create(self, exp):
             return Linpack(exp, "linpack", "scientific")

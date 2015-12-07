@@ -12,6 +12,9 @@ from plumbum.cmd import cp
 class Bzip2(PprofGroup):
     """ Bzip2 """
 
+    NAME = 'bzip2'
+    DOMAIN = 'compression'
+
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
 

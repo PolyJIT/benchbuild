@@ -7,6 +7,8 @@ from os import path
 
 
 class PprofGroup(Project):
+    DOMAIN = 'pprof'
+
     path_suffix = "src"
 
     def __init__(self, exp, name, domain):

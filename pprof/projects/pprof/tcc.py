@@ -9,6 +9,9 @@ from plumbum import local
 
 
 class TCC(PprofGroup):
+    NAME = 'tcc'
+    DOMAIN = 'compilation'
+
     class Factory:
         def create(self, exp):
             return TCC(exp, "tcc", "compilation")

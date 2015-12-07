@@ -11,6 +11,9 @@ from plumbum import local
 class SQLite3(PprofGroup):
     """ SQLite3 """
 
+    NAME = 'sqlite3'
+    DOMAIN = 'database'
+
     class Factory:
         def create(self, exp):
             return SQLite3(exp, "sqlite3", "database")

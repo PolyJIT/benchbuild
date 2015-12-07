@@ -13,6 +13,9 @@ from plumbum.cmd import cat
 class Crocopat(PprofGroup):
     """ crocopat benchmark """
 
+    NAME = 'crocopat'
+    DOMAIN = 'verification'
+
     class Factory:
         def create(self, exp):
             return Crocopat(exp, "crocopat", "verification")

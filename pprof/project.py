@@ -12,6 +12,17 @@ PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
 
 
+class ProjectRegistry(type):
+    """Registry for pprof projects."""
+
+    projects = []
+
+    def __init__(cls, name, bases, dict):
+        """Registers a project in the registry."""
+        super(ProjectRegistry, cls).__init__(name, bases, dict)
+        ProjectRegistry.projects.append((cls.NAME, cls))
+
+
 class ProjectFactory(object):
     factories = {}
 
@@ -30,13 +41,23 @@ class ProjectFactory(object):
     createProject = staticmethod(createProject)
 
 
-class Project(object):
+class Project(object, metaclass=ProjectRegistry):
     """
     pprof's Project class.
 
     A project defines how run-time testing and cleaning is done for this
         IR project
     """
+
+    NAME = None
+    DOMAIN = None
+
+    def __new__(cls, *args, **kwargs):
+        """Create a new project instance and set some defaults."""
+        new_self = super(Project, cls).__new__(cls)
+        new_self.name = cls.NAME
+        new_self.domain = cls.DOMAIN
+        return new_self
 
     def __init__(self, exp, name, domain, group=None):
         """

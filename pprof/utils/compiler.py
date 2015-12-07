@@ -93,7 +93,7 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
         Command of the new compiler we can call.
     """
     from plumbum.cmd import chmod
-    from cloud.serialization import cloudpickle as cp
+    import cloudpickle as cp
     from pprof.project import PROJECT_BLOB_F_EXT
     from os.path import abspath
 

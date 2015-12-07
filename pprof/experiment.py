@@ -37,7 +37,6 @@ from pprof.projects import *
 
 from contextlib import contextmanager
 from os import path, listdir
-from sets import Set
 from pprof.utils.db import persist_experiment
 from abc import abstractmethod
 
@@ -294,8 +293,8 @@ class Experiment(object):
             self.projects[project.name] = project
 
         if projects_to_filter:
-            allkeys = Set(list(self.projects.keys()))
-            usrkeys = Set(projects_to_filter)
+            allkeys = set(list(self.projects.keys()))
+            usrkeys = set(projects_to_filter)
             self.projects = {x: self.projects[x] for x in allkeys & usrkeys}
 
         if group:

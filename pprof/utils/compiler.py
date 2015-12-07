@@ -104,7 +104,7 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
 
     with open(filepath, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
-# 
+#
 
 from plumbum import ProcessExecutionError, local, FG
 from plumbum.commands.modifiers import TEE

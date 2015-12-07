@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
 
@@ -12,12 +11,6 @@ from plumbum import local
 class SpiderMonkey(PprofGroup):
     NAME = 'js'
     DOMAIN = 'compilation'
-
-    class Factory:
-        def create(self, exp):
-            return SpiderMonkey(exp, "js", "compilation")
-
-    ProjectFactory.addFactory("SpiderMonkey", Factory())
 
     src_uri = "https://github.com/mozilla/gecko-dev.git"
     src_dir = "gecko-dev.git"

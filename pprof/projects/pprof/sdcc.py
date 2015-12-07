@@ -1,23 +1,16 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.settings import config
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 
 
 class SDCC(PprofGroup):
     NAME = 'sdcc'
     DOMAIN = 'compilation'
-
-    class Factory:
-        def create(self, exp):
-            return SDCC(exp, "sdcc", "compilation")
-
-    ProjectFactory.addFactory("SDCC", Factory())
 
     src_dir = "sdcc"
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + src_dir

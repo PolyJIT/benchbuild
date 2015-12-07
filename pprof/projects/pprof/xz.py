@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -15,12 +14,6 @@ class XZ(PprofGroup):
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
-
-    class Factory:
-        def create(self, exp):
-            return XZ(exp, "xz", "compression")
-
-    ProjectFactory.addFactory("XZ", Factory())
 
     def prepare(self):
         super(XZ, self).prepare()

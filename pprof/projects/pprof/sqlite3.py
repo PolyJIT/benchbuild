@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -13,12 +12,6 @@ class SQLite3(PprofGroup):
 
     NAME = 'sqlite3'
     DOMAIN = 'database'
-
-    class Factory:
-        def create(self, exp):
-            return SQLite3(exp, "sqlite3", "database")
-
-    ProjectFactory.addFactory("SQLite3", Factory())
 
     src_dir = "sqlite-amalgamation-3080900"
     src_file = src_dir + ".zip"

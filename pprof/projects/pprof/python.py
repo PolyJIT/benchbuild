@@ -1,11 +1,10 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
-from plumbum import FG, local
+from plumbum import local
 from plumbum.cmd import find
 
 
@@ -14,12 +13,6 @@ class Python(PprofGroup):
 
     NAME = 'python'
     DOMAIN = 'compilation'
-
-    class Factory:
-        def create(self, exp):
-            return Python(exp, "python", "compilation")
-
-    ProjectFactory.addFactory("Python", Factory())
 
     src_dir = "Python-3.4.3"
     src_file = src_dir + ".tar.xz"

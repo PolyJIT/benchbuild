@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -14,12 +13,6 @@ class Lammps(PprofGroup):
 
     NAME = 'lammps'
     DOMAIN = 'scientific'
-
-    class Factory:
-        def create(self, exp):
-            return Lammps(exp, "lammps", "scientific")
-
-    ProjectFactory.addFactory("Lammps", Factory())
 
     def prepare(self):
         super(Lammps, self).prepare()

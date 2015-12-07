@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 
 from os import path
@@ -16,12 +15,6 @@ class Postgres(PprofGroup):
     DOMAIN = 'database'
 
     testfiles = ["pg_ctl", "dropdb", "createdb", "pgbench"]
-
-    class Factory:
-        def create(self, exp):
-            return Postgres(exp, "postgres", "database")
-
-    ProjectFactory.addFactory("Postgres", Factory())
 
     def prepare(self):
         super(Postgres, self).prepare()

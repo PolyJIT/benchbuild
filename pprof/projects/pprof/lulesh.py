@@ -1,7 +1,6 @@
 #!/usr/bin/evn python
 #
 
-from pprof.project import ProjectFactory
 from pprof.projects.pprof.group import PprofGroup
 from plumbum import local
 
@@ -11,12 +10,6 @@ class Lulesh(PprofGroup):
 
     NAME = 'lulesh'
     DOMAIN = 'scientific'
-
-    class Factory:
-        def create(self, exp):
-            return Lulesh(exp, "lulesh", "scientific")
-
-    ProjectFactory.addFactory("Lulesh", Factory())
 
     def run_tests(self, experiment):
         from pprof.project import wrap

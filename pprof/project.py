@@ -25,24 +25,6 @@ class ProjectRegistry(type):
             ProjectRegistry.projects[cls.NAME] = cls
 
 
-class ProjectFactory(object):
-    factories = {}
-
-    def addFactory(fact_id, project_factory):
-        ProjectFactory.factories[fact_id] = project_factory
-
-    addFactory = staticmethod(addFactory)
-
-    def createProject(fact_id, exp):
-        if fact_id not in ProjectFactory.factories:
-            ProjectFactory.factories[fact_id] = \
-                eval(fact_id + '.Factory()')
-
-        return ProjectFactory.factories[fact_id].create(exp)
-
-    createProject = staticmethod(createProject)
-
-
 class Project(object, metaclass=ProjectRegistry):
     """
     pprof's Project class.

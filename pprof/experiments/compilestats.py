@@ -9,7 +9,6 @@ by llvm
 """
 
 from pprof.experiment import step, substep, RuntimeExperiment
-from pprof.settings import config
 from os import path
 from pprof.utils.schema import CompileStat
 
@@ -38,6 +37,9 @@ class CompilestatsExperiment(RuntimeExperiment):
 
     def run_project(self, p):
         """Compile & Run the experiment."""
+        from pprof.settings import config
+        from pprof.utils.run import partial
+
         llvm_libs = path.join(config["llvmdir"], "lib")
 
         with step("Track Compilestats @ -O3"):
@@ -46,23 +48,31 @@ class CompilestatsExperiment(RuntimeExperiment):
             with substep("Configure Project"):
                 p.download()
 
-                def track_compilestats(cc, **kwargs):
+                def _track_compilestats(project, experiment, config, clang,
+                                        **kwargs):
+                    from pprof.utils import run as r
+                    from pprof.settings import config as c
+                    from pprof.utils.db import persist_compilestats
                     from pprof.utils.run import handle_stdin
-                    new_cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
 
-                    retcode, stdout, stderr = new_cc.run()
+                    c.update(config)
+                    clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
+
+                    run, session, retcode, _, stderr = \
+                        r.guarded_exec(clang, project.name, experiment.name, project.run_uuid)
+
                     if retcode == 0:
                         stats = []
                         for stat in get_compilestats(stderr):
-                            c = CompileStat()
-                            c.name = stat["desc"].rstrip()
-                            c.component = stat["component"].rstrip()
-                            c.value = stat["value"]
-                            stats.append(c)
-                        self.persist_run(
-                            str(new_cc), p.name, p.run_uuid, stats)
+                            compile_s = CompileStat()
+                            compile_s.name = stat["desc"].rstrip()
+                            compile_s.component = stat["component"].rstrip()
+                            compile_s.value = stat["value"]
+                            stats.append(compile_s)
+                        persist_compilestats(run, session, stats)
 
-                p.compiler_extension = track_compilestats
+                p.compiler_extension = partial(_track_compilestats, p, self,
+                                               config)
                 p.configure()
             with substep("Build Project"):
                 p.build()

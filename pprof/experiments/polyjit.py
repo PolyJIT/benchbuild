@@ -431,7 +431,7 @@ class PJITcs(PolyJIT):
                     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
                     run, session, retcode, _, stderr = \
-                        r.guarded_exec(clang, p.name, self.name, p.run_uuid)
+                        r.guarded_exec(clang, project.name, experiment.name, project.run_uuid)
 
                     if retcode == 0:
                         stats = []

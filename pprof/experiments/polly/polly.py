@@ -29,6 +29,7 @@ class Polly(RuntimeExperiment):
     def run_project(self, p):
         from uuid import uuid4
         from pprof.experiments.raw import run_with_time
+        from pprof.utils.run import partial
 
         llvm_libs = path.join(config["llvmdir"], "lib")
         p.ldflags = ["-L" + llvm_libs]
@@ -43,9 +44,4 @@ class Polly(RuntimeExperiment):
                 p.download()
                 p.configure()
                 p.build()
-
-                run_with_time.config = config
-                run_with_time.experiment = self
-                run_with_time.project = p
-                run_with_time.jobs = i
-                p.run(run_with_time)
+                p.run(partial(run_with_time, p, self, config, i))

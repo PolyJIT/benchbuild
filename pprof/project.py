@@ -15,12 +15,14 @@ PROJECT_BLOB_F_EXT = ".postproc"
 class ProjectRegistry(type):
     """Registry for pprof projects."""
 
-    projects = []
+    projects = {}
 
     def __init__(cls, name, bases, dict):
         """Registers a project in the registry."""
         super(ProjectRegistry, cls).__init__(name, bases, dict)
-        ProjectRegistry.projects.append((cls.NAME, cls))
+
+        if cls.NAME is not None and cls.DOMAIN is not None:
+            ProjectRegistry.projects[cls.NAME] = cls
 
 
 class ProjectFactory(object):
@@ -73,27 +75,24 @@ class Project(object, metaclass=ProjectRegistry):
         new_self.group = cls.GROUP
         return new_self
 
-    def __init__(self, exp, name, domain, group=None):
+    def __init__(self, exp, group=None):
         """
         Setup a new project.
 
         Args:
             exp: The experiment this project belongs to.
-            name: The name of this project.
-            domain: The domain this project belongs to, e.g. 'Scientific'
             group: The group this project belongs to. This is useful for
                 finding group specific test input files.
         """
         self.experiment = exp
-        self.name = name
-        self.domain = domain
         self.group_name = group
         self.sourcedir = path.join(config["sourcedir"], self.name)
         self.builddir = path.join(config["builddir"], exp.name, self.name)
         if group:
-            self.testdir = path.join(config["testdir"], domain, group, name)
+            self.testdir = path.join(config["testdir"], self.domain, group,
+                                     self.name)
         else:
-            self.testdir = path.join(config["testdir"], domain, name)
+            self.testdir = path.join(config["testdir"], self.domain, self.name)
 
         self.cflags = []
         self.ldflags = []

@@ -249,7 +249,7 @@ def wrap(name, runner):
         A plumbum command, ready to launch.
     """
     from plumbum.cmd import mv, chmod
-    import cloudpickle as cp
+    import dill
 
     name_absolute = path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
@@ -257,7 +257,7 @@ def wrap(name, runner):
 
     blob_f = name_absolute + PROJECT_BLOB_F_EXT
     with open(blob_f, 'wb') as blob:
-        blob.write(cp.dumps(runner))
+        dill.dump(runner, blob, protocol=-1, recurse=True)
 
     with open(name_absolute, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
@@ -266,7 +266,7 @@ def wrap(name, runner):
 from plumbum import cli, local
 from os import path
 import sys
-import pickle
+import dill
 
 run_f = "{runf}"
 args = sys.argv[1:]
@@ -281,7 +281,7 @@ if path.exists("{blobf}"):
                LD_LIBRARY_PATH="{ld_lib_path}",
                PPROF_CMD=run_f + " ".join(args)):
         with open("{blobf}", "rb") as p:
-            f = pickle.load(p)
+            f = dill.load(p)
         if f is not None:
             if not sys.stdin.isatty():
                 f(run_f, args, has_stdin = True)
@@ -321,12 +321,12 @@ def wrap_dynamic(name, runner):
 
     """
     from plumbum.cmd import chmod
-    import cloudpickle as cp
+    import dill
 
     name_absolute = path.abspath(name)
     blob_f = name_absolute + PROJECT_BLOB_F_EXT
     with open(blob_f, 'wb') as blob:
-        blob.write(cp.dumps(runner))
+        blob.write(dill.dumps(runner))
 
     with open(name_absolute, 'w') as wrapper:
         lines = '''#!/usr/bin/env python
@@ -337,7 +337,7 @@ from pprof.experiment import Experiment
 from plumbum import cli, local
 from os import path, getenv
 import sys
-import pickle
+import dill
 
 if not len(sys.argv) >= 2:
     os.stderr.write("Not enough arguments provided!\\n")
@@ -359,7 +359,7 @@ if path.exists("{blobf}"):
                LD_LIBRARY_PATH="{ld_lib_path}",
                PPROF_CMD=run_f):
         with open("{blobf}", "rb") as p:
-            f = pickle.load(p)
+            f = dill.load(p)
         if f is not None:
             exp_name = getenv("PPROF_EXPERIMENT", "unknown")
             domain_name = getenv("PPROF_DOMAIN", "unknown")

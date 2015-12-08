@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding: utf-8
 """
 Run arbitrary pprof experiments on the Infosun Chimaira cluster.
@@ -15,44 +15,24 @@ completed the results are collected with a separate job.
 The resource management system used on chimaira is SLURM.
 """
 
-from plumbum import cli, local, FG
-from plumbum.cmd import awk, sbatch, chmod, pprof
+from plumbum import cli, local
+from plumbum.cmd import awk, sbatch, chmod
 from pprof.settings import config
 import os
 
 
-def dispatch_collect_job(exp, deps):
+def dump_slurm_script(script_name, log_name, commands, **kwargs):
     """
-    Dispatch a collect job that waits for all jobs to finish.
+    Dump a bash script that can be given to SLURM.
 
-    :exp:
-        Which experiment do you want to collect results for
+    Args:
+        script_name (str): name of the bash script.
+        log_name (str): name of the log file SLURM should print to.
+        commands (list(plumbum.cmd)): List of plumbum commands to write
+            to the bash script.
+        **kwargs: Dictionary with all environment variable bindings we should
+            map in the bash script.
     """
-    cmd = sbatch["--job-name=collect-" + exp]
-    dep_string = ""
-    if len(deps) > 0:
-        dep_string = "--dependency=afterany"
-    print deps
-    for job in deps:
-        dep_string = dep_string + ":" + job.rstrip()
-    cmd = cmd["-A", config["account"],
-              "-p", config["partition"]]
-    cmd = cmd[dep_string]
-    script = prepare_collect_results_script(exp)
-    cmd[script] & FG
-
-
-def dump_slurm_script(script_name, log_name, commands, uuid=None):
-    """Write all commands into a file with the given script name and
-        configure slurm to use the given log_name with it
-
-    :script_name: Where do you want the slurm script
-    :log_name: Where should we put the log output of the SLURM run
-    :commands: What commands sould the script execute
-    """
-    from pprof.settings import config as ppcfg
-    from os import path
-
     with open(script_name, 'w') as slurm:
         slurm.write("#!/bin/sh\n")
         slurm.write("#SBATCH -o {}\n".format(log_name))
@@ -60,43 +40,17 @@ def dump_slurm_script(script_name, log_name, commands, uuid=None):
         slurm.write("#SBATCH --hint=nomultithread\n")
         slurm.write("#SBATCH --ntasks 1\n")
         slurm.write("#SBATCH --exclusive\n")
-        slurm.write("#SBATCH --cpus-per-task {}\n".format(
-            config["cpus-per-task"]))
-        slurm.write("export LD_LIBRARY_PATH=\"{}:$LD_LIBRARY_PATH\"\n".format(
-            path.join(config["papi"], "lib")))
-        slurm.write(
-            "export PPROF_TESTINPUTS=\"{}\"\n".format(ppcfg["testdir"]))
-        slurm.write("export PPROF_TMP_DIR=\"{}\"\n".format(ppcfg["tmpdir"]))
-        slurm.write("export PPROF_DB_HOST=\"{}\"\n".format(ppcfg["db_host"]))
-        slurm.write("export PPROF_DB_PORT=\"{}\"\n".format(ppcfg["db_port"]))
-        slurm.write("export PPROF_DB_NAME=\"{}\"\n".format(ppcfg["db_name"]))
-        slurm.write("export PPROF_DB_USER=\"{}\"\n".format(ppcfg["db_user"]))
-        slurm.write("export PPROF_DB_PASS=\"{}\"\n".format(ppcfg["db_pass"]))
-        if uuid:
-            slurm.write("export PPROF_EXPERIMENT_ID=\"{}\"\n".format(uuid))
-        for c in commands:
-            slurm.write("{}\n".format(str(c)))
+        slurm.write("#SBATCH --cpus-per-task {}\n".format(config[
+            "cpus-per-task"]))
+
+        posargs = ['script_name', 'log_name', 'commands']
+        kwargs = {k: v for (k, v) in kwargs[k] if k not in posargs}
+        for (key, val) in kwargs:
+            slurm.write("export {env}=\"{value}\"\n".format(env=key,
+                                                            value=val))
+        for command in commands:
+            slurm.write("{}\n".format(str(command)))
     chmod("+x", script_name)
-
-
-def prepare_collect_results_script(experiment):
-    """Prepare a SLURM script that collects all project results
-
-    :experiment: Which experiment we want to collect the results for
-    :returns: A list of SLURM job ids
-
-    """
-    commands = []
-    if not config["llvm"]:
-        config["llvm"] = os.path.join(config["nodedir"], "install")
-    script_name = os.path.join(os.getcwd(), config["slurm_script"])
-    slurm_script = script_name + ".collect"
-    log_file = os.path.join(config["resultsdir"], experiment + ".log")
-    commands.append(pprof["run",
-                          "-E", experiment,
-                          "-B", config["resultsdir"]])
-    dump_slurm_script(slurm_script, log_file, commands)
-    return slurm_script
 
 
 def prepare_slurm_script(experiment, project, experiment_id):
@@ -106,34 +60,41 @@ def prepare_slurm_script(experiment, project, experiment_id):
     :experiment: The experiment we want to execute
     :project: Filter all but the given project
     """
+    from os import path
+
     commands = []
     if not config["llvm"]:
-        config["llvm"] = os.path.join(config["nodedir"], "install")
-    pprof = local["pprof"]
+        config["llvm"] = path.join(config["nodedir"], "install")
+    pprof_c = local["pprof"]
 
-    slurm_script = os.path.join(os.getcwd(), config["slurm_script"])
+    slurm_script = path.join(os.getcwd(), config["slurm_script"])
     log_file = os.path.join(config["resultsdir"],
                             experiment + "-" + project + ".log")
 
     if config["local_build"]:
-        commands.append(pprof["build", "-j", config["cpus-per-task"],
-                              "-B", config["nodedir"], "-I", config["isl"],
-                              "-L", config["likwidir"], "-P", config["papi"]])
+        commands.append(pprof_c["build", "-j", config[
+            "cpus-per-task"], "-B", config["nodedir"], "-I", config[
+                "isl"], "-L", config["likwidir"], "-P", config["papi"]])
 
     # We need to wrap the pprof run inside srun to avoid HyperThreading.
     srun = local["srun"]
-    commands.append(srun["--hint=nomultithread", pprof["-v", "run",
-                         "-P", project,
-                         "-E", experiment,
-                         "-D", config["experiment_description"],
-                         "-B", config["nodedir"],
-                         "--likwid-prefix", config["likwiddir"],
-                         "-L", config["llvm"]]])
-    # commands.append(
-    #    cp["-ar", node_results, os.path.join(config["resultsdir"],
-    #                                          experiment)])
-    # commands.append(mv[node_error_log, error_log])
-    dump_slurm_script(slurm_script, log_file, commands, experiment_id)
+    commands.append(srun["--hint=nomultithread", pprof_c[
+        "-v", "run", "-P", project, "-E", experiment, "-D", config[
+            "experiment_description"], "-B", config["nodedir"],
+        "--likwid-prefix", config["likwiddir"], "-L", config["llvm"]]])
+    dump_slurm_script(slurm_script,
+                      log_file,
+                      commands,
+                      LD_LIBRARY_PATH="{}:$LD_LIBRARY_PATH".format(path.join(
+                          config["papi"], "lib")),
+                      PPROF_TESTINPUTS=config["testdir"],
+                      PPROF_TMP_DIR=config["tmpdir"],
+                      PPROF_DB_HOST=config["db_host"],
+                      PPROF_DB_PORT=config["db_port"],
+                      PPROF_DB_NAME=config["db_name"],
+                      PPROF_DB_USER=config["db_user"],
+                      PPROF_DB_PASS=config["db_pass"],
+                      PPROF_EXPERIMENT_ID=experiment_id)
     return slurm_script
 
 
@@ -170,10 +131,8 @@ def dispatch_jobs(exp, projects):
         slurm_script = prepare_slurm_script(exp, project, experiment_id)
         prepare_directories([config["resultsdir"]])
         sbatch_cmd = sbatch[
-            "--job-name=" + exp + "-" + project,
-            "-A", config["account"],
-            "-p", config["partition"],
-            slurm_script]
+            "--job-name=" + exp + "-" + project, "-A", config[
+                "account"], "-p", config["partition"], slurm_script]
 
         job_id = (sbatch_cmd | awk['{ print $4 }'])()
         jobs.append(job_id)
@@ -181,86 +140,98 @@ def dispatch_jobs(exp, projects):
 
 
 class Chimaira(cli.Application):
-
     """Execute the polyprof study on the chimaira cluster via slurm"""
 
-    @cli.switch(["-E", "--experiment"], str, list=True, mandatory=True,
-                help="Which experiments should be built")
+    @cli.autoswitch(names=["E", "experiment"],
+                    argtype=str,
+                    list=True,
+                    mandatory=True)
     def experiments(self, exps):
+        """Which experiments should be sent to SLURM."""
         config["experiments"] = exps
 
-    @cli.switch(["--nodedir"], str, help="Where to build on the node")
+    @cli.autoswitch(names=["N", "nodedir"], argtype=str)
     def nodedir(self, dirname):
+        """Where is the local directory on the cluster node."""
         config["nodedir"] = dirname
 
-    @cli.switch(["--resultsdir"], str, mandatory=True,
-                help="Where should the results be placed")
+    @cli.autoswitch(names=["R", "resultsdir"], argtype=str)
     def resultsdir(self, dirname):
+        """Where should the results be placed."""
         config["resultsdir"] = dirname
 
-    @cli.switch(["--scriptname"], str,
-                help="How should the sbatch script be called?")
-    def scriptname(self, name):
-        config["slurm_script"] = name
-
-    @cli.switch(["--cpus-per-task"], int,
-                help="How many cpu should we request per task?")
+    @cli.autoswitch(int)
     def cpus_per_task(self, cpt):
+        """How many CPUs we request per task."""
         config["cpus-per-task"] = cpt
 
-    @cli.switch(["-I"], str, help="ISL prefix")
-    def isl(self, isl_prefix):
-        config["isl"] = isl_prefix
-
-    @cli.switch(["-L"], str, help="Likwid prefix")
-    def likwid(self, likwid_prefix):
+    @cli.autoswitch(argytpe=str)
+    def likwid_prefix(self, likwid_prefix):
+        """Likwid prefix."""
         config["likwiddir"] = likwid_prefix
 
-    @cli.switch(["-P"], str, help="PAPI prefix")
-    def papi(self, papi_prefix):
+    @cli.autoswitch(argtype=str)
+    def papi_prefix(self, papi_prefix):
+        """PAPI prefix."""
         config["papi"] = papi_prefix
 
-    @cli.switch(["-p"], str, help="SLURM partition to use")
+    @cli.autoswitch(names=["p", "partition"], argtype=str)
     def partition(self, partition):
+        """Which SLURM partition to use."""
         config["partition"] = partition
 
-    @cli.switch(["-A"], str, help="SLURM account to use")
+    @cli.autoswitch(names=["A", "account"], argtype=str)
     def account(self, account):
+        """Which SLURM account to use."""
         config["account"] = account
 
-    @cli.switch(["--llvm-prefix"], str, help="LLVM prefix")
-    def llvm(self, llvm_prefix):
+    @cli.autoswitch(str)
+    def llvm_prefix(self, llvm_prefix):
+        """LLVM Prefix."""
         config["llvm"] = llvm_prefix
 
-    @cli.switch(["--build"], help="Build LLVM/Polly/Polli/Clang on the node")
-    def local_build(self):
+    @cli.autoswitch(names=["build"])
+    def build(self):
+        """Build the LLVM/Polly/Polli/Clang on the cluster node."""
         config["local_build"] = True
 
-    @cli.switch(["-D", "--description"], str,
-                help="A description for this experiment run")
+    @cli.autoswitch(names=["P", "project"], argtype=str, list=True)
+    def project(self, projects):
+        """Which project(s) should be sent to SLURM."""
+        self._projects = projects
+
+    @cli.autoswitch(names=["G", "group"], argtype=str, list=True)
+    def group(self, groups):
+        """Which group(s) should be sent to SLURM."""
+        self._groups = groups
+
+    @cli.autoswitch(names=["D", "description"], argtype=str)
     def experiment_tag(self, description):
+        """A description for this experiment run."""
         config["experiment_description"] = description
 
     def main(self):
-        from itertools import chain
+        from pprof import projects  # Import all projects for the registry.
+        from pprof.project import ProjectRegistry
 
-        # That is an awful lot of filtering required for parsing that
-        # output... grmpf
+        projects = ProjectRegistry.projects
+        if self._projects is not None:
+            allkeys = set(list(projects.keys()))
+            usrkeys = set(self._projects)
+            projects = {x: projects[x] for x in allkeys & usrkeys}
+
+        if self._groups is not None:
+            projects = {
+                name: cls
+                for name, cls in projects.items() if cls.GROUP in self._groups
+            }
+
         for exp in config["experiments"]:
-            print "Experiment: {}".format(exp)
-            pprof_list = pprof["run", "-l", "-E", exp]
-            prj_list = pprof_list().split(',')
-            prj_list = map(unicode.strip, prj_list)
-            prj_list = map(lambda x: x.split('\n'), prj_list)
-            prj_list = filter(None, prj_list)
-            prj_list = list(chain.from_iterable(prj_list))
-            prj_list = filter(lambda x: not '>>' in x, prj_list)
-            prj_list = filter(None, prj_list)
-            print "  {} projects".format(len(prj_list))
-            print
-            print ", ".join(prj_list)
-            jobs = dispatch_jobs(exp, prj_list)
-        #    dispatch_collect_job(exp, jobs)
+            dispatch_jobs(exp, projects.keys())
+
+    _projects = None
+    _groups = None
+
 
 if __name__ == '__main__':
     Chimaira.run()

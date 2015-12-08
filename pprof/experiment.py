@@ -33,7 +33,7 @@ from plumbum.commands.processes import ProcessExecutionError
 from pprof.project import ProjectRegistry
 from pprof.utils.run import GuardedRunException
 from pprof.settings import config
-from pprof.projects import *
+import pprof.projects  # Required to fill the ProjectRegistry
 
 from contextlib import contextmanager
 from os import path, listdir

@@ -109,7 +109,6 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
 from plumbum import ProcessExecutionError, local, FG
 from plumbum.commands.modifiers import TEE
 from pprof.utils.run import GuardedRunException
-from pprof.experiment import to_utf8
 from os import path
 import logging
 import dill

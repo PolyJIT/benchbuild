@@ -44,10 +44,10 @@ def dump_slurm_script(script_name, log_name, commands, **kwargs):
             "cpus-per-task"]))
 
         posargs = ['script_name', 'log_name', 'commands']
-        kwargs = {k: v for (k, v) in kwargs[k] if k not in posargs}
-        for (key, val) in kwargs:
+        kwargs = {k: kwargs[k] for k in kwargs if k not in posargs}
+        for key in kwargs:
             slurm.write("export {env}=\"{value}\"\n".format(env=key,
-                                                            value=val))
+                                                            value=kwargs[key]))
         for command in commands:
             slurm.write("{}\n".format(str(command)))
     chmod("+x", script_name)
@@ -142,20 +142,17 @@ def dispatch_jobs(exp, projects):
 class Chimaira(cli.Application):
     """Execute the polyprof study on the chimaira cluster via slurm"""
 
-    @cli.autoswitch(names=["E", "experiment"],
-                    argtype=str,
-                    list=True,
-                    mandatory=True)
+    @cli.autoswitch(["E", "experiments"], str, list=True, mandatory=True)
     def experiments(self, exps):
         """Which experiments should be sent to SLURM."""
         config["experiments"] = exps
 
-    @cli.autoswitch(names=["N", "nodedir"], argtype=str)
+    @cli.autoswitch(["N", "nodedir"], str)
     def nodedir(self, dirname):
         """Where is the local directory on the cluster node."""
         config["nodedir"] = dirname
 
-    @cli.autoswitch(names=["R", "resultsdir"], argtype=str)
+    @cli.autoswitch(["R", "resultsdir"], str)
     def resultsdir(self, dirname):
         """Where should the results be placed."""
         config["resultsdir"] = dirname
@@ -165,22 +162,22 @@ class Chimaira(cli.Application):
         """How many CPUs we request per task."""
         config["cpus-per-task"] = cpt
 
-    @cli.autoswitch(argytpe=str)
+    @cli.autoswitch(str)
     def likwid_prefix(self, likwid_prefix):
         """Likwid prefix."""
         config["likwiddir"] = likwid_prefix
 
-    @cli.autoswitch(argtype=str)
+    @cli.autoswitch(str)
     def papi_prefix(self, papi_prefix):
         """PAPI prefix."""
         config["papi"] = papi_prefix
 
-    @cli.autoswitch(names=["p", "partition"], argtype=str)
+    @cli.autoswitch(["p", "partition"], str)
     def partition(self, partition):
         """Which SLURM partition to use."""
         config["partition"] = partition
 
-    @cli.autoswitch(names=["A", "account"], argtype=str)
+    @cli.autoswitch(["A", "account"], str)
     def account(self, account):
         """Which SLURM account to use."""
         config["account"] = account
@@ -190,22 +187,22 @@ class Chimaira(cli.Application):
         """LLVM Prefix."""
         config["llvm"] = llvm_prefix
 
-    @cli.autoswitch(names=["build"])
+    @cli.autoswitch(["build"])
     def build(self):
         """Build the LLVM/Polly/Polli/Clang on the cluster node."""
         config["local_build"] = True
 
-    @cli.autoswitch(names=["P", "project"], argtype=str, list=True)
+    @cli.autoswitch(["P", "project"], str, list=True)
     def project(self, projects):
         """Which project(s) should be sent to SLURM."""
         self._projects = projects
 
-    @cli.autoswitch(names=["G", "group"], argtype=str, list=True)
+    @cli.autoswitch(["G", "group"], str, list=True)
     def group(self, groups):
         """Which group(s) should be sent to SLURM."""
         self._groups = groups
 
-    @cli.autoswitch(names=["D", "description"], argtype=str)
+    @cli.autoswitch(["D", "description"], str)
     def experiment_tag(self, description):
         """A description for this experiment run."""
         config["experiment_description"] = description

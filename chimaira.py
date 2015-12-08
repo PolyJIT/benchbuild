@@ -17,7 +17,11 @@ The resource management system used on chimaira is SLURM.
 
 from plumbum import cli, local
 from pprof.settings import config
+import logging
 import os
+import pprint as pp
+
+INFO = logging.info
 
 
 def dump_slurm_script(script_name, log_name, commands, **kwargs):
@@ -64,8 +68,6 @@ def prepare_slurm_script(experiment, project, experiment_id):
     from os import path
 
     commands = []
-    if not config["llvm"]:
-        config["llvm"] = path.join(config["nodedir"], "install")
     pprof_c = local["pprof"]
 
     slurm_script = path.join(os.getcwd(), config["slurm_script"])
@@ -82,7 +84,7 @@ def prepare_slurm_script(experiment, project, experiment_id):
     commands.append(srun["--hint=nomultithread", pprof_c[
         "-v", "run", "-P", project, "-E", experiment, "-D", config[
             "experiment_description"], "-B", config["nodedir"],
-        "--likwid-prefix", config["likwiddir"], "-L", config["llvm"]]])
+        "--likwid-prefix", config["likwiddir"], "-L", config["llvmdir"]]])
     dump_slurm_script(slurm_script,
                       log_file,
                       commands,
@@ -124,13 +126,14 @@ def dispatch_jobs(exp, projects):
     """
     jobs = []
     from uuid import uuid4
-    from plumbum.cmd import sbatch, awk
 
     experiment_id = uuid4()
     for project in projects:
         if len(project) == 0:
             continue
         slurm_script = prepare_slurm_script(exp, project, experiment_id)
+
+        from plumbum.cmd import sbatch, awk
         prepare_directories([config["resultsdir"]])
         sbatch_cmd = sbatch[
             "--job-name=" + exp + "-" + project, "-A", config[
@@ -144,19 +147,19 @@ def dispatch_jobs(exp, projects):
 class Chimaira(cli.Application):
     """Execute the polyprof study on the chimaira cluster via slurm"""
 
-    @cli.autoswitch(["E", "experiments"], str, list=True, mandatory=True)
-    def experiments(self, exps):
+    @cli.autoswitch(str, list=True, mandatory=True)
+    def experiment(self, exps):
         """Which experiments should be sent to SLURM."""
         config["experiments"] = exps
 
-    @cli.autoswitch(["N", "nodedir"], str)
+    @cli.autoswitch(str)
     def nodedir(self, dirname):
         """Where is the local directory on the cluster node."""
         config["nodedir"] = dirname
 
-    @cli.autoswitch(["R", "resultsdir"], str)
+    @cli.autoswitch(str, mandatory=True)
     def resultsdir(self, dirname):
-        """Where should the results be placed."""
+        """Where should the shared results be placed."""
         config["resultsdir"] = dirname
 
     @cli.autoswitch(int)
@@ -169,17 +172,17 @@ class Chimaira(cli.Application):
         """Likwid prefix."""
         config["likwiddir"] = likwid_prefix
 
-    @cli.autoswitch(str)
+    @cli.autoswitch(str, mandatory=True)
     def papi_prefix(self, papi_prefix):
         """PAPI prefix."""
         config["papi"] = papi_prefix
 
-    @cli.autoswitch(["p", "partition"], str)
+    @cli.autoswitch(str)
     def partition(self, partition):
         """Which SLURM partition to use."""
         config["partition"] = partition
 
-    @cli.autoswitch(["A", "account"], str)
+    @cli.autoswitch(str)
     def account(self, account):
         """Which SLURM account to use."""
         config["account"] = account
@@ -187,31 +190,41 @@ class Chimaira(cli.Application):
     @cli.autoswitch(str)
     def llvm_prefix(self, llvm_prefix):
         """LLVM Prefix."""
-        config["llvm"] = llvm_prefix
+        config["llvmdir"] = llvm_prefix
 
-    @cli.autoswitch(["build"])
+    @cli.autoswitch()
     def build(self):
         """Build the LLVM/Polly/Polli/Clang on the cluster node."""
         config["local_build"] = True
 
-    @cli.autoswitch(["P", "project"], str, list=True)
+    @cli.autoswitch(str, list=True)
     def project(self, projects):
         """Which project(s) should be sent to SLURM."""
         self._projects = projects
 
-    @cli.autoswitch(["G", "group"], str, list=True)
+    @cli.autoswitch(str, list=True)
     def group(self, groups):
         """Which group(s) should be sent to SLURM."""
         self._groups = groups
 
-    @cli.autoswitch(["D", "description"], str)
+    @cli.autoswitch(str)
     def experiment_tag(self, description):
         """A description for this experiment run."""
         config["experiment_description"] = description
 
+    @cli.autoswitch()
+    def quiet(self):
+        self._quiet = True
+
     def main(self):
         from pprof import projects  # Import all projects for the registry.
         from pprof.project import ProjectRegistry
+
+        root = logging.getLogger()
+        if self._quiet:
+            root.setLevel(logging.CRITICAL)
+        else:
+            root.setLevel(logging.INFO)
 
         projects = ProjectRegistry.projects
         if self._projects is not None:
@@ -225,11 +238,15 @@ class Chimaira(cli.Application):
                 for name, cls in projects.items() if cls.GROUP in self._groups
             }
 
+        prj_keys = sorted(projects.keys())
         for exp in config["experiments"]:
-            dispatch_jobs(exp, projects.keys())
+            INFO("experiment: {} with projects:".format(exp))
+            INFO(", ".join(prj_keys))
+            dispatch_jobs(exp, prj_keys)
 
     _projects = None
     _groups = None
+    _quiet = False
 
 
 if __name__ == '__main__':

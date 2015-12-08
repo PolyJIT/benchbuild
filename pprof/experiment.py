@@ -262,7 +262,7 @@ class Experiment(object):
             path.join(config["llvmdir"], "lib"), config["ld_library_path"]
         ])
 
-    def __init__(self, name, projects=[], group=None):
+    def __init__(self, name, projects=None, group=None):
         self.name = name
         self.projects = {}
         self.setup_commands()
@@ -289,12 +289,12 @@ class Experiment(object):
         self.projects = {}
 
         projects = ProjectRegistry.projects
-        if projects_to_filter:
+        if projects_to_filter is not None:
             allkeys = set(list(projects.keys()))
             usrkeys = set(projects_to_filter)
             projects = {x: projects[x] for x in allkeys & usrkeys}
 
-        if group:
+        if group is not None:
             projects = {
                 name: cls
                 for name, cls in projects.items() if cls.GROUP == group

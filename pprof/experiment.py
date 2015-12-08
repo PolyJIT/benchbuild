@@ -62,22 +62,6 @@ def newline(ostream):
     return ostream
 
 
-def to_utf8(text):
-    """
-    Convert given text to UTF-8 encoding (as far as possible).
-
-    Args:
-        text (str): Text object we wish to convert to utf8
-
-    Returns (str):
-        Hopefully some text encoded in utf8, we might bail.
-    """
-    if not text:
-        return text
-
-    return text.encode("utf8", errors="replace")
-
-
 def static_var(varname, value):
     """
     Decorate something with a static variable.

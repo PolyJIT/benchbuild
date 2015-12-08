@@ -16,7 +16,6 @@ The resource management system used on chimaira is SLURM.
 """
 
 from plumbum import cli, local
-from plumbum.cmd import awk, sbatch, chmod
 from pprof.settings import config
 import os
 
@@ -33,6 +32,8 @@ def dump_slurm_script(script_name, log_name, commands, **kwargs):
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
     """
+    from plumbum.cmd import chmod
+
     with open(script_name, 'w') as slurm:
         slurm.write("#!/bin/sh\n")
         slurm.write("#SBATCH -o {}\n".format(log_name))
@@ -123,6 +124,7 @@ def dispatch_jobs(exp, projects):
     """
     jobs = []
     from uuid import uuid4
+    from plumbum.cmd import sbatch, awk
 
     experiment_id = uuid4()
     for project in projects:

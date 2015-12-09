@@ -23,6 +23,8 @@ from os import path
 class PollyOpenMP(RuntimeExperiment):
     """Timing experiment with Polly & OpenMP support."""
 
+    NAME = "polly-openmp"
+
     def run_project(self, p):
         """Build & Run each project with Polly & OpenMP support."""
         from uuid import uuid4

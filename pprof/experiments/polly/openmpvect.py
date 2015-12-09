@@ -23,6 +23,8 @@ from os import path
 class PollyOpenMPVectorizer(RuntimeExperiment):
     """Timing experiment with Polly & OpenMP+Vectorizer support."""
 
+    NAME = "polly-openmpvect"
+
     def run_project(self, p):
         from uuid import uuid4
         from pprof.experiments.raw import run_with_time

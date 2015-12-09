@@ -71,6 +71,8 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
 class RawRuntime(RuntimeExperiment):
     """The polyjit experiment."""
 
+    NAME = "raw"
+
     def run_project(self, p):
         """Compile & Run the experiment with -O3 enabled."""
         from pprof.settings import config

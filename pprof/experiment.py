@@ -40,7 +40,6 @@ from os import path, listdir
 from pprof.utils.db import persist_experiment
 from abc import abstractmethod
 
-import sys
 import regex
 
 
@@ -91,7 +90,6 @@ def static_var(varname, value):
 
 
 @contextmanager
-@static_var("counter", 0)
 @static_var("name", "")
 def phase(name, pname="FIXME: Unset"):
     """
@@ -106,26 +104,21 @@ def phase(name, pname="FIXME: Unset"):
         name (str): Name of the phase.
         pname (str): Project Name this phase will be started for.
     """
-    phase.counter += 1
     phase.name = name
-    step.counter = 0
 
-    from sys import stderr as o
-    main_msg = "PHASE.{} '{}' {}".format(phase.counter, name, pname)
+    from logging import error, info
 
-    newline(o).write(main_msg + " START")
-    o.write("\n")
-    o.flush()
+    main_msg = "PHASE '{}' {}".format(name, pname)
+    info(main_msg + " START")
     try:
         yield
-        newline(o).write(main_msg + " OK")
+        info(main_msg + " OK")
     except ProcessExecutionError as proc_ex:
-        o.write("\n" + proc_ex.stderr.encode("utf8"))
-    except (OSError, ProcessExecutionError, GuardedRunException) as os_ex:
-        o.write("\n" + str(os_ex.stderr))
-        sys.stdout.write("\n" + main_msg + " FAILED")
-    o.write("\n")
-    o.flush()
+        error(u"\n" + proc_ex.stderr)
+        error(main_msg + " FAILED")
+    except (OSError, GuardedRunException) as os_ex:
+        error(os_ex)
+        error(main_msg + " FAILED")
 
 
 @contextmanager
@@ -143,23 +136,17 @@ def step(name):
     Args:
         name (str): The name of the step
     """
-    step.counter += 1
+    from logging import info
     step.name = name
-    substep.counter = 0
 
-    from sys import stderr as o
-    main_msg = "    STEP.{} '{}'".format(step.counter, name)
-
-    newline(o).write(main_msg + " START")
+    main_msg = "    STEP '{}'".format(name)
+    info(main_msg + " START")
     yield
-    newline(o).write(main_msg + " OK")
-    o.flush()
+    info(main_msg + " OK")
 
 
 @contextmanager
-@static_var("counter", 0)
 @static_var("name", "")
-@static_var("failed", 0)
 def substep(name):
     """
     Introduce a new substep.
@@ -172,28 +159,18 @@ def substep(name):
     Args:
         name (str): The name of the substep
     """
-    substep.counter += 1
     substep.name = name
+    from logging import info, error
+    main_msg = "        SUBSTEP '{}'".format(name)
 
-    from sys import stdout as o
-    main_msg = "        SUBSTEP.{} '{}'".format(substep.counter, name)
-
-    newline(o).write(main_msg + " START")
+    info(main_msg + " START")
     try:
         yield
-        newline(o).write(main_msg + " OK")
+        info(main_msg + " OK")
     except ProcessExecutionError as proc_ex:
-        o.write("\n" + proc_ex.stderr.encode("utf8"))
+        error(proc_ex.stderr)
     except (OSError, GuardedRunException) as os_ex:
-        try:
-            newline(o).write("\n" + str(os_ex))
-        except UnicodeEncodeError:
-            o.write("\nCouldn't figure out what encoding to use, sorry...")
-        o.write("\n" + main_msg + "FAILED")
-        o.write("\n    {} substeps have FAILED so far.".format(substep.failed))
-        o.flush()
-        substep.failed += 1
-    o.flush()
+        error(os_ex)
 
 
 def get_group_projects(group, experiment):

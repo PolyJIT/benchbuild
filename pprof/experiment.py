@@ -206,7 +206,20 @@ def get_group_projects(group, experiment):
     return group
 
 
-class Experiment(object):
+class ExperimentRegistry(type):
+    """Registry for pprof experiments."""
+
+    experiments = {}
+
+    def __init__(cls, name, bases, dict):
+        """Registers a project in the registry."""
+        super(ExperimentRegistry, cls).__init__(name, bases, dict)
+
+        if cls.NAME is not None:
+            ExperimentRegistry.experiments[cls.NAME] = cls
+
+
+class Experiment(object, metaclass=ExperimentRegistry):
     """
     A series of commands executed on a project that form an experiment.
 
@@ -219,6 +232,17 @@ class Experiment(object):
     gets a list of experiment names that work as a filter.
 
     """
+    NAME = None
+
+    def __new__(cls, *args, **kwargs):
+        """Create a new experiment instance and set some defaults."""
+        new_self = super(Experiment, cls).__new__(cls)
+        if cls.NAME is None:
+            raise AttributeError(
+                "{} @ {} does not define a NAME class attribute.".format(
+                    cls.__name__, cls.__module__))
+        new_self.name = cls.NAME
+        return new_self
 
     def setup_commands(self):
         """
@@ -231,12 +255,11 @@ class Experiment(object):
             path.join(config["llvmdir"], "lib"), config["ld_library_path"]
         ])
 
-    def __init__(self, name, projects=None, group=None):
-        self.name = name
+    def __init__(self, projects=None, group=None):
         self.projects = {}
         self.setup_commands()
         self.sourcedir = config["sourcedir"]
-        self.builddir = path.join(config["builddir"], name)
+        self.builddir = path.join(config["builddir"], self.name)
         self.testdir = config["testdir"]
 
         self.populate_projects(projects, group)

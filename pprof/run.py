@@ -4,6 +4,7 @@ from plumbum.cmd import mkdir
 from pprof.driver import PollyProfiling
 from pprof.settings import config
 from pprof.utils.user_interface import query_yes_no
+from pprof.experiments import *
 
 import os, os.path
 
@@ -87,44 +88,21 @@ class PprofRun(cli.Application):
         self._group_name = group
 
     def main(self):
-        from pprof.experiments import polyjit
-        from pprof.experiments import raw
-        from pprof.experiments import papi
-        from pprof.experiments.polly import (polly, openmp, openmpvect,
-                                             vectorize)
-        from pprof.experiments import compilestats, compilestats_ewpt
-
-        self._experiments = {
-            "pj-raw": polyjit.PJITRaw,
-            "pj-perf": polyjit.PJITperf,
-            "pj-likwid": polyjit.PJITlikwid,
-            "pj-cs": polyjit.PJITcs,
-            "pj-collect": polyjit.PJITRegression,
-            "pj-papi": polyjit.PJITpapi,
-            "raw": raw.RawRuntime,
-            "papi": papi.PapiScopCoverage,
-            "papi-std": papi.PapiStandardScopCoverage,
-            "polly": polly.Polly,
-            "polly-openmp": openmp.PollyOpenMP,
-            "polly-openmpvect": openmpvect.PollyOpenMPVectorizer,
-            "polly-vectorize": vectorize.PollyVectorizer,
-            "stats": compilestats.CompilestatsExperiment,
-            "ewpt": compilestats_ewpt.EWPTCompilestatsExperiment,
-        }
+        from pprof.experiment import ExperimentRegistry
 
         if self._list_experiments:
-            for experiment_name, experiment in list(self._experiments.items()):
-                print(experiment_name)
-                docstring = experiment.__doc__ or "-- no docstring --"
-                docstring = docstring.strip()
+            for exp_name in ExperimentRegistry.experiments:
+                exp_cls = ExperimentRegistry.experiments[exp_name]
+                print(exp_cls.NAME)
+                docstring = exp_cls.__doc__ or "-- no docstring --"
                 print(("    " + docstring))
             exit(0)
 
         if self._list:
-            for exp in self._experiment_names:
-                experiment = self._experiments[exp](exp, self._project_names,
-                                                    self._group_name)
-                print_projects(experiment)
+            for exp_name in self._experiment_names:
+                exp_cls = ExperimentRegistry.experiments[exp_name]
+                exp = exp_cls(self._project_names, self._group_name)
+                print_projects(exp)
             exit(0)
 
         print("Configuration: ")

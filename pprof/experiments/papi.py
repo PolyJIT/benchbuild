@@ -15,6 +15,8 @@ from os import path
 class PapiScopCoverage(RuntimeExperiment):
     """PAPI-based dynamic SCoP coverage measurement."""
 
+    NAME = "papi"
+
     def run(self):
         """Do the postprocessing, after all projects are done."""
         super(PapiScopCoverage, self).run()
@@ -68,6 +70,8 @@ class PapiScopCoverage(RuntimeExperiment):
 
 class PapiStandardScopCoverage(PapiScopCoverage):
     """PAPI Scop Coverage, without JIT."""
+
+    NAME = "papi-std"
 
     def run_project(self, p):
         """

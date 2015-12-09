@@ -10,6 +10,8 @@ from pprof.experiments.compilestats import CompilestatsExperiment
 
 
 class EWPTCompilestatsExperiment(CompilestatsExperiment):
+    NAME = "ewpt"
+
     def extra_cflags(self):
         return ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                 "-mllvm", "-polly"]

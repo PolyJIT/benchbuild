@@ -15,6 +15,8 @@ from pprof.utils.schema import CompileStat
 class CompilestatsExperiment(RuntimeExperiment):
     """The compilestats experiment."""
 
+    NAME = "stats"
+
     def extra_ldflags(self):
         return []
 

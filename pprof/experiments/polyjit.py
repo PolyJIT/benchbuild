@@ -271,6 +271,8 @@ class PJITRaw(PolyJIT):
         This is our default experiment for speedup measurements.
     """
 
+    NAME = "pj-raw"
+
     def run_project(self, p):
         from pprof.settings import config
 
@@ -295,6 +297,8 @@ class PJITperf(PolyJIT):
     """
         An experiment that uses linux perf tools to generate flamegraphs.
     """
+
+    NAME = "pj-perf"
 
     def run_project(self, p):
         from pprof.settings import config
@@ -323,6 +327,8 @@ class PJITlikwid(PolyJIT):
 
         This allows for arbitrary profiling of PolyJIT's overhead and run-time
     """
+
+    NAME = "pj-likwid"
 
     def run_project(self, p):
         from pprof.settings import config
@@ -360,6 +366,8 @@ class PJITRegression(PolyJIT):
         experiment looks a lot like a RAW experiment, except we don't run
         anything.
     """
+
+    NAME = "pj-collect"
 
     def run_project(self, p):
         """
@@ -406,6 +414,8 @@ class PJITcs(PolyJIT):
         This enables PolyJIT during the compilation of the project and
         extracts all stats from LLVM's -stats output.
     """
+
+    NAME = "pj-cs"
 
     def run_project(self, p):
         from pprof.settings import config
@@ -461,6 +471,8 @@ class PJITpapi(PolyJIT):
 
         This uses the same set of flags as all other PolyJIT based experiments.
     """
+
+    NAME = "pj-papi"
 
     def run(self):
         """Do the postprocessing, after all projects are done."""

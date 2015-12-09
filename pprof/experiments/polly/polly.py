@@ -25,6 +25,8 @@ from os import path
 class Polly(RuntimeExperiment):
     """ The polly experiment. """
 
+    NAME = "polly"
+
     def run_project(self, p):
         from uuid import uuid4
         from pprof.experiments.raw import run_with_time

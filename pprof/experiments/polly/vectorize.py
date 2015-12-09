@@ -24,6 +24,8 @@ from os import path
 class PollyVectorizer(RuntimeExperiment):
     """ The polly experiment with vectorization enabled. """
 
+    NAME = "polly-vectorize"
+
     def run_project(self, p):
         from uuid import uuid4
         from pprof.experiments.raw import run_with_time

@@ -74,6 +74,10 @@ class PprofRun(cli.Application):
     def list(self):
         self._list = True
 
+    show_config = cli.Flag(["-d", "--dump-config"],
+                           help="Just dump pprof's config and exit.",
+                           default=False)
+
     @cli.switch(["-k", "--keep"],
                 requires=["--experiment"],
                 help="Keep intermediate results")
@@ -105,9 +109,10 @@ class PprofRun(cli.Application):
                 print_projects(exp)
             exit(0)
 
-        print("Configuration: ")
-        from pprof.settings import print_settings
-        print_settings(config)
+        if (self.show_config):
+            from pprof.settings import print_settings
+            print_settings(config)
+            exit(0)
 
         if self._project_names:
             # Only try to create the build dir if we're actually running some projects.

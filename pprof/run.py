@@ -6,7 +6,6 @@ from pprof.settings import config
 from pprof.utils.user_interface import query_yes_no
 
 import os, os.path
-import pprint
 
 
 @PollyProfiling.subcommand("run")
@@ -129,7 +128,8 @@ class PprofRun(cli.Application):
             exit(0)
 
         print("Configuration: ")
-        pprint.pprint(config)
+        from pprof.settings import print_settings
+        print_settings(config)
 
         if self._project_names:
             # Only try to create the build dir if we're actually running some projects.

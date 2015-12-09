@@ -91,7 +91,7 @@ def static_var(varname, value):
 
 @contextmanager
 @static_var("name", "")
-def phase(name, pname="FIXME: Unset"):
+def phase(name, pname="FIXME: Unset", cleaner=None):
     """
     Introduce a new phase.
 
@@ -103,6 +103,8 @@ def phase(name, pname="FIXME: Unset"):
     Args:
         name (str): Name of the phase.
         pname (str): Project Name this phase will be started for.
+        cleaner (callable): Cleaner callable that will be invoked as
+            soon as the phase failed and we cannot recover.
     """
     phase.name = name
 
@@ -116,9 +118,15 @@ def phase(name, pname="FIXME: Unset"):
     except ProcessExecutionError as proc_ex:
         error(u"\n" + proc_ex.stderr)
         error(main_msg + " FAILED")
+        cleaner()
+        import sys
+        sys.exit(-1)
     except (OSError, GuardedRunException) as os_ex:
         error(os_ex)
         error(main_msg + " FAILED")
+        cleaner()
+        import sys
+        sys.exit(-1)
 
 
 @contextmanager
@@ -302,17 +310,24 @@ class Experiment(object):
         """
         self.run_project(project)
 
-    def map_projects(self, fun, project=None):
+    def map_projects(self, fun, pname=None):
         """
         Map a function over all projects.
 
         Args:
             fun: The function that is applied to all projects.
-            project (pprof.Project): The project phase name.
+            pname (str): The project phase name.
         """
+        from functools import partial
         for project_name in self.projects:
-            with phase(project, project_name):
-                prj = self.projects[project_name]
+            prj = self.projects[project_name]
+
+            def maybe_clean_on_error(project):
+                if config["clean"]:
+                    project.clean()
+
+            with phase(pname, project_name, partial(maybe_clean_on_error,
+                                                    prj)):
                 llvm_libs = path.join(config["llvmdir"], "lib")
                 ld_lib_path = config["ld_library_path"] + ":" + llvm_libs
                 with local.env(LD_LIBRARY_PATH=ld_lib_path,

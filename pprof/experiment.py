@@ -264,7 +264,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
         self.populate_projects(projects, group)
 
-    def populate_projects(self, projects_to_filter, group=None):
+    def populate_projects(self, projects_to_filter=None, group=None):
         """
         Populate the list of projects that belong to this experiment.
 
@@ -281,12 +281,12 @@ class Experiment(object, metaclass=ExperimentRegistry):
         self.projects = {}
 
         projects = ProjectRegistry.projects
-        if projects_to_filter is not None:
+        if projects_to_filter:
             allkeys = set(list(projects.keys()))
             usrkeys = set(projects_to_filter)
             projects = {x: projects[x] for x in allkeys & usrkeys}
 
-        if group is not None:
+        if group:
             projects = {
                 name: cls
                 for name, cls in projects.items() if cls.GROUP == group

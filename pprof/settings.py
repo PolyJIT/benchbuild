@@ -347,3 +347,13 @@ def default_config(config_metadata):
 
 
 config = default_config(CONFIG_METADATA)
+
+
+def print_settings(config):
+    from logging import info
+    for cfg in CONFIG_METADATA:
+        env_str = cfg["env"] if "env" in cfg else "<env not available>"
+        key = cfg["name"]
+        default_str = cfg["default"] if "default" in cfg else "<no default>"
+        print("    {:<30} = {} (key: {}) (default: {})".format(env_str, config[
+            key], key, default_str))

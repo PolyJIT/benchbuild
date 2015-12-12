@@ -92,7 +92,13 @@ class PprofRun(cli.Application):
         self._group_name = group
 
     def main(self):
+        from logging import getLogger, INFO
         from pprof.experiment import ExperimentRegistry
+        project_names = self._project_names
+        group_name = self._group_name
+
+        root = getLogger()
+        root.setLevel(INFO)
 
         if self._list_experiments:
             for exp_name in ExperimentRegistry.experiments:

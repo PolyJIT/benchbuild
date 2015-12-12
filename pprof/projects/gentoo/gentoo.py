@@ -122,14 +122,8 @@ class Eix(GentooGroup):
     DOMAIN = 'debug'
 
     def build(self):
-        from pprof.utils.run import run, uchroot
         with local.cwd(self.builddir):
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-            with local.env(ACCEPT_KEYWORDS="~amd64",
-                           CC="/usr/bin/gcc",
-                           CXX="/usr/bin/g++",
-                           USE="tinfo"):
-                run(emerge_in_chroot["--nodeps", "ncurses"])
             run(emerge_in_chroot["eix"])
 
     def run_tests(self, experiment):

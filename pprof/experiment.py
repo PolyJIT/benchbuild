@@ -39,7 +39,6 @@ from contextlib import contextmanager
 from os import path, listdir
 from pprof.utils.db import persist_experiment
 from abc import abstractmethod
-
 import regex
 
 
@@ -111,19 +110,19 @@ def phase(name, pname="FIXME: Unset", cleaner=None):
     from logging import error, info
 
     main_msg = "PHASE '{}' {}".format(name, pname)
-    info(main_msg + " START")
+    print(main_msg + " START")
     try:
         yield
-        info(main_msg + " OK")
+        print(main_msg + " OK")
     except ProcessExecutionError as proc_ex:
         error(u"\n" + proc_ex.stderr)
-        error(main_msg + " FAILED")
+        print(main_msg + " FAILED")
         cleaner()
         import sys
         sys.exit(-1)
     except (OSError, GuardedRunException) as os_ex:
         error(os_ex)
-        error(main_msg + " FAILED")
+        print(main_msg + " FAILED")
         cleaner()
         import sys
         sys.exit(-1)
@@ -148,9 +147,9 @@ def step(name):
     step.name = name
 
     main_msg = "    STEP '{}'".format(name)
-    info(main_msg + " START")
+    print(main_msg + " START")
     yield
-    info(main_msg + " OK")
+    print(main_msg + " OK")
 
 
 @contextmanager
@@ -171,10 +170,10 @@ def substep(name):
     from logging import info, error
     main_msg = "        SUBSTEP '{}'".format(name)
 
-    info(main_msg + " START")
+    print(main_msg + " START")
     try:
         yield
-        info(main_msg + " OK")
+        print(main_msg + " OK")
     except ProcessExecutionError as proc_ex:
         error(proc_ex.stderr)
     except (OSError, GuardedRunException) as os_ex:
@@ -398,7 +397,6 @@ class Experiment(object, metaclass=ExperimentRegistry):
             error("User requested termination.")
         except Exception as ex:
             error("{}".format(ex))
-            info("Shutting down.")
             print("Shutting down...")
         finally:
             if experiment.end is None:

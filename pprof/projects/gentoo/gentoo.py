@@ -163,3 +163,13 @@ class Eix(GentooGroup):
 
     def run_tests(self, experiment):
         pass
+
+
+class BZip2(GentooGroup):
+    NAME = "gentoo-bzip2"
+    DOMAIN = "app-arch"
+
+    def build(self):
+        with local.cwd(self.builddir):
+            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+            run(emerge_in_chroot["app-arch/bzip2"])

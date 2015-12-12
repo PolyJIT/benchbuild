@@ -25,6 +25,10 @@ An experiment performs the following actions in order:
         This to perform all your experiment needs.
 
 """
+from contextlib import contextmanager
+from abc import abstractmethod
+from os import path, listdir
+import regex
 
 from plumbum import local, FG
 from plumbum.cmd import mkdir, rmdir
@@ -33,13 +37,8 @@ from plumbum.commands.processes import ProcessExecutionError
 from pprof.project import ProjectRegistry
 from pprof.utils.run import GuardedRunException
 from pprof.settings import config
-import pprof.projects  # Required to fill the ProjectRegistry
-
-from contextlib import contextmanager
-from os import path, listdir
 from pprof.utils.db import persist_experiment
-from abc import abstractmethod
-import regex
+import pprof.projects  # Required to fill the ProjectRegistry
 
 
 def newline(ostream):

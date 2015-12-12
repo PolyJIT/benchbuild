@@ -15,6 +15,7 @@ The following packages are required to run GentooGroup:
 """
 
 from pprof.project import Project
+from pprof.utils.run import run, uchroot
 from plumbum import local
 from lazy import lazy
 
@@ -110,6 +111,40 @@ PKGDIR="${PORTDIR}/packages"
                 lines = '''masters = gentoo'''
                 layoutconf.write(lines)
             cp("/etc/resolv.conf", "etc/resolv.conf")
+
+
+class PrepareStage3(GentooGroup):
+    """
+    A project that can be used for interactive stage3 generation.
+    """
+    NAME = "stage3"
+    DOMAIN = "debug"
+
+    def build(self):
+        from plumbum import FG
+        from plumbum.cmd import tar, mv, rm
+        from pprof.utils.downloader import update_hash
+        from logging import info
+        from pprof.settings import config
+        from os import path
+
+        root = config["tmpdir"]
+        src_file = self.src_file + ".new"
+        with local.cwd(self.builddir):
+            bash_in_uchroot = uchroot()["/bin/bash"]
+            print("Entering User-Chroot. Prepare your image and "
+                  "type 'exit' when you are done.")
+            bash_in_uchroot & FG
+            tgt_path = path.join(root, self.src_file)
+            tgt_path_new = path.join(root, src_file)
+            print("Packing new stage3 image. "
+                  "This will replace the original one at: {}", tgt_path)
+            tar("cjf", tgt_path_new, ".")
+            update_hash(src_file, root)
+            mv(path.join(root, src_file), tgt_path)
+
+    def run_tests(self, experiment):
+        pass
 
 
 class Eix(GentooGroup):

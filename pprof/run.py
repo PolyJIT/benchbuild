@@ -129,11 +129,16 @@ class PprofRun(cli.Application):
             print("Running experiment: " + exp_name)
             name = exp_name.lower()
 
-            exp = self._experiments[name](name, self._project_names,
-                                          self._group_name)
-            exp.clean()
-            exp.prepare()
-            exp.run()
+            if exp_name in ExperimentRegistry.experiments:
+                exp_cls = ExperimentRegistry.experiments[exp_name]
+                exp = exp_cls(project_names, group_name)
+                exp.clean()
+                exp.prepare()
+                exp.run()
+            else:
+                from logging import error
+                error("Could not find {} in the experiment registry.",
+                      exp_name)
 
 
 def print_projects(experiment):

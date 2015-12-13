@@ -1,7 +1,7 @@
 from pprof.projects.pprof.group import PprofGroup
-from os import path
 from plumbum import local
 from plumbum.cmd import cp
+from os import path
 
 
 class Bzip2(PprofGroup):

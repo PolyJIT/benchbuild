@@ -13,10 +13,13 @@ the gentoo image in pprof's source directory.
 The following packages are required to run GentooGroup:
     * fakeroot
 """
-
+from os import path
+from plumbum.cmd import cp, tar, mv, fakeroot, rm  # pylint: disable=E0401
+from plumbum.cmd import mkdir, curl, cut, tail  # pylint: disable=E0401
+from plumbum import local
 from pprof.project import Project
 from pprof.utils.run import run, uchroot
-from plumbum import local
+from pprof.utils.downloader import Wget
 from lazy import lazy
 
 
@@ -27,7 +30,6 @@ def latest_src_uri():
     Returns (str):
         Latest src_uri from gentoo's distfiles mirror.
     """
-    from plumbum.cmd import curl, cut, tail
     from plumbum import ProcessExecutionError
     from logging import error
 
@@ -55,7 +57,8 @@ class GentooGroup(Project):
     src_file = src_dir + ".tar.bz2"
 
     @lazy
-    def src_uri(self):
+    def src_uri(self):  # pylint: disable=R0201
+        """Fetches the lates src_uri from the gentoo mirrors."""
         return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
                 .format(latest_src_uri())
 
@@ -64,11 +67,11 @@ class GentooGroup(Project):
                     "gentoo/snapshots/portage-latest.tar.bz2"
     src_file_portage = "portage_snap.tar.bz2"
 
+    def build(self):
+        pass
+
     def download(self):
-        from pprof.utils.downloader import Wget
-        from pprof.utils.run import run
         from pprof.settings import config
-        from plumbum.cmd import cp, tar, fakeroot, rm
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
 
@@ -81,7 +84,6 @@ class GentooGroup(Project):
                 rm(self.src_file_portage)
 
     def configure(self):
-        from plumbum.cmd import mkdir, cp
         with local.cwd(self.builddir):
             with open("etc/portage/make.conf", 'w') as makeconf:
                 lines = '''
@@ -121,12 +123,15 @@ class PrepareStage3(GentooGroup):
     DOMAIN = "debug"
 
     def build(self):
+        import sys
+        # Don't do something when running non-interactive.
+        if not sys.stdout.isatty():
+            return
+
         from plumbum import FG
-        from plumbum.cmd import tar, mv, rm
         from pprof.utils.downloader import update_hash
         from logging import info
         from pprof.settings import config
-        from os import path
 
         root = config["tmpdir"]
         src_file = self.src_file + ".new"
@@ -134,7 +139,7 @@ class PrepareStage3(GentooGroup):
             bash_in_uchroot = uchroot()["/bin/bash"]
             print("Entering User-Chroot. Prepare your image and "
                   "type 'exit' when you are done.")
-            bash_in_uchroot & FG
+            bash_in_uchroot & FG  # pylint: disable=W0104
             tgt_path = path.join(root, self.src_file)
             tgt_path_new = path.join(root, src_file)
             print("Packing new stage3 image. "
@@ -166,6 +171,9 @@ class Eix(GentooGroup):
 
 
 class BZip2(GentooGroup):
+    """
+        app-arch/bzip2
+    """
     NAME = "gentoo-bzip2"
     DOMAIN = "app-arch"
 

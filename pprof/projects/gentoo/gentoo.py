@@ -177,7 +177,41 @@ class BZip2(GentooGroup):
     NAME = "gentoo-bzip2"
     DOMAIN = "app-arch"
 
+    test_url = "http://lairosiel.de/dist/"
+    test_archive = "compression.tar.gz"
+    testfiles = ["text.html", "chicken.jpg", "control", "input.source",
+                 "liberty.jpg"]
+
+    def prepare(self):
+        super(BZip2, self).prepare()
+
+        test_archive = self.test_archive
+        test_url = self.test_url + test_archive
+        with local.cwd(self.builddir):
+            Wget(test_url, test_archive)
+            tar("fxz", test_archive)
+
     def build(self):
         with local.cwd(self.builddir):
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
             run(emerge_in_chroot["app-arch/bzip2"])
+
+    def run_tests(self, experiment):
+        from pprof.project import wrap
+
+        wrap(path.join(self.builddir, "bin", "bzip2"), experiment)
+        bzip2 = uchroot()["/bin/bzip2"]
+
+        # Compress
+        run(bzip2["-f", "-z", "-k", "--best", "text.html"])
+        run(bzip2["-f", "-z", "-k", "--best", "chicken.jpg"])
+        run(bzip2["-f", "-z", "-k", "--best", "control"])
+        run(bzip2["-f", "-z", "-k", "--best", "input.source"])
+        run(bzip2["-f", "-z", "-k", "--best", "liberty.jpg"])
+
+        # Decompress
+        run(bzip2["-f", "-k", "--decompress", "text.html.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "chicken.jpg.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "control.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "input.source.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "liberty.jpg.bz2"])

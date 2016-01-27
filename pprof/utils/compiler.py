@@ -103,7 +103,7 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
             blob.write(dill.dumps(func))
 
     with open(filepath, 'w') as wrapper:
-        lines = '''#!/usr/bin/env python
+        lines = '''#!/usr/bin/env python3
 #
 
 from plumbum import ProcessExecutionError, local, FG

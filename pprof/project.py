@@ -242,7 +242,7 @@ def wrap(name, runner):
         dill.dump(runner, blob, protocol=-1, recurse=True)
 
     with open(name_absolute, 'w') as wrapper:
-        lines = '''#!/usr/bin/env python
+        lines = '''#!/usr/bin/env python3
 #
 
 from plumbum import cli, local
@@ -311,7 +311,7 @@ def wrap_dynamic(name, runner):
         blob.write(dill.dumps(runner))
 
     with open(name_absolute, 'w') as wrapper:
-        lines = '''#!/usr/bin/env python
+        lines = '''#!/usr/bin/env python3
 #
 
 from pprof.project import Project

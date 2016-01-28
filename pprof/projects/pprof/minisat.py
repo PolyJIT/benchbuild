@@ -57,10 +57,9 @@ class Minisat(PprofGroup):
         from pprof.utils.run import run
 
         minisat_dir = path.join(self.builddir, self.src_dir)
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
-
         with local.cwd(minisat_dir):
+            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                     self.compiler_extension)
             run(make["CC=" + str(clang), "CXX=" + str(clang_cxx), "clean",
                      "lsh", "sh"])

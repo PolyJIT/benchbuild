@@ -344,7 +344,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
             prj = self.projects[project_name]
 
             def maybe_clean_on_error(project):
-                if config["clean"]:
+                if "clean" in config and config["clean"]:
                     project.clean()
 
             with phase(pname, project_name, partial(maybe_clean_on_error,

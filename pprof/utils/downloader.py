@@ -33,20 +33,9 @@ def get_hash_of_dirs(directory):
         for root, _, files in os.walk(directory):
             for names in files:
                 filepath = os.path.join(root, names)
-                try:
-                    next_file = open(filepath, 'rb')
-                except:
-                    # You can't open the file for some reason
-                    next_file.close()
-                    continue
-
-                while 1:
-                    # Read file in as little chunks
-                    buf = next_file.read(4096)
-                    if not buf:
-                        break
-                    sha.update(hashlib.sha512(buf).hexdigest())
-            next_file.close()
+                with open(filepath, 'rb') as next_file:
+                  for line in next_file:
+                      sha.update(line)
     except:
         import traceback
         # Print the stack traceback
@@ -99,7 +88,7 @@ def update_hash(src, root):
     with open(hash_file, 'w') as h_file:
         src_path = path.join(root, src)
         new_hash = get_hash_of_dirs(src_path)
-        h_file.write(new_hash)
+        h_file.write(str(new_hash))
 
 
 def Copy(From, To):

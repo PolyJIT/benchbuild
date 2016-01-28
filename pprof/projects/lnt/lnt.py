@@ -28,7 +28,7 @@ class LNTGroup(Project):
             Git(self.src_uri, self.src_dir)
             Git(self.test_suite_uri, self.test_suite_dir)
 
-            virtualenv("local")
+            virtualenv("local", "--python=python2", )
             python = local[path.join("local", "bin", "python")]
             python(path.join(self.src_dir, "setup.py"), "develop")
 

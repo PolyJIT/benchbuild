@@ -176,7 +176,7 @@ def Git(src_url, tgt_name, tgt_root=None):
         return
 
     git("clone", "--depth", "1", src_url, src_dir)
-    update_hash(tgt_name, src_dir)
+    update_hash(tgt_name, tgt_root)
     Copy(src_dir, ".")
 
 

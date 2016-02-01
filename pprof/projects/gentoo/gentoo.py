@@ -87,6 +87,8 @@ class GentooGroup(Project):
         with local.cwd(self.builddir):
             with open("etc/portage/make.conf", 'w') as makeconf:
                 lines = '''
+PATH="/llvm/bin:${PATH}"
+LD_LIBRARY_PATH="/llvm/lib:${LD_LIBRARY_PATH}"
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 FEATURES="-sandbox -usersandbox -usersync -xattr"
@@ -143,7 +145,44 @@ class PrepareStage3(GentooGroup):
             tgt_path = path.join(root, self.src_file)
             tgt_path_new = path.join(root, src_file)
             print("Packing new stage3 image. "
-                  "This will replace the original one at: {}", tgt_path)
+                  "This will replace the original one at: ", tgt_path)
+            tar("cjf", tgt_path_new, ".")
+            update_hash(src_file, root)
+            mv(path.join(root, src_file), tgt_path)
+
+    def run_tests(self, experiment):
+        pass
+
+
+class AutoPrepareStage3(GentooGroup):
+    """
+    A project that can be used to install pprof in the stage3 archive.
+    """
+    NAME = "auto-stage3"
+    DOMAIN = "debug"
+
+    def build(self):
+        import sys
+        # Don't do something when running non-interactive.
+        if not sys.stdout.isatty():
+            return
+
+        from plumbum import FG
+        from pprof.utils.downloader import update_hash
+        from logging import info
+        from pprof.settings import config
+
+        root = config["tmpdir"]
+        src_file = self.src_file + ".new"
+        with local.cwd(self.builddir):
+            mkdir("-p", "pprof-src")
+            w_pprof_src = uchroot("-m", "{}:pprof-src".format(config[
+                "sourcedir"]))
+            pip_in_uchroot = w_pprof_src["/usr/bin/pip3"]
+            pip_in_uchroot("install", "/pprof-src/")
+
+            tgt_path = path.join(root, self.src_file)
+            tgt_path_new = path.join(root, src_file)
             tar("cjf", tgt_path_new, ".")
             update_hash(src_file, root)
             mv(path.join(root, src_file), tgt_path)

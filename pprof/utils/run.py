@@ -1,6 +1,7 @@
 """
 Experiment helpers
 """
+from plumbum.cmd import mkdir  # pylint: disable=E0401
 
 
 def partial(func, *args, **kwargs):
@@ -270,7 +271,7 @@ def guarded_exec(cmd, pname, ename, run_group):
     """
     from plumbum.commands import ProcessExecutionError
     from plumbum import local
-    from logging import warn
+    from warnings import warn
 
     db_run, session = begin(cmd, pname, ename, run_group)
     try:
@@ -315,7 +316,6 @@ def uchroot():
         chroot_cmd
     """
     from pprof.settings import config
-    from plumbum.cmd import mkdir
     from plumbum import local
 
     mkdir("-p", "llvm")

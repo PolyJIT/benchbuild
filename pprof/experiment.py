@@ -30,15 +30,15 @@ from abc import abstractmethod
 from os import path, listdir
 import regex
 
-from plumbum import local, FG
-from plumbum.cmd import mkdir, rmdir
+from plumbum import local
+from plumbum.cmd import mkdir, rmdir  # pylint: disable=E0401
 from plumbum.commands.processes import ProcessExecutionError
 
 from pprof.project import ProjectRegistry
 from pprof.utils.run import GuardedRunException
 from pprof.settings import config
 from pprof.utils.db import persist_experiment
-import pprof.projects  # Required to fill the ProjectRegistry
+import pprof.projects  # pylint: disable=W0611
 
 
 def newline(ostream):

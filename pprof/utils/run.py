@@ -24,6 +24,7 @@ def partial(func, *args, **kwargs):
     frozen_kwargs = kwargs
 
     def partial_func(*args, **kwargs):
+        """ The partial function with pre-bound arguments. """
         nonlocal frozen_args
         nonlocal frozen_kwargs
         nonlocal func
@@ -308,10 +309,12 @@ def run(command, retcode=0):
         raise GuardedRunException(exception, None, None)
 
 
-def uchroot():
+def uchroot(*args):
     """
     Returns a uchroot command which can be called with other args to be
             executed in the uchroot.
+    Args:
+        args: List of additional arguments for uchroot (typical: mounts)
     Return:
         chroot_cmd
     """
@@ -320,5 +323,5 @@ def uchroot():
 
     mkdir("-p", "llvm")
     uchroot_cmd = local["./uchroot"]
-    return uchroot_cmd["-C", "-w", "/", "-r", ".", "-m", config["llvmdir"] +
-                       ":llvm", "-u", "0", "-g", "0", "--"]
+    return uchroot_cmd["-C", "-w", "/", "-r", ".", "-m", config[
+        "llvmdir"] + ":llvm", "-u", "0", "-g", "0", args, "--"]

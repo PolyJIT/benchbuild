@@ -73,7 +73,7 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
     c.update(config)
     project_name = kwargs.get("project_name", project.name)
     run_cmd = local[run_f]
-    run_cmd = r.handle_stdin(run_f[args], kwargs)
+    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
         run, session, _, _, _ = \

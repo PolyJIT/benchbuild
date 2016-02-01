@@ -319,6 +319,10 @@ CONFIG_METADATA = [
         "name": "regression-prefix",
         "env": "PPROF_REGRESSION_PREFIX",
         "default": os.path.join("/", "tmp", "pprof-regressions")
+    }, {
+        "name": "pprof-prefix",
+        "env": "PPROF_PREFIX",
+        "default": os.getcwd()
     }
 ]
 

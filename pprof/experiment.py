@@ -370,7 +370,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
         Afterwards we call the prepare method of the project.
         """
         if not path.exists(self.builddir):
-            mkdir[self.builddir] & FG(retcode=None)
+            mkdir(self.builddir, retcode=None)
 
         self.map_projects(self.prepare_project, "prepare")
 

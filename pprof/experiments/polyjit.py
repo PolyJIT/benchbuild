@@ -68,9 +68,11 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
     from pprof.settings import config as c
     from pprof.utils import run as r
     from pprof.utils.db import persist_config
+    from plumbum import local
 
     c.update(config)
     project_name = kwargs.get("project_name", project.name)
+    run_cmd = local[run_f]
     run_cmd = r.handle_stdin(run_f[args], kwargs)
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):

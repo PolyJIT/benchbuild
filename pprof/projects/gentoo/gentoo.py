@@ -241,16 +241,18 @@ class BZip2(GentooGroup):
         wrap(path.join(self.builddir, "bin", "bzip2"), experiment)
         bzip2 = uchroot()["/bin/bzip2"]
 
-        # Compress
-        run(bzip2["-f", "-z", "-k", "--best", "text.html"])
-        run(bzip2["-f", "-z", "-k", "--best", "chicken.jpg"])
-        run(bzip2["-f", "-z", "-k", "--best", "control"])
-        run(bzip2["-f", "-z", "-k", "--best", "input.source"])
-        run(bzip2["-f", "-z", "-k", "--best", "liberty.jpg"])
+        with local.env(PATH="{}:{}".format(
+                path.join("/llvm", "bin"), path.join("/pprof", "bin"))):
+            # Compress
+            run(bzip2["-f", "-z", "-k", "--best", "text.html"])
+            run(bzip2["-f", "-z", "-k", "--best", "chicken.jpg"])
+            run(bzip2["-f", "-z", "-k", "--best", "control"])
+            run(bzip2["-f", "-z", "-k", "--best", "input.source"])
+            run(bzip2["-f", "-z", "-k", "--best", "liberty.jpg"])
 
-        # Decompress
-        run(bzip2["-f", "-k", "--decompress", "text.html.bz2"])
-        run(bzip2["-f", "-k", "--decompress", "chicken.jpg.bz2"])
-        run(bzip2["-f", "-k", "--decompress", "control.bz2"])
-        run(bzip2["-f", "-k", "--decompress", "input.source.bz2"])
-        run(bzip2["-f", "-k", "--decompress", "liberty.jpg.bz2"])
+            # Decompress
+            run(bzip2["-f", "-k", "--decompress", "text.html.bz2"])
+            run(bzip2["-f", "-k", "--decompress", "chicken.jpg.bz2"])
+            run(bzip2["-f", "-k", "--decompress", "control.bz2"])
+            run(bzip2["-f", "-k", "--decompress", "input.source.bz2"])
+            run(bzip2["-f", "-k", "--decompress", "liberty.jpg.bz2"])

@@ -1,12 +1,12 @@
 """
 Project handling for the pprof study.
 """
-from plumbum import local
-from plumbum.cmd import rm, mkdir, rmdir
 from os import path, listdir
+from abc import abstractmethod
+from plumbum import local
+from plumbum.cmd import mv, chmod, rm, mkdir, rmdir  # pylint: disable=E0401
 from pprof.settings import config
 from pprof.utils.db import persist_project
-from abc import abstractmethod
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
@@ -230,7 +230,6 @@ def wrap(name, runner):
     Returns:
         A plumbum command, ready to launch.
     """
-    from plumbum.cmd import mv, chmod
     import dill
 
     name_absolute = path.abspath(name)
@@ -302,7 +301,6 @@ def wrap_dynamic(name, runner):
     Returns: plumbum command, readty to launch.
 
     """
-    from plumbum.cmd import chmod
     import dill
 
     name_absolute = path.abspath(name)

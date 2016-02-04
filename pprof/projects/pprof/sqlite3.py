@@ -57,14 +57,15 @@ class SQLite3(PprofGroup):
         sqlite_dir = path.join(self.builddir, self.src_dir)
         leveldb_dir = path.join(self.builddir, "leveldb.src")
 
-        self.ldflags += ["-L", sqlite_dir]
-        self.cflags += ["-I", sqlite_dir]
+        # We need to place sqlite3 in front of all other flags.
+        self.ldflags = ["-L", sqlite_dir] + self.ldflags
+        self.cflags = ["-I", sqlite_dir] + self.cflags
         clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
         clang = lt_clang(self.cflags, self.ldflags)
 
         with local.cwd(leveldb_dir):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
-                run(make["clean", "db_bench_sqlite3"])
+                run(make["clean", "out-static/db_bench_sqlite3"])
 
     def run_tests(self, experiment):
         from pprof.project import wrap
@@ -73,5 +74,5 @@ class SQLite3(PprofGroup):
         leveldb_dir = path.join(self.builddir, "leveldb.src")
         with local.cwd(leveldb_dir):
             sqlite = wrap(
-                path.join(leveldb_dir, "db_bench_sqlite3"), experiment)
+                path.join(leveldb_dir, "out-static", "db_bench_sqlite3"), experiment)
             run(sqlite)

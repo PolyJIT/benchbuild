@@ -33,16 +33,18 @@ class LevelDB(PprofGroup):
 
         with local.cwd(leveldb_dir):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
-                run(make["clean", "db_bench"])
+                run(make["clean", "out-static/db_bench"])
 
     def run_tests(self, experiment):
+        """
+        Execute LevelDB's runtime configuration.
+
+        Args:
+            experiment: The experiment's run function.
+        """
         from pprof.project import wrap
         from pprof.utils.run import run
-        """execute leveldb's db_bench script
 
-        :experiment: the experiment's runner function
-
-        """
         leveldb_dir = path.join(self.builddir, "leveldb.src")
-        exp = wrap(path.join(leveldb_dir, "db_bench"), experiment)
+        exp = wrap(path.join(leveldb_dir, "out-static", "db_bench"), experiment)
         run(exp)

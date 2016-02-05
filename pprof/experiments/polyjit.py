@@ -14,6 +14,30 @@ from abc import abstractmethod
 from os import path
 
 
+def collect_compilestats(project, experiment, config, clang, **kwargs):
+    """Collect compilestats."""
+    from pprof.utils import run as r
+    from pprof.settings import config as c
+    from pprof.utils.db import persist_compilestats
+    from pprof.utils.run import handle_stdin
+
+    c.update(config)
+    clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
+
+    run, session, retcode, _, stderr = \
+        r.guarded_exec(clang, project.name, experiment.name, project.run_uuid)
+
+    if retcode == 0:
+        stats = []
+        for stat in get_compilestats(stderr):
+            compile_s = CompileStat()
+            compile_s.name = stat["desc"].rstrip()
+            compile_s.component = stat["component"].rstrip()
+            compile_s.value = stat["value"]
+            stats.append(compile_s)
+        persist_compilestats(run, session, stats)
+
+
 def run_raw(project, experiment, config, run_f, args, **kwargs):
     """
     Run the given binary wrapped with nothing.
@@ -513,8 +537,11 @@ class PJITpapi(PolyJIT):
                     p.clean()
                     p.prepare()
                     p.download()
-                    p.configure()
-                    p.build()
+                    with local.env(PPROF_ENABLE=0):
+                        p.compiler_extension = partial(collect_compilestats, p,
+                                                       self, config)
+                        p.configure()
+                        p.build()
 
                     p.run_uuid = uuid4()
                     p.run(partial(run_with_papi, p, self, config, i))

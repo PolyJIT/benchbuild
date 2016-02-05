@@ -13,7 +13,7 @@ def print_runs(query):
 
     for tup in query:
         print(("{} @ {} - {} id: {} group: {}".format(
-            tup.finished, tup.experiment_name, tup.project_name,
+            tup.end, tup.experiment_name, tup.project_name,
             tup.experiment_group, tup.run_group)))
 
 

@@ -223,8 +223,8 @@ def end(db_run, session, stdout, stderr):
     log.stdout = stdout
     log.status = 0
     log.end = datetime.now()
-    run.end = datetime.now()
-    run.status = 'completed'
+    db_run.end = datetime.now()
+    db_run.status = 'completed'
     session.add(log)
     session.commit()
 

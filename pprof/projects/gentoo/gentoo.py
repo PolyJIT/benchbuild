@@ -87,8 +87,8 @@ class GentooGroup(Project):
         with local.cwd(self.builddir):
             with open("etc/portage/make.conf", 'w') as makeconf:
                 lines = '''
-PATH="/llvm/bin:${PATH}"
-LD_LIBRARY_PATH="/llvm/lib:${LD_LIBRARY_PATH}"
+PATH="/llvm/bin:/pprof/bin:${PATH}"
+LD_LIBRARY_PATH="/llvm/lib:/pprof/lib:${LD_LIBRARY_PATH}"
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 FEATURES="-sandbox -usersandbox -usersync -xattr"
@@ -100,7 +100,6 @@ PORTAGE_GRPNAME = "root"
 PORTAGE_INST_GID = 0
 PORTAGE_INST_UID = 0
 
-LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/llvm/lib"
 CHOST="x86_64-pc-linux-gnu"
 USE="bindist mmx sse sse2"
 PORTDIR="/usr/portage"
@@ -179,7 +178,7 @@ class AutoPrepareStage3(GentooGroup):
             w_pprof_src = uchroot("-m", "{}:pprof-src".format(config[
                 "sourcedir"]))
             pip_in_uchroot = w_pprof_src["/usr/bin/pip3"]
-            pip_in_uchroot("install", "/pprof-src/")
+            pip_in_uchroot["install", "/pprof-src/"] & FG
 
             tgt_path = path.join(root, self.src_file)
             tgt_path_new = path.join(root, src_file)
@@ -241,18 +240,16 @@ class BZip2(GentooGroup):
         wrap(path.join(self.builddir, "bin", "bzip2"), experiment)
         bzip2 = uchroot()["/bin/bzip2"]
 
-        with local.env(PATH="{}:{}".format(
-                path.join("/llvm", "bin"), path.join("/pprof", "bin"))):
-            # Compress
-            run(bzip2["-f", "-z", "-k", "--best", "text.html"])
-            run(bzip2["-f", "-z", "-k", "--best", "chicken.jpg"])
-            run(bzip2["-f", "-z", "-k", "--best", "control"])
-            run(bzip2["-f", "-z", "-k", "--best", "input.source"])
-            run(bzip2["-f", "-z", "-k", "--best", "liberty.jpg"])
+        # Compress
+        run(bzip2["-f", "-z", "-k", "--best", "text.html"])
+        run(bzip2["-f", "-z", "-k", "--best", "chicken.jpg"])
+        run(bzip2["-f", "-z", "-k", "--best", "control"])
+        run(bzip2["-f", "-z", "-k", "--best", "input.source"])
+        run(bzip2["-f", "-z", "-k", "--best", "liberty.jpg"])
 
-            # Decompress
-            run(bzip2["-f", "-k", "--decompress", "text.html.bz2"])
-            run(bzip2["-f", "-k", "--decompress", "chicken.jpg.bz2"])
-            run(bzip2["-f", "-k", "--decompress", "control.bz2"])
-            run(bzip2["-f", "-k", "--decompress", "input.source.bz2"])
-            run(bzip2["-f", "-k", "--decompress", "liberty.jpg.bz2"])
+        # Decompress
+        run(bzip2["-f", "-k", "--decompress", "text.html.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "chicken.jpg.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "control.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "input.source.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "liberty.jpg.bz2"])

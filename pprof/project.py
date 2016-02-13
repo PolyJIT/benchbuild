@@ -278,7 +278,7 @@ if path.exists("{blobf}"):
            db_pass=config["db_pass"],
            likwiddir=config["likwiddir"],
            ld_lib_path=config["ld_library_path"],
-           blobf=blob_f,
+           blobf=path.relpath(blob_f),
            runf=real_f)
         wrapper.write(lines)
     chmod("+x", name_absolute)

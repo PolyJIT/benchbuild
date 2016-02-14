@@ -241,15 +241,15 @@ class BZip2(GentooGroup):
         bzip2 = uchroot()["/bin/bzip2"]
 
         # Compress
-        run(bzip2["-f", "-z", "-k", "--best", "text.html"])
-        run(bzip2["-f", "-z", "-k", "--best", "chicken.jpg"])
-        run(bzip2["-f", "-z", "-k", "--best", "control"])
-        run(bzip2["-f", "-z", "-k", "--best", "input.source"])
-        run(bzip2["-f", "-z", "-k", "--best", "liberty.jpg"])
+        run(bzip2["-f", "-z", "-k", "--best", "compression/text.html"])
+        run(bzip2["-f", "-z", "-k", "--best", "compression/chicken.jpg"])
+        run(bzip2["-f", "-z", "-k", "--best", "compression/control"])
+        run(bzip2["-f", "-z", "-k", "--best", "compression/input.source"])
+        run(bzip2["-f", "-z", "-k", "--best", "compression/liberty.jpg"])
 
         # Decompress
-        run(bzip2["-f", "-k", "--decompress", "text.html.bz2"])
-        run(bzip2["-f", "-k", "--decompress", "chicken.jpg.bz2"])
-        run(bzip2["-f", "-k", "--decompress", "control.bz2"])
-        run(bzip2["-f", "-k", "--decompress", "input.source.bz2"])
-        run(bzip2["-f", "-k", "--decompress", "liberty.jpg.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "compression/text.html.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "compression/chicken.jpg.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "compression/control.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "compression/input.source.bz2"])
+        run(bzip2["-f", "-k", "--decompress", "compression/liberty.jpg.bz2"])

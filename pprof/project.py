@@ -279,7 +279,7 @@ if path.exists("{blobf}"):
            likwiddir=config["likwiddir"],
            ld_lib_path=config["ld_library_path"],
            blobf=path.relpath(blob_f),
-           runf=real_f)
+           runf=path.relpath(real_f))
         wrapper.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]

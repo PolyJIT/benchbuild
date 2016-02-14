@@ -178,7 +178,7 @@ class AutoPrepareStage3(GentooGroup):
             w_pprof_src = uchroot("-m", "{}:pprof-src".format(config[
                 "sourcedir"]))
             pip_in_uchroot = w_pprof_src["/usr/bin/pip3"]
-            pip_in_uchroot["install", "/pprof-src/"] & FG
+            pip_in_uchroot["install", "--upgrade", "/pprof-src/"] & FG
 
             tgt_path = path.join(root, self.src_file)
             tgt_path_new = path.join(root, src_file)

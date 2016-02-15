@@ -38,7 +38,8 @@ class BZip2(GentooGroup):
     def run_tests(self, experiment):
         from pprof.project import wrap
 
-        wrap(path.join(self.builddir, "bin", "bzip2"), experiment)
+        wrap(path.join(self.builddir, "bin", "bzip2"), experiment,
+             self.builddir)
         bzip2 = uchroot()["/bin/bzip2"]
 
         # Compress

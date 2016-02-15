@@ -399,9 +399,10 @@ class Experiment(object, metaclass=ExperimentRegistry):
             print("Shutting down...")
         finally:
             if experiment.end is None:
-                experiment.end = experiment.end
+                experiment.end = datetime.now()
             else:
                 experiment.end = max(experiment.end, datetime.now())
+            session.add(experiment)
             session.commit()
 
 

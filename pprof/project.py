@@ -98,8 +98,10 @@ class Project(object, metaclass=ProjectRegistry):
             experiment: The experiment we run this project under
         """
         from pprof.utils.run import run
+        from plumbum import local
         exp = wrap(self.run_f, experiment)
-        run(exp)
+        with local.cwd(self.builddir):
+            run(exp)
 
     def run(self, experiment):
         """

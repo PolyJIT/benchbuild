@@ -1,3 +1,7 @@
+"""
+bzip2 experiment within gentoo chroot.
+"""
+from os import path
 from pprof.projects.gentoo.gentoo import GentooGroup
 from pprof.utils.downloader import Wget
 from pprof.utils.run import run, uchroot

@@ -216,12 +216,12 @@ class Project(object, metaclass=ProjectRegistry):
         pass
 
 
-def strip_path_prefix(path, prefix):
+def strip_path_prefix(ipath, prefix):
     """Strip prefix from path."""
-    if (prefix is not None) and (prefix in path):
-        return path[path.find(prefix):]
-    else:
-        return path
+    if prefix is None:
+        return ipath
+
+    return ipath[len(prefix):] if ipath.startswith(prefix) else ipath
 
 
 def wrap(name, runner, sprefix=None):

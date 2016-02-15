@@ -216,7 +216,15 @@ class Project(object, metaclass=ProjectRegistry):
         pass
 
 
-def wrap(name, runner):
+def strip_path_prefix(path, prefix):
+    """Strip prefix from path."""
+    if (prefix is not None) and (prefix in path):
+        return path[path.find(prefix):]
+    else:
+        return path
+
+
+def wrap(name, runner, sprefix=None):
     """ Wrap the binary :name: with the function :runner:.
 
     This module generates a python tool that replaces :name:
@@ -280,14 +288,14 @@ if path.exists("{blobf}"):
            db_pass=config["db_pass"],
            likwiddir=config["likwiddir"],
            ld_lib_path=config["ld_library_path"],
-           blobf=path.relpath(blob_f),
-           runf=path.relpath(real_f))
+           blobf=strip_path_prefix(blob_f, sprefix),
+           runf=strip_path_prefix(real_f, sprefix))
         wrapper.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
 
 
-def wrap_dynamic(name, runner):
+def wrap_dynamic(name, runner, sprefix=None):
     """
     Wrap the binary :name with the function :runner.
 
@@ -363,7 +371,7 @@ if path.exists("{blobf}"):
            db_pass=config["db_pass"],
            likwiddir=config["likwiddir"],
            ld_lib_path=config["ld_library_path"],
-           blobf=blob_f)
+           blobf=strip_path_prefix(blob_f, sprefix))
         wrapper.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]

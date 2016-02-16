@@ -272,12 +272,13 @@ def guarded_exec(cmd, pname, ename, run_group):
     """
     from plumbum.commands import ProcessExecutionError
     from plumbum import local
+    from plumbum.commands.modifiers import TEE
     from warnings import warn
 
     db_run, session = begin(cmd, pname, ename, run_group)
     try:
         with local.env(PPROF_DB_RUN_ID=db_run.id):
-            retcode, stdout, stderr = cmd.run()
+            retcode, stdout, stderr = cmd & TEE
         end(db_run, session, stdout, stderr)
         return (db_run, session, retcode, stdout, stderr)
     except ProcessExecutionError as proc_ex:

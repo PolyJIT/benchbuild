@@ -4,7 +4,7 @@ postgresql experiment within gentoo chroot.
 from os import path
 from pprof.projects.gentoo.gentoo import GentooGroup
 from pprof.utils.run import run, uchroot
-from plumbum import local
+from plumbum import local, BG, FG
 from plumbum.cmd import tar  # pylint: disable=E0401
 
 
@@ -23,35 +23,59 @@ class Postgresql(GentooGroup):
 
     def run_tests(self, experiment):
         from pprof.project import wrap
-        import asyncio
-
-        pg_ctl = uchroot()["/usr/bin/pg_ctl"]
-        dropdb = uchroot()["/usr/bin/dropdb"]
-        createdb = uchroot()["/usr/bin/createdb"]
-        pgbench = uchroot()["/usr/bin/pgbench"]
-        initdb = uchroot()["/usr/bin/initdb"]
-
-        initdb("-D", "/test-data")
-        pg_path = path.join(self.builddir, "usr", "lib64", "postgresql-9.4",
-                            "bin", "postgres")
-        wrap(pg_path, experiment, self.builddir)
-        postgres = uchroot()[pg_path]
-
-        @asyncio.coroutine
-        def start_postgres():
-            run(postgres["-D", "/test-data"])
+        from threading import Condition, Thread
 
         num_clients = 1
         num_transactions = 1000000
-        loop = asyncio.get_event_loop()
-        pg_start = asyncio.async(start_postgres)
-        try:
-            dropdb("pgbench", recode=None)
-            createdb("pgbench")
-            pgbench("-i", "pgbench")
-            pgbench("-c", num_clients, "-S", "-t", num_transactions, "pgbench")
-            dropdb("pgbench")
-        finally:
-            pg_ctl("stop", "-t", 360, "-w", "-D", "/test-data", retcode=None)
+        pg_path = path.join(self.builddir, "usr", "lib64", "postgresql-9.4",
+                            "bin", "postgres")
+        pg_data = "/test-data/"
 
-        loop.run_until_complete(asyncio.wait(pg_start))
+        wrap(pg_path, experiment, self.builddir)
+        cuchroot = uchroot(uid=250, gid=250)
+
+        pg_ctl = cuchroot["/usr/bin/pg_ctl"]
+        dropdb = cuchroot["/usr/bin/dropdb"]
+        createdb = cuchroot["/usr/bin/createdb"]
+        pgbench = cuchroot["/usr/bin/pgbench"]
+        initdb = cuchroot["/usr/bin/initdb"]
+        mkdir = cuchroot["/bin/mkdir"]
+        pg_server = cuchroot["/usr/lib64/postgresql-9.4/bin/postgres"]
+        bash = cuchroot["/bin/bash"]
+
+        pg_socketdir_base = "/run/postgresql"
+        pg_socketdir = path.join(self.builddir, pg_socketdir_base)
+        if not path.exists(pg_socketdir):
+            mkdir("-p", pg_socketdir)
+
+        pg_up = Condition()
+        test_ready = Condition()
+
+        with local.env(PGPORT="54329",
+                       PGDATA=pg_data):
+            def run_postgres():
+                with local.env(PGPORT="54329",
+                               PGDATA=pg_data):
+                    pg_server & BG
+                with pg_up:
+                    bash & FG
+                    pg_up.notify()
+                with test_ready:
+                    test_ready.wait()
+
+            bg_postgres = Thread(target=run_postgres)
+            try:
+                initdb()
+                with pg_up:
+                    bg_postgres.start()
+                    pg_up.wait()
+                createdb()
+                # By default, portage should have uid/gid=250 in a stage3 tarball
+                pgbench("-i", "portage")
+                pgbench("-c", num_clients, "-S", "-t", num_transactions, "portage")
+                dropdb("portage")
+            finally:
+                pg_ctl("stop", "-t", 360, "-w", retcode=None)
+                with test_ready:
+                    test_ready.notify()
+                bg_postgres.join()

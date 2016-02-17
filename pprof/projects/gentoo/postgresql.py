@@ -2,10 +2,13 @@
 postgresql experiment within gentoo chroot.
 """
 from os import path
+from time import sleep
+from psutil import Process
+from pprof.project import wrap
 from pprof.projects.gentoo.gentoo import GentooGroup
 from pprof.utils.run import run, uchroot
-from plumbum import local, BG, FG
-from plumbum.cmd import tar  # pylint: disable=E0401
+from plumbum import local
+from plumbum.cmd import kill, mkdir # pylint: disable=E0401
 
 
 class Postgresql(GentooGroup):
@@ -21,61 +24,60 @@ class Postgresql(GentooGroup):
             with local.env(USE="server"):
                 run(emerge_in_chroot["dev-db/postgresql:9.4"])
 
+            pg_socketdir = "/run/postgresql"
+            if not path.exists(self.outside(pg_socketdir)):
+                run(mkdir["-p", self.outside(pg_socketdir)])
+
+    def outside(self, chroot_path):
+        """
+        Return the path with the outside prefix.
+
+        Args:
+            chroot_path: the path inside the chroot.
+
+        Returns:
+            Absolute path outside this chroot.
+        """
+
+        return path.join(self.builddir, chroot_path.lstrip("/"))
+
     def run_tests(self, experiment):
-        from pprof.project import wrap
-        from threading import Condition, Thread
-
-        num_clients = 1
-        num_transactions = 1000000
-        pg_path = path.join(self.builddir, "usr", "lib64", "postgresql-9.4",
-                            "bin", "postgres")
         pg_data = "/test-data/"
-
-        wrap(pg_path, experiment, self.builddir)
+        pg_path = "/usr/lib64/postgresql-9.4/bin/postgres"
+        wrap(self.outside(pg_path), experiment, self.builddir)
         cuchroot = uchroot(uid=250, gid=250)
 
-        pg_ctl = cuchroot["/usr/bin/pg_ctl"]
         dropdb = cuchroot["/usr/bin/dropdb"]
         createdb = cuchroot["/usr/bin/createdb"]
         pgbench = cuchroot["/usr/bin/pgbench"]
         initdb = cuchroot["/usr/bin/initdb"]
-        mkdir = cuchroot["/bin/mkdir"]
-        pg_server = cuchroot["/usr/lib64/postgresql-9.4/bin/postgres"]
-        bash = cuchroot["/bin/bash"]
-
-        pg_socketdir_base = "/run/postgresql"
-        pg_socketdir = path.join(self.builddir, pg_socketdir_base)
-        if not path.exists(pg_socketdir):
-            mkdir("-p", pg_socketdir)
-
-        pg_up = Condition()
-        test_ready = Condition()
+        pg_server = cuchroot[pg_path]
 
         with local.env(PGPORT="54329",
                        PGDATA=pg_data):
-            def run_postgres():
-                with local.env(PGPORT="54329",
-                               PGDATA=pg_data):
-                    pg_server & BG
-                with pg_up:
-                    bash & FG
-                    pg_up.notify()
-                with test_ready:
-                    test_ready.wait()
+            if not path.exists(self.outside(pg_data)):
+                run(initdb)
 
-            bg_postgres = Thread(target=run_postgres)
-            try:
-                initdb()
-                with pg_up:
-                    bg_postgres.start()
-                    pg_up.wait()
-                createdb()
-                # By default, portage should have uid/gid=250 in a stage3 tarball
-                pgbench("-i", "portage")
-                pgbench("-c", num_clients, "-S", "-t", num_transactions, "portage")
-                dropdb("portage")
-            finally:
-                pg_ctl("stop", "-t", 360, "-w", retcode=None)
-                with test_ready:
-                    test_ready.notify()
-                bg_postgres.join()
+            with pg_server.bgrun() as postgres:
+                #We get the PID of the running 'pg_server, which is actually
+                #the PID of the uchroot binary. This is not the PID we
+                #want to send a SIGTERM to.
+
+                #We need to enumerate all children of 'postgres' recursively
+                #and select the one PID that is named 'postgres.bin' and has
+                #not a process with the same name as parent.
+                #This should be robust enough, as long as postgres doesn't
+                #switch process names after forking.
+                sleep(3)
+                postgres_root = Process(pid=postgres.pid)
+                real_postgres = [c.pid for c in postgres_root.children(True)
+                                 if c.name() == 'postgres.bin' and
+                                 c.parent().name() != 'postgres.bin']
+                try:
+                    run(createdb)
+                    run(pgbench["-i", "portage"])
+                    run(pgbench["-c", 1, "-S",
+                                "-t", 1000000, "portage"])
+                    run(dropdb["portage"])
+                finally:
+                    kill("-sSIGTERM", real_postgres[0])

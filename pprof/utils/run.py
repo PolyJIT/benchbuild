@@ -297,10 +297,12 @@ def run(command, retcode=0):
     Args:
         command: The plumbumb command to execute.
     """
-    from logging import error
-    from plumbum import FG
+    from logging import debug, info, error
+    from plumbum.commands.modifiers import TEE
     try:
-        command & FG(retcode)
+        info("CMD: {}".format(str(command)))
+        command & TEE(retcode)
+        debug("OK: {}".format(str(command)))
     except KeyboardInterrupt as key_int:
         error("Interrupted by user input")
         raise key_int

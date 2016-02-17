@@ -310,7 +310,7 @@ def run(command, retcode=0):
         raise GuardedRunException(exception, None, None)
 
 
-def uchroot(*args):
+def uchroot(*args, **kwargs):
     """
     Returns a uchroot command which can be called with other args to be
             executed in the uchroot.
@@ -322,7 +322,12 @@ def uchroot(*args):
     from pprof.settings import config
     from plumbum import local
 
+    uid = kwargs.pop('uid', 0)
+    gid = kwargs.pop('gid', 0)
+
     mkdir("-p", "llvm")
     uchroot_cmd = local["./uchroot"]
-    return uchroot_cmd["-C", "-w", "/", "-r", ".", "-m", config[
-        "llvmdir"] + ":llvm", "-u", "0", "-g", "0", args, "--"]
+    uchroot_cmd = uchroot_cmd["-C", "-w", "/", "-r", "."]
+    uchroot_cmd = uchroot_cmd["-m", config["llvmdir"] + ":llvm"]
+    uchroot_cmd = uchroot_cmd["-u", str(uid), "-g", str(gid)]
+    return uchroot_cmd[args, "--"]

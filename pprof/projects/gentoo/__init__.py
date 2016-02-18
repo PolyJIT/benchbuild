@@ -5,3 +5,4 @@ from . import sevenz
 from . import xz
 from . import postgresql
 from . import lammps
+from . import x264

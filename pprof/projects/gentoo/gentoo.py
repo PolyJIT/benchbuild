@@ -86,10 +86,13 @@ class GentooGroup(Project):
 
     def configure(self):
         with local.cwd(self.builddir):
-            with open("etc/portage/make.conf", 'w') as makeconf:
+            with open("etc/portage/bashrc", 'w') as bashrc:
                 lines = '''
 PATH="/llvm/bin:/pprof/bin:${PATH}"
 LD_LIBRARY_PATH="/llvm/lib:/pprof/lib:${LD_LIBRARY_PATH}"
+'''
+            with open("etc/portage/make.conf", 'w') as makeconf:
+                lines = '''
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 FEATURES="-sandbox -usersandbox -usersync -xattr"

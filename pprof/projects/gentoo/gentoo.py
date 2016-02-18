@@ -18,6 +18,7 @@ from plumbum.cmd import cp, tar, mv, fakeroot, rm  # pylint: disable=E0401
 from plumbum.cmd import mkdir, curl, cut, tail  # pylint: disable=E0401
 from plumbum import local
 from pprof.project import Project
+from pprof.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from pprof.utils.run import run, uchroot
 from pprof.utils.downloader import Wget
 from lazy import lazy
@@ -92,8 +93,8 @@ LD_LIBRARY_PATH="/llvm/lib:/pprof/lib:${LD_LIBRARY_PATH}"
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 FEATURES="-sandbox -usersandbox -usersync -xattr"
-CC="/llvm/bin/clang"
-CXX="/llvm/bin/clang++"
+CC="/clang"
+CXX="/clang++"
 
 PORTAGE_USERNAME = "root"
 PORTAGE_GRPNAME = "root"
@@ -114,6 +115,11 @@ PKGDIR="${PORTDIR}/packages"
                 lines = '''masters = gentoo'''
                 layoutconf.write(lines)
             cp("/etc/resolv.conf", "etc/resolv.conf")
+
+            wrap_cc_in_uchroot(self.cflags, self.ldflags,
+                               self.compiler_extension, "/llvm/bin")
+            wrap_cxx_in_uchroot(self.cflags, self.ldflags,
+                                self.compiler_extension, "/llvm/bin")
 
 
 class PrepareStage3(GentooGroup):

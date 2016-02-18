@@ -25,6 +25,7 @@ Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
 from pprof.settings import config
+from pprof.project import PROJECT_BLOB_F_EXT
 
 def wrap_cc_in_uchroot(cflags, ldflags, func=None,
                   uchroot_path=None, cc_name='clang'):
@@ -134,7 +135,6 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
     """
     from plumbum.cmd import chmod
     import dill
-    from pprof.project import PROJECT_BLOB_F_EXT
     from os.path import abspath
 
     blob_f = abspath(filepath + PROJECT_BLOB_F_EXT)

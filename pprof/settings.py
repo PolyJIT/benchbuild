@@ -323,6 +323,11 @@ CONFIG_METADATA = [
         "name": "pprof-prefix",
         "env": "PPROF_PREFIX",
         "default": os.getcwd()
+    }, {
+        "name": "mail",
+        "env": "PPROF_MAIL",
+        "desc": "E-Mail address dedicated to pprof.",
+        "default": None
     }
 ]
 

@@ -159,6 +159,47 @@ class PrepareStage3(GentooGroup):
         pass
 
 
+class AutoPolyJITDepsStage3(GentooGroup):
+    """
+    A project that installs all dependencies for PolyJIT in the stage3 image.
+    """
+    NAME = "polyjit-deps"
+    DOMAIN = "debug"
+
+    def build(self):
+        import sys
+        # Don't do something when running non-interactive.
+        if not sys.stdout.isatty():
+            return
+
+        from plumbum import FG
+        from pprof.utils.downloader import update_hash
+        from logging import info
+        from pprof.settings import config
+
+        root = config["tmpdir"]
+        src_file = self.src_file + ".new"
+        with local.cwd(self.builddir):
+            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+            with local.env(CC="gcc", CXX="g++", ACCEPT_KEYWORDS="~amd64"):
+                with local.env(USE="-filecaps"):
+                    run(emerge_in_chroot["likwid"])
+                with local.env(USE="static-libs"):
+                    run(emerge_in_chroot["dev-libs/libpfm"])
+                run(emerge_in_chroot["dev-libs/papi"])
+                run(emerge_in_chroot["time"])
+                run(emerge_in_chroot["fakeroot"])
+
+            tgt_path = path.join(root, self.src_file)
+            tgt_path_new = path.join(root, src_file)
+            tar("cjf", tgt_path_new, ".")
+            update_hash(src_file, root)
+            mv(path.join(root, src_file), tgt_path)
+
+    def run_tests(self, experiment):
+        pass
+
+
 class AutoPrepareStage3(GentooGroup):
     """
     A project that can be used to install pprof in the stage3 archive.

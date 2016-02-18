@@ -50,9 +50,9 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None,
     from os import path
     from plumbum import local
 
-    def gen_compiler():
+    def gen_compiler(): # pylint:  disable=C0111
         return path.join(uchroot_path, cc_name)
-    def gen_compiler_extension():
+    def gen_compiler_extension(): # pylint:  disable=C0111
         return path.join("/", cc_name + PROJECT_BLOB_F_EXT)
     print_libtool_sucks_wrapper(cc_name, cflags, ldflags, gen_compiler, func,
                                 gen_compiler_extension)

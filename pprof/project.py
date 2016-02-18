@@ -255,10 +255,11 @@ def wrap(name, runner, sprefix=None):
 #
 
 from plumbum import cli, local
-from os import path
+from os import path, getenv
 import sys
 import dill
 
+ld_library_path = "{ld_lib_path}:" + getenv("LD_LIBRARY_PATH")
 run_f = "{runf}"
 args = sys.argv[1:]
 f = None
@@ -269,7 +270,7 @@ if path.exists("{blobf}"):
                PPROF_DB_USER="{db_user}",
                PPROF_DB_PASS="{db_pass}",
                PPROF_LIKWID_DIR="{likwiddir}",
-               LD_LIBRARY_PATH="{ld_lib_path}",
+               LD_LIBRARY_PATH=ld_library_path,
                PPROF_CMD=run_f + " ".join(args)):
         with open("{blobf}", "rb") as p:
             f = dill.load(p)
@@ -287,7 +288,7 @@ if path.exists("{blobf}"):
            db_user=config["db_user"],
            db_pass=config["db_pass"],
            likwiddir=config["likwiddir"],
-           ld_lib_path=config["ld_library_path"],
+           ld_lib_path=config["ld_library_path"].rstrip(':'),
            blobf=strip_path_prefix(blob_f, sprefix),
            runf=strip_path_prefix(real_f, sprefix))
         wrapper.write(lines)
@@ -335,6 +336,7 @@ if not len(sys.argv) >= 2:
     sys.exit(1)
 
 f = None
+ld_library_path = "{ld_lib_path}:" + getenv("LD_LIBRARY_PATH")
 run_f = sys.argv[1]
 args = sys.argv[2:]
 project_name = path.basename(run_f)
@@ -346,7 +348,7 @@ if path.exists("{blobf}"):
                PPROF_DB_PASS="{db_pass}",
                PPROF_PROJECT=project_name,
                PPROF_LIKWID_DIR="{likwiddir}",
-               LD_LIBRARY_PATH="{ld_lib_path}",
+               LD_LIBRARY_PATH=ld_library_path,
                PPROF_CMD=run_f):
         with open("{blobf}", "rb") as p:
             f = dill.load(p)
@@ -370,7 +372,7 @@ if path.exists("{blobf}"):
            db_user=config["db_user"],
            db_pass=config["db_pass"],
            likwiddir=config["likwiddir"],
-           ld_lib_path=config["ld_library_path"],
+           ld_lib_path=config["ld_library_path"].rstrip(':'),
            blobf=strip_path_prefix(blob_f, sprefix))
         wrapper.write(lines)
     chmod("+x", name_absolute)

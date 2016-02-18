@@ -26,6 +26,39 @@ configured llvm/clang source directories.
 """
 from pprof.settings import config
 
+def wrap_cc_in_uchroot(cflags, ldflags, func=None,
+                  uchroot_path=None, cc_name='clang'):
+    """
+    Generate a clang wrapper that may be called from within a uchroot.
+
+    This basically does the same as lt_clang/lt_clang_cxx. However, we do not
+    create a valid plumbum command. The generated script will only work
+    inside a uchroot environment that has is root at the current working
+    directory, when calling this function.
+
+    Args:
+        cflags: The CFLAGS we want to hide
+        ldflags: The LDFLAGS we want to hide
+        func (optional): A function that will be pickled alongside the compiler.
+            It will be called before the actual compilation took place. This
+            way you can intercept the compilation process with arbitrary python
+            code.
+        uchroot_path: Prefix path of the compiler inside the uchroot.
+        cc_name: Name of the generated script.
+    """
+    from os import path
+    from plumbum import local
+
+    def gen_compiler():
+        return path.join(uchroot_path, cc_name)
+    def gen_compiler_extension():
+        return path.join("/", cc_name + PROJECT_BLOB_F_EXT)
+    print_libtool_sucks_wrapper(cc_name, cflags, ldflags, gen_compiler, func,
+                                gen_compiler_extension)
+
+def wrap_cxx_in_uchroot(cflags, ldflags, func=None, uchroot_path=None):
+    """Delegate to wrap_cc_in_uchroot)."""
+    wrap_cc_in_uchroot(cflags, ldflags, func, uchroot_path, 'clang++')
 
 def lt_clang(cflags, ldflags, func=None):
     """
@@ -75,7 +108,8 @@ def lt_clang_cxx(cflags, ldflags, func=None):
     return local["./clang++"]
 
 
-def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
+def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
+                                compiler_ext_name=None):
     """
     Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
 
@@ -88,6 +122,12 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
         ldflags (list(str)): The LDFLAGS we want to hide.
         compiler (plumbum.cmd): Real compiler command we should call in the
             script.
+        func: A function that will be pickled alongside the compiler.
+            It will be called before the actual compilation took place. This
+            way you can intercept the compilation process with arbitrary python
+            code.
+        compiler_ext_name: The name that we should give to the generated
+            dill blob for :func:
 
     Returns (plumbum.cmd):
         Command of the new compiler we can call.
@@ -101,6 +141,8 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func):
     if func is not None:
         with open(blob_f, 'wb') as blob:
             blob.write(dill.dumps(func))
+        if compiler_ext_name is not None:
+            blob_f = compiler_ext_name()
 
     with open(filepath, 'w') as wrapper:
         lines = '''#!/usr/bin/env python3

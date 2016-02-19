@@ -36,7 +36,6 @@ class Crafty(GentooGroup):
         wrap(path.join(self.builddir, crafty_path.lstrip("/")), experiment,
              self.builddir)
         crafty = uchroot()[crafty_path]
-        bash = uchroot()["/bin/bash"]
 
         with open(path.join(self.builddir, "test1.sh"), 'w') as test1:
             lines = '''

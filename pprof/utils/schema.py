@@ -114,6 +114,24 @@ class Event(Base):
                     index=True,
                     primary_key=True)
 
+class PerfEvent(Base):
+    """Store PAPI profiling based events."""
+
+    __tablename__ = 'pprof_perf_events'
+
+    name = Column(String, index=True)
+    start = Column(postgresql.NUMERIC, primary_key=True)
+    duration = Column(postgresql.NUMERIC)
+    id = Column(Integer, primary_key=True)
+    type = Column(postgresql.SMALLINT)
+    tid = Column(postgresql.BIGINT)
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    nullable=False,
+                    index=True,
+                    primary_key=True)
 
 class Project(Base):
     """Store project metadata."""

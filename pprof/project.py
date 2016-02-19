@@ -217,7 +217,25 @@ class Project(object, metaclass=ProjectRegistry):
 
 
 def strip_path_prefix(ipath, prefix):
-    """Strip prefix from path."""
+    """
+    Strip prefix from path.
+
+    Args:
+        ipath: input path
+        prefix: the prefix to remove, if it is found in :ipath:
+
+    Examples:
+        >>> from pprof.project import strip_path_prefix
+        >>> strip_path_prefix("/foo/bar", "/bar")
+        '/foo/bar'
+        >>> strip_path_prefix("/foo/bar", "/")
+        'foo/bar'
+        >>> strip_path_prefix("/foo/bar", "/foo")
+        '/bar'
+        >>> strip_path_prefix("/foo/bar", "None")
+        '/foo/bar'
+
+    """
     if prefix is None:
         return ipath
 

@@ -8,7 +8,6 @@ project with libpprof support to work.
 from pprof.experiment import (RuntimeExperiment, step, substep)
 from pprof.experiments.raw import run_with_time
 from pprof.utils.run import partial
-from pprof.utils.schema import CompileStat
 from plumbum import local
 from os import path
 
@@ -30,6 +29,7 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
     from pprof.settings import config as c
     from pprof.utils.db import persist_compilestats
     from pprof.utils.run import handle_stdin
+    from pprof.utils.schema import CompileStat
 
     c.update(config)
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)

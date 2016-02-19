@@ -9,8 +9,6 @@ by llvm
 
 from pprof.experiment import step, substep, RuntimeExperiment
 from os import path
-from pprof.utils.schema import CompileStat
-
 
 class CompilestatsExperiment(RuntimeExperiment):
     """The compilestats experiment."""
@@ -25,6 +23,7 @@ class CompilestatsExperiment(RuntimeExperiment):
 
     def run_project(self, p):
         """Compile & Run the experiment."""
+        from pprof.utils.schema import CompileStat
         from pprof.settings import config
         from pprof.utils.run import partial
 

@@ -7,7 +7,6 @@ when running with polyjit support enabled.
 from pprof.experiments.compilestats import get_compilestats
 from pprof.experiment import step, substep, RuntimeExperiment
 from pprof.utils.run import partial
-from pprof.utils.schema import CompileStat
 
 from plumbum import local
 from abc import abstractmethod
@@ -20,6 +19,7 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
     from pprof.settings import config as c
     from pprof.utils.db import persist_compilestats
     from pprof.utils.run import handle_stdin
+    from pprof.utils.schema import CompileStat
 
     c.update(config)
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
@@ -445,6 +445,7 @@ class PJITcs(PolyJIT):
 
     def run_project(self, p):
         from pprof.settings import config
+        from pprof.utils.schema import CompileStat
 
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):

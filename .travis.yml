@@ -12,10 +12,6 @@ install:
   - pip install .
   - pip install -r requirements.txt
 
-env:
-  - PPROF_USE_VOLATILE_DB=1
-  - PPROF_DB_USER=postgres
-
 before_script:
   - psql -c 'create database pprof;' -U postgres
 

@@ -1,5 +1,6 @@
 """Database schema for pprof."""
 
+import os
 from sqlalchemy import create_engine
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum
 from sqlalchemy.dialects import postgresql
@@ -7,13 +8,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pprof.settings import config
 
-ENGINE = create_engine(
-    "postgresql+psycopg2://{u}:{p}@{h}:{P}/{db}".format(u=config["db_user"],
-                                                        h=config["db_host"],
-                                                        P=config["db_port"],
-                                                        p=config["db_pass"],
-                                                        db=config["db_name"]))
-Session = sessionmaker(bind=ENGINE)
 Base = declarative_base()
 
 
@@ -252,4 +246,32 @@ class RegressionTest(Base):
     project_name = Column(String)
 
 
-Base.metadata.create_all(ENGINE, checkfirst=True)
+class SessionManager(object):
+    def __init__(self):
+        self.__test_mode = "PPROF_USE_VOLATILE_DB" in os.environ
+        self.__engine = create_engine(
+            "postgresql+psycopg2://{u}:{p}@{h}:{P}/{db}".format(
+                u=config["db_user"],
+                h=config["db_host"],
+                P=config["db_port"],
+                p=config["db_pass"],
+                db=config["db_name"]))
+        self.__connection = self.__engine.connect()
+        if self.__test_mode:
+            self.__transaction = self.__connection.begin()
+        Base.metadata.create_all(self.__connection, checkfirst=True)
+
+    def get(self):
+        return sessionmaker(bind=self.__connection)
+
+    def __del__(self):
+        if self.__test_mode:
+            self.__transaction.rollback()
+        self.__connection.close()
+
+
+CONNECTION_MANAGER = SessionManager()
+"""
+ Import this session manager to create new database sessions as needes.
+"""
+Session = CONNECTION_MANAGER.get()

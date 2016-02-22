@@ -324,6 +324,10 @@ CONFIG_METADATA = [
         "env": "PPROF_PREFIX",
         "default": os.getcwd()
     }, {
+        "name": "pprof-ebuild",
+        "env": "PPROF_EBUILD",
+        "default": ""
+    }, {
         "name": "mail",
         "env": "PPROF_MAIL",
         "desc": "E-Mail address dedicated to pprof.",

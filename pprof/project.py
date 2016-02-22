@@ -21,7 +21,14 @@ class ProjectRegistry(type):
         """Registers a project in the registry."""
         super(ProjectRegistry, cls).__init__(name, bases, dict)
 
+        ebuild_data = {}
+        env_values = config["pprof-ebuild"].split('/')
+        ebuild_data["domain"] = env_values[0]
+        ebuild_data["ebuild"] = env_values[1]
+
         if cls.NAME is not None and cls.DOMAIN is not None:
+            cls.NAME = cls.NAME.format(**ebuild_data)
+            cls.DOMAIN = cls.DOMAIN.format(**ebuild_data)
             ProjectRegistry.projects[cls.NAME] = cls
 
 

@@ -1,7 +1,6 @@
 """
 Generic experiment to test portage packages within gentoo chroot.
 """
-from os import path
 from pprof.projects.gentoo.gentoo import GentooGroup
 from pprof.utils.run import run, uchroot
 from plumbum import local

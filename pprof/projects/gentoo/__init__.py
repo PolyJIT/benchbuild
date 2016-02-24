@@ -8,3 +8,4 @@ from . import lammps
 from . import x264
 from . import crafty
 from . import portage_gen
+from . import info

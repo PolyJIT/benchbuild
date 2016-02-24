@@ -328,6 +328,10 @@ CONFIG_METADATA = [
         "env": "PPROF_EBUILD",
         "default": ""
     }, {
+        "name": "pprof-gentoo-autotest",
+        "env": "PPROF_GENTOO_AUTOTEST",
+        "default": "/tmp/gentoo-autotest"
+    }, {
         "name": "mail",
         "env": "PPROF_MAIL",
         "desc": "E-Mail address dedicated to pprof.",

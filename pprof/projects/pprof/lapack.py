@@ -33,8 +33,6 @@ class OpenBlas(PprofGroup):
             run(make["CC=" + str(clang)])
 
     def run_tests(self, experiment):
-        from pprof.project import wrap
-
         pass
 
 

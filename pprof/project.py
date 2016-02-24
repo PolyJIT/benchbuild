@@ -23,14 +23,16 @@ class ProjectRegistry(type):
 
         ebuild_data = {}
         env_values = config["pprof-ebuild"].split('/')
-        if env_values != "":
+        gen_project = config["pprof-ebuild"] != ""
+        if gen_project:
             ebuild_data["domain"] = env_values[0]
             ebuild_data["ebuild"] = env_values[1]
 
         if cls.NAME is not None and cls.DOMAIN is not None:
-            cls.NAME = cls.NAME.format(**ebuild_data)
-            cls.DOMAIN = cls.DOMAIN.format(**ebuild_data)
-            ProjectRegistry.projects[cls.NAME] = cls
+            if gen_project or not "{domain}" in cls.NAME:
+                cls.NAME = cls.NAME.format(**ebuild_data)
+                cls.DOMAIN = cls.DOMAIN.format(**ebuild_data)
+                ProjectRegistry.projects[cls.NAME] = cls
 
 
 class Project(object, metaclass=ProjectRegistry):

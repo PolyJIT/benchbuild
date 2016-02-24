@@ -65,4 +65,3 @@ class Rasdaman(PprofGroup):
     def run_tests(self, experiment):
         from pprof.project import wrap
         rasdaman_dir = path.join(self.builddir, self.src_dir)
-        pass

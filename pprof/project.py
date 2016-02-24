@@ -23,8 +23,9 @@ class ProjectRegistry(type):
 
         ebuild_data = {}
         env_values = config["pprof-ebuild"].split('/')
-        ebuild_data["domain"] = env_values[0]
-        ebuild_data["ebuild"] = env_values[1]
+        if env_values != "":
+            ebuild_data["domain"] = env_values[0]
+            ebuild_data["ebuild"] = env_values[1]
 
         if cls.NAME is not None and cls.DOMAIN is not None:
             cls.NAME = cls.NAME.format(**ebuild_data)

@@ -329,9 +329,15 @@ CONFIG_METADATA = [
         "desc": "Gentoo ebuild to test {domain}/{ebuild_name}",
         "default": ""
     }, {
-        "name": "pprof-gentoo-autotest",
-        "env": "PPROF_GENTOO_AUTOTEST",
+        "name": "pprof-gentoo-autotest-loc",
+        "env": "PPROF_GENTOO_AUTOTEST_LOC",
+        "desc": "Location for the list of auto generated ebuilds.",
         "default": "/tmp/gentoo-autotest"
+    }, {
+        "name": "pprof-gentoo-autotest-lang",
+        "env": "PPROF_GENTOO_AUTOTEST_LANG",
+        "desc": "Language filter for ebuilds.",
+        "default": "C, C++"
     }, {
         "name": "mail",
         "env": "PPROF_MAIL",

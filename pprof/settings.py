@@ -326,6 +326,7 @@ CONFIG_METADATA = [
     }, {
         "name": "pprof-ebuild",
         "env": "PPROF_EBUILD",
+        "desc": "Gentoo ebuild to test {domain}/{ebuild_name}",
         "default": ""
     }, {
         "name": "pprof-gentoo-autotest",

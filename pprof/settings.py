@@ -4,7 +4,9 @@ Settings module for pprof.
 All settings are stored in a simple dictionary. Each
 setting should be modifiable via environment variable.
 """
+import json
 import os
+import uuid
 import re
 import subprocess
 from datetime import datetime
@@ -160,6 +162,250 @@ def load_config(config_path, new_config):
 
         return True
 
+
+def _flatten_config(cfg_obj):
+    """
+    Flatten a config tree into a list of key-value pairs.
+
+    Args:
+        cfg_obj: configuration dictionary that we should flatten.
+    Returns:
+        (dict): A dictionary that has all its members flattened to a
+                list of key-value pairs.
+    """
+    keywords = ['desc', 'default', 'value']
+
+    def descend(node, prefix=""):
+        ret = {}
+        if not isinstance(node, dict):
+            ret[prefix] = node
+            return ret
+
+        for k, v in node.items():
+            if k in keywords:
+                if not prefix in ret:
+                    ret[prefix] = {k: v}
+                else:
+                    ret[prefix].update({k: v})
+            else:
+                newprefix = "_".join(
+                    [x for x in [prefix, k] if x not in [None, ""]])
+                ret.update(descend(v, newprefix.upper()))
+        return ret
+
+    return descend(cfg_obj, "pprof")
+
+
+cfg_general = {
+    "src_dir": {
+        "desc": "source directory of pprof. Usually the git repo root dir.",
+        "default": os.getcwd()
+    },
+    "build_dir": {
+        "desc": "build directory of pprof. All intermediate projects will "
+                "be placed here",
+        "default": os.path.join(os.getcwd(), "results")
+    },
+    "test_dir": {
+        "desc": "Additional test inputs, required for (some) run-time tests."
+                "These can be obtained from the a different repo. Most "
+                "projects don't need it",
+        "default": os.path.join(os.getcwd(), "testinputs")
+    },
+    "llvm_dir": {
+        "desc": "Path to LLVM. This will be required.",
+        "default": os.path.join(os.getcwd(), "install")
+    },
+    "likwid_dir": {
+        "desc": "Prefix to which the likwid library was installed.",
+        "default": "/usr/"
+    },
+    "tmp_dir": {
+        "desc": "Temporary dir. This will be used for caching downloads.",
+        "default": os.path.join(os.getcwd(), "tmp")
+    },
+    "path": {
+        "desc": "Additional PATH variable for pprof.",
+        "default": ""
+    },
+    "node_dir": {
+        "desc":
+        "Node directory, when executing on a cluster node. This is not "
+        "used by pprof directly, but by external scripts.",
+        "default": os.path.join(os.getcwd(), "results")
+    },
+    "ld_library_path": {
+        "desc": "Additional library path for pprof.",
+        "default": ""
+    },
+    "jobs": {
+        "desc": "Number of jobs that can be used for building and running.",
+        "default": str(available_cpu_count())
+    },
+    "experiment": {
+        "desc":
+        "The experiment UUID we run everything under. This groups the project "
+        "runs in the database.",
+        "default": str(uuid4())
+    },
+    "slurm_script": {
+        "desc":
+        "Name of the script that can be passed to SLURM. Used by external tools.",
+        "default": "chimaira-slurm.sh"
+    },
+    "cpus_per_task": {
+        "desc":
+        "Number of CPUs that should be requested from SLURM. Used by external tools.",
+        "default": 10
+    },
+    "local_build": {
+        "desc": "Perform a local build on the cluster nodes.",
+        "default": False
+    },
+    "account": {
+        "desc": "The SLURM account to use by default.",
+        "default": "cl"
+    },
+    "partition": {
+        "desc": "The SLURM partition to use by default.",
+        "default": "chimaira"
+    },
+    "keep": {
+        "default": False,
+    },
+    "llvm_src_dir": {
+        "default": os.path.join(os.getcwd(), "pprof-llvm")
+    },
+    "experiment_description": {
+        "default": str(datetime.now())
+    },
+    "regression_prefix": {
+        "default": os.path.join("/", "tmp", "pprof-regressions")
+    },
+    "pprof_prefix": {
+        "default": os.getcwd()
+    },
+    "pprof_ebuild": {
+        "default": ""
+    },
+    "pprof_gentoo_autotest": {
+        "default": "/tmp/gentoo-autotest"
+    },
+    "mail": {
+        "desc": "E-Mail address dedicated to pprof.",
+        "default": None
+    }
+}
+
+cfg_repo = {
+    "llvm": {
+        "default": {"url": "http://llvm.org/git/llvm.git",
+                    "branch": None,
+                    "commit_hash": None}
+    },
+    "polly": {
+        "default": {"url": "http://github.com/simbuerg/polly.git",
+                    "branch": "devel",
+                    "commit_hash": None}
+    },
+    "clang": {
+        "default": {"url": "http://llvm.org/git/clang.git",
+                    "branch": None,
+                    "commit_hash": None}
+    },
+    "polli": {
+        "default": {"url": "http://github.com/simbuerg/polli.git",
+                    "branch": None,
+                    "commit_hash": None}
+    },
+    "openmp": {
+        "default": {"url": "http://llvm.org/git/openmp.git",
+                    "branch": None,
+                    "commit_hash": None}
+    },
+}
+
+cfg_db = {
+    "host": {
+        "desc": "host name of our db.",
+        "default": "localhost"
+    },
+    "port": {
+        "desc": "port to connect to the database",
+        "default": 5432
+    },
+    "name": {
+        "desc": "The name of the PostgreSQL database that will be used.",
+        "default": "pprof"
+    },
+    "user": {
+        "desc":
+        "The name of the PostgreSQL user to connect to the database with.",
+        "default": "pprof"
+    },
+    "pass": {
+        "desc":
+        "The password for the PostgreSQL user used to connect to the database with.",
+        "default": "pprof"
+    }
+}
+
+
+class UUIDEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, uuid.UUID):
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)
+
+
+class Configuration(object):
+    def __init__(self, existing=None):
+        if existing:
+            self.cfg = existing
+        else:
+            self.cfg = {}
+
+    def store(self, to):
+        import json, uuid
+
+        with open(to, 'w') as outf:
+            json.dump(self.cfg, outf, cls=UUIDEncoder, indent=True)
+
+    def load(self, _from):
+        import json
+        if os.path.exists(_from):
+            with open(_from, 'r') as inf:
+                self.cfg = json.load(inf)
+
+    def __getitem__(self, key):
+        if not key in self.cfg:
+            return None
+        ret = self.cfg[key]
+        if 'value' in ret:
+            return ret['value']
+        return Configuration(ret)
+
+    def __setitem__(self, key, val):
+        if isinstance(val, dict):
+            for inner_key in val:
+                env_var = ("PPROF_" + key + "_" + inner_key).upper()
+                val[inner_key]['value'] = getenv(env_var,
+                                                 val[inner_key]['default'])
+            self.cfg.update({key: val})
+        else:
+            if not key in self.cfg:
+                self.cfg[key] = {'value': val}
+            else:
+                self.cfg[key]['value'] = val
+
+    def __repr__(self):
+        return _flatten_config(self.cfg)
+
+
+new_config = Configuration()
+new_config[""] = cfg_general
+new_config["db"] = cfg_db
+new_config["repo"] = cfg_repo
 
 CONFIG_METADATA = [
     {

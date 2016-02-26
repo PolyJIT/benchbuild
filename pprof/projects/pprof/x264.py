@@ -1,4 +1,4 @@
-from pprof.settings import config
+from pprof.settings import CFG
 from pprof.projects.pprof.group import PprofGroup
 from pprof.utils.run import run
 from os import path
@@ -51,7 +51,7 @@ class X264(PprofGroup):
 
         x264_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(x264_dir):
-            run(make["clean", "all", "-j", config["jobs"]])
+            run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, experiment):
         from pprof.project import wrap

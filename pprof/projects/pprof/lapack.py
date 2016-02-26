@@ -1,6 +1,6 @@
 from os import path
 from pprof.projects.pprof.group import PprofGroup
-from pprof.settings import config
+from pprof.settings import CFG
 from plumbum import local
 
 
@@ -42,9 +42,9 @@ class Lapack(PprofGroup):
 
     def __init__(self, exp):
         super(Lapack, self).__init__(exp)
-        self.sourcedir = path.join(config["sourcedir"], "src", "lapack",
+        self.sourcedir = path.join(str(CFG["sourcedir"]), "src", "lapack",
                                    self.name)
-        self.testdir = path.join(config["testdir"], self.domain, "lapack",
+        self.testdir = path.join(str(CFG["testdir"]), self.domain, "lapack",
                                  "tests")
 
         self.setup_derived_filenames()
@@ -100,10 +100,10 @@ class Lapack(PprofGroup):
         lapack_dir = path.join(self.builddir, self.src_dir)
 
         with local.cwd(lapack_dir):
-            run(make["-j", config["jobs"], "f2clib", "blaslib"])
+            run(make["-j", CFG["jobs"], "f2clib", "blaslib"])
             with local.cwd(path.join("BLAS", "TESTING")):
-                run(make["-j", config["jobs"], "-f", "Makeblat2"])
-                run(make["-j", config["jobs"], "-f", "Makeblat3"])
+                run(make["-j", CFG["jobs"], "-f", "Makeblat2"])
+                run(make["-j", CFG["jobs"], "-f", "Makeblat3"])
 
     def run_tests(self, experiment):
         from pprof.project import wrap

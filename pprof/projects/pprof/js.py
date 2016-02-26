@@ -1,4 +1,4 @@
-from pprof.settings import config
+from pprof.settings import CFG
 from pprof.projects.pprof.group import PprofGroup
 from os import path
 from plumbum import local
@@ -44,7 +44,7 @@ class SpiderMonkey(PprofGroup):
         js_dir = path.join(self.builddir, self.src_dir, "js", "src")
 
         with local.cwd(path.join(js_dir, "build_OPT.OBJ")):
-            run(make["-j", config["available_cpu_count"]])
+            run(make["-j", CFG["available_cpu_count"]])
 
     def run_tests(self, experiment):
         from pprof.project import wrap

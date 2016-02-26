@@ -9,6 +9,7 @@ import os
 import uuid
 import re
 import subprocess
+import warnings
 from datetime import datetime
 from uuid import uuid4
 from os import getenv
@@ -134,67 +135,33 @@ def available_cpu_count():
     raise Exception('Can not determine number of CPUs on this system')
 
 
-def load_config(config_path, new_config):
-    """
-    Load pprof's configuration from a config file.
+cfg_llvm = {
+    "dir": {
+        "desc": "Path to LLVM. This will be required.",
+        "default": os.path.join(os.getcwd(), "install")
+    },
+    "llvm_src_dir": {
+        "default": os.path.join(os.getcwd(), "pprof-llvm")
+    },
+}
 
-    Args:
-        config_path: Path where we find our configuration.
-        new_config: Dictionary where our configuration should be loaded into.
+cfg_papi = {
+    "include": {
+        "desc": "libpapi include path.",
+        "default": "/usr/include"
+    },
+    "library": {
+        "desc": "libpapi library path.",
+        "default": "/usr/lib"
+    }
+}
 
-    Return:
-        True, if we could load the configuration successfully.
-    """
-    with open(config_path) as config_file:
-        globs, locs = {}, {}
-        exec (compile(
-            open(config_path).read(), config_path, 'exec'), globs, locs)
-        out_config = locs["config"]
-
-        if not isinstance(out_config, dict):
-            print(("Config file " + config_path +
-                   " does not specify a config object."))
-            return False
-
-        # Merge in only the settings that were specified
-        for key in list(out_config.keys()):
-            new_config[key] = out_config[key]
-
-        return True
-
-
-def _flatten_config(cfg_obj):
-    """
-    Flatten a config tree into a list of key-value pairs.
-
-    Args:
-        cfg_obj: configuration dictionary that we should flatten.
-    Returns:
-        (dict): A dictionary that has all its members flattened to a
-                list of key-value pairs.
-    """
-    keywords = ['desc', 'default', 'value']
-
-    def descend(node, prefix=""):
-        ret = {}
-        if not isinstance(node, dict):
-            ret[prefix] = node
-            return ret
-
-        for k, v in node.items():
-            if k in keywords:
-                if not prefix in ret:
-                    ret[prefix] = {k: v}
-                else:
-                    ret[prefix].update({k: v})
-            else:
-                newprefix = "_".join(
-                    [x for x in [prefix, k] if x not in [None, ""]])
-                ret.update(descend(v, newprefix.upper()))
-        return ret
-
-    return descend(cfg_obj, "pprof")
-
+cfg_likwid = {
+    "prefix": {
+        "desc": "Prefix to which the likwid library was installed.",
+        "default": "/usr/"
+    },
+}
 
 cfg_general = {
     "src_dir": {
@@ -212,14 +179,6 @@ cfg_general = {
                 "projects don't need it",
         "default": os.path.join(os.getcwd(), "testinputs")
     },
-    "llvm_dir": {
-        "desc": "Path to LLVM. This will be required.",
-        "default": os.path.join(os.getcwd(), "install")
-    },
-    "likwid_dir": {
-        "desc": "Prefix to which the likwid library was installed.",
-        "default": "/usr/"
-    },
     "tmp_dir": {
         "desc": "Temporary dir. This will be used for caching downloads.",
         "default": os.path.join(os.getcwd(), "tmp")
@@ -227,12 +186,6 @@ cfg_general = {
     "path": {
         "desc": "Additional PATH variable for pprof.",
         "default": ""
-    },
-    "node_dir": {
-        "desc":
-        "Node directory, when executing on a cluster node. This is not "
-        "used by pprof directly, but by external scripts.",
-        "default": os.path.join(os.getcwd(), "results")
     },
     "ld_library_path": {
         "desc": "Additional library path for pprof.",
@@ -248,33 +201,12 @@ cfg_general = {
         "runs in the database.",
         "default": str(uuid4())
     },
-    "slurm_script": {
-        "desc":
-        "Name of the script that can be passed to SLURM. Used by external tools.",
-        "default": "chimaira-slurm.sh"
-    },
-    "cpus_per_task": {
-        "desc":
-        "Number of CPUs that should be requested from SLURM. Used by external tools.",
-        "default": 10
-    },
     "local_build": {
         "desc": "Perform a local build on the cluster nodes.",
         "default": False
     },
-    "account": {
-        "desc": "The SLURM account to use by default.",
-        "default": "cl"
-    },
-    "partition": {
-        "desc": "The SLURM partition to use by default.",
-        "default": "chimaira"
-    },
     "keep": {
         "default": False,
-    },
-    "llvm_src_dir": {
-        "default": os.path.join(os.getcwd(), "pprof-llvm")
     },
     "experiment_description": {
         "default": str(datetime.now())
@@ -285,8 +217,11 @@ cfg_general = {
     "pprof_prefix": {
         "default": os.getcwd()
     },
-    "pprof_ebuild": {
+    "pprof-ebuild": {
         "default": ""
+    },
+    "pprof_gentoo_autotest": {
+        "default": "/tmp/gentoo-autotest"
     },
     "pprof_gentoo_autotest": {
         "default": "/tmp/gentoo-autotest"
@@ -299,56 +234,38 @@ cfg_general = {
 
 cfg_repo = {
     "llvm": {
-        "default": {"url": "http://llvm.org/git/llvm.git",
-                    "branch": None,
-                    "commit_hash": None}
+        "url": {"default": "http://llvm.org/git/llvm.git"},
+        "branch": {"default": "master"},
+        "commit_hash": {"default": None}
     },
     "polly": {
-        "default": {"url": "http://github.com/simbuerg/polly.git",
-                    "branch": "devel",
-                    "commit_hash": None}
+        "url": {"default": "http://github.com/simbuerg/polly.git"},
+        "branch": {"default": "devel"},
+        "commit_hash": {"default": None}
     },
     "clang": {
-        "default": {"url": "http://llvm.org/git/clang.git",
-                    "branch": None,
-                    "commit_hash": None}
+        "url": {"default": "http://llvm.org/git/clang.git"},
+        "branch": {"default": "master"},
+        "commit_hash": {"default": None}
     },
     "polli": {
-        "default": {"url": "http://github.com/simbuerg/polli.git",
-                    "branch": None,
-                    "commit_hash": None}
+        "url": {"default": "http://github.com/simbuerg/polli.git"},
+        "branch": {"default": "master"},
+        "commit_hash": {"default": None}
     },
     "openmp": {
-        "default": {"url": "http://llvm.org/git/openmp.git",
-                    "branch": None,
-                    "commit_hash": None}
+        "url": {"default": "http://llvm.org/git/openmp.git"},
+        "branch": {"default": "master"},
+        "commit_hash": {"default": None}
     },
 }
 
-cfg_db = {
-    "host": {
-        "desc": "host name of our db.",
-        "default": "localhost"
-    },
-    "port": {
-        "desc": "port to connect to the database",
-        "default": 5432
-    },
-    "name": {
-        "desc": "The name of the PostgreSQL database that will be used.",
-        "default": "pprof"
-    },
-    "user": {
-        "desc":
-        "The name of the PostgreSQL user to connect to the database with.",
-        "default": "pprof"
-    },
-    "pass": {
-        "desc":
-        "The password for the PostgreSQL user used to connect to the database with.",
-        "default": "pprof"
-    }
-}
+
+class InvalidConfigKey(RuntimeWarning):
+    pass
+
+class ReplacedConfigKey(RuntimeWarning):
+    pass
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -358,272 +275,98 @@ class UUIDEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-class Configuration(object):
-    def __init__(self, existing=None):
-        if existing:
-            self.cfg = existing
-        else:
-            self.cfg = {}
+class Configuration():
+    def __init__(self, parent_key, node=None, parent=None, init=True):
+        self.parent = parent
+        self.id = parent_key
+        self.node = node if node is not None else {}
+        if init:
+            self.init_from_env()
 
     def store(self, to):
-        import json, uuid
-
         with open(to, 'w') as outf:
-            json.dump(self.cfg, outf, cls=UUIDEncoder, indent=True)
+            json.dump(self.node, outf, cls=UUIDEncoder, indent=True)
 
     def load(self, _from):
-        import json
         if os.path.exists(_from):
             with open(_from, 'r') as inf:
-                self.cfg = json.load(inf)
+                self.node = json.load(inf)
+
+    def register(self, key, subtree):
+        self[key] = subtree
 
     def __getitem__(self, key):
-        if not key in self.cfg:
-            return None
-        ret = self.cfg[key]
-        if 'value' in ret:
-            return ret['value']
-        return Configuration(ret)
+        if not key in self.node:
+            warnings.warn(
+                "Access to non-existing config element: {}".format(key),
+                category=InvalidConfigKey,
+                stacklevel=2)
+            return Configuration(key, init=False)
+        return Configuration(key, parent=self, node=self.node[key], init=False)
+
+    def __to_env_var__(self):
+        if self.parent:
+            return (self.parent.__to_env_var__() + "_" + self.id).upper()
+        return self.id.upper()
+
+    def init_from_env(self):
+        if 'default' in self.node:
+            env_var = self.__to_env_var__().upper()
+            self.node['value'] = getenv(env_var, self.node['default'])
+        else:
+            if isinstance(self.node, dict):
+                for k in self.node:
+                    self[k].init_from_env()
 
     def __setitem__(self, key, val):
-        if isinstance(val, dict):
-            for inner_key in val:
-                env_var = ("PPROF_" + key + "_" + inner_key).upper()
-                val[inner_key]['value'] = getenv(env_var,
-                                                 val[inner_key]['default'])
-            self.cfg.update({key: val})
+        if key in self.node:
+            self.node[key]['value'] = val
         else:
-            if not key in self.cfg:
-                self.cfg[key] = {'value': val}
+            if isinstance(val, dict):
+                self.node[key] = val
+                self[key].init_from_env()
             else:
-                self.cfg[key]['value'] = val
+                self.node[key] = {'value':val}
+
+    def __contains__(self, key):
+        return key in self.node
+
+    def __str__(self):
+        if 'value' in self.node:
+            return str(self.node['value'])
+        else:
+            warnings.warn(
+                "Tried to get the str() value of an inner node.", stacklevel=2)
+            return str(self.node)
 
     def __repr__(self):
-        return _flatten_config(self.cfg)
+        _repr = []
+        if 'value' in self.node:
+            return self.__to_env_var__() + " = " + repr(self.node['value'])
+        if 'default' in self.node:
+            return self.__to_env_var__() + " = {DEFAULT} " + repr(self.node['default'])
 
+        for k in self.node:
+            _repr.append(repr(self[k]))
 
-new_config = Configuration()
-new_config[""] = cfg_general
-new_config["db"] = cfg_db
-new_config["repo"] = cfg_repo
+        return "\n".join(_repr)
 
-CONFIG_METADATA = [
-    {
-        "name": "sourcedir",
-        "desc": "Source directory of pprof. Usually the git repo root dir.",
-        "env": "PPROF_SRC_DIR",
-        "default": os.getcwd()
-    }, {
-        "name": "builddir",
-        "desc": "Build directory of pprof. All intermediate projects will be"
-                "placed here",
-        "env": "PPROF_OBJ_DIR",
-        "default": os.path.join(os.getcwd(), "results")
-    }, {
-        "name": "testdir",
-        "desc": "Additional test inputs, required for (some) run-time tests."
-                "These can be obtained from the a different repo. Most "
-                "projects don't need it",
-        "env": "PPROF_TESTINPUTS",
-        "default": os.path.join(os.getcwd(), "testinputs")
-    }, {
-        "name": "llvmdir",
-        "desc": "Path to LLVM. This will be required.",
-        "env": "PPROF_LLVM_DIR",
-        "default": os.path.join(os.getcwd(), "install")
-    }, {
-        "name": "likwiddir",
-        "desc": "Prefix to which the likwid library was installed.",
-        "env": "PPROF_LIKWID_DIR",
-        "default": "/usr/"
-    }, {
-        "name": "tmpdir",
-        "desc": "Temporary dir. This will be used for caching downloads.",
-        "env": "PPROF_TMP_DIR",
-        "default": os.path.join(os.getcwd(), "tmp")
-    }, {
-        "name": "path",
-        "desc": "Additional PATH variable for pprof.",
-        "env": "PATH",
-        "default": ""
-    }, {
-        "name": "nodedir",
-        "desc":
-        "Node directory, when executing on a cluster node. This is not "
-        "used by pprof directly, but by external scripts.",
-        "env": "PPROF_CLUSTER_NODEDIR",
-        "default": os.path.join(os.getcwd(), "results")
-    }, {
-        "name": "ld_library_path",
-        "desc": "Additional library path for pprof.",
-        "env": "LD_LIBRARY_PATH",
-        "default": ""
-    }, {
-        "name": "jobs",
-        "desc": "Number of jobs that can be used for building and running.",
-        "env": "PPROF_MAKE_JOBS",
-        "default": str(available_cpu_count())
-    }, {
-        "name": "experiment",
-        "desc":
-        "The experiment UUID we run everything under. This groups the project "
-        "runs in the database.",
-        "env": "PPROF_EXPERIMENT_ID",
-        "default": uuid4()
-    }, {
-        "name": "db_host",
-        "desc": "Host address of the database to connect to.",
-        "env": "PPROF_DB_HOST",
-        "default": "localhost"
-    }, {
-        "name": "db_port",
-        "desc": "Port number of the database to connect to.",
-        "env": "PPROF_DB_PORT",
-        "default": 5432
-    }, {
-        "name": "db_name",
-        "desc": "The name of the PostgreSQL database that will be used.",
-        "env": "PPROF_DB_NAME",
-        "default": "pprof"
-    }, {
-        "name": "db_user",
-        "desc":
-        "The name of the PostgreSQL user to connect to the database with.",
-        "env": "PPROF_DB_USER",
-        "default": "pprof"
-    }, {
-        "name": "db_pass",
-        "desc":
-        "The password for the PostgreSQL user used to connect to the database with.",
-        "env": "PPROF_DB_PASS",
-        "default": "pprof"
-    }, {
-        "name": "slurm_script",
-        "desc":
-        "Name of the script that can be passed to SLURM. Used by external tools.",
-        "env": "PPROF_CLUSTER_SCRIPT_NAME",
-        "default": "chimaira-slurm.sh"
-    }, {
-        "name": "cpus-per-task",
-        "desc":
-        "Number of CPUs that should be requested from SLURM. Used by external tools.",
-        "env": "PPROF_CLUSTER_CPUS_PER_TASK",
-        "default": 10
-    }, {
-        "name": "local_build",
-        "env": "PPROF_CLUSTER_BUILD_LOCAL",
-        "desc": "Perform a local build on the cluster nodes.",
-        "default": False
-    }, {
-        "name": "account",
-        "env": "PPROF_CLUSTER_ACCOUNT",
-        "desc": "The SLURM account to use by default.",
-        "default": "cl"
-    }, {
-        "name": "partition",
-        "env": "PPROF_CLUSTER_PARTITION",
-        "desc": "The SLURM partition to use by default.",
-        "default": "chimaira"
-    }, {
-        "name": "llvm_repo",
-        "default": {"url": "http://llvm.org/git/llvm.git",
-                    "branch": None,
-                    "commit_hash": None}
-    }, {
-        "name": "polly_repo",
-        "default": {"url": "http://github.com/simbuerg/polly.git",
-                    "branch": "devel",
-                    "commit_hash": None}
-    }, {
-        "name": "clang_repo",
-        "default": {"url": "http://llvm.org/git/clang.git",
-                    "branch": None,
-                    "commit_hash": None}
-    }, {
-        "name": "polli_repo",
-        "default": {"url": "http://github.com/simbuerg/polli.git",
-                    "branch": None,
-                    "commit_hash": None}
-    }, {
-        "name": "openmp_repo",
-        "default": {"url": "http://llvm.org/git/openmp.git",
-                    "branch": None,
-                    "commit_hash": None}
-    }, {
-        "name": "keep",
-        "default": False,
-        "env": "PPROF_KEEP_RESULTS"
-    }, {
-        "name": "llvm-srcdir",
-        "env": "PPROF_LLVM_SRC_DIR",
-        "default": os.path.join(os.getcwd(), "pprof-llvm")
-    }, {
-        "name": "experiment_description",
-        "env": "PPROF_EXPERIMENT_DESCRIPTION",
-        "default": str(datetime.now())
-    }, {
-        "name": "regression-prefix",
-        "env": "PPROF_REGRESSION_PREFIX",
-        "default": os.path.join("/", "tmp", "pprof-regressions")
-    }, {
-        "name": "pprof-prefix",
-        "env": "PPROF_PREFIX",
-        "default": os.getcwd()
-    }, {
-        "name": "pprof-ebuild",
-        "env": "PPROF_EBUILD",
-        "desc": "Gentoo ebuild to test {domain}/{ebuild_name}",
-        "default": ""
-    }, {
-        "name": "pprof-gentoo-autotest-loc",
-        "env": "PPROF_GENTOO_AUTOTEST_LOC",
-        "desc": "Location for the list of auto generated ebuilds.",
-        "default": "/tmp/gentoo-autotest"
-    }, {
-        "name": "pprof-gentoo-autotest-lang",
-        "env": "PPROF_GENTOO_AUTOTEST_LANG",
-        "desc": "Language filter for ebuilds.",
-        "default": "C, C++"
-    }, {
-        "name": "mail",
-        "env": "PPROF_MAIL",
-        "desc": "E-Mail address dedicated to pprof.",
-        "default": None
-    }
-]
+    def update(self, cfg_dict):
+        self.node.update(cfg_dict.node)
 
+    @staticmethod
+    def instance():
+        if Configuration.__instance__ is None:
+            Configuration.__instance__ = Configuration("pprof",
+                                                       node=cfg_general)
+            Configuration.__instance__["repo"] = cfg_repo
+            Configuration.__instance__["llvm"] = cfg_llvm
+            Configuration.__instance__["likwid"] = cfg_likwid
+            Configuration.__instance__["papi"] = cfg_papi
+            Configuration.__instance__.init_from_env()
+        return Configuration.__instance__
 
-def default_config(config_metadata):
-    """
-    Fill the config object.
+    __instance__ = None
 
-    Args:
-        config_metadata (list(dict(str,_))): Contains a list of dictionaries
-            which indicate the name, environment variable and default value
-            for each configuration option of pprof.
-            Environment settings take precedence over defaults and command line
-            options take precedence over environment settings.
-
-    Returns (dict(str, _)): Dictionary with all configuration options.
-    """
-    def_config = {}
-    for setting in config_metadata:
-        if "env" in setting:
-            def_config[setting["name"]] = getenv(setting["env"],
-                                                 setting["default"])
-        else:
-            def_config[setting["name"]] = setting["default"]
-    return def_config
-
-
-config = default_config(CONFIG_METADATA)
-
-
-def print_settings(config):
-    from logging import info
-    for cfg in CONFIG_METADATA:
-        env_str = cfg["env"] if "env" in cfg else "<env not available>"
-        key = cfg["name"]
-        default_str = cfg["default"] if "default" in cfg else "<no default>"
-        print("    {:<30} = {} (key: {}) (default: {})".format(env_str, config[
-            key], key, default_str))
+# Initialize the global configuration once.
+CFG = Configuration.instance()

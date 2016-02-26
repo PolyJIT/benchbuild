@@ -1,4 +1,4 @@
-from pprof.settings import config
+from pprof.settings import CFG
 from pprof.projects.pprof.group import PprofGroup
 from os import path
 from plumbum import local
@@ -42,7 +42,7 @@ class Rasdaman(PprofGroup):
                 run(configure["--with-pic", "--enable-static",
                               "--disable-debug", "--with-gnu-ld",
                               "--without-ld-shared", "--without-libtool"])
-                run(make["-j", config["jobs"]])
+                run(make["-j", CFG["jobs"]])
 
         with local.cwd(rasdaman_dir):
             autoreconf("-i")
@@ -60,7 +60,7 @@ class Rasdaman(PprofGroup):
 
         rasdaman_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(rasdaman_dir):
-            run(make["clean", "all", "-j", config["jobs"]])
+            run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, experiment):
         from pprof.project import wrap

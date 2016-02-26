@@ -44,11 +44,11 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.utils import run as r
-    from pprof.settings import config as c
     from pprof.utils.db import persist_time, persist_config
+    from pprof.settings import CFG
     from plumbum.cmd import time
 
-    c.update(config)
+    CFG.update(config)
     project_name = kwargs.get("project_name", project.name)
     timing_tag = "PPROF-TIME: "
 
@@ -75,9 +75,9 @@ class RawRuntime(RuntimeExperiment):
 
     def run_project(self, p):
         """Compile & Run the experiment with -O3 enabled."""
-        from pprof.settings import config
+        from pprof.settings import CFG
         from pprof.utils.run import partial
-        llvm_libs = path.join(config["llvmdir"], "lib")
+        llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
 
         with step("RAW -O3"):
             p.ldflags = ["-L" + llvm_libs]
@@ -87,4 +87,4 @@ class RawRuntime(RuntimeExperiment):
                 p.configure()
                 p.build()
             with substep("run {}".format(p.name)):
-                p.run(partial(run_with_time, p, self, config, config["jobs"]))
+                p.run(partial(run_with_time, p, self, CFG, str(CFG["jobs"])))

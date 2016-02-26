@@ -5,7 +5,7 @@ from os import path, listdir
 from abc import abstractmethod
 from plumbum import local
 from plumbum.cmd import mv, chmod, rm, mkdir, rmdir  # pylint: disable=E0401
-from pprof.settings import config
+from pprof.settings import CFG
 from pprof.utils.db import persist_project
 
 PROJECT_BIN_F_EXT = ".bin"
@@ -22,8 +22,8 @@ class ProjectRegistry(type):
         super(ProjectRegistry, cls).__init__(name, bases, dict)
 
         ebuild_data = {}
-        env_values = config["pprof-ebuild"].split('/')
-        gen_project = config["pprof-ebuild"] != ""
+        env_values = str(CFG["pprof-ebuild"]).split('/')
+        gen_project = len(env_values) > 1
         if gen_project:
             ebuild_data["domain"] = env_values[0]
             ebuild_data["ebuild"] = env_values[1]
@@ -78,13 +78,13 @@ class Project(object, metaclass=ProjectRegistry):
         """
         self.experiment = exp
         self.group_name = group
-        self.sourcedir = path.join(config["sourcedir"], self.name)
-        self.builddir = path.join(config["builddir"], exp.name, self.name)
+        self.sourcedir = path.join(str(CFG["src_dir"]), self.name)
+        self.builddir = path.join(str(CFG["build_dir"]), exp.name, self.name)
         if group:
-            self.testdir = path.join(config["testdir"], self.domain, group,
+            self.testdir = path.join(str(CFG["test_dir"]), self.domain, group,
                                      self.name)
         else:
-            self.testdir = path.join(config["testdir"], self.domain, self.name)
+            self.testdir = path.join(str(CFG["testdir"]), self.domain, self.name)
 
         self.cflags = []
         self.ldflags = []
@@ -142,7 +142,7 @@ class Project(object, metaclass=ProjectRegistry):
                 except KeyboardInterrupt as key_int:
                     fail_run_group(group, session)
                     raise key_int
-        if not config["keep"]:
+        if not CFG["keep"]:
             self.clean()
 
     def clean(self):
@@ -310,13 +310,13 @@ if path.exists("{blobf}"):
         else:
             sys.exit(1)
 
-'''.format(db_host=config["db_host"],
-           db_port=config["db_port"],
-           db_name=config["db_name"],
-           db_user=config["db_user"],
-           db_pass=config["db_pass"],
-           likwiddir=config["likwiddir"],
-           ld_lib_path=config["ld_library_path"].rstrip(':'),
+'''.format(db_host=str(CFG["db"]["host"]),
+           db_port=str(CFG["db"]["port"]),
+           db_name=str(CFG["db"]["name"]),
+           db_user=str(CFG["db"]["user"]),
+           db_pass=str(CFG["db"]["pass"]),
+           likwiddir=str(CFG["likwid"]["prefix"]),
+           ld_lib_path=str(CFG["ld_library_path"]).rstrip(':'),
            blobf=strip_path_prefix(blob_f, sprefix),
            runf=strip_path_prefix(real_f, sprefix))
         wrapper.write(lines)
@@ -394,13 +394,13 @@ if path.exists("{blobf}"):
         else:
             sys.exit(1)
 
-'''.format(db_host=config["db_host"],
-           db_port=config["db_port"],
-           db_name=config["db_name"],
-           db_user=config["db_user"],
-           db_pass=config["db_pass"],
-           likwiddir=config["likwiddir"],
-           ld_lib_path=config["ld_library_path"].rstrip(':'),
+'''.format(db_host=str(CFG["db"]["host"]),
+           db_port=str(CFG["db"]["port"]),
+           db_name=str(CFG["db"]["name"]),
+           db_user=str(CFG["db"]["user"]),
+           db_pass=str(CFG["db"]["pass"]),
+           likwiddir=str(CFG["likwid"]["prefix"]),
+           ld_lib_path=str(CFG["ld_library_path"]).rstrip(':'),
            blobf=strip_path_prefix(blob_f, sprefix))
         wrapper.write(lines)
     chmod("+x", name_absolute)

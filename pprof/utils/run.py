@@ -186,7 +186,7 @@ def begin(command, pname, ename, group):
     """
     from pprof.utils.db import create_run
     from pprof.utils import schema as s
-    from pprof.settings import config
+    from pprof.settings import CFG
     from datetime import datetime
 
     db_run, session = create_run(command, pname, ename, group)
@@ -195,7 +195,7 @@ def begin(command, pname, ename, group):
     log = s.RunLog()
     log.run_id = db_run.id
     log.begin = datetime.now()
-    log.config = str(config)
+    log.config = repr(CFG)
 
     session.add(log)
     session.commit()
@@ -320,7 +320,7 @@ def uchroot(*args, **kwargs):
     Return:
         chroot_cmd
     """
-    from pprof.settings import config
+    from pprof.settings import CFG
     from plumbum import local
 
     uid = kwargs.pop('uid', 0)
@@ -329,7 +329,7 @@ def uchroot(*args, **kwargs):
     mkdir("-p", "llvm")
     uchroot_cmd = local["./uchroot"]
     uchroot_cmd = uchroot_cmd["-C", "-w", "/", "-r", "."]
-    uchroot_cmd = uchroot_cmd["-m", config["llvmdir"] + ":llvm"]
+    uchroot_cmd = uchroot_cmd["-m", CFG["llvmdir"] + ":llvm"]
     uchroot_cmd = uchroot_cmd["-u", str(uid), "-g", str(gid)]
     uchroot_cmd = uchroot_cmd.setenv(LD_LIBRARY_PATH="/llvm/lib")
     return uchroot_cmd[args, "--"]

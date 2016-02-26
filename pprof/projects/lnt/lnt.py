@@ -124,7 +124,7 @@ class SPEC2006(LNTGroup):
 
     def download(self):
         from pprof.utils.downloader import CopyNoFail
-        from pprof.settings import config
+        from pprof.settings import CFG
 
         with local.cwd(self.builddir):
             if CopyNoFail('speccpu2006'):
@@ -132,7 +132,7 @@ class SPEC2006(LNTGroup):
             else:
                 print('======================================================')
                 print(('SPECCPU2006 not found in %s. This project will fail.',
-                       config['tmpdir']))
+                       CFG['tmpdir']))
                 print('======================================================')
 
     def run_tests(self, experiment):

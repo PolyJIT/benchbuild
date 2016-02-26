@@ -1,5 +1,5 @@
 """Database support module for the pprof study."""
-from pprof.settings import config
+from pprof.settings import CFG
 
 
 def create_run(cmd, prj, exp, grp):
@@ -28,7 +28,7 @@ def create_run(cmd, prj, exp, grp):
                 project_name=prj,
                 experiment_name=exp,
                 run_group=str(grp),
-                experiment_group=str(config["experiment"]))
+                experiment_group=str(CFG["experiment"]))
     session.add(run)
     session.flush()
 
@@ -56,7 +56,7 @@ def create_run_group(prj):
     session = schema.Session()
     group = schema.RunGroup(id=prj.run_uuid,
                             project=prj.name,
-                            experiment=config["experiment"])
+                            experiment=str(CFG["experiment"]))
     session.add(group)
     session.flush()
 
@@ -100,14 +100,14 @@ def persist_experiment(experiment):
 
     session = schema.Session()
 
+    cfg_exp = str(CFG['experiment'])
     db_exp = session.query(schema.Experiment).filter(schema.Experiment.id ==
-                                                     config[
-                                                         'experiment']).first()
+                                                     cfg_exp).first()
     if db_exp is None:
         db_exp = schema.Experiment()
     db_exp.name = experiment.name
-    db_exp.description = config["experiment_description"]
-    db_exp.id = config['experiment']
+    db_exp.description = str(CFG["experiment_description"])
+    db_exp.id = cfg_exp
 
     session.add(db_exp)
     session.commit()

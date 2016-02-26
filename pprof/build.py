@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-from plumbum import cli, local, FG
-from pprof.driver import PollyProfiling
-from pprof.settings import config
-from plumbum.cmd import mkdir
 import os
+from plumbum import cli, local, FG
+from plumbum.cmd import mkdir, git, cmake
 
+from pprof.driver import PollyProfiling
+from pprof.settings import CFG
 
 def clone_or_pull(repo_dict, to_dir):
     """
@@ -25,7 +25,6 @@ def clone_or_pull(repo_dict, to_dir):
     branch = repo_dict.get("branch")
     commit_hash = repo_dict.get("commit_hash")
 
-    from plumbum.cmd import git
     if not os.path.exists(os.path.join(to_dir, ".git/")):
         git_clone = git["clone", url, to_dir, "--recursive", "--depth=1"]
         if branch:
@@ -64,7 +63,7 @@ def clone_or_pull(repo_dict, to_dir):
                     "HEAD for repository {:s} is not at configured commit hash {:s}, fetching and checking out.".format(
                         url, commit_hash)))
                 git("fetch", "--unshallow")
-                git_checkout = git("checkout", commit_hash)
+                git("checkout", commit_hash)
 
 
 def configure_papi(cmake, root):
@@ -170,7 +169,6 @@ class Build(cli.Application):
 
     def configure_openmp(self, openmp_path):
         """ Configure LLVM/Clang's own OpenMP runtime. """
-        from plumbum.cmd import cmake
         with local.cwd(openmp_path):
             builddir = os.path.join(openmp_path, "build")
             if not os.path.exists(builddir):
@@ -200,7 +198,6 @@ class Build(cli.Application):
 
     def configure_llvm(self, llvm_path):
         """ Configure LLVM and all subprojects. """
-        from plumbum.cmd import cmake
         with local.cwd(llvm_path):
             builddir = os.path.join(llvm_path, "build")
             if not os.path.exists(builddir):
@@ -244,18 +241,18 @@ class Build(cli.Application):
         llvm_path = os.path.join(self._builddir, "pprof-llvm")
         openmp_path = os.path.join(self._builddir, "openmp-runtime")
         with local.cwd(self._builddir):
-            clone_or_pull(config["llvm_repo"], llvm_path)
+            clone_or_pull(CFG['llvm']['dir'], llvm_path)
             tools_path = os.path.join(llvm_path, "tools")
             with local.cwd(tools_path):
-                clone_or_pull(config["clang_repo"],
+                clone_or_pull(CFG['repo']['clang'],
                               os.path.join(tools_path, "clang"))
-                clone_or_pull(config["polly_repo"],
+                clone_or_pull(CFG['repo']['polly'],
                               os.path.join(tools_path, "polly"))
                 polli_path = os.path.join(tools_path, "polly", "tools")
                 with (local.cwd(polli_path)):
-                    clone_or_pull(config["polli_repo"],
+                    clone_or_pull(CFG['repo']['polli'],
                                   os.path.join(polli_path, "polli"))
-            clone_or_pull(config["openmp_repo"], openmp_path)
+            clone_or_pull(CFG['repo']['openmp'], openmp_path)
 
         self.configure_llvm(llvm_path)
         self.configure_openmp(openmp_path)

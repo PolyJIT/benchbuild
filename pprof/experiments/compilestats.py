@@ -7,7 +7,8 @@ by llvm
 
 """
 
-from pprof.experiment import step, substep, RuntimeExperiment
+from pprof.experiment import step, RuntimeExperiment
+from pprof.settings import CFG
 from os import path
 
 class CompilestatsExperiment(RuntimeExperiment):
@@ -24,10 +25,9 @@ class CompilestatsExperiment(RuntimeExperiment):
     def run_project(self, p):
         """Compile & Run the experiment."""
         from pprof.utils.schema import CompileStat
-        from pprof.settings import config
         from pprof.utils.run import partial
 
-        llvm_libs = path.join(config["llvmdir"], "lib")
+        llvm_libs = path.join(str(CFG["llvmdir"]), "lib")
         p.ldflags = ["-L" + llvm_libs] + self.extra_ldflags()
         p.cflags = self.extra_cflags()
         with step("Configure Project"):
@@ -36,11 +36,9 @@ class CompilestatsExperiment(RuntimeExperiment):
             def _track_compilestats(project, experiment, config, clang,
                                     **kwargs):
                 from pprof.utils import run as r
-                from pprof.settings import config as c
                 from pprof.utils.db import persist_compilestats
                 from pprof.utils.run import handle_stdin
 
-                c.update(config)
                 clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
                 run, session, retcode, _, stderr = \
@@ -57,7 +55,7 @@ class CompilestatsExperiment(RuntimeExperiment):
                     persist_compilestats(run, session, stats)
 
             p.compiler_extension = partial(_track_compilestats, p, self,
-                                           config)
+                                           CFG)
             p.configure()
         with step("Build Project"):
             p.build()

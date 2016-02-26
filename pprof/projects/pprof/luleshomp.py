@@ -31,11 +31,11 @@ class LuleshOMP(PprofGroup):
     def build(self):
         from pprof.utils.compiler import lt_clang_cxx
         from pprof.utils.run import run
-        from pprof.settings import config
+        from pprof.settings import CFG
         from os import path
 
         self.ldflags += ["-lgomp"]
-        self.cflags += ["-I" + path.join(config["llvmdir"], "include")]
+        self.cflags += ["-I" + path.join(str(CFG["llvmdir"]), "include")]
 
         with local.cwd(self.builddir):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,

@@ -1,5 +1,5 @@
 from pprof.project import Project
-from pprof.settings import config
+from pprof.settings import CFG
 
 from os import path
 from plumbum import local
@@ -44,7 +44,7 @@ class PolyBenchGroup(Project):
 
     def __init__(self, exp):
         super(PolyBenchGroup, self).__init__(exp, "polybench")
-        self.sourcedir = path.join(config["sourcedir"], "polybench",
+        self.sourcedir = path.join(str(CFG["src_dir"]), "polybench",
                                    self.path_dict[self.name], self.name)
         self.setup_derived_filenames()
 

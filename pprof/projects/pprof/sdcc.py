@@ -1,4 +1,4 @@
-from pprof.settings import config
+from pprof.settings import CFG
 from pprof.projects.pprof.group import PprofGroup
 from os import path
 from plumbum import local
@@ -40,7 +40,7 @@ class SDCC(PprofGroup):
         sdcc_dir = path.join(self.builddir, self.src_dir)
 
         with local.cwd(sdcc_dir):
-            run(make["-j", config["jobs"]])
+            run(make["-j", CFG["jobs"]])
 
     def run_tests(self, experiment):
         from pprof.project import wrap

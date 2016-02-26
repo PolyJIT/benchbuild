@@ -5,7 +5,7 @@ Gather version information for PPROF.
 from plumbum import local
 from plumbum.cmd import git
 
-from pprof.settings import config
+from pprof.settings import CFG
 from os import path
 
 
@@ -29,10 +29,10 @@ def get_git_hash(from_url):
         return git("rev-parse", "HEAD", retcode=None)
 
 
-LLVM_VERSION = get_git_hash(config["llvm-srcdir"])
-CLANG_VERSION = get_git_hash(path.join(config["llvm-srcdir"], "tools",
+LLVM_VERSION = get_git_hash(CFG["llvm-srcdir"])
+CLANG_VERSION = get_git_hash(path.join(str(CFG["llvm-srcdir"]), "tools",
                                        "clang"))
-POLLY_VERSION = get_git_hash(path.join(config["llvm-srcdir"], "tools",
+POLLY_VERSION = get_git_hash(path.join(str(CFG["llvm-srcdir"]), "tools",
                                        "polly"))
-POLLI_VERSION = get_git_hash(path.join(config["llvm-srcdir"], "tools", "polly",
+POLLI_VERSION = get_git_hash(path.join(str(CFG["llvm-srcdir"]), "tools", "polly",
                                        "tools", "polli"))

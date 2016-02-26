@@ -1,4 +1,4 @@
-from pprof.settings import config
+from pprof.settings import CFG
 from pprof.projects.pprof.group import PprofGroup
 from os import path
 from plumbum import local
@@ -56,7 +56,7 @@ class MCrypt(PprofGroup):
                            CXX=lt_clang_cxx(self.cflags, self.ldflags,
                                             self.compiler_extension)):
                 run(configure["--prefix=" + self.builddir])
-                run(make["-j", config["jobs"], "install"])
+                run(make["-j", CFG["jobs"], "install"])
 
         # Builder libmcrypt dependency
         with local.cwd(libmcrypt_dir):
@@ -66,7 +66,7 @@ class MCrypt(PprofGroup):
                            CXX=lt_clang_cxx(self.cflags, self.ldflags,
                                             self.compiler_extension)):
                 run(configure["--prefix=" + self.builddir])
-                run(make["-j", config["jobs"], "install"])
+                run(make["-j", CFG["jobs"], "install"])
 
         with local.cwd(mcrypt_dir):
             configure = local["./configure"]
@@ -75,7 +75,7 @@ class MCrypt(PprofGroup):
                            CXX=lt_clang_cxx(self.cflags, self.ldflags,
                                             self.compiler_extension),
                            LD_LIBRARY_PATH=path.join(self.builddir, "lib") +
-                           ":" + config["ld_library_path"],
+                           ":" + CFG["ld_library_path"],
                            LDFLAGS="-L" + path.join(self.builddir, "lib"),
                            CFLAGS="-I" + path.join(self.builddir, "include")):
                 run(configure["--disable-dependency-tracking",
@@ -89,7 +89,7 @@ class MCrypt(PprofGroup):
 
         mcrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(mcrypt_dir):
-            run(make["-j", config["jobs"]])
+            run(make["-j", CFG["jobs"]])
 
     def run_tests(self, experiment):
         from pprof.project import wrap

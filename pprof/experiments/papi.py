@@ -5,11 +5,12 @@ These types of experiments (papi & papi-std) need to instrument the
 project with libpprof support to work.
 
 """
+from os import path
 from pprof.experiment import (RuntimeExperiment, step, substep)
 from pprof.experiments.raw import run_with_time
 from pprof.utils.run import partial
+from pprof.settings import CFG
 from plumbum import local
-from os import path
 
 
 def get_compilestats(prog_out):
@@ -26,12 +27,10 @@ def get_compilestats(prog_out):
 def collect_compilestats(project, experiment, config, clang, **kwargs):
     """Collect compilestats."""
     from pprof.utils import run as r
-    from pprof.settings import config as c
     from pprof.utils.db import persist_compilestats
     from pprof.utils.run import handle_stdin
     from pprof.utils.schema import CompileStat
 
-    c.update(config)
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
     run, session, retcode, _, stderr = \
@@ -56,11 +55,10 @@ class PapiScopCoverage(RuntimeExperiment):
     def run(self):
         """Do the postprocessing, after all projects are done."""
         super(PapiScopCoverage, self).run()
-        from pprof.settings import config
-        bin_path = path.join(config["llvmdir"], "bin")
+        bin_path = path.join(str(CFG["llvm_dir"]), "bin")
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
 
-        with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"]),
+        with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment"]),
                        PPROF_EXPERIMENT=self.name,
                        PPROF_USE_DATABASE=1,
                        PPROF_USE_FILE=0,
@@ -74,15 +72,14 @@ class PapiScopCoverage(RuntimeExperiment):
         This experiment uses the -jitable flag of libPolyJIT to generate
         dynamic SCoP coverage.
         """
-        from pprof.settings import config
-        llvm_libs = path.join(config["llvmdir"], "lib")
+        llvm_libs = path.join(str(CFG["llvm_dir"]), "lib")
 
         with step("Class: Dynamic, PAPI"):
             p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
 
             ld_lib_path = [_f
-                           for _f in config["ld_library_path"].split(":")
+                           for _f in CFG["ld_library_path"].split(":")
                            if _f]
             p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
             p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
@@ -92,14 +89,14 @@ class PapiScopCoverage(RuntimeExperiment):
             with substep("reconf & rebuild"):
                 with local.env(PPROF_ENABLE=0):
                     p.compiler_extension = partial(collect_compilestats, p,
-                                                   self, config)
+                                                   self, CFG)
                     p.configure()
                     p.build()
             with substep("run"):
-                p.run(partial(run_with_time, p, self, config, 1))
+                p.run(partial(run_with_time, p, self, CFG, 1))
 
         with step("Evaluation"):
-            bin_path = path.join(config["llvmdir"], "bin")
+            bin_path = path.join(str(CFG["llvmdir"]), "bin")
             pprof_calibrate = local[path.join(bin_path, "pprof-calibrate")]
             papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
 
@@ -118,15 +115,15 @@ class PapiStandardScopCoverage(PapiScopCoverage):
         This experiment does not use the -jitable flag of libPolyJIT.
         Therefore, we get the static (aka Standard) SCoP coverage.
         """
-        from pprof.settings import config
-        llvm_libs = path.join(config["llvmdir"], "lib")
+        from pprof.settings import CFG
+        llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
 
         with step("Class: Standard - PAPI"):
             p.download()
             p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
 
             ld_lib_path = [_f
-                           for _f in config["ld_library_path"].split(":")
+                           for _f in CFG["ld_library_path"].split(":")
                            if _f]
             p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
             p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
@@ -141,7 +138,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                 p.run(partial(run_with_time, p, self, config, 1))
 
         with step("Evaluation"):
-            bin_path = path.join(config["llvmdir"], "bin")
+            bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
             pprof_calibrate = local[path.join(bin_path, "pprof-calibrate")]
             papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
             self.persist_calibration(p, pprof_calibrate, papi_calibration)

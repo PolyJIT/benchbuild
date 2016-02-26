@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from plumbum import cli
 from pprof.driver import PollyProfiling
-from pprof.settings import config
+from pprof.settings import CFG
 import os
 
 
@@ -13,13 +13,13 @@ class PprofTest(cli.Application):
 
     @cli.switch(["-L", "--llvmdir"], str, help="Where is llvm?")
     def llvmdir(self, dirname):
-        config["llvmdir"] = dirname
+        CFG["llvmdir"] = dirname
 
     @cli.switch(["-P", "--prefix"],
                 str,
                 help="Prefix for our regression-test image.")
     def prefix(self, prefix):
-        config["regression-prefix"] = os.path.abspath(prefix)
+        CFG["regression-prefix"] = os.path.abspath(prefix)
 
     def opt_flags(self):
         return ["-load", "LLVMPolyJIT.so", "-O3", "-jitable", "-polli",
@@ -53,7 +53,7 @@ class PprofTest(cli.Application):
         from pprof.utils.schema import Session, RegressionTest
         from plumbum.cmd import mkdir, sed
 
-        prefix = config["regression-prefix"]
+        prefix = CFG["regression-prefix"]
         if not os.path.exists(prefix):
             mkdir("-p", prefix)
 

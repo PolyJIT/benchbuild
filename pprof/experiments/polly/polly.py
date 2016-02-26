@@ -18,7 +18,7 @@ Measurements
 """
 
 from pprof.experiment import step, RuntimeExperiment
-from pprof.settings import config
+from pprof.settings import CFG
 from os import path
 
 
@@ -32,12 +32,12 @@ class Polly(RuntimeExperiment):
         from pprof.experiments.raw import run_with_time
         from pprof.utils.run import partial
 
-        llvm_libs = path.join(config["llvmdir"], "lib")
+        llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
         p.ldflags = ["-L" + llvm_libs]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                     "-mllvm", "-polly"]
 
-        for i in range(1, int(config["jobs"]) + 1):
+        for i in range(1, int(CFG["jobs"]) + 1):
             p.run_uuid = uuid4()
             with step("time: {} cores & uuid {}".format(i, p.run_uuid)):
                 p.clean()
@@ -45,4 +45,4 @@ class Polly(RuntimeExperiment):
                 p.download()
                 p.configure()
                 p.build()
-                p.run(partial(run_with_time, p, self, config, i))
+                p.run(partial(run_with_time, p, self, CFG, i))

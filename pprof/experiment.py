@@ -36,7 +36,7 @@ from plumbum.commands.processes import ProcessExecutionError
 
 from pprof.project import ProjectRegistry
 from pprof.utils.run import GuardedRunException
-from pprof.settings import config
+from pprof.settings import CFG
 from pprof.utils.db import persist_experiment
 import pprof.projects  # pylint: disable=W0611
 
@@ -246,19 +246,19 @@ class Experiment(object, metaclass=ExperimentRegistry):
         """
         Precompute some often used path variables used throughout all projects.
         """
-        bin_path = path.join(config["llvmdir"], "bin")
+        bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
 
-        config["path"] = bin_path + ":" + config["path"]
-        config["ld_library_path"] = ":".join([
-            path.join(config["llvmdir"], "lib"), config["ld_library_path"]
+        CFG["path"] = bin_path + ":" + str(CFG["path"])
+        CFG["ld_library_path"] = ":".join([
+            path.join(str(CFG["llvm"]["dir"]), "lib"), str(CFG["ld_library_path"])
         ])
 
     def __init__(self, projects=None, group=None):
         self.projects = {}
         self.setup_commands()
-        self.sourcedir = config["sourcedir"]
-        self.builddir = path.join(config["builddir"], self.name)
-        self.testdir = config["testdir"]
+        self.sourcedir = CFG["src_dir"]
+        self.builddir = path.join(str(CFG["build_dir"]), self.name)
+        self.testdir = CFG["test_dir"]
 
         self.populate_projects(projects, group)
 
@@ -344,13 +344,13 @@ class Experiment(object, metaclass=ExperimentRegistry):
             prj = self.projects[project_name]
 
             def maybe_clean_on_error(project):
-                if "clean" in config and config["clean"]:
+                if "clean" in CFG and CFG["clean"]:
                     project.clean()
 
             with phase(pname, project_name, partial(maybe_clean_on_error,
                                                     prj)):
-                llvm_libs = path.join(config["llvmdir"], "lib")
-                ld_lib_path = config["ld_library_path"] + ":" + llvm_libs
+                llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
+                ld_lib_path = str(CFG["ld_library_path"]) + ":" + llvm_libs
                 with local.env(LD_LIBRARY_PATH=ld_lib_path,
                                PPROF_EXPERIMENT=self.name,
                                PPROF_PROJECT=prj.name):
@@ -390,7 +390,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
             experiment.begin = min(experiment.begin, datetime.now())
 
         try:
-            with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"])):
+            with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment"])):
                 self.map_projects(self.run_this_project, "run")
         except KeyboardInterrupt:
             error("User requested termination.")

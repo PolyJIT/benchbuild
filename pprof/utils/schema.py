@@ -6,7 +6,32 @@ from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from pprof.settings import config
+from pprof.settings import CFG
+
+CFG['db'] = {
+    "host": {
+        "desc": "host name of our db.",
+        "default": "localhost"
+    },
+    "port": {
+        "desc": "port to connect to the database",
+        "default": 5432
+    },
+    "name": {
+        "desc": "The name of the PostgreSQL database that will be used.",
+        "default": "pprof"
+    },
+    "user": {
+        "desc":
+        "The name of the PostgreSQL user to connect to the database with.",
+        "default": "pprof"
+    },
+    "pass": {
+        "desc":
+        "The password for the PostgreSQL user used to connect to the database with.",
+        "default": "pprof"
+    }
+}
 
 Base = declarative_base()
 
@@ -251,11 +276,11 @@ class SessionManager(object):
         self.__test_mode = "PPROF_USE_VOLATILE_DB" in os.environ
         self.__engine = create_engine(
             "postgresql+psycopg2://{u}:{p}@{h}:{P}/{db}".format(
-                u=config["db_user"],
-                h=config["db_host"],
-                P=config["db_port"],
-                p=config["db_pass"],
-                db=config["db_name"]))
+                u=CFG["db"]["user"],
+                h=CFG["db"]["host"],
+                P=CFG["db"]["port"],
+                p=CFG["db"]["pass"],
+                db=CFG["db"]["name"]))
         self.__connection = self.__engine.connect()
         if self.__test_mode:
             self.__transaction = self.__connection.begin()

@@ -2,7 +2,7 @@
 from plumbum import cli
 from plumbum.cmd import mkdir
 from pprof.driver import PollyProfiling
-from pprof.settings import config
+from pprof.settings import CFG
 from pprof.utils.user_interface import query_yes_no
 from pprof.experiments import *
 
@@ -21,27 +21,27 @@ class PprofRun(cli.Application):
 
     @cli.switch(["-T", "--testdir"], str, help="Where are the testinput files")
     def testdir(self, dirname):
-        config["testdir"] = dirname
+        CFG["testdir"] = dirname
 
     @cli.switch(["-S", "--sourcedir"], str, help="Where are the source files")
     def sourcedir(self, dirname):
-        config["sourcedir"] = dirname
+        CFG["sourcedir"] = dirname
 
     @cli.switch(["--llvm-srcdir"], str, help="Where are the llvm source files")
     def llvm_sourcedir(self, dirname):
-        config["llvm-srcdir"] = dirname
+        CFG["llvm-srcdir"] = dirname
 
     @cli.switch(["-B", "--builddir"], str, help="Where should we build")
     def builddir(self, dirname):
-        config["builddir"] = dirname
+        CFG["builddir"] = dirname
 
     @cli.switch(["--likwid-prefix"], str, help="Where is likwid installed?")
     def likwiddir(self, dirname):
-        config["likwiddir"] = dirname
+        CFG["likwiddir"] = dirname
 
     @cli.switch(["-L", "--llvmdir"], str, help="Where is llvm?")
     def llvmdir(self, dirname):
-        config["llvmdir"] = dirname
+        CFG["llvmdir"] = dirname
 
     @cli.switch(["-E", "--experiment"],
                 str,
@@ -54,7 +54,7 @@ class PprofRun(cli.Application):
                 str,
                 help="A description for this experiment run")
     def experiment_tag(self, description):
-        config["experiment_description"] = description
+        CFG["experiment_description"] = description
 
     @cli.switch(["-P", "--project"],
                 str,
@@ -82,7 +82,7 @@ class PprofRun(cli.Application):
                 requires=["--experiment"],
                 help="Keep intermediate results")
     def keep(self):
-        config["keep"] = True
+        CFG["keep"] = True
 
     @cli.switch(["-G", "--group"],
                 str,
@@ -116,13 +116,12 @@ class PprofRun(cli.Application):
             exit(0)
 
         if (self.show_config):
-            from pprof.settings import print_settings
-            print_settings(config)
+            print(repr(CFG))
             exit(0)
 
         if self._project_names:
             # Only try to create the build dir if we're actually running some projects.
-            builddir = os.path.abspath(config["builddir"])
+            builddir = os.path.abspath(str(CFG["build_dir"]))
             if not os.path.exists(builddir):
                 response = query_yes_no(
                     "The build directory {dirname} does not exist yet. Create it?".format(

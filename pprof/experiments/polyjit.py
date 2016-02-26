@@ -16,7 +16,7 @@ from os import path
 def collect_compilestats(project, experiment, config, clang, **kwargs):
     """Collect compilestats."""
     from pprof.utils import run as r
-    from pprof.settings import config as c
+    from pprof.settings import CFG as c
     from pprof.utils.db import persist_compilestats
     from pprof.utils.run import handle_stdin
     from pprof.utils.schema import CompileStat
@@ -57,7 +57,7 @@ def run_raw(project, experiment, config, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.utils import run as r
-    from pprof.settings import config as c
+    from pprof.settings import CFG as c
 
     c.update(config)
     project_name = kwargs.get("project_name", project.name)
@@ -89,7 +89,7 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::pprof.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from pprof.settings import config as c
+    from pprof.settings import CFG as c
     from pprof.utils import run as r
     from pprof.utils.db import persist_config
     from plumbum import local
@@ -126,7 +126,7 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::pprof.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from pprof.settings import config as c
+    from pprof.settings import CFG as c
     from pprof.utils import run as r
     from pprof.utils.db import persist_likwid, persist_config
     from pprof.likwid import get_likwid_perfctr
@@ -182,7 +182,7 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.utils import run as r
-    from pprof.settings import config as c
+    from pprof.settings import CFG as c
     from pprof.utils.db import persist_time, persist_config
     from plumbum.cmd import time
 
@@ -225,7 +225,7 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::pprof.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from pprof.settings import config as c
+    from pprof.settings import CFG as c
     from pprof.utils import run as r
     from pprof.utils.db import persist_perf, persist_config
     from plumbum.cmd import perf
@@ -273,10 +273,10 @@ class PolyJIT(RuntimeExperiment):
         Returns:
             The initialized project.
         """
-        from pprof.settings import config
+        from pprof.settings import CFG
         project.ldflags = ["-lpjit", "-lgomp"]
 
-        ld_lib_path = [_f for _f in config["ld_library_path"].split(":") if _f]
+        ld_lib_path = [_f for _f in str(CFG["ld_library_path"]).split(":") if _f]
         project.ldflags = ["-L" + el for el in ld_lib_path] + project.ldflags
         project.cflags = ["-Rpass=\"polyjit*\"", "-Xclang", "-load", "-Xclang",
                           "LLVMPolyJIT.so", "-O3", "-mllvm", "-jitable",
@@ -300,7 +300,7 @@ class PJITRaw(PolyJIT):
     NAME = "pj-raw"
 
     def run_project(self, p):
-        from pprof.settings import config
+        from pprof.settings import CFG
 
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
@@ -308,7 +308,7 @@ class PJITRaw(PolyJIT):
 
             p.cflags += ["-fno-omit-frame-pointer"]
 
-            for i in range(1, int(config["jobs"]) + 1):
+            for i in range(1, int(str(CFG["jobs"])) + 1):
                 p.run_uuid = uuid4()
                 with step("time: {} cores & uuid {}".format(i, p.run_uuid)):
                     p.clean()
@@ -316,7 +316,7 @@ class PJITRaw(PolyJIT):
                     p.download()
                     p.configure()
                     p.build()
-                    p.run(partial(run_with_time, p, self, config, i))
+                    p.run(partial(run_with_time, p, self, CFG, i))
 
 
 class PJITperf(PolyJIT):
@@ -327,13 +327,13 @@ class PJITperf(PolyJIT):
     NAME = "pj-perf"
 
     def run_project(self, p):
-        from pprof.settings import config
+        from pprof.settings import CFG
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
             from uuid import uuid4
 
             p.cflags += ["-fno-omit-frame-pointer"]
-            for i in range(1, int(config["jobs"]) + 1):
+            for i in range(1, int(CFG["jobs"]) + 1):
                 p.run_uuid = uuid4()
                 with step("perf: {} cores & uuid {}".format(i, p.run_uuid)):
                     p.clean()
@@ -357,7 +357,7 @@ class PJITlikwid(PolyJIT):
     NAME = "pj-likwid"
 
     def run_project(self, p):
-        from pprof.settings import config
+        from pprof.settings import CFG
 
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
@@ -365,7 +365,7 @@ class PJITlikwid(PolyJIT):
 
             p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
 
-            for i in range(1, int(config["jobs"]) + 1):
+            for i in range(1, int(CFG["jobs"]) + 1):
                 with step("{} cores & uuid {}".format(i, p.run_uuid)):
                     p.clean()
                     p.prepare()
@@ -402,7 +402,7 @@ class PJITRegression(PolyJIT):
         Args:
             p - The project we run this experiment on.
         """
-        from pprof.settings import config
+        from pprof.settings import CFG
 
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=0):
@@ -411,7 +411,7 @@ class PJITRegression(PolyJIT):
                                     **kwargs):
                 """ Compile the project and track the compilestats. """
                 from pprof.utils import run as r
-                from pprof.settings import config as c
+                from pprof.settings import CFG as c
                 from pprof.utils.run import handle_stdin
 
                 c.update(config)
@@ -444,7 +444,7 @@ class PJITcs(PolyJIT):
     NAME = "pj-cs"
 
     def run_project(self, p):
-        from pprof.settings import config
+        from pprof.settings import CFG
         from pprof.utils.schema import CompileStat
 
         p = self.init_project(p)
@@ -459,7 +459,7 @@ class PJITcs(PolyJIT):
                 def _track_compilestats(project, experiment, config, clang,
                                         **kwargs):
                     from pprof.utils import run as r
-                    from pprof.settings import config as c
+                    from pprof.settings import CFG as c
                     from pprof.utils.db import persist_compilestats
                     from pprof.utils.run import handle_stdin
 
@@ -505,12 +505,12 @@ class PJITpapi(PolyJIT):
         """Do the postprocessing, after all projects are done."""
         super(PJITpapi, self).run()
 
-        from pprof.settings import config
+        from pprof.settings import CFG
 
-        bin_path = path.join(config["llvmdir"], "bin")
+        bin_path = path.join(str(CFG["llvmdir"]), "bin")
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
 
-        with local.env(PPROF_EXPERIMENT_ID=str(config["experiment"]),
+        with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment"]),
                        PPROF_EXPERIMENT=self.name,
                        PPROF_USE_DATABASE=1,
                        PPROF_USE_FILE=0,
@@ -524,7 +524,7 @@ class PJITpapi(PolyJIT):
         Args:
             p: The project we run.
         """
-        from pprof.settings import config
+        from pprof.settings import CFG
 
         p = self.init_project(p)
         with local.env(PPROF_ENABLE=1):
@@ -533,7 +533,7 @@ class PJITpapi(PolyJIT):
             p.cflags = ["-mllvm", "-instrument"] + p.cflags
             p.ldflags = p.ldflags + ["-lpprof"]
 
-            for i in range(1, int(config["jobs"]) + 1):
+            for i in range(1, int(CFG["jobs"]) + 1):
                 with step("{} cores & uuid {}".format(i, p.run_uuid)):
                     p.clean()
                     p.prepare()

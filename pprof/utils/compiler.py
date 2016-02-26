@@ -24,7 +24,7 @@ The remaining methods:
 Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
-from pprof.settings import config
+from pprof.settings import CFG
 from pprof.project import PROJECT_BLOB_F_EXT
 
 def wrap_cc_in_uchroot(cflags, ldflags, func=None,
@@ -155,12 +155,14 @@ from os import path
 import logging
 import dill
 
-from pprof.settings import config
-config["db_host"] = "{db_host}"
-config["db_port"] = "{db_port}"
-config["db_name"] = "{db_name}"
-config["db_user"] = "{db_user}"
-config["db_pass"] = "{db_pass}"
+from pprof.settings import CFG
+from pprof.utils import schema
+
+CFG["db"]["host"] = "{db_host}"
+CFG["db"]["port"] = "{db_port}"
+CFG["db"]["name"] = "{db_name}"
+CFG["db"]["user"] = "{db_user}"
+CFG["db"]["pass"] = "{db_pass}"
 
 cc=local[\"{CC}\"]
 cflags={CFLAGS}
@@ -235,11 +237,11 @@ with local.env(PPROF_DB_HOST="{db_host}",
            CFLAGS=cflags,
            LDFLAGS=ldflags,
            blobf=blob_f,
-           db_host=config["db_host"],
-           db_name=config["db_name"],
-           db_user=config["db_user"],
-           db_pass=config["db_pass"],
-           db_port=config["db_port"])
+           db_host=str(CFG["db"]["host"]),
+           db_name=str(CFG["db"]["name"]),
+           db_user=str(CFG["db"]["user"]),
+           db_pass=str(CFG["db"]["pass"]),
+           db_port=str(CFG["db"]["port"]))
         wrapper.write(lines)
         chmod("+x", filepath)
 
@@ -256,7 +258,7 @@ def llvm():
     """
 
     from os import path
-    return path.join(config["llvmdir"], "bin")
+    return path.join(str(CFG["llvm"]["dir"]), "bin")
 
 
 def llvm_libs():
@@ -270,7 +272,7 @@ def llvm_libs():
         LLVM library path.
     """
     from os import path
-    return path.join(config["llvmdir"], "lib")
+    return path.join(str(CFG["llvm"]["dir"]), "lib")
 
 
 def clang_cxx():

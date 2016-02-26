@@ -10,7 +10,7 @@ in PPROF_TMP_DIR, nothing will be downloaded at all.
 Supported methods:
         Copy, CopyNoFail, Wget, Git, Svn, Rsync
 """
-from pprof.settings import config
+from pprof.settings import CFG
 
 
 def get_hash_of_dirs(directory):
@@ -112,14 +112,14 @@ def CopyNoFail(src, root=None):
     Args:
         src: The filename we want to copy to '.'.
         root: The optional source dir we should pull fName from. Defaults
-            to pprof.settings.config["tmpdir"].
+            to pprof.settings.CFG["tmpdir"].
 
     Returns:
         True, if we copied something.
     """
     from os import path
     if root is None:
-        root = config["tmpdir"]
+        root = CFG["tmp_dir"]
     src_url = path.join(root, src)
 
     if path.exists(src_url):
@@ -136,10 +136,10 @@ def Wget(src_url, tgt_name, tgt_root=None):
         src_url (str): Our SOURCE url.
         tgt_name (str): The filename we want to have on disk.
         tgt_root (str): The TARGET directory for the download.
-            Defaults to ``config["tmpdir"]``.
+            Defaults to ``CFG["tmpdir"]``.
     """
     if tgt_root is None:
-        tgt_root = config["tmpdir"]
+        tgt_root = str(CFG["tmp_dir"])
 
     from os import path
     from plumbum.cmd import wget
@@ -162,10 +162,10 @@ def Git(src_url, tgt_name, tgt_root=None):
         src_url (str): Git URL of the SOURCE repo.
         tgt_name (str): Name of the repo folder on disk.
         tgt_root (str): TARGET folder for the git repo.
-            Defaults to ``config["tmpdir"]``
+            Defaults to ``CFG["tmpdir"]``
     """
     if tgt_root is None:
-        tgt_root = config["tmpdir"]
+        tgt_root = CFG["tmp_dir"]
 
     from os import path
     from plumbum.cmd import git
@@ -188,10 +188,10 @@ def Svn(url, fname, to=None):
         url (str): The SVN SOURCE repo.
         fname (str): The name of the repo on disk.
         to (str): The name of the TARGET folder on disk.
-            Defaults to ``config["tmpdir"]``
+            Defaults to ``CFG["tmpdir"]``
     """
     if to is None:
-        to = config["tmpdir"]
+        to = CFG["tmp_dir"]
 
     from os import path
     from plumbum.cmd import svn
@@ -214,10 +214,10 @@ def Rsync(url, tgt_name, tgt_root=None):
         url (str): The url of the SOURCE location.
         fname (str): The name of the TARGET.
         to (str): Path of the target location.
-            Defaults to ``config["tmpdir"]``.
+            Defaults to ``CFG["tmpdir"]``.
     """
     if tgt_root is None:
-        tgt_root = config["tmpdir"]
+        tgt_root = CFG["tmp_dir"]
 
     from os import path
     from plumbum.cmd import rsync

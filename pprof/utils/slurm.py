@@ -1,30 +1,54 @@
-#!/usr/bin/env python3
-# encoding: utf-8
 """
-Run arbitrary pprof experiments on the Infosun Chimaira cluster.
+SLURM support for the pprof study.
 
-This module prepares slurm scripts to:
-    * Build
-    * Run
-    * Collect results
-on Infosun's chimaira cluster. All the hard work is done after instancing the
-pprof study on the local disks of the assigned cluster node. The results
-are copied to a configurable shared directory. After all partial jobs are
-completed the results are collected with a separate job.
-
-The resource management system used on chimaira is SLURM.
+This module can be used to generate bash scripts that can be executed by
+the SLURM controller either as batch or interactive script.
 """
-
-from plumbum import cli, local
-from pprof.settings import config
 import logging
 import os
-import pprint as pp
+import uuid
+from plumbum import local
+from pprof import settings
 
 INFO = logging.info
+CFG = settings.CFG
+CFG["slurm"] = {
+    "account": {
+        "desc": "The SLURM account to use by default.",
+        "default": "cl"
+    },
+    "partition": {
+        "desc": "The SLURM partition to use by default.",
+        "default": "chimaira"
+    },
+    "script": {
+        "desc":
+        "Name of the script that can be passed to SLURM. Used by external tools.",
+        "default": "chimaira-slurm.sh"
+    },
+    "cpus_per_task": {
+        "desc":
+        "Number of CPUs that should be requested from SLURM. Used by external tools.",
+        "default": 10
+    },
+    "node_dir": {
+        "desc":
+        "Node directory, when executing on a cluster node. This is not "
+        "used by pprof directly, but by external scripts.",
+        "default": os.path.join(os.getcwd(), "results")
+    },
+    "timelimit": {
+        "desc": "The timelimit we want to give to a job",
+        "default": "12:00:00"
+    },
+    "exclusive": {
+        "desc": "Shall we reserve a node exclusively, or share it with others?",
+        "default": True
+    },
+}
 
-
-def dump_slurm_script(script_name, log_name, commands, **kwargs):
+def dump_slurm_script(script_name, log_name, pprof, experiment, projects,
+                      **kwargs):
     """
     Dump a bash script that can be given to SLURM.
 
@@ -45,20 +69,25 @@ def dump_slurm_script(script_name, log_name, commands, **kwargs):
         slurm.write("#SBATCH --hint=nomultithread\n")
         slurm.write("#SBATCH --ntasks 1\n")
         slurm.write("#SBATCH --exclusive\n")
-        slurm.write("#SBATCH --cpus-per-task {}\n".format(config[
-            "cpus-per-task"]))
+        slurm.write("#SBATCH --cpus-per-task {}\n".format(CFG["slurm"]["cpus_per_task"]))
 
         posargs = ['script_name', 'log_name', 'commands']
         kwargs = {k: kwargs[k] for k in kwargs if k not in posargs}
         for key in kwargs:
             slurm.write("export {env}=\"{value}\"\n".format(env=key,
                                                             value=kwargs[key]))
-        for command in commands:
-            slurm.write("{}\n".format(str(command)))
+
+        slurm.write("projects=(\n")
+        for project in projects:
+            slurm.write("'{}'\n".format(str(project)))
+        slurm.write(")\n")
+
+        slurm.write(str(pprof["-P", "${projects[$SLURM_ARRAY_TASK_ID]}",
+                              "-E", experiment]))
     chmod("+x", script_name)
 
 
-def prepare_slurm_script(experiment, project, experiment_id):
+def prepare_slurm_script(experiment, projects, experiment_id):
     """
     Prepare a slurm script that executes the pprof experiment for a given project.
 
@@ -67,36 +96,31 @@ def prepare_slurm_script(experiment, project, experiment_id):
     """
     from os import path
 
-    commands = []
     pprof_c = local["pprof"]
-
-    slurm_script = path.join(os.getcwd(), config["slurm_script"])
-    log_file = os.path.join(config["resultsdir"],
-                            experiment + "-" + project + ".log")
-
-    if config["local_build"]:
-        commands.append(pprof_c["build", "-j", config[
-            "cpus-per-task"], "-B", config["nodedir"], "-I", config[
-                "isl"], "-L", config["likwidir"], "-P", config["papi"]])
+    slurm_script = path.join(os.getcwd(), str(CFG['slurm']['script']))
+    log_file = os.path.join(str(CFG['']["build_dir"]), experiment + ".log")
 
     # We need to wrap the pprof run inside srun to avoid HyperThreading.
     srun = local["srun"]
-    commands.append(srun["--hint=nomultithread", pprof_c[
-        "-v", "run", "-P", project, "-E", experiment, "-D", config[
-            "experiment_description"], "-B", config["nodedir"],
-        "--likwid-prefix", config["likwiddir"], "-L", config["llvmdir"]]])
+    srun = srun["--hint=nomultithread", pprof_c[
+        "-v", "run",
+        "-D", CFG['']['experiment_description'],
+        "-B", CFG['slurm']["node_dir"],
+        "--likwid-prefix", CFG['likwid']["prefix"], "-L", CFG['llvm']["dir"]]]
     dump_slurm_script(slurm_script,
                       log_file,
-                      commands,
-                      LD_LIBRARY_PATH="{}:$LD_LIBRARY_PATH".format(path.join(
-                          config["papi"], "lib")),
-                      PPROF_TESTINPUTS=config["testdir"],
-                      PPROF_TMP_DIR=config["tmpdir"],
-                      PPROF_DB_HOST=config["db_host"],
-                      PPROF_DB_PORT=config["db_port"],
-                      PPROF_DB_NAME=config["db_name"],
-                      PPROF_DB_USER=config["db_user"],
-                      PPROF_DB_PASS=config["db_pass"],
+                      srun,
+                      experiment,
+                      projects,
+                      LD_LIBRARY_PATH="{}:$LD_LIBRARY_PATH".format(
+                          CFG['papi']['library']),
+                      PPROF_TESTINPUTS=CFG['']["test_dir"],
+                      PPROF_TMP_DIR=CFG['']["tmp_dir"],
+                      PPROF_DB_HOST=CFG['db']["host"],
+                      PPROF_DB_PORT=CFG['db']["port"],
+                      PPROF_DB_NAME=CFG['db']["name"],
+                      PPROF_DB_USER=CFG['db']["user"],
+                      PPROF_DB_PASS=CFG['db']["pass"],
                       PPROF_EXPERIMENT_ID=experiment_id)
     return slurm_script
 
@@ -134,120 +158,35 @@ def dispatch_jobs(exp, projects):
         slurm_script = prepare_slurm_script(exp, project, experiment_id)
 
         from plumbum.cmd import sbatch, awk
-        prepare_directories([config["resultsdir"]])
+        prepare_directories([CFG[""]["resultsdir"]])
         sbatch_cmd = sbatch[
-            "--job-name=" + exp + "-" + project, "-A", config[
-                "account"], "-p", config["partition"], slurm_script]
+            "--job-name=" + exp + "-" + project, "-A", CFG[
+                "account"], "-p", CFG["partition"], slurm_script]
 
         job_id = (sbatch_cmd | awk['{ print $4 }'])()
         jobs.append(job_id)
     return jobs
 
 
-class Chimaira(cli.Application):
-    """Execute the polyprof study on the chimaira cluster via slurm"""
+def main(_projects, _groups, experiments):
+    from pprof import projects  # Import all projects for the registry.
+    from pprof.project import ProjectRegistry
 
-    @cli.autoswitch(str, list=True, mandatory=True)
-    def experiment(self, exps):
-        """Which experiments should be sent to SLURM."""
-        config["experiments"] = exps
+    projects = ProjectRegistry.projects
+    if _projects is not None:
+        allkeys = set(list(projects.keys()))
+        usrkeys = set(_projects)
+        projects = {x: projects[x] for x in allkeys & usrkeys}
 
-    @cli.autoswitch(str)
-    def nodedir(self, dirname):
-        """Where is the local directory on the cluster node."""
-        config["nodedir"] = dirname
+    if _groups is not None:
+        projects = {
+            name: cls
+            for name, cls in projects.items() if cls.GROUP in _groups
+        }
 
-    @cli.autoswitch(str, mandatory=True)
-    def resultsdir(self, dirname):
-        """Where should the shared results be placed."""
-        config["resultsdir"] = dirname
-
-    @cli.autoswitch(int)
-    def cpus_per_task(self, cpt):
-        """How many CPUs we request per task."""
-        config["cpus-per-task"] = cpt
-
-    @cli.autoswitch(str)
-    def likwid_prefix(self, likwid_prefix):
-        """Likwid prefix."""
-        config["likwiddir"] = likwid_prefix
-
-    @cli.autoswitch(str, mandatory=True)
-    def papi_prefix(self, papi_prefix):
-        """PAPI prefix."""
-        config["papi"] = papi_prefix
-
-    @cli.autoswitch(str)
-    def partition(self, partition):
-        """Which SLURM partition to use."""
-        config["partition"] = partition
-
-    @cli.autoswitch(str)
-    def account(self, account):
-        """Which SLURM account to use."""
-        config["account"] = account
-
-    @cli.autoswitch(str)
-    def llvm_prefix(self, llvm_prefix):
-        """LLVM Prefix."""
-        config["llvmdir"] = llvm_prefix
-
-    @cli.autoswitch()
-    def build(self):
-        """Build the LLVM/Polly/Polli/Clang on the cluster node."""
-        config["local_build"] = True
-
-    @cli.autoswitch(str, list=True)
-    def project(self, projects):
-        """Which project(s) should be sent to SLURM."""
-        self._projects = projects
-
-    @cli.autoswitch(str, list=True)
-    def group(self, groups):
-        """Which group(s) should be sent to SLURM."""
-        self._groups = groups
-
-    @cli.autoswitch(str)
-    def experiment_tag(self, description):
-        """A description for this experiment run."""
-        config["experiment_description"] = description
-
-    @cli.autoswitch()
-    def quiet(self):
-        self._quiet = True
-
-    def main(self):
-        from pprof import projects  # Import all projects for the registry.
-        from pprof.project import ProjectRegistry
-
-        root = logging.getLogger()
-        if self._quiet:
-            root.setLevel(logging.CRITICAL)
-        else:
-            root.setLevel(logging.INFO)
-
-        projects = ProjectRegistry.projects
-        if self._projects is not None:
-            allkeys = set(list(projects.keys()))
-            usrkeys = set(self._projects)
-            projects = {x: projects[x] for x in allkeys & usrkeys}
-
-        if self._groups is not None:
-            projects = {
-                name: cls
-                for name, cls in projects.items() if cls.GROUP in self._groups
-            }
-
-        prj_keys = sorted(projects.keys())
-        for exp in config["experiments"]:
-            INFO("experiment: {} with projects:".format(exp))
-            INFO(", ".join(prj_keys))
-            dispatch_jobs(exp, prj_keys)
-
-    _projects = None
-    _groups = None
-    _quiet = False
-
-
-if __name__ == '__main__':
-    Chimaira.run()
+    prj_keys = sorted(projects.keys())
+    for exp in experiments:
+        INFO("experiment: {} with projects:".format(exp))
+        INFO(", ".join(prj_keys))
+        prepare_slurm_script(exp, prj_keys, uuid.uuid4())
+        #dispatch_jobs(exp, prj_keys)

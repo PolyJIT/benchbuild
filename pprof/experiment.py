@@ -29,6 +29,7 @@ from contextlib import contextmanager
 from abc import abstractmethod
 from os import path, listdir
 import regex
+import warnings
 
 from plumbum import local
 from plumbum.cmd import mkdir, rmdir  # pylint: disable=E0401
@@ -395,7 +396,8 @@ class Experiment(object, metaclass=ExperimentRegistry):
         except KeyboardInterrupt:
             error("User requested termination.")
         except Exception as ex:
-            error("{}".format(ex))
+            warnings.warn("{}".format(ex), category=RuntimeWarning,
+                          stacklevel=2)
             print("Shutting down...")
         finally:
             if experiment.end is None:

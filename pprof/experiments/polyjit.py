@@ -338,7 +338,7 @@ class PJITperf(PolyJIT):
                     p.download()
                     p.configure()
                     p.build()
-                    p.run(partial(run_with_perf, p, self, config, i))
+                    p.run(partial(run_with_perf, p, self, CFG, i))
 
 
 class PJITlikwid(PolyJIT):
@@ -371,11 +371,11 @@ class PJITlikwid(PolyJIT):
                     p.build()
 
                     p.run_uuid = uuid4()
-                    run_with_likwid.config = config
+                    run_with_likwid.config = CFG
                     run_with_likwid.experiment = self
                     run_with_likwid.project = p
                     run_with_likwid.jobs = i
-                    p.run(partial(run_with_likwid, p, self, config, i))
+                    p.run(partial(run_with_likwid, p, self, CFG, i))
 
 
 class PJITRegression(PolyJIT):
@@ -424,10 +424,10 @@ class PJITRegression(PolyJIT):
                 p.prepare()
                 p.download()
                 p.compiler_extension = partial(_track_compilestats, p, self,
-                                               config)
+                                               CFG)
                 p.configure()
                 p.build()
-                p.run(partial(run_raw, p, self, config, 1))
+                p.run(partial(run_raw, p, self, CFG, 1))
 
 
 class PJITcs(PolyJIT):
@@ -478,7 +478,7 @@ class PJITcs(PolyJIT):
 
                 p.run_uuid = uuid4()
                 p.compiler_extension = partial(_track_compilestats, p, self,
-                                               config)
+                                               CFG)
                 p.configure()
 
         with substep("Build Project"):
@@ -504,7 +504,7 @@ class PJITpapi(PolyJIT):
 
         from pprof.settings import CFG
 
-        bin_path = path.join(str(CFG["llvmdir"]), "bin")
+        bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
 
         with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment"]),
@@ -530,16 +530,16 @@ class PJITpapi(PolyJIT):
             p.cflags = ["-mllvm", "-instrument"] + p.cflags
             p.ldflags = p.ldflags + ["-lpprof"]
 
-            for i in range(1, int(CFG["jobs"]) + 1):
+            for i in range(1, int(str(CFG["jobs"])) + 1):
                 with step("{} cores & uuid {}".format(i, p.run_uuid)):
                     p.clean()
                     p.prepare()
                     p.download()
                     with local.env(PPROF_ENABLE=0):
                         p.compiler_extension = partial(collect_compilestats, p,
-                                                       self, config)
+                                                       self, CFG)
                         p.configure()
                         p.build()
 
                     p.run_uuid = uuid4()
-                    p.run(partial(run_with_papi, p, self, config, i))
+                    p.run(partial(run_with_papi, p, self, CFG, i))

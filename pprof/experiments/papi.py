@@ -55,7 +55,7 @@ class PapiScopCoverage(RuntimeExperiment):
     def run(self):
         """Do the postprocessing, after all projects are done."""
         super(PapiScopCoverage, self).run()
-        bin_path = path.join(str(CFG["llvm_dir"]), "bin")
+        bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
 
         with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment"]),
@@ -72,7 +72,7 @@ class PapiScopCoverage(RuntimeExperiment):
         This experiment uses the -jitable flag of libPolyJIT to generate
         dynamic SCoP coverage.
         """
-        llvm_libs = path.join(str(CFG["llvm_dir"]), "lib")
+        llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
 
         with step("Class: Dynamic, PAPI"):
             p.download()
@@ -96,7 +96,7 @@ class PapiScopCoverage(RuntimeExperiment):
                 p.run(partial(run_with_time, p, self, CFG, 1))
 
         with step("Evaluation"):
-            bin_path = path.join(str(CFG["llvmdir"]), "bin")
+            bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
             pprof_calibrate = local[path.join(bin_path, "pprof-calibrate")]
             papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
 

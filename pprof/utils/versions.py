@@ -29,10 +29,10 @@ def get_git_hash(from_url):
         return git("rev-parse", "HEAD", retcode=None)
 
 
-LLVM_VERSION = get_git_hash(CFG["llvm-srcdir"])
-CLANG_VERSION = get_git_hash(path.join(str(CFG["llvm-srcdir"]), "tools",
+LLVM_VERSION = get_git_hash(CFG["llvm"]["src"])
+CLANG_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools",
                                        "clang"))
-POLLY_VERSION = get_git_hash(path.join(str(CFG["llvm-srcdir"]), "tools",
+POLLY_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools",
                                        "polly"))
-POLLI_VERSION = get_git_hash(path.join(str(CFG["llvm-srcdir"]), "tools", "polly",
+POLLI_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools", "polly",
                                        "tools", "polli"))

@@ -140,7 +140,7 @@ cfg_llvm = {
         "desc": "Path to LLVM. This will be required.",
         "default": os.path.join(os.getcwd(), "install")
     },
-    "llvm_src_dir": {
+    "src": {
         "default": os.path.join(os.getcwd(), "pprof-llvm")
     },
 }
@@ -217,7 +217,7 @@ cfg_general = {
     "pprof_prefix": {
         "default": os.getcwd()
     },
-    "pprof-ebuild": {
+    "pprof_ebuild": {
         "default": ""
     },
     "pprof_gentoo_autotest": {

@@ -13,13 +13,13 @@ class PprofTest(cli.Application):
 
     @cli.switch(["-L", "--llvmdir"], str, help="Where is llvm?")
     def llvmdir(self, dirname):
-        CFG["llvmdir"] = dirname
+        CFG["llvm"]["dir"] = dirname
 
     @cli.switch(["-P", "--prefix"],
                 str,
                 help="Prefix for our regression-test image.")
     def prefix(self, prefix):
-        CFG["regression-prefix"] = os.path.abspath(prefix)
+        CFG["regression_prefix"] = os.path.abspath(prefix)
 
     def opt_flags(self):
         return ["-load", "LLVMPolyJIT.so", "-O3", "-jitable", "-polli",

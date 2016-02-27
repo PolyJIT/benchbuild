@@ -42,9 +42,9 @@ class Lapack(PprofGroup):
 
     def __init__(self, exp):
         super(Lapack, self).__init__(exp)
-        self.sourcedir = path.join(str(CFG["sourcedir"]), "src", "lapack",
+        self.sourcedir = path.join(str(CFG["src_dir"]), "src", "lapack",
                                    self.name)
-        self.testdir = path.join(str(CFG["testdir"]), self.domain, "lapack",
+        self.testdir = path.join(str(CFG["test_dir"]), self.domain, "lapack",
                                  "tests")
 
         self.setup_derived_filenames()

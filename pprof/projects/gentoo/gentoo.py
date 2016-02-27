@@ -88,7 +88,7 @@ class GentooGroup(Project):
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
 
-            cp(CFG["sourcedir"] + "/bin/uchroot", "uchroot")
+            cp(CFG["src_dir"] + "/bin/uchroot", "uchroot")
             run(fakeroot["tar", "xfj", self.src_file])
             rm(self.src_file)
             with local.cwd(self.builddir + "/usr"):
@@ -155,7 +155,7 @@ class PrepareStage3(GentooGroup):
         from logging import info
         from pprof.settings import CFG
 
-        root = CFG["tmpdir"]
+        root = CFG["tmp_dir"]
         src_file = self.src_file + ".new"
         with local.cwd(self.builddir):
             bash_in_uchroot = uchroot()["/bin/bash"]
@@ -192,7 +192,7 @@ class AutoPolyJITDepsStage3(GentooGroup):
         from logging import info
         from pprof.settings import CFG
 
-        root = CFG["tmpdir"]
+        root = CFG["tmp_dir"]
         src_file = self.src_file + ".new"
         with local.cwd(self.builddir):
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
@@ -233,12 +233,12 @@ class AutoPrepareStage3(GentooGroup):
         from logging import info
         from pprof.settings import CFG
 
-        root = CFG["tmpdir"]
+        root = CFG["tmp_dir"]
         src_file = self.src_file + ".new"
         with local.cwd(self.builddir):
             mkdir("-p", "pprof-src")
             w_pprof_src = uchroot("-m", "{}:pprof-src".format(CFG[
-                "sourcedir"]))
+                "src_dir"]))
             pip_in_uchroot = w_pprof_src["/usr/bin/pip3"]
             pip_in_uchroot["install", "--upgrade", "/pprof-src/"] & FG
 

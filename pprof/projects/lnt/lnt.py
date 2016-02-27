@@ -132,7 +132,7 @@ class SPEC2006(LNTGroup):
             else:
                 print('======================================================')
                 print(('SPECCPU2006 not found in %s. This project will fail.',
-                       CFG['tmpdir']))
+                       CFG['tmp_dir']))
                 print('======================================================')
 
     def run_tests(self, experiment):

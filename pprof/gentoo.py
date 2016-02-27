@@ -13,27 +13,27 @@ class Gentoo(cli.Application):
 
     @cli.switch(["-S", "--sourcedir"], str, help="Where are the source files")
     def sourcedir(self, dirname):
-        CFG["sourcedir"] = dirname
+        CFG["src_dir"] = dirname
 
     @cli.switch(["--llvm-srcdir"], str, help="Where are the llvm source files")
     def llvm_sourcedir(self, dirname):
-        CFG["llvm-srcdir"] = dirname
+        CFG["llvm"]["src"] = dirname
 
     @cli.switch(["-B", "--builddir"], str, help="Where should we build")
     def builddir(self, dirname):
-        CFG["builddir"] = dirname
+        CFG["build_dir"] = dirname
 
     @cli.switch(["--likwid-prefix"], str, help="Where is likwid installed?")
     def likwiddir(self, dirname):
-        CFG["likwiddir"] = dirname
+        CFG["likwid"]["prefix"] = dirname
 
     @cli.switch(["-L", "--llvm-prefix"], str, help="Where is llvm?")
     def llvmdir(self, dirname):
-        CFG["llvmdir"] = dirname
+        CFG["llvm"]["dir"] = dirname
 
     def main(self):
         # Only try to create the build dir if we're actually running some projects.
-        builddir = os.path.abspath(CFG["builddir"])
+        builddir = os.path.abspath(CFG["build_dir"])
         if not os.path.exists(builddir):
             response = query_yes_no(
                 "The build directory {dirname} does not exist yet. Create it?".format(

@@ -329,7 +329,7 @@ def uchroot(*args, **kwargs):
     mkdir("-p", "llvm")
     uchroot_cmd = local["./uchroot"]
     uchroot_cmd = uchroot_cmd["-C", "-w", "/", "-r", "."]
-    uchroot_cmd = uchroot_cmd["-m", CFG["llvmdir"] + ":llvm"]
+    uchroot_cmd = uchroot_cmd["-m", CFG["llvm"]["dir"] + ":llvm"]
     uchroot_cmd = uchroot_cmd["-u", str(uid), "-g", str(gid)]
     uchroot_cmd = uchroot_cmd.setenv(LD_LIBRARY_PATH="/llvm/lib")
     return uchroot_cmd[args, "--"]

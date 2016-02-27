@@ -239,7 +239,7 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
             r.guarded_exec(local["/bin/true"], project_name, experiment.name,
                            project.run_uuid)
 
-        fg_path = path.join(c["sourcedir"], "extern/FlameGraph")
+        fg_path = path.join(c["src_dir"], "extern/FlameGraph")
         if path.exists(fg_path):
             sc_perf = local[path.join(fg_path, "stackcollapse-perf.pl")]
             flamegraph = local[path.join(fg_path, "flamegraph.pl")]

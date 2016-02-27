@@ -27,7 +27,7 @@ class CompilestatsExperiment(RuntimeExperiment):
         from pprof.utils.schema import CompileStat
         from pprof.utils.run import partial
 
-        llvm_libs = path.join(str(CFG["llvmdir"]), "lib")
+        llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
         p.ldflags = ["-L" + llvm_libs] + self.extra_ldflags()
         p.cflags = self.extra_cflags()
         with step("Configure Project"):

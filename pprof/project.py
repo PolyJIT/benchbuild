@@ -22,7 +22,7 @@ class ProjectRegistry(type):
         super(ProjectRegistry, cls).__init__(name, bases, dict)
 
         ebuild_data = {}
-        env_values = str(CFG["pprof-ebuild"]).split('/')
+        env_values = str(CFG["pprof_ebuild"]).split('/')
         gen_project = len(env_values) > 1
         if gen_project:
             ebuild_data["domain"] = env_values[0]
@@ -84,7 +84,7 @@ class Project(object, metaclass=ProjectRegistry):
             self.testdir = path.join(str(CFG["test_dir"]), self.domain, group,
                                      self.name)
         else:
-            self.testdir = path.join(str(CFG["testdir"]), self.domain, self.name)
+            self.testdir = path.join(str(CFG["test_dir"]), self.domain, self.name)
 
         self.cflags = []
         self.ldflags = []

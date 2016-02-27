@@ -10,5 +10,5 @@ class PprofGroup(Project):
 
     def __init__(self, exp):
         super(PprofGroup, self).__init__(exp, "pprof")
-        self.sourcedir = path.join(str(CFG["sourcedir"]), "src", self.name)
+        self.sourcedir = path.join(str(CFG["src_dir"]), "src", self.name)
         self.setup_derived_filenames()

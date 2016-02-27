@@ -4,13 +4,13 @@ The 'polyjit' experiment.
 This experiment uses likwid to measure the performance of all binaries
 when running with polyjit support enabled.
 """
+from abc import abstractmethod
+from os import path
+from plumbum.cmd import rm, time
+from plumbum import local
 from pprof.experiments.compilestats import get_compilestats
 from pprof.experiment import step, substep, RuntimeExperiment
 from pprof.utils.run import partial
-
-from plumbum import local
-from abc import abstractmethod
-from os import path
 
 
 def collect_compilestats(project, experiment, config, clang, **kwargs):
@@ -92,7 +92,6 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
     from pprof.settings import CFG as c
     from pprof.utils import run as r
     from pprof.utils.db import persist_config
-    from plumbum import local
 
     c.update(config)
     project_name = kwargs.get("project_name", project.name)
@@ -130,7 +129,6 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
     from pprof.utils import run as r
     from pprof.utils.db import persist_likwid, persist_config
     from pprof.likwid import get_likwid_perfctr
-    from plumbum.cmd import rm
 
     c.update(config)
     project_name = kwargs.get("project_name", project.name)
@@ -184,7 +182,6 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     from pprof.utils import run as r
     from pprof.settings import CFG as c
     from pprof.utils.db import persist_time, persist_config
-    from plumbum.cmd import time
 
     c.update(config)
     project_name = kwargs.get("project_name", project.name)

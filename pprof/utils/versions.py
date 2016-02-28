@@ -32,5 +32,5 @@ CLANG_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools",
                                        "clang"))
 POLLY_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools",
                                        "polly"))
-POLLI_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools", "polly",
-                                       "tools", "polli"))
+POLLI_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools",
+                                       "polly", "tools", "polli"))

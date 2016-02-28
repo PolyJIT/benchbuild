@@ -25,30 +25,6 @@ class PprofRun(cli.Application):
     _list_experiments = False
     _group_name = None
 
-    @cli.switch(["-T", "--testdir"], str, help="Where are the testinput files")
-    def testdir(self, dirname):
-        CFG["test_dir"] = dirname
-
-    @cli.switch(["-S", "--sourcedir"], str, help="Where are the source files")
-    def sourcedir(self, dirname):
-        CFG["src_dir"] = dirname
-
-    @cli.switch(["--llvm-srcdir"], str, help="Where are the llvm source files")
-    def llvm_sourcedir(self, dirname):
-        CFG["llvm"]["src"] = dirname
-
-    @cli.switch(["-B", "--builddir"], str, help="Where should we build")
-    def builddir(self, dirname):
-        CFG["build_dir"] = dirname
-
-    @cli.switch(["--likwid-prefix"], str, help="Where is likwid installed?")
-    def likwiddir(self, dirname):
-        CFG["likwid"]["prefix"] = dirname
-
-    @cli.switch(["-L", "--llvmdir"], str, help="Where is llvm?")
-    def llvmdir(self, dirname):
-        CFG["llvm"]["dir"] = dirname
-
     @cli.switch(["-E", "--experiment"],
                 str,
                 list=True,

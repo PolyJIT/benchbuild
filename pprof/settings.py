@@ -256,14 +256,17 @@ cfg_repo = {
 
 
 class InvalidConfigKey(RuntimeWarning):
-    pass
 
-class ReplacedConfigKey(RuntimeWarning):
+    """Warn, if you access a non-existing key pprof's configuration."""
+
     pass
 
 
 class UUIDEncoder(json.JSONEncoder):
+    """Encoder module for UUID objects."""
+
     def default(self, obj):
+        """Encode UUID objects as string."""
         if isinstance(obj, uuid.UUID):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
@@ -320,7 +323,7 @@ class Configuration():
                 self.node[key] = val
                 self[key].init_from_env()
             else:
-                self.node[key] = {'value':val}
+                self.node[key] = {'value': val}
 
     def __contains__(self, key):
         return key in self.node
@@ -329,8 +332,8 @@ class Configuration():
         if 'value' in self.node:
             return str(self.node['value'])
         else:
-            warnings.warn(
-                "Tried to get the str() value of an inner node.", stacklevel=2)
+            warnings.warn("Tried to get the str() value of an inner node.",
+                          stacklevel=2)
             return str(self.node)
 
     def __repr__(self):
@@ -338,7 +341,8 @@ class Configuration():
         if 'value' in self.node:
             return self.__to_env_var__() + " = " + repr(self.node['value'])
         if 'default' in self.node:
-            return self.__to_env_var__() + " = {DEFAULT} " + repr(self.node['default'])
+            return self.__to_env_var__() + " = {DEFAULT} " + repr(self.node[
+                'default'])
 
         for k in self.node:
             _repr.append(repr(self[k]))
@@ -349,7 +353,7 @@ class Configuration():
         self.node.update(cfg_dict.node)
 
 # Initialize the global configuration once.
-CFG = Configuration("pprof", node = cfg_general)
+CFG = Configuration("pprof", node=cfg_general)
 CFG["repo"] = cfg_repo
 CFG["llvm"] = cfg_llvm
 CFG["likwid"] = cfg_likwid

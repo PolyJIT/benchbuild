@@ -10,8 +10,6 @@ import uuid
 import re
 import warnings
 from datetime import datetime
-from uuid import uuid4
-from os import getenv
 
 
 def available_cpu_count():
@@ -72,126 +70,6 @@ def available_cpu_count():
         pass
 
     raise Exception('Can not determine number of CPUs on this system')
-
-
-cfg_llvm = {
-    "dir": {
-        "desc": "Path to LLVM. This will be required.",
-        "default": os.path.join(os.getcwd(), "install")
-    },
-    "src": {
-        "default": os.path.join(os.getcwd(), "pprof-llvm")
-    },
-}
-
-cfg_papi = {
-    "include": {
-        "desc": "libpapi include path.",
-        "default": "/usr/include"
-    },
-    "library": {
-        "desc": "libpapi library path.",
-        "default": "/usr/lib"
-    }
-}
-
-cfg_likwid = {
-    "prefix": {
-        "desc": "Prefix to which the likwid library was installed.",
-        "default": "/usr/"
-    },
-}
-
-cfg_general = {
-    "src_dir": {
-        "desc": "source directory of pprof. Usually the git repo root dir.",
-        "default": os.getcwd()
-    },
-    "build_dir": {
-        "desc": "build directory of pprof. All intermediate projects will "
-                "be placed here",
-        "default": os.path.join(os.getcwd(), "results")
-    },
-    "test_dir": {
-        "desc": "Additional test inputs, required for (some) run-time tests."
-                "These can be obtained from the a different repo. Most "
-                "projects don't need it",
-        "default": os.path.join(os.getcwd(), "testinputs")
-    },
-    "tmp_dir": {
-        "desc": "Temporary dir. This will be used for caching downloads.",
-        "default": os.path.join(os.getcwd(), "tmp")
-    },
-    "path": {
-        "desc": "Additional PATH variable for pprof.",
-        "default": ""
-    },
-    "ld_library_path": {
-        "desc": "Additional library path for pprof.",
-        "default": ""
-    },
-    "jobs": {
-        "desc": "Number of jobs that can be used for building and running.",
-        "default": str(available_cpu_count())
-    },
-    "experiment": {
-        "desc":
-        "The experiment UUID we run everything under. This groups the project "
-        "runs in the database.",
-        "default": str(uuid4())
-    },
-    "local_build": {
-        "desc": "Perform a local build on the cluster nodes.",
-        "default": False
-    },
-    "keep": {
-        "default": False,
-    },
-    "experiment_description": {
-        "default": str(datetime.now())
-    },
-    "regression_prefix": {
-        "default": os.path.join("/", "tmp", "pprof-regressions")
-    },
-    "pprof_prefix": {
-        "default": os.getcwd()
-    },
-    "pprof_ebuild": {
-        "default": ""
-    },
-    "mail": {
-        "desc": "E-Mail address dedicated to pprof.",
-        "default": None
-    }
-}
-
-cfg_repo = {
-    "llvm": {
-        "url": {"default": "http://llvm.org/git/llvm.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "polly": {
-        "url": {"default": "http://github.com/simbuerg/polly.git"},
-        "branch": {"default": "devel"},
-        "commit_hash": {"default": None}
-    },
-    "clang": {
-        "url": {"default": "http://llvm.org/git/clang.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "polli": {
-        "url": {"default": "http://github.com/simbuerg/polli.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "openmp": {
-        "url": {"default": "http://llvm.org/git/openmp.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-}
 
 
 class InvalidConfigKey(RuntimeWarning):
@@ -292,9 +170,128 @@ class Configuration():
         self.node.update(cfg_dict.node)
 
 # Initialize the global configuration once.
-CFG = Configuration("pprof", node=cfg_general)
-CFG["repo"] = cfg_repo
-CFG["llvm"] = cfg_llvm
-CFG["likwid"] = cfg_likwid
-CFG["papi"] = cfg_papi
+CFG = Configuration(
+    "pprof",
+    node={
+        "src_dir": {
+            "desc":
+            "source directory of pprof. Usually the git repo root dir.",
+            "default": os.getcwd()
+        },
+        "build_dir": {
+            "desc": "build directory of pprof. All intermediate projects will "
+                    "be placed here",
+            "default": os.path.join(os.getcwd(), "results")
+        },
+        "test_dir": {
+            "desc":
+            "Additional test inputs, required for (some) run-time tests."
+            "These can be obtained from the a different repo. Most "
+            "projects don't need it",
+            "default": os.path.join(os.getcwd(), "testinputs")
+        },
+        "tmp_dir": {
+            "desc": "Temporary dir. This will be used for caching downloads.",
+            "default": os.path.join(os.getcwd(), "tmp")
+        },
+        "path": {
+            "desc": "Additional PATH variable for pprof.",
+            "default": ""
+        },
+        "ld_library_path": {
+            "desc": "Additional library path for pprof.",
+            "default": ""
+        },
+        "jobs": {
+            "desc":
+            "Number of jobs that can be used for building and running.",
+            "default": str(available_cpu_count())
+        },
+        "experiment": {
+            "desc":
+            "The experiment UUID we run everything under. This groups the project "
+            "runs in the database.",
+            "default": str(uuid.uuid4())
+        },
+        "local_build": {
+            "desc": "Perform a local build on the cluster nodes.",
+            "default": False
+        },
+        "keep": {
+            "default": False,
+        },
+        "experiment_description": {
+            "default": str(datetime.now())
+        },
+        "regression_prefix": {
+            "default": os.path.join("/", "tmp", "pprof-regressions")
+        },
+        "pprof_prefix": {
+            "default": os.getcwd()
+        },
+        "pprof_ebuild": {
+            "default": ""
+        },
+        "mail": {
+            "desc": "E-Mail address dedicated to pprof.",
+            "default": None
+        }
+    })
+
+CFG["llvm"] = {
+    "dir": {
+        "desc": "Path to LLVM. This will be required.",
+        "default": os.path.join(os.getcwd(), "install")
+    },
+    "src": {
+        "default": os.path.join(os.getcwd(), "pprof-llvm")
+    },
+}
+
+CFG["papi"] = {
+    "include": {
+        "desc": "libpapi include path.",
+        "default": "/usr/include"
+    },
+    "library": {
+        "desc": "libpapi library path.",
+        "default": "/usr/lib"
+    }
+}
+
+CFG["likwid"] = {
+    "prefix": {
+        "desc": "Prefix to which the likwid library was installed.",
+        "default": "/usr/"
+    },
+}
+
+CFG["repo"] = {
+    "llvm": {
+        "url": {"default": "http://llvm.org/git/llvm.git"},
+        "branch": {"default": "master"},
+        "commit_hash": {"default": None}
+    },
+    "polly": {
+        "url": {"default": "http://github.com/simbuerg/polly.git"},
+        "branch": {"default": "devel"},
+        "commit_hash": {"default": None}
+    },
+    "clang": {
+        "url": {"default": "http://llvm.org/git/clang.git"},
+        "branch": {"default": "master"},
+        "commit_hash": {"default": None}
+    },
+    "polli": {
+        "url": {"default": "http://github.com/simbuerg/polli.git"},
+        "branch": {"default": "master"},
+        "commit_hash": {"default": None}
+    },
+    "openmp": {
+        "url": {"default": "http://llvm.org/git/openmp.git"},
+        "branch": {"default": "master"},
+        "commit_hash": {"default": None}
+    },
+}
+
 CFG.init_from_env()

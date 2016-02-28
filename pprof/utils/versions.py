@@ -27,7 +27,7 @@ def get_git_hash(from_url):
         return git("rev-parse", "HEAD", retcode=None)
 
 
-LLVM_VERSION = get_git_hash(CFG["llvm"]["src"])
+LLVM_VERSION = get_git_hash(str(CFG["llvm"]["src"]))
 CLANG_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools",
                                        "clang"))
 POLLY_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools",

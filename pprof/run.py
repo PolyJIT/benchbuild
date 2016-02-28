@@ -46,7 +46,7 @@ class PprofRun(cli.Application):
     def projects(self, projects):
         self._project_names = projects
 
-    @cli.switch(["--list-experiments"], help="List available experiments")
+    @cli.switch(["-L", "--list-experiments"], help="List available experiments")
     def list_experiments(self):
         self._list_experiments = True
 

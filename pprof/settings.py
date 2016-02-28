@@ -354,19 +354,10 @@ class Configuration():
     def update(self, cfg_dict):
         self.node.update(cfg_dict.node)
 
-    @staticmethod
-    def instance():
-        if Configuration.__instance__ is None:
-            Configuration.__instance__ = Configuration("pprof",
-                                                       node=cfg_general)
-            Configuration.__instance__["repo"] = cfg_repo
-            Configuration.__instance__["llvm"] = cfg_llvm
-            Configuration.__instance__["likwid"] = cfg_likwid
-            Configuration.__instance__["papi"] = cfg_papi
-            Configuration.__instance__.init_from_env()
-        return Configuration.__instance__
-
-    __instance__ = None
-
 # Initialize the global configuration once.
-CFG = Configuration.instance()
+CFG = Configuration("pprof", node = cfg_general)
+CFG["repo"] = cfg_repo
+CFG["llvm"] = cfg_llvm
+CFG["likwid"] = cfg_likwid
+CFG["papi"] = cfg_papi
+CFG.init_from_env()

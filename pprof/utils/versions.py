@@ -1,6 +1,4 @@
-"""
-Gather version information for PPROF.
-"""
+"""Gather version information for PPROF."""
 
 from plumbum import local
 from plumbum.cmd import git

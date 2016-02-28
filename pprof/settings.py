@@ -73,7 +73,6 @@ def available_cpu_count():
 
 
 class InvalidConfigKey(RuntimeWarning):
-
     """Warn, if you access a non-existing key pprof's configuration."""
 
     pass
@@ -90,24 +89,68 @@ class UUIDEncoder(json.JSONEncoder):
 
 
 class Configuration():
+    """
+    Dictionary-like data structure to contain all configuration variables.
+
+    This serves as a configuration dictionary throughout pprof. You can use
+    it to access all configuration options that are available. Whenever the
+    structure is updated with a new subtree, all variables defined in the
+    new subtree are updated from the environment.
+
+    Environment variables are generated from the tree paths automatically.
+        CFG["build_dir"] becomes PPROF_BUILD_DIR
+        CFG["llvm"]["dir"] becomes PPROF_LLVM_DIR
+
+    The configuration can be stored/loaded as JSON.
+    """
+
     def __init__(self, parent_key, node=None, parent=None, init=True):
         self.parent = parent
-        self.id = parent_key
+        self.parent_key = parent_key
         self.node = node if node is not None else {}
         if init:
             self.init_from_env()
 
-    def store(self, to):
-        with open(to, 'w') as outf:
+    def store(self, config_file):
+        """ Store the configuration dictionary to a file."""
+        with open(config_file, 'w') as outf:
             json.dump(self.node, outf, cls=UUIDEncoder, indent=True)
 
     def load(self, _from):
+        """Load the configuration dictionary from file."""
         if os.path.exists(_from):
             with open(_from, 'r') as inf:
                 self.node = json.load(inf)
 
-    def register(self, key, subtree):
-        self[key] = subtree
+    def init_from_env(self):
+        """
+        Initialize this node from environment.
+
+        If we're a leaf node, i.e., a node containing a dictionary that
+        consist of a 'default' key, compute our env variable and initialize
+        our value from the environment.
+        Otherwise, init our children.
+        """
+        if 'default' in self.node:
+            env_var = self.__to_env_var__().upper()
+            self.node['value'] = os.getenv(env_var, self.node['default'])
+        else:
+            if isinstance(self.node, dict):
+                for k in self.node:
+                    self[k].init_from_env()
+
+    def update(self, cfg_dict):
+        """
+        Update the configuration dictionary with new content.
+
+        This just delegates the update down to the internal data structure.
+        No validation is done on the format, be sure you know what you do.
+
+        Args:
+            cfg_dict: A configuration dictionary.
+
+        """
+        self.node.update(cfg_dict.node)
 
     def __getitem__(self, key):
         if not key in self.node:
@@ -117,20 +160,6 @@ class Configuration():
                 stacklevel=2)
             return Configuration(key, init=False)
         return Configuration(key, parent=self, node=self.node[key], init=False)
-
-    def __to_env_var__(self):
-        if self.parent:
-            return (self.parent.__to_env_var__() + "_" + self.id).upper()
-        return self.id.upper()
-
-    def init_from_env(self):
-        if 'default' in self.node:
-            env_var = self.__to_env_var__().upper()
-            self.node['value'] = getenv(env_var, self.node['default'])
-        else:
-            if isinstance(self.node, dict):
-                for k in self.node:
-                    self[k].init_from_env()
 
     def __setitem__(self, key, val):
         if key in self.node:
@@ -166,8 +195,11 @@ class Configuration():
 
         return "\n".join(_repr)
 
-    def update(self, cfg_dict):
-        self.node.update(cfg_dict.node)
+    def __to_env_var__(self):
+        if self.parent:
+            return (
+                self.parent.__to_env_var__() + "_" + self.parent_key).upper()
+        return self.parent_key.upper()
 
 # Initialize the global configuration once.
 CFG = Configuration(

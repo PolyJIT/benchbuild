@@ -98,7 +98,7 @@ class PprofRun(cli.Application):
                 print_projects(exp)
             exit(0)
 
-        if (self.show_config):
+        if self.show_config:
             print(repr(CFG))
             exit(0)
 
@@ -125,16 +125,16 @@ class PprofRun(cli.Application):
                       exp_name)
 
 
-def print_projects(experiment):
+def print_projects(exp):
     """
     Print a list of projects registered for that experiment.
 
     Args:
-        experiment: The experiment to print all projects for.
+        exp: The experiment to print all projects for.
 
     """
     grouped_by = {}
-    projects = experiment.projects
+    projects = exp.projects
     for name in projects:
         prj = projects[name]
 

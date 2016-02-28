@@ -220,12 +220,6 @@ cfg_general = {
     "pprof_ebuild": {
         "default": ""
     },
-    "pprof_gentoo_autotest": {
-        "default": "/tmp/gentoo-autotest"
-    },
-    "pprof_gentoo_autotest": {
-        "default": "/tmp/gentoo-autotest"
-    },
     "mail": {
         "desc": "E-Mail address dedicated to pprof.",
         "default": None

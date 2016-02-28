@@ -2,8 +2,8 @@
 The Gentoo module for running tests on builds from the portage tree.
 
 This will install a stage3 image of gentoo together with a recent snapshot
-of the portage tree. For building / executing arbitrary projects successfully it
-is necessary to keep the installed image as close to the host system as
+of the portage tree. For building / executing arbitrary projects successfully
+it is necessary to keep the installed image as close to the host system as
 possible.
 In order to speed up your experience, you can replace the stage3 image that
 we pull from the distfiles mirror with a new image that contains all necessary
@@ -17,8 +17,8 @@ from os import path
 from plumbum.cmd import cp, tar, mv, fakeroot, rm  # pylint: disable=E0401
 from plumbum.cmd import mkdir, curl, cut, tail  # pylint: disable=E0401
 from plumbum import local
-from pprof.project import Project
 from pprof.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
+from pprof import project
 from pprof.utils.run import run, uchroot
 from pprof.utils.downloader import Wget
 from pprof.settings import CFG
@@ -26,11 +26,11 @@ from lazy import lazy
 
 CFG['gentoo'] = {
     "autotest-lang": {
-        "default" : "C, C++",
+        "default": "C, C++",
         "desc": "Language filter for ebuilds."
     },
     "autotest-loc": {
-        "default" : "/tmp/gentoo-autotest",
+        "default": "/tmp/gentoo-autotest",
         "desc": "Location for the list of auto generated ebuilds."
     }
 }
@@ -57,7 +57,7 @@ def latest_src_uri():
     return src_uri
 
 
-class GentooGroup(Project):
+class GentooGroup(project.Project):
     """
     Gentoo ProjectGroup is the base class for every portage build.
     """
@@ -84,7 +84,6 @@ class GentooGroup(Project):
         pass
 
     def download(self):
-        from pprof.settings import CFG
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
 
@@ -103,6 +102,9 @@ class GentooGroup(Project):
 PATH="/llvm/bin:/pprof/bin:${PATH}"
 LD_LIBRARY_PATH="/llvm/lib:/pprof/lib:${LD_LIBRARY_PATH}"
 '''
+
+            bashrc.write(lines)
+
             with open("etc/portage/make.conf", 'w') as makeconf:
                 lines = '''
 CFLAGS="-O2 -pipe"
@@ -153,7 +155,6 @@ class PrepareStage3(GentooGroup):
         from plumbum import FG
         from pprof.utils.downloader import update_hash
         from logging import info
-        from pprof.settings import CFG
 
         root = CFG["tmp_dir"]
         src_file = self.src_file + ".new"
@@ -190,7 +191,6 @@ class AutoPolyJITDepsStage3(GentooGroup):
         from plumbum import FG
         from pprof.utils.downloader import update_hash
         from logging import info
-        from pprof.settings import CFG
 
         root = CFG["tmp_dir"]
         src_file = self.src_file + ".new"
@@ -231,16 +231,14 @@ class AutoPrepareStage3(GentooGroup):
         from plumbum import FG
         from pprof.utils.downloader import update_hash
         from logging import info
-        from pprof.settings import CFG
 
         root = CFG["tmp_dir"]
         src_file = self.src_file + ".new"
         with local.cwd(self.builddir):
             mkdir("-p", "pprof-src")
-            w_pprof_src = uchroot("-m", "{}:pprof-src".format(CFG[
-                "src_dir"]))
+            w_pprof_src = uchroot("-m", "{}:pprof-src".format(CFG["src_dir"]))
             pip_in_uchroot = w_pprof_src["/usr/bin/pip3"]
-            pip_in_uchroot["install", "--upgrade", "/pprof-src/"] & FG
+            pip_in_uchroot("install", "--upgrade", "/pprof-src/")
 
             tgt_path = path.join(root, self.src_file)
             tgt_path_new = path.join(root, src_file)

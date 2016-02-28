@@ -102,6 +102,21 @@ class Configuration():
         CFG["llvm"]["dir"] becomes PPROF_LLVM_DIR
 
     The configuration can be stored/loaded as JSON.
+
+    Examples:
+        >>> from pprof import settings as s
+        >>> c = s.Configuration('test')
+        >>> c
+
+        >>> c['test']
+        __main__:1: InvalidConfigKey: Access to non-existing config element: test
+        >>> c['test'] = 42
+        >>> c['test']
+        PPROF_TEST = 42
+        >>> str(['test'])
+        '42'
+        >>> type(c['test'])
+        <class 'pprof.settings.Configuration'>
     """
 
     def __init__(self, parent_key, node=None, parent=None, init=True):

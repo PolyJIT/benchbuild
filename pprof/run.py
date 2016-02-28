@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
+"""
+pprof's run command.
+
+This subcommand executes experiments on a set of user-controlled projects.
+See the output of pprof run --help for more information.
+"""
+import os
 from plumbum import cli
-from plumbum.cmd import mkdir
+from plumbum.cmd import mkdir  # pylint: disable=E0401
 from pprof.driver import PollyProfiling
 from pprof.settings import CFG
 from pprof.utils.user_interface import query_yes_no
-from pprof.experiments import *
-
-import os, os.path
+from pprof import experiments  # pylint: disable=W0611
+from pprof import experiment
 
 
 @PollyProfiling.subcommand("run")
 class PprofRun(cli.Application):
-    """ Frontend for running experiments in the pprof study framework. """
+    """Frontend for running experiments in the pprof study framework."""
 
     _experiment_names = []
     _project_names = []
@@ -92,17 +98,18 @@ class PprofRun(cli.Application):
         self._group_name = group
 
     def main(self):
+        """Main entry point of pprof run."""
         from logging import getLogger, INFO
-        from pprof.experiment import ExperimentRegistry
         project_names = self._project_names
         group_name = self._group_name
-
+        registry = experiment.ExperimentRegistry
+        exps = registry.experiments
         root = getLogger()
         root.setLevel(INFO)
 
         if self._list_experiments:
-            for exp_name in ExperimentRegistry.experiments:
-                exp_cls = ExperimentRegistry.experiments[exp_name]
+            for exp_name in registry.experiments:
+                exp_cls = exps[exp_name]
                 print(exp_cls.NAME)
                 docstring = exp_cls.__doc__ or "-- no docstring --"
                 print(("    " + docstring))
@@ -110,7 +117,7 @@ class PprofRun(cli.Application):
 
         if self._list:
             for exp_name in self._experiment_names:
-                exp_cls = ExperimentRegistry.experiments[exp_name]
+                exp_cls = exps[exp_name]
                 exp = exp_cls(self._project_names, self._group_name)
                 print_projects(exp)
             exit(0)
@@ -120,22 +127,18 @@ class PprofRun(cli.Application):
             exit(0)
 
         if self._project_names:
-            # Only try to create the build dir if we're actually running some projects.
             builddir = os.path.abspath(str(CFG["build_dir"]))
             if not os.path.exists(builddir):
                 response = query_yes_no(
-                    "The build directory {dirname} does not exist yet. Create it?".format(
-                        dirname=builddir),
-                    "no")
+                    "The build directory {dirname} does not exist yet."
+                    "Should I create it?".format(dirname=builddir), "no")
                 if response:
                     mkdir("-p", builddir)
 
         for exp_name in self._experiment_names:
             print("Running experiment: " + exp_name)
-            name = exp_name.lower()
-
-            if exp_name in ExperimentRegistry.experiments:
-                exp_cls = ExperimentRegistry.experiments[exp_name]
+            if exp_name in exps:
+                exp_cls = exps[exp_name]
                 exp = exp_cls(project_names, group_name)
                 exp.clean()
                 exp.prepare()
@@ -147,9 +150,11 @@ class PprofRun(cli.Application):
 
 
 def print_projects(experiment):
-    """Print a list of projects registered for that experiment.
+    """
+    Print a list of projects registered for that experiment.
 
-    :experiment: TODO
+    Args:
+        experiment: The experiment to print all projects for.
 
     """
     grouped_by = {}

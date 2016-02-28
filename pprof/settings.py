@@ -105,13 +105,11 @@ class Configuration():
 
     Examples:
         >>> from pprof import settings as s
-        >>> c = s.Configuration('test')
-        >>> c['test']
-        __main__:1: InvalidConfigKey: Access to non-existing config element: test
+        >>> c = s.Configuration('pprof')
         >>> c['test'] = 42
         >>> c['test']
         PPROF_TEST = 42
-        >>> str(['test'])
+        >>> str(c['test'])
         '42'
         >>> type(c['test'])
         <class 'pprof.settings.Configuration'>

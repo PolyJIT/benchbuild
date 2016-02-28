@@ -8,7 +8,6 @@ import json
 import os
 import uuid
 import re
-import subprocess
 import warnings
 from datetime import datetime
 from uuid import uuid4
@@ -38,13 +37,6 @@ def available_cpu_count():
     except IOError:
         pass
 
-    # Python 2.6+
-    try:
-        import multiprocessing
-        return multiprocessing.cpu_count()
-    except (ImportError, NotImplementedError):
-        pass
-
     # http://code.google.com/p/psutil/
     try:
         import psutil
@@ -70,29 +62,6 @@ def available_cpu_count():
     except (KeyError, ValueError):
         pass
 
-    # jython
-    try:
-        from java.lang import Runtime
-        runtime = Runtime.getRuntime()
-        res = runtime.availableProcessors()
-        if res > 0:
-            return res
-    except ImportError:
-        pass
-
-    # BSD
-    try:
-        sysctl = subprocess.Popen(
-            ['sysctl', '-n', 'hw.ncpu'],
-            stdout=subprocess.PIPE)
-        sc_stdout = sysctl.communicate()[0]
-        res = int(sc_stdout)
-
-        if res > 0:
-            return res
-    except (OSError, ValueError):
-        pass
-
     # Linux
     try:
         res = open('/proc/cpuinfo').read().count('processor\t:')
@@ -100,36 +69,6 @@ def available_cpu_count():
         if res > 0:
             return res
     except IOError:
-        pass
-
-    # Solaris
-    try:
-        pseudo_devs = os.listdir('/devices/pseudo/')
-        res = 0
-        for pseudo_dev in pseudo_devs:
-            if re.match(r'^cpuid@[0-9]+$', pseudo_dev):
-                res += 1
-
-        if res > 0:
-            return res
-    except OSError:
-        pass
-
-    # Other UNIXes (heuristic)
-    try:
-        try:
-            dmesg = open('/var/run/dmesg.boot').read()
-        except IOError:
-            dmesg_proc = subprocess.Popen(['dmesg'], stdout=subprocess.PIPE)
-            dmesg = dmesg_proc.communicate()[0]
-
-        res = 0
-        while '\ncpu' + str(res) + ':' in dmesg:
-            res += 1
-
-        if res > 0:
-            return res
-    except OSError:
         pass
 
     raise Exception('Can not determine number of CPUs on this system')

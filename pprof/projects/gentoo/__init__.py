@@ -18,7 +18,7 @@ from . import info
 
 from pprof.settings import CFG
 CFG['gentoo'] = {
-    "autotest-lang": {
+    "autotest_lang": {
         "default": "C, C++",
         "desc": "Language filter for ebuilds."
     },

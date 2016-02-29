@@ -24,7 +24,16 @@ from pprof.utils.downloader import Wget
 from pprof.settings import CFG
 from lazy import lazy
 
+def cached(func):
+    ret = None
+    def call_or_cache(*args, **kwargs):
+        nonlocal ret
+        if ret is None:
+            ret = func(*args, **kwargs)
+        return ret
+    return call_or_cache
 
+@cached
 def latest_src_uri():
     """
     Get the latest src_uri for a stage 3 tarball.

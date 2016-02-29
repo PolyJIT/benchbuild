@@ -8,6 +8,7 @@ import logging
 import os
 import uuid
 from plumbum import local
+from plumbum.cmd import chmod, mkdir, awk # pylint: disable=E0401
 from pprof import settings
 
 INFO = logging.info
@@ -60,8 +61,6 @@ def dump_slurm_script(script_name, log_name, pprof, experiment, projects,
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
     """
-    from plumbum.cmd import chmod
-
     with open(script_name, 'w') as slurm:
         slurm.write("#!/bin/sh\n")
         slurm.write("#SBATCH -o {}\n".format(log_name))
@@ -132,7 +131,6 @@ def prepare_directories(dirs):
     Args:
         dirs - the directories we want.
     """
-    from plumbum.cmd import mkdir
 
     for directory in dirs:
         mkdir("-p", directory, retcode=None)
@@ -148,16 +146,18 @@ def dispatch_jobs(exp, projects):
     Return:
         The list of SLURM job ids.
     """
+    # Import sbatch as late, because we don't want pprof to fail, if the
+    # user does not have sbatch, before he actually wants to use the slurm
+    # support.
+    from plumbum.cmd import sbatch  # pylint: disable=E0401
     jobs = []
-    from uuid import uuid4
 
-    experiment_id = uuid4()
+    experiment_id = uuid.uuid4()
+        # Import t
     for project in projects:
         if len(project) == 0:
             continue
         slurm_script = prepare_slurm_script(exp, project, experiment_id)
-
-        from plumbum.cmd import sbatch, awk
         prepare_directories([CFG[""]["resultsdir"]])
         sbatch_cmd = sbatch[
             "--job-name=" + exp + "-" + project, "-A", CFG[

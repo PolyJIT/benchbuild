@@ -24,17 +24,6 @@ from pprof.utils.downloader import Wget
 from pprof.settings import CFG
 from lazy import lazy
 
-CFG['gentoo'] = {
-    "autotest-lang": {
-        "default": "C, C++",
-        "desc": "Language filter for ebuilds."
-    },
-    "autotest-loc": {
-        "default": "/tmp/gentoo-autotest",
-        "desc": "Location for the list of auto generated ebuilds."
-    }
-}
-
 
 def latest_src_uri():
     """

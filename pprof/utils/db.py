@@ -1,6 +1,8 @@
 """Database support module for the pprof study."""
+import logging
 from pprof.settings import CFG
 
+logger = logging.getLogger(__name__)
 
 def create_run(cmd, prj, exp, grp):
     """
@@ -74,7 +76,8 @@ def persist_project(project):
     session = schema.Session()
     db_project = session.query(schema.Project).filter(schema.Project.name ==
                                                       project.name).first()
-    if db_project is None:
+    new_project = db_project is None
+    if new_project:
         db_project = schema.Project()
     db_project.name = project.name
     db_project.description = project.__doc__
@@ -87,6 +90,8 @@ def persist_project(project):
     db_project.group_name = project.group_name
     session.add(db_project)
     session.commit()
+    if new_project:
+        logger.debug("New project: %s", db_project)
 
 
 def persist_experiment(experiment):
@@ -103,7 +108,8 @@ def persist_experiment(experiment):
     cfg_exp = str(CFG['experiment'])
     db_exp = session.query(schema.Experiment).filter(schema.Experiment.id ==
                                                      cfg_exp).first()
-    if db_exp is None:
+    new_experiment = db_exp is None
+    if new_experiment:
         db_exp = schema.Experiment()
     db_exp.name = experiment.name
     db_exp.description = str(CFG["experiment_description"])
@@ -111,6 +117,8 @@ def persist_experiment(experiment):
 
     session.add(db_exp)
     session.commit()
+    if new_experiment:
+        logger.debug("New experiment: %s", db_exp)
     return (db_exp, session)
 
 

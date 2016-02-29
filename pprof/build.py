@@ -3,7 +3,6 @@ import os
 from plumbum import cli, local, FG
 from plumbum.cmd import mkdir, git, cmake
 
-from pprof.driver import PollyProfiling
 from pprof.settings import CFG
 
 def clone_or_pull(repo_dict, to_dir):
@@ -116,7 +115,6 @@ def configure_compiler(cmake, use_gcc):
     return llvm_cmake
 
 
-@PollyProfiling.subcommand("build")
 class Build(cli.Application):
     """ Build all dependences required to run the pprof study. """
 

@@ -8,12 +8,10 @@ You can still override the options using environment variables or command
 line flags.
 """
 from plumbum import cli
-from pprof.driver import PollyProfiling
 from pprof.utils.user_interface import query_yes_no
 import os.path
 
 
-@PollyProfiling.subcommand("config")
 class PprofGenConfig(cli.Application):
     """ Generate a default configuration that can be edited in a text editor. """
 

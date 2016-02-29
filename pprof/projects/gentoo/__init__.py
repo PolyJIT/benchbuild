@@ -50,6 +50,7 @@ else:
 def __initialize_dynamic_projects__(autotest_path):
     import os
     from pprof.projects.gentoo.portage_gen import PortageFactory
+    print("Loading AutoPortage projects from {}".format(autotest_path))
     if os.path.exists(autotest_path):
         with open(autotest_path, 'r') as ebuilds:
             for line in ebuilds:

@@ -91,8 +91,7 @@ class GentooGroup(project.Project):
 PATH="/llvm/bin:/pprof/bin:${PATH}"
 LD_LIBRARY_PATH="/llvm/lib:/pprof/lib:${LD_LIBRARY_PATH}"
 '''
-
-            bashrc.write(lines)
+                bashrc.write(lines)
 
             with open("etc/portage/make.conf", 'w') as makeconf:
                 lines = '''

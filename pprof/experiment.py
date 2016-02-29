@@ -30,6 +30,7 @@ from contextlib import contextmanager
 from abc import abstractmethod
 from os import path, listdir
 import regex
+import traceback as tb
 
 from plumbum import local
 from plumbum.cmd import mkdir, rmdir  # pylint: disable=E0401
@@ -251,7 +252,8 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
         CFG["path"] = bin_path + ":" + str(CFG["path"])
         CFG["ld_library_path"] = ":".join([
-            path.join(str(CFG["llvm"]["dir"]), "lib"), str(CFG["ld_library_path"])
+            path.join(
+                str(CFG["llvm"]["dir"]), "lib"), str(CFG["ld_library_path"])
         ])
 
     def __init__(self, projects=None, group=None):
@@ -395,9 +397,13 @@ class Experiment(object, metaclass=ExperimentRegistry):
                 self.map_projects(self.run_this_project, "run")
         except KeyboardInterrupt:
             error("User requested termination.")
-        except Exception as ex:
-            warnings.warn("{}".format(ex), category=RuntimeWarning,
-                          stacklevel=2)
+        except Exception:
+            import sys
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            formatted = "\n".join(tb.format_exception(exc_type,
+                                            exc_value,
+                                            exc_traceback))
+            warnings.warn(formatted, category=RuntimeWarning)
             print("Shutting down...")
         finally:
             if experiment.end is None:

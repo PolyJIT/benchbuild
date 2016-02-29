@@ -25,21 +25,21 @@ An experiment performs the following actions in order:
         This to perform all your experiment needs.
 
 """
+import warnings
 from contextlib import contextmanager
 from abc import abstractmethod
 from os import path, listdir
 import regex
-import warnings
 
 from plumbum import local
 from plumbum.cmd import mkdir, rmdir  # pylint: disable=E0401
 from plumbum.commands.processes import ProcessExecutionError
 
+from pprof.projects import *  # pylint: disable=W0401
 from pprof.project import ProjectRegistry
 from pprof.utils.run import GuardedRunException
 from pprof.settings import CFG
 from pprof.utils.db import persist_experiment
-import pprof.projects  # pylint: disable=W0611
 
 
 def newline(ostream):

@@ -2,7 +2,6 @@
 """ Analyze the PPROF database. """
 
 from plumbum import cli
-from pprof.driver import PollyProfiling
 
 
 def print_runs(query):
@@ -40,7 +39,6 @@ def print_logs(query, types=None):
         print()
 
 
-@PollyProfiling.subcommand("log")
 class PprofLog(cli.Application):
     """ Frontend command to the pprof database. """
 

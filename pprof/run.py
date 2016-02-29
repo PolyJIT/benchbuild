@@ -8,14 +8,13 @@ See the output of pprof run --help for more information.
 import os
 from plumbum import cli
 from plumbum.cmd import mkdir  # pylint: disable=E0401
-from pprof.driver import PollyProfiling
 from pprof.settings import CFG
-from pprof.utils.user_interface import query_yes_no
-from pprof import experiments  # pylint: disable=W0611
+from pprof.utils import user_interface as ui
+
+from pprof.experiments import *  # pylint: disable=W0401
 from pprof import experiment
 
 
-@PollyProfiling.subcommand("run")
 class PprofRun(cli.Application):
     """Frontend for running experiments in the pprof study framework."""
 
@@ -105,7 +104,7 @@ class PprofRun(cli.Application):
         if self._project_names:
             builddir = os.path.abspath(str(CFG["build_dir"]))
             if not os.path.exists(builddir):
-                response = query_yes_no(
+                response = ui.query_yes_no(
                     "The build directory {dirname} does not exist yet."
                     "Should I create it?".format(dirname=builddir), "no")
                 if response:

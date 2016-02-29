@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-from plumbum import cli
-from pprof import *
-from sys import stderr
-import os.path
 import logging
-from pprof import settings
+import os
+import sys
+from plumbum import cli
 
 logging.basicConfig(
     format=
@@ -24,7 +22,7 @@ class PollyProfiling(cli.Application):
     def verbose(self):
         """Enable verbose output."""
         LOG = logging.getLogger()
-        LOG.addHandler(logging.StreamHandler(stderr))
+        LOG.addHandler(logging.StreamHandler(sys.stderr))
         LOG.setLevel(logging.DEBUG)
 
     @cli.switch(
@@ -73,4 +71,9 @@ class PollyProfiling(cli.Application):
 
 def main(*args):
     """Main function."""
+    PollyProfiling.subcommand("run", "pprof.run.PprofRun")
+    PollyProfiling.subcommand("build", "pprof.build.Build")
+    PollyProfiling.subcommand("log", "pprof.log.PprofLog")
+    PollyProfiling.subcommand("test", "pprof.test.PprofTest")
+    PollyProfiling.subcommand("config", "pprof.generate_config.PprofGenConfig")
     return PollyProfiling.run(*args)

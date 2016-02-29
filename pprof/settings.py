@@ -133,6 +133,9 @@ class Configuration():
         our value from the environment.
         Otherwise, init our children.
         """
+        if 'value' in self.node:
+            # No need to initialize something that already has a value.
+            return
         if 'default' in self.node:
             env_var = self.__to_env_var__().upper()
             self.node['value'] = os.getenv(env_var, self.node['default'])
@@ -153,6 +156,28 @@ class Configuration():
 
         """
         self.node.update(cfg_dict.node)
+
+    def value(self):
+        """
+        Return the node value, if we're a leaf node.
+
+        Examples:
+            >>> from pprof import settings as s
+            >>> c = s.Configuration("test")
+            >>> c['x'] = { "y" : { "value" : None }, "z" : { "value" : 2 }}
+            >>> c['x']['y'].value() == None
+            True
+            >>> c['x']['z'].value()
+            2
+            >>> c['x'].value()
+            TEST_X_Y = None
+            TEST_X_Z = 2
+
+        """
+        if 'value' in self.node:
+            return self.node['value']
+        else:
+            return self
 
     def __getitem__(self, key):
         if not key in self.node:
@@ -195,7 +220,7 @@ class Configuration():
         for k in self.node:
             _repr.append(repr(self[k]))
 
-        return "\n".join(_repr)
+        return "\n".join(sorted(_repr))
 
     def __to_env_var__(self):
         if self.parent:

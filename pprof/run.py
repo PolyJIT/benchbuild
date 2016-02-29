@@ -74,13 +74,10 @@ class PprofRun(cli.Application):
 
     def main(self):
         """Main entry point of pprof run."""
-        from logging import getLogger, INFO
         project_names = self._project_names
         group_name = self._group_name
         registry = experiment.ExperimentRegistry
         exps = registry.experiments
-        root = getLogger()
-        root.setLevel(INFO)
 
         if self._list_experiments:
             for exp_name in registry.experiments:

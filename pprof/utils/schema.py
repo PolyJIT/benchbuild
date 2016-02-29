@@ -88,6 +88,9 @@ class Experiment(Base):
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
 
+    def __repr__(self):
+        return "<Experiment {name}>".format(name=self.name)
+
 
 class Likwid(Base):
     """Store measurement results of likwid based experiments."""
@@ -151,6 +154,12 @@ class Project(Base):
     src_url = Column(String)
     domain = Column(String)
     group_name = Column(String)
+
+    def __repr__(self):
+        return "<Project {group}@{domain}/{name}>".format(
+            group=self.group_name,
+            domain=self.domain,
+            name=self.name)
 
 
 class CompileStat(Base):

@@ -30,6 +30,10 @@ CFG['db'] = {
         "desc":
         "The password for the PostgreSQL user used to connect to the database with.",
         "default": "pprof"
+    },
+    "rollback": {
+        "desc": "Rollback all operations after pprof completes.",
+        "default": False
     }
 }
 
@@ -273,7 +277,7 @@ class RegressionTest(Base):
 
 class SessionManager(object):
     def __init__(self):
-        self.__test_mode = "PPROF_USE_VOLATILE_DB" in os.environ
+        self.__test_mode = bool(str(CFG['db']['rollback']))
         self.__engine = create_engine(
             "postgresql+psycopg2://{u}:{p}@{h}:{P}/{db}".format(
                 u=CFG["db"]["user"],

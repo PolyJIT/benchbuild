@@ -122,7 +122,7 @@ class Configuration():
         """Load the configuration dictionary from file."""
         if os.path.exists(_from):
             with open(_from, 'r') as inf:
-                self.node = json.load(inf)
+                self.node.update(json.load(inf))
 
     def init_from_env(self):
         """

@@ -133,6 +133,7 @@ class Configuration():
         our value from the environment.
         Otherwise, init our children.
         """
+
         if 'value' in self.node:
             # No need to initialize something that already has a value.
             return
@@ -357,4 +358,50 @@ CFG["repo"] = {
     },
 }
 
-CFG.init_from_env()
+
+def find_config(default='.pprof.json', root=os.curdir):
+    """
+    Find the path to the default config file.
+
+    We look at :root: for the :default: config file. If we can't find it
+    there we start looking at the parent directory recursively until we
+    find a file named :default: and return the absolute path to it.
+    If we can't find anything, we return None.
+
+    Args:
+        default: The name of the config file we look for.
+        root: The directory to start looking for.
+
+    Returns:
+        Path to the default config file, None if we can't find anything.
+    """
+    cur_path = os.path.join(root, default)
+    if os.path.exists(cur_path):
+        return cur_path
+    else:
+        new_root = os.path.abspath(os.path.join(os.curdir, os.pardir))
+        return find_config(default, new_root) if new_root != root else None
+
+
+def __init_config(cfg):
+    """
+    This will initialize the given configuration object.
+
+    The following resources are available in the same order:
+        1) Default settings.
+        2) Config file.
+        3) Environment variables.
+
+    WARNING: Environment variables do _not_ take precedence over the config
+             file right now. (init_from_env will refuse to update the
+             value, if there is already one.)
+    """
+    config_path = find_config()
+    if config_path:
+        cfg.load(config_path)
+        print("Configuration loaded from {}".format(os.path.abspath(
+            config_path)))
+    cfg.init_from_env()
+
+
+__init_config(CFG)

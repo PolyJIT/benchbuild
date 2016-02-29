@@ -1,12 +1,12 @@
 """
 Get package infos, e.g., specific ebuilds for given languages, from gentoo chroot.
 """
-from pprof.projects.gentoo.portage_gen import Portage_Gen
+from pprof.projects.gentoo import portage_gen as pg
 from pprof.utils.run import run, uchroot
 from plumbum import local
 from pprof.settings import CFG
 
-class Info(Portage_Gen):
+class Info(pg.AutoPortage):
     """
     Info experiment to retrieve package information from portage.
     """

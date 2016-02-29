@@ -21,7 +21,6 @@ class AutoPortage(GentooGroup):
 
 def PortageFactory(name, NAME, DOMAIN, BaseClass=AutoPortage):
     newclass = type(name, (BaseClass,), {
-        #"__init__" : __init__ ,
         "NAME" : NAME,
         "DOMAIN" : DOMAIN
     })

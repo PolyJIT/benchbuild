@@ -21,3 +21,7 @@ from . import x264
 from . import crafty
 from . import portage_gen
 from . import info
+
+# Dynamically create projects from the gentoo ebuild index.
+if CFG['gentoo']['gentoo-autotest-loc'].value():
+    pass

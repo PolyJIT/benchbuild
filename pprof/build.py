@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
+"""
+Build a LLVM/Clang image with PolyJIT & Polly support.
+
+Many experiments inside the pprof study require these to operate.
+This module provides a standard way to get the necessary libraries in one
+single image.
+"""
 import os
-from plumbum import cli, local, FG
-from plumbum.cmd import mkdir, git, cmake
+from plumbum import cli, local
+from plumbum.cmd import mkdir, git, cmake  # pylint: disable=E0401
 
 from pprof.settings import CFG
 
@@ -58,16 +65,16 @@ def clone_or_pull(repo_dict, to_dir):
             current_hash = git("rev-parse", "--verify", "HEAD").rstrip("\n")
             if current_hash != commit_hash:
                 # Make sure we have a full history, not just depth 1
-                print((
-                    "HEAD for repository {:s} is not at configured commit hash {:s}, fetching and checking out.".format(
-                        url, commit_hash)))
+                print(("HEAD for repository {:s} is not at configured commit"
+                       "hash {:s}, fetching and checking out.".format(
+                           url, commit_hash)))
                 git("fetch", "--unshallow")
                 git("checkout", commit_hash)
 
 
-def configure_papi(cmake, root):
+def configure_papi(cmake_cmd, root):
     """ Configure cmake with libpapi. """
-    llvm_cmake = cmake
+    llvm_cmake = cmake_cmd
     if os.path.exists(root):
         papi_inc = os.path.join(root, "include")
         papi_lib = os.path.join(root, "lib", "libpapi.so")
@@ -77,9 +84,9 @@ def configure_papi(cmake, root):
     return llvm_cmake
 
 
-def configure_likwid(cmake, root):
+def configure_likwid(cmake_cmd, root):
     """ Configure cmake with likwid. """
-    llvm_cmake = cmake
+    llvm_cmake = cmake_cmd
     if os.path.exists(root):
         likwid_inc = os.path.join(root, "include")
         likwid_lib = os.path.join(root, "lib", "liblikwid.so")
@@ -89,29 +96,29 @@ def configure_likwid(cmake, root):
     return llvm_cmake
 
 
-def configure_isl(cmake, root):
+def configure_isl(cmake_cmd, root):
     """ Configure cmake with isl. """
-    llvm_cmake = cmake
+    llvm_cmake = cmake_cmd
     if root is not None and os.path.exists(root):
         llvm_cmake = llvm_cmake["-DCMAKE_PREFIX_PATH=" + root]
 
     return llvm_cmake
 
 
-def configure_compiler(cmake, use_gcc):
+def configure_compiler(cmake_cmd, use_gcc):
     """ Configure cmake with the desired compiler. """
     if use_gcc:
-        cc = local["gcc"]
-        cpp = local["g++"]
+        cc_cmd = local["gcc"]
+        cpp_cmd = local["g++"]
     else:
-        cc = local["clang"]
-        cpp = local["clang++"]
+        cc_cmd = local["clang"]
+        cpp_cmd = local["clang++"]
 
-    if cc and cpp:
-        llvm_cmake = cmake
+    if cc_cmd and cpp_cmd:
+        llvm_cmake = cmake_cmd
         llvm_cmake = llvm_cmake[
-            "-DCMAKE_CXX_COMPILER=" + str(cpp), "-DCMAKE_C_COMPILER=" + str(
-                cc)]
+            "-DCMAKE_CXX_COMPILER=" + str(
+                cpp_cmd), "-DCMAKE_C_COMPILER=" + str(cc_cmd)]
     return llvm_cmake
 
 
@@ -124,20 +131,24 @@ class Build(cli.Application):
     _isldir = None
     _likwiddir = None
     _papidir = None
+    _builddir = None
 
     @cli.switch(["--use-make"],
                 help="Use make instead of ninja as build system")
     def use_make(self):
+        """Use make instead of ninja as build system."""
         self._use_make = True
 
     @cli.switch(["-j", "--jobs"],
                 int,
                 help="Number of jobs to use for building")
     def jobs(self, num):
+        """Number of jobs to use for building."""
         self._num_jobs = num
 
     @cli.switch(["--use-gcc"], help="Use gcc to build llvm/clang")
     def use_gcc(self):
+        """Use gcc to build llvm/clang."""
         self._use_gcc = True
 
     @cli.switch(["-B", "--builddir"],
@@ -145,6 +156,7 @@ class Build(cli.Application):
                 help="Where should we build our dependencies?",
                 mandatory=True)
     def builddir(self, dirname):
+        """Where should we build our dependencies?"""
         self._builddir = os.path.abspath(dirname)
 
     @cli.switch(["-P", "--papidir"],
@@ -152,6 +164,7 @@ class Build(cli.Application):
                 help="Where is libPAPI?",
                 mandatory=True)
     def papidir(self, dirname):
+        """Where is libPAPI?"""
         self._papidir = os.path.abspath(dirname)
 
     @cli.switch(["-L", "--likwiddir"],
@@ -159,10 +172,12 @@ class Build(cli.Application):
                 help="Where is likwid?",
                 mandatory=True)
     def likwiddir(self, dirname):
+        """Where is likwid?"""
         self._likwiddir = os.path.abspath(dirname)
 
     @cli.switch(["-I", "--isldir"], str, help="Where is isl?")
     def isldir(self, dirname):
+        """Where is isl?"""
         self._isldir = os.path.abspath(dirname)
 
     def configure_openmp(self, openmp_path):
@@ -264,5 +279,11 @@ class Build(cli.Application):
         if self._num_jobs:
             build_cmd = build_cmd["-j", self._num_jobs]
 
-        build_cmd["-C", os.path.join(llvm_path, "build"), "install"] & FG
-        build_cmd["-C", os.path.join(openmp_path, "build"), "install"] & FG
+        print("Building LLVM.")
+        build_llvm = build_cmd["-C", os.path.join(llvm_path, "build"),
+                               "install"]
+        build_llvm()
+        print("Building OpenMP.")
+        build_openmp = build_cmd["-C", os.path.join(openmp_path, "build"),
+                                 "install"]
+        build_openmp()

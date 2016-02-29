@@ -51,15 +51,6 @@ def available_cpu_count():
     except (AttributeError, ValueError):
         pass
 
-    # Windows
-    try:
-        res = int(os.environ['NUMBER_OF_PROCESSORS'])
-
-        if res > 0:
-            return res
-    except (KeyError, ValueError):
-        pass
-
     # Linux
     try:
         res = open('/proc/cpuinfo').read().count('processor\t:')

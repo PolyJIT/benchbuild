@@ -59,6 +59,10 @@ class PprofRun(cli.Application):
                            help="Just dump pprof's config and exit.",
                            default=False)
 
+    store_config = cli.Flag(["-s", "--save-config"],
+                           help="Save pprof's configuration.",
+                           default=False)
+
     @cli.switch(["-k", "--keep"],
                 requires=["--experiment"],
                 help="Keep intermediate results")
@@ -96,6 +100,12 @@ class PprofRun(cli.Application):
 
         if self.show_config:
             print(repr(CFG))
+            exit(0)
+
+        if self.store_config:
+            config_path = ".pprof.json"
+            CFG.store(config_path)
+            print("Storing config in {}".format(os.path.abspath(config_path)))
             exit(0)
 
         if self._project_names:

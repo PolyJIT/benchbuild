@@ -1,6 +1,6 @@
 """Database schema for pprof."""
 
-import os
+import logging
 from sqlalchemy import create_engine
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum
 from sqlalchemy.dialects import postgresql
@@ -286,7 +286,9 @@ class RegressionTest(Base):
 
 class SessionManager(object):
     def __init__(self):
-        self.__test_mode = bool(str(CFG['db']['rollback']))
+        logger = logging.getLogger(__name__)
+
+        self.__test_mode = CFG['db']['rollback'].value()
         self.__engine = create_engine(
             "postgresql+psycopg2://{u}:{p}@{h}:{P}/{db}".format(
                 u=CFG["db"]["user"],
@@ -296,6 +298,8 @@ class SessionManager(object):
                 db=CFG["db"]["name"]))
         self.__connection = self.__engine.connect()
         if self.__test_mode:
+            logger.warning(
+                "DB test mode active, all actions will be rolled back.")
             self.__transaction = self.__connection.begin()
         Base.metadata.create_all(self.__connection, checkfirst=True)
 

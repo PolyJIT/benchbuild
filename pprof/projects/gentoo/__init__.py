@@ -1,3 +1,15 @@
+from pprof.settings import CFG
+CFG['gentoo'] = {
+    "autotest-lang": {
+        "default": "C, C++",
+        "desc": "Language filter for ebuilds."
+    },
+    "autotest-loc": {
+        "default": "/tmp/gentoo-autotest",
+        "desc": "Location for the list of auto generated ebuilds."
+    }
+}
+
 from . import gentoo
 from . import bzip2
 from . import gzip

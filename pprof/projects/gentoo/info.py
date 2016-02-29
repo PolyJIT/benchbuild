@@ -22,7 +22,7 @@ class Info(Portage_Gen):
 
             qgrep_in_chroot = uchroot()["/usr/bin/qgrep"]
             ebuilds = set()
-            for language in CFG["gentoo"]["autotest-lang"].split(','):
+            for language in CFG["gentoo"]["autotest-lang"].value().split(','):
                 output = qgrep_in_chroot("-l", \
                         get_string_for_language(language))
                 for line in output.split('\n'):
@@ -30,7 +30,7 @@ class Info(Portage_Gen):
                         parts = line.split('.ebuild')[0].split('/')
                         ebuilds.add(parts[0] + '/' + parts[1])
 
-            file_location = CFG["gentoo"]["gentoo-autotest-loc"]
+            file_location = CFG["gentoo"]["gentoo-autotest-loc"].value()
             with open(file_location, "w") as output_file:
                 for ebuild in sorted(ebuilds):
                     output_file.write(str(ebuild) + "\n")
@@ -45,4 +45,3 @@ def get_string_for_language(language_name):
         return "tc-getCC"
     if language_name == "c++" or language_name == "cxx":
         return "tc-getCXX"
-

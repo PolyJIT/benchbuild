@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+from pprof import settings
 from plumbum import cli
 
 logging.basicConfig(

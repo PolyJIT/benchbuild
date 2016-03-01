@@ -20,8 +20,11 @@ from pprof.settings import CFG
 # Dynamically create projects from the gentoo ebuild index.
 def __initialize_dynamic_projects__(autotest_path):
     import os
+    import logging
     from pprof.projects.gentoo.portage_gen import PortageFactory
-    print("Loading AutoPortage projects from {}".format(autotest_path))
+
+    logger = logging.getLogger(__name__)
+    logger.debug("Loading AutoPortage projects from %s", autotest_path)
     if os.path.exists(autotest_path):
         with open(autotest_path, 'r') as ebuilds:
             for line in ebuilds:

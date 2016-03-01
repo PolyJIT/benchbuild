@@ -199,7 +199,6 @@ class Configuration():
         else:
             if isinstance(val, dict):
                 self.node[key] = val
-                self[key].init_from_env()
             else:
                 self.node[key] = {'value': val}
 
@@ -356,6 +355,94 @@ CFG["repo"] = {
         "branch": {"default": "master"},
         "commit_hash": {"default": None}
     },
+}
+
+CFG['db'] = {
+    "host": {
+        "desc": "host name of our db.",
+        "default": "localhost"
+    },
+    "port": {
+        "desc": "port to connect to the database",
+        "default": 5432
+    },
+    "name": {
+        "desc": "The name of the PostgreSQL database that will be used.",
+        "default": "pprof"
+    },
+    "user": {
+        "desc":
+        "The name of the PostgreSQL user to connect to the database with.",
+        "default": "pprof"
+    },
+    "pass": {
+        "desc":
+        "The password for the PostgreSQL user used to connect to the database with.",
+        "default": "pprof"
+    },
+    "rollback": {
+        "desc": "Rollback all operations after pprof completes.",
+        "default": False
+    }
+}
+
+CFG['gentoo'] = {
+    "autotest_lang": {
+        "default": "C, C++",
+        "desc": "Language filter for ebuilds."
+    },
+    "autotest_loc": {
+        "default": "/tmp/gentoo-autotest",
+        "desc": "Location for the list of auto generated ebuilds."
+    }
+}
+
+CFG["slurm"] = {
+    "account": {
+        "desc": "The SLURM account to use by default.",
+        "default": "cl"
+    },
+    "partition": {
+        "desc": "The SLURM partition to use by default.",
+        "default": "chimaira"
+    },
+    "script": {
+        "desc":
+        "Name of the script that can be passed to SLURM. Used by external tools.",
+        "default": "slurm.sh"
+    },
+    "cpus_per_task": {
+        "desc":
+        "Number of CPUs that should be requested from SLURM. Used by external tools.",
+        "default": 10
+    },
+    "node_dir": {
+        "desc":
+        "Node directory, when executing on a cluster node. This is not "
+        "used by pprof directly, but by external scripts.",
+        "default": os.path.join(os.getcwd(), "results")
+    },
+    "timelimit": {
+        "desc": "The timelimit we want to give to a job",
+        "default": "12:00:00"
+    },
+    "exclusive": {
+        "desc":
+        "Shall we reserve a node exclusively, or share it with others?",
+        "default": True
+    },
+    "multithread": {
+        "desc": "Hint SLURM to allow multithreading. (--hint=nomultithread)",
+        "default": False
+    },
+    "timelimit": {
+        "desc": "Set a timelimit for the jobs.",
+        "default": "12:00:00"
+    },
+    "logs": {
+        "desc": "Location the SLURM logs will be stored",
+        "default": "slurm.log"
+    }
 }
 
 

@@ -37,7 +37,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
                                  cpus=str(CFG['slurm']['cpus_per_task'])))
 
         if not CFG['slurm']['multithread'].value():
-            slurm.write("#SBATCH --hint=nomultithreadn")
+            slurm.write("#SBATCH --hint=nomultithread\n")
         if CFG['slurm']['exclusive'].value():
             slurm.write("#SBATCH --exclusive\n")
         slurm.write("#SBATCH --array=0-{}\n".format(len(projects) - 1))

@@ -77,4 +77,5 @@ def main(*args):
     PollyProfiling.subcommand("log", "pprof.log.PprofLog")
     PollyProfiling.subcommand("test", "pprof.test.PprofTest")
     PollyProfiling.subcommand("config", "pprof.generate_config.PprofGenConfig")
+    PollyProfiling.subcommand("slurm", "pprof.slurm.Slurm")
     return PollyProfiling.run(*args)

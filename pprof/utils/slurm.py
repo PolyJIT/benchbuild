@@ -9,68 +9,39 @@ import os
 import uuid
 from plumbum import local
 from plumbum.cmd import chmod, mkdir, awk # pylint: disable=E0401
-from pprof import settings
+from pprof.settings import CFG
 
 INFO = logging.info
-CFG = settings.CFG
-CFG["slurm"] = {
-    "account": {
-        "desc": "The SLURM account to use by default.",
-        "default": "cl"
-    },
-    "partition": {
-        "desc": "The SLURM partition to use by default.",
-        "default": "chimaira"
-    },
-    "script": {
-        "desc":
-        "Name of the script that can be passed to SLURM. Used by external tools.",
-        "default": "chimaira-slurm.sh"
-    },
-    "cpus_per_task": {
-        "desc":
-        "Number of CPUs that should be requested from SLURM. Used by external tools.",
-        "default": 10
-    },
-    "node_dir": {
-        "desc":
-        "Node directory, when executing on a cluster node. This is not "
-        "used by pprof directly, but by external scripts.",
-        "default": os.path.join(os.getcwd(), "results")
-    },
-    "timelimit": {
-        "desc": "The timelimit we want to give to a job",
-        "default": "12:00:00"
-    },
-    "exclusive": {
-        "desc": "Shall we reserve a node exclusively, or share it with others?",
-        "default": True
-    },
-}
-
-def dump_slurm_script(script_name, log_name, pprof, experiment, projects,
+def dump_slurm_script(script_name, pprof, experiment, projects,
                       **kwargs):
     """
     Dump a bash script that can be given to SLURM.
 
     Args:
         script_name (str): name of the bash script.
-        log_name (str): name of the log file SLURM should print to.
         commands (list(plumbum.cmd)): List of plumbum commands to write
             to the bash script.
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
     """
     with open(script_name, 'w') as slurm:
-        slurm.write("#!/bin/sh\n")
-        slurm.write("#SBATCH -o {}\n".format(log_name))
-        slurm.write("#SBATCH -t \"12:00:00\"\n")
-        slurm.write("#SBATCH --hint=nomultithread\n")
-        slurm.write("#SBATCH --ntasks 1\n")
-        slurm.write("#SBATCH --exclusive\n")
-        slurm.write("#SBATCH --cpus-per-task {}\n".format(CFG["slurm"]["cpus_per_task"]))
+        lines = """
+#!/bin/sh
+#SBATCH -o {log}
+#SBATCH -t \"{timelimit}\"
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task {cpus}
+"""
+        slurm.write(lines.format(log=str(CFG['slurm']['logs']),
+                                 timelimit=str(CFG['slurm']['timelimit']),
+                                 cpus=str(CFG['slurm']['cpus_per_task'])))
 
-        posargs = ['script_name', 'log_name', 'commands']
+        if not CFG['slurm']['multithread'].value():
+            slurm.write("#SBATCH --hint=nomultithreadn")
+        if CFG['slurm']['exclusive'].value():
+            slurm.write("#SBATCH --exclusive\n")
+
+        posargs = ['script_name']
         kwargs = {k: kwargs[k] for k in kwargs if k not in posargs}
         for key in kwargs:
             slurm.write("export {env}=\"{value}\"\n".format(env=key,
@@ -80,7 +51,6 @@ def dump_slurm_script(script_name, log_name, pprof, experiment, projects,
         for project in projects:
             slurm.write("'{}'\n".format(str(project)))
         slurm.write(")\n")
-
         slurm.write(str(pprof["-P", "${projects[$SLURM_ARRAY_TASK_ID]}",
                               "-E", experiment]))
     chmod("+x", script_name)
@@ -96,25 +66,25 @@ def prepare_slurm_script(experiment, projects, experiment_id):
     from os import path
 
     pprof_c = local["pprof"]
-    slurm_script = path.join(os.getcwd(), str(CFG['slurm']['script']))
-    log_file = os.path.join(str(CFG['']["build_dir"]), experiment + ".log")
+    slurm_script = path.join(os.getcwd(),
+                             experiment + "-" + str(CFG['slurm']['script']))
 
     # We need to wrap the pprof run inside srun to avoid HyperThreading.
     srun = local["srun"]
     srun = srun["--hint=nomultithread", pprof_c[
         "-v", "run",
-        "-D", CFG['']['experiment_description'],
+        "-D", CFG['experiment_description'],
         "-B", CFG['slurm']["node_dir"],
         "--likwid-prefix", CFG['likwid']["prefix"], "-L", CFG['llvm']["dir"]]]
+    print("SLURM script written to {}".format(slurm_script))
     dump_slurm_script(slurm_script,
-                      log_file,
                       srun,
                       experiment,
                       projects,
                       LD_LIBRARY_PATH="{}:$LD_LIBRARY_PATH".format(
                           CFG['papi']['library']),
-                      PPROF_TESTINPUTS=CFG['']["test_dir"],
-                      PPROF_TMP_DIR=CFG['']["tmp_dir"],
+                      PPROF_TESTINPUTS=CFG["test_dir"],
+                      PPROF_TMP_DIR=CFG["tmp_dir"],
                       PPROF_DB_HOST=CFG['db']["host"],
                       PPROF_DB_PORT=CFG['db']["port"],
                       PPROF_DB_NAME=CFG['db']["name"],
@@ -153,7 +123,6 @@ def dispatch_jobs(exp, projects):
     jobs = []
 
     experiment_id = uuid.uuid4()
-        # Import t
     for project in projects:
         if len(project) == 0:
             continue
@@ -166,27 +135,3 @@ def dispatch_jobs(exp, projects):
         job_id = (sbatch_cmd | awk['{ print $4 }'])()
         jobs.append(job_id)
     return jobs
-
-
-def main(_projects, _groups, experiments):
-    from pprof import projects  # Import all projects for the registry.
-    from pprof.project import ProjectRegistry
-
-    projects = ProjectRegistry.projects
-    if _projects is not None:
-        allkeys = set(list(projects.keys()))
-        usrkeys = set(_projects)
-        projects = {x: projects[x] for x in allkeys & usrkeys}
-
-    if _groups is not None:
-        projects = {
-            name: cls
-            for name, cls in projects.items() if cls.GROUP in _groups
-        }
-
-    prj_keys = sorted(projects.keys())
-    for exp in experiments:
-        INFO("experiment: {} with projects:".format(exp))
-        INFO(", ".join(prj_keys))
-        prepare_slurm_script(exp, prj_keys, uuid.uuid4())
-        #dispatch_jobs(exp, prj_keys)

@@ -99,7 +99,7 @@ class Configuration():
         >>> c = s.Configuration('pprof')
         >>> c['test'] = 42
         >>> c['test']
-        PPROF_TEST = 42
+        PPROF_TEST=42
         >>> str(c['test'])
         '42'
         >>> type(c['test'])
@@ -175,8 +175,8 @@ class Configuration():
             >>> c['x']['z'].value()
             2
             >>> c['x'].value()
-            TEST_X_Y = None
-            TEST_X_Z = 2
+            TEST_X_Y=None
+            TEST_X_Z=2
 
         """
         if 'value' in self.node:

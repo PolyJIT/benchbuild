@@ -309,7 +309,6 @@ class SessionManager(object):
     def __del__(self):
         if self.__test_mode:
             self.__transaction.rollback()
-        self.__connection.close()
 
 
 CONNECTION_MANAGER = SessionManager()

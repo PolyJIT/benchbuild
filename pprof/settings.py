@@ -216,9 +216,9 @@ class Configuration():
     def __repr__(self):
         _repr = []
         if 'value' in self.node:
-            return self.__to_env_var__() + " = " + repr(self.node['value'])
+            return self.__to_env_var__() + "=" + json.dumps(self.node['value'])
         if 'default' in self.node:
-            return self.__to_env_var__() + " = {DEFAULT} " + repr(self.node[
+            return self.__to_env_var__() + "=" + json.dumps(self.node[
                 'default'])
 
         for k in self.node:

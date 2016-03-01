@@ -6,7 +6,7 @@ when running with polyjit support enabled.
 """
 from abc import abstractmethod
 from os import path
-from plumbum.cmd import rm, time
+from plumbum.cmd import rm, time  # pylint: disable=E0401
 from plumbum import local
 from pprof.experiments.compilestats import get_compilestats
 from pprof.experiment import step, substep, RuntimeExperiment

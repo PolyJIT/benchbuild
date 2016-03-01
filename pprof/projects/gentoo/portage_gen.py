@@ -1,6 +1,8 @@
 """
 Generic experiment to test portage packages within gentoo chroot.
 """
+import logging
+
 from pprof.projects.gentoo.gentoo import GentooGroup
 from pprof.utils.run import run, uchroot
 from plumbum import local
@@ -52,8 +54,21 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=AutoPortage):
         >>> i.DOMAIN
         'DOMAIN'
     """
+
+    def run_not_supported(self): # pylint: disable=W0613
+        """Dynamic projects don't support a run() test."""
+        logger = logging.getLogger(__name__)
+        logger.info("run() not supported.")
+        return
+
+    def reducer(self): # pylint: disable=W0613
+        nonlocal name, NAME, DOMAIN, BaseClass
+        return (PortageFactory, (name, NAME, DOMAIN, BaseClass))
+
     newclass = type(name, (BaseClass,), {
         "NAME" : NAME,
-        "DOMAIN" : DOMAIN
+        "DOMAIN" : DOMAIN,
+        "run" : run_not_supported,
+        "__reduce__": reducer
     })
     return newclass

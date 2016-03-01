@@ -88,6 +88,8 @@ class Slurm(cli.Application):
         if self._description:
             CFG["experiment_description"] = self._description
 
+        CFG["build_dir"] = CFG["slurm"]["node_dir"].value()
+
         print("Experiment: " + exp_name)
         if exp_name in exp_registry.experiments:
             self.__go__(project_names, group_name, exp_name)

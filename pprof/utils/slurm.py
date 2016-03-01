@@ -73,10 +73,9 @@ def prepare_slurm_script(experiment, projects):
 
     # We need to wrap the pprof run inside srun to avoid HyperThreading.
     srun = local["srun"]
-    srun = srun["--hint=nomultithread", pprof_c[
-        "-v", "run", "-D", CFG['experiment_description'], "-B", CFG['slurm'][
-            "node_dir"], "--likwid-prefix", CFG['likwid']["prefix"], "-L", CFG[
-                'llvm']["dir"]]]
+    if not CFG["slurm"]["multithread"].value():
+        srun = srun["--hint=nomultithread"]
+    srun = srun[pprof_c["-v", "run", ]]
     print("SLURM script written to {}".format(slurm_script))
     dump_slurm_script(slurm_script, srun, experiment, projects)
     return slurm_script

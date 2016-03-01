@@ -6,7 +6,6 @@ This basically provides the same as pprof run, except that it just
 dumps a slurm batch script that executes everything as an array job
 on a configurable SLURM cluster.
 """
-import uuid
 import pprint
 from plumbum import cli
 from pprof.settings import CFG
@@ -78,7 +77,7 @@ class Slurm(cli.Application):
         print("Projects:")
         pprint.pprint(prj_keys)
 
-        slurm.prepare_slurm_script(exp_name, prj_keys, uuid.uuid4())
+        slurm.prepare_slurm_script(exp_name, prj_keys)
 
     def main(self):
         """Main entry point of pprof run."""

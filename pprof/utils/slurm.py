@@ -6,14 +6,14 @@ the SLURM controller either as batch or interactive script.
 """
 import logging
 import os
-import uuid
 from plumbum import local
-from plumbum.cmd import chmod, mkdir, awk # pylint: disable=E0401
+from plumbum.cmd import chmod, mkdir # pylint: disable=E0401
 from pprof.settings import CFG
 
 INFO = logging.info
-def dump_slurm_script(script_name, pprof, experiment, projects,
-                      **kwargs):
+
+
+def dump_slurm_script(script_name, pprof, experiment, projects):
     """
     Dump a bash script that can be given to SLURM.
 
@@ -32,6 +32,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects,
 #SBATCH --ntasks 1
 #SBATCH --cpus-per-task {cpus}
 """
+
         slurm.write(lines.format(log=str(CFG['slurm']['logs']),
                                  timelimit=str(CFG['slurm']['timelimit']),
                                  cpus=str(CFG['slurm']['cpus_per_task'])))
@@ -40,7 +41,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects,
             slurm.write("#SBATCH --hint=nomultithreadn")
         if CFG['slurm']['exclusive'].value():
             slurm.write("#SBATCH --exclusive\n")
-        slurm.write("#SBATCH --array=0-{}\n".format(len(projects)-1))
+        slurm.write("#SBATCH --array=0-{}\n".format(len(projects) - 1))
 
         slurm.write("projects=(\n")
         for project in projects:
@@ -50,17 +51,19 @@ def dump_slurm_script(script_name, pprof, experiment, projects,
         cfg_vars = "\nexport ".join(cfg_vars)
         slurm.write("export ")
         slurm.write(cfg_vars)
-        slurm.write(str(pprof["-P", "${projects[$SLURM_ARRAY_TASK_ID]}",
-                              "-E", experiment]))
+        slurm.write("\n")
+        slurm.write(str(pprof["-P", "${projects[$SLURM_ARRAY_TASK_ID]}", "-E",
+                              experiment]))
     chmod("+x", script_name)
 
 
-def prepare_slurm_script(experiment, projects, experiment_id):
+def prepare_slurm_script(experiment, projects):
     """
     Prepare a slurm script that executes the pprof experiment for a given project.
 
-    :experiment: The experiment we want to execute
-    :project: Filter all but the given project
+    Args:
+        experiment: The experiment we want to execute
+        projects: All projects we generate an array job for.
     """
     from os import path
 
@@ -71,25 +74,11 @@ def prepare_slurm_script(experiment, projects, experiment_id):
     # We need to wrap the pprof run inside srun to avoid HyperThreading.
     srun = local["srun"]
     srun = srun["--hint=nomultithread", pprof_c[
-        "-v", "run",
-        "-D", CFG['experiment_description'],
-        "-B", CFG['slurm']["node_dir"],
-        "--likwid-prefix", CFG['likwid']["prefix"], "-L", CFG['llvm']["dir"]]]
+        "-v", "run", "-D", CFG['experiment_description'], "-B", CFG['slurm'][
+            "node_dir"], "--likwid-prefix", CFG['likwid']["prefix"], "-L", CFG[
+                'llvm']["dir"]]]
     print("SLURM script written to {}".format(slurm_script))
-    dump_slurm_script(slurm_script,
-                      srun,
-                      experiment,
-                      projects,
-                      LD_LIBRARY_PATH="{}:$LD_LIBRARY_PATH".format(
-                          CFG['papi']['library']),
-                      PPROF_TESTINPUTS=CFG["test_dir"],
-                      PPROF_TMP_DIR=CFG["tmp_dir"],
-                      PPROF_DB_HOST=CFG['db']["host"],
-                      PPROF_DB_PORT=CFG['db']["port"],
-                      PPROF_DB_NAME=CFG['db']["name"],
-                      PPROF_DB_USER=CFG['db']["user"],
-                      PPROF_DB_PASS=CFG['db']["pass"],
-                      PPROF_EXPERIMENT_ID=experiment_id)
+    dump_slurm_script(slurm_script, srun, experiment, projects)
     return slurm_script
 
 
@@ -103,34 +92,3 @@ def prepare_directories(dirs):
 
     for directory in dirs:
         mkdir("-p", directory, retcode=None)
-
-
-def dispatch_jobs(exp, projects):
-    """
-    Dispatch sbatch scripts to slurm for all given projects.
-
-    Args:
-        projects: List of projects that need to be dispatched to SLURM
-
-    Return:
-        The list of SLURM job ids.
-    """
-    # Import sbatch as late, because we don't want pprof to fail, if the
-    # user does not have sbatch, before he actually wants to use the slurm
-    # support.
-    from plumbum.cmd import sbatch  # pylint: disable=E0401
-    jobs = []
-
-    experiment_id = uuid.uuid4()
-    for project in projects:
-        if len(project) == 0:
-            continue
-        slurm_script = prepare_slurm_script(exp, project, experiment_id)
-        prepare_directories([CFG[""]["resultsdir"]])
-        sbatch_cmd = sbatch[
-            "--job-name=" + exp + "-" + project, "-A", CFG[
-                "account"], "-p", CFG["partition"], slurm_script]
-
-        job_id = (sbatch_cmd | awk['{ print $4 }'])()
-        jobs.append(job_id)
-    return jobs

@@ -268,6 +268,7 @@ class SessionManager(object):
                 p=CFG["db"]["pass"],
                 db=CFG["db"]["name"]))
         self.__connection = self.__engine.connect()
+        self.__transaction = None
         if self.__test_mode:
             logger.warning(
                 "DB test mode active, all actions will be rolled back.")
@@ -278,7 +279,7 @@ class SessionManager(object):
         return sessionmaker(bind=self.__connection)
 
     def __del__(self):
-        if self.__test_mode:
+        if self.__transaction:
             self.__transaction.rollback()
 
 

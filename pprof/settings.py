@@ -175,7 +175,7 @@ class Configuration():
             >>> c['x']['z'].value()
             2
             >>> c['x'].value()
-            TEST_X_Y=None
+            TEST_X_Y=null
             TEST_X_Z=2
 
         """

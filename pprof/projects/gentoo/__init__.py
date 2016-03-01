@@ -17,35 +17,6 @@ from . import crafty
 from . import info
 
 from pprof.settings import CFG
-# Only load the defaults, if we did not load from the config
-if not 'gentoo' in CFG:
-    CFG['gentoo'] = {
-        "autotest_lang": {
-            "default": "C, C++",
-            "desc": "Language filter for ebuilds."
-        },
-        "autotest_loc": {
-            "default": "/tmp/gentoo-autotest",
-            "desc": "Location for the list of auto generated ebuilds."
-        }
-    }
-else:
-    if not 'autotest_lang' in CFG['gentoo']:
-        CFG['gentoo'].update({
-            "autotest_lang": {
-                "default": "C, C++",
-                "desc": "Language filter for ebuilds."
-            }
-        })
-    if not 'autotest_loc' in CFG['gentoo']:
-        CFG['gentoo'].update({
-            "autotest_loc": {
-                "default": "/tmp/gentoo-autotest",
-                "desc": "Location for the list of auto generated ebuilds."
-            }
-        })
-
-
 # Dynamically create projects from the gentoo ebuild index.
 def __initialize_dynamic_projects__(autotest_path):
     import os

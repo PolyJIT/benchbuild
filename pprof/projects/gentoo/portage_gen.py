@@ -61,14 +61,10 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=AutoPortage):
         logger.info("run() not supported.")
         return
 
-    def reducer(self): # pylint: disable=W0613
-        nonlocal name, NAME, DOMAIN, BaseClass
-        return (PortageFactory, (name, NAME, DOMAIN, BaseClass))
-
     newclass = type(name, (BaseClass,), {
         "NAME" : NAME,
         "DOMAIN" : DOMAIN,
         "run" : run_not_supported,
-        "__reduce__": reducer
+        "__module__" : "__main__"
     })
     return newclass

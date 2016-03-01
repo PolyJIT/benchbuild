@@ -145,103 +145,107 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
             blob_f = compiler_ext_name()
 
     with open(filepath, 'w') as wrapper:
-        lines = '''#!/usr/bin/env python3
+        lines = """#!/usr/bin/env python3
 #
-
-from plumbum import ProcessExecutionError, local, FG
-from plumbum.commands.modifiers import TEE
-from pprof.utils.run import GuardedRunException
-from os import path
-import logging
-import dill
-
-from pprof.settings import CFG
-from pprof.utils import schema
-
-CFG["db"]["host"] = "{db_host}"
-CFG["db"]["port"] = "{db_port}"
-CFG["db"]["name"] = "{db_name}"
-CFG["db"]["user"] = "{db_user}"
-CFG["db"]["pass"] = "{db_pass}"
-
-cc=local[\"{CC}\"]
-cflags={CFLAGS}
-ldflags={LDFLAGS}
-
-from sys import argv
 import os
 import sys
+import logging
+import dill
+import functools
+from plumbum import ProcessExecutionError, local
+from plumbum.commands.modifiers import TEE
+from plumbum.cmd import timeout
+from pprof.utils.run import GuardedRunException
+from pprof.utils import schema
 
-log = logging.getLogger("clang")
+CC=local["{CC}"]
+CFLAGS={CFLAGS}
+LDFLAGS={LDFLAGS}
+BLOB_F="{BLOB_F}"
+
+DB_HOST="{db_host}"
+DB_PORT="{db_port}"
+DB_NAME="{db_name}"
+DB_USER="{db_user}"
+DB_PASS="{db_pass}"
+
+log = logging.getLogger("cc")
 log.addHandler(logging.StreamHandler(stream=sys.stderr))
 
-def really_exec(cmd):
-    from plumbum.cmd import timeout
+input_files = [x for x in sys.argv[1:] if not '-' is x[0]]
+flags = sys.argv[1:]
+RETCODE = 0
+continuation = None
+
+def run(cmd):
+    pass
+
+def invoke_external_measurement(cmd):
+    f = None
+    with local.env(PPROF_DB_HOST=DB_HOST,
+               PPROF_DB_PORT=DB_PORT,
+               PPROF_DB_NAME=DB_NAME,
+               PPROF_DB_USER=DB_USER,
+               PPROF_DB_PASS=DB_PASS):
+        if "conftest.c" not in input_files:
+            with local.env(PPROF_CMD=str(cmd)):
+                if os.path.exists(BLOB_F):
+                    with open(BLOB_F,
+                              "rb") as p:
+                        f = dill.load(p)
+
+                if f is not None:
+                    if not sys.stdin.isatty():
+                        f(cmd, has_stdin=True)
+                    else:
+                        f(cmd)
+
+def continue_on_success(retcode, stdout, stderr, cmd):
+    invoke_external_measurement(cmd)
+    RETCODE=retcode
+
+def continue_on_fail(exc, cmd):
+    log.error("Failed to execute - %s", str(cmd))
+    log.error(str(exc))
+    final_command = CC[flags, LDFLAGS]
+    log.warning("New Command: %s", str(cmd))
+    _, success = run(cmd)
+
+def run(cmd):
     try:
         log.info("Trying - %s", str(cmd))
-        return ( timeout["2m", cmd.formulate()] & TEE )
-    except (GuardedRunException, ProcessExecutionError) as e:
-        log.error("Failed to execute - %s", str(cmd))
-        raise e
+        retcode, stdout, stderr = (timeout["2m", cmd.formulate()] & TEE)
+        return functools.partial(continue_on_success, retcode, stdout, stderr, cmd), True
+    except ProcessExecutionError as exc:
+        RETCODE=exc.retcode
+        return functools.partial(continue_on_fail, exc, cmd), False
 
-
-def call_original_compiler(input_files, cc, cflags, ldflags, flags):
-    final_command = None
-    retcode=0
-    try:
-        if len(input_files) > 0:
-            if "-c" in flags:
-                final_command = cc["-Qunused-arguments", cflags, ldflags, flags]
-            else:
-                final_command = cc["-Qunused-arguments", cflags, flags, ldflags]
+def construct_cc(cc, flags, CFLAGS, LDFLAGS, ifiles):
+    if len(input_files) > 0:
+        if "-c" in flags:
+            final_command = CC["-Qunused-arguments", CFLAGS, LDFLAGS,
+                               flags]
         else:
-            final_command = cc["-Qunused-arguments", flags]
+            final_command = CC["-Qunused-arguments", CFLAGS, LDFLAGS,
+                               flags]
+    else:
+        final_command = CC["-Qunused-arguments", flags]
+    return final_command
 
-        retcode, stdout, stderr = really_exec(final_command)
+final_command = construct_cc(CC, flags, CFLAGS, LDFLAGS, input_files)
+continuation, _ = run(final_command)
+continuation()
 
-    except (GuardedRunException, ProcessExecutionError) as e:
-        log.warn("Fallback to original flags and retry.")
-        final_command = cc[flags, ldflags]
-        log.warn("New Command: %s", str(final_command))
-        retcode, _, _ = really_exec(final_command)
-
-    return (retcode, final_command)
-
-
-input_files = [ x for x in argv[1:] if not '-' is x[0] ]
-flags = argv[1:]
-f = None
-
-retcode, final_cc = call_original_compiler(input_files, cc, cflags, ldflags,
-                                           flags)
-
-with local.env(PPROF_DB_HOST="{db_host}",
-           PPROF_DB_PORT="{db_port}",
-           PPROF_DB_NAME="{db_name}",
-           PPROF_DB_USER="{db_user}",
-           PPROF_DB_PASS="{db_pass}"):
-    """ FIXME: This is just a quick workaround. """
-    if "conftest.c" not in input_files:
-        with local.env(PPROF_CMD=str(final_cc)):
-            if path.exists("{blobf}"):
-                with open("{blobf}", "rb") as p:
-                    f = dill.load(p)
-
-            if f is not None:
-                if not sys.stdin.isatty():
-                    f(final_cc, has_stdin = True)
-                else:
-                    f(final_cc)
-    sys.exit(retcode)
-'''.format(CC=str(compiler()),
+sys.exit(RETCODE)
+""".format(CC=str(compiler()),
            CFLAGS=cflags,
            LDFLAGS=ldflags,
-           blobf=blob_f,
+           BLOB_F=blob_f,
            db_host=str(CFG["db"]["host"]),
            db_name=str(CFG["db"]["name"]),
-           db_user=str(CFG["db"]["user"]),
+           db_port=str(CFG["db"]["port"]),
            db_pass=str(CFG["db"]["pass"]),
-           db_port=str(CFG["db"]["port"]))
+           db_user=str(CFG["db"]["user"]))
         wrapper.write(lines)
         chmod("+x", filepath)
 

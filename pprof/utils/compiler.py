@@ -155,8 +155,8 @@ import functools
 from plumbum import ProcessExecutionError, local
 from plumbum.commands.modifiers import TEE
 from plumbum.cmd import timeout
+from pprof import settings
 from pprof.utils.run import GuardedRunException
-from pprof.utils import schema
 
 CC=local["{CC}"]
 CFLAGS={CFLAGS}

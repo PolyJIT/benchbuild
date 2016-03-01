@@ -400,9 +400,8 @@ class Experiment(object, metaclass=ExperimentRegistry):
         except Exception:
             import sys
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            formatted = "\n".join(tb.format_exception(exc_type,
-                                            exc_value,
-                                            exc_traceback))
+            formatted = "".join(tb.format_exception(exc_type, exc_value,
+                                                    exc_traceback))
             warnings.warn(formatted, category=RuntimeWarning)
             print("Shutting down...")
         finally:

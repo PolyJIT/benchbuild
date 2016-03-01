@@ -55,7 +55,7 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=AutoPortage):
         'DOMAIN'
     """
 
-    def run_not_supported(self): # pylint: disable=W0613
+    def run_not_supported(*args, **kwargs): # pylint: disable=W0613
         """Dynamic projects don't support a run() test."""
         logger = logging.getLogger(__name__)
         logger.info("run() not supported.")

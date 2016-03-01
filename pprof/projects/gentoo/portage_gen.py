@@ -13,7 +13,7 @@ class AutoPortage(GentooGroup):
     def build(self):
         with local.cwd(self.builddir):
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-            prog = self.DOMAIN + "/" + self.NAME[len(self.DOMAIN)+1:]
+            prog = self.DOMAIN + "/" + str(self.NAME)[len(self.DOMAIN)+1:]
             run(emerge_in_chroot[prog])
 
     def run_tests(self, experiment):

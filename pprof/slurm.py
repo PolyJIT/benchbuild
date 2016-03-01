@@ -74,8 +74,7 @@ class Slurm(cli.Application):
             }
 
         prj_keys = sorted(projects.keys())
-        print("Projects:")
-        pprint.pprint(prj_keys)
+        print("{} Projects".format(len(prj_keys)))
 
         slurm.prepare_slurm_script(exp_name, prj_keys)
 

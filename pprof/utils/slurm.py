@@ -40,17 +40,16 @@ def dump_slurm_script(script_name, pprof, experiment, projects,
             slurm.write("#SBATCH --hint=nomultithreadn")
         if CFG['slurm']['exclusive'].value():
             slurm.write("#SBATCH --exclusive\n")
-
-        posargs = ['script_name']
-        kwargs = {k: kwargs[k] for k in kwargs if k not in posargs}
-        for key in kwargs:
-            slurm.write("export {env}=\"{value}\"\n".format(env=key,
-                                                            value=kwargs[key]))
+        slurm.write("#SBATCH --array=0-{}\n".format(len(projects)-1))
 
         slurm.write("projects=(\n")
         for project in projects:
             slurm.write("'{}'\n".format(str(project)))
         slurm.write(")\n")
+        cfg_vars = repr(CFG).split('\n')
+        cfg_vars = "\nexport ".join(cfg_vars)
+        slurm.write("export ")
+        slurm.write(cfg_vars)
         slurm.write(str(pprof["-P", "${projects[$SLURM_ARRAY_TASK_ID]}",
                               "-E", experiment]))
     chmod("+x", script_name)

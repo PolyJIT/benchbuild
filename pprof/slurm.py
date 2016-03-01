@@ -6,7 +6,6 @@ This basically provides the same as pprof run, except that it just
 dumps a slurm batch script that executes everything as an array job
 on a configurable SLURM cluster.
 """
-import pprint
 from plumbum import cli
 from pprof.settings import CFG
 from pprof.experiments import *  # pylint: disable=W0401,W0614

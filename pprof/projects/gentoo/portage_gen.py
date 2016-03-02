@@ -47,7 +47,7 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=AutoPortage):
         >>> from pprof.experiments.empty import Empty
         >>> c = PortageFactory("test", "NAME", "DOMAIN")
         >>> c
-        <class 'pprof.projects.gentoo.portage_gen.test'>
+        <class '__main__.test'>
         >>> i = c(Empty())
         >>> i.NAME
         'NAME'

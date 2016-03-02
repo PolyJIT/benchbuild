@@ -27,9 +27,9 @@ def clone_or_pull(repo_dict, to_dir):
             master.
     """
 
-    url = repo_dict["url"]
-    branch = repo_dict.get("branch")
-    commit_hash = repo_dict.get("commit_hash")
+    url = repo_dict["url"].value()
+    branch = repo_dict["branch"].value()
+    commit_hash = repo_dict["commit_hash"].value()
 
     if not os.path.exists(os.path.join(to_dir, ".git/")):
         git_clone = git["clone", url, to_dir, "--recursive", "--depth=1"]
@@ -254,7 +254,7 @@ class Build(cli.Application):
         llvm_path = os.path.join(self._builddir, "pprof-llvm")
         openmp_path = os.path.join(self._builddir, "openmp-runtime")
         with local.cwd(self._builddir):
-            clone_or_pull(CFG['llvm']['dir'], llvm_path)
+            clone_or_pull(CFG['repo']['llvm'], llvm_path)
             tools_path = os.path.join(llvm_path, "tools")
             with local.cwd(tools_path):
                 clone_or_pull(CFG['repo']['clang'],

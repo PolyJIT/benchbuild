@@ -466,7 +466,7 @@ def find_config(default='.pprof.json', root=os.curdir):
     if os.path.exists(cur_path):
         return cur_path
     else:
-        new_root = os.path.abspath(os.path.join(os.curdir, os.pardir))
+        new_root = os.path.abspath(os.path.join(root, os.pardir))
         return find_config(default, new_root) if new_root != root else None
 
 

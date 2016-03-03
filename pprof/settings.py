@@ -452,6 +452,13 @@ CFG["slurm"] = {
     }
 }
 
+CFG["perf"] = {
+    "config" : {
+        "default" : None,
+        "desc" : "A configuration for the pollyperformance experiment."
+    }
+}
+
 
 def find_config(default='.pprof.json', root=os.curdir):
     """

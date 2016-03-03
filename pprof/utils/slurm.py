@@ -121,6 +121,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         if CFG['slurm']['exclusive'].value():
             slurm.write("#SBATCH --exclusive\n")
         slurm.write("#SBATCH --array=0-{}\n".format(len(projects) - 1))
+        slurm.write("#SBATCH --nice={}\n".format(CFG["slurm"]["nice"].value()))
 
         slurm.write("projects=(\n")
         for project in projects:

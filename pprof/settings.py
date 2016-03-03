@@ -449,7 +449,12 @@ CFG["slurm"] = {
     "logs": {
         "desc": "Location the SLURM logs will be stored",
         "default": "slurm.log"
+    },
+    "nice": {
+        "desc": "Add a niceness value on our priority",
+        "default": 0
     }
+
 }
 
 CFG["perf"] = {

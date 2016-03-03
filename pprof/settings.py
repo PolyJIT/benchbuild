@@ -143,7 +143,10 @@ class Configuration():
 
         if 'default' in self.node:
             env_var = self.__to_env_var__().upper()
-            env_val = os.getenv(env_var, self.node['default'])
+            if 'value' in self.node:
+                env_val = os.getenv(env_var, self.node['value'])
+            else:
+                env_val = os.getenv(env_var, self.node['default'])
             try:
                 self.node['value'] = json.loads(str(env_val))
             except ValueError:

@@ -104,17 +104,17 @@ LD_LIBRARY_PATH="/llvm/lib:/pprof/lib:${LD_LIBRARY_PATH}"
 
                 hp = CFG["gentoo"]["http_proxy"].value()
                 if hp is not None:
-                    hp_s = str(hp.value())
+                    hp_s = str(hp)
                     bashrc.write(hp_s)
 
                 fp = CFG["gentoo"]["ftp_proxy"].value()
                 if fp is not None:
-                    fp_s = str(fp.value())
+                    fp_s = str(fp)
                     bashrc.write(fp_s)
 
                 rp = CFG["gentoo"]["rsync_proxy"].value()
                 if rp is not None:
-                    rp_s = str(rp.value())
+                    rp_s = str(rp)
                     bashrc.write(rp_s)
 
             with open("etc/portage/make.conf", 'w') as makeconf:

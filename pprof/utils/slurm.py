@@ -78,6 +78,17 @@ def __cleanup_node_commands():
     return lines
 
 
+def __get_slurm_path():
+    host_path = os.getenv('PATH', default='')
+    pprof_path = CFG['path'].value()
+    return pprof_path + ':' + host_path
+
+
+def __get_slurm_ld_library_path():
+    host_path = os.getenv('LD_LIBRARY_PATH', default='')
+    pprof_path = CFG['ld_library_path'].value()
+    return pprof_path + ':' + host_path
+
 def dump_slurm_script(script_name, pprof, experiment, projects):
     """
     Dump a bash script that can be given to SLURM.
@@ -89,6 +100,10 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
     """
+    log_path = os.path.join(CFG['build_dir'].value(),
+                            CFG['slurm']['logs'].value())
+    slurm_path = __get_slurm_path()
+    slurm_ld = __get_slurm_ld_library_path()
     with open(script_name, 'w') as slurm:
         lines = """#!/bin/bash
 #SBATCH -o {log}
@@ -97,7 +112,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
 #SBATCH --cpus-per-task {cpus}
 """
 
-        slurm.write(lines.format(log=str(CFG['slurm']['logs']),
+        slurm.write(lines.format(log=str(log_path),
                                  timelimit=str(CFG['slurm']['timelimit']),
                                  cpus=str(CFG['slurm']['cpus_per_task'])))
 
@@ -117,6 +132,9 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         cfg_vars = "\nexport ".join(cfg_vars)
         slurm.write("export ")
         slurm.write(cfg_vars)
+        slurm.write("\n")
+        slurm.write("export PATH={p}\n".format(p=slurm_path))
+        slurm.write("export LD_LIBRARY_PATH={p}\n".format(p=slurm_ld))
         slurm.write("\n")
         slurm.write(__cleanup_node_commands())
         slurm.write(__exec_experiment_commands(str(pprof[

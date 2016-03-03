@@ -90,7 +90,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
             map in the bash script.
     """
     with open(script_name, 'w') as slurm:
-        lines = """#!/bin/sh
+        lines = """#!/bin/bash
 #SBATCH -o {log}
 #SBATCH -t \"{timelimit}\"
 #SBATCH --ntasks 1

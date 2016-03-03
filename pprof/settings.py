@@ -120,9 +120,16 @@ class Configuration():
 
     def load(self, _from):
         """Load the configuration dictionary from file."""
+        def load_rec(inode, config):
+            for k in config:
+                if isinstance(config[k], dict):
+                    load_rec(inode[k], config[k])
+                else:
+                    inode[k] = config[k]
+
         if os.path.exists(_from):
             with open(_from, 'r') as inf:
-                self.node.update(json.load(inf))
+                load_rec(self.node, json.load(inf))
 
     def init_from_env(self):
         """

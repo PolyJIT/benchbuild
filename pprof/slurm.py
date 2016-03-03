@@ -6,6 +6,7 @@ This basically provides the same as pprof run, except that it just
 dumps a slurm batch script that executes everything as an array job
 on a configurable SLURM cluster.
 """
+import os
 from plumbum import cli
 from pprof.settings import CFG
 from pprof.experiments import *  # pylint: disable=W0401,W0614
@@ -87,6 +88,8 @@ class Slurm(cli.Application):
         if self._description:
             CFG["experiment_description"] = self._description
 
+        CFG["slurm"]["logs"] = os.path.abspath(os.path.join(CFG[
+            'build_dir'].value(), CFG['slurm']['logs'].value()))
         CFG["build_dir"] = CFG["slurm"]["node_dir"].value()
 
         print("Experiment: " + exp_name)

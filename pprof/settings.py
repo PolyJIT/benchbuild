@@ -141,9 +141,6 @@ class Configuration():
         Otherwise, init our children.
         """
 
-        if 'value' in self.node:
-            # No need to initialize something that already has a value.
-            return
         if 'default' in self.node:
             env_var = self.__to_env_var__().upper()
             env_val = os.getenv(env_var, self.node['default'])

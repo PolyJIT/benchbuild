@@ -102,6 +102,21 @@ LD_LIBRARY_PATH="/llvm/lib:/pprof/lib:${LD_LIBRARY_PATH}"
 '''
                 bashrc.write(lines)
 
+                hp = CFG["gentoo"]["http_proxy"].value()
+                if hp is not None:
+                    hp_s = str(hp.value())
+                    bashrc.write(hp_s)
+
+                fp = CFG["gentoo"]["ftp_proxy"].value()
+                if fp is not None:
+                    fp_s = str(fp.value())
+                    bashrc.write(fp_s)
+
+                rp = CFG["gentoo"]["rsync_proxy"].value()
+                if rp is not None:
+                    rp_s = str(rp.value())
+                    bashrc.write(rp_s)
+
             with open("etc/portage/make.conf", 'w') as makeconf:
                 lines = '''
 CFLAGS="-O2 -pipe"

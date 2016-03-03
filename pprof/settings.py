@@ -401,6 +401,18 @@ CFG['gentoo'] = {
     "autotest_loc": {
         "default": "/tmp/gentoo-autotest",
         "desc": "Location for the list of auto generated ebuilds."
+    },
+    "http_proxy": {
+        "default": None,
+        "desc": "HTTP Proxy to use for downloads."
+    },
+    "rsync_proxy": {
+        "default": None,
+        "desc": "RSYNC Proxy to use for downloads."
+    },
+    "ftp_proxy": {
+        "default": None,
+        "desc": "FTP Proxy to use for downloads."
     }
 }
 

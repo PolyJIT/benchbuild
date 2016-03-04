@@ -137,6 +137,22 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         slurm.write("export PATH={p}\n".format(p=slurm_path))
         slurm.write("export LD_LIBRARY_PATH={p}\n".format(p=slurm_ld))
         slurm.write("\n")
+
+        hp = CFG["gentoo"]["http_proxy"].value()
+        if hp is not None:
+            hp_s = "export http_proxy={}".format(str(hp))
+            slurm.write(hp_s + "\n")
+
+        fp = CFG["gentoo"]["ftp_proxy"].value()
+        if fp is not None:
+            fp_s = "export ftp_proxy={}".format(str(fp))
+            slurm.write(fp_s + "\n")
+
+        rp = CFG["gentoo"]["rsync_proxy"].value()
+        if rp is not None:
+            rp_s = "export RSYNC_PROXY={}".format(str(rp))
+            slurm.write(rp_s + "\n")
+
         slurm.write(__cleanup_node_commands())
         slurm.write(__exec_experiment_commands(str(pprof[
             "-P", "${projects[$SLURM_ARRAY_TASK_ID]}", "-E", experiment])))

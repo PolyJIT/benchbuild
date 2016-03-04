@@ -123,6 +123,21 @@ PKGDIR="${PORTDIR}/packages"
 '''
 
                 makeconf.write(lines)
+                hp = CFG["gentoo"]["http_proxy"].value()
+                if hp is not None:
+                    hp_s = "http_proxy={}".format(str(hp))
+                    makeconf.write(hp_s + "\n")
+
+                fp = CFG["gentoo"]["ftp_proxy"].value()
+                if fp is not None:
+                    fp_s = "ftp_proxy={}".format(str(fp))
+                    makeconf.write(fp_s + "\n")
+
+                rp = CFG["gentoo"]["rsync_proxy"].value()
+                if rp is not None:
+                    rp_s = "RSYNC_PROXY={}".format(str(rp))
+                    makeconf.write(rp_s + "\n")
+
 
             mkdir("-p", "etc/portage/metadata")
             with open("etc/portage/metadata/layout.conf", 'w') as layoutconf:

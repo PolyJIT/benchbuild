@@ -259,9 +259,9 @@ class Experiment(object, metaclass=ExperimentRegistry):
     def __init__(self, projects=None, group=None):
         self.projects = {}
         self.setup_commands()
-        self.sourcedir = CFG["src_dir"]
-        self.builddir = path.join(str(CFG["build_dir"]), self.name)
-        self.testdir = CFG["test_dir"]
+        self.sourcedir = CFG["src_dir"].value()
+        self.builddir = path.join(str(CFG["build_dir"].value()), self.name)
+        self.testdir = CFG["test_dir"].value()
 
         self.populate_projects(projects, group)
 

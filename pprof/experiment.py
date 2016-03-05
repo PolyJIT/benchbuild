@@ -26,11 +26,11 @@ An experiment performs the following actions in order:
 
 """
 import warnings
+import traceback as tb
 from contextlib import contextmanager
 from abc import abstractmethod
 from os import path, listdir
 import regex
-import traceback as tb
 
 from plumbum import local
 from plumbum.cmd import mkdir, rmdir  # pylint: disable=E0401

@@ -55,10 +55,13 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=AutoPortage):
         'DOMAIN'
     """
 
-    def run_not_supported(*args, **kwargs): # pylint: disable=W0613
+    def run_not_supported(self, *args, **kwargs): # pylint: disable=W0613
         """Dynamic projects don't support a run() test."""
+        from pprof.settings import CFG
         logger = logging.getLogger(__name__)
         logger.info("run() not supported.")
+        if CFG["clean"].value():
+            self.clean()
         return
 
     newclass = type(name, (BaseClass,), {

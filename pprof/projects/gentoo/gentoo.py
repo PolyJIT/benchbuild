@@ -138,12 +138,15 @@ PKGDIR="${PORTDIR}/packages"
                     rp_s = "RSYNC_PROXY={}".format(str(rp))
                     makeconf.write(rp_s + "\n")
 
-
             mkdir("-p", "etc/portage/metadata")
             with open("etc/portage/metadata/layout.conf", 'w') as layoutconf:
                 lines = '''masters = gentoo'''
                 layoutconf.write(lines)
             cp("/etc/resolv.conf", "etc/resolv.conf")
+
+            config_file = CFG["config_file"].value()
+            if path.exists(str(config_file)):
+                cp(config_file, path.basename(config_file))
 
             wrap_cc_in_uchroot(self.cflags, self.ldflags,
                                self.compiler_extension, "/llvm/bin")

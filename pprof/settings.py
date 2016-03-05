@@ -130,6 +130,7 @@ class Configuration():
         if os.path.exists(_from):
             with open(_from, 'r') as inf:
                 load_rec(self.node, json.load(inf))
+                self['config_file'] = os.path.abspath(_from)
 
     def init_from_env(self):
         """
@@ -243,6 +244,10 @@ class Configuration():
 CFG = Configuration(
     "pprof",
     node={
+        "config_file": {
+            "desc": "Config file path of pprof. Not guaranteed to exist.",
+            "default": os.path.join(os.curdir, ".pprof.json"),
+        },
         "src_dir": {
             "desc":
             "source directory of pprof. Usually the git repo root dir.",

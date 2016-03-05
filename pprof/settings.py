@@ -123,7 +123,14 @@ class Configuration():
         def load_rec(inode, config):
             for k in config:
                 if isinstance(config[k], dict):
-                    load_rec(inode[k], config[k])
+                    if k in inode:
+                        load_rec(inode[k], config[k])
+                    else:
+                        warnings.warn(
+                            "Key {} is not part of the default config, "
+                            "ignoring.".format(k),
+                            category=InvalidConfigKey,
+                            stacklevel=2)
                 else:
                     inode[k] = config[k]
 

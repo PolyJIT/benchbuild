@@ -132,7 +132,7 @@ class Project(object, metaclass=ProjectRegistry):
                 except KeyboardInterrupt as key_int:
                     fail_run_group(group, session)
                     raise key_int
-        if not CFG["keep"]:
+        if CFG["clean"].value():
             self.clean()
 
     def clean(self):

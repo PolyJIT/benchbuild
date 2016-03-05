@@ -347,7 +347,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
             prj = self.projects[project_name]
 
             def maybe_clean_on_error(project):
-                if "clean" in CFG and CFG["clean"]:
+                if "clean" in CFG and CFG["clean"].value():
                     project.clean()
 
             with phase(pname, project_name, partial(maybe_clean_on_error,

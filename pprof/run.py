@@ -63,12 +63,6 @@ class PprofRun(cli.Application):
                            help="Save pprof's configuration.",
                            default=False)
 
-    @cli.switch(["-k", "--keep"],
-                requires=["--experiment"],
-                help="Keep intermediate results")
-    def keep(self):
-        CFG["keep"] = True
-
     @cli.switch(["-G", "--group"],
                 str,
                 requires=["--experiment"],

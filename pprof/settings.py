@@ -292,8 +292,9 @@ CFG = Configuration(
             "desc": "Perform a local build on the cluster nodes.",
             "default": False
         },
-        "keep": {
-            "default": False,
+        "clean": {
+            "default": True,
+            "desc": "Clean temporary objects, after completion.",
         },
         "experiment_description": {
             "default": str(datetime.now())

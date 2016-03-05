@@ -73,6 +73,10 @@ class Slurm(cli.Application):
                 for name, cls in projects.items() if cls.GROUP == group_name
             }
 
+        projects = {x: projects[x]
+                    for x in projects
+                    if projects[x].DOMAIN != "debug"}
+
         prj_keys = sorted(projects.keys())
         print("{} Projects".format(len(prj_keys)))
 

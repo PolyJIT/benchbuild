@@ -293,6 +293,11 @@ class Experiment(object, metaclass=ExperimentRegistry):
                 for name, cls in projects.items() if cls.GROUP == group
             }
 
+        projects = {x: projects[x]
+                    for x in projects
+                    if projects[x].DOMAIN != "debug" or x in projects_to_filter
+                    }
+
         self.projects = {k: projects[k](self) for k in projects}
 
     def clean_project(self, project):

@@ -23,12 +23,15 @@ def __prepare_node_commands():
 
     CFG["llvm"]["dir"] = llvm_tgt
     lines = ("\n# Lock node dir preparation\n"
-             "( flock -x 9 &&\n"
+             "(\n"
+             "flock -x 9 && {{\n"
              "  if [ ! -d '{prefix}' ]; then\n"
              "    mkdir -p '{prefix}'\n"
              "    cp -ar '{llvm_src}' '{llvm_tgt}'\n"
              "  fi\n"
-             ") 9>\"{lockfile}\"\n")
+             "  rm '{lockfile}'\n"
+             "}}\n"
+             ") 9>'{lockfile}'\n")
     lines = lines.format(prefix=prefix,
                          llvm_src=llvm_src,
                          llvm_tgt=llvm_tgt,
@@ -52,26 +55,27 @@ def __cleanup_node_commands():
     slurm_partition = CFG["slurm"]["partition"]
     lines = ("\n# Cleanup the cluster node, after the array has finished.\n"
              "file=$(mktemp -q) && {{\n"
-             "  ( cat <<'EOF'\n"
+             "  (\n"
+             "  cat <<'EOF'\n"
              "#!/bin/sh\n"
-             "( flock -x 9 && {{\n"
-             "  [ -d \"{prefix}\" ] && \\\n"
-             "    rm -r \"{prefix}\"\n"
-             "    rm -r \"{lockfile}\"\n"
-             "}}\n"
-             ") 9<\"{lockfile}\"\n"
+             "rm -r \"{prefix}\"\n"
+             "rm \"{lockfile}\"\n"
              "EOF\n"
-             ") > \"$file\"\n"
-             "\n"
-             "  if [ ! -f \"{lockfile}\" ]; then\n"
-             "    touch \"{lockfile}\"\n"
-             "    sbatch -A {slurm_account} -p {slurm_partition} "
+             "  ) > \"$file\"\n"
+             "  (\n"
+             "  flock -x \"{lockdir}\" bash -c \"{{\n"
+             "    if [ ! -f '{lockfile}' ]; then\n"
+             "      touch '{lockfile}'\n"
+             "      sbatch -A {slurm_account} -p {slurm_partition} "
              "--dependency=afterany:$SLURM_ARRAY_JOB_ID "
              "--nodelist=$SLURM_JOB_NODELIST -n 1 -c 1 \"$file\"\n"
-             "  fi\n"
+             "    fi\n"
+             "  }}\"\n"
+             "  ) 9>\"{lockfile}\"\n"
              "  rm -r \"$file\"\n"
              "}}\n")
     lines = lines.format(lockfile=lockfile,
+                         lockdir=prefix,
                          prefix=prefix,
                          slurm_account=slurm_account,
                          slurm_partition=slurm_partition)
@@ -138,8 +142,9 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         slurm.write("export LD_LIBRARY_PATH={p}\n".format(p=slurm_ld))
         slurm.write("\n")
         slurm.write(__cleanup_node_commands())
+        slurm.write("_project=\"${projects[$SLURM_ARRAY_TASK_ID]}\"\n")
         slurm.write(__exec_experiment_commands(str(pprof[
-            "-P", "${projects[$SLURM_ARRAY_TASK_ID]}", "-E", experiment])))
+            "-P", "$_project", "-E", experiment])))
     chmod("+x", script_name)
 
 

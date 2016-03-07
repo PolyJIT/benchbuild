@@ -374,7 +374,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
             try:
                 rmdir(self.builddir)
             except ProcessExecutionError as ex:
-                warnings.warn(str(ex), categeory=RuntimeWarning)
+                warnings.warn(str(ex), category=RuntimeWarning)
         else:
             logger = logging.getLogger(__name__)
             logger.info("Experiment directory '{}' is not clean.".format(

@@ -63,7 +63,6 @@ def __cleanup_node_commands():
              "rm \"{lockfile}\"\n"
              "EOF\n"
              "  ) > \"$file\"\n"
-             "  (\n"
              "  flock -x \"{lockdir}\" bash -c \"{{\n"
              "    if [ ! -f '{lockfile}' ]; then\n"
              "      touch '{lockfile}'\n"
@@ -72,7 +71,6 @@ def __cleanup_node_commands():
              "--nodelist=$SLURM_JOB_NODELIST -n 1 -c 1 \"$file\"\n"
              "    fi\n"
              "  }}\"\n"
-             "  ) 9>\"{lockfile}\"\n"
              "  rm -r \"$file\"\n"
              "}}\n")
     lines = lines.format(lockfile=lockfile,

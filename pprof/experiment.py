@@ -293,6 +293,8 @@ class Experiment(object, metaclass=ExperimentRegistry):
                 for name, cls in projects.items() if cls.GROUP == group
             }
 
+        if projects_to_filter is None:
+            projects_to_filter = []
         projects = {x: projects[x]
                     for x in projects
                     if projects[x].DOMAIN != "debug" or x in projects_to_filter

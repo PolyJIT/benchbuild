@@ -58,6 +58,7 @@ def __cleanup_node_commands():
              "  (\n"
              "  cat <<'EOF'\n"
              "#!/bin/sh\n"
+             "find '{node_root}' -ctime +1 -delete\n"
              "rm -r \"{prefix}\"\n"
              "rm \"{lockfile}\"\n"
              "EOF\n"
@@ -76,6 +77,7 @@ def __cleanup_node_commands():
              "}}\n")
     lines = lines.format(lockfile=lockfile,
                          lockdir=prefix,
+                         node_root=node_root,
                          prefix=prefix,
                          slurm_account=slurm_account,
                          slurm_partition=slurm_partition)

@@ -146,9 +146,16 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         slurm.write("export LD_LIBRARY_PATH={p}\n".format(p=slurm_ld))
         slurm.write("\n")
         slurm.write(__cleanup_node_commands())
+
         slurm.write("_project=\"${projects[$SLURM_ARRAY_TASK_ID]}\"\n")
-        slurm.write(__exec_experiment_commands(str(pprof[
-            "-P", "$_project", "-E", experiment])))
+
+        # Write the experiment command.
+        slurm_log_dir = os.path.dirname(CFG['slurm']['logs'].value())
+        slurm_log_name = os.path.join(slurm_log_dir, "$_project")
+        slurm.write("( ")
+        slurm.write(str(pprof["-P", "$_project", "-E", experiment]))
+        slurm.write(" 2>&1 ) > \"{exp_log}.log\"\n".format(exp_log=slurm_log_name))
+
     chmod("+x", script_name)
 
 

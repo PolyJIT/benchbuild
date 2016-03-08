@@ -108,17 +108,19 @@ def persist_experiment(experiment):
     cfg_exp = str(CFG['experiment'])
     db_exp = session.query(schema.Experiment).filter(schema.Experiment.id ==
                                                      cfg_exp).first()
-    new_experiment = db_exp is None
-    if new_experiment:
-        db_exp = schema.Experiment()
-    db_exp.name = experiment.name
-    db_exp.description = str(CFG["experiment_description"])
-    db_exp.id = cfg_exp
+    desc = CFG["experiment_description"].value()
+    name = db_exp.name = experiment.name
 
-    session.add(db_exp)
-    session.commit()
-    if new_experiment:
+    if db_exp is None:
+        db_exp = schema.Experiment()
+        db_exp.name = name
+        db_exp.description = desc
+        session.add(db_exp)
         logger.debug("New experiment: %s", db_exp)
+    else:
+        db_exp.update({db_exp.name: name, db_exp.description: desc})
+    session.commit()
+
     return (db_exp, session)
 
 

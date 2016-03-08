@@ -96,15 +96,15 @@ def persist_project(project):
         session.add(newp)
         logger.debug("Poject INSERT: %s", newp)
     else:
-        newp = {
+        newp_value = {
             "name": name,
             "description": desc,
             "src_url": src_url,
             "domain": domain,
             "group_name": group_name
         }
-        projects.update(newp)
-        logger.debug("Project UPDATE: %s", newp)
+        projects.update(newp_value)
+        logger.debug("Project UPDATE: %s", newp_value)
 
     session.commit()
     return (projects, session)
@@ -132,13 +132,15 @@ def persist_experiment(experiment):
         newe.name = name
         newe.description = desc
         session.add(newe)
+        ret = newe
         logger.debug("New experiment: %s", newe)
     else:
         exps.update({'name': name, 'description': desc})
         logger.debug("Update experiments: %s", exps)
+        ret = exps.first()
     session.commit()
 
-    return (db_exp.first(), session)
+    return (ret, session)
 
 
 def persist_likwid(run, session, measurements):

@@ -94,15 +94,17 @@ def persist_project(project):
         newp.domain = dom
         newp.group_name = group
         session.add(newp)
-        logger.debug("New project: %s", newp)
+        logger.debug("Poject INSERT: %s", newp)
     else:
-        projects.update({
+        newp = {
             "name": name,
             "description": desc,
             "src_url": src_url,
             "domain": domain,
             "group_name": group_name
-        })
+        }
+        projects.update(newp)
+        logger.debug("Project UPDATE: %s", newp)
 
     session.commit()
     return (projects, session)
@@ -132,6 +134,7 @@ def persist_experiment(experiment):
         logger.debug("New experiment: %s", newe)
     else:
         exps.update({'name': name, 'description': desc})
+        logger.debug("Update experiments: %s", exps)
     session.commit()
 
     return (db_exp.first(), session)

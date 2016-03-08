@@ -404,10 +404,13 @@ class Experiment(object, metaclass=ExperimentRegistry):
         from logging import error, info
 
         experiment, session = persist_experiment(self)
+        session.begin()
         if experiment.begin is None:
             experiment.begin = datetime.now()
         else:
             experiment.begin = min(experiment.begin, datetime.now())
+        session.add(experiment)
+        session.commit()
 
         try:
             with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment"])):
@@ -422,6 +425,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
             warnings.warn(formatted, category=RuntimeWarning)
             print("Shutting down...")
         finally:
+            session.begin()
             if experiment.end is None:
                 experiment.end = datetime.now()
             else:

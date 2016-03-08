@@ -18,3 +18,4 @@ class Empty(Experiment):
         p.download()
         p.configure()
         p.build()
+        p.clean()

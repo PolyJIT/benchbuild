@@ -128,6 +128,7 @@ def persist_experiment(experiment):
 
     if exps.count() == 0:
         newe = Experiment()
+        newe.id = cfg_exp
         newe.name = name
         newe.description = desc
         session.add(newe)

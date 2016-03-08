@@ -91,7 +91,7 @@ def persist_project(project):
         newp.name = name
         newp.description = desc
         newp.src_url = src_url
-        newp.domain = dom
+        newp.domain = domain
         newp.group_name = group
         session.add(newp)
         logger.debug("Poject INSERT: %s", newp)

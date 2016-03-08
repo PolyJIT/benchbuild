@@ -108,6 +108,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
                             CFG['slurm']['logs'].value())
     slurm_path = __get_slurm_path()
     slurm_ld = __get_slurm_ld_library_path()
+    max_running_jobs = CFG['slurm']['max_running'].value()
     with open(script_name, 'w') as slurm:
         lines = """#!/bin/bash
 #SBATCH -o {log}
@@ -124,7 +125,9 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
             slurm.write("#SBATCH --hint=nomultithread\n")
         if CFG['slurm']['exclusive'].value():
             slurm.write("#SBATCH --exclusive\n")
-        slurm.write("#SBATCH --array=0-{}\n".format(len(projects) - 1))
+        slurm.write("#SBATCH --array=0-{}".format(len(projects) - 1))
+        slurm.write("%{}\n".format(max_running_jobs) if max_running_jobs > 0
+                    else '\n')
         slurm.write("#SBATCH --nice={}\n".format(CFG["slurm"]["nice"].value()))
 
         slurm.write("projects=(\n")

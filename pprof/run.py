@@ -106,10 +106,13 @@ class PprofRun(cli.Application):
         if self._project_names:
             builddir = os.path.abspath(str(CFG["build_dir"]))
             if not os.path.exists(builddir):
-                response = ui.query_yes_no(
-                    "The build directory {dirname} does not exist yet."
-                    "Should I create it?".format(dirname=builddir), "no")
-                if response or not os.isatty(sys.stdin):
+                response = True
+                if os.isatty(sys.stdin):
+                    response = ui.query_yes_no(
+                        "The build directory {dirname} does not exist yet."
+                        "Should I create it?".format(dirname=builddir), "no")
+
+                if response:
                     mkdir("-p", builddir)
                     print("Created directory {}.".format(builddir))
 

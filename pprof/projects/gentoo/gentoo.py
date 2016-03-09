@@ -93,17 +93,24 @@ class GentooGroup(project.Project):
                 run(tar["xfj", self.src_file_portage])
                 rm(self.src_file_portage)
 
-    def configure(self):
-        with local.cwd(self.builddir):
-            with open("etc/portage/bashrc", 'w') as bashrc:
-                lines = '''
-export PATH="/llvm/bin:/pprof/bin:${PATH}"
-export LD_LIBRARY_PAT=H"/llvm/lib:/pprof/lib:${LD_LIBRARY_PATH}"
-'''
-                bashrc.write(lines)
+    def write_wgetrc(self, path):
+        with open(path, 'w') as wgetrc:
+            hp = CFG["gentoo"]["http_proxy"].value()
+            fp = CFG["gentoo"]["ftp_proxy"].value()
+            if hp is not None:
+                http_s = "http_proxy = {}".format(str(hp))
+                https_s = "https_proxy = {}".format(str(hp))
+                wgetrc.write("use_proxy = on\n")
+                wgetrc.write(http_s + "\n")
+                wgetrc.write(https_s + "\n")
 
-            with open("etc/portage/make.conf", 'w') as makeconf:
-                lines = '''
+            if fp is not None:
+                fp_s = "ftp_proxy={}".format(str(fp))
+                wgetrc.write(fp_s + "\n")
+
+    def write_makeconfig(self, path):
+        with open(path, 'w') as makeconf:
+            lines = '''
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 FEATURES="-sandbox -usersandbox -usersync -xattr"
@@ -122,26 +129,46 @@ DISTDIR="${PORTDIR}/distfiles"
 PKGDIR="${PORTDIR}/packages"
 '''
 
-                makeconf.write(lines)
-                hp = CFG["gentoo"]["http_proxy"].value()
-                if hp is not None:
-                    hp_s = "http_proxy={}".format(str(hp))
-                    makeconf.write(hp_s + "\n")
+            makeconf.write(lines)
+            hp = CFG["gentoo"]["http_proxy"].value()
+            if hp is not None:
+                http_s = "http_proxy={}".format(str(hp))
+                https_s = "https_proxy={}".format(str(hp))
+                makeconf.write(http_s + "\n")
+                makeconf.write(https_s + "\n")
 
-                fp = CFG["gentoo"]["ftp_proxy"].value()
-                if fp is not None:
-                    fp_s = "ftp_proxy={}".format(str(fp))
-                    makeconf.write(fp_s + "\n")
+            fp = CFG["gentoo"]["ftp_proxy"].value()
+            if fp is not None:
+                fp_s = "ftp_proxy={}".format(str(fp))
+                makeconf.write(fp_s + "\n")
 
-                rp = CFG["gentoo"]["rsync_proxy"].value()
-                if rp is not None:
-                    rp_s = "RSYNC_PROXY={}".format(str(rp))
-                    makeconf.write(rp_s + "\n")
+            rp = CFG["gentoo"]["rsync_proxy"].value()
+            if rp is not None:
+                rp_s = "RSYNC_PROXY={}".format(str(rp))
+                makeconf.write(rp_s + "\n")
+
+
+    def write_bashrc(self, path):
+        with open(path, 'w') as bashrc:
+            lines = '''
+export PATH="/llvm/bin:/pprof/bin:${PATH}"
+export LD_LIBRARY_PAT=H"/llvm/lib:/pprof/lib:${LD_LIBRARY_PATH}"
+'''
+            bashrc.write(lines)
+
+    def write_layout(self, path):
+        with open(path, 'w') as layoutconf:
+            lines = '''masters = gentoo'''
+            layoutconf.write(lines)
+
+    def configure(self):
+        with local.cwd(self.builddir):
+            self.write_bashrc("etc/portage/bashrc")
+            self.write_makeconfig("etc/portage/make.conf")
+            self.write_wgetrc("etc/wgetrc")
 
             mkdir("-p", "etc/portage/metadata")
-            with open("etc/portage/metadata/layout.conf", 'w') as layoutconf:
-                lines = '''masters = gentoo'''
-                layoutconf.write(lines)
+            self.write_layout("etc/portage/metadata/layout.conf")
             cp("/etc/resolv.conf", "etc/resolv.conf")
 
             config_file = CFG["config_file"].value()

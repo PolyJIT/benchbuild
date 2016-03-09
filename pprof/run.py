@@ -6,6 +6,7 @@ This subcommand executes experiments on a set of user-controlled projects.
 See the output of pprof run --help for more information.
 """
 import os
+import sys
 from plumbum import cli
 from plumbum.cmd import mkdir  # pylint: disable=E0401
 from pprof.settings import CFG
@@ -108,8 +109,9 @@ class PprofRun(cli.Application):
                 response = ui.query_yes_no(
                     "The build directory {dirname} does not exist yet."
                     "Should I create it?".format(dirname=builddir), "no")
-                if response:
+                if response or not os.isatty(sys.stdin):
                     mkdir("-p", builddir)
+                    print("Created directory {}.".format(builddir))
 
         for exp_name in self._experiment_names:
             print("Running experiment: " + exp_name)

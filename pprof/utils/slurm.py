@@ -40,12 +40,6 @@ def __prepare_node_commands():
     return lines
 
 
-def __exec_experiment_commands(cmd):
-    lines = ("\n{command}\n")
-    lines = lines.format(command=str(cmd))
-    return lines
-
-
 def __cleanup_node_commands():
     exp_id = CFG["experiment"].value()
     node_root = CFG["slurm"]["node_dir"].value()

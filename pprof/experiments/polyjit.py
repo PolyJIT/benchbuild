@@ -24,8 +24,9 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
     c.update(config)
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
-    run, session, retcode, _, stderr = \
-        r.guarded_exec(clang, project.name, experiment.name, project.run_uuid)
+    with local.env(PPROF_ENABLE=0):
+        run, session, retcode, _, stderr = \
+            r.guarded_exec(clang, project.name, experiment.name, project.run_uuid)
 
     if retcode == 0:
         stats = []
@@ -430,58 +431,27 @@ class PJITRegression(PolyJIT):
                 p.run(partial(run_raw, p, self, CFG, 1))
 
 
-class PJITcs(PolyJIT):
-    """
-        A simple compile-stats based experiment.
-
-        This enables PolyJIT during the compilation of the project and
-        extracts all stats from LLVM's -stats output.
-    """
-
+class PolyJIT_CompileStats(PolyJIT):
+    """Gather compilestats, with enabled JIT."""
     NAME = "pj-cs"
 
+
     def run_project(self, p):
+        """ 
+        Args:
+            p: The project we run.
+        """
         from pprof.settings import CFG
-        from pprof.utils.schema import CompileStat
 
         p = self.init_project(p)
-        with local.env(PPROF_ENABLE=0):
+        with local.env(PPROF_ENABLE=1):
             from uuid import uuid4
 
+            p.compiler_extension = partial(collect_compilestats, p, self, CFG)
             p.clean()
             p.prepare()
             p.download()
-            with substep("Configure Project"):
-
-                def _track_compilestats(project, experiment, config, clang,
-                                        **kwargs):
-                    from pprof.utils import run as r
-                    from pprof.settings import CFG as c
-                    from pprof.utils.db import persist_compilestats
-                    from pprof.utils.run import handle_stdin
-
-                    c.update(config)
-                    clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
-
-                    run, session, retcode, _, stderr = \
-                        r.guarded_exec(clang, project.name, experiment.name, project.run_uuid)
-
-                    if retcode == 0:
-                        stats = []
-                        for stat in get_compilestats(stderr):
-                            compile_s = CompileStat()
-                            compile_s.name = stat["desc"].rstrip()
-                            compile_s.component = stat["component"].rstrip()
-                            compile_s.value = stat["value"]
-                            stats.append(compile_s)
-                        persist_compilestats(run, session, stats)
-
-                p.run_uuid = uuid4()
-                p.compiler_extension = partial(_track_compilestats, p, self,
-                                               CFG)
-                p.configure()
-
-        with substep("Build Project"):
+            p.configure()
             p.build()
 
 

@@ -146,9 +146,10 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         # Write the experiment command.
         slurm_log_dir = os.path.dirname(CFG['slurm']['logs'].value())
         slurm_log_name = os.path.join(slurm_log_dir, "$_project")
-        slurm.write("( ")
-        slurm.write(str(pprof["-P", "$_project", "-E", experiment]))
-        slurm.write(" 2>&1 ) > \"{exp_log}.log\"\n".format(exp_log=slurm_log_name))
+        slurm.write(str(pprof["-P", "$_project", "-E", experiment]) + "\n")
+        slurm.write(
+            "ln -sf {log} {slurm_log}\n".format(slurm_log=slurm_log_name,
+                                                log=log_path))
 
     chmod("+x", script_name)
 

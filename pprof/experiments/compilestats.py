@@ -8,6 +8,7 @@ by llvm
 """
 
 import parse
+import os
 from plumbum import local
 from pprof.experiment import step, RuntimeExperiment
 from pprof.utils.run import partial
@@ -49,6 +50,35 @@ class CompilestatsExperiment(RuntimeExperiment):
             p: The project we run.
         """
         from pprof.settings import CFG
+
+        with local.env(PPROF_ENABLE=1):
+            p.compiler_extension = partial(collect_compilestats, p, self, CFG)
+            with step("Prepare build directory."):
+                p.clean()
+                p.prepare()
+            with step("Downloading sources."):
+                p.download()
+            with step("Bulding {}.".format(p.name)):
+                p.configure()
+                p.build()
+
+
+class PollyCompilestatsExperiment(RuntimeExperiment):
+    """The compilestats experiment with polly enabled."""
+
+    NAME = "p-cs"
+
+    def run_project(self, p):
+        """
+        Args:
+            p: The project we run.
+        """
+        from pprof.settings import CFG
+
+        llvm_libs = os.path.join(str(CFG["llvm"]["dir"]), "lib")
+        p.ldflags = ["-L" + llvm_libs]
+        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolly.so",
+                    "-mllvm", "-polly"]
 
         with local.env(PPROF_ENABLE=1):
             p.compiler_extension = partial(collect_compilestats, p, self, CFG)

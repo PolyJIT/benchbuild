@@ -26,6 +26,7 @@ An experiment performs the following actions in order:
 
 """
 import warnings
+import logging
 import traceback as tb
 from contextlib import contextmanager
 from abc import abstractmethod
@@ -369,8 +370,17 @@ class Experiment(object, metaclass=ExperimentRegistry):
     def clean(self):
         """Clean the experiment."""
         self.map_projects(self.clean_project, "clean")
-        if (path.exists(self.builddir)) and listdir(self.builddir) == []:
-            rmdir(self.builddir)
+        if path.exists(self.builddir) and listdir(self.builddir) == []:
+            try:
+                rmdir(self.builddir)
+            except ProcessExecutionError as ex:
+                warnings.warn(str(ex), category=RuntimeWarning)
+        else:
+            logger = logging.getLogger(__name__)
+            logger.info("Experiment directory '{}' is not clean.".format(
+                self.builddir))
+
+
 
     def prepare(self):
         """
@@ -398,6 +408,8 @@ class Experiment(object, metaclass=ExperimentRegistry):
             experiment.begin = datetime.now()
         else:
             experiment.begin = min(experiment.begin, datetime.now())
+        session.add(experiment)
+        session.commit()
 
         try:
             with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment"])):

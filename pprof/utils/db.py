@@ -72,26 +72,42 @@ def persist_project(project):
     Args:
         project: The project we want to persist.
     """
-    from pprof.utils import schema
-    session = schema.Session()
-    db_project = session.query(schema.Project).filter(schema.Project.name ==
-                                                      project.name).first()
-    new_project = db_project is None
-    if new_project:
-        db_project = schema.Project()
-    db_project.name = project.name
-    db_project.description = project.__doc__
-    try:
-        db_project.src_url = project.src_uri
-    except AttributeError:
-        db_project.src_url = 'unknown'
+    from pprof.utils.schema import Project, Session
+    session = Session()
+    projects = session.query(Project).filter(Project.name == project.name)
 
-    db_project.domain = project.domain
-    db_project.group_name = project.group_name
-    session.add(db_project)
+    name = project.name
+    desc = project.__doc__
+    src_url = ''
+    domain = project.domain
+    group_name = project.group_name
+    try:
+        src_url = project.src_uri
+    except AttributeError:
+        src_url = 'unknown'
+
+    if projects.count() == 0:
+        newp = Project()
+        newp.name = name
+        newp.description = desc
+        newp.src_url = src_url
+        newp.domain = domain
+        newp.group_name = group_name
+        session.add(newp)
+        logger.debug("Poject INSERT: %s", newp)
+    else:
+        newp_value = {
+            "name": name,
+            "description": desc,
+            "src_url": src_url,
+            "domain": domain,
+            "group_name": group_name
+        }
+        projects.update(newp_value)
+        logger.debug("Project UPDATE: %s", newp_value)
+
     session.commit()
-    if new_project:
-        logger.debug("New project: %s", db_project)
+    return (projects, session)
 
 
 def persist_experiment(experiment):
@@ -101,25 +117,30 @@ def persist_experiment(experiment):
     Args:
         experiment: The experiment we want to persist.
     """
-    from pprof.utils import schema
+    from pprof.utils.schema import Experiment, Session
 
-    session = schema.Session()
+    session = Session()
 
-    cfg_exp = str(CFG['experiment'])
-    db_exp = session.query(schema.Experiment).filter(schema.Experiment.id ==
-                                                     cfg_exp).first()
-    new_experiment = db_exp is None
-    if new_experiment:
-        db_exp = schema.Experiment()
-    db_exp.name = experiment.name
-    db_exp.description = str(CFG["experiment_description"])
-    db_exp.id = cfg_exp
+    cfg_exp = CFG['experiment'].value()
+    exps = session.query(Experiment).filter(Experiment.id == cfg_exp)
+    desc = CFG["experiment_description"].value()
+    name = experiment.name
 
-    session.add(db_exp)
+    if exps.count() == 0:
+        newe = Experiment()
+        newe.id = cfg_exp
+        newe.name = name
+        newe.description = desc
+        session.add(newe)
+        ret = newe
+        logger.debug("New experiment: %s", newe)
+    else:
+        exps.update({'name': name, 'description': desc})
+        logger.debug("Update experiments: %s", exps)
+        ret = exps.first()
     session.commit()
-    if new_experiment:
-        logger.debug("New experiment: %s", db_exp)
-    return (db_exp, session)
+
+    return (ret, session)
 
 
 def persist_likwid(run, session, measurements):

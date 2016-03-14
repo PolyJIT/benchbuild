@@ -478,6 +478,10 @@ CFG["slurm"] = {
     "nice": {
         "desc": "Add a niceness value on our priority",
         "default": 0
+    },
+    "max_running": {
+        "desc": "Limit the number of concurrent running array jobs",
+        "default": 0
     }
 
 }

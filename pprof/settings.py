@@ -472,10 +472,6 @@ CFG["slurm"] = {
         "desc": "Hint SLURM to allow multithreading. (--hint=nomultithread)",
         "default": False
     },
-    "timelimit": {
-        "desc": "Set a timelimit for the jobs.",
-        "default": "12:00:00"
-    },
     "logs": {
         "desc": "Location the SLURM logs will be stored",
         "default": "slurm.log"

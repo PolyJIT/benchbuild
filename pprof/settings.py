@@ -411,6 +411,11 @@ CFG['gentoo'] = {
         "default": "C, C++",
         "desc": "Language filter for ebuilds."
     },
+    "autotest_use": {
+        "default": "",
+        "desc":
+        "USE filter for ebuilds. Filters packages without the given use flags."
+    },
     "autotest_loc": {
         "default": "/tmp/gentoo-autotest",
         "desc": "Location for the list of auto generated ebuilds."

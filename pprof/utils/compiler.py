@@ -208,8 +208,8 @@ def continue_on_fail(exc, cmd):
     log.error("Failed to execute - %s", str(cmd))
     log.error(str(exc))
     final_command = CC[flags, LDFLAGS]
-    log.warning("New Command: %s", str(cmd))
-    _, success = run(cmd)
+    log.warning("New Command: %s", str(final_command))
+    _, success = run(final_command)
 
 def run(cmd):
     try:

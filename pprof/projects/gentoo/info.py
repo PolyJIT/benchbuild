@@ -35,6 +35,8 @@ class Info(pg.AutoPortage):
 
             use_flags = CFG["gentoo"]["autotest_use"].value().split(' ')
             for use in use_flags:
+                if use == "":
+                    continue
                 equery_in_chroot = uchroot()["/usr/bin/equery"]
                 output = equery_in_chroot("-q", "hasuse", "-p", use)
                 ebuilds_use = set()

@@ -408,8 +408,8 @@ CFG['db'] = {
 
 CFG['gentoo'] = {
     "autotest_lang": {
-        "default": "C, C++",
-        "desc": "Language filter for ebuilds."
+        "default": "",
+        "desc": "Language filter for ebuilds, like C or C++."
     },
     "autotest_use": {
         "default": "",

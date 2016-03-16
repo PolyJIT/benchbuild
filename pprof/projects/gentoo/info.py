@@ -58,3 +58,5 @@ def get_string_for_language(language_name):
         return "tc-getCC"
     if language_name == "c++" or language_name == "cxx":
         return "tc-getCXX"
+    if language_name == "":
+        return ""

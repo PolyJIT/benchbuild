@@ -7,7 +7,7 @@ from plumbum import cli
 
 logging.basicConfig(
     format=
-    '%(asctime)s [%(levelname)s] %(filename)s.%(funcName)s:%(lineno)s - %(message)s',
+    '%(name)s [%(levelname)s] %(module)s:%(lineno)s - %(message)s',
     datefmt='%H:%M:%S',
     level=logging.WARN)
 
@@ -19,12 +19,7 @@ class PollyProfiling(cli.Application):
     _config_path = "./.pprof_config.py"
     _list_env = False
 
-    @cli.switch(["-v", "--verbose"], help="Enable verbose output")
-    def verbose(self):
-        """Enable verbose output."""
-        LOG = logging.getLogger()
-        LOG.addHandler(logging.StreamHandler(sys.stderr))
-        LOG.setLevel(logging.DEBUG)
+    verbosity = cli.CountOf('-v', help="Enable verbose output")
 
     @cli.switch(
         ["-c", "--config"],
@@ -57,10 +52,19 @@ class PollyProfiling(cli.Application):
             self.do_list_env()
             return
 
-        self._config_path = os.path.abspath(self._config_path)
-        if os.path.exists(self._config_path):
-            if settings.load_config(self._config_path, settings.config):
-                print(("Configuration loaded from file " + self._config_path))
+        log_levels = {
+            3: logging.DEBUG,
+            2: logging.INFO,
+            1: logging.WARNING,
+            0: logging.ERROR
+        }
+
+        self.verbosity = self.verbosity if self.verbosity < 4 else 3
+        logging.captureWarnings(True)
+
+        LOG = logging.getLogger()
+        LOG.addHandler(logging.StreamHandler(sys.stderr))
+        LOG.setLevel(log_levels[self.verbosity])
 
         if args:
             print("Unknown command %r" % (args[0], ))

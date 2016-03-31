@@ -150,14 +150,13 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         slurm.write(__cleanup_node_commands())
 
         slurm.write("_project=\"${projects[$SLURM_ARRAY_TASK_ID]}\"\n")
+        prj_log_path = os.path.join(CFG['build_dir'].value(), '$_project')
+        slurm.write("exec 2>&1 > {log}\n".format(log=prj_log_path))
 
         # Write the experiment command.
         slurm_log_dir = os.path.dirname(CFG['slurm']['logs'].value())
         slurm_log_name = os.path.join(slurm_log_dir, "$_project")
         slurm.write(str(pprof["-P", "$_project", "-E", experiment]) + "\n")
-        slurm.write(
-            "ln -sf {log} {slurm_log}\n".format(slurm_log=slurm_log_name,
-                                                log=log_path))
 
     chmod("+x", script_name)
 

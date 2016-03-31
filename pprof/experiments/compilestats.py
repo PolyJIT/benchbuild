@@ -9,6 +9,7 @@ by llvm
 
 import parse
 import os
+import warnings
 from plumbum import local
 from pprof.experiment import step, RuntimeExperiment
 from pprof.utils.run import partial
@@ -95,9 +96,18 @@ class PollyCompilestatsExperiment(RuntimeExperiment):
 def get_compilestats(prog_out):
     """ Get the LLVM compilation stats from :prog_out:. """
 
+    class CompileStatsParserError(RuntimeWarning):
+        pass
+
     stats_pattern = parse.compile("{value:d} {component} - {desc}\n")
 
     for line in prog_out.split("\n"):
-        res = stats_pattern.search(line + "\n")
-        if res is not None:
-            yield res
+        if line:
+            try:
+                res = stats_pattern.search(line + "\n")
+            except ValueError as e:
+                warnings.warn("Triggered a parser exception for: '" + line +
+                              "'\n", CompileStatsParserError)
+                res = None
+            if res is not None:
+                yield res

@@ -187,18 +187,17 @@ def invoke_external_measurement(cmd):
                PPROF_DB_NAME=DB_NAME,
                PPROF_DB_USER=DB_USER,
                PPROF_DB_PASS=DB_PASS):
-        if "conftest.c" not in input_files:
-            with local.env(PPROF_CMD=str(cmd)):
-                if os.path.exists(BLOB_F):
-                    with open(BLOB_F,
-                              "rb") as p:
-                        f = dill.load(p)
+        with local.env(PPROF_CMD=str(cmd)):
+            if os.path.exists(BLOB_F):
+                with open(BLOB_F,
+                          "rb") as p:
+                    f = dill.load(p)
 
-                if f is not None:
-                    if not sys.stdin.isatty():
-                        f(cmd, has_stdin=True)
-                    else:
-                        f(cmd)
+            if f is not None:
+                if not sys.stdin.isatty():
+                    f(cmd, has_stdin=True)
+                else:
+                    f(cmd)
 
 def continue_on_success(retcode, stdout, stderr, cmd):
     invoke_external_measurement(cmd)
@@ -207,8 +206,8 @@ def continue_on_success(retcode, stdout, stderr, cmd):
 def continue_on_fail(exc, cmd):
     log.error("Failed to execute - %s", str(cmd))
     log.error(str(exc))
-    final_command = CC[flags, LDFLAGS]
-    log.warning("New Command: %s", str(final_command))
+    final_command = CC[flags]
+    log.info("New Command: %s", str(final_command))
     _, success = run(final_command)
 
 def run(cmd):
@@ -222,7 +221,9 @@ def run(cmd):
 
 def construct_cc(cc, flags, CFLAGS, LDFLAGS, ifiles):
     if len(input_files) > 0:
-        if "-c" in flags:
+        if "conftest.c" in input_files:
+            final_command = CC[flags]
+        elif "-c" in flags:
             final_command = CC["-Qunused-arguments", CFLAGS, LDFLAGS,
                                flags]
         else:

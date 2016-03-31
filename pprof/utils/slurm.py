@@ -107,8 +107,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
     """
-    log_path = os.path.join(CFG['build_dir'].value(),
-                            CFG['slurm']['logs'].value())
+    log_path = os.path.join(CFG['slurm']['logs'].value())
     slurm_path = __get_slurm_path()
     slurm_ld = __get_slurm_ld_library_path()
     max_running_jobs = CFG['slurm']['max_running'].value()
@@ -150,8 +149,9 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         slurm.write(__cleanup_node_commands())
 
         slurm.write("_project=\"${projects[$SLURM_ARRAY_TASK_ID]}\"\n")
-        prj_log_path = os.path.join(CFG['build_dir'].value(), '$_project')
-        slurm.write("exec 2>&1 > {log}\n".format(log=prj_log_path))
+        slurm_log_path = os.path.join(
+            os.path.dirname(CFG['slurm']['logs'].value()), '$_project')
+        slurm.write("exec 2>&1 > {log}\n".format(log=slurm_log_path))
 
         # Write the experiment command.
         slurm_log_dir = os.path.dirname(CFG['slurm']['logs'].value())

@@ -59,11 +59,11 @@ def __cleanup_node_commands():
              "  ) > \"$file\"\n"
              "  _inner_file=$(mktemp -q) && {{\n"
              "    (\n"
-             "    cat <<'EOF'\n"
+             "    cat <<EOF\n"
              "#!/bin/sh\n"
              "if [ ! -f '{lockfile}' ]; then\n"
              "  touch '{lockfile}'\n"
-             "  SLURM_JOB_NAME="" sbatch -A {slurm_account} -p {slurm_partition} "
+             "  sbatch --jobname='{name}' -A {slurm_account} -p {slurm_partition} "
              "--dependency=afterany:$SLURM_ARRAY_JOB_ID "
              "--nodelist=$SLURM_JOB_NODELIST -n 1 -c 1 \"$file\"\n"
              "fi\n"
@@ -80,7 +80,8 @@ def __cleanup_node_commands():
                          node_root=node_root,
                          prefix=prefix,
                          slurm_account=slurm_account,
-                         slurm_partition=slurm_partition)
+                         slurm_partition=slurm_partition,
+                         name="\$(hostname)-cleanup")
     return lines
 
 

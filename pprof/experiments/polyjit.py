@@ -280,6 +280,7 @@ class PolyJIT(RuntimeExperiment):
                           "LLVMPolyJIT.so", "-O3", "-mllvm", "-jitable",
                           "-mllvm", "-polly-only-scop-detection", "-mllvm",
                           "-polly-delinearize=false", "-mllvm",
+                          "-polli-analyze", "-mllvm",
                           "-polly-detect-keep-going", "-mllvm", "-polli"]
         return project
 
@@ -434,7 +435,6 @@ class PJITRegression(PolyJIT):
 class PolyJIT_CompileStats(PolyJIT):
     """Gather compilestats, with enabled JIT."""
     NAME = "pj-cs"
-
 
     def run_project(self, p):
         """ 

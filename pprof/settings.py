@@ -253,7 +253,7 @@ CFG = Configuration(
     node={
         "config_file": {
             "desc": "Config file path of pprof. Not guaranteed to exist.",
-            "default": os.path.join(os.curdir, ".pprof.json"),
+            "default": None,
         },
         "src_dir": {
             "desc":
@@ -532,7 +532,10 @@ def __init_config(cfg):
              file right now. (init_from_env will refuse to update the
              value, if there is already one.)
     """
-    config_path = find_config()
+    config_path = os.getenv("PPROF_CONFIG_FILE", None)
+    if not config_path:
+        config_path = find_config()
+
     if config_path:
         cfg.load(config_path)
         print("Configuration loaded from {}".format(os.path.abspath(

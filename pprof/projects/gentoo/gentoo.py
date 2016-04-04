@@ -244,7 +244,7 @@ class AutoPolyJITDepsStage3(GentooGroup):
                 with local.env(USE="static-libs"):
                     run(emerge_in_chroot["dev-libs/libpfm"])
                 run(emerge_in_chroot["dev-libs/papi"])
-                run(emerge_in_chroot["time"])
+                run(emerge_in_chroot["sys-process/time"])
                 run(emerge_in_chroot["fakeroot"])
 
             tgt_path = path.join(root, self.src_file)
@@ -292,20 +292,3 @@ class AutoPrepareStage3(GentooGroup):
     def run_tests(self, experiment):
         pass
 
-
-class Eix(GentooGroup):
-    """
-    Represents the package eix from the portage tree.
-
-    Building this class will create bare gentoo and compile eix.
-    """
-    NAME = 'eix'
-    DOMAIN = 'debug'
-
-    def build(self):
-        with local.cwd(self.builddir):
-            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-            run(emerge_in_chroot["eix"])
-
-    def run_tests(self, experiment):
-        pass

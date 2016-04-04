@@ -15,6 +15,7 @@ from . import lammps
 from . import x264
 from . import crafty
 from . import info
+from . import eix
 
 from pprof.settings import CFG
 # Dynamically create projects from the gentoo ebuild index.

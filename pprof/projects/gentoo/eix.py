@@ -25,8 +25,12 @@ class Eix(GentooGroup):
         """Runs runtime tests for eix"""
         from pprof.project import wrap
 
-        wrap(path.join(self.builddir, "usr", "bin", "bzip2"), experiment,
+        wrap(path.join(self.builddir, "usr", "bin", "eix"), experiment,
              self.builddir)
         eix = uchroot()["/usr/bin/eix"]
-        run(eix)
-        run(eix["clang"])
+
+        wrap(path.join(self.builddir, "usr", "bin", "time"), experiment,
+             self.builddir)
+        time = uchroot()["/usr/bin/time"]
+
+        run(time["eix", "clang"])

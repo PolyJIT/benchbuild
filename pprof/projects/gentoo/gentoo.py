@@ -277,6 +277,19 @@ class AutoPrepareStage3(GentooGroup):
         root = CFG["tmp_dir"].value()
         src_file = self.src_file + ".new"
         with local.cwd(self.builddir):
+            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+            run(emerge_in_chroot["dev-python/chardet"])
+            run(emerge_in_chroot["--nodeps", "dev-python/requests"])
+            run(emerge_in_chroot["--nodeps", "dev-python/CacheControl"])
+            run(emerge_in_chroot["dev-python/lockfile"])
+            run(emerge_in_chroot["--nodeps", "dev-python/pip"])
+
+            run(emerge_in_chroot["dev-db/postgresql"])
+
+            run(emerge_in_chroot["fakeroot"])
+
+            run(emerge_in_chroot["net-misc/curl"])
+
             mkdir("-p", "pprof-src")
             w_pprof_src = uchroot("-m",
                                   "{}:pprof-src".format(str(CFG["src_dir"])))

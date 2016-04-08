@@ -12,11 +12,12 @@ from pprof.settings import CFG
 
 INFO = logging.info
 
-def __prepare_node_commands():
+def __prepare_node_commands(experiment):
     """Get a list of bash commands that prepare the SLURM node."""
     exp_id = CFG["experiment"].value()
     node_root = CFG["slurm"]["node_dir"].value()
     prefix = os.path.join(node_root, exp_id)
+    node_image = CFG["slurm"]["node_image"].value()
     llvm_src = CFG["llvm"]["dir"].value().rstrip("/")
     llvm_tgt = os.path.join(prefix, "llvm").rstrip("/")
     lockfile = prefix + ".lock"
@@ -28,7 +29,7 @@ def __prepare_node_commands():
              "  if [ ! -d '{prefix}' ]; then\n"
              "    echo \"$(date) [$(hostname)] copy LLVM to node\"\n"
              "    mkdir -p '{prefix}'\n"
-             "    cp -ar '{llvm_src}' '{llvm_tgt}'\n"
+             "    tar xaf '{node_image}' -C '{prefix}'\n"
              "  fi\n"
              "  rm '{lockfile}'\n"
              "}}\n"
@@ -36,7 +37,8 @@ def __prepare_node_commands():
     lines = lines.format(prefix=prefix,
                          llvm_src=llvm_src,
                          llvm_tgt=llvm_tgt,
-                         lockfile=lockfile)
+                         lockfile=lockfile,
+                         node_image=node_image)
 
     return lines
 
@@ -147,7 +149,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         slurm.write("exec 1> {log}\n".format(log=slurm_log_path))
         slurm.write("exec 2>&1\n")
 
-        slurm.write(__prepare_node_commands())
+        slurm.write(__prepare_node_commands(experiment))
         slurm.write("\n")
         cfg_vars = repr(CFG).split('\n')
         cfg_vars = "\nexport ".join(cfg_vars)

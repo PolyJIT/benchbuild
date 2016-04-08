@@ -483,8 +483,11 @@ CFG["slurm"] = {
     "max_running": {
         "desc": "Limit the number of concurrent running array jobs",
         "default": 0
+    },
+    "node_image": {
+        "desc": "Path to the archive we want on each cluster node.",
+        "default": os.path.join(os.path.curdir, "llvm.tar.gz")
     }
-
 }
 
 CFG["perf"] = {

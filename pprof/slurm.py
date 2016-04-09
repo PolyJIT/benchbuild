@@ -51,26 +51,28 @@ class Slurm(cli.Application):
 
     @cli.switch(["-G", "--group"],
                 str,
+                list=True,
                 requires=["--experiment"],
                 help="Run a group of projects under the given experiments")
-    def group(self, group):
+    def group(self, groups):
         """Run a group of projects under the given experiments"""
-        self._group_name = group
+        self._group_names = groups
 
     def __go__(self, project_names, group_name, exp_name):
         prj_registry = project.ProjectRegistry
         projects = prj_registry.projects
         project_names = self._project_names
-        group_name = self._group_name
+        group_names = self._group_names
         if project_names is not None:
             allkeys = set(list(projects.keys()))
             usrkeys = set(project_names)
             projects = {x: projects[x] for x in allkeys & usrkeys}
 
-        if group_name is not None:
+        if group_names is not None:
+            groupkeys = set(group_names)
             projects = {
                 name: cls
-                for name, cls in projects.items() if cls.GROUP == group_name
+                for name, cls in projects.items() if cls.GROUP in groupkeys
             }
 
         projects = {x: projects[x]

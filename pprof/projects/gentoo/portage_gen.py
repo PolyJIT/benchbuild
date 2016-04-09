@@ -71,6 +71,7 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=AutoPortage):
     newclass = type(name, (BaseClass,), {
         "NAME" : NAME,
         "DOMAIN" : DOMAIN,
+        "GROUP" : "auto-gentoo",
         "run" : run_not_supported,
         "__module__" : "__main__"
     })

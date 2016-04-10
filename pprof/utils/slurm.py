@@ -16,10 +16,11 @@ def __prepare_node_commands(experiment):
     """Get a list of bash commands that prepare the SLURM node."""
     exp_id = CFG["experiment"].value()
     node_root = CFG["slurm"]["node_dir"].value()
+
     prefix = os.path.join(node_root, exp_id)
     node_image = CFG["slurm"]["node_image"].value()
     llvm_src = CFG["llvm"]["dir"].value().rstrip("/")
-    llvm_tgt = os.path.join(prefix, "llvm").rstrip("/")
+    llvm_tgt = os.path.join(prefix, experiment).rstrip("/")
     lockfile = prefix + ".lock"
 
     CFG["llvm"]["dir"] = llvm_tgt

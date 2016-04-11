@@ -287,11 +287,10 @@ class AutoPrepareStage3(GentooGroup):
             run(emerge_in_chroot["dev-python/lockfile"])
             run(emerge_in_chroot["--nodeps", "dev-python/pip"])
 
-            run(emerge_in_chroot["dev-db/postgresql"])
-
-            run(emerge_in_chroot["fakeroot"])
-
-            run(emerge_in_chroot["net-misc/curl"])
+            with local.env(CC="gcc", CXX="g++"):
+                run(emerge_in_chroot["dev-db/postgresql"])
+                run(emerge_in_chroot["fakeroot"])
+                run(emerge_in_chroot["net-misc/curl"])
 
             mkdir("-p", "pprof-src")
             w_pprof_src = uchroot("-m",

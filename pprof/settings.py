@@ -9,6 +9,7 @@ import os
 import uuid
 import re
 import warnings
+import logging
 from datetime import datetime
 
 
@@ -541,7 +542,7 @@ def __init_config(cfg):
 
     if config_path:
         cfg.load(config_path)
-        print("Configuration loaded from {}".format(os.path.abspath(
+        logging.debug("Configuration loaded from {}".format(os.path.abspath(
             config_path)))
     cfg.init_from_env()
 

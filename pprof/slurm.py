@@ -22,7 +22,7 @@ class Slurm(cli.Application):
         super(Slurm, self).__init__(executable)
         self._experiment = None
         self._project_names = None
-        self._group_name = None
+        self._group_names = None
         self._description = None
 
     @cli.switch(["-E", "--experiment"],
@@ -58,16 +58,16 @@ class Slurm(cli.Application):
         """Run a group of projects under the given experiments"""
         self._group_names = groups
 
-    def __go__(self, project_names, group_name, exp_name):
+    def __go__(self, project_names, exp_name):
         prj_registry = project.ProjectRegistry
         projects = prj_registry.projects
         project_names = self._project_names
-        group_names = self._group_names
         if project_names is not None:
             allkeys = set(list(projects.keys()))
             usrkeys = set(project_names)
             projects = {x: projects[x] for x in allkeys & usrkeys}
 
+        group_names = self._group_names
         if group_names is not None:
             groupkeys = set(group_names)
             projects = {
@@ -88,7 +88,6 @@ class Slurm(cli.Application):
         """Main entry point of pprof run."""
         exp_registry = experiment.ExperimentRegistry
         project_names = self._project_names
-        group_name = self._group_name
         exp_name = self._experiment
 
         if self._description:
@@ -100,7 +99,7 @@ class Slurm(cli.Application):
 
         print("Experiment: " + exp_name)
         if exp_name in exp_registry.experiments:
-            self.__go__(project_names, group_name, exp_name)
+            self.__go__(project_names, exp_name)
         else:
             from logging import error
             error("Could not find {} in the experiment registry.", exp_name)

@@ -238,6 +238,7 @@ class AutoPolyJITDepsStage3(GentooGroup):
         src_file = self.src_file + ".new"
         with local.cwd(self.builddir):
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+            emerge_boost = uchroot(uid=501, gid=10)["/usr/bin/emerge"]
             with local.env(CC="gcc", CXX="g++", ACCEPT_KEYWORDS="~amd64"):
                 with local.env(USE="-filecaps"):
                     run(emerge_in_chroot["likwid"])
@@ -245,6 +246,8 @@ class AutoPolyJITDepsStage3(GentooGroup):
                     run(emerge_in_chroot["dev-libs/libpfm"])
                 run(emerge_in_chroot["dev-libs/papi"])
                 run(emerge_in_chroot["sys-process/time"])
+                run(emerge_boost["dev-utils/boost-build"])
+                run(emerge_boost["dev-libs/boost"])
                 run(emerge_in_chroot["fakeroot"])
 
             tgt_path = path.join(root, self.src_file)

@@ -280,6 +280,9 @@ class AutoPrepareStage3(GentooGroup):
         root = CFG["tmp_dir"].value()
         src_file = self.src_file + ".new"
         with local.cwd(self.builddir):
+            sed_in_chroot = uchroot()["/bin/sed"]
+            run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
+            run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
             run(emerge_in_chroot["dev-python/chardet"])
             run(emerge_in_chroot["--nodeps", "dev-python/requests"])

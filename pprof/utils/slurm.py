@@ -72,7 +72,7 @@ def __cleanup_node_commands(logfile):
              "if [ ! -f '{lockfile}' ]; then\n"
              "  touch '{lockfile}'\n"
              "  echo \"\$(date) [\$(hostname)] clean for \$(hostname)\"\n"
-             "  sbatch --time="15:00" --job-name=\"\$(hostname)-cleanup\" -A {slurm_account} "
+             "  sbatch --time=\"15:00\" --job-name=\"\$(hostname)-cleanup\" -A {slurm_account} "
              "-p {slurm_partition} "
              "--dependency=afterany:$SLURM_ARRAY_JOB_ID "
              "--nodelist=$SLURM_JOB_NODELIST -n 1 -c 1 \"$file\"\n"

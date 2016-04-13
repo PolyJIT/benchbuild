@@ -295,6 +295,10 @@ class AutoPrepareStage3(GentooGroup):
                 run(emerge_in_chroot["fakeroot"])
                 run(emerge_in_chroot["net-misc/curl"])
 
+                # We need the unstable portage version
+                with local.env(ACCEPT_KEYWORDS="~*"):
+                    run(emerge_in_chroot["sys-apps/portage"])
+
             mkdir("-p", "pprof-src")
             w_pprof_src = uchroot("-m",
                                   "{}:pprof-src".format(str(CFG["src_dir"])))

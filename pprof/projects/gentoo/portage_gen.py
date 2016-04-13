@@ -17,9 +17,9 @@ class AutoPortage(GentooGroup):
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
             etc_update = uchroot()["/usr/sbin/etc-update"]
             prog = self.DOMAIN + "/" + str(self.NAME)[len(self.DOMAIN)+1:]
-            emerge_in_chroot("--autounmask-only=y", "--autounmask-write=y",
-                             prog, retcode=None)
-            etc_update("-q", "--automode", "-3", retcode=None)
+            with local.env(CONFIG_PROTECT=""):
+                emerge_in_chroot("--autounmask-only=y", "--autounmask-write=y",
+                                 prog, retcode=None)
             run(emerge_in_chroot[prog])
 
     def run_tests(self, experiment):

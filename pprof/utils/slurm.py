@@ -15,9 +15,7 @@ INFO = logging.info
 def __prepare_node_commands(experiment):
     """Get a list of bash commands that prepare the SLURM node."""
     exp_id = CFG["experiment"].value()
-    node_root = CFG["slurm"]["node_dir"].value()
-
-    prefix = os.path.join(node_root, exp_id)
+    prefix = CFG["slurm"]["node_dir"].value()
     node_image = CFG["slurm"]["node_image"].value()
     llvm_src = CFG["llvm"]["dir"].value().rstrip("/")
     llvm_tgt = os.path.join(prefix, experiment).rstrip("/")
@@ -46,9 +44,8 @@ def __prepare_node_commands(experiment):
 
 def __cleanup_node_commands(logfile):
     exp_id = CFG["experiment"].value()
-    node_root = CFG["slurm"]["node_dir"].value()
-    prefix = os.path.join(node_root, exp_id)
-    lockfile = os.path.join(node_root, exp_id + ".clean-in-progress.lock")
+    prefix = CFG["slurm"]["node_dir"].value()
+    lockfile = os.path.join(prefix + ".clean-in-progress.lock")
     slurm_account = CFG["slurm"]["account"]
     slurm_partition = CFG["slurm"]["partition"]
     lines = ("\n# Cleanup the cluster node, after the array has finished.\n"
@@ -59,9 +56,6 @@ def __cleanup_node_commands(logfile):
              "exec 1> {logfile}\n"
              "exec 2>&1\n"
              "echo \"\$(date) [\$(hostname)] node cleanup begin\"\n"
-             "find '{node_root}' -maxdepth 1 -type d -ctime +1 "
-             "-exec rm -rf {{}} \\\; , "
-             "-type f -ctime +1 -exec rm -f {{}} \\\;\n"
              "rm -r \"{prefix}\"\n"
              "rm \"{lockfile}\"\n"
              "echo \"\$(date) [\$(hostname)] node cleanup end\"\n"
@@ -85,7 +79,6 @@ def __cleanup_node_commands(logfile):
              "}}\n")
     lines = lines.format(lockfile=lockfile,
                          lockdir=prefix,
-                         node_root=node_root,
                          prefix=prefix,
                          slurm_account=slurm_account,
                          slurm_partition=slurm_partition,

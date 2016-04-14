@@ -498,6 +498,17 @@ CFG["perf"] = {
     }
 }
 
+CFG["cs"] = {
+    "components": {
+        "default": None,
+        "desc":
+        "List of filters for compilestats components."
+    },
+    "names": {
+        "default": None,
+        "desc": "List of filters for compilestats names."
+    }
+}
 
 def find_config(default='.pprof.json', root=os.curdir):
     """

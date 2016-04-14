@@ -278,10 +278,7 @@ class PolyJIT(RuntimeExperiment):
         project.ldflags = ["-L" + el for el in ld_lib_path] + project.ldflags
         project.cflags = ["-Rpass=\"polyjit*\"", "-Xclang", "-load", "-Xclang",
                           "LLVMPolyJIT.so", "-O3", "-mllvm", "-jitable",
-                          "-mllvm", "-polly-only-scop-detection", "-mllvm",
-                          "-polly-delinearize=false", "-mllvm",
-                          "-polli-analyze", "-mllvm",
-                          "-polly-detect-keep-going", "-mllvm", "-polli"]
+                          "-mllvm", "-polli-analyze", "-mllvm", "-polli"]
         return project
 
     @abstractmethod

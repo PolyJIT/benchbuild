@@ -153,6 +153,9 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         slurm.write("export PATH={p}\n".format(p=slurm_path))
         slurm.write("export LD_LIBRARY_PATH={p}\n".format(p=slurm_ld))
         slurm.write("\n")
+        slurm.write("scontrol update JobId=$SLURM_JOB_ID ")
+        slurm.write("JobName=\"{} $_project\"\n".format(experiment))
+        slurm.write("\n")
 
         # Write the experiment command.
         slurm.write(__cleanup_node_commands(slurm_log_path))

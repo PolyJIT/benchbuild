@@ -37,6 +37,14 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
             compile_s.component = stat["component"].rstrip()
             compile_s.value = stat["value"]
             stats.append(compile_s)
+
+        components = c["cs"]["components"].value()
+        if components is not None:
+            stats = [ s for s in stats if str(s.component) in components]
+        names = c["cs"]["names"].value()
+        if names is not None:
+            stats = [ s for s in stats if str(s.name) in names]
+
         persist_compilestats(run, session, stats)
 
 

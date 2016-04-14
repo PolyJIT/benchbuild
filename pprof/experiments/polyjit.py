@@ -8,35 +8,10 @@ from abc import abstractmethod
 from os import path
 from plumbum.cmd import rm, time  # pylint: disable=E0401
 from plumbum import local
+from pprof.experiments.compilestats import collect_compilestats
 from pprof.experiments.compilestats import get_compilestats
 from pprof.experiment import step, substep, RuntimeExperiment
 from pprof.utils.run import partial
-
-
-def collect_compilestats(project, experiment, config, clang, **kwargs):
-    """Collect compilestats."""
-    from pprof.utils import run as r
-    from pprof.settings import CFG as c
-    from pprof.utils.db import persist_compilestats
-    from pprof.utils.run import handle_stdin
-    from pprof.utils.schema import CompileStat
-
-    c.update(config)
-    clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
-
-    with local.env(PPROF_ENABLE=0):
-        run, session, retcode, _, stderr = \
-            r.guarded_exec(clang, project.name, experiment.name, project.run_uuid)
-
-    if retcode == 0:
-        stats = []
-        for stat in get_compilestats(stderr):
-            compile_s = CompileStat()
-            compile_s.name = stat["desc"].rstrip()
-            compile_s.component = stat["component"].rstrip()
-            compile_s.value = stat["value"]
-            stats.append(compile_s)
-        persist_compilestats(run, session, stats)
 
 
 def run_raw(project, experiment, config, run_f, args, **kwargs):

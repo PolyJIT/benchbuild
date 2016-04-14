@@ -268,11 +268,6 @@ class AutoPrepareStage3(GentooGroup):
     DOMAIN = "debug"
 
     def build(self):
-        import sys
-        # Don't do something when running non-interactive.
-        if not sys.stdout.isatty():
-            return
-
         from plumbum import FG
         from pprof.utils.downloader import update_hash
         from logging import info

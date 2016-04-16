@@ -311,7 +311,7 @@ def run(command, retcode=0):
         raise GuardedRunException(exception, None, None)
 
 
-def uchroot(*args, **kwargs):
+def uchroot_no_llvm(*args, **kwargs):
     """
     Returns a uchroot command which can be called with other args to be
             executed in the uchroot.
@@ -329,7 +329,19 @@ def uchroot(*args, **kwargs):
     mkdir("-p", "llvm")
     uchroot_cmd = local["./uchroot"]
     uchroot_cmd = uchroot_cmd["-C", "-w", "/", "-r", "."]
-    uchroot_cmd = uchroot_cmd["-m", str(CFG["llvm"]["dir"]) + ":llvm"]
     uchroot_cmd = uchroot_cmd["-u", str(uid), "-g", str(gid)]
+    return uchroot_cmd[args]
+
+def uchroot(*args, **kwargs):
+    """
+    Returns a uchroot command which can be called with other args to be
+            executed in the uchroot.
+    Args:
+        args: List of additional arguments for uchroot (typical: mounts)
+    Return:
+        chroot_cmd
+    """
+    uchroot_cmd = uchroot_no_llvm(args, kwargs)
+    uchroot_cmd = uchroot_cmd["-m", str(CFG["llvm"]["dir"]) + ":llvm"]
     uchroot_cmd = uchroot_cmd.setenv(LD_LIBRARY_PATH="/llvm/lib")
-    return uchroot_cmd[args, "--"]
+    return uchroot_cmd["--"]

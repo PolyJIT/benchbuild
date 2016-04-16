@@ -87,6 +87,11 @@ def escape_json(raw_str):
     Args:
         raw_str: The unescaped string.
     """
+    json_list = '['
+    json_set = '{'
+    if json_list not in raw_str and json_set not in raw_str:
+        return raw_str
+
     str_quotes = '"'
     i_str_quotes = "'"
     if str_quotes in raw_str and str_quotes not in raw_str[1:-1]:

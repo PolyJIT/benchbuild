@@ -7,7 +7,7 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 from plumbum import local
-from plumbum.cmd import chmod, mkdir # pylint: disable=E0401
+from plumbum.cmd import bash, chmod, mkdir # pylint: disable=E0401
 from pprof.settings import CFG
 
 INFO = logging.info
@@ -161,6 +161,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         slurm.write(__cleanup_node_commands(slurm_log_path))
         slurm.write(str(pprof["-P", "$_project", "-E", experiment]) + "\n")
 
+    bash("-n", script_name)
     chmod("+x", script_name)
 
 

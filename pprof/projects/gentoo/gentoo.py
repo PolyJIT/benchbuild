@@ -19,7 +19,7 @@ from plumbum.cmd import mkdir, curl, cut, tail  # pylint: disable=E0401
 from plumbum import local
 from pprof.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from pprof import project
-from pprof.utils.run import run, uchroot
+from pprof.utils.run import run, uchroot, uchroot_no_llvm
 from pprof.utils.downloader import Wget
 from pprof.settings import CFG
 from lazy import lazy
@@ -275,10 +275,10 @@ class AutoPrepareStage3(GentooGroup):
         root = CFG["tmp_dir"].value()
         src_file = self.src_file + ".new"
         with local.cwd(self.builddir):
-            sed_in_chroot = uchroot()["/bin/sed"]
+            sed_in_chroot = uchroot_no_llvm()["/bin/sed"]
             run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
             run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
-            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+            emerge_in_chroot = uchroot_no_llvm()["/usr/bin/emerge"]
             run(emerge_in_chroot["dev-python/chardet"])
             run(emerge_in_chroot["--nodeps", "dev-python/requests"])
             run(emerge_in_chroot["--nodeps", "dev-python/CacheControl"])
@@ -295,7 +295,7 @@ class AutoPrepareStage3(GentooGroup):
                     run(emerge_in_chroot["sys-apps/portage"])
 
             mkdir("-p", "pprof-src")
-            w_pprof_src = uchroot("-m",
+            w_pprof_src = uchroot_no_llvm("-m",
                                   "{}:pprof-src".format(str(CFG["src_dir"])))
             pip_in_uchroot = w_pprof_src["/usr/bin/pip3"]
             pip_in_uchroot("install", "--upgrade", "/pprof-src/")
@@ -308,4 +308,3 @@ class AutoPrepareStage3(GentooGroup):
 
     def run_tests(self, experiment):
         pass
-

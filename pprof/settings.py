@@ -80,6 +80,25 @@ class UUIDEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
+def escape_json(raw_str):
+    """
+    Shell-Escape a json input string.
+
+    Args:
+        raw_str: The unescaped string.
+    """
+    str_quotes = '"'
+    i_str_quotes = "'"
+    if str_quotes in raw_str and str_quotes not in raw_str[1:-1]:
+        return raw_str
+
+    if str_quotes in raw_str[1:-1]:
+        raw_str = i_str_quotes + raw_str + i_str_quotes
+    else:
+        raw_str = str_quotes + raw_str + str_quotes
+    return raw_str
+
+
 class Configuration():
     """
     Dictionary-like data structure to contain all configuration variables.
@@ -232,10 +251,11 @@ class Configuration():
     def __repr__(self):
         _repr = []
         if 'value' in self.node:
-            return self.__to_env_var__() + "=" + json.dumps(self.node['value'])
+            return self.__to_env_var__() + "=" + escape_json(json.dumps(
+                self.node['value']))
         if 'default' in self.node:
-            return self.__to_env_var__() + "=" + json.dumps(self.node[
-                'default'])
+            return self.__to_env_var__() + "=" + escape_json(json.dumps(
+                self.node['default']))
 
         for k in self.node:
             _repr.append(repr(self[k]))

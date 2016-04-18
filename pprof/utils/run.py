@@ -341,6 +341,8 @@ def uchroot(*args, **kwargs):
     Return:
         chroot_cmd
     """
+    from pprof.settings import CFG
+
     uchroot_cmd = uchroot_no_llvm(args, kwargs)
     uchroot_cmd = uchroot_cmd["-m", str(CFG["llvm"]["dir"]) + ":llvm"]
     uchroot_cmd = uchroot_cmd.setenv(LD_LIBRARY_PATH="/llvm/lib")

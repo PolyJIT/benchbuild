@@ -48,11 +48,10 @@ class SingleSourceBenchmarks(LNTGroup):
     NAME = 'SingleSourceBenchmarks'
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
         from pprof.utils.run import run
 
-        exp = wrap_dynamic("lnt_runner", experiment)
+        exp = self.wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
@@ -73,11 +72,10 @@ class MultiSourceBenchmarks(LNTGroup):
     NAME = 'MultiSourceBenchmarks'
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
         from pprof.utils.run import run
 
-        exp = wrap_dynamic("lnt_runner", experiment)
+        exp = self.wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
@@ -98,11 +96,10 @@ class MultiSourceApplications(LNTGroup):
     NAME = 'MultiSourceApplications'
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
         from pprof.utils.run import run
 
-        exp = wrap_dynamic("lnt_runner", experiment)
+        exp = self.wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
@@ -136,11 +133,10 @@ class SPEC2006(LNTGroup):
                 print('======================================================')
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
         from pprof.utils.run import run
 
-        exp = wrap_dynamic("lnt_runner", experiment)
+        exp = self.wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
@@ -172,11 +168,10 @@ class Povray(LNTGroup):
             Git(self.povray_url, self.povray_src_dir)
 
     def run_tests(self, experiment):
-        from pprof.project import wrap_dynamic
         from pprof.utils.compiler import lt_clang, lt_clang_cxx
         from pprof.utils.run import run
 
-        exp = wrap_dynamic("lnt_runner", experiment)
+        exp = self.wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 

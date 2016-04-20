@@ -215,6 +215,116 @@ class Project(object, metaclass=ProjectRegistry):
         """ Build the project. """
         pass
 
+    def wrap_dynamic(self, name, runner, sprefix=None):
+        """
+        Wrap the binary :name with the function :runner.
+
+        This module generates a python tool :name: that can replace
+        a yet unspecified binary.
+        It behaves similar to the :wrap: function. However, the first
+        argument is the actual binary name.
+
+        Args:
+            name: name of the python module
+            runner: Function that should run the real binary
+            base_class: The base_class of our project.
+            base_module: The module of base_class.
+
+        Returns: plumbum command, readty to launch.
+
+        """
+        import dill
+
+        base_class = self.__class__.__name__
+        base_module = self.__module__
+
+        name_absolute = path.abspath(name)
+        blob_f = name_absolute + PROJECT_BLOB_F_EXT
+        with open(blob_f, 'wb') as blob:
+            blob.write(dill.dumps(runner))
+
+        with open(name_absolute, 'w') as wrapper:
+            lines = '''#!/usr/bin/env python3
+#
+from pprof.project import Project
+from pprof.experiment import Experiment
+from plumbum import cli, local
+from os import path, getenv
+from pprof.experiment import Experiment as E
+from {base_module} import {base_class} as PBC
+
+import logging
+import os
+import sys
+import dill
+
+log = logging.getLogger("run")
+log.setLevel(logging.ERROR)
+log.addHandler(logging.StreamHandler(stream=sys.stderr))
+
+EXPERIMENT_NAME = getenv("PPROF_EXPERIMENT", "unknown")
+DOMAIN_NAME = getenv("PPROF_DOMAIN", PBC.DOMAIN)
+GROUP_NAME = getenv("PPROF_GROUP", PBC.GROUP)
+
+if not len(sys.argv) >= 2:
+    log.error("Not enough arguments provided!\\n")
+    log.error("Got: " + sys.argv + "\\n")
+    sys.exit(1)
+
+f = None
+ld_library_path = "{ld_lib_path}:" + getenv("LD_LIBRARY_PATH")
+RUN_F = sys.argv[1]
+ARGS = sys.argv[2:]
+PROJECT_NAME = path.basename(RUN_F)
+
+if path.exists("{blobf}"):
+    with local.env(PPROF_DB_HOST="{db_host}",
+               PPROF_DB_PORT="{db_port}",
+               PPROF_DB_NAME="{db_name}",
+               PPROF_DB_USER="{db_user}",
+               PPROF_DB_PASS="{db_pass}",
+               PPROF_PROJECT=PROJECT_NAME,
+               PPROF_LIKWID_DIR="{likwiddir}",
+               LD_LIBRARY_PATH=ld_library_path,
+               PPROF_CMD=RUN_F):
+        with open("{blobf}", "rb") as p:
+            f = dill.load(p)
+        if f is not None:
+            project_cls = type("Dyn_" + PROJECT_NAME, (PBC,), {{
+                "NAME" : PROJECT_NAME,
+                "DOMAIN" : DOMAIN_NAME,
+                "GROUP" : GROUP_NAME,
+                "__module__" : "__main__"
+            }})
+
+            experiment_cls = type(EXPERIMENT_NAME, (E,), {{
+                "NAME" : EXPERIMENT_NAME
+            }})
+
+            e = experiment_cls([PROJECT_NAME], [GROUP_NAME])
+            p = project_cls(e)
+
+            if not sys.stdin.isatty():
+                f(RUN_F, ARGS, has_stdin = True, project_name = PROJECT_NAME)
+            else:
+                f(RUN_F, ARGS, project_name = PROJECT_NAME)
+        else:
+            sys.exit(1)
+
+    '''.format(db_host=str(CFG["db"]["host"]),
+               db_port=str(CFG["db"]["port"]),
+               db_name=str(CFG["db"]["name"]),
+               db_user=str(CFG["db"]["user"]),
+               db_pass=str(CFG["db"]["pass"]),
+               likwiddir=str(CFG["likwid"]["prefix"]),
+               ld_lib_path=str(CFG["ld_library_path"]).rstrip(':'),
+               blobf=strip_path_prefix(blob_f, sprefix),
+               base_class=base_class,
+               base_module=base_module)
+            wrapper.write(lines)
+        chmod("+x", name_absolute)
+        return local[name_absolute]
+
 
 def strip_path_prefix(ipath, prefix):
     """
@@ -309,89 +419,6 @@ if path.exists("{blobf}"):
            ld_lib_path=str(CFG["ld_library_path"]).rstrip(':'),
            blobf=strip_path_prefix(blob_f, sprefix),
            runf=strip_path_prefix(real_f, sprefix))
-        wrapper.write(lines)
-    chmod("+x", name_absolute)
-    return local[name_absolute]
-
-
-def wrap_dynamic(name, runner, sprefix=None):
-    """
-    Wrap the binary :name with the function :runner.
-
-    This module generates a python tool :name: that can replace
-    a yet unspecified binary.
-    It behaves similar to the :wrap: function. However, the first
-    argument is the actual binary name.
-
-    Args:
-        name: name of the python module
-        runner: Function that should run the real binary
-
-    Returns: plumbum command, readty to launch.
-
-    """
-    import dill
-
-    name_absolute = path.abspath(name)
-    blob_f = name_absolute + PROJECT_BLOB_F_EXT
-    with open(blob_f, 'wb') as blob:
-        blob.write(dill.dumps(runner))
-
-    with open(name_absolute, 'w') as wrapper:
-        lines = '''#!/usr/bin/env python3
-#
-
-from pprof.project import Project
-from pprof.experiment import Experiment
-from plumbum import cli, local
-from os import path, getenv
-import sys
-import dill
-
-if not len(sys.argv) >= 2:
-    os.stderr.write("Not enough arguments provided!\\n")
-    os.stderr.write("Got: " + sys.argv + "\\n")
-    sys.exit(1)
-
-f = None
-ld_library_path = "{ld_lib_path}:" + getenv("LD_LIBRARY_PATH")
-run_f = sys.argv[1]
-args = sys.argv[2:]
-project_name = path.basename(run_f)
-if path.exists("{blobf}"):
-    with local.env(PPROF_DB_HOST="{db_host}",
-               PPROF_DB_PORT="{db_port}",
-               PPROF_DB_NAME="{db_name}",
-               PPROF_DB_USER="{db_user}",
-               PPROF_DB_PASS="{db_pass}",
-               PPROF_PROJECT=project_name,
-               PPROF_LIKWID_DIR="{likwiddir}",
-               LD_LIBRARY_PATH=ld_library_path,
-               PPROF_CMD=run_f):
-        with open("{blobf}", "rb") as p:
-            f = dill.load(p)
-        if f is not None:
-            exp_name = getenv("PPROF_EXPERIMENT", "unknown")
-            domain_name = getenv("PPROF_DOMAIN", "unknown")
-            group_name = getenv("PPROF_GROUP", "unknwon")
-            e = Experiment(exp_name, [], group_name)
-            p = Project(e, project_name, domain_name, group_name)
-
-            if not sys.stdin.isatty():
-                f(run_f, args, has_stdin = True, project_name = project_name)
-            else:
-                f(run_f, args, project_name = project_name)
-        else:
-            sys.exit(1)
-
-'''.format(db_host=str(CFG["db"]["host"]),
-           db_port=str(CFG["db"]["port"]),
-           db_name=str(CFG["db"]["name"]),
-           db_user=str(CFG["db"]["user"]),
-           db_pass=str(CFG["db"]["pass"]),
-           likwiddir=str(CFG["likwid"]["prefix"]),
-           ld_lib_path=str(CFG["ld_library_path"]).rstrip(':'),
-           blobf=strip_path_prefix(blob_f, sprefix))
         wrapper.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]

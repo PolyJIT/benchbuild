@@ -30,7 +30,7 @@ def create_run(cmd, prj, exp, grp):
                 project_name=prj,
                 experiment_name=exp,
                 run_group=str(grp),
-                experiment_group=str(CFG["experiment"]))
+                experiment_group=str(CFG["experiment_id"]))
     session.add(run)
     session.flush()
 
@@ -58,7 +58,7 @@ def create_run_group(prj):
     session = schema.Session()
     group = schema.RunGroup(id=prj.run_uuid,
                             project=prj.name,
-                            experiment=str(CFG["experiment"]))
+                            experiment=str(CFG["experiment_id"]))
     session.add(group)
     session.flush()
 
@@ -121,7 +121,7 @@ def persist_experiment(experiment):
 
     session = Session()
 
-    cfg_exp = CFG['experiment'].value()
+    cfg_exp = CFG['experiment_id'].value()
     exps = session.query(Experiment).filter(Experiment.id == cfg_exp)
     desc = CFG["experiment_description"].value()
     name = experiment.name

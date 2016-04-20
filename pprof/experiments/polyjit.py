@@ -449,7 +449,7 @@ class PJITpapi(PolyJIT):
         bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
         pprof_analyze = local[path.join(bin_path, "pprof-analyze")]
 
-        with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment"]),
+        with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment_id"]),
                        PPROF_EXPERIMENT=self.name,
                        PPROF_USE_DATABASE=1,
                        PPROF_USE_FILE=0,

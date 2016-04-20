@@ -96,7 +96,7 @@ class Slurm(cli.Application):
         CFG["slurm"]["logs"] = os.path.abspath(os.path.join(CFG[
             'build_dir'].value(), CFG['slurm']['logs'].value()))
         CFG["slurm"]["node_dir"] = os.path.abspath(os.path.join(CFG["slurm"][
-            "node_dir"].value(), CFG["experiment"].value()))
+            "node_dir"].value(), CFG["experiment_id"].value()))
         CFG["build_dir"] = CFG["slurm"]["node_dir"].value()
 
         print("Experiment: " + exp_name)

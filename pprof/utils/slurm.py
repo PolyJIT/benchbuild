@@ -53,7 +53,7 @@ def __cleanup_node_commands(logfile):
              "  cat << EOF > $file\n"
              "#!/bin/sh\n"
              "#SBATCH -o /dev/null\n"
-             "exec 1> {logfile}\n"
+             "exec 1>> {logfile}\n"
              "exec 2>&1\n"
              "echo \"\$(date) [\$(hostname)] node cleanup begin\"\n"
              "rm -r \"{prefix}\"\n"

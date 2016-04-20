@@ -412,7 +412,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
         session.commit()
 
         try:
-            with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment"])):
+            with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment_id"])):
                 self.map_projects(self.run_this_project, "run")
         except KeyboardInterrupt:
             error("User requested termination.")

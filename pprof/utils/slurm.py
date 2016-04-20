@@ -14,7 +14,7 @@ INFO = logging.info
 
 def __prepare_node_commands(experiment):
     """Get a list of bash commands that prepare the SLURM node."""
-    exp_id = CFG["experiment"].value()
+    exp_id = CFG["experiment_id"].value()
     prefix = CFG["slurm"]["node_dir"].value()
     node_image = CFG["slurm"]["node_image"].value()
     llvm_src = CFG["llvm"]["dir"].value().rstrip("/")
@@ -43,7 +43,7 @@ def __prepare_node_commands(experiment):
 
 
 def __cleanup_node_commands(logfile):
-    exp_id = CFG["experiment"].value()
+    exp_id = CFG["experiment_id"].value()
     prefix = CFG["slurm"]["node_dir"].value()
     lockfile = os.path.join(prefix + ".clean-in-progress.lock")
     slurm_account = CFG["slurm"]["account"]

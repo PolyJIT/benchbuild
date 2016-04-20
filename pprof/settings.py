@@ -315,11 +315,15 @@ CFG = Configuration(
             "Number of jobs that can be used for building and running.",
             "default": str(available_cpu_count())
         },
-        "experiment": {
+        "experiment_id": {
             "desc":
             "The experiment UUID we run everything under. This groups the project "
             "runs in the database.",
             "default": str(uuid.uuid4())
+        },
+        "experiment": {
+            "desc": "The experiment name we run everything under.",
+            "default": "empty"
         },
         "local_build": {
             "desc": "Perform a local build on the cluster nodes.",

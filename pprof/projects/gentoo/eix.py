@@ -28,9 +28,6 @@ class Eix(GentooGroup):
         wrap(path.join(self.builddir, "usr", "bin", "eix"), experiment,
              self.builddir)
         eix = uchroot()["/usr/bin/eix"]
-
-        wrap(path.join(self.builddir, "usr", "bin", "time"), experiment,
-             self.builddir)
         time = uchroot()["/usr/bin/time"]
 
         run(time["eix", "clang"])

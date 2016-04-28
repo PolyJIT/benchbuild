@@ -3,6 +3,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/0220d2cf77f543e182d93eb55edf4199)](https://www.codacy.com/app/simbuerg/pprof-study)
 [![Documentation Status](https://readthedocs.org/projects/pprof-study/badge/?version=develop)](http://pprof-study.readthedocs.org/en/latest/?badge=develop)
 [![Build Status](https://travis-ci.org/simbuerg/pprof-study.svg?branch=develop)](https://travis-ci.org/simbuerg/pprof-study)
+[![Code Issues](https://www.quantifiedcode.com/api/v1/project/2c39c4c4d9724224a9ed58fea3db1216/badge.svg)](https://www.quantifiedcode.com/app/project/2c39c4c4d9724224a9ed58fea3db1216)
 
 This is a small python framework for measuring various case studies using
 PolyJIT. By design it encodes ways to download/configure and run arbitrary

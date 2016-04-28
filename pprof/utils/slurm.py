@@ -52,6 +52,7 @@ def __cleanup_node_commands(logfile):
              "file=$(mktemp -q) && {{\n"
              "  cat << EOF > $file\n"
              "#!/bin/sh\n"
+             "#SBATCH --nice={}\n".format(CFG["slurm"]["nice_clean"].value())
              "#SBATCH -o /dev/null\n"
              "exec 1>> {logfile}\n"
              "exec 2>&1\n"

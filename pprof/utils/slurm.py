@@ -52,7 +52,7 @@ def __cleanup_node_commands(logfile):
              "file=$(mktemp -q) && {{\n"
              "  cat << EOF > $file\n"
              "#!/bin/sh\n"
-             "#SBATCH --nice={}\n".format(CFG["slurm"]["nice_clean"].value())
+             "#SBATCH --nice={nice_clean}\n"
              "#SBATCH -o /dev/null\n"
              "exec 1>> {logfile}\n"
              "exec 2>&1\n"
@@ -83,7 +83,8 @@ def __cleanup_node_commands(logfile):
                          prefix=prefix,
                          slurm_account=slurm_account,
                          slurm_partition=slurm_partition,
-                         logfile=logfile)
+                         logfile=logfile,
+                         nice_clean=CFG["slurm"]["nice_clean"].value())
     return lines
 
 

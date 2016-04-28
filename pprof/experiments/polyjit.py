@@ -47,9 +47,9 @@ def run_raw(run_f, args, **kwargs):
     assert p is not None, "run_raw.project attribute is None."
     assert e is not None, "run_raw.experiment attribute is None."
     assert c is not None, "run_raw.config attribute is None."
-    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
-    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+    assert isinstance(p, Project), "Wrong type: {0!r} Want: Project".format(p)
+    assert isinstance(e, Experiment), "Wrong type: {0!r} Want: Experiment".format(e)
+    assert isinstance(c, dict), "Wrong type: {0!r} Want: dict".format(c)
 
     project_name = kwargs.get("project_name", p.name)
 
@@ -94,9 +94,9 @@ def run_with_papi(run_f, args, **kwargs):
     assert p is not None, "run_with_likwid.project attribute is None."
     assert e is not None, "run_with_likwid.experiment attribute is None."
     assert c is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
-    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: Experiment" % e
+    assert isinstance(p, Project), "Wrong type: {0!r} Want: Project".format(p)
+    assert isinstance(e, Experiment), "Wrong type: {0!r} Want: Experiment".format(e)
+    assert isinstance(c, dict), "Wrong type: {0!r} Want: Experiment".format(e)
 
     project_name = kwargs.get("project_name", p.name)
 
@@ -146,9 +146,9 @@ def run_with_likwid(run_f, args, **kwargs):
     assert p is not None, "run_with_likwid.project attribute is None."
     assert e is not None, "run_with_likwid.experiment attribute is None."
     assert c is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
-    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: Experiment" % e
+    assert isinstance(p, Project), "Wrong type: {0!r} Want: Project".format(p)
+    assert isinstance(e, Experiment), "Wrong type: {0!r} Want: Experiment".format(e)
+    assert isinstance(c, dict), "Wrong type: {0!r} Want: Experiment".format(e)
 
     project_name = kwargs.get("project_name", p.name)
     likwid_f = project_name + ".txt"
@@ -212,9 +212,9 @@ def run_with_time(run_f, args, **kwargs):
     assert p is not None, "run_with_likwid.project attribute is None."
     assert e is not None, "run_with_likwid.experiment attribute is None."
     assert c is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
-    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+    assert isinstance(p, Project), "Wrong type: {0!r} Want: Project".format(p)
+    assert isinstance(e, Experiment), "Wrong type: {0!r} Want: Experiment".format(e)
+    assert isinstance(c, dict), "Wrong type: {0!r} Want: dict".format(c)
 
     project_name = kwargs.get("project_name", p.name)
     timing_tag = "PPROF-JIT: "
@@ -272,9 +272,9 @@ def run_with_perf(run_f, args, **kwargs):
     assert p is not None, "run_with_likwid.project attribute is None."
     assert e is not None, "run_with_likwid.experiment attribute is None."
     assert c is not None, "run_with_likwid.config attribute is None."
-    assert isinstance(p, Project), "Wrong type: %r Want: Project" % p
-    assert isinstance(e, Experiment), "Wrong type: %r Want: Experiment" % e
-    assert isinstance(c, dict), "Wrong type: %r Want: dict" % c
+    assert isinstance(p, Project), "Wrong type: {0!r} Want: Project".format(p)
+    assert isinstance(e, Experiment), "Wrong type: {0!r} Want: Experiment".format(e)
+    assert isinstance(c, dict), "Wrong type: {0!r} Want: dict".format(c)
 
     project_name = kwargs.get("project_name", p.name)
     run_cmd = local[run_f]

@@ -159,7 +159,7 @@ def run_with_likwid(run_f, args, **kwargs):
             path.join(likwid_path, "likwid-perfctr")]
         run_cmd = \
             likwid_perfctr["-O", "-o", likwid_f, "-m",
-                           "-C", "0-{:d}".format(jobs),
+                           "-C", "0-{0:d}".format(jobs),
                            "-g", group, run_f]
         run_cmd = r.handle_stdin(run_cmd[args], kwargs)
 
@@ -352,7 +352,7 @@ class PJITRaw(PolyJIT):
 
             for i in range(1, int(config["jobs"]) + 1):
                 p.run_uuid = uuid4()
-                with step("time: {} cores & uuid {}".format(i, p.run_uuid)):
+                with step("time: {0} cores & uuid {1}".format(i, p.run_uuid)):
                     p.clean()
                     p.prepare()
                     p.download()
@@ -380,7 +380,7 @@ class PJITperf(PolyJIT):
             p.cflags += ["-fno-omit-frame-pointer"]
             for i in range(1, int(config["jobs"]) + 1):
                 p.run_uuid = uuid4()
-                with step("perf: {} cores & uuid {}".format(i, p.run_uuid)):
+                with step("perf: {0} cores & uuid {1}".format(i, p.run_uuid)):
                     p.clean()
                     p.prepare()
                     p.download()
@@ -413,7 +413,7 @@ class PJITlikwid(PolyJIT):
             p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
 
             for i in range(1, int(config["jobs"]) + 1):
-                with step("{} cores & uuid {}".format(i, p.run_uuid)):
+                with step("{0} cores & uuid {1}".format(i, p.run_uuid)):
                     p.clean()
                     p.prepare()
                     p.download()
@@ -555,7 +555,7 @@ class PJITpapi(PolyJIT):
             p.ldflags = p.ldflags + ["-lpprof"]
 
             for i in range(1, int(config["jobs"]) + 1):
-                with step("{} cores & uuid {}".format(i, p.run_uuid)):
+                with step("{0} cores & uuid {1}".format(i, p.run_uuid)):
                     p.clean()
                     p.prepare()
                     p.download()

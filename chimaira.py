@@ -55,27 +55,27 @@ def dump_slurm_script(script_name, log_name, commands, uuid=None):
 
     with open(script_name, 'w') as slurm:
         slurm.write("#!/bin/sh\n")
-        slurm.write("#SBATCH -o {}\n".format(log_name))
+        slurm.write("#SBATCH -o {0}\n".format(log_name))
         slurm.write("#SBATCH -t \"12:00:00\"\n")
         slurm.write("#SBATCH --hint=nomultithread\n")
         slurm.write("#SBATCH --ntasks 1\n")
         slurm.write("#SBATCH --exclusive\n")
-        slurm.write("#SBATCH --cpus-per-task {}\n".format(
+        slurm.write("#SBATCH --cpus-per-task {0}\n".format(
             config["cpus-per-task"]))
-        slurm.write("export LD_LIBRARY_PATH=\"{}:$LD_LIBRARY_PATH\"\n".format(
+        slurm.write("export LD_LIBRARY_PATH=\"{0}:$LD_LIBRARY_PATH\"\n".format(
             path.join(config["papi"], "lib")))
         slurm.write(
-            "export PPROF_TESTINPUTS=\"{}\"\n".format(ppcfg["testdir"]))
-        slurm.write("export PPROF_TMP_DIR=\"{}\"\n".format(ppcfg["tmpdir"]))
-        slurm.write("export PPROF_DB_HOST=\"{}\"\n".format(ppcfg["db_host"]))
-        slurm.write("export PPROF_DB_PORT=\"{}\"\n".format(ppcfg["db_port"]))
-        slurm.write("export PPROF_DB_NAME=\"{}\"\n".format(ppcfg["db_name"]))
-        slurm.write("export PPROF_DB_USER=\"{}\"\n".format(ppcfg["db_user"]))
-        slurm.write("export PPROF_DB_PASS=\"{}\"\n".format(ppcfg["db_pass"]))
+            "export PPROF_TESTINPUTS=\"{0}\"\n".format(ppcfg["testdir"]))
+        slurm.write("export PPROF_TMP_DIR=\"{0}\"\n".format(ppcfg["tmpdir"]))
+        slurm.write("export PPROF_DB_HOST=\"{0}\"\n".format(ppcfg["db_host"]))
+        slurm.write("export PPROF_DB_PORT=\"{0}\"\n".format(ppcfg["db_port"]))
+        slurm.write("export PPROF_DB_NAME=\"{0}\"\n".format(ppcfg["db_name"]))
+        slurm.write("export PPROF_DB_USER=\"{0}\"\n".format(ppcfg["db_user"]))
+        slurm.write("export PPROF_DB_PASS=\"{0}\"\n".format(ppcfg["db_pass"]))
         if uuid:
-            slurm.write("export PPROF_EXPERIMENT_ID=\"{}\"\n".format(uuid))
+            slurm.write("export PPROF_EXPERIMENT_ID=\"{0}\"\n".format(uuid))
         for c in commands:
-            slurm.write("{}\n".format(str(c)))
+            slurm.write("{0}\n".format(str(c)))
     chmod("+x", script_name)
 
 
@@ -233,7 +233,7 @@ class Chimaira(cli.Application):
         # That is an awful lot of filtering required for parsing that
         # output... grmpf
         for exp in config["experiments"]:
-            print "Experiment: {}".format(exp)
+            print "Experiment: {0}".format(exp)
             pprof_list = pprof["run", "-l", "-E", exp]
             prj_list = pprof_list().split(',')
             prj_list = map(unicode.strip, prj_list)
@@ -242,7 +242,7 @@ class Chimaira(cli.Application):
             prj_list = list(chain.from_iterable(prj_list))
             prj_list = filter(lambda x: not '>>' in x, prj_list)
             prj_list = filter(None, prj_list)
-            print "  {} projects".format(len(prj_list))
+            print "  {0} projects".format(len(prj_list))
             print
             print ", ".join(prj_list)
             jobs = dispatch_jobs(exp, prj_list)

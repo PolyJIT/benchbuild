@@ -235,5 +235,5 @@ def run(command, retcode=0):
         raise e
     except Exception as e:
         error("Exception:")
-        error("   | {}".format(e))
+        error("   | {0}".format(e))
         raise GuardedRunException(e, None, None)

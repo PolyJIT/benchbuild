@@ -34,9 +34,9 @@ class Run(Base):
 
     def __repr__(self):
         return dedent(
-            """<Run(id={}, command='{}', project_name='{}',
-                    experiment_name='{}', run_group='{}',
-                    experiment_group='{}', begin='{}', end='{}')>""".format(
+            """<Run(id={0}, command='{1}', project_name='{2}',
+                    experiment_name='{3}', run_group='{4}',
+                    experiment_group='{5}', begin='{6}', end='{7}')>""".format(
             self.id, self.command, self.project_name, self.experiment_name,
             self.run_group, self.experiment_group, self.begin, self.end)
         )
@@ -72,8 +72,8 @@ class Experiment(Base):
     end = Column(DateTime(timezone=False))
 
     def __repr__(self):
-        return dedent("""<Experiment(name='{}', description='{}', begin='{}',
-                              end='{}')>""".format(
+        return dedent("""<Experiment(name='{0}', description='{1}', begin='{2}',
+                              end='{3}')>""".format(
                     self.name, self.description, self.begin, self.end))
 
 
@@ -95,8 +95,8 @@ class Likwid(Base):
 
     def __repr__(self):
         return dedent(
-            """<Likwid(metric='{}', region='{}', value={}, core='{}',
-                   run_id={})>""".format(
+            """<Likwid(metric='{0}', region='{1}', value={2}, core='{3}',
+                   run_id={4})>""".format(
                 self.metric, self.region, self.value,
                 self.core, self.run_id))
 
@@ -116,7 +116,7 @@ class Metric(Base):
                     primary_key=True)
 
     def __repr__(self):
-        return "<Metric(name='{}', value={}, run_id='{}')>".format(self.name, self.value, self.run_id)
+        return "<Metric(name='{0}', value={1}, run_id='{2}')>".format(self.name, self.value, self.run_id)
 
 
 class Event(Base):
@@ -139,7 +139,7 @@ class Event(Base):
                     primary_key=True)
 
     def __repr__(self):
-        return "<Event(name='{}', start={}, duration={}, id={}, type={}, run_id={})>".format(
+        return "<Event(name='{0}', start={1}, duration={2}, id={3}, type={4}, run_id={5})>".format(
             self.name, self.start, self.duration, self.id, self.type, self.run_id)
 
 
@@ -156,7 +156,7 @@ class Project(Base):
     group_name = Column(String)
 
     def __repr__(self):
-        return "<Project(name='{}', description='{}', src_url='{}', domain'{}', group_name='{}')>".format(
+        return "<Project(name='{0}', description='{1}', src_url='{2}', domain'{3}', group_name='{4}')>".format(
             self.name, self.description, self.src_url, self.domain, self.group_name)
 
 
@@ -177,7 +177,7 @@ class CompileStat(Base):
 
     def __repr__(self):
         return dedent(
-            """<CompileStat(name='{}', component={}, value={}, run_id='{}')>
+            """<CompileStat(name='{0}', component={1}, value={2}, run_id='{3}')>
             """.format(self.name, self.component, self.value, self.run_id))
 
 
@@ -271,7 +271,7 @@ class RegressionTest(Base):
 
     def __repr__(self):
         return dedent(
-            """<RegressionTest(name='{}', project_name={}, module=<omitted>, run_id='{}')>
+            """<RegressionTest(name='{0}', project_name={1}, module=<omitted>, run_id='{2}')>
             """.format(self.name, self.project_name, self.run_id))
 
 Base.metadata.create_all(Engine, checkfirst=True)

@@ -100,7 +100,7 @@ class RawRuntime(RuntimeExperiment):
                 p.download()
                 p.configure()
                 p.build()
-            with substep("run {}".format(p.name)):
+            with substep("run {0}".format(p.name)):
                 run_with_time.config = config
                 run_with_time.experiment = self
                 run_with_time.project = p

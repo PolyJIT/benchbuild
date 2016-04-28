@@ -67,7 +67,7 @@ class CompilestatsExperiment(RuntimeExperiment):
                 p.prepare()
             with step("Downloading sources."):
                 p.download()
-            with step("Bulding {}.".format(p.name)):
+            with step("Bulding {0}.".format(p.name)):
                 p.configure()
                 p.build()
 
@@ -96,7 +96,7 @@ class PollyCompilestatsExperiment(RuntimeExperiment):
                 p.prepare()
             with step("Downloading sources."):
                 p.download()
-            with step("Bulding {}.".format(p.name)):
+            with step("Bulding {0}.".format(p.name)):
                 p.configure()
                 p.build()
 

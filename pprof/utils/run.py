@@ -307,7 +307,7 @@ def run(command, retcode=0):
         raise key_int
     except Exception as exception:
         error("Exception:")
-        error("   | {}".format(exception))
+        error("   | {0}".format(exception))
         raise GuardedRunException(exception, None, None)
 
 

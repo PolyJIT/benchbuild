@@ -42,15 +42,15 @@ class Project(object, metaclass=ProjectRegistry):
         new_self = super(Project, cls).__new__(cls)
         if cls.NAME is None:
             raise AttributeError(
-                "{} @ {} does not define a NAME class attribute.".format(
+                "{0} @ {1} does not define a NAME class attribute.".format(
                     cls.__name__, cls.__module__))
         if cls.DOMAIN is None:
             raise AttributeError(
-                "{} @ {} does not define a DOMAIN class attribute.".format(
+                "{0} @ {1} does not define a DOMAIN class attribute.".format(
                     cls.__name__, cls.__module__))
         if cls.GROUP is None:
             raise AttributeError(
-                "{} @ {} does not define a GROUP class attribute.".format(
+                "{0} @ {1} does not define a GROUP class attribute.".format(
                     cls.__name__, cls.__module__))
         new_self.name = cls.NAME
         new_self.domain = cls.DOMAIN

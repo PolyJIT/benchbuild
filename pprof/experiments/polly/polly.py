@@ -39,7 +39,7 @@ class Polly(RuntimeExperiment):
 
         for i in range(1, int(CFG["jobs"]) + 1):
             p.run_uuid = uuid4()
-            with step("time: {} cores & uuid {}".format(i, p.run_uuid)):
+            with step("time: {0} cores & uuid {1}".format(i, p.run_uuid)):
                 p.clean()
                 p.prepare()
                 p.download()

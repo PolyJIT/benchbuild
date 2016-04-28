@@ -40,7 +40,7 @@ class PollyPerformance(RuntimeExperiment):
 
         configs = CFG["perf"]["config"].value()
         if configs is None:
-            warnings.warn("({}) should not be null.".format(repr(CFG["perf"]["config"])),
+            warnings.warn("({0}) should not be null.".format(repr(CFG["perf"]["config"])),
                           category=ShouldNotBeNone, stacklevel=2)
             return
 
@@ -60,7 +60,7 @@ class PollyPerformance(RuntimeExperiment):
         jobs = CFG["jobs"].value()
         for i in range(1, int(jobs) + 1):
             p.run_uuid = uuid.uuid4()
-            with step("time: {} cores & uuid {}".format(i, p.run_uuid)):
+            with step("time: {0} cores & uuid {1}".format(i, p.run_uuid)):
                 p.clean()
                 p.prepare()
                 p.download()

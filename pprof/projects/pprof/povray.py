@@ -36,7 +36,7 @@ class Povray(PprofGroup):
             from plumbum.cmd import mkdir
             mkdir(boost_prefix)
             bootstrap = local["./bootstrap.sh"]
-            run(bootstrap["--with-toolset=clang", "--prefix=\"{}\"".format(
+            run(bootstrap["--with-toolset=clang", "--prefix=\"{0}\"".format(
                 boost_prefix)])
             b2 = local["./b2"]
             run(b2["--ignore-site-config", "variant=release", "link=static",

@@ -111,7 +111,7 @@ def phase(name, pname="FIXME: Unset", cleaner=None):
 
     from logging import error, info
 
-    main_msg = "PHASE '{}' {}".format(name, pname)
+    main_msg = "PHASE '{0}' {1}".format(name, pname)
     print(main_msg + " START")
     try:
         yield
@@ -148,7 +148,7 @@ def step(name):
     from logging import info
     step.name = name
 
-    main_msg = "    STEP '{}'".format(name)
+    main_msg = "    STEP '{0}'".format(name)
     print(main_msg + " START")
     yield
     print(main_msg + " OK")
@@ -170,7 +170,7 @@ def substep(name):
     """
     substep.name = name
     from logging import info, error
-    main_msg = "        SUBSTEP '{}'".format(name)
+    main_msg = "        SUBSTEP '{0}'".format(name)
 
     print(main_msg + " START")
     try:
@@ -240,7 +240,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
         new_self = super(Experiment, cls).__new__(cls)
         if cls.NAME is None:
             raise AttributeError(
-                "{} @ {} does not define a NAME class attribute.".format(
+                "{0} @ {1} does not define a NAME class attribute.".format(
                     cls.__name__, cls.__module__))
         new_self.name = cls.NAME
         return new_self
@@ -377,7 +377,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
                 warnings.warn(str(ex), category=RuntimeWarning)
         else:
             logger = logging.getLogger(__name__)
-            logger.info("Experiment directory '{}' is not clean.".format(
+            logger.info("Experiment directory '{0}' is not clean.".format(
                 self.builddir))
 
 

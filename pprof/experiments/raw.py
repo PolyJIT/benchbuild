@@ -86,6 +86,6 @@ class RawRuntime(RuntimeExperiment):
                 p.download()
                 p.configure()
                 p.build()
-            with substep("run {}".format(p.name)):
+            with substep("run {0}".format(p.name)):
                 p.run(partial(run_with_time, p, self, CFG, CFG["jobs"].value(
                 )))

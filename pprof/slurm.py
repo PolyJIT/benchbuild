@@ -80,7 +80,7 @@ class Slurm(cli.Application):
                     if projects[x].DOMAIN != "debug"}
 
         prj_keys = sorted(projects.keys())
-        print("{} Projects".format(len(prj_keys)))
+        print("{0} Projects".format(len(prj_keys)))
 
         slurm.prepare_slurm_script(exp_name, prj_keys)
 

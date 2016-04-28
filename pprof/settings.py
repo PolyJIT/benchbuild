@@ -227,7 +227,7 @@ class Configuration():
     def __getitem__(self, key):
         if not key in self.node:
             warnings.warn(
-                "Access to non-existing config element: {}".format(key),
+                "Access to non-existing config element: {0}".format(key),
                 category=InvalidConfigKey,
                 stacklevel=2)
             return Configuration(key, init=False)
@@ -586,7 +586,7 @@ def __init_config(cfg):
 
     if config_path:
         cfg.load(config_path)
-        logging.debug("Configuration loaded from {}".format(os.path.abspath(
+        logging.debug("Configuration loaded from {0}".format(os.path.abspath(
             config_path)))
     cfg.init_from_env()
 

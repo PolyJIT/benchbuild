@@ -130,14 +130,14 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
             slurm.write("#SBATCH --hint=nomultithread\n")
         if CFG['slurm']['exclusive'].value():
             slurm.write("#SBATCH --exclusive\n")
-        slurm.write("#SBATCH --array=0-{}".format(len(projects) - 1))
-        slurm.write("%{}\n".format(max_running_jobs) if max_running_jobs > 0
+        slurm.write("#SBATCH --array=0-{0}".format(len(projects) - 1))
+        slurm.write("%{0}\n".format(max_running_jobs) if max_running_jobs > 0
                     else '\n')
-        slurm.write("#SBATCH --nice={}\n".format(CFG["slurm"]["nice"].value()))
+        slurm.write("#SBATCH --nice={0}\n".format(CFG["slurm"]["nice"].value()))
 
         slurm.write("projects=(\n")
         for project in projects:
-            slurm.write("'{}'\n".format(str(project)))
+            slurm.write("'{0}'\n".format(str(project)))
         slurm.write(")\n")
         slurm.write("_project=\"${projects[$SLURM_ARRAY_TASK_ID]}\"\n")
         slurm_log_path = os.path.join(
@@ -156,7 +156,7 @@ def dump_slurm_script(script_name, pprof, experiment, projects):
         slurm.write("export LD_LIBRARY_PATH={p}\n".format(p=slurm_ld))
         slurm.write("\n")
         slurm.write("scontrol update JobId=$SLURM_JOB_ID ")
-        slurm.write("JobName=\"{} $_project\"\n".format(experiment))
+        slurm.write("JobName=\"{0} $_project\"\n".format(experiment))
         slurm.write("\n")
 
         # Write the experiment command.
@@ -186,7 +186,7 @@ def prepare_slurm_script(experiment, projects):
     if not CFG["slurm"]["multithread"].value():
         srun = srun["--hint=nomultithread"]
     srun = srun[pprof_c["-v", "run"]]
-    print("SLURM script written to {}".format(slurm_script))
+    print("SLURM script written to {0}".format(slurm_script))
     dump_slurm_script(slurm_script, srun, experiment, projects)
     return slurm_script
 

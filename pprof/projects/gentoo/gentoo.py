@@ -98,14 +98,14 @@ class GentooGroup(project.Project):
             hp = CFG["gentoo"]["http_proxy"].value()
             fp = CFG["gentoo"]["ftp_proxy"].value()
             if hp is not None:
-                http_s = "http_proxy = {}".format(str(hp))
-                https_s = "https_proxy = {}".format(str(hp))
+                http_s = "http_proxy = {0}".format(str(hp))
+                https_s = "https_proxy = {0}".format(str(hp))
                 wgetrc.write("use_proxy = on\n")
                 wgetrc.write(http_s + "\n")
                 wgetrc.write(https_s + "\n")
 
             if fp is not None:
-                fp_s = "ftp_proxy={}".format(str(fp))
+                fp_s = "ftp_proxy={0}".format(str(fp))
                 wgetrc.write(fp_s + "\n")
 
     def write_makeconfig(self, path):
@@ -132,19 +132,19 @@ PKGDIR="${PORTDIR}/packages"
             makeconf.write(lines)
             hp = CFG["gentoo"]["http_proxy"].value()
             if hp is not None:
-                http_s = "http_proxy={}".format(str(hp))
-                https_s = "https_proxy={}".format(str(hp))
+                http_s = "http_proxy={0}".format(str(hp))
+                https_s = "https_proxy={0}".format(str(hp))
                 makeconf.write(http_s + "\n")
                 makeconf.write(https_s + "\n")
 
             fp = CFG["gentoo"]["ftp_proxy"].value()
             if fp is not None:
-                fp_s = "ftp_proxy={}".format(str(fp))
+                fp_s = "ftp_proxy={0}".format(str(fp))
                 makeconf.write(fp_s + "\n")
 
             rp = CFG["gentoo"]["rsync_proxy"].value()
             if rp is not None:
-                rp_s = "RSYNC_PROXY={}".format(str(rp))
+                rp_s = "RSYNC_PROXY={0}".format(str(rp))
                 makeconf.write(rp_s + "\n")
 
 
@@ -296,7 +296,7 @@ class AutoPrepareStage3(GentooGroup):
 
             mkdir("-p", "pprof-src")
             w_pprof_src = uchroot_no_llvm("-m",
-                                  "{}:pprof-src".format(str(CFG["src_dir"])))
+                                  "{0}:pprof-src".format(str(CFG["src_dir"])))
             pip_in_uchroot = w_pprof_src["/usr/bin/pip3"]
             pip_in_uchroot("install", "--upgrade", "/pprof-src/")
 

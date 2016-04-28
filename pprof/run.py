@@ -100,7 +100,7 @@ class PprofRun(cli.Application):
         if self.store_config:
             config_path = ".pprof.json"
             CFG.store(config_path)
-            print("Storing config in {}".format(os.path.abspath(config_path)))
+            print("Storing config in {0}".format(os.path.abspath(config_path)))
             exit(0)
 
         if self._project_names:
@@ -114,7 +114,7 @@ class PprofRun(cli.Application):
 
                 if response:
                     mkdir("-p", builddir)
-                    print("Created directory {}.".format(builddir))
+                    print("Created directory {0}.".format(builddir))
 
         for exp_name in self._experiment_names:
             print("Running experiment: " + exp_name)
@@ -150,11 +150,11 @@ def print_projects(exp):
 
     for name in grouped_by:
         from textwrap import wrap
-        print(">> {}".format(name))
+        print(">> {0}".format(name))
         projects = sorted(grouped_by[name])
         project_paragraph = ""
         for prj in projects:
-            project_paragraph += ", {}".format(prj)
+            project_paragraph += ", {0}".format(prj)
         print("\n".join(wrap(project_paragraph[2:],
                              80,
                              break_on_hyphens=False,

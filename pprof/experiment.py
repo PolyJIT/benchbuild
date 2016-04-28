@@ -242,7 +242,9 @@ class Experiment(object):
             config["ld_library_path"]
         ])
 
-    def __init__(self, name, projects=[], group=None):
+    def __init__(self, name, projects=None, group=None):
+        if projects is None:
+            projects = []
         self.name = name
         self.projects = {}
         self.setup_commands()

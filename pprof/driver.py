@@ -67,7 +67,7 @@ class PollyProfiling(cli.Application):
         LOG.setLevel(log_levels[self.verbosity])
 
         if args:
-            print("Unknown command %r" % (args[0], ))
+            print("Unknown command {0!r}".format(args[0] ))
             return 1
         if not self.nested_command:
             print("No command given")

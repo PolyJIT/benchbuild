@@ -16,7 +16,15 @@ Measurements
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
 
-from pprof.experiment import step, substep, RuntimeExperiment
+from pprof.experiment import RuntimeExperiment
+from pprof.utils.actions import (Prepare, Build, Download, Configure, Clean,
+                                 MakeBuildDir, Run, Echo)
+from pprof.utils import run as r
+from pprof.utils.db import persist_time, persist_config
+from plumbum.cmd import time
+
+from pprof.settings import CFG
+from pprof.utils.run import partial
 from plumbum import local
 from os import path
 
@@ -43,11 +51,6 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::pprof.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from pprof.utils import run as r
-    from pprof.utils.db import persist_time, persist_config
-    from pprof.settings import CFG
-    from plumbum.cmd import time
-
     CFG.update(config)
     project_name = kwargs.get("project_name", project.name)
     timing_tag = "PPROF-TIME: "
@@ -73,19 +76,23 @@ class RawRuntime(RuntimeExperiment):
 
     NAME = "raw"
 
-    def run_project(self, p):
+    def actions_for_project(self, project):
         """Compile & Run the experiment with -O3 enabled."""
-        from pprof.settings import CFG
-        from pprof.utils.run import partial
         llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
 
-        with step("RAW -O3"):
-            p.ldflags = ["-L" + llvm_libs]
-            p.cflags = ["-O3", "-fno-omit-frame-pointer"]
-            with substep("reconf & rebuild"):
-                p.download()
-                p.configure()
-                p.build()
-            with substep("run {0}".format(p.name)):
-                p.run(partial(run_with_time, p, self, CFG, CFG["jobs"].value(
-                )))
+        project.ldflags = ["-L" + llvm_libs]
+        project.cflags = ["-O3", "-fno-omit-frame-pointer"]
+        project.runtime_extension = \
+            partial(run_with_time, project, self, CFG, CFG["jobs"].value())
+        actns = [
+            MakeBuildDir(project),
+            Echo("Compiling... {}".format(project.name)),
+            Prepare(project),
+            Download(project),
+            Configure(project),
+            Build(project),
+            Echo("Running... {}".format(project.name)),
+            Run(project),
+            Clean(project),
+        ]
+        return actns

@@ -7,6 +7,7 @@ from plumbum import local
 from plumbum.cmd import mv, chmod, rm, mkdir, rmdir  # pylint: disable=E0401
 from pprof.settings import CFG
 from pprof.utils.db import persist_project
+from pprof.utils.actions import Clean, Step, Run
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
@@ -164,6 +165,29 @@ class Project(object, metaclass=ProjectRegistry):
 
         """
         self._compiler_extension = func
+
+    @property
+    def runtime_extension(self):
+        """ Return the runtime extension registered for this project. """
+        try:
+            return self._runtime_extension
+        except AttributeError:
+            self._runtime_extension = None
+            return self._runtime_extension
+
+    @runtime_extension.setter
+    def runtime_extension(self, func):
+        """
+        Set a function as compiler extension.
+
+        Args:
+            func: The compiler extension function. The minimal signature that
+                is required is ::
+                    f(cc, **kwargs)
+                where cc is the original compiler command.
+
+        """
+        self._runtime_extension = func
 
     @property
     def run_uuid(self):

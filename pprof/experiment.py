@@ -41,7 +41,7 @@ from pprof.projects import *  # pylint: disable=W0401
 from pprof.project import ProjectRegistry
 from pprof.utils.run import GuardedRunException
 from pprof.settings import CFG
-from pprof.utils.db import persist_experiment
+from pprof.utils.actions import Step, Clean, MakeBuildDir, ForAll
 
 
 def newline(ostream):
@@ -303,26 +303,6 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
         self.projects = {k: projects[k](self) for k in projects}
 
-    def clean_project(self, project):
-        """
-        Invoke the clean phase of the given project.
-
-        Args:
-            project (pprof.Project): The project we want to clean.
-        """
-        with local.env(PPROF_ENABLE=0):
-            project.clean()
-
-    def prepare_project(self, project):
-        """
-        Invoke the prepare phase of the given project.
-
-        Args:
-            project (pprof.Project): The project we want to prepare.
-        """
-        with local.env(PPROF_ENABLE=0):
-            project.prepare()
-
     @abstractmethod
     def run_project(self, project):
         """
@@ -333,104 +313,29 @@ class Experiment(object, metaclass=ExperimentRegistry):
         """
         pass
 
-    def run_this_project(self, project):
+    @abstractmethod
+    def actions_for_project(self, project):
         """
-        Execute the project wrapped in a database session.
+        Get the actions a project wants to run.
 
         Args:
-            project (pprof.Project): The project we wrap.
+            project (pprof.Project): the project we want to run.
         """
-        self.run_project(project)
-
-    def map_projects(self, fun, pname=None):
-        """
-        Map a function over all projects.
-
-        Args:
-            fun: The function that is applied to all projects.
-            pname (str): The project phase name.
-        """
-        from functools import partial
-        for project_name in self.projects:
-            prj = self.projects[project_name]
-
-            def maybe_clean_on_error(project):
-                if "clean" in CFG and CFG["clean"].value():
-                    project.clean()
-
-            with phase(pname, project_name, partial(maybe_clean_on_error,
-                                                    prj)):
-                llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
-                ld_lib_path = str(CFG["ld_library_path"]) + ":" + llvm_libs
-                with local.env(LD_LIBRARY_PATH=ld_lib_path,
-                               PPROF_EXPERIMENT=self.name,
-                               PPROF_PROJECT=prj.name):
-                    fun(prj)
-
-    def clean(self):
-        """Clean the experiment."""
-        self.map_projects(self.clean_project, "clean")
-        if path.exists(self.builddir) and listdir(self.builddir) == []:
-            try:
-                rmdir(self.builddir)
-            except ProcessExecutionError as ex:
-                warnings.warn(str(ex), category=RuntimeWarning)
-        else:
-            logger = logging.getLogger(__name__)
-            logger.info("Experiment directory '{0}' is not clean.".format(
-                self.builddir))
+        pass
 
 
+    def actions(self):
+        actns = [
+            Clean(self),
+            MakeBuildDir(self)
+        ]
 
-    def prepare(self):
-        """
-        Prepare the experiment.
+        for project in self.projects:
+            p = self.projects[project]
+            actns.append(ForAll(self.actions_for_project(p)))
 
-        This includes creation of a build directory and setting up the logging.
-        Afterwards we call the prepare method of the project.
-        """
-        if not path.exists(self.builddir):
-            mkdir(self.builddir, retcode=None)
-
-        self.map_projects(self.prepare_project, "prepare")
-
-    def run(self):
-        """
-        Run the experiment on all registered projects.
-
-        Setup the environment and call run_project method on all projects.
-        """
-        from datetime import datetime
-        from logging import error, info
-
-        experiment, session = persist_experiment(self)
-        if experiment.begin is None:
-            experiment.begin = datetime.now()
-        else:
-            experiment.begin = min(experiment.begin, datetime.now())
-        session.add(experiment)
-        session.commit()
-
-        try:
-            with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment_id"])):
-                self.map_projects(self.run_this_project, "run")
-        except KeyboardInterrupt:
-            error("User requested termination.")
-        except Exception:
-            import sys
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            formatted = "".join(tb.format_exception(exc_type, exc_value,
-                                                    exc_traceback))
-            warnings.warn(formatted, category=RuntimeWarning)
-            print("Shutting down...")
-        finally:
-            if experiment.end is None:
-                experiment.end = datetime.now()
-            else:
-                experiment.end = max(experiment.end, datetime.now())
-            session.add(experiment)
-            session.commit()
-
+        actns.append(Clean(self))
+        return actns
 
 class RuntimeExperiment(Experiment):
     """ Additional runtime only features for experiments. """

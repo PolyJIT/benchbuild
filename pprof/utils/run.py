@@ -304,12 +304,7 @@ def run(command, retcode=0):
         command & TEE(retcode)
     except KeyboardInterrupt as key_int:
         error("Interrupted by user input")
-        raise key_int
-    except Exception as exception:
-        error("Exception:")
-        error("   | {0}".format(exception))
-        raise GuardedRunException(exception, None, None)
-
+        raise
 
 def uchroot_no_llvm(*args, **kwargs):
     """

@@ -1,16 +1,8 @@
 #!/usr/bin/env python3
 import logging
-import os
-import sys
 from pprof import settings
+from pprof.utils import logging as plog
 from plumbum import cli
-
-logging.basicConfig(
-    format=
-    '%(name)s [%(levelname)s] %(module)s:%(lineno)s - %(message)s',
-    datefmt='%H:%M:%S',
-    level=logging.WARN)
-
 
 class PollyProfiling(cli.Application):
     """ Frontend for running/building the pprof study framework """
@@ -62,8 +54,8 @@ class PollyProfiling(cli.Application):
         self.verbosity = self.verbosity if self.verbosity < 4 else 3
         logging.captureWarnings(True)
 
+        plog.configure()
         LOG = logging.getLogger()
-        LOG.addHandler(logging.StreamHandler(sys.stderr))
         LOG.setLevel(log_levels[self.verbosity])
 
         if args:

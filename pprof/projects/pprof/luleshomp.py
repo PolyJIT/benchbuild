@@ -34,8 +34,7 @@ class LuleshOMP(PprofGroup):
         from pprof.settings import CFG
         from os import path
 
-        self.ldflags += ["-lgomp"]
-        self.cflags += ["-I" + path.join(str(CFG["llvm"]["dir"]), "include")]
+        self.cflags += ["-fopenmp", "-I" + path.join(str(CFG["llvm"]["dir"]), "include")]
 
         with local.cwd(self.builddir):
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,

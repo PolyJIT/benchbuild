@@ -221,9 +221,7 @@ def run(cmd):
 
 def construct_cc(cc, flags, CFLAGS, LDFLAGS, ifiles):
     if len(input_files) > 0:
-        if "conftest.c" in input_files:
-            final_command = CC[flags]
-        elif "-c" in flags:
+        if "-c" in flags:
             final_command = CC["-Qunused-arguments", CFLAGS, LDFLAGS,
                                flags]
         else:
@@ -233,11 +231,19 @@ def construct_cc(cc, flags, CFLAGS, LDFLAGS, ifiles):
         final_command = CC["-Qunused-arguments", flags]
     return final_command
 
-final_command = construct_cc(CC, flags, CFLAGS, LDFLAGS, input_files)
-continuation, _ = run(final_command)
-continuation()
-
-sys.exit(RETCODE)
+try:
+    if 'conftest.c' in input_files:
+        retcode, _, _ = (CC[flags] & TEE)
+        RETCODE = retcode
+    else:
+        final_command = construct_cc(CC, flags, CFLAGS, LDFLAGS, input_files)
+        continuation, _ = run(final_command)
+        continuation()
+except ProcessExecutionError as e:
+    log.error("** FAILED: {{0}}".format(str(e)))
+    RETCODE = e.retcode
+finally:
+    sys.exit(RETCODE)
 """.format(CC=str(compiler()),
            CFLAGS=cflags,
            LDFLAGS=ldflags,

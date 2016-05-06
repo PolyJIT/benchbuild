@@ -9,8 +9,8 @@ import os
 import sys
 from plumbum import cli
 from plumbum.cmd import mkdir  # pylint: disable=E0401
-from plumbum.cli.progress import ProgressAuto
 from pprof.settings import CFG
+from pprof.utils.actions import Experiment
 from pprof.utils import user_interface as ui
 
 from pprof.experiments import *  # pylint: disable=W0401
@@ -123,20 +123,20 @@ class PprofRun(cli.Application):
             if exp_name in exps:
                 exp_cls = exps[exp_name]
                 exp = exp_cls(project_names, group_name)
-                actns.extend(exp.actions())
+                eactn = Experiment(exp, exp.actions())
+                actns.append(eactn)
             else:
                 from logging import error
                 error("Could not find {} in the experiment registry.",
                       exp_name)
 
         num_actions = sum([len(x) for x in actns])
-
         print("Number of actions to execute: {}".format(num_actions))
         for a in actns:
             print(a)
+        print()
 
-        progress = ProgressAuto(actns, body=True, timer=True, has_output=True)
-        for a in progress:
+        for a in actns:
             a()
 
 

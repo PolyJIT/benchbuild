@@ -16,6 +16,7 @@ import logging
 import sys
 import traceback
 import warnings
+import textwrap
 from abc import abstractmethod, abstractproperty, ABCMeta
 from enum import Enum, unique
 
@@ -86,8 +87,10 @@ class Step(metaclass=StepClass):
             return
         self._action_fn()
 
-    def __str__(self):
-        return " * {0}: Execute configured action.".format(self._obj.name)
+    def __str__(self, indent = 0):
+        return textwrap.indent(
+            "* {0}: Execute configured action.".format(self._obj.name),
+            indent * " ")
 
     def onerror(self):
         Clean(self._obj)()
@@ -105,9 +108,11 @@ class Clean(Step):
         if os.path.exists(obj_builddir):
             rm("-rf", obj_builddir)
 
-    def __str__(self):
-        return " * {0}: Clean the directory: {1}".format(
-            self._obj.name, self._obj.builddir)
+    def __str__(self, indent = 0):
+        return textwrap.indent(
+            "* {0}: Clean the directory: {1}".format(
+                self._obj.name, self._obj.builddir),
+            indent * " ")
 
 
 class MakeBuildDir(Step):
@@ -120,8 +125,10 @@ class MakeBuildDir(Step):
         if not os.path.exists(self._obj.builddir):
             mkdir(self._obj.builddir)
 
-    def __str__(self):
-        return " * {0}: Create the build directory".format(self._obj.name)
+    def __str__(self, indent = 0):
+        return textwrap.indent(
+            "* {0}: Create the build directory".format(self._obj.name),
+            indent * " ")
 
 class Prepare(Step):
     NAME = "PREPARE"
@@ -130,8 +137,10 @@ class Prepare(Step):
     def __init__(self, project):
         super(Prepare, self).__init__(project, project.prepare)
 
-    def __str__(self):
-        return " * {0}: Prepare".format(self._obj.name)
+    def __str__(self, indent = 0):
+        return textwrap.indent(
+            "* {0}: Prepare".format(self._obj.name),
+            indent * " ")
 
 class Download(Step):
     NAME = "DOWNLOAD"
@@ -140,8 +149,10 @@ class Download(Step):
     def __init__(self, project):
         super(Download, self).__init__(project, project.download)
 
-    def __str__(self):
-        return " * {0}: Download".format(self._obj.name)
+    def __str__(self, indent = 0):
+        return textwrap.indent(
+            "* {0}: Download".format(self._obj.name),
+            indent * " ")
 
 class Configure(Step):
     NAME = "CONFIGURE"
@@ -150,8 +161,10 @@ class Configure(Step):
     def __init__(self, project):
         super(Configure, self).__init__(project, project.configure)
 
-    def __str__(self):
-        return " * {0}: Configure".format(self._obj.name)
+    def __str__(self, indent = 0):
+        return textwrap.indent(
+            "* {0}: Configure".format(self._obj.name),
+            indent * " ")
 
 class Build(Step):
     NAME = "BUILD"
@@ -160,8 +173,10 @@ class Build(Step):
     def __init__(self, project):
         super(Build, self).__init__(project, project.build)
 
-    def __str__(self):
-        return " * {0}: Compile".format(self._obj.name)
+    def __str__(self, indent = 0):
+        return textwrap.indent(
+            "* {0}: Compile".format(self._obj.name),
+            indent * " ")
 
 
 class Run(Step):
@@ -172,8 +187,48 @@ class Run(Step):
         action_fn = partial(project.run, project.runtime_extension)
         super(Run, self).__init__(project, action_fn)
 
+    def __call__(self):
+        if not self._obj:
+            return
+        if not self._action_fn:
+            return
+
+        with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment_id"])):
+            self._action_fn()
+
+    def __str__(self, indent = 0):
+        return textwrap.indent(
+            "* {0}: Execute run-time tests.".format(self._obj.name),
+            indent * " ")
+
+class Echo(Step):
+    NAME = 'ECHO'
+    DESCRIPTION = 'Print a message.'
+
+    def __init__(self, message):
+        self._message = message
+
+    def __str__(self, indent = 0):
+        return textwrap.indent(
+            "* echo: {0}".format(self._message),
+            indent * " ")
+
+    def __call__(self):
+        print()
+        print(self._message)
+        print()
+
+class Experiment(Step):
+    NAME = "EXPERIMENT"
+    DESCRIPTION = "Run a experiment, wrapped in a db transaction"
+    def __init__(self, experiment, actions):
+        self._experiment = experiment
+        self._actions = [Echo("Start experiment: {0}".format(experiment.name))]
+        self._actions.extend(actions)
+        super(Experiment, self).__init__(None, None)
+
     def begin_transaction(self):
-        experiment, session = persist_experiment(self._obj.experiment)
+        experiment, session = persist_experiment(self._experiment)
         if experiment.begin is None:
             experiment.begin = datetime.now()
         else:
@@ -181,6 +236,7 @@ class Run(Step):
         session.add(experiment)
         session.commit()
         return experiment, session
+
 
     def end_transaction(self, experiment, session):
         if experiment.end is None:
@@ -190,16 +246,18 @@ class Run(Step):
         session.add(experiment)
         session.commit()
 
+
+    def __len__(self):
+        return sum([len(x) for x in self._actions])
+
     def __call__(self):
-        if not self._obj:
-            return
-        if not self._action_fn:
-            return
+        result = StepResult.OK
 
         experiment, session = self.begin_transaction()
         try:
-            with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment_id"])):
-                self._action_fn()
+            for a in self._actions:
+                with local.env(PPROF_EXPERIMENT_ID=str(CFG["experiment_id"])):
+                    result = a()
         except KeyboardInterrupt:
             error("User requested termination.")
         except Exception:
@@ -211,23 +269,14 @@ class Run(Step):
         finally:
             self.end_transaction(experiment, session)
 
-    def __str__(self):
-        return " * {0}: Execute run-time tests.".format(self._obj.name)
+        return result
 
-class Echo(Step):
-    NAME = 'ECHO'
-    DESCRIPTION = 'Print a message.'
-
-    def __init__(self, message):
-        self._message = message
-
-    def __str__(self):
-        return " * echo: {0}".format(self._message)
-
-    def __call__(self):
-        print()
-        print(self._message)
-        print()
+    def __str__(self, indent = 0):
+        sub_actns = [a.__str__(indent + 1) for a in self._actions]
+        sub_actns = "\n".join(sub_actns)
+        return textwrap.indent(
+            "\nExperiment: {0}\n".format(self._experiment.name) + sub_actns,
+            indent * " ")
 
 class ForAll(Step):
     def __init__(self, actions):
@@ -236,7 +285,7 @@ class ForAll(Step):
         super(ForAll, self).__init__(None, None)
 
     def __len__(self):
-        return len(self._actions)
+        return sum([len(x) for x in self._actions])
 
     def __call__(self):
         for action in self._actions:
@@ -252,7 +301,7 @@ class ForAll(Step):
                 action.onerror()
                 return result
 
-    def __str__(self):
-        sub_actns = [str(a) for a in self._actions]
-        sub_actns = "\n  ".join(sub_actns)
-        return " * For all:\n  " + sub_actns
+    def __str__(self, indent = 0):
+        sub_actns = [a.__str__(indent + 1) for a in self._actions]
+        sub_actns = "\n".join(sub_actns)
+        return textwrap.indent("* For all:\n" + sub_actns, indent * " ")

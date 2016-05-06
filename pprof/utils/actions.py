@@ -78,10 +78,16 @@ class Step(metaclass=StepClass):
         self._obj = project_or_experiment
         self._action_fn = action_fn
 
+    def __len__(self):
+        return 1
+
     def __call__(self):
         if not self._action_fn:
             return
         self._action_fn()
+
+    def __str__(self):
+        return " * {0}: Execute configured action.".format(self._obj.name)
 
     def onerror(self):
         Clean(self._obj)()
@@ -99,6 +105,10 @@ class Clean(Step):
         if os.path.exists(obj_builddir):
             rm("-rf", obj_builddir)
 
+    def __str__(self):
+        return " * {0}: Clean the directory: {1}".format(
+            self._obj.name, self._obj.builddir)
+
 
 class MakeBuildDir(Step):
     NAME = "MKDIR"
@@ -110,12 +120,18 @@ class MakeBuildDir(Step):
         if not os.path.exists(self._obj.builddir):
             mkdir(self._obj.builddir)
 
+    def __str__(self):
+        return " * {0}: Create the build directory".format(self._obj.name)
+
 class Prepare(Step):
     NAME = "PREPARE"
     DESCRIPTION = "Prepare project build folder"
 
     def __init__(self, project):
         super(Prepare, self).__init__(project, project.prepare)
+
+    def __str__(self):
+        return " * {0}: Prepare".format(self._obj.name)
 
 class Download(Step):
     NAME = "DOWNLOAD"
@@ -124,6 +140,9 @@ class Download(Step):
     def __init__(self, project):
         super(Download, self).__init__(project, project.download)
 
+    def __str__(self):
+        return " * {0}: Download".format(self._obj.name)
+
 class Configure(Step):
     NAME = "CONFIGURE"
     DESCRIPTION = "Configure project source files"
@@ -131,12 +150,19 @@ class Configure(Step):
     def __init__(self, project):
         super(Configure, self).__init__(project, project.configure)
 
+    def __str__(self):
+        return " * {0}: Configure".format(self._obj.name)
+
 class Build(Step):
     NAME = "BUILD"
     DESCRIPTION = "Build the project"
 
     def __init__(self, project):
         super(Build, self).__init__(project, project.build)
+
+    def __str__(self):
+        return " * {0}: Compile".format(self._obj.name)
+
 
 class Run(Step):
     NAME = "RUN"
@@ -185,6 +211,8 @@ class Run(Step):
         finally:
             self.end_transaction(experiment, session)
 
+    def __str__(self):
+        return " * {0}: Execute run-time tests.".format(self._obj.name)
 
 class Echo(Step):
     NAME = 'ECHO'
@@ -193,14 +221,22 @@ class Echo(Step):
     def __init__(self, message):
         self._message = message
 
+    def __str__(self):
+        return " * echo: {0}".format(self._message)
+
     def __call__(self):
+        print()
         print(self._message)
+        print()
 
 class ForAll(Step):
     def __init__(self, actions):
         self._actions = actions
-        self._log = logging.getLogger('pprof.steps')
         self._exlog = logging.getLogger('pprof')
+        super(ForAll, self).__init__(None, None)
+
+    def __len__(self):
+        return len(self._actions)
 
     def __call__(self):
         for action in self._actions:
@@ -215,3 +251,8 @@ class ForAll(Step):
             if not (result == StepResult.OK):
                 action.onerror()
                 return result
+
+    def __str__(self):
+        sub_actns = [str(a) for a in self._actions]
+        sub_actns = "\n  ".join(sub_actns)
+        return " * For all:\n  " + sub_actns

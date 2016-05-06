@@ -263,6 +263,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
         self.sourcedir = CFG["src_dir"].value()
         self.builddir = path.join(str(CFG["build_dir"].value()), self.name)
         self.testdir = CFG["test_dir"].value()
+        self._actions = []
 
         self.populate_projects(projects, group)
 

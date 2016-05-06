@@ -13,6 +13,8 @@ import warnings
 from plumbum import local
 from pprof.experiment import step, RuntimeExperiment
 from pprof.utils.run import partial
+from pprof.utils.actions import (Prepare, Build, Download, Configure, Clean,
+                                 MakeBuildDir, Echo)
 
 def collect_compilestats(project, experiment, config, clang, **kwargs):
     """Collect compilestats."""
@@ -53,23 +55,22 @@ class CompilestatsExperiment(RuntimeExperiment):
 
     NAME = "cs"
 
-    def run_project(self, p):
-        """
-        Args:
-            p: The project we run.
-        """
+    def actions_for_project(self, p):
         from pprof.settings import CFG
 
-        with local.env(PPROF_ENABLE=1):
-            p.compiler_extension = partial(collect_compilestats, p, self, CFG)
-            with step("Prepare build directory."):
-                p.clean()
-                p.prepare()
-            with step("Downloading sources."):
-                p.download()
-            with step("Bulding {0}.".format(p.name)):
-                p.configure()
-                p.build()
+        p.compiler_extension = partial(collect_compilestats, p, self, CFG)
+
+        actns = [
+            MakeBuildDir(p),
+            Echo("{}: Configure...".format(self.name)),
+            Prepare(p),
+            Download(p),
+            Configure(p),
+            Echo("{}: Building...".format(self.name)),
+            Build(p),
+            Clean(p)
+        ]
+        return actns
 
 
 class PollyCompilestatsExperiment(RuntimeExperiment):
@@ -77,28 +78,27 @@ class PollyCompilestatsExperiment(RuntimeExperiment):
 
     NAME = "p-cs"
 
-    def run_project(self, p):
-        """
-        Args:
-            p: The project we run.
-        """
+    def actions_for_project(self, p):
         from pprof.settings import CFG
 
         llvm_libs = os.path.join(str(CFG["llvm"]["dir"]), "lib")
         p.ldflags = ["-L" + llvm_libs]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolly.so",
                     "-mllvm", "-polly"]
+        p.compiler_extension = partial(collect_compilestats, p, self, CFG)
 
-        with local.env(PPROF_ENABLE=1):
-            p.compiler_extension = partial(collect_compilestats, p, self, CFG)
-            with step("Prepare build directory."):
-                p.clean()
-                p.prepare()
-            with step("Downloading sources."):
-                p.download()
-            with step("Bulding {0}.".format(p.name)):
-                p.configure()
-                p.build()
+        actns = [
+            MakeBuildDir(p),
+            Echo("{}: Configure...".format(self.name)),
+            Prepare(p),
+            Download(p),
+            Configure(p),
+            Echo("{}: Building...".format(self.name)),
+            Build(p),
+            Clean(p)
+        ]
+        return actns
+
 
 
 def get_compilestats(prog_out):

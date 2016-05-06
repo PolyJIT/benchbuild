@@ -6,11 +6,15 @@ when running with polyjit support enabled.
 """
 from abc import abstractmethod
 from os import path
+import copy
+import uuid
+
 from plumbum.cmd import rm, time  # pylint: disable=E0401
 from plumbum import local
 from pprof.experiments.compilestats import collect_compilestats
-from pprof.experiments.compilestats import get_compilestats
-from pprof.experiment import step, substep, RuntimeExperiment
+from pprof.utils.actions import (Prepare, Build, Download, Configure, Clean,
+                                 MakeBuildDir, Run, Echo)
+from pprof.experiment import RuntimeExperiment
 from pprof.utils.run import partial
 
 
@@ -270,24 +274,29 @@ class PJITRaw(PolyJIT):
 
     NAME = "pj-raw"
 
-    def run_project(self, p):
+    def actions_for_project(self, p):
         from pprof.settings import CFG
 
         p = self.init_project(p)
-        with local.env(PPROF_ENABLE=0):
-            from uuid import uuid4
 
-            p.cflags += ["-fno-omit-frame-pointer"]
+        actns = []
+        for i in range(1, int(str(CFG["jobs"])) + 1):
+            cp = copy.deepcopy(p)
+            cp.run_uuid = uuid.uuid4()
+            cp.runtime_extension = partial(run_with_time, cp, self, CFG, i)
 
-            for i in range(1, int(str(CFG["jobs"])) + 1):
-                p.run_uuid = uuid4()
-                with step("time: {0} cores & uuid {1}".format(i, p.run_uuid)):
-                    p.clean()
-                    p.prepare()
-                    p.download()
-                    p.configure()
-                    p.build()
-                    p.run(partial(run_with_time, p, self, CFG, i))
+            actns.extend([
+                MakeBuildDir(cp),
+                Echo("{0} core configuration. Configure & Compile".format(i)),
+                Prepare(cp),
+                Download(cp),
+                Configure(cp),
+                Build(cp),
+                Echo("{0} core configuration. Run".format(i)),
+                Run(cp),
+                Clean(cp)
+            ])
+        return actns
 
 
 class PJITperf(PolyJIT):
@@ -297,22 +306,29 @@ class PJITperf(PolyJIT):
 
     NAME = "pj-perf"
 
-    def run_project(self, p):
+    def actions_for_project(self, p):
         from pprof.settings import CFG
-        p = self.init_project(p)
-        with local.env(PPROF_ENABLE=0):
-            from uuid import uuid4
 
-            p.cflags += ["-fno-omit-frame-pointer"]
-            for i in range(1, int(CFG["jobs"]) + 1):
-                p.run_uuid = uuid4()
-                with step("perf: {0} cores & uuid {1}".format(i, p.run_uuid)):
-                    p.clean()
-                    p.prepare()
-                    p.download()
-                    p.configure()
-                    p.build()
-                    p.run(partial(run_with_perf, p, self, CFG, i))
+        p = self.init_project(p)
+
+        actns = []
+        for i in range(1, int(str(CFG["jobs"])) + 1):
+            cp = copy.deepcopy(p)
+            cp.run_uuid = uuid.uuid4()
+            cp.runtime_extension = partial(run_with_perf, cp, self, CFG, i)
+
+            actns.extend([
+                MakeBuildDir(cp),
+                Echo("perf: {0} core configuration. Configure & Compile".format(i)),
+                Prepare(cp),
+                Download(cp),
+                Configure(cp),
+                Build(cp),
+                Echo("perf: {0} core configuration. Run".format(i)),
+                Run(cp),
+                Clean(cp)
+            ])
+        return actns
 
 
 class PJITlikwid(PolyJIT):
@@ -327,29 +343,30 @@ class PJITlikwid(PolyJIT):
 
     NAME = "pj-likwid"
 
-    def run_project(self, p):
+    def actions_for_project(self, p):
         from pprof.settings import CFG
 
         p = self.init_project(p)
-        with local.env(PPROF_ENABLE=0):
-            from uuid import uuid4
+        p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
 
-            p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
+        actns = []
+        for i in range(1, int(str(CFG["jobs"])) + 1):
+            cp = copy.deepcopy(p)
+            cp.run_uuid = uuid.uuid4()
+            cp.runtime_extension = partial(run_with_likwid, cp, self, CFG, i)
 
-            for i in range(1, int(CFG["jobs"]) + 1):
-                with step("{0} cores & uuid {1}".format(i, p.run_uuid)):
-                    p.clean()
-                    p.prepare()
-                    p.download()
-                    p.configure()
-                    p.build()
-
-                    p.run_uuid = uuid4()
-                    run_with_likwid.config = CFG
-                    run_with_likwid.experiment = self
-                    run_with_likwid.project = p
-                    run_with_likwid.jobs = i
-                    p.run(partial(run_with_likwid, p, self, CFG, i))
+            actns.extend([
+                MakeBuildDir(cp),
+                Echo("likwid: {0} core configuration. Configure & Compile".format(i)),
+                Prepare(cp),
+                Download(cp),
+                Configure(cp),
+                Build(cp),
+                Echo("likwid: {0} core configuration. Run".format(i)),
+                Run(cp),
+                Clean(cp)
+            ])
+        return actns
 
 
 class PJITRegression(PolyJIT):
@@ -366,65 +383,61 @@ class PJITRegression(PolyJIT):
 
     NAME = "pj-collect"
 
-    def run_project(self, p):
-        """
-        Execute the experiment on a single projects.
-
-        Args:
-            p - The project we run this experiment on.
-        """
+    def actions_for_project(self, p):
         from pprof.settings import CFG
+        def _track_compilestats(project, experiment, config, clang,
+                                **kwargs):
+            """ Compile the project and track the compilestats. """
+            from pprof.utils import run as r
+            from pprof.settings import CFG as c
+            from pprof.utils.run import handle_stdin
+
+            c.update(config)
+            clang = handle_stdin(clang["-mllvm", "-polli-collect-modules"],
+                                 kwargs)
+            pname = project.name
+            ename = experiment.name
+            ruuid = project.run_uuid
+            r.guarded_exec(clang, pname, ename, ruuid)
 
         p = self.init_project(p)
-        with local.env(PPROF_ENABLE=0):
+        p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
+        p.compiler_extension = partial(_track_compilestats, p, self, CFG)
 
-            def _track_compilestats(project, experiment, config, clang,
-                                    **kwargs):
-                """ Compile the project and track the compilestats. """
-                from pprof.utils import run as r
-                from pprof.settings import CFG as c
-                from pprof.utils.run import handle_stdin
-
-                c.update(config)
-                clang = handle_stdin(clang["-mllvm", "-polli-collect-modules"],
-                                     kwargs)
-                pname = project.name
-                ename = experiment.name
-                ruuid = project.run_uuid
-                r.guarded_exec(clang, pname, ename, ruuid)
-
-            with step("Extract regression test modules."):
-                p.clean()
-                p.prepare()
-                p.download()
-                p.compiler_extension = partial(_track_compilestats, p, self,
-                                               CFG)
-                p.configure()
-                p.build()
-                p.run(partial(run_raw, p, self, CFG, 1))
+        actns = [
+            MakeBuildDir(p),
+            Echo("{}: Configure...".format(self.name)),
+            Prepare(p),
+            Download(p),
+            Configure(p),
+            Echo("{}: Building...".format(self.name)),
+            Build(p),
+            Clean(p)
+        ]
+        return actns
 
 
 class PolyJIT_CompileStats(PolyJIT):
     """Gather compilestats, with enabled JIT."""
     NAME = "pj-cs"
 
-    def run_project(self, p):
-        """ 
-        Args:
-            p: The project we run.
-        """
+    def actions_for_project(self, p):
         from pprof.settings import CFG
 
         p = self.init_project(p)
-        with local.env(PPROF_ENABLE=1):
-            from uuid import uuid4
+        p.compiler_extension = partial(collect_compilestats, p, self, CFG)
 
-            p.compiler_extension = partial(collect_compilestats, p, self, CFG)
-            p.clean()
-            p.prepare()
-            p.download()
-            p.configure()
-            p.build()
+        actns = [
+            MakeBuildDir(p),
+            Echo("{}: Configure...".format(self.name)),
+            Prepare(p),
+            Download(p),
+            Configure(p),
+            Echo("{}: Building...".format(self.name)),
+            Build(p),
+            Clean(p)
+        ]
+        return actns
 
 
 class PJITpapi(PolyJIT):
@@ -456,32 +469,27 @@ class PJITpapi(PolyJIT):
                        PPROF_USE_CSV=0):
             pprof_analyze()
 
-    def run_project(self, p):
-        """
-        Run the experiment with papi support.
-
-        Args:
-            p: The project we run.
-        """
+    def actions_for_project(self, p):
         from pprof.settings import CFG
 
         p = self.init_project(p)
-        with local.env(PPROF_ENABLE=1):
-            from uuid import uuid4
+        p.cflags = ["-mllvm", "-instrument"] + p.cflags
+        p.ldflags = p.ldflags + ["-lpprof"]
 
-            p.cflags = ["-mllvm", "-instrument"] + p.cflags
-            p.ldflags = p.ldflags + ["-lpprof"]
+        actns = []
+        for i in range(1, int(str(CFG["jobs"])) + 1):
+            cp = copy.deepcopy(p)
+            cp.compiler_extension = partial(collect_compilestats, cp, self, CFG)
+            cp.runtime_extension = partial(run_with_papi, p, self, CFG, i)
+            actns.extend([
+                MakeBuildDir(cp),
+                Echo("{}: Configure...".format(self.name)),
+                Prepare(cp),
+                Download(cp),
+                Configure(cp),
+                Echo("{}: Building...".format(self.name)),
+                Build(cp),
+                Clean(cp)
+            ])
 
-            for i in range(1, int(str(CFG["jobs"])) + 1):
-                with step("{0} cores & uuid {1}".format(i, p.run_uuid)):
-                    p.clean()
-                    p.prepare()
-                    p.download()
-                    with local.env(PPROF_ENABLE=0):
-                        p.compiler_extension = partial(collect_compilestats, p,
-                                                       self, CFG)
-                        p.configure()
-                        p.build()
-
-                    p.run_uuid = uuid4()
-                    p.run(partial(run_with_papi, p, self, CFG, i))
+        return actns

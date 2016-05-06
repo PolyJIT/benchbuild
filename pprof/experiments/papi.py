@@ -9,6 +9,8 @@ from os import path
 from pprof.experiment import (RuntimeExperiment, step, substep)
 from pprof.experiments.raw import run_with_time
 from pprof.utils.run import partial
+from pprof.utils.actions import (Step, Prepare, Build, Download, Configure, Clean,
+                                 MakeBuildDir, Run, Echo)
 from pprof.settings import CFG
 from plumbum import local
 
@@ -65,42 +67,47 @@ class PapiScopCoverage(RuntimeExperiment):
                        PPROF_USE_CSV=0):
             pprof_analyze()
 
-    def run_project(self, p):
+    def actions_for_project(self, p):
         """
         Create & Run a papi-instrumented version of the project.
 
         This experiment uses the -jitable flag of libPolyJIT to generate
         dynamic SCoP coverage.
         """
-        llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
+        llvm_libs = path.join(str(CFG["llvm"]["dir"].value()), "lib")
+        p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+        ld_lib_path = [_f
+                       for _f in CFG["ld_library_path"].value().split(":")
+                       if _f]
+        p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
+        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                    "-mllvm", "-polli", "-mllvm", "-jitable", "-mllvm",
+                    "-instrument", "-mllvm", "-no-recompilation", "-mllvm",
+                    "-polly-detect-keep-going"]
+        p.compiler_extension = partial(collect_compilestats, p,
+                                       self, CFG)
+        p.runtime_extension = partial(run_with_time, p, self, CFG, 1)
 
-        with step("Class: Dynamic, PAPI"):
-            p.download()
-            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
-
-            ld_lib_path = [_f
-                           for _f in CFG["ld_library_path"].split(":")
-                           if _f]
-            p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
-            p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                        "-mllvm", "-polli", "-mllvm", "-jitable", "-mllvm",
-                        "-instrument", "-mllvm", "-no-recompilation", "-mllvm",
-                        "-polly-detect-keep-going"]
-            with substep("reconf & rebuild"):
-                with local.env(PPROF_ENABLE=0):
-                    p.compiler_extension = partial(collect_compilestats, p,
-                                                   self, CFG)
-                    p.configure()
-                    p.build()
-            with substep("run"):
-                p.run(partial(run_with_time, p, self, CFG, 1))
-
-        with step("Evaluation"):
+        def evaluate_calibration(e):
             bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
             pprof_calibrate = local[path.join(bin_path, "pprof-calibrate")]
-            papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
+            papi_calibration = e.get_papi_calibration(p, pprof_calibrate)
+            e.persist_calibration(p, pprof_calibrate, papi_calibration)
 
-            self.persist_calibration(p, pprof_calibrate, papi_calibration)
+        actns = [
+            MakeBuildDir(p),
+            Echo("{0}: Compiling... {1}".format(self.name, p.name)),
+            Prepare(p),
+            Download(p),
+            Configure(p),
+            Build(p),
+            Echo("{0}: Running... {1}".format(self.name, p.name)),
+            Run(p),
+            Clean(p),
+            Echo("{0}: Calibrating... {1}".format(self.name, p.name)),
+            Step(p, action_fn=partial(evaluate_calibration, self))
+        ]
+        return actns
 
 
 class PapiStandardScopCoverage(PapiScopCoverage):
@@ -108,37 +115,43 @@ class PapiStandardScopCoverage(PapiScopCoverage):
 
     NAME = "papi-std"
 
-    def run_project(self, p):
+    def actions_for_project(self, p):
         """
         Create & Run a papi-instrumented version of the project.
 
-        This experiment does not use the -jitable flag of libPolyJIT.
-        Therefore, we get the static (aka Standard) SCoP coverage.
+        This experiment uses the -jitable flag of libPolyJIT to generate
+        dynamic SCoP coverage.
         """
-        from pprof.settings import CFG
-        llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
+        llvm_libs = path.join(str(CFG["llvm"]["dir"].value()), "lib")
+        p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
+        ld_lib_path = [_f
+                       for _f in CFG["ld_library_path"].value().split(":")
+                       if _f]
+        p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
+        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                    "-mllvm", "-polli", "-mllvm", "-instrument", "-mllvm",
+                    "-no-recompilation", "-mllvm",
+                    "-polly-detect-keep-going"]
+        p.compiler_extension = partial(collect_compilestats, p, self, CFG)
+        p.runtime_extension = partial(run_with_time, p, self, CFG, 1)
 
-        with step("Class: Standard - PAPI"):
-            p.download()
-            p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lpprof", "-lpapi"]
-
-            ld_lib_path = [_f
-                           for _f in CFG["ld_library_path"].split(":")
-                           if _f]
-            p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
-            p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                        "-mllvm", "-polli", "-mllvm", "-instrument", "-mllvm",
-                        "-no-recompilation", "-mllvm",
-                        "-polly-detect-keep-going"]
-            with substep("reconf & rebuild"):
-                with local.env(PPROF_ENABLE=0):
-                    p.configure()
-                    p.build()
-            with substep("run"):
-                p.run(partial(run_with_time, p, self, config, 1))
-
-        with step("Evaluation"):
+        def evaluate_calibration(e):
             bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
             pprof_calibrate = local[path.join(bin_path, "pprof-calibrate")]
-            papi_calibration = self.get_papi_calibration(p, pprof_calibrate)
-            self.persist_calibration(p, pprof_calibrate, papi_calibration)
+            papi_calibration = e.get_papi_calibration(p, pprof_calibrate)
+            e.persist_calibration(p, pprof_calibrate, papi_calibration)
+
+        actns = [
+            MakeBuildDir(p),
+            Echo("{0}: Compiling... {1}".format(self.name, p.name)),
+            Prepare(p),
+            Download(p),
+            Configure(p),
+            Build(p),
+            Echo("{0}: Running... {1}".format(self.name, p.name)),
+            Run(p),
+            Clean(p),
+            Echo("{0}: Calibrating... {1}".format(self.name, p.name)),
+            Step(p, action_fn=partial(evaluate_calibration, self))
+        ]
+        return actns

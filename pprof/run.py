@@ -72,6 +72,8 @@ class PprofRun(cli.Application):
     def group(self, group):
         self._group_name = group
 
+    pretend = cli.Flag(['p', 'pretend'], default = False)
+
     def main(self):
         """Main entry point of pprof run."""
         project_names = self._project_names
@@ -119,7 +121,6 @@ class PprofRun(cli.Application):
 
         actns = []
         for exp_name in self._experiment_names:
-            print("Running experiment: " + exp_name)
             if exp_name in exps:
                 exp_cls = exps[exp_name]
                 exp = exp_cls(project_names, group_name)
@@ -136,8 +137,9 @@ class PprofRun(cli.Application):
             print(a)
         print()
 
-        for a in actns:
-            a()
+        if not self.pretend:
+            for a in actns:
+                a()
 
 
 def print_projects(exp):

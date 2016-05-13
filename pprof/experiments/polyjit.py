@@ -12,8 +12,8 @@ import uuid
 from plumbum.cmd import rm, time  # pylint: disable=E0401
 from plumbum import local
 from pprof.experiments.compilestats import collect_compilestats
-from pprof.utils.actions import (Prepare, Build, Download, Configure, Clean,
-                                 MakeBuildDir, Run, Echo)
+from pprof.utils.actions import (ForAll, Prepare, Build, Download, Configure,
+                                 Clean, MakeBuildDir, Run, Echo)
 from pprof.experiment import RuntimeExperiment
 from pprof.utils.run import partial
 
@@ -355,7 +355,7 @@ class PJITlikwid(PolyJIT):
             cp.run_uuid = uuid.uuid4()
             cp.runtime_extension = partial(run_with_likwid, cp, self, CFG, i)
 
-            actns.extend([
+            actns.append(ForAll([
                 MakeBuildDir(cp),
                 Echo("likwid: {0} core configuration. Configure & Compile".format(i)),
                 Prepare(cp),
@@ -364,8 +364,7 @@ class PJITlikwid(PolyJIT):
                 Build(cp),
                 Echo("likwid: {0} core configuration. Run".format(i)),
                 Run(cp),
-                Clean(cp)
-            ])
+                Clean(cp)]))
         return actns
 
 

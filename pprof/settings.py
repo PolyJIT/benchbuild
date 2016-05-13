@@ -351,6 +351,29 @@ CFG = Configuration(
         }
     })
 
+CFG["env"] = {
+    "compiler_ld_library_path": {
+        "desc":
+        "List of paths to be added to the LD_LIBRARY_PATH variable of all compiler invocations.",
+        "default": []
+    },
+    "compiler_path": {
+        "desc":
+        "List of paths to be added to all PATH variable of all compiler invocations.",
+        "default": []
+    },
+    "binary_ld_library_path": {
+        "desc":
+        "List of paths to be added to the LD_LIBRARY_PATH variable of all binary invocations.",
+        "default": []
+    },
+    "binary_path": {
+        "desc":
+        "List of paths to be added to the PATH variable of all binary invocations.",
+        "default": []
+    }
+}
+
 CFG["llvm"] = {
     "dir": {
         "desc": "Path to LLVM. This will be required.",

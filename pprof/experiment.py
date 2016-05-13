@@ -305,16 +305,6 @@ class Experiment(object, metaclass=ExperimentRegistry):
         self.projects = {k: projects[k](self) for k in projects}
 
     @abstractmethod
-    def run_project(self, project):
-        """
-        Invoke the run phase of the given project.
-
-        Args:
-            project (pprof.Project): the project we want to run.
-        """
-        pass
-
-    @abstractmethod
     def actions_for_project(self, project):
         """
         Get the actions a project wants to run.

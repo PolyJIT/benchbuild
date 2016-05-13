@@ -218,14 +218,32 @@ class Echo(Step):
         print(self._message)
         print()
 
-class Experiment(Step):
+class Any(Step):
+    NAME = "ANY"
+    DESCRIPTION = "Just run all actions, no questions asked."
+
+    def __init__(self, actions):
+        self._actions = actions
+        super(Any, self).__init__(None, None)
+
+    def __len__(self):
+        return sum([len(x) for x in self._actions])
+
+    def __call__(self):
+        result = StepResult.OK
+        for a in self._actions:
+            result = a()
+        return result
+
+
+class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
     def __init__(self, experiment, actions):
         self._experiment = experiment
-        self._actions = [Echo("Start experiment: {0}".format(experiment.name))]
-        self._actions.extend(actions)
-        super(Experiment, self).__init__(None, None)
+        actions = \
+            [Echo("Start experiment: {0}".format(experiment.name))] + actions
+        super(Experiment, self).__init__(actions)
 
     def begin_transaction(self):
         experiment, session = persist_experiment(self._experiment)
@@ -246,9 +264,6 @@ class Experiment(Step):
         session.add(experiment)
         session.commit()
 
-
-    def __len__(self):
-        return sum([len(x) for x in self._actions])
 
     def __call__(self):
         result = StepResult.OK

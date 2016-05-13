@@ -36,15 +36,16 @@ def run_raw(project, experiment, config, run_f, args, **kwargs):
                 with ::pprof.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from pprof.utils import run as r
+    from pprof.utils.run import guarded_exec, handle_stdin
     from pprof.settings import CFG as c
 
     c.update(config)
-    project_name = kwargs.get("project_name", project.name)
+    project.name = kwargs.get("project_name", project.name)
 
     run_cmd = local[run_f]
     run_cmd = r.handle_stdin(run_cmd[args], kwargs)
-    r.guarded_exec(run_cmd, project_name, experiment.name, project.run_uuid)
+    with guarded_exec(run_cmd, project, experiment) as run:
+        run()
 
 
 def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
@@ -70,20 +71,20 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.settings import CFG as c
-    from pprof.utils import run as r
+    from pprof.utils.run import guarded_exec, handle_stdin
     from pprof.utils.db import persist_config
 
     c.update(config)
-    project_name = kwargs.get("project_name", project.name)
+    project.name = kwargs.get("project_name", project.name)
     run_cmd = local[run_f]
-    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    run_cmd = handle_stdin(run_cmd[args], kwargs)
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
-        run, session, _, _, _ = \
-            r.guarded_exec(run_cmd, project_name, experiment.name,
-                           project.run_uuid)
+        with guarded_exec(run_cmd, project, experiment) as run:
+            run_info = run()
 
-    persist_config(run, session, {"cores": str(jobs)})
+    persist_config(run_info['db_run'], run_info['session'],
+                   {"cores": str(jobs)})
 
 
 def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
@@ -106,12 +107,12 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.settings import CFG as c
-    from pprof.utils import run as r
+    from pprof.utils.run import guarded_exec, handle_stdin
     from pprof.utils.db import persist_likwid, persist_config
     from pprof.likwid import get_likwid_perfctr
 
     c.update(config)
-    project_name = kwargs.get("project_name", project.name)
+    project.name = kwargs.get("project_name", project.name)
     likwid_f = project_name + ".txt"
 
     for group in ["CLOCK"]:
@@ -121,19 +122,15 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
             likwid_perfctr["-O", "-o", likwid_f, "-m",
                            "-C", "0-{0:d}".format(jobs),
                            "-g", group, run_f]
-        run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+        run_cmd = handle_stdin(run_cmd[args], kwargs)
 
         with local.env(POLLI_ENABLE_LIKWID=1):
-            run, session, _, _, _ = \
-                r.guarded_exec(run_cmd, project_name, experiment.name,
-                               project.run_uuid)
+            with guarded_exec(run_cmd, project, experiment) as run:
+                run_info = run()
 
         likwid_measurement = get_likwid_perfctr(likwid_f)
-        """ Use the project_name from the binary, because we
-            might encounter dynamically generated projects.
-        """
-        persist_likwid(run, session, likwid_measurement)
-        persist_config(run, session, {
+        persist_likwid(run, run_info['session'], likwid_measurement)
+        persist_config(run, run_info['session'], {
             "cores": str(jobs),
             "likwid.group": group
         })
@@ -159,23 +156,22 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::pprof.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from pprof.utils import run as r
+    from pprof.utils.run import guarded_exec, handle_stdin, fetch_time_output
     from pprof.settings import CFG as c
     from pprof.utils.db import persist_time, persist_config
 
     c.update(config)
-    project_name = kwargs.get("project_name", project.name)
+    project.name = kwargs.get("project_name", project.name)
     timing_tag = "PPROF-JIT: "
 
     run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
-    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    run_cmd = handle_stdin(run_cmd[args], kwargs)
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
-        run, session, _, _, stderr = \
-            r.guarded_exec(run_cmd, project_name, experiment.name,
-                           project.run_uuid)
-        timings = r.fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", stderr.split("\n"))
+        with guarded_exec(run_cmd, project, experiment) as run:
+            ri = run()
+        timings = fetch_time_output(
+            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri['stderr'].split("\n"))
         if len(timings) == 0:
             return
 
@@ -203,21 +199,19 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from pprof.settings import CFG as c
-    from pprof.utils import run as r
+    from pprof.utils.run import guarded_exec, handle_stdin
     from pprof.utils.db import persist_perf, persist_config
     from plumbum.cmd import perf
 
     c.update(config)
-    project_name = kwargs.get("project_name", project.name)
+    project.name = kwargs.get("project_name", project.name)
     run_cmd = local[run_f]
-    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    run_cmd = handle_stdin(run_cmd[args], kwargs)
     run_cmd = perf["record", "-q", "-F", 6249, "-g", run_cmd]
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
-        run_cmd()
-        run, session, _, _, _ = \
-            r.guarded_exec(local["/bin/true"], project_name, experiment.name,
-                           project.run_uuid)
+        with guarded_exec(run_cmd, project, experiment) as run:
+            ri = run(retcode=None)
 
         fg_path = path.join(c["src_dir"], "extern/FlameGraph")
         if path.exists(fg_path):
@@ -229,8 +223,8 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
 
             fold_cmd()
             graph_cmd()
-            persist_perf(run, session, run_f + ".svg")
-            persist_config(run, session, {"cores": str(jobs)})
+            persist_perf(ri['db_run'], ri['session'], run_f + ".svg")
+            persist_config(ri['db_run'], ri['session'], {"cores": str(jobs)})
 
 
 class PolyJIT(RuntimeExperiment):
@@ -384,20 +378,18 @@ class PJITRegression(PolyJIT):
 
     def actions_for_project(self, p):
         from pprof.settings import CFG
+        from pprof.utils.run import guarded_exec, handle_stdin
         def _track_compilestats(project, experiment, config, clang,
                                 **kwargs):
             """ Compile the project and track the compilestats. """
-            from pprof.utils import run as r
             from pprof.settings import CFG as c
             from pprof.utils.run import handle_stdin
 
             c.update(config)
             clang = handle_stdin(clang["-mllvm", "-polli-collect-modules"],
                                  kwargs)
-            pname = project.name
-            ename = experiment.name
-            ruuid = project.run_uuid
-            r.guarded_exec(clang, pname, ename, ruuid)
+            with guarded_exec(clang, project, experiment) as run:
+                run()
 
         p = self.init_project(p)
         p.cflags = ["-DLIKWID_PERFMON"] + p.cflags

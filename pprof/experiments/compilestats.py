@@ -11,14 +11,14 @@ import parse
 import os
 import warnings
 from plumbum import local
-from pprof.experiment import step, RuntimeExperiment
+from pprof.experiment import RuntimeExperiment
 from pprof.utils.run import partial
 from pprof.utils.actions import (Prepare, Build, Download, Configure, Clean,
                                  MakeBuildDir, Echo)
 
 def collect_compilestats(project, experiment, config, clang, **kwargs):
     """Collect compilestats."""
-    from pprof.utils import run as r
+    from pprof.utils.run import guarded_exec, handle_stdin
     from pprof.settings import CFG as c
     from pprof.utils.db import persist_compilestats
     from pprof.utils.run import handle_stdin
@@ -28,12 +28,12 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
     with local.env(PPROF_ENABLE=0):
-        run, session, retcode, _, stderr = r.guarded_exec(
-            clang, project.name, experiment.name, project.run_uuid)
+        with guarded_exec(clang, project, experiment) as run:
+            ri = run()
 
     if retcode == 0:
         stats = []
-        for stat in get_compilestats(stderr):
+        for stat in get_compilestats(ri['stderr']):
             compile_s = CompileStat()
             compile_s.name = stat["desc"].rstrip()
             compile_s.component = stat["component"].rstrip()
@@ -47,7 +47,7 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
         if names is not None:
             stats = [ s for s in stats if str(s.name) in names]
 
-        persist_compilestats(run, session, stats)
+        persist_compilestats(ri['db_run'], ri['session'], stats)
 
 
 class CompilestatsExperiment(RuntimeExperiment):

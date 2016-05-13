@@ -19,7 +19,7 @@ Measurements
 from pprof.experiment import RuntimeExperiment
 from pprof.utils.actions import (Prepare, Build, Download, Configure, Clean,
                                  MakeBuildDir, Run, Echo)
-from pprof.utils import run as r
+from pprof.utils.run import guarded_exec, handle_stdin, fetch_time_output
 from pprof.utils.db import persist_time, persist_config
 from plumbum.cmd import time
 
@@ -52,23 +52,22 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     CFG.update(config)
-    project_name = kwargs.get("project_name", project.name)
+    project.name = kwargs.get("project_name", project.name)
     timing_tag = "PPROF-TIME: "
 
     run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
-    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    run_cmd = handle_stdin(run_cmd[args], kwargs)
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
-        run, session, _, _, stderr = \
-            r.guarded_exec(run_cmd, project_name, experiment.name,
-                           project.run_uuid)
-        timings = r.fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", stderr.split("\n"))
+        with guarded_exec(run_cmd, project, experiment) as run:
+            ri = run()
+        timings = fetch_time_output(
+            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri['stderr'].split("\n"))
         if len(timings) == 0:
             return
 
-    persist_time(run, session, timings)
-    persist_config(run, session, {"cores": str(jobs)})
+    persist_time(ri['db_run'], ri['session'], timings)
+    persist_config(ri['db_run'], ri['session'], {"cores": str(jobs)})
 
 
 class RawRuntime(RuntimeExperiment):

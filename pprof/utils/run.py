@@ -2,6 +2,7 @@
 Experiment helpers
 """
 from plumbum.cmd import mkdir  # pylint: disable=E0401
+from contextlib import contextmanager
 
 
 def partial(func, *args, **kwargs):
@@ -256,7 +257,8 @@ def fail(db_run, session, retcode, stdout, stderr):
     session.commit()
 
 
-def guarded_exec(cmd, pname, ename, run_group):
+@contextmanager
+def guarded_exec(cmd, project, experiment):
     """
     Guard the execution of the given command.
 
@@ -275,12 +277,19 @@ def guarded_exec(cmd, pname, ename, run_group):
     from plumbum.commands.modifiers import TEE
     from warnings import warn
 
-    db_run, session = begin(cmd, pname, ename, run_group)
+    db_run, session = begin(cmd, project.name, experiment.name,
+                            project.run_uuid)
     try:
         with local.env(PPROF_DB_RUN_ID=db_run.id):
-            retcode, stdout, stderr = cmd & TEE
-        end(db_run, session, stdout, stderr)
-        return (db_run, session, retcode, stdout, stderr)
+            def runner(retcode=0, *args):
+                retcode, stdout, stderr = cmd[args] & TEE(retcode=retcode)
+                end(db_run, session, stdout, stderr)
+                return {"retcode": retcode,
+                        "stdout": stdout,
+                        "stderr": stderr,
+                        "session": session,
+                        "db_run": db_run}
+            yield runner
     except ProcessExecutionError as proc_ex:
         fail(db_run, session, proc_ex.retcode, proc_ex.stdout, proc_ex.stderr)
         raise GuardedRunException(proc_ex, db_run, session)

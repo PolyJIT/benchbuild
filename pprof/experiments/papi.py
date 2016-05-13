@@ -28,25 +28,25 @@ def get_compilestats(prog_out):
 
 def collect_compilestats(project, experiment, config, clang, **kwargs):
     """Collect compilestats."""
-    from pprof.utils import run as r
+    from pprof.utils.run import guarded_exec, handle_stdin
     from pprof.utils.db import persist_compilestats
     from pprof.utils.run import handle_stdin
     from pprof.utils.schema import CompileStat
 
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
-    run, session, retcode, _, stderr = \
-        r.guarded_exec(clang, project.name, experiment.name, project.run_uuid)
+    with guarded_exec(clang, project, experiment) as run:
+        ri = run()
 
     if retcode == 0:
         stats = []
-        for stat in get_compilestats(stderr):
+        for stat in get_compilestats(ri['stderr']):
             compile_s = CompileStat()
             compile_s.name = stat["desc"].rstrip()
             compile_s.component = stat["component"].rstrip()
             compile_s.value = stat["value"]
             stats.append(compile_s)
-        persist_compilestats(run, session, stats)
+        persist_compilestats(ri['db_run'], ri['session'], stats)
 
 
 class PapiScopCoverage(RuntimeExperiment):

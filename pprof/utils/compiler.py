@@ -137,6 +137,10 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
     import dill
     from os.path import abspath
 
+    cc_f = abspath(filepath + ".pprof.cc")
+    with open(cc_f, 'wb') as cc:
+        cc.write(dill.dumps(compiler()))
+
     blob_f = abspath(filepath + PROJECT_BLOB_F_EXT)
     if func is not None:
         with open(blob_f, 'wb') as blob:
@@ -158,7 +162,21 @@ from plumbum.cmd import timeout
 from pprof import settings
 from pprof.utils.run import GuardedRunException
 
-CC=local["{CC}"]
+log = logging.getLogger("cc")
+log.addHandler(logging.StreamHandler(stream=sys.stderr))
+
+CC_F="{CC_F}"
+compiler=None
+with open(CC_F, "rb") as cc_f:
+    compiler = dill.load(cc_f)
+CC = None
+if compiler:
+    CC = compiler
+    log.warn(str(CC))
+else:
+    log.error("Could not load the compiler command")
+    sys.exit(1)
+
 CFLAGS={CFLAGS}
 LDFLAGS={LDFLAGS}
 BLOB_F="{BLOB_F}"
@@ -168,9 +186,6 @@ DB_PORT="{db_port}"
 DB_NAME="{db_name}"
 DB_USER="{db_user}"
 DB_PASS="{db_pass}"
-
-log = logging.getLogger("cc")
-log.addHandler(logging.StreamHandler(stream=sys.stderr))
 
 input_files = [x for x in sys.argv[1:] if not '-' is x[0]]
 flags = sys.argv[1:]
@@ -244,7 +259,7 @@ except ProcessExecutionError as e:
     RETCODE = e.retcode
 finally:
     sys.exit(RETCODE)
-""".format(CC=str(compiler()),
+""".format(CC_F=cc_f,
            CFLAGS=cflags,
            LDFLAGS=ldflags,
            BLOB_F=blob_f,
@@ -286,6 +301,24 @@ def llvm_libs():
     return path.join(str(CFG["llvm"]["dir"]), "lib")
 
 
+def __get_compiler_paths():
+    from os import getenv
+
+    path = getenv("PATH", "")
+    lib_path = getenv("LD_LIBRARY_PATH", "")
+
+    _lib_path = CFG["env"]["compiler_ld_library_path"].value()
+    _path = CFG["env"]["compiler_path"].value()
+    _lib_path = ":".join(_lib_path)
+    _path = ":".join(_path)
+
+    if not (_path == ""):
+        path = _path + ":" + path
+    if not (_lib_path == ""):
+        lib_path = _lib_path + ":" + lib_path
+
+    return {"ld_library_path": lib_path, "path": path}
+
 def clang_cxx():
     """
     Get a usable clang++ plumbum command.
@@ -298,7 +331,11 @@ def clang_cxx():
     """
     from os import path
     from plumbum import local
-    return local[path.join(llvm(), "clang++")]
+    pinfo = __get_compiler_paths()
+    clang = local[path.join(llvm(), "clang++")]
+    clang = clang.setenv(PATH=pinfo["path"],
+                         LD_LIBRARY_PATH=pinfo["ld_library_path"])
+    return clang
 
 
 def clang():
@@ -313,4 +350,8 @@ def clang():
     """
     from os import path
     from plumbum import local
-    return local[path.join(llvm(), "clang")]
+    pinfo = __get_compiler_paths()
+    clang = local[path.join(llvm(), "clang")]
+    clang = clang.setenv(PATH=pinfo["path"],
+                         LD_LIBRARY_PATH=pinfo["ld_library_path"])
+    return clang

@@ -50,6 +50,6 @@ class X264(GentooGroup):
         ]
 
         for ifile in self.inputfiles:
-            for i in range(len(tests)):
+            for _, test in enumerate(tests):
                 run(x264[ifile, self.inputfiles[ifile], "--threads", "1",
-                         "-o", "/dev/null", tests[i].split(" ")])
+                         "-o", "/dev/null", test.split(" ")])

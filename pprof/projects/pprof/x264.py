@@ -71,6 +71,6 @@ class X264(PprofGroup):
 
         for ifile in self.inputfiles:
             testfile = path.join(self.testdir, ifile)
-            for i in range(len(tests)):
+            for _, test in enumerate(tests):
                 run(exp[testfile, self.inputfiles[ifile], "--threads", "1",
-                        "-o", "/dev/null", tests[i].split(" ")])
+                        "-o", "/dev/null", test.split(" ")])

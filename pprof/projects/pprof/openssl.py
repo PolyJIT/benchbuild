@@ -51,7 +51,7 @@ class LibreSSL(PprofGroup):
         with local.cwd(path.join(self.src_dir, "tests", ".libs")):
             files = find(".", "-type", "f", "-executable")
             for wrap_f in files.split("\n"):
-                if len(wrap_f) > 0:
+                if wrap_f:
                     wrap(wrap_f, experiment)
         with local.cwd(self.src_dir):
             run(make["V=1", "check"])

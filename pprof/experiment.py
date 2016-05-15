@@ -37,7 +37,7 @@ from plumbum import local
 from plumbum.cmd import mkdir, rmdir  # pylint: disable=E0401
 from plumbum.commands.processes import ProcessExecutionError
 
-from pprof.projects import *  # pylint: disable=W0401
+from pprof import projects
 from pprof.project import ProjectRegistry
 from pprof.utils.run import GuardedRunException
 from pprof.settings import CFG
@@ -282,27 +282,27 @@ class Experiment(object, metaclass=ExperimentRegistry):
                 whole groups.
         """
         self.projects = {}
-
-        projects = ProjectRegistry.projects
+        projects.discover()
+        prjs = ProjectRegistry.projects
         if projects_to_filter:
-            allkeys = set(list(projects.keys()))
+            allkeys = set(list(prjs.keys()))
             usrkeys = set(projects_to_filter)
-            projects = {x: projects[x] for x in allkeys & usrkeys}
+            prjs = {x: prjs[x] for x in allkeys & usrkeys}
 
         if group:
-            projects = {
+            prjs = {
                 name: cls
-                for name, cls in projects.items() if cls.GROUP == group
+                for name, cls in prjs.items() if cls.GROUP == group
             }
 
         if projects_to_filter is None:
             projects_to_filter = []
-        projects = {x: projects[x]
-                    for x in projects
-                    if projects[x].DOMAIN != "debug" or x in projects_to_filter
+        prjs = {x: prjs[x]
+                    for x in prjs
+                    if prjs[x].DOMAIN != "debug" or x in projects_to_filter
                     }
 
-        self.projects = {k: projects[k](self) for k in projects}
+        self.projects = {k: prjs[k](self) for k in prjs}
 
     @abstractmethod
     def actions_for_project(self, project):

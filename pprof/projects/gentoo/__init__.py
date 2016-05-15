@@ -24,8 +24,8 @@ def __initialize_dynamic_projects__(autotest_path):
     import logging
     from pprof.projects.gentoo.portage_gen import PortageFactory
 
-    logger = logging.getLogger(__name__)
-    logger.debug("Loading AutoPortage projects from %s", autotest_path)
+    log = logging.getLogger('pprof')
+    log.debug("Loading AutoPortage projects from %s", autotest_path)
     if os.path.exists(autotest_path):
         with open(autotest_path, 'r') as ebuilds:
             for line in ebuilds:
@@ -33,6 +33,7 @@ def __initialize_dynamic_projects__(autotest_path):
                 ebuild_data = ebuild_data.split('/')
                 domain = ebuild_data[0]
                 name = ebuild_data[1]
+                log.debug("Found project: '{0}/{1}'".format(domain, name))
                 PortageFactory("Auto{0}{1}".format(domain, name),
                                domain + "_" + name, domain)
 

@@ -46,7 +46,7 @@ class Povray(PprofGroup):
             mkdir(boost_prefix)
             bootstrap = local["./bootstrap.sh"]
             run(bootstrap["--with-toolset=clang",
-                          "--prefix=\"{}\"".format(boost_prefix)])
+                          "--prefix=\"{0}\"".format(boost_prefix)])
             b2 = local["./b2"]
             run(b2["--ignore-site-config", "variant=release", "link=static",
                    "threading=multi", "optimization=speed", "install"])

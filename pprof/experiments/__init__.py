@@ -17,4 +17,7 @@ def discover():
         experiment_plugins =  CFG["plugins"]["experiments"].value()
         for ep in experiment_plugins:
             log.debug("Found experiment: {0}".format(ep))
-            importlib.import_module(ep)
+            try:
+                importlib.import_module(ep)
+            except ImportError:
+                log.error("Could not find '{0}'".format(ep))

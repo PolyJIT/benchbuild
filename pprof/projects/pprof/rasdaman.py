@@ -63,5 +63,5 @@ class Rasdaman(PprofGroup):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, experiment):
-        from pprof.project import wrap
-        rasdaman_dir = path.join(self.builddir, self.src_dir)
+        log = logging.getLogger('pprof')
+        log.warn('Not implemented')

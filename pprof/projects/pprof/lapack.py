@@ -2,6 +2,7 @@ from os import path
 from pprof.projects.pprof.group import PprofGroup
 from pprof.settings import CFG
 from plumbum import local
+import logging
 
 
 class OpenBlas(PprofGroup):
@@ -33,7 +34,8 @@ class OpenBlas(PprofGroup):
             run(make["CC=" + str(clang)])
 
     def run_tests(self, experiment):
-        pass
+        log = logging.getLogger('pprof')
+        log.warn('Not implemented')
 
 
 class Lapack(PprofGroup):

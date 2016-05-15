@@ -8,10 +8,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pprof.settings import CFG
 
-Base = declarative_base()
+BASE = declarative_base()
 
 
-class Run(Base):
+class Run(BASE):
     """Store a run for each executed test binary."""
 
     __tablename__ = 'run'
@@ -29,7 +29,7 @@ class Run(Base):
     status = Column(Enum('completed', 'running', 'failed', name="run_state"))
 
 
-class RunGroup(Base):
+class RunGroup(BASE):
     """ Store information about a run group. """
 
     __tablename__ = 'rungroup'
@@ -48,7 +48,7 @@ class RunGroup(Base):
     status = Column(Enum('completed', 'running', 'failed', name="run_state"))
 
 
-class Experiment(Base):
+class Experiment(BASE):
     """Store metadata about experiments."""
 
     __tablename__ = 'experiment'
@@ -63,7 +63,7 @@ class Experiment(Base):
         return "<Experiment {name}>".format(name=self.name)
 
 
-class Likwid(Base):
+class Likwid(BASE):
     """Store measurement results of likwid based experiments."""
 
     __tablename__ = 'likwid'
@@ -80,7 +80,7 @@ class Likwid(Base):
                     primary_key=True)
 
 
-class Metric(Base):
+class Metric(BASE):
     """Store default metrics, simple name value store."""
 
     __tablename__ = 'metrics'
@@ -95,7 +95,7 @@ class Metric(Base):
                     primary_key=True)
 
 
-class Event(Base):
+class Event(BASE):
     """Store PAPI profiling based events."""
 
     __tablename__ = 'pprof_events'
@@ -114,7 +114,7 @@ class Event(Base):
                     index=True,
                     primary_key=True)
 
-class PerfEvent(Base):
+class PerfEvent(BASE):
     """Store PAPI profiling based events."""
 
     __tablename__ = 'pprof_perf_events'
@@ -133,7 +133,7 @@ class PerfEvent(Base):
                     index=True,
                     primary_key=True)
 
-class Project(Base):
+class Project(BASE):
     """Store project metadata."""
 
     __tablename__ = 'project'
@@ -151,7 +151,7 @@ class Project(Base):
             name=self.name)
 
 
-class CompileStat(Base):
+class CompileStat(BASE):
     """Store compilestats as given by LLVM's '-stats' commoand."""
 
     __tablename__ = 'compilestats'
@@ -167,7 +167,7 @@ class CompileStat(Base):
                     index=True)
 
 
-class RunLog(Base):
+class RunLog(BASE):
     """
     Store log information for every run.
 
@@ -191,7 +191,7 @@ class RunLog(Base):
     stdout = Column(String)
 
 
-class Metadata(Base):
+class Metadata(BASE):
     """
     Store metadata information for every run.
 
@@ -211,7 +211,7 @@ class Metadata(Base):
     value = Column(String)
 
 
-class Config(Base):
+class Config(BASE):
     """
     Store customized information about a run.
 
@@ -231,7 +231,7 @@ class Config(Base):
     value = Column(String)
 
 
-class GlobalConfig(Base):
+class GlobalConfig(BASE):
     """
     Store customized information about a run.
 
@@ -251,7 +251,7 @@ class GlobalConfig(Base):
     value = Column(String)
 
 
-class RegressionTest(Base):
+class RegressionTest(BASE):
     """
     Store regression tests for all projects.
 
@@ -291,7 +291,7 @@ class SessionManager(object):
             logger.warning(
                 "DB test mode active, all actions will be rolled back.")
             self.__transaction = self.__connection.begin()
-        Base.metadata.create_all(self.__connection, checkfirst=True)
+        BASE.metadata.create_all(self.__connection, checkfirst=True)
 
     def get(self):
         return sessionmaker(bind=self.__connection)

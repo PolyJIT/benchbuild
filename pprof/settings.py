@@ -24,6 +24,8 @@ def available_cpu_count():
     Returns:
         Number of avaialable CPUs.
     """
+    log = logging.getLogger('pprof')
+
     # cpuset
     # cpuset may restrict the number of *available* processors
     try:
@@ -34,7 +36,7 @@ def available_cpu_count():
             if res > 0:
                 return res
     except IOError:
-        pass
+        log.error("Could not get the number of allowed CPUs")
 
     # http://code.google.com/p/psutil/
     try:

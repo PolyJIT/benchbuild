@@ -255,7 +255,7 @@ class PolyJIT(RuntimeExperiment):
         return project
 
     @abstractmethod
-    def run_project(self, p):
+    def actions_for_project(self, p):
         pass
 
 

@@ -408,7 +408,7 @@ class PJITRegression(PolyJIT):
         return actns
 
 
-class PolyJIT_CompileStats(PolyJIT):
+class Compilestats(PolyJIT):
     """Gather compilestats, with enabled JIT."""
     NAME = "pj-cs"
 

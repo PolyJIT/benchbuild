@@ -6,7 +6,7 @@ project with libpprof support to work.
 
 """
 from os import path
-from pprof.experiment import (RuntimeExperiment, step, substep)
+from pprof.experiment import RuntimeExperiment
 from pprof.experiments.raw import run_with_time
 from pprof.utils.run import partial
 from pprof.utils.actions import (Step, Prepare, Build, Download, Configure, Clean,
@@ -17,20 +17,19 @@ from plumbum import local
 
 def get_compilestats(prog_out):
     """ Get the LLVM compilation stats from :prog_out:. """
-    from parse import compile
+    from parse import compile as c
 
-    stats_pattern = compile("{value:d} {component} - {desc}\n")
+    stats_pattern = c("{value:d} {component} - {desc}\n")
 
     for line in prog_out.split("\n"):
         res = stats_pattern.search(line + "\n")
         if res is not None:
             yield res
 
-def collect_compilestats(project, experiment, config, clang, **kwargs):
+def collect_compilestats(project, experiment, clang, **kwargs):
     """Collect compilestats."""
     from pprof.utils.run import guarded_exec, handle_stdin
     from pprof.utils.db import persist_compilestats
-    from pprof.utils.run import handle_stdin
     from pprof.utils.schema import CompileStat
 
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
@@ -84,8 +83,7 @@ class PapiScopCoverage(RuntimeExperiment):
                     "-mllvm", "-polli", "-mllvm", "-jitable", "-mllvm",
                     "-instrument", "-mllvm", "-no-recompilation", "-mllvm",
                     "-polly-detect-keep-going"]
-        p.compiler_extension = partial(collect_compilestats, p,
-                                       self, CFG)
+        p.compiler_extension = partial(collect_compilestats, p, self)
         p.runtime_extension = partial(run_with_time, p, self, CFG, 1)
 
         def evaluate_calibration(e):
@@ -132,7 +130,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                     "-mllvm", "-polli", "-mllvm", "-instrument", "-mllvm",
                     "-no-recompilation", "-mllvm",
                     "-polly-detect-keep-going"]
-        p.compiler_extension = partial(collect_compilestats, p, self, CFG)
+        p.compiler_extension = partial(collect_compilestats, p, self)
         p.runtime_extension = partial(run_with_time, p, self, CFG, 1)
 
         def evaluate_calibration(e):

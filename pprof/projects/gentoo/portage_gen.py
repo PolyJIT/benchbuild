@@ -15,15 +15,15 @@ class AutoPortage(GentooGroup):
     def build(self):
         with local.cwd(self.builddir):
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-            etc_update = uchroot()["/usr/sbin/etc-update"]
             prog = self.DOMAIN + "/" + str(self.NAME)[len(self.DOMAIN)+1:]
             with local.env(CONFIG_PROTECT="-*"):
                 emerge_in_chroot("--autounmask-only=y", "--autounmask-write=y",
                                  prog, retcode=None)
             run(emerge_in_chroot[prog])
 
-    def run_tests(self, experiment):
-        pass
+    def run_tests(self, _):
+        log = logging.getLogger('pprof')
+        log.warn('Not implemented')
 
 def PortageFactory(name, NAME, DOMAIN, BaseClass=AutoPortage):
     """

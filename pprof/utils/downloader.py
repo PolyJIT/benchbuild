@@ -29,18 +29,12 @@ def get_hash_of_dirs(directory):
     if not os.path.exists(directory):
         return -1
 
-    try:
-        for root, _, files in os.walk(directory):
-            for names in files:
-                filepath = os.path.join(root, names)
-                with open(filepath, 'rb') as next_file:
-                  for line in next_file:
-                      sha.update(line)
-    except:
-        import traceback
-        # Print the stack traceback
-        traceback.print_exc()
-        return -2
+    for root, _, files in os.walk(directory):
+        for names in files:
+            filepath = os.path.join(root, names)
+            with open(filepath, 'rb') as next_file:
+                for line in next_file:
+                    sha.update(line)
     return sha.hexdigest()
 
 

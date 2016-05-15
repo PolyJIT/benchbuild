@@ -12,8 +12,7 @@ from plumbum.cmd import mkdir  # pylint: disable=E0401
 from pprof.settings import CFG
 from pprof.utils.actions import Experiment
 from pprof.utils import user_interface as ui
-
-from pprof.experiments import *  # pylint: disable=W0401
+from pprof import experiments
 from pprof import experiment
 
 
@@ -78,6 +77,9 @@ class PprofRun(cli.Application):
         """Main entry point of pprof run."""
         project_names = self._project_names
         group_name = self._group_name
+
+        experiments.discover()
+
         registry = experiment.ExperimentRegistry
         exps = registry.experiments
 

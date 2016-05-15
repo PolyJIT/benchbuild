@@ -566,6 +566,59 @@ CFG["cs"] = {
     }
 }
 
+CFG["plugins"] = {
+    "autoload" : {
+        "default": True,
+        "desc": "Should automatic load of plugins be enabled?"
+    },
+    "experiments": {
+        "default": [
+            "pprof.experiments.raw",
+            "pprof.experiments.compilestats",
+            "pprof.experiments.polyjit",
+            "pprof.experiments.empty",
+            "pprof.experiments.papi",
+            "pprof.experiments.compilestats_ewpt",
+        ],
+        "desc": "The experiment plugins we know about."
+    },
+    "projects" : {
+        "default": [
+            "pprof.projects.gentoo",
+            "pprof.projects.lnt.lnt",
+            "pprof.projects.polybench.polybench",
+            "pprof.projects.pprof.bzip2",
+            "pprof.projects.pprof.ccrypt",
+            "pprof.projects.pprof.crafty",
+            "pprof.projects.pprof.crocopat",
+            "pprof.projects.pprof.ffmpeg",
+            "pprof.projects.pprof.gzip",
+            "pprof.projects.pprof.js",
+            "pprof.projects.pprof.lammps",
+            "pprof.projects.pprof.lapack",
+            "pprof.projects.pprof.leveldb",
+            "pprof.projects.pprof.linpack",
+            "pprof.projects.pprof.lulesh",
+            "pprof.projects.pprof.luleshomp",
+            "pprof.projects.pprof.mcrypt",
+            "pprof.projects.pprof.minisat",
+            "pprof.projects.pprof.openssl",
+            "pprof.projects.pprof.postgres",
+            "pprof.projects.pprof.povray",
+            "pprof.projects.pprof.python",
+            "pprof.projects.pprof.rasdaman",
+            "pprof.projects.pprof.ruby",
+            "pprof.projects.pprof.sdcc",
+            "pprof.projects.pprof.sevenz",
+            "pprof.projects.pprof.sqlite3",
+            "pprof.projects.pprof.tcc",
+            "pprof.projects.pprof.x264",
+            "pprof.projects.pprof.xz",
+        ],
+        "desc": "The project plugins we know about."
+    }
+}
+
 def find_config(default='.pprof.json', root=os.curdir):
     """
     Find the path to the default config file.

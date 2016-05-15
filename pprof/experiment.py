@@ -118,7 +118,7 @@ def phase(name, pname="FIXME: Unset"):
     step.counter = 0
 
     from sys import stderr as o
-    main_msg = "PHASE.{} '{}' {}".format(phase.counter, name, pname)
+    main_msg = "PHASE.{0} '{1}' {2}".format(phase.counter, name, pname)
 
     nl(o).write(main_msg + " START")
     o.write("\n")
@@ -150,7 +150,7 @@ def step(name):
     substep.counter = 0
 
     from sys import stderr as o
-    main_msg = "    STEP.{} '{}'".format(step.counter, name)
+    main_msg = "    STEP.{0} '{1}'".format(step.counter, name)
 
     nl(o).write(main_msg + " START")
     yield
@@ -173,7 +173,7 @@ def substep(name):
     substep.name = name
 
     from sys import stdout as o
-    main_msg = "        SUBSTEP.{} '{}'".format(substep.counter, name)
+    main_msg = "        SUBSTEP.{0} '{1}'".format(substep.counter, name)
 
     nl(o).write(main_msg + " START")
     try:
@@ -187,7 +187,7 @@ def substep(name):
         except UnicodeEncodeError:
             o.write("\nCouldn't figure out what encoding to use, sorry...")
         o.write("\n" + main_msg + "FAILED")
-        o.write("\n    {} substeps have FAILED so far.".format(substep.failed))
+        o.write("\n    {0} substeps have FAILED so far.".format(substep.failed))
         o.flush()
         substep.failed += 1
     o.flush()
@@ -358,7 +358,7 @@ class Experiment(object):
         except KeyboardInterrupt:
             error("User requested termination.")
         except Exception as ex:
-            error("{}".format(ex))
+            error("{0}".format(ex))
             info("Shutting down.")
             print "Shutting down..."
         finally:

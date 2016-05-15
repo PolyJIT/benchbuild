@@ -164,11 +164,11 @@ def print_projects(experiment):
 
     for name in grouped_by:
         from textwrap import wrap
-        print ">> {}".format(name)
+        print ">> {0}".format(name)
         projects = sorted(grouped_by[name])
         project_paragraph = ""
         for prj in projects:
-            project_paragraph += ", {}".format(prj)
+            project_paragraph += ", {0}".format(prj)
         print "\n".join(wrap(project_paragraph[2:], 80, break_on_hyphens=False,
                              break_long_words=False))
         print

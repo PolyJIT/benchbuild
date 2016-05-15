@@ -44,7 +44,7 @@ def clone_or_pull(repo_dict, to_dir):
             base = git("merge-base", "@", "@{u}")
 
             if locl == remote:
-                print "{:s} is up-to-date.".format(url)
+                print "{0:s} is up-to-date.".format(url)
             elif locl == base:
                 git("pull", "--rebase")
                 git("submodule", "update")
@@ -52,7 +52,7 @@ def clone_or_pull(repo_dict, to_dir):
                 print "push required"
                 exit(1)
             else:
-                print "{:s} has diverged from its remote.".format(to_dir)
+                print "{0:s} has diverged from its remote.".format(to_dir)
                 exit(1)
     if commit_hash:
         with local.cwd(to_dir):
@@ -61,7 +61,7 @@ def clone_or_pull(repo_dict, to_dir):
             current_hash = git("rev-parse", "--verify", "HEAD").rstrip("\n")
             if current_hash != commit_hash:
                 # Make sure we have a full history, not just depth 1
-                print("HEAD for repository {:s} is not at configured commit hash {:s}, fetching and checking out.".format(url, commit_hash))
+                print("HEAD for repository {0:s} is not at configured commit hash {1:s}, fetching and checking out.".format(url, commit_hash))
                 git("fetch", "--unshallow")
                 git_checkout = git("checkout", commit_hash)
 
@@ -232,7 +232,7 @@ class Build(cli.Application):
                 llvm_cmake()
 
     def main(self):
-        print "Building in: {:s}".format(self._builddir)
+        print "Building in: {0:s}".format(self._builddir)
 
         if not os.path.exists(self._builddir):
             mkdir(self._builddir)

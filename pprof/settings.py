@@ -36,14 +36,14 @@ def available_cpu_count():
             if res > 0:
                 return res
     except IOError:
-        log.error("Could not get the number of allowed CPUs")
+        log.debug("Could not get the number of allowed CPUs")
 
     # http://code.google.com/p/psutil/
     try:
         import psutil
         return psutil.cpu_count()  # psutil.NUM_CPUS on old versions
     except (ImportError, AttributeError):
-        pass
+        log.debug("Could not get the number of allowed CPUs")
 
     # POSIX
     try:
@@ -52,7 +52,7 @@ def available_cpu_count():
         if res > 0:
             return res
     except (AttributeError, ValueError):
-        pass
+        log.debug("Could not get the number of allowed CPUs")
 
     # Linux
     try:
@@ -61,7 +61,7 @@ def available_cpu_count():
         if res > 0:
             return res
     except IOError:
-        pass
+        log.debug("Could not get the number of allowed CPUs")
 
     raise Exception('Can not determine number of CPUs on this system')
 

@@ -172,7 +172,7 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
             ri = run()
         timings = fetch_time_output(
             timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri['stderr'].split("\n"))
-        if timings == 0:
+        if not timings:
             return
 
     persist_time(run, session, timings)

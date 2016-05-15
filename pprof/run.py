@@ -53,7 +53,7 @@ class PprofRun(cli.Application):
     @cli.switch(["-l", "--list"],
                 requires=["--experiment"],
                 help="List available projects for experiment")
-    def list(self):
+    def list_projects(self):
         self._list = True
 
     show_config = cli.Flag(["-d", "--dump-config"],

@@ -9,8 +9,8 @@ on a configurable SLURM cluster.
 import os
 from plumbum import cli
 from pprof.settings import CFG
-from pprof.experiments import *  # pylint: disable=W0401,W0614
-from pprof.projects import *  # pylint: disable=W0401,W0614
+from pprof import experiments
+from pprof import projects
 from pprof import experiment, project
 from pprof.utils import slurm
 
@@ -86,6 +86,9 @@ class Slurm(cli.Application):
 
     def main(self):
         """Main entry point of pprof run."""
+        experiments.discover()
+        projects.discover()
+
         exp_registry = experiment.ExperimentRegistry
         project_names = self._project_names
         exp_name = self._experiment

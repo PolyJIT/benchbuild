@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# pprof documentation build configuration file, created by
+# benchbuild documentation build configuration file, created by
 # sphinx-quickstart on Mon Jun  1 14:10:15 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -52,7 +52,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pprof'
+project = u'benchbuild'
 copyright = u'2015, Andreas Simbuerger'
 author = u'Andreas Simbuerger'
 
@@ -206,7 +206,7 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pprofdoc'
+htmlhelp_basename = 'benchbuilddoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -228,7 +228,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'pprof.tex', u'pprof Documentation',
+  (master_doc, 'benchbuild.tex', u'benchbuild Documentation',
    u'Andreas Simbuerger', 'manual'),
 ]
 
@@ -258,7 +258,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pprof', u'pprof Documentation',
+    (master_doc, 'benchbuild', u'benchbuild Documentation',
      [author], 1)
 ]
 
@@ -272,8 +272,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'pprof', u'pprof Documentation',
-   author, 'pprof', 'One line description of project.',
+  (master_doc, 'benchbuild', u'benchbuild Documentation',
+   author, 'benchbuild', 'One line description of project.',
    'Miscellaneous'),
 ]
 

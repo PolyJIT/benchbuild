@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 from setuptools import setup, find_packages
 setup(
-    name='pprof',
+    name='benchbuild',
     version='1.0',
-    url='https://github.com/simbuerg/pprof-study',
+    url='https://github.com/simbuerg/benchbuild',
     packages=find_packages(exclude=["docs", "extern", "filters", "linker",
                                     "src", "statistics", "tests", "results"]),
     install_requires=
@@ -13,10 +13,10 @@ setup(
      "psutil>=4.0.0", "pylint>=1.5.5"],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",
-    description="This is the experiment driver for the pprof study",
+    description="This is the experiment driver for the benchbuild study",
     license="MIT",
     entry_points={
-        'console_scripts': ['pprof=pprof.driver:main']
+        'console_scripts': ['benchbuild=benchbuild.driver:main']
     },
     classifiers=[
         'Development Status :: 4 - Beta', 'Intended Audience :: Developers',
@@ -24,4 +24,4 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3'
     ],
-    keywords="polyjit pprof experiments run-time", )
+    keywords="benchbuild experiments run-time", )

@@ -175,8 +175,8 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
         if not timings:
             return
 
-    persist_time(run, session, timings)
-    persist_config(run, session, {"cores": str(jobs)})
+    persist_time(ri['db_run'], ri['session'], timings)
+    persist_config(ri['db_run'], ri['session'], {"cores": str(jobs)})
 
 
 def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
@@ -249,9 +249,9 @@ class PolyJIT(RuntimeExperiment):
 
         ld_lib_path = [_f for _f in str(CFG["ld_library_path"]).split(":") if _f]
         project.ldflags = ["-L" + el for el in ld_lib_path] + project.ldflags
-        project.cflags = ["-Rpass=\"polyjit*\"", "-Xclang", "-load", "-Xclang",
+        project.cflags = ["-Xclang", "-load", "-Xclang",
                           "LLVMPolyJIT.so", "-O3", "-mllvm", "-jitable",
-                          "-mllvm", "-polli-analyze", "-mllvm", "-polli"]
+                          "-mllvm", "-polli"]
         return project
 
     @abstractmethod

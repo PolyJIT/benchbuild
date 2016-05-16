@@ -166,14 +166,10 @@ log = logging.getLogger("cc")
 log.addHandler(logging.StreamHandler(stream=sys.stderr))
 
 CC_F="{CC_F}"
-compiler=None
+CC=None
 with open(CC_F, "rb") as cc_f:
-    compiler = dill.load(cc_f)
-CC = None
-if compiler:
-    CC = compiler
-    log.warn(str(CC))
-else:
+    CC = dill.load(cc_f)
+if not CC:
     log.error("Could not load the compiler command")
     sys.exit(1)
 
@@ -227,32 +223,34 @@ def continue_on_fail(exc, cmd):
 
 def run(cmd):
     try:
-        log.info("Trying - %s", str(cmd))
-        retcode, stdout, stderr = (timeout["2m", cmd.formulate()] & TEE)
+        fc = timeout["2m", cmd]
+        fc = fc.with_env(**cmd.envvars)
+        retcode, stdout, stderr = (fc & TEE)
         return functools.partial(continue_on_success, retcode, stdout, stderr, cmd), True
     except ProcessExecutionError as exc:
         RETCODE=exc.retcode
         return functools.partial(continue_on_fail, exc, cmd), False
 
 def construct_cc(cc, flags, CFLAGS, LDFLAGS, ifiles):
+    fc = None
     if len(input_files) > 0:
         if "-c" in flags:
-            final_command = CC["-Qunused-arguments", CFLAGS, LDFLAGS,
-                               flags]
+            fc = cc["-Qunused-arguments", CFLAGS, LDFLAGS, flags]
         else:
-            final_command = CC["-Qunused-arguments", CFLAGS, LDFLAGS,
-                               flags]
+            fc = cc["-Qunused-arguments", CFLAGS, LDFLAGS, flags]
     else:
-        final_command = CC["-Qunused-arguments", flags]
-    return final_command
+        fc = cc["-Qunused-arguments", flags]
+    fc = fc.with_env(**cc.envvars)
+    return fc
+
 
 try:
     if 'conftest.c' in input_files:
         retcode, _, _ = (CC[flags] & TEE)
         RETCODE = retcode
     else:
-        final_command = construct_cc(CC, flags, CFLAGS, LDFLAGS, input_files)
-        continuation, _ = run(final_command)
+        fc = construct_cc(CC, flags, CFLAGS, LDFLAGS, input_files)
+        continuation, _ = run(fc)
         continuation()
 except ProcessExecutionError as e:
     log.error("** FAILED: {{0}}".format(str(e)))

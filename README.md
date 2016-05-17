@@ -115,6 +115,26 @@ Gentoo Linux. You need to configure a few settings to make it work:
  * ``BB_GENTOO_AUTOTEST_HTTP_PROXY``: Proxy server for gentoo downloads.
  * ``BB_GENTOO_AUTOTEST_RSYNC_PROXY``: Proxy server for gentoo downloads.
 
+#### Convert an automatic Gentoo project to a static one ####
+
+Gentoo projects are generated dynamically from based on the ``AutoPortage``
+class found in ``pprof.gentoo.portage_gen``. If you want to define run-time
+tests for a dynamically generated project, you need to convert it to a static
+one, i.e., define a subclass of ``AutoPortage`` and add it to the configuration.
+
+```python
+from pprof.projects.gentoo.portage_gen import AutoPortage
+
+class BZip(AutoPortage):
+  NAME = "app-arch"
+  DOMAIN = "bzip2"
+
+  def run_tests(self, experiment):
+    """Add your custom test routines here."""
+```
+
+Now we just need to add this to the plugin registry via ``benchbuild``'s
+configuration file @ ``CFG["plugins"]["projects"]``.
 
 ## Usage ##
 

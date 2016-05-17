@@ -37,7 +37,7 @@ def collect_compilestats(project, experiment, clang, **kwargs):
     with guarded_exec(clang, project, experiment) as run:
         ri = run()
 
-    if retcode == 0:
+    if ri.retcode == 0:
         stats = []
         for stat in get_compilestats(ri.stderr):
             compile_s = CompileStat()

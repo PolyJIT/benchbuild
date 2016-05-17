@@ -280,26 +280,31 @@ def guarded_exec(cmd, project, experiment):
 
     db_run, session = begin(cmd, project.name, experiment.name,
                             project.run_uuid)
-    try:
-        with local.env(BB_DB_RUN_ID=db_run.id):
-            def runner(retcode=0, *args):
-                retcode, stdout, stderr = cmd[args] & TEE(retcode=retcode)
-                end(db_run, session, stdout, stderr)
-                r = SimpleNamespace()
-                r.retcode = retcode
-                r.stdout = stdout
-                r.stderr = stderr
-                r.session = session
-                r.db_run = db_run
-                return r
+    ex = None
+    with local.env(BB_DB_RUN_ID=db_run.id):
+        def runner(retcode=0, *args):
+            retcode, stdout, stderr = cmd[args] & TEE(retcode=retcode)
+            end(db_run, session, stdout, stderr)
+            r = SimpleNamespace()
+            r.retcode = retcode
+            r.stdout = stdout
+            r.stderr = stderr
+            r.session = session
+            r.db_run = db_run
+            return r
+        try:
             yield runner
-    except ProcessExecutionError as proc_ex:
-        fail(db_run, session, proc_ex.retcode, proc_ex.stdout, proc_ex.stderr)
-        raise GuardedRunException(proc_ex, db_run, session)
-    except KeyboardInterrupt as key_int:
-        fail(db_run, session, -1, "", "KeyboardInterrupt")
-        warn("Interrupted by user input")
-        raise key_int
+        except KeyboardInterrupt:
+            fail(db_run, session, -1, "", "KeyboardInterrupt")
+            warn("Interrupted by user input")
+            raise
+        except ProcessExecutionError as proc_ex:
+            fail(db_run, session,
+                 proc_ex.retcode, proc_ex.stdout, proc_ex.stderr)
+            raise
+        except Exception as e:
+            fail(db_run, session, -1, "", str(ex))
+            raise
 
 
 def run(command, retcode=0):
@@ -311,12 +316,8 @@ def run(command, retcode=0):
     """
     from logging import debug, info, error
     from plumbum.commands.modifiers import TEE
-    try:
-        info(str(command))
-        command & TEE(retcode)
-    except KeyboardInterrupt as key_int:
-        error("Interrupted by user input")
-        raise
+    info(str(command))
+    command & TEE(retcode)
 
 def uchroot_no_llvm(*args, **kwargs):
     """

@@ -1,7 +1,7 @@
-pprof
-=====
+benchbuild
+==========
 
 .. toctree::
    :maxdepth: 4
 
-   pprof
+   benchbuild

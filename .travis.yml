@@ -1,0 +1,25 @@
+language: python
+python:
+  - "3.4"
+
+addons:
+  postgresql: "9.4"
+
+services:
+  - postgresql
+
+install:
+  - pip install .
+  - pip install -r requirements.txt
+
+before_script:
+  - psql -c 'create database pprof;' -U postgres
+
+script:
+  - py.test benchbuild/
+
+branches:
+  only:
+    - master
+    - develop
+    - perf

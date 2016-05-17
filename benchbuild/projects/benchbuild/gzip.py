@@ -1,0 +1,76 @@
+from benchbuild.settings import CFG
+from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from os import path
+from plumbum import local
+from plumbum.cmd import cp
+
+
+class Gzip(BenchBuildGroup):
+    """ Gzip """
+
+    NAME = 'gzip'
+    DOMAIN = 'compression'
+
+    testfiles = ["text.html", "chicken.jpg", "control", "input.source",
+                 "liberty.jpg"]
+
+    def prepare(self):
+        super(Gzip, self).prepare()
+        testfiles = [path.join(self.testdir, x) for x in self.testfiles]
+        cp(testfiles, self.builddir)
+
+    def run_tests(self, experiment):
+        from benchbuild.project import wrap
+        from benchbuild.utils.run import run
+
+        gzip_dir = path.join(self.builddir, self.src_dir)
+        exp = wrap(path.join(gzip_dir, "gzip"), experiment)
+
+        # Compress
+        run(exp["-f", "-k", "--best", "text.html"])
+        run(exp["-f", "-k", "--best", "chicken.jpg"])
+        run(exp["-f", "-k", "--best", "control"])
+        run(exp["-f", "-k", "--best", "input.source"])
+        run(exp["-f", "-k", "--best", "liberty.jpg"])
+
+        # Decompress
+        run(exp["-f", "-k", "--decompress", "text.html.gz"])
+        run(exp["-f", "-k", "--decompress", "chicken.jpg.gz"])
+        run(exp["-f", "-k", "--decompress", "control.gz"])
+        run(exp["-f", "-k", "--decompress", "input.source.gz"])
+        run(exp["-f", "-k", "--decompress", "liberty.jpg.gz"])
+
+    src_dir = "gzip-1.6"
+    src_file = src_dir + ".tar.xz"
+    src_uri = "http://ftpmirror.gnu.org/gzip/" + src_file
+
+    def download(self):
+        from benchbuild.utils.downloader import Wget
+        from plumbum.cmd import tar
+
+        with local.cwd(self.builddir):
+            Wget(self.src_uri, self.src_file)
+            tar("xfJ", path.join(self.builddir, self.src_file))
+
+    def configure(self):
+        from benchbuild.utils.compiler import lt_clang
+        from benchbuild.utils.run import run
+
+        gzip_dir = path.join(self.builddir, self.src_dir)
+
+        with local.cwd(gzip_dir):
+            with local.cwd(self.builddir):
+                clang = lt_clang(self.cflags, self.ldflags,
+                                 self.compiler_extension)
+            configure = local["./configure"]
+            with local.env(CC=str(clang)):
+                run(configure["--disable-dependency-tracking",
+                              "--disable-silent-rules", "--with-gnu-ld"])
+
+    def build(self):
+        from plumbum.cmd import make
+        from benchbuild.utils.run import run
+
+        gzip_dir = path.join(self.builddir, self.src_dir)
+        with local.cwd(gzip_dir):
+            run(make["-j" + CFG["jobs"], "clean", "all"])

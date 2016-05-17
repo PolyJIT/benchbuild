@@ -25,7 +25,7 @@ fi
 
 ./chimaira.py \
   --resultsdir $PPROF_OBJ_DIR \
-  -P $PAPI_DIR \
-  -L /usr \
+  --papi-prefix $PAPI_DIR \
+  --likwid-prefix /usr \
   --llvm-prefix $INSTALL_LLVM_TO \
   $*

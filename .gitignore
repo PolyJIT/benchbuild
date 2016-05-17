@@ -4,7 +4,6 @@ jit/
 ext/
 raw/
 caddy/
-log.*
 *.log
 dump.*
 *.profile.out

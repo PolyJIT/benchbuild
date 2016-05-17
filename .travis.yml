@@ -16,7 +16,7 @@ before_script:
   - psql -c 'create database pprof;' -U postgres
 
 script:
-  - py.test pprof/
+  - py.test benchbuild/
 
 branches:
   only:

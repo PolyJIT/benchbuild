@@ -7,7 +7,7 @@ from plumbum import cli
 class PollyProfiling(cli.Application):
     """ Frontend for running/building the benchbuild study framework """
 
-    VERSION = "1.0"
+    VERSION = "1.1"
     _list_env = False
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
@@ -62,6 +62,5 @@ def main(*args):
     PollyProfiling.subcommand("build", "benchbuild.build.Build")
     PollyProfiling.subcommand("log", "benchbuild.log.BenchBuildLog")
     PollyProfiling.subcommand("test", "benchbuild.test.BenchBuildTest")
-    PollyProfiling.subcommand("config", "benchbuild.generate_config.BenchBuildGenConfig")
     PollyProfiling.subcommand("slurm", "benchbuild.slurm.Slurm")
     return PollyProfiling.run(*args)

@@ -13,15 +13,15 @@ import warnings
 from plumbum import local
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.utils.run import partial
-from benchbuild.utils.actions import (Prepare, Build, Download, Configure, Clean,
-                                 MakeBuildDir, Echo)
+from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
+                                      Clean, MakeBuildDir, Echo)
+
 
 def collect_compilestats(project, experiment, config, clang, **kwargs):
     """Collect compilestats."""
     from benchbuild.utils.run import guarded_exec, handle_stdin
     from benchbuild.settings import CFG as c
     from benchbuild.utils.db import persist_compilestats
-    from benchbuild.utils.run import handle_stdin
     from benchbuild.utils.schema import CompileStat
 
     c.update(config)
@@ -31,9 +31,10 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
         with guarded_exec(clang, project, experiment) as run:
             ri = run()
 
-    if retcode == 0:
+
+    if ri.retcode == 0:
         stats = []
-        for stat in get_compilestats(ri['stderr']):
+        for stat in get_compilestats(ri.stderr):
             compile_s = CompileStat()
             compile_s.name = stat["desc"].rstrip()
             compile_s.component = stat["component"].rstrip()
@@ -42,12 +43,12 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
 
         components = c["cs"]["components"].value()
         if components is not None:
-            stats = [ s for s in stats if str(s.component) in components]
+            stats = [s for s in stats if str(s.component) in components]
         names = c["cs"]["names"].value()
         if names is not None:
-            stats = [ s for s in stats if str(s.name) in names]
+            stats = [s for s in stats if str(s.name) in names]
 
-        persist_compilestats(ri['db_run'], ri['session'], stats)
+        persist_compilestats(ri.db_run, ri.session, stats)
 
 
 class CompilestatsExperiment(RuntimeExperiment):
@@ -100,7 +101,6 @@ class PollyCompilestatsExperiment(RuntimeExperiment):
         return actns
 
 
-
 def get_compilestats(prog_out):
     """ Get the LLVM compilation stats from :prog_out:. """
 
@@ -114,8 +114,9 @@ def get_compilestats(prog_out):
             try:
                 res = stats_pattern.search(line + "\n")
             except ValueError as e:
-                warnings.warn("Triggered a parser exception for: '" + line +
-                              "'\n", CompileStatsParserError)
+                warnings.warn(
+                    "Triggered a parser exception for: '" + line + "'\n",
+                    CompileStatsParserError)
                 res = None
             if res is not None:
                 yield res

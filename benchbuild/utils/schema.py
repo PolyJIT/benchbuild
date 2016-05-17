@@ -297,7 +297,7 @@ class SessionManager(object):
         return sessionmaker(bind=self.__connection)
 
     def __del__(self):
-        if self.__transaction:
+        if hasattr(self, '__transaction') and self.__transaction:
             self.__transaction.rollback()
 
 

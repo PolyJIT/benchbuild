@@ -33,7 +33,7 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
 
     if retcode == 0:
         stats = []
-        for stat in get_compilestats(ri['stderr']):
+        for stat in get_compilestats(ri.stderr):
             compile_s = CompileStat()
             compile_s.name = stat["desc"].rstrip()
             compile_s.component = stat["component"].rstrip()
@@ -47,7 +47,7 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
         if names is not None:
             stats = [ s for s in stats if str(s.name) in names]
 
-        persist_compilestats(ri['db_run'], ri['session'], stats)
+        persist_compilestats(ri.db_run, ri.session, stats)
 
 
 class CompilestatsExperiment(RuntimeExperiment):

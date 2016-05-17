@@ -41,7 +41,7 @@ from benchbuild import projects
 from benchbuild.project import ProjectRegistry
 from benchbuild.utils.run import GuardedRunException
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import Step, Clean, MakeBuildDir, ForAll
+from benchbuild.utils.actions import Step, Clean, MakeBuildDir, RequireAll
 
 
 def newline(ostream):
@@ -323,7 +323,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
         for project in self.projects:
             p = self.projects[project]
-            actns.append(ForAll(self.actions_for_project(p)))
+            actns.append(RequireAll(self.actions_for_project(p)))
 
         actns.append(Clean(self))
         return actns

@@ -12,7 +12,7 @@ import uuid
 from plumbum.cmd import rm, time  # pylint: disable=E0401
 from plumbum import local
 from benchbuild.experiments.compilestats import collect_compilestats
-from benchbuild.utils.actions import (ForAll, Prepare, Build, Download, Configure,
+from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download, Configure,
                                  Clean, MakeBuildDir, Run, Echo)
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.utils.run import partial
@@ -81,9 +81,9 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
         with guarded_exec(run_cmd, project, experiment) as run:
-            run_info = run()
+            ri = run()
 
-    persist_config(run_info['db_run'], run_info['session'],
+    persist_config(ri.db_run, ri.session,
                    {"cores": str(jobs)})
 
 
@@ -126,11 +126,11 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
 
         with local.env(POLLI_ENABLE_LIKWID=1):
             with guarded_exec(run_cmd, project, experiment) as run:
-                run_info = run()
+                ri = run()
 
         likwid_measurement = get_likwid_perfctr(likwid_f)
-        persist_likwid(run, run_info['session'], likwid_measurement)
-        persist_config(run, run_info['session'], {
+        persist_likwid(run, ri.session, likwid_measurement)
+        persist_config(run, ri.session, {
             "cores": str(jobs),
             "likwid.group": group
         })
@@ -171,12 +171,12 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
         timings = fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri['stderr'].split("\n"))
+            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
         if not timings:
             return
 
-    persist_time(ri['db_run'], ri['session'], timings)
-    persist_config(ri['db_run'], ri['session'], {"cores": str(jobs)})
+    persist_time(ri.db_run, ri.session, timings)
+    persist_config(ri.db_run, ri.session, {"cores": str(jobs)})
 
 
 def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
@@ -223,8 +223,8 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
 
             fold_cmd()
             graph_cmd()
-            persist_perf(ri['db_run'], ri['session'], run_f + ".svg")
-            persist_config(ri['db_run'], ri['session'], {"cores": str(jobs)})
+            persist_perf(ri.db_run, ri.session, run_f + ".svg")
+            persist_config(ri.db_run, ri.session, {"cores": str(jobs)})
 
 
 class PolyJIT(RuntimeExperiment):
@@ -349,7 +349,7 @@ class PJITlikwid(PolyJIT):
             cp.run_uuid = uuid.uuid4()
             cp.runtime_extension = partial(run_with_likwid, cp, self, CFG, i)
 
-            actns.append(ForAll([
+            actns.append(RequireAll([
                 MakeBuildDir(cp),
                 Echo("likwid: {0} core configuration. Configure & Compile".format(i)),
                 Prepare(cp),

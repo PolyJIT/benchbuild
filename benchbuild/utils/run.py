@@ -3,6 +3,7 @@ Experiment helpers
 """
 from plumbum.cmd import mkdir  # pylint: disable=E0401
 from contextlib import contextmanager
+from types import SimpleNamespace
 
 
 def partial(func, *args, **kwargs):
@@ -284,11 +285,13 @@ def guarded_exec(cmd, project, experiment):
             def runner(retcode=0, *args):
                 retcode, stdout, stderr = cmd[args] & TEE(retcode=retcode)
                 end(db_run, session, stdout, stderr)
-                return {"retcode": retcode,
-                        "stdout": stdout,
-                        "stderr": stderr,
-                        "session": session,
-                        "db_run": db_run}
+                r = SimpleNamespace()
+                r.retcode = retcode
+                r.stdout = stdout
+                r.stderr = stderr
+                r.session = session
+                r.db_run = db_run
+                return r
             yield runner
     except ProcessExecutionError as proc_ex:
         fail(db_run, session, proc_ex.retcode, proc_ex.stdout, proc_ex.stderr)

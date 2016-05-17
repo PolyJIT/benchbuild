@@ -319,4 +319,4 @@ class ForAll(Step):
     def __str__(self, indent = 0):
         sub_actns = [a.__str__(indent + 1) for a in self._actions]
         sub_actns = "\n".join(sub_actns)
-        return textwrap.indent("* For all:\n" + sub_actns, indent * " ")
+        return textwrap.indent("* All required:\n" + sub_actns, indent * " ")

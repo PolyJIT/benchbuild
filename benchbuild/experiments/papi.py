@@ -39,13 +39,13 @@ def collect_compilestats(project, experiment, clang, **kwargs):
 
     if retcode == 0:
         stats = []
-        for stat in get_compilestats(ri['stderr']):
+        for stat in get_compilestats(ri.stderr):
             compile_s = CompileStat()
             compile_s.name = stat["desc"].rstrip()
             compile_s.component = stat["component"].rstrip()
             compile_s.value = stat["value"]
             stats.append(compile_s)
-        persist_compilestats(ri['db_run'], ri['session'], stats)
+        persist_compilestats(ri.db_run, ri.session, stats)
 
 
 class PapiScopCoverage(RuntimeExperiment):

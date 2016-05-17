@@ -62,12 +62,12 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
         timings = fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri['stderr'].split("\n"))
+            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
         if not timings:
             return
 
-    persist_time(ri['db_run'], ri['session'], timings)
-    persist_config(ri['db_run'], ri['session'], {"cores": str(jobs)})
+    persist_time(ri.db_run, ri.session, timings)
+    persist_config(ri.db_run, ri.session, {"cores": str(jobs)})
 
 
 class RawRuntime(RuntimeExperiment):

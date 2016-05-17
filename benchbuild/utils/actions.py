@@ -239,6 +239,7 @@ class Any(Step):
 class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
+
     def __init__(self, experiment, actions):
         self._experiment = experiment
         actions = \
@@ -293,30 +294,33 @@ class Experiment(Any):
             "\nExperiment: {0}\n".format(self._experiment.name) + sub_actns,
             indent * " ")
 
-class ForAll(Step):
+class RequireAll(Step):
+
     def __init__(self, actions):
         self._actions = actions
         self._exlog = logging.getLogger('benchbuild')
-        super(ForAll, self).__init__(None, None)
+        super(RequireAll, self).__init__(None, None)
 
     def __len__(self):
         return sum([len(x) for x in self._actions])
 
     def __call__(self):
-        for action in self._actions:
+        for i, action in enumerate(self._actions):
             try:
                 result = action()
             except ProcessExecutionError as proc_ex:
-                self._exlog.error(u'\n' + proc_ex.stderr)
+                self._exlog.error(u'Execution failed for: ' + str(proc_ex))
                 result = StepResult.ERROR
             except (OSError, GuardedRunException) as os_ex:
                 self._exlog.error(os_ex)
                 result = StepResult.ERROR
-            if not (result == StepResult.OK):
+            if result != StepResult.OK:
+                self._exlog.error(
+                    "Execution of #{0}: '{1}' failed.".format(i, str(action)))
                 action.onerror()
                 return result
 
     def __str__(self, indent = 0):
         sub_actns = [a.__str__(indent + 1) for a in self._actions]
         sub_actns = "\n".join(sub_actns)
-        return textwrap.indent("* For all:\n" + sub_actns, indent * " ")
+        return textwrap.indent("* All required:\n" + sub_actns, indent * " ")

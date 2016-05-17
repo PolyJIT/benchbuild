@@ -159,11 +159,16 @@ import functools
 from plumbum import ProcessExecutionError, local
 from plumbum.commands.modifiers import TEE
 from plumbum.cmd import timeout
-from benchbuild import settings
 from benchbuild.utils.run import GuardedRunException
+from benchbuild.utils import log
 
-log = logging.getLogger("cc")
+os.environ["BB_CONFIG_FILE"] = "{CFG_FILE}"
+from benchbuild.settings import CFG
+
+log.configure()
+log = logging.getLogger("benchbuild")
 log.addHandler(logging.StreamHandler(stream=sys.stderr))
+log.setLevel(logging.DEBUG)
 
 CC_F="{CC_F}"
 CC=None
@@ -177,86 +182,67 @@ CFLAGS={CFLAGS}
 LDFLAGS={LDFLAGS}
 BLOB_F="{BLOB_F}"
 
-DB_HOST="{db_host}"
-DB_PORT="{db_port}"
-DB_NAME="{db_name}"
-DB_USER="{db_user}"
-DB_PASS="{db_pass}"
+CFG["db"]["host"] = "{db_host}"
+CFG["db"]["port"] = "{db_port}"
+CFG["db"]["name"] = "{db_name}"
+CFG["db"]["user"] = "{db_user}"
+CFG["db"]["pass"] = "{db_pass}"
 
 input_files = [x for x in sys.argv[1:] if not '-' is x[0]]
 flags = sys.argv[1:]
-RETCODE = 0
-continuation = None
-
-def run(cmd):
-    pass
 
 def invoke_external_measurement(cmd):
     f = None
-    with local.env(BB_DB_HOST=DB_HOST,
-               BB_DB_PORT=DB_PORT,
-               BB_DB_NAME=DB_NAME,
-               BB_DB_USER=DB_USER,
-               BB_DB_PASS=DB_PASS):
-        with local.env(BB_CMD=str(cmd)):
-            if os.path.exists(BLOB_F):
-                with open(BLOB_F,
-                          "rb") as p:
-                    f = dill.load(p)
+    if os.path.exists(BLOB_F):
+        with open(BLOB_F,
+                  "rb") as p:
+            f = dill.load(p)
 
-            if f is not None:
-                if not sys.stdin.isatty():
-                    f(cmd, has_stdin=True)
-                else:
-                    f(cmd)
-
-def continue_on_success(retcode, stdout, stderr, cmd):
-    invoke_external_measurement(cmd)
-    RETCODE=retcode
-
-def continue_on_fail(exc, cmd):
-    log.error("Failed to execute - %s", str(cmd))
-    log.error(str(exc))
-    final_command = CC[flags]
-    log.info("New Command: %s", str(final_command))
-    _, success = run(final_command)
+    if f is not None:
+        if not sys.stdin.isatty():
+            f(cmd, has_stdin=True)
+        else:
+            f(cmd)
 
 def run(cmd):
-    try:
-        fc = timeout["2m", cmd]
-        fc = fc.with_env(**cmd.envvars)
-        retcode, stdout, stderr = (fc & TEE)
-        return functools.partial(continue_on_success, retcode, stdout, stderr, cmd), True
-    except ProcessExecutionError as exc:
-        RETCODE=exc.retcode
-        return functools.partial(continue_on_fail, exc, cmd), False
+    fc = timeout["2m", cmd]
+    fc = fc.with_env(**cmd.envvars)
+    retcode, stdout, stderr = (fc & TEE)
+    return (retcode, stdout, stderr)
 
 def construct_cc(cc, flags, CFLAGS, LDFLAGS, ifiles):
     fc = None
     if len(input_files) > 0:
-        if "-c" in flags:
-            fc = cc["-Qunused-arguments", CFLAGS, LDFLAGS, flags]
-        else:
-            fc = cc["-Qunused-arguments", CFLAGS, LDFLAGS, flags]
+        fc = cc["-Qunused-arguments", CFLAGS, LDFLAGS, flags]
     else:
         fc = cc["-Qunused-arguments", flags]
     fc = fc.with_env(**cc.envvars)
     return fc
 
+def construct_cc_default(cc, flags, ifiles):
+    fc = None
+    fc = cc["-Qunused-arguments", flags]
+    fc = fc.with_env(**cc.envvars)
+    return fc
 
-try:
+def main():
     if 'conftest.c' in input_files:
         retcode, _, _ = (CC[flags] & TEE)
-        RETCODE = retcode
+        return retcode
     else:
         fc = construct_cc(CC, flags, CFLAGS, LDFLAGS, input_files)
-        continuation, _ = run(fc)
-        continuation()
-except ProcessExecutionError as e:
-    log.error("** FAILED: {{0}}".format(str(e)))
-    RETCODE = e.retcode
-finally:
-    sys.exit(RETCODE)
+        try:
+            retcode, stdout, stderr = run(fc)
+            invoke_external_measurement(fc)
+            return retcode
+        except ProcessExecutionError:
+            fc = construct_cc_default(CC, flags, input_files)
+            retcode, stdout, stderr = run(fc)
+            return retcode
+
+if __name__ == "__main__":
+    retcode = main()
+    sys.exit(retcode)
 """.format(CC_F=cc_f,
            CFLAGS=cflags,
            LDFLAGS=ldflags,
@@ -265,7 +251,8 @@ finally:
            db_name=str(CFG["db"]["name"]),
            db_port=str(CFG["db"]["port"]),
            db_pass=str(CFG["db"]["pass"]),
-           db_user=str(CFG["db"]["user"]))
+           db_user=str(CFG["db"]["user"]),
+           CFG_FILE=CFG["config_file"].value())
         wrapper.write(lines)
         chmod("+x", filepath)
 

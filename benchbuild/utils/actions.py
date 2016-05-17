@@ -239,6 +239,7 @@ class Any(Step):
 class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
+
     def __init__(self, experiment, actions):
         self._experiment = experiment
         actions = \
@@ -294,6 +295,7 @@ class Experiment(Any):
             indent * " ")
 
 class RequireAll(Step):
+
     def __init__(self, actions):
         self._actions = actions
         self._exlog = logging.getLogger('benchbuild')

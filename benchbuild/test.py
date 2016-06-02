@@ -11,10 +11,6 @@ class BenchBuildTest(cli.Application):
         Create regression tests for polyjit from the measurements database.
     """
 
-    @cli.switch(["-L", "--llvmdir"], str, help="Where is llvm?")
-    def llvmdir(self, dirname):
-        CFG["llvm"]["dir"] = dirname
-
     @cli.switch(["-P", "--prefix"],
                 str,
                 help="Prefix for our regression-test image.")
@@ -30,12 +26,10 @@ class BenchBuildTest(cli.Application):
     def get_check_line(self, name, module):
         from plumbum import local
         from benchbuild.utils.compiler import llvm, llvm_libs
-        from plumbum.cmd import sed
+        from plumbum.cmd import sed, opt
 
         with local.env(LD_LIBRARY_PATH=llvm_libs()):
-            opt_binary = os.path.join(llvm(), "opt")
             if os.path.exists(opt_binary):
-                opt = local[opt_binary]
                 # Magic. ;-)
                 ret, _, err = \
                     (opt[self.opt_flags()] << \

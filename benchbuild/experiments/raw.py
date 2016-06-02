@@ -26,7 +26,6 @@ from plumbum.cmd import time
 from benchbuild.settings import CFG
 from benchbuild.utils.run import partial
 from plumbum import local
-from os import path
 
 
 def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
@@ -77,9 +76,6 @@ class RawRuntime(RuntimeExperiment):
 
     def actions_for_project(self, project):
         """Compile & Run the experiment with -O3 enabled."""
-        llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
-
-        project.ldflags = ["-L" + llvm_libs]
         project.cflags = ["-O3", "-fno-omit-frame-pointer"]
         project.runtime_extension = \
             partial(run_with_time, project, self, CFG, CFG["jobs"].value())

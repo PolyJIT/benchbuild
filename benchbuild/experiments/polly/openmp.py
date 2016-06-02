@@ -17,7 +17,6 @@ Measurements
 
 from benchbuild.experiment import step, RuntimeExperiment
 from benchbuild.settings import CFG
-from os import path
 
 
 class PollyOpenMP(RuntimeExperiment):
@@ -31,8 +30,7 @@ class PollyOpenMP(RuntimeExperiment):
         from benchbuild.experiments.raw import run_with_time
         from benchbuild.utils.run import partial
 
-        llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
-        p.ldflags = ["-L" + llvm_libs, "-lgomp"]
+        p.ldflags = ["-lgomp"]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolly.so",
                     "-mllvm", "-polly", "-mllvm", "-polly-parallel"]
 

@@ -51,9 +51,6 @@ class PollyPerformance(RuntimeExperiment):
             config_with_llvm.append("-mllvm")
             config_with_llvm.append(config)
 
-        llvm_libs = os.path.join(CFG["llvm"]["dir"].value(), "lib")
-        llvm_libs = CFG["llvm"]["dir"].value()
-        p.ldflags = ["-L" + llvm_libs]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                     "-mllvm", "-polly"] + config_with_llvm
 

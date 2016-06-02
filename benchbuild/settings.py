@@ -377,6 +377,14 @@ CFG["env"] = {
         "desc":
         "List of paths to be added to the PATH variable of all binary invocations.",
         "default": []
+    },
+    "lookup_path": {
+        "desc": "Search path for plumbum imports",
+        "default": []
+    },
+    "lookup_ld_library_path": {
+        "desc": "LD_LIBRARY_PATH for plumbum imports",
+        "default": []
     }
 }
 

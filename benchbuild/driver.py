@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import logging
+import os
+import sys
 from benchbuild import settings
 from benchbuild.utils import log
-from plumbum import cli
+from plumbum.machines.local import LocalEnv
+from plumbum import cli, local
 
 class PollyProfiling(cli.Application):
     """ Frontend for running/building the benchbuild study framework """
@@ -47,6 +50,21 @@ class PollyProfiling(cli.Application):
         log.configure()
         LOG = logging.getLogger()
         LOG.setLevel(log_levels[self.verbosity])
+
+        lookup_path = settings.CFG["env"]["lookup_path"].value()
+        lookup_path = os.path.pathsep.join(lookup_path)
+        lookup_path = os.path.pathsep.join([lookup_path, os.environ["PATH"]])
+        os.environ["PATH"] = lookup_path
+
+        lib_path = settings.CFG["env"]["lookup_ld_library_path"].value()
+        lib_path = os.path.pathsep.join(lib_path)
+        lib_path = os.path.pathsep.join([lib_path, os.environ["LD_LIBRARY_PATH"]])
+        os.environ["LD_LIBRARY_PATH"] = lib_path
+
+        # Update local's env property because we changed the environment
+        # of the running python process.
+        local.env.update(PATH=os.environ["PATH"])
+        local.env.update(LD_LIBRARY_PATH=os.environ["LD_LIBRARY_PATH"])
 
         if args:
             print("Unknown command {0!r}".format(args[0] ))

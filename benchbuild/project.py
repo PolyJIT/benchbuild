@@ -393,10 +393,16 @@ def wrap(name, runner, sprefix=None):
         A plumbum command, ready to launch.
     """
     import dill
+    from benchbuild.utils.run import run
 
     name_absolute = path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
-    mv(name_absolute, real_f)
+    if sprefix:
+        from benchbuild.utils.run import uchroot_no_llvm as uchroot
+        run(uchroot()["/bin/mv", strip_path_prefix(name_absolute, sprefix),
+                               strip_path_prefix(real_f, sprefix)])
+    else:
+        run(mv[name_absolute, real_f])
 
     blob_f = name_absolute + PROJECT_BLOB_F_EXT
     with open(blob_f, 'wb') as blob:
@@ -444,5 +450,5 @@ if path.exists("{blobf}"):
            blobf=strip_path_prefix(blob_f, sprefix),
            runf=strip_path_prefix(real_f, sprefix))
         wrapper.write(lines)
-    chmod("+x", name_absolute)
+    run(chmod["+x", name_absolute])
     return local[name_absolute]

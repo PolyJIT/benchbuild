@@ -117,10 +117,10 @@ Gentoo Linux. You need to configure a few settings to make it work:
 
 #### Convert an automatic Gentoo project to a static one ####
 
-Gentoo projects are generated dynamically based on the ``AutoPortage``
-class found in ``pprof.gentoo.portage_gen``. If you want to define run-time
-tests for a dynamically generated project, you need to convert it to a static
-one, i.e., define a subclass of ``AutoPortage`` and add it to the configuration.
+Gentoo projects are generated dynamically based on the ``AutoPortage`` class
+found in ``pprof.gentoo.portage_gen``. If you want to define run-time tests for
+a dynamically generated project, you need to convert it to a static one, i.e.,
+define a subclass of ``AutoPortage`` and add it to the configuration.
 
 ```python
 from pprof.projects.gentoo.portage_gen import AutoPortage

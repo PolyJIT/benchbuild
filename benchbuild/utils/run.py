@@ -1,6 +1,7 @@
 """
 Experiment helpers
 """
+import os
 from plumbum.cmd import mkdir  # pylint: disable=E0401
 from contextlib import contextmanager
 from types import SimpleNamespace
@@ -319,6 +320,13 @@ def run(command, retcode=0):
     info(str(command))
     command & TEE(retcode)
 
+def uchroot_no_args():
+    from benchbuild.settings import CFG
+    from plumbum import local
+
+    """Return the uchroot command without any customizations."""
+    return local[CFG["uchroot"]["path"].value()]
+
 def uchroot_no_llvm(*args, **kwargs):
     """
     Returns a uchroot command which can be called with other args to be
@@ -328,16 +336,12 @@ def uchroot_no_llvm(*args, **kwargs):
     Return:
         chroot_cmd
     """
-    from benchbuild.settings import CFG
-    from plumbum import local
-
     uid = kwargs.pop('uid', 0)
     gid = kwargs.pop('gid', 0)
 
-    mkdir("-p", "llvm")
-    uchroot_cmd = local["./uchroot"]
-    uchroot_cmd = uchroot_cmd["-C", "-w", "/", "-r", "."]
-    uchroot_cmd = uchroot_cmd["-u", str(uid), "-g", str(gid)]
+    uchroot_cmd = uchroot_no_args()
+    uchroot_cmd = uchroot_cmd["-C", "-w", "/", "-r", os.path.abspath(".")]
+    uchroot_cmd = uchroot_cmd["-u", str(uid), "-g", str(gid), "-E", "-A"]
     return uchroot_cmd[args]
 
 def uchroot(*args, **kwargs):
@@ -350,7 +354,7 @@ def uchroot(*args, **kwargs):
         chroot_cmd
     """
     from benchbuild.settings import CFG
-
+    mkdir("-p", "llvm")
     uchroot_cmd = uchroot_no_llvm(args, kwargs)
     uchroot_cmd = uchroot_cmd["-m", str(CFG["llvm"]["dir"]) + ":llvm"]
     uchroot_cmd = uchroot_cmd.setenv(LD_LIBRARY_PATH="/llvm/lib")

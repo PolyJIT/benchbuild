@@ -7,7 +7,7 @@ from plumbum import cli
 class PollyProfiling(cli.Application):
     """ Frontend for running/building the benchbuild study framework """
 
-    VERSION = "1.1"
+    VERSION = settings.CFG["version"].value()
     _list_env = False
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")

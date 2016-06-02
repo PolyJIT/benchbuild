@@ -11,6 +11,7 @@ from benchbuild.experiments.raw import run_with_time
 from benchbuild.utils.run import partial
 from benchbuild.utils.actions import (Step, Prepare, Build, Download, Configure, Clean,
                                  MakeBuildDir, Run, Echo)
+from benchbuild.utils.path import path_to_list
 from benchbuild.settings import CFG
 from plumbum import local
 
@@ -56,15 +57,14 @@ class PapiScopCoverage(RuntimeExperiment):
     def run(self):
         """Do the postprocessing, after all projects are done."""
         super(PapiScopCoverage, self).run()
-        bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
-        benchbuild_analyze = local[path.join(bin_path, "benchbuild-analyze")]
+        from plumbum.cmd import pprof_analyze
 
         with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
                        BB_EXPERIMENT=self.name,
                        BB_USE_DATABASE=1,
                        BB_USE_FILE=0,
                        BB_USE_CSV=0):
-            benchbuild_analyze()
+            pprof_analyze()
 
     def actions_for_project(self, p):
         """
@@ -73,12 +73,7 @@ class PapiScopCoverage(RuntimeExperiment):
         This experiment uses the -jitable flag of libPolyJIT to generate
         dynamic SCoP coverage.
         """
-        llvm_libs = path.join(str(CFG["llvm"]["dir"].value()), "lib")
-        p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lbenchbuild", "-lpapi"]
-        ld_lib_path = [_f
-                       for _f in CFG["ld_library_path"].value().split(":")
-                       if _f]
-        p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
+        p.ldflags = p.ldflags + ["-lpjit", "-lpprof", "-lpapi"]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                     "-mllvm", "-polli", "-mllvm", "-jitable", "-mllvm",
                     "-instrument", "-mllvm", "-no-recompilation", "-mllvm",
@@ -87,10 +82,9 @@ class PapiScopCoverage(RuntimeExperiment):
         p.runtime_extension = partial(run_with_time, p, self, CFG, 1)
 
         def evaluate_calibration(e):
-            bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
-            benchbuild_calibrate = local[path.join(bin_path, "benchbuild-calibrate")]
-            papi_calibration = e.get_papi_calibration(p, benchbuild_calibrate)
-            e.persist_calibration(p, benchbuild_calibrate, papi_calibration)
+            from plumbum.cmd import pprof_calibrate
+            papi_calibration = e.get_papi_calibration(p, pprof_calibrate)
+            e.persist_calibration(p, pprof_calibrate, papi_calibration)
 
         actns = [
             MakeBuildDir(p),
@@ -120,12 +114,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
         This experiment uses the -jitable flag of libPolyJIT to generate
         dynamic SCoP coverage.
         """
-        llvm_libs = path.join(str(CFG["llvm"]["dir"].value()), "lib")
-        p.ldflags = ["-L" + llvm_libs, "-lpjit", "-lbenchbuild", "-lpapi"]
-        ld_lib_path = [_f
-                       for _f in CFG["ld_library_path"].value().split(":")
-                       if _f]
-        p.ldflags = ["-L" + el for el in ld_lib_path] + p.ldflags
+        p.ldflags = p.ldflags + ["-lpjit", "-lbenchbuild", "-lpapi"]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                     "-mllvm", "-polli", "-mllvm", "-instrument", "-mllvm",
                     "-no-recompilation", "-mllvm",
@@ -134,10 +123,9 @@ class PapiStandardScopCoverage(PapiScopCoverage):
         p.runtime_extension = partial(run_with_time, p, self, CFG, 1)
 
         def evaluate_calibration(e):
-            bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
-            benchbuild_calibrate = local[path.join(bin_path, "benchbuild-calibrate")]
-            papi_calibration = e.get_papi_calibration(p, benchbuild_calibrate)
-            e.persist_calibration(p, benchbuild_calibrate, papi_calibration)
+            from plumbum.cmd import pprof_calibrate
+            papi_calibration = e.get_papi_calibration(p, pprof_calibrate)
+            e.persist_calibration(p, pprof_calibrate, papi_calibration)
 
         actns = [
             MakeBuildDir(p),

@@ -31,8 +31,6 @@ class PollyVectorizer(RuntimeExperiment):
         from benchbuild.experiments.raw import run_with_time
         from benchbuild.utils.run import partial
 
-        llvm_libs = path.join(str(CFG["llvm"]["dir"]), "lib")
-        p.ldflags = ["-L" + llvm_libs]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                     "-mllvm", "-polly", "-mllvm",
                     "-polly-vectorizer=stripmine"]

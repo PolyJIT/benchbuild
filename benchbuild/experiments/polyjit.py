@@ -449,16 +449,14 @@ class PJITpapi(PolyJIT):
         super(PJITpapi, self).run()
 
         from benchbuild.settings import CFG
-
-        bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
-        benchbuild_analyze = local[path.join(bin_path, "benchbuild-analyze")]
+        from plumbum.cmd import pprof_analyze
 
         with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
                        BB_EXPERIMENT=self.name,
                        BB_USE_DATABASE=1,
                        BB_USE_FILE=0,
                        BB_USE_CSV=0):
-            benchbuild_analyze()
+            pprof_analzye()
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG

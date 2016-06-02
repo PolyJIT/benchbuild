@@ -153,6 +153,11 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
         if compiler_ext_name is not None:
             blob_f = compiler_ext_name(PROJECT_BLOB_F_EXT)
 
+    # Update LDFLAGS with configure compiler_ld_library_path. This way
+    # the libraries found in LD_LIBRARY_PATH are available at link-time too.
+    lib_path_list = CFG["env"]["compiler_ld_library_path"].value()
+    ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
+
     with open(filepath, 'w') as wrapper:
         lines = """#!/usr/bin/env python3
 #
@@ -293,19 +298,17 @@ def llvm_libs():
 
 def __get_compiler_paths():
     from os import getenv
+    from benchbuild.utils.path import list_to_path
 
     path = getenv("PATH", "")
     lib_path = getenv("LD_LIBRARY_PATH", "")
-
     _lib_path = CFG["env"]["compiler_ld_library_path"].value()
     _path = CFG["env"]["compiler_path"].value()
-    _lib_path = ":".join(_lib_path)
-    _path = ":".join(_path)
+    _lib_path = list_to_path(_lib_path)
+    _path = list_to_path(_path)
 
-    if not (_path == ""):
-        path = _path + ":" + path
-    if not (_lib_path == ""):
-        lib_path = _lib_path + ":" + lib_path
+    path = list_to_path([_path, path])
+    lib_path = list_to_path([_lib_path, lib_path])
 
     return {"ld_library_path": lib_path, "path": path}
 

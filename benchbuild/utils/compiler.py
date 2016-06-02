@@ -51,9 +51,12 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None,
     from plumbum import local
 
     def gen_compiler(): # pylint:  disable=C0111
-        return path.join(uchroot_path, cc_name)
-    def gen_compiler_extension(): # pylint:  disable=C0111
-        return path.join("/", cc_name + PROJECT_BLOB_F_EXT)
+        pi = __get_compiler_paths()
+        cc = local[path.join(uchroot_path, cc_name)]
+        cc = cc.with_env(LD_LIBRARY_PATH=pi["ld_library_path"])
+        return cc
+    def gen_compiler_extension(ext): # pylint:  disable=C0111
+        return path.join("/", cc_name + ext)
     print_libtool_sucks_wrapper(cc_name, cflags, ldflags, gen_compiler, func,
                                 gen_compiler_extension)
 
@@ -140,13 +143,15 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
     cc_f = abspath(filepath + ".benchbuild.cc")
     with open(cc_f, 'wb') as cc:
         cc.write(dill.dumps(compiler()))
+        if compiler_ext_name is not None:
+            cc_f = compiler_ext_name(".benchbuild.cc")
 
     blob_f = abspath(filepath + PROJECT_BLOB_F_EXT)
     if func is not None:
         with open(blob_f, 'wb') as blob:
             blob.write(dill.dumps(func))
         if compiler_ext_name is not None:
-            blob_f = compiler_ext_name()
+            blob_f = compiler_ext_name(PROJECT_BLOB_F_EXT)
 
     with open(filepath, 'w') as wrapper:
         lines = """#!/usr/bin/env python3

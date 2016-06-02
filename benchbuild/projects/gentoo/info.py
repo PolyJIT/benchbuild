@@ -2,13 +2,13 @@
 Get package infos, e.g., specific ebuilds for given languages,
 from gentoo chroot.
 """
-from benchbuild.projects.gentoo import portage_gen as pg
+from benchbuild.projects.gentoo import autoportage as ap
 from benchbuild.utils.run import run, uchroot
 from plumbum import local
 from benchbuild.settings import CFG
 import re
 
-class Info(pg.AutoPortage):
+class Info(ap.AutoPortage):
     """
     Info experiment to retrieve package information from portage.
     """

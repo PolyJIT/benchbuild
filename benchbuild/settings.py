@@ -279,6 +279,10 @@ class Configuration():
 CFG = Configuration(
     "bb",
     node={
+        "version": {
+            "desc": "Version Number",
+            "default": "1.1"
+        },
         "config_file": {
             "desc": "Config file path of benchbuild. Not guaranteed to exist.",
             "default": None,
@@ -565,6 +569,13 @@ CFG["cs"] = {
     "names": {
         "default": None,
         "desc": "List of filters for compilestats names."
+    }
+}
+
+CFG["uchroot"] = {
+    "path" : {
+        "default" : os.path.join(CFG["src_dir"].value(), "./bin/uchroot"),
+        "desc" : "Path to the uchroot binary."
     }
 }
 

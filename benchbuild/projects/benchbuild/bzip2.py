@@ -39,13 +39,10 @@ class Bzip2(BenchBuildGroup):
         with local.cwd(bzip2_dir):
             run(make["CC=" + str(clang), "clean", "bzip2"])
 
-    def pull_in_testfiles(self):
-        testfiles = [path.join(self.testdir, x) for x in self.testfiles]
-        cp(testfiles, self.builddir)
-
     def prepare(self):
         super(Bzip2, self).prepare()
-        self.pull_in_testfiles()
+        testfiles = [path.join(self.testdir, x) for x in self.testfiles]
+        cp(testfiles, self.builddir)
 
     def run_tests(self, experiment):
         from benchbuild.project import wrap

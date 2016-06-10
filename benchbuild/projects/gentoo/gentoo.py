@@ -87,13 +87,13 @@ class GentooGroup(project.Project):
                               "tar --list -f '{0}' | grep --silent '.erlent'"]
             has_erlent = has_erlent & TF
 
-            cmd = local["/bin/tar"]["xf", "--exclude='/dev/*'"]
+            cmd = local["/bin/tar"]["xf"]
             if not has_erlent:
                 cmd = uchroot[cmd["./" + path.basename(self.src_file)]]
             else:
                 cmd = cmd[self.src_file]
 
-            run(cmd)
+            run(cmd["--exclude=^/dev/"])
             rm(self.src_file)
 
     def write_wgetrc(self, path):

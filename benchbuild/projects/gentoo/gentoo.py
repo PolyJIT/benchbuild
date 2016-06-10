@@ -93,7 +93,7 @@ class GentooGroup(project.Project):
             else:
                 cmd = cmd[self.src_file]
 
-            run(cmd["--exclude=^/dev/"])
+            run(cmd["--exclude=^./dev/"])
             rm(self.src_file)
 
     def write_wgetrc(self, path):

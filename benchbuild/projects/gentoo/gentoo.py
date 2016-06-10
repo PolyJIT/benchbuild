@@ -85,6 +85,7 @@ class GentooGroup(project.Project):
             # Check, if we need erlent support for this archive.
             has_erlent = bash["-c",
                               "tar --list -f '{0}' | grep --silent '.erlent'"]
+            has_erlent = has_erlent & TF
 
             cmd = local["/bin/tar"]["xf"]
             if not has_erlent:

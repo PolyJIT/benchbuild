@@ -87,7 +87,7 @@ class GentooGroup(project.Project):
                               "tar --list -f '{0}' | grep --silent '.erlent'"]
             has_erlent = has_erlent & TF
 
-            cmd = local["/bin/tar"]["xf"]
+            cmd = local["/bin/tar"]["xf", "--exclude='/dev/*'"]
             if not has_erlent:
                 cmd = uchroot[cmd["./" + path.basename(self.src_file)]]
             else:

@@ -133,39 +133,28 @@ class Container(cli.Application):
 
     def __init__(self, exe):
         super(Container, self).__init__(exe)
-        settings.CFG["container"]["input"] = None
-        settings.CFG["container"]["output"] = None
-        settings.CFG["container"]["mounts"] = []
-        self._input_container = None
-        self._output_container = None
-        self._builddir = None
-        self._mounts = []
-        self._create = False
-        self._shell = "/bin/bash"
 
     @cli.switch(["-i", "--input-file"], str, help="Input container path")
     def input_file(self, container):
         if os.path.exists(container):
-            self._input_container = container
+            settings.CFG["container"]["input"] = container
         else:
             raise ValueError("The path '{0}' does not exist.".format(
                 container))
 
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
     def output_file(self, container):
-        self._output_container = container
-
-    @cli.switch(["-c", "--create"],
-                help="Create a new container.",
-                requires=["--output-file"])
-    def create(self):
-        self._create = True
+        if os.path.exists(container):
+            settings.CFG["container"]["output"] = container
+        else:
+            raise ValueError("The path '{0}' does not exist.".format(
+                container))
 
     @cli.switch(["-s", "--shell"],
                 str,
                 help="The shell command we invoke inside the container.")
     def shell(self, custom_shell):
-        self._shell = custom_shell
+        settings.CFG["container"]["shell"] = custom_shell
 
     @cli.switch(["-t", "-tmp-dir"],
                 cli.ExistingDirectory,
@@ -179,12 +168,11 @@ class Container(cli.Application):
         list=True,
         help="Mount the given directory under / inside the uchroot container")
     def mounts(self, user_mount):
-        self._mounts = user_mount
+        settings.CFG["container"]["mounts"] = user_mount
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
 
     def main(self, *args):
-        self._builddir = settings.CFG["build_dir"].value()
 
         log.configure()
         LOG = logging.getLogger()
@@ -197,7 +185,7 @@ class Container(cli.Application):
 
         settings.update_env()
 
-        builddir = os.path.abspath(self._builddir)
+        builddir = os.path.abspath(settings.CFG["build_dir"].value())
         if not os.path.exists(builddir):
             response = ask("The build directory {dirname} does not exist yet. "
                            "Should I create it?".format(dirname=builddir))
@@ -213,8 +201,8 @@ class Container(cli.Application):
 class ContainerRun(cli.Application):
     def main(self, *args):
         builddir = settings.CFG["build_dir"].value()
-        in_container = settings.CFG["input"].value()
-        mounts = settings.CFG["mounts"].value()
+        in_container = settings.CFG["container"]["input"].value()
+        mounts = settings.CFG["container"]["mounts"].value()
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
             in_container = setup_container(builddir, in_container)
@@ -226,10 +214,10 @@ class ContainerRun(cli.Application):
 class ContainerCreate(cli.Application):
     def main(self, *args):
         builddir = settings.CFG["build_dir"].value()
-        in_container = settings.CFG["input"].value()
-        out_container = settings.CFG["output"].value()
-        mounts = settings.CFG["mounts"].value()
-        shell = settings.CFG["shell"].value()
+        in_container = settings.CFG["container"]["input"].value()
+        out_container = settings.CFG["container"]["output"].value()
+        mounts = settings.CFG["container"]["mounts"].value()
+        shell = settings.CFG["container"]["shell"].value()
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
             in_container = setup_container(builddir, in_container)

@@ -60,7 +60,7 @@ def setup_container(builddir, container):
         # Unpack input container to: container-in
         if not has_erlent:
             cmd = local["/bin/tar"]["xf"]
-            cmd = uchroot[cmd["./" + container_in]]
+            cmd = uchroot[cmd[container_filename]]
         else:
             cmd = tar["xf"]
             cmd = cmd[os.path.abspath(container_in)]

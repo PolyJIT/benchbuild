@@ -60,7 +60,7 @@ def setup_container(builddir, container):
         # Unpack input container to: container-in
         if not has_erlent:
             cmd = local["/bin/tar"]["xf"]
-            cmd = uchroot[cmd["./" + container_in]]
+            cmd = uchroot[cmd[container_filename]]
         else:
             cmd = tar["xf"]
             cmd = cmd[os.path.abspath(container_in)]
@@ -113,6 +113,7 @@ def setup_bash_in_container(builddir, container, outfile, mounts, shell):
         if store_new_container:  # pylint: disable=W0104
             print("Packing new container image.")
 
+            container_filename = os.path.split(container)[-1]
             container_out = os.path.join("container-out", container_filename)
             container_out = os.path.abspath(container_out)
 
@@ -132,39 +133,28 @@ class Container(cli.Application):
 
     def __init__(self, exe):
         super(Container, self).__init__(exe)
-        self._input_container = None
-        self._output_container = None
-        self._builddir = None
-        self._mounts = []
-        self._create = False
-        self._shell = "/bin/bash"
 
-    @cli.switch(["-i", "--input-file"],
-                str,
-                mandatory=True,
-                help="Input container path")
+    @cli.switch(["-i", "--input-file"], str, help="Input container path")
     def input_file(self, container):
         if os.path.exists(container):
-            self._input_container = container
+            settings.CFG["container"]["input"] = container
         else:
             raise ValueError("The path '{0}' does not exist.".format(
                 container))
 
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
     def output_file(self, container):
-        self._output_container = container
-
-    @cli.switch(["-c", "--create"],
-                help="Create a new container.",
-                requires=["--output-file"])
-    def create(self):
-        self._create = True
+        if os.path.exists(container):
+            settings.CFG["container"]["output"] = container
+        else:
+            raise ValueError("The path '{0}' does not exist.".format(
+                container))
 
     @cli.switch(["-s", "--shell"],
                 str,
                 help="The shell command we invoke inside the container.")
     def shell(self, custom_shell):
-        self._shell = custom_shell
+        settings.CFG["container"]["shell"] = custom_shell
 
     @cli.switch(["-t", "-tmp-dir"],
                 cli.ExistingDirectory,
@@ -178,12 +168,11 @@ class Container(cli.Application):
         list=True,
         help="Mount the given directory under / inside the uchroot container")
     def mounts(self, user_mount):
-        self._mounts = user_mount
+        settings.CFG["container"]["mounts"] = user_mount
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
 
     def main(self, *args):
-        self._builddir = settings.CFG["build_dir"].value()
 
         log.configure()
         LOG = logging.getLogger()
@@ -194,7 +183,9 @@ class Container(cli.Application):
             0: logging.ERROR
         }[self.verbosity])
 
-        builddir = os.path.abspath(self._builddir)
+        settings.update_env()
+
+        builddir = os.path.abspath(settings.CFG["build_dir"].value())
         if not os.path.exists(builddir):
             response = ask("The build directory {dirname} does not exist yet. "
                            "Should I create it?".format(dirname=builddir))
@@ -204,21 +195,93 @@ class Container(cli.Application):
                 print("Created directory {0}.".format(builddir))
 
         setup_directories(builddir)
-        container_dir = self._input_container
-        in_dir = False
-        out_dir = False
-        if os.path.isfile(self._input_container):
-            in_dir = True
-            container_dir = setup_container(builddir, self._input_container)
-        if self._create:
-            out_dir = True
-            setup_bash_in_container(builddir, container_dir,
-                                    self._output_container, self._mounts,
-                                    self._shell)
-        else:
-            run_in_container(" ".join(args), container_dir, self._mounts)
 
-        clean_directories(builddir, in_dir, out_dir)
+
+@Container.subcommand("run")
+class ContainerRun(cli.Application):
+    def main(self, *args):
+        builddir = settings.CFG["build_dir"].value()
+        in_container = settings.CFG["container"]["input"].value()
+        mounts = settings.CFG["container"]["mounts"].value()
+        in_is_file = os.path.isfile(in_container)
+        if in_is_file:
+            in_container = setup_container(builddir, in_container)
+        run_in_container(" ".join(args), in_container, mounts)
+        clean_directories(builddir, in_is_file, False)
+
+
+@Container.subcommand("create")
+class ContainerCreate(cli.Application):
+    def main(self, *args):
+        builddir = settings.CFG["build_dir"].value()
+        in_container = settings.CFG["container"]["input"].value()
+        out_container = settings.CFG["container"]["output"].value()
+        mounts = settings.CFG["container"]["mounts"].value()
+        shell = settings.CFG["container"]["shell"].value()
+        in_is_file = os.path.isfile(in_container)
+        if in_is_file:
+            in_container = setup_container(builddir, in_container)
+        setup_bash_in_container(builddir, container_dir, out_container, mounts,
+                                shell)
+        clean_directories(builddir, in_is_file, True)
+
+
+def find_package(binary):
+    try:
+        from plumbum import cmd
+        cmd.__getattr__(binary)
+    except AttributeError:
+        print("Checking for {}  - No".format(binary))
+        return False
+    print("Checking for {} - Yes".format(binary))
+    return True
+
+
+from plumbum.cmd import git
+
+
+@Container.subcommand("bootstrap")
+class ContainerBootstrap(cli.Application):
+    def install_uchroot(self):
+        builddir = settings.CFG["build_dir"].value()
+        with local.cwd(builddir):
+            if not os.path.exists("erlent/.git"):
+                git("clone", "git@github.com:PolyJIT/erlent")
+            else:
+                with local.cwd("erlent"):
+                    git("pull", "--rebase")
+            mkdir("-p", "erlent/build")
+            with local.cwd("erlent/build"):
+                from plumbum.cmd import cmake, make, cp
+                cmake("../")
+                make()
+        erlent_path = os.path.abspath(os.path.join(builddir, "erlent",
+                                                   "build"))
+        os.environ["PATH"] = os.path.pathsep.join([erlent_path, os.environ[
+            "PATH"]])
+        local.env.update(PATH=os.environ["PATH"])
+        if not find_package("uchroot"):
+            sys.exit(-1)
+        settings.CFG["env"]["lookup_path"].value().append(erlent_path)
+
+    def install_cmake_and_exit(self):
+        print("You need to  install cmake via your package manager manually."
+              " Exiting.")
+        sys.exit(-1)
+
+    def main(self, *args):
+        print("Checking container binary dependencies...")
+        if not find_package("uchroot"):
+            if not find_package("cmake"):
+                self.install_cmake_and_exit()
+            self.install_uchroot()
+        print("...OK")
+        config_path = ".benchbuild.json"
+        settings.CFG.store(config_path)
+        print("Storing config in {0}".format(os.path.abspath(config_path)))
+        print(
+            "Future container commands from this directory will automatically"
+            " source the config file.")
 
 
 def main(*args):

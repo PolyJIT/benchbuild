@@ -5,18 +5,16 @@ This will install a stage3 image of gentoo together with a recent snapshot
 of the portage tree. For building / executing arbitrary projects successfully
 it is necessary to keep the installed image as close to the host system as
 possible.
-In order to speed up your experience, you can replace the stage3 image that
-we pull from the distfiles mirror with a new image that contains all necessary
+In order to speed up your experience, you can replace the stage3 image that we pull from the distfiles mirror with a new image that contains all necessary
 dependencies for your experiments. Make sure you update the hash alongside
 the gentoo image in benchbuild's source directory.
 
-The following packages are required to run GentooGroup:
-    * fakeroot
 """
 from os import path
-from plumbum.cmd import cp, tar, mv, fakeroot, rm  # pylint: disable=E0401
-from plumbum.cmd import mkdir, curl, cut, tail  # pylint: disable=E0401
+from plumbum.cmd import cp, tar, mv, grep, rm  # pylint: disable=E0401
+from plumbum.cmd import mkdir, curl, cut, tail, bash  # pylint: disable=E0401
 from plumbum import local
+from plumbum import TF, RETCODE
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild import project
 from benchbuild.utils.run import run, uchroot, uchroot_no_llvm
@@ -73,25 +71,31 @@ class GentooGroup(project.Project):
         return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
                 .format(latest_src_uri())
 
-    # download location for portage files
-    src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/"\
-                    "gentoo/snapshots/portage-latest.tar.bz2"
-    src_file_portage = "portage_snap.tar.bz2"
-
     def build(self):
         pass
 
     def download(self):
+        from benchbuild.utils.run import uchroot_no_args
         with local.cwd(self.builddir):
             Wget(self.src_uri, self.src_file)
+            uchroot = uchroot_no_args()
+            uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w", path.abspath(
+                "."), "--"]
 
-            cp(CFG["src_dir"].value() + "/bin/uchroot", "uchroot")
-            run(fakeroot["tar", "xfj", self.src_file])
+            # Check, if we need erlent support for this archive.
+            has_erlent = bash[
+                "-c", "tar --list -f './{0}' | grep --silent '.erlent'".format(
+                    self.src_file)]
+            has_erlent = (has_erlent & TF)
+
+            cmd = local["/bin/tar"]["xf"]
+            if not has_erlent:
+                cmd = uchroot[cmd["./" + path.basename(self.src_file)]]
+            else:
+                cmd = cmd[self.src_file]
+
+            run(cmd["--exclude=dev/*"])
             rm(self.src_file)
-            with local.cwd(self.builddir + "/usr"):
-                Wget(self.src_uri_portage, self.src_file_portage)
-                run(tar["xfj", self.src_file_portage])
-                rm(self.src_file_portage)
 
     def write_wgetrc(self, path):
         with open(path, 'w') as wgetrc:
@@ -113,14 +117,9 @@ class GentooGroup(project.Project):
             lines = '''
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
-FEATURES="-sandbox -usersandbox -usersync -xattr"
+FEATURES="-xattr"
 CC="/clang"
 CXX="/clang++"
-
-PORTAGE_USERNAME = "root"
-PORTAGE_GRPNAME = "root"
-PORTAGE_INST_GID = 0
-PORTAGE_INST_UID = 0
 
 CHOST="x86_64-pc-linux-gnu"
 USE="bindist mmx sse sse2"
@@ -188,6 +187,19 @@ class PrepareStage3(GentooGroup):
     NAME = "stage3"
     DOMAIN = "debug"
 
+    # download location for portage files
+    src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/"\
+                    "gentoo/snapshots/portage-latest.tar.bz2"
+    src_file_portage = "portage_snap.tar.bz2"
+
+    def download(self):
+        super(PrepareStage3, self).download()
+
+        with local.cwd(self.builddir + "/usr"):
+            Wget(self.src_uri_portage, self.src_file_portage)
+            run(tar["xfj", self.src_file_portage])
+            rm(self.src_file_portage)
+
     def build(self):
         import sys
         # Don't do something when running non-interactive.
@@ -217,7 +229,7 @@ class PrepareStage3(GentooGroup):
         pass
 
 
-class AutoPolyJITDepsStage3(GentooGroup):
+class AutoPolyJITDepsStage3(PrepareStage3):
     """
     A project that installs all dependencies for PolyJIT in the stage3 image.
     """
@@ -248,7 +260,6 @@ class AutoPolyJITDepsStage3(GentooGroup):
                 run(emerge_in_chroot["sys-process/time"])
                 run(emerge_boost["dev-utils/boost-build"])
                 run(emerge_boost["dev-libs/boost"])
-                run(emerge_in_chroot["fakeroot"])
 
             tgt_path = path.join(root, self.src_file)
             tgt_path_new = path.join(root, src_file)
@@ -272,33 +283,38 @@ class AutoPrepareStage3(GentooGroup):
         from benchbuild.utils.downloader import update_hash
         from logging import info
 
+        uchroot = uchroot_no_llvm
+
         root = CFG["tmp_dir"].value()
         src_file = self.src_file + ".new"
         with local.cwd(self.builddir):
-            sed_in_chroot = uchroot_no_llvm()["/bin/sed"]
+            sed_in_chroot = uchroot()["/bin/sed"]
             run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
             run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
-            emerge_in_chroot = uchroot_no_llvm()["/usr/bin/emerge"]
-            run(emerge_in_chroot["dev-python/chardet"])
-            run(emerge_in_chroot["--nodeps", "dev-python/requests"])
-            run(emerge_in_chroot["--nodeps", "dev-python/CacheControl"])
-            run(emerge_in_chroot["dev-python/lockfile"])
-            run(emerge_in_chroot["--nodeps", "dev-python/pip"])
+            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+            #run(emerge_in_chroot["dev-python/pip"])
 
             with local.env(CC="gcc", CXX="g++"):
-                run(emerge_in_chroot["dev-db/postgresql"])
-                run(emerge_in_chroot["fakeroot"])
-                run(emerge_in_chroot["net-misc/curl"])
+            #    run(emerge_in_chroot["dev-db/postgresql"])
+            #    run(emerge_in_chroot["net-misc/curl"])
 
                 # We need the unstable portage version
-                with local.env(ACCEPT_KEYWORDS="~*"):
-                    run(emerge_in_chroot["sys-apps/portage"])
+                with local.env(ACCEPT_KEYWORDS="~*", LD_LIBRARY_PATH=""):
+                    run(emerge_in_chroot["--autounmask-only=y",
+                        "-uUDN", "--with-bdeps=y", "@world"])
+                    run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
+                    run(emerge_in_chroot["--autounmask-only=y", "=sys-libs/ncurses-6.0-r1:0/6"])
+                    run(emerge_in_chroot["=sys-libs/ncurses-6.0-r1:0/6"])
+            #        run(emerge_in_chroot["sys-apps/portage"])
 
-            mkdir("-p", "benchbuild-src")
-            w_benchbuild_src = uchroot_no_llvm("-m",
-                                  "{0}:benchbuild-src".format(str(CFG["src_dir"])))
-            pip_in_uchroot = w_benchbuild_src["/usr/bin/pip3"]
-            pip_in_uchroot("install", "--upgrade", "/benchbuild-src/")
+            #benchbuild_src = CFG["src_dir"].value()
+            #version = CFG["version"].value()
+            #with local.cwd(benchbuild_src):
+            #    setup_py = local["./setup.py"]("sdist", "-d", self.builddir)
+
+            #pip_in_uchroot = uchroot()["/usr/bin/pip3"]
+            #pip_in_uchroot("install", "--upgrade",
+            #               "benchbuild-{}.tar.gz".format(version))
 
             tgt_path = path.join(root, self.src_file)
             tgt_path_new = path.join(root, src_file)

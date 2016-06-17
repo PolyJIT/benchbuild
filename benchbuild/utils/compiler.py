@@ -51,9 +51,12 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None,
     from plumbum import local
 
     def gen_compiler(): # pylint:  disable=C0111
-        return path.join(uchroot_path, cc_name)
-    def gen_compiler_extension(): # pylint:  disable=C0111
-        return path.join("/", cc_name + PROJECT_BLOB_F_EXT)
+        pi = __get_compiler_paths()
+        cc = local[path.join(uchroot_path, cc_name)]
+        cc = cc.with_env(LD_LIBRARY_PATH=pi["ld_library_path"])
+        return cc
+    def gen_compiler_extension(ext): # pylint:  disable=C0111
+        return path.join("/", cc_name + ext)
     print_libtool_sucks_wrapper(cc_name, cflags, ldflags, gen_compiler, func,
                                 gen_compiler_extension)
 
@@ -140,13 +143,20 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
     cc_f = abspath(filepath + ".benchbuild.cc")
     with open(cc_f, 'wb') as cc:
         cc.write(dill.dumps(compiler()))
+        if compiler_ext_name is not None:
+            cc_f = compiler_ext_name(".benchbuild.cc")
 
     blob_f = abspath(filepath + PROJECT_BLOB_F_EXT)
     if func is not None:
         with open(blob_f, 'wb') as blob:
             blob.write(dill.dumps(func))
         if compiler_ext_name is not None:
-            blob_f = compiler_ext_name()
+            blob_f = compiler_ext_name(PROJECT_BLOB_F_EXT)
+
+    # Update LDFLAGS with configure compiler_ld_library_path. This way
+    # the libraries found in LD_LIBRARY_PATH are available at link-time too.
+    lib_path_list = CFG["env"]["compiler_ld_library_path"].value()
+    ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
 
     with open(filepath, 'w') as wrapper:
         lines = """#!/usr/bin/env python3
@@ -288,19 +298,17 @@ def llvm_libs():
 
 def __get_compiler_paths():
     from os import getenv
+    from benchbuild.utils.path import list_to_path
 
     path = getenv("PATH", "")
     lib_path = getenv("LD_LIBRARY_PATH", "")
-
     _lib_path = CFG["env"]["compiler_ld_library_path"].value()
     _path = CFG["env"]["compiler_path"].value()
-    _lib_path = ":".join(_lib_path)
-    _path = ":".join(_path)
+    _lib_path = list_to_path(_lib_path)
+    _path = list_to_path(_path)
 
-    if not (_path == ""):
-        path = _path + ":" + path
-    if not (_lib_path == ""):
-        lib_path = _lib_path + ":" + lib_path
+    path = list_to_path([_path, path])
+    lib_path = list_to_path([_lib_path, lib_path])
 
     return {"ld_library_path": lib_path, "path": path}
 

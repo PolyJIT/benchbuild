@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 setup(
     name='benchbuild',
-    version='1.1',
+    version='1.2',
     url='https://github.com/simbuerg/benchbuild',
     packages=find_packages(exclude=["docs", "extern", "filters", "linker",
                                     "src", "statistics", "tests", "results"]),
@@ -16,7 +16,8 @@ setup(
     description="This is the experiment driver for the benchbuild study",
     license="MIT",
     entry_points={
-        'console_scripts': ['benchbuild=benchbuild.driver:main']
+        'console_scripts': ['benchbuild=benchbuild.driver:main',
+                            'container=benchbuild.container:main']
     },
     classifiers=[
         'Development Status :: 4 - Beta', 'Intended Audience :: Developers',

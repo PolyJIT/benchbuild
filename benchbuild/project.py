@@ -8,6 +8,7 @@ from plumbum.cmd import mv, chmod, rm, mkdir, rmdir  # pylint: disable=E0401
 from benchbuild.settings import CFG
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.actions import Clean, Step, Run
+from benchbuild.utils.path import list_to_path
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
@@ -267,6 +268,12 @@ class Project(object, metaclass=ProjectRegistry):
         with open(blob_f, 'wb') as blob:
             blob.write(dill.dumps(runner))
 
+        bin_path = list_to_path(CFG["env"]["binary_path"].value())
+        bin_path = list_to_path([bin_path, os.environ["PATH"]])
+
+        bin_lib_path = list_to_path(CFG["env"]["binary_ld_library_path"].value())
+        bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
+
         with open(name_absolute, 'w') as wrapper:
             lines = '''#!/usr/bin/env python3
 #
@@ -296,7 +303,6 @@ if not len(sys.argv) >= 2:
     sys.exit(1)
 
 f = None
-ld_library_path = "{ld_lib_path}:" + getenv("LD_LIBRARY_PATH")
 RUN_F = sys.argv[1]
 ARGS = sys.argv[2:]
 PROJECT_NAME = path.basename(RUN_F)
@@ -309,7 +315,8 @@ if path.exists("{blobf}"):
                BB_DB_PASS="{db_pass}",
                BB_PROJECT=PROJECT_NAME,
                BB_LIKWID_DIR="{likwiddir}",
-               LD_LIBRARY_PATH=ld_library_path,
+               PATH="{path}",
+               LD_LIBRARY_PATH="{ld_lib_path}",
                BB_CMD=RUN_F):
         with open("{blobf}", "rb") as p:
             f = dill.load(p)
@@ -341,7 +348,8 @@ if path.exists("{blobf}"):
                db_user=str(CFG["db"]["user"]),
                db_pass=str(CFG["db"]["pass"]),
                likwiddir=str(CFG["likwid"]["prefix"]),
-               ld_lib_path=str(CFG["ld_library_path"]).rstrip(':'),
+               path=bin_path,
+               ld_lib_path=bin_lib_path,
                blobf=strip_path_prefix(blob_f, sprefix),
                base_class=base_class,
                base_module=base_module)
@@ -393,14 +401,26 @@ def wrap(name, runner, sprefix=None):
         A plumbum command, ready to launch.
     """
     import dill
+    from benchbuild.utils.run import run
 
     name_absolute = path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
-    mv(name_absolute, real_f)
+    if sprefix:
+        from benchbuild.utils.run import uchroot_no_llvm as uchroot
+        run(uchroot()["/bin/mv", strip_path_prefix(name_absolute, sprefix),
+                               strip_path_prefix(real_f, sprefix)])
+    else:
+        run(mv[name_absolute, real_f])
 
     blob_f = name_absolute + PROJECT_BLOB_F_EXT
     with open(blob_f, 'wb') as blob:
         dill.dump(runner, blob, protocol=-1, recurse=True)
+
+    bin_path = list_to_path(CFG["env"]["binary_path"].value())
+    bin_path = list_to_path([bin_path, os.environ["PATH"]])
+
+    bin_lib_path = list_to_path(CFG["env"]["binary_ld_library_path"].value())
+    bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 
     with open(name_absolute, 'w') as wrapper:
         lines = '''#!/usr/bin/env python3
@@ -411,7 +431,6 @@ from os import path, getenv
 import sys
 import dill
 
-ld_library_path = "{ld_lib_path}:" + getenv("LD_LIBRARY_PATH")
 run_f = "{runf}"
 args = sys.argv[1:]
 f = None
@@ -422,7 +441,8 @@ if path.exists("{blobf}"):
                BB_DB_USER="{db_user}",
                BB_DB_PASS="{db_pass}",
                BB_LIKWID_DIR="{likwiddir}",
-               LD_LIBRARY_PATH=ld_library_path,
+               PATH="{path}",
+               LD_LIBRARY_PATH="{ld_lib_path}",
                BB_CMD=run_f + " ".join(args)):
         with open("{blobf}", "rb") as p:
             f = dill.load(p)
@@ -440,9 +460,10 @@ if path.exists("{blobf}"):
            db_user=str(CFG["db"]["user"]),
            db_pass=str(CFG["db"]["pass"]),
            likwiddir=str(CFG["likwid"]["prefix"]),
-           ld_lib_path=str(CFG["ld_library_path"]).rstrip(':'),
+           path=bin_path,
+           ld_lib_path=bin_lib_path,
            blobf=strip_path_prefix(blob_f, sprefix),
            runf=strip_path_prefix(real_f, sprefix))
         wrapper.write(lines)
-    chmod("+x", name_absolute)
+    run(chmod["+x", name_absolute])
     return local[name_absolute]

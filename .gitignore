@@ -31,3 +31,6 @@ http/
 .Rproj.user
 .Rhistory
 .RData
+build/
+dist/
+.cache/

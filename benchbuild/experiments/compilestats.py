@@ -82,8 +82,6 @@ class PollyCompilestatsExperiment(RuntimeExperiment):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        llvm_libs = os.path.join(str(CFG["llvm"]["dir"]), "lib")
-        p.ldflags = ["-L" + llvm_libs]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolly.so",
                     "-mllvm", "-polly"]
         p.compiler_extension = partial(collect_compilestats, p, self, CFG)

@@ -25,7 +25,7 @@ __LOG_DICT = {
     "loggers": {
         "benchbuild": {},
         "benchbuild.steps": {},
-        "plumbum.local": {'level': 'DEBUG',
+        "plumbum.local": {'level': 'WARN',
                           'handlers': ['plumbum'],
                           'propagate': False}
     },

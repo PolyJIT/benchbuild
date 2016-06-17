@@ -11,6 +11,7 @@ import re
 import warnings
 import logging
 from datetime import datetime
+from plumbum import local
 
 
 def available_cpu_count():
@@ -147,6 +148,7 @@ class Configuration():
 
     def load(self, _from):
         """Load the configuration dictionary from file."""
+
         def load_rec(inode, config):
             for k in config:
                 if isinstance(config[k], dict):
@@ -293,8 +295,9 @@ CFG = Configuration(
             "default": os.getcwd()
         },
         "build_dir": {
-            "desc": "build directory of benchbuild. All intermediate projects will "
-                    "be placed here",
+            "desc":
+            "build directory of benchbuild. All intermediate projects will "
+            "be placed here",
             "default": os.path.join(os.getcwd(), "results")
         },
         "test_dir": {
@@ -562,17 +565,16 @@ CFG["slurm"] = {
 }
 
 CFG["perf"] = {
-    "config" : {
-        "default" : None,
-        "desc" : "A configuration for the pollyperformance experiment."
+    "config": {
+        "default": None,
+        "desc": "A configuration for the pollyperformance experiment."
     }
 }
 
 CFG["cs"] = {
     "components": {
         "default": None,
-        "desc":
-        "List of filters for compilestats components."
+        "desc": "List of filters for compilestats components."
     },
     "names": {
         "default": None,
@@ -581,14 +583,14 @@ CFG["cs"] = {
 }
 
 CFG["uchroot"] = {
-    "path" : {
-        "default" : os.path.join(CFG["src_dir"].value(), "./bin/uchroot"),
-        "desc" : "Path to the uchroot binary."
+    "path": {
+        "default": os.path.join(CFG["src_dir"].value(), "./bin/uchroot"),
+        "desc": "Path to the uchroot binary."
     }
 }
 
 CFG["plugins"] = {
-    "autoload" : {
+    "autoload": {
         "default": True,
         "desc": "Should automatic load of plugins be enabled?"
     },
@@ -603,7 +605,7 @@ CFG["plugins"] = {
         ],
         "desc": "The experiment plugins we know about."
     },
-    "projects" : {
+    "projects": {
         "default": [
             "benchbuild.projects.gentoo",
             "benchbuild.projects.lnt.lnt",
@@ -639,6 +641,26 @@ CFG["plugins"] = {
         "desc": "The project plugins we know about."
     }
 }
+
+CFG["container"] = {
+    "input": {
+        "default": "container.tar.bz2",
+        "desc": "Input container file/folder."
+    },
+    "output": {
+        "default": "container-out.tar.bz2",
+        "desc": "Output container file."
+    },
+    "mounts": {
+        "default": [],
+        "desc": "List of paths that should be mounted inside the container."
+    },
+    "shell": {
+        "default": "/bin/bash",
+        "desc": "Command string that should be used as shell command."
+    }
+}
+
 
 def find_config(default='.benchbuild.json', root=os.curdir):
     """
@@ -686,6 +708,22 @@ def __init_config(cfg):
         logging.debug("Configuration loaded from {0}".format(os.path.abspath(
             config_path)))
     cfg.init_from_env()
+
+def update_env():
+    lookup_path = CFG["env"]["lookup_path"].value()
+    lookup_path = os.path.pathsep.join(lookup_path)
+    lookup_path = os.path.pathsep.join([lookup_path, os.environ["PATH"]])
+    os.environ["PATH"] = lookup_path
+
+    lib_path = CFG["env"]["lookup_ld_library_path"].value()
+    lib_path = os.path.pathsep.join(lib_path)
+    lib_path = os.path.pathsep.join([lib_path, os.environ["LD_LIBRARY_PATH"]])
+    os.environ["LD_LIBRARY_PATH"] = lib_path
+
+    # Update local's env property because we changed the environment
+    # of the running python process.
+    local.env.update(PATH=os.environ["PATH"])
+    local.env.update(LD_LIBRARY_PATH=os.environ["LD_LIBRARY_PATH"])
 
 
 __init_config(CFG)

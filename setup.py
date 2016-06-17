@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 setup(
     name='benchbuild',
-    version='1.1',
+    version='1.2',
     url='https://github.com/simbuerg/benchbuild',
     packages=find_packages(exclude=["docs", "extern", "filters", "linker",
                                     "src", "statistics", "tests", "results"]),

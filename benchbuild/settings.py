@@ -279,6 +279,10 @@ class Configuration():
 CFG = Configuration(
     "bb",
     node={
+        "version": {
+            "desc": "Version Number",
+            "default": "1.2"
+        },
         "config_file": {
             "desc": "Config file path of benchbuild. Not guaranteed to exist.",
             "default": None,
@@ -372,6 +376,14 @@ CFG["env"] = {
     "binary_path": {
         "desc":
         "List of paths to be added to the PATH variable of all binary invocations.",
+        "default": []
+    },
+    "lookup_path": {
+        "desc": "Search path for plumbum imports",
+        "default": []
+    },
+    "lookup_ld_library_path": {
+        "desc": "LD_LIBRARY_PATH for plumbum imports",
         "default": []
     }
 }
@@ -565,6 +577,13 @@ CFG["cs"] = {
     "names": {
         "default": None,
         "desc": "List of filters for compilestats names."
+    }
+}
+
+CFG["uchroot"] = {
+    "path" : {
+        "default" : os.path.join(CFG["src_dir"].value(), "./bin/uchroot"),
+        "desc" : "Path to the uchroot binary."
     }
 }
 

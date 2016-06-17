@@ -245,21 +245,8 @@ class Experiment(object, metaclass=ExperimentRegistry):
         new_self.name = cls.NAME
         return new_self
 
-    def setup_commands(self):
-        """
-        Precompute some often used path variables used throughout all projects.
-        """
-        bin_path = path.join(str(CFG["llvm"]["dir"]), "bin")
-
-        CFG["path"] = bin_path + ":" + str(CFG["path"])
-        CFG["ld_library_path"] = ":".join([
-            path.join(
-                str(CFG["llvm"]["dir"]), "lib"), str(CFG["ld_library_path"])
-        ])
-
     def __init__(self, projects=None, group=None):
         self.projects = {}
-        self.setup_commands()
         self.sourcedir = CFG["src_dir"].value()
         self.builddir = path.join(str(CFG["build_dir"].value()), self.name)
         self.testdir = CFG["test_dir"].value()

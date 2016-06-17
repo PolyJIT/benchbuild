@@ -16,7 +16,8 @@ setup(
     description="This is the experiment driver for the benchbuild study",
     license="MIT",
     entry_points={
-        'console_scripts': ['benchbuild=benchbuild.driver:main']
+        'console_scripts': ['benchbuild=benchbuild.driver:main',
+                            'container=benchbuild.container:main']
     },
     classifiers=[
         'Development Status :: 4 - Beta', 'Intended Audience :: Developers',

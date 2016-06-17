@@ -113,6 +113,7 @@ def setup_bash_in_container(builddir, container, outfile, mounts, shell):
         if store_new_container:  # pylint: disable=W0104
             print("Packing new container image.")
 
+            container_filename = os.path.split(container)[-1]
             container_out = os.path.join("container-out", container_filename)
             container_out = os.path.abspath(container_out)
 

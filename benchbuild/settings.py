@@ -283,7 +283,7 @@ CFG = Configuration(
     node={
         "version": {
             "desc": "Version Number",
-            "default": "1.2"
+            "default": "1.2.1"
         },
         "config_file": {
             "desc": "Config file path of benchbuild. Not guaranteed to exist.",

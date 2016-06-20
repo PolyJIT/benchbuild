@@ -145,10 +145,9 @@ class Container(cli.Application):
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
     def output_file(self, container):
         if os.path.exists(container):
-            settings.CFG["container"]["output"] = container
-        else:
-            raise ValueError("The path '{0}' does not exist.".format(
-                container))
+            if not ask("Path '{0}' already exists. Overwrite?"):
+                sys.exit(0)
+        settings.CFG["container"]["output"] = container
 
     @cli.switch(["-s", "--shell"],
                 str,

@@ -145,7 +145,8 @@ class Container(cli.Application):
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
     def output_file(self, container):
         if os.path.exists(container):
-            if not ask("Path '{0}' already exists. Overwrite?"):
+            if not ask("Path '{0}' already exists."
+                       " Overwrite?".format(container)):
                 sys.exit(0)
         settings.CFG["container"]["output"] = container
 

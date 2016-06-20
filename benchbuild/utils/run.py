@@ -321,11 +321,11 @@ def run(command, retcode=0):
     command & TEE(retcode)
 
 def uchroot_no_args():
-    from benchbuild.settings import CFG
-    from plumbum import local
-
     """Return the uchroot command without any customizations."""
-    return local[CFG["uchroot"]["path"].value()]
+    from plumbum import local
+    from plumbum.cmd import uchroot
+
+    return uchroot
 
 def uchroot_no_llvm(*args, **kwargs):
     """

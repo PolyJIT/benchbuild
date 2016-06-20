@@ -220,7 +220,7 @@ class ContainerCreate(cli.Application):
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
             in_container = setup_container(builddir, in_container)
-        setup_bash_in_container(builddir, container_dir, out_container, mounts,
+        setup_bash_in_container(builddir, in_container, out_container, mounts,
                                 shell)
         clean_directories(builddir, in_is_file, True)
 

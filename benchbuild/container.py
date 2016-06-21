@@ -87,7 +87,7 @@ def run_in_container(command, container_dir, mounts):
         print("Mounting: '{0}' inside container at '/mnt/{1}'".format(mount,
                                                                       dirname))
 
-    cmd_path = os.path.join(container_dir, command.lstrip('/'))
+    cmd_path = os.path.join(container_dir, command[0].lstrip('/'))
     if not os.path.exists(cmd_path):
         logging.error(
             "The command does not exist inside the container! {0}".format(
@@ -206,7 +206,7 @@ class ContainerRun(cli.Application):
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
             in_container = setup_container(builddir, in_container)
-        run_in_container(" ".join(args), in_container, mounts)
+        run_in_container(args, in_container, mounts)
         clean_directories(builddir, in_is_file, False)
 
 

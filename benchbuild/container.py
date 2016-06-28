@@ -80,7 +80,7 @@ def run_in_container(command, container_dir, mounts):
     for mount in mounts:
         absdir = os.path.abspath(str(mount))
         dirname = os.path.split(absdir)[-1]
-        uchroot_m = uchroot_m["-m", "{0}:/mnt/{1}".format(absdir, dirname)]
+        uchroot_m = uchroot_m["-M", "{0}:/mnt/{1}".format(absdir, dirname)]
         mount_path = os.path.join(container_dir, "mnt", dirname)
         if not os.path.exists(mount_path):
             uchroot("mkdir", "-p", "/mnt/{0}".format(dirname))

@@ -136,19 +136,19 @@ class Container(cli.Application):
 
     @cli.switch(["-i", "--input-file"], str, help="Input container path")
     def input_file(self, container):
-        if os.path.exists(container):
-            settings.CFG["container"]["input"] = container
+        p = os.path.abspath(container)
+        if os.path.exists(p):
+            settings.CFG["container"]["input"] = p
         else:
-            raise ValueError("The path '{0}' does not exist.".format(
-                container))
+            raise ValueError("The path '{0}' does not exist.".format(p))
 
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
     def output_file(self, container):
-        if os.path.exists(container):
-            if not ask("Path '{0}' already exists."
-                       " Overwrite?".format(container)):
+        p = os.path.abspath(container)
+        if os.path.exists(p):
+            if not ask("Path '{0}' already exists." " Overwrite?".format(p)):
                 sys.exit(0)
-        settings.CFG["container"]["output"] = container
+        settings.CFG["container"]["output"] = p
 
     @cli.switch(["-s", "--shell"],
                 str,

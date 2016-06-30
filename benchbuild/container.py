@@ -134,6 +134,22 @@ def setup_bash_in_container(builddir, container, outfile, mounts, shell):
             print("Storing config in {0}".format(os.path.abspath(config_path)))
 
 
+def find_hash(container_db, key):
+    for kv in container_db:
+        if kv["hash"].startswith(key):
+            return kv["path"]
+    return None
+
+
+def set_input_container(container, cfg):
+    if not container:
+        return False
+    if os.path.exists(container):
+        cfg["container"]["input"] = container
+        return True
+    return False
+
+
 class Container(cli.Application):
     """Manage uchroot containers."""
     VERSION = settings.CFG["version"].value()
@@ -144,10 +160,14 @@ class Container(cli.Application):
     @cli.switch(["-i", "--input-file"], str, help="Input container path")
     def input_file(self, container):
         p = os.path.abspath(container)
-        if os.path.exists(p):
-            settings.CFG["container"]["input"] = p
-        else:
-            raise ValueError("The path '{0}' does not exist.".format(p))
+        if set_input_container(p, settings.CFG):
+            return
+
+        p = find_hash(settings.CFG["container"]["known"].value(), container)
+        if set_input_container(p, settings.CFG):
+            return
+
+        raise ValueError("The path '{0}' does not exist.".format(p))
 
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
     def output_file(self, container):
@@ -212,6 +232,8 @@ class ContainerRun(cli.Application):
         mounts = settings.CFG["container"]["mounts"].value()
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
+            clean_directories(builddir)
+            setup_directories(builddir)
             in_container = setup_container(builddir, in_container)
         run_in_container(args, in_container, mounts)
         clean_directories(builddir, in_is_file, False)
@@ -228,7 +250,8 @@ class ContainerCreate(cli.Application):
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
             in_container = setup_container(builddir, in_container)
-        setup_bash_in_container(builddir, in_container, out_container, mounts, shell)
+        setup_bash_in_container(builddir, in_container, out_container, mounts,
+                                shell)
         clean_directories(builddir, in_is_file, True)
 
 
@@ -293,11 +316,12 @@ class ContainerBootstrap(cli.Application):
 
 
 @Container.subcommand("list")
-class ContainerBootstrap(cli.Application):
+class ContainerList(cli.Application):
     def main(self, *args):
         containers = settings.CFG["container"]["known"].value()
         for c in containers:
-            print("{} [{:.8s}]".format(c["path"], str(c["hash"])))
+            print("[{1:.8s}] {0}".format(c["path"], str(c["hash"])))
+
 
 def main(*args):
     return Container.run(*args)

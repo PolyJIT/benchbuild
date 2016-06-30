@@ -297,5 +297,7 @@ class ContainerBootstrap(cli.Application):
     def main(self, *args):
         containers = settings.CFG["container"]["known"].value()
         for c in containers:
-            print("{} [{:.8s}]".format(c["path"], str(c["hash"]))) def main(*args):
+            print("{} [{:.8s}]".format(c["path"], str(c["hash"])))
+
+def main(*args):
     return Container.run(*args)

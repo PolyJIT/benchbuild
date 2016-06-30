@@ -7,17 +7,10 @@ from benchbuild.utils import user_interface as ui
 from benchbuild.utils import log
 from benchbuild.utils.run import uchroot_no_args
 from benchbuild.utils.downloader import Copy, update_hash
-
+from benchbuild.utils.user_interface import ask
 import logging
 import sys
 import os
-
-
-def ask(question, default_answer=False, default_answer_str="no"):
-    response = default_answer
-    if sys.stdin.isatty():
-        response = ui.query_yes_no(question, default_answer_str)
-    return response
 
 
 def clean_directories(builddir, in_dir=True, out_dir=True):

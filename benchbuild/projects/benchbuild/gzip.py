@@ -73,4 +73,4 @@ class Gzip(BenchBuildGroup):
 
         gzip_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(gzip_dir):
-            run(make["-j" + CFG["jobs"], "clean", "all"])
+            run(make["-j" + str(CFG["jobs"].value()), "clean", "all"])

@@ -658,6 +658,12 @@ CFG["container"] = {
     "shell": {
         "default": "/bin/bash",
         "desc": "Command string that should be used as shell command."
+    },
+    "known" : {
+        "default": [],
+        "desc": "List of known containers. Format: "
+                "[{ 'path': <path>,"
+                "   'hash': <hash> }]"
     }
 }
 
@@ -705,6 +711,7 @@ def __init_config(cfg):
 
     if config_path:
         cfg.load(config_path)
+        cfg["config_file"] = os.path.abspath(config_path)
         logging.debug("Configuration loaded from {0}".format(os.path.abspath(
             config_path)))
     cfg.init_from_env()

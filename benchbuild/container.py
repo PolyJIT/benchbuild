@@ -120,11 +120,18 @@ def setup_bash_in_container(builddir, container, outfile, mounts, shell):
             # Pack the results to: container-out
             with local.cwd("container-in"):
                 tar("cjf", container_out, ".")
-            update_hash(container_filename, os.path.dirname(container_out))
+            c_hash = update_hash(container_filename,
+                                 os.path.dirname(container_out))
             outdir = os.path.dirname(outfile)
             if not os.path.exists(outdir):
                 mkdir("-p", outdir)
             mv(container_out, outfile)
+
+            new_container = {"path": outfile, "hash": str(c_hash)}
+            config_path = settings.CFG["config_file"].value()
+            settings.CFG["container"]["known"].value().append(new_container)
+            settings.CFG.store(config_path)
+            print("Storing config in {0}".format(os.path.abspath(config_path)))
 
 
 class Container(cli.Application):
@@ -221,8 +228,7 @@ class ContainerCreate(cli.Application):
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
             in_container = setup_container(builddir, in_container)
-        setup_bash_in_container(builddir, in_container, out_container, mounts,
-                                shell)
+        setup_bash_in_container(builddir, in_container, out_container, mounts, shell)
         clean_directories(builddir, in_is_file, True)
 
 
@@ -276,13 +282,20 @@ class ContainerBootstrap(cli.Application):
                 self.install_cmake_and_exit()
             self.install_uchroot()
         print("...OK")
-        config_path = ".benchbuild.json"
-        settings.CFG.store(config_path)
-        print("Storing config in {0}".format(os.path.abspath(config_path)))
+        config_file = settings.CFG["config_file"].value()
+        if not os.path.exists(config_file):
+            config_file = ".benchbuild.json"
+        settings.CFG.store(config_file)
+        print("Storing config in {0}".format(os.path.abspath(config_file)))
         print(
             "Future container commands from this directory will automatically"
             " source the config file.")
 
 
-def main(*args):
+@Container.subcommand("list")
+class ContainerBootstrap(cli.Application):
+    def main(self, *args):
+        containers = settings.CFG["container"]["known"].value()
+        for c in containers:
+            print("{} [{:.8s}]".format(c["path"], str(c["hash"]))) def main(*args):
     return Container.run(*args)

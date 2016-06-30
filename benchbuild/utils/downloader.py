@@ -79,10 +79,12 @@ def update_hash(src, root):
     from os import path
 
     hash_file = path.join(root, src + ".hash")
+    new_hash = 0
     with open(hash_file, 'w') as h_file:
         src_path = path.join(root, src)
         new_hash = get_hash_of_dirs(src_path)
         h_file.write(str(new_hash))
+    return new_hash
 
 
 def Copy(From, To):

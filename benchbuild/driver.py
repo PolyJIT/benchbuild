@@ -64,6 +64,8 @@ class PollyProfiling(cli.Application):
 
 def main(*args):
     """Main function."""
+    PollyProfiling.subcommand("bootstrap",
+                              "benchbuild.bootstrap.BenchBuildBootstrap")
     PollyProfiling.subcommand("run", "benchbuild.run.BenchBuildRun")
     PollyProfiling.subcommand("build", "benchbuild.build.Build")
     PollyProfiling.subcommand("log", "benchbuild.log.BenchBuildLog")

@@ -3,8 +3,8 @@
 from plumbum import cli, local, TF, FG, ProcessExecutionError
 from plumbum.cmd import tar, mkdir, mv, rm, bash
 from benchbuild import settings
-from benchbuild.utils import user_interface as ui
 from benchbuild.utils import log
+from benchbuild.utils.bootstrap import find_package, install_uchroot
 from benchbuild.utils.run import uchroot_no_args
 from benchbuild.utils.downloader import Copy, update_hash
 from benchbuild.utils.user_interface import ask
@@ -248,44 +248,8 @@ class ContainerCreate(cli.Application):
         clean_directories(builddir, in_is_file, True)
 
 
-def find_package(binary):
-    try:
-        from plumbum import cmd
-        cmd.__getattr__(binary)
-    except AttributeError:
-        print("Checking for {}  - No".format(binary))
-        return False
-    print("Checking for {} - Yes".format(binary))
-    return True
-
-
-from plumbum.cmd import git
-
-
 @Container.subcommand("bootstrap")
 class ContainerBootstrap(cli.Application):
-    def install_uchroot(self):
-        builddir = settings.CFG["build_dir"].value()
-        with local.cwd(builddir):
-            if not os.path.exists("erlent/.git"):
-                git("clone", "git@github.com:PolyJIT/erlent")
-            else:
-                with local.cwd("erlent"):
-                    git("pull", "--rebase")
-            mkdir("-p", "erlent/build")
-            with local.cwd("erlent/build"):
-                from plumbum.cmd import cmake, make, cp
-                cmake("../")
-                make()
-        erlent_path = os.path.abspath(os.path.join(builddir, "erlent",
-                                                   "build"))
-        os.environ["PATH"] = os.path.pathsep.join([erlent_path, os.environ[
-            "PATH"]])
-        local.env.update(PATH=os.environ["PATH"])
-        if not find_package("uchroot"):
-            sys.exit(-1)
-        settings.CFG["env"]["lookup_path"].value().append(erlent_path)
-
     def install_cmake_and_exit(self):
         print("You need to  install cmake via your package manager manually."
               " Exiting.")
@@ -296,7 +260,7 @@ class ContainerBootstrap(cli.Application):
         if not find_package("uchroot"):
             if not find_package("cmake"):
                 self.install_cmake_and_exit()
-            self.install_uchroot()
+            install_uchroot()
         print("...OK")
         config_file = settings.CFG["config_file"].value()
         if not os.path.exists(config_file):

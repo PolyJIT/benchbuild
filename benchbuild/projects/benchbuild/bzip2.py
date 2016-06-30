@@ -37,7 +37,7 @@ class Bzip2(BenchBuildGroup):
             clang = lt_clang(self.cflags, self.ldflags,
                              self.compiler_extension)
         with local.cwd(bzip2_dir):
-            run(make["CC=" + str(clang), "clean", "bzip2"])
+            run(make["CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2"])
 
     def prepare(self):
         super(Bzip2, self).prepare()

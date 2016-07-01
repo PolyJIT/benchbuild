@@ -307,7 +307,7 @@ def guarded_exec(cmd, project, experiment):
             fail(db_run, session, proc_ex.retcode, proc_ex.stdout,
                  proc_ex.stderr)
             raise
-        except Exception as e:
+        except Exception as ex:
             fail(db_run, session, -1, "", str(ex))
             raise
 

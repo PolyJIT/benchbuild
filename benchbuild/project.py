@@ -128,7 +128,6 @@ class Project(object, metaclass=ProjectDecorator):
             experiment: The experiment we run this project under
         """
         from benchbuild.utils.run import run
-        from plumbum import local
         exp = wrap(self.run_f, experiment)
         with local.cwd(self.builddir):
             run(exp)

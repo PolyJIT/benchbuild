@@ -683,7 +683,7 @@ CFG["container"] = {
         "default": "/bin/bash",
         "desc": "Command string that should be used as shell command."
     },
-    "known" : {
+    "known": {
         "default": [],
         "desc": "List of known containers. Format: "
                 "[{ 'path': <path>,"
@@ -739,6 +739,7 @@ def __init_config(cfg):
         logging.debug("Configuration loaded from {0}".format(os.path.abspath(
             config_path)))
     cfg.init_from_env()
+
 
 def update_env():
     lookup_path = CFG["env"]["lookup_path"].value()

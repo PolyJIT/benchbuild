@@ -51,7 +51,7 @@ def install_uchroot():
     builddir = settings.CFG["build_dir"].value()
     with local.cwd(builddir):
         if not os.path.exists("erlent/.git"):
-            git("clone", "git@github.com:PolyJIT/erlent")
+            git("clone", setings.CFG["uchroot"]["repo"].value())
         else:
             with local.cwd("erlent"):
                 git("pull", "--rebase")

@@ -357,8 +357,28 @@ CFG = Configuration(
         "mail": {
             "desc": "E-Mail address dedicated to benchbuild.",
             "default": None
+        },
+        "cleanup_paths": {
+            "default": [],
+            "desc":
+            "List of existing paths that benchbuild should delete in addition to the default cleanup steps."
         }
     })
+
+CFG["unionfs"] = {
+    "enable": {
+        "default": True,
+        "desc": "Wrap all project operations in a unionfs filesystem."
+    },
+    "image": {
+        "default": './image',
+        "desc": 'Name of the image directory'
+    },
+    "image_prefix": {
+        "default": None,
+        "desc": "Prefix for the unionfs image directory."
+    }
+}
 
 CFG["env"] = {
     "compiler_ld_library_path": {

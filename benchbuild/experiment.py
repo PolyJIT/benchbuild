@@ -41,7 +41,7 @@ from benchbuild import projects
 from benchbuild.project import ProjectRegistry
 from benchbuild.utils.run import GuardedRunException
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import Step, Clean, MakeBuildDir, RequireAll
+from benchbuild.utils.actions import CleanExtra, Clean, MakeBuildDir, RequireAll
 
 
 def newline(ostream):
@@ -313,6 +313,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
             actns.append(RequireAll(self.actions_for_project(p)))
 
         actns.append(Clean(self))
+        actns.append(CleanExtra(self))
         return actns
 
 class RuntimeExperiment(Experiment):

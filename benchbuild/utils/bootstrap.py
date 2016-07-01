@@ -120,3 +120,8 @@ def install_package(pkg_name):
 def provide_package(pkg_name):
     if not find_package(pkg_name):
         install_package(pkg_name)
+
+
+def provide_packages(pkg_names):
+    for pkg_name in pkg_names:
+        provide_package(pkg_name)

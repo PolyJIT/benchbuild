@@ -1,7 +1,14 @@
+from benchbuild.project import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.downloader import Git
+from benchbuild.utils.run import run
+
+from plumbum import local
+from plumbum.cmd import git, make
+
 from os import path, getenv
 from glob import glob
-from plumbum import local
 
 
 class Minisat(BenchBuildGroup):
@@ -11,18 +18,12 @@ class Minisat(BenchBuildGroup):
     DOMAIN = 'verification'
 
     def run_tests(self, experiment):
-        from benchbuild.project import wrap
-        from benchbuild.utils.run import run
-
-        minisat_dir = path.join(self.builddir, self.src_dir)
-
         exp = wrap(
-            path.join(minisat_dir, "build", "dynamic", "bin", "minisat"),
+            path.join(self.src_dir, "build", "dynamic", "bin", "minisat"),
             experiment)
 
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
-        minisat_dir = path.join(self.builddir, self.src_dir)
-        minisat_lib_path = path.join(minisat_dir, "build", "dynamic", "lib")
+        minisat_lib_path = path.join(self.src_dir, "build", "dynamic", "lib")
 
         for test_f in testfiles:
             with local.env(LD_LIBRARY_PATH=minisat_lib_path + ":" + getenv(
@@ -33,32 +34,19 @@ class Minisat(BenchBuildGroup):
     src_uri = "https://github.com/niklasso/minisat"
 
     def download(self):
-        from benchbuild.utils.downloader import Git
-        from plumbum.cmd import git
-
-        minisat_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(self.builddir):
-            Git(self.src_uri, self.src_dir)
-            with local.cwd(minisat_dir):
-                git("fetch", "origin", "pull/17/head:clang")
-                git("checkout", "clang")
+        Git(self.src_uri, self.src_dir)
+        with local.cwd(self.src_dir):
+            git("fetch", "origin", "pull/17/head:clang")
+            git("checkout", "clang")
 
     def configure(self):
-        from plumbum.cmd import make
-        from benchbuild.utils.run import run
-
-        minisat_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(minisat_dir):
+        with local.cwd(self.src_dir):
             run(make["config"])
 
     def build(self):
-        from plumbum.cmd import make
-        from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-        from benchbuild.utils.run import run
-
-        minisat_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(minisat_dir):
-            clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        with local.cwd(self.src_dir):
+            clang = lt_clang(self.cflags, self.ldflags,
+                             self.compiler_extension)
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                      self.compiler_extension)
             run(make["CC=" + str(clang), "CXX=" + str(clang_cxx), "clean",

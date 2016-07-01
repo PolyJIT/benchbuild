@@ -1,9 +1,14 @@
-from benchbuild.settings import CFG
+from benchbuild.project import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.settings import CFG
+from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
-from os import path
+
 from plumbum import local
-from plumbum.cmd import cp
+from plumbum.cmd import cp, make
+
+from os import path
 
 
 class X264(BenchBuildGroup):
@@ -26,37 +31,25 @@ class X264(BenchBuildGroup):
     src_uri = "git://git.videolan.org/x264.git"
 
     def download(self):
-        from benchbuild.utils.downloader import Git
-
-        with local.cwd(self.builddir):
-            Git(self.src_uri, self.src_dir)
+        Git(self.src_uri, self.src_dir)
 
     def configure(self):
-        from benchbuild.utils.compiler import lt_clang
-        x264_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
 
-        with local.cwd(x264_dir):
+        with local.cwd(self.src_dir):
             configure = local["./configure"]
 
             with local.env(CC=str(clang)):
-                run(configure["--enable-static",
-                              "--disable-asm", "--disable-thread",
-                              "--disable-opencl", "--enable-pic"])
+                run(configure["--enable-static", "--disable-asm",
+                              "--disable-thread", "--disable-opencl",
+                              "--enable-pic"])
 
     def build(self):
-        from plumbum.cmd import make
-
-        x264_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(x264_dir):
+        with local.cwd(self.src_dir):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, experiment):
-        from benchbuild.project import wrap
-        x264_dir = path.join(self.builddir, self.src_dir)
-        exp = wrap(path.join(x264_dir, "x264"), experiment)
+        exp = wrap(path.join(self.src_dir, "x264"), experiment)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",

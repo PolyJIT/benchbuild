@@ -25,9 +25,6 @@ An experiment performs the following actions in order:
         This to perform all your experiment needs.
 
 """
-import warnings
-import logging
-import traceback as tb
 from contextlib import contextmanager
 from abc import abstractmethod
 from os import path, listdir
@@ -285,9 +282,8 @@ class Experiment(object, metaclass=ExperimentRegistry):
         if projects_to_filter is None:
             projects_to_filter = []
         prjs = {x: prjs[x]
-                    for x in prjs
-                    if prjs[x].DOMAIN != "debug" or x in projects_to_filter
-                    }
+                for x in prjs
+                if prjs[x].DOMAIN != "debug" or x in projects_to_filter}
 
         self.projects = {k: prjs[k](self) for k in prjs}
 
@@ -301,12 +297,8 @@ class Experiment(object, metaclass=ExperimentRegistry):
         """
         pass
 
-
     def actions(self):
-        actns = [
-            Clean(self),
-            MakeBuildDir(self)
-        ]
+        actns = [Clean(self), MakeBuildDir(self)]
 
         for project in self.projects:
             p = self.projects[project]
@@ -315,6 +307,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
         actns.append(Clean(self))
         actns.append(CleanExtra(self))
         return actns
+
 
 class RuntimeExperiment(Experiment):
     """ Additional runtime only features for experiments. """
@@ -330,9 +323,7 @@ class RuntimeExperiment(Experiment):
                 The calibration command we will use.
         """
         with local.cwd(self.builddir):
-            with local.env(BB_USE_DATABASE=0,
-                           BB_USE_CSV=0,
-                           BB_USE_FILE=0):
+            with local.env(BB_USE_DATABASE=0, BB_USE_CSV=0, BB_USE_FILE=0):
                 calib_out = calibrate_call()
 
         calib_pattern = regex.compile(

@@ -1,8 +1,13 @@
+from benchbuild.project import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.downloader import Wget
+from benchbuild.utils.run import run
+
 from plumbum import local
-from plumbum.cmd import cp
+from plumbum.cmd import make, tar, cp
+
 from os import path
-from benchbuild.utils.run import in_builddir
 
 
 class Bzip2(BenchBuildGroup):
@@ -18,34 +23,22 @@ class Bzip2(BenchBuildGroup):
     src_uri = "http://www.bzip.org/1.0.6/" + src_file
 
     def download(self):
-        from benchbuild.utils.downloader import Wget
-        from plumbum.cmd import tar
-
         Wget(self.src_uri, self.src_file)
         tar('xfz', path.join('.', self.src_file))
 
     def configure(self):
         pass
 
-
     def build(self):
-        from plumbum.cmd import make
-        from benchbuild.utils.compiler import lt_clang
-        from benchbuild.utils.run import run
-
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         with local.cwd(self.src_dir):
             run(make["CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2"])
 
     def prepare(self):
-        super(Bzip2, self).prepare()
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp(testfiles, '.')
 
     def run_tests(self, experiment):
-        from benchbuild.project import wrap
-        from benchbuild.utils.run import run
-
         exp = wrap(path.join(self.src_dir, "bzip2"), experiment)
 
         # Compress

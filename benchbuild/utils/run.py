@@ -5,6 +5,7 @@ import os
 from plumbum.cmd import mkdir  # pylint: disable=E0401
 from contextlib import contextmanager
 from types import SimpleNamespace
+import logging
 
 
 def partial(func, *args, **kwargs):
@@ -283,6 +284,7 @@ def guarded_exec(cmd, project, experiment):
                             project.run_uuid)
     ex = None
     with local.env(BB_DB_RUN_ID=db_run.id):
+
         def runner(retcode=0, *args):
             retcode, stdout, stderr = cmd[args] & TEE(retcode=retcode)
             end(db_run, session, stdout, stderr)
@@ -293,6 +295,7 @@ def guarded_exec(cmd, project, experiment):
             r.session = session
             r.db_run = db_run
             return r
+
         try:
             yield runner
         except KeyboardInterrupt:
@@ -300,8 +303,8 @@ def guarded_exec(cmd, project, experiment):
             warn("Interrupted by user input")
             raise
         except ProcessExecutionError as proc_ex:
-            fail(db_run, session,
-                 proc_ex.retcode, proc_ex.stdout, proc_ex.stderr)
+            fail(db_run, session, proc_ex.retcode, proc_ex.stdout,
+                 proc_ex.stderr)
             raise
         except Exception as e:
             fail(db_run, session, -1, "", str(ex))
@@ -320,12 +323,14 @@ def run(command, retcode=0):
     info(str(command))
     command & TEE(retcode)
 
+
 def uchroot_no_args():
     """Return the uchroot command without any customizations."""
     from plumbum import local
     from plumbum.cmd import uchroot
 
     return uchroot
+
 
 def uchroot_no_llvm(*args, **kwargs):
     """
@@ -344,6 +349,7 @@ def uchroot_no_llvm(*args, **kwargs):
     uchroot_cmd = uchroot_cmd["-u", str(uid), "-g", str(gid), "-E", "-A"]
     return uchroot_cmd[args]
 
+
 def uchroot(*args, **kwargs):
     """
     Returns a uchroot command which can be called with other args to be
@@ -359,3 +365,24 @@ def uchroot(*args, **kwargs):
     uchroot_cmd = uchroot_cmd["-m", str(CFG["llvm"]["dir"]) + ":llvm"]
     uchroot_cmd = uchroot_cmd.setenv(LD_LIBRARY_PATH="/llvm/lib")
     return uchroot_cmd["--"]
+
+
+def in_builddir(sub='.'):
+    """
+    Decorate a project phase with a local working directory change.
+
+    Args:
+        sub: An optional subdirectory to change into.
+    """
+    from functools import wraps
+    from plumbum import local
+    from os import path
+
+    def wrap_in_builddir(func):
+        @wraps(func)
+        def wrap_in_builddir_func(self, *args, **kwargs):
+            p = path.abspath(path.join(self.builddir, sub))
+            with local.cwd(p):
+                return func(self, *args, **kwargs)
+        return wrap_in_builddir_func
+    return wrap_in_builddir

@@ -22,14 +22,18 @@ from benchbuild.utils.downloader import Wget
 from benchbuild.settings import CFG
 from lazy import lazy
 
+
 def cached(func):
     ret = None
+
     def call_or_cache(*args, **kwargs):
         nonlocal ret
         if ret is None:
             ret = func(*args, **kwargs)
         return ret
+
     return call_or_cache
+
 
 @cached
 def latest_src_uri():
@@ -146,13 +150,13 @@ PKGDIR="${PORTDIR}/packages"
                 rp_s = "RSYNC_PROXY={0}".format(str(rp))
                 makeconf.write(rp_s + "\n")
 
-
     def write_bashrc(self, path):
         with open(path, 'w') as bashrc:
             lines = '''
 export PATH="/llvm/bin:/benchbuild/bin:${PATH}"
 export LD_LIBRARY_PAT=H"/llvm/lib:/benchbuild/lib:${LD_LIBRARY_PATH}"
 '''
+
             bashrc.write(lines)
 
     def write_layout(self, path):
@@ -295,15 +299,16 @@ class AutoPrepareStage3(GentooGroup):
             #run(emerge_in_chroot["dev-python/pip"])
 
             with local.env(CC="gcc", CXX="g++"):
-            #    run(emerge_in_chroot["dev-db/postgresql"])
-            #    run(emerge_in_chroot["net-misc/curl"])
+                #    run(emerge_in_chroot["dev-db/postgresql"])
+                #    run(emerge_in_chroot["net-misc/curl"])
 
                 # We need the unstable portage version
                 with local.env(ACCEPT_KEYWORDS="~*", LD_LIBRARY_PATH=""):
-                    run(emerge_in_chroot["--autounmask-only=y",
-                        "-uUDN", "--with-bdeps=y", "@world"])
+                    run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
+                                         "--with-bdeps=y", "@world"])
                     run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
-                    run(emerge_in_chroot["--autounmask-only=y", "=sys-libs/ncurses-6.0-r1:0/6"])
+                    run(emerge_in_chroot["--autounmask-only=y",
+                                         "=sys-libs/ncurses-6.0-r1:0/6"])
                     run(emerge_in_chroot["=sys-libs/ncurses-6.0-r1:0/6"])
             #        run(emerge_in_chroot["sys-apps/portage"])
 

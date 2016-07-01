@@ -324,3 +324,25 @@ class RequireAll(Step):
         sub_actns = [a.__str__(indent + 1) for a in self._actions]
         sub_actns = "\n".join(sub_actns)
         return textwrap.indent("* All required:\n" + sub_actns, indent * " ")
+
+
+class CleanExtra(Step):
+    NAME = "CLEAN EXTRA"
+    DESCRIPTION = "Cleans the extra directories."
+
+    def __call__(self):
+        if not CFG['clean'].value():
+            return
+
+        paths = CFG["cleanup_paths"].value()
+        for p in paths:
+            if os.path.exists(p):
+                rm("-r", p)
+
+    def __str__(self, indent=0):
+        paths = CFG["cleanup_paths"].value()
+        lines = []
+        for p in paths:
+            lines.append(textwrap.indent("* Clean the directory: {0}".format(
+                p), indent * " "))
+        return "\n".join(lines)

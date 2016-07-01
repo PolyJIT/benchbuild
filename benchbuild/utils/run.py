@@ -5,6 +5,7 @@ import os
 from plumbum.cmd import mkdir  # pylint: disable=E0401
 from contextlib import contextmanager
 from types import SimpleNamespace
+from benchbuild import settings
 import logging
 
 
@@ -384,5 +385,139 @@ def in_builddir(sub='.'):
             p = path.abspath(path.join(self.builddir, sub))
             with local.cwd(p):
                 return func(self, *args, **kwargs)
+
         return wrap_in_builddir_func
+
     return wrap_in_builddir
+
+
+def unionfs_tear_down(mountpoint, tries=3):
+    """
+    Tear down a unionfs mountpoint.
+    """
+    from plumbum.cmd import fusermount, sync
+    from plumbum import ProcessExecutionError
+
+    if not os.path.exists(mountpoint):
+        log.error("Mountpoint does not exist: '{0}'".format(mountpoint))
+        raise ValueError("Mountpoint does not exist: '{0}'".format(mountpoint))
+
+    fusermount("-u", mountpoint, retcode=None)
+    if os.path.ismount(mountpoint):
+        sync()
+        if tries > 0:
+            unionfs_tear_down(mountpoint, tries=tries - 1)
+        else:
+            log.error("Failed to unmount '{0}'".format(mountpoint))
+            raise RuntimeError("Failed to unmount '{0}'".format(mountpoint))
+
+
+def unionfs_set_up(ro_base, rw_image, mountpoint):
+    """
+    Setup a unionfs via unionfs-fuse.
+
+    Args:
+        ro_base:
+        rw_image:
+        mountpoint:
+    """
+    log = logging.getLogger("benchbuild")
+    if not os.path.exists(mountpoint):
+        mkdir("-p", mountpoint)
+    if not os.path.exists(ro_base):
+        log.error("Base dir does not exist: '{0}'".format(ro_base))
+        raise ValueError("Base directory does not exist")
+    if not os.path.exists(rw_image):
+        log.error("Image dir does not exist: '{0}'".format(ro_base))
+        raise ValueError("Image directory does not exist")
+
+    from plumbum.cmd import unionfs
+    ro_base = os.path.abspath(ro_base)
+    rw_image = os.path.abspath(rw_image)
+    mountpoint = os.path.abspath(mountpoint)
+    unionfs("-o", "allow_other,cow", rw_image + "=RW:" + ro_base + "=RO",
+            mountpoint)
+
+
+def unionfs(base_dir='./base',
+            image_dir='./image',
+            image_prefix=None,
+            mountpoint='./union'):
+    """
+    UnionFS decorator.
+
+    This configures a unionfs for projects. The given base_dir and/or image_dir
+    are layered as follows:
+     image_dir=RW:base_dir=RO
+    All writes go to the image_dir, while base_dir delivers the (read-only)
+    versions of the rest of the filesystem.
+
+    The unified version will be provided in the project's builddir. Unmouting
+    is done as soon as the function completes.
+
+    Args:
+        base_dir:
+        image_dir:
+        image_prefix:
+        mountpoint:
+    """
+    from functools import wraps
+    from plumbum import local
+
+    def update_cleanup_paths(new_path):
+        cleanup_dirs = settings.CFG["cleanup_paths"].value()
+        cleanup_dirs = set(cleanup_dirs)
+        cleanup_dirs.add(new_path)
+        cleanup_dirs = list(cleanup_dirs)
+        settings.CFG["cleanup_paths"] = cleanup_dirs
+
+    def is_outside_of_builddir(project, path_to_check):
+        bdir = project.builddir
+        cprefix = os.path.commonprefix([path_to_check, bdir])
+        return cprefix != bdir
+
+    def wrap_in_union_fs(func):
+        nonlocal image_prefix
+
+        @wraps(func)
+        def wrap_in_union_fs_func(project, *args, **kwargs):
+            abs_base_dir = os.path.abspath(os.path.join(project.builddir,
+                                                        base_dir))
+            nonlocal image_prefix
+            if image_prefix is not None:
+                image_prefix = os.path.abspath(image_prefix)
+                rel_prj_builddir = os.path.relpath(
+                    project.builddir, settings.CFG["build_dir"].value())
+                abs_image_dir = os.path.abspath(os.path.join(
+                    image_prefix, rel_prj_builddir, image_dir))
+
+                if is_outside_of_builddir:
+                    update_cleanup_paths(abs_image_dir)
+            else:
+                abs_image_dir = os.path.abspath(os.path.join(project.builddir,
+                                                             image_dir))
+            abs_mount_dir = os.path.abspath(os.path.join(project.builddir,
+                                                         mountpoint))
+            if not os.path.exists(abs_base_dir):
+                mkdir("-p", abs_base_dir)
+            if not os.path.exists(abs_image_dir):
+                mkdir("-p", abs_image_dir)
+            if not os.path.exists(abs_mount_dir):
+                mkdir("-p", abs_mount_dir)
+
+            unionfs_set_up(abs_base_dir, abs_image_dir, abs_mount_dir)
+            project_builddir_bak = project.builddir
+            project.builddir = abs_mount_dir
+            project.setup_derived_filenames()
+            try:
+                with local.cwd(abs_mount_dir):
+                    ret = func(project, *args, **kwargs)
+            finally:
+                unionfs_tear_down(abs_mount_dir)
+            project.builddir = project_builddir_bak
+            project.setup_derived_filenames()
+            return ret
+
+        return wrap_in_union_fs_func
+
+    return wrap_in_union_fs

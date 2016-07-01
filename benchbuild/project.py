@@ -8,7 +8,7 @@ from plumbum.cmd import mv, chmod, rm, mkdir, rmdir  # pylint: disable=E0401
 from benchbuild.settings import CFG
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.run import in_builddir
+from benchbuild.utils.run import in_builddir, unionfs
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
@@ -42,7 +42,13 @@ class ProjectDecorator(ProjectRegistry):
         methods = ProjectDecorator.decorated_methods
         for k, v in attrs.items():
             if (k in methods) and hasattr(cls, k):
-                wrapped_fun = in_builddir('.')(v)
+                wrapped_fun = v
+                if CFG["unionfs"]["enable"].value():
+                    image_dir = CFG["unionfs"]["image"].value()
+                    prefix = CFG["unionfs"]["image_prefix"].value()
+                    wrapped_fun = unionfs(image_dir=image_dir,
+                                          image_prefix=prefix)(wrapped_fun)
+                wrapped_fun = in_builddir('.')(wrapped_fun)
                 setattr(cls, k, wrapped_fun)
 
         super(ProjectDecorator, cls).__init__(name, bases, attrs)

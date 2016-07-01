@@ -357,8 +357,28 @@ CFG = Configuration(
         "mail": {
             "desc": "E-Mail address dedicated to benchbuild.",
             "default": None
+        },
+        "cleanup_paths": {
+            "default": [],
+            "desc":
+            "List of existing paths that benchbuild should delete in addition to the default cleanup steps."
         }
     })
+
+CFG["unionfs"] = {
+    "enable": {
+        "default": True,
+        "desc": "Wrap all project operations in a unionfs filesystem."
+    },
+    "image": {
+        "default": './image',
+        "desc": 'Name of the image directory'
+    },
+    "image_prefix": {
+        "default": None,
+        "desc": "Prefix for the unionfs image directory."
+    }
+}
 
 CFG["env"] = {
     "compiler_ld_library_path": {
@@ -663,7 +683,7 @@ CFG["container"] = {
         "default": "/bin/bash",
         "desc": "Command string that should be used as shell command."
     },
-    "known" : {
+    "known": {
         "default": [],
         "desc": "List of known containers. Format: "
                 "[{ 'path': <path>,"
@@ -719,6 +739,7 @@ def __init_config(cfg):
         logging.debug("Configuration loaded from {0}".format(os.path.abspath(
             config_path)))
     cfg.init_from_env()
+
 
 def update_env():
     lookup_path = CFG["env"]["lookup_path"].value()

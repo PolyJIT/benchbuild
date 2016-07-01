@@ -8,7 +8,6 @@ by llvm
 """
 
 import parse
-import os
 import warnings
 from plumbum import local
 from benchbuild.experiment import RuntimeExperiment
@@ -30,7 +29,6 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
     with local.env(BB_ENABLE=0):
         with guarded_exec(clang, project, experiment) as run:
             ri = run()
-
 
     if ri.retcode == 0:
         stats = []

@@ -583,6 +583,10 @@ CFG["cs"] = {
 }
 
 CFG["uchroot"] = {
+    "repo": {
+        "default": "https://github.com/PolyJIT/erlent.git/",
+        "desc": "GIT Repo URL for erlent."
+    },
     "path": {
         "default": os.path.join(CFG["src_dir"].value(), "./bin/uchroot"),
         "desc": "Path to the uchroot binary."

@@ -7,8 +7,8 @@ from plumbum import local
 from plumbum.cmd import mv, chmod, rm, mkdir, rmdir  # pylint: disable=E0401
 from benchbuild.settings import CFG
 from benchbuild.utils.db import persist_project
-from benchbuild.utils.actions import Clean, Step, Run
 from benchbuild.utils.path import list_to_path
+from benchbuild.utils.run import in_builddir
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
@@ -19,15 +19,36 @@ class ProjectRegistry(type):
 
     projects = {}
 
-    def __init__(cls, name, bases, dict):
+    def __init__(cls, name, bases, attrs):
         """Registers a project in the registry."""
-        super(ProjectRegistry, cls).__init__(name, bases, dict)
+        super(ProjectRegistry, cls).__init__(name, bases, attrs)
 
         if cls.NAME is not None and cls.DOMAIN is not None:
             ProjectRegistry.projects[cls.NAME] = cls
 
 
-class Project(object, metaclass=ProjectRegistry):
+class ProjectDecorator(ProjectRegistry):
+    """
+    Decorate the interface of a project with the in_builddir decorator.
+
+    This is just a small safety net for benchbuild users, because we make
+    sure to run every project method in the project's build directory.
+    """
+
+    decorated_methods = ["build", "configure", "download", "prepare",
+                         "run_tests"]
+
+    def __init__(cls, name, bases, attrs):
+        methods = ProjectDecorator.decorated_methods
+        for k, v in attrs.items():
+            if (k in methods) and hasattr(cls, k):
+                wrapped_fun = in_builddir('.')(v)
+                setattr(cls, k, wrapped_fun)
+
+        super(ProjectDecorator, cls).__init__(name, bases, attrs)
+
+
+class Project(object, metaclass=ProjectDecorator):
     """
     benchbuild's Project class.
 
@@ -73,10 +94,11 @@ class Project(object, metaclass=ProjectRegistry):
         self.sourcedir = path.join(str(CFG["src_dir"]), self.name)
         self.builddir = path.join(str(CFG["build_dir"]), exp.name, self.name)
         if group:
-            self.testdir = path.join(str(CFG["test_dir"]), self.domain, group,
-                                     self.name)
+            self.testdir = path.join(
+                str(CFG["test_dir"]), self.domain, group, self.name)
         else:
-            self.testdir = path.join(str(CFG["test_dir"]), self.domain, self.name)
+            self.testdir = path.join(
+                str(CFG["test_dir"]), self.domain, self.name)
 
         self.cflags = []
         self.ldflags = []
@@ -117,7 +139,7 @@ class Project(object, metaclass=ProjectRegistry):
         """
         from benchbuild.utils.run import GuardedRunException
         from benchbuild.utils.run import (begin_run_group, end_run_group,
-                                     fail_run_group)
+                                          fail_run_group)
         with local.cwd(self.builddir):
             with local.env(BB_USE_DATABASE=1,
                            BB_DB_RUN_GROUP=self.run_uuid,
@@ -271,8 +293,10 @@ class Project(object, metaclass=ProjectRegistry):
         bin_path = list_to_path(CFG["env"]["binary_path"].value())
         bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
-        bin_lib_path = list_to_path(CFG["env"]["binary_ld_library_path"].value())
-        bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
+        bin_lib_path = list_to_path(CFG["env"]["binary_ld_library_path"].value(
+        ))
+        bin_lib_path = list_to_path([bin_lib_path, os.environ[
+            "LD_LIBRARY_PATH"]])
 
         with open(name_absolute, 'w') as wrapper:
             lines = '''#!/usr/bin/env python3
@@ -408,7 +432,7 @@ def wrap(name, runner, sprefix=None):
     if sprefix:
         from benchbuild.utils.run import uchroot_no_llvm as uchroot
         run(uchroot()["/bin/mv", strip_path_prefix(name_absolute, sprefix),
-                               strip_path_prefix(real_f, sprefix)])
+                      strip_path_prefix(real_f, sprefix)])
     else:
         run(mv[name_absolute, real_f])
 

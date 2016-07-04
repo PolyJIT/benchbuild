@@ -8,7 +8,7 @@ single image.
 """
 import os
 from plumbum import cli, local
-from plumbum.cmd import mkdir, git, cmake  # pylint: disable=E0401
+from benchbuild.utils.cmd import mkdir, git, cmake  # pylint: disable=E0401
 
 from benchbuild.settings import CFG
 

@@ -4,7 +4,7 @@ from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, unionfs
 
-from plumbum.cmd import tar, cp
+from benchbuild.utils.cmd import tar, cp
 
 from os import path
 

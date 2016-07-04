@@ -9,8 +9,8 @@ from benchbuild.utils.downloader import Git, CopyNoFail
 from benchbuild.utils.run import run
 
 from plumbum import local
-from plumbum.cmd import virtualenv
-from plumbum.cmd import mkdir, rm
+from benchbuild.utils.cmd import virtualenv
+from benchbuild.utils.cmd import mkdir, rm
 
 from os import path
 

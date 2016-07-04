@@ -79,7 +79,7 @@ def lt_clang(cflags, ldflags, func=None):
             way you can intercept the compilation process with arbitrary python
             code.
 
-    Returns (plumbum.cmd):
+    Returns (benchbuild.utils.cmd):
         Path to the new clang command.
     """
     from plumbum import local
@@ -103,7 +103,7 @@ def lt_clang_cxx(cflags, ldflags, func=None):
             way you can intercept the compilation process with arbitrary python
             code.
 
-    Returns (plumbum.cmd):
+    Returns (benchbuild.utils.cmd):
         Path to the new clang command.
     """
     from plumbum import local
@@ -124,7 +124,7 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
         filepath (str): Path to the wrapper script.
         cflags (list(str)): The CFLAGS we want to hide.
         ldflags (list(str)): The LDFLAGS we want to hide.
-        compiler (plumbum.cmd): Real compiler command we should call in the
+        compiler (benchbuild.utils.cmd): Real compiler command we should call in the
             script.
         func: A function that will be pickled alongside the compiler.
             It will be called before the actual compilation took place. This
@@ -133,10 +133,10 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
         compiler_ext_name: The name that we should give to the generated
             dill blob for :func:
 
-    Returns (plumbum.cmd):
+    Returns (benchbuild.utils.cmd):
         Command of the new compiler we can call.
     """
-    from plumbum.cmd import chmod
+    from benchbuild.utils.cmd import chmod
     import dill
     from os.path import abspath
 
@@ -168,7 +168,7 @@ import dill
 import functools
 from plumbum import ProcessExecutionError, local
 from plumbum.commands.modifiers import TEE
-from plumbum.cmd import timeout
+from benchbuild.utils.cmd import timeout
 from benchbuild.utils.run import GuardedRunException
 from benchbuild.utils import log
 

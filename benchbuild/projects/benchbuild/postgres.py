@@ -2,7 +2,7 @@ from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.run import run
 
 from plumbum import FG, local
-from plumbum.cmd import cp, echo, chmod
+from benchbuild.utils.cmd import cp, echo, chmod
 
 from os import path
 

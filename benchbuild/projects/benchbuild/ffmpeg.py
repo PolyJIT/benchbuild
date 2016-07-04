@@ -4,7 +4,7 @@ from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.run import run
 from benchbuild.utils.downloader import Wget, Rsync
 from plumbum import local
-from plumbum.cmd import make, tar
+from benchbuild.utils.cmd import make, tar
 
 
 class LibAV(BenchBuildGroup):

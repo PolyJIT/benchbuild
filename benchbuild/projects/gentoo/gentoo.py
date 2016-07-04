@@ -11,8 +11,8 @@ the gentoo image in benchbuild's source directory.
 
 """
 from os import path
-from plumbum.cmd import cp, tar, mv, grep, rm  # pylint: disable=E0401
-from plumbum.cmd import mkdir, curl, cut, tail, bash  # pylint: disable=E0401
+from benchbuild.utils.cmd import cp, tar, mv, grep, rm  # pylint: disable=E0401
+from benchbuild.utils.cmd import mkdir, curl, cut, tail, bash  # pylint: disable=E0401
 from plumbum import local
 from plumbum import TF, RETCODE
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot

@@ -1,7 +1,7 @@
 """Gather version information for BB."""
 
 from plumbum import local
-from plumbum.cmd import git
+from benchbuild.utils.cmd import git
 
 from benchbuild.settings import CFG
 from os import path

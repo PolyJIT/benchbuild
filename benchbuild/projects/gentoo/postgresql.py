@@ -8,7 +8,7 @@ from benchbuild.project import wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.run import run, uchroot
 from plumbum import local
-from plumbum.cmd import kill, mkdir  # pylint: disable=E0401
+from benchbuild.utils.cmd import kill, mkdir  # pylint: disable=E0401
 
 
 class Postgresql(GentooGroup):

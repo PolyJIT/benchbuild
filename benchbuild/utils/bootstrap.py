@@ -10,7 +10,7 @@ ask = ui.ask
 
 def find_package(binary):
     try:
-        from plumbum import cmd
+        from benchbuild.utils import cmd
         cmd.__getattr__(binary)
     except AttributeError:
         print("Checking for {}  - No".format(binary))
@@ -47,7 +47,7 @@ PACKAGE_MANAGER = {
 
 
 def install_uchroot():
-    from plumbum.cmd import git, mkdir
+    from benchbuild.utils.cmd import git, mkdir
     builddir = settings.CFG["build_dir"].value()
     with local.cwd(builddir):
         if not os.path.exists("erlent/.git"):
@@ -57,7 +57,7 @@ def install_uchroot():
                 git("pull", "--rebase")
         mkdir("-p", "erlent/build")
         with local.cwd("erlent/build"):
-            from plumbum.cmd import cmake, make, cp
+            from benchbuild.utils.cmd import cmake, make, cp
             cmake("../")
             make()
     erlent_path = os.path.abspath(os.path.join(builddir, "erlent", "build"))
@@ -70,7 +70,7 @@ def install_uchroot():
 
 
 def check_uchroot_config():
-    from plumbum.cmd import grep
+    from benchbuild.utils.cmd import grep
     from getpass import getuser
     print("Checking configuration of 'uchroot'")
 

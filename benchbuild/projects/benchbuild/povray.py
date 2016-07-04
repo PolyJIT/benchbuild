@@ -5,8 +5,8 @@ from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
 
 from plumbum import FG, local
-from plumbum.cmd import cp, find, tar, make, rm, head, grep, sed, sh
-from plumbum.cmd import mkdir
+from benchbuild.utils.cmd import cp, find, tar, make, rm, head, grep, sed, sh
+from benchbuild.utils.cmd import mkdir
 
 from os import path
 

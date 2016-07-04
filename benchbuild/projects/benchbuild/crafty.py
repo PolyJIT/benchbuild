@@ -5,7 +5,7 @@ from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from os import path
 from plumbum import local
-from plumbum.cmd import cat, make, unzip, mv
+from benchbuild.utils.cmd import cat, make, unzip, mv
 
 
 class Crafty(BenchBuildGroup):

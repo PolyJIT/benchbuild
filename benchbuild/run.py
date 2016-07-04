@@ -8,7 +8,7 @@ See the output of benchbuild run --help for more information.
 import os
 import sys
 from plumbum import cli
-from plumbum.cmd import mkdir  # pylint: disable=E0401
+from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import Experiment
 from benchbuild.utils import user_interface as ui

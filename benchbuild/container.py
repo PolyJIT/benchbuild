@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from plumbum import cli, local, TF, FG, ProcessExecutionError
-from plumbum.cmd import tar, mkdir, mv, rm, bash
+from benchbuild.utils.cmd import tar, mkdir, mv, rm, bash
 from benchbuild import settings
 from benchbuild.utils import log
 from benchbuild.utils.bootstrap import find_package, install_uchroot

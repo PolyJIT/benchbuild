@@ -62,7 +62,7 @@ def source_required(src_file, src_root):
             old_hash = h_file.readline()
         required = not new_hash == old_hash
         if required:
-            from plumbum.cmd import rm
+            from benchbuild.utils.cmd import rm
             rm("-r", src_dir)
             rm(hash_file)
     return required
@@ -95,7 +95,7 @@ def Copy(From, To):
         From (str): Path to the SOURCE.
         To (str): Path to the TARGET.
     """
-    from plumbum.cmd import cp
+    from benchbuild.utils.cmd import cp
     cp("-ar", "--reflink=auto", From, To)
 
 
@@ -138,7 +138,7 @@ def Wget(src_url, tgt_name, tgt_root=None):
         tgt_root = CFG["tmp_dir"].value()
 
     from os import path
-    from plumbum.cmd import wget
+    from benchbuild.utils.cmd import wget
 
     src_path = path.join(tgt_root, tgt_name)
     if not source_required(tgt_name, tgt_root):
@@ -164,7 +164,7 @@ def Git(src_url, tgt_name, tgt_root=None):
         tgt_root = CFG["tmp_dir"].value()
 
     from os import path
-    from plumbum.cmd import git
+    from benchbuild.utils.cmd import git
 
     src_dir = path.join(tgt_root, tgt_name)
     if not source_required(tgt_name, tgt_root):
@@ -190,7 +190,7 @@ def Svn(url, fname, to=None):
         to = CFG["tmp_dir"].value()
 
     from os import path
-    from plumbum.cmd import svn
+    from benchbuild.utils.cmd import svn
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
@@ -216,7 +216,7 @@ def Rsync(url, tgt_name, tgt_root=None):
         tgt_root = CFG["tmp_dir"].value()
 
     from os import path
-    from plumbum.cmd import rsync
+    from benchbuild.utils.cmd import rsync
 
     src_dir = path.join(tgt_root, tgt_name)
     if not source_required(tgt_name, tgt_root):

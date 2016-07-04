@@ -5,7 +5,7 @@ from benchbuild.utils.run import run
 from benchbuild.project import wrap
 
 from plumbum import local
-from plumbum.cmd import tar, find, make
+from benchbuild.utils.cmd import tar, find, make
 
 from os import path
 

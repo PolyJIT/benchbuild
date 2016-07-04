@@ -26,7 +26,7 @@ class BenchBuildTest(cli.Application):
     def get_check_line(self, name, module):
         from plumbum import local
         from benchbuild.utils.compiler import llvm, llvm_libs
-        from plumbum.cmd import sed, opt
+        from benchbuild.utils.cmd import sed, opt
 
         with local.env(LD_LIBRARY_PATH=llvm_libs()):
             if os.path.exists(opt_binary):
@@ -45,7 +45,7 @@ class BenchBuildTest(cli.Application):
 
     def main(self):
         from benchbuild.utils.schema import Session, RegressionTest
-        from plumbum.cmd import mkdir, sed
+        from benchbuild.utils.cmd import mkdir, sed
 
         prefix = CFG["regression-prefix"]
         if not os.path.exists(prefix):

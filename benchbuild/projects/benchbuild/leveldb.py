@@ -5,7 +5,7 @@ from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
 
 from plumbum import local
-from plumbum.cmd import make
+from benchbuild.utils.cmd import make
 
 from os import path
 

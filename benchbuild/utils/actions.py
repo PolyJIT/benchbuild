@@ -6,7 +6,7 @@ from benchbuild.utils.db import persist_experiment
 from benchbuild.utils.run import GuardedRunException
 
 from plumbum import local
-from plumbum.cmd import mkdir, rm
+from benchbuild.utils.cmd import mkdir, rm
 from plumbum import ProcessExecutionError
 from functools import partial, wraps
 from datetime import datetime

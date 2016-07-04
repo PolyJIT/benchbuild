@@ -2,7 +2,7 @@
 Experiment helpers
 """
 import os
-from plumbum.cmd import mkdir  # pylint: disable=E0401
+from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
 from contextlib import contextmanager
 from types import SimpleNamespace
 from benchbuild import settings
@@ -50,7 +50,7 @@ def handle_stdin(cmd, kwargs):
     into the plumbum command.
 
     Args:
-        cmd (plumbum.cmd): Command to wrap a stdin handler around.
+        cmd (benchbuild.utils.cmd): Command to wrap a stdin handler around.
         kwargs: Dictionary containing the kwargs.
             We check for they key `has_stdin`
 
@@ -328,7 +328,7 @@ def run(command, retcode=0):
 def uchroot_no_args():
     """Return the uchroot command without any customizations."""
     from plumbum import local
-    from plumbum.cmd import uchroot
+    from benchbuild.utils.cmd import uchroot
 
     return uchroot
 
@@ -395,7 +395,7 @@ def unionfs_tear_down(mountpoint, tries=3):
     """
     Tear down a unionfs mountpoint.
     """
-    from plumbum.cmd import fusermount, sync
+    from benchbuild.utils.cmd import fusermount, sync
     from plumbum import ProcessExecutionError
 
     if not os.path.exists(mountpoint):
@@ -431,7 +431,7 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
         log.error("Image dir does not exist: '{0}'".format(ro_base))
         raise ValueError("Image directory does not exist")
 
-    from plumbum.cmd import unionfs
+    from benchbuild.utils.cmd import unionfs
     ro_base = os.path.abspath(ro_base)
     rw_image = os.path.abspath(rw_image)
     mountpoint = os.path.abspath(mountpoint)

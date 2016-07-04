@@ -21,7 +21,7 @@ from benchbuild.utils.actions import (Prepare, Build, Download, Configure, Clean
                                  MakeBuildDir, Run, Echo)
 from benchbuild.utils.run import guarded_exec, handle_stdin, fetch_time_output
 from benchbuild.utils.db import persist_time, persist_config
-from plumbum.cmd import time
+from benchbuild.utils.cmd import time
 
 from benchbuild.settings import CFG
 from benchbuild.utils.run import partial

@@ -31,7 +31,7 @@ from os import path, listdir
 import regex
 
 from plumbum import local
-from plumbum.cmd import mkdir, rmdir  # pylint: disable=E0401
+from benchbuild.utils.cmd import mkdir, rmdir  # pylint: disable=E0401
 from plumbum.commands.processes import ProcessExecutionError
 
 from benchbuild import projects
@@ -319,7 +319,7 @@ class RuntimeExperiment(Experiment):
         Args:
             project (Project):
                 Unused (deprecated).
-            calibrate_call (plumbum.cmd):
+            calibrate_call (benchbuild.utils.cmd):
                 The calibration command we will use.
         """
         with local.cwd(self.builddir):
@@ -341,7 +341,7 @@ class RuntimeExperiment(Experiment):
         Args:
             project (benchbuild.Project):
                 The calibration values will be assigned to this project.
-            cmd (plumbum.cmd):
+            cmd (benchbuild.utils.cmd):
                 The command we used to generate the calibration values.
             calibration (int):
                 The calibration time in nanoseconds.

@@ -5,7 +5,7 @@ from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 
 from plumbum import local
-from plumbum.cmd import make, tar, cp
+from benchbuild.utils.cmd import make, tar, cp
 
 from os import path
 

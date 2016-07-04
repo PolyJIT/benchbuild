@@ -7,7 +7,7 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 from plumbum import local
-from plumbum.cmd import bash, chmod, mkdir # pylint: disable=E0401
+from benchbuild.utils.cmd import bash, chmod, mkdir # pylint: disable=E0401
 from benchbuild.settings import CFG
 
 INFO = logging.info
@@ -105,7 +105,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
 
     Args:
         script_name (str): name of the bash script.
-        commands (list(plumbum.cmd)): List of plumbum commands to write
+        commands (list(benchbuild.utils.cmd)): List of plumbum commands to write
             to the bash script.
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.

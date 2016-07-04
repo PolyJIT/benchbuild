@@ -5,7 +5,7 @@ from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.run import run
 
 from plumbum import local
-from plumbum.cmd import unzip, make
+from benchbuild.utils.cmd import unzip, make
 
 from os import path
 

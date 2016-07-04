@@ -4,8 +4,8 @@ Project handling for the benchbuild study.
 from os import path, listdir
 from abc import abstractmethod
 from plumbum import local
-from plumbum.cmd import mv, chmod, rm, mkdir, rmdir  # pylint: disable=E0401
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.path import list_to_path
 from benchbuild.utils.run import in_builddir, unionfs

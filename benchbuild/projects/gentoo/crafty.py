@@ -8,7 +8,7 @@ from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot
 from plumbum import local
-from plumbum.cmd import cat  # pylint: disable=E0401
+from benchbuild.utils.cmd import cat  # pylint: disable=E0401
 
 
 class Crafty(GentooGroup):

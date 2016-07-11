@@ -1,5 +1,7 @@
+import os
 import plumbum
 import benchbuild.utils.bootstrap as bs
+from benchbuild.settings import CFG
 
 cli = plumbum.cli
 provide_package = bs.provide_package
@@ -12,6 +14,10 @@ check_uchroot_config = bs.check_uchroot_config
 
 class BenchBuildBootstrap(cli.Application):
     """Bootstrap benchbuild external dependencies, if possible."""
+
+    store_config = cli.Flag(["-s", "--save-config"],
+                            help="Save benchbuild's configuration.",
+                            default=False)
 
     def main(self, *args):
         print("Checking benchbuild binary dependencies...")
@@ -35,3 +41,9 @@ class BenchBuildBootstrap(cli.Application):
             "echo", "grep", "sed", "sh", "autoreconf", "ruby", "curl", "tail",
             "kill", "virtualenv", "timeout"
         ])
+
+        if self.store_config:
+            config_path = ".benchbuild.json"
+            CFG.store(config_path)
+            print("Storing config in {0}".format(os.path.abspath(config_path)))
+            exit(0)

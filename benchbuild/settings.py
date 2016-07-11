@@ -744,12 +744,14 @@ def __init_config(cfg):
 def update_env():
     lookup_path = CFG["env"]["lookup_path"].value()
     lookup_path = os.path.pathsep.join(lookup_path)
-    lookup_path = os.path.pathsep.join([lookup_path, os.environ["PATH"]])
+    if "PATH" in os.environ:
+        lookup_path = os.path.pathsep.join([lookup_path, os.environ["PATH"]])
     os.environ["PATH"] = lookup_path
 
     lib_path = CFG["env"]["lookup_ld_library_path"].value()
     lib_path = os.path.pathsep.join(lib_path)
-    lib_path = os.path.pathsep.join([lib_path, os.environ["LD_LIBRARY_PATH"]])
+    if "LD_LIBRARY_PATH" in os.environ:
+        lib_path = os.path.pathsep.join([lib_path, os.environ["LD_LIBRARY_PATH"]])
     os.environ["LD_LIBRARY_PATH"] = lib_path
 
     # Update local's env property because we changed the environment

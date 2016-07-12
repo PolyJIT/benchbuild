@@ -20,14 +20,12 @@ def __prepare_node_commands(experiment):
     prefix = CFG["slurm"]["node_dir"].value()
     node_image = CFG["slurm"]["node_image"].value()
     llvm_src = CFG["llvm"]["dir"].value().rstrip("/")
-    llvm_tgt = os.path.join(prefix, experiment).rstrip("/")
+    #llvm_tgt = os.path.join(prefix, experiment).rstrip("/")
     lockfile = prefix + ".lock"
 
-    CFG["llvm"]["dir"] = llvm_tgt
+    #CFG["llvm"]["dir"] = llvm_tgt
     lines = template_str("templates/slurm-prepare-node.inc.sh")
     lines = lines.format(prefix=prefix,
-                         llvm_src=llvm_src,
-                         llvm_tgt=llvm_tgt,
                          lockfile=lockfile,
                          node_image=node_image)
 

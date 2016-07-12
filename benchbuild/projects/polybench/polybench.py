@@ -2,7 +2,8 @@ from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import run, unionfs
+from benchbuild.utils.run import run
+from benchbuild.utils.run import unionfs
 
 from benchbuild.utils.cmd import tar, cp
 

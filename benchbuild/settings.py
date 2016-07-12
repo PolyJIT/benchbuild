@@ -70,7 +70,6 @@ def available_cpu_count():
 class InvalidConfigKey(RuntimeWarning):
     """Warn, if you access a non-existing key benchbuild's configuration."""
 
-    pass
 
 
 class UUIDEncoder(json.JSONEncoder):

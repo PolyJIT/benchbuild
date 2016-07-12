@@ -1,7 +1,6 @@
 """
 crafty experiment within gentoo chroot.
 """
-from os import path
 
 from benchbuild.project import wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup

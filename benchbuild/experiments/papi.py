@@ -5,7 +5,6 @@ These types of experiments (papi & papi-std) need to instrument the
 project with libbenchbuild support to work.
 
 """
-from os import path
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.experiments.raw import run_with_time
 from benchbuild.utils.run import partial

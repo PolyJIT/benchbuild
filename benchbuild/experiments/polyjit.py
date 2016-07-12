@@ -36,7 +36,8 @@ def run_raw(project, experiment, config, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.utils.run import guarded_exec
+    from benchbuild.utils.run import handle_stdin
     from benchbuild.settings import CFG as c
 
     c.update(config)
@@ -378,7 +379,8 @@ class PJITRegression(PolyJIT):
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
-        from benchbuild.utils.run import guarded_exec, handle_stdin
+        from benchbuild.utils.run import guarded_exec
+        from benchbuild.utils.run import handle_stdin
         def _track_compilestats(project, experiment, config, clang,
                                 **kwargs):
             """ Compile the project and track the compilestats. """

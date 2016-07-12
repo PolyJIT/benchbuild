@@ -343,7 +343,6 @@ if path.exists("{blobf}"):
                BB_DB_USER="{db_user}",
                BB_DB_PASS="{db_pass}",
                BB_PROJECT=PROJECT_NAME,
-               BB_LIKWID_DIR="{likwiddir}",
                PATH="{path}",
                LD_LIBRARY_PATH="{ld_lib_path}",
                BB_CMD=RUN_F):
@@ -376,7 +375,6 @@ if path.exists("{blobf}"):
                db_name=str(CFG["db"]["name"]),
                db_user=str(CFG["db"]["user"]),
                db_pass=str(CFG["db"]["pass"]),
-               likwiddir=str(CFG["likwid"]["prefix"]),
                path=bin_path,
                ld_lib_path=bin_lib_path,
                blobf=strip_path_prefix(blob_f, sprefix),
@@ -469,7 +467,6 @@ if path.exists("{blobf}"):
                BB_DB_NAME="{db_name}",
                BB_DB_USER="{db_user}",
                BB_DB_PASS="{db_pass}",
-               BB_LIKWID_DIR="{likwiddir}",
                PATH="{path}",
                LD_LIBRARY_PATH="{ld_lib_path}",
                BB_CMD=run_f + " ".join(args)):
@@ -488,7 +485,6 @@ if path.exists("{blobf}"):
            db_name=str(CFG["db"]["name"]),
            db_user=str(CFG["db"]["user"]),
            db_pass=str(CFG["db"]["pass"]),
-           likwiddir=str(CFG["likwid"]["prefix"]),
            path=bin_path,
            ld_lib_path=bin_lib_path,
            blobf=strip_path_prefix(blob_f, sprefix),

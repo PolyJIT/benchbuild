@@ -334,10 +334,6 @@ CFG = Configuration(
             "desc": "The experiment name we run everything under.",
             "default": "empty"
         },
-        "local_build": {
-            "desc": "Perform a local build on the cluster nodes.",
-            "default": False
-        },
         "clean": {
             "default": True,
             "desc": "Clean temporary objects, after completion.",
@@ -353,10 +349,6 @@ CFG = Configuration(
         },
         "benchbuild_ebuild": {
             "default": ""
-        },
-        "mail": {
-            "desc": "E-Mail address dedicated to benchbuild.",
-            "default": None
         },
         "cleanup_paths": {
             "default": [],
@@ -418,52 +410,6 @@ CFG["llvm"] = {
     },
     "src": {
         "default": os.path.join(os.getcwd(), "benchbuild-llvm")
-    },
-}
-
-CFG["papi"] = {
-    "include": {
-        "desc": "libpapi include path.",
-        "default": "/usr/include"
-    },
-    "library": {
-        "desc": "libpapi library path.",
-        "default": "/usr/lib"
-    }
-}
-
-CFG["likwid"] = {
-    "prefix": {
-        "desc": "Prefix to which the likwid library was installed.",
-        "default": "/usr/"
-    },
-}
-
-CFG["repo"] = {
-    "llvm": {
-        "url": {"default": "http://llvm.org/git/llvm.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "polly": {
-        "url": {"default": "http://github.com/simbuerg/polly.git"},
-        "branch": {"default": "devel"},
-        "commit_hash": {"default": None}
-    },
-    "clang": {
-        "url": {"default": "http://llvm.org/git/clang.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "polli": {
-        "url": {"default": "http://github.com/simbuerg/polli.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "openmp": {
-        "url": {"default": "http://llvm.org/git/openmp.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
     },
 }
 
@@ -606,10 +552,6 @@ CFG["uchroot"] = {
     "repo": {
         "default": "https://github.com/PolyJIT/erlent.git/",
         "desc": "GIT Repo URL for erlent."
-    },
-    "path": {
-        "default": os.path.join(CFG["src_dir"].value(), "./bin/uchroot"),
-        "desc": "Path to the uchroot binary."
     }
 }
 

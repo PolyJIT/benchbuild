@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 import logging
-import os
-import sys
+
 from benchbuild import settings
 from benchbuild.utils import log
-from plumbum.machines.local import LocalEnv
-from plumbum import cli, local
-
+from plumbum import cli
 
 class PollyProfiling(cli.Application):
     """ Frontend for running/building the benchbuild study framework """
@@ -67,7 +64,6 @@ def main(*args):
     PollyProfiling.subcommand("bootstrap",
                               "benchbuild.bootstrap.BenchBuildBootstrap")
     PollyProfiling.subcommand("run", "benchbuild.run.BenchBuildRun")
-    PollyProfiling.subcommand("build", "benchbuild.build.Build")
     PollyProfiling.subcommand("log", "benchbuild.log.BenchBuildLog")
     PollyProfiling.subcommand("test", "benchbuild.test.BenchBuildTest")
     PollyProfiling.subcommand("slurm", "benchbuild.slurm.Slurm")

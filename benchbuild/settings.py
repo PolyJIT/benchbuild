@@ -70,8 +70,6 @@ def available_cpu_count():
 class InvalidConfigKey(RuntimeWarning):
     """Warn, if you access a non-existing key benchbuild's configuration."""
 
-    pass
-
 
 class UUIDEncoder(json.JSONEncoder):
     """Encoder module for UUID objects."""
@@ -111,10 +109,10 @@ class Configuration():
     """
     Dictionary-like data structure to contain all configuration variables.
 
-    This serves as a configuration dictionary throughout benchbuild. You can use
-    it to access all configuration options that are available. Whenever the
-    structure is updated with a new subtree, all variables defined in the
-    new subtree are updated from the environment.
+    This serves as a configuration dictionary throughout benchbuild. You can
+    use it to access all configuration options that are available. Whenever the
+    structure is updated with a new subtree, all variables defined in the new
+    subtree are updated from the environment.
 
     Environment variables are generated from the tree paths automatically.
         CFG["build_dir"] becomes BB_BUILD_DIR
@@ -229,7 +227,7 @@ class Configuration():
             return self
 
     def __getitem__(self, key):
-        if not key in self.node:
+        if key not in self.node:
             warnings.warn(
                 "Access to non-existing config element: {0}".format(key),
                 category=InvalidConfigKey,
@@ -326,17 +324,13 @@ CFG = Configuration(
         },
         "experiment_id": {
             "desc":
-            "The experiment UUID we run everything under. This groups the project "
-            "runs in the database.",
+            "The experiment UUID we run everything under."
+            "This groups the project runs in the database.",
             "default": str(uuid.uuid4())
         },
         "experiment": {
             "desc": "The experiment name we run everything under.",
             "default": "empty"
-        },
-        "local_build": {
-            "desc": "Perform a local build on the cluster nodes.",
-            "default": False
         },
         "clean": {
             "default": True,
@@ -354,14 +348,11 @@ CFG = Configuration(
         "benchbuild_ebuild": {
             "default": ""
         },
-        "mail": {
-            "desc": "E-Mail address dedicated to benchbuild.",
-            "default": None
-        },
         "cleanup_paths": {
             "default": [],
             "desc":
-            "List of existing paths that benchbuild should delete in addition to the default cleanup steps."
+            "List of existing paths that benchbuild should delete in addition "
+            "to the default cleanup steps."
         }
     })
 
@@ -383,22 +374,26 @@ CFG["unionfs"] = {
 CFG["env"] = {
     "compiler_ld_library_path": {
         "desc":
-        "List of paths to be added to the LD_LIBRARY_PATH variable of all compiler invocations.",
+        "List of paths to be added to the LD_LIBRARY_PATH variable of all "
+        "compiler invocations.",
         "default": []
     },
     "compiler_path": {
         "desc":
-        "List of paths to be added to all PATH variable of all compiler invocations.",
+        "List of paths to be added to all PATH variable of all compiler "
+        "invocations.",
         "default": []
     },
     "binary_ld_library_path": {
         "desc":
-        "List of paths to be added to the LD_LIBRARY_PATH variable of all binary invocations.",
+        "List of paths to be added to the LD_LIBRARY_PATH variable of all "
+        "binary invocations.",
         "default": []
     },
     "binary_path": {
         "desc":
-        "List of paths to be added to the PATH variable of all binary invocations.",
+        "List of paths to be added to the PATH variable of all binary"
+        "invocations.",
         "default": []
     },
     "lookup_path": {
@@ -418,52 +413,6 @@ CFG["llvm"] = {
     },
     "src": {
         "default": os.path.join(os.getcwd(), "benchbuild-llvm")
-    },
-}
-
-CFG["papi"] = {
-    "include": {
-        "desc": "libpapi include path.",
-        "default": "/usr/include"
-    },
-    "library": {
-        "desc": "libpapi library path.",
-        "default": "/usr/lib"
-    }
-}
-
-CFG["likwid"] = {
-    "prefix": {
-        "desc": "Prefix to which the likwid library was installed.",
-        "default": "/usr/"
-    },
-}
-
-CFG["repo"] = {
-    "llvm": {
-        "url": {"default": "http://llvm.org/git/llvm.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "polly": {
-        "url": {"default": "http://github.com/simbuerg/polly.git"},
-        "branch": {"default": "devel"},
-        "commit_hash": {"default": None}
-    },
-    "clang": {
-        "url": {"default": "http://llvm.org/git/clang.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "polli": {
-        "url": {"default": "http://github.com/simbuerg/polli.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "openmp": {
-        "url": {"default": "http://llvm.org/git/openmp.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
     },
 }
 
@@ -487,7 +436,8 @@ CFG['db'] = {
     },
     "pass": {
         "desc":
-        "The password for the PostgreSQL user used to connect to the database with.",
+        "The password for the PostgreSQL user used to connect to the database "
+        "with.",
         "default": "benchbuild"
     },
     "rollback": {
@@ -535,12 +485,14 @@ CFG["slurm"] = {
     },
     "script": {
         "desc":
-        "Name of the script that can be passed to SLURM. Used by external tools.",
+        "Name of the script that can be passed to SLURM. Used by external "
+        "tools.",
         "default": "slurm.sh"
     },
     "cpus_per_task": {
         "desc":
-        "Number of CPUs that should be requested from SLURM. Used by external tools.",
+        "Number of CPUs that should be requested from SLURM. Used by external "
+        "tools.",
         "default": 10
     },
     "node_dir": {
@@ -606,10 +558,6 @@ CFG["uchroot"] = {
     "repo": {
         "default": "https://github.com/PolyJIT/erlent.git/",
         "desc": "GIT Repo URL for erlent."
-    },
-    "path": {
-        "default": os.path.join(CFG["src_dir"].value(), "./bin/uchroot"),
-        "desc": "Path to the uchroot binary."
     }
 }
 
@@ -751,7 +699,8 @@ def update_env():
     lib_path = CFG["env"]["lookup_ld_library_path"].value()
     lib_path = os.path.pathsep.join(lib_path)
     if "LD_LIBRARY_PATH" in os.environ:
-        lib_path = os.path.pathsep.join([lib_path, os.environ["LD_LIBRARY_PATH"]])
+        lib_path = os.path.pathsep.join([lib_path,
+                                        os.environ["LD_LIBRARY_PATH"]])
     os.environ["LD_LIBRARY_PATH"] = lib_path
 
     # Update local's env property because we changed the environment

@@ -625,7 +625,7 @@ CFG["container"] = {
     },
     "mounts": {
         "default": [],
-        "desc": "List of paths that should be mounted inside the container."
+        "desc": "List of paths that will be mounted inside the container."
     },
     "shell": {
         "default": "/bin/bash",

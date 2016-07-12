@@ -17,7 +17,7 @@ class CommandAlias:
                 return symbol
             except AttributeError:
                 pass
-        raise AttributeError
+        return cmd.__getattr__(command)
 
 
 sys.modules[__name__] = CommandAlias()

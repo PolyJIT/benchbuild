@@ -26,7 +26,7 @@ configured llvm/clang source directories.
 """
 from benchbuild.settings import CFG
 from benchbuild.project import PROJECT_BLOB_F_EXT
-from benchbuild.utils import template_str
+from benchbuild.utils.path import template_str
 
 
 def wrap_cc_in_uchroot(cflags, ldflags, func=None, uchroot_path=None,

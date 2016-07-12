@@ -26,9 +26,11 @@ configured llvm/clang source directories.
 """
 from benchbuild.settings import CFG
 from benchbuild.project import PROJECT_BLOB_F_EXT
+from benchbuild.utils.path import template_str
 
-def wrap_cc_in_uchroot(cflags, ldflags, func=None,
-                  uchroot_path=None, cc_name='clang'):
+
+def wrap_cc_in_uchroot(cflags, ldflags, func=None, uchroot_path=None,
+                       cc_name='clang'):
     """
     Generate a clang wrapper that may be called from within a uchroot.
 
@@ -50,19 +52,22 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None,
     from os import path
     from plumbum import local
 
-    def gen_compiler(): # pylint:  disable=C0111
+    def gen_compiler():  # pylint:  disable=C0111
         pi = __get_compiler_paths()
         cc = local[path.join(uchroot_path, cc_name)]
         cc = cc.with_env(LD_LIBRARY_PATH=pi["ld_library_path"])
         return cc
-    def gen_compiler_extension(ext): # pylint:  disable=C0111
+
+    def gen_compiler_extension(ext):  # pylint:  disable=C0111
         return path.join("/", cc_name + ext)
     print_libtool_sucks_wrapper(cc_name, cflags, ldflags, gen_compiler, func,
                                 gen_compiler_extension)
 
+
 def wrap_cxx_in_uchroot(cflags, ldflags, func=None, uchroot_path=None):
     """Delegate to wrap_cc_in_uchroot)."""
     wrap_cc_in_uchroot(cflags, ldflags, func, uchroot_path, 'clang++')
+
 
 def lt_clang(cflags, ldflags, func=None):
     """
@@ -159,110 +164,18 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
     ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
 
     with open(filepath, 'w') as wrapper:
-        lines = """#!/usr/bin/env python3
-#
-import os
-import sys
-import logging
-import dill
-import functools
-from plumbum import ProcessExecutionError, local
-from plumbum.commands.modifiers import TEE
-from benchbuild.utils.cmd import timeout
-from benchbuild.utils.run import GuardedRunException
-from benchbuild.utils import log
-
-os.environ["BB_CONFIG_FILE"] = "{CFG_FILE}"
-from benchbuild.settings import CFG
-
-log.configure()
-log = logging.getLogger("benchbuild")
-log.addHandler(logging.StreamHandler(stream=sys.stderr))
-log.setLevel(logging.DEBUG)
-
-CC_F="{CC_F}"
-CC=None
-with open(CC_F, "rb") as cc_f:
-    CC = dill.load(cc_f)
-if not CC:
-    log.error("Could not load the compiler command")
-    sys.exit(1)
-
-CFLAGS={CFLAGS}
-LDFLAGS={LDFLAGS}
-BLOB_F="{BLOB_F}"
-
-CFG["db"]["host"] = "{db_host}"
-CFG["db"]["port"] = "{db_port}"
-CFG["db"]["name"] = "{db_name}"
-CFG["db"]["user"] = "{db_user}"
-CFG["db"]["pass"] = "{db_pass}"
-
-input_files = [x for x in sys.argv[1:] if not '-' is x[0]]
-flags = sys.argv[1:]
-
-def invoke_external_measurement(cmd):
-    f = None
-    if os.path.exists(BLOB_F):
-        with open(BLOB_F,
-                  "rb") as p:
-            f = dill.load(p)
-
-    if f is not None:
-        if not sys.stdin.isatty():
-            f(cmd, has_stdin=True)
-        else:
-            f(cmd)
-
-def run(cmd):
-    fc = timeout["2m", cmd]
-    fc = fc.with_env(**cmd.envvars)
-    retcode, stdout, stderr = (fc & TEE)
-    return (retcode, stdout, stderr)
-
-def construct_cc(cc, flags, CFLAGS, LDFLAGS, ifiles):
-    fc = None
-    if len(input_files) > 0:
-        fc = cc["-Qunused-arguments", CFLAGS, LDFLAGS, flags]
-    else:
-        fc = cc["-Qunused-arguments", flags]
-    fc = fc.with_env(**cc.envvars)
-    return fc
-
-def construct_cc_default(cc, flags, ifiles):
-    fc = None
-    fc = cc["-Qunused-arguments", flags]
-    fc = fc.with_env(**cc.envvars)
-    return fc
-
-def main():
-    if 'conftest.c' in input_files:
-        retcode, _, _ = (CC[flags] & TEE)
-        return retcode
-    else:
-        fc = construct_cc(CC, flags, CFLAGS, LDFLAGS, input_files)
-        try:
-            retcode, stdout, stderr = run(fc)
-            invoke_external_measurement(fc)
-            return retcode
-        except ProcessExecutionError:
-            fc = construct_cc_default(CC, flags, input_files)
-            retcode, stdout, stderr = run(fc)
-            return retcode
-
-if __name__ == "__main__":
-    retcode = main()
-    sys.exit(retcode)
-""".format(CC_F=cc_f,
-           CFLAGS=cflags,
-           LDFLAGS=ldflags,
-           BLOB_F=blob_f,
-           db_host=str(CFG["db"]["host"]),
-           db_name=str(CFG["db"]["name"]),
-           db_port=str(CFG["db"]["port"]),
-           db_pass=str(CFG["db"]["pass"]),
-           db_user=str(CFG["db"]["user"]),
-           CFG_FILE=CFG["config_file"].value())
+        lines = template_str("templates/compiler.inc.py")
+        lines = lines.format(
+            CC_F=cc_f,
+            CFLAGS=cflags,
+            LDFLAGS=ldflags,
+            BLOB_F=blob_f,
+            db_host=str(CFG["db"]["host"]),
+            db_name=str(CFG["db"]["name"]),
+            db_port=str(CFG["db"]["port"]),
+            db_pass=str(CFG["db"]["pass"]),
+            db_user=str(CFG["db"]["user"]),
+            CFG_FILE=CFG["config_file"].value())
         wrapper.write(lines)
         chmod("+x", filepath)
 
@@ -311,6 +224,7 @@ def __get_compiler_paths():
     lib_path = list_to_path([_lib_path, lib_path])
 
     return {"ld_library_path": lib_path, "path": path}
+
 
 def clang_cxx():
     """

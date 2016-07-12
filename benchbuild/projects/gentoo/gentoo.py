@@ -14,7 +14,7 @@ from os import path
 from benchbuild.utils.cmd import cp, tar, mv, grep, rm  # pylint: disable=E0401
 from benchbuild.utils.cmd import mkdir, curl, cut, tail, bash  # pylint: disable=E0401
 from plumbum import local
-from plumbum import TF, RETCODE
+from plumbum import TF
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild import project
 from benchbuild.utils.run import run, uchroot, uchroot_no_llvm
@@ -212,7 +212,6 @@ class PrepareStage3(GentooGroup):
 
         from plumbum import FG
         from benchbuild.utils.downloader import update_hash
-        from logging import info
 
         root = CFG["tmp_dir"].value()
         src_file = self.src_file + ".new"
@@ -246,9 +245,7 @@ class AutoPolyJITDepsStage3(PrepareStage3):
         if not sys.stdout.isatty():
             return
 
-        from plumbum import FG
         from benchbuild.utils.downloader import update_hash
-        from logging import info
 
         root = CFG["tmp_dir"].value()
         src_file = self.src_file + ".new"
@@ -283,9 +280,7 @@ class AutoPrepareStage3(GentooGroup):
     DOMAIN = "debug"
 
     def build(self):
-        from plumbum import FG
         from benchbuild.utils.downloader import update_hash
-        from logging import info
 
         uchroot = uchroot_no_llvm
 

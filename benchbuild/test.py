@@ -25,7 +25,8 @@ class BenchBuildTest(cli.Application):
 
     def get_check_line(self, name, module):
         from plumbum import local
-        from benchbuild.utils.compiler import llvm, llvm_libs
+        from benchbuild.utils.compiler import llvm
+        from benchbuild.utils.compiler import llvm_libs
         from benchbuild.utils.cmd import sed, opt
 
         with local.env(LD_LIBRARY_PATH=llvm_libs()):

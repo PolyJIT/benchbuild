@@ -1,13 +1,11 @@
 """
 crafty experiment within gentoo chroot.
 """
-from os import path
 
 from benchbuild.project import wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot
-from plumbum import local
 from benchbuild.utils.cmd import cat  # pylint: disable=E0401
 
 

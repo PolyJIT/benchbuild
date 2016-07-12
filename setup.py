@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 from setuptools import setup, find_packages
+
+extra_files = [
+    "compiler.inc.py",
+    "static_runner.inc.py",
+    "dynamic_runner.inc.py"
+]
+
 setup(
     name='benchbuild',
     version='1.2.1',
     url='https://github.com/PolyJIT/benchbuild',
     packages=find_packages(exclude=["docs", "extern", "filters", "linker",
                                     "src", "statistics", "tests", "results"]),
+    package_files={"benchbuild.utils": extra_files},
     install_requires=
     ["lazy==1.2", "SQLAlchemy==1.0.4", "dill==0.2.4", "plumbum>=1.5.0",
      "regex==2015.5.28", "wheel==0.24.0", "parse==1.6.6", "virtualenv==13.1.0",

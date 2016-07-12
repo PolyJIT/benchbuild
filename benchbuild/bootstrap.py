@@ -1,9 +1,8 @@
 import os
-import plumbum
+from plumbum import cli
 import benchbuild.utils.bootstrap as bs
 from benchbuild.settings import CFG
 
-cli = plumbum.cli
 provide_package = bs.provide_package
 provide_packages = bs.provide_packages
 find_package = bs.find_package

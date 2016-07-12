@@ -27,7 +27,7 @@ An experiment performs the following actions in order:
 """
 from contextlib import contextmanager
 from abc import abstractmethod
-from os import path, listdir
+from os import path
 import regex
 
 from plumbum import local
@@ -106,7 +106,7 @@ def phase(name, pname="FIXME: Unset", cleaner=None):
     """
     phase.name = name
 
-    from logging import error, info
+    from logging import error
 
     main_msg = "PHASE '{0}' {1}".format(name, pname)
     print(main_msg + " START")
@@ -142,7 +142,6 @@ def step(name):
     Args:
         name (str): The name of the step
     """
-    from logging import info
     step.name = name
 
     main_msg = "    STEP '{0}'".format(name)
@@ -166,7 +165,7 @@ def substep(name):
         name (str): The name of the substep
     """
     substep.name = name
-    from logging import info, error
+    from logging import error
     main_msg = "        SUBSTEP '{0}'".format(name)
 
     print(main_msg + " START")
@@ -295,7 +294,6 @@ class Experiment(object, metaclass=ExperimentRegistry):
         Args:
             project (benchbuild.Project): the project we want to run.
         """
-        pass
 
     def actions(self):
         actns = [Clean(self), MakeBuildDir(self)]

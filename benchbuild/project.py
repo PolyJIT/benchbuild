@@ -255,17 +255,14 @@ class Project(object, metaclass=ProjectDecorator):
     @abstractmethod
     def download(self):
         """ Download the input source for this project. """
-        pass
 
     @abstractmethod
     def configure(self):
         """ Configure the project. """
-        pass
 
     @abstractmethod
     def build(self):
         """ Build the project. """
-        pass
 
     def wrap_dynamic(self, name, runner, sprefix=None):
         """

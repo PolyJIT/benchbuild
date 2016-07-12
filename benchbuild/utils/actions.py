@@ -17,7 +17,7 @@ import sys
 import traceback
 import warnings
 import textwrap
-from abc import abstractmethod, abstractproperty, ABCMeta
+from abc import ABCMeta
 from enum import Enum, unique
 
 

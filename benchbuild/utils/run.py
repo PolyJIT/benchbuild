@@ -319,7 +319,7 @@ def run(command, retcode=0):
     Args:
         command: The plumbumb command to execute.
     """
-    from logging import debug, info, error
+    from logging import info
     from plumbum.commands.modifiers import TEE
     info(str(command))
     command & TEE(retcode)

@@ -57,7 +57,9 @@ def install_uchroot():
                 git("pull", "--rebase")
         mkdir("-p", "erlent/build")
         with local.cwd("erlent/build"):
-            from benchbuild.utils.cmd import cmake, make, cp
+            from benchbuild.utils.cmd import cmake
+            from benchbuild.utils.cmd import cp
+            from benchbuild.utils.cmd import make
             cmake("../")
             make()
     erlent_path = os.path.abspath(os.path.join(builddir, "erlent", "build"))

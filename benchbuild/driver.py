@@ -67,7 +67,6 @@ def main(*args):
     PollyProfiling.subcommand("bootstrap",
                               "benchbuild.bootstrap.BenchBuildBootstrap")
     PollyProfiling.subcommand("run", "benchbuild.run.BenchBuildRun")
-    PollyProfiling.subcommand("build", "benchbuild.build.Build")
     PollyProfiling.subcommand("log", "benchbuild.log.BenchBuildLog")
     PollyProfiling.subcommand("test", "benchbuild.test.BenchBuildTest")
     PollyProfiling.subcommand("slurm", "benchbuild.slurm.Slurm")

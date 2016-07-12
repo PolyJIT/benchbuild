@@ -327,7 +327,6 @@ def run(command, retcode=0):
 
 def uchroot_no_args():
     """Return the uchroot command without any customizations."""
-    from plumbum import local
     from benchbuild.utils.cmd import uchroot
 
     return uchroot
@@ -396,7 +395,6 @@ def unionfs_tear_down(mountpoint, tries=3):
     Tear down a unionfs mountpoint.
     """
     from benchbuild.utils.cmd import fusermount, sync
-    from plumbum import ProcessExecutionError
 
     if not os.path.exists(mountpoint):
         log.error("Mountpoint does not exist: '{0}'".format(mountpoint))

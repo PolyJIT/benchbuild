@@ -7,7 +7,7 @@ from plumbum import local
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
 from benchbuild.utils.db import persist_project
-from benchbuild.utils.path import list_to_path
+from benchbuild.utils.path import list_to_path, template_str
 from benchbuild.utils.run import in_builddir, unionfs
 
 PROJECT_BIN_F_EXT = ".bin"
@@ -301,82 +301,18 @@ class Project(object, metaclass=ProjectDecorator):
             "LD_LIBRARY_PATH"]])
 
         with open(name_absolute, 'w') as wrapper:
-            lines = '''#!/usr/bin/env python3
-#
-from benchbuild.project import Project
-from benchbuild.experiment import Experiment
-from plumbum import cli, local
-from os import path, getenv
-from benchbuild.experiment import Experiment as E
-from {base_module} import {base_class} as PBC
-
-import logging
-import os
-import sys
-import dill
-
-log = logging.getLogger("run")
-log.setLevel(logging.ERROR)
-log.addHandler(logging.StreamHandler(stream=sys.stderr))
-
-EXPERIMENT_NAME = getenv("BB_EXPERIMENT", "unknown")
-DOMAIN_NAME = getenv("BB_DOMAIN", PBC.DOMAIN)
-GROUP_NAME = getenv("BB_GROUP", PBC.GROUP)
-
-if not len(sys.argv) >= 2:
-    log.error("Not enough arguments provided!\\n")
-    log.error("Got: " + sys.argv + "\\n")
-    sys.exit(1)
-
-f = None
-RUN_F = sys.argv[1]
-ARGS = sys.argv[2:]
-PROJECT_NAME = path.basename(RUN_F)
-
-if path.exists("{blobf}"):
-    with local.env(BB_DB_HOST="{db_host}",
-               BB_DB_PORT="{db_port}",
-               BB_DB_NAME="{db_name}",
-               BB_DB_USER="{db_user}",
-               BB_DB_PASS="{db_pass}",
-               BB_PROJECT=PROJECT_NAME,
-               PATH="{path}",
-               LD_LIBRARY_PATH="{ld_lib_path}",
-               BB_CMD=RUN_F):
-        with open("{blobf}", "rb") as p:
-            f = dill.load(p)
-        if f is not None:
-            project_cls = type("Dyn_" + PROJECT_NAME, (PBC,), {{
-                "NAME" : PROJECT_NAME,
-                "DOMAIN" : DOMAIN_NAME,
-                "GROUP" : GROUP_NAME,
-                "__module__" : "__main__"
-            }})
-
-            experiment_cls = type(EXPERIMENT_NAME, (E,), {{
-                "NAME" : EXPERIMENT_NAME
-            }})
-
-            e = experiment_cls([PROJECT_NAME], [GROUP_NAME])
-            p = project_cls(e)
-
-            if not sys.stdin.isatty():
-                f(RUN_F, ARGS, has_stdin = True, project_name = PROJECT_NAME)
-            else:
-                f(RUN_F, ARGS, project_name = PROJECT_NAME)
-        else:
-            sys.exit(1)
-
-    '''.format(db_host=str(CFG["db"]["host"]),
-               db_port=str(CFG["db"]["port"]),
-               db_name=str(CFG["db"]["name"]),
-               db_user=str(CFG["db"]["user"]),
-               db_pass=str(CFG["db"]["pass"]),
-               path=bin_path,
-               ld_lib_path=bin_lib_path,
-               blobf=strip_path_prefix(blob_f, sprefix),
-               base_class=base_class,
-               base_module=base_module)
+            lines = template_str("utils/templates/run_dynamic.inc.py")
+            lines = lines.format(
+                db_host=str(CFG["db"]["host"]),
+                db_port=str(CFG["db"]["port"]),
+                db_name=str(CFG["db"]["name"]),
+                db_user=str(CFG["db"]["user"]),
+                db_pass=str(CFG["db"]["pass"]),
+                path=bin_path,
+                ld_lib_path=bin_lib_path,
+                blobf=strip_path_prefix(blob_f, sprefix),
+                base_class=base_class,
+                base_module=base_module)
             wrapper.write(lines)
         chmod("+x", name_absolute)
         return local[name_absolute]
@@ -447,45 +383,17 @@ def wrap(name, runner, sprefix=None):
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 
     with open(name_absolute, 'w') as wrapper:
-        lines = '''#!/usr/bin/env python3
-#
-
-from plumbum import cli, local
-from os import path, getenv
-import sys
-import dill
-
-run_f = "{runf}"
-args = sys.argv[1:]
-f = None
-if path.exists("{blobf}"):
-    with local.env(BB_DB_HOST="{db_host}",
-               BB_DB_PORT="{db_port}",
-               BB_DB_NAME="{db_name}",
-               BB_DB_USER="{db_user}",
-               BB_DB_PASS="{db_pass}",
-               PATH="{path}",
-               LD_LIBRARY_PATH="{ld_lib_path}",
-               BB_CMD=run_f + " ".join(args)):
-        with open("{blobf}", "rb") as p:
-            f = dill.load(p)
-        if f is not None:
-            if not sys.stdin.isatty():
-                f(run_f, args, has_stdin = True)
-            else:
-                f(run_f, args)
-        else:
-            sys.exit(1)
-
-'''.format(db_host=str(CFG["db"]["host"]),
-           db_port=str(CFG["db"]["port"]),
-           db_name=str(CFG["db"]["name"]),
-           db_user=str(CFG["db"]["user"]),
-           db_pass=str(CFG["db"]["pass"]),
-           path=bin_path,
-           ld_lib_path=bin_lib_path,
-           blobf=strip_path_prefix(blob_f, sprefix),
-           runf=strip_path_prefix(real_f, sprefix))
+        lines = template_str("utils/templates/run_static.inc.py")
+        lines = lines.format(
+            db_host=str(CFG["db"]["host"]),
+            db_port=str(CFG["db"]["port"]),
+            db_name=str(CFG["db"]["name"]),
+            db_user=str(CFG["db"]["user"]),
+            db_pass=str(CFG["db"]["pass"]),
+            path=bin_path,
+            ld_lib_path=bin_lib_path,
+            blobf=strip_path_prefix(blob_f, sprefix),
+            runf=strip_path_prefix(real_f, sprefix))
         wrapper.write(lines)
     run(chmod["+x", name_absolute])
     return local[name_absolute]

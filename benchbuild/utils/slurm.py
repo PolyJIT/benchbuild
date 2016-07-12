@@ -7,10 +7,12 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 from plumbum import local
-from benchbuild.utils.cmd import bash, chmod, mkdir # pylint: disable=E0401
+from benchbuild.utils.cmd import bash, chmod, mkdir  # pylint: disable=E0401
+from benchbuild.utils.path import template_str
 from benchbuild.settings import CFG
 
 INFO = logging.info
+
 
 def __prepare_node_commands(experiment):
     """Get a list of bash commands that prepare the SLURM node."""
@@ -22,17 +24,7 @@ def __prepare_node_commands(experiment):
     lockfile = prefix + ".lock"
 
     CFG["llvm"]["dir"] = llvm_tgt
-    lines = ("\n# Lock node dir preparation\n"
-             "exec 9> {lockfile}\n"
-             "flock -x 9 && {{\n"
-             "  if [ ! -d '{prefix}' ]; then\n"
-             "    echo \"$(date) [$(hostname)] copy LLVM to node\"\n"
-             "    mkdir -p '{prefix}'\n"
-             "    tar xaf '{node_image}' -C '{prefix}'\n"
-             "  fi\n"
-             "  rm '{lockfile}'\n"
-             "}}\n"
-             "exec 9>&-\n")
+    lines = template_str("templates/slurm-prepare-node.inc.sh")
     lines = lines.format(prefix=prefix,
                          llvm_src=llvm_src,
                          llvm_tgt=llvm_tgt,
@@ -48,36 +40,7 @@ def __cleanup_node_commands(logfile):
     lockfile = os.path.join(prefix + ".clean-in-progress.lock")
     slurm_account = CFG["slurm"]["account"]
     slurm_partition = CFG["slurm"]["partition"]
-    lines = ("\n# Cleanup the cluster node, after the array has finished.\n"
-             "file=$(mktemp -q) && {{\n"
-             "  cat << EOF > $file\n"
-             "#!/bin/sh\n"
-             "#SBATCH --nice={nice_clean}\n"
-             "#SBATCH -o /dev/null\n"
-             "exec 1>> {logfile}\n"
-             "exec 2>&1\n"
-             "echo \"\$(date) [\$(hostname)] node cleanup begin\"\n"
-             "rm -r \"{prefix}\"\n"
-             "rm \"{lockfile}\"\n"
-             "echo \"\$(date) [\$(hostname)] node cleanup end\"\n"
-             "EOF\n"
-             "  _inner_file=$(mktemp -q) && {{\n"
-             "    cat << EOF > $_inner_file\n"
-             "#!/bin/bash\n"
-             "if [ ! -f '{lockfile}' ]; then\n"
-             "  touch '{lockfile}'\n"
-             "  echo \"\$(date) [\$(hostname)] clean for \$(hostname)\"\n"
-             "  sbatch --time=\"15:00\" --job-name=\"\$(hostname)-cleanup\" -A {slurm_account} "
-             "-p {slurm_partition} "
-             "--dependency=afterany:$SLURM_ARRAY_JOB_ID "
-             "--nodelist=$SLURM_JOB_NODELIST -n 1 -c 1 \"$file\"\n"
-             "fi\n"
-             "EOF\n"
-             "  }}\n"
-             "  flock -x \"{lockdir}\" bash $_inner_file\n"
-             "  rm -f \"$file\"\n"
-             "  rm -f \"$_inner_file\"\n"
-             "}}\n")
+    lines = template_str("templates/slurm-cleanup-node.inc.sh")
     lines = lines.format(lockfile=lockfile,
                          lockdir=prefix,
                          prefix=prefix,

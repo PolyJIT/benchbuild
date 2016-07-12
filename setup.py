@@ -4,7 +4,9 @@ from setuptools import setup, find_packages
 extra_files = [
     "compiler.inc.py",
     "static_runner.inc.py",
-    "dynamic_runner.inc.py"
+    "dynamic_runner.inc.py",
+    "slurm-prepare-node.inc.sh",
+    "slurm-cleanup-node.inc.sh"
 ]
 
 setup(

@@ -102,7 +102,8 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write(")\n")
         slurm.write("_project=\"${projects[$SLURM_ARRAY_TASK_ID]}\"\n")
         slurm_log_path = os.path.join(
-            os.path.dirname(CFG['slurm']['logs'].value()), '$_project')
+            os.path.dirname(CFG['slurm']['logs'].value()),
+            str(CFG['experiment_id'].value()) + '-$_project')
         slurm.write("exec 1> {log}\n".format(log=slurm_log_path))
         slurm.write("exec 2>&1\n")
 

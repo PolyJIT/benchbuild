@@ -301,7 +301,7 @@ class Project(object, metaclass=ProjectDecorator):
             "LD_LIBRARY_PATH"]])
 
         with open(name_absolute, 'w') as wrapper:
-            lines = template_str("utils/templates/run_dynamic.py.inc")
+            lines = template_str("templates/run_dynamic.py.inc")
             lines = lines.format(
                 db_host=str(CFG["db"]["host"]),
                 db_port=str(CFG["db"]["port"]),
@@ -383,7 +383,7 @@ def wrap(name, runner, sprefix=None):
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 
     with open(name_absolute, 'w') as wrapper:
-        lines = template_str("utils/templates/run_static.py.inc")
+        lines = template_str("templates/run_static.py.inc")
         lines = lines.format(
             db_host=str(CFG["db"]["host"]),
             db_port=str(CFG["db"]["port"]),

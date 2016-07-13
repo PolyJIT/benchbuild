@@ -1,2 +1,2 @@
 include benchbuild container README.md
-recursive-include benchbuild/utils/templates *
+recursive-include benchbuild/utils/templates *.py.inc *.sh.inc

@@ -164,7 +164,7 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
     ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
 
     with open(filepath, 'w') as wrapper:
-        lines = template_str("templates/compiler.inc.py")
+        lines = template_str("templates/compiler.py.inc")
         lines = lines.format(
             CC_F=cc_f,
             CFLAGS=cflags,

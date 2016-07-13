@@ -302,7 +302,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
             p = self.projects[project]
             actns.append(RequireAll(self.actions_for_project(p)))
 
-        actns.append(Clean(self))
+        actns.append(Clean(self, check_empty=True))
         actns.append(CleanExtra(self))
         return actns
 

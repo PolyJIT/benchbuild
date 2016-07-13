@@ -6,7 +6,7 @@ from benchbuild.utils.db import persist_experiment
 from benchbuild.utils.run import GuardedRunException
 
 from plumbum import local
-from benchbuild.utils.cmd import mkdir, rm
+from benchbuild.utils.cmd import mkdir, rm, rmdir
 from plumbum import ProcessExecutionError
 from functools import partial, wraps
 from datetime import datetime
@@ -105,6 +105,10 @@ class Clean(Step):
     NAME = "CLEAN"
     DESCRIPTION = "Cleans the build directory"
 
+    def __init__(self, project_or_experiment, action_fn=None, check_empty=False):
+        super(Clean, self).__init__(project_or_experiment, action_fn)
+        self.check_empty = check_empty
+
     def __call__(self):
         if not CFG['clean'].value():
             return
@@ -112,7 +116,10 @@ class Clean(Step):
             return
         obj_builddir = os.path.abspath(self._obj.builddir)
         if os.path.exists(obj_builddir):
-            rm("-rf", obj_builddir)
+            if self.check_empty:
+                rmdir(obj_builddir, retcode=None)
+            else:
+                rm("-rf", obj_builddir)
 
     def __str__(self, indent=0):
         return textwrap.indent("* {0}: Clean the directory: {1}".format(

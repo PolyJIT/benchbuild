@@ -1,7 +1,10 @@
+from benchbuild.project import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from os import path
+from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.run import run
+from benchbuild.utils.downloader import Wget, Rsync
 from plumbum import local
-from plumbum.cmd import make
+from benchbuild.utils.cmd import make, tar
 
 
 class LibAV(BenchBuildGroup):
@@ -16,42 +19,23 @@ class LibAV(BenchBuildGroup):
     fate_uri = "rsync://fate-suite.libav.org/fate-suite/"
 
     def run_tests(self, experiment):
-        from benchbuild.project import wrap
-        from benchbuild.utils.run import run
-
-        libav_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(libav_dir):
-            wrap(self.name, experiment)
-
-        with local.cwd(self.src_dir):
-            run(make["V=1", "-i", "fate"])
+        wrap(self.name, experiment)
+        run(make["V=1", "-i", "fate"])
 
     def download(self):
-        from benchbuild.utils.downloader import Wget, Rsync
-        from plumbum.cmd import tar
-
-        with local.cwd(self.builddir):
-            Wget(self.src_uri, self.src_file)
-            tar('xfj', path.join(self.builddir, self.src_file))
-            with local.cwd(self.src_dir):
-                Rsync(self.fate_uri, self.fate_dir)
+        Wget(self.src_uri, self.src_file)
+        tar('xfj', self.src_file)
+        with local.cwd(self.src_dir):
+            Rsync(self.fate_uri, self.fate_dir)
 
     def configure(self):
-        from benchbuild.utils.compiler import lt_clang
-        from benchbuild.utils.run import run
-
-        libav_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-        with local.cwd(libav_dir):
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        with local.cwd(self.src_dir):
             configure = local["./configure"]
             run(configure["--disable-shared", "--cc=" + str(
                 clang), "--extra-ldflags=" + " ".join(self.ldflags),
                           "--samples=" + self.fate_dir])
 
     def build(self):
-        from benchbuild.utils.run import run
-        libav_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(libav_dir):
+        with local.cwd(self.src_dir):
             run(make["clean", "all"])

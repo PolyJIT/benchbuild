@@ -1,12 +1,12 @@
 """
 crafty experiment within gentoo chroot.
 """
-from os import path
+
+from benchbuild.project import wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot
-from plumbum import local
-from plumbum.cmd import cat  # pylint: disable=E0401
+from benchbuild.utils.cmd import cat  # pylint: disable=E0401
 
 
 class Crafty(GentooGroup):
@@ -21,23 +21,18 @@ class Crafty(GentooGroup):
 
         book_file = "book.bin"
         book_bin = "http://www.craftychess.com/" + book_file
-        with local.cwd(self.builddir):
-            Wget(book_bin, book_file)
+        Wget(book_bin, book_file)
 
     def build(self):
-        with local.cwd(self.builddir):
-            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-            run(emerge_in_chroot["games-board/crafty"])
+        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+        run(emerge_in_chroot["games-board/crafty"])
 
     def run_tests(self, experiment):
-        from benchbuild.project import wrap
-
         crafty_path = "/usr/games/bin/crafty"
-        wrap(path.join(self.builddir, crafty_path.lstrip("/")), experiment,
-             self.builddir)
+        wrap(crafty_path.lstrip("/"), experiment, self.builddir)
         crafty = uchroot()[crafty_path]
 
-        with open(path.join(self.builddir, "test1.sh"), 'w') as test1:
+        with open("test1.sh", 'w') as test1:
             lines = '''
 st=10
 ponder=off
@@ -103,9 +98,10 @@ mt=0
 quit
 EOF
 '''
+
             test1.write(lines)
 
-        with open(path.join(self.builddir, "test2.sh"), 'w') as test2:
+        with open("test2.sh", 'w') as test2:
             lines = '''
 st=10
 ponder=off
@@ -115,9 +111,8 @@ move
 mt=0
 quit
 '''
+
             test2.write(lines)
 
-        with local.cwd(self.builddir):
-            run((cat["test1.sh"] | crafty))
-            run((cat["test2.sh"] | crafty))
-
+        run((cat["test1.sh"] | crafty))
+        run((cat["test2.sh"] | crafty))

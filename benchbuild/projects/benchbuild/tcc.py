@@ -1,6 +1,13 @@
+from benchbuild.project import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from os import path
+from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.downloader import Wget
+from benchbuild.utils.run import run
+
 from plumbum import local
+from benchbuild.utils.cmd import make, mkdir, tar
+
+from os import path
 
 
 class TCC(BenchBuildGroup):
@@ -13,39 +20,20 @@ class TCC(BenchBuildGroup):
         src_file
 
     def download(self):
-        from benchbuild.utils.downloader import Wget
-        from plumbum.cmd import tar
-
-        with local.cwd(self.builddir):
-            Wget(self.src_uri, self.src_file)
-            tar("xjf", self.src_file)
+        Wget(self.src_uri, self.src_file)
+        tar("xjf", self.src_file)
 
     def configure(self):
-        from benchbuild.utils.compiler import lt_clang
-        from benchbuild.utils.run import run
-        from plumbum.cmd import mkdir
-        tcc_dir = path.join(self.builddir, self.src_dir)
-
-        with local.cwd(self.builddir):
-            mkdir("build")
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-        with local.cwd(path.join(self.builddir, "build")):
-            configure = local[path.join(tcc_dir, "configure")]
+        mkdir("build")
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        with local.cwd("build"):
+            configure = local[path.join(self.src_dir, "configure")]
             run(configure["--cc=" + str(clang), "--libdir=/usr/lib64"])
 
     def build(self):
-        from plumbum.cmd import make
-        from benchbuild.utils.run import run
-
-        with local.cwd(path.join(self.builddir, "build")):
+        with local.cwd("build"):
             run(make)
 
     def run_tests(self, experiment):
-        from plumbum.cmd import make
-        from benchbuild.project import wrap
-        from benchbuild.utils.run import run
-
         wrap(self.run_f, experiment)
-        with local.cwd(self.builddir):
-            run(make["test"])
+        run(make["test"])

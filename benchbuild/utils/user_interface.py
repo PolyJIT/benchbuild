@@ -38,3 +38,10 @@ def query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
+
+
+def ask(question, default_answer=False, default_answer_str="no"):
+    response = default_answer
+    if sys.stdin.isatty():
+        response = query_yes_no(question, default_answer_str)
+    return response

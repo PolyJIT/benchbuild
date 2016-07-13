@@ -8,7 +8,7 @@ from benchbuild.project import wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.run import run, uchroot
 from plumbum import local
-from plumbum.cmd import kill, mkdir # pylint: disable=E0401
+from benchbuild.utils.cmd import kill, mkdir  # pylint: disable=E0401
 
 
 class Postgresql(GentooGroup):
@@ -19,14 +19,13 @@ class Postgresql(GentooGroup):
     DOMAIN = "dev-db/postgresql"
 
     def build(self):
-        with local.cwd(self.builddir):
-            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-            with local.env(USE="server"):
-                run(emerge_in_chroot["dev-db/postgresql:9.4"])
+        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+        with local.env(USE="server"):
+            run(emerge_in_chroot["dev-db/postgresql:9.4"])
 
-            pg_socketdir = "/run/postgresql"
-            if not path.exists(self.outside(pg_socketdir)):
-                run(mkdir["-p", self.outside(pg_socketdir)])
+        pg_socketdir = "/run/postgresql"
+        if not path.exists(self.outside(pg_socketdir)):
+            run(mkdir["-p", self.outside(pg_socketdir)])
 
     def outside(self, chroot_path):
         """
@@ -53,8 +52,7 @@ class Postgresql(GentooGroup):
         initdb = cuchroot["/usr/bin/initdb"]
         pg_server = cuchroot[pg_path]
 
-        with local.env(PGPORT="54329",
-                       PGDATA=pg_data):
+        with local.env(PGPORT="54329", PGDATA=pg_data):
             if not path.exists(self.outside(pg_data)):
                 run(initdb)
 
@@ -70,14 +68,14 @@ class Postgresql(GentooGroup):
                 #switch process names after forking.
                 sleep(3)
                 postgres_root = Process(pid=postgres.pid)
-                real_postgres = [c.pid for c in postgres_root.children(True)
-                                 if c.name() == 'postgres.bin' and
-                                 c.parent().name() != 'postgres.bin']
+                real_postgres = [c.pid
+                                 for c in postgres_root.children(True)
+                                 if c.name() == 'postgres.bin' and c.parent(
+                                 ).name() != 'postgres.bin']
                 try:
                     run(createdb)
                     run(pgbench["-i", "portage"])
-                    run(pgbench["-c", 1, "-S",
-                                "-t", 1000000, "portage"])
+                    run(pgbench["-c", 1, "-S", "-t", 1000000, "portage"])
                     run(dropdb["portage"])
                 finally:
                     kill("-sSIGTERM", real_postgres[0])

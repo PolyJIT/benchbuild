@@ -3,8 +3,16 @@ LNT based measurements.
 
 """
 from benchbuild.project import Project
-from os import path
+from benchbuild.settings import CFG
+from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.downloader import Git, CopyNoFail
+from benchbuild.utils.run import run
+
 from plumbum import local
+from benchbuild.utils.cmd import virtualenv
+from benchbuild.utils.cmd import mkdir, rm
+
+from os import path
 
 
 class LNTGroup(Project):
@@ -22,18 +30,14 @@ class LNTGroup(Project):
     test_suite_uri = "http://llvm.org/git/test-suite"
 
     def download(self):
-        from benchbuild.utils.downloader import Git
-        from plumbum.cmd import virtualenv
-        with local.cwd(self.builddir):
-            Git(self.src_uri, self.src_dir)
-            Git(self.test_suite_uri, self.test_suite_dir)
+        Git(self.src_uri, self.src_dir)
+        Git(self.test_suite_uri, self.test_suite_dir)
 
-            virtualenv("local", "--python=python2", )
-            python = local[path.join("local", "bin", "python")]
-            python(path.join(self.src_dir, "setup.py"), "develop")
+        virtualenv("local", "--python=python2", )
+        python = local[path.join("local", "bin", "python")]
+        python(path.join(self.src_dir, "setup.py"), "develop")
 
     def configure(self):
-        from plumbum.cmd import mkdir, rm
         sandbox_dir = path.join(self.builddir, "run")
         if path.exists(sandbox_dir):
             rm("-rf", sandbox_dir)
@@ -48,18 +52,13 @@ class SingleSourceBenchmarks(LNTGroup):
     NAME = 'SingleSourceBenchmarks'
 
     def run_tests(self, experiment):
-        from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-        from benchbuild.utils.run import run
-
         exp = self.wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
-        with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                     self.compiler_extension)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                 self.compiler_extension)
 
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
@@ -72,18 +71,13 @@ class MultiSourceBenchmarks(LNTGroup):
     NAME = 'MultiSourceBenchmarks'
 
     def run_tests(self, experiment):
-        from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-        from benchbuild.utils.run import run
-
         exp = self.wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
-        with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                     self.compiler_extension)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                 self.compiler_extension)
 
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
@@ -96,18 +90,13 @@ class MultiSourceApplications(LNTGroup):
     NAME = 'MultiSourceApplications'
 
     def run_tests(self, experiment):
-        from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-        from benchbuild.utils.run import run
-
         exp = self.wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
-        with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                     self.compiler_extension)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                 self.compiler_extension)
 
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
@@ -120,31 +109,22 @@ class SPEC2006(LNTGroup):
     NAME = 'SPEC2006'
 
     def download(self):
-        from benchbuild.utils.downloader import CopyNoFail
-        from benchbuild.settings import CFG
-
-        with local.cwd(self.builddir):
-            if CopyNoFail('speccpu2006'):
-                super(SPEC2006, self).download()
-            else:
-                print('======================================================')
-                print(('SPECCPU2006 not found in %s. This project will fail.',
-                       CFG['tmp_dir']))
-                print('======================================================')
+        if CopyNoFail('speccpu2006'):
+            super(SPEC2006, self).download()
+        else:
+            print('======================================================')
+            print(('SPECCPU2006 not found in %s. This project will fail.', CFG[
+                'tmp_dir']))
+            print('======================================================')
 
     def run_tests(self, experiment):
-        from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-        from benchbuild.utils.run import run
-
         exp = self.wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
-        with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                     self.compiler_extension)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                 self.compiler_extension)
 
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
@@ -161,25 +141,17 @@ class Povray(LNTGroup):
     povray_src_dir = "Povray"
 
     def download(self):
-
-        from benchbuild.utils.downloader import Git
-        with local.cwd(self.builddir):
-            super(Povray, self).download()
-            Git(self.povray_url, self.povray_src_dir)
+        super(Povray, self).download()
+        Git(self.povray_url, self.povray_src_dir)
 
     def run_tests(self, experiment):
-        from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-        from benchbuild.utils.run import run
-
         exp = self.wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
-        with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                     self.compiler_extension)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                 self.compiler_extension)
 
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(

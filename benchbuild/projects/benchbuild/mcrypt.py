@@ -1,7 +1,14 @@
-from benchbuild.settings import CFG
+from benchbuild.project import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from os import path
+from benchbuild.settings import CFG
+from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.downloader import Wget
+from benchbuild.utils.run import run
+
 from plumbum import local
+from benchbuild.utils.cmd import make, tar
+
+from os import path
 
 
 class MCrypt(BenchBuildGroup):
@@ -26,27 +33,19 @@ class MCrypt(BenchBuildGroup):
         mhash_file
 
     def download(self):
-        from benchbuild.utils.downloader import Wget
-        from plumbum.cmd import tar
+        Wget(self.src_uri, self.src_file)
+        tar('xfz', self.src_file)
 
-        with local.cwd(self.builddir):
-            Wget(self.src_uri, self.src_file)
-            tar('xfz', self.src_file)
+        Wget(self.libmcrypt_uri, self.libmcrypt_file)
+        tar('xfz', self.libmcrypt_file)
 
-            Wget(self.libmcrypt_uri, self.libmcrypt_file)
-            tar('xfz', self.libmcrypt_file)
-
-            Wget(self.mhash_uri, self.mhash_file)
-            tar('xfz', self.mhash_file)
+        Wget(self.mhash_uri, self.mhash_file)
+        tar('xfz', self.mhash_file)
 
     def configure(self):
-        from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-        from benchbuild.utils.run import run
-        from plumbum.cmd import make
-
-        mcrypt_dir = path.join(self.builddir, self.src_dir)
-        mhash_dir = path.join(self.builddir, self.mhash_dir)
-        libmcrypt_dir = path.join(self.builddir, self.libmcrypt_dir)
+        mcrypt_dir = self.src_dir
+        mhash_dir = self.mhash_dir
+        libmcrypt_dir = self.libmcrypt_dir
 
         # Build mhash dependency
         with local.cwd(mhash_dir):
@@ -84,18 +83,11 @@ class MCrypt(BenchBuildGroup):
                               "--with-libmhash=" + self.builddir])
 
     def build(self):
-        from plumbum.cmd import make
-        from benchbuild.utils.run import run
-
-        mcrypt_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(mcrypt_dir):
+        with local.cwd(self.src_dir):
             run(make["-j", CFG["jobs"]])
 
     def run_tests(self, experiment):
-        from benchbuild.project import wrap
-        from benchbuild.utils.run import run
-
-        mcrypt_dir = path.join(self.builddir, self.src_dir, "src", ".libs")
+        mcrypt_dir = path.join(self.src_dir, "src", ".libs")
         aestest = wrap(path.join(mcrypt_dir, "lt-aestest"), experiment)
         run(aestest)
         ciphertest = wrap(path.join(mcrypt_dir, "lt-ciphertest"), experiment)

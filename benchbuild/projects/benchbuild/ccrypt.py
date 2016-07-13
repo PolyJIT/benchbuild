@@ -1,7 +1,11 @@
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.project import wrap
+from benchbuild.utils.run import run
+from benchbuild.utils.downloader import Wget
+from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from os import path
 from plumbum import local
-from plumbum.cmd import ln
+from benchbuild.utils.cmd import ln, tar, make
 
 
 class Ccrypt(BenchBuildGroup):
@@ -22,24 +26,15 @@ class Ccrypt(BenchBuildGroup):
     src_uri = "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
 
     def download(self):
-        from benchbuild.utils.downloader import Wget
-        from plumbum.cmd import tar
-
-        with local.cwd(self.builddir):
-            Wget(self.src_uri, self.src_file)
-            tar('xfz', path.join(self.builddir, self.src_file))
+        Wget(self.src_uri, self.src_file)
+        tar('xfz', path.join(self.builddir, self.src_file))
 
     def configure(self):
-        from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-        from benchbuild.utils.run import run
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                 self.compiler_extension)
 
-        with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                     self.compiler_extension)
-
-        ccrypt_dir = path.join(self.builddir, self.src_dir)
+        ccrypt_dir = path.join('.', self.src_dir)
         with local.cwd(ccrypt_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang),
@@ -48,18 +43,11 @@ class Ccrypt(BenchBuildGroup):
                 run(configure)
 
     def build(self):
-        from plumbum.cmd import make
-        from benchbuild.utils.run import run
-
-        ccrypt_dir = path.join(self.builddir, self.src_dir)
+        ccrypt_dir = path.join('.', self.src_dir)
         with local.cwd(ccrypt_dir):
             run(make["check"])
 
     def run_tests(self, experiment):
-        from plumbum.cmd import make
-        from benchbuild.project import wrap
-        from benchbuild.utils.run import run
-
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
             wrap(path.join(ccrypt_dir, "src", self.name), experiment)

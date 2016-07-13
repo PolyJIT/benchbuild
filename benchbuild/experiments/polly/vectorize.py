@@ -18,7 +18,6 @@ Measurements
 
 from benchbuild.experiment import step, RuntimeExperiment
 from benchbuild.settings import CFG
-from os import path
 
 
 class PollyVectorizer(RuntimeExperiment):

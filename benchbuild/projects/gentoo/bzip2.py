@@ -2,11 +2,13 @@
 bzip2 experiment within gentoo chroot.
 """
 from os import path
+
+from benchbuild.project import wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot
-from plumbum import local
-from plumbum.cmd import tar  # pylint: disable=E0401
+
+from benchbuild.utils.cmd import tar  # pylint: disable=E0401
 
 
 class BZip2(GentooGroup):
@@ -26,20 +28,17 @@ class BZip2(GentooGroup):
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
-        with local.cwd(self.builddir):
-            Wget(test_url, test_archive)
-            tar("fxz", test_archive)
+        Wget(test_url, test_archive)
+        tar("fxz", test_archive)
 
     def build(self):
-        with local.cwd(self.builddir):
-            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-            run(emerge_in_chroot["app-arch/bzip2"])
+        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+        run(emerge_in_chroot["app-arch/bzip2"])
 
     def run_tests(self, experiment):
-        from benchbuild.project import wrap
-
-        wrap(path.join(self.builddir, "bin", "bzip2"), experiment,
-             self.builddir)
+        wrap(
+            path.join(self.builddir, "bin", "bzip2"), experiment,
+            self.builddir)
         bzip2 = uchroot()["/bin/bzip2"]
 
         # Compress

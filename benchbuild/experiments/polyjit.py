@@ -9,7 +9,7 @@ from os import path
 import copy
 import uuid
 
-from plumbum.cmd import rm, time  # pylint: disable=E0401
+from benchbuild.utils.cmd import rm, time  # pylint: disable=E0401
 from plumbum import local
 from benchbuild.experiments.compilestats import collect_compilestats
 from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download, Configure,
@@ -36,7 +36,8 @@ def run_raw(project, experiment, config, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.utils.run import guarded_exec
+    from benchbuild.utils.run import handle_stdin
     from benchbuild.settings import CFG as c
 
     c.update(config)
@@ -201,7 +202,7 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
     from benchbuild.settings import CFG as c
     from benchbuild.utils.run import guarded_exec, handle_stdin
     from benchbuild.utils.db import persist_perf, persist_config
-    from plumbum.cmd import perf
+    from benchbuild.utils.cmd import perf
 
     c.update(config)
     project.name = kwargs.get("project_name", project.name)
@@ -378,7 +379,8 @@ class PJITRegression(PolyJIT):
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
-        from benchbuild.utils.run import guarded_exec, handle_stdin
+        from benchbuild.utils.run import guarded_exec
+        from benchbuild.utils.run import handle_stdin
         def _track_compilestats(project, experiment, config, clang,
                                 **kwargs):
             """ Compile the project and track the compilestats. """
@@ -449,7 +451,7 @@ class PJITpapi(PolyJIT):
         super(PJITpapi, self).run()
 
         from benchbuild.settings import CFG
-        from plumbum.cmd import pprof_analyze
+        from benchbuild.utils.cmd import pprof_analyze
 
         with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
                        BB_EXPERIMENT=self.name,

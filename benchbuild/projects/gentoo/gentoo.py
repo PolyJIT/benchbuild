@@ -11,10 +11,10 @@ the gentoo image in benchbuild's source directory.
 
 """
 from os import path
-from plumbum.cmd import cp, tar, mv, grep, rm  # pylint: disable=E0401
-from plumbum.cmd import mkdir, curl, cut, tail, bash  # pylint: disable=E0401
+from benchbuild.utils.cmd import cp, tar, mv, grep, rm  # pylint: disable=E0401
+from benchbuild.utils.cmd import mkdir, curl, cut, tail, bash  # pylint: disable=E0401
 from plumbum import local
-from plumbum import TF, RETCODE
+from plumbum import TF
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild import project
 from benchbuild.utils.run import run, uchroot, uchroot_no_llvm
@@ -22,14 +22,18 @@ from benchbuild.utils.downloader import Wget
 from benchbuild.settings import CFG
 from lazy import lazy
 
+
 def cached(func):
     ret = None
+
     def call_or_cache(*args, **kwargs):
         nonlocal ret
         if ret is None:
             ret = func(*args, **kwargs)
         return ret
+
     return call_or_cache
+
 
 @cached
 def latest_src_uri():
@@ -146,13 +150,13 @@ PKGDIR="${PORTDIR}/packages"
                 rp_s = "RSYNC_PROXY={0}".format(str(rp))
                 makeconf.write(rp_s + "\n")
 
-
     def write_bashrc(self, path):
         with open(path, 'w') as bashrc:
             lines = '''
 export PATH="/llvm/bin:/benchbuild/bin:${PATH}"
 export LD_LIBRARY_PAT=H"/llvm/lib:/benchbuild/lib:${LD_LIBRARY_PATH}"
 '''
+
             bashrc.write(lines)
 
     def write_layout(self, path):
@@ -208,7 +212,6 @@ class PrepareStage3(GentooGroup):
 
         from plumbum import FG
         from benchbuild.utils.downloader import update_hash
-        from logging import info
 
         root = CFG["tmp_dir"].value()
         src_file = self.src_file + ".new"
@@ -242,9 +245,7 @@ class AutoPolyJITDepsStage3(PrepareStage3):
         if not sys.stdout.isatty():
             return
 
-        from plumbum import FG
         from benchbuild.utils.downloader import update_hash
-        from logging import info
 
         root = CFG["tmp_dir"].value()
         src_file = self.src_file + ".new"
@@ -279,9 +280,7 @@ class AutoPrepareStage3(GentooGroup):
     DOMAIN = "debug"
 
     def build(self):
-        from plumbum import FG
         from benchbuild.utils.downloader import update_hash
-        from logging import info
 
         uchroot = uchroot_no_llvm
 
@@ -295,15 +294,16 @@ class AutoPrepareStage3(GentooGroup):
             #run(emerge_in_chroot["dev-python/pip"])
 
             with local.env(CC="gcc", CXX="g++"):
-            #    run(emerge_in_chroot["dev-db/postgresql"])
-            #    run(emerge_in_chroot["net-misc/curl"])
+                #    run(emerge_in_chroot["dev-db/postgresql"])
+                #    run(emerge_in_chroot["net-misc/curl"])
 
                 # We need the unstable portage version
                 with local.env(ACCEPT_KEYWORDS="~*", LD_LIBRARY_PATH=""):
-                    run(emerge_in_chroot["--autounmask-only=y",
-                        "-uUDN", "--with-bdeps=y", "@world"])
+                    run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
+                                         "--with-bdeps=y", "@world"])
                     run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
-                    run(emerge_in_chroot["--autounmask-only=y", "=sys-libs/ncurses-6.0-r1:0/6"])
+                    run(emerge_in_chroot["--autounmask-only=y",
+                                         "=sys-libs/ncurses-6.0-r1:0/6"])
                     run(emerge_in_chroot["=sys-libs/ncurses-6.0-r1:0/6"])
             #        run(emerge_in_chroot["sys-apps/portage"])
 

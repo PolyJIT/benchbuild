@@ -24,7 +24,7 @@ def __prepare_node_commands(experiment):
     lockfile = prefix + ".lock"
 
     #CFG["llvm"]["dir"] = llvm_tgt
-    lines = template_str("templates/slurm-prepare-node.inc.sh")
+    lines = template_str("templates/slurm-prepare-node.sh.inc")
     lines = lines.format(prefix=prefix,
                          lockfile=lockfile,
                          node_image=node_image)
@@ -38,7 +38,7 @@ def __cleanup_node_commands(logfile):
     lockfile = os.path.join(prefix + ".clean-in-progress.lock")
     slurm_account = CFG["slurm"]["account"]
     slurm_partition = CFG["slurm"]["partition"]
-    lines = template_str("templates/slurm-cleanup-node.inc.sh")
+    lines = template_str("templates/slurm-cleanup-node.sh.inc")
     lines = lines.format(lockfile=lockfile,
                          lockdir=prefix,
                          prefix=prefix,

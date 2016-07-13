@@ -2,11 +2,11 @@
 from setuptools import setup, find_packages
 
 extra_files = [
-    "compiler.inc.py",
-    "static_runner.inc.py",
-    "dynamic_runner.inc.py",
-    "slurm-prepare-node.inc.sh",
-    "slurm-cleanup-node.inc.sh"
+    "templates/compiler.inc.py",
+    "templates/static_runner.inc.py",
+    "templates/dynamic_runner.inc.py",
+    "templates/slurm-prepare-node.inc.sh",
+    "templates/slurm-cleanup-node.inc.sh"
 ]
 
 setup(

@@ -2,11 +2,11 @@
 from setuptools import setup, find_packages
 
 extra_files = [
-    "templates/compiler.inc.py",
-    "templates/static_runner.inc.py",
-    "templates/dynamic_runner.inc.py",
-    "templates/slurm-prepare-node.inc.sh",
-    "templates/slurm-cleanup-node.inc.sh"
+    "templates/compiler.py.inc",
+    "templates/run_static.py.inc",
+    "templates/run_dynamic.py.inc",
+    "templates/slurm-prepare-node.sh.inc",
+    "templates/slurm-cleanup-node.sh.inc"
 ]
 
 setup(
@@ -15,7 +15,7 @@ setup(
     url='https://github.com/PolyJIT/benchbuild',
     packages=find_packages(exclude=["docs", "extern", "filters", "linker",
                                     "src", "statistics", "tests", "results"]),
-    package_files={"benchbuild.utils": extra_files},
+    package_data={"benchbuild.utils": extra_files},
     install_requires=[
         "lazy==1.2", "SQLAlchemy==1.0.4", "dill==0.2.4", "plumbum>=1.5.0",
         "regex==2015.5.28", "wheel==0.24.0", "parse==1.6.6",

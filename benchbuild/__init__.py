@@ -1,3 +1,4 @@
 __all__ = [
-    "run", "build", "log", "test", "driver", "generate_config", "slurm"
+    "run", "build", "log", "test", "driver", "generate_config", "slurm",
+    "report"
 ]

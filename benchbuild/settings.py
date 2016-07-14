@@ -566,6 +566,12 @@ CFG["plugins"] = {
         "default": True,
         "desc": "Should automatic load of plugins be enabled?"
     },
+    "reports": {
+        "default": [
+            "benchbuild.reports.raw"
+        ],
+        "desc": "Report plugins."
+    },
     "experiments": {
         "default": [
             "benchbuild.experiments.raw",

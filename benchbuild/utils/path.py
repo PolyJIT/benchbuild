@@ -50,7 +50,7 @@ def mkfile_uchroot(filepath, root="."):
     from benchbuild.utils.run import uchroot_no_args
 
     uchroot = uchroot_no_args()
-    uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w"]
+    uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
     uchroot = uchroot[os.path.abspath(root)]
     uchroot("--", "/bin/touch", filepath)
 
@@ -73,6 +73,6 @@ def mkdir_uchroot(dirpath, root="."):
     from benchbuild.utils.run import uchroot_no_args
 
     uchroot = uchroot_no_args()
-    uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w"]
+    uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
     uchroot = uchroot[os.path.abspath(root)]
     uchroot("--", "/bin/mkdir", "-p", dirpath)

@@ -123,6 +123,8 @@ class GentooGroup(project.Project):
         mkfile_uchroot("/etc/portage/make.conf")
         with open(path, 'w') as makeconf:
             lines = '''
+PORTAGE_USERNAME=root
+PORTAGE_GROUPNAME=root
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 FEATURES="-xattr"

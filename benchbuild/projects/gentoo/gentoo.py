@@ -18,6 +18,7 @@ from plumbum import TF
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild import project
 from benchbuild.utils.run import run, uchroot, uchroot_no_llvm
+from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
 from benchbuild.utils.downloader import Wget
 from benchbuild.settings import CFG
 from lazy import lazy
@@ -102,6 +103,8 @@ class GentooGroup(project.Project):
             rm(self.src_file)
 
     def write_wgetrc(self, path):
+        mkfile_uchroot("/etc/wgetrc")
+
         with open(path, 'w') as wgetrc:
             hp = CFG["gentoo"]["http_proxy"].value()
             fp = CFG["gentoo"]["ftp_proxy"].value()
@@ -117,8 +120,11 @@ class GentooGroup(project.Project):
                 wgetrc.write(fp_s + "\n")
 
     def write_makeconfig(self, path):
+        mkfile_uchroot("/etc/portage/make.conf")
         with open(path, 'w') as makeconf:
             lines = '''
+PORTAGE_USERNAME=root
+PORTAGE_GROUPNAME=root
 CFLAGS="-O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 FEATURES="-xattr"
@@ -151,6 +157,7 @@ PKGDIR="${PORTDIR}/packages"
                 makeconf.write(rp_s + "\n")
 
     def write_bashrc(self, path):
+        mkfile_uchroot("/etc/portage/bashrc")
         with open(path, 'w') as bashrc:
             lines = '''
 export PATH="/llvm/bin:/benchbuild/bin:${PATH}"
@@ -160,28 +167,33 @@ export LD_LIBRARY_PAT=H"/llvm/lib:/benchbuild/lib:${LD_LIBRARY_PATH}"
             bashrc.write(lines)
 
     def write_layout(self, path):
+        mkdir_uchroot("/etc/portage/metadata")
+        mkfile_uchroot("/etc/portage/metadata/layout.conf")
         with open(path, 'w') as layoutconf:
             lines = '''masters = gentoo'''
             layoutconf.write(lines)
 
     def configure(self):
-        with local.cwd(self.builddir):
-            self.write_bashrc("etc/portage/bashrc")
-            self.write_makeconfig("etc/portage/make.conf")
-            self.write_wgetrc("etc/wgetrc")
+        self.write_bashrc("etc/portage/bashrc")
+        self.write_makeconfig("etc/portage/make.conf")
+        self.write_wgetrc("etc/wgetrc")
+        self.write_layout("etc/portage/metadata/layout.conf")
 
-            mkdir("-p", "etc/portage/metadata")
-            self.write_layout("etc/portage/metadata/layout.conf")
-            cp("/etc/resolv.conf", "etc/resolv.conf")
+        mkfile_uchroot("/etc/resolv.conf")
+        cp("/etc/resolv.conf", "etc/resolv.conf")
 
-            config_file = CFG["config_file"].value()
-            if path.exists(str(config_file)):
-                cp(config_file, path.basename(config_file))
+        config_file = CFG["config_file"].value()
+        config_filename = path.basename(config_file)
+        config_dir = path.dirname(config_file)
 
-            wrap_cc_in_uchroot(self.cflags, self.ldflags,
-                               self.compiler_extension, "/llvm/bin")
-            wrap_cxx_in_uchroot(self.cflags, self.ldflags,
-                                self.compiler_extension, "/llvm/bin")
+        if path.exists(str(config_file)):
+            mkfile_uchroot("/.benchbuild.json")
+            cp(config_file, ".")
+
+        wrap_cc_in_uchroot(self.cflags, self.ldflags,
+                           self.compiler_extension, "/llvm/bin")
+        wrap_cxx_in_uchroot(self.cflags, self.ldflags,
+                            self.compiler_extension, "/llvm/bin")
 
 
 class PrepareStage3(GentooGroup):
@@ -307,15 +319,6 @@ class AutoPrepareStage3(GentooGroup):
                                          "=sys-libs/ncurses-6.0-r1:0/6"])
                     run(emerge_in_chroot["=sys-libs/ncurses-6.0-r1:0/6"])
             #        run(emerge_in_chroot["sys-apps/portage"])
-
-            #benchbuild_src = CFG["src_dir"].value()
-            #version = CFG["version"].value()
-            #with local.cwd(benchbuild_src):
-            #    setup_py = local["./setup.py"]("sdist", "-d", self.builddir)
-
-            #pip_in_uchroot = uchroot()["/usr/bin/pip3"]
-            #pip_in_uchroot("install", "--upgrade",
-            #               "benchbuild-{}.tar.gz".format(version))
 
             tgt_path = path.join(root, self.src_file)
             tgt_path_new = path.join(root, src_file)

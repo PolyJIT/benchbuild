@@ -193,7 +193,7 @@ class PrepareStage3(GentooGroup):
 
     # download location for portage files
     src_uri_portage = "ftp://sunsite.informatik.rwth-aachen.de/pub/Linux/"\
-                    "gentoo/snapshots/portage-latest.tar.bz2"
+                      "gentoo/snapshots/portage-latest.tar.bz2"
     src_file_portage = "portage_snap.tar.bz2"
 
     def download(self):
@@ -253,6 +253,7 @@ class AutoPolyJITDepsStage3(PrepareStage3):
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
             emerge_boost = uchroot(uid=501, gid=10)["/usr/bin/emerge"]
             with local.env(CC="gcc", CXX="g++", ACCEPT_KEYWORDS="~amd64"):
+                run(emerge_in_chroot["--sync"])
                 with local.env(USE="-filecaps"):
                     run(emerge_in_chroot["likwid"])
                 with local.env(USE="static-libs"):

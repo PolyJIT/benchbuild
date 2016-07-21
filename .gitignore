@@ -34,3 +34,5 @@ http/
 build/
 dist/
 .cache/
+.benchbuild.json
+.coverage

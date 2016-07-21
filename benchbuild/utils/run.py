@@ -362,7 +362,7 @@ def uchroot(*args, **kwargs):
     from benchbuild.settings import CFG
     mkdir("-p", "llvm")
     uchroot_cmd = uchroot_no_llvm(*args, **kwargs)
-    uchroot_cmd = uchroot_cmd["-M", str(CFG["llvm"]["dir"]) + ":llvm"]
+    uchroot_cmd = uchroot_cmd["-M", str(CFG["llvm"]["dir"]) + ":/llvm"]
     uchroot_cmd = uchroot_cmd.setenv(LD_LIBRARY_PATH="/llvm/lib")
     return uchroot_cmd["--"]
 

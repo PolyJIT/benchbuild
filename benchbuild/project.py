@@ -1,6 +1,8 @@
 """
 Project handling for the benchbuild study.
 """
+import os
+
 from os import path, listdir
 from abc import abstractmethod
 from plumbum import local

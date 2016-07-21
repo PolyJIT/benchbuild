@@ -84,9 +84,9 @@ class Povray(BenchBuildGroup):
                            INSTALL_DIR='.',
                            OUTPUT_DIR=tmpdir,
                            POVINI=povini):
-                options = ((((head["-n", "50", "\"" + pov_f + "\""]
-                              | grep["-E", "'^//[ ]+[-+]{1}[^ -]'"])
-                             | head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
-                run(povray["+L" + scene_dir, "+L" + tmpdir, "-i" + pov_f, "-o"
-                           + tmpdir, options, "-p"],
+                options = ((((head["-n", "50", "\"" + pov_f + "\""] |
+                              grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]) |
+                             head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
+                run(povray["+L" + scene_dir, "+L" + tmpdir, "-i" + pov_f,
+                           "-o" + tmpdir, options, "-p"],
                     retcode=None)

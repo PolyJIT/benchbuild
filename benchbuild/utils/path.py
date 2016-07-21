@@ -1,5 +1,6 @@
 """ Path utilities for benchbuild. """
 import os
+import sys
 
 
 def list_to_path(pathlist):

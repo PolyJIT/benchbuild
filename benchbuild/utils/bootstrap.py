@@ -2,6 +2,7 @@
 import benchbuild.utils.user_interface as ui
 import platform
 import os
+import sys
 from plumbum import local, TF
 from benchbuild import settings
 
@@ -51,14 +52,13 @@ def install_uchroot():
     builddir = settings.CFG["build_dir"].value()
     with local.cwd(builddir):
         if not os.path.exists("erlent/.git"):
-            git("clone", setings.CFG["uchroot"]["repo"].value())
+            git("clone", settings.CFG["uchroot"]["repo"].value())
         else:
             with local.cwd("erlent"):
                 git("pull", "--rebase")
         mkdir("-p", "erlent/build")
         with local.cwd("erlent/build"):
             from benchbuild.utils.cmd import cmake
-            from benchbuild.utils.cmd import cp
             from benchbuild.utils.cmd import make
             cmake("../")
             make()
@@ -97,7 +97,7 @@ def linux_distribution_major():
 
 
 def install_package(pkg_name):
-    if not pkg_name in PACKAGES:
+    if pkg_name not in PACKAGES:
         print("No bootstrap support for package '{0}'".format(pkg_name))
     linux, _, _ = linux_distribution_major()
     pm = PACKAGE_MANAGER[linux]

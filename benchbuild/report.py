@@ -1,7 +1,5 @@
-import os
 from plumbum import cli
 import benchbuild.reports as Reports
-from benchbuild.settings import CFG
 
 
 ReportRegistry = Reports.ReportRegistry

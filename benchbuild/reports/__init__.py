@@ -56,7 +56,7 @@ class Report(object, metaclass=ReportRegistry):
         if cls.SUPPORTED_EXPERIMENTS is None:
             raise AttributeError(
                 "{0} @ {1} does not define a SUPPORTED_EXPERIMENTS attribute"
-                .format(cls._name__, cls.__module__))
+                .format(cls.__name__, cls.__module__))
         new_self.experiments = cls.SUPPORTED_EXPERIMENTS
         return new_self
 

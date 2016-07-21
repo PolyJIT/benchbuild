@@ -97,7 +97,7 @@ def linux_distribution_major():
 
 
 def install_package(pkg_name):
-    if not pkg_name in PACKAGES:
+    if pkg_name not in PACKAGES:
         print("No bootstrap support for package '{0}'".format(pkg_name))
     linux, _, _ = linux_distribution_major()
     pm = PACKAGE_MANAGER[linux]

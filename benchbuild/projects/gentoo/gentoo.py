@@ -48,10 +48,11 @@ def latest_src_uri():
     from logging import error
 
     latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
-            "latest-stage3-amd64.txt"
+                 "latest-stage3-amd64.txt"
     try:
-        src_uri = (curl[latest_txt] | tail["-n", "+3"]
-                   | cut["-f1", "-d "])().strip()
+        src_uri = (curl[latest_txt] |
+                   tail["-n", "+3"] |
+                   cut["-f1", "-d "])().strip()
     except ProcessExecutionError as proc_ex:
         src_uri = "NOT-FOUND"
         error("Could not determine latest stage3 src uri: {0}", str(proc_ex))

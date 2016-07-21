@@ -31,7 +31,6 @@ from os import path
 import regex
 
 from plumbum import local
-from benchbuild.utils.cmd import mkdir, rmdir  # pylint: disable=E0401
 from plumbum.commands.processes import ProcessExecutionError
 
 from benchbuild import projects

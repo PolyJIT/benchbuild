@@ -1,9 +1,5 @@
 import csv
 import os
-import pprint
-import pdb
-from sqlalchemy import and_, func
-from benchbuild.settings import CFG
 from benchbuild.reports import Report
 import benchbuild.utils.schema as schema
 

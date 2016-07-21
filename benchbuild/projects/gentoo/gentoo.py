@@ -11,8 +11,8 @@ the gentoo image in benchbuild's source directory.
 
 """
 from os import path
-from benchbuild.utils.cmd import cp, tar, mv, grep, rm  # pylint: disable=E0401
-from benchbuild.utils.cmd import mkdir, curl, cut, tail, bash  # pylint: disable=E0401
+from benchbuild.utils.cmd import cp, tar, mv, rm  # pylint: disable=E0401
+from benchbuild.utils.cmd import curl, cut, tail, bash  # pylint: disable=E0401
 from plumbum import local
 from plumbum import TF
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
@@ -183,8 +183,6 @@ export LD_LIBRARY_PAT=H"/llvm/lib:/benchbuild/lib:${LD_LIBRARY_PATH}"
         cp("/etc/resolv.conf", "etc/resolv.conf")
 
         config_file = CFG["config_file"].value()
-        config_filename = path.basename(config_file)
-        config_dir = path.dirname(config_file)
 
         if path.exists(str(config_file)):
             mkfile_uchroot("/.benchbuild.json")

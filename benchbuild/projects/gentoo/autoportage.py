@@ -1,3 +1,5 @@
+import logging
+
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.run import run, uchroot
 from plumbum import local

@@ -44,7 +44,7 @@ def run_raw(project, experiment, config, run_f, args, **kwargs):
     project.name = kwargs.get("project_name", project.name)
 
     run_cmd = local[run_f]
-    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    run_cmd = handle_stdin(run_cmd[args], kwargs)
     with guarded_exec(run_cmd, project, experiment) as run:
         run()
 
@@ -114,7 +114,7 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
 
     c.update(config)
     project.name = kwargs.get("project_name", project.name)
-    likwid_f = project_name + ".txt"
+    likwid_f = project.name + ".txt"
 
     for group in ["CLOCK"]:
         likwid_path = path.join(c["likwiddir"], "bin")
@@ -380,7 +380,7 @@ class PJITRegression(PolyJIT):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
         from benchbuild.utils.run import guarded_exec
-        from benchbuild.utils.run import handle_stdin
+
         def _track_compilestats(project, experiment, config, clang,
                                 **kwargs):
             """ Compile the project and track the compilestats. """
@@ -458,7 +458,7 @@ class PJITpapi(PolyJIT):
                        BB_USE_DATABASE=1,
                        BB_USE_FILE=0,
                        BB_USE_CSV=0):
-            pprof_analzye()
+            pprof_analyze()
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG

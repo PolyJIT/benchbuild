@@ -395,6 +395,7 @@ def unionfs_tear_down(mountpoint, tries=3):
     Tear down a unionfs mountpoint.
     """
     from benchbuild.utils.cmd import fusermount, sync
+    log = logging.getLogger("benchbuild")
 
     if not os.path.exists(mountpoint):
         log.error("Mountpoint does not exist: '{0}'".format(mountpoint))

@@ -1,3 +1,5 @@
+import logging
+
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx

@@ -109,7 +109,7 @@ def get_compilestats(prog_out):
         if line:
             try:
                 res = stats_pattern.search(line + "\n")
-            except ValueError as e:
+            except ValueError:
                 warnings.warn(
                     "Triggered a parser exception for: '" + line + "'\n",
                     CompileStatsParserError)

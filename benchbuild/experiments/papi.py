@@ -8,9 +8,9 @@ project with libbenchbuild support to work.
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.experiments.raw import run_with_time
 from benchbuild.utils.run import partial
-from benchbuild.utils.actions import (Step, Prepare, Build, Download, Configure, Clean,
-                                 MakeBuildDir, Run, Echo)
-from benchbuild.utils.path import path_to_list
+from benchbuild.utils.actions import (Step, Prepare, Build, Download,
+                                      Configure, Clean, MakeBuildDir, Run,
+                                      Echo)
 from benchbuild.settings import CFG
 from plumbum import local
 

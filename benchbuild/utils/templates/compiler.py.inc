@@ -6,7 +6,7 @@ import logging
 import dill
 from plumbum.commands.modifiers import TEE
 from plumbum import ProcessExecutionError
-from benchbuild.utils.cmd import timeout
+from benchbuild.utils.cmd import timeout, sh
 from benchbuild.utils import log
 
 os.environ["BB_CONFIG_FILE"] = "{CFG_FILE}"
@@ -58,6 +58,7 @@ def invoke_external_measurement(cmd):
 def run(cmd):
     fc = timeout["2m", cmd]
     fc = fc.with_env(**cmd.envvars)
+    fc = sh['-c', str(fc)]
     retcode, stdout, stderr = (fc & TEE)
     return (retcode, stdout, stderr)
 

@@ -4,17 +4,17 @@ import os
 import sys
 import logging
 import dill
-import functools
-from plumbum import ProcessExecutionError, local
 from plumbum.commands.modifiers import TEE
+from plumbum import ProcessExecutionError
 from benchbuild.utils.cmd import timeout
-from benchbuild.utils.run import GuardedRunException
 from benchbuild.utils import log
 
 os.environ["BB_CONFIG_FILE"] = "{CFG_FILE}"
-from benchbuild.settings import CFG
+from benchbuild.settings import CFG, update_env
 
+update_env()
 log.configure()
+
 log = logging.getLogger("benchbuild")
 log.addHandler(logging.StreamHandler(stream=sys.stderr))
 log.setLevel(logging.DEBUG)

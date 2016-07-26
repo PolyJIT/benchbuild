@@ -3,6 +3,7 @@ Experiment helpers
 """
 import os
 from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
+from benchbuild.utils.path import list_to_path
 from contextlib import contextmanager
 from types import SimpleNamespace
 from benchbuild import settings
@@ -350,6 +351,38 @@ def uchroot_no_llvm(*args, **kwargs):
     return uchroot_cmd[args]
 
 
+def uchroot_mounts(prefix, mounts):
+    i = 0
+    mntpoints = []
+    for mount in mounts:
+        mntpoint = "{0}/{1}".format(prefix, str(i))
+        mntpoints.append(mntpoint)
+        i = i + 1
+    return mntpoints
+
+
+def _uchroot_mounts(prefix, mounts, uchroot):
+    i = 0
+    new_uchroot = uchroot
+    mntpoints = []
+    for mount in mounts:
+        mntpoint = "{0}/{1}".format(prefix, str(i))
+        mkdir("-p", mntpoint)
+        new_uchroot = new_uchroot["-M", "{0}:/{1}".format(mount, mntpoint)]
+        mntpoints.append(mntpoint)
+        i = i + 1
+    return new_uchroot, mntpoints
+
+
+def uchroot_env(mounts):
+    import logging as l
+    ld_libs = ["/{0}/lib".format(m) for m in mounts]
+    paths = ["/{0}/bin".format(m) for m in mounts]
+    paths.extend(["/{0}".format(m) for m in mounts])
+    paths.extend(["/usr/bin", "/bin", "/usr/sbin", "/sbin"])
+    return paths, ld_libs
+
+
 def uchroot(*args, **kwargs):
     """
     Returns a uchroot command which can be called with other args to be
@@ -362,8 +395,13 @@ def uchroot(*args, **kwargs):
     from benchbuild.settings import CFG
     mkdir("-p", "llvm")
     uchroot_cmd = uchroot_no_llvm(*args, **kwargs)
-    uchroot_cmd = uchroot_cmd["-M", str(CFG["llvm"]["dir"]) + ":/llvm"]
-    uchroot_cmd = uchroot_cmd.setenv(LD_LIBRARY_PATH="/llvm/lib")
+    uchroot_cmd, mounts = \
+            _uchroot_mounts("mnt", CFG["uchroot"]["mounts"].value(),
+                            uchroot_cmd)
+    paths, libs = uchroot_env(mounts)
+    uchroot_cmd = uchroot_cmd.with_env(
+            LD_LIBRARY_PATH=list_to_path(libs),
+            PATH=list_to_path(paths))
     return uchroot_cmd["--"]
 
 

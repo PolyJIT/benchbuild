@@ -68,8 +68,6 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
             map in the bash script.
     """
     log_path = os.path.join(CFG['slurm']['logs'].value())
-    slurm_path = __get_slurm_path()
-    slurm_ld = __get_slurm_ld_library_path()
     max_running_jobs = CFG['slurm']['max_running'].value()
     with open(script_name, 'w') as slurm:
         lines = """#!/bin/bash
@@ -110,9 +108,6 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         cfg_vars = "\nexport ".join(cfg_vars)
         slurm.write("export ")
         slurm.write(cfg_vars)
-        slurm.write("\n")
-        slurm.write("export PATH={p}\n".format(p=slurm_path))
-        slurm.write("export LD_LIBRARY_PATH={p}\n".format(p=slurm_ld))
         slurm.write("\n")
         slurm.write("scontrol update JobId=$SLURM_JOB_ID ")
         slurm.write("JobName=\"{0} $_project\"\n".format(experiment))

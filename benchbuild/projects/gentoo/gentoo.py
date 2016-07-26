@@ -10,6 +10,7 @@ dependencies for your experiments. Make sure you update the hash alongside
 the gentoo image in benchbuild's source directory.
 
 """
+import fileinput
 from os import path
 from benchbuild.utils.cmd import cp, tar, mv, rm  # pylint: disable=E0401
 from benchbuild.utils.cmd import curl, cut, tail, bash  # pylint: disable=E0401
@@ -19,7 +20,9 @@ from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild import project
 from benchbuild.utils.run import run, uchroot, uchroot_no_llvm
 from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
+from benchbuild.utils.path import list_to_path
 from benchbuild.utils.downloader import Wget
+from benchbuild.utils.run import uchroot_env, uchroot_mounts
 from benchbuild.settings import CFG
 from lazy import lazy
 
@@ -159,11 +162,16 @@ PKGDIR="${PORTDIR}/packages"
 
     def write_bashrc(self, path):
         mkfile_uchroot("/etc/portage/bashrc")
+        paths, libs = uchroot_env(
+                uchroot_mounts("mnt",
+                    CFG["uchroot"]["mounts"].value()))
+
         with open(path, 'w') as bashrc:
             lines = '''
-export PATH="/llvm/bin:/benchbuild/bin:${PATH}"
-export LD_LIBRARY_PAT=H"/llvm/lib:/benchbuild/lib:${LD_LIBRARY_PATH}"
-'''
+export PATH="{0}:${{PATH}}"
+export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
+'''.format(list_to_path(paths),
+           list_to_path(libs))
 
             bashrc.write(lines)
 
@@ -186,13 +194,26 @@ export LD_LIBRARY_PAT=H"/llvm/lib:/benchbuild/lib:${LD_LIBRARY_PATH}"
         config_file = CFG["config_file"].value()
 
         if path.exists(str(config_file)):
-            mkfile_uchroot("/.benchbuild.json")
-            cp(config_file, ".")
+            with open("log.file", 'w') as outf:
+                paths, libs = \
+                        uchroot_env(
+                            uchroot_mounts("mnt",
+                                CFG["uchroot"]["mounts"].value()))
+                UCHROOT_CFG = CFG
+                UCHROOT_CFG["env"]["compiler_path"] = paths
+                UCHROOT_CFG["env"]["compiler_ld_library_path"] = libs
 
-        wrap_cc_in_uchroot(self.cflags, self.ldflags,
-                           self.compiler_extension, "/llvm/bin")
-        wrap_cxx_in_uchroot(self.cflags, self.ldflags,
-                            self.compiler_extension, "/llvm/bin")
+                UCHROOT_CFG["env"]["binary_path"] = paths
+                UCHROOT_CFG["env"]["binary_ld_library_path"] = libs
+
+                UCHROOT_CFG["env"]["lookup_path"] = paths
+                UCHROOT_CFG["env"]["lookup_ld_library_path"] = libs
+
+                mkfile_uchroot("/.benchbuild.json")
+                UCHROOT_CFG.store(".benchbuild.json")
+
+        wrap_cc_in_uchroot(self.cflags, self.ldflags, self.compiler_extension)
+        wrap_cxx_in_uchroot(self.cflags, self.ldflags, self.compiler_extension)
 
 
 class PrepareStage3(GentooGroup):

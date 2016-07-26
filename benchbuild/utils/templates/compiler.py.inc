@@ -12,7 +12,6 @@ from benchbuild.utils import log
 os.environ["BB_CONFIG_FILE"] = "{CFG_FILE}"
 from benchbuild.settings import CFG, update_env
 
-update_env()
 log.configure()
 
 log = logging.getLogger("benchbuild")

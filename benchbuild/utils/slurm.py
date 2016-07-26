@@ -20,7 +20,6 @@ def __prepare_node_commands(experiment):
     node_image = CFG["slurm"]["node_image"].value()
     lockfile = prefix + ".lock"
 
-    #CFG["llvm"]["dir"] = llvm_tgt
     lines = template_str("templates/slurm-prepare-node.sh.inc")
     lines = lines.format(prefix=prefix,
                          lockfile=lockfile,
@@ -56,14 +55,15 @@ def __get_slurm_ld_library_path():
     benchbuild_path = CFG['ld_library_path'].value()
     return benchbuild_path + ':' + host_path
 
+
 def dump_slurm_script(script_name, benchbuild, experiment, projects):
     """
     Dump a bash script that can be given to SLURM.
 
     Args:
         script_name (str): name of the bash script.
-        commands (list(benchbuild.utils.cmd)): List of plumbum commands to write
-            to the bash script.
+        commands (list(benchbuild.utils.cmd)):
+            List of plumbum commands to write to the bash script.
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
     """
@@ -90,7 +90,8 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write("#SBATCH --array=0-{0}".format(len(projects) - 1))
         slurm.write("%{0}\n".format(max_running_jobs) if max_running_jobs > 0
                     else '\n')
-        slurm.write("#SBATCH --nice={0}\n".format(CFG["slurm"]["nice"].value()))
+        slurm.write("#SBATCH --nice={0}\n".format(
+            CFG["slurm"]["nice"].value()))
 
         slurm.write("projects=(\n")
         for project in projects:
@@ -119,7 +120,8 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
 
         # Write the experiment command.
         slurm.write(__cleanup_node_commands(slurm_log_path))
-        slurm.write(str(benchbuild["-P", "$_project", "-E", experiment]) + "\n")
+        slurm.write(
+            str(benchbuild["-P", "$_project", "-E", experiment]) + "\n")
 
     bash("-n", script_name)
     chmod("+x", script_name)
@@ -127,7 +129,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
 
 def prepare_slurm_script(experiment, projects):
     """
-    Prepare a slurm script that executes the benchbuild experiment for a given project.
+    Prepare a slurm script that executes the experiment for a given project.
 
     Args:
         experiment: The experiment we want to execute

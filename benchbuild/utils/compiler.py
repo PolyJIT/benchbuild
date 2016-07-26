@@ -29,8 +29,7 @@ from benchbuild.project import PROJECT_BLOB_F_EXT
 from benchbuild.utils.path import template_str
 
 
-def wrap_cc_in_uchroot(cflags, ldflags, func=None, uchroot_path=None,
-                       cc_name='clang'):
+def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='clang'):
     """
     Generate a clang wrapper that may be called from within a uchroot.
 
@@ -54,7 +53,8 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None, uchroot_path=None,
 
     def gen_compiler():  # pylint:  disable=C0111
         pi = __get_compiler_paths()
-        cc = local[path.join(uchroot_path, cc_name)]
+        cc = local["/usr/bin/env"]
+        cc = cc[cc_name]
         cc = cc.with_env(LD_LIBRARY_PATH=pi["ld_library_path"])
         return cc
 
@@ -64,9 +64,9 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None, uchroot_path=None,
                                 gen_compiler_extension)
 
 
-def wrap_cxx_in_uchroot(cflags, ldflags, func=None, uchroot_path=None):
+def wrap_cxx_in_uchroot(cflags, ldflags, func=None):
     """Delegate to wrap_cc_in_uchroot)."""
-    wrap_cc_in_uchroot(cflags, ldflags, func, uchroot_path, 'clang++')
+    wrap_cc_in_uchroot(cflags, ldflags, func, 'clang++')
 
 
 def lt_clang(cflags, ldflags, func=None):

@@ -112,6 +112,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write("scontrol update JobId=$SLURM_JOB_ID ")
         slurm.write("JobName=\"{0} $_project\"\n".format(experiment))
         slurm.write("\n")
+        slurm.write("srun -c 1 hostname\n")
 
         # Write the experiment command.
         slurm.write(__cleanup_node_commands(slurm_log_path))

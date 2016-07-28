@@ -12,8 +12,9 @@ import uuid
 from benchbuild.utils.cmd import rm, time  # pylint: disable=E0401
 from plumbum import local
 from benchbuild.experiments.compilestats import collect_compilestats
-from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download, Configure,
-                                 Clean, MakeBuildDir, Run, Echo)
+from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download,
+                                      Configure, Clean, MakeBuildDir, Run,
+                                      Echo)
 from benchbuild.experiment import RuntimeExperiment
 from functools import partial
 

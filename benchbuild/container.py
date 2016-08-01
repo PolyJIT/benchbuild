@@ -204,8 +204,7 @@ class Container(cli.Application):
         }[self.verbosity])
 
         settings.update_env()
-
-        builddir = os.path.abspath(settings.CFG["build_dir"].value())
+        builddir = os.path.abspath(str(settings.CFG["build_dir"].value()))
         if not os.path.exists(builddir):
             response = ask("The build directory {dirname} does not exist yet. "
                            "Should I create it?".format(dirname=builddir))

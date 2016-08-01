@@ -262,7 +262,7 @@ class ContainerBootstrap(cli.Application):
             install_uchroot()
         print("...OK")
         config_file = settings.CFG["config_file"].value()
-        if not os.path.exists(config_file):
+        if not (config_file and os.path.exists(config_file)):
             config_file = ".benchbuild.json"
         settings.CFG.store(config_file)
         print("Storing config in {0}".format(os.path.abspath(config_file)))

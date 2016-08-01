@@ -204,8 +204,7 @@ class Container(cli.Application):
         }[self.verbosity])
 
         settings.update_env()
-
-        builddir = os.path.abspath(settings.CFG["build_dir"].value())
+        builddir = os.path.abspath(str(settings.CFG["build_dir"].value()))
         if not os.path.exists(builddir):
             response = ask("The build directory {dirname} does not exist yet. "
                            "Should I create it?".format(dirname=builddir))
@@ -263,7 +262,7 @@ class ContainerBootstrap(cli.Application):
             install_uchroot()
         print("...OK")
         config_file = settings.CFG["config_file"].value()
-        if not os.path.exists(config_file):
+        if not (config_file and os.path.exists(config_file)):
             config_file = ".benchbuild.json"
         settings.CFG.store(config_file)
         print("Storing config in {0}".format(os.path.abspath(config_file)))

@@ -5,6 +5,7 @@ from benchbuild.experiment import Experiment
 from plumbum import cli, local
 from os import path, getenv
 from benchbuild.experiment import Experiment as E
+from benchbuild.settings import CFG
 from {base_module} import {base_class} as PBC
 
 import logging

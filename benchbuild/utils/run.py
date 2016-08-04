@@ -558,3 +558,17 @@ def unionfs(base_dir='./base',
         return wrap_in_union_fs_func
 
     return wrap_in_union_fs
+
+
+def store_config(func):
+    """ Decorator for storing the configuration in the project's builddir. """
+    from functools import wraps
+    from benchbuild.settings import CFG
+
+    @wraps(func)
+    def wrap_store_config(self, *args, **kwargs):
+        p = os.path.abspath(os.path.join(self.builddir))
+        CFG.store(os.path.join(p, ".benchbuild.json"))
+        return func(self, *args, **kwargs)
+
+    return wrap_store_config

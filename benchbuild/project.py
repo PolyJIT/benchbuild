@@ -12,6 +12,7 @@ from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.path import list_to_path, template_str
 from benchbuild.utils.run import in_builddir, unionfs
+from benchbuild.utils.run import partial, store_config
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
@@ -42,16 +43,26 @@ class ProjectDecorator(ProjectRegistry):
                          "run_tests"]
 
     def __init__(cls, name, bases, attrs):
+        unionfs_deco = None
+        if CFG["unionfs"]["enable"].value():
+            image_dir = CFG["unionfs"]["image"].value()
+            prefix = CFG["unionfs"]["image_prefix"].value()
+            unionfs_deco = partial(unionfs, image_dir=image_dir,
+                                   iage_prefix=prefix)
+
+        config_deco = store_config
+
         methods = ProjectDecorator.decorated_methods
         for k, v in attrs.items():
             if (k in methods) and hasattr(cls, k):
                 wrapped_fun = v
-                if CFG["unionfs"]["enable"].value():
-                    image_dir = CFG["unionfs"]["image"].value()
-                    prefix = CFG["unionfs"]["image_prefix"].value()
-                    wrapped_fun = unionfs(image_dir=image_dir,
-                                          image_prefix=prefix)(wrapped_fun)
+                if unionfs_deco is not None:
+                    wrapped_fun = unionfs_deco()(wrapped_fun)
+
                 wrapped_fun = in_builddir('.')(wrapped_fun)
+
+                if k == 'configure':
+                    wrapped_fun = config_deco(wrapped_fun)
                 setattr(cls, k, wrapped_fun)
 
         super(ProjectDecorator, cls).__init__(name, bases, attrs)

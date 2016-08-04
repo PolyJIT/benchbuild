@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 
+from benchbuild.settings import CFG
 from plumbum import cli, local
 from os import path, getenv
 import sys

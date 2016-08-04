@@ -7,7 +7,7 @@ project with libbenchbuild support to work.
 """
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.experiments.raw import run_with_time
-from benchbuild.utils.run import partial
+from functools import partial
 from benchbuild.utils.actions import (Step, Prepare, Build, Download,
                                       Configure, Clean, MakeBuildDir, Run,
                                       Echo)

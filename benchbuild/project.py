@@ -47,7 +47,7 @@ class ProjectDecorator(ProjectRegistry):
             image_dir = CFG["unionfs"]["image"].value()
             prefix = CFG["unionfs"]["image_prefix"].value()
             unionfs_deco = partial(unionfs, image_dir=image_dir,
-                                   iage_prefix=prefix)
+                                   image_prefix=prefix)
 
         config_deco = store_config
 

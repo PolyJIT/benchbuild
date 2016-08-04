@@ -16,7 +16,7 @@ from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download,
                                       Configure, Clean, MakeBuildDir, Run,
                                       Echo)
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.utils.run import partial
+from functools import partial
 
 
 def run_raw(project, experiment, config, run_f, args, **kwargs):

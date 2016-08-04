@@ -21,7 +21,7 @@ import re
 import uuid
 import warnings
 
-from benchbuild.utils.run import partial
+from functools import partial
 from benchbuild.experiment import step, RuntimeExperiment
 from benchbuild.settings import CFG
 

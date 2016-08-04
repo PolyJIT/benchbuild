@@ -8,38 +8,6 @@ from benchbuild import settings
 import logging
 
 
-def partial(func, *args, **kwargs):
-    """
-    Partial function application.
-
-    This performs standard partial application on the given function. However,
-    we do not check if parameter values in args and kwargs collide with each
-    other.
-
-    Args:
-        func: The original function.
-        *args: Positional arguments that should be applied partially.
-        **kwargs: Keyword arguments that should be applied partially.
-
-    Returns:
-        A new function that has all given args and kwargs bound.
-    """
-    frozen_args = args
-    frozen_kwargs = kwargs
-
-    def partial_func(*args, **kwargs):
-        """ The partial function with pre-bound arguments. """
-        nonlocal frozen_args
-        nonlocal frozen_kwargs
-        nonlocal func
-        thawed_args = frozen_args + args
-        thawed_kwargs = frozen_kwargs.copy()
-        thawed_kwargs.update(kwargs)
-        func(*thawed_args, **thawed_kwargs)
-
-    return partial_func
-
-
 def handle_stdin(cmd, kwargs):
     """
     Handle stdin for wrapped runtime executors.

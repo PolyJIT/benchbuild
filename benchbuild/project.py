@@ -11,8 +11,8 @@ from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.path import list_to_path, template_str
-from benchbuild.utils.run import in_builddir, unionfs
-from benchbuild.utils.run import partial, store_config
+from benchbuild.utils.run import in_builddir, unionfs, store_config
+from functools import partial
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"

@@ -10,6 +10,7 @@ import uuid
 import re
 import warnings
 import logging
+import copy
 from datetime import datetime
 from plumbum import local
 
@@ -139,10 +140,29 @@ class Configuration():
         if init:
             self.init_from_env()
 
+    def filter_exports(self):
+        if "default" in self.node:
+            do_export = True
+            if "export" in self.node:
+                do_export = self.node["export"]
+
+            if not do_export:
+                self.parent.node.pop(self.parent_key)
+        else:
+            node = dict(self.node)
+            for k in node:
+                self[k].filter_exports()
+
+
     def store(self, config_file):
         """ Store the configuration dictionary to a file."""
+
+        selfcopy = copy.deepcopy(self)
+        selfcopy.filter_exports()
+
         with open(config_file, 'w') as outf:
-            json.dump(self.node, outf, cls=UUIDEncoder, indent=True)
+            json.dump(selfcopy.node, outf, cls=UUIDEncoder, indent=True)
+
 
     def load(self, _from):
         """Load the configuration dictionary from file."""
@@ -326,7 +346,8 @@ CFG = Configuration(
             "desc":
             "The experiment UUID we run everything under."
             "This groups the project runs in the database.",
-            "default": str(uuid.uuid4())
+            "default": str(uuid.uuid4()),
+            "export" : False
         },
         "experiment": {
             "desc": "The experiment name we run everything under.",
@@ -337,7 +358,8 @@ CFG = Configuration(
             "desc": "Clean temporary objects, after completion.",
         },
         "experiment_description": {
-            "default": str(datetime.now())
+            "default": str(datetime.now()),
+            "export" : False
         },
         "regression_prefix": {
             "default": os.path.join("/", "tmp", "benchbuild-regressions")

@@ -2,6 +2,7 @@
 Project handling for the benchbuild study.
 """
 import os
+import warnings
 
 from os import path, listdir
 from abc import abstractmethod
@@ -67,6 +68,8 @@ class Project(object, metaclass=ProjectDecorator):
     NAME = None
     DOMAIN = None
     GROUP = None
+    VERSION = None
+    SRC_FILE = None
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -83,9 +86,19 @@ class Project(object, metaclass=ProjectDecorator):
             raise AttributeError(
                 "{0} @ {1} does not define a GROUP class attribute.".format(
                     cls.__name__, cls.__module__))
+        if cls.VERSION is None:
+            warnings.warn(
+                "{0} @ {1} does not define a VERSION class attribute.".format(
+                    cls.__name__, cls.__module__))
+        if cls.SRC_FILE is None:
+            warnings.warn(
+                "{0} @ {1} does not offer a source file yet.".format(
+                    cls.__name__, cls.__module__))
+
         new_self.name = cls.NAME
         new_self.domain = cls.DOMAIN
         new_self.group = cls.GROUP
+        new_self.version = cls.VERSION
         return new_self
 
     def __init__(self, exp, group=None):

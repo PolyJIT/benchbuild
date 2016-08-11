@@ -7,6 +7,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, CopyNoFail
 from benchbuild.utils.run import run
+from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import local
 from benchbuild.utils.cmd import virtualenv
@@ -20,7 +21,7 @@ class LNTGroup(Project):
 
     DOMAIN = 'lnt'
     GROUP = 'lnt'
-
+    VERSION = get_version_from_cache_dir(LNTGroup.src_file)
     def __init__(self, exp):
         super(LNTGroup, self).__init__(exp, "lnt")
 

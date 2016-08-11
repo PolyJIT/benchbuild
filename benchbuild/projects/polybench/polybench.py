@@ -12,7 +12,7 @@ from os import path
 class PolyBenchGroup(Project):
     DOMAIN = 'polybench'
     GROUP = 'polybench'
-
+    VERSION = '4.1'
     path_dict = {
         "correlation": "datamining",
         "covariance": "datamining",
@@ -53,9 +53,11 @@ class PolyBenchGroup(Project):
             self.name)
         self.setup_derived_filenames()
 
-    src_dir = "polybench-c-4.1"
+
+    src_dir = "polybench-c-{0}".format(VERSION)
     src_file = src_dir + ".tar.gz"
     src_uri = "http://downloads.sourceforge.net/project/polybench/" + src_file
+
 
     def download(self):
         Wget(self.src_uri, self.src_file)

@@ -284,7 +284,9 @@ def guarded_exec(cmd, project, experiment):
                             project.run_uuid)
     ex = None
 
-    CFG["db"]["run_id"] = db_run
+    settings.CFG["db"]["run_id"] = db_run.id
+    settings.CFG["use_file"] = 0
+
     def runner(retcode=0, *args):
         cmd_env = settings.to_env_dict(settings.CFG)
         with local.env(**cmd_env):

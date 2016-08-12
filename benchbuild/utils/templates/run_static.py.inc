@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 #
-from plumbum import cli, local
-from os import path, getenv
 from benchbuild.utils import log
 from benchbuild import settings
+from plumbum import local
+from os import path
 import sys
 import dill
 

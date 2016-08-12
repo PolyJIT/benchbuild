@@ -1,6 +1,4 @@
-"""
-Experiment helpers
-"""
+"""Experiment helpers."""
 import os
 from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
 from benchbuild.utils.path import list_to_path
@@ -288,9 +286,7 @@ def run(command, retcode=0):
     Args:
         command: The plumbumb command to execute.
     """
-    from logging import info
     from plumbum.commands.modifiers import TEE
-    info(str(command))
     command & TEE(retcode)
 
 
@@ -343,7 +339,6 @@ def _uchroot_mounts(prefix, mounts, uchroot):
 
 
 def uchroot_env(mounts):
-    import logging as l
     ld_libs = ["/{0}/lib".format(m) for m in mounts]
     paths = ["/{0}/bin".format(m) for m in mounts]
     paths.extend(["/{0}".format(m) for m in mounts])
@@ -363,9 +358,8 @@ def uchroot(*args, **kwargs):
     from benchbuild.settings import CFG
     mkdir("-p", "llvm")
     uchroot_cmd = uchroot_no_llvm(*args, **kwargs)
-    uchroot_cmd, mounts = \
-            _uchroot_mounts("mnt", CFG["uchroot"]["mounts"].value(),
-                            uchroot_cmd)
+    uchroot_cmd, mounts = _uchroot_mounts(
+        "mnt", CFG["uchroot"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
     uchroot_cmd = uchroot_cmd.with_env(
             LD_LIBRARY_PATH=list_to_path(libs),

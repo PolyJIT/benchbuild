@@ -2,8 +2,8 @@
 An benchbuild.experiment defines a series of phases that constitute a benchbuild
 compatible experiment. This is the default implementation of an experiment.
 
-Clients can derive from class class::benchbuild.experiment.Experiment and override
-the methods relvant to their experiment.
+Clients can derive from class class::benchbuild.experiment.Experiment and
+override the methods relvant to their experiment.
 
 An experiment can have a variable number of phases / steps / substeps.
 

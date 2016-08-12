@@ -293,6 +293,20 @@ class Configuration():
                 self.parent.__to_env_var__() + "_" + self.parent_key).upper()
         return self.parent_key.upper()
 
+
+def to_env_dict(config):
+    """Convert configuration object to a flat dictionary."""
+    entries = {}
+    if 'value' in config.node:
+        return {config.__to_env_var__(): config.node['value']}
+    if 'default' in config.node:
+        return {config.__to_env_var__(): config.node['default']}
+    for k in config.node:
+        entries.update(to_env_dict(config[k]))
+
+    return entries
+
+
 # Initialize the global configuration once.
 CFG = Configuration(
     "bb",

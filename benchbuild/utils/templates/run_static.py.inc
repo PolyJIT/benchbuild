@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 #
-
-from benchbuild.settings import CFG
 from plumbum import cli, local
 from os import path, getenv
+from benchbuild.utils import log
+from benchbuild import settings
 import sys
 import dill
+
+settings.update_env()
+log.configure()
+log.set_defaults()
 
 run_f = "{runf}"
 args = sys.argv[1:]

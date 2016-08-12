@@ -303,6 +303,10 @@ CFG = Configuration(
             "desc": "Version Number",
             "default": "1.2.1"
         },
+        "verbosity": {
+            "desc": "The verbosity level of the logger. Range: 0-4",
+            "default": 0
+        },
         "config_file": {
             "desc": "Config file path of benchbuild. Not guaranteed to exist.",
             "default": None,

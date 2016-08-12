@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 #
 from benchbuild.project import Project
+from benchbuild.utils import log as l
+from benchbuild import settings
 from benchbuild.experiment import Experiment
 from plumbum import cli, local
 from os import path, getenv
@@ -12,6 +14,10 @@ import logging
 import os
 import sys
 import dill
+
+l.configure()
+l.set_defaults()
+settings.update_env()
 
 log = logging.getLogger("run")
 log.setLevel(logging.ERROR)

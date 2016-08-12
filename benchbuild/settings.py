@@ -153,7 +153,6 @@ class Configuration():
             for k in node:
                 self[k].filter_exports()
 
-
     def store(self, config_file):
         """ Store the configuration dictionary to a file."""
 
@@ -162,7 +161,6 @@ class Configuration():
 
         with open(config_file, 'w') as outf:
             json.dump(selfcopy.node, outf, cls=UUIDEncoder, indent=True)
-
 
     def load(self, _from):
         """Load the configuration dictionary from file."""
@@ -351,7 +349,7 @@ CFG = Configuration(
             "The experiment UUID we run everything under."
             "This groups the project runs in the database.",
             "default": str(uuid.uuid4()),
-            "export" : False
+            "export": False
         },
         "experiment": {
             "desc": "The experiment name we run everything under.",
@@ -363,7 +361,7 @@ CFG = Configuration(
         },
         "experiment_description": {
             "default": str(datetime.now()),
-            "export" : False
+            "export": False
         },
         "regression_prefix": {
             "default": os.path.join("/", "tmp", "benchbuild-regressions")

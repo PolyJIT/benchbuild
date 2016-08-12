@@ -141,7 +141,7 @@ class Configuration():
             self.init_from_env()
 
     def filter_exports(self):
-        if "default" in self.node:
+        if self.has_default():
             do_export = True
             if "export" in self.node:
                 do_export = self.node["export"]
@@ -149,9 +149,9 @@ class Configuration():
             if not do_export:
                 self.parent.node.pop(self.parent_key)
         else:
-            node = dict(self.node)
             for k in node:
-                self[k].filter_exports()
+                if self[k].is_leaf():
+                    self[k].filter_exports()
 
     def store(self, config_file):
         """ Store the configuration dictionary to a file."""
@@ -184,6 +184,15 @@ class Configuration():
                 load_rec(self.node, json.load(inf))
                 self['config_file'] = os.path.abspath(_from)
 
+    def has_value(self):
+        return isinstance(self.node, dict) and 'value' in self.node
+
+    def has_default(self):
+        return isinstance(self.node, dict) and 'default' in self.node
+
+    def is_leaf(self):
+        return self.has_value() or self.has_default()
+
     def init_from_env(self):
         """
         Initialize this node from environment.
@@ -196,7 +205,7 @@ class Configuration():
 
         if 'default' in self.node:
             env_var = self.__to_env_var__().upper()
-            if 'value' in self.node:
+            if self.has_value():
                 env_val = os.getenv(env_var, self.node['value'])
             else:
                 env_val = os.getenv(env_var, self.node['default'])
@@ -275,10 +284,10 @@ class Configuration():
 
     def __repr__(self):
         _repr = []
-        if 'value' in self.node:
+        if self.has_value():
             return self.__to_env_var__() + "=" + escape_json(json.dumps(
                 self.node['value']))
-        if 'default' in self.node:
+        if self.has_default():
             return self.__to_env_var__() + "=" + escape_json(json.dumps(
                 self.node['default']))
 
@@ -297,12 +306,14 @@ class Configuration():
 def to_env_dict(config):
     """Convert configuration object to a flat dictionary."""
     entries = {}
-    if 'value' in config.node:
+    if config.has_value():
         return {config.__to_env_var__(): config.node['value']}
-    if 'default' in config.node:
+    if config.has_default():
         return {config.__to_env_var__(): config.node['default']}
+
     for k in config.node:
-        entries.update(to_env_dict(config[k]))
+        if config.is_leaf():
+            entries.update(to_env_dict(config[k]))
 
     return entries
 

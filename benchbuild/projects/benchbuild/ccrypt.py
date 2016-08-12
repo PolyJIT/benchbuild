@@ -13,6 +13,8 @@ class Ccrypt(BenchBuildGroup):
 
     NAME = 'ccrypt'
     DOMAIN = 'encryption'
+    VERSION = '1.10'
+    SRC_FILE = 'ccrypt-{0}.tar.gz'.format(VERSION)
 
     check_f = "check"
 
@@ -21,13 +23,12 @@ class Ccrypt(BenchBuildGroup):
         check_f = path.join(self.testdir, self.check_f)
         ln("-s", check_f, path.join(self.builddir, self.check_f))
 
-    src_dir = "ccrypt-1.10"
-    src_file = "ccrypt-1.10.tar.gz"
-    src_uri = "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
+    src_dir = "ccrypt-{0}".format(VERSION)
+    src_uri = "http://ccrypt.sourceforge.net/download/ccrypt-{0}.tar.gz".format(VERSION)
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar('xfz', path.join(self.builddir, self.src_file))
+        Wget(self.src_uri, self.SRC_FILE)
+        tar('xfz', path.join(self.builddir, self.SRC_FILE))
 
     def configure(self):
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)

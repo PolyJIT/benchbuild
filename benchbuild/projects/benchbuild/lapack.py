@@ -6,6 +6,7 @@ from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
 from plumbum import local
 from benchbuild.utils.cmd import make, tar
+from benchbuild.utils.versions import get_version_from_cache_dir
 
 from os import path
 import logging
@@ -14,19 +15,20 @@ import logging
 class OpenBlas(BenchBuildGroup):
     NAME = 'openblas'
     DOMAIN = 'scientific'
+    SRC_FILE = 'OpenBLAS'
+    VERSION = get_version_from_cache_dir(SRC_FILE)
 
-    src_dir = "OpenBLAS"
-    src_uri = "https://github.com/xianyi/" + src_dir
+    src_uri = "https://github.com/xianyi/" + SRC_FILE
 
     def download(self):
-        Git(self.src_uri, self.src_dir)
+        Git(self.src_uri, self.SRC_FILE)
 
     def configure(self):
         pass
 
     def build(self):
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        with local.cwd(self.src_dir):
+        with local.cwd(self.SRC_FILE):
             run(make["CC=" + str(clang)])
 
     def run_tests(self, experiment):
@@ -37,6 +39,8 @@ class OpenBlas(BenchBuildGroup):
 class Lapack(BenchBuildGroup):
     NAME = 'lapack'
     DOMAIN = 'scientific'
+    VERSION = '3.2.1'
+    SRC_FILE = "clapack.tgz"
 
     def __init__(self, exp):
         super(Lapack, self).__init__(exp)
@@ -48,13 +52,12 @@ class Lapack(BenchBuildGroup):
         self.setup_derived_filenames()
         self.tests = []
 
-    src_dir = "CLAPACK-3.2.1"
-    src_file = "clapack.tgz"
+    src_dir = "CLAPACK-{0}".format(VERSION)
     src_uri = "http://www.netlib.org/clapack/clapack.tgz"
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar("xfz", self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        tar("xfz", self.SRC_FILE)
 
     def configure(self):
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
@@ -83,7 +86,7 @@ class Lapack(BenchBuildGroup):
                 makefile.writelines(content)
 
     def build(self):
-        with local.cwd(self.src_dir):
+        with local.cwd(self.):
             run(make["-j", CFG["jobs"], "f2clib", "blaslib"])
             with local.cwd(path.join("BLAS", "TESTING")):
                 run(make["-j", CFG["jobs"], "-f", "Makeblat2"])

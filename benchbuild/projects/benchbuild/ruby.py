@@ -14,14 +14,16 @@ from os import path
 class Ruby(BenchBuildGroup):
     NAME = 'ruby'
     DOMAIN = 'compilation'
+    VERSION = '2.2.2'
 
-    src_dir = "ruby-2.2.2"
-    src_file = src_dir + ".tar.gz"
-    src_uri = "http://cache.ruby-lang.org/pub/ruby/2.2/" + src_file
+    src_dir = "ruby-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.gz"
+    src_uri = "http://cache.ruby-lang.org/pub/ruby/{0}/".format(VERSION) \
+        + SRC_FILE
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar("xfz", self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        tar("xfz", self.SRC_FILE)
 
     def configure(self):
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)

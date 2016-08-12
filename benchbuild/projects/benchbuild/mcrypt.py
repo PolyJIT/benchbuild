@@ -16,11 +16,12 @@ class MCrypt(BenchBuildGroup):
 
     NAME = 'mcrypt'
     DOMAIN = 'encryption'
+    VERSION = '2.6.8'
 
-    src_dir = "mcrypt-2.6.8"
-    src_file = src_dir + ".tar.gz"
-    src_uri = "http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/" + \
-        src_file
+    src_dir = "mcrypt-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.gz"
+    src_uri = "http://sourceforge.net/projects/mcrypt/files/MCrypt/{0}" \
+        .format(VERSION) + SRC_FILE
 
     libmcrypt_dir = "libmcrypt-2.5.8"
     libmcrypt_file = libmcrypt_dir + ".tar.gz"
@@ -33,8 +34,8 @@ class MCrypt(BenchBuildGroup):
         mhash_file
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar('xfz', self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        tar('xfz', self.SRC_FILE)
 
         Wget(self.libmcrypt_uri, self.libmcrypt_file)
         tar('xfz', self.libmcrypt_file)

@@ -3,6 +3,7 @@ from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
+from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import FG, local
 from benchbuild.utils.cmd import cp, find, tar, make, rm, head, grep, sed, sh
@@ -16,9 +17,10 @@ class Povray(BenchBuildGroup):
 
     NAME = 'povray'
     DOMAIN = 'multimedia'
+    SRC_FILE = 'povray.git'
+    VERSION = get_version_from_cache_dir(SRC_FILE)
 
     src_uri = "https://github.com/POV-Ray/povray"
-    src_dir = "povray.git"
     boost_src_dir = "boost_1_59_0"
     boost_src_file = boost_src_dir + ".tar.bz2"
     boost_src_uri = "http://sourceforge.net/projects/boost/files/boost/1.59.0/" + \
@@ -26,7 +28,7 @@ class Povray(BenchBuildGroup):
 
     def download(self):
         Wget(self.boost_src_uri, self.boost_src_file)
-        Git(self.src_uri, self.src_dir)
+        Git(self.src_uri, self.SRC_FILE)
         tar("xfj", self.boost_src_file)
 
     def configure(self):
@@ -44,10 +46,10 @@ class Povray(BenchBuildGroup):
             run(b2["--ignore-site-config", "variant=release", "link=static",
                    "threading=multi", "optimization=speed", "install"])
 
-        with local.cwd(path.join(self.src_dir, "unix")):
+        with local.cwd(path.join(self.SRC_FILE, "unix")):
             sh("prebuild.sh")
 
-        with local.cwd(self.src_dir):
+        with local.cwd(self.SRC_FILE):
             configure = local["./configure"]
             with local.env(COMPILED_BY="BB <no@mail.nono>",
                            CC=str(clang),
@@ -55,9 +57,9 @@ class Povray(BenchBuildGroup):
                 run(configure["--with-boost=" + boost_prefix])
 
     def build(self):
-        povray_binary = path.join(self.src_dir, "unix", self.name)
+        povray_binary = path.join(self.SRC_FILE, "unix", self.name)
 
-        with local.cwd(self.src_dir):
+        with local.cwd(self.SRC_FILE):
             rm("-f", povray_binary)
             run(make["clean", "all"])
 
@@ -70,7 +72,7 @@ class Povray(BenchBuildGroup):
         cp("-ar", path.join(self.testdir, "test"), '.')
 
     def run_tests(self, experiment):
-        povray_binary = path.join(self.src_dir, "unix", self.name)
+        povray_binary = path.join(self.SRC_FILE, "unix", self.name)
         tmpdir = "tmp"
         povini = path.join("cfg", ".povray", "3.6", "povray.ini")
         scene_dir = path.join("share", "povray-3.6", "scenes")

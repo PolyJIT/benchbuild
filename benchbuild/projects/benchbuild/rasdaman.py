@@ -5,6 +5,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
+from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import local
 from benchbuild.utils.cmd import autoreconf, make
@@ -17,8 +18,9 @@ class Rasdaman(BenchBuildGroup):
 
     NAME = 'Rasdaman'
     DOMAIN = 'database'
+    SRC_FILE = 'rasdaman.git'
+    VERSION = get_version_from_cache_dir(SRC_FILE)
 
-    src_dir = "rasdaman.git"
     src_uri = "git://rasdaman.org/rasdaman.git"
 
     gdal_dir = "gdal"
@@ -26,10 +28,10 @@ class Rasdaman(BenchBuildGroup):
 
     def download(self):
         Git(self.gdal_uri, self.gdal_dir)
-        Git(self.src_uri, self.src_dir)
+        Git(self.src_uri, self.SRC_FILE)
 
     def configure(self):
-        rasdaman_dir = path.join(self.src_dir)
+        rasdaman_dir = path.join(self.SRC_FILE)
         gdal_dir = path.join(self.gdal_dir, self.gdal_dir)
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
@@ -55,7 +57,7 @@ class Rasdaman(BenchBuildGroup):
                               "--without-docs"])
 
     def build(self):
-        with local.cwd(self.src_dir):
+        with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, experiment):

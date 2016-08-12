@@ -14,6 +14,7 @@ class XZ(BenchBuildGroup):
     """ XZ """
     NAME = 'xz'
     DOMAIN = 'compression'
+    VERSION = '5.2.1'
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
@@ -23,13 +24,13 @@ class XZ(BenchBuildGroup):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp(testfiles, self.builddir)
 
-    src_dir = "xz-5.2.1"
-    src_file = src_dir + ".tar.gz"
-    src_uri = "http://tukaani.org/xz/" + src_file
+    src_dir = "xz-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.gz"
+    src_uri = "http://tukaani.org/xz/" + SRC_FILE
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar('xfz', self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        tar('xfz', self.SRC_FILE)
 
     def run_tests(self, experiment):
         exp = wrap(path.join(self.src_dir, "src", "xz", "xz"), experiment)

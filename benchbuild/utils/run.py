@@ -283,32 +283,34 @@ def guarded_exec(cmd, project, experiment):
     db_run, session = begin(cmd, project.name, experiment.name,
                             project.run_uuid)
     ex = None
-    with local.env(BB_DB_RUN_ID=db_run.id):
 
-        def runner(retcode=0, *args):
+    CFG["db"]["run_id"] = db_run
+    def runner(retcode=0, *args):
+        cmd_env = settings.to_env_dict(settings.CFG)
+        with local.env(**cmd_env):
             retcode, stdout, stderr = cmd[args] & TEE(retcode=retcode)
-            end(db_run, session, stdout, stderr)
-            r = SimpleNamespace()
-            r.retcode = retcode
-            r.stdout = stdout
-            r.stderr = stderr
-            r.session = session
-            r.db_run = db_run
-            return r
+        end(db_run, session, stdout, stderr)
+        r = SimpleNamespace()
+        r.retcode = retcode
+        r.stdout = stdout
+        r.stderr = stderr
+        r.session = session
+        r.db_run = db_run
+        return r
 
-        try:
-            yield runner
-        except KeyboardInterrupt:
-            fail(db_run, session, -1, "", "KeyboardInterrupt")
-            warn("Interrupted by user input")
-            raise
-        except ProcessExecutionError as proc_ex:
-            fail(db_run, session, proc_ex.retcode, proc_ex.stdout,
-                 proc_ex.stderr)
-            raise
-        except Exception as ex:
-            fail(db_run, session, -1, "", str(ex))
-            raise
+    try:
+        yield runner
+    except KeyboardInterrupt:
+        fail(db_run, session, -1, "", "KeyboardInterrupt")
+        warn("Interrupted by user input")
+        raise
+    except ProcessExecutionError as proc_ex:
+        fail(db_run, session, proc_ex.retcode, proc_ex.stdout,
+             proc_ex.stderr)
+        raise
+    except Exception as ex:
+        fail(db_run, session, -1, "", str(ex))
+        raise
 
 
 def run(command, retcode=0):

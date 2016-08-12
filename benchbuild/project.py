@@ -171,22 +171,25 @@ class Project(object, metaclass=ProjectDecorator):
         from benchbuild.utils.run import GuardedRunException
         from benchbuild.utils.run import (begin_run_group, end_run_group,
                                           fail_run_group)
-        with local.cwd(self.builddir):
-            with local.env(BB_USE_DATABASE=1,
-                           BB_DB_RUN_GROUP=self.run_uuid,
-                           BB_DOMAIN=self.domain,
-                           BB_GROUP=self.group_name,
-                           BB_SRC_URI=self.src_uri):
 
-                group, session = begin_run_group(self)
-                try:
-                    self.run_tests(experiment)
-                    end_run_group(group, session)
-                except GuardedRunException:
-                    fail_run_group(group, session)
-                except KeyboardInterrupt as key_int:
-                    fail_run_group(group, session)
-                    raise key_int
+        CFG["experiment"] = self.experiment.name
+        CFG["project"] = self.NAME
+        CFG["domain"] = self.DOMAIN
+        CFG["group"] = self.GROUP
+        CFG["src_uri"] = self.src_uri
+        CFG["use_database"] = 1
+        CFG["db"]["run_group"] = str(self.run_uuid)
+
+        with local.cwd(self.builddir):
+            group, session = begin_run_group(self)
+            try:
+                self.run_tests(experiment)
+                end_run_group(group, session)
+            except GuardedRunException:
+                fail_run_group(group, session)
+            except KeyboardInterrupt as key_int:
+                fail_run_group(group, session)
+                raise key_int
             if CFG["clean"].value():
                 self.clean()
 

@@ -15,12 +15,7 @@ run_f = "{runf}"
 args = sys.argv[1:]
 f = None
 if path.exists("{blobf}"):
-    with local.env(BB_DB_HOST="{db_host}",
-                   BB_DB_PORT="{db_port}",
-                   BB_DB_NAME="{db_name}",
-                   BB_DB_USER="{db_user}",
-                   BB_DB_PASS="{db_pass}",
-                   PATH="{path}",
+    with local.env(PATH="{path}",
                    LD_LIBRARY_PATH="{ld_lib_path}",
                    BB_CMD=run_f + " ".join(args)):
         with open("{blobf}", "rb") as p:

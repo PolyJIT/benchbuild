@@ -149,7 +149,7 @@ class Configuration():
             if not do_export:
                 self.parent.node.pop(self.parent_key)
         else:
-            for k in node:
+            for k in self.node:
                 if self[k].is_leaf():
                     self[k].filter_exports()
 

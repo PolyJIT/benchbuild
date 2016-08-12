@@ -3,6 +3,7 @@ from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
+from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import local
 from benchbuild.utils.cmd import cp, make
@@ -16,6 +17,8 @@ class Lammps(BenchBuildGroup):
 
     NAME = 'lammps'
     DOMAIN = 'scientific'
+    SRC_FILE = 'lammps.git'
+    VERSION = get_version_from_cache_dir(SRC_FILE)
 
     def prepare(self):
         super(Lammps, self).prepare()
@@ -31,7 +34,7 @@ class Lammps(BenchBuildGroup):
                 cmd = (exp < test)
                 run(cmd, None)
 
-    src_dir = "lammps.git"
+    src_dir = SRC_FILE
     src_uri = "https://github.com/lammps/lammps"
 
     def download(self):

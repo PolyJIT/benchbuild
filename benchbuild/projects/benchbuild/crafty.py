@@ -13,18 +13,19 @@ class Crafty(BenchBuildGroup):
 
     NAME = 'crafty'
     DOMAIN = 'scientific'
+    VERSION = '23.4'
 
-    src_dir = "crafty-23.4"
-    src_file = src_dir + ".zip"
-    src_uri = "http://www.craftychess.com/crafty-23.4.zip"
+    src_dir = "crafty-{0}".format(VERSION)
+    src_uri = "http://www.craftychess.com/crafty-{0}.zip".format(VERSION)
+    SRC_FILE = src_dir + ".zip"
 
     def download(self):
         book_file = "book.bin"
         book_bin = "http://www.craftychess.com/" + book_file
-        Wget(self.src_uri, self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
         Wget(book_bin, "book.bin")
 
-        unzip(self.src_file)
+        unzip(self.SRC_FILE)
         mv(book_file, self.src_dir)
 
     def configure(self):

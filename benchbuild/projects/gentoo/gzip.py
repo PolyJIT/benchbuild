@@ -15,6 +15,7 @@ class GZip(GentooGroup):
     """
     NAME = "gentoo-gzip"
     DOMAIN = "app-arch"
+    VERSION = '1.8'
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "compression.tar.gz"

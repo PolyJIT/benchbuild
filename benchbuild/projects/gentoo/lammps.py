@@ -17,6 +17,7 @@ class Lammps(GentooGroup):
     """
     NAME = "gentoo-lammps"
     DOMAIN = "sci-physics"
+    VERSION = "20160407"
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "lammps.tar.gz"

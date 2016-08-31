@@ -13,6 +13,7 @@ class SevenZip(GentooGroup):
     """
     NAME = "gentoo-7z"
     DOMAIN = "app-arch"
+    VERSION = "16.02"
 
     def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]

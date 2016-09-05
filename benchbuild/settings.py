@@ -149,9 +149,11 @@ class Configuration():
             if not do_export:
                 self.parent.node.pop(self.parent_key)
         else:
+            selfcopy = copy.deepcopy(self)
             for k in self.node:
-                if self[k].is_leaf():
-                    self[k].filter_exports()
+                if selfcopy[k].is_leaf():
+                    selfcopy[k].filter_exports()
+            self = selfcopy
 
     def store(self, config_file):
         """ Store the configuration dictionary to a file."""

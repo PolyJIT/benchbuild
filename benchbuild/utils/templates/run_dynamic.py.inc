@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
 #
 from benchbuild.project import Project
+from benchbuild.utils import log as l
+from benchbuild import settings
 from benchbuild.experiment import Experiment
 from plumbum import cli, local
 from os import path, getenv
 from benchbuild.experiment import Experiment as E
+from benchbuild.settings import CFG
 from {base_module} import {base_class} as PBC
 
 import logging
 import os
 import sys
 import dill
+
+l.configure()
+l.set_defaults()
+settings.update_env()
 
 log = logging.getLogger("run")
 log.setLevel(logging.ERROR)
@@ -31,13 +38,7 @@ ARGS = sys.argv[2:]
 PROJECT_NAME = path.basename(RUN_F)
 
 if path.exists("{blobf}"):
-    with local.env(BB_DB_HOST="{db_host}",
-                   BB_DB_PORT="{db_port}",
-                   BB_DB_NAME="{db_name}",
-                   BB_DB_USER="{db_user}",
-                   BB_DB_PASS="{db_pass}",
-                   BB_PROJECT=PROJECT_NAME,
-                   PATH="{path}",
+    with local.env(PATH="{path}",
                    LD_LIBRARY_PATH="{ld_lib_path}",
                    BB_CMD=RUN_F):
         with open("{blobf}", "rb") as p:

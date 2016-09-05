@@ -10,7 +10,8 @@ from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.path import list_to_path, template_str
-from benchbuild.utils.run import in_builddir, unionfs
+from benchbuild.utils.run import in_builddir, unionfs, store_config
+from functools import partial
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
@@ -41,16 +42,26 @@ class ProjectDecorator(ProjectRegistry):
                          "run_tests"]
 
     def __init__(cls, name, bases, attrs):
+        unionfs_deco = None
+        if CFG["unionfs"]["enable"].value():
+            image_dir = CFG["unionfs"]["image"].value()
+            prefix = CFG["unionfs"]["image_prefix"].value()
+            unionfs_deco = partial(unionfs, image_dir=image_dir,
+                                   image_prefix=prefix)
+
+        config_deco = store_config
+
         methods = ProjectDecorator.decorated_methods
         for k, v in attrs.items():
             if (k in methods) and hasattr(cls, k):
                 wrapped_fun = v
-                if CFG["unionfs"]["enable"].value():
-                    image_dir = CFG["unionfs"]["image"].value()
-                    prefix = CFG["unionfs"]["image_prefix"].value()
-                    wrapped_fun = unionfs(image_dir=image_dir,
-                                          image_prefix=prefix)(wrapped_fun)
+                if unionfs_deco is not None:
+                    wrapped_fun = unionfs_deco()(wrapped_fun)
+
                 wrapped_fun = in_builddir('.')(wrapped_fun)
+
+                if k == 'configure':
+                    wrapped_fun = config_deco(wrapped_fun)
                 setattr(cls, k, wrapped_fun)
 
         super(ProjectDecorator, cls).__init__(name, bases, attrs)
@@ -147,22 +158,25 @@ class Project(object, metaclass=ProjectDecorator):
         from benchbuild.utils.run import GuardedRunException
         from benchbuild.utils.run import (begin_run_group, end_run_group,
                                           fail_run_group)
-        with local.cwd(self.builddir):
-            with local.env(BB_USE_DATABASE=1,
-                           BB_DB_RUN_GROUP=self.run_uuid,
-                           BB_DOMAIN=self.domain,
-                           BB_GROUP=self.group_name,
-                           BB_SRC_URI=self.src_uri):
 
-                group, session = begin_run_group(self)
-                try:
-                    self.run_tests(experiment)
-                    end_run_group(group, session)
-                except GuardedRunException:
-                    fail_run_group(group, session)
-                except KeyboardInterrupt as key_int:
-                    fail_run_group(group, session)
-                    raise key_int
+        CFG["experiment"] = self.experiment.name
+        CFG["project"] = self.NAME
+        CFG["domain"] = self.DOMAIN
+        CFG["group"] = self.GROUP
+        CFG["src_uri"] = self.src_uri
+        CFG["use_database"] = 1
+        CFG["db"]["run_group"] = str(self.run_uuid)
+
+        with local.cwd(self.builddir):
+            group, session = begin_run_group(self)
+            try:
+                self.run_tests(experiment)
+                end_run_group(group, session)
+            except GuardedRunException:
+                fail_run_group(group, session)
+            except KeyboardInterrupt as key_int:
+                fail_run_group(group, session)
+                raise key_int
             if CFG["clean"].value():
                 self.clean()
 

@@ -11,7 +11,7 @@ import parse
 import warnings
 from plumbum import local
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.utils.run import partial
+from functools import partial
 from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
                                       Clean, MakeBuildDir, Echo)
 

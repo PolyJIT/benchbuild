@@ -12,10 +12,11 @@ import uuid
 from benchbuild.utils.cmd import rm, time  # pylint: disable=E0401
 from plumbum import local
 from benchbuild.experiments.compilestats import collect_compilestats
-from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download, Configure,
-                                 Clean, MakeBuildDir, Run, Echo)
+from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download,
+                                      Configure, Clean, MakeBuildDir, Run,
+                                      Echo)
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.utils.run import partial
+from functools import partial
 
 
 def run_raw(project, experiment, config, run_f, args, **kwargs):
@@ -258,6 +259,58 @@ class PolyJIT(RuntimeExperiment):
     @abstractmethod
     def actions_for_project(self, p):
         pass
+
+
+class PolyJITFull(PolyJIT):
+    """
+        An experiment that executes all projects with PolyJIT support.
+
+        This is our default experiment for speedup measurements.
+    """
+
+    NAME = "pj"
+
+    def actions_for_project(self, p):
+        from benchbuild.settings import CFG
+
+        actns = []
+
+        rawp = copy.deepcopy(p)
+        rawp.run_uuid = uuid.uuid4()
+        rawp.runtime_extension = partial(run_with_time, rawp, self, CFG, 1)
+
+        actns.extend([
+            Echo("========= START: RAW Baseline"),
+            MakeBuildDir(rawp),
+            Prepare(rawp),
+            Download(rawp),
+            Configure(rawp),
+            Build(rawp),
+            Run(rawp),
+            Clean(rawp),
+            Echo("========= END: RAW Baseline")
+        ])
+
+        jitp = copy.deepcopy(p)
+        jitp = self.init_project(jitp)
+
+        for i in range(1, int(str(CFG["jobs"])) + 1):
+            cp = copy.deepcopy(jitp)
+            cp.run_uuid = uuid.uuid4()
+            cp.runtime_extension = partial(run_with_time, cp, self, CFG, i)
+
+            actns.extend([
+                Echo("========= START: JIT - Cores: {0}".format(i)),
+                MakeBuildDir(cp),
+                Prepare(cp),
+                Download(cp),
+                Configure(cp),
+                Build(cp),
+                Run(cp),
+                Clean(cp),
+                Echo("========= END: JIT - Cores: {0}".format(i))
+            ])
+        return actns
 
 
 class PJITRaw(PolyJIT):

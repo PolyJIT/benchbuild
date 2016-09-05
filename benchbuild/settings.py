@@ -141,7 +141,7 @@ class Configuration():
             self.init_from_env()
 
     def filter_exports(self):
-        if "default" in self.node:
+        if self.has_default():
             do_export = True
             if "export" in self.node:
                 do_export = self.node["export"]
@@ -149,10 +149,11 @@ class Configuration():
             if not do_export:
                 self.parent.node.pop(self.parent_key)
         else:
-            node = dict(self.node)
-            for k in node:
-                self[k].filter_exports()
-
+            selfcopy = copy.deepcopy(self)
+            for k in self.node:
+                if selfcopy[k].is_leaf():
+                    selfcopy[k].filter_exports()
+            self = selfcopy
 
     def store(self, config_file):
         """ Store the configuration dictionary to a file."""
@@ -162,7 +163,6 @@ class Configuration():
 
         with open(config_file, 'w') as outf:
             json.dump(selfcopy.node, outf, cls=UUIDEncoder, indent=True)
-
 
     def load(self, _from):
         """Load the configuration dictionary from file."""
@@ -186,6 +186,15 @@ class Configuration():
                 load_rec(self.node, json.load(inf))
                 self['config_file'] = os.path.abspath(_from)
 
+    def has_value(self):
+        return isinstance(self.node, dict) and 'value' in self.node
+
+    def has_default(self):
+        return isinstance(self.node, dict) and 'default' in self.node
+
+    def is_leaf(self):
+        return self.has_value() or self.has_default()
+
     def init_from_env(self):
         """
         Initialize this node from environment.
@@ -198,7 +207,7 @@ class Configuration():
 
         if 'default' in self.node:
             env_var = self.__to_env_var__().upper()
-            if 'value' in self.node:
+            if self.has_value():
                 env_val = os.getenv(env_var, self.node['value'])
             else:
                 env_val = os.getenv(env_var, self.node['default'])
@@ -277,10 +286,10 @@ class Configuration():
 
     def __repr__(self):
         _repr = []
-        if 'value' in self.node:
+        if self.has_value():
             return self.__to_env_var__() + "=" + escape_json(json.dumps(
                 self.node['value']))
-        if 'default' in self.node:
+        if self.has_default():
             return self.__to_env_var__() + "=" + escape_json(json.dumps(
                 self.node['default']))
 
@@ -295,6 +304,22 @@ class Configuration():
                 self.parent.__to_env_var__() + "_" + self.parent_key).upper()
         return self.parent_key.upper()
 
+
+def to_env_dict(config):
+    """Convert configuration object to a flat dictionary."""
+    entries = {}
+    if config.has_value():
+        return {config.__to_env_var__(): config.node['value']}
+    if config.has_default():
+        return {config.__to_env_var__(): config.node['default']}
+
+    for k in config.node:
+        if config.is_leaf():
+            entries.update(to_env_dict(config[k]))
+
+    return entries
+
+
 # Initialize the global configuration once.
 CFG = Configuration(
     "bb",
@@ -302,6 +327,10 @@ CFG = Configuration(
         "version": {
             "desc": "Version Number",
             "default": "1.2.1"
+        },
+        "verbosity": {
+            "desc": "The verbosity level of the logger. Range: 0-4",
+            "default": 0
         },
         "config_file": {
             "desc": "Config file path of benchbuild. Not guaranteed to exist.",
@@ -347,7 +376,7 @@ CFG = Configuration(
             "The experiment UUID we run everything under."
             "This groups the project runs in the database.",
             "default": str(uuid.uuid4()),
-            "export" : False
+            "export": False
         },
         "experiment": {
             "desc": "The experiment name we run everything under.",
@@ -359,7 +388,7 @@ CFG = Configuration(
         },
         "experiment_description": {
             "default": str(datetime.now()),
-            "export" : False
+            "export": False
         },
         "regression_prefix": {
             "default": os.path.join("/", "tmp", "benchbuild-regressions")

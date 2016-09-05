@@ -9,6 +9,7 @@ by llvm
 
 import parse
 import warnings
+import logging
 from plumbum import local
 from benchbuild.experiment import RuntimeExperiment
 from functools import partial
@@ -46,6 +47,13 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
         if names is not None:
             stats = [s for s in stats if str(s.name) in names]
 
+        log = logging.getLogger()
+        log.info("\n=========================================================")
+        log.info(" {:s} results:".format(experiment.NAME))
+        log.info("=========================================================\n")
+        for s in stats:
+            log.info("{:s} - {:s}".format(str(s.name), str(s.value)))
+        log.info("=========================================================\n")
         persist_compilestats(ri.db_run, ri.session, stats)
 
 

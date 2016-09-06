@@ -15,16 +15,17 @@ class Bzip2(BenchBuildGroup):
 
     NAME = 'bzip2'
     DOMAIN = 'compression'
+    VERSION = '1.0.6'
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
-    src_dir = "bzip2-1.0.6"
-    src_file = src_dir + ".tar.gz"
-    src_uri = "http://www.bzip.org/1.0.6/" + src_file
+    src_dir = "bzip2-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.gz"
+    src_uri = "http://www.bzip.org/{0}/".format(VERSION) + SRC_FILE
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar('xfz', path.join('.', self.src_file))
+        Wget(self.src_uri, self.SRC_FILE)
+        tar('xfz', path.join('.', self.SRC_FILE))
 
     def configure(self):
         pass

@@ -11,10 +11,11 @@ class LibAV(BenchBuildGroup):
     """ LibAV benchmark """
     NAME = 'ffmpeg'
     DOMAIN = 'multimedia'
+    VERSION = '2.6.3'
 
-    src_dir = "ffmpeg-2.6.3"
-    src_file = src_dir + ".tar.bz2"
-    src_uri = "http://ffmpeg.org/releases/" + src_file
+    src_dir = "ffmpeg-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.bz2"
+    src_uri = "http://ffmpeg.org/releases/" + SRC_FILE
     fate_dir = "fate-samples"
     fate_uri = "rsync://fate-suite.libav.org/fate-suite/"
 
@@ -23,8 +24,8 @@ class LibAV(BenchBuildGroup):
         run(make["V=1", "-i", "fate"])
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar('xfj', self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        tar('xfj', self.SRC_FILE)
         with local.cwd(self.src_dir):
             Rsync(self.fate_uri, self.fate_dir)
 

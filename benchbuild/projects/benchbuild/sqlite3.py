@@ -3,6 +3,7 @@ from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.downloader import Wget, Git
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.run import run
+from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import local
 from benchbuild.utils.cmd import unzip, make
@@ -17,12 +18,13 @@ class SQLite3(BenchBuildGroup):
     DOMAIN = 'database'
 
     src_dir = "sqlite-amalgamation-3080900"
-    src_file = src_dir + ".zip"
-    src_uri = "http://www.sqlite.org/2015/" + src_file
+    SRC_FILE = src_dir + ".zip"
+    VERSION = get_version_from_cache_dir(SRC_FILE)
+    src_uri = "http://www.sqlite.org/2015/" + SRC_FILE
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        unzip(self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        unzip(self.SRC_FILE)
         self.fetch_leveldb()
 
     def configure(self):

@@ -4,6 +4,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
+from benchbuild.utils.versions import get_git_hash
 
 from plumbum import local
 from benchbuild.utils.cmd import make, mkdir
@@ -15,11 +16,18 @@ class SpiderMonkey(BenchBuildGroup):
     NAME = 'js'
     DOMAIN = 'compilation'
 
-    src_uri = "https://github.com/mozilla/gecko-dev.git"
+    SRC_FILE = "https://github.com/mozilla/gecko-dev.git"
     src_dir = "gecko-dev.git"
+    version = get_git_hash(SRC_FILE)
+    if version == None:
+        VERSION = None
+    elif len(version) <= 7:
+        VERSION = str(version)
+    else:
+        VERSION = str(version)[:7]
 
     def download(self):
-        Git(self.src_uri, self.src_dir)
+        Git(self.SRC_FILE, self.src_dir)
 
     def configure(self):
         js_dir = path.join(self.src_dir, "js", "src")

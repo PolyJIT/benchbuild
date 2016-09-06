@@ -4,6 +4,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
+from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import local
 from benchbuild.utils.cmd import cp, make
@@ -16,6 +17,8 @@ class X264(BenchBuildGroup):
 
     NAME = "x264"
     DOMAIN = "multimedia"
+    SRC_FILE = 'x264.git'
+    VERSION = get_version_from_cache_dir(SRC_FILE)
 
     inputfiles = {"tbbt-small.y4m": [],
                   "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}
@@ -27,16 +30,15 @@ class X264(BenchBuildGroup):
         for testfile in testfiles:
             cp(testfile, self.builddir)
 
-    src_dir = "x264.git"
     src_uri = "git://git.videolan.org/x264.git"
 
     def download(self):
-        Git(self.src_uri, self.src_dir)
+        Git(self.src_uri, self.SRC_FILE)
 
     def configure(self):
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
 
-        with local.cwd(self.src_dir):
+        with local.cwd(self.SRC_FILE):
             configure = local["./configure"]
 
             with local.env(CC=str(clang)):
@@ -45,11 +47,11 @@ class X264(BenchBuildGroup):
                               "--enable-pic"])
 
     def build(self):
-        with local.cwd(self.src_dir):
+        with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, experiment):
-        exp = wrap(path.join(self.src_dir, "x264"), experiment)
+        exp = wrap(path.join(self.SRC_FILE, "x264"), experiment)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",

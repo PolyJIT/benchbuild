@@ -15,14 +15,16 @@ class Python(BenchBuildGroup):
 
     NAME = 'python'
     DOMAIN = 'compilation'
+    VERSION = '3.4.3'
 
-    src_dir = "Python-3.4.3"
-    src_file = src_dir + ".tar.xz"
-    src_uri = "https://www.python.org/ftp/python/3.4.3/" + src_file
+    src_dir = "Python-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.xz"
+    src_uri = "https://www.python.org/ftp/python/{0}/".format(VERSION) \
+        + SRC_FILE
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar("xfJ", self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        tar("xfJ", self.SRC_FILE)
 
     def configure(self):
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)

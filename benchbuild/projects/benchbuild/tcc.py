@@ -13,15 +13,16 @@ from os import path
 class TCC(BenchBuildGroup):
     NAME = 'tcc'
     DOMAIN = 'compilation'
+    VERSION = '0.9.26'
 
-    src_dir = "tcc-0.9.26"
-    src_file = src_dir + ".tar.bz2"
+    src_dir = "tcc-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.bz2"
     src_uri = "http://download-mirror.savannah.gnu.org/releases/tinycc/" + \
-        src_file
+       SRC_FILE
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar("xjf", self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        tar("xjf", self.SRC_FILE)
 
     def configure(self):
         mkdir("build")

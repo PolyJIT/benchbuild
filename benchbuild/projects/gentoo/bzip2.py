@@ -17,6 +17,7 @@ class BZip2(GentooGroup):
     """
     NAME = "gentoo-bzip2"
     DOMAIN = "app-arch"
+    VERSION = "1.0.6"
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "compression.tar.gz"

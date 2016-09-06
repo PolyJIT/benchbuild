@@ -3,6 +3,7 @@ from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
+from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import local
 from benchbuild.utils.cmd import git, make
@@ -16,35 +17,36 @@ class Minisat(BenchBuildGroup):
 
     NAME = 'minisat'
     DOMAIN = 'verification'
+    SRC_FILE = 'minisat.git'
+    VERSION = get_version_from_cache_dir(SRC_FILE)
 
     def run_tests(self, experiment):
         exp = wrap(
-            path.join(self.src_dir, "build", "dynamic", "bin", "minisat"),
+            path.join(self.SRC_FILE, "build", "dynamic", "bin", "minisat"),
             experiment)
 
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
-        minisat_lib_path = path.join(self.src_dir, "build", "dynamic", "lib")
+        minisat_lib_path = path.join(self.SRC_FILE, "build", "dynamic", "lib")
 
         for test_f in testfiles:
             with local.env(LD_LIBRARY_PATH=minisat_lib_path + ":" + getenv(
                     "LD_LIBRARY_PATH", "")):
                 run((exp < test_f), None)
 
-    src_dir = "minisat.git"
     src_uri = "https://github.com/niklasso/minisat"
 
     def download(self):
-        Git(self.src_uri, self.src_dir)
-        with local.cwd(self.src_dir):
+        Git(self.src_uri, self.SRC_FILE)
+        with local.cwd(self.SRC_FILE):
             git("fetch", "origin", "pull/17/head:clang")
             git("checkout", "clang")
 
     def configure(self):
-        with local.cwd(self.src_dir):
+        with local.cwd(self.SRC_FILE):
             run(make["config"])
 
     def build(self):
-        with local.cwd(self.src_dir):
+        with local.cwd(self.SRC_FILE):
             clang = lt_clang(self.cflags, self.ldflags,
                              self.compiler_extension)
             clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,

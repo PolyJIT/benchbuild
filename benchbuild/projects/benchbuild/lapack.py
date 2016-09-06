@@ -86,7 +86,7 @@ class Lapack(BenchBuildGroup):
                 makefile.writelines(content)
 
     def build(self):
-        with local.cwd(self.):
+        with local.cwd(self.src_dir):
             run(make["-j", CFG["jobs"], "f2clib", "blaslib"])
             with local.cwd(path.join("BLAS", "TESTING")):
                 run(make["-j", CFG["jobs"], "-f", "Makeblat2"])

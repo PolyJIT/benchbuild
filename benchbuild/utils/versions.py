@@ -26,7 +26,7 @@ def get_version_from_cache_dir(src_file):
         dir_hash = get_hash_of_dirs(cache_file)
         if dir_hash == None:
             return None
-        elif len(dir_hash) <= 7:
+        elif len(str(dir_hash)) <= 7:
             return str(dir_hash)
         else:
             return str(dir_hash)[:7]

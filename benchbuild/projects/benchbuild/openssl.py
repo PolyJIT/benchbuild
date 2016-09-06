@@ -15,14 +15,15 @@ class LibreSSL(BenchBuildGroup):
 
     NAME = 'libressl'
     DOMAIN = 'encryption'
+    VERSION = '2.1.6'
 
-    src_dir = "libressl-2.1.6"
-    src_file = src_dir + ".tar.gz"
-    src_uri = "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/" + src_file
+    src_dir = "libressl-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.gz"
+    src_uri = "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/" + SRC_FILE
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar("xfz", self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        tar("xfz", self.SRC_FILE)
 
     def configure(self):
         configure = local[path.join(self.src_dir, "configure")]

@@ -14,6 +14,7 @@ class Crocopat(BenchBuildGroup):
 
     NAME = 'crocopat'
     DOMAIN = 'verification'
+    VERSION = '2.1.4'
 
     def run_tests(self, experiment):
         exp = wrap(self.run_f, experiment)
@@ -24,13 +25,13 @@ class Crocopat(BenchBuildGroup):
             for project in projects:
                 run((cat[project] | exp[program]), None)
 
-    src_dir = "crocopat-2.1.4"
-    src_file = src_dir + ".zip"
-    src_uri = "http://crocopat.googlecode.com/files/" + src_file
+    src_dir = "crocopat-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".zip"
+    src_uri = "http://crocopat.googlecode.com/files/" + SRC_FILE
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        unzip(self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        unzip(self.SRC_FILE)
 
     def configure(self):
         pass

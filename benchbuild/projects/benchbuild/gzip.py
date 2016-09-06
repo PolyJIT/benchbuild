@@ -16,12 +16,13 @@ class Gzip(BenchBuildGroup):
 
     NAME = 'gzip'
     DOMAIN = 'compression'
+    VERSION = '1.6'
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
-    src_dir = "gzip-1.6"
-    src_file = src_dir + ".tar.xz"
-    src_uri = "http://ftpmirror.gnu.org/gzip/" + src_file
+    src_dir = "gzip-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.xz"
+    src_uri = "http://ftpmirror.gnu.org/gzip/" + SRC_FILE
 
     def prepare(self):
         super(Gzip, self).prepare()
@@ -46,8 +47,8 @@ class Gzip(BenchBuildGroup):
         run(exp["-f", "-k", "--decompress", "liberty.jpg.gz"])
 
     def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar("xfJ", self.src_file)
+        Wget(self.src_uri, self.SRC_FILE)
+        tar("xfJ", self.SRC_FILE)
 
     def configure(self):
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)

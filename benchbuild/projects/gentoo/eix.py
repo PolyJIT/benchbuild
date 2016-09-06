@@ -12,6 +12,7 @@ class Eix(GentooGroup):
 
     NAME = 'eix'
     DOMAIN = 'app-portage'
+    VERSION = '0.31.8'
 
     def build(self):
         """Compiles and installes eix within gentoo chroot"""

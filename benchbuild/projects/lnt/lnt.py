@@ -21,7 +21,7 @@ class LNTGroup(Project):
 
     DOMAIN = 'lnt'
     GROUP = 'lnt'
-    VERSION = get_version_from_cache_dir(LNTGroup.src_file)
+    VERSION = '9.0.1.13'
     def __init__(self, exp):
         super(LNTGroup, self).__init__(exp, "lnt")
 

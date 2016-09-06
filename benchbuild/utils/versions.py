@@ -24,9 +24,9 @@ def get_version_from_cache_dir(src_file):
     if path.exists(tmp_dir):
         cache_file = path.join(tmp_dir, src_file)
         dir_hash = get_hash_of_dirs(cache_file)
-        if version == None:
+        if dir_hash == None:
             return None
-        elif len(version) <= 7:
+        elif len(dir_hash) <= 7:
             return str(dir_hash)
         else:
             return str(dir_hash)[:7]

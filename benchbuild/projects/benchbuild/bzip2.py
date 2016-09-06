@@ -13,7 +13,7 @@ from os import path
 class Bzip2(BenchBuildGroup):
     """ Bzip2 """
 
-    NAME = 'bzip2'
+    NAME = 'bb-bzip2'
     DOMAIN = 'compression'
     VERSION = '1.0.6'
 

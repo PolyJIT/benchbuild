@@ -11,7 +11,7 @@ from benchbuild.utils.cmd import make
 
 
 class SDCC(BenchBuildGroup):
-    NAME = 'sdcc'
+    NAME = 'bb-sdcc'
     DOMAIN = 'compilation'
     SRC_FILE = 'sdcc'
     VERSION = get_version_from_cache_dir(SRC_FILE)

@@ -13,7 +13,7 @@ from os import path
 
 
 class SpiderMonkey(BenchBuildGroup):
-    NAME = 'js'
+    NAME = 'bb-js'
     DOMAIN = 'compilation'
 
     SRC_FILE = "https://github.com/mozilla/gecko-dev.git"

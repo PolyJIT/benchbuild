@@ -12,7 +12,7 @@ from os import path
 class SevenZip(BenchBuildGroup):
     """ 7Zip """
 
-    NAME = '7z'
+    NAME = 'bb-7z'
     DOMAIN = 'compression'
     VERSION = '9.38.1'
 

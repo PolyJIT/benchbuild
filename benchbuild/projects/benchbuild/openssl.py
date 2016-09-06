@@ -13,7 +13,7 @@ from os import path
 class LibreSSL(BenchBuildGroup):
     """ OpenSSL """
 
-    NAME = 'libressl'
+    NAME = 'bb-libressl'
     DOMAIN = 'encryption'
     VERSION = '2.1.6'
 

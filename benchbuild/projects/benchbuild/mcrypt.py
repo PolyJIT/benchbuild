@@ -14,7 +14,7 @@ from os import path
 class MCrypt(BenchBuildGroup):
     """ MCrypt benchmark """
 
-    NAME = 'mcrypt'
+    NAME = 'bb-mcrypt'
     DOMAIN = 'encryption'
     VERSION = '2.6.8'
 

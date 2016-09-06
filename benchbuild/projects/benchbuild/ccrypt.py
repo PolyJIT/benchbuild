@@ -11,7 +11,7 @@ from benchbuild.utils.cmd import ln, tar, make
 class Ccrypt(BenchBuildGroup):
     """ ccrypt benchmark """
 
-    NAME = 'ccrypt'
+    NAME = 'bb-ccrypt'
     DOMAIN = 'encryption'
     VERSION = '1.10'
     SRC_FILE = 'ccrypt-{0}.tar.gz'.format(VERSION)

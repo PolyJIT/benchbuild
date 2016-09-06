@@ -15,7 +15,7 @@ from os import path
 class X264(BenchBuildGroup):
     """ x264 """
 
-    NAME = "x264"
+    NAME = "bb-x264"
     DOMAIN = "multimedia"
     SRC_FILE = 'x264.git'
     VERSION = get_version_from_cache_dir(SRC_FILE)

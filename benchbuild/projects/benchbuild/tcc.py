@@ -11,7 +11,7 @@ from os import path
 
 
 class TCC(BenchBuildGroup):
-    NAME = 'tcc'
+    NAME = 'bb-tcc'
     DOMAIN = 'compilation'
     VERSION = '0.9.26'
 

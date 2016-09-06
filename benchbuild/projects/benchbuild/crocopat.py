@@ -12,7 +12,7 @@ from glob import glob
 class Crocopat(BenchBuildGroup):
     """ crocopat benchmark """
 
-    NAME = 'crocopat'
+    NAME = 'bb-crocopat'
     DOMAIN = 'verification'
     VERSION = '2.1.4'
 

@@ -12,7 +12,7 @@ from os import path
 class LuleshOMP(BenchBuildGroup):
     """ Lulesh-OMP """
 
-    NAME = 'lulesh-omp'
+    NAME = 'bb-lulesh-omp'
     DOMAIN = 'scientific'
     SRC_FILE = 'LULESH_OMP.cc'
     VERSION = get_version_from_cache_dir(SRC_FILE)

@@ -10,7 +10,7 @@ from benchbuild.utils.versions import get_version_from_cache_dir
 class Lulesh(BenchBuildGroup):
     """ Lulesh """
 
-    NAME = 'lulesh'
+    NAME = 'bb-lulesh'
     DOMAIN = 'scientific'
     SRC_FILE = 'LULESH.cc'
     VERSION = get_version_from_cache_dir(SRC_FILE)

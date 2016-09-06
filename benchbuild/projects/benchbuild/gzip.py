@@ -14,7 +14,7 @@ from os import path
 class Gzip(BenchBuildGroup):
     """ Gzip """
 
-    NAME = 'gzip'
+    NAME = 'bb-gzip'
     DOMAIN = 'compression'
     VERSION = '1.6'
 

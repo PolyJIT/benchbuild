@@ -12,7 +12,7 @@ from os import path
 
 
 class Ruby(BenchBuildGroup):
-    NAME = 'ruby'
+    NAME = 'bb-ruby'
     DOMAIN = 'compilation'
     VERSION = '2.2.2'
 

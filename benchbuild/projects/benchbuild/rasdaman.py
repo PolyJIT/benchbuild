@@ -16,7 +16,7 @@ from os import path
 class Rasdaman(BenchBuildGroup):
     """ Rasdaman """
 
-    NAME = 'Rasdaman'
+    NAME = 'bb-Rasdaman'
     DOMAIN = 'database'
     SRC_FILE = 'rasdaman.git'
     VERSION = get_version_from_cache_dir(SRC_FILE)

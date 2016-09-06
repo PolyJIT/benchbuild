@@ -9,7 +9,7 @@ from benchbuild.utils.cmd import make, tar
 
 class LibAV(BenchBuildGroup):
     """ LibAV benchmark """
-    NAME = 'ffmpeg'
+    NAME = 'bb-ffmpeg'
     DOMAIN = 'multimedia'
     VERSION = '2.6.3'
 

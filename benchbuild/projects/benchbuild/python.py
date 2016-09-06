@@ -19,7 +19,7 @@ class Python(BenchBuildGroup):
 
     src_dir = "Python-{0}".format(VERSION)
     SRC_FILE = src_dir + ".tar.xz"
-    src_uri = "https://www.python.org/ftp/python/{0}/".format(VESRION) \
+    src_uri = "https://www.python.org/ftp/python/{0}/".format(VERSION) \
         + SRC_FILE
 
     def download(self):

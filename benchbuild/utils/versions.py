@@ -22,11 +22,11 @@ def get_version_from_cache_dir(src_file):
     """
     tmp_dir = CFG["tmp_dir"].value()
     if path.exists(tmp_dir):
-        cache.file = path.join(tmp_dir, src_file)
+        cache_file = path.join(tmp_dir, src_file)
         dir_hash = get_hash_of_dirs(cache_file)
         if version == None:
             return None
-        elif version.len() <= 7:
+        elif len(version) <= 7:
             return str(dir_hash)
         else:
             return str(dir_hash)[:7]

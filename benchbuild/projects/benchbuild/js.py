@@ -21,7 +21,7 @@ class SpiderMonkey(BenchBuildGroup):
     version = get_git_hash(SRC_FILE)
     if version == None:
         VERSION = None
-    elif version.len()<=7:
+    elif len(version) <= 7:
         VERSION = str(version)
     else:
         VERSION = str(version)[:7]

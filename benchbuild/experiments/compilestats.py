@@ -49,7 +49,8 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
 
         log = logging.getLogger()
         log.info("\n=========================================================")
-        log.info(" {:s} results:".format(experiment.NAME))
+        log.info("{:s} results for project {:s}:".format(experiment.NAME,
+                                                         project.NAME))
         log.info("=========================================================\n")
         for s in stats:
             log.info("{:s} - {:s}".format(str(s.name), str(s.value)))

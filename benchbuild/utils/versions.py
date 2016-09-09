@@ -8,30 +8,24 @@ from benchbuild.utils.downloader import get_hash_of_dirs
 from os import path
 
 
-def get_version_from_cache_dir(src_file):
-    """
-    Creates a version for a project out of the hash. The hash is taken from the directory of the source file.
+def is_git_root(url):
+    """Checks whether an url is the root of a git repository."""
+    check_path = path.join(url, ".git")
+    return path.exists(check_path) and path.isdir(check_path)
 
-    Args:
-        src_file: The source file of the project using this function.
 
-    Returns:
-        Either returns the first 8 digits of the hash as string,
-        the entire hash as a string if the hash consists out of less
-        than 7 digits or None if the path is incorrect.
-    """
-    tmp_dir = CFG["tmp_dir"].value()
-    if path.exists(tmp_dir):
-        cache_file = path.join(tmp_dir, src_file)
-        dir_hash = get_hash_of_dirs(cache_file)
-        if dir_hash == None:
-            return None
-        elif len(str(dir_hash)) <= 7:
-            return str(dir_hash)
-        else:
-            return str(dir_hash)[:7]
-    else:
-        return None
+def has_hash_file(url):
+    check_path = url + ".hash"
+    return path.exists(check_path) and path.isfile(check_path)
+
+
+def get_hash_from_file(url):
+    check_path = url + ".hash"
+    h = None
+    with open(check_path, 'r') as hf:
+        h = hf.readline()
+    return h
+
 
 def get_git_hash(from_url):
     """
@@ -51,6 +45,43 @@ def get_git_hash(from_url):
 
     with local.cwd(from_url):
         return git("rev-parse", "HEAD", retcode=None)
+
+
+def get_version_from_cache_dir(src_file):
+    """
+    Creates a version for a project out of the hash.
+
+    The hash is taken from the directory of the source file.
+
+    Args:
+        src_file: The source file of the project using this function.
+
+    Returns:
+        Either returns the first 8 digits of the hash as string,
+        the entire hash as a string if the hash consists out of less
+        than 7 digits or None if the path is incorrect.
+    """
+    import logging as l
+
+    l.debug("get_version_from_cache_dir")
+    tmp_dir = CFG["tmp_dir"].value()
+    if path.exists(tmp_dir):
+        cache_path = path.join(tmp_dir, src_file)
+        if is_git_root(cache_path):
+            dir_hash = get_git_hash(cache_path)
+        elif has_hash_file(cache_path):
+            dir_hash = get_hash_from_file(cache_path)
+        else:
+            dir_hash = get_hash_of_dirs(cache_path)
+
+        if dir_hash is None:
+            return None
+        elif len(str(dir_hash)) <= 7:
+            return str(dir_hash)
+        else:
+            return str(dir_hash)[:7]
+    else:
+        return None
 
 
 LLVM_VERSION = get_git_hash(str(CFG["llvm"]["src"]))

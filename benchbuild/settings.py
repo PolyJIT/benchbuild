@@ -314,8 +314,7 @@ def to_env_dict(config):
         return {config.__to_env_var__(): config.node['default']}
 
     for k in config.node:
-        if config.is_leaf():
-            entries.update(to_env_dict(config[k]))
+        entries.update(to_env_dict(config[k]))
 
     return entries
 
@@ -404,6 +403,10 @@ CFG = Configuration(
             "desc":
             "List of existing paths that benchbuild should delete in addition "
             "to the default cleanup steps."
+        },
+        "use_database": {
+            "desc": "LEGACY: Store results from libpprof in the database.",
+            "default": 1
         }
     })
 

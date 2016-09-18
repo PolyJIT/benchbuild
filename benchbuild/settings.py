@@ -403,6 +403,10 @@ CFG = Configuration(
             "desc":
             "List of existing paths that benchbuild should delete in addition "
             "to the default cleanup steps."
+        },
+        "use_database": {
+            "desc": "LEGACY: Store results from libpprof in the database.",
+            "default": 1
         }
     })
 

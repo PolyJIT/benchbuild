@@ -314,8 +314,7 @@ def to_env_dict(config):
         return {config.__to_env_var__(): config.node['default']}
 
     for k in config.node:
-        if config.is_leaf():
-            entries.update(to_env_dict(config[k]))
+        entries.update(to_env_dict(config[k]))
 
     return entries
 

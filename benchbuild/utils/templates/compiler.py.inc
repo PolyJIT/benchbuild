@@ -47,7 +47,7 @@ def has_debug_enabled(flags):
     Not all of our transformations handle debug symbols well. With this
     method we can detect the case and handle it properly (strip the flags).
     """
-    filtered = [x for x in flags if '-' is x[0] and 'g' is x[1]]
+    filtered = [x for x in flags if '-' is x[0] and len(x) > 0 and 'g' is x[1]]
     return len(filtered) > 0
 
 

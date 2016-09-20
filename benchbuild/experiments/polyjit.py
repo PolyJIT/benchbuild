@@ -181,6 +181,51 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     persist_config(ri.db_run, ri.session, {"cores": str(jobs)})
 
 
+def run_without_recompile(project, experiment, config, jobs, run_f,
+                          args, **kwargs):
+    """
+    Run the given binary wrapped with time.
+
+    Args:
+        project: The benchbuild.project.
+        experiment: The benchbuild.experiment.
+        config: The benchbuild.settings.config.
+        jobs: Number of cores we should use for this exection.
+        run_f: The file we want to execute.
+        args: List of arguments that should be passed to the wrapped binary.
+        **kwargs: Dictionary with our keyword args. We support the following
+            entries:
+
+            project_name: The real name of our project. This might not
+                be the same as the configured project name, if we got wrapped
+                with ::benchbuild.project.wrap_dynamic
+            has_stdin: Signals whether we should take care of stdin.
+    """
+    from benchbuild.utils.run import guarded_exec, handle_stdin, fetch_time_output
+    from benchbuild.settings import CFG as c
+    from benchbuild.utils.db import persist_time, persist_config
+
+    c.update(config)
+    project.name = kwargs.get("project_name", project.name)
+    timing_tag = "BB-JIT: "
+
+    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
+    run_cmd = handle_stdin(run_cmd[args], kwargs)
+
+    with local.env(OMP_NUM_THREADS=str(jobs),
+                   POLLI_DISABLE_RECOMPILATION=1):
+        with guarded_exec(run_cmd, project, experiment) as run:
+            ri = run()
+        timings = fetch_time_output(
+            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+        if not timings:
+            return
+
+    persist_time(ri.db_run, ri.session, timings)
+    persist_config(ri.db_run, ri.session, {"cores": str(jobs),
+                                           "recompilation": "disabled"})
+
+
 def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
     """
     Run the given binary wrapped with time.
@@ -293,6 +338,26 @@ class PolyJITFull(PolyJIT):
 
         jitp = copy.deepcopy(p)
         jitp = self.init_project(jitp)
+        norecomp = copy.deepcopy(jitp)
+        norecomp.cflags += ["-mllvm", "-no-recompilation"]
+
+        for i in range(1, int(str(CFG["jobs"])) + 1):
+            cp = copy.deepcopy(norecomp)
+            cp.run_uuid = uuid.uuid4()
+            cp.runtime_extension = partial(run_without_recompile,
+                                           cp, self, CFG, i)
+
+            actns.extend([
+                Echo("========= START: JIT No Recomp - Cores: {0}".format(i)),
+                MakeBuildDir(cp),
+                Prepare(cp),
+                Download(cp),
+                Configure(cp),
+                Build(cp),
+                Run(cp),
+                Clean(cp),
+                Echo("========= END: JIT No Recomp - Cores: {0}".format(i))
+            ])
 
         for i in range(1, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(jitp)

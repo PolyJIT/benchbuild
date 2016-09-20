@@ -10,12 +10,9 @@ dependencies for your experiments. Make sure you update the hash alongside
 the gentoo image in benchbuild's source directory.
 
 """
-import fileinput
 from os import path
 from benchbuild.utils.cmd import cp, tar, mv, rm  # pylint: disable=E0401
-from benchbuild.utils.cmd import curl, cut, tail, bash  # pylint: disable=E0401
 from plumbum import local
-from plumbum import TF
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild import project
 from benchbuild.utils.run import run, uchroot, uchroot_no_llvm
@@ -24,42 +21,7 @@ from benchbuild.utils.path import list_to_path
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import uchroot_env, uchroot_mounts
 from benchbuild.settings import CFG
-from lazy import lazy
-
-
-def cached(func):
-    ret = None
-
-    def call_or_cache(*args, **kwargs):
-        nonlocal ret
-        if ret is None:
-            ret = func(*args, **kwargs)
-        return ret
-
-    return call_or_cache
-
-
-@cached
-def latest_src_uri():
-    """
-    Get the latest src_uri for a stage 3 tarball.
-
-    Returns (str):
-        Latest src_uri from gentoo's distfiles mirror.
-    """
-    from plumbum import ProcessExecutionError
-    from logging import error
-
-    latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
-                 "latest-stage3-amd64.txt"
-    try:
-        src_uri = (curl[latest_txt] |
-                   tail["-n", "+3"] |
-                   cut["-f1", "-d "])().strip()
-    except ProcessExecutionError as proc_ex:
-        src_uri = "NOT-FOUND"
-        error("Could not determine latest stage3 src uri: {0}", str(proc_ex))
-    return src_uri
+from benchbuild.utils import container
 
 
 class GentooGroup(project.Project):
@@ -74,37 +36,11 @@ class GentooGroup(project.Project):
     src_dir = "gentoo"
     src_file = src_dir + ".tar.bz2"
 
-    @lazy
-    def src_uri(self):  # pylint: disable=R0201
-        """Fetches the lates src_uri from the gentoo mirrors."""
-        return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
-                .format(latest_src_uri())
-
     def build(self):
         pass
 
     def download(self):
-        from benchbuild.utils.run import uchroot_no_args
-        with local.cwd(self.builddir):
-            Wget(self.src_uri, self.src_file)
-            uchroot = uchroot_no_args()
-            uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w", path.abspath(
-                "."), "--"]
-
-            # Check, if we need erlent support for this archive.
-            has_erlent = bash[
-                "-c", "tar --list -f './{0}' | grep --silent '.erlent'".format(
-                    self.src_file)]
-            has_erlent = (has_erlent & TF)
-
-            cmd = local["/bin/tar"]["xf"]
-            if not has_erlent:
-                cmd = uchroot[cmd["./" + path.basename(self.src_file)]]
-            else:
-                cmd = cmd[self.src_file]
-
-            run(cmd["--exclude=dev/*"])
-            rm(self.src_file)
+        container.unpack_container(self.builddir)
 
     def write_wgetrc(self, path):
         mkfile_uchroot("/etc/wgetrc")

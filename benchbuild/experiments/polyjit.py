@@ -178,7 +178,8 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
             return
 
     persist_time(ri.db_run, ri.session, timings)
-    persist_config(ri.db_run, ri.session, {"cores": str(jobs)})
+    persist_config(ri.db_run, ri.session, {"cores": str(jobs),
+                                           "recompilation": "enabled"})
 
 
 def run_without_recompile(project, experiment, config, jobs, run_f,

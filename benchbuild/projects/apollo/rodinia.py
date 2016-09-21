@@ -32,7 +32,7 @@ class Rodinia(ApolloGroup):
         clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                  self.compiler_extension)
         with local.cwd(self.src_dir):
-            run(make[CC=" + str(clang), "CXX=" + str(clang_cxx), "OMP"])
+            run(make["CC=" + str(clang), "CXX=" + str(clang_cxx), "OMP"])
 
     def prepare(self):
         pass

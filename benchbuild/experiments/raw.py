@@ -24,7 +24,7 @@ from benchbuild.utils.db import persist_time, persist_config
 from benchbuild.utils.cmd import time
 
 from benchbuild.settings import CFG
-from benchbuild.utils.run import partial
+from functools import partial
 from plumbum import local
 
 

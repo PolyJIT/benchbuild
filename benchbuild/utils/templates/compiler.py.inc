@@ -40,6 +40,24 @@ input_files = [x for x in sys.argv[1:] if '-' is not x[0]]
 flags = sys.argv[1:]
 
 
+def has_debug_enabled(flags):
+    """
+    Check, if -gXXX has been enabled.
+
+    Not all of our transformations handle debug symbols well. With this
+    method we can detect the case and handle it properly (strip the flags).
+    """
+    filtered = [x for x in flags if '-' is x[0] and len(x) > 0 and 'g' is x[1]]
+    return len(filtered) > 0
+
+
+def strip_debug_flags(flags):
+    """Strip '-g*' flags from the command line."""
+    flags = [x for x in flags if ('-' is not x[0]) or
+                                 ('-' is x[0] and 'g' is not x[1])]
+    return flags
+
+
 def invoke_external_measurement(cmd):
     f = None
     if os.path.exists(BLOB_F):
@@ -64,6 +82,8 @@ def run(cmd):
 
 def construct_cc(cc, flags, CFLAGS, LDFLAGS, ifiles):
     fc = None
+    if has_debug_enabled(flags):
+        flags = strip_debug_flags(flags)
     if len(input_files) > 0:
         fc = cc["-Qunused-arguments", CFLAGS, LDFLAGS, flags]
     else:

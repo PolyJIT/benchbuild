@@ -1,6 +1,4 @@
-"""
-Experiment helpers
-"""
+"""Experiment helpers."""
 import os
 from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
 from benchbuild.utils.path import list_to_path
@@ -8,38 +6,6 @@ from contextlib import contextmanager
 from types import SimpleNamespace
 from benchbuild import settings
 import logging
-
-
-def partial(func, *args, **kwargs):
-    """
-    Partial function application.
-
-    This performs standard partial application on the given function. However,
-    we do not check if parameter values in args and kwargs collide with each
-    other.
-
-    Args:
-        func: The original function.
-        *args: Positional arguments that should be applied partially.
-        **kwargs: Keyword arguments that should be applied partially.
-
-    Returns:
-        A new function that has all given args and kwargs bound.
-    """
-    frozen_args = args
-    frozen_kwargs = kwargs
-
-    def partial_func(*args, **kwargs):
-        """ The partial function with pre-bound arguments. """
-        nonlocal frozen_args
-        nonlocal frozen_kwargs
-        nonlocal func
-        thawed_args = frozen_args + args
-        thawed_kwargs = frozen_kwargs.copy()
-        thawed_kwargs.update(kwargs)
-        func(*thawed_args, **thawed_kwargs)
-
-    return partial_func
 
 
 def handle_stdin(cmd, kwargs):
@@ -285,32 +251,36 @@ def guarded_exec(cmd, project, experiment):
     db_run, session = begin(cmd, project.name, experiment.name,
                             project.run_uuid)
     ex = None
-    with local.env(BB_DB_RUN_ID=db_run.id):
 
-        def runner(retcode=0, *args):
+    settings.CFG["db"]["run_id"] = db_run.id
+    settings.CFG["use_file"] = 0
+
+    def runner(retcode=0, *args):
+        cmd_env = settings.to_env_dict(settings.CFG)
+        with local.env(**cmd_env):
             retcode, stdout, stderr = cmd[args] & TEE(retcode=retcode)
-            end(db_run, session, stdout, stderr)
-            r = SimpleNamespace()
-            r.retcode = retcode
-            r.stdout = stdout
-            r.stderr = stderr
-            r.session = session
-            r.db_run = db_run
-            return r
+        end(db_run, session, stdout, stderr)
+        r = SimpleNamespace()
+        r.retcode = retcode
+        r.stdout = stdout
+        r.stderr = stderr
+        r.session = session
+        r.db_run = db_run
+        return r
 
-        try:
-            yield runner
-        except KeyboardInterrupt:
-            fail(db_run, session, -1, "", "KeyboardInterrupt")
-            warn("Interrupted by user input")
-            raise
-        except ProcessExecutionError as proc_ex:
-            fail(db_run, session, proc_ex.retcode, proc_ex.stdout,
-                 proc_ex.stderr)
-            raise
-        except Exception as ex:
-            fail(db_run, session, -1, "", str(ex))
-            raise
+    try:
+        yield runner
+    except KeyboardInterrupt:
+        fail(db_run, session, -1, "", "KeyboardInterrupt")
+        warn("Interrupted by user input")
+        raise
+    except ProcessExecutionError as proc_ex:
+        fail(db_run, session, proc_ex.retcode, proc_ex.stdout,
+             proc_ex.stderr)
+        raise
+    except Exception as ex:
+        fail(db_run, session, -1, "", str(ex))
+        raise
 
 
 def run(command, retcode=0):
@@ -320,9 +290,7 @@ def run(command, retcode=0):
     Args:
         command: The plumbumb command to execute.
     """
-    from logging import info
     from plumbum.commands.modifiers import TEE
-    info(str(command))
     command & TEE(retcode)
 
 
@@ -375,7 +343,6 @@ def _uchroot_mounts(prefix, mounts, uchroot):
 
 
 def uchroot_env(mounts):
-    import logging as l
     ld_libs = ["/{0}/lib".format(m) for m in mounts]
     paths = ["/{0}/bin".format(m) for m in mounts]
     paths.extend(["/{0}".format(m) for m in mounts])
@@ -395,9 +362,8 @@ def uchroot(*args, **kwargs):
     from benchbuild.settings import CFG
     mkdir("-p", "llvm")
     uchroot_cmd = uchroot_no_llvm(*args, **kwargs)
-    uchroot_cmd, mounts = \
-            _uchroot_mounts("mnt", CFG["uchroot"]["mounts"].value(),
-                            uchroot_cmd)
+    uchroot_cmd, mounts = _uchroot_mounts(
+        "mnt", CFG["uchroot"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
     uchroot_cmd = uchroot_cmd.with_env(
             LD_LIBRARY_PATH=list_to_path(libs),
@@ -558,3 +524,17 @@ def unionfs(base_dir='./base',
         return wrap_in_union_fs_func
 
     return wrap_in_union_fs
+
+
+def store_config(func):
+    """ Decorator for storing the configuration in the project's builddir. """
+    from functools import wraps
+    from benchbuild.settings import CFG
+
+    @wraps(func)
+    def wrap_store_config(self, *args, **kwargs):
+        p = os.path.abspath(os.path.join(self.builddir))
+        CFG.store(os.path.join(p, ".benchbuild.json"))
+        return func(self, *args, **kwargs)
+
+    return wrap_store_config

@@ -2,7 +2,12 @@
 Generic experiment to test portage packages within gentoo chroot.
 """
 import logging
+import os
 from benchbuild.projects.gentoo import autoportage
+from benchbuild.utils.run import uchroot_no_args
+from benchbuild.utils.container import get_path_of_container
+from plumbum import FG
+
 
 def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
     """

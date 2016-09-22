@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-import logging
-
 from benchbuild import settings
 from benchbuild.utils import log
 from plumbum import cli
+
 
 class PollyProfiling(cli.Application):
     """ Frontend for running/building the benchbuild study framework """
@@ -13,11 +12,8 @@ class PollyProfiling(cli.Application):
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
 
-    @cli.switch(
-        ["--list-env"],
-        help=
-        "List all environment variables that affect this program's behavior and exit."
-    )
+    @cli.switch(["--list-env"],
+                help="List all available environment variables and exit.")
     def list_env(self):
         self._list_env = True
 
@@ -35,20 +31,11 @@ class PollyProfiling(cli.Application):
             self.do_list_env()
             return
 
-        log_levels = {
-            3: logging.DEBUG,
-            2: logging.INFO,
-            1: logging.WARNING,
-            0: logging.ERROR
-        }
-
         self.verbosity = self.verbosity if self.verbosity < 4 else 3
-        logging.captureWarnings(True)
+        settings.CFG["verbosity"] = self.verbosity
 
         log.configure()
-        LOG = logging.getLogger()
-        LOG.setLevel(log_levels[self.verbosity])
-
+        log.set_defaults()
         settings.update_env()
 
         if args:

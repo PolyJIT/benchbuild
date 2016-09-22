@@ -1,16 +1,17 @@
 """Gather version information for BB."""
 
+from os import path
 from plumbum import local
 from benchbuild.utils.cmd import git
 
 from benchbuild.settings import CFG
 from benchbuild.utils.downloader import get_hash_of_dirs
-from os import path
 
 
 def get_version_from_cache_dir(src_file):
     """
-    Creates a version for a project out of the hash. The hash is taken from the directory of the source file.
+    Creates a version for a project out of the hash.
+    The hash is taken from the directory of the source file.
 
     Args:
         src_file: The source file of the project using this function.
@@ -24,7 +25,7 @@ def get_version_from_cache_dir(src_file):
     if path.exists(tmp_dir):
         cache_file = path.join(tmp_dir, src_file)
         dir_hash = get_hash_of_dirs(cache_file)
-        if dir_hash == None:
+        if dir_hash is None:
             return None
         elif len(str(dir_hash)) <= 7:
             return str(dir_hash)

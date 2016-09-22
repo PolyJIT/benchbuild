@@ -152,7 +152,7 @@ def Wget(src_url, tgt_name, tgt_root=None):
 
 def Git(src_url, tgt_name, tgt_root=None):
     """
-    Get a shallow clone of the given respo
+    Get a shallow clone of the given repo
 
     Args:
         src_url (str): Git URL of the SOURCE repo.

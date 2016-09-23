@@ -6,7 +6,7 @@ from benchbuild import settings as s
 from benchbuild.utils.cmd import mkdir, bash, rm, curl, tail, cut
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot_no_args
-from plumbum import local, TF
+from plumbum import local, FG, TF
 
 __CONTAINER_PATH_SUFFIX__ = "container"
 __CONTAINER_DEFAULT__ = os.path.abspath(os.path.join(s.CFG["tmp_dir"].value(),
@@ -57,15 +57,14 @@ __CONTAINER_REMOTE_DEFAULT__ = get_container_url()
 
 
 def is_valid_container(path):
-    return True
-
+    return False
 
 def unpack_container(path):
-    path = os.path.abspath(path)
-    local_container = os.path.basename(__CONTAINER_DEFAULT__)
-
     if not os.path.exists(path):
         mkdir("-p", path)
+
+    path = os.path.abspath(path)
+    local_container = os.path.basename(__CONTAINER_DEFAULT__)
 
     with local.cwd(path):
         Wget(get_container_url(), __CONTAINER_DEFAULT__)

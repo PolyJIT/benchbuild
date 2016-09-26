@@ -673,6 +673,8 @@ CFG["plugins"] = {
             "benchbuild.projects.benchbuild.tcc",
             "benchbuild.projects.benchbuild.x264",
             "benchbuild.projects.benchbuild.xz",
+            "benchbuild.projects.apollo.scimark",
+            "benchbuild.projects.apollo.rodinia"
         ],
         "desc": "The project plugins we know about."
     }

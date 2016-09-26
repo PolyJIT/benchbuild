@@ -61,7 +61,6 @@ class SQLite3(BenchBuildGroup):
     def run_tests(self, experiment):
         leveldb_dir = "leveldb.src"
         with local.cwd(leveldb_dir):
-            sqlite = wrap(
-                path.join(leveldb_dir, "out-static", "db_bench_sqlite3"),
-                experiment)
+            sqlite = wrap(path.join("out-static", "db_bench_sqlite3"),
+                          experiment)
             run(sqlite)

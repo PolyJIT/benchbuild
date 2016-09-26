@@ -1,6 +1,7 @@
 """Database support module for the benchbuild study."""
 import logging
 from benchbuild.settings import CFG
+from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +139,11 @@ def persist_experiment(experiment):
         exps.update({'name': name, 'description': desc})
         logger.debug("Update experiments: %s", exps)
         ret = exps.first()
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError as ie:
+        session.rollback()
+        persist_experiment(experiment)
 
     return (ret, session)
 

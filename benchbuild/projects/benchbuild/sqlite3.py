@@ -56,6 +56,7 @@ class SQLite3(BenchBuildGroup):
 
         # Copy the header to leveldb's directory
         cp(path.join(self.src_dir, "sqlite3.h"), leveldb_dir)
+        cp(path.join(self.src_dir, "libsqlite3.so"), leveldb_dir)
         with local.cwd(leveldb_dir):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
                 run(make["clean", "out-static/db_bench_sqlite3"])

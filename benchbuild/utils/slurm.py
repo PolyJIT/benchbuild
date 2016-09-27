@@ -109,7 +109,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write("export ")
         slurm.write(cfg_vars)
         slurm.write("\n")
-        slurm.write("scontrol update JobId=$SLURM_JOB_ID ")
+        slurm.write("scontrol update JobId=${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID} ")
         slurm.write("JobName=\"{0} $_project\"\n".format(experiment))
         slurm.write("\n")
         slurm.write("srun -c 1 hostname\n")

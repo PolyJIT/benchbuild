@@ -245,7 +245,6 @@ def guarded_exec(cmd, project, experiment):
     """
     from plumbum.commands import ProcessExecutionError
     from plumbum import local
-    from plumbum.commands.modifiers import TEE
     from warnings import warn
 
     db_run, session = begin(cmd, project.name, experiment.name,
@@ -258,7 +257,16 @@ def guarded_exec(cmd, project, experiment):
     def runner(retcode=0, *args):
         cmd_env = settings.to_env_dict(settings.CFG)
         with local.env(**cmd_env):
-            retcode, stdout, stderr = cmd[args] & TEE(retcode=retcode)
+            retcode, stdout, stderr = cmd.run(args, retcode=retcode)
+            try:
+                log = logging.getLogger(name="benchbuild")
+                log.info("CMD: {0} = {1}".format(str(cmd), retcode))
+                log.info("STDOUT:")
+                log.info(stdout)
+                log.info("STDERR:")
+                log.info(stdout)
+            except UnicodeDecodeError:
+                pass
         end(db_run, session, stdout, stderr)
         r = SimpleNamespace()
         r.retcode = retcode

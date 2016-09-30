@@ -68,15 +68,21 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
             return self.__str__()
 
         def __str__(self):
-            print("Name:", self.name)
-            print("Domain:", self.domain)
             domain, _, name = self.name.partition("_")
             package = domain + '/' + name
             uchroot = uchroot_no_args()
             uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
             uchroot = uchroot[os.path.abspath(get_path_of_container())]
-            eix_in_chroot = uchroot["eix", package]
-            (eix_in_chroot & FG)
+            emerge_in_chroot = uchroot["emerge", "-p", "--nodeps", package]
+            _, stdout, _ = emerge_in_chroot.run()
+
+            for line in stdout.split('\n'):
+                if package in line:
+                    _, _, package_name = line.partition("/")
+                    _, name, version = package_name.partition(name)
+                    version, _, _ = version.partition(" ")
+                    return version[1:]
+
             return "Default"
 
     def run_not_supported(self, *args, **kwargs): # pylint: disable=W0613

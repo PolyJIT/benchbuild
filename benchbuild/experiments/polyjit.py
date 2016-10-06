@@ -297,7 +297,7 @@ class PolyJIT(RuntimeExperiment):
 
         ld_lib_path = [_f for _f in str(CFG["ld_library_path"]).split(":") if _f]
         project.ldflags = ["-L" + el for el in ld_lib_path] + project.ldflags
-        project.cflags = ["-Xclang", "-load", "-Xclang",
+        project.cflags = ["-rdynamic", "-Xclang", "-load", "-Xclang",
                           "LLVMPolyJIT.so", "-O3", "-mllvm", "-jitable",
                           "-mllvm", "-polli"]
         return project

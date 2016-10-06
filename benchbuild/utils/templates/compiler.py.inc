@@ -85,7 +85,7 @@ def construct_cc(cc, flags, CFLAGS, LDFLAGS, ifiles):
     if has_debug_enabled(flags):
         flags = strip_debug_flags(flags)
     if len(input_files) > 0:
-        fc = cc["-Qunused-arguments", CFLAGS, LDFLAGS, flags]
+        fc = cc["-Qunused-arguments", flags, CFLAGS, LDFLAGS]
     else:
         fc = cc["-Qunused-arguments", flags]
     fc = fc.with_env(**cc.envvars)

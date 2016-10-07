@@ -279,11 +279,10 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
         if projects_to_filter is None:
             projects_to_filter = []
-        prjs = {x: prjs[x]
-                for x in prjs
-                if prjs[x].DOMAIN != "debug" or x in projects_to_filter}
 
-        self.projects = {k: prjs[k](self) for k in prjs}
+        self.projects = {
+            x: prjs[x] for x in prjs
+            if prjs[x].DOMAIN != "debug" or x in projects_to_filter}
 
     @abstractmethod
     def actions_for_project(self, project):
@@ -298,7 +297,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
         actns = [Clean(self), MakeBuildDir(self)]
 
         for project in self.projects:
-            p = self.projects[project]
+            p = self.projects[project](self)
             actns.append(RequireAll(self.actions_for_project(p)))
 
         actns.append(Clean(self, check_empty=True))

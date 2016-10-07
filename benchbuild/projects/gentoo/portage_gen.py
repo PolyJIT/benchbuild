@@ -6,7 +6,7 @@ import os
 from benchbuild.projects.gentoo import autoportage
 from benchbuild.utils.run import run, uchroot, uchroot_no_args
 from benchbuild.utils.container import get_path_of_container
-from plumbum import FG, local
+from plumbum import FG, local, ProcessExecutionError
 
 
 def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
@@ -68,31 +68,34 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
             return self.__str__()
 
         def __str__(self):
-            domain, _, name = self.name.partition("_")
-            package = domain + '/' + name
+            try:
+                domain, _, name = self.name.partition("_")
+                package = domain + '/' + name
 
-            uchroot = uchroot_no_args()
-            uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
-            uchroot = uchroot[os.path.abspath(get_path_of_container())]
-            with local.env(CONFIG_PROTECT="-*"):
-                fake_emerge = uchroot["emerge",
-                                      "--autounmask-only=y",
-                                      "--autounmask-write=y",
-                                      "--nodeps"]
-                run(fake_emerge[package])
+                uchroot = uchroot_no_args()
+                uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
+                uchroot = uchroot[os.path.abspath(get_path_of_container())]
+                with local.env(CONFIG_PROTECT="-*"):
+                    fake_emerge = uchroot["emerge",
+                                          "--autounmask-only=y",
+                                          "--autounmask-write=y",
+                                          "--nodeps"]
+                    run(fake_emerge[package])
 
-            emerge_in_chroot = uchroot["emerge",
-                                       "-p",
-                                       "--nodeps",
-                                       package]
-            _, stdout, _ = emerge_in_chroot.run()
+                emerge_in_chroot = uchroot["emerge",
+                                           "-p",
+                                           "--nodeps",
+                                           package]
+                _, stdout, _ = emerge_in_chroot.run()
 
-            for line in stdout.split('\n'):
-                if package in line:
-                    _, _, package_name = line.partition("/")
-                    _, name, version = package_name.partition(name)
-                    version, _, _ = version.partition(" ")
-                    return version[1:]
+                for line in stdout.split('\n'):
+                    if package in line:
+                        _, _, package_name = line.partition("/")
+                        _, name, version = package_name.partition(name)
+                        version, _, _ = version.partition(" ")
+                        return version[1:]
+            except ProcessExecutionError:
+                print("This older package might not exist any more.")
 
             return "Default"
 

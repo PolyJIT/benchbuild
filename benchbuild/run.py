@@ -159,10 +159,10 @@ def print_projects(exp):
     for name in projects:
         prj = projects[name]
 
-        if prj.group_name not in grouped_by:
-            grouped_by[prj.group_name] = []
+        if prj.GROUP not in grouped_by:
+            grouped_by[prj.GROUP] = []
 
-        grouped_by[prj.group_name].append(name)
+        grouped_by[prj.GROUP].append(name)
 
     for name in grouped_by:
         from textwrap import wrap

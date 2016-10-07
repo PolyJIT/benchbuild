@@ -2,6 +2,7 @@
 Container utilites.
 """
 import os
+import logging
 from benchbuild import settings as s
 from benchbuild.utils.cmd import cp, mkdir, bash, rm, curl, tail, cut
 from benchbuild.utils.downloader import Wget
@@ -62,7 +63,8 @@ def is_valid_container(path):
         tmp_hash_file = open(tmp_hash_path, 'r')
         tmp_hash = tmp_hash_file.readline() 
     except IOError:
-        print("No .hash-file in the tmp-directory.")
+        logger = logging.getLogger(__name__)
+        logger.info("No .hash-file in the tmp-directory.")
 
     container_hash_path = os.path.abspath(os.path.join(path,
                                                        "gentoo.tar.bz2.hash"))

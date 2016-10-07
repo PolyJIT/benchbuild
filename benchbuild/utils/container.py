@@ -3,7 +3,7 @@ Container utilites.
 """
 import os
 from benchbuild import settings as s
-from benchbuild.utils.cmd import mkdir, bash, rm, curl, tail, cut
+from benchbuild.utils.cmd import cp, mkdir, bash, rm, curl, tail, cut
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot_no_args
 from plumbum import local, FG, TF
@@ -57,13 +57,32 @@ __CONTAINER_REMOTE_DEFAULT__ = get_container_url()
 
 
 def is_valid_container(path):
-    return False
+    try:
+        tmp_hash_path = __CONTAINER_DEFAULT__ + ".hash" 
+        tmp_hash_file = open(tmp_hash_path, 'r')
+        tmp_hash = tmp_hash_file.readline() 
+    except:
+        print("No .hash-file in the tmp-directory.")
 
+    container_hash_path = os.path.abspath(os.path.join(path,
+                                                       "gentoo.tar.bz2.hash"))
+    if not os.path.exists(container_hash_path):
+        return False
+    else:
+        container_hash_file = open(container_hash_path, 'r')
+        container_hash = container_hash_file.readline() 
+        if container_hash == tmp_hash:
+            return True
+        else:
+            return False
+    
 def unpack_container(path):
     if not os.path.exists(path):
         mkdir("-p", path)
-
+    
     path = os.path.abspath(path)
+    cp(__CONTAINER_DEFAULT__ +".hash", path)
+
     local_container = os.path.basename(__CONTAINER_DEFAULT__)
 
     with local.cwd(path):
@@ -88,10 +107,9 @@ def unpack_container(path):
         if not os.path.samefile(local_container, __CONTAINER_DEFAULT__):
             rm(local_container)
 
-
 def get_path_of_container():
     target = os.path.join(s.CFG["tmp_dir"].value(), __CONTAINER_PATH_SUFFIX__)
-    if not (os.path.exists(target) and is_valid_container(target)):
+    if not os.path.exists(target) or not is_valid_container(target):
         unpack_container(target)
 
     return target

@@ -4,9 +4,9 @@ Generic experiment to test portage packages within gentoo chroot.
 import logging
 import os
 from benchbuild.projects.gentoo import autoportage
-from benchbuild.utils.run import run, uchroot, uchroot_no_args
+from benchbuild.utils.run import run, uchroot_no_args
 from benchbuild.utils.container import get_path_of_container
-from plumbum import FG, local, ProcessExecutionError
+from plumbum import local, ProcessExecutionError
 
 
 def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
@@ -95,8 +95,8 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
                         version, _, _ = version.partition(" ")
                         return version[1:]
             except ProcessExecutionError:
-                print("This older package might not exist any more.")
-
+                logger = logging.getLogger(__name__)
+                logger.info("This older package might not exist any more.")
             return "Default"
 
     def run_not_supported(self, *args, **kwargs): # pylint: disable=W0613

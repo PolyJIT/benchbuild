@@ -4,9 +4,9 @@ Generic experiment to test portage packages within gentoo chroot.
 import logging
 import os
 from benchbuild.projects.gentoo import autoportage
-from benchbuild.utils.run import uchroot_no_args
+from benchbuild.utils.run import run, uchroot_no_args
 from benchbuild.utils.container import get_path_of_container
-from plumbum import FG
+from plumbum import local, ProcessExecutionError
 
 
 def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
@@ -43,6 +43,62 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         'DOMAIN'
     """
 
+    #pylint: disable=too-few-public-methods
+    class FuncClass(object):
+
+        """
+        Finds out the current version number of a gentoo package.
+
+        The package name is created by combining the domain and the name.
+        Then uchroot is used to switch into a gentoo shell where the 'eix'
+        command is used to recieve the version number.
+        The function then parses the version number back into the file.
+
+        Args:
+            Name:
+                Name of the project.
+         Domain: Categorie of the package.
+        """
+
+        def __init__(self, name, domain):
+            self.name = name
+            self.domain = domain
+
+        def __repr__(self):
+            return self.__str__()
+
+        def __str__(self):
+            try:
+                domain, _, name = self.name.partition("_")
+                package = domain + '/' + name
+
+                uchroot = uchroot_no_args()
+                uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
+                uchroot = uchroot[os.path.abspath(get_path_of_container())]
+                with local.env(CONFIG_PROTECT="-*"):
+                    fake_emerge = uchroot["emerge",
+                                          "--autounmask-only=y",
+                                          "--autounmask-write=y",
+                                          "--nodeps"]
+                    run(fake_emerge[package])
+
+                emerge_in_chroot = uchroot["emerge",
+                                           "-p",
+                                           "--nodeps",
+                                           package]
+                _, stdout, _ = emerge_in_chroot.run()
+
+                for line in stdout.split('\n'):
+                    if package in line:
+                        _, _, package_name = line.partition("/")
+                        _, name, version = package_name.partition(name)
+                        version, _, _ = version.partition(" ")
+                        return version[1:]
+            except ProcessExecutionError:
+                logger = logging.getLogger(__name__)
+                logger.info("This older package might not exist any more.")
+            return "Default"
+
     def run_not_supported(self, *args, **kwargs): # pylint: disable=W0613
         """Dynamic projects don't support a run() test."""
         from benchbuild.settings import CFG
@@ -55,7 +111,9 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
     newclass = type(name, (BaseClass,), {
         "NAME" : NAME,
         "DOMAIN" : DOMAIN,
+        "VERSION" : FuncClass(NAME, DOMAIN),
         "GROUP" : "auto-gentoo",
+        "SRC_FILE" : "automatic",
         "run" : run_not_supported,
         "__module__" : "__main__"
     })

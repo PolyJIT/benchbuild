@@ -12,7 +12,7 @@ class X264(GentooGroup):
     """
         media-video/x264-encoder
     """
-    NAME = "gentoo-x264"
+    NAME = "gentoo-x264-encoder"
     DOMAIN = "media-libs"
     VERSION = "0.0.20160712"
 

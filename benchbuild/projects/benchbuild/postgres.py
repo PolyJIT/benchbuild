@@ -10,7 +10,7 @@ from os import path
 class Postgres(BenchBuildGroup):
     """ postgres benchmark """
 
-    NAME = 'postgres'
+    NAME = 'bb-postgres'
     DOMAIN = 'database'
 
     testfiles = ["pg_ctl", "dropdb", "createdb", "pgbench"]

@@ -15,7 +15,7 @@ from glob import glob
 class Lammps(BenchBuildGroup):
     """ LAMMPS benchmark """
 
-    NAME = 'lammps'
+    NAME = 'bb-lammps'
     DOMAIN = 'scientific'
     SRC_FILE = 'lammps.git'
     VERSION = get_version_from_cache_dir(SRC_FILE)

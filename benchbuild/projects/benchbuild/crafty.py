@@ -11,7 +11,7 @@ from benchbuild.utils.cmd import cat, make, unzip, mv
 class Crafty(BenchBuildGroup):
     """ crafty benchmark """
 
-    NAME = 'crafty'
+    NAME = 'bb-crafty'
     DOMAIN = 'scientific'
     VERSION = '23.4'
 

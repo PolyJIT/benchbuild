@@ -15,7 +15,7 @@ from os import path
 class Povray(BenchBuildGroup):
     """ povray benchmark """
 
-    NAME = 'povray'
+    NAME = 'bb-povray'
     DOMAIN = 'multimedia'
     SRC_FILE = 'povray.git'
     VERSION = get_version_from_cache_dir(SRC_FILE)

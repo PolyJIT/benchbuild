@@ -12,7 +12,7 @@ from os import path
 
 class XZ(BenchBuildGroup):
     """ XZ """
-    NAME = 'xz'
+    NAME = 'bb-xz'
     DOMAIN = 'compression'
     VERSION = '5.2.1'
 

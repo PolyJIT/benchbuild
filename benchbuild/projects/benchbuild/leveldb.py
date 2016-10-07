@@ -12,7 +12,7 @@ from os import path
 
 
 class LevelDB(BenchBuildGroup):
-    NAME = 'leveldb'
+    NAME = 'bb-leveldb'
     DOMAIN = 'database'
     SRC_FILE = 'leveldb.src'
     VERSION = get_version_from_cache_dir(SRC_FILE)

@@ -14,7 +14,7 @@ from os import path
 class SQLite3(BenchBuildGroup):
     """ SQLite3 """
 
-    NAME = 'sqlite3'
+    NAME = 'bb-sqlite3'
     DOMAIN = 'database'
 
     src_dir = "sqlite-amalgamation-3080900"

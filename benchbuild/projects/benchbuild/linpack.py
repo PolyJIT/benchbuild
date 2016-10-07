@@ -11,7 +11,7 @@ from os import path
 class Linpack(BenchBuildGroup):
     """ Linpack (C-Version) """
 
-    NAME = 'linpack'
+    NAME = 'bb-linpack'
     DOMAIN = 'scientific'
 
     src_uri = "http://www.netlib.org/benchmark/linpackc.new"

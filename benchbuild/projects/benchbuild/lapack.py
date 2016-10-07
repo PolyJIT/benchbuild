@@ -13,7 +13,7 @@ import logging
 
 
 class OpenBlas(BenchBuildGroup):
-    NAME = 'openblas'
+    NAME = 'bb-openblas'
     DOMAIN = 'scientific'
     SRC_FILE = 'OpenBLAS'
     VERSION = get_version_from_cache_dir(SRC_FILE)

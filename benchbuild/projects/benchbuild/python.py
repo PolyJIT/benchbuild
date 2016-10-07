@@ -13,7 +13,7 @@ from os import path
 class Python(BenchBuildGroup):
     """ python benchmarks """
 
-    NAME = 'python'
+    NAME = 'bb-python'
     DOMAIN = 'compilation'
     VERSION = '3.4.3'
 

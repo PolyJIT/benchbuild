@@ -61,7 +61,7 @@ def is_valid_container(path):
         tmp_hash_path = __CONTAINER_DEFAULT__ + ".hash" 
         tmp_hash_file = open(tmp_hash_path, 'r')
         tmp_hash = tmp_hash_file.readline() 
-    except:
+    except IOError:
         print("No .hash-file in the tmp-directory.")
 
     container_hash_path = os.path.abspath(os.path.join(path,

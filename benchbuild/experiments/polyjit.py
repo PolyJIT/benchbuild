@@ -299,7 +299,9 @@ class PolyJIT(RuntimeExperiment):
         project.ldflags = ["-L" + el for el in ld_lib_path] + project.ldflags
         project.cflags = ["-rdynamic", "-Xclang", "-load", "-Xclang",
                           "LLVMPolyJIT.so", "-O3", "-mllvm", "-jitable",
-                          "-mllvm", "-polli"]
+                          "-mllvm", "-polli-process-unprofitable",
+                          "-mllvm", "-polli-allow-modref-calls",
+                          "-mllvm", "-polli", "-mllvm", "-stats"]
         return project
 
     @abstractmethod

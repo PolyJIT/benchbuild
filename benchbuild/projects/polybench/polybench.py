@@ -12,7 +12,7 @@ from os import path
 class PolyBenchGroup(Project):
     DOMAIN = 'polybench'
     GROUP = 'polybench'
-    VERSION = '4.1'
+    VERSION = '4.2'
     path_dict = {
         "correlation": "datamining",
         "covariance": "datamining",
@@ -72,7 +72,9 @@ class PolyBenchGroup(Project):
         src_file = path.join(self.name + ".dir", self.name + ".c")
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         run(clang["-I", "utilities", "-I", self.name,
-                  "-DPOLYBENCH_USE_C99_PROTO", "-DLARGE_DATASET",
+                  "-DPOLYBENCH_USE_C99_PROTO",
+                  "-DEXTRALARGE_DATASET",
+                  "-DPOLYBENCH_USE_RESTRICT",
                   "utilities/polybench.c", src_file, "-lm", "-o", self.run_f])
 
 # Datamining

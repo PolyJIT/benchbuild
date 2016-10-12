@@ -292,13 +292,12 @@ class PolyJIT(RuntimeExperiment):
         Returns:
             The initialized project.
         """
-        from benchbuild.settings import CFG
-        project.ldflags = ["-lpjit", "-lgomp"]
-
-        ld_lib_path = [_f for _f in str(CFG["ld_library_path"]).split(":") if _f]
-        project.ldflags = ["-L" + el for el in ld_lib_path] + project.ldflags
-        project.cflags = ["-rdynamic", "-Xclang", "-load", "-Xclang",
-                          "LLVMPolyJIT.so", "-O3", "-mllvm", "-jitable",
+        project.ldflags += ["-lpjit", "-lgomp"]
+        project.cflags = ["-fno-omit-frame-pointer",
+                          "-fno-inline",
+                          "-rdynamic",
+                          "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                          "-O3", "-mllvm", "-jitable",
                           "-mllvm", "-polli-process-unprofitable",
                           "-mllvm", "-polli-allow-modref-calls",
                           "-mllvm", "-polli", "-mllvm", "-stats"]
@@ -396,9 +395,10 @@ class PJITRaw(PolyJIT):
         p = self.init_project(p)
 
         actns = []
-        for i in range(1, int(str(CFG["jobs"])) + 1):
+        for i in range(2, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(p)
             cp.run_uuid = uuid.uuid4()
+            cp.cflags += ["-mllvm", "-polly-num-threads={0}".format(i)]
             cp.runtime_extension = partial(run_with_time, cp, self, CFG, i)
 
             actns.extend([

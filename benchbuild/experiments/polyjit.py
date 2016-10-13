@@ -298,7 +298,6 @@ class PolyJIT(RuntimeExperiment):
                           "-rdynamic",
                           "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                           "-O3", "-mllvm", "-jitable",
-                          "-mllvm", "-polli-process-unprofitable",
                           "-mllvm", "-polli-allow-modref-calls",
                           "-mllvm", "-polli", "-mllvm", "-stats"]
         return project

@@ -169,7 +169,9 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
     run_cmd = handle_stdin(run_cmd[args], kwargs)
 
-    with local.env(OMP_NUM_THREADS=str(jobs)):
+    with local.env(OMP_NUM_THREADS=str(jobs),
+                   OMP_SCHEDULE_TYPE="static",
+                   OMP_DYNAMIC="false"):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
         timings = fetch_time_output(
@@ -298,7 +300,6 @@ class PolyJIT(RuntimeExperiment):
                           "-rdynamic",
                           "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                           "-O3", "-mllvm", "-jitable",
-                          "-mllvm", "-polli-process-unprofitable",
                           "-mllvm", "-polli-allow-modref-calls",
                           "-mllvm", "-polli", "-mllvm", "-stats"]
         return project

@@ -119,6 +119,9 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write(
             str(benchbuild["-P", "$_project", "-E", experiment]) + "\n")
 
+        # Append the polyjit log to the slurm log.
+        slurm.write("srun -c 1 cat /tmp/.polyjit.log\n")
+
     bash("-n", script_name)
     chmod("+x", script_name)
 

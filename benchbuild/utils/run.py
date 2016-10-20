@@ -264,7 +264,7 @@ def guarded_exec(cmd, project, experiment):
                 log.info("STDOUT:")
                 log.info(stdout)
                 log.info("STDERR:")
-                log.info(stdout)
+                log.info(stderr)
             except UnicodeDecodeError:
                 pass
         end(db_run, session, stdout, stderr)

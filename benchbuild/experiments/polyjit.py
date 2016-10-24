@@ -169,9 +169,7 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
     run_cmd = handle_stdin(run_cmd[args], kwargs)
 
-    with local.env(OMP_NUM_THREADS=str(jobs),
-                   OMP_SCHEDULE_TYPE="static",
-                   OMP_DYNAMIC="false"):
+    with local.env(OMP_NUM_THREADS=str(jobs)):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
         timings = fetch_time_output(
@@ -180,7 +178,8 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
             return
 
     persist_time(ri.db_run, ri.session, timings)
-    persist_config(ri.db_run, ri.session, {"cores": str(jobs),
+    persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
+                                           "cores-config": str(jobs),
                                            "recompilation": "enabled"})
 
 
@@ -225,9 +224,9 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
             return
 
     persist_time(ri.db_run, ri.session, timings)
-    persist_config(ri.db_run, ri.session, {"cores": str(jobs),
+    persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
+                                           "cores-config": str(jobs),
                                            "recompilation": "disabled"})
-
 
 def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
     """
@@ -296,12 +295,12 @@ class PolyJIT(RuntimeExperiment):
         """
         project.ldflags += ["-lpjit", "-lgomp"]
         project.cflags = ["-fno-omit-frame-pointer",
-                          "-fno-inline",
                           "-rdynamic",
                           "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                           "-O3", "-mllvm", "-jitable",
                           "-mllvm", "-polli-allow-modref-calls",
-                          "-mllvm", "-polli", "-mllvm", "-stats"]
+                          "-mllvm", "-polli",
+                          "-mllvm", "-stats"]
         return project
 
     @abstractmethod
@@ -321,8 +320,9 @@ class PolyJITFull(PolyJIT):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        actns = []
+        p.cflags = ["-O3", "-fno-omit-frame-pointer"]
 
+        actns = []
         rawp = copy.deepcopy(p)
         rawp.run_uuid = uuid.uuid4()
         rawp.runtime_extension = partial(run_with_time, rawp, self, CFG, 1)
@@ -344,7 +344,7 @@ class PolyJITFull(PolyJIT):
         norecomp = copy.deepcopy(jitp)
         norecomp.cflags += ["-mllvm", "-no-recompilation"]
 
-        for i in range(1, int(str(CFG["jobs"])) + 1):
+        for i in range(2, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(norecomp)
             cp.run_uuid = uuid.uuid4()
             cp.runtime_extension = partial(run_without_recompile,
@@ -362,7 +362,7 @@ class PolyJITFull(PolyJIT):
                 Echo("========= END: JIT No Recomp - Cores: {0}".format(i))
             ])
 
-        for i in range(1, int(str(CFG["jobs"])) + 1):
+        for i in range(2, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(jitp)
             cp.run_uuid = uuid.uuid4()
             cp.runtime_extension = partial(run_with_time, cp, self, CFG, i)

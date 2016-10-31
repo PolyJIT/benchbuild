@@ -42,8 +42,7 @@ class X264(BenchBuildGroup):
             configure = local["./configure"]
 
             with local.env(CC=str(clang)):
-                run(configure["--enable-static", "--disable-asm",
-                              "--disable-thread", "--disable-opencl",
+                run(configure["--disable-thread", "--disable-opencl",
                               "--enable-pic"])
 
     def build(self):

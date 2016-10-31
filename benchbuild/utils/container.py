@@ -58,6 +58,16 @@ __CONTAINER_REMOTE_DEFAULT__ = get_container_url()
 
 
 def is_valid_container(path):
+    """
+    Checks, if a container exists and is unpacked.
+
+    Args:
+        path: The location where the container is expected. 
+
+    Returns:
+        True if the container is valid, False if the container needs to
+        unpacked or if the path does not exist yet.
+    """
     try:
         tmp_hash_path = __CONTAINER_DEFAULT__ + ".hash" 
         tmp_hash_file = open(tmp_hash_path, 'r')
@@ -79,6 +89,15 @@ def is_valid_container(path):
             return False
     
 def unpack_container(path):
+    """
+    Method that checks if a directory for the container exists,
+    checks if erlent support is needed and then unpacks the
+    container accordingly.
+
+    Args:
+        path: The location where the container is, that needs to be unpacked.
+
+    """
     if not os.path.exists(path):
         mkdir("-p", path)
     
@@ -110,6 +129,13 @@ def unpack_container(path):
             rm(local_container)
 
 def get_path_of_container():
+    """
+    Finds the current location of a container.
+
+    Returns:
+        target: The path, where the container lies in the end
+    """
+#ist base_dir RO und kann ich base_dir mit Aufruf dieser Methode bekommen?
     target = os.path.join(s.CFG["tmp_dir"].value(), __CONTAINER_PATH_SUFFIX__)
     if not os.path.exists(target) or not is_valid_container(target):
         unpack_container(target)

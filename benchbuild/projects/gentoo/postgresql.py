@@ -17,7 +17,6 @@ class Postgresql(GentooGroup):
     """
     NAME = "gentoo-postgresql"
     DOMAIN = "dev-db/postgresql"
-    VERSION = "9.6"
 
     def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]

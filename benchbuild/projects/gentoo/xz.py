@@ -15,7 +15,6 @@ class XZ(GentooGroup):
     """
     NAME = "gentoo-xz"
     DOMAIN = "app-arch"
-    VERSION = "5.2.2"
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "compression.tar.gz"

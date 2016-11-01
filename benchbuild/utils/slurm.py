@@ -116,6 +116,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
 
         # Write the experiment command.
         slurm.write(__cleanup_node_commands(slurm_log_path))
+        slurm.write("srun -c 1 rm -f /tmp/.polyjit.log\n")
         slurm.write(
             str(benchbuild["-P", "$_project", "-E", experiment]) + "\n")
 

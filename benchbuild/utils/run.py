@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from types import SimpleNamespace
 from benchbuild import settings
 import logging
+import sys
 
 
 def handle_stdin(cmd, kwargs):
@@ -229,7 +230,7 @@ def fail(db_run, session, retcode, stdout, stderr):
 
 
 @contextmanager
-def guarded_exec(cmd, project, experiment):
+def guarded_exec(cmd, project, experiment, **kwargs):
     """
     Guard the execution of the given command.
 
@@ -244,7 +245,7 @@ def guarded_exec(cmd, project, experiment):
             in a RunException and re-raise. This ends the run unsuccessfully.
     """
     from plumbum.commands import ProcessExecutionError
-    from plumbum import local
+    from plumbum import local, BG
     from warnings import warn
 
     db_run, session = begin(cmd, project.name, experiment.name,
@@ -254,10 +255,18 @@ def guarded_exec(cmd, project, experiment):
     settings.CFG["db"]["run_id"] = db_run.id
     settings.CFG["use_file"] = 0
 
-    def runner(retcode=0, *args):
+    def runner(retcode=None, *args):
         cmd_env = settings.to_env_dict(settings.CFG)
+        r = SimpleNamespace()
         with local.env(**cmd_env):
-            retcode, stdout, stderr = cmd.run(args, retcode=retcode)
+            has_stdin = kwargs.get("has_stdin", False)
+            proc = (cmd & BG(retcode=retcode,
+                             stdin=sys.stdin if has_stdin else None,
+                             stdout=sys.stdout,
+                             stderr=sys.stderr))
+
+            stdout = proc.stdout
+            stderr = proc.stderr
             try:
                 log = logging.getLogger(name="benchbuild")
                 log.info("CMD: {0} = {1}".format(str(cmd), retcode))

@@ -16,13 +16,6 @@ class Ccrypt(BenchBuildGroup):
     VERSION = '1.10'
     SRC_FILE = 'ccrypt-{0}.tar.gz'.format(VERSION)
 
-    check_f = "check"
-
-    def prepare(self):
-        super(Ccrypt, self).prepare()
-        check_f = path.join(self.testdir, self.check_f)
-        ln("-s", check_f, path.join(self.builddir, self.check_f))
-
     src_dir = "ccrypt-{0}".format(VERSION)
     src_uri = "http://ccrypt.sourceforge.net/download/ccrypt-{0}.tar.gz".format(VERSION)
 
@@ -40,6 +33,8 @@ class Ccrypt(BenchBuildGroup):
             configure = local["./configure"]
             with local.env(CC=str(clang),
                            CXX=str(clang_cxx),
+                           CFLAGS=" ".join(self.cflags),
+                           CXXFLAGS=" ".join(self.cflags),
                            LDFLAGS=" ".join(self.ldflags)):
                 run(configure)
 

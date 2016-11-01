@@ -17,9 +17,9 @@ Measurements
 """
 
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.utils.actions import (Prepare, Build, Download, Configure, Clean,
-                                 MakeBuildDir, Run, Echo)
-from benchbuild.utils.run import guarded_exec, handle_stdin, fetch_time_output
+from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
+                                      Clean, MakeBuildDir, Run, Echo)
+from benchbuild.utils.run import guarded_exec, fetch_time_output
 from benchbuild.utils.db import persist_time, persist_config
 from benchbuild.utils.cmd import time
 
@@ -54,19 +54,19 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     project.name = kwargs.get("project_name", project.name)
     timing_tag = "BB-TIME: "
 
-    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
-    run_cmd = handle_stdin(run_cmd[args], kwargs)
+    run_cmd = local[run_f]
+    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd[args]]
 
-    with local.env(OMP_NUM_THREADS=str(jobs)):
-        with guarded_exec(run_cmd, project, experiment) as run:
-            ri = run()
-        timings = fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-        if not timings:
-            return
+    with guarded_exec(run_cmd, project, experiment, **kwargs) as run:
+        ri = run()
+    timings = fetch_time_output(
+        timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+    if not timings:
+        return ri
 
     persist_time(ri.db_run, ri.session, timings)
     persist_config(ri.db_run, ri.session, {"cores": str(jobs)})
+    return ri
 
 
 class RawRuntime(RuntimeExperiment):

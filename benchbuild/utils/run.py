@@ -29,10 +29,10 @@ def handle_stdin(cmd, kwargs):
     import sys
 
     has_stdin = kwargs.get("has_stdin", False)
-    if has_stdin:
-        run_cmd = (cmd < sys.stdin)
-    else:
-        run_cmd = cmd
+    has_stdout = kwargs.get("has_stdout", False)
+
+    run_cmd = (cmd < sys.stdin) if has_stdin else cmd
+    run_cmd = (run_cmd > sys.stdout) if has_stdout else cmd
 
     return run_cmd
 
@@ -276,13 +276,12 @@ def guarded_exec(cmd, project, experiment, **kwargs):
                 log.info(stderr)
             except UnicodeDecodeError:
                 pass
-        end(db_run, session, stdout, stderr)
-        r = SimpleNamespace()
-        r.retcode = retcode
-        r.stdout = stdout
-        r.stderr = stderr
-        r.session = session
-        r.db_run = db_run
+            end(db_run, session, stdout, stderr)
+            r.retcode = proc.returncode
+            r.stdout = stdout
+            r.stderr = stderr
+            r.session = session
+            r.db_run = db_run
         return r
 
     try:

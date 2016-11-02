@@ -8,7 +8,7 @@ from benchbuild.utils.versions import get_version_from_cache_dir
 from plumbum import local
 from benchbuild.utils.cmd import make
 
-from os import path
+from os import path, getenv
 
 
 class LevelDB(BenchBuildGroup):
@@ -32,7 +32,8 @@ class LevelDB(BenchBuildGroup):
 
         with local.cwd(self.SRC_FILE):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
-                run(make["clean", "out-static/db_bench"])
+                make("clean")
+                run(make["all", "-i"])
 
     def run_tests(self, experiment):
         """
@@ -42,5 +43,8 @@ class LevelDB(BenchBuildGroup):
             experiment: The experiment's run function.
         """
         exp = wrap(
-            path.join(self.SRC_FILE, "out-static", "db_bench"), experiment)
-        run(exp)
+            path.join(self.SRC_FILE, "out-shared", "db_bench"), experiment)
+        with local.env(LD_LIBRARY_PATH="{}:{}".format(
+                path.join(self.SRC_FILE, "out-shared"),
+                getenv("LD_LIBRARY_PATH", ""))):
+            run(exp)

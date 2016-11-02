@@ -166,21 +166,27 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     project.name = kwargs.get("project_name", project.name)
     timing_tag = "BB-JIT: "
 
-    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
-    run_cmd = handle_stdin(run_cmd[args], kwargs)
+    may_wrap = kwargs.get("may_wrap", True)
+
+    run_cmd = local[run_f]
+    run_cmd = run_cmd[args]
+    if may_wrap:
+        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd[args]]
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
-        timings = fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-        if not timings:
-            return
 
-    persist_time(ri.db_run, ri.session, timings)
+        if may_wrap:
+            timings = fetch_time_output(
+                timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+            if not timings:
+                return ri
+            persist_time(ri.db_run, ri.session, timings)
     persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
                                            "cores-config": str(jobs),
                                            "recompilation": "enabled"})
+    return ri
 
 
 def run_without_recompile(project, experiment, config, jobs, run_f,
@@ -211,19 +217,23 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
     project.name = kwargs.get("project_name", project.name)
     timing_tag = "BB-JIT: "
 
-    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
-    run_cmd = handle_stdin(run_cmd[args], kwargs)
+    may_wrap = kwargs.get("may_wrap", True)
 
-    with local.env(OMP_NUM_THREADS=str(jobs),
-                   POLLI_DISABLE_RECOMPILATION=1):
+    run_cmd = local[run_f]
+    run_cmd = run_cmd[args]
+    if may_wrap:
+        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd[args]]
+
+    with local.env(OMP_NUM_THREADS=str(jobs)):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
-        timings = fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-        if not timings:
-            return
 
-    persist_time(ri.db_run, ri.session, timings)
+        if may_wrap:
+            timings = fetch_time_output(
+                timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+            if not timings:
+                return ri
+            persist_time(ri.db_run, ri.session, timings)
     persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
                                            "cores-config": str(jobs),
                                            "recompilation": "disabled"})

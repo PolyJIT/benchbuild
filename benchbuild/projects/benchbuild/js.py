@@ -9,6 +9,7 @@ from benchbuild.utils.versions import get_git_hash
 from plumbum import local
 from benchbuild.utils.cmd import make, mkdir, tar
 
+from functools import partial
 from os import path
 
 
@@ -20,9 +21,9 @@ class SpiderMonkey(BenchBuildGroup):
     NAME = 'js'
     DOMAIN = 'compilation'
 
-    SRC_FILE = "https://github.com/mozilla/gecko-dev.git"
+    src_uri = "https://github.com/mozilla/gecko-dev.git"
     src_dir = "gecko-dev.git"
-    version = get_git_hash(SRC_FILE)
+    version = get_git_hash(src_uri)
     if version == None:
         VERSION = None
     elif len(version) <= 7:
@@ -65,7 +66,8 @@ class SpiderMonkey(BenchBuildGroup):
 
     def run_tests(self, experiment):
         mozjs_dir = path.join("mozjs-0.0.0", "js", "src", "obj")
-        wrap(path.join(mozjs_dir, "bin", "js"), experiment)
+        wrap(path.join(mozjs_dir, "js", "src", "shell", "js"),
+             partial(experiment, may_wrap=False))
 
         with local.cwd(mozjs_dir):
-            run(make["check"])
+            run(make["check-jstests"])

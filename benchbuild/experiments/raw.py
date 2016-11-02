@@ -49,22 +49,31 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
                 be the same as the configured project name, if we got wrapped
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
+            may_wrap:
+                Project may signal that it they are not suitable for
+                wrapping. Usually because they scan/parse the output, which
+                may interfere with the output of the wrapper binary.
     """
     CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
     timing_tag = "BB-TIME: "
 
+    may_wrap = kwargs.get("may_wrap", True)
+
     run_cmd = local[run_f]
-    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd[args]]
+    run_cmd = run_cmd[args]
+    if may_wrap:
+        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd[args]]
 
     with guarded_exec(run_cmd, project, experiment, **kwargs) as run:
         ri = run()
-    timings = fetch_time_output(
-        timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-    if not timings:
-        return ri
 
-    persist_time(ri.db_run, ri.session, timings)
+    if may_wrap:
+        timings = fetch_time_output(
+            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+        if not timings:
+            return ri
+        persist_time(ri.db_run, ri.session, timings)
     persist_config(ri.db_run, ri.session, {"cores": str(jobs)})
     return ri
 

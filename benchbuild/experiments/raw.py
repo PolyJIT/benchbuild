@@ -63,7 +63,7 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     run_cmd = local[run_f]
     run_cmd = run_cmd[args]
     if may_wrap:
-        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd[args]]
+        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
     with guarded_exec(run_cmd, project, experiment, **kwargs) as run:
         ri = run()

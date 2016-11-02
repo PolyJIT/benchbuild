@@ -26,12 +26,16 @@ class LibreSSL(BenchBuildGroup):
         tar("xfz", self.SRC_FILE)
 
     def configure(self):
-        configure = local[path.join(self.src_dir, "configure")]
+        self.cflags += ["-fPIC"]
         clang = lt_clang(self.cflags, self.ldflags)
+        configure = local[path.join(self.src_dir, "configure")]
 
         with local.cwd(self.src_dir):
             with local.env(CC=str(clang)):
-                run(configure["--disable-asm"])
+                run(configure["--disable-asm", "--disable-shared",
+                              "--enable-static",
+                              "--disable-dependency-tracking",
+                              "--with-pic=yes"])
 
     def build(self):
         with local.cwd(self.src_dir):

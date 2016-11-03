@@ -180,9 +180,8 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
         if may_wrap:
             timings = fetch_time_output(
                 timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-            if not timings:
-                return ri
-            persist_time(ri.db_run, ri.session, timings)
+            if timings:
+                persist_time(ri.db_run, ri.session, timings)
     persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
                                            "cores-config": str(jobs),
                                            "recompilation": "enabled"})
@@ -222,7 +221,7 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
     run_cmd = local[run_f]
     run_cmd = run_cmd[args]
     if may_wrap:
-        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd[args]]
+        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
         with guarded_exec(run_cmd, project, experiment) as run:
@@ -231,12 +230,12 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
         if may_wrap:
             timings = fetch_time_output(
                 timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-            if not timings:
-                return ri
-            persist_time(ri.db_run, ri.session, timings)
+            if timings:
+                persist_time(ri.db_run, ri.session, timings)
     persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
                                            "cores-config": str(jobs),
                                            "recompilation": "disabled"})
+    return ri
 
 def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
     """

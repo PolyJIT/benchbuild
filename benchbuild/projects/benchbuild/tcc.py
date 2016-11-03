@@ -27,8 +27,8 @@ class TCC(BenchBuildGroup):
     def configure(self):
         mkdir("build")
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        configure = local[path.join(self.src_dir, "configure")]
         with local.cwd("build"):
-            configure = local[path.join(self.src_dir, "configure")]
             run(configure["--cc=" + str(clang), "--libdir=/usr/lib64"])
 
     def build(self):

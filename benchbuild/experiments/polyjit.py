@@ -308,8 +308,7 @@ class PolyJIT(RuntimeExperiment):
                           "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                           "-O3", "-mllvm", "-jitable",
                           "-mllvm", "-polli-allow-modref-calls",
-                          "-mllvm", "-polli",
-                          "-mllvm", "-stats"]
+                          "-mllvm", "-polli"]
         return project
 
     @abstractmethod

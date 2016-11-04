@@ -173,11 +173,12 @@ class Configuration():
                     if k in inode:
                         load_rec(inode[k], config[k])
                     else:
-                        warnings.warn(
+                        log = logging.getLogger('benchbuild')
+                        log.warn(warnings.formatwarning(
                             "Key {} is not part of the default config, "
                             "ignoring.".format(k),
-                            category=InvalidConfigKey,
-                            stacklevel=2)
+                            category=InvalidConfigKey, filename=str(__file__),
+                            lineno=180))
                 else:
                     inode[k] = config[k]
 

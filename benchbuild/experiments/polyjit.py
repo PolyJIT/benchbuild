@@ -14,7 +14,7 @@ from plumbum import local
 from benchbuild.experiments.compilestats import collect_compilestats
 from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download,
                                       Configure, Clean, MakeBuildDir, Run,
-                                      Echo)
+                                      Echo, Any)
 from benchbuild.experiment import RuntimeExperiment
 from functools import partial
 
@@ -336,7 +336,7 @@ class PolyJITFull(PolyJIT):
         rawp.run_uuid = uuid.uuid4()
         rawp.runtime_extension = partial(run_with_time, rawp, self, CFG, 1)
 
-        actns.extend([
+        actns.append(RequireAll([
             Echo("========= START: RAW Baseline"),
             MakeBuildDir(rawp),
             Prepare(rawp),
@@ -346,7 +346,7 @@ class PolyJITFull(PolyJIT):
             Run(rawp),
             Clean(rawp),
             Echo("========= END: RAW Baseline")
-        ])
+        ]))
 
         jitp = copy.deepcopy(p)
         jitp = self.init_project(jitp)
@@ -359,7 +359,7 @@ class PolyJITFull(PolyJIT):
             cp.runtime_extension = partial(run_without_recompile,
                                            cp, self, CFG, i)
 
-            actns.extend([
+            actns.append(RequireAll([
                 Echo("========= START: JIT No Recomp - Cores: {0}".format(i)),
                 MakeBuildDir(cp),
                 Prepare(cp),
@@ -369,14 +369,14 @@ class PolyJITFull(PolyJIT):
                 Run(cp),
                 Clean(cp),
                 Echo("========= END: JIT No Recomp - Cores: {0}".format(i))
-            ])
+            ]))
 
         for i in range(2, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(jitp)
             cp.run_uuid = uuid.uuid4()
             cp.runtime_extension = partial(run_with_time, cp, self, CFG, i)
 
-            actns.extend([
+            actns.append(RequireAll([
                 Echo("========= START: JIT - Cores: {0}".format(i)),
                 MakeBuildDir(cp),
                 Prepare(cp),
@@ -386,8 +386,8 @@ class PolyJITFull(PolyJIT):
                 Run(cp),
                 Clean(cp),
                 Echo("========= END: JIT - Cores: {0}".format(i))
-            ])
-        return actns
+            ]))
+        return [Any(actns)]
 
 
 class PJITRaw(PolyJIT):

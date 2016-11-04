@@ -237,16 +237,26 @@ class Any(Step):
 
     def __init__(self, actions):
         self._actions = actions
+        self._exlog = logging.getLogger('benchbuild')
         super(Any, self).__init__(None, None)
 
     def __len__(self):
         return sum([len(x) for x in self._actions])
 
     def __call__(self):
-        result = StepResult.OK
+        length = len(self._actions)
+        cnt = 0
         for a in self._actions:
             result = a()
-        return result
+            cnt = cnt + 1
+            if result == StepResult.ERROR:
+                self._exlog.warn("{0} actions left in queue", length - cnt)
+        return StepResult.OK
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self._actions]
+        sub_actns = "\n".join(sub_actns)
+        return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
 
 
 class Experiment(Any):

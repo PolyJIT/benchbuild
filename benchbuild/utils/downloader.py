@@ -190,13 +190,13 @@ def Svn(url, fname, to=None):
         to = CFG["tmp_dir"].value()
 
     from os import path
-    from benchbuild.utils.cmd import svn
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
         Copy(src_dir, ".")
         return
 
+    from benchbuild.utils.cmd import svn
     svn("co", url, src_dir)
     update_hash(fname, to)
     Copy(src_dir, ".")

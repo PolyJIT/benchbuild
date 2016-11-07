@@ -104,7 +104,7 @@ def persist_project(project):
             "description": desc,
             "src_url": src_url,
             "domain": domain,
-            "group_name": group_name
+            "group_name": group_name,
             "version": version
         }
         projects.update(newp_value)

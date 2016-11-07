@@ -112,7 +112,6 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         "DOMAIN" : DOMAIN,
         "VERSION" : FuncClass(NAME, DOMAIN),
         "GROUP" : "auto-gentoo",
-        "SRC_FILE" : "automatic",
         "run" : run_not_supported,
         "__module__" : "__main__"
     })

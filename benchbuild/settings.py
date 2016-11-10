@@ -592,6 +592,10 @@ CFG["slurm"] = {
     "node_image": {
         "desc": "Path to the archive we want on each cluster node.",
         "default": os.path.join(os.path.curdir, "llvm.tar.gz")
+    },
+    "extra_log": {
+        "desc": "Extra log file to be managed by SLURM",
+        "default": "/tmp/.slurm"
     }
 }
 

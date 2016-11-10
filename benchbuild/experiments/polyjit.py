@@ -173,7 +173,8 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     if may_wrap:
         run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
-    with local.env(OMP_NUM_THREADS=str(jobs)):
+    with local.env(OMP_NUM_THREADS=str(jobs),
+                   POLLI_LOG_FILE=c["slurm"]["extra_log"].value()):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
 
@@ -223,7 +224,8 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
     if may_wrap:
         run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
-    with local.env(OMP_NUM_THREADS=str(jobs)):
+    with local.env(OMP_NUM_THREADS=str(jobs),
+                   POLLI_LOG_FILE=c["slurm"]["extra_log"].value()):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
 

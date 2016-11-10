@@ -145,6 +145,8 @@ def prepare_slurm_script(experiment, projects):
     srun = local["srun"]
     if not CFG["slurm"]["multithread"].value():
         srun = srun["--hint=nomultithread"]
+    if not CFG["slurm"]["turbo"].value():
+        srun = srun["--pstate-turbo=off"]
     srun = srun[benchbuild_c["-v", "run"]]
     print("SLURM script written to {0}".format(slurm_script))
     dump_slurm_script(slurm_script, srun, experiment, projects)

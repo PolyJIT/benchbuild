@@ -569,6 +569,10 @@ CFG["slurm"] = {
         "desc": "Hint SLURM to allow multithreading. (--hint=nomultithread)",
         "default": False
     },
+    "turbo": {
+        "desc": "Disable Intel Turbo Boost via SLURM. (--pstate-turbo=off)",
+        "default": False
+    },
     "logs": {
         "desc": "Location the SLURM logs will be stored",
         "default": "slurm.log"

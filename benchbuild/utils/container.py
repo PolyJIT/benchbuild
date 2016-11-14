@@ -54,10 +54,21 @@ def get_container_url():
     return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
         .format(latest_src_uri())
 
+def get_base_dir():
+    """
+    Method that finds out the path of the read-only container for a project.
+    Basically just get_path_of_container but with a different name for clear
+    seperation between the situations in which it is used.
+
+    Returns:
+        An absolute path of the base directory.
+    """
+    return os.path.abspath(get_path_of_container())
+
 
 def is_valid_container(path):
     """
-    Checks, if a container exists and is unpacked.
+    Checks if a container exists and is unpacked.
 
     Args:
         path: The location where the container is expected.
@@ -81,11 +92,7 @@ def is_valid_container(path):
     else:
         container_hash_file = open(container_hash_path, 'r')
         container_hash = container_hash_file.readline()
-        if container_hash == tmp_hash:
-            return True
-        else:
-            return False
-
+        return container_hash == tmp_hash
 
 def unpack_container(path):
     """
@@ -97,11 +104,13 @@ def unpack_container(path):
         path: The location where the container is, that needs to be unpacked.
 
     """
+    from benchbuild.utils.run import run, uchroot_no_args
+    
     if not os.path.exists(path):
         mkdir("-p", path)
-
+    
     path = os.path.abspath(path)
-    cp(__CONTAINER_DEFAULT__ + ".hash", path)
+    cp(__CONTAINER_DEFAULT__ +".hash", path)
 
     local_container = os.path.basename(__CONTAINER_DEFAULT__)
 
@@ -127,13 +136,13 @@ def unpack_container(path):
         if not os.path.samefile(local_container, __CONTAINER_DEFAULT__):
             rm(local_container)
 
-
 def get_path_of_container():
     """
     Finds the current location of a container.
+    Also unpacks the project if necessary.
 
     Returns:
-        target: The path, where the container lies in the end
+        target: The path, where the container lies in the end.
     """
     target = os.path.join(s.CFG["tmp_dir"].value(), __CONTAINER_PATH_SUFFIX__)
     if not os.path.exists(target) or not is_valid_container(target):

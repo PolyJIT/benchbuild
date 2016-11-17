@@ -63,6 +63,8 @@ def get_base_dir():
     Returns:
         An absolute path of the base directory.
     """
+#Change later on, in case of multiple containers and adjust the container of
+#a project according to his prefered container
     return os.path.abspath(get_path_of_container())
 
 

@@ -236,7 +236,7 @@ def guarded_exec(cmd, project, experiment, **kwargs):
 
     Args:
         cmd: the command we guard.
-        pname: the database run we run under.
+        pname: the database we run under.
         ename: the database session this run belongs to.
         run_group: the run group this execution will belong to.
 
@@ -336,6 +336,14 @@ def uchroot_no_llvm(*args, **kwargs):
 
 
 def uchroot_mounts(prefix, mounts):
+    """
+    Find out the mountpoints of the current user.
+    Args:
+        prefix: Define where to job was running if it ran on a cluster.
+        mounts: All mounts the user currently uses in his file system.
+    Return:
+        mntpoints
+    """
     i = 0
     mntpoints = []
     for mount in mounts:
@@ -359,6 +367,15 @@ def _uchroot_mounts(prefix, mounts, uchroot):
 
 
 def uchroot_env(mounts):
+    """
+    Creates the environment of the change root for the user.
+
+    Args:
+        mounts: The mountpoints of the current user.
+    Return:
+        paths
+        ld_libs
+    """
     ld_libs = ["/{0}/lib".format(m) for m in mounts]
     paths = ["/{0}/bin".format(m) for m in mounts]
     paths.extend(["/{0}".format(m) for m in mounts])
@@ -399,8 +416,10 @@ def in_builddir(sub='.'):
     from os import path
 
     def wrap_in_builddir(func):
+        """ Wraps the function for the new build directory. """
         @wraps(func)
         def wrap_in_builddir_func(self, *args, **kwargs):
+            """ The actual function inside the wrapper for the new builddir. """
             p = path.abspath(path.join(self.builddir, sub))
             with local.cwd(p):
                 return func(self, *args, **kwargs)
@@ -436,9 +455,9 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
     Setup a unionfs via unionfs-fuse.
 
     Args:
-        ro_base:
-        rw_image:
-        mountpoint:
+        ro_base: base_directory of the project
+        rw_image: virtual image of actual file system
+        mountpoint: location where ro_base and rw_image merge
     """
     log = logging.getLogger("benchbuild")
     if not os.path.exists(mountpoint):
@@ -475,10 +494,14 @@ def unionfs(base_dir='./base',
     is done as soon as the function completes.
 
     Args:
-        base_dir:
-        image_dir:
-        image_prefix:
-        mountpoint:
+        base_dir:The unpacked container of a project delievered by a method
+                 out of the container utils.
+        image_dir: Virtual image of the actual file system represented by the
+                   build_dir of a project.
+        image_prefix: Useful prefix if the projects run on a cluster,
+                      to identify where the job came from and where it runs.
+        mountpoint: Location where the filesystems merge, currently per default
+                    as './union'.
     """
     from functools import wraps
     from plumbum import local

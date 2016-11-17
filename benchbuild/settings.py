@@ -715,6 +715,12 @@ CFG["container"] = {
         "desc": "List of known containers. Format: "
                 "[{ 'path': <path>,"
                 "   'hash': <hash> }]"
+    },
+    "prefered": {
+        "default": [],
+        "desc": "List of Containers of which the project can chose from." \
+                "Format:"
+                "[{ 'path': <path> }]"
     }
 }
 

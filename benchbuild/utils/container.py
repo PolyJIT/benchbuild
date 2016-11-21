@@ -7,7 +7,7 @@ from benchbuild import settings as s
 from benchbuild.utils.cmd import cp, mkdir, bash, rm, curl, tail, cut
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot_no_args
-from plumbum import local, FG, TF
+from plumbum import local, TF
 
 __CONTAINER_PATH_SUFFIX__ = "container"
 __CONTAINER_DEFAULT__ = os.path.abspath(os.path.join(s.CFG["tmp_dir"].value(),
@@ -107,10 +107,10 @@ def unpack_container(path):
 
     """
     from benchbuild.utils.run import run, uchroot_no_args
-    
+
     if not os.path.exists(path):
         mkdir("-p", path)
-    
+
     path = os.path.abspath(path)
     cp(__CONTAINER_DEFAULT__ +".hash", path)
 

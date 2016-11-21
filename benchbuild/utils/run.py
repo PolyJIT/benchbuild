@@ -430,9 +430,7 @@ def in_builddir(sub='.'):
 
 
 def unionfs_tear_down(mountpoint, tries=3):
-    """
-    Tear down a unionfs mountpoint.
-    """
+    """ Tear down a unionfs mountpoint. """
     from benchbuild.utils.cmd import fusermount, sync
     log = logging.getLogger("benchbuild")
 
@@ -507,6 +505,12 @@ def unionfs(base_dir='./base',
     from plumbum import local
 
     def update_cleanup_paths(new_path):
+        """
+        Add the new path to the list of paths to clean up afterwards.
+
+        Args:
+            new_path: Path to the directory that need to be cleaned up.
+        """
         cleanup_dirs = settings.CFG["cleanup_paths"].value()
         cleanup_dirs = set(cleanup_dirs)
         cleanup_dirs.add(new_path)
@@ -514,15 +518,28 @@ def unionfs(base_dir='./base',
         settings.CFG["cleanup_paths"] = cleanup_dirs
 
     def is_outside_of_builddir(project, path_to_check):
+        """ Checks if a project lies outside of its expected directory. """
         bdir = project.builddir
         cprefix = os.path.commonprefix([path_to_check, bdir])
         return cprefix != bdir
 
     def wrap_in_union_fs(func):
+        """
+        Function that wraps a given function inside the file system.
+
+        Args:
+            func: The function that needs to be wrapped inside the unions fs.
+        Return:
+            The file system with the function wrapped inside.
+        """
         nonlocal image_prefix
 
         @wraps(func)
         def wrap_in_union_fs_func(project, *args, **kwargs):
+            """
+            Builds up the mount, transfers the function and returns the
+            unionfs after tearing down the mount again.
+            """
             abs_base_dir = os.path.abspath(os.path.join(project.builddir,
                                                         base_dir))
             nonlocal image_prefix
@@ -572,6 +589,7 @@ def store_config(func):
 
     @wraps(func)
     def wrap_store_config(self, *args, **kwargs):
+        """ Wrapper that contains the actual storage call for the config. """
         p = os.path.abspath(os.path.join(self.builddir))
         CFG.store(os.path.join(p, ".benchbuild.json"))
         return func(self, *args, **kwargs)

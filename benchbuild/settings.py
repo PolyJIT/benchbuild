@@ -718,7 +718,7 @@ CFG["container"] = {
     },
     "prefered": {
         "default": [],
-        "desc": "List of Containers of which the project can chose from." \
+        "desc": "List of containers of which the project can chose from."
                 "Format:"
                 "[{ 'path': <path> }]"
     }

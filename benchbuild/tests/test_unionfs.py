@@ -24,13 +24,13 @@ class TestProject(Project):
         therefor also inside the mount as testing process.
         """
 
+        self.build()
         self.run(ls)
 
     @classmethod
     def download(self):
         """ Get the project source input. """
-        if self.NAME is not None:
-            Wget(None, self.NAME) #None instead of Src_url just temporary
+        Wget(self.sourcedir, self.NAME)
 
     @classmethod
     def configure(self):
@@ -48,26 +48,40 @@ class TestUnionFsMount(unittest.TestCase):
     Class to test the mounting of the unionfs with different paths and check if
     the unmounting works without working with a whole filesystem yet.
     """
+    from benchbuild.utils.run import uchroot_mounts, unionfs_set_up, \
+        unionfs_tear_down
 
-    #mount_test_helper() to be integrated
+    build_dir = CFG["build_dir"].value()
+    base_dir = CFG["unionfs"]["base_dir"].value()
+    caller = TestProject(Project)
+    TestProject.mount_test_helper(caller)
 
-    def test_mount_type(self):
-        """ Tests if the mounting process encountered incorrect types. """
-        self.assertRaises(TypeError)
+    def test_unionfs_set_up(self):
+        """ Tests if the set up of the unionfs was successfull. """
+        unionfs_set_up(get_base_dir(), CFG["tmp_dir"].value(), build_dir)
+        self.assertRaises(ValueError)
 
-    def test_path(self):
+    def test_mount_location(self):
         """ Tests if the mount is at the expected path. """
-        self.assertEqual(CFG["unionfs"]["base_dir"].value(), get_base_dir())
+        self.assertEqual(base_dir, get_base_dir())
 
-    def test_correct_unmount(self):
-        """ Tests if the tear down of the mount was successfull. """
-        self.assertFalse(os.path.exists(CFG["build_dir"].value()))
-#both correct_ tests fail because they are currently
-#checking for directorys that remain after the tear down.
-#solution: test the functions concerning the mounts in utils/run.py seperatly
+    def test_uchroot_mounts(self):
+        """ Tests if the mountpoints of the chroot could be located. """
+        expected_mountpoints = []
+        self.assertEquals(expected_mountpoints, uchroot_mounts(
+            build_dir, prefix=None))
+
+    def test_unionfs_tear_down(self):
+        """ Tests if the tear down of the unionfs was successfull. """
+        unionfs_tear_down(build_dir, 3)
+        self.assertRaises(ValueError)
+        self.assertRaises(RuntimeError)
+#normally you would not test multiple asserts with one test,
+#but here the second one is never executed if the first one does not pass anyway
+
     def test_correct_cleanup(self):
         """ Tests if the clean up after the unmounting was successfull. """
-        self.assertFalse(os.path.exists(CFG["unionfs"]["base_dir"].value()))
+        self.assertFalse(os.path.exists(base_dir))
 
 if __name__ == 'main':
     unittest.main(verbosity=2)

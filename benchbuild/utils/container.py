@@ -6,7 +6,6 @@ import logging
 from benchbuild import settings as s
 from benchbuild.utils.cmd import cp, mkdir, bash, rm, curl, tail, cut
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import run, uchroot_no_args
 from plumbum import local, TF
 
 __CONTAINER_PATH_SUFFIX__ = "container"
@@ -81,8 +80,8 @@ def is_valid_container(path):
     """
     try:
         tmp_hash_path = __CONTAINER_DEFAULT__ + ".hash"
-        tmp_hash_file = open(tmp_hash_path, 'r')
-        tmp_hash = tmp_hash_file.readline()
+        with open(tmp_hash_path, 'r') as tmp_file:
+            tmp_hash = tmp_file.readline()
     except IOError:
         logger = logging.getLogger(__name__)
         logger.info("No .hash-file in the tmp-directory.")
@@ -92,9 +91,9 @@ def is_valid_container(path):
     if not os.path.exists(container_hash_path):
         return False
     else:
-        container_hash_file = open(container_hash_path, 'r')
-        container_hash = container_hash_file.readline()
-        return container_hash == tmp_hash
+        with open(container_hash_path, 'r') as hash_file:
+            container_hash = hash_file.readline()
+            return container_hash == tmp_hash
 
 def unpack_container(path):
     """

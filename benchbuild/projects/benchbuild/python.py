@@ -41,7 +41,7 @@ class Python(BenchBuildGroup):
             run(make)
 
     def run_tests(self, experiment):
-        exp = wrap(path.join(self.src_dir, "python"), experiment)
+        wrap(path.join(self.src_dir, "python"), experiment)
 
         with local.cwd(self.src_dir):
-            run(make["TESTPYTHON=" + str(exp), "-i", "test"])
+            run(make["-i", "test"])

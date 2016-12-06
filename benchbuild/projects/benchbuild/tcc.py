@@ -25,16 +25,22 @@ class TCC(BenchBuildGroup):
         tar("xjf", self.SRC_FILE)
 
     def configure(self):
-        mkdir("build")
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        with local.cwd("build"):
-            configure = local[path.join(self.src_dir, "configure")]
-            run(configure["--cc=" + str(clang), "--libdir=/usr/lib64"])
+
+        with local.cwd(self.src_dir):
+            mkdir("build")
+            with local.cwd("build"):
+                configure = local["../configure"]
+                run(configure["--cc="+str(clang), "--with-libgcc"])
 
     def build(self):
-        with local.cwd("build"):
-            run(make)
+        with local.cwd(self.src_dir):
+            with local.cwd("build"):
+                run(make)
 
     def run_tests(self, experiment):
-        wrap(self.run_f, experiment)
-        run(make["test"])
+        with local.cwd(self.src_dir):
+            with local.cwd("build"):
+                wrap("tcc", experiment)
+                inc_path = path.abspath("..")
+                run(make["TCCFLAGS=-B{}".format(inc_path), "test", "-i"])

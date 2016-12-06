@@ -14,7 +14,7 @@ from plumbum import local
 from benchbuild.experiments.compilestats import collect_compilestats
 from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download,
                                       Configure, Clean, MakeBuildDir, Run,
-                                      Echo)
+                                      Echo, Any)
 from benchbuild.experiment import RuntimeExperiment
 from functools import partial
 
@@ -166,21 +166,27 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     project.name = kwargs.get("project_name", project.name)
     timing_tag = "BB-JIT: "
 
-    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
-    run_cmd = handle_stdin(run_cmd[args], kwargs)
+    may_wrap = kwargs.get("may_wrap", True)
 
-    with local.env(OMP_NUM_THREADS=str(jobs)):
+    run_cmd = local[run_f]
+    run_cmd = run_cmd[args]
+    if may_wrap:
+        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
+
+    with local.env(OMP_NUM_THREADS=str(jobs),
+                   POLLI_LOG_FILE=c["slurm"]["extra_log"].value()):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
-        timings = fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-        if not timings:
-            return
 
-    persist_time(ri.db_run, ri.session, timings)
+        if may_wrap:
+            timings = fetch_time_output(
+                timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+            if timings:
+                persist_time(ri.db_run, ri.session, timings)
     persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
                                            "cores-config": str(jobs),
                                            "recompilation": "enabled"})
+    return ri
 
 
 def run_without_recompile(project, experiment, config, jobs, run_f,
@@ -211,22 +217,27 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
     project.name = kwargs.get("project_name", project.name)
     timing_tag = "BB-JIT: "
 
-    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
-    run_cmd = handle_stdin(run_cmd[args], kwargs)
+    may_wrap = kwargs.get("may_wrap", True)
+
+    run_cmd = local[run_f]
+    run_cmd = run_cmd[args]
+    if may_wrap:
+        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
     with local.env(OMP_NUM_THREADS=str(jobs),
-                   POLLI_DISABLE_RECOMPILATION=1):
+                   POLLI_LOG_FILE=c["slurm"]["extra_log"].value()):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
-        timings = fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-        if not timings:
-            return
 
-    persist_time(ri.db_run, ri.session, timings)
+        if may_wrap:
+            timings = fetch_time_output(
+                timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+            if timings:
+                persist_time(ri.db_run, ri.session, timings)
     persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
                                            "cores-config": str(jobs),
                                            "recompilation": "disabled"})
+    return ri
 
 def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
     """
@@ -299,8 +310,7 @@ class PolyJIT(RuntimeExperiment):
                           "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                           "-O3", "-mllvm", "-jitable",
                           "-mllvm", "-polli-allow-modref-calls",
-                          "-mllvm", "-polli",
-                          "-mllvm", "-stats"]
+                          "-mllvm", "-polli"]
         return project
 
     @abstractmethod
@@ -327,7 +337,7 @@ class PolyJITFull(PolyJIT):
         rawp.run_uuid = uuid.uuid4()
         rawp.runtime_extension = partial(run_with_time, rawp, self, CFG, 1)
 
-        actns.extend([
+        actns.append(RequireAll([
             Echo("========= START: RAW Baseline"),
             MakeBuildDir(rawp),
             Prepare(rawp),
@@ -337,7 +347,7 @@ class PolyJITFull(PolyJIT):
             Run(rawp),
             Clean(rawp),
             Echo("========= END: RAW Baseline")
-        ])
+        ]))
 
         jitp = copy.deepcopy(p)
         jitp = self.init_project(jitp)
@@ -350,7 +360,7 @@ class PolyJITFull(PolyJIT):
             cp.runtime_extension = partial(run_without_recompile,
                                            cp, self, CFG, i)
 
-            actns.extend([
+            actns.append(RequireAll([
                 Echo("========= START: JIT No Recomp - Cores: {0}".format(i)),
                 MakeBuildDir(cp),
                 Prepare(cp),
@@ -360,14 +370,14 @@ class PolyJITFull(PolyJIT):
                 Run(cp),
                 Clean(cp),
                 Echo("========= END: JIT No Recomp - Cores: {0}".format(i))
-            ])
+            ]))
 
         for i in range(2, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(jitp)
             cp.run_uuid = uuid.uuid4()
             cp.runtime_extension = partial(run_with_time, cp, self, CFG, i)
 
-            actns.extend([
+            actns.append(RequireAll([
                 Echo("========= START: JIT - Cores: {0}".format(i)),
                 MakeBuildDir(cp),
                 Prepare(cp),
@@ -377,8 +387,8 @@ class PolyJITFull(PolyJIT):
                 Run(cp),
                 Clean(cp),
                 Echo("========= END: JIT - Cores: {0}".format(i))
-            ])
-        return actns
+            ]))
+        return [Any(actns)]
 
 
 class PJITRaw(PolyJIT):

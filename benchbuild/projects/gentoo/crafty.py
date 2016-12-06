@@ -15,7 +15,6 @@ class Crafty(GentooGroup):
     """
     NAME = "gentoo-crafty"
     DOMAIN = "games-board"
-    VERSION = "24.1"
 
     def download(self):
         super(Crafty, self).download()

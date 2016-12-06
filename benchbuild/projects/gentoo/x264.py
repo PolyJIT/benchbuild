@@ -14,7 +14,6 @@ class X264(GentooGroup):
     """
     NAME = "gentoo-x264"
     DOMAIN = "media-libs"
-    VERSION = "0.0.20160712"
 
     test_url = "http://lairosiel.de/dist/"
     inputfiles = {"tbbt-small.y4m": [],

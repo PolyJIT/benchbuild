@@ -115,12 +115,14 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write("srun -c 1 hostname\n")
 
         # Write the experiment command.
+        extra_logs = CFG["slurm"]["extra_logs"].value()
         slurm.write(__cleanup_node_commands(slurm_log_path))
+        slurm.write("srun -c 1 rm -f {0}\n".format(extra_logs))
         slurm.write(
             str(benchbuild["-P", "$_project", "-E", experiment]) + "\n")
 
         # Append the polyjit log to the slurm log.
-        slurm.write("srun -c 1 cat /tmp/.polyjit.log\n")
+        slurm.write("srun -c 1 cat {0}\n".format(extra_logs))
 
     bash("-n", script_name)
     chmod("+x", script_name)
@@ -144,6 +146,8 @@ def prepare_slurm_script(experiment, projects):
     srun = local["srun"]
     if not CFG["slurm"]["multithread"].value():
         srun = srun["--hint=nomultithread"]
+    if not CFG["slurm"]["turbo"].value():
+        srun = srun["--pstate-turbo=off"]
     srun = srun[benchbuild_c["-v", "run"]]
     print("SLURM script written to {0}".format(slurm_script))
     dump_slurm_script(slurm_script, srun, experiment, projects)

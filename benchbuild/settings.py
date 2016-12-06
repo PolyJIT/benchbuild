@@ -173,11 +173,12 @@ class Configuration():
                     if k in inode:
                         load_rec(inode[k], config[k])
                     else:
-                        warnings.warn(
+                        log = logging.getLogger('benchbuild')
+                        log.warn(warnings.formatwarning(
                             "Key {} is not part of the default config, "
                             "ignoring.".format(k),
-                            category=InvalidConfigKey,
-                            stacklevel=2)
+                            category=InvalidConfigKey, filename=str(__file__),
+                            lineno=180))
                 else:
                     inode[k] = config[k]
 
@@ -568,6 +569,10 @@ CFG["slurm"] = {
         "desc": "Hint SLURM to allow multithreading. (--hint=nomultithread)",
         "default": False
     },
+    "turbo": {
+        "desc": "Disable Intel Turbo Boost via SLURM. (--pstate-turbo=off)",
+        "default": False
+    },
     "logs": {
         "desc": "Location the SLURM logs will be stored",
         "default": "slurm.log"
@@ -587,6 +592,10 @@ CFG["slurm"] = {
     "node_image": {
         "desc": "Path to the archive we want on each cluster node.",
         "default": os.path.join(os.path.curdir, "llvm.tar.gz")
+    },
+    "extra_log": {
+        "desc": "Extra log file to be managed by SLURM",
+        "default": "/tmp/.slurm"
     }
 }
 

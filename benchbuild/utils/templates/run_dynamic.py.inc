@@ -58,9 +58,10 @@ if path.exists("{blobf}"):
             e = experiment_cls([PROJECT_NAME], [GROUP_NAME])
             p = project_cls(e)
 
-            if not sys.stdin.isatty():
-                f(RUN_F, ARGS, has_stdin=True, project_name=PROJECT_NAME)
-            else:
-                f(RUN_F, ARGS, project_name=PROJECT_NAME)
+            ri = f(RUN_F, ARGS,
+                   has_stdin=not sys.stdin.isatty(),
+                   has_stdout=not sys.stdout.isatty(),
+                   project_name=PROJECT_NAME)
+            sys.exit(ri.retcode)
         else:
             sys.exit(1)

@@ -54,8 +54,6 @@ def get_container_url():
     return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
         .format(latest_src_uri())
 
-__CONTAINER_REMOTE_DEFAULT__ = get_container_url()
-
 
 def is_valid_container(path):
     """

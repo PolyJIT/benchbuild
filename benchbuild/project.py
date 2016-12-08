@@ -12,6 +12,7 @@ from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.path import list_to_path, template_str
 from benchbuild.utils.run import in_builddir, unionfs, store_config
+from benchbuild.utils.container import get_base_dir
 from functools import partial
 
 PROJECT_BIN_F_EXT = ".bin"
@@ -30,7 +31,6 @@ class ProjectRegistry(type):
         if cls.NAME is not None and cls.DOMAIN is not None:
             ProjectRegistry.projects[cls.NAME] = cls
 
-
 class ProjectDecorator(ProjectRegistry):
     """
     Decorate the interface of a project with the in_builddir decorator.
@@ -47,9 +47,9 @@ class ProjectDecorator(ProjectRegistry):
         if CFG["unionfs"]["enable"].value():
             image_dir = CFG["unionfs"]["image"].value()
             prefix = CFG["unionfs"]["image_prefix"].value()
+            base_dir = CFG["unionfs"]["base_dir"].value()
             unionfs_deco = partial(unionfs, image_dir=image_dir,
                                    image_prefix=prefix)
-
         config_deco = store_config
 
         methods = ProjectDecorator.decorated_methods
@@ -109,6 +109,7 @@ class Project(object, metaclass=ProjectDecorator):
         new_self.name = cls.NAME
         new_self.domain = cls.DOMAIN
         new_self.group = cls.GROUP
+        new_self.src_file = SRC_FILE
         new_self.version = cls.VERSION
         return new_self
 
@@ -125,6 +126,7 @@ class Project(object, metaclass=ProjectDecorator):
         self.group_name = group
         self.sourcedir = path.join(str(CFG["src_dir"]), self.name)
         self.builddir = path.join(str(CFG["build_dir"]), exp.name, self.name)
+        self.base_dir = get_base_dir()
         if group:
             self.testdir = path.join(
                 str(CFG["test_dir"]), self.domain, group, self.name)
@@ -176,10 +178,11 @@ class Project(object, metaclass=ProjectDecorator):
         CFG["project"] = self.NAME
         CFG["domain"] = self.DOMAIN
         CFG["group"] = self.GROUP
+        CFG["version"] = self.VERSION
         CFG["src_uri"] = self.src_uri
         CFG["use_database"] = 1
         CFG["db"]["run_group"] = str(self.run_uuid)
-
+        CFG["unionfs"]["base_dir"] = self.base_dir
         with local.cwd(self.builddir):
             group, session = begin_run_group(self)
             try:

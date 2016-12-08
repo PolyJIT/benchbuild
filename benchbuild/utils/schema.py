@@ -149,12 +149,14 @@ class Project(BASE):
     src_url = Column(String)
     domain = Column(String)
     group_name = Column(String)
+    version = Column(String)
 
     def __repr__(self):
-        return "<Project {group}@{domain}/{name}>".format(
+        return "<Project {group}@{domain}/{name} V:{version}>".format(
             group=self.group_name,
             domain=self.domain,
-            name=self.name)
+            name=self.name,
+            version=self.version)
 
 
 class CompileStat(BASE):

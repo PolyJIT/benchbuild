@@ -82,6 +82,7 @@ def persist_project(project):
     src_url = ''
     domain = project.domain
     group_name = project.group_name
+    version = project.version
     try:
         src_url = project.src_uri
     except AttributeError:
@@ -94,6 +95,7 @@ def persist_project(project):
         newp.src_url = src_url
         newp.domain = domain
         newp.group_name = group_name
+        newp.version = version
         session.add(newp)
         logger.debug("Poject INSERT: %s", newp)
     else:
@@ -102,7 +104,8 @@ def persist_project(project):
             "description": desc,
             "src_url": src_url,
             "domain": domain,
-            "group_name": group_name
+            "group_name": group_name,
+            "version": version
         }
         projects.update(newp_value)
         logger.debug("Project UPDATE: %s", newp_value)

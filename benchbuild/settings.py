@@ -416,6 +416,10 @@ CFG["unionfs"] = {
         "default": True,
         "desc": "Wrap all project operations in a unionfs filesystem."
     },
+    "base_dir": {
+        "default": './base',
+        "desc": 'Path of the unpacked container.'
+    },
     "image": {
         "default": './image',
         "desc": 'Name of the image directory'
@@ -711,6 +715,12 @@ CFG["container"] = {
         "desc": "List of known containers. Format: "
                 "[{ 'path': <path>,"
                 "   'hash': <hash> }]"
+    },
+    "prefered": {
+        "default": [],
+        "desc": "List of containers of which the project can chose from."
+                "Format:"
+                "[{ 'path': <path> }]"
     }
 }
 

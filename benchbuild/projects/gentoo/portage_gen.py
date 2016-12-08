@@ -50,14 +50,13 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         Finds out the current version number of a gentoo package.
 
         The package name is created by combining the domain and the name.
-        Then uchroot is used to switch into a gentoo shell where the 'eix'
+        Then uchroot is used to switch into a gentoo shell where the 'emerge'
         command is used to recieve the version number.
         The function then parses the version number back into the file.
 
         Args:
-            Name:
-                Name of the project.
-         Domain: Categorie of the package.
+            Name: Name of the project.
+            Domain: Categorie of the package.
         """
 
         def __init__(self, name, domain):

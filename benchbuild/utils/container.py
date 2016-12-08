@@ -62,16 +62,16 @@ def is_valid_container(path):
     Checks, if a container exists and is unpacked.
 
     Args:
-        path: The location where the container is expected. 
+        path: The location where the container is expected.
 
     Returns:
         True if the container is valid, False if the container needs to
         unpacked or if the path does not exist yet.
     """
     try:
-        tmp_hash_path = __CONTAINER_DEFAULT__ + ".hash" 
+        tmp_hash_path = __CONTAINER_DEFAULT__ + ".hash"
         tmp_hash_file = open(tmp_hash_path, 'r')
-        tmp_hash = tmp_hash_file.readline() 
+        tmp_hash = tmp_hash_file.readline()
     except IOError:
         logger = logging.getLogger(__name__)
         logger.info("No .hash-file in the tmp-directory.")
@@ -82,12 +82,13 @@ def is_valid_container(path):
         return False
     else:
         container_hash_file = open(container_hash_path, 'r')
-        container_hash = container_hash_file.readline() 
+        container_hash = container_hash_file.readline()
         if container_hash == tmp_hash:
             return True
         else:
             return False
-    
+
+
 def unpack_container(path):
     """
     Method that checks if a directory for the container exists,
@@ -100,9 +101,9 @@ def unpack_container(path):
     """
     if not os.path.exists(path):
         mkdir("-p", path)
-    
+
     path = os.path.abspath(path)
-    cp(__CONTAINER_DEFAULT__ +".hash", path)
+    cp(__CONTAINER_DEFAULT__ + ".hash", path)
 
     local_container = os.path.basename(__CONTAINER_DEFAULT__)
 
@@ -128,6 +129,7 @@ def unpack_container(path):
         if not os.path.samefile(local_container, __CONTAINER_DEFAULT__):
             rm(local_container)
 
+
 def get_path_of_container():
     """
     Finds the current location of a container.
@@ -135,7 +137,6 @@ def get_path_of_container():
     Returns:
         target: The path, where the container lies in the end
     """
-#ist base_dir RO und kann ich base_dir mit Aufruf dieser Methode bekommen?
     target = os.path.join(s.CFG["tmp_dir"].value(), __CONTAINER_PATH_SUFFIX__)
     if not os.path.exists(target) or not is_valid_container(target):
         unpack_container(target)

@@ -25,8 +25,10 @@ from functools import partial
 from benchbuild.experiment import step, RuntimeExperiment
 from benchbuild.settings import CFG
 
+
 class ShouldNotBeNone(RuntimeWarning):
     """User warning, if config var is null."""
+
 
 class PollyPerformance(RuntimeExperiment):
     """ The polly performance experiment. """

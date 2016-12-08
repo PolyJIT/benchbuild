@@ -6,8 +6,7 @@ import logging
 from benchbuild import settings as s
 from benchbuild.utils.cmd import cp, mkdir, bash, rm, curl, tail, cut
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import run, uchroot_no_args
-from plumbum import local, FG, TF
+from plumbum import local, TF
 
 __CONTAINER_PATH_SUFFIX__ = "container"
 __CONTAINER_DEFAULT__ = os.path.abspath(os.path.join(s.CFG["tmp_dir"].value(),
@@ -54,24 +53,36 @@ def get_container_url():
     return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
         .format(latest_src_uri())
 
-__CONTAINER_REMOTE_DEFAULT__ = get_container_url()
+
+def get_base_dir():
+    """
+    Method that finds out the path of the read-only container for a project.
+    Basically just get_path_of_container but with a different name for clear
+    seperation between the situations in which it is used.
+
+    Returns:
+        An absolute path of the base directory.
+    """
+#Change later on, in case of multiple containers and adjust the container of
+#a project according to his prefered container
+    return os.path.abspath(get_path_of_container())
 
 
 def is_valid_container(path):
     """
-    Checks, if a container exists and is unpacked.
+    Checks if a container exists and is unpacked.
 
     Args:
-        path: The location where the container is expected. 
+        path: The location where the container is expected.
 
     Returns:
         True if the container is valid, False if the container needs to
         unpacked or if the path does not exist yet.
     """
     try:
-        tmp_hash_path = __CONTAINER_DEFAULT__ + ".hash" 
-        tmp_hash_file = open(tmp_hash_path, 'r')
-        tmp_hash = tmp_hash_file.readline() 
+        tmp_hash_path = __CONTAINER_DEFAULT__ + ".hash"
+        with open(tmp_hash_path, 'r') as tmp_file:
+            tmp_hash = tmp_file.readline()
     except IOError:
         logger = logging.getLogger(__name__)
         logger.info("No .hash-file in the tmp-directory.")
@@ -81,13 +92,10 @@ def is_valid_container(path):
     if not os.path.exists(container_hash_path):
         return False
     else:
-        container_hash_file = open(container_hash_path, 'r')
-        container_hash = container_hash_file.readline() 
-        if container_hash == tmp_hash:
-            return True
-        else:
-            return False
-    
+        with open(container_hash_path, 'r') as hash_file:
+            container_hash = hash_file.readline()
+            return container_hash == tmp_hash
+
 def unpack_container(path):
     """
     Method that checks if a directory for the container exists,
@@ -98,9 +106,11 @@ def unpack_container(path):
         path: The location where the container is, that needs to be unpacked.
 
     """
+    from benchbuild.utils.run import run, uchroot_no_args
+
     if not os.path.exists(path):
         mkdir("-p", path)
-    
+
     path = os.path.abspath(path)
     cp(__CONTAINER_DEFAULT__ +".hash", path)
 
@@ -131,11 +141,11 @@ def unpack_container(path):
 def get_path_of_container():
     """
     Finds the current location of a container.
+    Also unpacks the project if necessary.
 
     Returns:
-        target: The path, where the container lies in the end
+        target: The path, where the container lies in the end.
     """
-#ist base_dir RO und kann ich base_dir mit Aufruf dieser Methode bekommen?
     target = os.path.join(s.CFG["tmp_dir"].value(), __CONTAINER_PATH_SUFFIX__)
     if not os.path.exists(target) or not is_valid_container(target):
         unpack_container(target)

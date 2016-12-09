@@ -5,9 +5,10 @@ from benchbuild.utils.cmd import tar, mkdir, mv, rm, bash
 from benchbuild import settings
 from benchbuild.utils import log
 from benchbuild.utils.bootstrap import find_package, install_uchroot
-from benchbuild.utils.run import uchroot_no_args
+from benchbuild.utils.run import run, uchroot, uchroot_no_args
 from benchbuild.utils.downloader import Copy, update_hash
 from benchbuild.utils.user_interface import ask
+from abc import abstractmethod
 import logging
 import sys
 import os
@@ -143,7 +144,11 @@ def set_input_container(container, cfg):
     return False
 
 
-class ContainerStrategy(obj):
+class MockObj(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+class ContainerStrategy(object):
     @abstractmethod
     def run(self, context):
         pass
@@ -151,12 +156,36 @@ class ContainerStrategy(obj):
 
 class BashStrategy(ContainerStrategy):
     def run(self, context):
-        pass
+        setup_bash_in_container(context.builddir, context.in_container,
+                                context.out_container, context.mounts,
+                                context.shell)
 
 
-class SetupGentooStrategy(ContainerStrategy):
+class SetupPolyJITGentooStrategy(ContainerStrategy):
     def run(self, context):
-        pass
+        """
+        Setup a gentoo container suitable for PolyJIT.
+
+
+        """
+        import sys
+        # Don't do something when running non-interactive.
+        if not sys.stdout.isatty():
+            return
+
+        with local.cwd(context.container_root):
+            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+            emerge_boost = uchroot(uid=501, gid=10)["/usr/bin/emerge"]
+            with local.env(CC="gcc", CXX="g++", ACCEPT_KEYWORDS="~amd64"):
+                run(emerge_in_chroot["--sync"])
+                with local.env(USE="-filecaps"):
+                    run(emerge_in_chroot["likwid"])
+                with local.env(USE="static-libs"):
+                    run(emerge_in_chroot["dev-libs/libpfm"])
+                run(emerge_in_chroot["dev-libs/papi"])
+                run(emerge_in_chroot["sys-process/time"])
+                run(emerge_boost["dev-utils/boost-build"])
+                run(emerge_boost["dev-libs/boost"])
 
 
 class Container(cli.Application):
@@ -249,16 +278,25 @@ class ContainerRun(cli.Application):
 
 @Container.subcommand("create")
 class ContainerCreate(cli.Application):
+    """
+    Create a new container with a predefined strategy.
 
-    strategy = None
+    We offer a variety of creation policies for a new container. By default
+    a basic 'spawn a bash' policy is used. This just leaves you inside a bash
+    that is started in the extracted container. After customization you can exit
+    the bash and pack up the result.
+    """
+
+    strategy = BashStrategy()
 
     @cli.switch(["-S", "--strategy"],
-                cli.Set("bash", "gentoo", case_sensitive=False),
-                mandatory=True)
+                cli.Set("bash", "polyjit", case_sensitive=False),
+                help="Defines the strategy used to create a new container.",
+                mandatory=False)
     def strategy(self, strategy):
         self.strategy = {
             "bash": BashStrategy(),
-            "gentoo": SetupGentooStrategy()
+            "polyjit": SetupPolyJITGentooStrategy()
         }[strategy]
 
     def main(self, *args):
@@ -270,8 +308,12 @@ class ContainerCreate(cli.Application):
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
             in_container = setup_container(builddir, in_container)
-        setup_bash_in_container(builddir, in_container, out_container, mounts,
-                                shell)
+
+        self.strategy.run(MockObj(builddir=builddir,
+                                  in_container=in_container,
+                                  out_container=out_container,
+                                  mounts=mounts,
+                                  shell=shell))
         clean_directories(builddir, in_is_file, True)
 
 

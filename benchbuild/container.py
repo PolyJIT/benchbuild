@@ -143,6 +143,22 @@ def set_input_container(container, cfg):
     return False
 
 
+class ContainerStrategy(obj):
+    @abstractmethod
+    def run(self, context):
+        pass
+
+
+class BashStrategy(ContainerStrategy):
+    def run(self, context):
+        pass
+
+
+class SetupGentooStrategy(ContainerStrategy):
+    def run(self, context):
+        pass
+
+
 class Container(cli.Application):
     """Manage uchroot containers."""
     VERSION = settings.CFG["version"].value()
@@ -233,6 +249,18 @@ class ContainerRun(cli.Application):
 
 @Container.subcommand("create")
 class ContainerCreate(cli.Application):
+
+    strategy = None
+
+    @cli.switch(["-S", "--strategy"],
+                cli.Set("bash", "gentoo", case_sensitive=False),
+                mandatory=True)
+    def strategy(self, strategy):
+        self.strategy = {
+            "bash": BashStrategy(),
+            "gentoo": SetupGentooStrategy()
+        }[strategy]
+
     def main(self, *args):
         builddir = settings.CFG["build_dir"].value()
         in_container = settings.CFG["container"]["input"].value()

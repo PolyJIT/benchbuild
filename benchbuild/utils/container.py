@@ -111,7 +111,7 @@ def unpack_container(path):
         mkdir("-p", path)
 
     path = os.path.abspath(path)
-    cp(__CONTAINER_DEFAULT__ +".hash", path)
+    cp(__CONTAINER_DEFAULT__ + ".hash", path)
 
     local_container = os.path.basename(__CONTAINER_DEFAULT__)
 

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
 from plumbum import cli, local, TF, FG, ProcessExecutionError
-from benchbuild.utils.cmd import tar, mkdir, mv, rm, bash
-from benchbuild import settings
+from benchbuild.utils.cmd import tar, mkdir, mv, rm, bash, cp
+from benchbuild.settings import CFG, update_env
 from benchbuild.utils import log
 from benchbuild.utils.bootstrap import find_package, install_uchroot
+from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
+from benchbuild.utils.path import list_to_path
 from benchbuild.utils.run import run, uchroot, uchroot_no_args
+from benchbuild.utils.run import uchroot_env, uchroot_mounts
 from benchbuild.utils.downloader import Copy, update_hash
 from benchbuild.utils.user_interface import ask
 from abc import abstractmethod
@@ -122,9 +125,9 @@ def setup_bash_in_container(builddir, container, outfile, mounts, shell):
             mv(container_out, outfile)
 
             new_container = {"path": outfile, "hash": str(c_hash)}
-            config_path = settings.CFG["config_file"].value()
-            settings.CFG["container"]["known"].value().append(new_container)
-            settings.CFG.store(config_path)
+            config_path = CFG["config_file"].value()
+            CFG["container"]["known"].value().append(new_container)
+            CFG.store(config_path)
             print("Storing config in {0}".format(os.path.abspath(config_path)))
 
 
@@ -162,21 +165,133 @@ class BashStrategy(ContainerStrategy):
 
 
 class SetupPolyJITGentooStrategy(ContainerStrategy):
+    def write_wgetrc(self, path):
+        mkfile_uchroot("/etc/wgetrc")
+
+        with open(path, 'w') as wgetrc:
+            hp = CFG["gentoo"]["http_proxy"].value()
+            fp = CFG["gentoo"]["ftp_proxy"].value()
+            if hp is not None:
+                http_s = "http_proxy = {0}".format(str(hp))
+                https_s = "https_proxy = {0}".format(str(hp))
+                wgetrc.write("use_proxy = on\n")
+                wgetrc.write(http_s + "\n")
+                wgetrc.write(https_s + "\n")
+
+            if fp is not None:
+                fp_s = "ftp_proxy={0}".format(str(fp))
+                wgetrc.write(fp_s + "\n")
+
+    def write_makeconfig(self, path):
+        mkfile_uchroot("/etc/portage/make.conf")
+        with open(path, 'w') as makeconf:
+            lines = '''
+PORTAGE_USERNAME=root
+PORTAGE_GROUPNAME=root
+CFLAGS="-O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+FEATURES="-xattr"
+
+CHOST="x86_64-pc-linux-gnu"
+USE="bindist mmx sse sse2"
+PORTDIR="/usr/portage"
+DISTDIR="${PORTDIR}/distfiles"
+PKGDIR="${PORTDIR}/packages"
+'''
+
+            makeconf.write(lines)
+            hp = CFG["gentoo"]["http_proxy"].value()
+            if hp is not None:
+                http_s = "http_proxy={0}".format(str(hp))
+                https_s = "https_proxy={0}".format(str(hp))
+                makeconf.write(http_s + "\n")
+                makeconf.write(https_s + "\n")
+
+            fp = CFG["gentoo"]["ftp_proxy"].value()
+            if fp is not None:
+                fp_s = "ftp_proxy={0}".format(str(fp))
+                makeconf.write(fp_s + "\n")
+
+            rp = CFG["gentoo"]["rsync_proxy"].value()
+            if rp is not None:
+                rp_s = "RSYNC_PROXY={0}".format(str(rp))
+                makeconf.write(rp_s + "\n")
+
+    def write_bashrc(self, path):
+        mkfile_uchroot("/etc/portage/bashrc")
+        paths, libs = uchroot_env(
+                uchroot_mounts("mnt", CFG["uchroot"]["mounts"].value()))
+
+        with open(path, 'w') as bashrc:
+            lines = '''
+export PATH="{0}:${{PATH}}"
+export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
+'''.format(list_to_path(paths), list_to_path(libs))
+            bashrc.write(lines)
+
+    def write_layout(self, path):
+        mkdir_uchroot("/etc/portage/metadata")
+        mkfile_uchroot("/etc/portage/metadata/layout.conf")
+        with open(path, 'w') as layoutconf:
+            lines = '''masters = gentoo'''
+            layoutconf.write(lines)
+
+    def configure(self):
+        self.write_bashrc("etc/portage/bashrc")
+        self.write_makeconfig("etc/portage/make.conf")
+        self.write_wgetrc("etc/wgetrc")
+        self.write_layout("etc/portage/metadata/layout.conf")
+
+        mkfile_uchroot("/etc/resolv.conf")
+        cp("/etc/resolv.conf", "etc/resolv.conf")
+
+        config_file = CFG["config_file"].value()
+
+        if os.path.exists(str(config_file)):
+            with open("log.file", 'w') as outf:
+                paths, libs = \
+                        uchroot_env(
+                            uchroot_mounts("mnt",
+                                           CFG["uchroot"]["mounts"].value()))
+                UCHROOT_CFG = CFG
+                UCHROOT_CFG["env"]["compiler_path"] = paths
+                UCHROOT_CFG["env"]["compiler_ld_library_path"] = libs
+
+                UCHROOT_CFG["env"]["binary_path"] = paths
+                UCHROOT_CFG["env"]["binary_ld_library_path"] = libs
+
+                UCHROOT_CFG["env"]["lookup_path"] = paths
+                UCHROOT_CFG["env"]["lookup_ld_library_path"] = libs
+
+                mkfile_uchroot("/.benchbuild.json")
+                UCHROOT_CFG.store(".benchbuild.json")
+
     def run(self, context):
         """
         Setup a gentoo container suitable for PolyJIT.
-
-
         """
         import sys
         # Don't do something when running non-interactive.
         if not sys.stdout.isatty():
             return
 
-        with local.cwd(context.container_root):
+        with local.cwd(context.in_container):
+            self.configure()
+            sed_in_chroot = uchroot()["/bin/sed"]
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
             emerge_boost = uchroot(uid=501, gid=10)["/usr/bin/emerge"]
+
+            run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
+            run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
+
             with local.env(CC="gcc", CXX="g++", ACCEPT_KEYWORDS="~amd64"):
+                run(emerge_in_chroot["dev-db/postgresql"])
+                run(emerge_in_chroot["net-misc/curl"])
+
+                with local.env(ACCEPT_KEYWORDS="~*", LD_LIBRARY_PATH=""):
+                    run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
+                                         "--with-bdeps=y", "@world"])
+                    run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
                 run(emerge_in_chroot["--sync"])
                 with local.env(USE="-filecaps"):
                     run(emerge_in_chroot["likwid"])
@@ -190,7 +305,7 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
 
 class Container(cli.Application):
     """Manage uchroot containers."""
-    VERSION = settings.CFG["version"].value()
+    VERSION = CFG["version"].value()
 
     def __init__(self, exe):
         super(Container, self).__init__(exe)
@@ -198,11 +313,11 @@ class Container(cli.Application):
     @cli.switch(["-i", "--input-file"], str, help="Input container path")
     def input_file(self, container):
         p = os.path.abspath(container)
-        if set_input_container(p, settings.CFG):
+        if set_input_container(p, CFG):
             return
 
-        p = find_hash(settings.CFG["container"]["known"].value(), container)
-        if set_input_container(p, settings.CFG):
+        p = find_hash(CFG["container"]["known"].value(), container)
+        if set_input_container(p, CFG):
             return
 
         raise ValueError("The path '{0}' does not exist.".format(p))
@@ -213,19 +328,19 @@ class Container(cli.Application):
         if os.path.exists(p):
             if not ask("Path '{0}' already exists." " Overwrite?".format(p)):
                 sys.exit(0)
-        settings.CFG["container"]["output"] = p
+        CFG["container"]["output"] = p
 
     @cli.switch(["-s", "--shell"],
                 str,
                 help="The shell command we invoke inside the container.")
     def shell(self, custom_shell):
-        settings.CFG["container"]["shell"] = custom_shell
+        CFG["container"]["shell"] = custom_shell
 
     @cli.switch(["-t", "-tmp-dir"],
                 cli.ExistingDirectory,
                 help="Temporary directory")
     def builddir(self, tmpdir):
-        settings.CFG["build_dir"] = tmpdir
+        CFG["build_dir"] = tmpdir
 
     @cli.switch(
         ["m", "--mount"],
@@ -233,7 +348,7 @@ class Container(cli.Application):
         list=True,
         help="Mount the given directory under / inside the uchroot container")
     def mounts(self, user_mount):
-        settings.CFG["container"]["mounts"] = user_mount
+        CFG["container"]["mounts"] = user_mount
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
 
@@ -248,8 +363,8 @@ class Container(cli.Application):
             0: logging.ERROR
         }[self.verbosity])
 
-        settings.update_env()
-        builddir = os.path.abspath(str(settings.CFG["build_dir"].value()))
+        update_env()
+        builddir = os.path.abspath(str(CFG["build_dir"].value()))
         if not os.path.exists(builddir):
             response = ask("The build directory {dirname} does not exist yet. "
                            "Should I create it?".format(dirname=builddir))
@@ -264,9 +379,9 @@ class Container(cli.Application):
 @Container.subcommand("run")
 class ContainerRun(cli.Application):
     def main(self, *args):
-        builddir = settings.CFG["build_dir"].value()
-        in_container = settings.CFG["container"]["input"].value()
-        mounts = settings.CFG["container"]["mounts"].value()
+        builddir = CFG["build_dir"].value()
+        in_container = CFG["container"]["input"].value()
+        mounts = CFG["container"]["mounts"].value()
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
             clean_directories(builddir)
@@ -300,11 +415,11 @@ class ContainerCreate(cli.Application):
         }[strategy]
 
     def main(self, *args):
-        builddir = settings.CFG["build_dir"].value()
-        in_container = settings.CFG["container"]["input"].value()
-        out_container = settings.CFG["container"]["output"].value()
-        mounts = settings.CFG["container"]["mounts"].value()
-        shell = settings.CFG["container"]["shell"].value()
+        builddir = CFG["build_dir"].value()
+        in_container = CFG["container"]["input"].value()
+        out_container = CFG["container"]["output"].value()
+        mounts = CFG["container"]["mounts"].value()
+        shell = CFG["container"]["shell"].value()
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
             in_container = setup_container(builddir, in_container)
@@ -331,10 +446,10 @@ class ContainerBootstrap(cli.Application):
                 self.install_cmake_and_exit()
             install_uchroot()
         print("...OK")
-        config_file = settings.CFG["config_file"].value()
+        config_file = CFG["config_file"].value()
         if not (config_file and os.path.exists(config_file)):
             config_file = ".benchbuild.json"
-        settings.CFG.store(config_file)
+        CFG.store(config_file)
         print("Storing config in {0}".format(os.path.abspath(config_file)))
         print(
             "Future container commands from this directory will automatically"
@@ -344,7 +459,7 @@ class ContainerBootstrap(cli.Application):
 @Container.subcommand("list")
 class ContainerList(cli.Application):
     def main(self, *args):
-        containers = settings.CFG["container"]["known"].value()
+        containers = CFG["container"]["known"].value()
         for c in containers:
             print("[{1:.8s}] {0}".format(c["path"], str(c["hash"])))
 

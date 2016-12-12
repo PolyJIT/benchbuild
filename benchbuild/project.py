@@ -109,7 +109,7 @@ class Project(object, metaclass=ProjectDecorator):
         new_self.name = cls.NAME
         new_self.domain = cls.DOMAIN
         new_self.group = cls.GROUP
-        new_self.src_file = SRC_FILE
+        new_self.src_file = cls.SRC_FILE
         new_self.version = cls.VERSION
         return new_self
 

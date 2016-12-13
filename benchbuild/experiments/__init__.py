@@ -11,6 +11,7 @@ from benchbuild.settings import CFG
 import logging
 import importlib
 
+
 def discover():
     """
     Import all experiments listed in PLUGINS_EXPERIMENTS.
@@ -35,5 +36,6 @@ def discover():
             try:
                 importlib.import_module(ep)
                 log.debug("Found experiment: {0}".format(ep))
-            except ImportError:
+            except ImportError as ie:
                 log.error("Could not find '{0}'".format(ep))
+                log.error("ImportError: {0}".format(ie.msg))

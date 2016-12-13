@@ -726,13 +726,22 @@ CFG["container"] = {
         "polyjit": {
             "packages": {
                 "default": [
-                    {"name": "dev-db/postgresql", "use": []},
-                    {"name": "net-misc/curl", "use": []},
-                    {"name": "likwid", "use": ["-filecaps"]},
-                    {"name": "dev-libs/libpfm", "use": ["static-libs"]},
-                    {"name": "sys-process/time", "use": []},
-                    {"name": "dev-utils/boost-build", "use": []},
-                    {"name": "dev-libs/boost", "use": []},
+                    {"name": "dev-db/postgresql:9.5", "env": {}},
+                    {"name": "net-misc/curl", "env": {}},
+                    {"name": "sys-apps/likwid", "env": {
+                        "USE": "-filecaps",
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "dev-libs/libpfm", "env": {
+                        "USE": "static-libs"
+                    }},
+                    {"name": "sys-process/time", "env": {}},
+                    {"name": "=dev-util/boost-build-1.58.0", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "=dev-libs/boost-1.58.0-r1", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
                 ],
                 "desc": "A list of gentoo package atoms that should be merged."
             }

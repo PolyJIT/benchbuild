@@ -13,17 +13,17 @@ class TestPolyJITPackages(unittest.TestCase):
             self.assertIn("name", pkg,
                           msg="{0} lacks 'name' attribute".format(str(pkg)))
 
-    def test_package_atoms_use(self):
+    def test_package_atoms_env(self):
         packages = CFG["container"]["strategy"]["polyjit"]["packages"].value()
         for pkg in packages:
-            self.assertIn("use", pkg,
-                          msg="{0} lacks 'use' attribute".format(str(pkg)))
+            self.assertIn("env", pkg,
+                          msg="{0} lacks 'env' attribute".format(str(pkg)))
 
     def test_package_atoms_use_is_list(self):
         packages = CFG["container"]["strategy"]["polyjit"]["packages"].value()
         for pkg in packages:
-            self.assertIsInstance(pkg["use"], list,
-                                  msg='"use" attribute is not a list')
+            self.assertIsInstance(pkg["env"], dict,
+                                  msg='"env" attribute is not a dict')
 
     def test_package_atoms_name_is_str(self):
         packages = CFG["container"]["strategy"]["polyjit"]["packages"].value()

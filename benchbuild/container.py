@@ -321,18 +321,15 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
 
             packages = \
                 CFG["container"]["strategy"]["polyjit"]["packages"].value()
-            with local.env(CC="gcc", CXX="g++", ACCEPT_KEYWORDS="~amd64"):
+            with local.env(CC="gcc", CXX="g++",
+                           MAKEOPTS="-j{0}".format(CFG["jobs"].value())):
                 run(emerge_in_chroot["--sync"])
-                with local.env(ACCEPT_KEYWORDS="~*", LD_LIBRARY_PATH=""):
-                    run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
-                                         "--with-bdeps=y", "@world"])
-                    run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
+                run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
+                                     "--with-bdeps=y", "@world"])
+                run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
                 for pkg in packages:
-                    use_flags = pkg["use"]
-                    if use_flags is not []:
-                        with local.env(USE=" ".join(use_flags)):
-                            run(emerge_in_chroot[pkg["name"]])
-                    else:
+                    env = pkg["env"]
+                    with local.env(**env):
                         run(emerge_in_chroot[pkg["name"]])
 
 

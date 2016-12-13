@@ -172,6 +172,7 @@ class MockObj(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
+
 class ContainerStrategy(object):
     """Interfaces for the different containers chosen by the experiment."""
     @abstractmethod
@@ -318,23 +319,21 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
             run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
             run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
 
+            packages = \
+                CFG["container"]["strategy"]["polyjit"]["packages"].value()
             with local.env(CC="gcc", CXX="g++", ACCEPT_KEYWORDS="~amd64"):
-                run(emerge_in_chroot["dev-db/postgresql"])
-                run(emerge_in_chroot["net-misc/curl"])
-
+                run(emerge_in_chroot["--sync"])
                 with local.env(ACCEPT_KEYWORDS="~*", LD_LIBRARY_PATH=""):
                     run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
                                          "--with-bdeps=y", "@world"])
                     run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
-                run(emerge_in_chroot["--sync"])
-                with local.env(USE="-filecaps"):
-                    run(emerge_in_chroot["likwid"])
-                with local.env(USE="static-libs"):
-                    run(emerge_in_chroot["dev-libs/libpfm"])
-                run(emerge_in_chroot["dev-libs/papi"])
-                run(emerge_in_chroot["sys-process/time"])
-                run(emerge_boost["dev-utils/boost-build"])
-                run(emerge_boost["dev-libs/boost"])
+                for pkg in packages:
+                    use_flags = pkg["use"]
+                    if use_flags is not []:
+                        with local.env(USE=" ".join(use_flags)):
+                            run(emerge_in_chroot[pkg["name"]])
+                    else:
+                        run(emerge_in_chroot[pkg["name"]])
 
 
 class Container(cli.Application):
@@ -417,7 +416,7 @@ class Container(cli.Application):
 
 @Container.subcommand("run")
 class ContainerRun(cli.Application):
-    """Builds up the directory, runs the command and cleans up after himself."""
+    """Execute commannds inside a prebuilt container."""
     def main(self, *args):
         builddir = CFG["build_dir"].value()
         in_container = CFG["container"]["input"].value()
@@ -436,10 +435,10 @@ class ContainerCreate(cli.Application):
     """
     Create a new container with a predefined strategy.
 
-    We offer a variety of creation policies for a new container. By default
-    a basic 'spawn a bash' policy is used. This just leaves you inside a bash
-    that is started in the extracted container. After customization you can exit
-    the bash and pack up the result.
+    We offer a variety of creation policies for a new container. By default a
+    basic 'spawn a bash' policy is used. This just leaves you inside a bash
+    that is started in the extracted container. After customization you can
+    exit the bash and pack up the result.
     """
 
     strategy = BashStrategy()

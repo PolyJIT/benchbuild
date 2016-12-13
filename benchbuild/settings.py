@@ -721,6 +721,22 @@ CFG["container"] = {
         "desc": "List of containers of which the project can chose from."
                 "Format:"
                 "[{ 'path': <path> }]"
+    },
+    "strategy": {
+        "polyjit": {
+            "packages": {
+                "default": [
+                    {"name": "dev-db/postgresql", "use": []},
+                    {"name": "net-misc/curl", "use": []},
+                    {"name": "likwid", "use": ["-filecaps"]},
+                    {"name": "dev-libs/libpfm", "use": ["static-libs"]},
+                    {"name": "sys-process/time", "use": []},
+                    {"name": "dev-utils/boost-build", "use": []},
+                    {"name": "dev-libs/boost", "use": []},
+                ],
+                "desc": "A list of gentoo package atoms that should be merged."
+            }
+        }
     }
 }
 

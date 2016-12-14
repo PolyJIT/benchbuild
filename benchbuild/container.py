@@ -8,7 +8,8 @@ from benchbuild.utils.bootstrap import find_package, install_uchroot
 from benchbuild.utils.container import get_path_of_container
 from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.run import run, uchroot, uchroot_no_args
+from benchbuild.utils.run import (run, uchroot, uchroot_with_mounts,
+        uchroot_no_args, uchroot_env, uchroot_mounts)
 from benchbuild.utils.run import uchroot_env, uchroot_mounts
 from benchbuild.utils.downloader import Copy, update_hash
 from benchbuild.utils.user_interface import ask
@@ -84,30 +85,42 @@ def run_in_container(command, container_dir, mounts):
     the given command inside the new container.
     """
 
-    uchroot = uchroot_no_args()["-E", "-A", "-u", "0", "-g", "0", "-C", "-w",
-                                "/", "-r", os.path.abspath(container_dir)]
-    uchroot_m = uchroot
-    uchroot = uchroot["--"]
+    with local.cwd(container_dir):
+        uchroot = uchroot_with_mounts()
+        uchroot = uchroot["-E", "-A", "-u", "0", "-g", "0", "-C", "-w",
+                          "/", "-r", os.path.abspath(container_dir)]
+        uchroot = uchroot["--"]
 
-    for mount in mounts:
-        absdir = os.path.abspath(str(mount))
-        dirname = os.path.split(absdir)[-1]
-        uchroot_m = uchroot_m["-M", "{0}:/mnt/{1}".format(absdir, dirname)]
-        mount_path = os.path.join(container_dir, "mnt", dirname)
-        if not os.path.exists(mount_path):
-            uchroot("mkdir", "-p", "/mnt/{0}".format(dirname))
-        print("Mounting: '{0}' inside container at '/mnt/{1}'".format(mount,
-                                                                      dirname))
+        cmd_path = os.path.join(container_dir, command[0].lstrip('/'))
+        if not os.path.exists(cmd_path):
+            logging.error(
+                "The command does not exist inside the container! {0}".format(
+                    cmd_path))
+            return
 
-    cmd_path = os.path.join(container_dir, command[0].lstrip('/'))
-    if not os.path.exists(cmd_path):
-        logging.error(
-            "The command does not exist inside the container! {0}".format(
-                cmd_path))
-        return
+        cmd = uchroot[command]
+        return cmd & FG
 
-    cmd = uchroot_m[command]
-    return cmd & FG
+
+def pack_container(in_container, out_file):
+    container_filename = os.path.split(out_file)[-1]
+    out_container = os.path.join("container-out", container_filename)
+    out_container = os.path.abspath(out_container)
+
+    out_tmp_filename = os.path.basename(out_container)
+    out_dir = os.path.dirname(out_container)
+
+    # Pack the results to: container-out
+    with local.cwd(in_container):
+        tar("cjf", out_container, ".")
+    c_hash = update_hash(out_tmp_filename, out_dir)
+    if not os.path.exists(out_dir):
+        mkdir("-p", out_dir)
+    mv(out_container, out_file)
+    mv(out_container + ".hash", out_file + ".hash")
+
+    new_container = {"path": out_file, "hash": str(c_hash)}
+    CFG["container"]["known"].value().append(new_container)
 
 
 def setup_bash_in_container(builddir, container, outfile, mounts, shell):
@@ -129,24 +142,8 @@ def setup_bash_in_container(builddir, container, outfile, mounts, shell):
 
         if store_new_container:  # pylint: disable=W0104
             print("Packing new container image.")
-
-            container_filename = os.path.split(container)[-1]
-            container_out = os.path.join("container-out", container_filename)
-            container_out = os.path.abspath(container_out)
-
-            # Pack the results to: container-out
-            with local.cwd("container-in"):
-                tar("cjf", container_out, ".")
-            c_hash = update_hash(container_filename,
-                                 os.path.dirname(container_out))
-            outdir = os.path.dirname(outfile)
-            if not os.path.exists(outdir):
-                mkdir("-p", outdir)
-            mv(container_out, outfile)
-
-            new_container = {"path": outfile, "hash": str(c_hash)}
+            pack_container(container, outfile)
             config_path = CFG["config_file"].value()
-            CFG["container"]["known"].value().append(new_container)
             CFG.store(config_path)
             print("Storing config in {0}".format(os.path.abspath(config_path)))
 
@@ -332,6 +329,12 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
                     env = pkg["env"]
                     with local.env(**env):
                         run(emerge_in_chroot[pkg["name"]])
+        print("Packing new container image.")
+        with local.cwd(context.builddir):
+            pack_container(context.in_container, context.out_container)
+        config_path = CFG["config_file"].value()
+        CFG.store(config_path)
+        print("Storing config in {0}".format(os.path.abspath(config_path)))
 
 
 class Container(cli.Application):
@@ -419,11 +422,17 @@ class ContainerRun(cli.Application):
         builddir = CFG["build_dir"].value()
         in_container = CFG["container"]["input"].value()
         mounts = CFG["container"]["mounts"].value()
-        in_is_file = os.path.isfile(in_container)
-        if in_is_file:
-            clean_directories(builddir)
-            setup_directories(builddir)
-            in_container = setup_container(builddir, in_container)
+
+        if (in_container is None) or not os.path.exists(in_container):
+            in_is_file = False
+            in_container = get_path_of_container()
+        else:
+            in_is_file = os.path.isfile(in_container)
+            if in_is_file:
+                clean_directories(builddir)
+                setup_directories(builddir)
+                in_container = setup_container(builddir, in_container)
+
         run_in_container(args, in_container, mounts)
         clean_directories(builddir, in_is_file, False)
 

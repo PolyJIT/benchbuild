@@ -5,6 +5,7 @@ from benchbuild.utils.cmd import tar, mkdir, mv, rm, bash, cp
 from benchbuild.settings import CFG, update_env
 from benchbuild.utils import log
 from benchbuild.utils.bootstrap import find_package, install_uchroot
+from benchbuild.utils.container import get_path_of_container
 from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
 from benchbuild.utils.path import list_to_path
 from benchbuild.utils.run import run, uchroot, uchroot_no_args
@@ -456,6 +457,10 @@ class ContainerCreate(cli.Application):
         out_container = CFG["container"]["output"].value()
         mounts = CFG["container"]["mounts"].value()
         shell = CFG["container"]["shell"].value()
+
+        if (in_container is None) or not os.path.exists(in_container):
+            in_container = get_path_of_container()
+
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
             in_container = setup_container(builddir, in_container)

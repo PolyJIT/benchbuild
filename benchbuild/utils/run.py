@@ -1,5 +1,6 @@
 """Experiment helpers."""
 import os
+from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
 from benchbuild.utils.path import list_to_path
 from contextlib import contextmanager
@@ -382,6 +383,18 @@ def uchroot_env(mounts):
     paths.extend(["/usr/bin", "/bin", "/usr/sbin", "/sbin"])
     return paths, ld_libs
 
+def uchroot_with_mounts(*args, **kwargs):
+    """
+    Return a uchroot command with all mounts enabled.
+    """
+    uchroot_cmd = uchroot_no_args(*args, **kwargs)
+    uchroot_cmd, mounts = _uchroot_mounts(
+        "mnt", CFG["uchroot"]["mounts"].value(), uchroot_cmd)
+    paths, libs = uchroot_env(mounts)
+    uchroot_cmd = uchroot_cmd.with_env(
+            LD_LIBRARY_PATH=list_to_path(libs),
+            PATH=list_to_path(paths))
+    return uchroot_cmd
 
 def uchroot(*args, **kwargs):
     """
@@ -392,7 +405,6 @@ def uchroot(*args, **kwargs):
     Return:
         chroot_cmd
     """
-    from benchbuild.settings import CFG
     mkdir("-p", "llvm")
     uchroot_cmd = uchroot_no_llvm(*args, **kwargs)
     uchroot_cmd, mounts = _uchroot_mounts(

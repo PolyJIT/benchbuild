@@ -111,12 +111,12 @@ def unpack_container(path):
         mkdir("-p", path)
 
     path = os.path.abspath(path)
-    cp(__CONTAINER_DEFAULT__ + ".hash", path)
-
     local_container = os.path.basename(__CONTAINER_DEFAULT__)
 
     with local.cwd(path):
         Wget(get_container_url(), __CONTAINER_DEFAULT__)
+        cp(__CONTAINER_DEFAULT__ + ".hash", path)
+
         uchroot = uchroot_no_args()
         uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w", os.path.abspath(
             "."), "--"]

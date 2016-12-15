@@ -29,17 +29,14 @@ class ProjectMock(Project):
         self.build()
         self.run(ls)
 
-    @classmethod
     def download(self):
         """ Get the project source input. """
         Wget(self.sourcedir, self.NAME)
 
-    @classmethod
     def configure(self):
         """ Configure the parameters of the project. """
         pass
 
-    @classmethod
     def build(self):
         """ Build the project. """
         self.download()

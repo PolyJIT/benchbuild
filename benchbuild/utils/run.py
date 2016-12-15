@@ -383,6 +383,26 @@ def uchroot_env(mounts):
     paths.extend(["/usr/bin", "/bin", "/usr/sbin", "/sbin"])
     return paths, ld_libs
 
+def with_env_recursive(cmd, **envvars):
+    """
+    Recursively updates the environment of cmd and all its subcommands.
+
+    Args:
+        cmd - A plumbum command-like object
+        **envvars - The environment variables to update
+
+    Returns:
+        The updated command.
+    """
+    from plumbum.commands.base import BoundCommand, BoundEnvCommand
+    from plumbum.machines.local import LocalCommand
+    if isinstance(cmd, BoundCommand):
+        cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
+    elif isinstance(cmd, BoundEnvCommand):
+        cmd.envvars.update(envvars)
+        cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
+    return cmd
+
 def uchroot_with_mounts(*args, **kwargs):
     """
     Return a uchroot command with all mounts enabled.
@@ -391,7 +411,8 @@ def uchroot_with_mounts(*args, **kwargs):
     uchroot_cmd, mounts = _uchroot_mounts(
         "mnt", CFG["uchroot"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
-    uchroot_cmd = uchroot_cmd.with_env(
+
+    uchroot_cmd = with_env_recursive(uchroot_cmd,
             LD_LIBRARY_PATH=list_to_path(libs),
             PATH=list_to_path(paths))
     return uchroot_cmd

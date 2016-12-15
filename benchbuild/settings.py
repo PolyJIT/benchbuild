@@ -742,6 +742,10 @@ CFG["container"] = {
                     {"name": "=dev-libs/boost-1.58.0-r1", "env": {
                         "ACCEPT_KEYWORDS": "~amd64"
                     }},
+                    { "name": "sys-devel/gcc:5.4.0", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    { "name": "dev-libs/libpqxx", "env" : {}},
                 ],
                 "desc": "A list of gentoo package atoms that should be merged."
             }

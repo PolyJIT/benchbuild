@@ -727,6 +727,7 @@ CFG["container"] = {
             "packages": {
                 "default": [
                     {"name": "dev-db/postgresql:9.5", "env": {}},
+                    {"name": "dev-python/pip", "env": {}},
                     {"name": "net-misc/curl", "env": {}},
                     {"name": "sys-apps/likwid", "env": {
                         "USE": "-filecaps",

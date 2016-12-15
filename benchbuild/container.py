@@ -10,7 +10,6 @@ from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
 from benchbuild.utils.path import list_to_path
 from benchbuild.utils.run import (run, uchroot, uchroot_with_mounts,
         uchroot_no_args, uchroot_env, uchroot_mounts)
-from benchbuild.utils.run import uchroot_env, uchroot_mounts
 from benchbuild.utils.downloader import Copy, update_hash
 from benchbuild.utils.user_interface import ask
 from abc import abstractmethod

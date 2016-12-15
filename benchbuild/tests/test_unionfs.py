@@ -9,7 +9,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.cmd import ls
 
 
-class TestProject(Project):
+class ProjectMock(Project):
     """
     Class to get a self pointer for the project that is tested.
     The project also gets wrapped inside the unionfs.

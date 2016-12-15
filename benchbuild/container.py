@@ -312,6 +312,7 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
             self.configure()
             sed_in_chroot = uchroot()["/bin/sed"]
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+            has_pkg = uchroot()["/usr/bin/qlist", "-I"]
             emerge_boost = uchroot(uid=501, gid=10)["/usr/bin/emerge"]
 
             run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
@@ -326,9 +327,12 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
                                      "--with-bdeps=y", "@world"])
                 run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
                 for pkg in packages:
+                    if (has_pkg[pkg["name"]] & TF):
+                        continue
                     env = pkg["env"]
                     with local.env(**env):
-                        run(emerge_in_chroot[pkg["name"]])
+                            run(emerge_in_chroot[pkg["name"]])
+
         print("Packing new container image.")
         with local.cwd(context.builddir):
             pack_container(context.in_container, context.out_container)

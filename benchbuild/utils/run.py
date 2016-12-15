@@ -573,8 +573,7 @@ def unionfs(base_dir='./base',
             Builds up the mount, transfers the function and returns the
             unionfs after tearing down the mount again.
             """
-            abs_base_dir = os.path.abspath(os.path.join(project.builddir,
-                                                        base_dir))
+            abs_base_dir = os.path.abspath(project.base_dir)
             nonlocal image_prefix
             if image_prefix is not None:
                 image_prefix = os.path.abspath(image_prefix)

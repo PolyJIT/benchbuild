@@ -173,13 +173,11 @@ class Project(object, metaclass=ProjectDecorator):
         from benchbuild.utils.run import GuardedRunException
         from benchbuild.utils.run import (begin_run_group, end_run_group,
                                           fail_run_group)
-
         CFG["experiment"] = self.experiment.name
         CFG["project"] = self.NAME
         CFG["domain"] = self.DOMAIN
         CFG["group"] = self.GROUP
         CFG["version"] = self.VERSION
-        CFG["src_uri"] = self.src_uri
         CFG["use_database"] = 1
         CFG["db"]["run_group"] = str(self.run_uuid)
         CFG["unionfs"]["base_dir"] = self.base_dir

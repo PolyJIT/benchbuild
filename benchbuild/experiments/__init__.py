@@ -27,6 +27,7 @@ def discover():
         >>> CFG["plugins"]["experiments"] = ["benchbuild.non.existing", "benchbuild.experiments.raw"]
         >>> discover()
         Could not find 'benchbuild.non.existing'
+        ImportError: No module named 'benchbuild.non'
         Found experiment: benchbuild.experiments.raw
     """
     if CFG["plugins"]["autoload"].value():

@@ -396,7 +396,7 @@ def uchroot(*args, **kwargs):
     mkdir("-p", "llvm")
     uchroot_cmd = uchroot_no_llvm(*args, **kwargs)
     uchroot_cmd, mounts = _uchroot_mounts(
-        "mnt", CFG["uchroot"]["mounts"].value(), uchroot_cmd)
+        "mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
     uchroot_cmd = uchroot_cmd.with_env(
             LD_LIBRARY_PATH=list_to_path(libs),

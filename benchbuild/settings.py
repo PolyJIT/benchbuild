@@ -625,10 +625,6 @@ CFG["uchroot"] = {
     "repo": {
         "default": "https://github.com/PolyJIT/erlent.git/",
         "desc": "GIT Repo URL for erlent."
-    },
-    "mounts": {
-        "default": [],
-        "desc": "Mount points that should be available inside uchroot."
     }
 }
 

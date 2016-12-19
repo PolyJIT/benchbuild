@@ -75,7 +75,7 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
 
                 uchroot = uchroot_no_args()
                 uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
-                uchroot = uchroot[container.local()]
+                uchroot = uchroot[container.local]
                 with local.env(CONFIG_PROTECT="-*"):
                     fake_emerge = uchroot["emerge",
                                           "--autounmask-only=y",

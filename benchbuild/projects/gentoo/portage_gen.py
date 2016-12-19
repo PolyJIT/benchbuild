@@ -5,7 +5,7 @@ import logging
 import os
 from benchbuild.projects.gentoo import autoportage
 from benchbuild.utils.run import run, uchroot_no_args
-from benchbuild.utils.container import get_path_of_container
+from benchbuild.utils.container import Gentoo
 from plumbum import local, ProcessExecutionError
 
 
@@ -59,9 +59,10 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
             Domain: Categorie of the package.
         """
 
-        def __init__(self, name, domain):
+        def __init__(self, name, domain, container):
             self.name = name
             self.domain = domain
+            self.container = container
 
         def __repr__(self):
             return self.__str__()
@@ -70,10 +71,11 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
             try:
                 domain, _, name = self.name.partition("_")
                 package = domain + '/' + name
+                container = self.container()
 
                 uchroot = uchroot_no_args()
                 uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
-                uchroot = uchroot[os.path.abspath(get_path_of_container())]
+                uchroot = uchroot[container.local()]
                 with local.env(CONFIG_PROTECT="-*"):
                     fake_emerge = uchroot["emerge",
                                           "--autounmask-only=y",
@@ -98,7 +100,7 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
                 logger.info("This older package might not exist any more.")
             return "Default"
 
-    def run_not_supported(self, *args, **kwargs): # pylint: disable=W0613
+    def run_not_supported(self, *args, **kwargs):  # pylint: disable=W0613
         """Dynamic projects don't support a run() test."""
         from benchbuild.settings import CFG
         logger = logging.getLogger(__name__)
@@ -108,11 +110,11 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         return
 
     newclass = type(name, (BaseClass,), {
-        "NAME" : NAME,
-        "DOMAIN" : DOMAIN,
-        "VERSION" : FuncClass(NAME, DOMAIN),
-        "GROUP" : "auto-gentoo",
-        "run" : run_not_supported,
-        "__module__" : "__main__"
+        "NAME": NAME,
+        "DOMAIN": DOMAIN,
+        "VERSION": FuncClass(NAME, DOMAIN, Gentoo),
+        "GROUP": "auto-gentoo",
+        "run": run_not_supported,
+        "__module__": "__main__"
     })
     return newclass

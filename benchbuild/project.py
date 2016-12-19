@@ -12,7 +12,7 @@ from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.path import list_to_path, template_str
 from benchbuild.utils.run import in_builddir, unionfs, store_config
-from benchbuild.utils.container import Ubuntu
+from benchbuild.utils.container import Gentoo
 from functools import partial
 
 PROJECT_BIN_F_EXT = ".bin"

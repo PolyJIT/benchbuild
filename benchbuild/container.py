@@ -336,8 +336,6 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
         with local.cwd(context.builddir):
             pack_container(context.in_container, context.out_container)
         config_path = CFG["config_file"].value()
-        CFG.store(config_path)
-        print("Storing config in {0}".format(os.path.abspath(config_path)))
 
 
 class Container(cli.Application):

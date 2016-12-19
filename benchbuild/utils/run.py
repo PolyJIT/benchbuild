@@ -408,8 +408,8 @@ def uchroot_with_mounts(*args, **kwargs):
     Return a uchroot command with all mounts enabled.
     """
     uchroot_cmd = uchroot_no_args(*args, **kwargs)
-    uchroot_cmd, mounts = _uchroot_mounts(
-        "mnt", CFG["uchroot"]["mounts"].value(), uchroot_cmd)
+    uchroot_cmd, mounts = _uchroot_mounts("mnt",
+        CFG["container"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
 
     uchroot_cmd = with_env_recursive(uchroot_cmd,

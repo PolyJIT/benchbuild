@@ -186,7 +186,6 @@ class Project(object, metaclass=ProjectDecorator):
         CFG["version"] = self.VERSION
         CFG["use_database"] = 1
         CFG["db"]["run_group"] = str(self.run_uuid)
-        CFG["unionfs"]["base_dir"] = self.base_dir
         with local.cwd(self.builddir):
             group, session = begin_run_group(self)
             try:

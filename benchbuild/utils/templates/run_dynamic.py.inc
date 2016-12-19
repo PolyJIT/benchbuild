@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env {python}
 #
 from benchbuild.project import Project
 from benchbuild.utils import log as l

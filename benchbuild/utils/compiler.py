@@ -24,6 +24,7 @@ The remaining methods:
 Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
+import sys
 from benchbuild.settings import CFG
 from benchbuild.project import PROJECT_BLOB_F_EXT
 from benchbuild.utils.path import template_str
@@ -170,6 +171,7 @@ def print_libtool_sucks_wrapper(filepath, cflags, ldflags, compiler, func,
             CFLAGS=cflags,
             LDFLAGS=ldflags,
             BLOB_F=blob_f,
+            python=sys.executable,
             db_host=str(CFG["db"]["host"]),
             db_name=str(CFG["db"]["name"]),
             db_port=str(CFG["db"]["port"]),

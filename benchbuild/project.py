@@ -2,6 +2,7 @@
 Project handling for the benchbuild study.
 """
 import os
+import sys
 import warnings
 
 from os import path, listdir
@@ -343,6 +344,7 @@ class Project(object, metaclass=ProjectDecorator):
                 db_name=str(CFG["db"]["name"]),
                 db_user=str(CFG["db"]["user"]),
                 db_pass=str(CFG["db"]["pass"]),
+                python=sys.executable,
                 path=bin_path,
                 ld_lib_path=bin_lib_path,
                 blobf=strip_path_prefix(blob_f, sprefix),
@@ -425,6 +427,7 @@ def wrap(name, runner, sprefix=None):
             db_name=str(CFG["db"]["name"]),
             db_user=str(CFG["db"]["user"]),
             db_pass=str(CFG["db"]["pass"]),
+            python=sys.executable,
             path=bin_path,
             ld_lib_path=bin_lib_path,
             blobf=strip_path_prefix(blob_f, sprefix),

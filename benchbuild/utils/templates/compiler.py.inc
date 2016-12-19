@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env {python}
 #
 import os
 import sys
@@ -13,10 +13,11 @@ os.environ["BB_CONFIG_FILE"] = "{CFG_FILE}"
 from benchbuild.settings import CFG, update_env
 
 log.configure()
-
 log = logging.getLogger("benchbuild")
 log.addHandler(logging.StreamHandler(stream=sys.stderr))
 log.setLevel(logging.DEBUG)
+
+update_env()
 
 CC_F = "{CC_F}"
 CC = None

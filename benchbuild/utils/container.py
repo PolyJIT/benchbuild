@@ -64,12 +64,11 @@ def unpack_container(container, path):
 
     path = os.path.abspath(path)
     name = os.path.basename(os.path.abspath(container.filename))
-    print(path)
     if not os.path.exists(path):
         mkdir("-p", path)
 
     with local.cwd(path):
-        Wget(container.remote, path)
+        Wget(container.remote, name)
 
         uchroot = uchroot_no_args()
         uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w",
@@ -124,7 +123,6 @@ class Container(object):
         target = os.path.join(CFG["tmp_dir"].value(), self.name)
 
         if not os.path.exists(target) or not is_valid_container(self, target):
-            print("unpacking...")
             unpack_container(self, target)
 
         return target

@@ -427,7 +427,7 @@ class ContainerRun(cli.Application):
 
         if (in_container is None) or not os.path.exists(in_container):
             in_is_file = False
-            in_container = Gentoo().local()
+            in_container = Gentoo().local
         else:
             in_is_file = os.path.isfile(in_container)
             if in_is_file:
@@ -470,7 +470,7 @@ class ContainerCreate(cli.Application):
         shell = CFG["container"]["shell"].value()
 
         if (in_container is None) or not os.path.exists(in_container):
-            in_container = Gentoo().local()
+            in_container = Gentoo().local
 
         in_is_file = os.path.isfile(in_container)
         if in_is_file:

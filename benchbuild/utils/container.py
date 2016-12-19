@@ -69,7 +69,7 @@ def unpack_container(container, path):
         mkdir("-p", path)
 
     with local.cwd(path):
-        Wget(container.remote(), path)
+        Wget(container.remote, path)
 
         uchroot = uchroot_no_args()
         uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w",
@@ -97,6 +97,7 @@ def unpack_container(container, path):
 
 
 class Container(object):
+    @property
     def remote(self):
         pass
 
@@ -109,6 +110,7 @@ class Container(object):
         else:
             return os.path.join(CFG["tmp_dir"].value(), image_cfg)
 
+    @property
     def local(self):
         """
         Finds the current location of a container.
@@ -154,6 +156,7 @@ class Gentoo(Container):
                   str(proc_ex))
         return src_uri
 
+    @property
     def remote(self):
         """Get a remote URL of the requested container."""
         return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
@@ -163,6 +166,7 @@ class Gentoo(Container):
 class Ubuntu(Container):
     name = "ubuntu"
 
+    @property
     def remote(self):
         """Get a remote URL of the requested container."""
         pass

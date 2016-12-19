@@ -12,7 +12,7 @@ from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.path import list_to_path, template_str
 from benchbuild.utils.run import in_builddir, unionfs, store_config
-from benchbuild.utils.container import get_base_dir
+from benchbuild.utils.container import Ubuntu
 from functools import partial
 
 PROJECT_BIN_F_EXT = ".bin"
@@ -30,6 +30,7 @@ class ProjectRegistry(type):
 
         if cls.NAME is not None and cls.DOMAIN is not None:
             ProjectRegistry.projects[cls.NAME] = cls
+
 
 class ProjectDecorator(ProjectRegistry):
     """
@@ -81,6 +82,7 @@ class Project(object, metaclass=ProjectDecorator):
     GROUP = None
     VERSION = None
     SRC_FILE = None
+    CONTAINER = Gentoo()
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -105,12 +107,17 @@ class Project(object, metaclass=ProjectDecorator):
             warnings.warn(
                 "{0} @ {1} does not offer a source file yet.".format(
                     cls.__name__, cls.__module__))
+        if cls.CONTAINER is None:
+            warnings.warn(
+                "{0} @ {1} does not offer a container yet.".format(
+                    cls.__name__, cls.__module__))
 
         new_self.name = cls.NAME
         new_self.domain = cls.DOMAIN
         new_self.group = cls.GROUP
         new_self.src_file = cls.SRC_FILE
         new_self.version = cls.VERSION
+        new_self.container = cls.CONTAINER
         return new_self
 
     def __init__(self, exp, group=None):
@@ -126,7 +133,6 @@ class Project(object, metaclass=ProjectDecorator):
         self.group_name = group
         self.sourcedir = path.join(str(CFG["src_dir"]), self.name)
         self.builddir = path.join(str(CFG["build_dir"]), exp.name, self.name)
-        self.base_dir = get_base_dir()
         if group:
             self.testdir = path.join(
                 str(CFG["test_dir"]), self.domain, group, self.name)

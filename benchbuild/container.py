@@ -5,11 +5,12 @@ from benchbuild.utils.cmd import tar, mkdir, mv, rm, bash, cp
 from benchbuild.settings import CFG, update_env
 from benchbuild.utils import log
 from benchbuild.utils.bootstrap import find_package, install_uchroot
-from benchbuild.utils.container import get_path_of_container
 from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
 from benchbuild.utils.path import list_to_path
+from benchbuild.utils.container import Gentoo
 from benchbuild.utils.run import (run, uchroot, uchroot_with_mounts,
-        uchroot_no_args, uchroot_env, uchroot_mounts)
+                                  uchroot_no_args, uchroot_env,
+                                  uchroot_mounts)
 from benchbuild.utils.downloader import Copy, update_hash
 from benchbuild.utils.user_interface import ask
 from abc import abstractmethod
@@ -426,7 +427,7 @@ class ContainerRun(cli.Application):
 
         if (in_container is None) or not os.path.exists(in_container):
             in_is_file = False
-            in_container = get_path_of_container()
+            in_container = Gentoo().local()
         else:
             in_is_file = os.path.isfile(in_container)
             if in_is_file:
@@ -469,7 +470,7 @@ class ContainerCreate(cli.Application):
         shell = CFG["container"]["shell"].value()
 
         if (in_container is None) or not os.path.exists(in_container):
-            in_container = get_path_of_container()
+            in_container = Gentoo().local()
 
         in_is_file = os.path.isfile(in_container)
         if in_is_file:

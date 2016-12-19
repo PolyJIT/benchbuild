@@ -23,6 +23,7 @@ from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import uchroot_env, uchroot_mounts
 from benchbuild.settings import CFG
 from benchbuild.utils import container
+from benchbuild.utils.container import Gentoo
 
 
 class GentooGroup(project.Project):
@@ -30,6 +31,7 @@ class GentooGroup(project.Project):
     Gentoo ProjectGroup is the base class for every portage build.
     """
     GROUP = 'gentoo'
+    CONTAINER = Gentoo()
 
     def __init__(self, exp):
         super(GentooGroup, self).__init__(exp, "gentoo")

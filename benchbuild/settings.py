@@ -712,6 +712,12 @@ CFG["container"] = {
                 "[{ 'path': <path>,"
                 "   'hash': <hash> }]"
     },
+    "images": {
+        "default": {
+            "gentoo": "gentoo.tar.bz2",
+            "ubuntu": "ubuntu.tar.bz2"
+        }
+    },
     "prefered": {
         "default": [],
         "desc": "List of containers of which the project can chose from."

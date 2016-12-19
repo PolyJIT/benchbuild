@@ -23,15 +23,18 @@ def find_package(binary):
 PACKAGES = {
     "unionfs": {
         "Gentoo Base System": ["sys-fs/unionfs-fuse"],
-        "Ubuntu": ["unionfs-fuse"]
+        "Ubuntu": ["unionfs-fuse"],
+        "Debian": ["unionfs-fuse"]
     },
     "postgres": {
         "Gentoo Base System": ["dev-db/postgres", "dev-libs/libpqxx"],
-        "Ubuntu": ["libpq-dev", "libpqxx-dev"]
+        "Ubuntu": ["libpq-dev", "libpqxx-dev"],
+        "Debian": ["libpq-dev", "libpqxx-dev"]
     },
     "fusermount": {
         "Gentoo Base System": ["sys-fs/fuse"],
-        "Ubuntu": ["fuse"]
+        "Ubuntu": ["fuse"],
+        "Debian": ["fuse"]
     }
 }
 
@@ -41,6 +44,10 @@ PACKAGE_MANAGER = {
         "args": ["-a"]
     },
     "Ubuntu": {
+        "cmd": "apt-get",
+        "args": ["install"]
+    },
+    "Debian": {
         "cmd": "apt-get",
         "args": ["install"]
     }

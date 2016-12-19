@@ -722,6 +722,9 @@ CFG["container"] = {
         "polyjit": {
             "packages": {
                 "default": [
+                    {"name": "sys-devel/gcc:5.4.0", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
                     {"name": "dev-db/postgresql:9.5", "env": {}},
                     {"name": "dev-python/pip", "env": {}},
                     {"name": "net-misc/curl", "env": {}},
@@ -739,10 +742,7 @@ CFG["container"] = {
                     {"name": "=dev-libs/boost-1.58.0-r1", "env": {
                         "ACCEPT_KEYWORDS": "~amd64"
                     }},
-                    { "name": "sys-devel/gcc:5.4.0", "env": {
-                        "ACCEPT_KEYWORDS": "~amd64"
-                    }},
-                    { "name": "dev-libs/libpqxx", "env" : {}},
+                    {"name": "dev-libs/libpqxx", "env": {}},
                 ],
                 "desc": "A list of gentoo package atoms that should be merged."
             }

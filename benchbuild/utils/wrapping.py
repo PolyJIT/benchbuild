@@ -37,7 +37,7 @@ def strip_path_prefix(ipath, prefix):
     return ipath[len(prefix):] if ipath.startswith(prefix) else ipath
 
 
-def wrap(name, runner, sprefix=None):
+def wrap(name, runner, sprefix=None, **template_vars):
     """ Wrap the binary :name: with the function :runner:.
 
     This module generates a python tool that replaces :name:
@@ -71,25 +71,28 @@ def wrap(name, runner, sprefix=None):
     bin_lib_path = list_to_path(CFG["env"]["binary_ld_library_path"].value())
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 
+    template_vars['db_host'] = str(CFG["db"]["host"])
+    template_vars['db_name'] = str(CFG["db"]["name"])
+    template_vars['db_port'] = str(CFG["db"]["port"])
+    template_vars['db_pass'] = str(CFG["db"]["pass"])
+    template_vars['db_user'] = str(CFG["db"]["user"])
+    template_vars['path'] = bin_path
+    template_vars['ld_lib_path'] = bin_lib_path
+    template_vars['blobf'] = strip_path_prefix(blob_f, sprefix)
+    template_vars['runf'] = strip_path_prefix(real_f, sprefix)
+
+    if 'python' not in template_vars:
+        template_vars['python'] = sys.executable
+
     with open(name_absolute, 'w') as wrapper:
         lines = template_str("templates/run_static.py.inc")
-        lines = lines.format(
-            db_host=str(CFG["db"]["host"]),
-            db_port=str(CFG["db"]["port"]),
-            db_name=str(CFG["db"]["name"]),
-            db_user=str(CFG["db"]["user"]),
-            db_pass=str(CFG["db"]["pass"]),
-            python=sys.executable,
-            path=bin_path,
-            ld_lib_path=bin_lib_path,
-            blobf=strip_path_prefix(blob_f, sprefix),
-            runf=strip_path_prefix(real_f, sprefix))
+        lines = lines.format(**template_vars)
         wrapper.write(lines)
     run(chmod["+x", name_absolute])
     return local[name_absolute]
 
 
-def wrap_dynamic(self, name, runner, sprefix=None):
+def wrap_dynamic(self, name, runner, sprefix=None, **template_vars):
     """
     Wrap the binary :name with the function :runner.
 
@@ -123,20 +126,24 @@ def wrap_dynamic(self, name, runner, sprefix=None):
     bin_lib_path = list_to_path([bin_lib_path, os.environ[
         "LD_LIBRARY_PATH"]])
 
+    template_vars['db_host'] = str(CFG["db"]["host"])
+    template_vars['db_name'] = str(CFG["db"]["name"])
+    template_vars['db_port'] = str(CFG["db"]["port"])
+    template_vars['db_pass'] = str(CFG["db"]["pass"])
+    template_vars['db_user'] = str(CFG["db"]["user"])
+    template_vars['path'] = bin_path
+    template_vars['ld_lib_path'] = bin_lib_path
+    template_vars['blobf'] = strip_path_prefix(blob_f, sprefix)
+    template_vars['runf'] = strip_path_prefix(real_f, sprefix)
+    template_vars['base_class'] = base_class
+    template_vars['base_module'] = base_module
+
+    if 'python' not in template_vars:
+        template_vars['python'] = sys.executable
+
     with open(name_absolute, 'w') as wrapper:
         lines = template_str("templates/run_dynamic.py.inc")
-        lines = lines.format(
-            db_host=str(CFG["db"]["host"]),
-            db_port=str(CFG["db"]["port"]),
-            db_name=str(CFG["db"]["name"]),
-            db_user=str(CFG["db"]["user"]),
-            db_pass=str(CFG["db"]["pass"]),
-            python=sys.executable,
-            path=bin_path,
-            ld_lib_path=bin_lib_path,
-            blobf=strip_path_prefix(blob_f, sprefix),
-            base_class=base_class,
-            base_module=base_module)
+        lines = lines.format(**template_vars)
         wrapper.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
@@ -203,3 +210,9 @@ def wrap_cc(filepath, cflags, ldflags, compiler, extension,
         lines = lines.format(**template_vars)
         wrapper.write(lines)
         chmod("+x", filepath)
+
+def wrap_in_uchroot(name, runner, sprefix=None):
+    wrap(name, runner, sprefix, python="/usr/bin/env python3")
+
+def wrap_dynamic_in_uchroot(self, name, runner, sprefix=None):
+    wrap_dynamic(self, name, runner, sprefix, python="/usr/bin/env python3")

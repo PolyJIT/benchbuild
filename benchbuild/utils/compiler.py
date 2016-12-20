@@ -53,7 +53,7 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='clang'):
     from os import path
     from plumbum import local
 
-    def gen_compiler():  # pylint:  disable=C0111
+    def compiler():  # pylint:  disable=C0111
         pi = __get_compiler_paths()
         cc = local["/usr/bin/env"]
         cc = cc[cc_name]
@@ -62,8 +62,8 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='clang'):
 
     def gen_compiler_extension(ext):  # pylint:  disable=C0111
         return path.join("/", cc_name + ext)
-    wrap_cc(cc_name, cflags, ldflags, gen_compiler, func,
-                                gen_compiler_extension)
+    wrap_cc(cc_name, cflags, ldflags, compiler, func, gen_compiler_extension,
+            python="/usr/bin/env python3")
 
 
 def wrap_cxx_in_uchroot(cflags, ldflags, func=None):

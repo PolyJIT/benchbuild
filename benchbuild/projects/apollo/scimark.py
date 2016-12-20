@@ -1,5 +1,5 @@
 from benchbuild.projects.apollo.group import ApolloGroup
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.cmd import unzip, make

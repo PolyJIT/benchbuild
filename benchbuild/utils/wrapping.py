@@ -142,7 +142,8 @@ def wrap_dynamic(self, name, runner, sprefix=None):
     return local[name_absolute]
 
 
-def wrap_cc(filepath, cflags, ldflags, compiler, func, compiler_ext_name=None):
+def wrap_cc(filepath, cflags, ldflags, compiler, extension,
+            compiler_ext_name=None, **template_vars):
     """
     Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
 
@@ -155,7 +156,7 @@ def wrap_cc(filepath, cflags, ldflags, compiler, func, compiler_ext_name=None):
         ldflags (list(str)): The LDFLAGS we want to hide.
         compiler (benchbuild.utils.cmd): Real compiler command we should call in the
             script.
-        func: A function that will be pickled alongside the compiler.
+        extension: A function that will be pickled alongside the compiler.
             It will be called before the actual compilation took place. This
             way you can intercept the compilation process with arbitrary python
             code.
@@ -172,9 +173,9 @@ def wrap_cc(filepath, cflags, ldflags, compiler, func, compiler_ext_name=None):
             cc_f = compiler_ext_name(".benchbuild.cc")
 
     blob_f = os.path.abspath(filepath + PROJECT_BLOB_F_EXT)
-    if func is not None:
+    if extension is not None:
         with open(blob_f, 'wb') as blob:
-            blob.write(dill.dumps(func))
+            blob.write(dill.dumps(extension))
         if compiler_ext_name is not None:
             blob_f = compiler_ext_name(PROJECT_BLOB_F_EXT)
 
@@ -183,19 +184,22 @@ def wrap_cc(filepath, cflags, ldflags, compiler, func, compiler_ext_name=None):
     lib_path_list = CFG["env"]["compiler_ld_library_path"].value()
     ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
 
+    template_vars['db_host'] = str(CFG["db"]["host"])
+    template_vars['db_name'] = str(CFG["db"]["name"])
+    template_vars['db_port'] = str(CFG["db"]["port"])
+    template_vars['db_pass'] = str(CFG["db"]["pass"])
+    template_vars['db_user'] = str(CFG["db"]["user"])
+    template_vars['CFG_FILE'] = CFG["config_file"].value()
+    template_vars['CC_F'] = cc_f
+    template_vars['CFLAGS'] = cflags
+    template_vars['LDFLAGS'] = ldflags
+    template_vars['BLOB_F'] = blob_f
+
+    if 'python' not in template_vars:
+        template_vars['python'] = sys.executable
+
     with open(filepath, 'w') as wrapper:
         lines = template_str("templates/compiler.py.inc")
-        lines = lines.format(
-            CC_F=cc_f,
-            CFLAGS=cflags,
-            LDFLAGS=ldflags,
-            BLOB_F=blob_f,
-            python=sys.executable,
-            db_host=str(CFG["db"]["host"]),
-            db_name=str(CFG["db"]["name"]),
-            db_port=str(CFG["db"]["port"]),
-            db_pass=str(CFG["db"]["pass"]),
-            db_user=str(CFG["db"]["user"]),
-            CFG_FILE=CFG["config_file"].value())
+        lines = lines.format(**template_vars)
         wrapper.write(lines)
         chmod("+x", filepath)

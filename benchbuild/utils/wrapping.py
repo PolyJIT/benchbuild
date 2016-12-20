@@ -140,3 +140,62 @@ def wrap_dynamic(self, name, runner, sprefix=None):
         wrapper.write(lines)
     chmod("+x", name_absolute)
     return local[name_absolute]
+
+
+def wrap_cc(filepath, cflags, ldflags, compiler, func, compiler_ext_name=None):
+    """
+    Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
+
+    This will generate a wrapper script in the current directory
+    and return a complete plumbum command to it.
+
+    Args:
+        filepath (str): Path to the wrapper script.
+        cflags (list(str)): The CFLAGS we want to hide.
+        ldflags (list(str)): The LDFLAGS we want to hide.
+        compiler (benchbuild.utils.cmd): Real compiler command we should call in the
+            script.
+        func: A function that will be pickled alongside the compiler.
+            It will be called before the actual compilation took place. This
+            way you can intercept the compilation process with arbitrary python
+            code.
+        compiler_ext_name: The name that we should give to the generated
+            dill blob for :func:
+
+    Returns (benchbuild.utils.cmd):
+        Command of the new compiler we can call.
+    """
+    cc_f = os.path.abspath(filepath + ".benchbuild.cc")
+    with open(cc_f, 'wb') as cc:
+        cc.write(dill.dumps(compiler()))
+        if compiler_ext_name is not None:
+            cc_f = compiler_ext_name(".benchbuild.cc")
+
+    blob_f = os.path.abspath(filepath + PROJECT_BLOB_F_EXT)
+    if func is not None:
+        with open(blob_f, 'wb') as blob:
+            blob.write(dill.dumps(func))
+        if compiler_ext_name is not None:
+            blob_f = compiler_ext_name(PROJECT_BLOB_F_EXT)
+
+    # Update LDFLAGS with configure compiler_ld_library_path. This way
+    # the libraries found in LD_LIBRARY_PATH are available at link-time too.
+    lib_path_list = CFG["env"]["compiler_ld_library_path"].value()
+    ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
+
+    with open(filepath, 'w') as wrapper:
+        lines = template_str("templates/compiler.py.inc")
+        lines = lines.format(
+            CC_F=cc_f,
+            CFLAGS=cflags,
+            LDFLAGS=ldflags,
+            BLOB_F=blob_f,
+            python=sys.executable,
+            db_host=str(CFG["db"]["host"]),
+            db_name=str(CFG["db"]["name"]),
+            db_port=str(CFG["db"]["port"]),
+            db_pass=str(CFG["db"]["pass"]),
+            db_user=str(CFG["db"]["user"]),
+            CFG_FILE=CFG["config_file"].value())
+        wrapper.write(lines)
+        chmod("+x", filepath)

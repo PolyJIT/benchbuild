@@ -14,6 +14,7 @@ from benchbuild.utils.db import persist_project
 from benchbuild.utils.path import list_to_path, template_str
 from benchbuild.utils.run import in_builddir, unionfs, store_config
 from benchbuild.utils.container import Gentoo
+from benchbuild.utils.wrapping import wrap
 from functools import partial
 
 

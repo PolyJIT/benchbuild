@@ -4,8 +4,8 @@ Downloading helper functions for benchbuild.
 The helpers defined in this module provide access to some common Downloading
 methods for the source code of benchbuild projects.
 All downloads will be cached in BB_TMP_DIR and locked down with a hash that
-is generated after the first download. If the hash matches the file/folder found
-in BB_TMP_DIR, nothing will be downloaded at all.
+is generated after the first download. If the hash matches the file/folder
+found in BB_TMP_DIR, nothing will be downloaded at all.
 
 Supported methods:
         Copy, CopyNoFail, Wget, Git, Svn, Rsync

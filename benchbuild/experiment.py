@@ -186,8 +186,8 @@ def get_group_projects(group, experiment):
 
     Args:
         group (str): The group.
-        experiment (benchbuild.Experiment): The experiment we draw our projects to
-            filter from.
+        experiment (benchbuild.Experiment): The experiment we draw our projects
+            to filter from.
 
     Returns (list):
         A list of project names for the group that are supported by this

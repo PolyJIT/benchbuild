@@ -18,7 +18,7 @@ class Povray(BenchBuildGroup):
     NAME = 'povray'
     DOMAIN = 'multimedia'
     SRC_FILE = 'povray.git'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
 
     src_uri = "https://github.com/POV-Ray/povray"
     boost_src_dir = "boost_1_59_0"

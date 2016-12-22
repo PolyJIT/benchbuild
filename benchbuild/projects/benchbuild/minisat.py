@@ -18,7 +18,7 @@ class Minisat(BenchBuildGroup):
     NAME = 'minisat'
     DOMAIN = 'verification'
     SRC_FILE = 'minisat.git'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
 
     def run_tests(self, experiment):
         exp = wrap(

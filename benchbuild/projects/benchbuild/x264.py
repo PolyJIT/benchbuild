@@ -18,7 +18,7 @@ class X264(BenchBuildGroup):
     NAME = "x264"
     DOMAIN = "multimedia"
     SRC_FILE = 'x264.git'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
 
     inputfiles = {"tbbt-small.y4m": [],
                   "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}

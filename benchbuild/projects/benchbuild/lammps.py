@@ -18,7 +18,7 @@ class Lammps(BenchBuildGroup):
     NAME = 'lammps'
     DOMAIN = 'scientific'
     SRC_FILE = 'lammps.git'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
 
     def prepare(self):
         super(Lammps, self).prepare()

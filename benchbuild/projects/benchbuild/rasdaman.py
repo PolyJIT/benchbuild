@@ -19,7 +19,7 @@ class Rasdaman(BenchBuildGroup):
     NAME = 'Rasdaman'
     DOMAIN = 'database'
     SRC_FILE = 'rasdaman.git'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
 
     src_uri = "git://rasdaman.org/rasdaman.git"
 

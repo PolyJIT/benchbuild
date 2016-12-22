@@ -98,10 +98,6 @@ class Project(object, metaclass=ProjectDecorator):
             raise AttributeError(
                 "{0} @ {1} does not define a GROUP class attribute.".format(
                     cls.__name__, cls.__module__))
-        if cls.VERSION is None:
-            warnings.warn(
-                "{0} @ {1} does not define a VERSION class attribute.".format(
-                    cls.__name__, cls.__module__))
         if cls.SRC_FILE is None:
             warnings.warn(
                 "{0} @ {1} does not offer a source file yet.".format(
@@ -115,7 +111,7 @@ class Project(object, metaclass=ProjectDecorator):
         new_self.domain = cls.DOMAIN
         new_self.group = cls.GROUP
         new_self.src_file = cls.SRC_FILE
-        new_self.version = cls.VERSION
+        new_self.version = lambda: get_version_from_cache_dir(cls.SRC_FILE)
         new_self.container = cls.CONTAINER
         return new_self
 

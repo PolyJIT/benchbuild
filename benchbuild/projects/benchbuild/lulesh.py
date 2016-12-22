@@ -13,7 +13,7 @@ class Lulesh(BenchBuildGroup):
     NAME = 'lulesh'
     DOMAIN = 'scientific'
     SRC_FILE = 'LULESH.cc'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
 
     def run_tests(self, experiment):
         exp = wrap(self.run_f, experiment)

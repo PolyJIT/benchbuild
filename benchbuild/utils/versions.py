@@ -34,6 +34,7 @@ def get_version_from_cache_dir(src_file):
     else:
         return None
 
+
 def get_git_hash(from_url):
     """
     Get the git commit hash of HEAD from :from_url.

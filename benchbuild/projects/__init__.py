@@ -11,10 +11,11 @@ from benchbuild.settings import CFG
 import logging
 import importlib
 
+
 def discover():
     if CFG["plugins"]["autoload"].value():
         log = logging.getLogger('benchbuild')
-        project_plugins =  CFG["plugins"]["projects"].value()
+        project_plugins = CFG["plugins"]["projects"].value()
         for pp in project_plugins:
             log.debug("Found project: {0}".format(pp))
             try:

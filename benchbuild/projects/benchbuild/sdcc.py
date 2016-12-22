@@ -14,7 +14,7 @@ class SDCC(BenchBuildGroup):
     NAME = 'sdcc'
     DOMAIN = 'compilation'
     SRC_FILE = 'sdcc'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
 
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + SRC_FILE
 

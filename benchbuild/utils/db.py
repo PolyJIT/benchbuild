@@ -1,6 +1,7 @@
 """Database support module for the benchbuild study."""
 import logging
 from benchbuild.settings import CFG
+from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +82,7 @@ def persist_project(project):
     src_url = ''
     domain = project.domain
     group_name = project.group_name
+    version = project.version() if callable(project.version) else project.version
     try:
         src_url = project.src_uri
     except AttributeError:
@@ -93,6 +95,7 @@ def persist_project(project):
         newp.src_url = src_url
         newp.domain = domain
         newp.group_name = group_name
+        newp.version = version
         session.add(newp)
         logger.debug("Poject INSERT: %s", newp)
     else:
@@ -101,7 +104,8 @@ def persist_project(project):
             "description": desc,
             "src_url": src_url,
             "domain": domain,
-            "group_name": group_name
+            "group_name": group_name,
+            "version": version
         }
         projects.update(newp_value)
         logger.debug("Project UPDATE: %s", newp_value)
@@ -138,7 +142,11 @@ def persist_experiment(experiment):
         exps.update({'name': name, 'description': desc})
         logger.debug("Update experiments: %s", exps)
         ret = exps.first()
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError as ie:
+        session.rollback()
+        persist_experiment(experiment)
 
     return (ret, session)
 

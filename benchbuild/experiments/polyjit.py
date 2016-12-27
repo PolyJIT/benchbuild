@@ -9,13 +9,14 @@ from os import path
 import copy
 import uuid
 
-from plumbum.cmd import rm, time  # pylint: disable=E0401
+from benchbuild.utils.cmd import rm, time  # pylint: disable=E0401
 from plumbum import local
 from benchbuild.experiments.compilestats import collect_compilestats
-from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download, Configure,
-                                 Clean, MakeBuildDir, Run, Echo)
+from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download,
+                                      Configure, Clean, MakeBuildDir, Run,
+                                      Echo, Any)
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.utils.run import partial
+from functools import partial
 
 
 def run_raw(project, experiment, config, run_f, args, **kwargs):
@@ -36,14 +37,15 @@ def run_raw(project, experiment, config, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.utils.run import guarded_exec
+    from benchbuild.utils.run import handle_stdin
     from benchbuild.settings import CFG as c
 
     c.update(config)
     project.name = kwargs.get("project_name", project.name)
 
     run_cmd = local[run_f]
-    run_cmd = r.handle_stdin(run_cmd[args], kwargs)
+    run_cmd = handle_stdin(run_cmd[args], kwargs)
     with guarded_exec(run_cmd, project, experiment) as run:
         run()
 
@@ -113,7 +115,7 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
 
     c.update(config)
     project.name = kwargs.get("project_name", project.name)
-    likwid_f = project_name + ".txt"
+    likwid_f = project.name + ".txt"
 
     for group in ["CLOCK"]:
         likwid_path = path.join(c["likwiddir"], "bin")
@@ -164,20 +166,78 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     project.name = kwargs.get("project_name", project.name)
     timing_tag = "BB-JIT: "
 
-    run_cmd = time["-f", timing_tag + "%U-%S-%e", run_f]
-    run_cmd = handle_stdin(run_cmd[args], kwargs)
+    may_wrap = kwargs.get("may_wrap", True)
 
-    with local.env(OMP_NUM_THREADS=str(jobs)):
+    run_cmd = local[run_f]
+    run_cmd = run_cmd[args]
+    if may_wrap:
+        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
+
+    with local.env(OMP_NUM_THREADS=str(jobs),
+                   POLLI_LOG_FILE=c["slurm"]["extra_log"].value()):
         with guarded_exec(run_cmd, project, experiment) as run:
             ri = run()
-        timings = fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-        if not timings:
-            return
 
-    persist_time(ri.db_run, ri.session, timings)
-    persist_config(ri.db_run, ri.session, {"cores": str(jobs)})
+        if may_wrap:
+            timings = fetch_time_output(
+                timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+            if timings:
+                persist_time(ri.db_run, ri.session, timings)
+    persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
+                                           "cores-config": str(jobs),
+                                           "recompilation": "enabled"})
+    return ri
 
+
+def run_without_recompile(project, experiment, config, jobs, run_f,
+                          args, **kwargs):
+    """
+    Run the given binary wrapped with time.
+
+    Args:
+        project: The benchbuild.project.
+        experiment: The benchbuild.experiment.
+        config: The benchbuild.settings.config.
+        jobs: Number of cores we should use for this exection.
+        run_f: The file we want to execute.
+        args: List of arguments that should be passed to the wrapped binary.
+        **kwargs: Dictionary with our keyword args. We support the following
+            entries:
+
+            project_name: The real name of our project. This might not
+                be the same as the configured project name, if we got wrapped
+                with ::benchbuild.project.wrap_dynamic
+            has_stdin: Signals whether we should take care of stdin.
+    """
+    from benchbuild.utils.run import guarded_exec, handle_stdin, fetch_time_output
+    from benchbuild.settings import CFG as c
+    from benchbuild.utils.db import persist_time, persist_config
+
+    c.update(config)
+    project.name = kwargs.get("project_name", project.name)
+    timing_tag = "BB-JIT: "
+
+    may_wrap = kwargs.get("may_wrap", True)
+
+    run_cmd = local[run_f]
+    run_cmd = run_cmd[args]
+    if may_wrap:
+        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
+
+    with local.env(OMP_NUM_THREADS=str(jobs),
+                   POLLI_LOG_FILE=c["slurm"]["extra_log"].value()):
+        with guarded_exec(run_cmd, project, experiment) as run:
+            ri = run()
+
+        if may_wrap:
+            timings = fetch_time_output(
+                timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+            if timings:
+                persist_time(ri.db_run, ri.session, timings)
+    persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
+                                           "cores-config": str(jobs),
+                                           "recompilation": "disabled"})
+    return ri
 
 def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
     """
@@ -201,7 +261,7 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
     from benchbuild.settings import CFG as c
     from benchbuild.utils.run import guarded_exec, handle_stdin
     from benchbuild.utils.db import persist_perf, persist_config
-    from plumbum.cmd import perf
+    from benchbuild.utils.cmd import perf
 
     c.update(config)
     project.name = kwargs.get("project_name", project.name)
@@ -244,19 +304,91 @@ class PolyJIT(RuntimeExperiment):
         Returns:
             The initialized project.
         """
-        from benchbuild.settings import CFG
-        project.ldflags = ["-lpjit", "-lgomp"]
-
-        ld_lib_path = [_f for _f in str(CFG["ld_library_path"]).split(":") if _f]
-        project.ldflags = ["-L" + el for el in ld_lib_path] + project.ldflags
-        project.cflags = ["-Xclang", "-load", "-Xclang",
-                          "LLVMPolyJIT.so", "-O3", "-mllvm", "-jitable",
+        project.ldflags += ["-lpjit", "-lgomp"]
+        project.cflags = ["-fno-omit-frame-pointer",
+                          "-rdynamic",
+                          "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                          "-O3", "-mllvm", "-jitable",
+                          "-mllvm", "-polli-allow-modref-calls",
                           "-mllvm", "-polli"]
         return project
 
     @abstractmethod
     def actions_for_project(self, p):
         pass
+
+
+class PolyJITFull(PolyJIT):
+    """
+        An experiment that executes all projects with PolyJIT support.
+
+        This is our default experiment for speedup measurements.
+    """
+
+    NAME = "pj"
+
+    def actions_for_project(self, p):
+        from benchbuild.settings import CFG
+
+        p.cflags = ["-O3", "-fno-omit-frame-pointer"]
+
+        actns = []
+        rawp = copy.deepcopy(p)
+        rawp.run_uuid = uuid.uuid4()
+        rawp.runtime_extension = partial(run_with_time, rawp, self, CFG, 1)
+
+        actns.append(RequireAll([
+            Echo("========= START: RAW Baseline"),
+            MakeBuildDir(rawp),
+            Prepare(rawp),
+            Download(rawp),
+            Configure(rawp),
+            Build(rawp),
+            Run(rawp),
+            Clean(rawp),
+            Echo("========= END: RAW Baseline")
+        ]))
+
+        jitp = copy.deepcopy(p)
+        jitp = self.init_project(jitp)
+        norecomp = copy.deepcopy(jitp)
+        norecomp.cflags += ["-mllvm", "-no-recompilation"]
+
+        for i in range(2, int(str(CFG["jobs"])) + 1):
+            cp = copy.deepcopy(norecomp)
+            cp.run_uuid = uuid.uuid4()
+            cp.runtime_extension = partial(run_without_recompile,
+                                           cp, self, CFG, i)
+
+            actns.append(RequireAll([
+                Echo("========= START: JIT No Recomp - Cores: {0}".format(i)),
+                MakeBuildDir(cp),
+                Prepare(cp),
+                Download(cp),
+                Configure(cp),
+                Build(cp),
+                Run(cp),
+                Clean(cp),
+                Echo("========= END: JIT No Recomp - Cores: {0}".format(i))
+            ]))
+
+        for i in range(2, int(str(CFG["jobs"])) + 1):
+            cp = copy.deepcopy(jitp)
+            cp.run_uuid = uuid.uuid4()
+            cp.runtime_extension = partial(run_with_time, cp, self, CFG, i)
+
+            actns.append(RequireAll([
+                Echo("========= START: JIT - Cores: {0}".format(i)),
+                MakeBuildDir(cp),
+                Prepare(cp),
+                Download(cp),
+                Configure(cp),
+                Build(cp),
+                Run(cp),
+                Clean(cp),
+                Echo("========= END: JIT - Cores: {0}".format(i))
+            ]))
+        return [Any(actns)]
 
 
 class PJITRaw(PolyJIT):
@@ -274,9 +406,10 @@ class PJITRaw(PolyJIT):
         p = self.init_project(p)
 
         actns = []
-        for i in range(1, int(str(CFG["jobs"])) + 1):
+        for i in range(2, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(p)
             cp.run_uuid = uuid.uuid4()
+            cp.cflags += ["-mllvm", "-polly-num-threads={0}".format(i)]
             cp.runtime_extension = partial(run_with_time, cp, self, CFG, i)
 
             actns.extend([
@@ -378,7 +511,8 @@ class PJITRegression(PolyJIT):
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
-        from benchbuild.utils.run import guarded_exec, handle_stdin
+        from benchbuild.utils.run import guarded_exec
+
         def _track_compilestats(project, experiment, config, clang,
                                 **kwargs):
             """ Compile the project and track the compilestats. """
@@ -449,14 +583,14 @@ class PJITpapi(PolyJIT):
         super(PJITpapi, self).run()
 
         from benchbuild.settings import CFG
-        from plumbum.cmd import pprof_analyze
+        from benchbuild.utils.cmd import pprof_analyze
 
         with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
                        BB_EXPERIMENT=self.name,
                        BB_USE_DATABASE=1,
                        BB_USE_FILE=0,
                        BB_USE_CSV=0):
-            pprof_analzye()
+            pprof_analyze()
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG

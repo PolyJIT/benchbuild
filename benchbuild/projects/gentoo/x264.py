@@ -2,10 +2,10 @@
 media-video/x264-encoder within gentoo chroot.
 """
 from os import path
+from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot
-from plumbum import local
 
 
 class X264(GentooGroup):
@@ -22,20 +22,17 @@ class X264(GentooGroup):
     def prepare(self):
         super(X264, self).prepare()
 
-        with local.cwd(self.builddir):
-            for testfile in self.inputfiles:
-                Wget(self.test_url + testfile, testfile)
+        for testfile in self.inputfiles:
+            Wget(self.test_url + testfile, testfile)
 
     def build(self):
-        with local.cwd(self.builddir):
-            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-            run(emerge_in_chroot["media-video/x264-encoder"])
+        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+        run(emerge_in_chroot["media-video/x264-encoder"])
 
     def run_tests(self, experiment):
-        from benchbuild.project import wrap, strip_path_prefix
-
-        wrap(path.join(self.builddir, "usr/bin/x264"), experiment,
-             self.builddir)
+        wrap(
+            path.join(self.builddir, "usr/bin/x264"), experiment,
+            self.builddir)
         x264 = uchroot()["/usr/bin/x264"]
 
         tests = [
@@ -51,5 +48,5 @@ class X264(GentooGroup):
 
         for ifile in self.inputfiles:
             for _, test in enumerate(tests):
-                run(x264[ifile, self.inputfiles[ifile], "--threads", "1",
-                         "-o", "/dev/null", test.split(" ")])
+                run(x264[ifile, self.inputfiles[ifile], "--threads", "1", "-o",
+                         "/dev/null", test.split(" ")])

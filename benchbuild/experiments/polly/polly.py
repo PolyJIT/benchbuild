@@ -29,7 +29,7 @@ class Polly(RuntimeExperiment):
     def run_project(self, p):
         from uuid import uuid4
         from benchbuild.experiments.raw import run_with_time
-        from benchbuild.utils.run import partial
+        from functools import partial
 
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                     "-mllvm", "-polly"]

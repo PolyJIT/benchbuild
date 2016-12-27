@@ -1,8 +1,14 @@
-from benchbuild.settings import CFG
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from os import path
+from benchbuild.settings import CFG
+from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.downloader import Wget
+from benchbuild.utils.run import run
+
 from plumbum import local
-from plumbum.cmd import cp
+from benchbuild.utils.cmd import cp, make, tar
+
+from os import path
 
 
 class Gzip(BenchBuildGroup):
@@ -10,9 +16,13 @@ class Gzip(BenchBuildGroup):
 
     NAME = 'gzip'
     DOMAIN = 'compression'
+    VERSION = '1.6'
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",
                  "liberty.jpg"]
+    src_dir = "gzip-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.xz"
+    src_uri = "http://ftpmirror.gnu.org/gzip/" + SRC_FILE
 
     def prepare(self):
         super(Gzip, self).prepare()
@@ -20,11 +30,7 @@ class Gzip(BenchBuildGroup):
         cp(testfiles, self.builddir)
 
     def run_tests(self, experiment):
-        from benchbuild.project import wrap
-        from benchbuild.utils.run import run
-
-        gzip_dir = path.join(self.builddir, self.src_dir)
-        exp = wrap(path.join(gzip_dir, "gzip"), experiment)
+        exp = wrap(path.join(self.src_dir, "gzip"), experiment)
 
         # Compress
         run(exp["-f", "-k", "--best", "text.html"])
@@ -40,37 +46,18 @@ class Gzip(BenchBuildGroup):
         run(exp["-f", "-k", "--decompress", "input.source.gz"])
         run(exp["-f", "-k", "--decompress", "liberty.jpg.gz"])
 
-    src_dir = "gzip-1.6"
-    src_file = src_dir + ".tar.xz"
-    src_uri = "http://ftpmirror.gnu.org/gzip/" + src_file
-
     def download(self):
-        from benchbuild.utils.downloader import Wget
-        from plumbum.cmd import tar
-
-        with local.cwd(self.builddir):
-            Wget(self.src_uri, self.src_file)
-            tar("xfJ", path.join(self.builddir, self.src_file))
+        Wget(self.src_uri, self.SRC_FILE)
+        tar("xfJ", self.SRC_FILE)
 
     def configure(self):
-        from benchbuild.utils.compiler import lt_clang
-        from benchbuild.utils.run import run
-
-        gzip_dir = path.join(self.builddir, self.src_dir)
-
-        with local.cwd(gzip_dir):
-            with local.cwd(self.builddir):
-                clang = lt_clang(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        with local.cwd(self.src_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang)):
                 run(configure["--disable-dependency-tracking",
                               "--disable-silent-rules", "--with-gnu-ld"])
 
     def build(self):
-        from plumbum.cmd import make
-        from benchbuild.utils.run import run
-
-        gzip_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(gzip_dir):
-            run(make["-j" + CFG["jobs"], "clean", "all"])
+        with local.cwd(self.src_dir):
+            run(make["-j" + str(CFG["jobs"].value()), "clean", "all"])

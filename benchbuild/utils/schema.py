@@ -28,6 +28,10 @@ class Run(BASE):
     end = Column(DateTime(timezone=False))
     status = Column(Enum('completed', 'running', 'failed', name="run_state"))
 
+    def __repr__(self):
+        return ("<Run: {0} status={1} run={2}>").format(
+            self.project_name, self.status, self.id)
+
 
 class RunGroup(BASE):
     """ Store information about a run group. """
@@ -94,6 +98,8 @@ class Metric(BASE):
                     index=True,
                     primary_key=True)
 
+    def __repr__(self):
+        return "{0} - {1}".format(self.name, self.value)
 
 class Event(BASE):
     """Store PAPI profiling based events."""
@@ -143,12 +149,14 @@ class Project(BASE):
     src_url = Column(String)
     domain = Column(String)
     group_name = Column(String)
+    version = Column(String)
 
     def __repr__(self):
-        return "<Project {group}@{domain}/{name}>".format(
+        return "<Project {group}@{domain}/{name} V:{version}>".format(
             group=self.group_name,
             domain=self.domain,
-            name=self.name)
+            name=self.name,
+            version=self.version)
 
 
 class CompileStat(BASE):

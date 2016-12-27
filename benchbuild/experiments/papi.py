@@ -5,13 +5,12 @@ These types of experiments (papi & papi-std) need to instrument the
 project with libbenchbuild support to work.
 
 """
-from os import path
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.experiments.raw import run_with_time
-from benchbuild.utils.run import partial
-from benchbuild.utils.actions import (Step, Prepare, Build, Download, Configure, Clean,
-                                 MakeBuildDir, Run, Echo)
-from benchbuild.utils.path import path_to_list
+from functools import partial
+from benchbuild.utils.actions import (Step, Prepare, Build, Download,
+                                      Configure, Clean, MakeBuildDir, Run,
+                                      Echo)
 from benchbuild.settings import CFG
 from plumbum import local
 
@@ -57,7 +56,7 @@ class PapiScopCoverage(RuntimeExperiment):
     def run(self):
         """Do the postprocessing, after all projects are done."""
         super(PapiScopCoverage, self).run()
-        from plumbum.cmd import pprof_analyze
+        from benchbuild.utils.cmd import pprof_analyze
 
         with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
                        BB_EXPERIMENT=self.name,
@@ -82,7 +81,7 @@ class PapiScopCoverage(RuntimeExperiment):
         p.runtime_extension = partial(run_with_time, p, self, CFG, 1)
 
         def evaluate_calibration(e):
-            from plumbum.cmd import pprof_calibrate
+            from benchbuild.utils.cmd import pprof_calibrate
             papi_calibration = e.get_papi_calibration(p, pprof_calibrate)
             e.persist_calibration(p, pprof_calibrate, papi_calibration)
 
@@ -123,7 +122,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
         p.runtime_extension = partial(run_with_time, p, self, CFG, 1)
 
         def evaluate_calibration(e):
-            from plumbum.cmd import pprof_calibrate
+            from benchbuild.utils.cmd import pprof_calibrate
             papi_calibration = e.get_papi_calibration(p, pprof_calibrate)
             e.persist_calibration(p, pprof_calibrate, papi_calibration)
 

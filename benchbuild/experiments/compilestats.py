@@ -8,11 +8,11 @@ by llvm
 """
 
 import parse
-import os
 import warnings
+import logging
 from plumbum import local
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.utils.run import partial
+from functools import partial
 from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
                                       Clean, MakeBuildDir, Echo)
 
@@ -31,7 +31,6 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
         with guarded_exec(clang, project, experiment) as run:
             ri = run()
 
-
     if ri.retcode == 0:
         stats = []
         for stat in get_compilestats(ri.stderr):
@@ -48,6 +47,14 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
         if names is not None:
             stats = [s for s in stats if str(s.name) in names]
 
+        log = logging.getLogger()
+        log.info("\n=========================================================")
+        log.info("{:s} results for project {:s}:".format(experiment.NAME,
+                                                         project.NAME))
+        log.info("=========================================================\n")
+        for s in stats:
+            log.info("{:s} - {:s}".format(str(s.name), str(s.value)))
+        log.info("=========================================================\n")
         persist_compilestats(ri.db_run, ri.session, stats)
 
 
@@ -111,7 +118,7 @@ def get_compilestats(prog_out):
         if line:
             try:
                 res = stats_pattern.search(line + "\n")
-            except ValueError as e:
+            except ValueError:
                 warnings.warn(
                     "Triggered a parser exception for: '" + line + "'\n",
                     CompileStatsParserError)

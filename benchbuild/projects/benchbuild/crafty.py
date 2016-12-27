@@ -1,7 +1,11 @@
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.downloader import Wget
+from benchbuild.utils.run import run
 from os import path
 from plumbum import local
-from plumbum.cmd import cat
+from benchbuild.utils.cmd import cat, make, unzip, mv, mkdir
 
 
 class Crafty(BenchBuildGroup):
@@ -9,50 +13,38 @@ class Crafty(BenchBuildGroup):
 
     NAME = 'crafty'
     DOMAIN = 'scientific'
+    VERSION = '25.2'
 
-    src_dir = "crafty-23.4"
-    src_file = src_dir + ".zip"
-    src_uri = "http://www.craftychess.com/crafty-23.4.zip"
+    src_dir = "crafty-{0}".format(VERSION)
+    src_uri = "http://www.craftychess.com/downloads/source/crafty-{0}.zip".format(VERSION)
+    SRC_FILE = src_dir + ".zip"
 
     def download(self):
-        from benchbuild.utils.downloader import Wget
-        from plumbum.cmd import unzip, mv
-
         book_file = "book.bin"
-        book_bin = "http://www.craftychess.com/" + book_file
-        with local.cwd(self.builddir):
-            Wget(self.src_uri, self.src_file)
-            Wget(book_bin, "book.bin")
+        book_bin = "http://www.craftychess.com/downloads/book/" + book_file
+        Wget(self.src_uri, self.SRC_FILE)
+        Wget(book_bin, book_file)
 
-            unzip(self.src_file)
-            mv(book_file, self.src_dir)
+        mkdir(self.src_dir)
+
+        with local.cwd(self.src_dir):
+            unzip(path.join("..", self.SRC_FILE))
+        mv(book_file, self.src_dir)
 
     def configure(self):
         pass
 
     def build(self):
-        from plumbum.cmd import make
-        from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-        from benchbuild.utils.run import run
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        with local.cwd(self.src_dir):
+            target_opts = ["-DCPUS=1", "-DSYZYGY", "-DTEST"]
+            crafty_make = make["target=UNIX", "CC="+str(clang),
+                               "opt="+" ".join(target_opts), "crafty-make"]
+            run(crafty_make)
 
-        crafty_dir = path.join(self.builddir, self.src_dir)
-        with local.cwd(crafty_dir):
-            target_opts = ["-DINLINE64", "-DCPUS=1"]
-
-            with local.cwd(self.builddir):
-                clang = lt_clang(self.cflags, self.ldflags,
-                                 self.compiler_extension)
-                clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                         self.compiler_extension)
-
-            run(make["target=LINUX", "CC=" + str(clang), "CXX=" + str(
-                clang_cxx), "opt=" + " ".join(target_opts), "crafty-make"])
 
     def run_tests(self, experiment):
-        from benchbuild.project import wrap
-        from benchbuild.utils.run import run
-        crafty_dir = path.join(self.builddir, self.src_dir)
-        exp = wrap(path.join(crafty_dir, "crafty"), experiment)
-
-        run((cat[path.join(self.testdir, "test1.sh")] | exp))
-        run((cat[path.join(self.testdir, "test2.sh")] | exp))
+        with local.cwd(self.src_dir):
+            exp = wrap("./crafty", experiment)
+            run((cat[path.join(self.testdir, "test1.sh")] | exp))
+            run((cat[path.join(self.testdir, "test2.sh")] | exp))

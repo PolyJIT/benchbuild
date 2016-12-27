@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Point us the the gold linker, we need this!
-$(which ld.gold) $*

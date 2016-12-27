@@ -4,8 +4,8 @@ Downloading helper functions for benchbuild.
 The helpers defined in this module provide access to some common Downloading
 methods for the source code of benchbuild projects.
 All downloads will be cached in BB_TMP_DIR and locked down with a hash that
-is generated after the first download. If the hash matches the file/folder found
-in BB_TMP_DIR, nothing will be downloaded at all.
+is generated after the first download. If the hash matches the file/folder
+found in BB_TMP_DIR, nothing will be downloaded at all.
 
 Supported methods:
         Copy, CopyNoFail, Wget, Git, Svn, Rsync
@@ -62,7 +62,7 @@ def source_required(src_file, src_root):
             old_hash = h_file.readline()
         required = not new_hash == old_hash
         if required:
-            from plumbum.cmd import rm
+            from benchbuild.utils.cmd import rm
             rm("-r", src_dir)
             rm(hash_file)
     return required
@@ -79,10 +79,12 @@ def update_hash(src, root):
     from os import path
 
     hash_file = path.join(root, src + ".hash")
+    new_hash = 0
     with open(hash_file, 'w') as h_file:
         src_path = path.join(root, src)
         new_hash = get_hash_of_dirs(src_path)
         h_file.write(str(new_hash))
+    return new_hash
 
 
 def Copy(From, To):
@@ -93,7 +95,7 @@ def Copy(From, To):
         From (str): Path to the SOURCE.
         To (str): Path to the TARGET.
     """
-    from plumbum.cmd import cp
+    from benchbuild.utils.cmd import cp
     cp("-ar", "--reflink=auto", From, To)
 
 
@@ -136,7 +138,7 @@ def Wget(src_url, tgt_name, tgt_root=None):
         tgt_root = CFG["tmp_dir"].value()
 
     from os import path
-    from plumbum.cmd import wget
+    from benchbuild.utils.cmd import wget
 
     src_path = path.join(tgt_root, tgt_name)
     if not source_required(tgt_name, tgt_root):
@@ -150,7 +152,7 @@ def Wget(src_url, tgt_name, tgt_root=None):
 
 def Git(src_url, tgt_name, tgt_root=None):
     """
-    Get a shallow clone of the given respo
+    Get a shallow clone of the given repo
 
     Args:
         src_url (str): Git URL of the SOURCE repo.
@@ -162,7 +164,7 @@ def Git(src_url, tgt_name, tgt_root=None):
         tgt_root = CFG["tmp_dir"].value()
 
     from os import path
-    from plumbum.cmd import git
+    from benchbuild.utils.cmd import git
 
     src_dir = path.join(tgt_root, tgt_name)
     if not source_required(tgt_name, tgt_root):
@@ -188,13 +190,13 @@ def Svn(url, fname, to=None):
         to = CFG["tmp_dir"].value()
 
     from os import path
-    from plumbum.cmd import svn
 
     src_dir = path.join(to, fname)
     if not source_required(fname, to):
         Copy(src_dir, ".")
         return
 
+    from benchbuild.utils.cmd import svn
     svn("co", url, src_dir)
     update_hash(fname, to)
     Copy(src_dir, ".")
@@ -214,7 +216,7 @@ def Rsync(url, tgt_name, tgt_root=None):
         tgt_root = CFG["tmp_dir"].value()
 
     from os import path
-    from plumbum.cmd import rsync
+    from benchbuild.utils.cmd import rsync
 
     src_dir = path.join(tgt_root, tgt_name)
     if not source_required(tgt_name, tgt_root):

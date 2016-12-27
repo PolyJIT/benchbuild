@@ -1,42 +1,13 @@
-"""
-Experiment helpers
-"""
+"""Experiment helpers."""
 import os
-from plumbum.cmd import mkdir  # pylint: disable=E0401
+from benchbuild.settings import CFG
+from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
+from benchbuild.utils.path import list_to_path
 from contextlib import contextmanager
 from types import SimpleNamespace
-
-
-def partial(func, *args, **kwargs):
-    """
-    Partial function application.
-
-    This performs standard partial application on the given function. However,
-    we do not check if parameter values in args and kwargs collide with each
-    other.
-
-    Args:
-        func: The original function.
-        *args: Positional arguments that should be applied partially.
-        **kwargs: Keyword arguments that should be applied partially.
-
-    Returns:
-        A new function that has all given args and kwargs bound.
-    """
-    frozen_args = args
-    frozen_kwargs = kwargs
-
-    def partial_func(*args, **kwargs):
-        """ The partial function with pre-bound arguments. """
-        nonlocal frozen_args
-        nonlocal frozen_kwargs
-        nonlocal func
-        thawed_args = frozen_args + args
-        thawed_kwargs = frozen_kwargs.copy()
-        thawed_kwargs.update(kwargs)
-        func(*thawed_args, **thawed_kwargs)
-
-    return partial_func
+from benchbuild import settings
+import logging
+import sys
 
 
 def handle_stdin(cmd, kwargs):
@@ -48,7 +19,7 @@ def handle_stdin(cmd, kwargs):
     into the plumbum command.
 
     Args:
-        cmd (plumbum.cmd): Command to wrap a stdin handler around.
+        cmd (benchbuild.utils.cmd): Command to wrap a stdin handler around.
         kwargs: Dictionary containing the kwargs.
             We check for they key `has_stdin`
 
@@ -59,10 +30,10 @@ def handle_stdin(cmd, kwargs):
     import sys
 
     has_stdin = kwargs.get("has_stdin", False)
-    if has_stdin:
-        run_cmd = (cmd < sys.stdin)
-    else:
-        run_cmd = cmd
+    has_stdout = kwargs.get("has_stdout", False)
+
+    run_cmd = (cmd < sys.stdin) if has_stdin else cmd
+    run_cmd = (run_cmd > sys.stdout) if has_stdout else cmd
 
     return run_cmd
 
@@ -260,13 +231,13 @@ def fail(db_run, session, retcode, stdout, stderr):
 
 
 @contextmanager
-def guarded_exec(cmd, project, experiment):
+def guarded_exec(cmd, project, experiment, **kwargs):
     """
     Guard the execution of the given command.
 
     Args:
         cmd: the command we guard.
-        pname: the database run we run under.
+        pname: the database we run under.
         ename: the database session this run belongs to.
         run_group: the run group this execution will belong to.
 
@@ -275,37 +246,58 @@ def guarded_exec(cmd, project, experiment):
             in a RunException and re-raise. This ends the run unsuccessfully.
     """
     from plumbum.commands import ProcessExecutionError
-    from plumbum import local
-    from plumbum.commands.modifiers import TEE
+    from plumbum import local, BG
     from warnings import warn
 
     db_run, session = begin(cmd, project.name, experiment.name,
                             project.run_uuid)
     ex = None
-    with local.env(BB_DB_RUN_ID=db_run.id):
-        def runner(retcode=0, *args):
-            retcode, stdout, stderr = cmd[args] & TEE(retcode=retcode)
+
+    settings.CFG["db"]["run_id"] = db_run.id
+    settings.CFG["use_file"] = 0
+
+    def runner(retcode=None, *args):
+        cmd_env = settings.to_env_dict(settings.CFG)
+        r = SimpleNamespace()
+        with local.env(**cmd_env):
+            has_stdin = kwargs.get("has_stdin", False)
+            proc = (cmd & BG(retcode=retcode,
+                             stdin=sys.stdin if has_stdin else None,
+                             stdout=sys.stdout,
+                             stderr=sys.stderr))
+
+            stdout = proc.stdout
+            stderr = proc.stderr
+            try:
+                log = logging.getLogger(name="benchbuild")
+                log.info("CMD: {0} = {1}".format(str(cmd), retcode))
+                log.info("STDOUT:")
+                log.info(stdout)
+                log.info("STDERR:")
+                log.info(stderr)
+            except UnicodeDecodeError:
+                pass
             end(db_run, session, stdout, stderr)
-            r = SimpleNamespace()
-            r.retcode = retcode
+            r.retcode = proc.returncode
             r.stdout = stdout
             r.stderr = stderr
             r.session = session
             r.db_run = db_run
-            return r
-        try:
-            yield runner
-        except KeyboardInterrupt:
-            fail(db_run, session, -1, "", "KeyboardInterrupt")
-            warn("Interrupted by user input")
-            raise
-        except ProcessExecutionError as proc_ex:
-            fail(db_run, session,
-                 proc_ex.retcode, proc_ex.stdout, proc_ex.stderr)
-            raise
-        except Exception as e:
-            fail(db_run, session, -1, "", str(ex))
-            raise
+        return r
+
+    try:
+        yield runner
+    except KeyboardInterrupt:
+        fail(db_run, session, -1, "", "KeyboardInterrupt")
+        warn("Interrupted by user input")
+        raise
+    except ProcessExecutionError as proc_ex:
+        fail(db_run, session, proc_ex.retcode, proc_ex.stdout,
+             proc_ex.stderr)
+        raise
+    except Exception as ex:
+        fail(db_run, session, -1, "", str(ex))
+        raise
 
 
 def run(command, retcode=0):
@@ -315,17 +307,16 @@ def run(command, retcode=0):
     Args:
         command: The plumbumb command to execute.
     """
-    from logging import debug, info, error
     from plumbum.commands.modifiers import TEE
-    info(str(command))
     command & TEE(retcode)
 
-def uchroot_no_args():
-    from benchbuild.settings import CFG
-    from plumbum import local
 
+def uchroot_no_args():
     """Return the uchroot command without any customizations."""
-    return local[CFG["uchroot"]["path"].value()]
+    from benchbuild.utils.cmd import uchroot
+
+    return uchroot
+
 
 def uchroot_no_llvm(*args, **kwargs):
     """
@@ -344,6 +335,88 @@ def uchroot_no_llvm(*args, **kwargs):
     uchroot_cmd = uchroot_cmd["-u", str(uid), "-g", str(gid), "-E", "-A"]
     return uchroot_cmd[args]
 
+
+def uchroot_mounts(prefix, mounts):
+    """
+    Find out the mountpoints of the current user.
+    Args:
+        prefix: Define where to job was running if it ran on a cluster.
+        mounts: All mounts the user currently uses in his file system.
+    Return:
+        mntpoints
+    """
+    i = 0
+    mntpoints = []
+    for mount in mounts:
+        mntpoint = "{0}/{1}".format(prefix, str(i))
+        mntpoints.append(mntpoint)
+        i = i + 1
+    return mntpoints
+
+
+def _uchroot_mounts(prefix, mounts, uchroot):
+    i = 0
+    new_uchroot = uchroot
+    mntpoints = []
+    for mount in mounts:
+        mntpoint = "{0}/{1}".format(prefix, str(i))
+        mkdir("-p", mntpoint)
+        new_uchroot = new_uchroot["-M", "{0}:/{1}".format(mount, mntpoint)]
+        mntpoints.append(mntpoint)
+        i = i + 1
+    return new_uchroot, mntpoints
+
+
+def uchroot_env(mounts):
+    """
+    Creates the environment of the change root for the user.
+
+    Args:
+        mounts: The mountpoints of the current user.
+    Return:
+        paths
+        ld_libs
+    """
+    ld_libs = ["/{0}/lib".format(m) for m in mounts]
+    paths = ["/{0}/bin".format(m) for m in mounts]
+    paths.extend(["/{0}".format(m) for m in mounts])
+    paths.extend(["/usr/bin", "/bin", "/usr/sbin", "/sbin"])
+    return paths, ld_libs
+
+def with_env_recursive(cmd, **envvars):
+    """
+    Recursively updates the environment of cmd and all its subcommands.
+
+    Args:
+        cmd - A plumbum command-like object
+        **envvars - The environment variables to update
+
+    Returns:
+        The updated command.
+    """
+    from plumbum.commands.base import BoundCommand, BoundEnvCommand
+    from plumbum.machines.local import LocalCommand
+    if isinstance(cmd, BoundCommand):
+        cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
+    elif isinstance(cmd, BoundEnvCommand):
+        cmd.envvars.update(envvars)
+        cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
+    return cmd
+
+def uchroot_with_mounts(*args, **kwargs):
+    """
+    Return a uchroot command with all mounts enabled.
+    """
+    uchroot_cmd = uchroot_no_args(*args, **kwargs)
+    uchroot_cmd, mounts = _uchroot_mounts("mnt",
+        CFG["container"]["mounts"].value(), uchroot_cmd)
+    paths, libs = uchroot_env(mounts)
+
+    uchroot_cmd = with_env_recursive(uchroot_cmd,
+            LD_LIBRARY_PATH=list_to_path(libs),
+            PATH=list_to_path(paths))
+    return uchroot_cmd
+
 def uchroot(*args, **kwargs):
     """
     Returns a uchroot command which can be called with other args to be
@@ -353,9 +426,205 @@ def uchroot(*args, **kwargs):
     Return:
         chroot_cmd
     """
-    from benchbuild.settings import CFG
     mkdir("-p", "llvm")
-    uchroot_cmd = uchroot_no_llvm(args, kwargs)
-    uchroot_cmd = uchroot_cmd["-m", str(CFG["llvm"]["dir"]) + ":llvm"]
-    uchroot_cmd = uchroot_cmd.setenv(LD_LIBRARY_PATH="/llvm/lib")
+    uchroot_cmd = uchroot_no_llvm(*args, **kwargs)
+    uchroot_cmd, mounts = _uchroot_mounts(
+        "mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
+    paths, libs = uchroot_env(mounts)
+    uchroot_cmd = uchroot_cmd.with_env(
+            LD_LIBRARY_PATH=list_to_path(libs),
+            PATH=list_to_path(paths))
     return uchroot_cmd["--"]
+
+
+def in_builddir(sub='.'):
+    """
+    Decorate a project phase with a local working directory change.
+
+    Args:
+        sub: An optional subdirectory to change into.
+    """
+    from functools import wraps
+    from plumbum import local
+    from os import path
+
+    def wrap_in_builddir(func):
+        """ Wraps the function for the new build directory. """
+        @wraps(func)
+        def wrap_in_builddir_func(self, *args, **kwargs):
+            """ The actual function inside the wrapper for the new builddir. """
+            p = path.abspath(path.join(self.builddir, sub))
+            with local.cwd(p):
+                return func(self, *args, **kwargs)
+
+        return wrap_in_builddir_func
+
+    return wrap_in_builddir
+
+
+def unionfs_tear_down(mountpoint, tries=3):
+    """ Tear down a unionfs mountpoint. """
+    from benchbuild.utils.cmd import fusermount, sync
+    log = logging.getLogger("benchbuild")
+
+    if not os.path.exists(mountpoint):
+        log.error("Mountpoint does not exist: '{0}'".format(mountpoint))
+        raise ValueError("Mountpoint does not exist: '{0}'".format(mountpoint))
+
+    fusermount("-u", mountpoint, retcode=None)
+    if os.path.ismount(mountpoint):
+        sync()
+        if tries > 0:
+            unionfs_tear_down(mountpoint, tries=tries - 1)
+        else:
+            log.error("Failed to unmount '{0}'".format(mountpoint))
+            raise RuntimeError("Failed to unmount '{0}'".format(mountpoint))
+
+
+def unionfs_set_up(ro_base, rw_image, mountpoint):
+    """
+    Setup a unionfs via unionfs-fuse.
+
+    Args:
+        ro_base: base_directory of the project
+        rw_image: virtual image of actual file system
+        mountpoint: location where ro_base and rw_image merge
+    """
+    log = logging.getLogger("benchbuild")
+    if not os.path.exists(mountpoint):
+        mkdir("-p", mountpoint)
+    if not os.path.exists(ro_base):
+        log.error("Base dir does not exist: '{0}'".format(ro_base))
+        raise ValueError("Base directory does not exist")
+    if not os.path.exists(rw_image):
+        log.error("Image dir does not exist: '{0}'".format(ro_base))
+        raise ValueError("Image directory does not exist")
+
+    from benchbuild.utils.cmd import unionfs
+    ro_base = os.path.abspath(ro_base)
+    rw_image = os.path.abspath(rw_image)
+    mountpoint = os.path.abspath(mountpoint)
+    unionfs("-o", "allow_other,cow", rw_image + "=RW:" + ro_base + "=RO",
+            mountpoint)
+
+
+def unionfs(base_dir='./base',
+            image_dir='./image',
+            image_prefix=None,
+            mountpoint='./union'):
+    """
+    UnionFS decorator.
+
+    This configures a unionfs for projects. The given base_dir and/or image_dir
+    are layered as follows:
+     image_dir=RW:base_dir=RO
+    All writes go to the image_dir, while base_dir delivers the (read-only)
+    versions of the rest of the filesystem.
+
+    The unified version will be provided in the project's builddir. Unmouting
+    is done as soon as the function completes.
+
+    Args:
+        base_dir:The unpacked container of a project delievered by a method
+                 out of the container utils.
+        image_dir: Virtual image of the actual file system represented by the
+                   build_dir of a project.
+        image_prefix: Useful prefix if the projects run on a cluster,
+                      to identify where the job came from and where it runs.
+        mountpoint: Location where the filesystems merge, currently per default
+                    as './union'.
+    """
+    from functools import wraps
+    from plumbum import local
+
+    def update_cleanup_paths(new_path):
+        """
+        Add the new path to the list of paths to clean up afterwards.
+
+        Args:
+            new_path: Path to the directory that need to be cleaned up.
+        """
+        cleanup_dirs = settings.CFG["cleanup_paths"].value()
+        cleanup_dirs = set(cleanup_dirs)
+        cleanup_dirs.add(new_path)
+        cleanup_dirs = list(cleanup_dirs)
+        settings.CFG["cleanup_paths"] = cleanup_dirs
+
+    def is_outside_of_builddir(project, path_to_check):
+        """ Checks if a project lies outside of its expected directory. """
+        bdir = project.builddir
+        cprefix = os.path.commonprefix([path_to_check, bdir])
+        return cprefix != bdir
+
+    def wrap_in_union_fs(func):
+        """
+        Function that wraps a given function inside the file system.
+
+        Args:
+            func: The function that needs to be wrapped inside the unions fs.
+        Return:
+            The file system with the function wrapped inside.
+        """
+        nonlocal image_prefix
+
+        @wraps(func)
+        def wrap_in_union_fs_func(project, *args, **kwargs):
+            """
+            Builds up the mount, transfers the function and returns the
+            unionfs after tearing down the mount again.
+            """
+            container = project.container
+            abs_base_dir = os.path.abspath(container.local)
+            nonlocal image_prefix
+            if image_prefix is not None:
+                image_prefix = os.path.abspath(image_prefix)
+                rel_prj_builddir = os.path.relpath(
+                    project.builddir, settings.CFG["build_dir"].value())
+                abs_image_dir = os.path.abspath(os.path.join(
+                    image_prefix, rel_prj_builddir, image_dir))
+
+                if is_outside_of_builddir:
+                    update_cleanup_paths(abs_image_dir)
+            else:
+                abs_image_dir = os.path.abspath(os.path.join(project.builddir,
+                                                             image_dir))
+            abs_mount_dir = os.path.abspath(os.path.join(project.builddir,
+                                                         mountpoint))
+            if not os.path.exists(abs_base_dir):
+                mkdir("-p", abs_base_dir)
+            if not os.path.exists(abs_image_dir):
+                mkdir("-p", abs_image_dir)
+            if not os.path.exists(abs_mount_dir):
+                mkdir("-p", abs_mount_dir)
+
+            unionfs_set_up(abs_base_dir, abs_image_dir, abs_mount_dir)
+            project_builddir_bak = project.builddir
+            project.builddir = abs_mount_dir
+            project.setup_derived_filenames()
+            try:
+                with local.cwd(abs_mount_dir):
+                    ret = func(project, *args, **kwargs)
+            finally:
+                unionfs_tear_down(abs_mount_dir)
+            project.builddir = project_builddir_bak
+            project.setup_derived_filenames()
+            return ret
+
+        return wrap_in_union_fs_func
+
+    return wrap_in_union_fs
+
+
+def store_config(func):
+    """ Decorator for storing the configuration in the project's builddir. """
+    from functools import wraps
+    from benchbuild.settings import CFG
+
+    @wraps(func)
+    def wrap_store_config(self, *args, **kwargs):
+        """ Wrapper that contains the actual storage call for the config. """
+        p = os.path.abspath(os.path.join(self.builddir))
+        CFG.store(os.path.join(p, ".benchbuild.json"))
+        return func(self, *args, **kwargs)
+
+    return wrap_store_config

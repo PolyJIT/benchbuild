@@ -7,35 +7,21 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 from plumbum import local
-from plumbum.cmd import bash, chmod, mkdir # pylint: disable=E0401
+from benchbuild.utils.cmd import bash, chmod, mkdir  # pylint: disable=E0401
+from benchbuild.utils.path import template_str
 from benchbuild.settings import CFG
 
 INFO = logging.info
 
+
 def __prepare_node_commands(experiment):
     """Get a list of bash commands that prepare the SLURM node."""
-    exp_id = CFG["experiment_id"].value()
     prefix = CFG["slurm"]["node_dir"].value()
     node_image = CFG["slurm"]["node_image"].value()
-    llvm_src = CFG["llvm"]["dir"].value().rstrip("/")
-    llvm_tgt = os.path.join(prefix, experiment).rstrip("/")
     lockfile = prefix + ".lock"
 
-    CFG["llvm"]["dir"] = llvm_tgt
-    lines = ("\n# Lock node dir preparation\n"
-             "exec 9> {lockfile}\n"
-             "flock -x 9 && {{\n"
-             "  if [ ! -d '{prefix}' ]; then\n"
-             "    echo \"$(date) [$(hostname)] copy LLVM to node\"\n"
-             "    mkdir -p '{prefix}'\n"
-             "    tar xaf '{node_image}' -C '{prefix}'\n"
-             "  fi\n"
-             "  rm '{lockfile}'\n"
-             "}}\n"
-             "exec 9>&-\n")
+    lines = template_str("templates/slurm-prepare-node.sh.inc")
     lines = lines.format(prefix=prefix,
-                         llvm_src=llvm_src,
-                         llvm_tgt=llvm_tgt,
                          lockfile=lockfile,
                          node_image=node_image)
 
@@ -43,41 +29,11 @@ def __prepare_node_commands(experiment):
 
 
 def __cleanup_node_commands(logfile):
-    exp_id = CFG["experiment_id"].value()
     prefix = CFG["slurm"]["node_dir"].value()
     lockfile = os.path.join(prefix + ".clean-in-progress.lock")
     slurm_account = CFG["slurm"]["account"]
     slurm_partition = CFG["slurm"]["partition"]
-    lines = ("\n# Cleanup the cluster node, after the array has finished.\n"
-             "file=$(mktemp -q) && {{\n"
-             "  cat << EOF > $file\n"
-             "#!/bin/sh\n"
-             "#SBATCH --nice={nice_clean}\n"
-             "#SBATCH -o /dev/null\n"
-             "exec 1>> {logfile}\n"
-             "exec 2>&1\n"
-             "echo \"\$(date) [\$(hostname)] node cleanup begin\"\n"
-             "rm -r \"{prefix}\"\n"
-             "rm \"{lockfile}\"\n"
-             "echo \"\$(date) [\$(hostname)] node cleanup end\"\n"
-             "EOF\n"
-             "  _inner_file=$(mktemp -q) && {{\n"
-             "    cat << EOF > $_inner_file\n"
-             "#!/bin/bash\n"
-             "if [ ! -f '{lockfile}' ]; then\n"
-             "  touch '{lockfile}'\n"
-             "  echo \"\$(date) [\$(hostname)] clean for \$(hostname)\"\n"
-             "  sbatch --time=\"15:00\" --job-name=\"\$(hostname)-cleanup\" -A {slurm_account} "
-             "-p {slurm_partition} "
-             "--dependency=afterany:$SLURM_ARRAY_JOB_ID "
-             "--nodelist=$SLURM_JOB_NODELIST -n 1 -c 1 \"$file\"\n"
-             "fi\n"
-             "EOF\n"
-             "  }}\n"
-             "  flock -x \"{lockdir}\" bash $_inner_file\n"
-             "  rm -f \"$file\"\n"
-             "  rm -f \"$_inner_file\"\n"
-             "}}\n")
+    lines = template_str("templates/slurm-cleanup-node.sh.inc")
     lines = lines.format(lockfile=lockfile,
                          lockdir=prefix,
                          prefix=prefix,
@@ -99,20 +55,19 @@ def __get_slurm_ld_library_path():
     benchbuild_path = CFG['ld_library_path'].value()
     return benchbuild_path + ':' + host_path
 
+
 def dump_slurm_script(script_name, benchbuild, experiment, projects):
     """
     Dump a bash script that can be given to SLURM.
 
     Args:
         script_name (str): name of the bash script.
-        commands (list(plumbum.cmd)): List of plumbum commands to write
-            to the bash script.
+        commands (list(benchbuild.utils.cmd)):
+            List of plumbum commands to write to the bash script.
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
     """
     log_path = os.path.join(CFG['slurm']['logs'].value())
-    slurm_path = __get_slurm_path()
-    slurm_ld = __get_slurm_ld_library_path()
     max_running_jobs = CFG['slurm']['max_running'].value()
     with open(script_name, 'w') as slurm:
         lines = """#!/bin/bash
@@ -133,7 +88,8 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write("#SBATCH --array=0-{0}".format(len(projects) - 1))
         slurm.write("%{0}\n".format(max_running_jobs) if max_running_jobs > 0
                     else '\n')
-        slurm.write("#SBATCH --nice={0}\n".format(CFG["slurm"]["nice"].value()))
+        slurm.write("#SBATCH --nice={0}\n".format(
+            CFG["slurm"]["nice"].value()))
 
         slurm.write("projects=(\n")
         for project in projects:
@@ -141,7 +97,8 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write(")\n")
         slurm.write("_project=\"${projects[$SLURM_ARRAY_TASK_ID]}\"\n")
         slurm_log_path = os.path.join(
-            os.path.dirname(CFG['slurm']['logs'].value()), '$_project')
+            os.path.dirname(CFG['slurm']['logs'].value()),
+            str(CFG['experiment_id'].value()) + '-$_project')
         slurm.write("exec 1> {log}\n".format(log=slurm_log_path))
         slurm.write("exec 2>&1\n")
 
@@ -152,16 +109,20 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write("export ")
         slurm.write(cfg_vars)
         slurm.write("\n")
-        slurm.write("export PATH={p}\n".format(p=slurm_path))
-        slurm.write("export LD_LIBRARY_PATH={p}\n".format(p=slurm_ld))
-        slurm.write("\n")
-        slurm.write("scontrol update JobId=$SLURM_JOB_ID ")
+        slurm.write("scontrol update JobId=${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID} ")
         slurm.write("JobName=\"{0} $_project\"\n".format(experiment))
         slurm.write("\n")
+        slurm.write("srun -c 1 hostname\n")
 
         # Write the experiment command.
+        extra_logs = CFG["slurm"]["extra_logs"].value()
         slurm.write(__cleanup_node_commands(slurm_log_path))
-        slurm.write(str(benchbuild["-P", "$_project", "-E", experiment]) + "\n")
+        slurm.write("srun -c 1 rm -f {0}\n".format(extra_logs))
+        slurm.write(
+            str(benchbuild["-P", "$_project", "-E", experiment]) + "\n")
+
+        # Append the polyjit log to the slurm log.
+        slurm.write("srun -c 1 cat {0}\n".format(extra_logs))
 
     bash("-n", script_name)
     chmod("+x", script_name)
@@ -169,7 +130,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
 
 def prepare_slurm_script(experiment, projects):
     """
-    Prepare a slurm script that executes the benchbuild experiment for a given project.
+    Prepare a slurm script that executes the experiment for a given project.
 
     Args:
         experiment: The experiment we want to execute
@@ -185,6 +146,8 @@ def prepare_slurm_script(experiment, projects):
     srun = local["srun"]
     if not CFG["slurm"]["multithread"].value():
         srun = srun["--hint=nomultithread"]
+    if not CFG["slurm"]["turbo"].value():
+        srun = srun["--pstate-turbo=off"]
     srun = srun[benchbuild_c["-v", "run"]]
     print("SLURM script written to {0}".format(slurm_script))
     dump_slurm_script(slurm_script, srun, experiment, projects)

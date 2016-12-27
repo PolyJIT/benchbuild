@@ -1,6 +1,7 @@
 """
-An benchbuild.experiment defines a series of phases that constitute a benchbuild
-compatible experiment. This is the default implementation of an experiment.
+An benchbuild.experiment defines a series of phases that constitute a
+benchbuild compatible experiment. This is the default implementation of an
+experiment.
 
 Clients can derive from class class::benchbuild.experiment.Experiment and
 override the methods relvant to their experiment.
@@ -185,8 +186,8 @@ def get_group_projects(group, experiment):
 
     Args:
         group (str): The group.
-        experiment (benchbuild.Experiment): The experiment we draw our projects to
-            filter from.
+        experiment (benchbuild.Experiment): The experiment we draw our projects
+            to filter from.
 
     Returns (list):
         A list of project names for the group that are supported by this

@@ -1,4 +1,4 @@
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
@@ -14,7 +14,7 @@ class SDCC(BenchBuildGroup):
     NAME = 'sdcc'
     DOMAIN = 'compilation'
     SRC_FILE = 'sdcc'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
 
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + SRC_FILE
 

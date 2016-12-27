@@ -2,7 +2,7 @@ from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap
 
 from plumbum import local
 from benchbuild.utils.cmd import tar, find, make

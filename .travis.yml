@@ -1,3 +1,5 @@
+sudo: false
+dist: trusty
 language: python
 python:
   - "3.4"
@@ -7,6 +9,8 @@ addons:
   apt:
     packages:
       - time
+      - unionfs-fuse
+      - libfuse-dev
 
 services:
   - postgresql
@@ -17,6 +21,7 @@ install:
 
 before_script:
   - psql -c 'create database pprof;' -U postgres
+  - benchbuild bootstrap
 
 script:
   - py.test benchbuild/
@@ -25,4 +30,3 @@ branches:
   only:
     - master
     - develop
-    - perf

@@ -625,10 +625,6 @@ CFG["uchroot"] = {
     "repo": {
         "default": "https://github.com/PolyJIT/erlent.git/",
         "desc": "GIT Repo URL for erlent."
-    },
-    "mounts": {
-        "default": [],
-        "desc": "Mount points that should be available inside uchroot."
     }
 }
 
@@ -716,11 +712,47 @@ CFG["container"] = {
                 "[{ 'path': <path>,"
                 "   'hash': <hash> }]"
     },
+    "images": {
+        "default": {
+            "gentoo": "gentoo.tar.bz2",
+            "ubuntu": "ubuntu.tar.bz2"
+        }
+    },
     "prefered": {
         "default": [],
         "desc": "List of containers of which the project can chose from."
                 "Format:"
                 "[{ 'path': <path> }]"
+    },
+    "strategy": {
+        "polyjit": {
+            "packages": {
+                "default": [
+                    {"name": "sys-devel/gcc:5.4.0", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "dev-db/postgresql:9.5", "env": {}},
+                    {"name": "dev-python/pip", "env": {}},
+                    {"name": "net-misc/curl", "env": {}},
+                    {"name": "sys-apps/likwid", "env": {
+                        "USE": "-filecaps",
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "dev-libs/libpfm", "env": {
+                        "USE": "static-libs"
+                    }},
+                    {"name": "sys-process/time", "env": {}},
+                    {"name": "=dev-util/boost-build-1.58.0", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "=dev-libs/boost-1.58.0-r1", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "dev-libs/libpqxx", "env": {}},
+                ],
+                "desc": "A list of gentoo package atoms that should be merged."
+            }
+        }
     }
 }
 

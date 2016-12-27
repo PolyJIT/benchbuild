@@ -1,4 +1,4 @@
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget

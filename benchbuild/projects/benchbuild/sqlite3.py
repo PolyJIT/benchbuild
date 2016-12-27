@@ -1,4 +1,4 @@
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.downloader import Wget, Git
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
@@ -19,7 +19,7 @@ class SQLite3(BenchBuildGroup):
 
     src_dir = "sqlite-amalgamation-3080900"
     SRC_FILE = src_dir + ".zip"
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
     src_uri = "http://www.sqlite.org/2015/" + SRC_FILE
 
     def download(self):

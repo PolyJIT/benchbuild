@@ -1,4 +1,4 @@
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang_cxx
 from benchbuild.utils.downloader import Git
@@ -18,7 +18,7 @@ class Lammps(BenchBuildGroup):
     NAME = 'lammps'
     DOMAIN = 'scientific'
     SRC_FILE = 'lammps.git'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
 
     def prepare(self):
         super(Lammps, self).prepare()

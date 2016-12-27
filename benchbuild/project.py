@@ -2,6 +2,7 @@
 Project handling for the benchbuild study.
 """
 import os
+import sys
 import warnings
 
 from os import path, listdir
@@ -12,11 +13,10 @@ from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.path import list_to_path, template_str
 from benchbuild.utils.run import in_builddir, unionfs, store_config
-from benchbuild.utils.container import get_base_dir
+from benchbuild.utils.versions import get_version_from_cache_dir
+from benchbuild.utils.container import Gentoo
+from benchbuild.utils.wrapping import wrap
 from functools import partial
-
-PROJECT_BIN_F_EXT = ".bin"
-PROJECT_BLOB_F_EXT = ".postproc"
 
 
 class ProjectRegistry(type):
@@ -30,6 +30,7 @@ class ProjectRegistry(type):
 
         if cls.NAME is not None and cls.DOMAIN is not None:
             ProjectRegistry.projects[cls.NAME] = cls
+
 
 class ProjectDecorator(ProjectRegistry):
     """
@@ -81,6 +82,7 @@ class Project(object, metaclass=ProjectDecorator):
     GROUP = None
     VERSION = None
     SRC_FILE = None
+    CONTAINER = Gentoo()
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -97,20 +99,21 @@ class Project(object, metaclass=ProjectDecorator):
             raise AttributeError(
                 "{0} @ {1} does not define a GROUP class attribute.".format(
                     cls.__name__, cls.__module__))
-        if cls.VERSION is None:
-            warnings.warn(
-                "{0} @ {1} does not define a VERSION class attribute.".format(
-                    cls.__name__, cls.__module__))
         if cls.SRC_FILE is None:
             warnings.warn(
                 "{0} @ {1} does not offer a source file yet.".format(
+                    cls.__name__, cls.__module__))
+        if cls.CONTAINER is None:
+            warnings.warn(
+                "{0} @ {1} does not offer a container yet.".format(
                     cls.__name__, cls.__module__))
 
         new_self.name = cls.NAME
         new_self.domain = cls.DOMAIN
         new_self.group = cls.GROUP
-        new_self.src_file = SRC_FILE
-        new_self.version = cls.VERSION
+        new_self.src_file = cls.SRC_FILE
+        new_self.version = lambda: get_version_from_cache_dir(cls.SRC_FILE)
+        new_self.container = cls.CONTAINER
         return new_self
 
     def __init__(self, exp, group=None):
@@ -126,7 +129,6 @@ class Project(object, metaclass=ProjectDecorator):
         self.group_name = group
         self.sourcedir = path.join(str(CFG["src_dir"]), self.name)
         self.builddir = path.join(str(CFG["build_dir"]), exp.name, self.name)
-        self.base_dir = get_base_dir()
         if group:
             self.testdir = path.join(
                 str(CFG["test_dir"]), self.domain, group, self.name)
@@ -144,7 +146,6 @@ class Project(object, metaclass=ProjectDecorator):
     def setup_derived_filenames(self):
         """ Construct all derived file names. """
         self.run_f = path.join(self.builddir, self.name)
-        self.bin_f = self.run_f + PROJECT_BIN_F_EXT
 
     def run_tests(self, experiment):
         """
@@ -173,16 +174,13 @@ class Project(object, metaclass=ProjectDecorator):
         from benchbuild.utils.run import GuardedRunException
         from benchbuild.utils.run import (begin_run_group, end_run_group,
                                           fail_run_group)
-
         CFG["experiment"] = self.experiment.name
         CFG["project"] = self.NAME
         CFG["domain"] = self.DOMAIN
         CFG["group"] = self.GROUP
         CFG["version"] = self.VERSION
-        CFG["src_uri"] = self.src_uri
         CFG["use_database"] = 1
         CFG["db"]["run_group"] = str(self.run_uuid)
-        CFG["unionfs"]["base_dir"] = self.base_dir
         with local.cwd(self.builddir):
             group, session = begin_run_group(self)
             try:
@@ -295,137 +293,3 @@ class Project(object, metaclass=ProjectDecorator):
     @abstractmethod
     def build(self):
         """ Build the project. """
-
-    def wrap_dynamic(self, name, runner, sprefix=None):
-        """
-        Wrap the binary :name with the function :runner.
-
-        This module generates a python tool :name: that can replace
-        a yet unspecified binary.
-        It behaves similar to the :wrap: function. However, the first
-        argument is the actual binary name.
-
-        Args:
-            name: name of the python module
-            runner: Function that should run the real binary
-            base_class: The base_class of our project.
-            base_module: The module of base_class.
-
-        Returns: plumbum command, readty to launch.
-
-        """
-        import dill
-
-        base_class = self.__class__.__name__
-        base_module = self.__module__
-
-        name_absolute = path.abspath(name)
-        blob_f = name_absolute + PROJECT_BLOB_F_EXT
-        with open(blob_f, 'wb') as blob:
-            blob.write(dill.dumps(runner))
-
-        bin_path = list_to_path(CFG["env"]["binary_path"].value())
-        bin_path = list_to_path([bin_path, os.environ["PATH"]])
-
-        bin_lib_path = list_to_path(CFG["env"]["binary_ld_library_path"].value(
-        ))
-        bin_lib_path = list_to_path([bin_lib_path, os.environ[
-            "LD_LIBRARY_PATH"]])
-
-        with open(name_absolute, 'w') as wrapper:
-            lines = template_str("templates/run_dynamic.py.inc")
-            lines = lines.format(
-                db_host=str(CFG["db"]["host"]),
-                db_port=str(CFG["db"]["port"]),
-                db_name=str(CFG["db"]["name"]),
-                db_user=str(CFG["db"]["user"]),
-                db_pass=str(CFG["db"]["pass"]),
-                path=bin_path,
-                ld_lib_path=bin_lib_path,
-                blobf=strip_path_prefix(blob_f, sprefix),
-                base_class=base_class,
-                base_module=base_module)
-            wrapper.write(lines)
-        chmod("+x", name_absolute)
-        return local[name_absolute]
-
-
-def strip_path_prefix(ipath, prefix):
-    """
-    Strip prefix from path.
-
-    Args:
-        ipath: input path
-        prefix: the prefix to remove, if it is found in :ipath:
-
-    Examples:
-        >>> from benchbuild.project import strip_path_prefix
-        >>> strip_path_prefix("/foo/bar", "/bar")
-        '/foo/bar'
-        >>> strip_path_prefix("/foo/bar", "/")
-        'foo/bar'
-        >>> strip_path_prefix("/foo/bar", "/foo")
-        '/bar'
-        >>> strip_path_prefix("/foo/bar", "None")
-        '/foo/bar'
-
-    """
-    if prefix is None:
-        return ipath
-
-    return ipath[len(prefix):] if ipath.startswith(prefix) else ipath
-
-
-def wrap(name, runner, sprefix=None):
-    """ Wrap the binary :name: with the function :runner:.
-
-    This module generates a python tool that replaces :name:
-    The function in runner only accepts the replaced binaries
-    name as argument. We use the cloudpickle package to
-    perform the serialization, make sure :runner: can be serialized
-    with it and you're fine.
-
-    Args:
-        name: Binary we want to wrap
-        runner: Function that should run instead of :name:
-
-    Returns:
-        A plumbum command, ready to launch.
-    """
-    import dill
-    from benchbuild.utils.run import run
-
-    name_absolute = path.abspath(name)
-    real_f = name_absolute + PROJECT_BIN_F_EXT
-    if sprefix:
-        from benchbuild.utils.run import uchroot_no_llvm as uchroot
-        run(uchroot()["/bin/mv", strip_path_prefix(name_absolute, sprefix),
-                      strip_path_prefix(real_f, sprefix)])
-    else:
-        run(mv[name_absolute, real_f])
-
-    blob_f = name_absolute + PROJECT_BLOB_F_EXT
-    with open(blob_f, 'wb') as blob:
-        dill.dump(runner, blob, protocol=-1, recurse=True)
-
-    bin_path = list_to_path(CFG["env"]["binary_path"].value())
-    bin_path = list_to_path([bin_path, os.environ["PATH"]])
-
-    bin_lib_path = list_to_path(CFG["env"]["binary_ld_library_path"].value())
-    bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
-
-    with open(name_absolute, 'w') as wrapper:
-        lines = template_str("templates/run_static.py.inc")
-        lines = lines.format(
-            db_host=str(CFG["db"]["host"]),
-            db_port=str(CFG["db"]["port"]),
-            db_name=str(CFG["db"]["name"]),
-            db_user=str(CFG["db"]["user"]),
-            db_pass=str(CFG["db"]["pass"]),
-            path=bin_path,
-            ld_lib_path=bin_lib_path,
-            blobf=strip_path_prefix(blob_f, sprefix),
-            runf=strip_path_prefix(real_f, sprefix))
-        wrapper.write(lines)
-    run(chmod["+x", name_absolute])
-    return local[name_absolute]

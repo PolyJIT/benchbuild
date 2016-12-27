@@ -100,7 +100,7 @@ def linux_distribution_major():
     if not platform.system() == 'Linux':
         return None
 
-    return platform.linux_distribution())
+    return platform.linux_distribution()
 
 
 def install_package(pkg_name):

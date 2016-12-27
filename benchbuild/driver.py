@@ -12,25 +12,7 @@ class PollyProfiling(cli.Application):
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
 
-    @cli.switch(["--list-env"],
-                help="List all available environment variables and exit.")
-    def list_env(self):
-        self._list_env = True
-
-    def do_list_env(self):
-        """List config metadata."""
-        for setting in settings.config_metadata:
-            if "env" in setting:
-                print(("{env}\t-\t{desc}".format(env=setting["env"],
-                                                 desc=setting["desc"] if "desc"
-                                                 in setting else '')))
-
     def main(self, *args):
-        if self._list_env:
-            # List environment variables and exit.
-            self.do_list_env()
-            return
-
         self.verbosity = self.verbosity if self.verbosity < 4 else 3
         settings.CFG["verbosity"] = self.verbosity
 
@@ -42,8 +24,7 @@ class PollyProfiling(cli.Application):
             print("Unknown command {0!r}".format(args[0]))
             return 1
         if not self.nested_command:
-            print("No command given")
-            return 1
+            self.help()
 
 
 def main(*args):

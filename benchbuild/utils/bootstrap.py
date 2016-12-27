@@ -22,32 +22,32 @@ def find_package(binary):
 
 PACKAGES = {
     "unionfs": {
-        "Gentoo Base System": ["sys-fs/unionfs-fuse"],
-        "Ubuntu": ["unionfs-fuse"],
-        "Debian": ["unionfs-fuse"]
+        "gentoo base system": ["sys-fs/unionfs-fuse"],
+        "ubuntu": ["unionfs-fuse"],
+        "debian": ["unionfs-fuse"]
     },
     "postgres": {
-        "Gentoo Base System": ["dev-db/postgres", "dev-libs/libpqxx"],
-        "Ubuntu": ["libpq-dev", "libpqxx-dev"],
-        "Debian": ["libpq-dev", "libpqxx-dev"]
+        "gentoo base system": ["dev-db/postgres", "dev-libs/libpqxx"],
+        "ubuntu": ["libpq-dev", "libpqxx-dev"],
+        "debian": ["libpq-dev", "libpqxx-dev"]
     },
     "fusermount": {
-        "Gentoo Base System": ["sys-fs/fuse"],
-        "Ubuntu": ["fuse"],
-        "Debian": ["fuse"]
+        "gentoo base system": ["sys-fs/fuse"],
+        "ubuntu": ["fuse"],
+        "debian": ["fuse"]
     }
 }
 
 PACKAGE_MANAGER = {
-    "Gentoo Base System": {
+    "gentoo base system": {
         "cmd": "emerge",
         "args": ["-a"]
     },
-    "Ubuntu": {
+    "ubuntu": {
         "cmd": "apt-get",
         "args": ["install"]
     },
-    "Debian": {
+    "debian": {
         "cmd": "apt-get",
         "args": ["install"]
     }
@@ -100,7 +100,7 @@ def linux_distribution_major():
     if not platform.system() == 'Linux':
         return None
 
-    return platform.linux_distribution()
+    return str(platform.linux_distribution()).lower()
 
 
 def install_package(pkg_name):

@@ -20,7 +20,6 @@ def strip_path_prefix(ipath, prefix):
         prefix: the prefix to remove, if it is found in :ipath:
 
     Examples:
-        >>> from benchbuild.project import strip_path_prefix
         >>> strip_path_prefix("/foo/bar", "/bar")
         '/foo/bar'
         >>> strip_path_prefix("/foo/bar", "/")

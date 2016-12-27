@@ -175,7 +175,7 @@ class Configuration():
                     else:
                         log = logging.getLogger('benchbuild')
                         log.warn(warnings.formatwarning(
-                            "Key {} is not part of the default config, "
+                            "Key '{}' is not part of the default config, "
                             "ignoring.".format(k),
                             category=InvalidConfigKey, filename=str(__file__),
                             lineno=180))

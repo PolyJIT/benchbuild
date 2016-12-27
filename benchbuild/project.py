@@ -103,6 +103,7 @@ class Project(object, metaclass=ProjectDecorator):
             warnings.warn(
                 "{0} @ {1} does not offer a source file yet.".format(
                     cls.__name__, cls.__module__))
+            cls.SRC_FILE = "<not-set>"
         if cls.CONTAINER is None:
             warnings.warn(
                 "{0} @ {1} does not offer a container yet.".format(

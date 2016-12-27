@@ -11,7 +11,7 @@ extra_files = [
 
 setup(
     name='benchbuild',
-    version='1.3.0',
+    version='1.3.1',
     url='https://github.com/PolyJIT/benchbuild',
     packages=find_packages(exclude=["docs", "extern", "filters", "linker",
                                     "src", "statistics", "tests", "results"]),

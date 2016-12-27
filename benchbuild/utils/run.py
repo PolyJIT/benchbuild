@@ -1,5 +1,6 @@
 """Experiment helpers."""
 import os
+from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
 from benchbuild.utils.path import list_to_path
 from contextlib import contextmanager
@@ -382,6 +383,39 @@ def uchroot_env(mounts):
     paths.extend(["/usr/bin", "/bin", "/usr/sbin", "/sbin"])
     return paths, ld_libs
 
+def with_env_recursive(cmd, **envvars):
+    """
+    Recursively updates the environment of cmd and all its subcommands.
+
+    Args:
+        cmd - A plumbum command-like object
+        **envvars - The environment variables to update
+
+    Returns:
+        The updated command.
+    """
+    from plumbum.commands.base import BoundCommand, BoundEnvCommand
+    from plumbum.machines.local import LocalCommand
+    if isinstance(cmd, BoundCommand):
+        cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
+    elif isinstance(cmd, BoundEnvCommand):
+        cmd.envvars.update(envvars)
+        cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
+    return cmd
+
+def uchroot_with_mounts(*args, **kwargs):
+    """
+    Return a uchroot command with all mounts enabled.
+    """
+    uchroot_cmd = uchroot_no_args(*args, **kwargs)
+    uchroot_cmd, mounts = _uchroot_mounts("mnt",
+        CFG["container"]["mounts"].value(), uchroot_cmd)
+    paths, libs = uchroot_env(mounts)
+
+    uchroot_cmd = with_env_recursive(uchroot_cmd,
+            LD_LIBRARY_PATH=list_to_path(libs),
+            PATH=list_to_path(paths))
+    return uchroot_cmd
 
 def uchroot(*args, **kwargs):
     """
@@ -392,11 +426,10 @@ def uchroot(*args, **kwargs):
     Return:
         chroot_cmd
     """
-    from benchbuild.settings import CFG
     mkdir("-p", "llvm")
     uchroot_cmd = uchroot_no_llvm(*args, **kwargs)
     uchroot_cmd, mounts = _uchroot_mounts(
-        "mnt", CFG["uchroot"]["mounts"].value(), uchroot_cmd)
+        "mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
     uchroot_cmd = uchroot_cmd.with_env(
             LD_LIBRARY_PATH=list_to_path(libs),
@@ -540,8 +573,8 @@ def unionfs(base_dir='./base',
             Builds up the mount, transfers the function and returns the
             unionfs after tearing down the mount again.
             """
-            abs_base_dir = os.path.abspath(os.path.join(project.builddir,
-                                                        base_dir))
+            container = project.container
+            abs_base_dir = os.path.abspath(container.local)
             nonlocal image_prefix
             if image_prefix is not None:
                 image_prefix = os.path.abspath(image_prefix)

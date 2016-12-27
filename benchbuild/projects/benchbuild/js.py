@@ -1,5 +1,5 @@
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git

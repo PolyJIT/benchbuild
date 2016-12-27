@@ -53,11 +53,9 @@ class PolyBenchGroup(Project):
             self.name)
         self.setup_derived_filenames()
 
-
     src_dir = "polybench-c-{0}".format(VERSION)
-    src_file = src_dir + ".tar.gz"
-    src_uri = "http://downloads.sourceforge.net/project/polybench/" + src_file
-
+    SRC_FILE = src_dir + ".tar.gz"
+    src_uri = "http://downloads.sourceforge.net/project/polybench/" + SRC_FILE
 
     def download(self):
         Wget(self.src_uri, self.src_file)

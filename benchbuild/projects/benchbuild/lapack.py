@@ -1,4 +1,4 @@
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
@@ -16,7 +16,7 @@ class OpenBlas(BenchBuildGroup):
     NAME = 'openblas'
     DOMAIN = 'scientific'
     SRC_FILE = 'OpenBLAS'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+
 
     src_uri = "https://github.com/xianyi/" + SRC_FILE
 

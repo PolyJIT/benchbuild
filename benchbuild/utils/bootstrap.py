@@ -22,25 +22,32 @@ def find_package(binary):
 
 PACKAGES = {
     "unionfs": {
-        "Gentoo Base System": ["sys-fs/unionfs-fuse"],
-        "Ubuntu": ["unionfs-fuse"]
+        "gentoo base system": ["sys-fs/unionfs-fuse"],
+        "ubuntu": ["unionfs-fuse"],
+        "debian": ["unionfs-fuse"]
     },
     "postgres": {
-        "Gentoo Base System": ["dev-db/postgres", "dev-libs/libpqxx"],
-        "Ubuntu": ["libpq-dev", "libpqxx-dev"]
+        "gentoo base system": ["dev-db/postgres", "dev-libs/libpqxx"],
+        "ubuntu": ["libpq-dev", "libpqxx-dev"],
+        "debian": ["libpq-dev", "libpqxx-dev"]
     },
     "fusermount": {
-        "Gentoo Base System": ["sys-fs/fuse"],
-        "Ubuntu": ["fuse"]
+        "gentoo base system": ["sys-fs/fuse"],
+        "ubuntu": ["fuse"],
+        "debian": ["fuse"]
     }
 }
 
 PACKAGE_MANAGER = {
-    "Gentoo Base System": {
+    "gentoo base system": {
         "cmd": "emerge",
         "args": ["-a"]
     },
-    "Ubuntu": {
+    "ubuntu": {
+        "cmd": "apt-get",
+        "args": ["install"]
+    },
+    "debian": {
         "cmd": "apt-get",
         "args": ["install"]
     }
@@ -100,7 +107,7 @@ def install_package(pkg_name):
     if pkg_name not in PACKAGES:
         print("No bootstrap support for package '{0}'".format(pkg_name))
     linux, _, _ = linux_distribution_major()
-    pm = PACKAGE_MANAGER[linux]
+    pm = PACKAGE_MANAGER[str(linux).lower()]
     packages = PACKAGES[pkg_name][linux]
     for pkg_name_on_host in packages:
         print("You are missing the package: '{0}'".format(pkg_name_on_host))

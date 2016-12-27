@@ -4,7 +4,7 @@ postgresql experiment within gentoo chroot.
 from os import path
 from time import sleep
 from psutil import Process
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.run import run, uchroot
 from plumbum import local

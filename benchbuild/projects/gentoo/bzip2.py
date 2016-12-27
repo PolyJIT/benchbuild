@@ -3,7 +3,7 @@ bzip2 experiment within gentoo chroot.
 """
 from os import path
 
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot

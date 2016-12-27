@@ -1,4 +1,4 @@
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git
@@ -15,7 +15,7 @@ class LevelDB(BenchBuildGroup):
     NAME = 'leveldb'
     DOMAIN = 'database'
     SRC_FILE = 'leveldb.src'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+
 
     src_uri = "https://github.com/google/leveldb"
 

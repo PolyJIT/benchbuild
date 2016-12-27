@@ -1,4 +1,4 @@
-from benchbuild.project import wrap
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang
@@ -18,7 +18,7 @@ class X264(BenchBuildGroup):
     NAME = "x264"
     DOMAIN = "multimedia"
     SRC_FILE = 'x264.git'
-    VERSION = get_version_from_cache_dir(SRC_FILE)
+    
 
     inputfiles = {"tbbt-small.y4m": [],
                   "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}

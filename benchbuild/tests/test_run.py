@@ -23,9 +23,14 @@ class TestShadow(unittest.TestCase):
         inside = None
         true = cmd.true
         mkdir = cmd.mkdir
-        with shadow_commands("true"):
-            inside = cmd.mkdir
+
+        class test_class(object):
+            @shadow_commands("true")
+            def shadow_hook(self):
+                return cmd.mkdir
+
         outside = cmd.mkdir
+        inside = test_class().shadow_hook()
         self.assertEqual(inside.formulate(), true.formulate(),
                          msg="true (before) is not the same as true (inside)")
         self.assertNotEqual(mkdir.formulate(), inside.formulate(),

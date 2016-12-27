@@ -100,14 +100,14 @@ def linux_distribution_major():
     if not platform.system() == 'Linux':
         return None
 
-    return str(platform.linux_distribution()).lower()
+    return platform.linux_distribution())
 
 
 def install_package(pkg_name):
     if pkg_name not in PACKAGES:
         print("No bootstrap support for package '{0}'".format(pkg_name))
     linux, _, _ = linux_distribution_major()
-    pm = PACKAGE_MANAGER[linux]
+    pm = PACKAGE_MANAGER[str(linux).lower()]
     packages = PACKAGES[pkg_name][linux]
     for pkg_name_on_host in packages:
         print("You are missing the package: '{0}'".format(pkg_name_on_host))

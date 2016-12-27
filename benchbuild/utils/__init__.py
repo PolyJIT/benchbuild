@@ -8,6 +8,8 @@ class CommandAlias(ModuleType):
     """ Module-hack, adapted from plumbum. """
     __all__ = ()
     __package__ = __name__
+    __overrides__ = {}
+    __override_all__ = None
 
     def __getattr__(self, command):
         """ Proxy getter for plumbum commands."""
@@ -20,6 +22,10 @@ class CommandAlias(ModuleType):
 
         log = logging.getLogger("benchbuild")
         check = [command]
+
+        if command in self.__overrides__:
+            check = self.__overrides__[command]
+
         if command in __ALIASES__:
             check = __ALIASES__[command]
 
@@ -28,6 +34,9 @@ class CommandAlias(ModuleType):
 
         libs_path = path_to_list(getenv("LD_LIBRARY_PATH", default=""))
         libs_path = CFG["env"]["binary_ld_library_path"].value() + libs_path
+
+        if self.__override_all__ is not None:
+            check = [self.__override_all__]
 
         for alias_command in check:
             try:
@@ -39,6 +48,9 @@ class CommandAlias(ModuleType):
             except AttributeError:
                 pass
         raise AttributeError(command)
+
+    def __getitem__(self, command):
+        return self.__getattr__(command)
 
     __path__ = []
     __file__ = __file__

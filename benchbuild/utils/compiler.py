@@ -89,10 +89,10 @@ def lt_clang(cflags, ldflags, func=None):
     Returns (benchbuild.utils.cmd):
         Path to the new clang command.
     """
-    from plumbum import local
+    from benchbuild.utils import cmd
 
     wrap_cc("clang", cflags, ldflags, clang, func)
-    return local["./clang"]
+    return cmd["./clang"]
 
 
 def lt_clang_cxx(cflags, ldflags, func=None):

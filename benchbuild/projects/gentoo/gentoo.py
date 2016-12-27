@@ -138,6 +138,7 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
                             uchroot_mounts("mnt",
                                 CFG["container"]["mounts"].value()))
                 UCHROOT_CFG = CFG
+                UCHROOT_CFG["plugins"]["projects"] = []
                 UCHROOT_CFG["env"]["compiler_path"] = paths
                 UCHROOT_CFG["env"]["compiler_ld_library_path"] = libs
 

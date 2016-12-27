@@ -8,7 +8,7 @@ See the output of benchbuild run --help for more information.
 import os
 import sys
 from plumbum import cli
-from plumbum.cmd import mkdir  # pylint: disable=E0401
+from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import Experiment
 from benchbuild.utils import user_interface as ui
@@ -46,7 +46,8 @@ class BenchBuildRun(cli.Application):
     def projects(self, projects):
         self._project_names = projects
 
-    @cli.switch(["-L", "--list-experiments"], help="List available experiments")
+    @cli.switch(["-L", "--list-experiments"],
+                help="List available experiments")
     def list_experiments(self):
         self._list_experiments = True
 
@@ -61,8 +62,8 @@ class BenchBuildRun(cli.Application):
                            default=False)
 
     store_config = cli.Flag(["-s", "--save-config"],
-                           help="Save benchbuild's configuration.",
-                           default=False)
+                            help="Save benchbuild's configuration.",
+                            default=False)
 
     @cli.switch(["-G", "--group"],
                 str,
@@ -71,7 +72,7 @@ class BenchBuildRun(cli.Application):
     def group(self, group):
         self._group_name = group
 
-    pretend = cli.Flag(['p', 'pretend'], default = False)
+    pretend = cli.Flag(['p', 'pretend'], default=False)
 
     def main(self):
         """Main entry point of benchbuild run."""
@@ -115,7 +116,8 @@ class BenchBuildRun(cli.Application):
                 if sys.stdin.isatty():
                     response = ui.query_yes_no(
                         "The build directory {dirname} does not exist yet."
-                        "Should I create it?".format(dirname=builddir), "no")
+                        "Should I create it?".format(dirname=builddir),
+                        "no")
 
                 if response:
                     mkdir("-p", builddir)
@@ -157,10 +159,10 @@ def print_projects(exp):
     for name in projects:
         prj = projects[name]
 
-        if prj.group_name not in grouped_by:
-            grouped_by[prj.group_name] = []
+        if prj.GROUP not in grouped_by:
+            grouped_by[prj.GROUP] = []
 
-        grouped_by[prj.group_name].append(name)
+        grouped_by[prj.GROUP].append(name)
 
     for name in grouped_by:
         from textwrap import wrap

@@ -1,7 +1,10 @@
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from os import path
+from benchbuild.utils.run import run
+
 from plumbum import FG, local
-from plumbum.cmd import cp, echo, chmod
+from benchbuild.utils.cmd import cp, echo, chmod
+
+from os import path
 
 
 class Postgres(BenchBuildGroup):
@@ -20,8 +23,6 @@ class Postgres(BenchBuildGroup):
             cp("-a", test_f, self.builddir)
 
     def run_tests(self, experiment):
-        from benchbuild.utils.run import run
-
         exp = experiment(self.run_f)
 
         pg_ctl = local[path.join(self.builddir, "pg_ctl")]
@@ -32,8 +33,8 @@ class Postgres(BenchBuildGroup):
         bin_name = path.join(self.builddir, self.name + ".sh")
         test_data = path.join(self.testdir, "test-data")
 
-        (echo["#!/bin/sh"] >> bin_name) & FG
-        (echo[str(exp)] >> bin_name) & FG
+        (echo["#!/bin/sh"] >> bin_name)()
+        (echo[str(exp)] >> bin_name)()
         chmod("+x", bin_name)
 
         num_clients = 1

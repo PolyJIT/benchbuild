@@ -1,14 +1,18 @@
 from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.downloader import Wget
+from benchbuild.utils.run import run
+
+from benchbuild.utils.cmd import tar, cp
 
 from os import path
-from plumbum import local
 
 
 class PolyBenchGroup(Project):
     DOMAIN = 'polybench'
     GROUP = 'polybench'
-
+    VERSION = '4.2'
     path_dict = {
         "correlation": "datamining",
         "covariance": "datamining",
@@ -44,40 +48,32 @@ class PolyBenchGroup(Project):
 
     def __init__(self, exp):
         super(PolyBenchGroup, self).__init__(exp, "polybench")
-        self.sourcedir = path.join(str(CFG["src_dir"]), "polybench",
-                                   self.path_dict[self.name], self.name)
+        self.sourcedir = path.join(
+            str(CFG["src_dir"]), "polybench", self.path_dict[self.name],
+            self.name)
         self.setup_derived_filenames()
 
-    src_dir = "polybench-c-4.1"
-    src_file = src_dir + ".tar.gz"
-    src_uri = "http://downloads.sourceforge.net/project/polybench/" + src_file
+    src_dir = "polybench-c-{0}".format(VERSION)
+    SRC_FILE = src_dir + ".tar.gz"
+    src_uri = "http://downloads.sourceforge.net/project/polybench/" + SRC_FILE
 
     def download(self):
-        from benchbuild.utils.downloader import Wget
-        from plumbum.cmd import tar
-        with local.cwd(self.builddir):
-            Wget(self.src_uri, self.src_file)
-            tar('xfz', path.join(self.builddir, self.src_file))
+        Wget(self.src_uri, self.src_file)
+        tar('xfz', path.join(self.builddir, self.src_file))
 
     def configure(self):
-        from plumbum.cmd import cp
-        with local.cwd(self.builddir):
-            cp("-ar", path.join(self.src_dir, self.path_dict[self.name],
-                                self.name), self.name + ".dir")
-            cp("-ar", path.join(self.src_dir, "utilities"), ".")
+        cp("-ar", path.join(self.src_dir, self.path_dict[self.name],
+                            self.name), self.name + ".dir")
+        cp("-ar", path.join(self.src_dir, "utilities"), ".")
 
     def build(self):
-        from benchbuild.utils.compiler import lt_clang
-        from benchbuild.utils.run import run
-
         src_file = path.join(self.name + ".dir", self.name + ".c")
-        with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-            run(clang["-I", "utilities", "-I", self.name,
-                      "-DPOLYBENCH_USE_C99_PROTO", "-DEXTRALARGE_DATASET",
-                      "utilities/polybench.c", src_file, "-lm", "-o",
-                      self.run_f])
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        run(clang["-I", "utilities", "-I", self.name,
+                  "-DPOLYBENCH_USE_C99_PROTO",
+                  "-DEXTRALARGE_DATASET",
+                  "-DPOLYBENCH_USE_RESTRICT",
+                  "utilities/polybench.c", src_file, "-lm", "-o", self.run_f])
 
 # Datamining
 

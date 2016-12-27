@@ -18,7 +18,6 @@ Measurements
 
 from benchbuild.experiment import step, RuntimeExperiment
 from benchbuild.settings import CFG
-from os import path
 
 
 class PollyVectorizer(RuntimeExperiment):
@@ -29,7 +28,7 @@ class PollyVectorizer(RuntimeExperiment):
     def run_project(self, p):
         from uuid import uuid4
         from benchbuild.experiments.raw import run_with_time
-        from benchbuild.utils.run import partial
+        from functools import partial
 
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                     "-mllvm", "-polly", "-mllvm",

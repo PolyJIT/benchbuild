@@ -1,7 +1,11 @@
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.utils.wrapping import wrap
+from benchbuild.utils.run import run
+from benchbuild.utils.downloader import Wget
+from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from os import path
 from plumbum import local
-from plumbum.cmd import ln
+from benchbuild.utils.cmd import ln, tar, make
 
 
 class Ccrypt(BenchBuildGroup):
@@ -9,57 +13,37 @@ class Ccrypt(BenchBuildGroup):
 
     NAME = 'ccrypt'
     DOMAIN = 'encryption'
+    VERSION = '1.10'
+    SRC_FILE = 'ccrypt-{0}.tar.gz'.format(VERSION)
 
-    check_f = "check"
-
-    def prepare(self):
-        super(Ccrypt, self).prepare()
-        check_f = path.join(self.testdir, self.check_f)
-        ln("-s", check_f, path.join(self.builddir, self.check_f))
-
-    src_dir = "ccrypt-1.10"
-    src_file = "ccrypt-1.10.tar.gz"
-    src_uri = "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
+    src_dir = "ccrypt-{0}".format(VERSION)
+    src_uri = "http://ccrypt.sourceforge.net/download/ccrypt-{0}.tar.gz".format(VERSION)
 
     def download(self):
-        from benchbuild.utils.downloader import Wget
-        from plumbum.cmd import tar
-
-        with local.cwd(self.builddir):
-            Wget(self.src_uri, self.src_file)
-            tar('xfz', path.join(self.builddir, self.src_file))
+        Wget(self.src_uri, self.SRC_FILE)
+        tar('xfz', path.join(self.builddir, self.SRC_FILE))
 
     def configure(self):
-        from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-        from benchbuild.utils.run import run
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                 self.compiler_extension)
 
-        with local.cwd(self.builddir):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                     self.compiler_extension)
-
-        ccrypt_dir = path.join(self.builddir, self.src_dir)
+        ccrypt_dir = path.join('.', self.src_dir)
         with local.cwd(ccrypt_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang),
                            CXX=str(clang_cxx),
+                           CFLAGS=" ".join(self.cflags),
+                           CXXFLAGS=" ".join(self.cflags),
                            LDFLAGS=" ".join(self.ldflags)):
                 run(configure)
 
     def build(self):
-        from plumbum.cmd import make
-        from benchbuild.utils.run import run
-
-        ccrypt_dir = path.join(self.builddir, self.src_dir)
+        ccrypt_dir = path.join('.', self.src_dir)
         with local.cwd(ccrypt_dir):
             run(make["check"])
 
     def run_tests(self, experiment):
-        from plumbum.cmd import make
-        from benchbuild.project import wrap
-        from benchbuild.utils.run import run
-
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
             wrap(path.join(ccrypt_dir, "src", self.name), experiment)

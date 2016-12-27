@@ -17,18 +17,18 @@ Measurements
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
 
-import os
 import re
 import uuid
 import warnings
 
-from benchbuild.utils.run import partial
+from functools import partial
 from benchbuild.experiment import step, RuntimeExperiment
 from benchbuild.settings import CFG
 
+
 class ShouldNotBeNone(RuntimeWarning):
     """User warning, if config var is null."""
-    pass
+
 
 class PollyPerformance(RuntimeExperiment):
     """ The polly performance experiment. """

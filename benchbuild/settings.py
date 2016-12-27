@@ -10,6 +10,7 @@ import uuid
 import re
 import warnings
 import logging
+import copy
 from datetime import datetime
 from plumbum import local
 
@@ -70,8 +71,6 @@ def available_cpu_count():
 class InvalidConfigKey(RuntimeWarning):
     """Warn, if you access a non-existing key benchbuild's configuration."""
 
-    pass
-
 
 class UUIDEncoder(json.JSONEncoder):
     """Encoder module for UUID objects."""
@@ -111,10 +110,10 @@ class Configuration():
     """
     Dictionary-like data structure to contain all configuration variables.
 
-    This serves as a configuration dictionary throughout benchbuild. You can use
-    it to access all configuration options that are available. Whenever the
-    structure is updated with a new subtree, all variables defined in the
-    new subtree are updated from the environment.
+    This serves as a configuration dictionary throughout benchbuild. You can
+    use it to access all configuration options that are available. Whenever the
+    structure is updated with a new subtree, all variables defined in the new
+    subtree are updated from the environment.
 
     Environment variables are generated from the tree paths automatically.
         CFG["build_dir"] becomes BB_BUILD_DIR
@@ -141,10 +140,29 @@ class Configuration():
         if init:
             self.init_from_env()
 
+    def filter_exports(self):
+        if self.has_default():
+            do_export = True
+            if "export" in self.node:
+                do_export = self.node["export"]
+
+            if not do_export:
+                self.parent.node.pop(self.parent_key)
+        else:
+            selfcopy = copy.deepcopy(self)
+            for k in self.node:
+                if selfcopy[k].is_leaf():
+                    selfcopy[k].filter_exports()
+            self = selfcopy
+
     def store(self, config_file):
         """ Store the configuration dictionary to a file."""
+
+        selfcopy = copy.deepcopy(self)
+        selfcopy.filter_exports()
+
         with open(config_file, 'w') as outf:
-            json.dump(self.node, outf, cls=UUIDEncoder, indent=True)
+            json.dump(selfcopy.node, outf, cls=UUIDEncoder, indent=True)
 
     def load(self, _from):
         """Load the configuration dictionary from file."""
@@ -155,11 +173,12 @@ class Configuration():
                     if k in inode:
                         load_rec(inode[k], config[k])
                     else:
-                        warnings.warn(
+                        log = logging.getLogger('benchbuild')
+                        log.warn(warnings.formatwarning(
                             "Key {} is not part of the default config, "
                             "ignoring.".format(k),
-                            category=InvalidConfigKey,
-                            stacklevel=2)
+                            category=InvalidConfigKey, filename=str(__file__),
+                            lineno=180))
                 else:
                     inode[k] = config[k]
 
@@ -167,6 +186,15 @@ class Configuration():
             with open(_from, 'r') as inf:
                 load_rec(self.node, json.load(inf))
                 self['config_file'] = os.path.abspath(_from)
+
+    def has_value(self):
+        return isinstance(self.node, dict) and 'value' in self.node
+
+    def has_default(self):
+        return isinstance(self.node, dict) and 'default' in self.node
+
+    def is_leaf(self):
+        return self.has_value() or self.has_default()
 
     def init_from_env(self):
         """
@@ -180,7 +208,7 @@ class Configuration():
 
         if 'default' in self.node:
             env_var = self.__to_env_var__().upper()
-            if 'value' in self.node:
+            if self.has_value():
                 env_val = os.getenv(env_var, self.node['value'])
             else:
                 env_val = os.getenv(env_var, self.node['default'])
@@ -229,7 +257,7 @@ class Configuration():
             return self
 
     def __getitem__(self, key):
-        if not key in self.node:
+        if key not in self.node:
             warnings.warn(
                 "Access to non-existing config element: {0}".format(key),
                 category=InvalidConfigKey,
@@ -259,10 +287,10 @@ class Configuration():
 
     def __repr__(self):
         _repr = []
-        if 'value' in self.node:
+        if self.has_value():
             return self.__to_env_var__() + "=" + escape_json(json.dumps(
                 self.node['value']))
-        if 'default' in self.node:
+        if self.has_default():
             return self.__to_env_var__() + "=" + escape_json(json.dumps(
                 self.node['default']))
 
@@ -277,13 +305,33 @@ class Configuration():
                 self.parent.__to_env_var__() + "_" + self.parent_key).upper()
         return self.parent_key.upper()
 
+
+def to_env_dict(config):
+    """Convert configuration object to a flat dictionary."""
+    entries = {}
+    if config.has_value():
+        return {config.__to_env_var__(): config.node['value']}
+    if config.has_default():
+        return {config.__to_env_var__(): config.node['default']}
+
+    for k in config.node:
+        entries.update(to_env_dict(config[k]))
+
+    return entries
+
+
 # Initialize the global configuration once.
 CFG = Configuration(
     "bb",
     node={
         "version": {
             "desc": "Version Number",
-            "default": "1.2.1"
+            "default": "1.3.0-$Id$",
+            "export": False
+        },
+        "verbosity": {
+            "desc": "The verbosity level of the logger. Range: 0-4",
+            "default": 0
         },
         "config_file": {
             "desc": "Config file path of benchbuild. Not guaranteed to exist.",
@@ -326,24 +374,22 @@ CFG = Configuration(
         },
         "experiment_id": {
             "desc":
-            "The experiment UUID we run everything under. This groups the project "
-            "runs in the database.",
-            "default": str(uuid.uuid4())
+            "The experiment UUID we run everything under."
+            "This groups the project runs in the database.",
+            "default": str(uuid.uuid4()),
+            "export": False
         },
         "experiment": {
             "desc": "The experiment name we run everything under.",
             "default": "empty"
-        },
-        "local_build": {
-            "desc": "Perform a local build on the cluster nodes.",
-            "default": False
         },
         "clean": {
             "default": True,
             "desc": "Clean temporary objects, after completion.",
         },
         "experiment_description": {
-            "default": str(datetime.now())
+            "default": str(datetime.now()),
+            "export": False
         },
         "regression_prefix": {
             "default": os.path.join("/", "tmp", "benchbuild-regressions")
@@ -354,31 +400,61 @@ CFG = Configuration(
         "benchbuild_ebuild": {
             "default": ""
         },
-        "mail": {
-            "desc": "E-Mail address dedicated to benchbuild.",
-            "default": None
+        "cleanup_paths": {
+            "default": [],
+            "desc":
+            "List of existing paths that benchbuild should delete in addition "
+            "to the default cleanup steps.",
+            "export": False
+        },
+        "use_database": {
+            "desc": "LEGACY: Store results from libpprof in the database.",
+            "default": 1
         }
     })
+
+CFG["unionfs"] = {
+    "enable": {
+        "default": True,
+        "desc": "Wrap all project operations in a unionfs filesystem."
+    },
+    "base_dir": {
+        "default": './base',
+        "desc": 'Path of the unpacked container.'
+    },
+    "image": {
+        "default": './image',
+        "desc": 'Name of the image directory'
+    },
+    "image_prefix": {
+        "default": None,
+        "desc": "Prefix for the unionfs image directory."
+    }
+}
 
 CFG["env"] = {
     "compiler_ld_library_path": {
         "desc":
-        "List of paths to be added to the LD_LIBRARY_PATH variable of all compiler invocations.",
+        "List of paths to be added to the LD_LIBRARY_PATH variable of all "
+        "compiler invocations.",
         "default": []
     },
     "compiler_path": {
         "desc":
-        "List of paths to be added to all PATH variable of all compiler invocations.",
+        "List of paths to be added to all PATH variable of all compiler "
+        "invocations.",
         "default": []
     },
     "binary_ld_library_path": {
         "desc":
-        "List of paths to be added to the LD_LIBRARY_PATH variable of all binary invocations.",
+        "List of paths to be added to the LD_LIBRARY_PATH variable of all "
+        "binary invocations.",
         "default": []
     },
     "binary_path": {
         "desc":
-        "List of paths to be added to the PATH variable of all binary invocations.",
+        "List of paths to be added to the PATH variable of all binary"
+        "invocations.",
         "default": []
     },
     "lookup_path": {
@@ -398,52 +474,6 @@ CFG["llvm"] = {
     },
     "src": {
         "default": os.path.join(os.getcwd(), "benchbuild-llvm")
-    },
-}
-
-CFG["papi"] = {
-    "include": {
-        "desc": "libpapi include path.",
-        "default": "/usr/include"
-    },
-    "library": {
-        "desc": "libpapi library path.",
-        "default": "/usr/lib"
-    }
-}
-
-CFG["likwid"] = {
-    "prefix": {
-        "desc": "Prefix to which the likwid library was installed.",
-        "default": "/usr/"
-    },
-}
-
-CFG["repo"] = {
-    "llvm": {
-        "url": {"default": "http://llvm.org/git/llvm.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "polly": {
-        "url": {"default": "http://github.com/simbuerg/polly.git"},
-        "branch": {"default": "devel"},
-        "commit_hash": {"default": None}
-    },
-    "clang": {
-        "url": {"default": "http://llvm.org/git/clang.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "polli": {
-        "url": {"default": "http://github.com/simbuerg/polli.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
-    },
-    "openmp": {
-        "url": {"default": "http://llvm.org/git/openmp.git"},
-        "branch": {"default": "master"},
-        "commit_hash": {"default": None}
     },
 }
 
@@ -467,7 +497,8 @@ CFG['db'] = {
     },
     "pass": {
         "desc":
-        "The password for the PostgreSQL user used to connect to the database with.",
+        "The password for the PostgreSQL user used to connect to the database "
+        "with.",
         "default": "benchbuild"
     },
     "rollback": {
@@ -515,12 +546,14 @@ CFG["slurm"] = {
     },
     "script": {
         "desc":
-        "Name of the script that can be passed to SLURM. Used by external tools.",
+        "Name of the script that can be passed to SLURM. Used by external "
+        "tools.",
         "default": "slurm.sh"
     },
     "cpus_per_task": {
         "desc":
-        "Number of CPUs that should be requested from SLURM. Used by external tools.",
+        "Number of CPUs that should be requested from SLURM. Used by external "
+        "tools.",
         "default": 10
     },
     "node_dir": {
@@ -542,6 +575,10 @@ CFG["slurm"] = {
         "desc": "Hint SLURM to allow multithreading. (--hint=nomultithread)",
         "default": False
     },
+    "turbo": {
+        "desc": "Disable Intel Turbo Boost via SLURM. (--pstate-turbo=off)",
+        "default": False
+    },
     "logs": {
         "desc": "Location the SLURM logs will be stored",
         "default": "slurm.log"
@@ -561,6 +598,10 @@ CFG["slurm"] = {
     "node_image": {
         "desc": "Path to the archive we want on each cluster node.",
         "default": os.path.join(os.path.curdir, "llvm.tar.gz")
+    },
+    "extra_log": {
+        "desc": "Extra log file to be managed by SLURM",
+        "default": "/tmp/.slurm"
     }
 }
 
@@ -583,9 +624,9 @@ CFG["cs"] = {
 }
 
 CFG["uchroot"] = {
-    "path": {
-        "default": os.path.join(CFG["src_dir"].value(), "./bin/uchroot"),
-        "desc": "Path to the uchroot binary."
+    "repo": {
+        "default": "https://github.com/PolyJIT/erlent.git/",
+        "desc": "GIT Repo URL for erlent."
     }
 }
 
@@ -593,6 +634,12 @@ CFG["plugins"] = {
     "autoload": {
         "default": True,
         "desc": "Should automatic load of plugins be enabled?"
+    },
+    "reports": {
+        "default": [
+            "benchbuild.reports.raw"
+        ],
+        "desc": "Report plugins."
     },
     "experiments": {
         "default": [
@@ -637,6 +684,8 @@ CFG["plugins"] = {
             "benchbuild.projects.benchbuild.tcc",
             "benchbuild.projects.benchbuild.x264",
             "benchbuild.projects.benchbuild.xz",
+            "benchbuild.projects.apollo.scimark",
+            "benchbuild.projects.apollo.rodinia"
         ],
         "desc": "The project plugins we know about."
     }
@@ -653,11 +702,59 @@ CFG["container"] = {
     },
     "mounts": {
         "default": [],
-        "desc": "List of paths that should be mounted inside the container."
+        "desc": "List of paths that will be mounted inside the container."
     },
     "shell": {
         "default": "/bin/bash",
         "desc": "Command string that should be used as shell command."
+    },
+    "known": {
+        "default": [],
+        "desc": "List of known containers. Format: "
+                "[{ 'path': <path>,"
+                "   'hash': <hash> }]"
+    },
+    "images": {
+        "default": {
+            "gentoo": "gentoo.tar.bz2",
+            "ubuntu": "ubuntu.tar.bz2"
+        }
+    },
+    "prefered": {
+        "default": [],
+        "desc": "List of containers of which the project can chose from."
+                "Format:"
+                "[{ 'path': <path> }]"
+    },
+    "strategy": {
+        "polyjit": {
+            "packages": {
+                "default": [
+                    {"name": "sys-devel/gcc:5.4.0", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "dev-db/postgresql:9.5", "env": {}},
+                    {"name": "dev-python/pip", "env": {}},
+                    {"name": "net-misc/curl", "env": {}},
+                    {"name": "sys-apps/likwid", "env": {
+                        "USE": "-filecaps",
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "dev-libs/libpfm", "env": {
+                        "USE": "static-libs"
+                    }},
+                    {"name": "sys-process/time", "env": {}},
+                    {"name": "=dev-util/boost-build-1.58.0", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "=dev-libs/boost-1.58.0-r1", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "dev-libs/libpqxx", "env": {}},
+                ],
+                "desc": "A list of gentoo package atoms that should be merged."
+            }
+        }
     }
 }
 
@@ -705,19 +802,24 @@ def __init_config(cfg):
 
     if config_path:
         cfg.load(config_path)
+        cfg["config_file"] = os.path.abspath(config_path)
         logging.debug("Configuration loaded from {0}".format(os.path.abspath(
             config_path)))
     cfg.init_from_env()
 
+
 def update_env():
     lookup_path = CFG["env"]["lookup_path"].value()
     lookup_path = os.path.pathsep.join(lookup_path)
-    lookup_path = os.path.pathsep.join([lookup_path, os.environ["PATH"]])
+    if "PATH" in os.environ:
+        lookup_path = os.path.pathsep.join([lookup_path, os.environ["PATH"]])
     os.environ["PATH"] = lookup_path
 
     lib_path = CFG["env"]["lookup_ld_library_path"].value()
     lib_path = os.path.pathsep.join(lib_path)
-    lib_path = os.path.pathsep.join([lib_path, os.environ["LD_LIBRARY_PATH"]])
+    if "LD_LIBRARY_PATH" in os.environ:
+        lib_path = os.path.pathsep.join([lib_path,
+                                        os.environ["LD_LIBRARY_PATH"]])
     os.environ["LD_LIBRARY_PATH"] = lib_path
 
     # Update local's env property because we changed the environment

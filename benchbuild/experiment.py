@@ -1,9 +1,10 @@
 """
-An benchbuild.experiment defines a series of phases that constitute a benchbuild
-compatible experiment. This is the default implementation of an experiment.
+An benchbuild.experiment defines a series of phases that constitute a
+benchbuild compatible experiment. This is the default implementation of an
+experiment.
 
-Clients can derive from class class::benchbuild.experiment.Experiment and override
-the methods relvant to their experiment.
+Clients can derive from class class::benchbuild.experiment.Experiment and
+override the methods relvant to their experiment.
 
 An experiment can have a variable number of phases / steps / substeps.
 
@@ -25,23 +26,19 @@ An experiment performs the following actions in order:
         This to perform all your experiment needs.
 
 """
-import warnings
-import logging
-import traceback as tb
 from contextlib import contextmanager
 from abc import abstractmethod
-from os import path, listdir
+from os import path
 import regex
 
 from plumbum import local
-from plumbum.cmd import mkdir, rmdir  # pylint: disable=E0401
 from plumbum.commands.processes import ProcessExecutionError
 
 from benchbuild import projects
 from benchbuild.project import ProjectRegistry
 from benchbuild.utils.run import GuardedRunException
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import Step, Clean, MakeBuildDir, RequireAll
+from benchbuild.utils.actions import CleanExtra, Clean, MakeBuildDir, RequireAll
 
 
 def newline(ostream):
@@ -109,7 +106,7 @@ def phase(name, pname="FIXME: Unset", cleaner=None):
     """
     phase.name = name
 
-    from logging import error, info
+    from logging import error
 
     main_msg = "PHASE '{0}' {1}".format(name, pname)
     print(main_msg + " START")
@@ -145,7 +142,6 @@ def step(name):
     Args:
         name (str): The name of the step
     """
-    from logging import info
     step.name = name
 
     main_msg = "    STEP '{0}'".format(name)
@@ -169,7 +165,7 @@ def substep(name):
         name (str): The name of the substep
     """
     substep.name = name
-    from logging import info, error
+    from logging import error
     main_msg = "        SUBSTEP '{0}'".format(name)
 
     print(main_msg + " START")
@@ -190,8 +186,8 @@ def get_group_projects(group, experiment):
 
     Args:
         group (str): The group.
-        experiment (benchbuild.Experiment): The experiment we draw our projects to
-            filter from.
+        experiment (benchbuild.Experiment): The experiment we draw our projects
+            to filter from.
 
     Returns (list):
         A list of project names for the group that are supported by this
@@ -284,12 +280,10 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
         if projects_to_filter is None:
             projects_to_filter = []
-        prjs = {x: prjs[x]
-                    for x in prjs
-                    if prjs[x].DOMAIN != "debug" or x in projects_to_filter
-                    }
 
-        self.projects = {k: prjs[k](self) for k in prjs}
+        self.projects = {
+            x: prjs[x] for x in prjs
+            if prjs[x].DOMAIN != "debug" or x in projects_to_filter}
 
     @abstractmethod
     def actions_for_project(self, project):
@@ -299,21 +293,18 @@ class Experiment(object, metaclass=ExperimentRegistry):
         Args:
             project (benchbuild.Project): the project we want to run.
         """
-        pass
-
 
     def actions(self):
-        actns = [
-            Clean(self),
-            MakeBuildDir(self)
-        ]
+        actns = [Clean(self), MakeBuildDir(self)]
 
         for project in self.projects:
-            p = self.projects[project]
+            p = self.projects[project](self)
             actns.append(RequireAll(self.actions_for_project(p)))
 
-        actns.append(Clean(self))
+        actns.append(Clean(self, check_empty=True))
+        actns.append(CleanExtra(self))
         return actns
+
 
 class RuntimeExperiment(Experiment):
     """ Additional runtime only features for experiments. """
@@ -325,13 +316,11 @@ class RuntimeExperiment(Experiment):
         Args:
             project (Project):
                 Unused (deprecated).
-            calibrate_call (plumbum.cmd):
+            calibrate_call (benchbuild.utils.cmd):
                 The calibration command we will use.
         """
         with local.cwd(self.builddir):
-            with local.env(BB_USE_DATABASE=0,
-                           BB_USE_CSV=0,
-                           BB_USE_FILE=0):
+            with local.env(BB_USE_DATABASE=0, BB_USE_CSV=0, BB_USE_FILE=0):
                 calib_out = calibrate_call()
 
         calib_pattern = regex.compile(
@@ -349,7 +338,7 @@ class RuntimeExperiment(Experiment):
         Args:
             project (benchbuild.Project):
                 The calibration values will be assigned to this project.
-            cmd (plumbum.cmd):
+            cmd (benchbuild.utils.cmd):
                 The command we used to generate the calibration values.
             calibration (int):
                 The calibration time in nanoseconds.

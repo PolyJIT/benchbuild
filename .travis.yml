@@ -1,3 +1,4 @@
+sudo: false
 language: python
 python:
   - "3.4"
@@ -8,6 +9,9 @@ addons:
     packages:
       - time
       - unionfs-fuse
+      - clang
+
+compiler: clang
 
 services:
   - postgresql
@@ -15,6 +19,7 @@ services:
 install:
   - pip install .
   - pip install -r requirements.txt
+  - if [ "$CXX" = "g++" ]; then export CXX="clang++" CC="clang"; fi
 
 before_script:
   - psql -c 'create database pprof;' -U postgres

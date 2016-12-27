@@ -2,7 +2,6 @@
 
 from os import path
 from plumbum import local
-from benchbuild.utils.cmd import git
 from benchbuild.settings import CFG
 from benchbuild.utils.downloader import get_hash_of_dirs
 
@@ -45,6 +44,7 @@ def get_git_hash(from_url):
     Returns:
         git commit hash of HEAD, or empty string.
     """
+    from benchbuild.utils.cmd import git
     if from_url is None:
         return ""
 
@@ -53,12 +53,3 @@ def get_git_hash(from_url):
 
     with local.cwd(from_url):
         return git("rev-parse", "HEAD", retcode=None)
-
-
-LLVM_VERSION = get_git_hash(str(CFG["llvm"]["src"]))
-CLANG_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools",
-                                       "clang"))
-POLLY_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools",
-                                       "polly"))
-POLLI_VERSION = get_git_hash(path.join(str(CFG["llvm"]["src"]), "tools",
-                                       "polly", "tools", "polli"))

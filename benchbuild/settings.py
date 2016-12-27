@@ -326,7 +326,8 @@ CFG = Configuration(
     node={
         "version": {
             "desc": "Version Number",
-            "default": "1.2.1"
+            "default": "1.3.0-$Id$",
+            "export": False
         },
         "verbosity": {
             "desc": "The verbosity level of the logger. Range: 0-4",
@@ -403,7 +404,8 @@ CFG = Configuration(
             "default": [],
             "desc":
             "List of existing paths that benchbuild should delete in addition "
-            "to the default cleanup steps."
+            "to the default cleanup steps.",
+            "export": False
         },
         "use_database": {
             "desc": "LEGACY: Store results from libpprof in the database.",

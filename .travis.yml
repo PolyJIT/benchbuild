@@ -10,6 +10,7 @@ addons:
     packages:
       - time
       - unionfs-fuse
+      - libfuse-dev
 
 services:
   - postgresql

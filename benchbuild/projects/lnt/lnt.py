@@ -7,6 +7,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, CopyNoFail
 from benchbuild.utils.run import run
+from benchbuild.utils.wrapping import wrap_dynamic
 
 from plumbum import local
 from benchbuild.utils.cmd import virtualenv
@@ -21,6 +22,7 @@ class LNTGroup(Project):
     DOMAIN = 'lnt'
     GROUP = 'lnt'
     VERSION = '9.0.1.13'
+
     def __init__(self, exp):
         super(LNTGroup, self).__init__(exp, "lnt")
 
@@ -52,7 +54,7 @@ class SingleSourceBenchmarks(LNTGroup):
     NAME = 'SingleSourceBenchmarks'
 
     def run_tests(self, experiment):
-        exp = self.wrap_dynamic("lnt_runner", experiment)
+        exp = wrap_dynamic(self, "lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
@@ -71,7 +73,7 @@ class MultiSourceBenchmarks(LNTGroup):
     NAME = 'MultiSourceBenchmarks'
 
     def run_tests(self, experiment):
-        exp = self.wrap_dynamic("lnt_runner", experiment)
+        exp = wrap_dynamic("lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
@@ -90,7 +92,7 @@ class MultiSourceApplications(LNTGroup):
     NAME = 'MultiSourceApplications'
 
     def run_tests(self, experiment):
-        exp = self.wrap_dynamic("lnt_runner", experiment)
+        exp = wrap_dynamic(self, "lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
@@ -118,7 +120,7 @@ class SPEC2006(LNTGroup):
             print('======================================================')
 
     def run_tests(self, experiment):
-        exp = self.wrap_dynamic("lnt_runner", experiment)
+        exp = wrap_dynamic(self, "lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 
@@ -145,7 +147,7 @@ class Povray(LNTGroup):
         Git(self.povray_url, self.povray_src_dir)
 
     def run_tests(self, experiment):
-        exp = self.wrap_dynamic("lnt_runner", experiment)
+        exp = wrap_dynamic(self, "lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 

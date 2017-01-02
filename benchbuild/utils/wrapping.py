@@ -114,6 +114,7 @@ def wrap_dynamic(self, name, runner, sprefix=None, **template_vars):
 
     name_absolute = os.path.abspath(name)
     blob_f = name_absolute + PROJECT_BLOB_F_EXT
+    real_f = name_absolute + PROJECT_BIN_F_EXT
     with open(blob_f, 'wb') as blob:
         blob.write(dill.dumps(runner))
 
@@ -210,8 +211,10 @@ def wrap_cc(filepath, cflags, ldflags, compiler, extension,
         wrapper.write(lines)
         chmod("+x", filepath)
 
+
 def wrap_in_uchroot(name, runner, sprefix=None):
     wrap(name, runner, sprefix, python="/usr/bin/env python3")
+
 
 def wrap_dynamic_in_uchroot(self, name, runner, sprefix=None):
     wrap_dynamic(self, name, runner, sprefix, python="/usr/bin/env python3")

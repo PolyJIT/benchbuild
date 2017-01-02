@@ -391,6 +391,38 @@ class PolyJITFull(PolyJIT):
         return [Any(actns)]
 
 
+class PJIT_Test(PolyJIT):
+    """
+        An experiment that executes all projects with PolyJIT support.
+
+        This is our default experiment for speedup measurements.
+    """
+
+    NAME = "pj-test"
+
+    def actions_for_project(self, p):
+        from benchbuild.settings import CFG
+
+        p = self.init_project(p)
+
+        actns = []
+        p.run_uuid = uuid.uuid4()
+        jobs = CFG["jobs"]
+        p.cflags += ["-mllvm", "-polly-num-threads={0}".format(jobs)]
+        p.runtime_extension = partial(run_with_time, p, self, CFG, jobs)
+
+        actns.extend([
+            MakeBuildDir(p),
+            Prepare(p),
+            Download(p),
+            Configure(p),
+            Build(p),
+            Run(p),
+            Clean(p)
+        ])
+        return actns
+
+
 class PJITRaw(PolyJIT):
     """
         An experiment that executes all projects with PolyJIT support.

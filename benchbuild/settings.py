@@ -11,6 +11,7 @@ import re
 import warnings
 import logging
 import copy
+
 from datetime import datetime
 from plumbum import local
 
@@ -168,6 +169,7 @@ class Configuration():
         """Load the configuration dictionary from file."""
 
         def load_rec(inode, config):
+            """Recursive part of loading."""
             for k in config:
                 if isinstance(config[k], dict):
                     if k in inode:
@@ -188,12 +190,15 @@ class Configuration():
                 self['config_file'] = os.path.abspath(_from)
 
     def has_value(self):
+        """Check, if the node contains a 'value'."""
         return isinstance(self.node, dict) and 'value' in self.node
 
     def has_default(self):
+        """Check, if the node contains a 'default' value."""
         return isinstance(self.node, dict) and 'default' in self.node
 
     def is_leaf(self):
+        """Check, if the node is a 'leaf' node."""
         return self.has_value() or self.has_default()
 
     def init_from_env(self):

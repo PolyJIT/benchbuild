@@ -4,19 +4,20 @@ The 'polyjit' experiment.
 This experiment uses likwid to measure the performance of all binaries
 when running with polyjit support enabled.
 """
-from abc import abstractmethod
-from os import path
 import copy
 import uuid
-
-from benchbuild.utils.cmd import rm, time  # pylint: disable=E0401
-from plumbum import local
-from benchbuild.experiments.compilestats import collect_compilestats
-from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download,
-                                      Configure, Clean, MakeBuildDir, Run,
-                                      Echo, Any)
-from benchbuild.experiment import RuntimeExperiment
+from abc import abstractmethod
 from functools import partial
+from os import path
+
+from plumbum import local
+
+from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiments.compilestats import collect_compilestats
+from benchbuild.utils.actions import (Any, Build, Clean, Configure, Download,
+                                      Echo, MakeBuildDir, Prepare, RequireAll,
+                                      Run)
+from benchbuild.utils.cmd import rm, time  # pylint: disable=E0401
 
 
 def run_raw(project, experiment, config, run_f, args, **kwargs):
@@ -158,7 +159,7 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec, handle_stdin, fetch_time_output
+    from benchbuild.utils.run import guarded_exec, fetch_time_output
     from benchbuild.settings import CFG as c
     from benchbuild.utils.db import persist_time, persist_config
 
@@ -209,7 +210,7 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec, handle_stdin, fetch_time_output
+    from benchbuild.utils.run import guarded_exec, fetch_time_output
     from benchbuild.settings import CFG as c
     from benchbuild.utils.db import persist_time, persist_config
 

@@ -181,6 +181,10 @@ class Configuration():
                             "ignoring.".format(k),
                             category=InvalidConfigKey, filename=str(__file__),
                             lineno=180))
+                        log.warn(warnings.formatwarning(
+                            "Offending node: '{}'".format(repr(config)),
+                            category=InvalidConfigKey, filename=str(__file__),
+                            lineno=180))
                 else:
                     inode[k] = config[k]
 

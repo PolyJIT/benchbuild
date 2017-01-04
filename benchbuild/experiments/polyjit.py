@@ -84,9 +84,9 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
         with guarded_exec(run_cmd, project, experiment) as run:
-            ri = run()
+            run_info = run()
 
-    persist_config(ri.db_run, ri.session,
+    persist_config(run_info.db_run, run_info.session,
                    {"cores": str(jobs)})
 
 

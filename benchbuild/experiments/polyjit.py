@@ -409,7 +409,7 @@ class PJIT_Test(PolyJIT):
 
         actns = []
         p.run_uuid = uuid.uuid4()
-        jobs = CFG["jobs"]
+        jobs = int(CFG["jobs"].value())
         p.cflags += ["-mllvm", "-polly-num-threads={0}".format(jobs)]
         p.runtime_extension = partial(run_with_time, p, self, CFG, jobs)
 

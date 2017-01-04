@@ -171,7 +171,7 @@ class Configuration():
         def load_rec(inode, config):
             """Recursive part of loading."""
             for k in config:
-                if isinstance(config[k], dict):
+                if isinstance(config[k], dict) and k not in ['value', 'default']:
                     if k in inode:
                         load_rec(inode[k], config[k])
                     else:

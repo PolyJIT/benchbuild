@@ -290,7 +290,8 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
 class PolyJIT(RuntimeExperiment):
     """The polyjit experiment."""
 
-    def init_project(self, project):
+    @classmethod
+    def init_project(cls, project):
         """
         Execute the benchbuild experiment.
 
@@ -350,7 +351,7 @@ class PolyJITFull(PolyJIT):
         ]))
 
         jitp = copy.deepcopy(p)
-        jitp = self.init_project(jitp)
+        jitp = PolyJIT.init_project(jitp)
         norecomp = copy.deepcopy(jitp)
         norecomp.cflags += ["-mllvm", "-no-recompilation"]
 
@@ -403,7 +404,7 @@ class PJIT_Test(PolyJIT):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
 
         actns = []
         p.run_uuid = uuid.uuid4()
@@ -435,7 +436,7 @@ class PJITRaw(PolyJIT):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
 
         actns = []
         for i in range(2, int(str(CFG["jobs"])) + 1):
@@ -468,7 +469,7 @@ class PJITperf(PolyJIT):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
 
         actns = []
         for i in range(1, int(str(CFG["jobs"])) + 1):
@@ -505,7 +506,7 @@ class PJITlikwid(PolyJIT):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
         p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
 
         actns = []
@@ -557,7 +558,7 @@ class PJITRegression(PolyJIT):
             with guarded_exec(clang, project, experiment) as run:
                 run()
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
         p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
         p.compiler_extension = partial(_track_compilestats, p, self, CFG)
 
@@ -581,7 +582,7 @@ class Compilestats(PolyJIT):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
         p.compiler_extension = partial(collect_compilestats, p, self, CFG)
 
         actns = [
@@ -627,7 +628,7 @@ class PJITpapi(PolyJIT):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
         p.cflags = ["-mllvm", "-instrument"] + p.cflags
         p.ldflags = p.ldflags + ["-lbenchbuild"]
 

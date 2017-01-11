@@ -4,9 +4,14 @@ benchbuild.projects.polybench package
 Submodules
 ----------
 
-.. toctree::
+benchbuild.projects.polybench.polybench module
+----------------------------------------------
 
-   benchbuild.projects.polybench.polybench
+.. automodule:: benchbuild.projects.polybench.polybench
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

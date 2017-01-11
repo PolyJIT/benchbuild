@@ -33,7 +33,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.doctest',
-    'sphinxcontrib.napoleon',
+    'sphinx.ext.napoleon',
     'sphinx.ext.todo',
 ]
 
@@ -43,7 +43,7 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = '.md'
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'benchbuild'
-copyright = u'2015, Andreas Simbuerger'
+copyright = u'2015-2017, Andreas Simbuerger'
 author = u'Andreas Simbuerger'
 
 # The version info for the project you're documenting, acts as replacement for

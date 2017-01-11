@@ -1,6 +1,11 @@
 benchbuild.projects.gentoo package
 ==================================
 
+.. automodule:: benchbuild.projects.gentoo
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -109,10 +114,3 @@ benchbuild.projects.gentoo.xz module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: benchbuild.projects.gentoo
-    :members:
-    :undoc-members:
-    :show-inheritance:

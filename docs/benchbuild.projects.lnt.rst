@@ -1,6 +1,11 @@
 benchbuild.projects.lnt package
 ===============================
 
+.. automodule:: benchbuild.projects.lnt
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -13,10 +18,3 @@ benchbuild.projects.lnt.lnt module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: benchbuild.projects.lnt
-    :members:
-    :undoc-members:
-    :show-inheritance:

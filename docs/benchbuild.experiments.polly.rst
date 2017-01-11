@@ -1,6 +1,11 @@
 benchbuild.experiments.polly package
 ====================================
 
+.. automodule:: benchbuild.experiments.polly
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -45,10 +50,3 @@ benchbuild.experiments.polly.vectorize module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: benchbuild.experiments.polly
-    :members:
-    :undoc-members:
-    :show-inheritance:

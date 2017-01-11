@@ -1,6 +1,11 @@
 benchbuild.projects.benchbuild package
 ======================================
 
+.. automodule:: benchbuild.projects.benchbuild
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -229,10 +234,3 @@ benchbuild.projects.benchbuild.xz module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: benchbuild.projects.benchbuild
-    :members:
-    :undoc-members:
-    :show-inheritance:

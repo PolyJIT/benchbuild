@@ -5,7 +5,7 @@ from plumbum import cli
 
 
 class PollyProfiling(cli.Application):
-    """ Frontend for running/building the benchbuild study framework """
+    """Frontend for running/building the benchbuild study framework."""
 
     VERSION = settings.CFG["version"].value()
     _list_env = False

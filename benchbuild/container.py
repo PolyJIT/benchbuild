@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from plumbum import cli, local, TF, FG, ProcessExecutionError
 from benchbuild.utils.cmd import tar, mkdir, mv, rm, bash, cp
 from benchbuild.settings import CFG, update_env
@@ -20,8 +18,7 @@ import os
 
 
 def clean_directories(builddir, in_dir=True, out_dir=True):
-    """Removes the in and out of the container if confirmed by the user."""
-
+    """Remove the in and out of the container if confirmed by the user."""
     with local.cwd(builddir):
         if in_dir and os.path.exists("container-in") and ask(
                 "Should I delete '{0}'?".format(os.path.abspath(
@@ -34,11 +31,7 @@ def clean_directories(builddir, in_dir=True, out_dir=True):
 
 
 def setup_directories(builddir):
-    """
-    Creates the in and out directories of the container
-    if they do not exist yet.
-    """
-
+    """Create the in and out directories of the container."""
     with local.cwd(builddir):
         if not os.path.exists("container-in"):
             mkdir("-p", "container-in")
@@ -47,8 +40,7 @@ def setup_directories(builddir):
 
 
 def setup_container(builddir, container):
-    """Prepares the container and returns the path where it can be found."""
-
+    """Prepare the container and returns the path where it can be found."""
     with local.cwd(builddir):
         container_filename = str(container).split(os.path.sep)[-1]
         container_in = os.path.join("container-in", container_filename)
@@ -81,10 +73,11 @@ def setup_container(builddir, container):
 
 def run_in_container(command, container_dir, mounts):
     """
+    Run a given command inside a container.
+
     Mounts a directory as a container at the given mountpoint and tries to run
     the given command inside the new container.
     """
-
     with local.cwd(container_dir):
         uchroot = uchroot_with_mounts()
         uchroot = uchroot["-E", "-A", "-u", "0", "-g", "0", "-C", "-w",
@@ -125,10 +118,11 @@ def pack_container(in_container, out_file):
 
 def setup_bash_in_container(builddir, container, outfile, mounts, shell):
     """
+    Setup a bash environment inside a container.
+
     Creates a new chroot, which the user can use as a bash to run the wanted
     projects inside the mounted container, that also gets returned afterwards.
     """
-
     with local.cwd(builddir):
         # Switch to bash inside uchroot
         print("Entering bash inside User-Chroot. Prepare your image and "
@@ -157,7 +151,7 @@ def find_hash(container_db, key):
 
 
 def set_input_container(container, cfg):
-    """Saves the input for the container in the configurations."""
+    """Save the input for the container in the configurations."""
     if not container:
         return False
     if os.path.exists(container):
@@ -173,6 +167,7 @@ class MockObj(object):
 
 class ContainerStrategy(object):
     """Interfaces for the different containers chosen by the experiment."""
+
     @abstractmethod
     def run(self, context):
         pass
@@ -194,7 +189,6 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
 
     def write_wgetrc(self, path):
         """Wget the project from a specified link."""
-
         mkfile_uchroot("/etc/wgetrc")
 
         with open(path, 'w') as wgetrc:
@@ -212,8 +206,7 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
                 wgetrc.write(fp_s + "\n")
 
     def write_makeconfig(self, path):
-        """Creates the stringed to be written in the settings."""
-
+        """Create the stringed to be written in the settings."""
         mkfile_uchroot("/etc/portage/make.conf")
         with open(path, 'w') as makeconf:
             lines = '''
@@ -249,7 +242,7 @@ PKGDIR="${PORTDIR}/packages"
                 makeconf.write(rp_s + "\n")
 
     def write_bashrc(self, path):
-        """Writes inside a bash and update the shell if necessary."""
+        """Write inside a bash and update the shell if necessary."""
         mkfile_uchroot("/etc/portage/bashrc")
         paths, libs = uchroot_env(
                 uchroot_mounts("mnt", CFG["container"]["mounts"].value()))
@@ -262,7 +255,7 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
             bashrc.write(lines)
 
     def write_layout(self, path):
-        """Creates a layout from the given path."""
+        """Create a layout from the given path."""
         mkdir_uchroot("/etc/portage/metadata")
         mkfile_uchroot("/etc/portage/metadata/layout.conf")
         with open(path, 'w') as layoutconf:
@@ -282,28 +275,25 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
         config_file = CFG["config_file"].value()
 
         if os.path.exists(str(config_file)):
-            with open("log.file", 'w') as outf:
-                paths, libs = \
-                        uchroot_env(
-                            uchroot_mounts("mnt",
-                                           CFG["container"]["mounts"].value()))
-                UCHROOT_CFG = CFG
-                UCHROOT_CFG["env"]["compiler_path"] = paths
-                UCHROOT_CFG["env"]["compiler_ld_library_path"] = libs
+            paths, libs = \
+                    uchroot_env(
+                        uchroot_mounts("mnt",
+                                       CFG["container"]["mounts"].value()))
+            uchroot_cfg = CFG
+            uchroot_cfg["env"]["compiler_path"] = paths
+            uchroot_cfg["env"]["compiler_ld_library_path"] = libs
 
-                UCHROOT_CFG["env"]["binary_path"] = paths
-                UCHROOT_CFG["env"]["binary_ld_library_path"] = libs
+            uchroot_cfg["env"]["binary_path"] = paths
+            uchroot_cfg["env"]["binary_ld_library_path"] = libs
 
-                UCHROOT_CFG["env"]["lookup_path"] = paths
-                UCHROOT_CFG["env"]["lookup_ld_library_path"] = libs
+            uchroot_cfg["env"]["lookup_path"] = paths
+            uchroot_cfg["env"]["lookup_ld_library_path"] = libs
 
-                mkfile_uchroot("/.benchbuild.json")
-                UCHROOT_CFG.store(".benchbuild.json")
+            mkfile_uchroot("/.benchbuild.json")
+            uchroot_cfg.store(".benchbuild.json")
 
     def run(self, context):
-        """
-        Setup a gentoo container suitable for PolyJIT.
-        """
+        """Setup a gentoo container suitable for PolyJIT."""
         # Don't do something when running non-interactive.
         if not sys.stdout.isatty():
             return
@@ -313,7 +303,6 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
             sed_in_chroot = uchroot()["/bin/sed"]
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
             has_pkg = uchroot()["/usr/bin/qlist", "-I"]
-            emerge_boost = uchroot(uid=501, gid=10)["/usr/bin/emerge"]
 
             run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
             run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
@@ -336,11 +325,11 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
         print("Packing new container image.")
         with local.cwd(context.builddir):
             pack_container(context.in_container, context.out_container)
-        config_path = CFG["config_file"].value()
 
 
 class Container(cli.Application):
     """Manage uchroot containers."""
+
     VERSION = CFG["version"].value()
 
     def __init__(self, exe):
@@ -348,7 +337,7 @@ class Container(cli.Application):
 
     @cli.switch(["-i", "--input-file"], str, help="Input container path")
     def input_file(self, container):
-        """Finds the input path of a uchroot container."""
+        """Find the input path of a uchroot container."""
         p = os.path.abspath(container)
         if set_input_container(p, CFG):
             return
@@ -361,7 +350,7 @@ class Container(cli.Application):
 
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
     def output_file(self, container):
-        """Finds and writes the output path of a chroot container."""
+        """Find and writes the output path of a chroot container."""
         p = os.path.abspath(container)
         if os.path.exists(p):
             if not ask("Path '{0}' already exists." " Overwrite?".format(p)):
@@ -388,16 +377,15 @@ class Container(cli.Application):
         list=True,
         help="Mount the given directory under / inside the uchroot container")
     def mounts(self, user_mount):
-        """Saves the current mount of the container into the settings."""
+        """Save the current mount of the container into the settings."""
         CFG["container"]["mounts"] = user_mount
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
 
     def main(self, *args):
-
         log.configure()
-        LOG = logging.getLogger()
-        LOG.setLevel({
+        _log = logging.getLogger()
+        _log.setLevel({
             3: logging.DEBUG,
             2: logging.INFO,
             1: logging.WARNING,
@@ -420,6 +408,7 @@ class Container(cli.Application):
 @Container.subcommand("run")
 class ContainerRun(cli.Application):
     """Execute commannds inside a prebuilt container."""
+
     def main(self, *args):
         builddir = CFG["build_dir"].value()
         in_container = CFG["container"]["input"].value()
@@ -486,9 +475,10 @@ class ContainerCreate(cli.Application):
 
 @Container.subcommand("bootstrap")
 class ContainerBootstrap(cli.Application):
-    """Checks for the needed files."""
+    """Check for the needed files."""
+
     def install_cmake_and_exit(self):
-        """Tells the user to install cmake and aborts the current process."""
+        """Tell the user to install cmake and aborts the current process."""
         print("You need to  install cmake via your package manager manually."
               " Exiting.")
         sys.exit(-1)
@@ -513,6 +503,7 @@ class ContainerBootstrap(cli.Application):
 @Container.subcommand("list")
 class ContainerList(cli.Application):
     """Prints a list of the known containers."""
+
     def main(self, *args):
         containers = CFG["container"]["known"].value()
         for c in containers:

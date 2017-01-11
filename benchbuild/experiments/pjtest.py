@@ -15,7 +15,7 @@ from plumbum import local
 from benchbuild.utils.actions import (Build, Clean, Configure, Download,
                                       MakeBuildDir, Prepare, Run)
 from benchbuild.utils.cmd import time
-from polyjit import PolyJIT
+from benchbuild.experiments.polyjit import PolyJIT
 
 
 class Test(PolyJIT):

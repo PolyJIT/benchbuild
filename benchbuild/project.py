@@ -1,22 +1,18 @@
-"""
-Project handling for the benchbuild study.
-"""
-import os
-import sys
+"""Project handling for the benchbuild study."""
 import warnings
-
-from os import path, listdir
 from abc import abstractmethod
-from plumbum import local
-from benchbuild.settings import CFG
-from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
-from benchbuild.utils.db import persist_project
-from benchbuild.utils.path import list_to_path, template_str
-from benchbuild.utils.run import in_builddir, unionfs, store_config
-from benchbuild.utils.versions import get_version_from_cache_dir
-from benchbuild.utils.container import Gentoo
-from benchbuild.utils.wrapping import wrap
 from functools import partial
+from os import listdir, path
+
+from plumbum import local
+
+from benchbuild.settings import CFG
+from benchbuild.utils.cmd import mkdir, rm, rmdir
+from benchbuild.utils.container import Gentoo
+from benchbuild.utils.db import persist_project
+from benchbuild.utils.run import in_builddir, store_config, unionfs
+from benchbuild.utils.versions import get_version_from_cache_dir
+from benchbuild.utils.wrapping import wrap
 
 
 class ProjectRegistry(type):
@@ -25,7 +21,7 @@ class ProjectRegistry(type):
     projects = {}
 
     def __init__(cls, name, bases, attrs):
-        """Registers a project in the registry."""
+        """Register a project in the registry."""
         super(ProjectRegistry, cls).__init__(name, bases, attrs)
 
         if cls.NAME is not None and cls.DOMAIN is not None:
@@ -48,7 +44,6 @@ class ProjectDecorator(ProjectRegistry):
         if CFG["unionfs"]["enable"].value():
             image_dir = CFG["unionfs"]["image"].value()
             prefix = CFG["unionfs"]["image_prefix"].value()
-            base_dir = CFG["unionfs"]["base_dir"].value()
             unionfs_deco = partial(unionfs, image_dir=image_dir,
                                    image_prefix=prefix)
         config_deco = store_config
@@ -145,7 +140,7 @@ class Project(object, metaclass=ProjectDecorator):
         persist_project(self)
 
     def setup_derived_filenames(self):
-        """ Construct all derived file names. """
+        """Construct all derived file names."""
         self.run_f = path.join(self.builddir, self.name)
 
     def run_tests(self, experiment):
@@ -196,7 +191,7 @@ class Project(object, metaclass=ProjectDecorator):
                 self.clean()
 
     def clean(self):
-        """ Clean the project build directory. """
+        """Clean the project build directory."""
         if path.exists(self.builddir) and listdir(self.builddir) == []:
             rmdir(self.builddir)
         elif path.exists(self.builddir) and listdir(self.builddir) != []:
@@ -204,7 +199,7 @@ class Project(object, metaclass=ProjectDecorator):
 
     @property
     def compiler_extension(self):
-        """ Return the compiler extension registered to this project. """
+        """Return the compiler extension registered to this project."""
         try:
             return self._compiler_extension
         except AttributeError:
@@ -227,7 +222,7 @@ class Project(object, metaclass=ProjectDecorator):
 
     @property
     def runtime_extension(self):
-        """ Return the runtime extension registered for this project. """
+        """Return the runtime extension registered for this project."""
         try:
             return self._runtime_extension
         except AttributeError:
@@ -279,18 +274,18 @@ class Project(object, metaclass=ProjectDecorator):
             self._run_uuid = value
 
     def prepare(self):
-        """ Prepare the build diretory. """
+        """Prepare the build diretory."""
         if not path.exists(self.builddir):
             mkdir(self.builddir)
 
     @abstractmethod
     def download(self):
-        """ Download the input source for this project. """
+        """Download the input source for this project."""
 
     @abstractmethod
     def configure(self):
-        """ Configure the project. """
+        """Configure the project."""
 
     @abstractmethod
     def build(self):
-        """ Build the project. """
+        """Build the project."""

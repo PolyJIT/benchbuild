@@ -1,4 +1,6 @@
 """
+BenchBuild's skeleton for experiments.
+
 An benchbuild.experiment defines a series of phases that constitute a
 benchbuild compatible experiment. This is the default implementation of an
 experiment.
@@ -26,19 +28,20 @@ An experiment performs the following actions in order:
         This to perform all your experiment needs.
 
 """
-from contextlib import contextmanager
 from abc import abstractmethod
+from contextlib import contextmanager
 from os import path
-import regex
 
+import regex
 from plumbum import local
 from plumbum.commands.processes import ProcessExecutionError
 
 from benchbuild import projects
 from benchbuild.project import ProjectRegistry
-from benchbuild.utils.run import GuardedRunException
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import CleanExtra, Clean, MakeBuildDir, RequireAll
+from benchbuild.utils.actions import (Clean, CleanExtra, MakeBuildDir,
+                                      RequireAll)
+from benchbuild.utils.run import GuardedRunException
 
 
 def newline(ostream):
@@ -78,7 +81,6 @@ def static_var(varname, value):
     Returns:
         A decorator that adds a new attribute to the given object.
     """
-
     def decorate(func):
         """ Decorate func. """
         setattr(func, varname, value)
@@ -209,7 +211,7 @@ class ExperimentRegistry(type):
     experiments = {}
 
     def __init__(cls, name, bases, dict):
-        """Registers a project in the registry."""
+        """Register a project in the registry."""
         super(ExperimentRegistry, cls).__init__(name, bases, dict)
 
         if cls.NAME is not None:
@@ -229,6 +231,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
     gets a list of experiment names that work as a filter.
 
     """
+
     NAME = None
 
     def __new__(cls, *args, **kwargs):
@@ -307,7 +310,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
 
 class RuntimeExperiment(Experiment):
-    """ Additional runtime only features for experiments. """
+    """Additional runtime only features for experiments."""
 
     def get_papi_calibration(self, project, calibrate_call):
         """

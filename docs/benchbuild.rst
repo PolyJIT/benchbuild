@@ -1,6 +1,11 @@
 benchbuild package
 ==================
 
+.. automodule:: benchbuild
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -111,10 +116,3 @@ benchbuild.test module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: benchbuild
-    :members:
-    :undoc-members:
-    :show-inheritance:

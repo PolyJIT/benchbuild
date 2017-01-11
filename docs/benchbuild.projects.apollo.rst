@@ -1,6 +1,11 @@
 benchbuild.projects.apollo package
 ==================================
 
+.. automodule:: benchbuild.projects.apollo
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -29,10 +34,3 @@ benchbuild.projects.apollo.scimark module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: benchbuild.projects.apollo
-    :members:
-    :undoc-members:
-    :show-inheritance:

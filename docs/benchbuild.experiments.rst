@@ -1,6 +1,11 @@
 benchbuild.experiments package
 ==============================
 
+.. automodule:: benchbuild.experiments
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -68,10 +73,3 @@ benchbuild.experiments.raw module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: benchbuild.experiments
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -5,22 +5,21 @@ __ALIASES__ = {"unionfs": ["unionfs_fuse", "unionfs"]}
 
 
 class CommandAlias(ModuleType):
-    """ Module-hack, adapted from plumbum. """
+    """Module-hack, adapted from plumbum."""
+
     __all__ = ()
     __package__ = __name__
     __overrides__ = {}
     __override_all__ = None
 
     def __getattr__(self, command):
-        """ Proxy getter for plumbum commands."""
+        """Proxy getter for plumbum commands."""
         from os import getenv
         from plumbum import local
         from benchbuild.settings import CFG
         from benchbuild.utils.path import list_to_path
         from benchbuild.utils.path import path_to_list
-        import logging
 
-        log = logging.getLogger("benchbuild")
         check = [command]
 
         if command in self.__overrides__:

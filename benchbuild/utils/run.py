@@ -320,8 +320,10 @@ def uchroot_no_args():
 
 def uchroot_no_llvm(*args, **kwargs):
     """
-    Returns a uchroot command which can be called with other args to be
-            executed in the uchroot.
+    Return a customizable uchroot command.
+
+    The command will be executed inside a uchroot environment.
+
     Args:
         args: List of additional arguments for uchroot (typical: mounts)
     Return:
@@ -338,7 +340,8 @@ def uchroot_no_llvm(*args, **kwargs):
 
 def uchroot_mounts(prefix, mounts):
     """
-    Find out the mountpoints of the current user.
+    Compute the mountpoints of the current user.
+
     Args:
         prefix: Define where to job was running if it ran on a cluster.
         mounts: All mounts the user currently uses in his file system.
@@ -369,7 +372,7 @@ def _uchroot_mounts(prefix, mounts, uchroot):
 
 def uchroot_env(mounts):
     """
-    Creates the environment of the change root for the user.
+    Compute the environment of the change root for the user.
 
     Args:
         mounts: The mountpoints of the current user.
@@ -383,6 +386,7 @@ def uchroot_env(mounts):
     paths.extend(["/usr/bin", "/bin", "/usr/sbin", "/sbin"])
     return paths, ld_libs
 
+
 def with_env_recursive(cmd, **envvars):
     """
     Recursively updates the environment of cmd and all its subcommands.
@@ -395,7 +399,6 @@ def with_env_recursive(cmd, **envvars):
         The updated command.
     """
     from plumbum.commands.base import BoundCommand, BoundEnvCommand
-    from plumbum.machines.local import LocalCommand
     if isinstance(cmd, BoundCommand):
         cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
     elif isinstance(cmd, BoundEnvCommand):
@@ -403,24 +406,25 @@ def with_env_recursive(cmd, **envvars):
         cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
     return cmd
 
+
 def uchroot_with_mounts(*args, **kwargs):
-    """
-    Return a uchroot command with all mounts enabled.
-    """
+    """Return a uchroot command with all mounts enabled."""
     uchroot_cmd = uchroot_no_args(*args, **kwargs)
-    uchroot_cmd, mounts = _uchroot_mounts("mnt",
-        CFG["container"]["mounts"].value(), uchroot_cmd)
+    uchroot_cmd, mounts = \
+        _uchroot_mounts("mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
 
-    uchroot_cmd = with_env_recursive(uchroot_cmd,
-            LD_LIBRARY_PATH=list_to_path(libs),
-            PATH=list_to_path(paths))
+    uchroot_cmd = with_env_recursive(
+        uchroot_cmd,
+        LD_LIBRARY_PATH=list_to_path(libs),
+        PATH=list_to_path(paths))
     return uchroot_cmd
+
 
 def uchroot(*args, **kwargs):
     """
-    Returns a uchroot command which can be called with other args to be
-            executed in the uchroot.
+    Return a customizable uchroot command.
+
     Args:
         args: List of additional arguments for uchroot (typical: mounts)
     Return:
@@ -449,10 +453,10 @@ def in_builddir(sub='.'):
     from os import path
 
     def wrap_in_builddir(func):
-        """ Wraps the function for the new build directory. """
+        """Wrap the function for the new build directory."""
         @wraps(func)
         def wrap_in_builddir_func(self, *args, **kwargs):
-            """ The actual function inside the wrapper for the new builddir. """
+            """The actual function inside the wrapper for the new builddir."""
             p = path.abspath(path.join(self.builddir, sub))
             with local.cwd(p):
                 return func(self, *args, **kwargs)
@@ -463,7 +467,7 @@ def in_builddir(sub='.'):
 
 
 def unionfs_tear_down(mountpoint, tries=3):
-    """ Tear down a unionfs mountpoint. """
+    """Tear down a unionfs mountpoint."""
     from benchbuild.utils.cmd import fusermount, sync
     log = logging.getLogger("benchbuild")
 
@@ -513,7 +517,7 @@ def unionfs(base_dir='./base',
             image_prefix=None,
             mountpoint='./union'):
     """
-    UnionFS decorator.
+    Decorator for the UnionFS feature.
 
     This configures a unionfs for projects. The given base_dir and/or image_dir
     are layered as follows:
@@ -551,7 +555,7 @@ def unionfs(base_dir='./base',
         settings.CFG["cleanup_paths"] = cleanup_dirs
 
     def is_outside_of_builddir(project, path_to_check):
-        """ Checks if a project lies outside of its expected directory. """
+        """Check if a project lies outside of its expected directory."""
         bdir = project.builddir
         cprefix = os.path.commonprefix([path_to_check, bdir])
         return cprefix != bdir
@@ -570,8 +574,11 @@ def unionfs(base_dir='./base',
         @wraps(func)
         def wrap_in_union_fs_func(project, *args, **kwargs):
             """
-            Builds up the mount, transfers the function and returns the
-            unionfs after tearing down the mount again.
+            Wrap the func in the UnionFS mount stack.
+
+            We make sure that the mount points all exist and stack up the
+            directories for the unionfs. All directories outside of the default
+            build environment are tracked for deletion.
             """
             container = project.container
             abs_base_dir = os.path.abspath(container.local)
@@ -616,13 +623,13 @@ def unionfs(base_dir='./base',
 
 
 def store_config(func):
-    """ Decorator for storing the configuration in the project's builddir. """
+    """Decorator for storing the configuration in the project's builddir."""
     from functools import wraps
     from benchbuild.settings import CFG
 
     @wraps(func)
     def wrap_store_config(self, *args, **kwargs):
-        """ Wrapper that contains the actual storage call for the config. """
+        """Wrapper that contains the actual storage call for the config."""
         p = os.path.abspath(os.path.join(self.builddir))
         CFG.store(os.path.join(p, ".benchbuild.json"))
         return func(self, *args, **kwargs)

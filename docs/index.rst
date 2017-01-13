@@ -6,6 +6,8 @@
 Welcome to BenchBuild - Empirical Research Toolkit's documentation!
 ===================================================================
 
+.. include:: ../README.md
+
 .. toctree::
    :maxdepth: 4
    :caption: Contents:

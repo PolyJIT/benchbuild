@@ -1,9 +1,5 @@
-# BenchBuild: Empirical-Research Toolkit #
-
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/0220d2cf77f543e182d93eb55edf4199)](https://www.codacy.com/app/simbuerg/benchbuild-study)
-[![Documentation Status](https://readthedocs.org/projects/pprof-study/badge/?version=develop)](http://pprof-study.readthedocs.org/en/latest/?badge=develop)
-[![Build Status](https://travis-ci.org/simbuerg/benchbuild.svg?branch=develop)](https://travis-ci.org/simbuerg/benchbuild-study)
-[![Code Issues](https://www.quantifiedcode.com/api/v1/project/aa7ecff87d7b44518498bcf93180b98d/snapshot/origin:develop:HEAD/badge.svg)](https://www.quantifiedcode.com/app/project/aa7ecff87d7b44518498bcf93180b98d)
+BenchBuild: Empirical-Research Toolkit
+======================================
 
 BenchBuild provides a lightweight toolkit to conduct empirical compile-time
 and run-time experiments. Striving to automate all tedious and error-prone
@@ -14,7 +10,8 @@ binary with a customized measurement.
 All results can be stored as the user desires. BenchBuild tracks the execution
 status of all its managed projects inside an own database.
 
-## Features ##
+Features
+--------
 
 * Wrap compilation commands with arbitrary measurement functions written in
   python.
@@ -22,14 +19,16 @@ status of all its managed projects inside an own database.
 * Parallel benchmarking using the SLURM cluster manager.
 * Compile-time support for the gentoo portage tree using the ``uchroot`` command.
 
-## Requirements ##
+Requirements
+------------
 
 You need a working PostgreSQL installation (There is no special reason for
 PostgreSQL, but the backend is not configurable at the moment).
 In addition to the PostgreSQL server, you need libpqxx available for
 the psycopg2 package that benchbuild uses to connect.
 
-## Installation ##
+Installation
+------------
 
 After you have installed all necessary libraries, you can just clone this
 repo and install via pip.
@@ -42,20 +41,22 @@ This will pull in all necessary python libraries into your local python
 installation. The installed program to control the study is called
 ``benchbuild``.
 
-## Configuration ##
+Configuration
+-------------
 
 ``benchbuild`` can be configured in various ways: (1) command-line arguments,
 (2) configuration file in .json format, (3) environment variables.
 
 You can dump the current active configuration with the command:
-```bash
-> benchbuild run -d
+.. code-block:: bash
 
-BB_BENCHBUILD_EBUILD=""
-BB_BENCHBUILD_PREFIX="/bench-build"
-BB_BUILD_DIR="/tmp/benchbuild"
-...
-```
+  > benchbuild run -d
+
+  BB_BENCHBUILD_EBUILD=""
+  BB_BENCHBUILD_PREFIX="/bench-build"
+  BB_BUILD_DIR="/tmp/benchbuild"
+  ...
+
 
 You can dump this information in .json format using the command:
 ```bash
@@ -85,7 +86,8 @@ You can set these in the .json config file or directly via environment variables
 However, make sure that the values you pass in from the environment are valid
 JSON, or the configuration structure may ignore your input (or break).
 
-### SLURM Configuration ###
+SLURM Configuration
+-------------------
 
 If you want to run experiments in parallel on a cluster managed by SLURM, you can
 use BenchBuild to generate a bash script that is compatible with SLURM's
@@ -105,7 +107,8 @@ The following settings control SLURM's configuration:
  * ``BB_SLURM_SCRIPT``: Base name of our resulting batch script.
  * ``BB_SLURM_TIMELIMIT``: Enforce a timelimit on our batch jobs.
 
-### Gentoo Configuration ###
+Gentoo Configuration
+--------------------
 
 BenchBuild supports compile-time experiments on the complete portage tree of
 Gentoo Linux. You need to configure a few settings to make it work:
@@ -115,67 +118,37 @@ Gentoo Linux. You need to configure a few settings to make it work:
  * ``BB_GENTOO_AUTOTEST_HTTP_PROXY``: Proxy server for gentoo downloads.
  * ``BB_GENTOO_AUTOTEST_RSYNC_PROXY``: Proxy server for gentoo downloads.
 
-#### Convert an automatic Gentoo project to a static one ####
+Convert an automatic Gentoo project to a static one
+---------------------------------------------------
 
 Gentoo projects are generated dynamically based on the ``AutoPortage`` class
 found in ``pprof.gentoo.portage_gen``. If you want to define run-time tests for
 a dynamically generated project, you need to convert it to a static one, i.e.,
 define a subclass of ``AutoPortage`` and add it to the configuration.
 
-```python
-from pprof.projects.gentoo.portage_gen import AutoPortage
+.. code-block:: python
 
-class BZip(AutoPortage):
-  NAME = "app-arch"
-  DOMAIN = "bzip2"
+  from pprof.projects.gentoo.portage_gen import AutoPortage
 
-  def run_tests(self, experiment):
-    """Add your custom test routines here."""
-```
+  class BZip(AutoPortage):
+    NAME = "app-arch"
+    DOMAIN = "bzip2"
+
+    def run_tests(self, experiment):
+      """Add your custom test routines here."""
 
 Now we just need to add this to the plugin registry via ``benchbuild``'s
 configuration file @ ``CFG["plugins"]["projects"]``.
 
-## Usage ##
+Misc
+----
 
-BenchBuild is controlled using the ``benchbuild run`` command.
-```
-❯ benchbuild run --help
-benchbuild run 1.0
-
-Frontend for running experiments in the benchbuild study framework.
-
-Usage:
-    benchbuild run [SWITCHES]
-
-Meta-switches
-    -h, --help                             Prints this help message and quits
-    --help-all                             Print help messages of all subcommands and quit
-    -v, --version                          Prints the program's version and quits
-
-Switches
-    -D, --description DESCRIPTION:str      A description for this experiment run
-    -E, --experiment EXPERIMENTS:str       Specify experiments to run; may be given multiple times
-    -G, --group GROUP:str                  Run a group of projects under the given experiments; requires
-                                           --experiment
-    -L, --list-experiments                 List available experiments
-    -P, --project PROJECTS:str             Specify projects to run; may be given multiple times; requires
-                                           --experiment
-    -d, --dump-config                      Just dump benchbuild's config and exit.
-    -l, --list                             List available projects for experiment; requires --experiment
-    -p, --pretend                          Sets an attribute
-    -s, --save-config                      Save benchbuild's configuration.
-```
-
-### Examples ###
-``benchbuild run -l`` Lists all projects available sorted by group.
-
-``benchbuild run -L`` Lists all experiments available.
-
-``benchbuild run -E<experiment> -P<project>`` will execute the given experiment on the given project.
-
-``benchbuild run -E<experiment> -G<group>`` will execute the given experiment on the given group.
-
-
-### To be continued ###
-...
+.. image:: https://travis-ci.org/simbuerg/benchbuild.svg?branch=develop
+  :target: https://travis-ci.org/simbuerg/benchbuild-study
+  :alt: Build status
+.. image:: https://api.codacy.com/project/badge/grade/0220d2cf77f543e182d93eb55edf4199
+  :target: https://www.codacy.com/app/simbuerg/benchbuild-study
+  :alt: Codacy code quality
+.. image:: https://www.quantifiedcode.com/api/v1/project/aa7ecff87d7b44518498bcf93180b98d/snapshot/origin:develop:HEAD/badge.svg
+  :target: https://www.quantifiedcode.com/app/project/aa7ecff87d7b44518498bcf93180b98d
+  :alt: QuantifiedCode code quality

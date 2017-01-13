@@ -155,6 +155,13 @@ define a subclass of ``AutoPortage`` and add it to the configuration.
 Now we just need to add this to the plugin registry via ``benchbuild``'s
 configuration file @ ``CFG["plugins"]["projects"]``.
 
+Documentation
+-------------
+
+For detailed API information please refer to the full `documentation`_:
+
+.. _documentation: https://simbuerg.github.io/benchbuild 
+
 Misc
 ----
 

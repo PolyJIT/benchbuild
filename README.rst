@@ -33,9 +33,9 @@ Installation
 After you have installed all necessary libraries, you can just clone this
 repo and install via pip.
 
-```bash
-> pip install benchbuild
-```
+.. code-block:: bash
+
+  $ pip install benchbuild
 
 This will pull in all necessary python libraries into your local python
 installation. The installed program to control the study is called
@@ -50,7 +50,7 @@ Configuration
 You can dump the current active configuration with the command:
 .. code-block:: bash
 
-  > benchbuild run -d
+  $ benchbuild run -d
 
   BB_BENCHBUILD_EBUILD=""
   BB_BENCHBUILD_PREFIX="/bench-build"
@@ -59,28 +59,35 @@ You can dump the current active configuration with the command:
 
 
 You can dump this information in .json format using the command:
-```bash
-> benchbuild run -s
-```
+
+.. code-block:: bash
+
+  $ benchbuild run -s
+
 However, be careful. It dumps _all_ configuration to .json, even those that are
 usually derived automatically (like UUIDs). In the future, this will be avoided
 automatically. For now, you should remove all ID related variables from the
 resulting .json file. The configuration file is searched from the current
 directory upwards automatically. Some key configuration variables:
 
- * ``BB_BUILD_DIR``: The directory we place our temporary artifacts in.
- * ``BB_TMP_DIR``: The directory we place our downloads in.
- * ``BB_SRC_DIR``: The directory we pull additional artifacts from (e.g.,
- * patches)
- * ``BB_CLEAN``: Should the build directory be cleaned after the run?
- * ``BB_CONFIG_FILE``: Where is the config file? If you prefere an absolute
-                       location over automatic discovery.
- * ``BB_DB_HOST``: Hostname of the database
- * ``BB_DB_NAME``: Name of the database
- * ``BB_DB_USER``: Username of the database
- * ``BB_DB_PASS``: Password of the database
- * ``BB_DB_ROLLBACK``: For testing: Rollback all db actions after a run.
- * ``BB_JOBS``: Number of threads to use for compiling / run-time testing.
+==========================   ===================================================
+``BB_BUILD_DIR``             The directory we place our temporary artifacts in.
+``BB_TMP_DIR``               The directory we place our downloads in.
+``BB_SRC_DIR``               The directory we pull additional artifacts from
+                             (e.g., patches)
+``BB_CLEAN``                 Should the build directory be cleaned after the
+                             run?
+``BB_CONFIG_FILE``           Where is the config file? If you prefere an
+                             absolute location over automatic discovery.
+``BB_DB_HOST``               Hostname of the database
+``BB_DB_NAME``               Name of the database
+``BB_DB_USER``               Username of the database
+``BB_DB_PASS``               Password of the database
+``BB_DB_ROLLBACK``           For testing Rollback all db actions after a run.
+``BB_JOBS``                  Number of threads to use for compiling / run-time
+                             testing.
+==========================   ===================================================
+
 
 You can set these in the .json config file or directly via environment variables.
 However, make sure that the values you pass in from the environment are valid
@@ -93,19 +100,24 @@ If you want to run experiments in parallel on a cluster managed by SLURM, you ca
 use BenchBuild to generate a bash script that is compatible with SLURM's
 sbatch command.
 The following settings control SLURM's configuration:
- * ``BB_SLURM_ACCOUNT``: The resource account log in to.
- * ``BB_SLURM_CPUS_PER_TASK``: How many cores/threads should we request per node?
- * ``BB_SLURM_EXCLUSIVE``: Should we request the node exclusively or share it with other tasks?
- * ``BB_SLURM_LOGS``: Where do we put our logs (deprecated).
- * ``BB_SLURM_MAX_RUNNING``: We generate array-Jobs. This parameter controls the number of
-   array elements that are allowed to run in parallel.
- * ``BB_SLURM_MULTITHREAD``: Should Hyper-Threading be enabled or not?
- * ``BB_SLURM_NICE``: Adjust our priority on the cluster manually.
- * ``BB_SLURM_NICE_CLEAN``: Adjust the priority of the clean jobs.
- * ``BB_SLURM_NODE_DIR``: Where can we place our artifacts on the node?
- * ``BB_SLURM_PARTITION``: Which partition should we run in?
- * ``BB_SLURM_SCRIPT``: Base name of our resulting batch script.
- * ``BB_SLURM_TIMELIMIT``: Enforce a timelimit on our batch jobs.
+
+==========================   ===================================================
+``BB_SLURM_ACCOUNT``         The resource account log in to.
+``BB_SLURM_CPUS_PER_TASK``   How many cores/threads should we request per node?
+``BB_SLURM_EXCLUSIVE``       Should we request the node exclusively or share it
+                             with other tasks?
+``BB_SLURM_LOGS``            Where do we put our logs (deprecated).
+``BB_SLURM_MAX_RUNNING``     We generate array-Jobs. This parameter controls
+                             the number of array elements that are allowed to
+                             run in parallel.
+``BB_SLURM_MULTITHREAD``     Should Hyper-Threading be enabled or not?
+``BB_SLURM_NICE``            Adjust our priority on the cluster manually.
+``BB_SLURM_NICE_CLEAN``      Adjust the priority of the clean jobs.
+``BB_SLURM_NODE_DIR``        Where can we place our artifacts on the node?
+``BB_SLURM_PARTITION``       Which partition should we run in?
+``BB_SLURM_SCRIPT``          Base name of our resulting batch script.
+``BB_SLURM_TIMELIMIT``       Enforce a timelimit on our batch jobs.
+==========================   ===================================================
 
 Gentoo Configuration
 --------------------
@@ -113,10 +125,13 @@ Gentoo Configuration
 BenchBuild supports compile-time experiments on the complete portage tree of
 Gentoo Linux. You need to configure a few settings to make it work:
 
- * ``BB_GENTOO_AUTOTEST_LOC``: A txt file that lists all gentoo package atoms that should be considered.
- * ``BB_GENTOO_AUTOTEST_FTP_PROXY``: Proxy server for gentoo downloads.
- * ``BB_GENTOO_AUTOTEST_HTTP_PROXY``: Proxy server for gentoo downloads.
- * ``BB_GENTOO_AUTOTEST_RSYNC_PROXY``: Proxy server for gentoo downloads.
+==================================  =============================================
+``BB_GENTOO_AUTOTEST_LOC``          A txt file that lists all gentoo package
+                                    atoms that should be considered.
+``BB_GENTOO_AUTOTEST_FTP_PROXY``    Proxy server for gentoo downloads.
+``BB_GENTOO_AUTOTEST_HTTP_PROXY``   Proxy server for gentoo downloads.
+``BB_GENTOO_AUTOTEST_RSYNC_PROXY``  Proxy server for gentoo downloads.
+==================================  =============================================
 
 Convert an automatic Gentoo project to a static one
 ---------------------------------------------------

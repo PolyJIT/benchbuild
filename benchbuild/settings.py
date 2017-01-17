@@ -416,6 +416,11 @@ CFG = Configuration(
         "use_database": {
             "desc": "LEGACY: Store results from libpprof in the database.",
             "default": 1
+        },
+        "sequence": {
+            "desc": "The name of the sequence that should be used for " + \
+                    "preoptimization.",
+            "default": "no_preperation"
         }
     })
 

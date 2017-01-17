@@ -5,7 +5,7 @@ preoptimization sequence.
 """
 import sys
 import getopt
-
+import settings
 import polly_stats
 import genetic1_opt
 import genetic2_opt
@@ -61,16 +61,15 @@ POLLY_PREOPT = ['-mem2reg', '-early-cse', '-functionattrs', '-instcombine',
                 '-loop-unroll', '-globaldce', '-polly-prepare']
 
 
-def __run_scop_detection(program, sequence):
+def __run_scop_detection(program):
     """Runs Polly's SCoP detection for the specified program and prints out
     its results.
 
     Args:
         program (string): the name of the application for which the SCoP
             detection should run.
-        sequence (string): the name of the sequence that should be used for
-            preoptimization.
     """
+    sequence = settings["settings"].value()
     if sequence == 'genetic1':
         passes = O3_PASSES + POLLY_CANONICALIZE_PASSES
         opt_flags = genetic1_opt.generate_custom_sequence(program, passes,
@@ -140,13 +139,13 @@ def main(argv):
         __usage()
         sys.exit(2)
 
-    for opt, arg in opts:
+    for opt, _ in opts:
         if opt in ('-h', '--help'):
             __usage()
             sys.exit()
         elif opt in ('-s', '--sequence'):
             if args:
-                __run_scop_detection(args[0], arg)
+                __run_scop_detection(args[0])
             else:
                 __usage()
 

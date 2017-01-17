@@ -1,5 +1,6 @@
 from plumbum import cli
 import benchbuild.reports as Reports
+import benchbuild.experiments as Experiments
 
 
 ReportRegistry = Reports.ReportRegistry
@@ -30,11 +31,13 @@ class BenchBuildReport(cli.Application):
         self.outfile = outfile
 
     def main(self, *args):
+        Experiments.discover()
         Reports.discover()
         reports = ReportRegistry.reports
 
         for exp_name in self.experiment_names:
             if exp_name not in reports:
+                print("'{0}' is not a known report.".format(exp_name))
                 continue
 
             for report_cls in reports[exp_name]:

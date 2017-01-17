@@ -15,8 +15,6 @@ class RawReport(Report):
 
     SUPPORTED_EXPERIMENTS = ["raw"]
 
-    session = schema.Session()
-
     def get_exp_ids(self):
         res = self.session.query(Experiment.id).filter(
             Experiment.name.in_(RawReport.SUPPORTED_EXPERIMENTS)).all()

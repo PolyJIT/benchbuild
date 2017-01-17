@@ -3,6 +3,7 @@
 files of to check which sequences appear most frequently.
 """
 import os
+import logging
 
 import pprof_utilities
 
@@ -23,6 +24,7 @@ def find_most_frequent_sequence():
     """Search the heuristic-compilestats files for frequently occurring
     best sequences.
     """
+    log = logging.getLogger()
     sequence_to_programs = dict()
     number_programs = 0
 
@@ -50,14 +52,14 @@ def find_most_frequent_sequence():
         if sequence_to_programs[sequence] == frequency:
             best_sequences.append(sequence)
 
-    print('Number of best sequences: ' + str(len(best_sequences)))
-    print('Most frequently occurring sequence:')
-    print(best)
-    print('Occurrences: ' + str(sequence_to_programs[best]) + ' of ' + str(
+    log.info("Number of best sequences: " + str(len(best_sequences)))
+    log.info("Most frequently occurring sequence:")
+    log.info(best)
+    log.info("Occurrences: " + str(sequence_to_programs[best]) + " of " + str(
         number_programs))
 
     for sequence in best_sequences:
-        print('Best: ' + str(list(sequence)))
+        log.info("Best: " + str(list(sequence)))
 
 
 if __name__ == '__main__':

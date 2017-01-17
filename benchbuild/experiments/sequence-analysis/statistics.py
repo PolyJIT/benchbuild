@@ -5,6 +5,7 @@ results of the heuristic algorithms.
 import csv
 import getopt
 import sys
+import logging
 
 import pprof_utilities
 
@@ -253,7 +254,7 @@ def find_patterns_in_sequences(file_path, file_name):
 
 def __usage():
     """Prints out the usage of this python script."""
-    print('Wrong usage!\n'
+    logging.getLogger().warning('Wrong usage!\n'
           + 'You have to provide one of the following flags:\n'
           + '--best-sequences: searches for the best custom sequences and '
             'generates an overview raw and csv file.'

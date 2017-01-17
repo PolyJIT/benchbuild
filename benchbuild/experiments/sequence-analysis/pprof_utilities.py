@@ -11,11 +11,6 @@ __email__ = "wollerch@fim.uni-passau.de"
 START_OPT_SEQUENCE = 'Optimization Passes'
 
 
-def print_debug(string, debug):
-    """Prints out a string if debug is true. Otherwise, nothing is done."""
-    if debug:
-        print(string)
-
 
 def copy_file_to(src_path, src_name, dest_path, dest_name):
     """Helper function to copy a file."""

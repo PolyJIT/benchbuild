@@ -513,6 +513,11 @@ CFG['db'] = {
     "rollback": {
         "desc": "Rollback all operations after benchbuild completes.",
         "default": False
+    },
+    "dialect": {
+        "desc": "Which database backend should we use? "
+                "Refer to sqlalchemy for available options.",
+        "default": "postgresql+psycopg2"
     }
 }
 

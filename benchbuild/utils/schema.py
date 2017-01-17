@@ -10,7 +10,6 @@ from benchbuild.settings import CFG
 
 BASE = declarative_base()
 
-
 class Run(BASE):
     """Store a run for each executed test binary."""
 
@@ -287,12 +286,13 @@ class SessionManager(object):
 
         self.__test_mode = CFG['db']['rollback'].value()
         self.__engine = create_engine(
-            "postgresql+psycopg2://{u}:{p}@{h}:{P}/{db}".format(
+            "{dialect}://{u}:{p}@{h}:{P}/{db}".format(
                 u=CFG["db"]["user"],
                 h=CFG["db"]["host"],
                 P=CFG["db"]["port"],
                 p=CFG["db"]["pass"],
-                db=CFG["db"]["name"]))
+                db=CFG["db"]["name"],
+                dialect=CFG["db"]["dialect"]))
         self.__connection = self.__engine.connect()
         self.__transaction = None
         if self.__test_mode:
@@ -314,3 +314,4 @@ CONNECTION_MANAGER = SessionManager()
  Import this session manager to create new database sessions as needes.
 """
 Session = CONNECTION_MANAGER.get()
+

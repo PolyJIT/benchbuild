@@ -1,5 +1,5 @@
---drop function total_dyncov(exp_ids UUID[]);
-CREATE OR REPLACE function total_dyncov(exp_ids UUID[])
+DROP FUNCTION IF EXISTS total_dyncov(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION total_dyncov(exp_ids UUID[])
 	returns
     table(project VARCHAR,
           total numeric,

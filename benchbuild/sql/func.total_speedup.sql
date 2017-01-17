@@ -1,5 +1,5 @@
---drop function total_speedup(exp_ids UUID[]);
-CREATE OR REPLACE function total_speedup(exp_ids UUID[])
+DROP FUNCTION IF EXISTS total_speedup(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION total_speedup(exp_ids UUID[])
 	returns
     table(project VARCHAR,
           baseline numeric,

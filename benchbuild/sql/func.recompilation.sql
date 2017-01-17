@@ -1,5 +1,5 @@
---drop function recompilation(exp_ids UUID[], recomp_status VARCHAR);
-create or replace function recompilation(exp_ids UUID[], recomp_status VARCHAR)
+DROP FUNCTION IF EXISTS recompilation(exp_ids UUID[], recomp_status VARCHAR);
+CREATE OR REPLACE FUNCTION recompilation(exp_ids UUID[], recomp_status VARCHAR)
   returns table(name VARCHAR, value VARCHAR, run_id INTEGER) as $recompilation$
 BEGIN
   RETURN QUERY

@@ -1,4 +1,4 @@
---DROP FUNCTION total_dyncov_clean(exp_ids UUID [] );
+DROP FUNCTION IF EXISTS total_dyncov_clean(exp_ids UUID [] );
 CREATE OR REPLACE FUNCTION total_dyncov_clean(exp_ids UUID [])
   RETURNS
     TABLE(project   VARCHAR,

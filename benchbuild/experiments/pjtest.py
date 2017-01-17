@@ -16,7 +16,9 @@ from benchbuild.utils.actions import (Build, Clean, Configure, Download,
                                       MakeBuildDir, Prepare, Run)
 from benchbuild.utils.cmd import time
 from benchbuild.experiments.polyjit import PolyJIT
+from benchbuild.reports import Report
 
+import sqlalchemy as sa
 
 class Test(PolyJIT):
     """
@@ -114,3 +116,33 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
                                            "recompilation": "enabled",
                                            "specialization": "disabled"})
     return ri
+
+
+class TestReport(Report):
+
+    SUPPORTED_EXPERIMENTS = ["pj-test"]
+
+    def report(self):
+        from benchbuild.settings import CFG
+        func = sa.func
+        column = sa.column
+        select = sa.sql.select
+        bindparam = sa.sql.bindparam
+
+        exps = select(
+            [column('project'), column('runs')]).\
+            select_from(
+                func.experiments(bindparam('exp_ids'))
+            )
+
+        r1 = self.session.execute(
+            exps.unique_params(
+                exp_ids=[uuid.UUID(str(CFG['experiment_id']))])
+        )
+        print(r1.fetchall())
+
+    def generate(self):
+        report = self.report()
+
+    def __init__(self, exp_ids, outfile):
+        super(TestReport, self).__init__(exp_ids, outfile)

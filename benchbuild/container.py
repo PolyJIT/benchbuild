@@ -311,9 +311,11 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
                 CFG["container"]["strategy"]["polyjit"]["packages"].value()
             with local.env(CC="gcc", CXX="g++",
                            MAKEOPTS="-j{0}".format(CFG["jobs"].value())):
-                run(emerge_in_chroot["--sync"])
-                run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
-                                     "--with-bdeps=y", "@world"])
+                if CFG["container"]["strategy"]["polyjit"]["sync"].value():
+                    run(emerge_in_chroot["--sync"])
+                if CFG["container"]["strategy"]["polyjit"]["upgrade"].value():
+                    run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
+                                        "--with-bdeps=y", "@world"])
                 run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
                 for pkg in packages:
                     if (has_pkg[pkg["name"]] & TF):

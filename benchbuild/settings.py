@@ -737,6 +737,8 @@ CFG["container"] = {
     },
     "strategy": {
         "polyjit": {
+            "sync": {"default": True, "desc": "Update portage tree?"},
+            "upgrade": {"default": True, "desc": "Upgrade all packages?"},
             "packages": {
                 "default": [
                     {"name": "sys-devel/gcc:5.4.0", "env": {

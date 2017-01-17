@@ -12,9 +12,9 @@ code that can be detected by Polly.
 """
 import random
 import threading
+import logging
 
 import polly_stats
-import pprof_utilities
 
 
 __author__ = "Christoph Woller"
@@ -164,7 +164,7 @@ class Population(object):
                 specified environment.
         """
         for i in range(generations):
-            pprof_utilities.print_debug(self, print_out)
+            logging.getLogger().debug(self)
             self.__simulate_generation()
 
             if i < generations - 1:
@@ -251,40 +251,35 @@ class Population(object):
 
     def __mutate(self, chromosomes, mutation_probability):
         """Performs mutations on chromosomes with a certain probability."""
-        pprof_utilities.print_debug('', print_out)
 
         for chromosome in chromosomes:
             for i in range(self.chromosome_size):
                 if random.randint(1, 100) <= mutation_probability:
-                    pprof_utilities.print_debug(
-                        '---> Mutation in Chromosome ' + str(
-                            chromosome.chromosome_id) + 'in gene ' + str(i)
-                        + ' <---', print_out)
+                    logging.getLogger().debug(
+                        "---> Mutation in Chromosome " + str(
+                            chromosome.chromosome_id) + "in gene " + str(i)
+                        + " <---")
                     chromosome.genes[i] = random.choice(self.gene_pool)
 
-        pprof_utilities.print_debug('', print_out)
 
     def __delete_duplicates(self):
         """Deletes duplicates in the chromosomes of the population."""
-        pprof_utilities.print_debug('\n---> Duplicate check <---', print_out)
+        log = logging.getLogger()
+        log.debug("\n---> Duplicate check <---")
 
         chromosomes = list(set(self.chromosomes))
         diff = self.size - len(chromosomes)
 
         if diff > 0:
-            pprof_utilities.print_debug('---> Duplicate(s) found! <---',
-                                        print_out)
+            log.debug("---> Duplicate(s) found! <---")
             for i in range(diff):
                 chromosomes.append(
                     Chromosome(self.__generate_random_gene_sequence(),
                                self.environment))
         else:
-            pprof_utilities.print_debug('---> No duplicates found! <---',
-                                        print_out)
+            log.debug("---> No duplicates found! <---")
 
         self.chromosomes = chromosomes
-
-        pprof_utilities.print_debug('', print_out)
 
 
 def generate_custom_sequence(program, pass_space=DEFAULT_GENE_POOL,

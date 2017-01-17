@@ -740,7 +740,8 @@ CFG["container"] = {
             "packages": {
                 "default": [
                     {"name": "sys-devel/gcc:5.4.0", "env": {
-                        "ACCEPT_KEYWORDS": "~amd64"
+                        "ACCEPT_KEYWORDS": "~amd64",
+                        "USE": "-filecaps"
                     }},
                     {"name": "dev-db/postgresql:9.5", "env": {}},
                     {"name": "dev-python/pip", "env": {}},
@@ -750,7 +751,8 @@ CFG["container"] = {
                         "ACCEPT_KEYWORDS": "~amd64"
                     }},
                     {"name": "dev-libs/libpfm", "env": {
-                        "USE": "static-libs"
+                        "USE": "static-libs",
+                        "ACCEPT_KEYWORDS": "~amd64"
                     }},
                     {"name": "sys-process/time", "env": {}},
                     {"name": "=dev-util/boost-build-1.58.0", "env": {

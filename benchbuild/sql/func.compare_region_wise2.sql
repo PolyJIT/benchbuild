@@ -1,5 +1,5 @@
---drop function compare_region_wise_2(exp_ids UUID[]);
-CREATE OR REPLACE function compare_region_wise_2(exp_ids UUID[])
+DROP FUNCTION IF EXISTS compare_region_wise_2(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION compare_region_wise_2(exp_ids UUID[])
 	returns
     table(project VARCHAR,
           region_name VARCHAR,

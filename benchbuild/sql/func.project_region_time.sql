@@ -1,4 +1,4 @@
---drop function project_region_time(region_name VARCHAR, num_cores VARCHAR, exp_ids UUID[], recomp_status VARCHAR);
+DROP FUNCTION IF EXISTS project_region_time(region_name VARCHAR, num_cores VARCHAR, exp_ids UUID[], recomp_status VARCHAR);
 CREATE OR REPLACE FUNCTION project_region_time(region_name   VARCHAR, num_cores VARCHAR, exp_ids UUID [],
                                                recomp_status VARCHAR)
   RETURNS

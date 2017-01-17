@@ -1,5 +1,5 @@
---drop function run_regions(exp_ids UUID[], recomp_status VARCHAR);
-create or replace function run_regions(exp_ids UUID[], recomp_status VARCHAR)
+DROP FUNCTION IF EXISTS run_regions(exp_ids UUID[], recomp_status VARCHAR);
+CREATE OR REPLACE FUNCTION run_regions(exp_ids UUID[], recomp_status VARCHAR)
   returns table(name VARCHAR, region VARCHAR, runtime NUMERIC, value VARCHAR, recompilation VARCHAR) AS $BODY$
 BEGIN
   RETURN QUERY

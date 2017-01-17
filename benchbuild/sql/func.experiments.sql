@@ -1,4 +1,4 @@
---drop function experiments(exp_ids UUID[]);
+DROP FUNCTION IF EXISTS experiments(exp_ids UUID[]);
 CREATE OR REPLACE function experiments(exp_ids UUID[])
 	returns
     table(project VARCHAR,

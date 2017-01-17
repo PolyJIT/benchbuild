@@ -61,5 +61,7 @@ class Report(object, metaclass=ReportRegistry):
         return new_self
 
     def __init__(self, exp_ids, out_path):
+        import benchbuild.utils.schema as schema
         self.experiment_ids = exp_ids
         self.out_path = out_path
+        self.session = schema.Session()

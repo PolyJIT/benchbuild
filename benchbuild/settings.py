@@ -518,6 +518,10 @@ CFG['db'] = {
         "desc": "Which database backend should we use? "
                 "Refer to sqlalchemy for available options.",
         "default": "postgresql+psycopg2"
+    },
+    "create_functions": {
+        "default": False,
+        "desc": "Should we recreate our SQL functions from scratch?"
     }
 }
 

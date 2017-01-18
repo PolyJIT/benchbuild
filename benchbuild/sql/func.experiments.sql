@@ -12,3 +12,15 @@ BEGIN
       run.project_name;
 END
 $BODY$ language plpgsql;
+
+DROP FUNCTION IF EXISTS experiments(names TEXT[]);
+CREATE OR REPLACE function experiments(names TEXT[])
+	returns
+    table(id UUID)
+AS $BODY$
+BEGIN
+  RETURN QUERY
+    SELECT experiment.id FROM experiment
+    WHERE experiment.name = ANY (names);
+END
+$BODY$ language plpgsql;

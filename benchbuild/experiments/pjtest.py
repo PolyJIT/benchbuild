@@ -147,8 +147,7 @@ class TestReport(Report):
             )
 
         r1 = self.session.execute(
-            exps.unique_params(
-                exp_ids=[uuid.UUID(v) for v in self.experiment_ids])
+            exps.unique_params(exp_ids=self.experiment_ids)
         )
         return r1.fetchall()
 

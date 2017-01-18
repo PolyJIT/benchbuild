@@ -1,12 +1,36 @@
-"""Database schema for benchbuild."""
+"""
+Database schema for benchbuild
+==============================
+
+The schema should initialize itself on an empty database. For now, we do not
+support automatic upgrades on schema changes. You might encounter some
+roadbumps when using an older version of benchbuild.
+
+Furthermore, for now, we are restricted to postgresql databases, although we
+already support arbitrary connection strings via config.
+
+If you want to use reports that use one of our SQL functions, you need to
+initialize the functions first using the following command:
+
+.. code-block:: bash
+
+  > BB_DB_CREATE_FUNCTIONS=true benchbuild run -E empty -l
+
+After that you (normally) do not need to do this agains, unless we supply
+a new version that you are interested in.
+As soon as we have alembic running, we can provide automatic up/downgrade
+paths for you.
+"""
 
 import logging
+import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from benchbuild.settings import CFG
+from benchbuild.utils import path as bbpath
 
 BASE = declarative_base()
 
@@ -300,6 +324,18 @@ class SessionManager(object):
                 "DB test mode active, all actions will be rolled back.")
             self.__transaction = self.__connection.begin()
         BASE.metadata.create_all(self.__connection, checkfirst=True)
+
+        def ddl_predicate(ddl, target, bind, tables, **kwargs):
+            return CFG["db"]["create_functions"].value()
+
+        for file in bbpath.template_files("../sql/", exts=[".sql"]):
+            func = sa.DDL(
+                bbpath.template_str(file)
+            )
+            sa.events.DDLEvents.after_create(
+                BASE.metadata, self.__connection, func.execute_if(
+                    callable_=ddl_predicate)
+            )
 
     def get(self):
         return sessionmaker(bind=self.__connection)

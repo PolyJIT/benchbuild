@@ -20,7 +20,8 @@ sql_extra_files = [
     "func.project_region_time.sql",
     "func.run_durations.sql",
     "func.speedup.sql",
-    "func.total_dyncov.sql"
+    "func.total_dyncov.sql",
+    "func.pj-test-eval.sql"
 ]
 
 setup(

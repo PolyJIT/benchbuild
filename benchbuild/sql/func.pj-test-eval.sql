@@ -1,4 +1,4 @@
-DROP FUNCTION IF EXISTS recompilation(exp_ids UUID[], spec_status VARCHAR);
+DROP FUNCTION IF EXISTS specialization (exp_ids UUID[], spec_status VARCHAR);
 CREATE OR REPLACE FUNCTION specialization(exp_ids UUID[], spec_status VARCHAR)
   returns table(name VARCHAR, value VARCHAR, run_id INTEGER) as $specialization$
 BEGIN
@@ -79,8 +79,6 @@ BEGIN
       WHERE
         run.id = config.run_id AND run.id = regions.run_id AND
         run.experiment_group = ANY (exp_ids) AND
-        config.name = 'cores' AND
-        config.value = '3' AND
         run.id = recomp.run_id AND
         regions.name = 'START'
       GROUP BY

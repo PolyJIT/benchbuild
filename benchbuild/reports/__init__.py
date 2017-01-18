@@ -46,6 +46,18 @@ class ReportRegistry(type):
                 else:
                     ReportRegistry.reports[exp] = [cls]
 
+def load_experiment_ids_from_names(session, names):
+    from sqlalchemy import  func, column
+    from sqlalchemy.sql import select, bindparam
+
+    exps = select([column('id')]).\
+        select_from(
+            func.experiments(bindparam('names'))
+        )
+    r1 = session.execute(
+        exps.unique_params(names=names)
+    )
+    return r1.fetchall()
 
 class Report(object, metaclass=ReportRegistry):
 
@@ -62,6 +74,14 @@ class Report(object, metaclass=ReportRegistry):
 
     def __init__(self, exp_ids, out_path):
         import benchbuild.utils.schema as schema
-        self.experiment_ids = exp_ids
+        import uuid
         self.out_path = out_path
         self.session = schema.Session()
+        if not exp_ids:
+            exp_ids = load_experiment_ids_from_names(
+                self.session, self.SUPPORTED_EXPERIMENTS)
+            exp_ids = [v[0] for v in exp_ids]
+        else:
+            exp_ids = [uuid.UUID(v) for v in exp_ids]
+
+        self.experiment_ids = exp_ids

@@ -8,6 +8,7 @@ execution profiles of PolyJIT:
   2) PolyJIT enabled, without specialization
 """
 import uuid
+import csv
 from functools import partial
 
 from plumbum import local
@@ -123,26 +124,45 @@ class TestReport(Report):
     SUPPORTED_EXPERIMENTS = ["pj-test"]
 
     def report(self):
-        from benchbuild.settings import CFG
         func = sa.func
         column = sa.column
         select = sa.sql.select
         bindparam = sa.sql.bindparam
 
-        exps = select(
-            [column('project'), column('runs')]).\
+        exps = select([
+            column('project'),
+            column('total'),
+            column('scops'),
+            column('overhead'),
+            column('ohcov_0'),
+            column('ohcov_1'),
+            column('dyncov'),
+            column('cachehits'),
+            column('variants'),
+            column('t_0'),
+            column('t_1'),
+            column('o_1')]).\
             select_from(
-                func.experiments(bindparam('exp_ids'))
+                func.pj_test_total_dyncov(bindparam('exp_ids'))
             )
 
         r1 = self.session.execute(
             exps.unique_params(
-                exp_ids=[uuid.UUID(str(CFG['experiment_id']))])
+                exp_ids=[uuid.UUID(v) for v in self.experiment_ids])
         )
-        print(r1.fetchall())
+        return r1.fetchall()
 
     def generate(self):
         report = self.report()
+        print("Report has: {0} result rows".format(len(report)))
+        with open(self.out_path, 'w') as csv_out:
+            csv_writer = csv.writer(csv_out)
+            csv_writer.writerows([
+                ('project', 'total', 'scops', 'overhead', 'ohcov_0', 'ohcov_1',
+                 'dyncov', 'cachehits', 'variants', 't_0', 't_1', 'o_1')
+            ])
+            csv_writer.writerows(report)
+
 
     def __init__(self, exp_ids, outfile):
         super(TestReport, self).__init__(exp_ids, outfile)

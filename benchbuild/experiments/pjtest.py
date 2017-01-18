@@ -161,7 +161,3 @@ class TestReport(Report):
                  'dyncov', 'cachehits', 'variants', 't_0', 't_1', 'o_1')
             ])
             csv_writer.writerows(report)
-
-
-    def __init__(self, exp_ids, outfile):
-        super(TestReport, self).__init__(exp_ids, outfile)

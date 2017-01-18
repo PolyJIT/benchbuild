@@ -124,6 +124,8 @@ class TestReport(Report):
     SUPPORTED_EXPERIMENTS = ["pj-test"]
 
     def report(self):
+        print("I found the following matching experiment ids")
+        print("  \n".join([str(x) for x in self.experiment_ids]))
         func = sa.func
         column = sa.column
         select = sa.sql.select
@@ -146,9 +148,9 @@ class TestReport(Report):
                 func.pj_test_total_dyncov(bindparam('exp_ids'))
             )
 
-        r1 = self.session.execute(
-            exps.unique_params(exp_ids=self.experiment_ids)
-        )
+        qry = exps.unique_params(exp_ids=self.experiment_ids)
+        print(qry.compile())
+        r1 = self.session.execute(qry)
         return r1.fetchall()
 
     def generate(self):

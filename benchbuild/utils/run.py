@@ -262,9 +262,7 @@ def guarded_exec(cmd, project, experiment, **kwargs):
         with local.env(**cmd_env):
             has_stdin = kwargs.get("has_stdin", False)
             proc = (cmd & BG(retcode=retcode,
-                             stdin=sys.stdin if has_stdin else None,
-                             stdout=sys.stdout,
-                             stderr=sys.stderr))
+                             stdin=sys.stdin if has_stdin else None))
 
             stdout = proc.stdout
             stderr = proc.stderr

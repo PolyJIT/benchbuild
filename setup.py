@@ -32,6 +32,7 @@ setup(
                                     "src", "statistics", "tests", "results"]),
     package_data={"benchbuild.utils": extra_files,
                   "benchbuild": sql_extra_files},
+    include_package_data=True,
     install_requires=[
         "lazy==1.2", "SQLAlchemy==1.0.4", "dill==0.2.4", "plumbum>=1.5.0",
         "regex==2015.5.28", "wheel==0.24.0", "parse==1.6.6",

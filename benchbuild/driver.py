@@ -19,6 +19,9 @@ class PollyProfiling(cli.Application):
         log.configure()
         log.set_defaults()
         settings.update_env()
+        if settings.CFG["db"]["create_functions"].value():
+            from benchbuild.utils.schema import init_functions, Session
+            init_functions(Session())
 
         if args:
             print("Unknown command {0!r}".format(args[0]))

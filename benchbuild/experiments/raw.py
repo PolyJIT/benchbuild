@@ -15,6 +15,7 @@ Measurements
     time.system_s - The time spent in kernel space in seconds (aka system time)
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
+import logging
 
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
@@ -71,9 +72,10 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     if may_wrap:
         timings = fetch_time_output(
             timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-        if not timings:
-            return ri
-        persist_time(ri.db_run, ri.session, timings)
+        if timings:
+            persist_time(ri.db_run, ri.session, timings)
+        else:
+            logging.warn("No timing information found.")
     persist_config(ri.db_run, ri.session, {"cores": str(jobs)})
     return ri
 

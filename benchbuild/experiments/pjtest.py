@@ -142,6 +142,7 @@ class TestReport(Report):
             column('cachehits'),
             column('variants'),
             column('t_0'),
+            column('o_0'),
             column('t_1'),
             column('o_1')]).\
             select_from(

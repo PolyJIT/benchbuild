@@ -51,6 +51,7 @@ CREATE OR REPLACE FUNCTION pj_test_total_dyncov(exp_ids UUID [])
           cachehits NUMERIC,
           variants  NUMERIC,
           t_0       NUMERIC,
+          o_0       NUMERIC,
           t_1       NUMERIC,
           o_1       NUMERIC)
 AS $BODY$
@@ -61,12 +62,13 @@ BEGIN
     total.sum                                     AS total,
     scops.sum                                     AS scops,
     codegen.sum                                   AS overhead,
-    (codegen.sum / total.sum * 100)               AS ohcov_0,
+    (O_0.duration / T_0.duration * 100)           AS ohcov_0,
     (O_1.duration / T_1.duration * 100)           AS ohcov_1,
     (scops.sum / (total.sum - codegen.sum) * 100) AS dyncov,
     ch.sum                                        AS cachehits,
     variants.sum                                  AS variants,
-    total.sum - codegen.sum                       AS T_0,
+    T_0.duration                                  AS t_0,
+    O_0.duration                                  AS o_0,
     T_1.duration                                  AS t_1,
     O_1.duration                                  AS o_1
   FROM
@@ -75,7 +77,7 @@ BEGIN
         run.project_name,
         sum(regions.duration)
       FROM run, config, regions,
-            specialization(exp_ids, 'enabled') AS recomp
+            specialization(exp_ids, 'disabled') AS recomp
       WHERE
         run.id = config.run_id AND run.id = regions.run_id AND
         run.experiment_group = ANY (exp_ids) AND
@@ -140,6 +142,14 @@ BEGIN
                 GROUP BY
                   run.project_name
               ) AS scops ON (scops.project_name = total.project_name)
+    LEFT JOIN
+    (SELECT *
+     FROM pj_test_project_region_time('START', (exp_ids), 'disabled')) AS T_0
+      ON (T_0.project_name = total.project_name)
+    LEFT JOIN
+    (SELECT *
+     FROM pj_test_project_region_time('CODEGEN', (exp_ids), 'disabled')) AS O_0
+      ON (O_0.project_name = total.project_name)
     LEFT JOIN
     (SELECT *
      FROM pj_test_project_region_time('START', (exp_ids), 'enabled')) AS T_1

@@ -323,19 +323,8 @@ class SessionManager(object):
             logger.warning(
                 "DB test mode active, all actions will be rolled back.")
             self.__transaction = self.__connection.begin()
+
         BASE.metadata.create_all(self.__connection, checkfirst=True)
-
-        def ddl_predicate(ddl, target, bind, tables, **kwargs):
-            return CFG["db"]["create_functions"].value()
-
-        for file in bbpath.template_files("../sql/", exts=[".sql"]):
-            func = sa.DDL(
-                bbpath.template_str(file)
-            )
-            sa.events.DDLEvents.after_create(
-                BASE.metadata, self.__connection, func.execute_if(
-                    callable_=ddl_predicate)
-            )
 
     def get(self):
         return sessionmaker(bind=self.__connection)
@@ -350,4 +339,18 @@ CONNECTION_MANAGER = SessionManager()
  Import this session manager to create new database sessions as needes.
 """
 Session = CONNECTION_MANAGER.get()
+
+
+def init_functions(connection):
+    """Initialize all SQL functions in the database."""
+    if CFG["db"]["create_functions"].value():
+        print("Refreshing SQL functions...")
+    for file in bbpath.template_files("../sql/", exts=[".sql"]):
+        func = sa.DDL(
+            bbpath.template_str(file)
+        )
+        print("Loading: {0}".format(file))
+        print(func.compile())
+        connection.execute(func)
+        connection.commit()
 

@@ -11,6 +11,12 @@ import uuid
 import csv
 from functools import partial
 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+mpl.style.use('ggplot')
+
 from plumbum import local
 
 from benchbuild.utils.actions import (Build, Clean, Configure, Download,
@@ -19,7 +25,10 @@ from benchbuild.utils.cmd import time
 from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.reports import Report
 
+import benchbuild.utils.schema as db
 import sqlalchemy as sa
+import sqlalchemy.orm as orm
+import seaborn as sns
 
 class Test(PolyJIT):
     """
@@ -123,53 +132,67 @@ class TestReport(Report):
 
     SUPPORTED_EXPERIMENTS = ["pj-test"]
 
+    QUERY = \
+        sa.sql.select([
+        sa.column('project'),
+        sa.column('domain'),
+        sa.column('speedup'),
+        sa.column('ohcov_0'),
+        sa.column('ohcov_1'),
+        sa.column('dyncov_0'),
+        sa.column('dyncov_1'),
+        sa.column('cachehits_0'),
+        sa.column('cachehits_1'),
+        sa.column('variants_0'),
+        sa.column('variants_1'),
+        sa.column('codegen_0'),
+        sa.column('codegen_1'),
+        sa.column('scops_0'),
+        sa.column('scops_1'),
+        sa.column('t_0'),
+        sa.column('o_0'),
+        sa.column('t_1'),
+        sa.column('o_1')
+        ]).\
+        select_from(
+            sa.func.pj_test_eval(sa.sql.bindparam('exp_ids'))
+        )
+
+    def plot(self, query : orm.Query):
+        df = pd.read_sql_query(query, db.CONNECTION_MANAGER.engine)
+
+        # Cleanup the data from the database.
+        t0_min_runtime = df["t_0"] > 5
+        t1_min_runtime = df["t_1"] > 5
+
+        max_speedup = df["speedup"] < 30
+        min_speedup = df["speedup"] > -30
+        df_filtered = df[ t0_min_runtime
+                        & t1_min_runtime
+                        & max_speedup
+                        & min_speedup
+                        ]
+
+        plot = sns.barplot(x="project", y="speedup", data=df_filtered)
+        fig = plot.get_figure()
+        fig.savefig('pj-test-vioplot.pdf')
+        return df_filtered
+
     def report(self):
         print("I found the following matching experiment ids")
         print("  \n".join([str(x) for x in self.experiment_ids]))
-        func = sa.func
-        column = sa.column
-        select = sa.sql.select
-        bindparam = sa.sql.bindparam
 
-        exps = select([
-            column('project'),
-            column('domain'),
-            column('speedup'),
-            column('ohcov_0'),
-            column('ohcov_1'),
-            column('dyncov_0'),
-            column('dyncov_1'),
-            column('cachehits_0'),
-            column('cachehits_1'),
-            column('variants_0'),
-            column('variants_1'),
-            column('codegen_0'),
-            column('codegen_1'),
-            column('scops_0'),
-            column('scops_1'),
-            column('t_0'),
-            column('o_0'),
-            column('t_1'),
-            column('o_1')
-            ]).\
-            select_from(
-                func.pj_test_eval(bindparam('exp_ids'))
-            )
-
-        qry = exps.unique_params(exp_ids=self.experiment_ids)
-        print(qry.compile())
-        r1 = self.session.execute(qry)
-        return r1.fetchall()
+        qry = TestReport.QUERY.unique_params(exp_ids=self.experiment_ids)
+        return self.session.execute(qry).fetchall()
 
     def generate(self):
         report = self.report()
-        print("Report has: {0} result rows".format(len(report)))
         with open(self.out_path, 'w') as csv_out:
             csv_writer = csv.writer(csv_out)
             csv_writer.writerows([
                 ('project', 'domain',
                  'speedup',
-                 'ohcov_0', 'ohcov_1',
+                 'ohcov_0', 'ocov_1',
                  'dyncov_0', 'dyncov_1',
                  'cachehits_0', 'cachehits_1',
                  'variants_0', 'variants_1',

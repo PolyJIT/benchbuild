@@ -309,7 +309,7 @@ class SessionManager(object):
         logger = logging.getLogger(__name__)
 
         self.__test_mode = CFG['db']['rollback'].value()
-        self.__engine = create_engine(
+        self.engine = create_engine(
             "{dialect}://{u}:{p}@{h}:{P}/{db}".format(
                 u=CFG["db"]["user"],
                 h=CFG["db"]["host"],
@@ -317,17 +317,17 @@ class SessionManager(object):
                 p=CFG["db"]["pass"],
                 db=CFG["db"]["name"],
                 dialect=CFG["db"]["dialect"]))
-        self.__connection = self.__engine.connect()
+        self.connection = self.engine.connect()
         self.__transaction = None
         if self.__test_mode:
             logger.warning(
                 "DB test mode active, all actions will be rolled back.")
-            self.__transaction = self.__connection.begin()
+            self.__transaction = self.connection.begin()
 
-        BASE.metadata.create_all(self.__connection, checkfirst=True)
+        BASE.metadata.create_all(self.connection, checkfirst=True)
 
     def get(self):
-        return sessionmaker(bind=self.__connection)
+        return sessionmaker(bind=self.connection)
 
     def __del__(self):
         if hasattr(self, '__transaction') and self.__transaction:

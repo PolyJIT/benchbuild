@@ -133,20 +133,27 @@ class TestReport(Report):
 
         exps = select([
             column('project'),
-            column('total'),
-            column('scops'),
-            column('overhead'),
+            column('domain'),
+            column('speedup'),
             column('ohcov_0'),
             column('ohcov_1'),
-            column('dyncov'),
-            column('cachehits'),
-            column('variants'),
+            column('dyncov_0'),
+            column('dyncov_1'),
+            column('cachehits_0'),
+            column('cachehits_1'),
+            column('variants_0'),
+            column('variants_1'),
+            column('codegen_0'),
+            column('codegen_1'),
+            column('scops_0'),
+            column('scops_1'),
             column('t_0'),
             column('o_0'),
             column('t_1'),
-            column('o_1')]).\
+            column('o_1')
+            ]).\
             select_from(
-                func.pj_test_total_dyncov(bindparam('exp_ids'))
+                func.pj_test_eval(bindparam('exp_ids'))
             )
 
         qry = exps.unique_params(exp_ids=self.experiment_ids)
@@ -160,7 +167,15 @@ class TestReport(Report):
         with open(self.out_path, 'w') as csv_out:
             csv_writer = csv.writer(csv_out)
             csv_writer.writerows([
-                ('project', 'total', 'scops', 'overhead', 'ohcov_0', 'ohcov_1',
-                 'dyncov', 'cachehits', 'variants', 't_0', 't_1', 'o_1')
+                ('project', 'domain',
+                 'speedup',
+                 'ohcov_0', 'ohcov_1',
+                 'dyncov_0', 'dyncov_1',
+                 'cachehits_0', 'cachehits_1',
+                 'variants_0', 'variants_1',
+                 'codegen_0', 'codegen_1',
+                 'scops_0', 'scops_1',
+                 't_0', 'o_0', 't_1', 'o_1'
+                 )
             ])
             csv_writer.writerows(report)

@@ -10,6 +10,7 @@ decorator==4.0.4
 dill==0.2.4
 docutils==0.12
 lazy==1.2
+pandas>=0.19.2
 parse==1.6.6
 pbr==1.8.1
 plumbum>=1.6.0

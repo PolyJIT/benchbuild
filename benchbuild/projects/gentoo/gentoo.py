@@ -41,7 +41,7 @@ class GentooGroup(project.Project):
         pass
 
     def download(self):
-        if not project.CFG["unionfs"]["enable"].value():
+        if not CFG["unionfs"]["enable"].value():
             container.unpack_container(self.builddir)
 
     def write_wgetrc(self, path):

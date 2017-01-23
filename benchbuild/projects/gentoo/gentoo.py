@@ -12,14 +12,11 @@ the gentoo image in benchbuild's source directory.
 
 """
 from os import path
-from benchbuild.utils.cmd import cp, tar, mv, rm  # pylint: disable=E0401
-from plumbum import local
+from benchbuild.utils.cmd import cp  # pylint: disable=E0401
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild import project
-from benchbuild.utils.run import run, uchroot, uchroot_no_llvm
 from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import uchroot_env, uchroot_mounts
 from benchbuild.settings import CFG
 from benchbuild.utils import container
@@ -27,9 +24,8 @@ from benchbuild.utils.container import Gentoo
 
 
 class GentooGroup(project.Project):
-    """
-    Gentoo ProjectGroup is the base class for every portage build.
-    """
+    """Gentoo ProjectGroup is the base class for every portage build."""
+
     GROUP = 'gentoo'
     CONTAINER = Gentoo()
     SRC_FILE = None
@@ -42,7 +38,7 @@ class GentooGroup(project.Project):
 
     def download(self):
         if not CFG["unionfs"]["enable"].value():
-            container.unpack_container(self.builddir)
+            container.unpack_container(project.CONTAINER, self.builddir)
 
     def write_wgetrc(self, path):
         mkfile_uchroot("/etc/wgetrc")

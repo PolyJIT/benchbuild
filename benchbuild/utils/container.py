@@ -52,6 +52,8 @@ def is_valid_container(container, path):
 
 def unpack_container(container, path):
     """
+    Unpack a container usable by uchroot.
+
     Method that checks if a directory for the container exists,
     checks if erlent support is needed and then unpacks the
     container accordingly.

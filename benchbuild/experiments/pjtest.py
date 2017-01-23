@@ -72,7 +72,7 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
         project: The benchbuild.project.
         experiment: The benchbuild.experiment.
         config: The benchbuild.settings.config.
-        jobs: Number of cores we should use for this exection.
+        jobs: Number of cores we should use for this execution.
         run_f: The file we want to execute.
         args: List of arguments that should be passed to the wrapped binary.
         **kwargs: Dictionary with our keyword args. We support the following

@@ -1,7 +1,9 @@
 """
-A test experiment for PolyJIT.
+The 'sequence analysis' experiment.
 
-This experiment is used to test the analysis of sequences.
+Currently runs all projects of an experiments after compiling it with -O3 and
+catches the statistics emitted by llvm. Later on will be changed to the sequence
+that will be wrote and  analyzed in the database.
 """
 import logging
 import uuid
@@ -48,6 +50,7 @@ class Test(PolyJIT):
 def sequence_func(project, experiment, config, clang, **kwargs):
     """
     Generate the sequence for Polly.
+    Currently has the body of the collect_compile_stats test.
 
     Args:
         project: The benchbuild.project.

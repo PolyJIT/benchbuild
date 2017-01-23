@@ -1,11 +1,9 @@
 """
 The 'sequence analysis' experiment.
 
-Currently runs all projects of an experiments after compiling it with -O3 and
-catches the statistics emitted by llvm. Later on will be changed to the sequence
-that will be wrote and  analyzed in the database.
+Generates a custom sequence for the project and  writes the compile stats
+created doing so. Returns the actions executed for the test.
 """
-import logging
 import uuid
 
 from functool import partial
@@ -26,6 +24,11 @@ class Test(PolyJIT):
     def actions_for_projects(self, p):
         """Executes the actions for the test."""
         from benchbuild.settings import CFG
+        # this form of import is used because of the '-' in a module-name
+        generate_custom_sequence = __import__(benchbuild.experiments.\
+                                          sequence-analysis.greedy.\
+                                          generate_custom_sequence)
+
 
         p = PolyJIT.init_project(p)
 
@@ -34,7 +37,7 @@ class Test(PolyJIT):
                     "-mllvm", "-polly"]
         p.run_uuid = uuid.uuid4()
         jobs = int(CFG["jobs"].value())
-        p.compiler_extension = partial(sequence_func,
+        p.compiler_extension = partial(generate_custom_sequence,
                                       p, self, CFG, jobs)
         actions.extend([
             MakeBuildDir(p),
@@ -46,59 +49,3 @@ class Test(PolyJIT):
             Clean(p)
         ])
         return actions
-
-def sequence_func(project, experiment, config, clang, **kwargs):
-    """
-    Generate the sequence for Polly.
-    Currently has the body of the collect_compile_stats test.
-
-    Args:
-        project: The benchbuild.project.
-        experiment: The benchbuild.experiment.
-        config: The benchbuild.settings.config.
-        clang: Plumbum command that executes clang.
-        **kwargs: Dictonary with keyword args. The following entries are
-            supported:
-
-            project_name: The real name of the project. This might differ from
-                the configured project name if the projectgot wrapped with
-                ::benchbuild.project.wrap_dynamic.
-            has_stdin: Signals whether the stdin should be handled.
-    """
-    from benchbuild.utils.run import guarded_exec, handle_stdin
-    from benchbuild.settings import CFG as c
-    from benchbuild.utils.db import persist_compilestats
-    from benchbuild.utils.schema import CompileStat
-    from benchbuild.experiments.compilestats import get_compilestats
-
-    c.update(config)
-    clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
-
-    with local.env(BB_ENABLE=0):
-        with guarded_exec(clang, project, experiment) as run:
-            ri = run()
-
-    if ri.retcode == 0:
-        stats = []
-        for stat in get_compilestats(ri.stderr):
-            compile_s = CompileStat()
-            compile_s.name = stat["desc"].rstrip()
-            compile_s.component = stat["component"].rstrip()
-            compile_s.value = stat["value"]
-            stats.append(compile_s)
-
-        components = c["cs"]["names"].value()
-        if components is not None:
-            stats = [s for s in stats if str(s.component) in components]
-        names = c["cs"]["names"].value()
-        if names is not None:
-            stats = [s for s in stats if str(s.name) in names]
-
-        log = logging.getLogger()
-        log.info("{:s} results for projects {:s}:".format(experiment.NAME,
-                                                          project.NAME))
-        log.info("=========================================================\n")
-        for stat in stats:
-            log.info("{:s} - {:s}".format(str(stat.name), str(stat.value)))
-        log.info("=========================================================\n")
-        persist_compilestats(ri.db_run, ri.session, stats)

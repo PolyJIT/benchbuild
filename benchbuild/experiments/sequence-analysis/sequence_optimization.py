@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-"""This module supplies functionality to shorten the custom optimization
+"""
+This module supplies functionality to shorten the custom optimization
 sequence for an arbitrary program found by an arbitrary heuristic approach.
 """
 import sys

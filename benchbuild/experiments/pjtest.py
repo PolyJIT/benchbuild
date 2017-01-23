@@ -130,7 +130,7 @@ class TestReport(Report):
 
     SUPPORTED_EXPERIMENTS = ["pj-test"]
 
-    QUERY = \
+    QUERY_TOTAL = \
         sa.sql.select([
         sa.column('project'),
         sa.column('domain'),
@@ -180,7 +180,7 @@ class TestReport(Report):
         print("I found the following matching experiment ids")
         print("  \n".join([str(x) for x in self.experiment_ids]))
 
-        qry = TestReport.QUERY.unique_params(exp_ids=self.experiment_ids)
+        qry = TestReport.QUERY_TOTAL.unique_params(exp_ids=self.experiment_ids)
         return self.session.execute(qry).fetchall()
 
     def generate(self):

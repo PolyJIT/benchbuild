@@ -7,28 +7,26 @@ execution profiles of PolyJIT:
   1) PolyJIT enabled, with specialization
   2) PolyJIT enabled, without specialization
 """
-import uuid
 import csv
+import uuid
 from functools import partial
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib as mpl
-mpl.style.use('ggplot')
-
+import pandas as pd
+import seaborn as sns
+import sqlalchemy as sa
+import sqlalchemy.orm as orm
 from plumbum import local
 
+import benchbuild.utils.schema as db
+from benchbuild.experiments.polyjit import PolyJIT
+from benchbuild.reports import Report
 from benchbuild.utils.actions import (Build, Clean, Configure, Download,
                                       MakeBuildDir, Prepare, Run)
 from benchbuild.utils.cmd import time
-from benchbuild.experiments.polyjit import PolyJIT
-from benchbuild.reports import Report
 
-import benchbuild.utils.schema as db
-import sqlalchemy as sa
-import sqlalchemy.orm as orm
-import seaborn as sns
+mpl.style.use('ggplot')
+
 
 class Test(PolyJIT):
     """

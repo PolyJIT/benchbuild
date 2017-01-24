@@ -69,7 +69,8 @@ def __run_scop_detection(program):
         program (string): the name of the application for which the SCoP
             detection should run.
     """
-    sequence = settings["settings"].value()
+    from benchbuild.settings import CFG
+    sequence = CFG["sequence"].value()
     if sequence == 'genetic1':
         passes = O3_PASSES + POLLY_CANONICALIZE_PASSES
         opt_flags = genetic1_opt.generate_custom_sequence(program, passes,

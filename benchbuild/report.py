@@ -41,7 +41,6 @@ class BenchBuildReport(cli.Application):
                 continue
 
             for report_cls in reports[exp_name]:
-                print("Writing '{0}'".format(self.outfile))
                 report = report_cls(self.experiment_ids, self.outfile)
                 report.generate()
         exit(0)

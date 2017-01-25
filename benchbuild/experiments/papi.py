@@ -28,13 +28,13 @@ def get_compilestats(prog_out):
 
 def collect_compilestats(project, experiment, clang, **kwargs):
     """Collect compilestats."""
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.utils.run import track_execution, handle_stdin
     from benchbuild.utils.db import persist_compilestats
     from benchbuild.utils.schema import CompileStat
 
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
-    with guarded_exec(clang, project, experiment) as run:
+    with track_execution(clang, project, experiment) as run:
         ri = run()
 
     if ri.retcode == 0:

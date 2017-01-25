@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger(__name__)
 
+
 def create_run(cmd, prj, exp, grp):
     """
     Create a new 'run' in the database.

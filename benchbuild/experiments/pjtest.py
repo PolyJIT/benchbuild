@@ -8,6 +8,7 @@ execution profiles of PolyJIT:
   2) PolyJIT enabled, without specialization
 """
 import csv
+import os
 import uuid
 from functools import partial
 
@@ -132,28 +133,41 @@ class TestReport(Report):
 
     QUERY_TOTAL = \
         sa.sql.select([
-        sa.column('project'),
-        sa.column('domain'),
-        sa.column('speedup'),
-        sa.column('ohcov_0'),
-        sa.column('ohcov_1'),
-        sa.column('dyncov_0'),
-        sa.column('dyncov_1'),
-        sa.column('cachehits_0'),
-        sa.column('cachehits_1'),
-        sa.column('variants_0'),
-        sa.column('variants_1'),
-        sa.column('codegen_0'),
-        sa.column('codegen_1'),
-        sa.column('scops_0'),
-        sa.column('scops_1'),
-        sa.column('t_0'),
-        sa.column('o_0'),
-        sa.column('t_1'),
-        sa.column('o_1')
+            sa.column('project'),
+            sa.column('domain'),
+            sa.column('speedup'),
+            sa.column('ohcov_0'),
+            sa.column('ohcov_1'),
+            sa.column('dyncov_0'),
+            sa.column('dyncov_1'),
+            sa.column('cachehits_0'),
+            sa.column('cachehits_1'),
+            sa.column('variants_0'),
+            sa.column('variants_1'),
+            sa.column('codegen_0'),
+            sa.column('codegen_1'),
+            sa.column('scops_0'),
+            sa.column('scops_1'),
+            sa.column('t_0'),
+            sa.column('o_0'),
+            sa.column('t_1'),
+            sa.column('o_1')
         ]).\
         select_from(
             sa.func.pj_test_eval(sa.sql.bindparam('exp_ids'))
+        )
+
+    QUERY_REGION = \
+        sa.sql.select([
+            sa.column('project'),
+            sa.column('region'),
+            sa.column('cores'),
+            sa.column('t_polly'),
+            sa.column('t_polyjit'),
+            sa.column('speedup')
+        ]).\
+        select_from(
+            sa.func.pj_test_region_wise(sa.sql.bindparam('exp_ids'))
         )
 
     def plot(self, query : orm.Query):
@@ -165,11 +179,10 @@ class TestReport(Report):
 
         max_speedup = df["speedup"] < 30
         min_speedup = df["speedup"] > -30
-        df_filtered = df[ t0_min_runtime
-                        & t1_min_runtime
-                        & max_speedup
-                        & min_speedup
-                        ]
+        df_filtered = df[t0_min_runtime
+                         & t1_min_runtime
+                         & max_speedup
+                         & min_speedup]
 
         plot = sns.barplot(x="project", y="speedup", data=df_filtered)
         fig = plot.get_figure()
@@ -181,22 +194,32 @@ class TestReport(Report):
         print("  \n".join([str(x) for x in self.experiment_ids]))
 
         qry = TestReport.QUERY_TOTAL.unique_params(exp_ids=self.experiment_ids)
-        return self.session.execute(qry).fetchall()
+        yield ("complete",
+               ('project', 'domain',
+                'speedup',
+                'ohcov_0', 'ocov_1',
+                'dyncov_0', 'dyncov_1',
+                'cachehits_0', 'cachehits_1',
+                'variants_0', 'variants_1',
+                'codegen_0', 'codegen_1',
+                'scops_0', 'scops_1',
+                't_0', 'o_0', 't_1', 'o_1'),
+               self.session.execute(qry).fetchall())
+        qry = TestReport.QUERY_REGION.unique_params(exp_ids=self.experiment_ids)
+        yield ("regions",
+               ('project', 'region', 'cores', 'T_Polly', 'T_PolyJIT',
+                'speedup'),
+               self.session.execute(qry).fetchall())
 
     def generate(self):
-        report = self.report()
-        with open(self.out_path, 'w') as csv_out:
-            csv_writer = csv.writer(csv_out)
-            csv_writer.writerows([
-                ('project', 'domain',
-                 'speedup',
-                 'ohcov_0', 'ocov_1',
-                 'dyncov_0', 'dyncov_1',
-                 'cachehits_0', 'cachehits_1',
-                 'variants_0', 'variants_1',
-                 'codegen_0', 'codegen_1',
-                 'scops_0', 'scops_1',
-                 't_0', 'o_0', 't_1', 'o_1'
-                 )
-            ])
-            csv_writer.writerows(report)
+        for name, header, data in self.report():
+            fname = os.path.basename(self.out_path)
+
+            with open("{prefix}_{name}{ending}".format(
+                    prefix=os.path.splitext(fname)[0],
+                    ending=os.path.splitext(fname)[-1],
+                    name=name), 'w') as csv_out:
+                print("Writing '{0}'".format(csv_out.name))
+                csv_writer = csv.writer(csv_out)
+                csv_writer.writerows([header])
+                csv_writer.writerows(data)

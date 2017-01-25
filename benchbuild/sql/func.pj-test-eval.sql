@@ -285,3 +285,79 @@ ORDER BY
   coverage.dyncov_1 DESC;
 END
 $BODY$ LANGUAGE plpgsql;
+
+DROP FUNCTION IF EXISTS pj_test_run_regions(exp_ids UUID[], spec_status VARCHAR);
+CREATE OR REPLACE FUNCTION pj_test_run_regions(exp_ids UUID[], spec_status VARCHAR)
+  returns table(
+    name VARCHAR,
+    region VARCHAR,
+    runtime NUMERIC,
+    value VARCHAR,
+    specialization VARCHAR) AS $BODY$
+BEGIN
+  RETURN QUERY
+    SELECT
+	    run.project_name AS project,
+      regions.name AS region_name,
+      SUM(regions.duration) AS runtime,
+      config.value,
+      spec.value AS specialization
+	  FROM
+	    run,
+	    specialization(exp_ids, spec_status) AS spec,
+	    config,
+	    regions
+	  WHERE
+      run.experiment_group = ANY (exp_ids) AND
+	    run.id = regions.run_id AND
+	    run.id = config.run_id AND
+	    run.id = spec.run_id AND
+	    config.name = 'cores'
+	  GROUP BY run.project_name, regions.name, config.value, spec.value
+    ORDER BY project, runtime, config.value;
+END
+$BODY$ language plpgsql;
+
+DROP FUNCTION IF EXISTS pj_test_region_wise(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION pj_test_region_wise(exp_ids UUID[])
+	returns
+    table(Project VARCHAR,
+          Region VARCHAR,
+          Cores VARCHAR,
+          T_Polly NUMERIC,
+          T_PolyJIT NUMERIC,
+          speedup NUMERIC)
+AS $compare_region_wise$
+BEGIN
+  RETURN QUERY
+select * from
+(
+select
+  results.project,
+  results.region,
+  results.cores,
+  results.runtime_polly,
+  results.runtime_polyjit,
+  speedup(results.runtime_polly, results.runtime_polyjit) as speedup FROM
+  (
+    SELECT
+      spec_enabled.name AS project,
+      spec_enabled.region,
+      spec_enabled.value AS cores,
+      spec_enabled.runtime AS runtime_polly,
+      spec_disabled.runtime AS runtime_polyjit
+    FROM
+      pj_test_run_regions(exp_ids, 'enabled') as spec_enabled,
+      pj_test_run_regions(exp_ids, 'disabled') as spec_disabled
+    WHERE
+	    spec_enabled.name = spec_disabled.name and
+	    spec_enabled.region = spec_disabled.region and
+	    spec_enabled.value = spec_disabled.value and
+	    spec_enabled.region != ALL ('{START, CODEGEN, VARIANTS, CACHE_HIT}'::VARCHAR[])
+    order by
+      project, cores, region
+  ) as results
+) as reulsts_f
+order by speedup desc;
+end
+$compare_region_wise$ language plpgsql;

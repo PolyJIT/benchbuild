@@ -82,7 +82,7 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec, fetch_time_output
+    from benchbuild.utils.run import track_execution, fetch_time_output
     from benchbuild.settings import CFG
     from benchbuild.utils.db import persist_time, persist_config
 
@@ -108,7 +108,7 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
 
     with local.env(OMP_NUM_THREADS=str(jobs),
                    POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-        with guarded_exec(run_cmd, project, experiment) as run:
+        with track_execution(run_cmd, project, experiment) as run:
             ri = handle_timing_info(run())
     persist_config(ri.db_run, ri.session, {"cores": str(jobs - 1),
                                            "cores-config": str(jobs),
@@ -118,7 +118,7 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
     with local.env(OMP_NUM_THREADS=str(jobs),
                    POLLI_DISABLE_SPECIALIZATION=1,
                    POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-        with guarded_exec(run_cmd, project, experiment) as run:
+        with track_execution(run_cmd, project, experiment) as run:
             ri = handle_timing_info(run())
     persist_config(ri.db_run, ri.session, {"cores": str(jobs - 1),
                                            "cores-config": str(jobs),

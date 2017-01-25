@@ -231,7 +231,7 @@ def fail(db_run, session, retcode, stdout, stderr):
 
 
 @contextmanager
-def guarded_exec(cmd, project, experiment, **kwargs):
+def track_execution(cmd, project, experiment, **kwargs):
     """
     Guard the execution of the given command.
 

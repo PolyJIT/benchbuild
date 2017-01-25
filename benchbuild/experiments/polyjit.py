@@ -38,7 +38,7 @@ def run_raw(project, experiment, config, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec
+    from benchbuild.utils.run import track_execution
     from benchbuild.utils.run import handle_stdin
     from benchbuild.settings import CFG
 
@@ -47,7 +47,7 @@ def run_raw(project, experiment, config, run_f, args, **kwargs):
 
     run_cmd = local[run_f]
     run_cmd = handle_stdin(run_cmd[args], kwargs)
-    with guarded_exec(run_cmd, project, experiment) as run:
+    with track_execution(run_cmd, project, experiment) as run:
         run()
 
 
@@ -74,7 +74,7 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from benchbuild.settings import CFG
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.utils.run import track_execution, handle_stdin
     from benchbuild.utils.db import persist_config
 
     CFG.update(config)
@@ -83,7 +83,7 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
     run_cmd = handle_stdin(run_cmd[args], kwargs)
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
-        with guarded_exec(run_cmd, project, experiment) as run:
+        with track_execution(run_cmd, project, experiment) as run:
             run_info = run()
 
     persist_config(run_info.db_run, run_info.session,
@@ -110,7 +110,7 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from benchbuild.settings import CFG
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.utils.run import track_execution, handle_stdin
     from benchbuild.utils.db import persist_likwid, persist_config
     from benchbuild.likwid import get_likwid_perfctr
 
@@ -128,7 +128,7 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
         run_cmd = handle_stdin(run_cmd[args], kwargs)
 
         with local.env(POLLI_ENABLE_LIKWID=1):
-            with guarded_exec(run_cmd, project, experiment) as run:
+            with track_execution(run_cmd, project, experiment) as run:
                 ri = run()
 
         likwid_measurement = get_likwid_perfctr(likwid_f)
@@ -159,7 +159,7 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec, fetch_time_output
+    from benchbuild.utils.run import track_execution, fetch_time_output
     from benchbuild.settings import CFG
     from benchbuild.utils.db import persist_time, persist_config
 
@@ -176,7 +176,7 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
 
     with local.env(OMP_NUM_THREADS=str(jobs),
                    POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-        with guarded_exec(run_cmd, project, experiment) as run:
+        with track_execution(run_cmd, project, experiment) as run:
             ri = run()
 
         if may_wrap:
@@ -211,7 +211,7 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec, fetch_time_output
+    from benchbuild.utils.run import track_execution, fetch_time_output
     from benchbuild.settings import CFG
     from benchbuild.utils.db import persist_time, persist_config
 
@@ -228,7 +228,7 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
 
     with local.env(OMP_NUM_THREADS=str(jobs),
                    POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-        with guarded_exec(run_cmd, project, experiment) as run:
+        with track_execution(run_cmd, project, experiment) as run:
             ri = run()
 
         if may_wrap:
@@ -263,7 +263,7 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from benchbuild.settings import CFG
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.utils.run import track_execution, handle_stdin
     from benchbuild.utils.db import persist_perf, persist_config
     from benchbuild.utils.cmd import perf
 
@@ -274,7 +274,7 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
     run_cmd = perf["record", "-q", "-F", 6249, "-g", run_cmd]
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
-        with guarded_exec(run_cmd, project, experiment) as run:
+        with track_execution(run_cmd, project, experiment) as run:
             ri = run(retcode=None)
 
         fg_path = path.join(CFG["src_dir"], "extern/FlameGraph")
@@ -516,7 +516,7 @@ class PJITRegression(PolyJIT):
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
-        from benchbuild.utils.run import guarded_exec
+        from benchbuild.utils.run import track_execution
 
         def _track_compilestats(project, experiment, config, clang,
                                 **kwargs):
@@ -527,7 +527,7 @@ class PJITRegression(PolyJIT):
             CFG.update(config)
             clang = handle_stdin(clang["-mllvm", "-polli-collect-modules"],
                                  kwargs)
-            with guarded_exec(clang, project, experiment) as run:
+            with track_execution(clang, project, experiment) as run:
                 run()
 
         p = PolyJIT.init_project(p)

@@ -17,29 +17,36 @@ Measurements
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
 
-from benchbuild.experiment import step, RuntimeExperiment
+from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiments.raw import run_with_time
+from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
+                                      Clean, MakeBuildDir, Run, Echo)
 from benchbuild.settings import CFG
+import functools
 
 
 class Polly(RuntimeExperiment):
-    """ The polly experiment. """
+    """The polly experiment."""
 
     NAME = "polly"
 
-    def run_project(self, p):
-        from uuid import uuid4
-        from benchbuild.experiments.raw import run_with_time
-        from functools import partial
-
-        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polly"]
-
-        for i in range(1, int(CFG["jobs"]) + 1):
-            p.run_uuid = uuid4()
-            with step("time: {0} cores & uuid {1}".format(i, p.run_uuid)):
-                p.clean()
-                p.prepare()
-                p.download()
-                p.configure()
-                p.build()
-                p.run(partial(run_with_time, p, self, CFG, i))
+    def actions_for_project(self, project):
+        """Compile & Run the experiment with -O3 enabled."""
+        project.cflags = ["-O3", "-fno-omit-frame-pointer",
+                          "-Xclang", "-load",
+                          "-Xclang", "LLVMPolyJIT.so",
+                          "-mllvm", "-polly"]
+        project.runtime_extension = functools.partial(
+            run_with_time, project, self, CFG, CFG["jobs"].value())
+        actns = [
+            MakeBuildDir(project),
+            Echo("Compiling... {}".format(project.name)),
+            Prepare(project),
+            Download(project),
+            Configure(project),
+            Build(project),
+            Echo("Running... {}".format(project.name)),
+            Run(project),
+            Clean(project),
+        ]
+        return actns

@@ -20,7 +20,7 @@ import logging
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
                                       Clean, MakeBuildDir, Run, Echo)
-from benchbuild.utils.run import guarded_exec, fetch_time_output
+from benchbuild.utils.run import track_execution, fetch_time_output
 from benchbuild.utils.db import persist_time, persist_config
 from benchbuild.utils.cmd import time
 
@@ -66,7 +66,7 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     if may_wrap:
         run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
-    with guarded_exec(run_cmd, project, experiment, **kwargs) as run:
+    with track_execution(run_cmd, project, experiment, **kwargs) as run:
         ri = run()
 
     if may_wrap:

@@ -16,7 +16,7 @@ class Crocopat(BenchBuildGroup):
     DOMAIN = 'verification'
     VERSION = '2.1.4'
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = wrap(self.run_f, experiment)
 
         programs = glob(path.join(self.testdir, "programs", "*.rml"))

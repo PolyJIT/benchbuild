@@ -29,7 +29,7 @@ class Gzip(BenchBuildGroup):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp(testfiles, self.builddir)
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = wrap(path.join(self.src_dir, "gzip"), experiment)
 
         # Compress

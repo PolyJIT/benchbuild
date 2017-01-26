@@ -149,7 +149,7 @@ define a subclass of ``AutoPortage`` and add it to the configuration.
     NAME = "app-arch"
     DOMAIN = "bzip2"
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
       """Add your custom test routines here."""
 
 Now we just need to add this to the plugin registry via ``benchbuild``'s

@@ -15,7 +15,7 @@ class Lulesh(BenchBuildGroup):
     SRC_FILE = 'LULESH.cc'
     
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = wrap(self.run_f, experiment)
         for i in range(1, 15):
             run(exp[str(i)])

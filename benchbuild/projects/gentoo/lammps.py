@@ -34,7 +34,7 @@ class Lammps(GentooGroup):
         with local.env(USE="-mpi -doc"):
             run(emerge_in_chroot["sci-physics/lammps"])
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         wrap(
             path.join(self.builddir, "usr/bin/lmp_serial"), experiment,
             self.builddir)

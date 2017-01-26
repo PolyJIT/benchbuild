@@ -38,7 +38,7 @@ class Ruby(BenchBuildGroup):
         with local.cwd(self.src_dir):
             run(make["-j", CFG["jobs"]])
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = wrap(path.join(self.src_dir, "ruby"), experiment)
 
         with local.env(RUBYOPT=""):

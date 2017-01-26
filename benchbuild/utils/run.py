@@ -144,7 +144,7 @@ def fail_run_group(group, session):
     session.commit()
 
 
-def begin(command, pname, ename, group):
+def begin(command, project, ename, group):
     """
     Begin a run in the database log.
 
@@ -163,7 +163,7 @@ def begin(command, pname, ename, group):
     from benchbuild.settings import CFG
     from datetime import datetime
 
-    db_run, session = create_run(command, pname, ename, group)
+    db_run, session = create_run(command, project, ename, group)
     db_run.begin = datetime.now()
     db_run.status = 'running'
     log = s.RunLog()
@@ -249,12 +249,15 @@ def track_execution(cmd, project, experiment, **kwargs):
     from plumbum import local, BG
     from warnings import warn
 
-    db_run, session = begin(cmd, project.name, experiment.name,
+    project.tracked_commands += 1
+    db_run, session = begin(cmd, project, experiment.name,
                             project.run_uuid)
     ex = None
 
     settings.CFG["db"]["run_id"] = db_run.id
     settings.CFG["use_file"] = 0
+    settings.CFG[str(project.name).upper()]["tracked_commands"] =\
+        project.tracked_commands
 
     def runner(retcode=None, *args):
         cmd_env = settings.to_env_dict(settings.CFG)
@@ -263,11 +266,11 @@ def track_execution(cmd, project, experiment, **kwargs):
             has_stdin = kwargs.get("has_stdin", False)
             proc = (cmd & BG(retcode=retcode,
                              stdin=sys.stdin if has_stdin else None))
-
             stdout = proc.stdout
             stderr = proc.stderr
             try:
                 log = logging.getLogger(name="benchbuild")
+                log.info("bla:" + repr(settings.CFG))
                 log.info("CMD: {0} = {1}".format(str(cmd), retcode))
                 log.info("STDOUT:")
                 log.info(stdout)
@@ -437,6 +440,30 @@ def uchroot(*args, **kwargs):
             LD_LIBRARY_PATH=list_to_path(libs),
             PATH=list_to_path(paths))
     return uchroot_cmd["--"]
+
+
+def track_runs():
+    """
+    Decorate a run function with a counter.
+    """
+    from functools import wraps
+
+    def wrap_track_runs(func):
+        """Wrap the function for the new build directory."""
+        @wraps(func)
+        def wrap_track_runs_func(self, *args, **kwargs):
+            if hasattr(self, "tracked_commands"):
+                self.tracked_commands += 1
+                func(self, *args, **kwargs)
+            else:
+                import logging
+                logging.warn("track_runs should be used on a Project.")
+                func(self, *args, **kwargs)
+            """The actual function inside the wrapper."""
+
+        return wrap_track_runs_func
+
+    return wrap_track_runs
 
 
 def in_builddir(sub='.'):

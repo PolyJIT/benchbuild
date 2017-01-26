@@ -171,20 +171,15 @@ class Configuration():
         def load_rec(inode, config):
             """Recursive part of loading."""
             for k in config:
-                if isinstance(config[k], dict) and k not in ['value', 'default']:
+                if isinstance(config[k], dict) and \
+                   k not in ['value', 'default']:
                     if k in inode:
                         load_rec(inode[k], config[k])
                     else:
                         log = logging.getLogger('benchbuild')
-                        log.warn(warnings.formatwarning(
-                            "Key '{}' is not part of the default config, "
-                            "ignoring.".format(k),
-                            category=InvalidConfigKey, filename=str(__file__),
-                            lineno=180))
-                        log.warn(warnings.formatwarning(
-                            "Offending node: '{}'".format(repr(config)),
-                            category=InvalidConfigKey, filename=str(__file__),
-                            lineno=180))
+                        log.debug(
+                            "+ config element: '{cfg}'".format(cfg=k)
+                        )
                 else:
                     inode[k] = config[k]
 

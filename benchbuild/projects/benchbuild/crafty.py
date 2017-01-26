@@ -43,7 +43,7 @@ class Crafty(BenchBuildGroup):
             run(crafty_make)
 
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         with local.cwd(self.src_dir):
             exp = wrap("./crafty", experiment)
             run((cat[path.join(self.testdir, "test1.sh")] | exp))

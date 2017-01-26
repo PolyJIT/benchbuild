@@ -19,7 +19,7 @@ class Eix(GentooGroup):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         run(emerge_in_chroot["eix"])
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         """Runs runtime tests for eix"""
 
         wrap(path.join("usr", "bin", "eix"), experiment, self.builddir)

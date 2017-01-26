@@ -71,7 +71,7 @@ class Povray(BenchBuildGroup):
         cp("-ar", path.join(self.testdir, "share"), '.')
         cp("-ar", path.join(self.testdir, "test"), '.')
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         povray_binary = path.join(self.SRC_FILE, "unix", self.name)
         tmpdir = "tmp"
         povini = path.join("cfg", ".povray", "3.6", "povray.ini")

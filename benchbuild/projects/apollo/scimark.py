@@ -30,6 +30,6 @@ class SciMark(ApolloGroup):
     def prepare(self):
         pass
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = wrap(path.join(self.builddir, "scimark2"), experiment)
         run(exp)

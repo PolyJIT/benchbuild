@@ -6,7 +6,8 @@ from os import listdir, path
 
 from plumbum import local
 
-from benchbuild.settings import CFG
+import benchbuild.utils.run as ur
+from benchbuild.settings import CFG, Configuration
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.db import persist_project
@@ -26,6 +27,17 @@ class ProjectRegistry(type):
 
         if cls.NAME is not None and cls.DOMAIN is not None:
             ProjectRegistry.projects[cls.NAME] = cls
+            LOCAL_CFG = Configuration('bb', node={
+                str(cls.NAME).upper(): {
+                    "tracked_commands": {
+                        "default": 0,
+                        "desc": "Number of command"
+
+                    }
+                }
+            })
+            LOCAL_CFG.init_from_env()
+            CFG.update(LOCAL_CFG)
 
 
 class ProjectDecorator(ProjectRegistry):
@@ -110,6 +122,10 @@ class Project(object, metaclass=ProjectDecorator):
         new_self.src_file = cls.SRC_FILE
         new_self.version = lambda: get_version_from_cache_dir(cls.SRC_FILE)
         new_self.container = cls.CONTAINER
+
+        name_upper = str(cls.NAME).upper()
+        new_self.tracked_commands = CFG[name_upper]["tracked_commands"].value()
+
         return new_self
 
     def __init__(self, exp, group=None):
@@ -136,14 +152,13 @@ class Project(object, metaclass=ProjectDecorator):
         self.ldflags = []
 
         self.setup_derived_filenames()
-
         persist_project(self)
 
     def setup_derived_filenames(self):
         """Construct all derived file names."""
         self.run_f = path.join(self.builddir, self.name)
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         """
         Run the tests of this project.
 
@@ -151,8 +166,8 @@ class Project(object, metaclass=ProjectDecorator):
 
         Args:
             experiment: The experiment we run this project under
+            run: A function that takes the run command.
         """
-        from benchbuild.utils.run import run
         exp = wrap(self.run_f, experiment)
         with local.cwd(self.builddir):
             run(exp)
@@ -180,7 +195,7 @@ class Project(object, metaclass=ProjectDecorator):
         with local.cwd(self.builddir):
             group, session = begin_run_group(self)
             try:
-                self.run_tests(experiment)
+                self.run_tests(experiment, ur.run)
                 end_run_group(group, session)
             except GuardedRunException:
                 fail_run_group(group, session)

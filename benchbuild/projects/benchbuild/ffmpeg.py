@@ -20,7 +20,7 @@ class LibAV(BenchBuildGroup):
     fate_dir = "fate-samples"
     fate_uri = "rsync://fate-suite.libav.org/fate-suite/"
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         with local.cwd(self.src_dir):
             wrap(self.name, experiment)
             run(make["V=1", "-i", "fate"])

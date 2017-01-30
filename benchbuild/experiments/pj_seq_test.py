@@ -8,7 +8,7 @@ import uuid
 import multiprocessing
 import logging
 
-from functool import partial
+from functools import partial
 from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
                                     Configure, Build, Run, Clean)
 

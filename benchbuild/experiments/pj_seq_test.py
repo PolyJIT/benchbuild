@@ -14,45 +14,42 @@ from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
 
 from benchbuild.experiment.polyjit import PolyJIT
 
-class Test(PolyJIT):
-    """
-    An experiment that excecutes all projects with PolyJIT support and analyzes
-    the sequences wrote to the database.
-    This shall become the default experiment for sequence analysis.
-    """
-
-    NAME = "pj-seq-test"
-
-    def actions_for_projects(self, p):
-        """Executes the actions for the test."""
-        from benchbuild.settings import CFG
-
-        p = PolyJIT.init_project(p)
-
-        actions = []
-        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polly"]
-        p.run_uuid = uuid.uuid4()
-        jobs = int(CFG["jobs"].value())
-        p.compiler_extension = partial(generate_sequences,
-                                      p, self, CFG, jobs)
-        actions.extend([
-            MakeBuildDir(p),
-            Prepare(p),
-            Download(p),
-            Configure(p),
-            Build(p),
-            Run(p),
-            Clean(p)
-        ])
-        return actions
-
-
 DEFAULT_PASS_SPACE = ['-basicaa', '-mem2reg']
 DEFAULT_SEQ_LENGTH = 10
 DEFAULT_DEBUG = False
 DEFAULT_NUM_ITERATIONS = 100
 
+def get_compilestats(prog_out):
+    """ Get the LLVM compilation stats from :prog_out:. """
+    from parse import compile as c
+
+    stats_pattern = c("{value:d} {component} - {desc}\n")
+
+    for line in prog_out.split("\n"):
+        res = stats_pattern.search(line + "\n")
+        if res is not None:
+            yield yres
+
+def collect_compilestats(project, experiment, clang, **kwargs):
+    """Collect compilestats and write them into the database persistently."""
+    from benchbuild.utils.db import persist_compilestats
+    from benchbuild.utils.schema import CompileStat
+    from benchbuild.utils.run import guarded_exec, handle_stdin
+
+    clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
+
+    with guarded_exec(clang, project, experiment) as run:
+        ri = run()
+
+    if ri.retcode == 0:
+        stats = []
+        for stat in get_compilestats(ri.stderr):
+            compile_s = CompileStat()
+            compile_s.name = stat["desc"].rstrip()
+            compile_s.component = stat["component"].rstrip()
+            compile_s.value = stat["value"]
+            stats.append(compile_s)
+        persist_compilestats(ri.db_run, ri.session, stats)
 
 def generate_sequences(program, pass_space=DEFAULT_PASS_SPACE,
                        seq_length=DEFAULT_SEQ_LENGTH,
@@ -61,7 +58,7 @@ def generate_sequences(program, pass_space=DEFAULT_PASS_SPACE,
     """
     Generates the custom sequences for a provided application.
 
-    I therfore use the greedy algorithm Christoph Woller used as well.
+    I therfor use the greedy algorithm Christoph Woller used as well.
     For further information look at the greedy.py file in the sequence-analysis
     experiment. The difference of this method to the actual custom generate
     sequence method is that Mr. Woller only returned the best possible sequence.
@@ -143,3 +140,38 @@ def generate_sequences(program, pass_space=DEFAULT_PASS_SPACE,
         log.debug("\n")
 
     return generated_sequences
+
+class PJSeqTest(PolyJIT):
+    """
+    An experiment that excecutes all projects with PolyJIT support.
+    Instead of the actual actions the compile stats for executing them
+    are being written into the database.
+    This shall become the default experiment for sequence analysis.
+    """
+
+    NAME = "pj-seq-test"
+
+    def actions_for_projects(self, p):
+        """Executes the actions for the test."""
+        from benchbuild.settings import CFG
+
+        p = PolyJIT.init_project(p)
+
+        actions = []
+        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                    "-mllvm", "-polly"]
+        p.run_uuid = uuid.uuid4()
+        jobs = int(CFG["jobs"].value())
+        p.runtime_extension = partial(generate_sequences,
+                                      p, self, CFG, jobs)
+        p.compiler_extension = partial(collect_compilestats, p, self)
+        actions.extend([
+            MakeBuildDir(p),
+            Prepare(p),
+            Download(p),
+            Configure(p),
+            Build(p),
+            Run(p),
+            Clean(p)
+        ])
+        return actions

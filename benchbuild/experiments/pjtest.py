@@ -8,6 +8,7 @@ execution profiles of PolyJIT:
   2) PolyJIT enabled, without specialization
 """
 import csv
+import logging
 import os
 import types
 import uuid
@@ -106,14 +107,17 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
                 ri.stderr.split("\n"))
             if timings:
                 persist_time(ri.db_run, ri.session, timings)
+            else:
+                logging.warn("No timing information found.")
         return ri
 
-    ri = RunInfo()
+    ri_1 = RunInfo()
+    ri_2 = RunInfo()
     with track_execution(run_cmd, project, experiment) as run:
         with local.env(OMP_NUM_THREADS=str(jobs),
                     POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-            ri = handle_timing_info(run())
-            persist_config(ri.db_run, ri.session, {
+            ri_1 = handle_timing_info(run())
+            persist_config(ri_1.db_run, ri_1.session, {
                 "cores": str(jobs - 1),
                 "cores-config": str(jobs),
                 "recompilation": "enabled",
@@ -123,13 +127,14 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
         with local.env(OMP_NUM_THREADS=str(jobs),
                     POLLI_DISABLE_SPECIALIZATION=1,
                     POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-            ri = handle_timing_info(run(ri))
-            persist_config(ri.db_run, ri.session, {
+            ri_2 = handle_timing_info(run())
+            persist_config(ri_2.db_run, ri_2.session, {
                 "cores": str(jobs - 1),
                 "cores-config": str(jobs),
                 "recompilation": "enabled",
                 "specialization": "disabled"})
-    return ri
+
+    return ri_1 + ri_2
 
 
 class TestReport(Report):

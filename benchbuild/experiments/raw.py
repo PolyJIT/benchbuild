@@ -66,16 +66,19 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
     if may_wrap:
         run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
-    with track_execution(run_cmd, project, experiment, **kwargs) as run:
-        ri = run()
+    def handle_timing_info(ri):
+        if may_wrap:
+            timings = fetch_time_output(
+                timing_tag, timing_tag + "{:g}-{:g}-{:g}",
+                ri.stderr.split("\n"))
+            if timings:
+                persist_time(ri.db_run, ri.session, timings)
+            else:
+                logging.warn("No timing information found.")
+        return ri
 
-    if may_wrap:
-        timings = fetch_time_output(
-            timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
-        if timings:
-            persist_time(ri.db_run, ri.session, timings)
-        else:
-            logging.warn("No timing information found.")
+    with track_execution(run_cmd, project, experiment, **kwargs) as run:
+        ri = handle_timing_info(run())
     persist_config(ri.db_run, ri.session, {"cores": str(jobs)})
     return ri
 

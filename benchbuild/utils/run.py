@@ -6,7 +6,7 @@ from benchbuild.utils.path import list_to_path
 from contextlib import contextmanager
 from types import SimpleNamespace
 from benchbuild import settings
-from plumbum import local, BG
+from plumbum import local, BG, ProcessExecutionError
 import logging
 import sys
 
@@ -231,6 +231,30 @@ def fail(db_run, session, retcode, stdout, stderr):
     session.commit()
 
 
+class RunInfo(object):
+    retcode = None
+    stdout = None
+    stderr = None
+    session = None
+    db_run = None
+
+    def __init__(self, **kwargs):
+        for k in kwargs:
+            self.__setattr__(k, kwargs[k])
+
+    def __add__(self, rhs):
+        if rhs is None:
+            return self
+
+        r = RunInfo(
+            retcode=[self.retcode, rhs.retcode],
+            stdout=[self.stdout, rhs.stdout],
+            stderr=[self.stderr, rhs.stderr],
+            db_run=[self.db_run, rhs.db_run],
+            session=self.session)
+        return r
+
+
 @contextmanager
 def track_execution(cmd, project, experiment, **kwargs):
     """
@@ -258,45 +282,39 @@ def track_execution(cmd, project, experiment, **kwargs):
     settings.CFG[str(project.name).upper()]["tracked_commands"] =\
         project.tracked_commands
 
-    def runner(retcode=None, *args):
+    def runner(retcode=0, ri = None):
         cmd_env = settings.to_env_dict(settings.CFG)
-        r = SimpleNamespace()
+        r = RunInfo()
         with local.env(**cmd_env):
             has_stdin = kwargs.get("has_stdin", False)
-            proc = (cmd & BG(retcode=retcode,
-                             stdin=sys.stdin if has_stdin else None))
-            stdout = proc.stdout
-            stderr = proc.stderr
             try:
-                log = logging.getLogger(name="benchbuild")
-                log.info("CMD: {0} = {1}".format(str(cmd), retcode))
-                log.info("STDOUT:")
-                log.info(stdout)
-                log.info("STDERR:")
-                log.info(stderr)
-            except UnicodeDecodeError:
-                pass
-            end(db_run, session, stdout, stderr)
-            r.retcode = proc.returncode
-            r.stdout = stdout
-            r.stderr = stderr
-            r.session = session
-            r.db_run = db_run
-        return r
+                ec, stdout, stderr = cmd.run(
+                    retcode=retcode,
+                    stdin=sys.stdin if has_stdin else None,
+                    stderr=sys.stderr,
+                    stdout=sys.stdout)
 
-    try:
-        yield runner
-    except KeyboardInterrupt:
-        fail(db_run, session, -1, "", "KeyboardInterrupt")
-        warn("Interrupted by user input")
-        raise
-    except ProcessExecutionError as proc_ex:
-        fail(db_run, session, proc_ex.retcode, proc_ex.stdout,
-             proc_ex.stderr)
-        raise
-    except Exception as ex:
-        fail(db_run, session, -1, "", str(ex))
-        raise
+                r = RunInfo(
+                    retcode=ec,
+                    stdout=stdout,
+                    stderr=stderr,
+                    db_run=db_run,
+                    session=session) + ri
+                end(db_run, session, stdout, stderr)
+            except ProcessExecutionError as ex:
+                r = RunInfo(
+                    retcode=ex.retcode,
+                    stdout=ex.stdout,
+                    stderr=ex.stderr,
+                    db_run=db_run,
+                    session=session) + ri
+                fail(db_run, session, r.retcode, r.stdout, r.stderr)
+            except KeyboardInterrupt:
+                fail(db_run, session, -1, "", "KeyboardInterrupt")
+                warn("Interrupted by user input")
+                raise
+        return r
+    yield runner
 
 
 def run(command, retcode=0):
@@ -307,7 +325,7 @@ def run(command, retcode=0):
         command: The plumbumb command to execute.
     """
     from plumbum.commands.modifiers import TEE
-    command & TEE(retcode)
+    command & TEE(retcode=retcode)
 
 
 def uchroot_no_args():
@@ -500,7 +518,11 @@ def unionfs_tear_down(mountpoint, tries=3):
         log.error("Mountpoint does not exist: '{0}'".format(mountpoint))
         raise ValueError("Mountpoint does not exist: '{0}'".format(mountpoint))
 
-    fusermount("-u", mountpoint, retcode=None)
+    try:
+        fusermount("-u", mountpoint)
+    except ProcessExecutionError as ex:
+        log.error("Error: {0}".format(str(ex)))
+
     if os.path.ismount(mountpoint):
         sync()
         if tries > 0:

@@ -247,9 +247,9 @@ class RunInfo(object):
             return self
 
         r = RunInfo(
-            retcode=[self.retcode, rhs.retcode],
-            stdout=[self.stdout, rhs.stdout],
-            stderr=[self.stderr, rhs.stderr],
+            retcode=self.retcode + rhs.retcode,
+            stdout=self.stdout + rhs.stdout,
+            stderr=self.stderr + rhs.stderr,
             db_run=[self.db_run, rhs.db_run],
             session=self.session)
         return r
@@ -288,19 +288,20 @@ def track_execution(cmd, project, experiment, **kwargs):
         with local.env(**cmd_env):
             has_stdin = kwargs.get("has_stdin", False)
             try:
+                import subprocess
                 ec, stdout, stderr = cmd.run(
                     retcode=retcode,
-                    stdin=sys.stdin if has_stdin else None,
-                    stderr=sys.stderr,
-                    stdout=sys.stdout)
+                    stdin=subprocess.PIPE if has_stdin else None,
+                    stderr=subprocess.PIPE,
+                    stdout=subprocess.PIPE)
 
                 r = RunInfo(
                     retcode=ec,
-                    stdout=stdout,
-                    stderr=stderr,
+                    stdout=str(stdout),
+                    stderr=str(stderr),
                     db_run=db_run,
                     session=session) + ri
-                end(db_run, session, stdout, stderr)
+                end(db_run, session, str(stdout), str(stderr))
             except ProcessExecutionError as ex:
                 r = RunInfo(
                     retcode=ex.retcode,

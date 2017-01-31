@@ -11,7 +11,7 @@ from benchbuild.settings import CFG, Configuration
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.db import persist_project
-from benchbuild.utils.run import in_builddir, store_config, unionfs
+from benchbuild.utils.run import in_builddir, store_config, unionfs, track_runs
 from benchbuild.utils.versions import get_version_from_cache_dir
 from benchbuild.utils.wrapping import wrap
 
@@ -67,6 +67,8 @@ class ProjectDecorator(ProjectRegistry):
                 if k == 'configure':
                     wrapped_fun = config_deco(wrapped_fun)
 
+                if k == 'run_tests':
+                    wrapped_fun = track_runs()(wrapped_fun)
                 if unionfs_deco is not None:
                     wrapped_fun = unionfs_deco()(wrapped_fun)
 

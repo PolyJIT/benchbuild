@@ -6,6 +6,7 @@ from benchbuild.utils.path import list_to_path
 from contextlib import contextmanager
 from types import SimpleNamespace
 from benchbuild import settings
+from plumbum import local, BG
 import logging
 import sys
 
@@ -246,10 +247,8 @@ def track_execution(cmd, project, experiment, **kwargs):
             in a RunException and re-raise. This ends the run unsuccessfully.
     """
     from plumbum.commands import ProcessExecutionError
-    from plumbum import local, BG
     from warnings import warn
 
-    project.tracked_commands += 1
     db_run, session = begin(cmd, project, experiment.name,
                             project.run_uuid)
     ex = None
@@ -270,7 +269,6 @@ def track_execution(cmd, project, experiment, **kwargs):
             stderr = proc.stderr
             try:
                 log = logging.getLogger(name="benchbuild")
-                log.info("bla:" + repr(settings.CFG))
                 log.info("CMD: {0} = {1}".format(str(cmd), retcode))
                 log.info("STDOUT:")
                 log.info(stdout)
@@ -451,12 +449,14 @@ def track_runs():
     def wrap_track_runs(func):
         """Wrap the function for the new build directory."""
         @wraps(func)
-        def wrap_track_runs_func(self, *args, **kwargs):
+        def wrap_track_runs_func(self, experiment, run):
             if hasattr(self, "tracked_commands"):
-                self.tracked_commands += 1
-                func(self, *args, **kwargs)
+                def new_run(experiment):
+                    self.tracked_commands += 1
+                    run(experiment)
+                    logging.debug("Called 'run' {:d} times.".format(self.tracked_commands))
+                func(self, experiment, new_run)
             else:
-                import logging
                 logging.warn("track_runs should be used on a Project.")
                 func(self, *args, **kwargs)
             """The actual function inside the wrapper."""

@@ -9,6 +9,7 @@ execution profiles of PolyJIT:
 """
 import csv
 import os
+import types
 import uuid
 from functools import partial
 
@@ -24,6 +25,7 @@ from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.reports import Report
 from benchbuild.utils.actions import (Build, Clean, Configure, Download,
                                       MakeBuildDir, Prepare, Run)
+from benchbuild.utils.run import RunInfo
 from benchbuild.utils.cmd import time
 
 mpl.style.use('ggplot')
@@ -106,24 +108,27 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
                 persist_time(ri.db_run, ri.session, timings)
         return ri
 
-    with local.env(OMP_NUM_THREADS=str(jobs),
-                   POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-        with track_execution(run_cmd, project, experiment) as run:
+    ri = RunInfo()
+    with track_execution(run_cmd, project, experiment) as run:
+        with local.env(OMP_NUM_THREADS=str(jobs),
+                    POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
             ri = handle_timing_info(run())
-    persist_config(ri.db_run, ri.session, {"cores": str(jobs - 1),
-                                           "cores-config": str(jobs),
-                                           "recompilation": "enabled",
-                                           "specialization": "enabled"})
+            persist_config(ri.db_run, ri.session, {
+                "cores": str(jobs - 1),
+                "cores-config": str(jobs),
+                "recompilation": "enabled",
+                "specialization": "enabled"})
 
-    with local.env(OMP_NUM_THREADS=str(jobs),
-                   POLLI_DISABLE_SPECIALIZATION=1,
-                   POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-        with track_execution(run_cmd, project, experiment) as run:
-            ri = handle_timing_info(run())
-    persist_config(ri.db_run, ri.session, {"cores": str(jobs - 1),
-                                           "cores-config": str(jobs),
-                                           "recompilation": "enabled",
-                                           "specialization": "disabled"})
+    with track_execution(run_cmd, project, experiment) as run:
+        with local.env(OMP_NUM_THREADS=str(jobs),
+                    POLLI_DISABLE_SPECIALIZATION=1,
+                    POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
+            ri = handle_timing_info(run(ri))
+            persist_config(ri.db_run, ri.session, {
+                "cores": str(jobs - 1),
+                "cores-config": str(jobs),
+                "recompilation": "enabled",
+                "specialization": "disabled"})
     return ri
 
 

@@ -304,10 +304,11 @@ class Configuration():
         return "\n".join(sorted(_repr))
 
     def __to_env_var__(self):
+        parent_key = self.parent_key
         if self.parent:
             return (
-                self.parent.__to_env_var__() + "_" + self.parent_key).upper()
-        return self.parent_key.upper()
+                self.parent.__to_env_var__() + "_" + parent_key).upper()
+        return parent_key.upper()
 
 
 def to_env_dict(config):

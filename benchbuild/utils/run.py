@@ -279,8 +279,6 @@ def track_execution(cmd, project, experiment, **kwargs):
 
     settings.CFG["db"]["run_id"] = db_run.id
     settings.CFG["use_file"] = 0
-    settings.CFG[str(project.name).upper()]["tracked_commands"] =\
-        project.tracked_commands
 
     def runner(retcode=0, ri = None):
         cmd_env = settings.to_env_dict(settings.CFG)
@@ -457,32 +455,6 @@ def uchroot(*args, **kwargs):
             LD_LIBRARY_PATH=list_to_path(libs),
             PATH=list_to_path(paths))
     return uchroot_cmd["--"]
-
-
-def track_runs():
-    """
-    Decorate a run function with a counter.
-    """
-    from functools import wraps
-
-    def wrap_track_runs(func):
-        """Wrap the function for the new build directory."""
-        @wraps(func)
-        def wrap_track_runs_func(self, experiment, run):
-            if hasattr(self, "tracked_commands"):
-                def new_run(experiment):
-                    self.tracked_commands += 1
-                    run(experiment)
-                    logging.debug("Called 'run' {:d} times.".format(self.tracked_commands))
-                func(self, experiment, new_run)
-            else:
-                logging.warn("track_runs should be used on a Project.")
-                func(self, *args, **kwargs)
-            """The actual function inside the wrapper."""
-
-        return wrap_track_runs_func
-
-    return wrap_track_runs
 
 
 def in_builddir(sub='.'):

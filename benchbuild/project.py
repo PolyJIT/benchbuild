@@ -7,7 +7,7 @@ from os import listdir, path
 from plumbum import local
 
 import benchbuild.utils.run as ur
-from benchbuild.settings import CFG, Configuration
+from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.db import persist_project

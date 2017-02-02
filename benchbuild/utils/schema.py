@@ -40,7 +40,6 @@ class Run(BASE):
     __tablename__ = 'run'
 
     id = Column(Integer, primary_key=True)
-    step = Column(Integer)
     command = Column(String)
     project_name = Column(String, ForeignKey("project.name"), index=True)
     experiment_name = Column(String, index=True)

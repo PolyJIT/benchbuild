@@ -30,7 +30,6 @@ def create_run(cmd, project, exp, grp):
     session = s.Session()
     run = s.Run(command=str(cmd),
                 project_name=project.name,
-                step=project.tracked_commands,
                 experiment_name=exp,
                 run_group=str(grp),
                 experiment_group=str(CFG["experiment_id"]))

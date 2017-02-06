@@ -5,7 +5,6 @@ preoptimization sequence.
 """
 import sys
 import getopt
-import settings
 import polly_stats
 import genetic1_opt
 import genetic2_opt

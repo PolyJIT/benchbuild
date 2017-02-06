@@ -12,7 +12,7 @@ from functools import partial
 from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
                                     Configure, Build, Run, Clean)
 
-from benchbuild.experiment.polyjit import PolyJIT
+from benchbuild.experiments.polyjit import PolyJIT
 
 DEFAULT_PASS_SPACE = ['-basicaa', '-mem2reg']
 DEFAULT_SEQ_LENGTH = 10
@@ -39,17 +39,19 @@ def collect_compilestats(project, experiment, clang, **kwargs):
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
     with guarded_exec(clang, project, experiment) as run:
-        ri = run()
+        run_information = run()
 
-    if ri.retcode == 0:
+    if run_information.retcode == 0:
         stats = []
-        for stat in get_compilestats(ri.stderr):
+        for stat in get_compilestats(run_information.stderr):
             compile_s = CompileStat()
             compile_s.name = stat["desc"].rstrip()
             compile_s.component = stat["component"].rstrip()
             compile_s.value = stat["value"]
             stats.append(compile_s)
-        persist_compilestats(ri.db_run, ri.session, stats)
+        persist_compilestats(run_information.db_run,
+                             run_information.session,
+                             stats)
 
 def generate_sequences(program, pass_space=DEFAULT_PASS_SPACE,
                        seq_length=DEFAULT_SEQ_LENGTH,
@@ -151,27 +153,29 @@ class PJSeqTest(PolyJIT):
 
     NAME = "pj-seq-test"
 
-    def actions_for_projects(self, p):
+    def actions_for_projects(self, project):
         """Executes the actions for the test."""
         from benchbuild.settings import CFG
 
-        p = PolyJIT.init_project(p)
+        project = PolyJIT.init_project(project)
 
         actions = []
-        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polly"]
-        p.run_uuid = uuid.uuid4()
+        project.cflags = ["-O3", "-Xclang", "-load", "-Xclang",
+                          "LLVMPolyJIT.so", "-mllvm", "-polly"]
+        project.run_uuid = uuid.uuid4()
         jobs = int(CFG["jobs"].value())
-        p.runtime_extension = partial(generate_sequences,
-                                      p, self, CFG, jobs)
-        p.compiler_extension = partial(collect_compilestats, p, self)
+        project.runtime_extension = partial(generate_sequences,
+                                      project, self, CFG, jobs)
+        project.compiler_extension = partial(collect_compilestats,
+                                             project,
+                                             self)
         actions.extend([
-            MakeBuildDir(p),
-            Prepare(p),
-            Download(p),
-            Configure(p),
-            Build(p),
-            Run(p),
-            Clean(p)
+            MakeBuildDir(project),
+            Prepare(project),
+            Download(project),
+            Configure(project),
+            Build(project),
+            Run(project),
+            Clean(project)
         ])
         return actions

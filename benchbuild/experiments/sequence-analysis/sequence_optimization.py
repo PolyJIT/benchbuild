@@ -1,10 +1,12 @@
 #!/usr/bin/env python
-"""This module supplies functionality to shorten the custom optimization
+"""
+This module supplies functionality to shorten the custom optimization
 sequence for an arbitrary program found by an arbitrary heuristic approach.
 """
 import sys
 import getopt
 import multiprocessing
+import logging
 
 import polly_stats
 import pprof_utilities
@@ -182,6 +184,7 @@ def start_shortening(experiment, program):
         program (string): the name of the application from which the custom
             optimization sequence should be shortened.
     """
+    log = logging.getLogger()
     file_name = experiment + '/' + program + '.heuristic-compilestats.raw'
     sequence = pprof_utilities.read_sequence(DEFAULT_FILE_PATH, file_name)
     seq_to_fitness = multiprocessing.Manager().dict()
@@ -201,16 +204,15 @@ def start_shortening(experiment, program):
             if len(seq) < len(best):
                 best = seq
 
-        print('Optimization Passes: ' + str(best))
-        print('')
+        log.debug("Optimization Passes: " + str(best))
         polly_stats.detect_scops(best, program)
     else:
-        print('Error! Could not find sequence in raw file!')
+        log.error('Error! Could not find sequence in raw file!')
 
 
 def __usage():
     """Prints out the usage of this python script."""
-    print('Wrong usage!\n'
+    logging.getLogger().warning('Wrong usage!\n'
           'Usage: optimize_sequence --experiment=exp --program=prog')
 
 

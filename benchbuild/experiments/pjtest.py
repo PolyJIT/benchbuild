@@ -10,7 +10,6 @@ execution profiles of PolyJIT:
 import csv
 import logging
 import os
-import types
 import uuid
 from functools import partial
 
@@ -115,7 +114,7 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
     ri_2 = RunInfo()
     with track_execution(run_cmd, project, experiment) as run:
         with local.env(OMP_NUM_THREADS=str(jobs),
-                    POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
+                       POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
             ri_1 = handle_timing_info(run())
             persist_config(ri_1.db_run, ri_1.session, {
                 "cores": str(jobs - 1),
@@ -125,8 +124,8 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
 
     with track_execution(run_cmd, project, experiment) as run:
         with local.env(OMP_NUM_THREADS=str(jobs),
-                    POLLI_DISABLE_SPECIALIZATION=1,
-                    POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
+                       POLLI_DISABLE_SPECIALIZATION=1,
+                       POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
             ri_2 = handle_timing_info(run())
             persist_config(ri_2.db_run, ri_2.session, {
                 "cores": str(jobs - 1),
@@ -180,6 +179,17 @@ class TestReport(Report):
             sa.func.pj_test_region_wise(sa.sql.bindparam('exp_ids'))
         )
 
+    QUERY_STATUS = \
+        sa.sql.select([
+            sa.column('name'),
+            sa.column('_group'),
+            sa.column('status'),
+            sa.column('runs')
+        ]).\
+        select_from(
+            sa.func.pj_test_status(sa.sql.bindparam('exp_ids'))
+        )
+
     def plot(self, query : orm.Query):
         df = pd.read_sql_query(query, db.CONNECTION_MANAGER.engine)
 
@@ -219,6 +229,11 @@ class TestReport(Report):
         yield ("regions",
                ('project', 'region', 'cores', 'T_Polly', 'T_PolyJIT',
                 'speedup'),
+               self.session.execute(qry).fetchall())
+
+        qry = TestReport.QUERY_STATUS.unique_params(exp_ids=self.experiment_ids)
+        yield ("status",
+               ('project', 'group', 'status', 'runs'),
                self.session.execute(qry).fetchall())
 
     def generate(self):

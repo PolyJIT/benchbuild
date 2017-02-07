@@ -8,7 +8,6 @@ See the output of benchbuild run --help for more information.
 import os
 import sys
 from plumbum import cli
-from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import Experiment
 from benchbuild.utils import user_interface as ui
@@ -76,6 +75,8 @@ class BenchBuildRun(cli.Application):
 
     def main(self):
         """Main entry point of benchbuild run."""
+        from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
+
         project_names = self._project_names
         group_name = self._group_name
 

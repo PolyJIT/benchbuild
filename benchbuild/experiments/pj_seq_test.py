@@ -53,10 +53,7 @@ def collect_compilestats(project, experiment, clang, **kwargs):
                              run_information.session,
                              stats)
 
-def generate_sequences(program, pass_space=DEFAULT_PASS_SPACE,
-                       seq_length=DEFAULT_SEQ_LENGTH,
-                       iterations=DEFAULT_NUM_ITERATIONS,
-                       debug=DEFAULT_DEBUG):
+def generate_sequences(program, pass_space, seq_length, iterations, debug):
     """
     Generates the custom sequences for a provided application.
 
@@ -86,64 +83,77 @@ def generate_sequences(program, pass_space=DEFAULT_PASS_SPACE,
     seq_to_fitness = multiprocessing.Manager().dict()
     generated_sequences = []
 
-    log = logging.getLogger()
+    if not pass_space:
+        pass_space = DEFAULT_PASS_SPACE
+
+    if not seq_length:
+        seq_length = DEFAULT_SEQ_LENGTH
+
+    if not iterations:
+        iterations = DEFAULT_NUM_ITERATIONS
+
+    if not debug:
+        debug = DEFAULT_DEBUG
+
     for i in range(iterations):
-        log.debug("==========================================")
-        log.debug("Iteration: " + str(i+1))
-        log.debug("==========================================")
-        log.debug("Start Greedy Algorithm with empty sequence as root...")
+        logging.getLogger().debug("==========================================")
+        logging.getLogger().debug("Iteration: " + str(i+1))
+        logging.getLogger.debug("==========================================")
+        logging.getLogger().debug("Start Greedy Algorithm with" + \
+                                  "empty sequence as root...")
 
         base_sequence = []
 
         while len(base_sequence) < seq_length:
-            log.debug("<=---------------------------------------------------=>")
-            log.debug("Custom Sequence: " + str(base_sequence))
-            log.debug("Length: " + str(len(base_sequence)))
-            log.debug("-------------------------------------------------------")
-            log.debug("Child Sequences: ")
+            logging.getLogger().debug("<=-----------------------------------=>")
+            logging.getLogger().debug("Custom Sequence: " + str(base_sequence))
+            logging.getLogger().debug("Length: " + str(len(base_sequence)))
+            logging.getLogger().debug("---------------------------------------")
+            logging.getLogger().debug("Child Sequences: ")
             sequences = []
-            pool = multiprocessing.Pool()
 
             for flag in pass_space:
                 # Create new sequence by appending a new flag.
                 seq_append = list(base_sequence) + [flag]
 
-                pool.apply_async(greedy.calculate_fitness_value, args=(
-                    seq_append, seq_to_fitness, str(seq_append), program))
+                multiprocessing.Pool().apply_async(
+                    greedy.calculate_fitness_value,
+                    args=(seq_append, seq_to_fitness, str(seq_append), program))
                 sequences.append(seq_append)
-                log.debug(str(seq_append))
+                logging.getLogger().debug(str(seq_append))
 
                 if base_sequence:
                     # Create a new sequence by depending a new flag.
                     seq_prepend = [flag] + list(base_sequence)
-                    pool.apply_async(greedy.calculate_fitness_value, args=(
+                    multiprocessing.Pool().apply_async(
+                        greedy.calculate_fitness_value, args=(
                         seq_prepend, seq_to_fitness, str(seq_prepend), program))
                     sequences.append(seq_prepend)
-                    log.debug(str(seq_prepend))
+                    logging.getLogger().debug(str(seq_prepend))
 
-            pool.close()
-            pool.join()
+            multiprocessing.Pool().close()
+            multiprocessing.Pool.join()
             # sort the sequences by their fitness
             sequences.sort(key=lambda s: seq_to_fitness[str(s)])
-            log.debug("<=---------------------------------------------------=>")
+            logging.getLogger().debug("<=-----------------------------------=>")
         generated_sequences.append(sequences)
 
     generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)])
-    log.debug("\n...Finished!")
-    log.debug(
+    logging.getLogger().debug("\n...Finished!")
+    logging.getLogger().debug(
         "Generated Custom Sequences in " + str(iterations) + " Iterations:")
     if debug:
         sorted_seq = sorted(seq_to_fitness.iteritems(),
                             key=operator.itemgetter(1))
-        log.debug('\nBest sequences found over iterations:')
+        logging.getLogger().debug('\nBest sequences found over iterations:')
         for i in range(len(sorted_seq)):
-            log.debug(sorted_seq.pop())
+            logging.getLogger().debug(sorted_seq.pop())
 
-        log.debug("\n")
+        logging.getLogger().debug("\n")
 
     return generated_sequences
 
-class PJSeqTest(PolyJIT):
+class Test(PolyJIT):
     """
     An experiment that excecutes all projects with PolyJIT support.
     Instead of the actual actions the compile stats for executing them

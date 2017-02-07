@@ -15,7 +15,7 @@ import operator
 import multiprocessing
 import logging
 
-import polly_stats
+import benchbuild.experiments.sequences.polly_stats as polly_stats
 
 
 __author__ = "Christoph Woller"

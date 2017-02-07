@@ -334,11 +334,19 @@ class SessionManager(object):
             self.__transaction.rollback()
 
 
-CONNECTION_MANAGER = SessionManager()
-"""
- Import this session manager to create new database sessions as needes.
-"""
-Session = CONNECTION_MANAGER.get()
+def __lazy_session__():
+    """Initialize the connection manager lazily."""
+    connection_manager = None
+
+    def __lazy_session_wrapped():
+        nonlocal connection_manager
+        if connection_manager is None:
+            connection_manager = SessionManager()
+        return connection_manager.get()()
+
+    return __lazy_session_wrapped
+
+Session = __lazy_session__()
 
 
 def init_functions(connection):

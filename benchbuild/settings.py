@@ -386,7 +386,8 @@ CFG = Configuration(
         },
         "experiment": {
             "desc": "The experiment name we run everything under.",
-            "default": "empty"
+            "default": "empty",
+            "export": False
         },
         "clean": {
             "default": True,

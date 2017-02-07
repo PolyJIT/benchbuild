@@ -670,6 +670,7 @@ CFG["plugins"] = {
             "benchbuild.experiments.papi",
             "benchbuild.experiments.pjtest",
             "benchbuild.experiments.compilestats_ewpt",
+            "benchbuild.experiments.pj_sequence",
         ],
         "desc": "The experiment plugins we know about."
     },

@@ -4,6 +4,7 @@ custom sequence on the fitness value of the custom sequence.
 """
 import getopt
 import sys
+import logging
 
 import polly_stats
 import pprof_utilities
@@ -40,22 +41,23 @@ def test_effect_of_flag(program, flag, prepending, both, file_path, file_name):
         file_name (string): the name of the file that contains the sequence for
             the program.
     """
+    log = logging.getLogger()
     sequence = pprof_utilities.read_sequence(file_path, file_name)
 
     if sequence and flag not in sequence:
-        print('Test effect of Flag: ' + flag)
+        log.info("Test effect of Flag: " + flag)
         sequence_with_flag = list(sequence)
 
         if both:
-            print('Stats of sequence with appended and prepended flag...')
+            log.info("Stats of sequence with appended and prepended flag...")
             sequence_with_flag.insert(0, flag)
             sequence_with_flag.append(flag)
         else:
             if prepending:
-                print('Stats of sequence with prepended flag...')
+                log.info("Stats of sequence with prepended flag...")
                 sequence_with_flag.insert(0, flag)
             else:
-                print('Stats of sequence with appended flag...')
+                log.info("Stats of sequence with appended flag...")
                 sequence_with_flag.append(flag)
 
         polly_stats.detect_scops(sequence_with_flag, program + '.bc')
@@ -63,11 +65,11 @@ def test_effect_of_flag(program, flag, prepending, both, file_path, file_name):
 
 def __usage():
     """Prints out the usage of this python script."""
-    print(
-        'Wrong usage!\n' + 'You have to specify a flag whose effect should '
-                           'be tested!\n' + 'Usage: flag_effect.py -f ['
-                                            '/--flag=] FLAG_NAME ['
-                                            '-p/--prepending]')
+    logging.getLogger().warning(
+        "Wrong usage!\n" + "You have to specify a flag whose effect should "
+                           "be tested!\n" + "Usage: flag_effect.py -f ["
+                                            "/--flag=] FLAG_NAME ["
+                                            "-p/--prepending]")
 
 
 def main(argv):

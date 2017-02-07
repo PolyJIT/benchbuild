@@ -359,7 +359,7 @@ def uchroot_mounts(prefix, mounts):
     Compute the mountpoints of the current user.
 
     Args:
-        prefix: Define where to job was running if it ran on a cluster.
+        prefix: Define where the job was running if it ran on a cluster.
         mounts: All mounts the user currently uses in his file system.
     Return:
         mntpoints

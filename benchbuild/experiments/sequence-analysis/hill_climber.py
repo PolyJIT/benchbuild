@@ -12,9 +12,9 @@ code that can be detected by Polly.
 """
 import random
 import multiprocessing
+import logging
 
 import polly_stats
-import pprof_utilities
 
 
 __author__ = "Christoph Woller"
@@ -132,11 +132,11 @@ def climb(sequence, program, pass_space, seq_to_fitness):
         seq_to_fitness (dict): dictionary that stores calculated fitness
             values.
     """
+    log = logging.getLogger()
     base_sequence = sequence
     base_sequence_key = str(base_sequence)
-    pprof_utilities.print_debug('Start climbing...', print_debug)
-    pprof_utilities.print_debug('Initial base sequence: ' + str(base_sequence),
-                                print_debug)
+    log.debug("Start climbing...")
+    log.debug("Initial base sequence: " + str(base_sequence))
 
     # Take the base sequence and calculate all neighbours. Check if the best
     # performing neighbour is better than the base sequence. If this is the
@@ -162,21 +162,18 @@ def climb(sequence, program, pass_space, seq_to_fitness):
                 changed = True
 
         climbs += 1
-        pprof_utilities.print_debug(
-            '\n---> Climb number ' + str(climbs) + ' <---', print_debug)
-        pprof_utilities.print_debug(
-            '---> Base sequence: ' + str(base_sequence) + ' <---', print_debug)
-        pprof_utilities.print_debug('---> Neighbours: <---', print_debug)
+        log.debug("\n---> Climb number " + str(climbs) + " <---")
+        log.debug("---> Base sequence: " + str(base_sequence) + " <---")
+        log.debug("---> Neighbours: <---")
 
         if print_debug:
             for neighbour in neighbours:
-                print(
+                log.debug(
                     'Neighbour: ' + str(neighbour) + "; Fitness value: " + str(
                         seq_to_fitness[str(neighbour)]))
 
-        pprof_utilities.print_debug('', print_debug)
 
-    pprof_utilities.print_debug('Local optimum reached!\n', print_debug)
+    log.debug("Local optimum reached!\n")
     return base_sequence
 
 
@@ -204,14 +201,14 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
     """
     global print_debug
     print_debug = debug
+    log = logging.getLogger()
 
     best_sequence = []
     seq_to_fitness = multiprocessing.Manager().dict()
-    pprof_utilities.print_debug('\n Start hill climbing algorithm...',
-                                print_debug)
+    log.debug("\n Start hill climbing algorithm...")
 
     for i in range(iterations):
-        pprof_utilities.print_debug('Iteration: ' + str(i + 1), print_debug)
+        log.debug("Iteration: " + str(i + 1))
         base_sequence = create_random_sequence(pass_space, seq_length)
         base_sequence = climb(base_sequence, program, pass_space,
                               seq_to_fitness)
@@ -220,13 +217,8 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
                 seq_to_fitness[str(base_sequence)]:
             best_sequence = base_sequence
 
-    pprof_utilities.print_debug(
-        ('Best sequence found in ' + str(iterations) + 'iterations:'),
-        print_debug)
-    pprof_utilities.print_debug(('Sequence: '
-                                 + str(best_sequence) + '\nFitness value: '
-                                 + str(seq_to_fitness[str(best_sequence)])),
-                                print_debug)
-    pprof_utilities.print_debug('', print_debug)
+    log.debug("Best sequence found in " + str(iterations) + "iterations:")
+    log.debug("Sequence: " + str(best_sequence) + "\nFitness value: "
+                         + str(seq_to_fitness[str(best_sequence)]))
 
     return best_sequence

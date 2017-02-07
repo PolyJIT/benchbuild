@@ -6,6 +6,7 @@ In the current version the DAG have to be specified manually via constants.
 """
 import multiprocessing
 import random
+import logging
 
 import topsort
 import polly_stats
@@ -83,6 +84,7 @@ def calculate_fitness_value(sequence, seq_to_fitness, key, program):
 def generate_custom_sequence(program):
     """"Generates optimization sequences from a dependency graph and calculates
     the best of these sequences for the specified program."""
+    log = logging.getLogger()
     # Get different topological sorting arrangements.
     sequences = __create_sequences()
     seq_to_fitness = multiprocessing.Manager().dict()
@@ -111,9 +113,9 @@ def generate_custom_sequence(program):
         else:
             equal = False
 
-    print('Best sequences ' + str(len(fittest_sequences)))
+    log.debug("Best sequences " + str(len(fittest_sequences)))
     for sequence in fittest_sequences:
-        print('Best: ' + str(sequence))
-    print('----------------------------------------------------------------')
+        log.debug("Best: " + str(sequence))
+    log.debug("----------------------------------------------------------------")
 
     return random.choice(fittest_sequences)

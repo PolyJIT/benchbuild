@@ -1,9 +1,9 @@
 """
-The 'compilestats' Experiment.
+The 'compilestats' experiment.
 
 This experiment is a basic experiment in the benchbuild study. It simply runs
 all projects after compiling it with -O3 and catches all statistics emitted
-by llvm
+by llvm.
 
 """
 

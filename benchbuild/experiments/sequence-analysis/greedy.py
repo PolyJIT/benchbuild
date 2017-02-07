@@ -13,9 +13,9 @@ code that can be detected by Polly.
 import random
 import operator
 import multiprocessing
+import logging
 
 import polly_stats
-import pprof_utilities
 
 
 __author__ = "Christoph Woller"
@@ -89,29 +89,22 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
     generated_sequences = []
     seq_to_fitness = multiprocessing.Manager().dict()
 
+    log = logging.getLogger()
     for i in range(iterations):
-        pprof_utilities.print_debug('"""""""""""""""""""""""""""""""""""""""',
-                                    debug)
-        pprof_utilities.print_debug('"Iteration: ' + str(i + 1), debug)
-        pprof_utilities.print_debug('"""""""""""""""""""""""""""""""""""""""',
-                                    debug)
+        log.debug("=======================================")
+        log.debug("Iteration: " + str(i + 1))
+        log.debug("=======================================")
         base_sequence = []
 
-        pprof_utilities.print_debug(
-            'Start Greedy Algorithm with empty sequence as '
-            'root...', debug)
+        log.debug("Start Greedy Algorithm with empty sequence as root...")
 
         while len(base_sequence) < seq_length:
-            pprof_utilities.print_debug(
-                '<=--------------------------------------------------------=>',
-                debug)
-            pprof_utilities.print_debug(
-                'Custom Sequence: ' + str(base_sequence), debug)
-            pprof_utilities.print_debug('Length: ' + str(len(base_sequence)),
-                                        debug)
-            pprof_utilities.print_debug('---------------------------------',
-                                        debug)
-            pprof_utilities.print_debug('Child Sequences: ', debug)
+            log.debug(
+                "<=--------------------------------------------------------=>")
+            log.debug("Custom Sequence: " + str(base_sequence))
+            log.debug("Length: " + str(len(base_sequence)))
+            log.debug("---------------------------------")
+            log.debug("Child Sequences: ")
 
             sequences = []
             pool = multiprocessing.Pool()
@@ -123,7 +116,7 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
                 pool.apply_async(calculate_fitness_value, args=(
                     seq_append, seq_to_fitness, str(seq_append), program))
                 sequences.append(seq_append)
-                pprof_utilities.print_debug(str(seq_append), debug)
+                log.debug(str(seq_append))
 
                 if base_sequence:
                     # Create new sequence by depending a new flag.
@@ -132,7 +125,7 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
                         seq_prepend, seq_to_fitness, str(seq_prepend),
                         program))
                     sequences.append(seq_prepend)
-                    pprof_utilities.print_debug(str(seq_prepend), debug)
+                    log.debug(str(seq_prepend))
 
             pool.close()
             pool.join()
@@ -156,32 +149,30 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
 
             base_sequence = random.choice(fittest_sequences)
 
-            pprof_utilities.print_debug(
-                '<=--------------------------------------------------------=>',
-                debug)
+            log.debug(
+                "<=--------------------------------------------------------=>")
 
         generated_sequences.append(base_sequence)
 
     generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)])
-    pprof_utilities.print_debug('\n...Finished!', debug)
-    pprof_utilities.print_debug(
-        'Generated Custom Sequences in ' + str(iterations) + ' Iterations:',
-        debug)
+    log.debug("\n...Finished!")
+    log.debug(
+        "Generated Custom Sequences in " + str(iterations) + " Iterations:")
     if debug:
         for generated in generated_sequences:
-            print(generated)
+            log.debug(generated)
 
     if debug:
         sorted_seq = sorted(seq_to_fitness.iteritems(),
                             key=operator.itemgetter(1))
-        print('\nBest sequences found over iterations:')
+        log.debug('\nBest sequences found over iterations:')
         for i in range(min(len(sorted_seq), 10)):
-            print(sorted_seq.pop())
+            log.debug(sorted_seq.pop())
 
-        print()
+        log.debug("\n")
 
     best_sequence = generated_sequences.pop()
-    pprof_utilities.print_debug('\nBest Custom Sequence: ', debug)
-    pprof_utilities.print_debug(str(best_sequence), debug)
+    log.debug("\nBest Custom Sequence: ")
+    log.debug(str(best_sequence))
 
     return best_sequence

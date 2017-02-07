@@ -6,6 +6,7 @@ In the current version the DAG have to be specified manually via constants.
 """
 import multiprocessing
 import random
+import logging
 
 import polly_stats
 import pprof_utilities
@@ -45,6 +46,7 @@ def calculate_fitness_value(sequence, seq_to_fitness, key, program):
 def evaluate_best_sequence(program):
     """"Generates optimization sequences from a dependency graph and calculates
     the best of these sequences for the specified program."""
+    log = logging.getLogger()
     # Get different topological sorting arrangements.
     sequences = pprof_utilities.read_sequences(SEQUENCE_FILE_PATH,
                                                SEQUENCE_FILE, SEQUENCE_PREFIX)
@@ -75,10 +77,10 @@ def evaluate_best_sequence(program):
         else:
             equal = False
 
-    print('Best sequences ' + str(len(fittest_sequences)) + ' of '
+    log.info("Best sequences " + str(len(fittest_sequences)) + " of "
           + str(possible_sequences))
     for sequence in fittest_sequences:
-        print('Best: ' + str(sequence))
-    print('----------------------------------------------------------------')
+        log.info("Best: " + str(sequence))
+    log.info("----------------------------------------------------------------")
 
     return random.choice(fittest_sequences)

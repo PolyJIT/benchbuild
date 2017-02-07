@@ -20,7 +20,6 @@ import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from plumbum import local
 
-import benchbuild.utils.schema as db
 from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.reports import Report
 from benchbuild.utils.actions import (Build, Clean, Configure, Download,
@@ -191,6 +190,7 @@ class TestReport(Report):
         )
 
     def plot(self, query : orm.Query):
+        import benchbuild.utils.schema as db
         df = pd.read_sql_query(query, db.CONNECTION_MANAGER.engine)
 
         # Cleanup the data from the database.

@@ -38,7 +38,7 @@ setup(
         "regex==2015.5.28", "wheel==0.24.0", "parse==1.6.6",
         "virtualenv==13.1.0", "sphinxcontrib-napoleon", "psycopg2",
         "sqlalchemy-migrate", "six>=1.7.0", "psutil>=4.0.0", "pylint>=1.5.5",
-        "seaborn>=0.7.1", "pandas>=0.19.2", "matplotlib==1.5.3"
+        "seaborn>=0.7.1", "pandas>=0.19.2", "matplotlib==1.5.3", "psutil==5.1.0"
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

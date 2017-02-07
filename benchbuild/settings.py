@@ -849,3 +849,4 @@ def update_env():
 
 
 __init_config(CFG)
+update_env()

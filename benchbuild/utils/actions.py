@@ -109,6 +109,30 @@ class Clean(Step):
         super(Clean, self).__init__(project_or_experiment, action_fn)
         self.check_empty = check_empty
 
+    def __clean_mountpoints__(self, root):
+        """
+        Unmount any remaining mountpoints under :root.
+
+        Args:
+            root: All UnionFS-mountpoints under this directory will be unmounted.
+        """
+        from benchbuild.utils.run import unionfs_tear_down
+        import psutil
+        umount_paths = []
+        for part in psutil.disk_partitions(all=True):
+            if os.path.commonpath([
+                part.mountpoint,
+                root
+            ]) == root:
+                if not part.fstype == "fuse.unionfs":
+                    logging.error(
+                        "NON-UnionFS mountpoint found under {0}".format(root))
+                else:
+                    umount_paths.append(part.mountpoint)
+
+        for p in umount_paths:
+            unionfs_tear_down(p)
+
     def __call__(self):
         if not CFG['clean'].value():
             return
@@ -116,6 +140,7 @@ class Clean(Step):
             return
         obj_builddir = os.path.abspath(self._obj.builddir)
         if os.path.exists(obj_builddir):
+            self.__clean_mountpoints__(obj_builddir)
             if self.check_empty:
                 rmdir(obj_builddir, retcode=None)
             else:

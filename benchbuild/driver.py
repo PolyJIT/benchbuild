@@ -18,7 +18,6 @@ class PollyProfiling(cli.Application):
 
         log.configure()
         log.set_defaults()
-        settings.update_env()
         if settings.CFG["db"]["create_functions"].value():
             from benchbuild.utils.schema import init_functions, Session
             init_functions(Session())
@@ -32,6 +31,7 @@ class PollyProfiling(cli.Application):
 
 def main(*args):
     """Main function."""
+    settings.update_env()
     PollyProfiling.subcommand("bootstrap",
                               "benchbuild.bootstrap.BenchBuildBootstrap")
     PollyProfiling.subcommand("run", "benchbuild.run.BenchBuildRun")

@@ -9,7 +9,7 @@ import random
 import logging
 
 import topsort
-import polly_stats
+import benchbuild.experiments.sequences.polly_stats as polly_stats
 
 
 __author__ = "Christoph Woller"

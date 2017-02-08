@@ -8,7 +8,7 @@ import multiprocessing
 import random
 import logging
 
-import polly_stats
+import benchbuild.experiments.sequences.polly_stats as polly_stats
 import pprof_utilities
 
 __author__ = "Christoph Woller"

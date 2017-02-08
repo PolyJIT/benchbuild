@@ -584,19 +584,31 @@ class PJITpapi(PolyJIT):
 
     NAME = "pj-papi"
 
-    def run(self):
+    def actions(self):
         """Do the postprocessing, after all projects are done."""
-        super(PJITpapi, self).run()
+        actions = super(PJITpapi, self).actions()
+        from benchbuild.utils.actions import Step
 
-        from benchbuild.settings import CFG
-        from benchbuild.utils.cmd import pprof_analyze
+        class Analyze(Step):
+            NAME = "ANALYZE"
+            DESCRIPTION = "Analyze the experiment after completion."
 
-        with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
-                       BB_EXPERIMENT=self.name,
-                       BB_USE_DATABASE=1,
-                       BB_USE_FILE=0,
-                       BB_USE_CSV=0):
-            pprof_analyze()
+        def run_pprof_analyze():
+            from benchbuild.settings import CFG
+            from benchbuild.utils.cmd import pprof_analyze
+
+            with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
+                           BB_EXPERIMENT=self.name,
+                           BB_USE_DATABASE=1,
+                           BB_USE_FILE=0,
+                           BB_USE_CSV=0):
+                pprof_analyze()
+
+        actions.append(
+            Analyze(self, run_pprof_analyze)
+        )
+
+        return actions
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG

@@ -72,10 +72,6 @@ class StepClass(ABCMeta):
         return result
 
 
-class Clean:
-    pass
-
-
 class Step(metaclass=StepClass):
     NAME = None
     DESCRIPTION = None

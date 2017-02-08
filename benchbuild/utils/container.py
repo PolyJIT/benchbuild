@@ -98,6 +98,8 @@ def unpack_container(container, path):
 
 
 class Container(object):
+    name = "container"
+
     @property
     def remote(self):
         pass

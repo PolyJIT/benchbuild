@@ -61,7 +61,7 @@ def load_experiment_ids_from_names(session, names):
 
 class Report(object, metaclass=ReportRegistry):
 
-    SUPPORTED_EXPERIMENTS = None
+    SUPPORTED_EXPERIMENTS = []
 
     def __new__(cls, *args, **kwargs):
         new_self = super(Report, cls).__new__(cls)

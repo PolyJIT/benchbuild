@@ -655,3 +655,4 @@ def store_config(func):
         return func(self, *args, **kwargs)
 
     return wrap_store_config
+

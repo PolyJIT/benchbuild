@@ -15,7 +15,6 @@ import uuid
 from functools import partial
 from typing import Iterable
 
-import matplotlib as mpl
 #import pandas as pd
 #import seaborn as sns
 import sqlalchemy as sa
@@ -32,7 +31,6 @@ from benchbuild.project import Project
 from benchbuild.experiment import Experiment
 from benchbuild.settings import Configuration
 
-mpl.style.use('ggplot')
 
 
 class Test(PolyJIT):
@@ -225,26 +223,6 @@ class TestReport(Report):
         select_from(
             sa.func.pj_test_region_wise(sa.sql.bindparam('exp_ids'))
         )
-
-    #def plot(self, query: orm.Query):
-    #    import benchbuild.utils.schema as db
-    #    df = pd.read_sql_query(query, db.CONNECTION_MANAGER.engine)
-
-    #    # Cleanup the data from the database.
-    #    t0_min_runtime = df["t_0"] > 5
-    #    t1_min_runtime = df["t_1"] > 5
-
-    #    max_speedup = df["speedup"] < 30
-    #    min_speedup = df["speedup"] > -30
-    #    df_filtered = df[t0_min_runtime
-    #                     & t1_min_runtime
-    #                     & max_speedup
-    #                     & min_speedup]
-
-    #    plot = sns.barplot(x="project", y="speedup", data=df_filtered)
-    #    fig = plot.get_figure()
-    #    fig.savefig('pj-test-vioplot.pdf')
-    #    return df_filtered
 
     def report(self):
         print("I found the following matching experiment ids")

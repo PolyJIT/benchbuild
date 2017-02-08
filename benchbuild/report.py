@@ -41,6 +41,6 @@ class BenchBuildReport(cli.Application):
                 continue
 
             for report_cls in reports[exp_name]:
-                report = report_cls(self.experiment_ids, self.outfile)
+                report = report_cls(exp_name, self.experiment_ids, self.outfile)
                 report.generate()
         exit(0)

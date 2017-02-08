@@ -135,6 +135,44 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
     return ri_1 + ri_2
 
 
+class StatusReport(Report):
+
+    SUPPORTED_EXPERIMENTS = ["pj-test", "pj-seq-test", "raw", "pj", "pj-raw"]
+    QUERY_STATUS = \
+        sa.sql.select([
+            sa.column('name'),
+            sa.column('_group'),
+            sa.column('status'),
+            sa.column('runs')
+        ]).\
+        select_from(
+            sa.func.pj_test_status(sa.sql.bindparam('exp_ids'))
+        )
+
+    def report(self):
+        print("I found the following matching experiment ids")
+        print("  \n".join([str(x) for x in self.experiment_ids]))
+
+        qry = StatusReport.\
+            QUERY_STATUS.unique_params(exp_ids=self.experiment_ids)
+        yield ("status",
+               ('project', 'group', 'status', 'runs'),
+               self.session.execute(qry).fetchall())
+
+    def generate(self):
+        for name, header, data in self.report():
+            fname = os.path.basename(self.out_path)
+
+            with open("{prefix}_{name}{ending}".format(
+                    prefix=os.path.splitext(fname)[0],
+                    ending=os.path.splitext(fname)[-1],
+                    name=name), 'w') as csv_out:
+                print("Writing '{0}'".format(csv_out.name))
+                csv_writer = csv.writer(csv_out)
+                csv_writer.writerows([header])
+                csv_writer.writerows(data)
+
+
 class TestReport(Report):
 
     SUPPORTED_EXPERIMENTS = ["pj-test"]
@@ -178,17 +216,6 @@ class TestReport(Report):
             sa.func.pj_test_region_wise(sa.sql.bindparam('exp_ids'))
         )
 
-    QUERY_STATUS = \
-        sa.sql.select([
-            sa.column('name'),
-            sa.column('_group'),
-            sa.column('status'),
-            sa.column('runs')
-        ]).\
-        select_from(
-            sa.func.pj_test_status(sa.sql.bindparam('exp_ids'))
-        )
-
     def plot(self, query : orm.Query):
         import benchbuild.utils.schema as db
         df = pd.read_sql_query(query, db.CONNECTION_MANAGER.engine)
@@ -229,11 +256,6 @@ class TestReport(Report):
         yield ("regions",
                ('project', 'region', 'cores', 'T_Polly', 'T_PolyJIT',
                 'speedup'),
-               self.session.execute(qry).fetchall())
-
-        qry = TestReport.QUERY_STATUS.unique_params(exp_ids=self.experiment_ids)
-        yield ("status",
-               ('project', 'group', 'status', 'runs'),
                self.session.execute(qry).fetchall())
 
     def generate(self):

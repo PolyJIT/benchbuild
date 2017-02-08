@@ -76,11 +76,11 @@ class InvalidConfigKey(RuntimeWarning):
 class UUIDEncoder(json.JSONEncoder):
     """Encoder module for UUID objects."""
 
-    def default(self, obj):
+    def default(self, o):
         """Encode UUID objects as string."""
-        if isinstance(obj, uuid.UUID):
-            return str(obj)
-        return json.JSONEncoder.default(self, obj)
+        if isinstance(o, uuid.UUID):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
 
 
 def escape_json(raw_str):

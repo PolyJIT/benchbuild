@@ -5,6 +5,7 @@ from functools import partial
 from os import listdir, path
 
 from plumbum import local
+from typing import Callable, Iterable 
 
 import benchbuild.utils.run as ur
 from benchbuild.settings import CFG
@@ -12,6 +13,7 @@ from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.run import in_builddir, store_config, unionfs
+from benchbuild.utils.run import RunInfo
 from benchbuild.utils.versions import get_version_from_cache_dir
 from benchbuild.utils.wrapping import wrap
 
@@ -185,9 +187,9 @@ class Project(object, metaclass=ProjectDecorator):
                 end_run_group(group, session)
             except GuardedRunException:
                 fail_run_group(group, session)
-            except KeyboardInterrupt as key_int:
+            except KeyboardInterrupt:
                 fail_run_group(group, session)
-                raise key_int
+                raise
             if CFG["clean"].value():
                 self.clean()
 
@@ -208,7 +210,9 @@ class Project(object, metaclass=ProjectDecorator):
             return self._compiler_extension
 
     @compiler_extension.setter
-    def compiler_extension(self, func):
+    def compiler_extension(self,
+                           func: Callable[[str, Iterable[str]],
+                                          RunInfo]) -> None:
         """
         Set a function as compiler extension.
 
@@ -231,7 +235,9 @@ class Project(object, metaclass=ProjectDecorator):
             return self._runtime_extension
 
     @runtime_extension.setter
-    def runtime_extension(self, func):
+    def runtime_extension(self,
+                          func: Callable[[str, Iterable[str]],
+                                         RunInfo]) -> None:
         """
         Set a function as compiler extension.
 

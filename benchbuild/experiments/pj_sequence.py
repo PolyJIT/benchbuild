@@ -6,11 +6,12 @@ created doing so. Returns the actions executed for the test.
 """
 import uuid
 import multiprocessing
+import operator
 import logging
 
 from functools import partial
 from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
-                                    Configure, Build, Run, Clean)
+                                      Configure, Build, Run, Clean)
 
 from benchbuild.experiments.polyjit import PolyJIT
 
@@ -53,7 +54,8 @@ def collect_compilestats(project, experiment, clang, **kwargs):
                              run_information.session,
                              stats)
 
-def generate_sequences(project, experiment, config, jobs, run_f, args, **kwargs):
+def generate_sequences(project, experiment, config,
+                       jobs, run_f, args, **kwargs):
     """
     Generates the custom sequences for a provided application.
 
@@ -67,18 +69,18 @@ def generate_sequences(project, experiment, config, jobs, run_f, args, **kwargs)
     and analyze in the data base later on.
 
     Args:
-        program: The name of the application the sequence is being generated.
-        pass_space: List of passes that should be considered during the
-            generating process of the sequence.
-        seq_length: The length of the sequence that should be generated.
-        iterations: The amount of iterations the algorithm performs to reduce
-            possible noise.
-        debug: Boolean, if debug information should be printed or not.
+        project: The name of the project the test is being run for.
+        experiment: The benchbuild.experiment.
+        config: The config from benchbuild.settings.
+        jobs: Number of cores to be used for the execution.
+        run_f: The file that needs to be execute.
+        args: List of arguments that will be passed to the wrapped binary.
+        kwargs: Dictonary with the keyword arguments.
 
         Returns:
         The generated custom sequences as a list.
     """
-    from benchbuild.experiments.sequences import greedy
+    from benchbuild.experiments.sequences.greedy import calculate_fitness_value
     seq_to_fitness = multiprocessing.Manager().dict()
     generated_sequences = []
 
@@ -108,40 +110,47 @@ def generate_sequences(project, experiment, config, jobs, run_f, args, **kwargs)
 
         base_sequence = []
 
-        while len(base_sequence) < seq_length:
-            log.debug("<=-----------------------------------=>")
-            log.debug("Custom Sequence: " + str(base_sequence))
-            log.debug("Length: " + str(len(base_sequence)))
-            log.debug("---------------------------------------")
-            log.debug("Child Sequences: ")
-            sequences = []
+        def create_sequences():
+            """The actual sequences get generated."""
+            while len(base_sequence) < seq_length:
+                log.debug("<=-----------------------------------=>")
+                log.debug("Custom Sequence: " + str(base_sequence))
+                log.debug("Length: " + str(len(base_sequence)))
+                log.debug("---------------------------------------")
+                log.debug("Child Sequences: ")
+                sequences = []
 
-            pool = multiprocessing.Pool()
-            for flag in pass_space:
-                # Create new sequence by appending a new flag.
-                seq_append = list(base_sequence) + [flag]
+                pool = multiprocessing.Pool()
+                for flag in pass_space:
+                    # Create new sequence by appending a new flag.
+                    seq_append = list(base_sequence) + [flag]
 
-                pool.apply_async(
-                    greedy.calculate_fitness_value,
-                    args=(seq_append, seq_to_fitness, str(seq_append), run_f))
-                sequences.append(seq_append)
-                log.debug(str(seq_append))
-
-                if base_sequence:
-                    # Create a new sequence by depending a new flag.
-                    seq_prepend = [flag] + list(base_sequence)
                     pool.apply_async(
-                        greedy.calculate_fitness_value, args=(
-                        seq_prepend, seq_to_fitness, str(seq_prepend), program))
-                    sequences.append(seq_prepend)
-                    log.debug(str(seq_prepend))
+                        calculate_fitness_value,
+                        args=(seq_append,
+                              seq_to_fitness,
+                              str(seq_append),
+                              run_f))
+                    sequences.append(seq_append)
+                    log.debug(str(seq_append))
 
-            pool.close()
-            pool.join()
-            # sort the sequences by their fitness
-            sequences.sort(key=lambda s: seq_to_fitness[str(s)])
-            log.debug("<=-----------------------------------=>")
-        generated_sequences.append(sequences)
+                    if base_sequence:
+                        # Create a new sequence by depending a new flag.
+                        seq_prepend = [flag] + list(base_sequence)
+                        pool.apply_async(
+                            calculate_fitness_value, args=(seq_prepend,
+                                                           seq_to_fitness,
+                                                           str(seq_prepend),
+                                                           run_f))
+                        sequences.append(seq_prepend)
+                        log.debug(str(seq_prepend))
+
+                pool.close()
+                pool.join()
+                # sort the sequences by their fitness
+                sequences.sort(key=lambda s: seq_to_fitness[str(s)])
+                log.debug("<=-----------------------------------=>")
+            generated_sequences.append(sequences)
 
     generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)])
     log.debug("\n...Finished!")
@@ -179,7 +188,11 @@ class CollisionTest(PolyJIT):
                           "LLVMPolyJIT.so", "-mllvm", "-polly"]
         project.run_uuid = uuid.uuid4()
         jobs = int(CFG["jobs"].value())
-        project.runtime_extension = partial(generate_sequences, project, self, CFG, jobs)
+        project.runtime_extension = partial(generate_sequences,
+                                            project,
+                                            self,
+                                            CFG,
+                                            jobs)
         project.compiler_extension = partial(collect_compilestats,
                                              project,
                                              self)

@@ -24,10 +24,7 @@ The remaining methods:
 Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
-import sys
 from benchbuild.settings import CFG
-from benchbuild.utils.wrapping import PROJECT_BLOB_F_EXT
-from benchbuild.utils.path import template_str
 from benchbuild.utils.wrapping import wrap_cc
 
 

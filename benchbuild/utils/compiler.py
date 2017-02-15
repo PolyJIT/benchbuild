@@ -26,6 +26,7 @@ configured llvm/clang source directories.
 """
 from benchbuild.settings import CFG
 from benchbuild.utils.wrapping import wrap_cc
+from plumbum.commands.base import BoundCommand
 
 
 def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='clang'):
@@ -198,3 +199,13 @@ def clang():
     clang = clang.setenv(PATH=pinfo["path"],
                          LD_LIBRARY_PATH=pinfo["ld_library_path"])
     return clang
+
+
+class ExperimentCommand(BoundCommand):
+    __slots__ = ["cmd", "args"]
+
+    def __init__(self, cmd, args, exp_args):
+        self.cmd = cmd
+        self.args = args if args is not None else []
+        for inner_list in list(exp_args):
+            self.args.extend(inner_list)

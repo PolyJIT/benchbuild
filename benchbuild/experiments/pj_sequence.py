@@ -6,13 +6,12 @@ created doing so. Returns the actions executed for the test.
 """
 import uuid
 import multiprocessing
-import operator
 import logging
 import os
-import parse
-import random
-
 from functools import partial
+import random
+import parse
+
 from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
                                       Configure, Build, Clean)
 from benchbuild.experiments.compilestats import get_compilestats
@@ -20,6 +19,7 @@ from benchbuild.experiments.compilestats import get_compilestats
 from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.utils.run import track_execution
 from plumbum import local
+from benchbuild.utils.cmd import (mktemp, opt)
 
 DEFAULT_PASS_SPACE = ['-basicaa', '-mem2reg']
 DEFAULT_SEQ_LENGTH = 10

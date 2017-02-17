@@ -21,8 +21,28 @@ from benchbuild.utils.run import track_execution
 from plumbum import local
 from benchbuild.utils.cmd import (mktemp, opt)
 
-DEFAULT_PASS_SPACE = ['-basicaa', '-mem2reg']
 DEFAULT_SEQ_LENGTH = 10
+DEFAULT_PASS_SPACE = [
+    '-targetlibinfo', '-tti', '-tbaa', '-scoped-noalias',
+    '-assumption-cache-tracker', '-profile-summary-info', '-forceattrs',
+    '-inferattrs', '-ipsccp', '-globalopt', '-domtree', '-mem2reg',
+    '-deadargelim', '-domtree', '-basicaa', '-aa', '-instcombine',
+    '-simplifycfg', '-pgo-icall-prom', '-basiccg', '-globals-aa', '-prune-eh',
+    '-inline', '-functionattrs', '-argpromotion', '-domtree', '-sroa',
+    '-early-cse', '-speculative-execution', '-lazy-value-info',
+    '-jump-threading', '-correlated-propagation', '-simplifycfg',
+    '-domtree', '-basicaa', '-aa', '-instcombine', '-tailcallelim',
+    '-simplifycfg', '-reassociate', '-domtree', '-scalar-evolution',
+    '-basicaa', '-aa', '-loop-accesses', '-demanded-bits', '-loop-vectorize',
+    '-loop-simplify', '-scalar-evolution', '-aa', '-loop-accesses',
+    '-loop-load-elim', '-basicaa', '-aa', '-instcombine',
+    '-scalar-evolution', '-demanded-bits', '-slp-vectorizer',
+    '-simplifycfg', '-domtree', '-basicaa', '-aa', '-instcombine',
+    '-loops', '-loop-simplify', '-lcssa', '-scalar-evolution',
+    '-loop-unroll', '-instcombine', '-loop-simplify', '-lcssa',
+    '-scalar-evolution', '-licm', '-instsimplify', '-scalar-evolution',
+    '-alignment-from-assumptions', '-strip-dead-prototypes', '-globaldce',
+    '-constmerge', '-verify']
 DEFAULT_DEBUG = False
 DEFAULT_NUM_ITERATIONS = 100
 

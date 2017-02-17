@@ -40,11 +40,7 @@ def get_defaults():
     if not iterations:
         iterations = DEFAULT_NUM_ITERATIONS
 
-    debug = None
-    if not debug:
-        debug = DEFAULT_DEBUG
-
-    return (pass_space, seq_length, iterations, debug)
+    return (pass_space, seq_length, iterations)
 
 
 def get_args(cmd):
@@ -88,6 +84,51 @@ def filter_compiler_commandline(cmd, predicate = lambda x : True):
     set_args(cmd, result)
 
 
+def run_sequence(project, experiment, compiler, key, seq_to_fitness, sequence):
+    local_compiler = compiler[sequence]
+    with track_execution(local_compiler, project, experiment) as run:
+        run_info = run()
+        stats = get_compilestats(run_info.stderr)
+        stats = [s for s in stats if s['desc'] == "Number of alloca's promoted"]
+
+        old_fitness = seq_to_fitness.get(key, 0)
+        new_fitness = old_fitness
+        for stat in stats:
+            new_fitness = max(old_fitness, int(stat['value']))
+        seq_to_fitness[key] = new_fitness
+
+
+def unique_compiler_cmds(run_f):
+    list_compiler_commands = run_f["-###", "-c"]
+    _, _, stderr = list_compiler_commands.run()
+    stderr = stderr.split('\n')
+    for line in stderr:
+        res = parse.search('\"{0}\"', line)
+        if res and os.path.exists(res[0]):
+            results = parse.findall('\"{0}\"', line)
+            cmd = res[0]
+            args = [x[0] for x in results][1:]
+
+            compiler_cmd = local[cmd]
+            compiler_cmd = compiler_cmd[args]
+            compiler_cmd = compiler_cmd["-S", "-emit-llvm"]
+            yield compiler_cmd
+
+
+def link_ir(run_f):
+    link = local['llvm-link']
+    tmp_files = []
+    for compiler in unique_compiler_cmds(run_f):
+        tmp_file = mktemp("-p", local.cwd)
+        tmp_file = tmp_file.rstrip('\n')
+        tmp_files.append(tmp_file)
+        compiler("-o", tmp_file)
+    complete_ir = mktemp("-p", local.cwd)
+    complete_ir = complete_ir.rstrip('\n')
+    link("-o", complete_ir, tmp_files)
+    return complete_ir
+
+
 def generate_sequences(project, experiment, config,
                        jobs, run_f, *args, **kwargs):
     """
@@ -114,13 +155,12 @@ def generate_sequences(project, experiment, config,
         Returns:
         The generated custom sequences as a list.
     """
+    log = logging.getLogger()
     seq_to_fitness = multiprocessing.Manager().dict()
     generated_sequences = []
+    pass_space, seq_length, iterations = get_defaults()
 
-    pass_space, seq_length, iterations, debug = get_defaults()
-
-    log = logging.getLogger()
-    def filter_pred(item):
+    def filter_invalid_flags(item):
         filter_list = [
             "-O1", "-O2", "-O3", "-Os", "-O4"
         ]
@@ -130,7 +170,9 @@ def generate_sequences(project, experiment, config,
         result = result and not any([item.startswith(x) for x in prefix_list])
         return result
 
-    filter_compiler_commandline(run_f, filter_pred)
+    filter_compiler_commandline(run_f, filter_invalid_flags)
+    complete_ir = link_ir(run_f)
+    opt_cmd = opt[complete_ir, "-stats"]
 
     for i in range(iterations):
         log.debug("==========================================")
@@ -150,51 +192,6 @@ def generate_sequences(project, experiment, config,
             sequences = []
             pool = multiprocessing.Pool()
 
-            def run_sequence(compiler, key, seq_to_fitness, sequence):
-                local_compiler = compiler[sequence]
-                with track_execution(local_compiler, project, experiment) as run:
-                    run_info = run()
-                    stats = get_compilestats(run_info.stderr)
-                    stats = [s for s in stats if s['desc'] == "Number of alloca's promoted"]
-
-                    old_fitness = seq_to_fitness.get(key, 0)
-                    new_fitness = old_fitness
-                    for stat in stats:
-                        log.info("{:s} - {:s}".format(str(stat['desc']),
-                                                      str(stat['value'])))
-                        new_fitness = max(old_fitness, int(stat['value']))
-                    seq_to_fitness[key] = new_fitness
-
-            def get_compiler_for_compilation_unit(run_f):
-                list_compiler_commands = run_f["-###", "-c"]
-                _, _, stderr = list_compiler_commands.run()
-                stderr = stderr.split('\n')
-                for line in stderr:
-                    res = parse.search('\"{0}\"', line)
-                    if res and os.path.exists(res[0]):
-                        results = parse.findall('\"{0}\"', line)
-                        cmd = res[0]
-                        args = [x[0] for x in results][1:]
-
-                        compiler_cmd = local[cmd]
-                        compiler_cmd = compiler_cmd[args]
-                        compiler_cmd = compiler_cmd["-S", "-emit-llvm"]
-                        yield compiler_cmd
-
-            from benchbuild.utils.cmd import mktemp, opt
-            link = local['llvm-link']
-
-            tmp_files = []
-            for compiler in get_compiler_for_compilation_unit(run_f):
-                tmp_file = mktemp("-p", local.cwd)
-                tmp_file = tmp_file.rstrip('\n')
-                tmp_files.append(tmp_file)
-                compiler("-o", tmp_file)
-            complete_ir = mktemp("-p", local.cwd)
-            complete_ir = complete_ir.rstrip('\n')
-            link("-o", complete_ir, tmp_files)
-            opt_cmd = opt[complete_ir, "-stats"]
-
             for flag in pass_space:
                 new_sequences = []
                 new_sequences.append(list(base_sequence) + [flag])
@@ -203,46 +200,38 @@ def generate_sequences(project, experiment, config,
 
                 sequences.extend(new_sequences)
                 for seq in new_sequences:
-                    run_sequence(
-                        opt_cmd, str(seq), seq_to_fitness, seq)
+                    run_sequence(project, experiment,
+                                 opt_cmd, str(seq), seq_to_fitness, seq)
 
             pool.close()
             pool.join()
-            # sort the sequences by their fitness
-            sequences.sort(key=lambda s: seq_to_fitness[str(s)], reverse=True)
+            # sort the sequences by their fitness in ascending order
+            sequences.sort(key=lambda s: seq_to_fitness[str(s)])
+
             fittest = sequences.pop()
             fittest_fitness_value = seq_to_fitness[str(fittest)]
             fittest_sequences = [fittest]
-            equal = True
 
-            while sequences and equal:
-                other = sequences.pop()
-                if seq_to_fitness[str(other)] == fittest_fitness_value:
-                    fittest_sequences.append(other)
-                else:
-                    sequences.insert(0, other)
-                    equal = False
+            next_fittest = fittest
+            while next_fittest == fittest and len(sequences) > 1:
+                next_fittest = sequences.pop()
+                if seq_to_fitness[str(next_fittest)] == fittest_fitness_value:
+                    fittest_sequences.append(next_fittest)
 
             base_sequence = random.choice(fittest_sequences)
             log.debug("<=-----------------------------------=>")
-        generated_sequences.append(sequences)
+        generated_sequences.append(base_sequence)
 
+    print(generated_sequences)
     generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)])
     log.debug("\n...Finished!")
     log.debug(
         "Generated Custom Sequences in " + str(iterations) + " Iterations:")
-    if debug:
-        sorted_seq = sorted(seq_to_fitness,
-                            key=operator.itemgetter(1))
-        log.debug('\nBest sequences found over iterations:')
-        for i in range(len(sorted_seq)):
-            log.debug(sorted_seq.pop())
 
-        log.debug("\n")
-
+    # Store generated_sequence in database.
     return generated_sequences
 
-class CollisionTest(PolyJIT):
+class GreedySequences(PolyJIT):
     """
     An experiment that excecutes all projects with PolyJIT support.
 
@@ -251,7 +240,7 @@ class CollisionTest(PolyJIT):
     This shall become the default experiment for sequence analysis.
     """
 
-    NAME = "pj-seq-test"
+    NAME = "pj-seq-greedy"
 
     def actions_for_project(self, project):
         """Execute the actions for the test."""
@@ -266,6 +255,17 @@ class CollisionTest(PolyJIT):
 
         project.compiler_extension = partial(
             generate_sequences, project, self, CFG, jobs)
+
+        actions.extend([
+            MakeBuildDir(project),
+            Prepare(project),
+            Download(project),
+            Configure(project),
+            Build(project),
+            Clean(project)
+        ])
+        return actions
+
         actions.extend([
             MakeBuildDir(project),
             Prepare(project),

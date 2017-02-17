@@ -21,7 +21,6 @@ from benchbuild.utils.run import track_execution
 from plumbum import local
 from benchbuild.utils.cmd import (mktemp, opt)
 
-DEFAULT_SEQ_LENGTH = 10
 DEFAULT_PASS_SPACE = [
     '-targetlibinfo', '-tti', '-tbaa', '-scoped-noalias',
     '-assumption-cache-tracker', '-profile-summary-info', '-forceattrs',
@@ -43,8 +42,9 @@ DEFAULT_PASS_SPACE = [
     '-scalar-evolution', '-licm', '-instsimplify', '-scalar-evolution',
     '-alignment-from-assumptions', '-strip-dead-prototypes', '-globaldce',
     '-constmerge', '-verify']
+DEFAULT_SEQ_LENGTH = 40
 DEFAULT_DEBUG = False
-DEFAULT_NUM_ITERATIONS = 100
+DEFAULT_NUM_ITERATIONS = 10
 
 
 def get_defaults():

@@ -105,16 +105,23 @@ def filter_compiler_commandline(cmd, predicate = lambda x : True):
 
 
 def run_sequence(project, experiment, compiler, key, seq_to_fitness, sequence):
-    local_compiler = compiler[sequence]
+    local_compiler = compiler[sequence, "-polly-detect"]
     with track_execution(local_compiler, project, experiment) as run:
         run_info = run()
-        stats = get_compilestats(run_info.stderr)
-        stats = [s for s in stats if s['desc'] == "Number of alloca's promoted"]
+        stats = [s for s in get_compilestats(run_info.stderr) \
+                 if s['desc'] in [
+                     "Number of regions that a valid part of Scop",
+                     "The # of regions"
+                 ]]
+        scops = [s for s in stats if s['component'].strip() == 'polly-detect']
+        regns = [s for s in stats if s['component'].strip() == 'region']
+        regns_not_in_scops = \
+            [max(r['value']-s['value'], 0) for s, r in zip(scops, regns)]
 
         old_fitness = seq_to_fitness.get(key, 0)
         new_fitness = old_fitness
-        for stat in stats:
-            new_fitness = max(old_fitness, int(stat['value']))
+        for stat in regns_not_in_scops:
+            new_fitness = max(old_fitness, int(stat))
         seq_to_fitness[key] = new_fitness
 
 
@@ -194,21 +201,9 @@ def generate_sequences(project, experiment, config,
     complete_ir = link_ir(run_f)
     opt_cmd = opt[complete_ir, "-stats"]
 
-    for i in range(iterations):
-        log.debug("==========================================")
-        log.debug("Iteration: " + str(i+1))
-        log.debug("==========================================")
-        log.debug("Start Greedy Algorithm with empty sequence as root...")
-
+    for _ in range(iterations):
         base_sequence = []
-
         while len(base_sequence) < seq_length:
-            log.debug("<=-----------------------------------=>")
-            log.debug("Custom Sequence: " + str(base_sequence))
-            log.debug("Length: " + str(len(base_sequence)))
-            log.debug("---------------------------------------")
-            log.debug("Child Sequences: ")
-
             sequences = []
             pool = multiprocessing.Pool()
 
@@ -239,17 +234,13 @@ def generate_sequences(project, experiment, config,
                     fittest_sequences.append(next_fittest)
 
             base_sequence = random.choice(fittest_sequences)
-            log.debug("<=-----------------------------------=>")
         generated_sequences.append(base_sequence)
 
-    print(generated_sequences)
     generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)])
-    log.debug("\n...Finished!")
-    log.debug(
-        "Generated Custom Sequences in " + str(iterations) + " Iterations:")
 
-    # Store generated_sequence in database.
-    return generated_sequences
+    # TODO: Store generated_sequence in database.
+    print(generated_sequences.pop())
+
 
 class GreedySequences(PolyJIT):
     """

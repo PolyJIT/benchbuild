@@ -182,7 +182,6 @@ def generate_sequences(project, experiment, config,
         Returns:
         The generated custom sequences as a list.
     """
-    log = logging.getLogger()
     seq_to_fitness = {}
     generated_sequences = []
     pass_space, seq_length, iterations = get_defaults()
@@ -226,9 +225,7 @@ def generate_sequences(project, experiment, config,
                 for future_fitness in cf.as_completed(future_to_fitness):
                     key, fitness = future_fitness.result()
                     old_fitness = seq_to_fitness.get(key, 0)
-                    new_fitness = old_fitness
-                    new_fitness = max(old_fitness, int(fitness))
-                    seq_to_fitness[key] = new_fitness
+                    seq_to_fitness[key] = max(old_fitness, int(fitness))
 
             # sort the sequences by their fitness in ascending order
             sequences.sort(key=lambda s: seq_to_fitness[str(s)])
@@ -246,10 +243,14 @@ def generate_sequences(project, experiment, config,
             base_sequence = random.choice(fittest_sequences)
         generated_sequences.append(base_sequence)
 
-    generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)])
-
-    # TODO: Store generated_sequence in database.
-    print(generated_sequences.pop())
+    generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)], reverse=True)
+    max_fitness = 0
+    for seq in generated_sequences:
+        cur_fitness = seq_to_fitness[str(seq)]
+        max_fitness = max(max_fitness, cur_fitness)
+        if cur_fitness == max_fitness:
+            print("{0} -> {1}".format(cur_fitness, seq))
+    #TODO: Store generated sequence in database
 
 
 class GreedySequences(PolyJIT):

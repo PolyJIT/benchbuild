@@ -5,21 +5,22 @@ Generates a custom sequence for the project and  writes the compile stats
 created doing so. Returns the actions executed for the test.
 """
 import uuid
-import multiprocessing
 import logging
 import os
 from functools import partial
 import random
 import parse
+import concurrent.futures as cf
 
-from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
-                                      Configure, Build, Clean)
 from benchbuild.experiments.compilestats import get_compilestats
 
 from benchbuild.experiments.polyjit import PolyJIT
+from benchbuild.settings import CFG
+from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
+                                      Configure, Build, Clean)
+from benchbuild.utils.cmd import (mktemp, opt)
 from benchbuild.utils.run import track_execution
 from plumbum import local
-from benchbuild.utils.cmd import (mktemp, opt)
 
 DEFAULT_PASS_SPACE = [
     '-targetlibinfo', '-tti', '-tbaa', '-scoped-noalias',
@@ -105,24 +106,23 @@ def filter_compiler_commandline(cmd, predicate = lambda x : True):
 
 
 def run_sequence(project, experiment, compiler, key, seq_to_fitness, sequence):
-    local_compiler = compiler[sequence, "-polly-detect"]
-    with track_execution(local_compiler, project, experiment) as run:
-        run_info = run()
-        stats = [s for s in get_compilestats(run_info.stderr) \
-                 if s['desc'] in [
-                     "Number of regions that a valid part of Scop",
-                     "The # of regions"
-                 ]]
-        scops = [s for s in stats if s['component'].strip() == 'polly-detect']
-        regns = [s for s in stats if s['component'].strip() == 'region']
-        regns_not_in_scops = \
-            [max(r['value']-s['value'], 0) for s, r in zip(scops, regns)]
+    def fitness(l, r):
+        return max((l - r) / r, 0)
 
-        old_fitness = seq_to_fitness.get(key, 0)
-        new_fitness = old_fitness
-        for stat in regns_not_in_scops:
-            new_fitness = max(old_fitness, int(stat))
-        seq_to_fitness[key] = new_fitness
+    local_compiler = compiler[sequence, "-polly-detect"]
+    _, _, stderr = local_compiler.run(retcode=None)
+    stats = [s for s in get_compilestats(stderr) \
+                if s['desc'] in [
+                    "Number of regions that a valid part of Scop",
+                    "The # of regions"
+                ]]
+    scops = [s for s in stats if s['component'].strip() == 'polly-detect']
+    regns = [s for s in stats if s['component'].strip() == 'region']
+    regns_not_in_scops = \
+        [fitness(r['value'], s['value']) for s, r in zip(scops, regns)]
+
+    return (key, regns_not_in_scops[0]) \
+        if len(regns_not_in_scops) > 0 else (key, 0)
 
 
 def unique_compiler_cmds(run_f):
@@ -183,7 +183,7 @@ def generate_sequences(project, experiment, config,
         The generated custom sequences as a list.
     """
     log = logging.getLogger()
-    seq_to_fitness = multiprocessing.Manager().dict()
+    seq_to_fitness = {}
     generated_sequences = []
     pass_space, seq_length, iterations = get_defaults()
 
@@ -199,27 +199,37 @@ def generate_sequences(project, experiment, config,
 
     filter_compiler_commandline(run_f, filter_invalid_flags)
     complete_ir = link_ir(run_f)
-    opt_cmd = opt[complete_ir, "-stats"]
+    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
     for _ in range(iterations):
         base_sequence = []
         while len(base_sequence) < seq_length:
             sequences = []
-            pool = multiprocessing.Pool()
 
-            for flag in pass_space:
-                new_sequences = []
-                new_sequences.append(list(base_sequence) + [flag])
-                if base_sequence:
-                    new_sequences.append([flag] + list(base_sequence))
+            with cf.ThreadPoolExecutor(
+                max_workers=CFG["jobs"].value() * 5) as pool:
 
-                sequences.extend(new_sequences)
-                for seq in new_sequences:
-                    run_sequence(project, experiment,
-                                 opt_cmd, str(seq), seq_to_fitness, seq)
+                future_to_fitness = []
+                for flag in pass_space:
+                    new_sequences = []
+                    new_sequences.append(list(base_sequence) + [flag])
+                    if base_sequence:
+                        new_sequences.append([flag] + list(base_sequence))
 
-            pool.close()
-            pool.join()
+                    sequences.extend(new_sequences)
+                    future_to_fitness.extend(
+                        [pool.submit(
+                            run_sequence, project, experiment, opt_cmd,
+                            str(seq), seq_to_fitness, seq) \
+                            for seq in new_sequences]
+                    )
+                for future_fitness in cf.as_completed(future_to_fitness):
+                    key, fitness = future_fitness.result()
+                    old_fitness = seq_to_fitness.get(key, 0)
+                    new_fitness = old_fitness
+                    new_fitness = max(old_fitness, int(fitness))
+                    seq_to_fitness[key] = new_fitness
+
             # sort the sequences by their fitness in ascending order
             sequences.sort(key=lambda s: seq_to_fitness[str(s)])
 

@@ -283,7 +283,6 @@ class GreedySequences(PolyJIT):
             Download(project),
             Configure(project),
             Build(project),
-            Run(project),
             Clean(project)
         ])
         return actions

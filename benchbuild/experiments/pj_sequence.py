@@ -200,13 +200,12 @@ def generate_sequences(project, experiment, config,
     complete_ir = link_ir(run_f)
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
-    for _ in range(iterations):
-        base_sequence = []
-        while len(base_sequence) < seq_length:
-            sequences = []
-
-            with cf.ThreadPoolExecutor(
-                max_workers=CFG["jobs"].value() * 5) as pool:
+    with cf.ThreadPoolExecutor(
+        max_workers=CFG["jobs"].value() * 5) as pool:
+        for _ in range(iterations):
+            base_sequence = []
+            while len(base_sequence) < seq_length:
+                sequences = []
 
                 future_to_fitness = []
                 for flag in pass_space:
@@ -227,21 +226,21 @@ def generate_sequences(project, experiment, config,
                     old_fitness = seq_to_fitness.get(key, 0)
                     seq_to_fitness[key] = max(old_fitness, int(fitness))
 
-            # sort the sequences by their fitness in ascending order
-            sequences.sort(key=lambda s: seq_to_fitness[str(s)])
+                # sort the sequences by their fitness in ascending order
+                sequences.sort(key=lambda s: seq_to_fitness[str(s)])
 
-            fittest = sequences.pop()
-            fittest_fitness_value = seq_to_fitness[str(fittest)]
-            fittest_sequences = [fittest]
+                fittest = sequences.pop()
+                fittest_fitness_value = seq_to_fitness[str(fittest)]
+                fittest_sequences = [fittest]
 
-            next_fittest = fittest
-            while next_fittest == fittest and len(sequences) > 1:
-                next_fittest = sequences.pop()
-                if seq_to_fitness[str(next_fittest)] == fittest_fitness_value:
-                    fittest_sequences.append(next_fittest)
+                next_fittest = fittest
+                while next_fittest == fittest and len(sequences) > 1:
+                    next_fittest = sequences.pop()
+                    if seq_to_fitness[str(next_fittest)] == fittest_fitness_value:
+                        fittest_sequences.append(next_fittest)
 
-            base_sequence = random.choice(fittest_sequences)
-        generated_sequences.append(base_sequence)
+                base_sequence = random.choice(fittest_sequences)
+            generated_sequences.append(base_sequence)
 
     generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)], reverse=True)
     max_fitness = 0

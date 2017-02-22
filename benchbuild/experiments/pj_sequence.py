@@ -266,7 +266,6 @@ class GreedySequences(PolyJIT):
 
     def actions_for_project(self, project):
         """Execute the actions for the test."""
-        from benchbuild.settings import CFG
 
         project = PolyJIT.init_project(project)
 
@@ -277,16 +276,6 @@ class GreedySequences(PolyJIT):
 
         project.compiler_extension = partial(
             generate_sequences, project, self, CFG, jobs)
-
-        actions.extend([
-            MakeBuildDir(project),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
-            Clean(project)
-        ])
-        return actions
 
         actions.extend([
             MakeBuildDir(project),

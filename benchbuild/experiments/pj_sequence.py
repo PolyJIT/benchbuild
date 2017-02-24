@@ -8,8 +8,8 @@ import uuid
 import os
 from functools import partial
 import random
-import parse
 import concurrent.futures as cf
+import parse
 
 from benchbuild.experiments.compilestats import get_compilestats
 
@@ -18,7 +18,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
                                       Configure, Build, Clean)
 from benchbuild.utils.cmd import (mktemp, opt)
-from benchbuild.utils.run import track_execution
+from benchbuild.utils.schema import Session
 from plumbum import local
 
 DEFAULT_PASS_SPACE = [
@@ -155,19 +155,30 @@ def link_ir(run_f):
     return complete_ir
 
 
-def generate_sequences(project, experiment, config,
-                       jobs, run_f, *args, **kwargs):
-    """
-    Generates the custom sequences for a provided application.
+def filter_invalid_flags(item):
+    """Filter our all the unneeded flags for getting the compilestats."""
+    filter_list = [
+        "-O1", "-O2", "-O3", "-Os", "-O4"
+    ]
 
-    I therfor use the greedy algorithm Christoph Woller used as well.
-    For further information look at the greedy.py file in the sequence-analysis
-    experiment. The difference of this method to the actual custom generate
-    sequence method is that Mr. Woller only returned the best possible sequence.
-    We want all the sequences so i copied most of the method but left out the
-    finding and filtering of the best/fittest sequence. The fitness of each
-    sequence is still calculated to have some data of each sequence to compare
-    and analyze in the data base later on.
+    prefix_list = ['-o', '-l', '-L']
+    result = not item in filter_list
+    result = result and not any([item.startswith(x) for x in prefix_list])
+    return result
+
+
+def persist_sequences(sequences):
+    """Saves the generated sequences of an algorithm into the database."""
+    session = Session()
+    for seq in sequences:
+        session.add(seq)
+    session.commit()
+
+def hillclimber_sequences(project, experiment, config,
+                          jobs, run_f, *args, **kwargs):
+    """
+    Generates custom sequences for a provided application using the hillclimber
+    algorithm.
 
     Args:
         project: The name of the project the test is being run for.
@@ -178,30 +189,94 @@ def generate_sequences(project, experiment, config,
         args: List of arguments that will be passed to the wrapped binary.
         kwargs: Dictonary with the keyword arguments.
 
-        Returns:
+    Returns:
         The generated custom sequences as a list.
     """
-    from benchbuild.utils.schema import Session
+    generated_sequences = []
+    pass_space, seq_length, iterations = get_defaults()
+    filter_compiler_commandline(run_f, filter_invalid_flags)
+    complete_ir = link_ir(run_f)
+    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
+#generate sequences
+    persist_sequences(generated_sequences)
 
-    session = Session()
 
+def genetic1_opt_sequences(project, experiment, config,
+                           jobs, run_f, *args, **kwargs):
+    """
+    Generates custom sequences for a provided application using the first of the
+    two genetic opt algorithms.
+
+    Args:
+        project: The name of the project the test is being run for.
+        experiment: The benchbuild.experiment.
+        config: The config from benchbuild.settings.
+        jobs: Number of cores to be used for the execution.
+        run_f: The file that needs to be execute.
+        args: List of arguments that will be passed to the wrapped binary.
+        kwargs: Dictonary with the keyword arguments.
+
+    Returns:
+        The generated custom sequences as a list.
+    """
+    generated_sequences = []
+    pass_space, seq_length, iterations = get_defaults()
+    filter_compiler_commandline(run_f, filter_invalid_flags)
+    complete_ir = link_ir(run_f)
+    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
+#generate sequences
+    persist_sequences(generated_sequences)
+
+
+def genetic2_opt_sequences(project, experiment, config,
+                           jobs, run_f, *args, **kwargs):
+    """
+    Generates custom sequences for a provided application using the second
+    genetic opt algorithm.
+
+    Args:
+        project: The name of the project the test is being run for.
+        experiment: The benchbuild.experiment.
+        config: The config from benchbuild.settings.
+        jobs: Number of cores to be used for the execution.
+        run_f: The file that needs to be execute.
+        args: List of arguments that will be passed to the wrapped binary.
+        kwargs: Dictonary with the keyword arguments.
+
+    Returns:
+        The generated custom sequences as a list.
+    """
+    generated_sequences = []
+    pass_space, seq_length, iterations = get_defaults()
+    filter_compiler_commandline(run_f, filter_invalid_flags)
+    complete_ir = link_ir(run_f)
+    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
+#generate sequences
+    persist_sequences(generated_sequences)
+
+
+def greedy_sequences(project, experiment, config,
+                     jobs, run_f, *args, **kwargs):
+    """
+    Generates the custom sequences for a provided application with the greedy
+    algorithm.
+
+    I therfor use the greedy algorithm Christoph Woller used as well.
+    Args:
+        project: The name of the project the test is being run for.
+        experiment: The benchbuild.experiment.
+        config: The config from benchbuild.settings.
+        jobs: Number of cores to be used for the execution.
+        run_f: The file that needs to be execute.
+        args: List of arguments that will be passed to the wrapped binary.
+        kwargs: Dictonary with the keyword arguments.
+
+    Returns:
+        The generated custom sequences as a list.
+    """
     seq_to_fitness = {}
     generated_sequences = []
     pass_space, seq_length, iterations = get_defaults()
-
-    def filter_invalid_flags(item):
-        """
-        Filter out the flags not needed for the compilestats of the greedy
-        algorithm.
-        """
-        filter_list = [
-            "-O1", "-O2", "-O3", "-Os", "-O4"
-        ]
-
-        prefix_list = ['-o', '-l', '-L']
-        result = not item in filter_list
-        result = result and not any([item.startswith(x) for x in prefix_list])
-        return result
 
     def extend_future(future_to_fitness, base_sequence, sequences, pool):
         """Generate the future of the fitness values from the sequences."""
@@ -220,7 +295,7 @@ def generate_sequences(project, experiment, config,
             )
         return future_to_fitness
 
-    def create_sequences():
+    def create_greedy_sequences():
         """
         Generate the sequences, starting from a base_sequence, then calculate
         their fitnesses and add the fittest one.
@@ -266,7 +341,7 @@ def generate_sequences(project, experiment, config,
     complete_ir = link_ir(run_f)
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
-    generated_sequences = create_sequences()
+    generated_sequences = create_greedy_sequences()
     generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)], reverse=True)
     max_fitness = 0
     for seq in generated_sequences:
@@ -274,8 +349,7 @@ def generate_sequences(project, experiment, config,
         max_fitness = max(max_fitness, cur_fitness)
         if cur_fitness == max_fitness:
             print("{0} -> {1}".format(cur_fitness, seq))
-        session.add(seq)
-    session.commit()
+    persist_sequences(generated_sequences)
 
 
 class GreedySequences(PolyJIT):
@@ -300,7 +374,7 @@ class GreedySequences(PolyJIT):
         jobs = int(CFG["jobs"].value())
 
         project.compiler_extension = partial(
-            generate_sequences, project, self, CFG, jobs)
+            greedy_sequences, project, self, CFG, jobs)
 
         actions.extend([
             MakeBuildDir(project),

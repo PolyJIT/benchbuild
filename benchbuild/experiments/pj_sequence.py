@@ -181,11 +181,19 @@ def generate_sequences(project, experiment, config,
         Returns:
         The generated custom sequences as a list.
     """
+    from benchbuild.utils.schema import Session
+
+    session = Session()
+
     seq_to_fitness = {}
     generated_sequences = []
     pass_space, seq_length, iterations = get_defaults()
 
     def filter_invalid_flags(item):
+        """
+        Filter out the flags not needed for the compilestats of the greedy
+        algorithm.
+        """
         filter_list = [
             "-O1", "-O2", "-O3", "-Os", "-O4"
         ]
@@ -266,7 +274,8 @@ def generate_sequences(project, experiment, config,
         max_fitness = max(max_fitness, cur_fitness)
         if cur_fitness == max_fitness:
             print("{0} -> {1}".format(cur_fitness, seq))
-    #TODO: Store generated sequence in database
+        session.add(seq)
+    session.commit()
 
 
 class GreedySequences(PolyJIT):

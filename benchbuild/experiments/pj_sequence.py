@@ -5,7 +5,6 @@ Generates a custom sequence for the project and  writes the compile stats
 created doing so. Returns the actions executed for the test.
 """
 import uuid
-import logging
 import os
 from functools import partial
 import random
@@ -196,53 +195,70 @@ def generate_sequences(project, experiment, config,
         result = result and not any([item.startswith(x) for x in prefix_list])
         return result
 
+    def extend_future(future_to_fitness, base_sequence, sequences, pool):
+        """Generate the future of the fitness values from the sequences."""
+        for flag in pass_space:
+            new_sequences = []
+            new_sequences.append(list(base_sequence) + [flag])
+            if base_sequence:
+                new_sequences.append([flag] + list(base_sequence))
+
+            sequences.extend(new_sequences)
+            future_to_fitness.extend(
+                [pool.submit(
+                    run_sequence, project, experiment, opt_cmd,
+                    str(seq), seq_to_fitness, seq) \
+                    for seq in new_sequences]
+            )
+        return future_to_fitness
+
+    def create_sequences():
+        """
+        Generate the sequences, starting from a base_sequence, then calculate
+        their fitnesses and add the fittest one.
+
+        Return: A list of the fittest generated sequences.
+        """
+        for _ in range(iterations):
+            base_sequence = []
+            while len(base_sequence) < seq_length:
+                sequences = []
+
+                with cf.ThreadPoolExecutor(
+                    max_workers=CFG["jobs"].value() * 5) as pool:
+
+                    future_to_fitness = extend_future([], base_sequence,
+                                                      [], pool)
+
+                    for future_fitness in cf.as_completed(future_to_fitness):
+                        key, fitness = future_fitness.result()
+                        old_fitness = seq_to_fitness.get(key, 0)
+                        seq_to_fitness[key] = max(old_fitness, int(fitness))
+
+                # sort the sequences by their fitness in ascending order
+                sequences.sort(key=lambda s: seq_to_fitness[str(s)])
+
+                fittest = sequences.pop()
+                fittest_fitness_value = seq_to_fitness[str(fittest)]
+                fittest_sequences = [fittest]
+
+                next_fittest = fittest
+                while next_fittest == fittest and len(sequences) > 1:
+                    next_fittest = sequences.pop()
+                    if seq_to_fitness[str(next_fittest)] == \
+                            fittest_fitness_value:
+                        fittest_sequences.append(next_fittest)
+
+                base_sequence = random.choice(fittest_sequences)
+            generated_sequences.append(base_sequence)
+        return generated_sequences
+
+
     filter_compiler_commandline(run_f, filter_invalid_flags)
     complete_ir = link_ir(run_f)
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
-    for _ in range(iterations):
-        base_sequence = []
-        while len(base_sequence) < seq_length:
-            sequences = []
-
-            with cf.ThreadPoolExecutor(
-                max_workers=CFG["jobs"].value() * 5) as pool:
-
-                future_to_fitness = []
-                for flag in pass_space:
-                    new_sequences = []
-                    new_sequences.append(list(base_sequence) + [flag])
-                    if base_sequence:
-                        new_sequences.append([flag] + list(base_sequence))
-
-                    sequences.extend(new_sequences)
-                    future_to_fitness.extend(
-                        [pool.submit(
-                            run_sequence, project, experiment, opt_cmd,
-                            str(seq), seq_to_fitness, seq) \
-                            for seq in new_sequences]
-                    )
-                for future_fitness in cf.as_completed(future_to_fitness):
-                    key, fitness = future_fitness.result()
-                    old_fitness = seq_to_fitness.get(key, 0)
-                    seq_to_fitness[key] = max(old_fitness, int(fitness))
-
-            # sort the sequences by their fitness in ascending order
-            sequences.sort(key=lambda s: seq_to_fitness[str(s)])
-
-            fittest = sequences.pop()
-            fittest_fitness_value = seq_to_fitness[str(fittest)]
-            fittest_sequences = [fittest]
-
-            next_fittest = fittest
-            while next_fittest == fittest and len(sequences) > 1:
-                next_fittest = sequences.pop()
-                if seq_to_fitness[str(next_fittest)] == fittest_fitness_value:
-                    fittest_sequences.append(next_fittest)
-
-            base_sequence = random.choice(fittest_sequences)
-        generated_sequences.append(base_sequence)
-
+    generated_sequences = create_sequences()
     generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)], reverse=True)
     max_fitness = 0
     for seq in generated_sequences:

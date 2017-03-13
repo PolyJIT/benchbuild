@@ -174,32 +174,6 @@ def persist_sequences(sequences):
         session.add(seq)
     session.commit()
 
-def hillclimber_sequences(project, experiment, config,
-                          jobs, run_f, *args, **kwargs):
-    """
-    Generates custom sequences for a provided application using the hillclimber
-    algorithm.
-
-    Args:
-        project: The name of the project the test is being run for.
-        experiment: The benchbuild.experiment.
-        config: The config from benchbuild.settings.
-        jobs: Number of cores to be used for the execution.
-        run_f: The file that needs to be execute.
-        args: List of arguments that will be passed to the wrapped binary.
-        kwargs: Dictonary with the keyword arguments.
-
-    Returns:
-        The generated custom sequences as a list.
-    """
-    generated_sequences = []
-    pass_space, seq_length, iterations = get_defaults()
-    filter_compiler_commandline(run_f, filter_invalid_flags)
-    complete_ir = link_ir(run_f)
-    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
-#generate sequences
-    persist_sequences(generated_sequences)
-
 
 def genetic1_opt_sequences(project, experiment, config,
                            jobs, run_f, *args, **kwargs):
@@ -224,8 +198,44 @@ def genetic1_opt_sequences(project, experiment, config,
     filter_compiler_commandline(run_f, filter_invalid_flags)
     complete_ir = link_ir(run_f)
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
-#generate sequences
+#generate sequences aka override simulate_generation
     persist_sequences(generated_sequences)
+
+
+class Genetic1Sequence(PolyJIT):
+    """
+    An experiment that excecutes all projects with PolyJIT support.
+
+    Instead of the actual actions the compile stats for executing them
+    are being written into the database.
+
+    The sequences are getting generated with the first genetic algorithm.
+    """
+
+    NAME = "pj-seq-genetic1-opt"
+
+    def actions_for_project(self, project):
+        """Execute the actions for the test."""
+
+        project = PolyJIT.init_project(project)
+
+        actions = []
+        project.cflags = ["-mllvm", "-stats"]
+        project.run_uuid = uuid.uuid4()
+        jobs = int(CFG["jobs"].value())
+
+        project.compiler_extension = partial(
+            genetic1_opt_sequences, project, self, CFG, jobs)
+
+        actions.extend([
+            MakeBuildDir(project),
+            Prepare(project),
+            Download(project),
+            Configure(project),
+            Build(project),
+            Clean(project)
+        ])
+        return actions
 
 
 def genetic2_opt_sequences(project, experiment, config,
@@ -251,8 +261,115 @@ def genetic2_opt_sequences(project, experiment, config,
     filter_compiler_commandline(run_f, filter_invalid_flags)
     complete_ir = link_ir(run_f)
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
-#generate sequences
+#generate sequences aka override simulation_generation
     persist_sequences(generated_sequences)
+
+
+class Genetic2Sequence(PolyJIT):
+    """
+    An experiment that excecutes all projects with PolyJIT support.
+
+    Instead of the actual actions the compile stats for executing them
+    are being written into the database.
+
+    The sequences are getting generated with the second genetic algorithm.
+    """
+
+    NAME = "pj-seq-genetic2-ot"
+
+    def actions_for_project(self, project):
+        """Execute the actions for the test."""
+
+        project = PolyJIT.init_project(project)
+
+        actions = []
+        project.cflags = ["-mllvm", "-stats"]
+        project.run_uuid = uuid.uuid4()
+        jobs = int(CFG["jobs"].value())
+
+        project.compiler_extension = partial(
+            genetic2_opt_sequences, project, self, CFG, jobs)
+
+        actions.extend([
+            MakeBuildDir(project),
+            Prepare(project),
+            Download(project),
+            Configure(project),
+            Build(project),
+            Clean(project)
+        ])
+        return actions
+
+
+def hillclimber_sequences(project, experiment, config,
+                          jobs, run_f, *args, **kwargs):
+    """
+    Generates custom sequences for a provided application using the hillclimber
+    algorithm.
+
+    Args:
+        project: The name of the project the test is being run for.
+        experiment: The benchbuild.experiment.
+        config: The config from benchbuild.settings.
+        jobs: Number of cores to be used for the execution.
+        run_f: The file that needs to be execute.
+        args: List of arguments that will be passed to the wrapped binary.
+        kwargs: Dictonary with the keyword arguments.
+
+    Returns:
+        The generated custom sequences as a list.
+    """
+    generated_sequences = []
+    pass_space, seq_length, iterations = get_defaults()
+    filter_compiler_commandline(run_f, filter_invalid_flags)
+    complete_ir = link_ir(run_f)
+    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
+    def climb():
+        """
+        Find the best sequence and calculate all of its neighbours. If the
+        best performing neighbour and if it is fitter than the base sequence,
+        the neighbour becomes the new base sequence. Repeat until the base
+        sequence has the best performance compared to its neighbours.
+        """
+        seq_to_fitness = {}
+#generate sequences aka override climb
+    persist_sequences(generated_sequences)
+
+
+class HillclimberSequences(PolyJIT):
+    """
+    An experiment that excecutes all projects with PolyJIT support.
+
+    Instead of the actual actions the compile stats for executing them
+    are being written into the database.
+
+    The sequences are getting generated with the hillclimber algorithm.
+    """
+
+    NAME = "pj-seq-hillclimber"
+
+    def actions_for_project(self, project):
+        """Execute the actions for the test."""
+
+        project = PolyJIT.init_project(project)
+
+        actions = []
+        project.cflags = ["-mllvm", "-stats"]
+        project.run_uuid = uuid.uuid4()
+        jobs = int(CFG["jobs"].value())
+
+        project.compiler_extension = partial(
+            hillclimber_sequences, project, self, CFG, jobs)
+
+        actions.extend([
+            MakeBuildDir(project),
+            Prepare(project),
+            Download(project),
+            Configure(project),
+            Build(project),
+            Clean(project)
+        ])
+        return actions
 
 
 def greedy_sequences(project, experiment, config,
@@ -358,6 +475,8 @@ class GreedySequences(PolyJIT):
 
     Instead of the actual actions the compile stats for executing them
     are being written into the database.
+
+    The sequences are getting generated with the greedy algorithm.
     This shall become the default experiment for sequence analysis.
     """
 

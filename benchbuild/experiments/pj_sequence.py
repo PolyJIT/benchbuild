@@ -9,6 +9,7 @@ import os
 from functools import partial
 import random
 import concurrent.futures as cf
+import multiprocessing
 import parse
 
 from benchbuild.experiments.compilestats import get_compilestats
@@ -319,11 +320,66 @@ def hillclimber_sequences(project, experiment, config,
     Returns:
         The generated custom sequences as a list.
     """
-    generated_sequences = []
-    pass_space, seq_length, iterations = get_defaults()
+
+    seq_to_fitness = {}
+    pass_space, seq_length, _ = get_defaults()
     filter_compiler_commandline(run_f, filter_invalid_flags)
     complete_ir = link_ir(run_f)
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
+
+    def extend_future(future_to_fitness, base_sequence, sequences, pool):
+        """Generate the future of the fitness values from the sequences."""
+        for flag in pass_space:
+            new_sequences = []
+            new_sequences.append(list(base_sequence) + [flag])
+            if base_sequence:
+                new_sequences.append([flag] + list(base_sequence))
+
+            sequences.extend(new_sequences)
+            future_to_fitness.extend(
+                [pool.submit(
+                    run_sequence, project, experiment, opt_cmd,
+                    str(seq), seq_to_fitness, seq) \
+                    for seq in new_sequences]
+            )
+        return future_to_fitness
+
+    def create_random_sequence(pass_space, seq_length):
+        """Creates a random sequence."""
+        sequence = []
+        for _ in range(seq_length):
+            sequence.append(random.choice(pass_space))
+
+        return sequence
+
+    def calculate_neighbours(seq_to_fitness, pass_space):
+        """Calculates the neighbours of the specified sequence."""
+        neighbours = []
+        base_sequence = create_random_sequence(pass_space, seq_length)
+        with cf.ThreadPoolExecutor(
+            max_workers=CFG["jobs"].value() * 5) as pool:
+
+            future_to_fitness = extend_future([], base_sequence,
+                                              [], pool)
+
+            for future_fitness in cf.as_completed(future_to_fitness):
+                key, fitness = future_fitness.result()
+                old_fitness = seq_to_fitness.get(key, 0)
+                seq_to_fitness[key] = max(old_fitness, int(fitness))
+
+            #normally range(len) would be unnecessary but in this case we need
+            #it, due to the usage of the i in the second for loop
+            for i in range(len(base_sequence)):
+                remaining_passes = list(pass_space)
+                remaining_passes.remove(base_sequence[i])
+
+                for remaining_pass in remaining_passes:
+                    neighbour = list(base_sequence)
+                    neighbour[i] = remaining_pass
+                    neighbours.append(neighbour)
+
+        return (neighbours, base_sequence)
+
     def climb():
         """
         Find the best sequence and calculate all of its neighbours. If the
@@ -331,9 +387,46 @@ def hillclimber_sequences(project, experiment, config,
         the neighbour becomes the new base sequence. Repeat until the base
         sequence has the best performance compared to its neighbours.
         """
-        seq_to_fitness = {}
-#generate sequences aka override climb
-    persist_sequences(generated_sequences)
+        changed = True
+
+        while changed:
+            changed = False
+
+        neighbours, base_sequence = calculate_neighbours(seq_to_fitness,
+                                                         pass_space)
+        base_sequence_key = str(base_sequence)
+
+        for neighbour in neighbours:
+            if seq_to_fitness[base_sequence_key] \
+                    > seq_to_fitness[str(neighbour)]:
+                base_sequence = neighbour
+                base_sequence_key = str(neighbour)
+                changed = True
+
+        return base_sequence
+
+    def create_hillclimber_sequence():
+        """
+        Generate the sequences, starting from a base_sequence, then calculate
+        their fitnesses and add the fittest one.
+
+        Return: The fittest generated sequence.
+        """
+
+        best_sequence = []
+        _, _, iterations = get_defaults()
+        seq_to_fitness = multiprocessing.Manager().dict()
+
+        for _ in range(iterations):
+            base_sequence = climb()
+
+        if not best_sequence or seq_to_fitness[str(best_sequence)] \
+                < seq_to_fitness[str(base_sequence)]:
+            best_sequence = base_sequence
+        return base_sequence
+
+    best_sequence = create_hillclimber_sequence()
+    persist_sequences(best_sequence)
 
 
 class HillclimberSequences(PolyJIT):

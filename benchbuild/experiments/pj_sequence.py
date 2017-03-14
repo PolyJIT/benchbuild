@@ -219,11 +219,6 @@ def genetic1_opt_sequences(project, experiment, config,
     seq_to_fitness = {}
     _, _, gene_pool = get_defaults()
     chromosome_size, population_size, generations = get_genetic_defaults()
-    filter_compiler_commandline(run_f, filter_invalid_flags)
-    complete_ir = link_ir(run_f)
-    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
-    chromosomes = []
-    fittest_chromosome = []
 
     def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
         """Simulates the change of a population within a single generation."""
@@ -347,6 +342,12 @@ def genetic1_opt_sequences(project, experiment, config,
         return mutated_chromosomes
 
 
+    filter_compiler_commandline(run_f, filter_invalid_flags)
+    complete_ir = link_ir(run_f)
+    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
+    chromosomes = []
+    fittest_chromosome = []
+
     for _ in range(population_size):
         chromosomes.append(generate_random_gene_sequence(gene_pool))
 
@@ -358,7 +359,6 @@ def genetic1_opt_sequences(project, experiment, config,
             chromosomes = delete_duplicates(chromosomes, gene_pool)
 
     persist_sequences([fittest_chromosome])
-    return fittest_chromosome
 
 
 class Genetic1Sequence(PolyJIT):
@@ -418,11 +418,6 @@ def genetic2_opt_sequences(project, experiment, config,
     seq_to_fitness = {}
     _, _, gene_pool = get_defaults()
     chromosome_size, population_size, generations = get_genetic_defaults()
-    filter_compiler_commandline(run_f, filter_invalid_flags)
-    complete_ir = link_ir(run_f)
-    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
-    chromosomes = []
-    fittest_chromosome = []
 
     def extend_gene_future(future_to_fitness, base, chromosomes, pool):
         """Generate the future of the fitness values from the chromosomes."""
@@ -441,7 +436,6 @@ def genetic2_opt_sequences(project, experiment, config,
             )
         return future_to_fitness
 
-
     def generate_random_gene_sequence(gene_pool):
         """Generates a random sequence of genes."""
         genes = []
@@ -449,7 +443,6 @@ def genetic2_opt_sequences(project, experiment, config,
             genes.append(random.choice(gene_pool))
 
         return genes
-
 
     def delete_duplicates(chromosomes, gene_pool):
         """Deletes duplicates in the chromosomes of the population."""
@@ -469,7 +462,6 @@ def genetic2_opt_sequences(project, experiment, config,
             chromosomes.append(list(chromosome))
 
         return chromosomes
-
 
     def mutate(chromosomes, gene_pool, seq_to_fitness, mutation_probability=10):
         """Performs mutation on chromosomes with a certain probability."""
@@ -495,7 +487,6 @@ def genetic2_opt_sequences(project, experiment, config,
             mutated_chromosomes.append(mutated_chromosome)
 
         return mutated_chromosomes
-
 
     def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
         """Simulates the change of a population within a single generation."""
@@ -544,6 +535,12 @@ def genetic2_opt_sequences(project, experiment, config,
 
         return chromosomes, fittest_chromosome
 
+
+    filter_compiler_commandline(run_f, filter_invalid_flags)
+    complete_ir = link_ir(run_f)
+    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
+    chromosomes = []
+    fittest_chromosome = []
 
     for _ in range(population_size):
         chromosomes.append(generate_random_gene_sequence(gene_pool))
@@ -616,9 +613,6 @@ def hillclimber_sequences(project, experiment, config,
 
     seq_to_fitness = {}
     pass_space, seq_length, _ = get_defaults()
-    filter_compiler_commandline(run_f, filter_invalid_flags)
-    complete_ir = link_ir(run_f)
-    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
     def extend_future(future_to_fitness, base_sequence, sequences, pool):
         """Generate the future of the fitness values from the sequences."""
@@ -717,6 +711,11 @@ def hillclimber_sequences(project, experiment, config,
                 < seq_to_fitness[str(base_sequence)]:
             best_sequence = base_sequence
         return base_sequence
+
+
+    filter_compiler_commandline(run_f, filter_invalid_flags)
+    complete_ir = link_ir(run_f)
+    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
     best_sequence = create_hillclimber_sequence()
     persist_sequences([best_sequence])

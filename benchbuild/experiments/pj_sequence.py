@@ -804,13 +804,13 @@ def greedy_sequences(project, experiment, config,
 
         Return: A list of the fittest generated sequences.
         """
-        for _ in range(iterations):
-            base_sequence = []
-            while len(base_sequence) < seq_length:
-                sequences = []
+        with cf.ThreadPoolExecutor(
+            max_workers=CFG["jobs"].value() * 5) as pool:
 
-                with cf.ThreadPoolExecutor(
-                    max_workers=CFG["jobs"].value() * 5) as pool:
+            for _ in range(iterations):
+                base_sequence = []
+                while len(base_sequence) < seq_length:
+                    sequences = []
 
                     future_to_fitness = extend_future([], base_sequence,
                                                       [], pool)

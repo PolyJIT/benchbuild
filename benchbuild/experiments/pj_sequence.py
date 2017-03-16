@@ -10,6 +10,7 @@ from functools import partial
 import random
 import concurrent.futures as cf
 import multiprocessing
+import sys
 import parse
 
 from benchbuild.experiments.compilestats import get_compilestats
@@ -42,7 +43,7 @@ DEFAULT_PASS_SPACE = [
     '-loop-unroll', '-instcombine', '-loop-simplify', '-lcssa',
     '-scalar-evolution', '-licm', '-instsimplify', '-scalar-evolution',
     '-alignment-from-assumptions', '-strip-dead-prototypes', '-globaldce',
-    '-constmerge', '-verify']
+    '-constmerge']
 DEFAULT_SEQ_LENGTH = 40
 DEFAULT_DEBUG = False
 DEFAULT_NUM_ITERATIONS = 10
@@ -126,10 +127,7 @@ def filter_compiler_commandline(cmd, predicate = lambda x : True):
 
     set_args(cmd, result)
 
-
-def run_sequence(project, experiment, compiler, key, seq_to_fitness, sequence):
-    def fitness(l, r):
-        return max((l - r) / r, 0)
+def run_sequence(compiler, key, seq_to_fitness, sequence, fitness_func):
 
     local_compiler = compiler[sequence, "-polly-detect"]
     _, _, stderr = local_compiler.run(retcode=None)
@@ -141,10 +139,12 @@ def run_sequence(project, experiment, compiler, key, seq_to_fitness, sequence):
     scops = [s for s in stats if s['component'].strip() == 'polly-detect']
     regns = [s for s in stats if s['component'].strip() == 'region']
     regns_not_in_scops = \
-        [fitness(r['value'], s['value']) for s, r in zip(scops, regns)]
+        [fitness_func(r['value'], s['value']) for s, r in zip(scops, regns)]
 
-    return (key, regns_not_in_scops[0]) \
-        if len(regns_not_in_scops) > 0 else (key, 0)
+    if regns_not_in_scops:
+        return (key, regns_not_in_scops[0])
+    else:
+        return (key, sys.maxsize)
 
 
 def unique_compiler_cmds(run_f):
@@ -217,7 +217,7 @@ def genetic1_opt_sequences(project, experiment, config,
         The generated custom sequences as a list.
     """
     seq_to_fitness = {}
-    _, _, gene_pool = get_defaults()
+    gene_pool, _, _ = get_defaults()
     chromosome_size, population_size, generations = get_genetic_defaults()
 
     def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
@@ -226,13 +226,12 @@ def genetic1_opt_sequences(project, experiment, config,
         with cf.ThreadPoolExecutor(
             max_workers=CFG["jobs"].value() * 5) as pool:
 
-            future_to_fitness = extend_gene_future([], [],
-                                                   [], pool)
+            future_to_fitness = extend_gene_future([], [], chromosomes, pool)
 
             for future_fitness in cf.as_completed(future_to_fitness):
                 key, fitness = future_fitness.result()
-                old_fitness = seq_to_fitness.get(key, 0)
-                seq_to_fitness[key] = max(old_fitness, int(fitness))
+                old_fitness = seq_to_fitness.get(key, sys.maxsize)
+                seq_to_fitness[key] = min(old_fitness, int(fitness))
         # sort the chromosomes by their fitness value
         chromosomes.sort(key=lambda c: seq_to_fitness[str(c)], reverse=True)
 
@@ -261,13 +260,15 @@ def genetic1_opt_sequences(project, experiment, config,
 
         # mutate the fittest chromosome of this generation
         fittest_chromosome = upper_half.pop()
-        lower_half = mutate(lower_half, gene_pool, 10)
-        upper_half = mutate(upper_half, gene_pool, 5)
+        lower_half = mutate(lower_half, gene_pool, seq_to_fitness, 10)
+        upper_half = mutate(upper_half, gene_pool, seq_to_fitness, 5)
 
         # rejoin all chromosomes
         upper_half.append(fittest_chromosome)
         chromosomes = lower_half + upper_half + new_chromosomes
 
+        print("===================")
+        print("{0} fitness: {1}".format(fittest_chromosome, seq_to_fitness[str(fittest_chromosome)]))
         return chromosomes, fittest_chromosome
 
 
@@ -275,27 +276,22 @@ def genetic1_opt_sequences(project, experiment, config,
         """Generates a random sequence of genes."""
         genes = []
         for _ in range(chromosome_size):
-            genes.append(random.choice(str(gene_pool)))
+            genes.append(random.choice(gene_pool))
 
         return genes
 
 
     def extend_gene_future(future_to_fitness, base, chromosomes, pool):
         """Generate the future of the fitness values from the chromosomes."""
-        for _ in range(gene_pool):
-            new_chromosomes = []
-            new_chromosomes.append(generate_random_gene_sequence(gene_pool))
-            if base:
-                new_chromosomes.append(generate_random_gene_sequence(gene_pool))
+        def fitness(lhs, rhs):
+            return (lhs - rhs) / rhs
 
-            chromosomes.extend(new_chromosomes)
-            future_to_fitness.extend(
-                [pool.submit(
-                    run_sequence, project, experiment, opt_cmd,
-                    str(chromosome), seq_to_fitness, chromosome) \
-                    for chromosome in new_chromosomes]
-            )
-
+        future_to_fitness.extend(
+            [pool.submit(
+                run_sequence, opt_cmd, str(chromosome),
+                seq_to_fitness, chromosome, fitness) \
+                for chromosome in chromosomes]
+        )
         return future_to_fitness
 
 
@@ -319,26 +315,17 @@ def genetic1_opt_sequences(project, experiment, config,
         return chromosomes
 
 
-    def mutate(chromosomes, gene_pool, seq_to_fitness, mutation_probability=10):
+    def mutate(chromosomes, gene_pool, seq_to_fitness, mutation_probability):
         """Performs mutation on chromosomes with a certain probability."""
         mutated_chromosomes = []
 
         for chromosome in chromosomes:
             mutated_chromosome = list(chromosome)
-            chromosome_size = len(mutated_chromosomes)
-            number_of_different_chromosomes = len(gene_pool) ** chromosome_size
+            chromosome_size = len(mutated_chromosome)
 
             for i in range(chromosome_size):
                 if random.randint(1, 100) <= mutation_probability:
-                    mutated_chromosomes[i] = random.choice(gene_pool)
-
-            num_seq = 0
-
-            while str(mutated_chromosome) in seq_to_fitness and num_seq \
-                    < number_of_different_chromosomes:
-                mutated_chromosome[random.randint(0, chromosome_size - 1)] \
-                = random.choice(gene_pool)
-                num_seq += 1
+                    mutated_chromosome[i] = random.choice(gene_pool)
 
             mutated_chromosomes.append(mutated_chromosome)
 
@@ -361,7 +348,7 @@ def genetic1_opt_sequences(project, experiment, config,
         if i < generations - 1:
             chromosomes = delete_duplicates(chromosomes, gene_pool)
 
-    persist_sequences([fittest_chromosome])
+    #persist_sequences([fittest_chromosome])
 
 
 class Genetic1Sequence(PolyJIT):
@@ -432,6 +419,9 @@ def genetic2_opt_sequences(project, experiment, config,
 
     def extend_gene_future(future_to_fitness, base, chromosomes, pool):
         """Generate the future of the fitness values from the chromosomes."""
+        def fitness(lhs, rhs):
+            return (lhs - rhs) / lhs
+
         for _ in range(gene_pool):
             new_chromosomes = []
             new_chromosomes.append(generate_random_gene_sequence(gene_pool))
@@ -441,8 +431,9 @@ def genetic2_opt_sequences(project, experiment, config,
 
             future_to_fitness.extend(
                 [pool.submit(
-                    run_sequence, project, experiment, opt_cmd,
-                    str(chromosome), seq_to_fitness, chromosome) \
+                    run_sequence, opt_cmd,
+                    str(chromosome), seq_to_fitness, chromosome, fitness
+                    ) \
                     for chromosome in new_chromosomes]
             )
         return future_to_fitness
@@ -497,8 +488,7 @@ def genetic2_opt_sequences(project, experiment, config,
         with cf.ThreadPoolExecutor(
             max_workers=CFG["jobs"].value() * 5) as pool:
 
-            future_to_fitness = extend_gene_future([], [],
-                                                   [], pool)
+            future_to_fitness = extend_gene_future([], [], [], pool)
 
             for future_fitness in cf.as_completed(future_to_fitness):
                 key, fitness = future_fitness.result()
@@ -621,6 +611,9 @@ def hillclimber_sequences(project, experiment, config,
 
     def extend_future(future_to_fitness, base_sequence, sequences, pool):
         """Generate the future of the fitness values from the sequences."""
+        def fitness(lhs, rhs):
+            return lhs - rhs
+
         for flag in pass_space:
             new_sequences = []
             new_sequences.append(list(base_sequence) + [flag])
@@ -630,8 +623,7 @@ def hillclimber_sequences(project, experiment, config,
             sequences.extend(new_sequences)
             future_to_fitness.extend(
                 [pool.submit(
-                    run_sequence, project, experiment, opt_cmd,
-                    str(seq), seq_to_fitness, seq) \
+                    run_sequence, opt_cmd, str(seq), seq_to_fitness, seq, fitness) \
                     for seq in new_sequences]
             )
         return future_to_fitness
@@ -785,8 +777,13 @@ def greedy_sequences(project, experiment, config,
     generated_sequences = []
     pass_space, seq_length, iterations = get_defaults()
 
-    def extend_future(future_to_fitness, base_sequence, sequences, pool):
+    def extend_future(base_sequence, pool):
         """Generate the future of the fitness values from the sequences."""
+        def fitness(lhs, rhs):
+            return lhs - rhs
+
+        future_to_fitness = []
+        sequences = []
         for flag in pass_space:
             new_sequences = []
             new_sequences.append(list(base_sequence) + [flag])
@@ -796,11 +793,11 @@ def greedy_sequences(project, experiment, config,
             sequences.extend(new_sequences)
             future_to_fitness.extend(
                 [pool.submit(
-                    run_sequence, project, experiment, opt_cmd,
-                    str(seq), seq_to_fitness, seq) \
+                    run_sequence, opt_cmd, str(seq), seq_to_fitness, seq,
+                    fitness) \
                     for seq in new_sequences]
             )
-        return future_to_fitness
+        return future_to_fitness, sequences
 
     def create_greedy_sequences():
         """
@@ -815,31 +812,30 @@ def greedy_sequences(project, experiment, config,
             for _ in range(iterations):
                 base_sequence = []
                 while len(base_sequence) < seq_length:
-                    sequences = []
-
-                    future_to_fitness = extend_future([], base_sequence,
-                                                      [], pool)
+                    future_to_fitness, sequences = \
+                        extend_future(base_sequence, pool)
 
                     for future_fitness in cf.as_completed(future_to_fitness):
                         key, fitness = future_fitness.result()
-                        old_fitness = seq_to_fitness.get(key, 0)
-                        seq_to_fitness[key] = max(old_fitness, int(fitness))
+                        old_fitness = seq_to_fitness.get(key, sys.maxsize)
+                        seq_to_fitness[key] = min(old_fitness, fitness)
 
-                # sort the sequences by their fitness in ascending order
-                sequences.sort(key=lambda s: seq_to_fitness[str(s)])
+                    # sort the sequences by their fitness in ascending order
+                    sequences.sort(key=lambda s: seq_to_fitness[str(s)],
+                                   reverse=True)
 
-                fittest = sequences.pop()
-                fittest_fitness_value = seq_to_fitness[str(fittest)]
-                fittest_sequences = [fittest]
+                    fittest = sequences.pop()
+                    fittest_fitness_value = seq_to_fitness[str(fittest)]
+                    fittest_sequences = [fittest]
 
-                next_fittest = fittest
-                while next_fittest == fittest and len(sequences) > 1:
-                    next_fittest = sequences.pop()
-                    if seq_to_fitness[str(next_fittest)] == \
-                            fittest_fitness_value:
-                        fittest_sequences.append(next_fittest)
+                    next_fittest = fittest
+                    while next_fittest == fittest and len(sequences) > 1:
+                        next_fittest = sequences.pop()
+                        if seq_to_fitness[str(next_fittest)] == \
+                                fittest_fitness_value:
+                            fittest_sequences.append(next_fittest)
 
-                base_sequence = random.choice(fittest_sequences)
+                    base_sequence = random.choice(fittest_sequences)
             generated_sequences.append(base_sequence)
         return generated_sequences
 

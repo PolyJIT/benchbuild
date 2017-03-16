@@ -366,12 +366,12 @@ def genetic1_opt_sequences(project, experiment, config,
 
 class Genetic1Sequence(PolyJIT):
     """
-    An experiment that excecutes all projects with PolyJIT support.
+    This experiment is part of the sequence generating suite.
 
-    Instead of the actual actions the compile stats for executing them
-    are being written into the database.
+    The sequences for Poly are getting generated using the first of two
+    genetic algorithms. Only the compilestats are getting written into
+    a database for further analysis.
 
-    The sequences are getting generated with the first genetic algorithm.
     """
 
     NAME = "pj-seq-genetic1-opt"
@@ -563,10 +563,12 @@ class Genetic2Sequence(PolyJIT):
     """
     An experiment that excecutes all projects with PolyJIT support.
 
-    Instead of the actual actions the compile stats for executing them
-    are being written into the database.
+    It is part of the sequence generating experiment suite.
 
-    The sequences are getting generated with the second genetic algorithm.
+    The sequences are getting generated for Poly using another
+    than the first genetic algorithm. The compilestats are getting written into
+    a database for further analysis.
+
     """
 
     NAME = "pj-seq-genetic2-opt"
@@ -726,12 +728,12 @@ def hillclimber_sequences(project, experiment, config,
 
 class HillclimberSequences(PolyJIT):
     """
-    An experiment that excecutes all projects with PolyJIT support.
+    This experiment is part of the sequence generating suite.
 
-    Instead of the actual actions the compile stats for executing them
-    are being written into the database.
+    The sequences for poly are getting generated using a hillclimber algorithm.
+    The ouptut gets thrown away and the statistics of the compiling are written
+    into a database to be analyzed later on.
 
-    The sequences are getting generated with the hillclimber algorithm.
     """
 
     NAME = "pj-seq-hillclimber"
@@ -859,13 +861,13 @@ def greedy_sequences(project, experiment, config,
 
 class GreedySequences(PolyJIT):
     """
-    An experiment that excecutes all projects with PolyJIT support.
+    This experiment is part of the sequence generating experiment suite.
 
     Instead of the actual actions the compile stats for executing them
     are being written into the database.
-
     The sequences are getting generated with the greedy algorithm.
     This shall become the default experiment for sequence analysis.
+
     """
 
     NAME = "pj-seq-greedy"

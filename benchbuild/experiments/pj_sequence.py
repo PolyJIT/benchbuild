@@ -226,7 +226,7 @@ def genetic1_opt_sequences(project, experiment, config,
         with cf.ThreadPoolExecutor(
             max_workers=CFG["jobs"].value() * 5) as pool:
 
-            future_to_fitness = extend_gene_future([], [], chromosomes, pool)
+            future_to_fitness = extend_gene_future([], chromosomes, pool)
 
             for future_fitness in cf.as_completed(future_to_fitness):
                 key, fitness = future_fitness.result()
@@ -260,15 +260,17 @@ def genetic1_opt_sequences(project, experiment, config,
 
         # mutate the fittest chromosome of this generation
         fittest_chromosome = upper_half.pop()
-        lower_half = mutate(lower_half, gene_pool, seq_to_fitness, 10)
-        upper_half = mutate(upper_half, gene_pool, seq_to_fitness, 5)
+        lower_half = mutate(lower_half, gene_pool, 10)
+        upper_half = mutate(upper_half, gene_pool, 5)
 
         # rejoin all chromosomes
         upper_half.append(fittest_chromosome)
         chromosomes = lower_half + upper_half + new_chromosomes
 
         print("===================")
-        print("{0} fitness: {1}".format(fittest_chromosome, seq_to_fitness[str(fittest_chromosome)]))
+        print("{0} fitness: {1}".format(
+            fittest_chromosome, seq_to_fitness[str(fittest_chromosome)]))
+
         return chromosomes, fittest_chromosome
 
 
@@ -281,7 +283,7 @@ def genetic1_opt_sequences(project, experiment, config,
         return genes
 
 
-    def extend_gene_future(future_to_fitness, base, chromosomes, pool):
+    def extend_gene_future(future_to_fitness, chromosomes, pool):
         """Generate the future of the fitness values from the chromosomes."""
         def fitness(lhs, rhs):
             return (lhs - rhs) / rhs
@@ -315,7 +317,7 @@ def genetic1_opt_sequences(project, experiment, config,
         return chromosomes
 
 
-    def mutate(chromosomes, gene_pool, seq_to_fitness, mutation_probability):
+    def mutate(chromosomes, gene_pool, mutation_probability):
         """Performs mutation on chromosomes with a certain probability."""
         mutated_chromosomes = []
 
@@ -406,36 +408,28 @@ def genetic2_opt_sequences(project, experiment, config,
         The generated custom sequence.
     """
     seq_to_fitness = {}
-    _, _, gene_pool = get_defaults()
+    gene_pool, _, _ = get_defaults()
     chromosome_size, population_size, generations = get_genetic_defaults()
 
     def generate_random_gene_sequence(gene_pool):
         """Generates a random sequence of genes."""
         genes = []
         for _ in range(chromosome_size):
-            genes.append(random.choice(str(gene_pool)))
+            genes.append(random.choice(gene_pool))
 
         return genes
 
-    def extend_gene_future(future_to_fitness, base, chromosomes, pool):
+    def extend_gene_future(future_to_fitness, chromosomes, pool):
         """Generate the future of the fitness values from the chromosomes."""
         def fitness(lhs, rhs):
-            return (lhs - rhs) / lhs
+            return (lhs - rhs) / rhs
 
-        for _ in range(gene_pool):
-            new_chromosomes = []
-            new_chromosomes.append(generate_random_gene_sequence(gene_pool))
-            chromosomes.extend(new_chromosomes)
-            if base:
-                new_chromosomes.append(base)
-
-            future_to_fitness.extend(
-                [pool.submit(
-                    run_sequence, opt_cmd,
-                    str(chromosome), seq_to_fitness, chromosome, fitness
-                    ) \
-                    for chromosome in new_chromosomes]
-            )
+        future_to_fitness.extend(
+            [pool.submit(
+                run_sequence, opt_cmd,
+                str(chromosome), seq_to_fitness, chromosome, fitness) \
+                for chromosome in chromosomes]
+        )
         return future_to_fitness
 
     def delete_duplicates(chromosomes, gene_pool):
@@ -457,26 +451,18 @@ def genetic2_opt_sequences(project, experiment, config,
 
         return chromosomes
 
-    def mutate(chromosomes, gene_pool, seq_to_fitness, mutation_probability=10):
+
+    def mutate(chromosomes, gene_pool, mutation_probability):
         """Performs mutation on chromosomes with a certain probability."""
         mutated_chromosomes = []
 
         for chromosome in chromosomes:
             mutated_chromosome = list(chromosome)
-            chromosome_size = len(mutated_chromosomes)
-            number_of_different_chromosomes = len(gene_pool) ** chromosome_size
+            chromosome_size = len(mutated_chromosome)
 
             for i in range(chromosome_size):
                 if random.randint(1, 100) <= mutation_probability:
-                    mutated_chromosomes[i] = random.choice(gene_pool)
-
-            num_seq = 0
-
-            while str(mutated_chromosome) in seq_to_fitness and num_seq \
-                    < number_of_different_chromosomes:
-                mutated_chromosome[random.randint(0, chromosome_size - 1)] \
-                = random.choice(gene_pool)
-                num_seq += 1
+                    mutated_chromosome[i] = random.choice(gene_pool)
 
             mutated_chromosomes.append(mutated_chromosome)
 
@@ -488,12 +474,12 @@ def genetic2_opt_sequences(project, experiment, config,
         with cf.ThreadPoolExecutor(
             max_workers=CFG["jobs"].value() * 5) as pool:
 
-            future_to_fitness = extend_gene_future([], [], [], pool)
+            future_to_fitness = extend_gene_future([], chromosomes, pool)
 
             for future_fitness in cf.as_completed(future_to_fitness):
                 key, fitness = future_fitness.result()
-                old_fitness = seq_to_fitness.get(key, 0)
-                seq_to_fitness[key] = max(old_fitness, int(fitness))
+                old_fitness = seq_to_fitness.get(key, sys.maxsize)
+                seq_to_fitness[key] = min(old_fitness, int(fitness))
         # sort the chromosomes by their fitness value
         chromosomes.sort(key=lambda c: seq_to_fitness[str(c)], reverse=True)
 
@@ -522,10 +508,14 @@ def genetic2_opt_sequences(project, experiment, config,
                 new_chromosomes.append(best2[half_index:] + best1[:half_index])
 
         # mutate the new chromosomes
-        new_chromosomes = mutate(new_chromosomes, gene_pool, seq_to_fitness)
+        new_chromosomes = mutate(new_chromosomes, gene_pool, 10)
 
         # rejoin all chromosomes
         chromosomes = best_chromosomes + new_chromosomes
+
+        print("===================")
+        print("{0} fitness: {1}".format(
+            fittest_chromosome, seq_to_fitness[str(fittest_chromosome)]))
 
         return chromosomes, fittest_chromosome
 
@@ -546,7 +536,7 @@ def genetic2_opt_sequences(project, experiment, config,
         if i < generations - 1:
             chromosomes = delete_duplicates(chromosomes, gene_pool)
 
-    persist_sequences([fittest_chromosome])
+    #persist_sequences([fittest_chromosome])
 
 
 class Genetic2Sequence(PolyJIT):
@@ -623,7 +613,8 @@ def hillclimber_sequences(project, experiment, config,
             sequences.extend(new_sequences)
             future_to_fitness.extend(
                 [pool.submit(
-                    run_sequence, opt_cmd, str(seq), seq_to_fitness, seq, fitness) \
+                    run_sequence, opt_cmd,
+                    str(seq), seq_to_fitness, seq, fitness) \
                     for seq in new_sequences]
             )
         return future_to_fitness

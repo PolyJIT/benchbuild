@@ -1,8 +1,15 @@
 """
-The 'sequence analysis' experiment.
+The 'sequence analysis' experiment suite.
 
-Generates a custom sequence for the project and  writes the compile stats
-created doing so. Returns the actions executed for the test.
+Each experiment generates sequences of flags for a compiler command using an
+algorithm that calculates a best sequence in its own way. For calculating the
+value of a sequence (called fitness) regions and scops are being compared to
+each other and together generate the fitness value of a sequence.
+The used metric depends on the experiment, the fitness is being calculated for.
+
+The generated sequence/s and the compilestats of the whole progress are then
+written into a persisten data base for further analysis on what sequence works
+best and where to optimize the algorithms.
 """
 import uuid
 import os
@@ -71,7 +78,7 @@ def get_defaults():
 
 
 def get_genetic_defaults():
-    """Return the needed defaults for the genetic algorithms."""
+    """Returns the needed defaults for the genetic algorithms."""
     chromosome_size = None
     if not chromosome_size:
         chromosome_size = DEFAULT_CHROMOSOME_SIZE
@@ -88,6 +95,7 @@ def get_genetic_defaults():
 
 
 def get_args(cmd):
+    """Returns the arguments of a command."""
     assert hasattr(cmd, 'cmd')
 
     if hasattr(cmd, 'args'):
@@ -97,6 +105,7 @@ def get_args(cmd):
 
 
 def set_args(cmd, new_args):
+    """Sets the arguments of a command."""
     assert hasattr(cmd, 'cmd')
 
     if hasattr(cmd, 'args'):
@@ -105,7 +114,8 @@ def set_args(cmd, new_args):
         set_args(cmd.cmd, new_args)
 
 
-def filter_compiler_commandline(cmd, predicate = lambda x : True):
+def filter_compiler_commandline(cmd, predicate=lambda x: True):
+    """Filter unnecessary arguments for the compiler."""
     args = get_args(cmd)
     result = []
 
@@ -127,7 +137,11 @@ def filter_compiler_commandline(cmd, predicate = lambda x : True):
 
     set_args(cmd, result)
 
-def run_sequence(compiler, key, seq_to_fitness, sequence, fitness_func):
+def run_sequence(compiler, key, sequence, fitness_func):
+    """
+    Execute and compile a given sequence, to calculate its fitness value
+    with a given fucntion and metric.
+    """
 
     local_compiler = compiler[sequence, "-polly-detect"]
     _, _, stderr = local_compiler.run(retcode=None)
@@ -148,6 +162,7 @@ def run_sequence(compiler, key, seq_to_fitness, sequence, fitness_func):
 
 
 def unique_compiler_cmds(run_f):
+    """Verifys that compiler comands are not excecuted twice."""
     list_compiler_commands = run_f["-###", "-c"]
     _, _, stderr = list_compiler_commands.run()
     stderr = stderr.split('\n')
@@ -179,7 +194,7 @@ def link_ir(run_f):
 
 
 def filter_invalid_flags(item):
-    """Filter our all the unneeded flags for getting the compilestats."""
+    """Filter our all flags not needed for getting the compilestats."""
     filter_list = [
         "-O1", "-O2", "-O3", "-Os", "-O4"
     ]
@@ -286,12 +301,12 @@ def genetic1_opt_sequences(project, experiment, config,
     def extend_gene_future(future_to_fitness, chromosomes, pool):
         """Generate the future of the fitness values from the chromosomes."""
         def fitness(lhs, rhs):
+            """Defines the fitnesses metric."""
             return (lhs - rhs) / rhs
 
         future_to_fitness.extend(
-            [pool.submit(
-                run_sequence, opt_cmd, str(chromosome),
-                seq_to_fitness, chromosome, fitness) \
+            [pool.submit(run_sequence, opt_cmd, str(chromosome),
+                         chromosome, fitness) \
                 for chromosome in chromosomes]
         )
         return future_to_fitness
@@ -422,12 +437,12 @@ def genetic2_opt_sequences(project, experiment, config,
     def extend_gene_future(future_to_fitness, chromosomes, pool):
         """Generate the future of the fitness values from the chromosomes."""
         def fitness(lhs, rhs):
+            """Defines the fitnesses metric."""
             return (lhs - rhs) / rhs
 
         future_to_fitness.extend(
-            [pool.submit(
-                run_sequence, opt_cmd,
-                str(chromosome), seq_to_fitness, chromosome, fitness) \
+            [pool.submit(run_sequence, opt_cmd, str(chromosome),
+                         chromosome, fitness) \
                 for chromosome in chromosomes]
         )
         return future_to_fitness
@@ -602,6 +617,7 @@ def hillclimber_sequences(project, experiment, config,
     def extend_future(future_to_fitness, base_sequence, sequences, pool):
         """Generate the future of the fitness values from the sequences."""
         def fitness(lhs, rhs):
+            """Defines the fitnesses metric."""
             return lhs - rhs
 
         for flag in pass_space:
@@ -612,9 +628,7 @@ def hillclimber_sequences(project, experiment, config,
 
             sequences.extend(new_sequences)
             future_to_fitness.extend(
-                [pool.submit(
-                    run_sequence, opt_cmd,
-                    str(seq), seq_to_fitness, seq, fitness) \
+                [pool.submit(run_sequence, opt_cmd, str(seq), seq, fitness) \
                     for seq in new_sequences]
             )
         return future_to_fitness
@@ -643,7 +657,7 @@ def hillclimber_sequences(project, experiment, config,
                 seq_to_fitness[key] = max(old_fitness, int(fitness))
 
             #normally range(len) would be unnecessary but in this case we need
-            #it, due to the usage of the i in the second for loop
+            #it, due to the usage of the i in the second for-loop
             for i in range(len(base_sequence)):
                 remaining_passes = list(pass_space)
                 remaining_passes.remove(base_sequence[i])
@@ -673,7 +687,7 @@ def hillclimber_sequences(project, experiment, config,
 
         for neighbour in neighbours:
             if seq_to_fitness[base_sequence_key] \
-                    > seq_to_fitness[str(neighbour)]:
+                    > seq_to_fitness[str(neighbour)]: #KeyError
                 base_sequence = neighbour
                 base_sequence_key = str(neighbour)
                 changed = True
@@ -706,7 +720,7 @@ def hillclimber_sequences(project, experiment, config,
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
     best_sequence = create_hillclimber_sequence()
-    persist_sequences([best_sequence])
+    #persist_sequences([best_sequence])
 
 
 class HillclimberSequences(PolyJIT):
@@ -783,9 +797,7 @@ def greedy_sequences(project, experiment, config,
 
             sequences.extend(new_sequences)
             future_to_fitness.extend(
-                [pool.submit(
-                    run_sequence, opt_cmd, str(seq), seq_to_fitness, seq,
-                    fitness) \
+                [pool.submit(run_sequence, opt_cmd, str(seq), seq, fitness) \
                     for seq in new_sequences]
             )
         return future_to_fitness, sequences
@@ -843,7 +855,7 @@ def greedy_sequences(project, experiment, config,
         max_fitness = max(max_fitness, cur_fitness)
         if cur_fitness == max_fitness:
             print("{0} -> {1}".format(cur_fitness, seq))
-    persist_sequences(generated_sequences)
+    #persist_sequences(generated_sequences)
 
 
 class GreedySequences(PolyJIT):

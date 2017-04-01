@@ -154,7 +154,7 @@ class Configuration():
             for k in self.node:
                 if selfcopy[k].is_leaf():
                     selfcopy[k].filter_exports()
-            self = selfcopy
+            self.__dict__ = selfcopy.__dict__
 
     def store(self, config_file):
         """ Store the configuration dictionary to a file."""

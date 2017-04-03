@@ -192,9 +192,18 @@ def link_ir(run_f):
         tmp_file = tmp_file.rstrip('\n')
         tmp_files.append(tmp_file)
         compiler("-o", tmp_file)
+    complete_ir = create_ir()
+    link("-o", complete_ir, tmp_files)
+    return complete_ir
+
+
+def create_ir():
+    """
+    Read out the ir to compare it before and after adding a flag from the pass
+    to the sequence or work with its returnings.
+    """
     complete_ir = mktemp("-p", local.cwd)
     complete_ir = complete_ir.rstrip('\n')
-    link("-o", complete_ir, tmp_files)
     return complete_ir
 
 
@@ -297,10 +306,6 @@ def genetic1_opt_sequences(project, experiment, config,
         # rejoin all chromosomes
         upper_half.append(fittest_chromosome)
         chromosomes = lower_half + upper_half + new_chromosomes
-
-        print("===================")
-        print("{0} fitness: {1}".format(
-            fittest_chromosome, seq_to_fitness[str(fittest_chromosome)]))
 
         return chromosomes, fittest_chromosome
 
@@ -801,15 +806,23 @@ def greedy_sequences(project, experiment, config,
     def extend_future(base_sequence, pool):
         """Generate the future of the fitness values from the sequences."""
         def fitness(lhs, rhs):
+            """Defines the fitnesses metric."""
             return lhs - rhs
 
         future_to_fitness = []
         sequences = []
         for flag in pass_space:
             new_sequences = []
+            old_ir = create_ir()
             new_sequences.append(list(base_sequence) + [flag])
+            new_ir = create_ir()
+            if old_ir == new_ir:
+                new_sequences.pop()
             if base_sequence:
                 new_sequences.append([flag] + list(base_sequence))
+                new_ir = create_ir()
+                if old_ir == new_ir:
+                    new_sequences.pop()
 
             sequences.extend(new_sequences)
             future_to_fitness.extend(
@@ -871,7 +884,7 @@ def greedy_sequences(project, experiment, config,
         max_fitness = max(max_fitness, cur_fitness)
         if cur_fitness == max_fitness:
             print("{0} -> {1}".format(cur_fitness, seq))
-    #persist_sequences(generated_sequences)
+    #persist_sequences(generated_sequences, project, experiment, run_f)
 
 
 class GreedySequences(PolyJIT):

@@ -8,7 +8,7 @@ each other and together generate the fitness value of a sequence.
 The used metric depends on the experiment, the fitness is being calculated for.
 
 The generated sequence/s and the compilestats of the whole progress are then
-written into a persisten data base for further analysis on what sequence works
+written into a persisted data base for further analysis on what sequence works
 best and where to optimize the algorithms.
 """
 import uuid
@@ -26,8 +26,9 @@ from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
                                       Configure, Build, Clean)
+from benchbuild.utils.db import persist_compilestats, create_run
 from benchbuild.utils.cmd import (mktemp, opt)
-from benchbuild.utils.schema import Session
+from benchbuild.utils.schema import Session, RunGroup
 from plumbum import local
 
 DEFAULT_PASS_SPACE = [
@@ -140,7 +141,7 @@ def filter_compiler_commandline(cmd, predicate=lambda x: True):
 def run_sequence(compiler, key, sequence, fitness_func):
     """
     Execute and compile a given sequence, to calculate its fitness value
-    with a given fucntion and metric.
+    with a given function and metric.
     """
 
     local_compiler = compiler[sequence, "-polly-detect"]
@@ -180,6 +181,10 @@ def unique_compiler_cmds(run_f):
 
 
 def link_ir(run_f):
+    """
+    Connect the intermediate representation of llvm with the files that are
+    to be compiled.
+    """
     link = local['llvm-link']
     tmp_files = []
     for compiler in unique_compiler_cmds(run_f):
@@ -205,12 +210,23 @@ def filter_invalid_flags(item):
     return result
 
 
-def persist_sequences(sequences):
-    """Saves the generated sequences of an algorithm into the database."""
+def persist_sequences(sequences, project, experiment, run_f):
+    """
+    Saves the generated sequences of an algorithm together with the compilestats
+    of doing so into the database.
+    """
+    group = RunGroup(id=project.run_uuid,
+                     project=project.name,
+                     experiment=str(CFG["experiment_id"]))
+    list_compiler_commands = run_f["-###", "-c"]
+    _, _, command = list_compiler_commands.run()
+    run, _ = create_run(command, project, experiment, group)
     session = Session()
     for seq in sequences:
         session.add(seq)
-    session.commit()
+    int_rep = create_ir()
+    stats = get_compilestats(int_rep.stderr)
+    persist_compilestats(session, run, stats)
 
 
 def genetic1_opt_sequences(project, experiment, config,
@@ -365,7 +381,7 @@ def genetic1_opt_sequences(project, experiment, config,
         if i < generations - 1:
             chromosomes = delete_duplicates(chromosomes, gene_pool)
 
-    #persist_sequences([fittest_chromosome])
+    #persist_sequences([fittest_chromosome], project, experiment, run_f)
 
 
 class Genetic1Sequence(PolyJIT):
@@ -551,7 +567,7 @@ def genetic2_opt_sequences(project, experiment, config,
         if i < generations - 1:
             chromosomes = delete_duplicates(chromosomes, gene_pool)
 
-    #persist_sequences([fittest_chromosome])
+    #persist_sequences([fittest_chromosome], project, experiment, run_f)
 
 
 class Genetic2Sequence(PolyJIT):
@@ -720,7 +736,7 @@ def hillclimber_sequences(project, experiment, config,
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
     best_sequence = create_hillclimber_sequence()
-    #persist_sequences([best_sequence])
+    #persist_sequences([best_sequence], project, experiment, run_f)
 
 
 class HillclimberSequences(PolyJIT):

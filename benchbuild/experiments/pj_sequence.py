@@ -32,26 +32,18 @@ from benchbuild.utils.schema import Session, RunGroup
 from plumbum import local
 
 DEFAULT_PASS_SPACE = [
-    '-targetlibinfo', '-tti', '-tbaa', '-scoped-noalias',
+    '-targetlibinfo', '-tti', '-tbaa', '-scoped-noalias', '-loop-simplify',
     '-assumption-cache-tracker', '-profile-summary-info', '-forceattrs',
     '-inferattrs', '-ipsccp', '-globalopt', '-domtree', '-mem2reg',
-    '-deadargelim', '-domtree', '-basicaa', '-aa', '-instcombine',
-    '-simplifycfg', '-pgo-icall-prom', '-basiccg', '-globals-aa', '-prune-eh',
-    '-inline', '-functionattrs', '-argpromotion', '-domtree', '-sroa',
+    '-deadargelim', '-aa', '-instcombine', '-loop-unroll', '-lcssa',
+    '-pgo-icall-prom', '-basiccg', '-globals-aa', '-prune-eh', '-inline',
+    '-functionattrs', '-argpromotion', '-sroa', '-licm', '-instsimplify',
     '-early-cse', '-speculative-execution', '-lazy-value-info',
     '-jump-threading', '-correlated-propagation', '-simplifycfg',
-    '-domtree', '-basicaa', '-aa', '-instcombine', '-tailcallelim',
-    '-simplifycfg', '-reassociate', '-domtree', '-scalar-evolution',
-    '-basicaa', '-aa', '-loop-accesses', '-demanded-bits', '-loop-vectorize',
-    '-loop-simplify', '-scalar-evolution', '-aa', '-loop-accesses',
-    '-loop-load-elim', '-basicaa', '-aa', '-instcombine',
-    '-scalar-evolution', '-demanded-bits', '-slp-vectorizer',
-    '-simplifycfg', '-domtree', '-basicaa', '-aa', '-instcombine',
-    '-loops', '-loop-simplify', '-lcssa', '-scalar-evolution',
-    '-loop-unroll', '-instcombine', '-loop-simplify', '-lcssa',
-    '-scalar-evolution', '-licm', '-instsimplify', '-scalar-evolution',
-    '-alignment-from-assumptions', '-strip-dead-prototypes', '-globaldce',
-    '-constmerge']
+    '-basicaa', '-tailcallelim', '-reassociate', '-scalar-evolution',
+    '-loop-accesses', '-loop-vectorize', '-loop-load-elim',
+    '-demanded-bits', '-slp-vectorizer', '-loops', '-constmerge',
+    '-alignment-from-assumptions', '-strip-dead-prototypes', '-globaldce']
 DEFAULT_SEQ_LENGTH = 40
 DEFAULT_DEBUG = False
 DEFAULT_NUM_ITERATIONS = 10

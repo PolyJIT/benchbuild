@@ -24,7 +24,7 @@ class SpiderMonkey(BenchBuildGroup):
     src_uri = "https://github.com/mozilla/gecko-dev.git"
     src_dir = "gecko-dev.git"
     version = get_git_hash(src_uri)
-    if version == None:
+    if version is None:
         VERSION = None
     elif len(version) <= 7:
         VERSION = str(version)

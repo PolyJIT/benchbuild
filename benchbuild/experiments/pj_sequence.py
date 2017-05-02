@@ -27,7 +27,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
                                       Configure, Build, Clean)
 from benchbuild.utils.db import persist_compilestats, create_run
-from benchbuild.utils.cmd import (mktemp, opt)
+from benchbuild.utils.cmd import (mktemp)
 from benchbuild.utils.schema import Session, RunGroup
 from plumbum import local
 
@@ -44,9 +44,9 @@ DEFAULT_PASS_SPACE = [
     '-loop-accesses', '-loop-vectorize', '-loop-load-elim',
     '-demanded-bits', '-slp-vectorizer', '-loops', '-constmerge',
     '-alignment-from-assumptions', '-strip-dead-prototypes', '-globaldce']
-DEFAULT_SEQ_LENGTH = 40
+DEFAULT_SEQ_LENGTH = 10
 DEFAULT_DEBUG = False
-DEFAULT_NUM_ITERATIONS = 10
+DEFAULT_NUM_ITERATIONS = 1
 
 DEFAULT_CHROMOSOME_SIZE = 20
 DEFAULT_POPULATION_SIZE = 20
@@ -364,6 +364,7 @@ def genetic1_opt_sequences(project, experiment, config,
 
     filter_compiler_commandline(run_f, filter_invalid_flags)
     complete_ir = link_ir(run_f)
+    from benchbuild.utils.cmd import opt
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
     chromosomes = []
     fittest_chromosome = []
@@ -550,6 +551,7 @@ def genetic2_opt_sequences(project, experiment, config,
 
     filter_compiler_commandline(run_f, filter_invalid_flags)
     complete_ir = link_ir(run_f)
+    from benchbuild.utils.cmd import opt
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
     chromosomes = []
     fittest_chromosome = []
@@ -682,10 +684,12 @@ def hillclimber_sequences(project, experiment, config,
             max_workers=CFG["jobs"].value() * 5) as pool:
 
             while changed:
+                changed = False
                 future_to_fitness, neighbours = extend_future(base_sequence,
                                                               pool)
                 for future_fitness in cf.as_completed(future_to_fitness):
                     key, fitness_val = future_fitness.result()
+                    #sys.maxsize becomes the value if no value is stored at key
                     old_fitness = seq_to_fitness.get(key, sys.maxsize)
                     seq_to_fitness[key] = min(old_fitness, fitness_val)
 
@@ -700,6 +704,7 @@ def hillclimber_sequences(project, experiment, config,
 
     filter_compiler_commandline(run_f, filter_invalid_flags)
     complete_ir = link_ir(run_f)
+    from benchbuild.utils.cmd import opt
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
     best_sequence = []
@@ -710,9 +715,8 @@ def hillclimber_sequences(project, experiment, config,
         best_sequence, seq_to_fitness = climb(base_sequence, seq_to_fitness)
 
         if not best_sequence or seq_to_fitness[str(best_sequence)] \
-                < seq_to_fitness[str(base_sequence)]:
+                > seq_to_fitness[str(base_sequence)]:
             best_sequence = base_sequence
-
 
     #persist_sequences([best_sequence], project, experiment, run_f)
 
@@ -847,6 +851,7 @@ def greedy_sequences(project, experiment, config,
 
     filter_compiler_commandline(run_f, filter_invalid_flags)
     complete_ir = link_ir(run_f)
+    from benchbuild.utils.cmd import opt
     opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
     generated_sequences = create_greedy_sequences()

@@ -542,10 +542,6 @@ def genetic2_opt_sequences(project, experiment, config,
         # rejoin all chromosomes
         chromosomes = best_chromosomes + new_chromosomes
 
-        print("===================")
-        print("{0} fitness: {1}".format(
-            fittest_chromosome, seq_to_fitness[str(fittest_chromosome)]))
-
         return chromosomes, fittest_chromosome
 
 
@@ -790,16 +786,9 @@ def greedy_sequences(project, experiment, config,
         sequences = []
         for flag in pass_space:
             new_sequences = []
-            old_ir = create_ir()
             new_sequences.append(list(base_sequence) + [flag])
-            new_ir = create_ir()
-            if old_ir == new_ir:
-                new_sequences.pop()
             if base_sequence:
                 new_sequences.append([flag] + list(base_sequence))
-                new_ir = create_ir()
-                if old_ir == new_ir:
-                    new_sequences.pop()
 
             sequences.extend(new_sequences)
             future_to_fitness.extend(

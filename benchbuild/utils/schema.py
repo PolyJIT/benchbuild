@@ -124,6 +124,26 @@ class Metric(BASE):
     def __repr__(self):
         return "{0} - {1}".format(self.name, self.value)
 
+
+class Sequence(BASE):
+    """Store a the fittest sequence of an opt command and its fitness value."""
+
+    __tablename__ = 'sequences'
+
+    #the sequence that offers the best fitness value
+    name = Column(String, primary_key=False, index=True, nullable=False)
+
+    #the fitness value of the sequence
+    value = Column(postgresql.DOUBLE_PRECISION)
+
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
+
+
 class Event(BASE):
     """Store PAPI profiling based events."""
 

@@ -293,6 +293,22 @@ def genetic1_opt_sequences(project, experiment, config,
     chromosome_size, population_size, generations = get_genetic_defaults()
     run_info = track_execution(run_f, project, experiment)
 
+    def crossover(upper_half):
+        """
+        Crossover of two genes and filling of the vacancies in the population by
+        using two random chromosomes and recombine their halfs.
+        """
+        random1 = random.choice(upper_half)
+        random2 = random.choice(upper_half)
+        half_index = len(random1) // 2
+
+        new_chromosomes = [random1[:half_index] + random2[half_index:],
+                           random1[half_index:] + random2[:half_index],
+                           random2[:half_index] + random1[half_index:],
+                           random2[half_index:] + random1[:half_index]]
+
+        return new_chromosomes
+
     def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
         """Simulates the change of a population within a single generation."""
         # calculate the fitness value of each chromosome
@@ -320,16 +336,7 @@ def genetic1_opt_sequences(project, experiment, config,
         for _ in range(0, 3):
             lower_half.pop()
 
-        # crossover of two genes and filling of the vacancies in the population
-        # use two random chromosomes and recombine their halfs
-        random1 = random.choice(upper_half)
-        random2 = random.choice(upper_half)
-        half_index = len(random1) // 2
-
-        new_chromosomes = [random1[:half_index] + random2[half_index:],
-                           random1[half_index:] + random2[:half_index],
-                           random2[:half_index] + random1[half_index:],
-                           random2[half_index:] + random1[:half_index]]
+        new_chromosomes = crossover(upper_half)
 
         # mutate the fittest chromosome of this generation
         fittest_chromosome = upper_half.pop()
@@ -541,6 +548,28 @@ def genetic2_opt_sequences(project, experiment, config,
 
         return mutated_chromosomes
 
+    def crossover(fittest_chromosome, best_chromosomes):
+        """
+        Crossover of two genes and filling of the vacancies in the population by
+        taking two of the fittest chromosomes and recombining them.
+        """
+        new_chromosomes = []
+        num_of_new = population_size - len(best_chromosomes)
+        half_index = len(fittest_chromosome) // 2
+
+        while len(new_chromosomes) < num_of_new:
+            best1 = random.choice(best_chromosomes)
+            best2 = random.choice(best_chromosomes)
+            new_chromosomes.append(best1[:half_index] + best2[half_index:])
+            if len(new_chromosomes) < num_of_new:
+                new_chromosomes.append(best1[half_index:] + best2[:half_index])
+            if len(new_chromosomes) < num_of_new:
+                new_chromosomes.append(best2[:half_index] + best1[half_index:])
+            if len(new_chromosomes) < num_of_new:
+                new_chromosomes.append(best2[half_index:] + best1[:half_index])
+
+        return new_chromosomes
+
     def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
         """Simulates the change of a population within a single generation."""
         # calculate the fitness value of each chromosome
@@ -563,22 +592,7 @@ def genetic2_opt_sequences(project, experiment, config,
         for _ in range(num_best - 1):
             best_chromosomes.append(chromosomes.pop())
 
-        # crossover of two genes and filling of the vacancies in the population
-        # take two of the fittest chromosomes and recombine them
-        new_chromosomes = []
-        num_of_new = population_size - len(best_chromosomes)
-        half_index = len(fittest_chromosome) // 2
-
-        while len(new_chromosomes) < num_of_new:
-            best1 = random.choice(best_chromosomes)
-            best2 = random.choice(best_chromosomes)
-            new_chromosomes.append(best1[:half_index] + best2[half_index:])
-            if len(new_chromosomes) < num_of_new:
-                new_chromosomes.append(best1[half_index:] + best2[:half_index])
-            if len(new_chromosomes) < num_of_new:
-                new_chromosomes.append(best2[:half_index] + best1[half_index:])
-            if len(new_chromosomes) < num_of_new:
-                new_chromosomes.append(best2[half_index:] + best1[:half_index])
+        new_chromosomes = crossover(fittest_chromosome, best_chromosomes)
 
         # mutate the new chromosomes
         new_chromosomes = mutate(new_chromosomes, gene_pool, 10)

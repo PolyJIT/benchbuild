@@ -11,6 +11,7 @@ The generated sequence/s and the compilestats of the whole progress are then
 written into a persisted data base for further analysis on what sequence works
 best and where to optimize the algorithms.
 """
+import csv
 import uuid
 import os
 from functools import partial
@@ -29,6 +30,7 @@ from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
                                       Configure, Build, Clean)
 from benchbuild.utils.cmd import (mktemp)
 from benchbuild.utils.run import track_execution
+from benchbuild.reports import Report
 from plumbum import local
 
 DEFAULT_PASS_SPACE = [
@@ -228,6 +230,44 @@ def persist_sequence(run_info_func, sequence, fitness_val):
                                value=fitness_val,
                                run_id=run().db_run.id))
         session.commit()
+
+
+class SequenceReport(Report):
+    """Handles the view of the sequences in the database."""
+
+    SUPPORTED_EXPERIMENTS = ["pj-seq-hillclimber", "pj-seq-genetic1-opt",
+                             "pj-seq-genetic2-opt", "pj-seq-greedy"]
+    QUERY_TOTAL = \
+        sa.sql.select([
+            sa.column('sequence'),
+            sa.column('fitness'),
+        ]).select_from(sa.table('sequences'))
+
+    def report(self):
+        """Writes a report after getting the data out of the db with a query."""
+
+        print("I found the following matching experiment ids")
+        print(" \n".join([str(x) for x in self.experiment_ids]))
+
+        qry = SequenceReport.QUERY_TOTAL.unique_params(
+            exp_ids=self.experiment_ids)
+        yield ("complete",
+               ('sequence', 'fitness'),
+               self.session.execute(qry).fetchall())
+
+    def generate(self):
+        """Generates the output of what is written in the database."""
+        for name, header, data in self.report():
+            fname = os.path.basename(self.out_path)
+
+            with open("{prefix}_{name}{ending}".format(
+                prefix=os.path.splitext(fname)[0],
+                ending=os.path.splitext(fname)[-1],
+                name=name), 'w') as csv_out:
+                print("Writing '{0}'".format(csv_out.name))
+                csv_writer = csv.writer(csv_out)
+                csv_writer.writerows([header])
+                csv_writer.writerows(data)
 
 
 def genetic1_opt_sequences(project, experiment, config,

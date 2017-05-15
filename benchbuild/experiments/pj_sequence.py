@@ -7,9 +7,8 @@ value of a sequence (called fitness) regions and scops are being compared to
 each other and together generate the fitness value of a sequence.
 The used metric depends on the experiment, the fitness is being calculated for.
 
-The generated sequence/s and the compilestats of the whole progress are then
-written into a persisted data base for further analysis on what sequence works
-best and where to optimize the algorithms.
+The fittest generated sequences and the compilestats of the whole progress are
+then written into a persisted data base for further analysis.
 """
 import csv
 import uuid
@@ -225,10 +224,11 @@ def persist_sequence(run_info_func, sequence, fitness_val):
     """
     from benchbuild.utils import schema as s
     with run_info_func as run:
-        session = run().session
+        run_info = run()
+        session = run_info.session
         session.add(s.Sequence(name=str(sequence),
                                value=fitness_val,
-                               run_id=run().db_run.id))
+                               run_id=run_info.db_run.id))
         session.commit()
 
 
@@ -687,7 +687,7 @@ def hillclimber_sequences(project, experiment, config,
 
     def fitness(lhs, rhs):
         """Defines the fitnesses metric."""
-        return rhs - lhs
+        return lhs - rhs
 
     def extend_future(sequence, pool):
         """

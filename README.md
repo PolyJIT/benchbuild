@@ -32,10 +32,10 @@ the psycopg2 package that benchbuild uses to connect.
 ## Installation ##
 
 After you have installed all necessary libraries, you can just clone this
-repo and install via pip.
+repo and install via pip3.
 
 ```bash
-> pip install benchbuild
+> pip3 install benchbuild
 ```
 
 This will pull in all necessary python libraries into your local python

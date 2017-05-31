@@ -124,6 +124,37 @@ class Metric(BASE):
     def __repr__(self):
         return "{0} - {1}".format(self.name, self.value)
 
+
+class Schedule(BASE):
+    """Store default metrics, simple name value store."""
+
+    __tablename__ = 'schedules'
+
+    function = Column(String, primary_key=True, index=True, nullable=False)
+    schedule = Column(String, primary_key=True, index=True, nullable=False)
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
+
+
+class IslAst(BASE):
+    """Store default metrics, simple name value store."""
+
+    __tablename__ = 'isl_asts'
+
+    function = Column(String, primary_key=True, index=True, nullable=False)
+    ast = Column(String, primary_key=True, index=True, nullable=False)
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
+
+
 class Event(BASE):
     """Store PAPI profiling based events."""
 

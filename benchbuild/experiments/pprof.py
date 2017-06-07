@@ -17,7 +17,7 @@ from functools import partial
 from plumbum import local
 
 
-def instrumentAndRun(project, experiment, config, jobs, run_f, args, **kwargs):
+def Instrument(project, experiment, config, jobs, run_f, args, **kwargs):
     """
     Run the given binary wrapped with time.
 

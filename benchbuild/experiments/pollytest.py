@@ -11,12 +11,15 @@ import uuid
 from functools import partial
 from plumbum import local
 
+from benchbuild.experiments.polyjit import PolyJIT
+from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Build, Clean, Configure, Download, Echo,
                                       MakeBuildDir, Prepare, Run)
-from benchbuild.utils.cmd import time
-from benchbuild.utils.run import track_execution
-from benchbuild.settings import CFG
-from benchbuild.experiments.polyjit import PolyJIT
+from benchbuild.utils.db import (persist_compilestats, persist_config,
+                                 persist_time)
+from benchbuild.utils.run import track_execution, handle_stdin
+LOG = logging.getLogger()
+
 
 def timing_extension(project, experiment, config,
                      jobs, run_f, *args, **kwargs):
@@ -36,13 +39,12 @@ def timing_extension(project, experiment, config,
                 the configured one.
             may_wrap: Signals if a project is suitable for wrapping.
     """
+    from benchbuild.utils.cmd import time
     from benchbuild.utils.run import fetch_time_output
-    from benchbuild.utils.db import persist_config, persist_time
     CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
     may_wrap = kwargs.get("may_wrap", True)
     timing_tag = "BB-Time: "
-    log = logging.getLogger()
 
     run_cmd = local[run_f]
     run_cmd = run_cmd[args]
@@ -58,7 +60,7 @@ def timing_extension(project, experiment, config,
             if timings:
                 persist_time(run_info.db_run, run_info.session, timings)
             else:
-                log.info("No timing information found.")
+                LOG.info("No timing information found.")
         return run_info
 
     with track_execution(run_cmd, project, experiment, **kwargs) as run:
@@ -77,14 +79,10 @@ def compilestats_ext(project, experiment, config, clang, **kwargs):
         clang: The clang used for compiling.
         **kwargs: Dictionary with further keyword arguments.
     """
-    from benchbuild.utils.schema import CompileStat
-    from benchbuild.utils.db import persist_compilestats
-    from benchbuild.utils.run import handle_stdin
     from benchbuild.experiments.compilestats import get_compilestats
-
+    from benchbuild.utils.schema import CompileStat
     CFG.update(config)
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
-    log = logging.getLogger()
 
     with local.env(BB_ENABLE=0):
         with track_execution(clang, project, experiment) as run:
@@ -108,9 +106,9 @@ def compilestats_ext(project, experiment, config, clang, **kwargs):
         if stats:
             persist_compilestats(run_info.db_run, run_info.session, stats)
         else:
-            log.info("No compilestats collected.")
+            LOG.info("No compilestats collected.")
     else:
-        log.info("There was an error while compiling.")
+        LOG.info("There was an error while compiling.")
 
 
 class PollyTest(PolyJIT):

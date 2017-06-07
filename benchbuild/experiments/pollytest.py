@@ -14,13 +14,14 @@ from plumbum import local
 from benchbuild.utils.actions import (Build, Clean, Configure, Download, Echo,
                                       MakeBuildDir, Prepare, Run)
 from benchbuild.utils.cmd import time
-from benchbuild.experiments.compilestats import get_compilestats
+from benchbuild.utils.run import track_execution
+from benchbuild.settings import CFG
 from benchbuild.experiments.polyjit import PolyJIT
 
-def time_and_compilestats(project, experiment, config,
-                          jobs, run_f, *args, **kwargs):
+def timing_extension(project, experiment, config,
+                     jobs, run_f, *args, **kwargs):
     """
-    Collect both time measurement and compilestats of the clang cmd.
+    Collect the time measurement.
 
     Args:
         project: The benchbuild project that called for this measurement.
@@ -35,11 +36,8 @@ def time_and_compilestats(project, experiment, config,
                 the configured one.
             may_wrap: Signals if a project is suitable for wrapping.
     """
-    from benchbuild.utils.run import track_execution, fetch_time_output
-    from benchbuild.settings import CFG
-    from benchbuild.utils.db import (persist_compilestats, persist_config,
-                                     persist_time)
-    from benchbuild.utils.schema import CompileStat
+    from benchbuild.utils.run import fetch_time_output
+    from benchbuild.utils.db import persist_config, persist_time
     CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
     may_wrap = kwargs.get("may_wrap", True)
@@ -51,8 +49,48 @@ def time_and_compilestats(project, experiment, config,
     if may_wrap:
         run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
-    def handle_compilestats(run_info):
-        """Handles the compiler infos and stores them to the database."""
+    def handle_timing(run_info):
+        """Takes care of the formating for the timing statistics."""
+        if may_wrap:
+            timings = fetch_time_output(
+                timing_tag, timing_tag + "{:g}-{:g}-{:g}",
+                run_info.stderr.split("\n"))
+            if timings:
+                persist_time(run_info.db_run, run_info.session, timings)
+            else:
+                log.info("No timing information found.")
+        return run_info
+
+    with track_execution(run_cmd, project, experiment, **kwargs) as run:
+        run_info = handle_timing(run())
+    persist_config(run_info.db_run, run_info.session, {"cores":str(jobs)})
+    return run_info
+
+def compilestats_ext(project, experiment, config, clang, **kwargs):
+    """
+    Collect compilestats and write them to the database.
+
+    Args:
+        project: The benchbuild project that called for this measurement.
+        experiment: The benchbuild experiment this function is operating under.
+        config: The benchbuild configuration used for the current run.
+        clang: The clang used for compiling.
+        **kwargs: Dictionary with further keyword arguments.
+    """
+    from benchbuild.utils.schema import CompileStat
+    from benchbuild.utils.db import persist_compilestats
+    from benchbuild.utils.run import handle_stdin
+    from benchbuild.experiments.compilestats import get_compilestats
+
+    CFG.update(config)
+    clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
+    log = logging.getLogger()
+
+    with local.env(BB_ENABLE=0):
+        with track_execution(clang, project, experiment) as run:
+            run_info = run()
+
+    if run_info.retcode == 0:
         stats = []
         for stat in get_compilestats(run_info.stderr):
             compile_s = CompileStat()
@@ -71,31 +109,8 @@ def time_and_compilestats(project, experiment, config,
             persist_compilestats(run_info.db_run, run_info.session, stats)
         else:
             log.info("No compilestats collected.")
-
-    def handle_timing(run_info):
-        """Handles the timing stats and writes them to the database."""
-        if may_wrap:
-            timings = fetch_time_output(
-                timing_tag, timing_tag + "{:g}-{:g}-{:g}",
-                run_info.stderr.split("\n"))
-            if timings:
-                persist_time(run_info.db_run, run_info.session, timings)
-            else:
-                log.info("No timing information found.")
-
-    def handle_infos(run_info):
-        """Combines compilestats and timing in one experiment."""
-        if run_info.retcode == 0:
-            handle_compilestats(run_info)
-            handle_timing(run_info)
-        else:
-            log.error("The run seems to have failed.")
-        return run_info
-
-    with track_execution(run_cmd, project, experiment, **kwargs) as run:
-        run_info = handle_infos(run())
-    persist_config(run_info.db_run, run_info.session, {"cores":str(jobs)})
-    return run_info
+    else:
+        log.info("There was an error while compiling.")
 
 
 class PollyTest(PolyJIT):
@@ -107,8 +122,6 @@ class PollyTest(PolyJIT):
     NAME = "pollytest"
 
     def actions_for_project(self, p):
-        from benchbuild.settings import CFG
-
         def extend_actions(actions, project):
             """Extends the actions for each single configuration."""
             actions.extend([
@@ -133,11 +146,15 @@ class PollyTest(PolyJIT):
             for _ in range(amount):
                 new_project = copy.deepcopy(p)
                 new_project.run_uuid = uuid.uuid4()
-                new_project.runtime_extension = partial(time_and_compilestats,
+                new_project.runtime_extension = partial(timing_extension,
                                                         new_project,
                                                         self,
                                                         CFG,
                                                         CFG["jobs"].value())
+                new_project.compiler_extension = partial(compilestats_ext,
+                                                         new_project,
+                                                         self,
+                                                         CFG)
                 copies.append(new_project)
             return copies
 
@@ -157,7 +174,7 @@ class PollyTest(PolyJIT):
         prj = projects.pop()
         prj.cflags = ["-O3", "-mllvm",
                       "-polly", "-mllvm",
-                      "-polly-position=before-vectorize"]
+                      "-polly-position=before-vectorizer"]
         actns = extend_actions(actns, prj)
 
         prj = projects.pop()
@@ -170,7 +187,7 @@ class PollyTest(PolyJIT):
         prj.cflags = ["-O3", "-mllvm",
                       "-polly", "-mllvm",
                       "-polly-process-unprofitable",
-                      "-mllvm", "-polly-position=before-vectorize"]
+                      "-mllvm", "-polly-position=before-vectorizer"]
         actns = extend_actions(actns, prj)
 
         return actns

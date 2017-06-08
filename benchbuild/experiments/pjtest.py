@@ -51,6 +51,7 @@ class Test(PolyJIT):
         p.run_uuid = uuid.uuid4()
         jobs = int(CFG["jobs"].value())
         p.cflags += ["-Rpass-missed=polli*",
+                     "-mllvm", "-stats",
                      "-mllvm", "-polly-num-threads={0}".format(jobs)]
         p.runtime_extension = partial(time_polyjit_and_polly,
                                       p, self, CFG, jobs)

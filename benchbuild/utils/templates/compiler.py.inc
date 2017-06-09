@@ -7,6 +7,7 @@ import dill
 from plumbum.commands.modifiers import TEE
 from plumbum import ProcessExecutionError
 from benchbuild.utils.cmd import timeout, sh
+from benchbuild.utils.compiler import ExperimentCommand
 from benchbuild.utils import log
 
 os.environ["BB_CONFIG_FILE"] = "{CFG_FILE}"
@@ -87,16 +88,16 @@ def construct_cc(cc, flags, CFLAGS, LDFLAGS, ifiles):
     if has_debug_enabled(flags):
         flags = strip_debug_flags(flags)
     if len(input_files) > 0:
-        fc = cc["-Qunused-arguments", flags, CFLAGS, LDFLAGS]
+        fc = ExperimentCommand(cc, ["-Qunused-arguments"], [flags, CFLAGS, LDFLAGS])
     else:
-        fc = cc["-Qunused-arguments", flags]
+        fc = ExperimentCommand(cc, ["-Qunused-arguments"], [flags])
     fc = fc.with_env(**cc.envvars)
     return fc
 
 
 def construct_cc_default(cc, flags, ifiles):
     fc = None
-    fc = cc["-Qunused-arguments", flags]
+    fc = ExperimentCommand(cc, ["-Qunused-arguments"], [flags])
     fc = fc.with_env(**cc.envvars)
     return fc
 

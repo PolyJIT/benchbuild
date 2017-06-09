@@ -29,7 +29,11 @@ __LOG_DICT = {
         "benchbuild.steps": {},
         "plumbum.local": {'level': 'DEBUG',
                           'handlers': ['plumbum'],
-                          'propagate': False}
+                          'propagate': False},
+        "parse": {
+            'level': 'WARN',
+            'handlers': ['console'],
+        },
     },
     "root": {
         "level": 'DEBUG',

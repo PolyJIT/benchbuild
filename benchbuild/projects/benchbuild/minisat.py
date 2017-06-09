@@ -20,7 +20,7 @@ class Minisat(BenchBuildGroup):
     SRC_FILE = 'minisat.git'
     
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = wrap(
             path.join(self.SRC_FILE, "build", "dynamic", "bin", "minisat"),
             experiment)

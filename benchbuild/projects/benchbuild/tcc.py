@@ -38,7 +38,7 @@ class TCC(BenchBuildGroup):
             with local.cwd("build"):
                 run(make)
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         with local.cwd(self.src_dir):
             with local.cwd("build"):
                 wrap("tcc", experiment)

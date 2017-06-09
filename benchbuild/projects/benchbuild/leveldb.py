@@ -35,7 +35,7 @@ class LevelDB(BenchBuildGroup):
                 make("clean")
                 run(make["all", "-i"])
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         """
         Execute LevelDB's runtime configuration.
 

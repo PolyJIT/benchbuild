@@ -31,7 +31,7 @@ class OpenBlas(BenchBuildGroup):
         with local.cwd(self.SRC_FILE):
             run(make["CC=" + str(clang)])
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         log = logging.getLogger('benchbuild')
         log.warn('Not implemented')
 
@@ -92,7 +92,7 @@ class Lapack(BenchBuildGroup):
                 run(make["-j", CFG["jobs"], "-f", "Makeblat2"])
                 run(make["-j", CFG["jobs"], "-f", "Makeblat3"])
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         with local.cwd(self.src_dir):
             with local.cwd(path.join("BLAS")):
                 xblat2s = wrap("xblat2s", experiment)

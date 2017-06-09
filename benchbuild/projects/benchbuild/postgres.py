@@ -22,7 +22,7 @@ class Postgres(BenchBuildGroup):
         for test_f in testfiles:
             cp("-a", test_f, self.builddir)
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = experiment(self.run_f)
 
         pg_ctl = local[path.join(self.builddir, "pg_ctl")]

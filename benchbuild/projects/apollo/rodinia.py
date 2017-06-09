@@ -37,7 +37,7 @@ class Rodinia(ApolloGroup):
     def prepare(self):
         pass
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         import logging
         logging.error("================")
         logging.error("Not implemented.")

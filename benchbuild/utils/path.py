@@ -26,6 +26,29 @@ def determine_path():
         sys.exit()
 
 
+def template_files(path, exts=[]):
+    """
+    Return a list of filenames found at @path.
+
+    The list of filenames can be filtered by extensions.
+
+    Arguments:
+        path: Existing filepath we want to list.
+        exts: List of extensions to filter by.
+
+    Returns:
+        A list of filenames found in the path.
+    """
+    if not os.path.isabs(path):
+        _path = os.path.join(determine_path(), path)
+    if not (os.path.exists(_path) and os.path.isdir(_path)):
+        return []
+    files = os.listdir(_path)
+    files = [f for f in files if os.path.splitext(f)[-1] in exts]
+    files = [os.path.join(path, f) for f in files]
+    return files
+
+
 def template_str(template):
     """Read a template file from the resources and return it as str."""
     tmpl_file = os.path.join(determine_path(), template)

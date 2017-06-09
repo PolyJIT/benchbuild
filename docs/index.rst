@@ -1,27 +1,18 @@
-.. benchbuild documentation master file, created by
-   sphinx-quickstart on Mon Jun  1 14:10:15 2015.
+.. BenchBuild - Empirical Research Toolkit documentation master file, created by
+   sphinx-quickstart on Wed Jan 11 17:04:11 2017.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to BenchBuild's documentation!
-=================================
+Welcome to BenchBuild - Empirical Research Toolkit's documentation!
+===================================================================
 
-Contents:
+.. include:: ../README.rst
 
 .. toctree::
    :maxdepth: 4
+   :caption: Contents:
 
-.. automodule:: benchbuild.build
-.. automodule:: benchbuild.driver
-.. automodule:: benchbuild.experiment
-.. automodule:: benchbuild.generate_config
-.. automodule:: benchbuild.likwid
-.. automodule:: benchbuild.log
-.. automodule:: benchbuild.project
-.. automodule:: benchbuild.run
-.. automodule:: benchbuild.settings
-.. automodule:: benchbuild.slurm
-.. automodule:: benchbuild.test
+   benchbuild
 
 
 Indices and tables

@@ -30,14 +30,13 @@ class BenchBuildTest(cli.Application):
         from benchbuild.utils.cmd import sed, opt
 
         with local.env(LD_LIBRARY_PATH=llvm_libs()):
-            if os.path.exists(opt_binary):
-                # Magic. ;-)
-                ret, _, err = \
-                    (opt[self.opt_flags()] << \
-                        (sed[r"0,/\#0/s///"] << module)()).run(retcode=None)
-                if not ret == 0:
-                    print(("{0} is broken:".format(name)))
-                    print(err)
+            # Magic. ;-)
+            ret, _, err = \
+                (opt[self.opt_flags()] << \
+                    (sed[r"0,/\#0/s///"] << module)()).run(retcode=None)
+            if not ret == 0:
+                print(("{0} is broken:".format(name)))
+                print(err)
 
         return """
 ; CHECK: 1 polyjit          - Number of jitable SCoPs

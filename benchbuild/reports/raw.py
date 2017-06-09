@@ -15,14 +15,6 @@ class RawReport(Report):
 
     SUPPORTED_EXPERIMENTS = ["raw"]
 
-    session = schema.Session()
-
-    def get_exp_ids(self):
-        res = self.session.query(Experiment.id).filter(
-            Experiment.name.in_(RawReport.SUPPORTED_EXPERIMENTS)).all()
-        res = [r[0] for r in res]
-        return res
-
     def report(self):
         exp_ids = [str(exp_id) for exp_id in self.experiment_ids]
         qr = self.session.query(
@@ -50,8 +42,3 @@ class RawReport(Report):
             csv_w.writerow(fieldnames)
             for rep in self.report():
                 csv_w.writerow(rep)
-
-    def __init__(self, exp_ids, outfile):
-        if not len(exp_ids) > 0:
-            exp_ids = self.get_exp_ids()
-        super(RawReport, self).__init__(exp_ids, outfile)

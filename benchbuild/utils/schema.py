@@ -1,15 +1,38 @@
-"""Database schema for benchbuild."""
+"""
+Database schema for benchbuild
+==============================
+
+The schema should initialize itself on an empty database. For now, we do not
+support automatic upgrades on schema changes. You might encounter some
+roadbumps when using an older version of benchbuild.
+
+Furthermore, for now, we are restricted to postgresql databases, although we
+already support arbitrary connection strings via config.
+
+If you want to use reports that use one of our SQL functions, you need to
+initialize the functions first using the following command:
+
+.. code-block:: bash
+
+  > BB_DB_CREATE_FUNCTIONS=true benchbuild run -E empty -l
+
+After that you (normally) do not need to do this agains, unless we supply
+a new version that you are interested in.
+As soon as we have alembic running, we can provide automatic up/downgrade
+paths for you.
+"""
 
 import logging
+import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from benchbuild.settings import CFG
+from benchbuild.utils import path as bbpath
 
 BASE = declarative_base()
-
 
 class Run(BASE):
     """Store a run for each executed test binary."""
@@ -100,6 +123,37 @@ class Metric(BASE):
 
     def __repr__(self):
         return "{0} - {1}".format(self.name, self.value)
+
+
+class Schedule(BASE):
+    """Store default metrics, simple name value store."""
+
+    __tablename__ = 'schedules'
+
+    function = Column(String, primary_key=True, index=True, nullable=False)
+    schedule = Column(String, primary_key=True, index=True, nullable=False)
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
+
+
+class IslAst(BASE):
+    """Store default metrics, simple name value store."""
+
+    __tablename__ = 'isl_asts'
+
+    function = Column(String, primary_key=True, index=True, nullable=False)
+    ast = Column(String, primary_key=True, index=True, nullable=False)
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
+
 
 class Event(BASE):
     """Store PAPI profiling based events."""
@@ -286,31 +340,56 @@ class SessionManager(object):
         logger = logging.getLogger(__name__)
 
         self.__test_mode = CFG['db']['rollback'].value()
-        self.__engine = create_engine(
-            "postgresql+psycopg2://{u}:{p}@{h}:{P}/{db}".format(
+        self.engine = create_engine(
+            "{dialect}://{u}:{p}@{h}:{P}/{db}".format(
                 u=CFG["db"]["user"],
                 h=CFG["db"]["host"],
                 P=CFG["db"]["port"],
                 p=CFG["db"]["pass"],
-                db=CFG["db"]["name"]))
-        self.__connection = self.__engine.connect()
+                db=CFG["db"]["name"],
+                dialect=CFG["db"]["dialect"]))
+        self.connection = self.engine.connect()
         self.__transaction = None
         if self.__test_mode:
             logger.warning(
                 "DB test mode active, all actions will be rolled back.")
-            self.__transaction = self.__connection.begin()
-        BASE.metadata.create_all(self.__connection, checkfirst=True)
+            self.__transaction = self.connection.begin()
+
+        BASE.metadata.create_all(self.connection, checkfirst=True)
 
     def get(self):
-        return sessionmaker(bind=self.__connection)
+        return sessionmaker(bind=self.connection)
 
     def __del__(self):
         if hasattr(self, '__transaction') and self.__transaction:
             self.__transaction.rollback()
 
 
-CONNECTION_MANAGER = SessionManager()
-"""
- Import this session manager to create new database sessions as needes.
-"""
-Session = CONNECTION_MANAGER.get()
+def __lazy_session__():
+    """Initialize the connection manager lazily."""
+    connection_manager = None
+
+    def __lazy_session_wrapped():
+        nonlocal connection_manager
+        if connection_manager is None:
+            connection_manager = SessionManager()
+        return connection_manager.get()()
+
+    return __lazy_session_wrapped
+
+Session = __lazy_session__()
+
+
+def init_functions(connection):
+    """Initialize all SQL functions in the database."""
+    if CFG["db"]["create_functions"].value():
+        print("Refreshing SQL functions...")
+    for file in bbpath.template_files("../sql/", exts=[".sql"]):
+        func = sa.DDL(
+            bbpath.template_str(file)
+        )
+        print("Loading: {0}".format(file))
+        print(func.compile())
+        connection.execute(func)
+        connection.commit()
+

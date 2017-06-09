@@ -6,6 +6,7 @@ from benchbuild.utils.path import list_to_path
 from contextlib import contextmanager
 from types import SimpleNamespace
 from benchbuild import settings
+from plumbum import local, BG, ProcessExecutionError
 import logging
 import sys
 
@@ -144,7 +145,7 @@ def fail_run_group(group, session):
     session.commit()
 
 
-def begin(command, pname, ename, group):
+def begin(command, project, ename, group):
     """
     Begin a run in the database log.
 
@@ -163,7 +164,7 @@ def begin(command, pname, ename, group):
     from benchbuild.settings import CFG
     from datetime import datetime
 
-    db_run, session = create_run(command, pname, ename, group)
+    db_run, session = create_run(command, project, ename, group)
     db_run.begin = datetime.now()
     db_run.status = 'running'
     log = s.RunLog()
@@ -230,8 +231,32 @@ def fail(db_run, session, retcode, stdout, stderr):
     session.commit()
 
 
+class RunInfo(object):
+    retcode = None
+    stdout = None
+    stderr = None
+    session = None
+    db_run = None
+
+    def __init__(self, **kwargs):
+        for k in kwargs:
+            self.__setattr__(k, kwargs[k])
+
+    def __add__(self, rhs):
+        if rhs is None:
+            return self
+
+        r = RunInfo(
+            retcode=self.retcode + rhs.retcode,
+            stdout=self.stdout + rhs.stdout,
+            stderr=self.stderr + rhs.stderr,
+            db_run=[self.db_run, rhs.db_run],
+            session=self.session)
+        return r
+
+
 @contextmanager
-def guarded_exec(cmd, project, experiment, **kwargs):
+def track_execution(cmd, project, experiment, **kwargs):
     """
     Guard the execution of the given command.
 
@@ -246,58 +271,49 @@ def guarded_exec(cmd, project, experiment, **kwargs):
             in a RunException and re-raise. This ends the run unsuccessfully.
     """
     from plumbum.commands import ProcessExecutionError
-    from plumbum import local, BG
     from warnings import warn
 
-    db_run, session = begin(cmd, project.name, experiment.name,
+    db_run, session = begin(cmd, project, experiment.name,
                             project.run_uuid)
     ex = None
 
     settings.CFG["db"]["run_id"] = db_run.id
     settings.CFG["use_file"] = 0
 
-    def runner(retcode=None, *args):
+    def runner(retcode=0, ri = None):
         cmd_env = settings.to_env_dict(settings.CFG)
-        r = SimpleNamespace()
+        r = RunInfo()
         with local.env(**cmd_env):
             has_stdin = kwargs.get("has_stdin", False)
-            proc = (cmd & BG(retcode=retcode,
-                             stdin=sys.stdin if has_stdin else None,
-                             stdout=sys.stdout,
-                             stderr=sys.stderr))
-
-            stdout = proc.stdout
-            stderr = proc.stderr
             try:
-                log = logging.getLogger(name="benchbuild")
-                log.info("CMD: {0} = {1}".format(str(cmd), retcode))
-                log.info("STDOUT:")
-                log.info(stdout)
-                log.info("STDERR:")
-                log.info(stderr)
-            except UnicodeDecodeError:
-                pass
-            end(db_run, session, stdout, stderr)
-            r.retcode = proc.returncode
-            r.stdout = stdout
-            r.stderr = stderr
-            r.session = session
-            r.db_run = db_run
-        return r
+                import subprocess
+                ec, stdout, stderr = cmd.run(
+                    retcode=retcode,
+                    stdin=subprocess.PIPE if has_stdin else None,
+                    stderr=subprocess.PIPE,
+                    stdout=subprocess.PIPE)
 
-    try:
-        yield runner
-    except KeyboardInterrupt:
-        fail(db_run, session, -1, "", "KeyboardInterrupt")
-        warn("Interrupted by user input")
-        raise
-    except ProcessExecutionError as proc_ex:
-        fail(db_run, session, proc_ex.retcode, proc_ex.stdout,
-             proc_ex.stderr)
-        raise
-    except Exception as ex:
-        fail(db_run, session, -1, "", str(ex))
-        raise
+                r = RunInfo(
+                    retcode=ec,
+                    stdout=str(stdout),
+                    stderr=str(stderr),
+                    db_run=db_run,
+                    session=session) + ri
+                end(db_run, session, str(stdout), str(stderr))
+            except ProcessExecutionError as ex:
+                r = RunInfo(
+                    retcode=ex.retcode,
+                    stdout=ex.stdout,
+                    stderr=ex.stderr,
+                    db_run=db_run,
+                    session=session) + ri
+                fail(db_run, session, r.retcode, r.stdout, r.stderr)
+            except KeyboardInterrupt:
+                fail(db_run, session, -1, "", "KeyboardInterrupt")
+                warn("Interrupted by user input")
+                raise
+        return r
+    yield runner
 
 
 def run(command, retcode=0):
@@ -308,7 +324,7 @@ def run(command, retcode=0):
         command: The plumbumb command to execute.
     """
     from plumbum.commands.modifiers import TEE
-    command & TEE(retcode)
+    command & TEE(retcode=retcode)
 
 
 def uchroot_no_args():
@@ -320,8 +336,10 @@ def uchroot_no_args():
 
 def uchroot_no_llvm(*args, **kwargs):
     """
-    Returns a uchroot command which can be called with other args to be
-            executed in the uchroot.
+    Return a customizable uchroot command.
+
+    The command will be executed inside a uchroot environment.
+
     Args:
         args: List of additional arguments for uchroot (typical: mounts)
     Return:
@@ -338,9 +356,10 @@ def uchroot_no_llvm(*args, **kwargs):
 
 def uchroot_mounts(prefix, mounts):
     """
-    Find out the mountpoints of the current user.
+    Compute the mountpoints of the current user.
+
     Args:
-        prefix: Define where to job was running if it ran on a cluster.
+        prefix: Define where the job was running if it ran on a cluster.
         mounts: All mounts the user currently uses in his file system.
     Return:
         mntpoints
@@ -369,7 +388,7 @@ def _uchroot_mounts(prefix, mounts, uchroot):
 
 def uchroot_env(mounts):
     """
-    Creates the environment of the change root for the user.
+    Compute the environment of the change root for the user.
 
     Args:
         mounts: The mountpoints of the current user.
@@ -383,6 +402,7 @@ def uchroot_env(mounts):
     paths.extend(["/usr/bin", "/bin", "/usr/sbin", "/sbin"])
     return paths, ld_libs
 
+
 def with_env_recursive(cmd, **envvars):
     """
     Recursively updates the environment of cmd and all its subcommands.
@@ -395,7 +415,6 @@ def with_env_recursive(cmd, **envvars):
         The updated command.
     """
     from plumbum.commands.base import BoundCommand, BoundEnvCommand
-    from plumbum.machines.local import LocalCommand
     if isinstance(cmd, BoundCommand):
         cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
     elif isinstance(cmd, BoundEnvCommand):
@@ -403,24 +422,25 @@ def with_env_recursive(cmd, **envvars):
         cmd.cmd = with_env_recursive(cmd.cmd, **envvars)
     return cmd
 
+
 def uchroot_with_mounts(*args, **kwargs):
-    """
-    Return a uchroot command with all mounts enabled.
-    """
+    """Return a uchroot command with all mounts enabled."""
     uchroot_cmd = uchroot_no_args(*args, **kwargs)
-    uchroot_cmd, mounts = _uchroot_mounts("mnt",
-        CFG["container"]["mounts"].value(), uchroot_cmd)
+    uchroot_cmd, mounts = \
+        _uchroot_mounts("mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
 
-    uchroot_cmd = with_env_recursive(uchroot_cmd,
-            LD_LIBRARY_PATH=list_to_path(libs),
-            PATH=list_to_path(paths))
+    uchroot_cmd = with_env_recursive(
+        uchroot_cmd,
+        LD_LIBRARY_PATH=list_to_path(libs),
+        PATH=list_to_path(paths))
     return uchroot_cmd
+
 
 def uchroot(*args, **kwargs):
     """
-    Returns a uchroot command which can be called with other args to be
-            executed in the uchroot.
+    Return a customizable uchroot command.
+
     Args:
         args: List of additional arguments for uchroot (typical: mounts)
     Return:
@@ -449,10 +469,10 @@ def in_builddir(sub='.'):
     from os import path
 
     def wrap_in_builddir(func):
-        """ Wraps the function for the new build directory. """
+        """Wrap the function for the new build directory."""
         @wraps(func)
         def wrap_in_builddir_func(self, *args, **kwargs):
-            """ The actual function inside the wrapper for the new builddir. """
+            """The actual function inside the wrapper for the new builddir."""
             p = path.abspath(path.join(self.builddir, sub))
             with local.cwd(p):
                 return func(self, *args, **kwargs)
@@ -463,7 +483,7 @@ def in_builddir(sub='.'):
 
 
 def unionfs_tear_down(mountpoint, tries=3):
-    """ Tear down a unionfs mountpoint. """
+    """Tear down a unionfs mountpoint."""
     from benchbuild.utils.cmd import fusermount, sync
     log = logging.getLogger("benchbuild")
 
@@ -471,7 +491,11 @@ def unionfs_tear_down(mountpoint, tries=3):
         log.error("Mountpoint does not exist: '{0}'".format(mountpoint))
         raise ValueError("Mountpoint does not exist: '{0}'".format(mountpoint))
 
-    fusermount("-u", mountpoint, retcode=None)
+    try:
+        fusermount("-u", mountpoint)
+    except ProcessExecutionError as ex:
+        log.error("Error: {0}".format(str(ex)))
+
     if os.path.ismount(mountpoint):
         sync()
         if tries > 0:
@@ -513,7 +537,7 @@ def unionfs(base_dir='./base',
             image_prefix=None,
             mountpoint='./union'):
     """
-    UnionFS decorator.
+    Decorator for the UnionFS feature.
 
     This configures a unionfs for projects. The given base_dir and/or image_dir
     are layered as follows:
@@ -551,7 +575,7 @@ def unionfs(base_dir='./base',
         settings.CFG["cleanup_paths"] = cleanup_dirs
 
     def is_outside_of_builddir(project, path_to_check):
-        """ Checks if a project lies outside of its expected directory. """
+        """Check if a project lies outside of its expected directory."""
         bdir = project.builddir
         cprefix = os.path.commonprefix([path_to_check, bdir])
         return cprefix != bdir
@@ -570,8 +594,11 @@ def unionfs(base_dir='./base',
         @wraps(func)
         def wrap_in_union_fs_func(project, *args, **kwargs):
             """
-            Builds up the mount, transfers the function and returns the
-            unionfs after tearing down the mount again.
+            Wrap the func in the UnionFS mount stack.
+
+            We make sure that the mount points all exist and stack up the
+            directories for the unionfs. All directories outside of the default
+            build environment are tracked for deletion.
             """
             container = project.container
             abs_base_dir = os.path.abspath(container.local)
@@ -616,15 +643,16 @@ def unionfs(base_dir='./base',
 
 
 def store_config(func):
-    """ Decorator for storing the configuration in the project's builddir. """
+    """Decorator for storing the configuration in the project's builddir."""
     from functools import wraps
     from benchbuild.settings import CFG
 
     @wraps(func)
     def wrap_store_config(self, *args, **kwargs):
-        """ Wrapper that contains the actual storage call for the config. """
+        """Wrapper that contains the actual storage call for the config."""
         p = os.path.abspath(os.path.join(self.builddir))
         CFG.store(os.path.join(p, ".benchbuild.json"))
         return func(self, *args, **kwargs)
 
     return wrap_store_config
+

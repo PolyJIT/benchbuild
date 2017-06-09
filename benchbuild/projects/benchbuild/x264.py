@@ -49,7 +49,7 @@ class X264(BenchBuildGroup):
         with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = wrap(path.join(self.SRC_FILE, "x264"), experiment)
 
         tests = [

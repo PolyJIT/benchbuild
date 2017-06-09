@@ -1,9 +1,9 @@
 """
-The 'compilestats' Experiment.
+The 'compilestats' experiment.
 
 This experiment is a basic experiment in the benchbuild study. It simply runs
 all projects after compiling it with -O3 and catches all statistics emitted
-by llvm
+by llvm.
 
 """
 
@@ -19,7 +19,7 @@ from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
 
 def collect_compilestats(project, experiment, config, clang, **kwargs):
     """Collect compilestats."""
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.utils.run import track_execution, handle_stdin
     from benchbuild.settings import CFG as c
     from benchbuild.utils.db import persist_compilestats
     from benchbuild.utils.schema import CompileStat
@@ -28,7 +28,7 @@ def collect_compilestats(project, experiment, config, clang, **kwargs):
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
 
     with local.env(BB_ENABLE=0):
-        with guarded_exec(clang, project, experiment) as run:
+        with track_execution(clang, project, experiment) as run:
             ri = run()
 
     if ri.retcode == 0:

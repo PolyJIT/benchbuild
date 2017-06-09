@@ -16,7 +16,7 @@ class SevenZip(BenchBuildGroup):
     DOMAIN = 'compression'
     VERSION = '9.38.1'
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = wrap(path.join(self.src_dir, "bin", "7za"), experiment)
         run(exp["b", "-mmt1"])
 

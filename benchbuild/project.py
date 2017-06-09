@@ -1,22 +1,21 @@
-"""
-Project handling for the benchbuild study.
-"""
-import os
-import sys
+"""Project handling for the benchbuild study."""
 import warnings
-
-from os import path, listdir
 from abc import abstractmethod
-from plumbum import local
-from benchbuild.settings import CFG
-from benchbuild.utils.cmd import mv, chmod, rm, mkdir, rmdir
-from benchbuild.utils.db import persist_project
-from benchbuild.utils.path import list_to_path, template_str
-from benchbuild.utils.run import in_builddir, unionfs, store_config
-from benchbuild.utils.versions import get_version_from_cache_dir
-from benchbuild.utils.container import Gentoo
-from benchbuild.utils.wrapping import wrap
 from functools import partial
+from os import listdir, path
+
+from plumbum import local
+from typing import Callable, Iterable 
+
+import benchbuild.utils.run as ur
+from benchbuild.settings import CFG
+from benchbuild.utils.cmd import mkdir, rm, rmdir
+from benchbuild.utils.container import Gentoo
+from benchbuild.utils.db import persist_project
+from benchbuild.utils.run import in_builddir, store_config, unionfs
+from benchbuild.utils.run import RunInfo
+from benchbuild.utils.versions import get_version_from_cache_dir
+from benchbuild.utils.wrapping import wrap
 
 
 class ProjectRegistry(type):
@@ -25,7 +24,7 @@ class ProjectRegistry(type):
     projects = {}
 
     def __init__(cls, name, bases, attrs):
-        """Registers a project in the registry."""
+        """Register a project in the registry."""
         super(ProjectRegistry, cls).__init__(name, bases, attrs)
 
         if cls.NAME is not None and cls.DOMAIN is not None:
@@ -48,7 +47,6 @@ class ProjectDecorator(ProjectRegistry):
         if CFG["unionfs"]["enable"].value():
             image_dir = CFG["unionfs"]["image"].value()
             prefix = CFG["unionfs"]["image_prefix"].value()
-            base_dir = CFG["unionfs"]["base_dir"].value()
             unionfs_deco = partial(unionfs, image_dir=image_dir,
                                    image_prefix=prefix)
         config_deco = store_config
@@ -57,13 +55,13 @@ class ProjectDecorator(ProjectRegistry):
         for k, v in attrs.items():
             if (k in methods) and hasattr(cls, k):
                 wrapped_fun = v
+                if k == 'configure':
+                    wrapped_fun = config_deco(wrapped_fun)
+
                 if unionfs_deco is not None:
                     wrapped_fun = unionfs_deco()(wrapped_fun)
 
                 wrapped_fun = in_builddir('.')(wrapped_fun)
-
-                if k == 'configure':
-                    wrapped_fun = config_deco(wrapped_fun)
                 setattr(cls, k, wrapped_fun)
 
         super(ProjectDecorator, cls).__init__(name, bases, attrs)
@@ -115,6 +113,7 @@ class Project(object, metaclass=ProjectDecorator):
         new_self.src_file = cls.SRC_FILE
         new_self.version = lambda: get_version_from_cache_dir(cls.SRC_FILE)
         new_self.container = cls.CONTAINER
+
         return new_self
 
     def __init__(self, exp, group=None):
@@ -141,14 +140,13 @@ class Project(object, metaclass=ProjectDecorator):
         self.ldflags = []
 
         self.setup_derived_filenames()
-
         persist_project(self)
 
     def setup_derived_filenames(self):
-        """ Construct all derived file names. """
+        """Construct all derived file names."""
         self.run_f = path.join(self.builddir, self.name)
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         """
         Run the tests of this project.
 
@@ -156,8 +154,8 @@ class Project(object, metaclass=ProjectDecorator):
 
         Args:
             experiment: The experiment we run this project under
+            run: A function that takes the run command.
         """
-        from benchbuild.utils.run import run
         exp = wrap(self.run_f, experiment)
         with local.cwd(self.builddir):
             run(exp)
@@ -185,18 +183,18 @@ class Project(object, metaclass=ProjectDecorator):
         with local.cwd(self.builddir):
             group, session = begin_run_group(self)
             try:
-                self.run_tests(experiment)
+                self.run_tests(experiment, ur.run)
                 end_run_group(group, session)
             except GuardedRunException:
                 fail_run_group(group, session)
-            except KeyboardInterrupt as key_int:
+            except KeyboardInterrupt:
                 fail_run_group(group, session)
-                raise key_int
+                raise
             if CFG["clean"].value():
                 self.clean()
 
     def clean(self):
-        """ Clean the project build directory. """
+        """Clean the project build directory."""
         if path.exists(self.builddir) and listdir(self.builddir) == []:
             rmdir(self.builddir)
         elif path.exists(self.builddir) and listdir(self.builddir) != []:
@@ -204,7 +202,7 @@ class Project(object, metaclass=ProjectDecorator):
 
     @property
     def compiler_extension(self):
-        """ Return the compiler extension registered to this project. """
+        """Return the compiler extension registered to this project."""
         try:
             return self._compiler_extension
         except AttributeError:
@@ -212,7 +210,9 @@ class Project(object, metaclass=ProjectDecorator):
             return self._compiler_extension
 
     @compiler_extension.setter
-    def compiler_extension(self, func):
+    def compiler_extension(self,
+                           func: Callable[[str, Iterable[str]],
+                                          RunInfo]) -> None:
         """
         Set a function as compiler extension.
 
@@ -227,7 +227,7 @@ class Project(object, metaclass=ProjectDecorator):
 
     @property
     def runtime_extension(self):
-        """ Return the runtime extension registered for this project. """
+        """Return the runtime extension registered for this project."""
         try:
             return self._runtime_extension
         except AttributeError:
@@ -235,7 +235,9 @@ class Project(object, metaclass=ProjectDecorator):
             return self._runtime_extension
 
     @runtime_extension.setter
-    def runtime_extension(self, func):
+    def runtime_extension(self,
+                          func: Callable[[str, Iterable[str]],
+                                         RunInfo]) -> None:
         """
         Set a function as compiler extension.
 
@@ -279,18 +281,18 @@ class Project(object, metaclass=ProjectDecorator):
             self._run_uuid = value
 
     def prepare(self):
-        """ Prepare the build diretory. """
+        """Prepare the build diretory."""
         if not path.exists(self.builddir):
             mkdir(self.builddir)
 
     @abstractmethod
     def download(self):
-        """ Download the input source for this project. """
+        """Download the input source for this project."""
 
     @abstractmethod
     def configure(self):
-        """ Configure the project. """
+        """Configure the project."""
 
     @abstractmethod
     def build(self):
-        """ Build the project. """
+        """Build the project."""

@@ -41,7 +41,7 @@ class LibreSSL(BenchBuildGroup):
         with local.cwd(self.src_dir):
             run(make["check"])
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         with local.cwd(path.join(self.src_dir, "tests", ".libs")):
             files = find(".", "-type", "f", "-executable")
             for wrap_f in files.split("\n"):

@@ -39,7 +39,7 @@ class Bzip2(BenchBuildGroup):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp(testfiles, '.')
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = wrap(path.join(self.src_dir, "bzip2"), experiment)
 
         # Compress

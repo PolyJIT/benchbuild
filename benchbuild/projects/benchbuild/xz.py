@@ -32,7 +32,7 @@ class XZ(BenchBuildGroup):
         Wget(self.src_uri, self.SRC_FILE)
         tar('xfz', self.SRC_FILE)
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         exp = wrap(path.join(self.src_dir, "src", "xz", "xz"), experiment)
 
         # Compress

@@ -11,6 +11,7 @@ import re
 import warnings
 import logging
 import copy
+
 from datetime import datetime
 from plumbum import local
 
@@ -75,11 +76,11 @@ class InvalidConfigKey(RuntimeWarning):
 class UUIDEncoder(json.JSONEncoder):
     """Encoder module for UUID objects."""
 
-    def default(self, obj):
+    def default(self, o):
         """Encode UUID objects as string."""
-        if isinstance(obj, uuid.UUID):
-            return str(obj)
-        return json.JSONEncoder.default(self, obj)
+        if isinstance(o, uuid.UUID):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
 
 
 def escape_json(raw_str):
@@ -153,7 +154,7 @@ class Configuration():
             for k in self.node:
                 if selfcopy[k].is_leaf():
                     selfcopy[k].filter_exports()
-            self = selfcopy
+            self.__dict__ = selfcopy.__dict__
 
     def store(self, config_file):
         """ Store the configuration dictionary to a file."""
@@ -168,17 +169,17 @@ class Configuration():
         """Load the configuration dictionary from file."""
 
         def load_rec(inode, config):
+            """Recursive part of loading."""
             for k in config:
-                if isinstance(config[k], dict):
+                if isinstance(config[k], dict) and \
+                   k not in ['value', 'default']:
                     if k in inode:
                         load_rec(inode[k], config[k])
                     else:
                         log = logging.getLogger('benchbuild')
-                        log.warn(warnings.formatwarning(
-                            "Key '{}' is not part of the default config, "
-                            "ignoring.".format(k),
-                            category=InvalidConfigKey, filename=str(__file__),
-                            lineno=180))
+                        log.debug(
+                            "+ config element: '{cfg}'".format(cfg=k)
+                        )
                 else:
                     inode[k] = config[k]
 
@@ -188,12 +189,15 @@ class Configuration():
                 self['config_file'] = os.path.abspath(_from)
 
     def has_value(self):
+        """Check, if the node contains a 'value'."""
         return isinstance(self.node, dict) and 'value' in self.node
 
     def has_default(self):
+        """Check, if the node contains a 'default' value."""
         return isinstance(self.node, dict) and 'default' in self.node
 
     def is_leaf(self):
+        """Check, if the node is a 'leaf' node."""
         return self.has_value() or self.has_default()
 
     def init_from_env(self):
@@ -300,10 +304,11 @@ class Configuration():
         return "\n".join(sorted(_repr))
 
     def __to_env_var__(self):
+        parent_key = self.parent_key
         if self.parent:
             return (
-                self.parent.__to_env_var__() + "_" + self.parent_key).upper()
-        return self.parent_key.upper()
+                self.parent.__to_env_var__() + "_" + parent_key).upper()
+        return parent_key.upper()
 
 
 def to_env_dict(config):
@@ -381,7 +386,8 @@ CFG = Configuration(
         },
         "experiment": {
             "desc": "The experiment name we run everything under.",
-            "default": "empty"
+            "default": "empty",
+            "export": False
         },
         "clean": {
             "default": True,
@@ -410,6 +416,11 @@ CFG = Configuration(
         "use_database": {
             "desc": "LEGACY: Store results from libpprof in the database.",
             "default": 1
+        },
+        "sequence": {
+            "desc": "The name of the sequence that should be used for " + \
+                    "preoptimization.",
+            "default": "no_preperation"
         }
     })
 
@@ -504,6 +515,15 @@ CFG['db'] = {
     "rollback": {
         "desc": "Rollback all operations after benchbuild completes.",
         "default": False
+    },
+    "dialect": {
+        "desc": "Which database backend should we use? "
+                "Refer to sqlalchemy for available options.",
+        "default": "postgresql+psycopg2"
+    },
+    "create_functions": {
+        "default": False,
+        "desc": "Should we recreate our SQL functions from scratch?"
     }
 }
 
@@ -648,7 +668,9 @@ CFG["plugins"] = {
             "benchbuild.experiments.polyjit",
             "benchbuild.experiments.empty",
             "benchbuild.experiments.papi",
+            "benchbuild.experiments.pjtest",
             "benchbuild.experiments.compilestats_ewpt",
+            "benchbuild.experiments.pj_sequence",
         ],
         "desc": "The experiment plugins we know about."
     },
@@ -728,10 +750,13 @@ CFG["container"] = {
     },
     "strategy": {
         "polyjit": {
+            "sync": {"default": True, "desc": "Update portage tree?"},
+            "upgrade": {"default": True, "desc": "Upgrade all packages?"},
             "packages": {
                 "default": [
                     {"name": "sys-devel/gcc:5.4.0", "env": {
-                        "ACCEPT_KEYWORDS": "~amd64"
+                        "ACCEPT_KEYWORDS": "~amd64",
+                        "USE": "-filecaps"
                     }},
                     {"name": "dev-db/postgresql:9.5", "env": {}},
                     {"name": "dev-python/pip", "env": {}},
@@ -741,7 +766,8 @@ CFG["container"] = {
                         "ACCEPT_KEYWORDS": "~amd64"
                     }},
                     {"name": "dev-libs/libpfm", "env": {
-                        "USE": "static-libs"
+                        "USE": "static-libs",
+                        "ACCEPT_KEYWORDS": "~amd64"
                     }},
                     {"name": "sys-process/time", "env": {}},
                     {"name": "=dev-util/boost-build-1.58.0", "env": {
@@ -829,3 +855,4 @@ def update_env():
 
 
 __init_config(CFG)
+update_env()

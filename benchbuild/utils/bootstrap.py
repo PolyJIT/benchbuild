@@ -107,12 +107,15 @@ def install_package(pkg_name):
     if pkg_name not in PACKAGES:
         print("No bootstrap support for package '{0}'".format(pkg_name))
     linux, _, _ = linux_distribution_major()
-    pm = PACKAGE_MANAGER[str(linux).lower()]
+    linux = str(linux.lower())
+    package_manager = PACKAGE_MANAGER[linux]
     packages = PACKAGES[pkg_name][linux]
     for pkg_name_on_host in packages:
         print("You are missing the package: '{0}'".format(pkg_name_on_host))
         cmd = local["sudo"]
-        cmd = cmd[pm["cmd"], pm["args"], pkg_name_on_host]
+        cmd = cmd[package_manager["cmd"],
+                  package_manager["args"],
+                  pkg_name_on_host]
         cmd_str = str(cmd)
 
         ret = False

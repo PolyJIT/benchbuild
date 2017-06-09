@@ -5,7 +5,8 @@ from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger(__name__)
 
-def create_run(cmd, prj, exp, grp):
+
+def create_run(cmd, project, exp, grp):
     """
     Create a new 'run' in the database.
 
@@ -28,7 +29,7 @@ def create_run(cmd, prj, exp, grp):
 
     session = s.Session()
     run = s.Run(command=str(cmd),
-                project_name=prj,
+                project_name=project.name,
                 experiment_name=exp,
                 run_group=str(grp),
                 experiment_group=str(CFG["experiment_id"]))

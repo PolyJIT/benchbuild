@@ -60,6 +60,6 @@ class Rasdaman(BenchBuildGroup):
         with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         log = logging.getLogger('benchbuild')
         log.warn('Not implemented')

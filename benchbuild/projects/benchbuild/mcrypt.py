@@ -87,7 +87,7 @@ class MCrypt(BenchBuildGroup):
         with local.cwd(self.src_dir):
             run(make["-j", CFG["jobs"]])
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         mcrypt_dir = path.join(self.src_dir, "src", ".libs")
         aestest = wrap(path.join(mcrypt_dir, "lt-aestest"), experiment)
         run(aestest)

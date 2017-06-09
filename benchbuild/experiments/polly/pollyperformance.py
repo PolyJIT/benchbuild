@@ -17,13 +17,16 @@ Measurements
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
 
-import re
-import uuid
-import warnings
-
-from functools import partial
-from benchbuild.experiment import step, RuntimeExperiment
+from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiments.raw import run_with_time
+from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
+                                      Clean, MakeBuildDir, Run, Echo)
 from benchbuild.settings import CFG
+import functools
+import warnings
+import copy
+import uuid
+import re
 
 
 class ShouldNotBeNone(RuntimeWarning):
@@ -35,12 +38,11 @@ class PollyPerformance(RuntimeExperiment):
 
     NAME = "pollyperformance"
 
-    def run_project(self, p):
-        from benchbuild.experiments.raw import run_with_time
-
+    def actions_for_project(self, project):
         configs = CFG["perf"]["config"].value()
         if configs is None:
-            warnings.warn("({0}) should not be null.".format(repr(CFG["perf"]["config"])),
+            warnings.warn("({0}) should not be null.".format(
+                repr(CFG["perf"]["config"])),
                           category=ShouldNotBeNone, stacklevel=2)
             return
 
@@ -51,16 +53,30 @@ class PollyPerformance(RuntimeExperiment):
             config_with_llvm.append("-mllvm")
             config_with_llvm.append(config)
 
-        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polly"] + config_with_llvm
+        project.cflags = ["-O3", "-fno-omit-frame-pointer",
+                          "-Xclang", "-load",
+                          "-Xclang", "LLVMPolyJIT.so",
+                          "-mllvm", "-polly"] + config_with_llvm
 
+        actns = []
         jobs = CFG["jobs"].value()
-        for i in range(1, int(jobs) + 1):
-            p.run_uuid = uuid.uuid4()
-            with step("time: {0} cores & uuid {1}".format(i, p.run_uuid)):
-                p.clean()
-                p.prepare()
-                p.download()
-                p.configure()
-                p.build()
-                p.run(partial(run_with_time, p, self, CFG, i))
+        for i in range(1, int(jobs)):
+            cp = copy.deepcopy(project)
+            cp.run_uuid = uuid.uuid4()
+
+            cp.cflags += ["-mllvm", "-polly-num-threads={0}".format(i)]
+            cp.runtime_extension = functools.partial(
+                run_with_time, cp, self, CFG, i)
+
+            actns.extend([
+                MakeBuildDir(cp),
+                Echo("{0} core configuration. Configure & Compile".format(i)),
+                Prepare(cp),
+                Download(cp),
+                Configure(cp),
+                Build(cp),
+                Echo("{0} core configuration. Run".format(i)),
+                Run(cp),
+                Clean(cp)
+            ])
+        return actns

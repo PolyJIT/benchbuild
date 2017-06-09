@@ -4,19 +4,20 @@ The 'polyjit' experiment.
 This experiment uses likwid to measure the performance of all binaries
 when running with polyjit support enabled.
 """
-from abc import abstractmethod
-from os import path
 import copy
 import uuid
-
-from benchbuild.utils.cmd import rm, time  # pylint: disable=E0401
-from plumbum import local
-from benchbuild.experiments.compilestats import collect_compilestats
-from benchbuild.utils.actions import (RequireAll, Prepare, Build, Download,
-                                      Configure, Clean, MakeBuildDir, Run,
-                                      Echo, Any)
-from benchbuild.experiment import RuntimeExperiment
+from abc import abstractmethod
 from functools import partial
+from os import path
+
+from plumbum import local
+
+from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiments.compilestats import collect_compilestats
+from benchbuild.utils.actions import (Any, Build, Clean, Configure, Download,
+                                      Echo, MakeBuildDir, Prepare, RequireAll,
+                                      Run)
+from benchbuild.utils.cmd import rm, time  # pylint: disable=E0401
 
 
 def run_raw(project, experiment, config, run_f, args, **kwargs):
@@ -37,16 +38,16 @@ def run_raw(project, experiment, config, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec
+    from benchbuild.utils.run import track_execution
     from benchbuild.utils.run import handle_stdin
-    from benchbuild.settings import CFG as c
+    from benchbuild.settings import CFG
 
-    c.update(config)
+    CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
 
     run_cmd = local[run_f]
     run_cmd = handle_stdin(run_cmd[args], kwargs)
-    with guarded_exec(run_cmd, project, experiment) as run:
+    with track_execution(run_cmd, project, experiment) as run:
         run()
 
 
@@ -72,20 +73,20 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.settings import CFG as c
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.settings import CFG
+    from benchbuild.utils.run import track_execution, handle_stdin
     from benchbuild.utils.db import persist_config
 
-    c.update(config)
+    CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
     run_cmd = local[run_f]
     run_cmd = handle_stdin(run_cmd[args], kwargs)
 
     with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
-        with guarded_exec(run_cmd, project, experiment) as run:
-            ri = run()
+        with track_execution(run_cmd, project, experiment) as run:
+            run_info = run()
 
-    persist_config(ri.db_run, ri.session,
+    persist_config(run_info.db_run, run_info.session,
                    {"cores": str(jobs)})
 
 
@@ -108,17 +109,17 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.settings import CFG as c
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.settings import CFG
+    from benchbuild.utils.run import track_execution, handle_stdin
     from benchbuild.utils.db import persist_likwid, persist_config
     from benchbuild.likwid import get_likwid_perfctr
 
-    c.update(config)
+    CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
     likwid_f = project.name + ".txt"
 
     for group in ["CLOCK"]:
-        likwid_path = path.join(c["likwiddir"], "bin")
+        likwid_path = path.join(CFG["likwiddir"], "bin")
         likwid_perfctr = local[path.join(likwid_path, "likwid-perfctr")]
         run_cmd = \
             likwid_perfctr["-O", "-o", likwid_f, "-m",
@@ -127,7 +128,7 @@ def run_with_likwid(project, experiment, config, jobs, run_f, args, **kwargs):
         run_cmd = handle_stdin(run_cmd[args], kwargs)
 
         with local.env(POLLI_ENABLE_LIKWID=1):
-            with guarded_exec(run_cmd, project, experiment) as run:
+            with track_execution(run_cmd, project, experiment) as run:
                 ri = run()
 
         likwid_measurement = get_likwid_perfctr(likwid_f)
@@ -158,11 +159,11 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec, handle_stdin, fetch_time_output
-    from benchbuild.settings import CFG as c
+    from benchbuild.utils.run import track_execution, fetch_time_output
+    from benchbuild.settings import CFG
     from benchbuild.utils.db import persist_time, persist_config
 
-    c.update(config)
+    CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
     timing_tag = "BB-JIT: "
 
@@ -174,13 +175,14 @@ def run_with_time(project, experiment, config, jobs, run_f, args, **kwargs):
         run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
     with local.env(OMP_NUM_THREADS=str(jobs),
-                   POLLI_LOG_FILE=c["slurm"]["extra_log"].value()):
-        with guarded_exec(run_cmd, project, experiment) as run:
+                   POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
+        with track_execution(run_cmd, project, experiment) as run:
             ri = run()
 
         if may_wrap:
             timings = fetch_time_output(
-                timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+                timing_tag, timing_tag + "{:g}-{:g}-{:g}",
+                ri.stderr.split("\n"))
             if timings:
                 persist_time(ri.db_run, ri.session, timings)
     persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
@@ -209,11 +211,11 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.utils.run import guarded_exec, handle_stdin, fetch_time_output
-    from benchbuild.settings import CFG as c
+    from benchbuild.utils.run import track_execution, fetch_time_output
+    from benchbuild.settings import CFG
     from benchbuild.utils.db import persist_time, persist_config
 
-    c.update(config)
+    CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
     timing_tag = "BB-JIT: "
 
@@ -225,19 +227,21 @@ def run_without_recompile(project, experiment, config, jobs, run_f,
         run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
     with local.env(OMP_NUM_THREADS=str(jobs),
-                   POLLI_LOG_FILE=c["slurm"]["extra_log"].value()):
-        with guarded_exec(run_cmd, project, experiment) as run:
+                   POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
+        with track_execution(run_cmd, project, experiment) as run:
             ri = run()
 
         if may_wrap:
             timings = fetch_time_output(
-                timing_tag, timing_tag + "{:g}-{:g}-{:g}", ri.stderr.split("\n"))
+                timing_tag, timing_tag + "{:g}-{:g}-{:g}",
+                ri.stderr.split("\n"))
             if timings:
                 persist_time(ri.db_run, ri.session, timings)
     persist_config(ri.db_run, ri.session, {"cores": str(jobs-1),
                                            "cores-config": str(jobs),
                                            "recompilation": "disabled"})
     return ri
+
 
 def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
     """
@@ -258,22 +262,22 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
                 with ::benchbuild.project.wrap_dynamic
             has_stdin: Signals whether we should take care of stdin.
     """
-    from benchbuild.settings import CFG as c
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    from benchbuild.settings import CFG
+    from benchbuild.utils.run import track_execution, handle_stdin
     from benchbuild.utils.db import persist_perf, persist_config
     from benchbuild.utils.cmd import perf
 
-    c.update(config)
+    CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
     run_cmd = local[run_f]
     run_cmd = handle_stdin(run_cmd[args], kwargs)
     run_cmd = perf["record", "-q", "-F", 6249, "-g", run_cmd]
 
     with local.env(OMP_NUM_THREADS=str(jobs)):
-        with guarded_exec(run_cmd, project, experiment) as run:
+        with track_execution(run_cmd, project, experiment) as run:
             ri = run(retcode=None)
 
-        fg_path = path.join(c["src_dir"], "extern/FlameGraph")
+        fg_path = path.join(CFG["src_dir"], "extern/FlameGraph")
         if path.exists(fg_path):
             sc_perf = local[path.join(fg_path, "stackcollapse-perf.pl")]
             flamegraph = local[path.join(fg_path, "flamegraph.pl")]
@@ -290,7 +294,8 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
 class PolyJIT(RuntimeExperiment):
     """The polyjit experiment."""
 
-    def init_project(self, project):
+    @classmethod
+    def init_project(cls, project):
         """
         Execute the benchbuild experiment.
 
@@ -320,9 +325,9 @@ class PolyJIT(RuntimeExperiment):
 
 class PolyJITFull(PolyJIT):
     """
-        An experiment that executes all projects with PolyJIT support.
+    An experiment that executes all projects with PolyJIT support.
 
-        This is our default experiment for speedup measurements.
+    This is our default experiment for speedup measurements.
     """
 
     NAME = "pj"
@@ -350,7 +355,7 @@ class PolyJITFull(PolyJIT):
         ]))
 
         jitp = copy.deepcopy(p)
-        jitp = self.init_project(jitp)
+        jitp = PolyJIT.init_project(jitp)
         norecomp = copy.deepcopy(jitp)
         norecomp.cflags += ["-mllvm", "-no-recompilation"]
 
@@ -393,9 +398,9 @@ class PolyJITFull(PolyJIT):
 
 class PJITRaw(PolyJIT):
     """
-        An experiment that executes all projects with PolyJIT support.
+    An experiment that executes all projects with PolyJIT support.
 
-        This is our default experiment for speedup measurements.
+    This is our default experiment for speedup measurements.
     """
 
     NAME = "pj-raw"
@@ -403,7 +408,7 @@ class PJITRaw(PolyJIT):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
 
         actns = []
         for i in range(2, int(str(CFG["jobs"])) + 1):
@@ -427,16 +432,14 @@ class PJITRaw(PolyJIT):
 
 
 class PJITperf(PolyJIT):
-    """
-        An experiment that uses linux perf tools to generate flamegraphs.
-    """
+    """An experiment that uses linux perf tools to generate flamegraphs."""
 
     NAME = "pj-perf"
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
 
         actns = []
         for i in range(1, int(str(CFG["jobs"])) + 1):
@@ -446,7 +449,8 @@ class PJITperf(PolyJIT):
 
             actns.extend([
                 MakeBuildDir(cp),
-                Echo("perf: {0} core configuration. Configure & Compile".format(i)),
+                Echo("perf: {0} core configuration. Configure & Compile"
+                     .format(i)),
                 Prepare(cp),
                 Download(cp),
                 Configure(cp),
@@ -460,12 +464,12 @@ class PJITperf(PolyJIT):
 
 class PJITlikwid(PolyJIT):
     """
-        An experiment that uses likwid's instrumentation API for profiling.
+    An experiment that uses likwid's instrumentation API for profiling.
 
-        This instruments all projects with likwid instrumentation API calls
-        in key regions of the JIT.
+    This instruments all projects with likwid instrumentation API calls
+    in key regions of the JIT.
 
-        This allows for arbitrary profiling of PolyJIT's overhead and run-time
+    This allows for arbitrary profiling of PolyJIT's overhead and run-time
     """
 
     NAME = "pj-likwid"
@@ -473,7 +477,7 @@ class PJITlikwid(PolyJIT):
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
         p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
 
         actns = []
@@ -484,7 +488,8 @@ class PJITlikwid(PolyJIT):
 
             actns.append(RequireAll([
                 MakeBuildDir(cp),
-                Echo("likwid: {0} core configuration. Configure & Compile".format(i)),
+                Echo("likwid: {0} core configuration. Configure & Compile"
+                     .format(i)),
                 Prepare(cp),
                 Download(cp),
                 Configure(cp),
@@ -497,35 +502,35 @@ class PJITlikwid(PolyJIT):
 
 class PJITRegression(PolyJIT):
     """
-        This experiment will generate a series of regression tests.
+    This experiment will generate a series of regression tests.
 
-        This can be used every time a new revision is produced for PolyJIT, as
-        it will automatically collect any new SCoPs detected, using the JIT.
+    This can be used every time a new revision is produced for PolyJIT, as
+    it will automatically collect any new SCoPs detected, using the JIT.
 
-        The collection of the tests itself is intgrated into the JIT, so this
-        experiment looks a lot like a RAW experiment, except we don't run
-        anything.
+    The collection of the tests itself is intgrated into the JIT, so this
+    experiment looks a lot like a RAW experiment, except we don't run
+    anything.
     """
 
     NAME = "pj-collect"
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
-        from benchbuild.utils.run import guarded_exec
+        from benchbuild.utils.run import track_execution
 
         def _track_compilestats(project, experiment, config, clang,
                                 **kwargs):
-            """ Compile the project and track the compilestats. """
-            from benchbuild.settings import CFG as c
+            """Compile the project and track the compilestats."""
+            from benchbuild.settings import CFG
             from benchbuild.utils.run import handle_stdin
 
-            c.update(config)
+            CFG.update(config)
             clang = handle_stdin(clang["-mllvm", "-polli-collect-modules"],
                                  kwargs)
-            with guarded_exec(clang, project, experiment) as run:
+            with track_execution(clang, project, experiment) as run:
                 run()
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
         p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
         p.compiler_extension = partial(_track_compilestats, p, self, CFG)
 
@@ -544,12 +549,13 @@ class PJITRegression(PolyJIT):
 
 class Compilestats(PolyJIT):
     """Gather compilestats, with enabled JIT."""
+
     NAME = "pj-cs"
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
         p.compiler_extension = partial(collect_compilestats, p, self, CFG)
 
         actns = [
@@ -567,42 +573,55 @@ class Compilestats(PolyJIT):
 
 class PJITpapi(PolyJIT):
     """
-        Experiment that uses PolyJIT's instrumentation facilities.
+    Experiment that uses PolyJIT's instrumentation facilities.
 
-        This uses PolyJIT to instrument all projects with libPAPI based
-        region measurements. In the end the region measurements are
-        aggregated and metrics like the dynamic SCoP coverage are extracted.
+    This uses PolyJIT to instrument all projects with libPAPI based
+    region measurements. In the end the region measurements are
+    aggregated and metrics like the dynamic SCoP coverage are extracted.
 
-        This uses the same set of flags as all other PolyJIT based experiments.
+    This uses the same set of flags as all other PolyJIT based experiments.
     """
 
     NAME = "pj-papi"
 
-    def run(self):
+    def actions(self):
         """Do the postprocessing, after all projects are done."""
-        super(PJITpapi, self).run()
+        actions = super(PJITpapi, self).actions()
+        from benchbuild.utils.actions import Step
 
-        from benchbuild.settings import CFG
-        from benchbuild.utils.cmd import pprof_analyze
+        class Analyze(Step):
+            NAME = "ANALYZE"
+            DESCRIPTION = "Analyze the experiment after completion."
 
-        with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
-                       BB_EXPERIMENT=self.name,
-                       BB_USE_DATABASE=1,
-                       BB_USE_FILE=0,
-                       BB_USE_CSV=0):
-            pprof_analyze()
+        def run_pprof_analyze():
+            from benchbuild.settings import CFG
+            from benchbuild.utils.cmd import pprof_analyze
+
+            with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
+                           BB_EXPERIMENT=self.name,
+                           BB_USE_DATABASE=1,
+                           BB_USE_FILE=0,
+                           BB_USE_CSV=0):
+                pprof_analyze()
+
+        actions.append(
+            Analyze(self, run_pprof_analyze)
+        )
+
+        return actions
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
-        p = self.init_project(p)
+        p = PolyJIT.init_project(p)
         p.cflags = ["-mllvm", "-instrument"] + p.cflags
         p.ldflags = p.ldflags + ["-lbenchbuild"]
 
         actns = []
         for i in range(1, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(p)
-            cp.compiler_extension = partial(collect_compilestats, cp, self, CFG)
+            cp.compiler_extension = partial(collect_compilestats, cp, self,
+                                            CFG)
             cp.runtime_extension = partial(run_with_papi, p, self, CFG, i)
             actns.extend([
                 MakeBuildDir(cp),

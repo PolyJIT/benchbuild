@@ -24,7 +24,7 @@ class Lammps(BenchBuildGroup):
         super(Lammps, self).prepare()
         cp("-vr", self.testdir, "test")
 
-    def run_tests(self, experiment):
+    def run_tests(self, experiment, run):
         lammps_dir = path.join(self.builddir, self.src_dir, "src")
         exp = wrap(path.join(lammps_dir, "lmp_serial"), experiment)
 

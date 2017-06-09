@@ -115,7 +115,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write("srun -c 1 hostname\n")
 
         # Write the experiment command.
-        extra_logs = CFG["slurm"]["extra_logs"].value()
+        extra_logs = CFG["slurm"]["extra_log"].value()
         slurm.write(__cleanup_node_commands(slurm_log_path))
         slurm.write("srun -c 1 rm -f {0}\n".format(extra_logs))
         slurm.write(

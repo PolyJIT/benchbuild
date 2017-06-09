@@ -61,7 +61,7 @@ def load_experiment_ids_from_names(session, names):
 
 class Report(object, metaclass=ReportRegistry):
 
-    SUPPORTED_EXPERIMENTS = None
+    SUPPORTED_EXPERIMENTS = []
 
     def __new__(cls, *args, **kwargs):
         new_self = super(Report, cls).__new__(cls)
@@ -72,14 +72,15 @@ class Report(object, metaclass=ReportRegistry):
         new_self.experiments = cls.SUPPORTED_EXPERIMENTS
         return new_self
 
-    def __init__(self, exp_ids, out_path):
+    def __init__(self, exp_name, exp_ids, out_path):
         import benchbuild.utils.schema as schema
         import uuid
         self.out_path = out_path
         self.session = schema.Session()
         if not exp_ids:
             exp_ids = load_experiment_ids_from_names(
-                self.session, self.SUPPORTED_EXPERIMENTS)
+                self.session,
+                [exp for exp in self.SUPPORTED_EXPERIMENTS if exp == exp_name])
             exp_ids = [v[0] for v in exp_ids]
         else:
             exp_ids = [uuid.UUID(v) for v in exp_ids]

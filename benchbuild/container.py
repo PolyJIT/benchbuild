@@ -441,14 +441,14 @@ class ContainerCreate(cli.Application):
     exit the bash and pack up the result.
     """
 
-    strategy = BashStrategy()
+    _strategy = BashStrategy()
 
     @cli.switch(["-S", "--strategy"],
                 cli.Set("bash", "polyjit", case_sensitive=False),
                 help="Defines the strategy used to create a new container.",
                 mandatory=False)
     def strategy(self, strategy):
-        self.strategy = {
+        self._strategy = {
             "bash": BashStrategy(),
             "polyjit": SetupPolyJITGentooStrategy()
         }[strategy]
@@ -467,7 +467,7 @@ class ContainerCreate(cli.Application):
         if in_is_file:
             in_container = setup_container(builddir, in_container)
 
-        self.strategy.run(MockObj(builddir=builddir,
+        self._strategy.run(MockObj(builddir=builddir,
                                   in_container=in_container,
                                   out_container=out_container,
                                   mounts=mounts,

@@ -73,7 +73,7 @@ class MultiSourceBenchmarks(LNTGroup):
     NAME = 'MultiSourceBenchmarks'
 
     def run_tests(self, experiment, run):
-        exp = wrap_dynamic("lnt_runner", experiment)
+        exp = wrap_dynamic(self, "lnt_runner", experiment)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
 

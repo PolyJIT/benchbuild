@@ -5,55 +5,159 @@ Generates a custom sequence for the project and  writes the compile stats
 created doing so. Returns the actions executed for the test.
 """
 import uuid
-import multiprocessing
 import logging
-
+import os
 from functools import partial
-from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
-                                    Configure, Build, Run, Clean)
+import random
+import parse
+import concurrent.futures as cf
+
+from benchbuild.experiments.compilestats import get_compilestats
 
 from benchbuild.experiments.polyjit import PolyJIT
+from benchbuild.settings import CFG
+from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
+                                      Configure, Build, Clean)
+from benchbuild.utils.cmd import (mktemp, opt)
+from benchbuild.utils.run import track_execution
+from plumbum import local
 
-DEFAULT_PASS_SPACE = ['-basicaa', '-mem2reg']
-DEFAULT_SEQ_LENGTH = 10
+DEFAULT_PASS_SPACE = [
+    '-targetlibinfo', '-tti', '-tbaa', '-scoped-noalias',
+    '-assumption-cache-tracker', '-profile-summary-info', '-forceattrs',
+    '-inferattrs', '-ipsccp', '-globalopt', '-domtree', '-mem2reg',
+    '-deadargelim', '-domtree', '-basicaa', '-aa', '-instcombine',
+    '-simplifycfg', '-pgo-icall-prom', '-basiccg', '-globals-aa', '-prune-eh',
+    '-inline', '-functionattrs', '-argpromotion', '-domtree', '-sroa',
+    '-early-cse', '-speculative-execution', '-lazy-value-info',
+    '-jump-threading', '-correlated-propagation', '-simplifycfg',
+    '-domtree', '-basicaa', '-aa', '-instcombine', '-tailcallelim',
+    '-simplifycfg', '-reassociate', '-domtree', '-scalar-evolution',
+    '-basicaa', '-aa', '-loop-accesses', '-demanded-bits', '-loop-vectorize',
+    '-loop-simplify', '-scalar-evolution', '-aa', '-loop-accesses',
+    '-loop-load-elim', '-basicaa', '-aa', '-instcombine',
+    '-scalar-evolution', '-demanded-bits', '-slp-vectorizer',
+    '-simplifycfg', '-domtree', '-basicaa', '-aa', '-instcombine',
+    '-loops', '-loop-simplify', '-lcssa', '-scalar-evolution',
+    '-loop-unroll', '-instcombine', '-loop-simplify', '-lcssa',
+    '-scalar-evolution', '-licm', '-instsimplify', '-scalar-evolution',
+    '-alignment-from-assumptions', '-strip-dead-prototypes', '-globaldce',
+    '-constmerge', '-verify']
+DEFAULT_SEQ_LENGTH = 40
 DEFAULT_DEBUG = False
-DEFAULT_NUM_ITERATIONS = 100
+DEFAULT_NUM_ITERATIONS = 10
 
-def get_compilestats(prog_out):
-    """ Get the LLVM compilation stats from :prog_out:. """
-    from parse import compile as c
 
-    stats_pattern = c("{value:d} {component} - {desc}\n")
+def get_defaults():
+    pass_space = None
+    if not pass_space:
+        pass_space = DEFAULT_PASS_SPACE
 
-    for line in prog_out.split("\n"):
-        res = stats_pattern.search(line + "\n")
-        if res is not None:
-            yield yres
+    seq_length = None
+    if not seq_length:
+        seq_length = DEFAULT_SEQ_LENGTH
 
-def collect_compilestats(project, experiment, clang, **kwargs):
-    """Collect compilestats and write them into the database persistently."""
-    from benchbuild.utils.db import persist_compilestats
-    from benchbuild.utils.schema import CompileStat
-    from benchbuild.utils.run import guarded_exec, handle_stdin
+    iterations = None
+    if not iterations:
+        iterations = DEFAULT_NUM_ITERATIONS
 
-    clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
+    return (pass_space, seq_length, iterations)
 
-    with guarded_exec(clang, project, experiment) as run:
-        run_information = run()
 
-    if run_information.retcode == 0:
-        stats = []
-        for stat in get_compilestats(run_information.stderr):
-            compile_s = CompileStat()
-            compile_s.name = stat["desc"].rstrip()
-            compile_s.component = stat["component"].rstrip()
-            compile_s.value = stat["value"]
-            stats.append(compile_s)
-        persist_compilestats(run_information.db_run,
-                             run_information.session,
-                             stats)
+def get_args(cmd):
+    assert hasattr(cmd, 'cmd')
 
-def generate_sequences(program, pass_space, seq_length, iterations, debug):
+    if hasattr(cmd, 'args'):
+        return cmd.args
+    else:
+        return get_args(cmd.cmd)
+
+
+def set_args(cmd, new_args):
+    assert hasattr(cmd, 'cmd')
+
+    if hasattr(cmd, 'args'):
+        cmd.args = new_args
+    else:
+        set_args(cmd.cmd, new_args)
+
+
+def filter_compiler_commandline(cmd, predicate = lambda x : True):
+    args = get_args(cmd)
+    result = []
+
+    iterator = args.__iter__()
+    try:
+        while True:
+            litem = iterator.__next__()
+            if litem in ['-mllvm', '-Xclang', '-o']:
+                fst, snd = (litem, iterator.__next__())
+                litem = "{0} {1}".format(fst, snd)
+                if predicate(litem):
+                    result.append(fst)
+                    result.append(snd)
+            else:
+                if predicate(litem):
+                    result.append(litem)
+    except StopIteration:
+        pass
+
+    set_args(cmd, result)
+
+
+def run_sequence(project, experiment, compiler, key, seq_to_fitness, sequence):
+    def fitness(l, r):
+        return max((l - r) / r, 0)
+
+    local_compiler = compiler[sequence, "-polly-detect"]
+    _, _, stderr = local_compiler.run(retcode=None)
+    stats = [s for s in get_compilestats(stderr) \
+                if s['desc'] in [
+                    "Number of regions that a valid part of Scop",
+                    "The # of regions"
+                ]]
+    scops = [s for s in stats if s['component'].strip() == 'polly-detect']
+    regns = [s for s in stats if s['component'].strip() == 'region']
+    regns_not_in_scops = \
+        [fitness(r['value'], s['value']) for s, r in zip(scops, regns)]
+
+    return (key, regns_not_in_scops[0]) \
+        if len(regns_not_in_scops) > 0 else (key, 0)
+
+
+def unique_compiler_cmds(run_f):
+    list_compiler_commands = run_f["-###", "-c"]
+    _, _, stderr = list_compiler_commands.run()
+    stderr = stderr.split('\n')
+    for line in stderr:
+        res = parse.search('\"{0}\"', line)
+        if res and os.path.exists(res[0]):
+            results = parse.findall('\"{0}\"', line)
+            cmd = res[0]
+            args = [x[0] for x in results][1:]
+
+            compiler_cmd = local[cmd]
+            compiler_cmd = compiler_cmd[args]
+            compiler_cmd = compiler_cmd["-S", "-emit-llvm"]
+            yield compiler_cmd
+
+
+def link_ir(run_f):
+    link = local['llvm-link']
+    tmp_files = []
+    for compiler in unique_compiler_cmds(run_f):
+        tmp_file = mktemp("-p", local.cwd)
+        tmp_file = tmp_file.rstrip('\n')
+        tmp_files.append(tmp_file)
+        compiler("-o", tmp_file)
+    complete_ir = mktemp("-p", local.cwd)
+    complete_ir = complete_ir.rstrip('\n')
+    link("-o", complete_ir, tmp_files)
+    return complete_ir
+
+
+def generate_sequences(project, experiment, config,
+                       jobs, run_f, *args, **kwargs):
     """
     Generates the custom sequences for a provided application.
 
@@ -67,125 +171,128 @@ def generate_sequences(program, pass_space, seq_length, iterations, debug):
     and analyze in the data base later on.
 
     Args:
-        program: The name of the application the sequence is being generated.
-        pass_space: List of passes that should be considered during the
-            generating process of the sequence.
-        seq_length: The length of the sequence that should be generated.
-        iterations: The amount of iterations the algorithm performs to reduce
-            possible noise.
-        debug: Boolean, if debug information should be printed or not.
+        project: The name of the project the test is being run for.
+        experiment: The benchbuild.experiment.
+        config: The config from benchbuild.settings.
+        jobs: Number of cores to be used for the execution.
+        run_f: The file that needs to be execute.
+        args: List of arguments that will be passed to the wrapped binary.
+        kwargs: Dictonary with the keyword arguments.
 
         Returns:
         The generated custom sequences as a list.
     """
-    greedy = __import__(benchbuild.experiments.\
-                        sequence-analysis.greedy)
-    seq_to_fitness = multiprocessing.Manager().dict()
+    seq_to_fitness = {}
     generated_sequences = []
+    pass_space, seq_length, iterations = get_defaults()
 
-    if not pass_space:
-        pass_space = DEFAULT_PASS_SPACE
+    def filter_invalid_flags(item):
+        filter_list = [
+            "-O1", "-O2", "-O3", "-Os", "-O4"
+        ]
 
-    if not seq_length:
-        seq_length = DEFAULT_SEQ_LENGTH
+        prefix_list = ['-o', '-l', '-L']
+        result = not item in filter_list
+        result = result and not any([item.startswith(x) for x in prefix_list])
+        return result
 
-    if not iterations:
-        iterations = DEFAULT_NUM_ITERATIONS
+    filter_compiler_commandline(run_f, filter_invalid_flags)
+    complete_ir = link_ir(run_f)
+    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
-    if not debug:
-        debug = DEFAULT_DEBUG
+    with cf.ThreadPoolExecutor(
+        max_workers=CFG["jobs"].value() * 5) as pool:
+        for _ in range(iterations):
+            base_sequence = []
+            while len(base_sequence) < seq_length:
+                sequences = []
 
-    for i in range(iterations):
-        logging.getLogger().debug("==========================================")
-        logging.getLogger().debug("Iteration: " + str(i+1))
-        logging.getLogger.debug("==========================================")
-        logging.getLogger().debug("Start Greedy Algorithm with" + \
-                                  "empty sequence as root...")
+                future_to_fitness = []
+                for flag in pass_space:
+                    new_sequences = []
+                    new_sequences.append(list(base_sequence) + [flag])
+                    if base_sequence:
+                        new_sequences.append([flag] + list(base_sequence))
 
-        base_sequence = []
+                    sequences.extend(new_sequences)
+                    future_to_fitness.extend(
+                        [pool.submit(
+                            run_sequence, project, experiment, opt_cmd,
+                            str(seq), seq_to_fitness, seq) \
+                            for seq in new_sequences]
+                    )
+                for future_fitness in cf.as_completed(future_to_fitness):
+                    key, fitness = future_fitness.result()
+                    old_fitness = seq_to_fitness.get(key, 0)
+                    seq_to_fitness[key] = max(old_fitness, int(fitness))
 
-        while len(base_sequence) < seq_length:
-            logging.getLogger().debug("<=-----------------------------------=>")
-            logging.getLogger().debug("Custom Sequence: " + str(base_sequence))
-            logging.getLogger().debug("Length: " + str(len(base_sequence)))
-            logging.getLogger().debug("---------------------------------------")
-            logging.getLogger().debug("Child Sequences: ")
-            sequences = []
+                # sort the sequences by their fitness in ascending order
+                sequences.sort(key=lambda s: seq_to_fitness[str(s)])
 
-            for flag in pass_space:
-                # Create new sequence by appending a new flag.
-                seq_append = list(base_sequence) + [flag]
+                fittest = sequences.pop()
+                fittest_fitness_value = seq_to_fitness[str(fittest)]
+                fittest_sequences = [fittest]
 
-                multiprocessing.Pool().apply_async(
-                    greedy.calculate_fitness_value,
-                    args=(seq_append, seq_to_fitness, str(seq_append), program))
-                sequences.append(seq_append)
-                logging.getLogger().debug(str(seq_append))
+                next_fittest = fittest
+                while next_fittest == fittest and len(sequences) > 1:
+                    next_fittest = sequences.pop()
+                    if seq_to_fitness[str(next_fittest)] == fittest_fitness_value:
+                        fittest_sequences.append(next_fittest)
 
-                if base_sequence:
-                    # Create a new sequence by depending a new flag.
-                    seq_prepend = [flag] + list(base_sequence)
-                    multiprocessing.Pool().apply_async(
-                        greedy.calculate_fitness_value, args=(
-                        seq_prepend, seq_to_fitness, str(seq_prepend), program))
-                    sequences.append(seq_prepend)
-                    logging.getLogger().debug(str(seq_prepend))
+                base_sequence = random.choice(fittest_sequences)
+            generated_sequences.append(base_sequence)
 
-            multiprocessing.Pool().close()
-            multiprocessing.Pool.join()
-            # sort the sequences by their fitness
-            sequences.sort(key=lambda s: seq_to_fitness[str(s)])
-            logging.getLogger().debug("<=-----------------------------------=>")
-        generated_sequences.append(sequences)
+    generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)], reverse=True)
+    max_fitness = 0
+    for seq in generated_sequences:
+        cur_fitness = seq_to_fitness[str(seq)]
+        max_fitness = max(max_fitness, cur_fitness)
+        if cur_fitness == max_fitness:
+            print("{0} -> {1}".format(cur_fitness, seq))
+    #TODO: Store generated sequence in database
 
-    generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)])
-    logging.getLogger().debug("\n...Finished!")
-    logging.getLogger().debug(
-        "Generated Custom Sequences in " + str(iterations) + " Iterations:")
-    if debug:
-        sorted_seq = sorted(seq_to_fitness.iteritems(),
-                            key=operator.itemgetter(1))
-        logging.getLogger().debug('\nBest sequences found over iterations:')
-        for i in range(len(sorted_seq)):
-            logging.getLogger().debug(sorted_seq.pop())
 
-        logging.getLogger().debug("\n")
-
-    return generated_sequences
-
-class Test(PolyJIT):
+class GreedySequences(PolyJIT):
     """
     An experiment that excecutes all projects with PolyJIT support.
+
     Instead of the actual actions the compile stats for executing them
     are being written into the database.
     This shall become the default experiment for sequence analysis.
     """
 
-    NAME = "pj-seq-test"
+    NAME = "pj-seq-greedy"
 
-    def actions_for_projects(self, project):
-        """Executes the actions for the test."""
+    def actions_for_project(self, project):
+        """Execute the actions for the test."""
         from benchbuild.settings import CFG
 
         project = PolyJIT.init_project(project)
 
         actions = []
-        project.cflags = ["-O3", "-Xclang", "-load", "-Xclang",
-                          "LLVMPolyJIT.so", "-mllvm", "-polly"]
+        project.cflags = ["-mllvm", "-stats"]
         project.run_uuid = uuid.uuid4()
         jobs = int(CFG["jobs"].value())
-        project.runtime_extension = partial(generate_sequences,
-                                      project, self, CFG, jobs)
-        project.compiler_extension = partial(collect_compilestats,
-                                             project,
-                                             self)
+
+        project.compiler_extension = partial(
+            generate_sequences, project, self, CFG, jobs)
+
         actions.extend([
             MakeBuildDir(project),
             Prepare(project),
             Download(project),
             Configure(project),
             Build(project),
-            Run(project),
+            Clean(project)
+        ])
+        return actions
+
+        actions.extend([
+            MakeBuildDir(project),
+            Prepare(project),
+            Download(project),
+            Configure(project),
+            Build(project),
             Clean(project)
         ])
         return actions

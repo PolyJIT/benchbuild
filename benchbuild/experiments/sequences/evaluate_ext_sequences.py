@@ -8,9 +8,8 @@ import multiprocessing
 import random
 import logging
 
-import topsort
-import polly_stats
-
+import benchbuild.experiments.sequences.polly_stats as polly_stats
+import pprof_utilities
 
 __author__ = "Christoph Woller"
 __credits__ = ["Christoph Woller"]
@@ -18,46 +17,9 @@ __maintainer__ = "Christoph Woller"
 __email__ = "wollerch@fim.uni-passau.de"
 
 
-# Directed edges of the dependency graph.
-# The dependencies have to specified manually.
-NUM_TO_PASS = {
-    1: '-mem2reg', 2: '-early-cse', 3: '-inline', 4: '-sroa', 5: '-globalopt',
-    6: '-functionattrs', 7: '-instcombine', 8: '-gvn', 9: '-ipsccp',
-    10: '-basicaa', 11: '-jump-threading', 12: '-simplifycfg',
-    13: '-polly-indvars', 14: '-loop-unroll', 15: '-globaldce',
-    16: '-polly-prepare'
-}
-PASS_TO_NUM = {v: k for k, v in NUM_TO_PASS.items()}
-DEPENDENCIES = [
-    (1, 2), (1, 3),
-    (3, 4), (3, 5), (3, 6),
-    (6, 7),
-    (7, 8),
-    (8, 9),
-    (9, 10),
-    (10, 11), (10, 12),
-    (11, 13), (12, 13),
-    (13, 14), (13, 15), (13, 16)
-]
-
-
-def __create_sequences():
-    """Creates optimization sequences using a dependency graph and
-    topological sort.
-    """
-    number_of_nodes = len(PASS_TO_NUM)
-
-    # Use Varol's and Rotem's topological sorting algorithm to get all
-    # topological sorting arrangements.
-    grid = topsort.partial_order_to_grid(DEPENDENCIES, number_of_nodes)
-    sortings = topsort.vr_topsort(number_of_nodes, grid)
-
-    sequences = []
-    for sort in sortings:
-        sequence = [NUM_TO_PASS[num] for num in sort]
-        sequences.append(sequence)
-
-    return sequences
+SEQUENCE_FILE_PATH = '.../pprof-study/results/'
+SEQUENCE_FILE = 'best_sequences.raw'
+SEQUENCE_PREFIX = 'Best: '
 
 
 def calculate_fitness_value(sequence, seq_to_fitness, key, program):
@@ -81,12 +43,14 @@ def calculate_fitness_value(sequence, seq_to_fitness, key, program):
                                                                     program)
 
 
-def generate_custom_sequence(program):
+def evaluate_best_sequence(program):
     """"Generates optimization sequences from a dependency graph and calculates
     the best of these sequences for the specified program."""
     log = logging.getLogger()
     # Get different topological sorting arrangements.
-    sequences = __create_sequences()
+    sequences = pprof_utilities.read_sequences(SEQUENCE_FILE_PATH,
+                                               SEQUENCE_FILE, SEQUENCE_PREFIX)
+    possible_sequences = len(sequences)
     seq_to_fitness = multiprocessing.Manager().dict()
     pool = multiprocessing.Pool()
 
@@ -113,9 +77,10 @@ def generate_custom_sequence(program):
         else:
             equal = False
 
-    log.debug("Best sequences " + str(len(fittest_sequences)))
+    log.info("Best sequences " + str(len(fittest_sequences)) + " of "
+          + str(possible_sequences))
     for sequence in fittest_sequences:
-        log.debug("Best: " + str(sequence))
-    log.debug("----------------------------------------------------------------")
+        log.info("Best: " + str(sequence))
+    log.info("----------------------------------------------------------------")
 
     return random.choice(fittest_sequences)

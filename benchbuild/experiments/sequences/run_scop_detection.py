@@ -5,7 +5,7 @@ preoptimization sequence.
 """
 import sys
 import getopt
-import polly_stats
+import benchbuild.experiments.sequences.polly_stats as polly_stats
 import genetic1_opt
 import genetic2_opt
 import hill_climber

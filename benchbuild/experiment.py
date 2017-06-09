@@ -29,7 +29,6 @@ An experiment performs the following actions in order:
 
 """
 from abc import abstractmethod
-from contextlib import contextmanager
 from os import path
 
 import regex

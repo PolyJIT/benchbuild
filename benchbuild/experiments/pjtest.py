@@ -11,13 +11,14 @@ import csv
 import logging
 import os
 import uuid
-from functools import partial
 
-import matplotlib as mpl
-import pandas as pd
-import seaborn as sns
+from functools import partial
+from typing import Iterable
+
+#import pandas as pd
+#import seaborn as sns
 import sqlalchemy as sa
-import sqlalchemy.orm as orm
+#import sqlalchemy.orm as orm
 from plumbum import local
 
 from benchbuild.experiments.polyjit import PolyJIT
@@ -26,8 +27,10 @@ from benchbuild.utils.actions import (Build, Clean, Configure, Download,
                                       MakeBuildDir, Prepare, Run)
 from benchbuild.utils.run import RunInfo
 from benchbuild.utils.cmd import time
+from benchbuild.project import Project
+from benchbuild.experiment import Experiment
+from benchbuild.settings import Configuration
 
-mpl.style.use('ggplot')
 
 
 class Test(PolyJIT):
@@ -47,7 +50,9 @@ class Test(PolyJIT):
         actns = []
         p.run_uuid = uuid.uuid4()
         jobs = int(CFG["jobs"].value())
-        p.cflags += ["-mllvm", "-polly-num-threads={0}".format(jobs)]
+        p.cflags += ["-Rpass-missed=polli*",
+                     "-mllvm", "-stats",
+                     "-mllvm", "-polly-num-threads={0}".format(jobs)]
         p.runtime_extension = partial(time_polyjit_and_polly,
                                       p, self, CFG, jobs)
 
@@ -63,7 +68,12 @@ class Test(PolyJIT):
         return actns
 
 
-def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
+def time_polyjit_and_polly(project: Project,
+                           experiment: Experiment,
+                           config: Configuration,
+                           jobs: int,
+                           run_f: str,
+                           args: Iterable[str],
                            **kwargs):
     """
     Run the given binary wrapped with time.
@@ -98,16 +108,16 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
     if may_wrap:
         run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
 
-    def handle_timing_info(ri):
+    def handle_timing_info(run_info):
         if may_wrap:
             timings = fetch_time_output(
                 timing_tag, timing_tag + "{:g}-{:g}-{:g}",
-                ri.stderr.split("\n"))
+                run_info.stderr.split("\n"))
             if timings:
-                persist_time(ri.db_run, ri.session, timings)
+                persist_time(run_info.db_run, run_info.session, timings)
             else:
-                logging.warn("No timing information found.")
-        return ri
+                logging.warning("No timing information found.")
+        return run_info
 
     ri_1 = RunInfo()
     ri_2 = RunInfo()
@@ -133,6 +143,44 @@ def time_polyjit_and_polly(project, experiment, config, jobs, run_f, args,
                 "specialization": "disabled"})
 
     return ri_1 + ri_2
+
+
+class StatusReport(Report):
+
+    SUPPORTED_EXPERIMENTS = ["pj-test", "pj-seq-test", "raw", "pj", "pj-raw"]
+    QUERY_STATUS = \
+        sa.sql.select([
+            sa.column('name'),
+            sa.column('_group'),
+            sa.column('status'),
+            sa.column('runs')
+        ]).\
+        select_from(
+            sa.func.pj_test_status(sa.sql.bindparam('exp_ids'))
+        )
+
+    def report(self):
+        print("I found the following matching experiment ids")
+        print("  \n".join([str(x) for x in self.experiment_ids]))
+
+        qry = StatusReport.\
+            QUERY_STATUS.unique_params(exp_ids=self.experiment_ids)
+        yield ("status",
+               ('project', 'group', 'status', 'runs'),
+               self.session.execute(qry).fetchall())
+
+    def generate(self):
+        for name, header, data in self.report():
+            fname = os.path.basename(self.out_path)
+
+            with open("{prefix}_{name}{ending}".format(
+                prefix=os.path.splitext(fname)[0],
+                ending=os.path.splitext(fname)[-1],
+                name=name), 'w') as csv_out:
+                print("Writing '{0}'".format(csv_out.name))
+                csv_writer = csv.writer(csv_out)
+                csv_writer.writerows([header])
+                csv_writer.writerows(data)
 
 
 class TestReport(Report):
@@ -178,37 +226,6 @@ class TestReport(Report):
             sa.func.pj_test_region_wise(sa.sql.bindparam('exp_ids'))
         )
 
-    QUERY_STATUS = \
-        sa.sql.select([
-            sa.column('name'),
-            sa.column('_group'),
-            sa.column('status'),
-            sa.column('runs')
-        ]).\
-        select_from(
-            sa.func.pj_test_status(sa.sql.bindparam('exp_ids'))
-        )
-
-    def plot(self, query : orm.Query):
-        import benchbuild.utils.schema as db
-        df = pd.read_sql_query(query, db.CONNECTION_MANAGER.engine)
-
-        # Cleanup the data from the database.
-        t0_min_runtime = df["t_0"] > 5
-        t1_min_runtime = df["t_1"] > 5
-
-        max_speedup = df["speedup"] < 30
-        min_speedup = df["speedup"] > -30
-        df_filtered = df[t0_min_runtime
-                         & t1_min_runtime
-                         & max_speedup
-                         & min_speedup]
-
-        plot = sns.barplot(x="project", y="speedup", data=df_filtered)
-        fig = plot.get_figure()
-        fig.savefig('pj-test-vioplot.pdf')
-        return df_filtered
-
     def report(self):
         print("I found the following matching experiment ids")
         print("  \n".join([str(x) for x in self.experiment_ids]))
@@ -231,19 +248,14 @@ class TestReport(Report):
                 'speedup'),
                self.session.execute(qry).fetchall())
 
-        qry = TestReport.QUERY_STATUS.unique_params(exp_ids=self.experiment_ids)
-        yield ("status",
-               ('project', 'group', 'status', 'runs'),
-               self.session.execute(qry).fetchall())
-
     def generate(self):
         for name, header, data in self.report():
             fname = os.path.basename(self.out_path)
 
             with open("{prefix}_{name}{ending}".format(
-                    prefix=os.path.splitext(fname)[0],
-                    ending=os.path.splitext(fname)[-1],
-                    name=name), 'w') as csv_out:
+                prefix=os.path.splitext(fname)[0],
+                ending=os.path.splitext(fname)[-1],
+                name=name), 'w') as csv_out:
                 print("Writing '{0}'".format(csv_out.name))
                 csv_writer = csv.writer(csv_out)
                 csv_writer.writerows([header])

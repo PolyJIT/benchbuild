@@ -726,6 +726,11 @@ CFG["container"] = {
         "default": [],
         "desc": "List of paths that will be mounted inside the container."
     },
+    "prefixes": {
+        "default": [],
+        "desc": "List of paths that will be treated as an "
+                "existing prefix inside a container."
+    },
     "shell": {
         "default": "/bin/bash",
         "desc": "Command string that should be used as shell command."

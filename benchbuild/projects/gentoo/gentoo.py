@@ -100,16 +100,14 @@ PYTHON_TARGETS="python2_7 python3_5"
         paths, libs = uchroot_env(
                 uchroot_mounts("mnt",
                                CFG["container"]["mounts"].value()))
-        prefix_paths, prefix_libs = uchroot_env(
-                uchroot_mounts("",
-                               CFG["container"]["prefixes"].value()))
+        p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
 
         with open(path, 'w') as bashrc:
             lines = '''
 export PATH="{0}:${{PATH}}"
 export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
-'''.format(list_to_path(paths + prefix_paths),
-           list_to_path(libs + prefix_libs))
+'''.format(list_to_path(paths + p_paths),
+           list_to_path(libs + p_libs))
 
             bashrc.write(lines)
 

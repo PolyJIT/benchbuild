@@ -32,9 +32,10 @@ def get_hash_of_dirs(directory):
     for root, _, files in os.walk(directory):
         for names in files:
             filepath = os.path.join(root, names)
-            with open(filepath, 'rb') as next_file:
-                for line in next_file:
-                    sha.update(line)
+            if os.path.exists(filepath):
+                with open(filepath, 'rb') as next_file:
+                    for line in next_file:
+                        sha.update(line)
     return sha.hexdigest()
 
 

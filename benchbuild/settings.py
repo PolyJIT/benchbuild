@@ -778,7 +778,7 @@ CFG["container"] = {
                     {"name": "=dev-util/boost-build-1.58.0", "env": {
                         "ACCEPT_KEYWORDS": "~amd64"
                     }},
-                    {"name": "=dev-libs/boost-1.58.0-r1", "env": {
+                    {"name": "=dev-libs/boost-1.62-r1", "env": {
                         "ACCEPT_KEYWORDS": "~amd64"
                     }},
                     {"name": "dev-libs/libpqxx", "env": {}},

@@ -98,14 +98,17 @@ PKGDIR="${PORTDIR}/packages"
         mkfile_uchroot("/etc/portage/bashrc")
         paths, libs = uchroot_env(
                 uchroot_mounts("mnt",
-                    CFG["container"]["mounts"].value()))
+                               CFG["container"]["mounts"].value()))
+        prefix_paths, prefix_libs = uchroot_env(
+                uchroot_mounts("",
+                               CFG["container"]["prefixes"].value()))
 
         with open(path, 'w') as bashrc:
             lines = '''
 export PATH="{0}:${{PATH}}"
 export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
-'''.format(list_to_path(paths),
-           list_to_path(libs))
+'''.format(list_to_path(paths + prefix_paths),
+           list_to_path(libs + prefix_libs))
 
             bashrc.write(lines)
 

@@ -782,6 +782,12 @@ CFG["container"] = {
                         "ACCEPT_KEYWORDS": "~amd64"
                     }},
                     {"name": "dev-libs/libpqxx", "env": {}},
+                    {"name": "dev-lang/python-3.5.3", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "dev-python/dill", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }}
                 ],
                 "desc": "A list of gentoo package atoms that should be merged."
             }

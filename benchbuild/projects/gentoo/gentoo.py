@@ -74,6 +74,7 @@ USE="bindist mmx sse sse2"
 PORTDIR="/usr/portage"
 DISTDIR="${PORTDIR}/distfiles"
 PKGDIR="${PORTDIR}/packages"
+PYTHON_TARGETS="python2_7 python3_5"
 '''
 
             makeconf.write(lines)

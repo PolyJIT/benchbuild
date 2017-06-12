@@ -271,7 +271,8 @@ class Any(Step):
             result = a()
             cnt = cnt + 1
             if result == StepResult.ERROR:
-                self._exlog.warn("{0} actions left in queue", length - cnt)
+                self._exlog.warn("{0} actions left in queue".format(
+                    length - cnt))
         return StepResult.OK
 
     def __str__(self, indent=0):

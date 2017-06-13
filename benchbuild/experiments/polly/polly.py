@@ -34,7 +34,8 @@ class Polly(RuntimeExperiment):
         """Compile & Run the experiment with -O3 enabled."""
         project.cflags = ["-O3", "-fno-omit-frame-pointer",
                           "-Xclang", "-load",
-                          "-Xclang", "LLVMPolyJIT.so",
+                          "-mllvm", "-stats",
+                          "-Xclang", "LLVMPolly.so",
                           "-mllvm", "-polly"]
         project.runtime_extension = functools.partial(
             run_with_time, project, self, CFG, CFG["jobs"].value())

@@ -396,10 +396,9 @@ def uchroot_env(mounts):
         paths
         ld_libs
     """
-    ld_libs = ["/{0}/lib".format(m) for m in mounts]
-    paths = ["/{0}/bin".format(m) for m in mounts]
-    paths.extend(["/{0}".format(m) for m in mounts])
-    paths.extend(["/usr/bin", "/bin", "/usr/sbin", "/sbin"])
+    ld_libs = ["{0}/lib".format(m if m[0] == "/" else "/" + m) for m in mounts]
+    paths = ["{0}/bin".format(m if m[0] == "/" else "/" + m) for m in mounts]
+    paths.extend(["{0}".format(m if m[0] == "/" else "/" + m) for m in mounts])
     return paths, ld_libs
 
 
@@ -429,11 +428,14 @@ def uchroot_with_mounts(*args, **kwargs):
     uchroot_cmd, mounts = \
         _uchroot_mounts("mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
+    prefixes = CFG["container"]["prefixes"].value()
+
+    p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
 
     uchroot_cmd = with_env_recursive(
         uchroot_cmd,
-        LD_LIBRARY_PATH=list_to_path(libs),
-        PATH=list_to_path(paths))
+        LD_LIBRARY_PATH=list_to_path(libs+p_libs),
+        PATH=list_to_path(paths+p_paths))
     return uchroot_cmd
 
 
@@ -451,9 +453,11 @@ def uchroot(*args, **kwargs):
     uchroot_cmd, mounts = _uchroot_mounts(
         "mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
+    p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
+
     uchroot_cmd = uchroot_cmd.with_env(
-            LD_LIBRARY_PATH=list_to_path(libs),
-            PATH=list_to_path(paths))
+            LD_LIBRARY_PATH=list_to_path(libs + p_libs),
+            PATH=list_to_path(paths + p_paths))
     return uchroot_cmd["--"]
 
 

@@ -42,6 +42,7 @@ def timing_extension(project, experiment, config, run_f, *args, **kwargs):
     CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
     may_wrap = kwargs.get("may_wrap", True)
+    run_config = kwargs.get("run_config", None)
     timing_tag = "BB-Time: "
 
     run_cmd = local[run_f]
@@ -63,6 +64,8 @@ def timing_extension(project, experiment, config, run_f, *args, **kwargs):
 
     with track_execution(run_cmd, project, experiment, **kwargs) as run:
         run_info = handle_timing(run())
+        if run_config is not None:
+            persist_config(run_info.db_run, run_info.session, run_config)
     return run_info
 
 def compilestats_ext(project, experiment, config, clang, **kwargs):
@@ -80,10 +83,13 @@ def compilestats_ext(project, experiment, config, clang, **kwargs):
     from benchbuild.utils.schema import CompileStat
     CFG.update(config)
     clang = handle_stdin(clang["-mllvm", "-stats"], kwargs)
+    run_config = kwargs.get("run_config", None)
 
     with local.env(BB_ENABLE=0):
         with track_execution(clang, project, experiment) as run:
             run_info = run()
+            if run_config is not None:
+                persist_config(run_info.db_run, run_info.session, run_config)
 
     if run_info.retcode == 0:
         stats = []
@@ -133,17 +139,29 @@ class PollyTest(Experiment):
 
         actns = []
         p.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolly.so"]
-        p.runtime_extension = partial(timing_extension, p, self, CFG)
-        p.compiler_extension = partial(compilestats_ext, p, self, CFG)
 
         newp = copy.deepcopy(p)
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + ["-O3"]
+        cfg = {
+            "cflags": "-O3"
+        }
+        newp.runtime_extension = partial(timing_extension, p, self, CFG,
+                                         run_config=cfg)
+        newp.compiler_extension = partial(compilestats_ext, p, self, CFG,
+                                          run_config=cfg)
         actns.extend(actions(newp))
 
         newp = copy.deepcopy(p)
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags +  ["-O3", "-mllvm", "-polly"]
+        cfg = {
+            "cflags": "-O3 -polly"
+        }
+        newp.runtime_extension = partial(timing_extension, p, self, CFG,
+                                         run_config=cfg)
+        newp.compiler_extension = partial(compilestats_ext, p, self, CFG,
+                                          run_config=cfg)
         actns.extend(actions(newp))
 
         newp = copy.deepcopy(p)
@@ -152,6 +170,13 @@ class PollyTest(Experiment):
                       ["-O3", "-mllvm",
                        "-polly", "-mllvm",
                        "-polly-position=before-vectorizer"]
+        cfg = {
+            "cflags": "-O3 -polly -polly-position=before-vectorizer"
+        }
+        newp.runtime_extension = partial(timing_extension, p, self, CFG,
+                                         run_config=cfg)
+        newp.compiler_extension = partial(compilestats_ext, p, self, CFG,
+                                          run_config=cfg)
         actns.extend(actions(newp))
 
         newp = copy.deepcopy(p)
@@ -161,6 +186,14 @@ class PollyTest(Experiment):
                        "-polly", "-mllvm",
                        "-polly-process-unprofitable",
                        "-mllvm", "-polly-position=before-vectorizer"]
+        cfg = {
+            "cflags": "-O3 -polly -polly-position=before-vectorizer "
+                      "-polly-process-unprofitable"
+        }
+        newp.runtime_extension = partial(timing_extension, p, self, CFG,
+                                         run_config=cfg)
+        newp.compiler_extension = partial(compilestats_ext, p, self, CFG,
+                                          run_config=cfg)
         actns.extend(actions(newp))
 
         newp = copy.deepcopy(p)
@@ -169,5 +202,12 @@ class PollyTest(Experiment):
                       ["-O3", "-mllvm",
                        "-polly", "-mllvm",
                        "-polly-process-unprofitable"]
+        cfg = {
+            "cflags": "-O3 -polly -polly-process-unprofitable"
+        }
+        newp.runtime_extension = partial(timing_extension, p, self, CFG,
+                                         run_config=cfg)
+        newp.compiler_extension = partial(compilestats_ext, p, self, CFG,
+                                          run_config=cfg)
         actns.extend(actions(newp))
         return actns

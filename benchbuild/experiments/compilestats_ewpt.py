@@ -10,6 +10,7 @@ from benchbuild.experiments.compilestats import CompilestatsExperiment
 
 
 class EWPTCompilestatsExperiment(CompilestatsExperiment):
+    """Experiment that collects compilestats with EWPT enabled."""
     NAME = "ewpt"
 
     def extra_cflags(self):

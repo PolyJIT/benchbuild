@@ -354,6 +354,23 @@ class PolyJITFull(PolyJIT):
             Echo("========= END: RAW Baseline")
         ]))
 
+        pollyp = copy.deepcopy(p)
+        pollyp.run_uuid = uuid.uuid4()
+        pollyp.cflags = ["-mllvm", "-polly", "-mllvm", "-polly-parallel"]
+        pollyp.runtime_extension = partial(run_with_time, pollyp, self, CFG, 1)
+
+        actns.append(RequireAll([
+            Echo("========= START: Polly Baseline"),
+            MakeBuildDir(pollyp),
+            Prepare(pollyp),
+            Download(pollyp),
+            Configure(pollyp),
+            Build(pollyp),
+            Run(pollyp),
+            Clean(pollyp),
+            Echo("========= END: Polly Baseline")
+        ]))
+
         jitp = copy.deepcopy(p)
         jitp = PolyJIT.init_project(jitp)
         norecomp = copy.deepcopy(jitp)

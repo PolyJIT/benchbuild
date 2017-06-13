@@ -11,7 +11,7 @@ import uuid
 from functools import partial
 from plumbum import local
 
-from benchbuild.experiments.polyjit import PolyJIT
+from benchbuild.experiment import Experiment
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Build, Clean, Configure, Download, Echo,
                                       MakeBuildDir, Prepare, Run)
@@ -21,8 +21,7 @@ from benchbuild.utils.run import track_execution, handle_stdin
 LOG = logging.getLogger()
 
 
-def timing_extension(project, experiment, config,
-                     jobs, run_f, *args, **kwargs):
+def timing_extension(project, experiment, config, run_f, *args, **kwargs):
     """
     Collect the time measurement.
 
@@ -30,7 +29,6 @@ def timing_extension(project, experiment, config,
         project: The benchbuild project that called for this measurement.
         experiment: The benchbuild experiment this function is operating under.
         config: The benchbuild configuration used for the current run.
-        jobs: The number of cores the run is allowed to use.
         run_f: The file that gets executed.
         *args: List of arguments that should be passed to the wrapped binary.
         **kwargs: Dictionary with further keyword arguments. The following
@@ -65,7 +63,6 @@ def timing_extension(project, experiment, config,
 
     with track_execution(run_cmd, project, experiment, **kwargs) as run:
         run_info = handle_timing(run())
-    persist_config(run_info.db_run, run_info.session, {"cores":str(jobs)})
     return run_info
 
 def compilestats_ext(project, experiment, config, clang, **kwargs):
@@ -111,7 +108,7 @@ def compilestats_ext(project, experiment, config, clang, **kwargs):
         LOG.info("There was an error while compiling.")
 
 
-class PollyTest(PolyJIT):
+class PollyTest(Experiment):
     """
     An experiment that executes projects with different configurations.
 
@@ -120,9 +117,9 @@ class PollyTest(PolyJIT):
     NAME = "pollytest"
 
     def actions_for_project(self, p):
-        def extend_actions(actions, project):
+        def actions(project):
             """Extends the actions for each single configuration."""
-            actions.extend([
+            return [
                 MakeBuildDir(project),
                 Echo("Compiling... {}".format(project.name)),
                 Prepare(project),
@@ -132,60 +129,45 @@ class PollyTest(PolyJIT):
                 Echo("Running... {}".format(project.name)),
                 Run(project),
                 Clean(project)
-            ])
-            return actions
+            ]
 
-        def make_copies(amount):
-            """
-            Create copies of the projects so each configuration can be analyzed
-            according to the project's run id.
-            """
-            copies = []
-            for _ in range(amount):
-                new_project = copy.deepcopy(p)
-                new_project.run_uuid = uuid.uuid4()
-                new_project.runtime_extension = partial(timing_extension,
-                                                        new_project,
-                                                        self,
-                                                        CFG,
-                                                        CFG["jobs"].value())
-                new_project.compiler_extension = partial(compilestats_ext,
-                                                         new_project,
-                                                         self,
-                                                         CFG)
-                copies.append(new_project)
-            return copies
-
-        p = PolyJIT.init_project(p)
         actns = []
-        num_configs = 5
-        projects = make_copies(num_configs)
+        p.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolly.so"]
+        p.runtime_extension = partial(timing_extension, p, self, CFG)
+        p.compiler_extension = partial(compilestats_ext, p, self, CFG)
 
-        prj = projects.pop()
-        prj.cflags = ["-O3"]
-        actns = extend_actions(actns, prj)
+        newp = copy.deepcopy(p)
+        newp.run_uuid = uuid.uuid4()
+        newp.cflags = newp.cflags + ["-O3"]
+        actns.extend(actions(newp))
 
-        prj = projects.pop()
-        prj.cflags = ["-O3", "-mllvm", "-polly"]
-        actns = extend_actions(actns, prj)
+        newp = copy.deepcopy(p)
+        newp.run_uuid = uuid.uuid4()
+        newp.cflags = newp.cflags +  ["-O3", "-mllvm", "-polly"]
+        actns.extend(actions(newp))
 
-        prj = projects.pop()
-        prj.cflags = ["-O3", "-mllvm",
-                      "-polly", "-mllvm",
-                      "-polly-position=before-vectorizer"]
-        actns = extend_actions(actns, prj)
+        newp = copy.deepcopy(p)
+        newp.run_uuid = uuid.uuid4()
+        newp.cflags = newp.cflags + \
+                      ["-O3", "-mllvm",
+                       "-polly", "-mllvm",
+                       "-polly-position=before-vectorizer"]
+        actns.extend(actions(newp))
 
-        prj = projects.pop()
-        prj.cflags = ["-O3", "-mllvm",
-                      "-polly", "-mllvm",
-                      "-polly-process-unprofitable"]
-        actns = extend_actions(actns, prj)
+        newp = copy.deepcopy(p)
+        newp.run_uuid = uuid.uuid4()
+        newp.cflags = newp.cflags + \
+                      ["-O3", "-mllvm",
+                       "-polly", "-mllvm",
+                       "-polly-process-unprofitable",
+                       "-mllvm", "-polly-position=before-vectorizer"]
+        actns.extend(actions(newp))
 
-        prj = projects.pop()
-        prj.cflags = ["-O3", "-mllvm",
-                      "-polly", "-mllvm",
-                      "-polly-process-unprofitable",
-                      "-mllvm", "-polly-position=before-vectorizer"]
-        actns = extend_actions(actns, prj)
-
+        newp = copy.deepcopy(p)
+        newp.run_uuid = uuid.uuid4()
+        newp.cflags = newp.cflags + \
+                      ["-O3", "-mllvm",
+                       "-polly", "-mllvm",
+                       "-polly-process-unprofitable"]
+        actns.extend(actions(newp))
         return actns

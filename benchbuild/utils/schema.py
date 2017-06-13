@@ -136,6 +136,13 @@ class Sequence(BASE):
     #the fitness value of the sequence
     value = Column(postgresql.DOUBLE_PRECISION)
 
+    run_id = Column(Integer,
+                    ForeignKey("run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
+
 
 class Schedule(BASE):
     """Store default metrics, simple name value store."""

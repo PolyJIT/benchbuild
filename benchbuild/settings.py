@@ -154,7 +154,7 @@ class Configuration():
             for k in self.node:
                 if selfcopy[k].is_leaf():
                     selfcopy[k].filter_exports()
-            self = selfcopy
+            self.__dict__ = selfcopy.__dict__
 
     def store(self, config_file):
         """ Store the configuration dictionary to a file."""
@@ -726,6 +726,11 @@ CFG["container"] = {
         "default": [],
         "desc": "List of paths that will be mounted inside the container."
     },
+    "prefixes": {
+        "default": [],
+        "desc": "List of paths that will be treated as an "
+                "existing prefix inside a container."
+    },
     "shell": {
         "default": "/bin/bash",
         "desc": "Command string that should be used as shell command."
@@ -773,10 +778,16 @@ CFG["container"] = {
                     {"name": "=dev-util/boost-build-1.58.0", "env": {
                         "ACCEPT_KEYWORDS": "~amd64"
                     }},
-                    {"name": "=dev-libs/boost-1.58.0-r1", "env": {
+                    {"name": "=dev-libs/boost-1.62-r1", "env": {
                         "ACCEPT_KEYWORDS": "~amd64"
                     }},
                     {"name": "dev-libs/libpqxx", "env": {}},
+                    {"name": "dev-lang/python-3.5.3", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }},
+                    {"name": "dev-python/dill", "env": {
+                        "ACCEPT_KEYWORDS": "~amd64"
+                    }}
                 ],
                 "desc": "A list of gentoo package atoms that should be merged."
             }

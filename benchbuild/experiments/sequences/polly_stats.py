@@ -127,6 +127,7 @@ def get_number_of_scops(opt_flags, program):
     """
     return __get_number_of_certain_stats_line(opt_flags, program, ('Number '
                                                                    'of '
+                                                                   'weighted '
                                                                    'regions '
                                                                    'that a '
                                                                    'valid '

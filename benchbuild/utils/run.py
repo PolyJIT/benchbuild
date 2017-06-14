@@ -337,6 +337,13 @@ def uchroot_no_args():
     """Return the uchroot command without any customizations."""
     from benchbuild.utils.cmd import uchroot
 
+    prefixes = CFG["container"]["prefixes"].value()
+    p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
+
+    uchroot = with_env_recursive(uchroot,
+        LD_LIBRARY_PATH=list_to_path(p_libs),
+        PATH=list_to_path(p_paths))
+
     return uchroot
 
 
@@ -402,9 +409,14 @@ def uchroot_env(mounts):
         paths
         ld_libs
     """
-    ld_libs = ["{0}/lib".format(m if m[0] == "/" else "/" + m) for m in mounts]
-    paths = ["{0}/bin".format(m if m[0] == "/" else "/" + m) for m in mounts]
-    paths.extend(["{0}".format(m if m[0] == "/" else "/" + m) for m in mounts])
+    f_mounts = [m.strip("/") for m in mounts]
+
+    ld_libs = ["/{0}/lib".format(m) for m in f_mounts]
+    ld_libs.extend(["/{0}/lib64".format(m) for m in f_mounts])
+
+    paths = ["/{0}/bin".format(m) for m in f_mounts]
+    paths.extend(["/{0}/sbin".format(m) for m in f_mounts])
+    paths.extend(["/{0}".format(m) for m in f_mounts])
     return paths, ld_libs
 
 
@@ -434,8 +446,8 @@ def uchroot_with_mounts(*args, **kwargs):
     uchroot_cmd, mounts = \
         _uchroot_mounts("mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
     paths, libs = uchroot_env(mounts)
-    prefixes = CFG["container"]["prefixes"].value()
 
+    prefixes = CFG["container"]["prefixes"].value()
     p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
 
     uchroot_cmd = with_env_recursive(

@@ -12,6 +12,9 @@ import subprocess
 import sys
 
 
+LOG = logging.getLogger()
+
+
 def handle_stdin(cmd, kwargs):
     """
     Handle stdin for wrapped runtime executors.
@@ -301,6 +304,7 @@ def track_execution(cmd, project, experiment, **kwargs):
                     db_run=db_run,
                     session=session) + ri
                 end(db_run, session, str(stdout), str(stderr))
+                LOG.debug("Process succeeded")
             except ProcessExecutionError as ex:
                 r = RunInfo(
                     retcode=ex.retcode,
@@ -309,6 +313,7 @@ def track_execution(cmd, project, experiment, **kwargs):
                     db_run=db_run,
                     session=session) + ri
                 fail(db_run, session, r.retcode, r.stdout, r.stderr)
+                LOG.exception("Process failed", ex)
             except KeyboardInterrupt:
                 fail(db_run, session, -1, "", "KeyboardInterrupt")
                 warn("Interrupted by user input")

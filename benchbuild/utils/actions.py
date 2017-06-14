@@ -346,11 +346,13 @@ class RequireAll(Step):
             try:
                 result = action()
             except ProcessExecutionError as proc_ex:
-                self._exlog.error(u'Execution failed for: ' + str(proc_ex))
+                self._exlog.exception("Plumbum exception caught.")
                 result = StepResult.ERROR
             except (OSError, GuardedRunException) as os_ex:
-                self._exlog.error(os_ex)
+                self._exlog.exception("Exception in step #{0}: {1}".format(
+                    i, action))
                 result = StepResult.ERROR
+
             if result != StepResult.OK:
                 self._exlog.error("Execution of #{0}: '{1}' failed.".format(
                     i, str(action)))

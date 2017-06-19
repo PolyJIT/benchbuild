@@ -147,7 +147,7 @@ def time_polyjit_and_polly(project: Project,
 
 class StatusReport(Report):
 
-    SUPPORTED_EXPERIMENTS = ["pj-test", "pj-seq-test", "raw", "pj", "pj-raw"]
+    SUPPORTED_EXPERIMENTS = ["pj-test", "pj-seq-test", "raw", "pj", "pj-raw", "pollytest"]
     QUERY_STATUS = \
         sa.sql.select([
             sa.column('name'),
@@ -156,7 +156,7 @@ class StatusReport(Report):
             sa.column('runs')
         ]).\
         select_from(
-            sa.func.pj_test_status(sa.sql.bindparam('exp_ids'))
+            sa.func.exp_status(sa.sql.bindparam('exp_ids'))
         )
 
     def report(self):

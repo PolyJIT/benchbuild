@@ -362,8 +362,8 @@ order by speedup desc;
 end
 $compare_region_wise$ language plpgsql;
 
-DROP FUNCTION IF EXISTS pj_test_status(exp_ids UUID[]);
-CREATE OR REPLACE FUNCTION pj_test_status(exp_ids UUID[])
+DROP FUNCTION IF EXISTS exp_status(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION exp_status(exp_ids UUID[])
 	returns
     table(
       Name VARCHAR,
@@ -380,7 +380,9 @@ SELECT
   CAST(run.status AS VARCHAR) AS status,
   count(run.id) AS runs
 FROM project LEFT OUTER JOIN
-  (SELECT * FROM run WHERE run.experiment_name = 'pj-test') as run
+  (SELECT * FROM run WHERE
+    run.experiment_group = ANY (exp_ids)
+  ) as run
 ON project.name = run.project_name
   GROUP BY
     project.name,

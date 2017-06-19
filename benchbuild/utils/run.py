@@ -533,7 +533,7 @@ def unionfs_is_active(root):
     import psutil
     for part in psutil.disk_partitions(all=True):
         if os.path.commonpath([part.mountpoint, root]) == root:
-            if part.fstype == "fuse.unionfs":
+            if part.fstype in ["fuse.unionfs", "fuse.unionfs-fuse"]:
                 return True
     return False
 

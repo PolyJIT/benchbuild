@@ -149,7 +149,7 @@ class MakeBuildDir(Step):
         if not self._obj:
             return
         if not os.path.exists(self._obj.builddir):
-            mkdir(self._obj.builddir)
+            mkdir("-p", self._obj.builddir)
 
     def __str__(self, indent=0):
         return textwrap.indent(

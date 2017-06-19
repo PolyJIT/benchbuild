@@ -531,8 +531,11 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
 
 def unionfs_is_active(root):
     import psutil
+    from benchbuild.utils.cmd import sleep
+
+    real_root = os.path.realpath(root)
     for part in psutil.disk_partitions(all=True):
-        if os.path.commonpath([part.mountpoint, root]) == root:
+        if os.path.commonpath([part.mountpoint, real_root]) == real_root:
             if part.fstype in ["fuse.unionfs", "fuse.unionfs-fuse"]:
                 return True
     return False
@@ -642,7 +645,6 @@ def unionfs(base_dir='./base',
                   (proc.poll() is None):
                 pass
 
-            print(proc.poll())
             if proc.poll() is None:
                 try:
                     with local.cwd(abs_mount_dir):

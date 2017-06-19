@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from benchbuild import settings
 from plumbum import local, BG, ProcessExecutionError
 import logging
+import subprocess
 import sys
 
 
@@ -286,12 +287,12 @@ def track_execution(cmd, project, experiment, **kwargs):
         with local.env(**cmd_env):
             has_stdin = kwargs.get("has_stdin", False)
             try:
-                import subprocess
+                from subprocess import PIPE
                 ec, stdout, stderr = cmd.run(
                     retcode=retcode,
-                    stdin=subprocess.PIPE if has_stdin else None,
-                    stderr=subprocess.PIPE,
-                    stdout=subprocess.PIPE)
+                    stdin=PIPE if has_stdin else None,
+                    stderr=PIPE,
+                    stdout=PIPE)
 
                 r = RunInfo(
                     retcode=ec,
@@ -485,30 +486,6 @@ def in_builddir(sub='.'):
 
     return wrap_in_builddir
 
-
-def unionfs_tear_down(mountpoint, tries=3):
-    """Tear down a unionfs mountpoint."""
-    from benchbuild.utils.cmd import fusermount, sync
-    log = logging.getLogger("benchbuild")
-
-    if not os.path.exists(mountpoint):
-        log.error("Mountpoint does not exist: '{0}'".format(mountpoint))
-        raise ValueError("Mountpoint does not exist: '{0}'".format(mountpoint))
-
-    try:
-        fusermount("-u", mountpoint)
-    except ProcessExecutionError as ex:
-        log.error("Error: {0}".format(str(ex)))
-
-    if os.path.ismount(mountpoint):
-        sync()
-        if tries > 0:
-            unionfs_tear_down(mountpoint, tries=tries - 1)
-        else:
-            log.error("Failed to unmount '{0}'".format(mountpoint))
-            raise RuntimeError("Failed to unmount '{0}'".format(mountpoint))
-
-
 def unionfs_set_up(ro_base, rw_image, mountpoint):
     """
     Setup a unionfs via unionfs-fuse.
@@ -532,9 +509,19 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
     ro_base = os.path.abspath(ro_base)
     rw_image = os.path.abspath(rw_image)
     mountpoint = os.path.abspath(mountpoint)
-    unionfs("-o", "allow_other,cow", rw_image + "=RW:" + ro_base + "=RO",
-            mountpoint)
+    return unionfs["-f", "-o", "auto_unmount,allow_other,cow",
+                   rw_image + "=RW:" + ro_base + "=RO", mountpoint]
 
+def unionfs_is_active(root):
+    import psutil
+    for part in psutil.disk_partitions(all=True):
+        if os.path.commonpath([part.mountpoint, root]) == root:
+            if part.fstype == "fuse.unionfs":
+                return True
+    return False
+
+class UnmountError(BaseException):
+    pass
 
 def unionfs(base_dir='./base',
             image_dir='./image',
@@ -563,7 +550,6 @@ def unionfs(base_dir='./base',
                     as './union'.
     """
     from functools import wraps
-    from plumbum import local
 
     def update_cleanup_paths(new_path):
         """
@@ -628,15 +614,37 @@ def unionfs(base_dir='./base',
             if not os.path.exists(abs_mount_dir):
                 mkdir("-p", abs_mount_dir)
 
-            unionfs_set_up(abs_base_dir, abs_image_dir, abs_mount_dir)
+            unionfs_cmd = unionfs_set_up(
+                abs_base_dir, abs_image_dir, abs_mount_dir)
             project_builddir_bak = project.builddir
             project.builddir = abs_mount_dir
             project.setup_derived_filenames()
-            try:
-                with local.cwd(abs_mount_dir):
-                    ret = func(project, *args, **kwargs)
-            finally:
-                unionfs_tear_down(abs_mount_dir)
+
+            proc = unionfs_cmd.popen()
+            while (not unionfs_is_active(root=abs_mount_dir)) and \
+                  (proc.poll() is None):
+                pass
+
+            print(proc.poll())
+            if proc.poll() is None:
+                try:
+                    with local.cwd(abs_mount_dir):
+                        ret = func(project, *args, **kwargs)
+                finally:
+                    from signal import SIGINT
+
+                    is_running = proc.poll() is None
+                    while unionfs_is_active(root=abs_mount_dir) and is_running:
+                        try:
+                            proc.send_signal(SIGINT)
+                            proc.wait(timeout=3)
+                        except subprocess.TimeoutExpired:
+                            proc.kill()
+                            is_running = False
+
+            if unionfs_is_active(root=abs_mount_dir):
+                raise UnmountError()
+
             project.builddir = project_builddir_bak
             project.setup_derived_filenames()
             return ret

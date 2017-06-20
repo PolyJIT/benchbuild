@@ -114,8 +114,9 @@ class Clean(Step):
         """
         import psutil
         umount_paths = []
+        real_root = os.path.realpath(root)
         for part in psutil.disk_partitions(all=True):
-            if os.path.commonpath([part.mountpoint, root]) == root:
+            if os.path.commonpath([part.mountpoint, real_root]) == real_root:
                 if not part.fstype == "fuse.unionfs":
                     logging.error(
                         "NON-UnionFS mountpoint found under {0}".format(root))

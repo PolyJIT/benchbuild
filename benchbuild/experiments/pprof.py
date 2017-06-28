@@ -30,9 +30,9 @@ class PProfExperiment(Experiment):
     NAME = "pprof"
 
     def actions_for_project(self, project):
-        #FIXME Replace absolute path of libpjit.so
-        project.cflags = ["-Xclang", "-load", "-Xclang", "libpjit.so", "-Xclang", "-load", "-Xclang", "LLVMPprof.so", "/home/stefan/PolyJIT_Build/polli-prefix/src/polli-build/lib/libpjit.so"] #Use -O3?
+        #project.cflags = ["-Xclang", "-load", "-Xclang", "libpjit.so", "-Xclang", "-load", "-Xclang", "LLVMPprof.so", "/home/stefan/PolyJIT_Build/polli-prefix/src/polli-build/lib/libpjit.so"] #Use -O3?
         #project.ldflags = ["-lpprof"]
+        project.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so", "/home/stefan/PolyJIT_Install/lib/libpjit.so"]
         project.runtime_extension = partial(RunInstrumented, project, self)
         actns = [
             MakeBuildDir(project),

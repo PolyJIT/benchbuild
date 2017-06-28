@@ -349,7 +349,8 @@ class RequireAll(Step):
             except ProcessExecutionError as proc_ex:
                 self._exlog.error("\n==== ERROR ====")
                 self._exlog.error(
-                    "Execution of a binary failed in step: {0}".format(str(action)))
+                    "Execution of a binary failed in step: {0}".format(
+                        str(action)))
                 self._exlog.error(str(proc_ex))
                 self._exlog.error("==== ERROR ====\n")
                 result = StepResult.ERROR

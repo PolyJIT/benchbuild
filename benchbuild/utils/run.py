@@ -313,7 +313,8 @@ def track_execution(cmd, project, experiment, **kwargs):
                     db_run=db_run,
                     session=session) + ri
                 fail(db_run, session, r.retcode, r.stdout, r.stderr)
-                LOG.exception("Process failed", ex)
+                LOG.error("Process failed.")
+                LOG.error(str(ex))
             except KeyboardInterrupt:
                 fail(db_run, session, -1, "", "KeyboardInterrupt")
                 warn("Interrupted by user input")

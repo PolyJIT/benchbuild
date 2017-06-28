@@ -304,7 +304,7 @@ def track_execution(cmd, project, experiment, **kwargs):
                     db_run=db_run,
                     session=session) + ri
                 end(db_run, session, str(stdout), str(stderr))
-                LOG.debug("Process succeeded")
+                LOG.info("Tracked process completed successfully")
             except ProcessExecutionError as ex:
                 r = RunInfo(
                     retcode=ex.retcode,
@@ -313,7 +313,7 @@ def track_execution(cmd, project, experiment, **kwargs):
                     db_run=db_run,
                     session=session) + ri
                 fail(db_run, session, r.retcode, r.stdout, r.stderr)
-                LOG.error("Process failed.")
+                LOG.info("Tracked process failed")
                 LOG.error(str(ex))
             except KeyboardInterrupt:
                 fail(db_run, session, -1, "", "KeyboardInterrupt")

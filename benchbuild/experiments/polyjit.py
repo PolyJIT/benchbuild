@@ -356,7 +356,9 @@ class PolyJITFull(PolyJIT):
 
         pollyp = copy.deepcopy(p)
         pollyp.run_uuid = uuid.uuid4()
-        pollyp.cflags = ["-mllvm", "-polly", "-mllvm", "-polly-parallel"]
+        pollyp.cflags = ["-Xclang", "-load",
+                         "-Xclang", "LLVMPolly.so",
+                         "-mllvm", "-polly", "-mllvm", "-polly-parallel"]
         pollyp.runtime_extension = partial(run_with_time, pollyp, self, CFG, 1)
 
         actns.append(RequireAll([

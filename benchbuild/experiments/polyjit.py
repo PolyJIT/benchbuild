@@ -12,13 +12,12 @@ from os import path
 
 from plumbum import local
 
-from benchbuild.experiment import RuntimeExperiment
 from benchbuild.experiments.compilestats import collect_compilestats
 from benchbuild.utils.actions import (Any, Build, Clean, Configure, Download,
                                       Echo, MakeBuildDir, Prepare, RequireAll,
                                       Run)
-from benchbuild.utils.cmd import rm, time  # pylint: disable=E0401
-
+from benchbuild.experiment import RuntimeExperiment
+from benchbuild.utils.cmd import rm, time
 
 def run_raw(project, experiment, config, run_f, args, **kwargs):
     """

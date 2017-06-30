@@ -4,12 +4,10 @@ from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
 from benchbuild.utils.path import list_to_path
 from contextlib import contextmanager
-from types import SimpleNamespace
 from benchbuild import settings
-from plumbum import local, BG, ProcessExecutionError
+from plumbum import local, ProcessExecutionError
 import logging
 import subprocess
-import sys
 
 
 LOG = logging.getLogger()
@@ -41,6 +39,15 @@ def handle_stdin(cmd, kwargs):
     run_cmd = (run_cmd > sys.stdout) if has_stdout else cmd
 
     return run_cmd
+
+
+def exit_code_from_run_infos(run_infos):
+    rcs = [ri.retcode for ri in run_infos]
+    max_rc = max(rcs)
+    min_rc = min(rcs)
+    if max_rc == 0:
+        return min_rc
+    return max_rc
 
 
 def fetch_time_output(marker, format_s, ins):

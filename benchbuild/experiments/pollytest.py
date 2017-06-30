@@ -11,7 +11,7 @@ import uuid
 from functools import partial
 from plumbum import local
 
-from benchbuild.extensions import RunWithTime
+from benchbuild.extensions import RunWithTime, RuntimeExtension
 from benchbuild.experiment import Experiment
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Build, Clean, Configure, Download, Echo,
@@ -100,7 +100,9 @@ class PollyTest(Experiment):
         cfg = {
             "cflags": "-O3"
         }
-        newp.runtime_extension = RunWithTime(p, self, config=cfg)
+        newp.runtime_extension = RunWithTime(
+            RuntimeExtension(p, self, config=cfg))
+
         newp.compiler_extension = partial(compilestats_ext, p, self, CFG,
                                           run_config=cfg)
         actns.extend(actions(newp))
@@ -111,7 +113,8 @@ class PollyTest(Experiment):
         cfg = {
             "cflags": "-O3 -polly"
         }
-        newp.runtime_extension = RunWithTime(p, self, config=cfg)
+        newp.runtime_extension = RunWithTime(
+            RuntimeExtension(p, self, config=cfg))
         newp.compiler_extension = partial(compilestats_ext, p, self, CFG,
                                           run_config=cfg)
         actns.extend(actions(newp))
@@ -125,7 +128,8 @@ class PollyTest(Experiment):
         cfg = {
             "cflags": "-O3 -polly -polly-position=before-vectorizer"
         }
-        newp.runtime_extension = RunWithTime(p, self, config=cfg)
+        newp.runtime_extension = RunWithTime(
+            RuntimeExtension(p, self, config=cfg))
         newp.compiler_extension = partial(compilestats_ext, p, self, CFG,
                                           run_config=cfg)
         actns.extend(actions(newp))
@@ -141,7 +145,8 @@ class PollyTest(Experiment):
             "cflags": "-O3 -polly -polly-position=before-vectorizer "
                       "-polly-process-unprofitable"
         }
-        newp.runtime_extension = RunWithTime(p, self, config=cfg)
+        newp.runtime_extension = RunWithTime(
+            RuntimeExtension(p, self, config=cfg))
         newp.compiler_extension = partial(compilestats_ext, p, self, CFG,
                                           run_config=cfg)
         actns.extend(actions(newp))
@@ -155,7 +160,8 @@ class PollyTest(Experiment):
         cfg = {
             "cflags": "-O3 -polly -polly-process-unprofitable"
         }
-        newp.runtime_extension = RunWithTime(p, self, config=cfg)
+        newp.runtime_extension = RunWithTime(
+            RuntimeExtension(p, self, config=cfg))
         newp.compiler_extension = partial(compilestats_ext, p, self, CFG,
                                           run_config=cfg)
         actns.extend(actions(newp))

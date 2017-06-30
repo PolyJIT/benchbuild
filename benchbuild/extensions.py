@@ -1,6 +1,8 @@
 """
 Extension base-classes for compile-time and run-time experiments.
 """
+import glob
+import os
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import Iterable
@@ -152,19 +154,23 @@ class ExtractCompileStats(Extension):
                     yield res
 
     def __call__(self, cc, *args, **kwargs):
-        from benchbuild.settings import CFG
         from benchbuild.utils.schema import CompileStat
         from benchbuild.utils.db import persist_compilestats
-        self.project.name = kwargs.get("project_name", self.project.name)
+        from benchbuild.settings import CFG
 
-        cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
+        clang = handle_stdin(cc["-mllvm", "-stats"], kwargs)
+        run_config = kwargs.get("run_config", None)
+
         with local.env(BB_ENABLE=0):
-            with track_execution(cc, self.project, self.experiment) as run:
-                res = run()
+            with track_execution(clang, self.project, self.experiment) as run:
+                run_info = run()
+                if run_config is not None:
+                    persist_config(
+                        run_info.db_run, run_info.session, run_config)
 
-        if res.retcode == 0:
+        if run_info.retcode == 0:
             stats = []
-            for stat in self.get_compilestats(res.stderr):
+            for stat in self.get_compilestats(run_info.stderr):
                 compile_s = CompileStat()
                 compile_s.name = stat["desc"].rstrip()
                 compile_s.component = stat["component"].rstrip()
@@ -177,16 +183,78 @@ class ExtractCompileStats(Extension):
             names = CFG["cs"]["names"].value()
             if names is not None:
                 stats = [s for s in stats if str(s.name) in names]
+            if stats:
+                persist_compilestats(run_info.db_run, run_info.session, stats)
+            else:
+                LOG.info("No compilestats collected.")
+        else:
+            LOG.info("There was an error while compiling.")
 
-            LOG.info(
-                "\n=========================================================\n"
-                "{:s} results for project {:s}:".format(
-                    self.experiment.NAME, self.project.NAME))
-            LOG.info(
-                "=========================================================\n")
+class RunWithOpenMPLimit(RuntimeExtension):
+    def __call__(self, binary_command, *args, **kwargs):
+        from benchbuild.settings import CFG
 
-            for stat in stats:
-                LOG.info("{:s} - {:s}".format(str(stat.name), str(stat.value)))
-            LOG.info(
-                "=========================================================\n")
-            persist_compilestats(res.db_run, res.session, stats)
+        config = self.config
+        if config is not None and 'jobs' in config.keys():
+            jobs = config['jobs']
+        else:
+            logging.warning("Parameter 'config' was unusable, using defaults")
+            jobs = CFG["jobs"].value()
+
+        ret = None
+        with local.env(OMP_NUM_THREADS=str(jobs)):
+            ret = \
+                super(RunWithOpenMPLimit, self).__call__(
+                    binary_command, *args, config, **kwargs)
+        return ret
+
+
+class RunWithPolyJIT(RuntimeExtension):
+    def __call__(self, binary_command, *args, **kwargs):
+        from benchbuild.settings import CFG
+
+        config = self.config
+        if config is not None and 'jobs' in config.keys():
+            jobs = config['jobs']
+        else:
+            logging.warning("Parameter 'config' was unusable, using defaults")
+            jobs = CFG["jobs"].value()
+
+        ret = None
+        with local.env(OMP_NUM_THREADS=str(jobs),
+                       POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
+            ret = super(RunWithPolyJIT, self).__call__(
+                binary_command, *args, config, **kwargs)
+        return ret
+
+
+class RunWithoutPolyJIT(RuntimeExtension):
+    def __call__(self, binary_command, *args, **kwargs):
+        from benchbuild.settings import CFG
+
+        config = self.config
+        if config is not None and 'jobs' in config.keys():
+            jobs = config['jobs']
+        else:
+            logging.warning("Parameter 'config' was unusable, using defaults")
+            jobs = CFG["jobs"].value()
+
+        ret = None
+        with local.env(OMP_NUM_THREADS=str(jobs),
+                       POLLI_DISABLE_SPECIALIZATION=1,
+                       POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
+            ret = super(RunWithoutPolyJIT, self).__call__(
+                binary_command, *args, config, **kwargs)
+        return ret
+
+
+class RegisterPolyJITLogs(LogTrackingMixin, Extension):
+    def __call__(self, *args, **kwargs):
+        """Redirect to RunWithTime, but register additional logs."""
+        ret = self.call_next(*args, **kwargs)
+        files = glob.glob(os.path.join(os.path.curdir, "polyjit.[0-9]+.log"))
+
+        for file in files:
+            self.add_log(file)
+
+        return ret

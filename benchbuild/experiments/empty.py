@@ -20,6 +20,5 @@ class Empty(Experiment):
             MakeBuildDir(p),
             Download(p),
             Configure(p),
-            Build(p),
             Clean(p)
         ]

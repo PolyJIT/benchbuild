@@ -5,6 +5,7 @@ import sys
 import dill
 
 from benchbuild.utils import log
+from benchbuild.utils.run import exit_code_from_run_infos
 from benchbuild import settings
 from plumbum import local
 
@@ -25,6 +26,6 @@ if path.exists("{blobf}"):
             RI = F(RUN_F, ARGS,
                    has_stdin=not sys.stdin.isatty(),
                    has_stdout=not sys.stdout.isatty())
-            sys.exit(RI.retcode)
+            sys.exit(exit_code_from_run_infos(RI))
         else:
             sys.exit(1)

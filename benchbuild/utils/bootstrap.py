@@ -12,11 +12,11 @@ ask = ui.ask
 def find_package(binary):
     try:
         from benchbuild.utils import cmd
-        cmd.__getattr__(binary)
+        c = cmd.__getattr__(binary)
+        print("Checking for {} - Yes [{}]".format(binary, str(c)))
     except AttributeError:
         print("Checking for {}  - No".format(binary))
         return False
-    print("Checking for {} - Yes".format(binary))
     return True
 
 

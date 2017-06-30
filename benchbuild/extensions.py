@@ -1,24 +1,27 @@
 """
 Extension base-classes for compile-time and run-time experiments.
 """
-import itertools
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import Iterable
-from plumbum import local
 
-from benchbuild.utils.run import track_execution, handle_stdin
+import parse
+from plumbum import local
+from benchbuild.utils.run import (track_execution,
+                                  handle_stdin,
+                                  fetch_time_output)
 from benchbuild.utils.db import persist_config, persist_time
-from benchbuild.utils.run import fetch_time_output
 
 LOG = logging.getLogger()
 
 
 class Extension(metaclass=ABCMeta):
     def __init__(self, *extensions):
+        """Initialize an extension with an arbitrary number of children."""
         self.next_extensions = extensions
 
     def call_next(self, *args, **kwargs):
+        """Call all child extensions with the same arguments."""
         all_results = []
         for ext in self.next_extensions:
             LOG.debug(":: Invoking - {}".format(ext.__class__))
@@ -35,6 +38,7 @@ class Extension(metaclass=ABCMeta):
         return all_results
 
     def print(self, indent=0):
+        """Print a structural view of the registered extensions."""
         LOG.info("{}:: {}".format(indent * " ", self.__class__))
         for ext in self.next_extensions:
             ext.print(indent=indent+2)
@@ -122,3 +126,67 @@ class RunWithTime(Extension):
 
         res = self.call_next(run_cmd, *args, **kwargs)
         return handle_timing(res)
+
+class ExtractCompileStats(Extension):
+    def __init__(self, project, experiment, config, *extensions):
+        self.config = config
+        self.project = project
+        self.experiment = experiment
+
+        super(ExtractCompileStats, self).__init__(*extensions)
+
+    def get_compilestats(self, prog_out):
+        """ Get the LLVM compilation stats from :prog_out:. """
+
+        stats_pattern = parse.compile("{value:d} {component} - {desc}\n")
+
+        for line in prog_out.split("\n"):
+            if line:
+                try:
+                    res = stats_pattern.search(line + "\n")
+                except ValueError:
+                    LOG.warning(
+                        "Triggered a parser exception for: '" + line + "'\n")
+                    res = None
+                if res is not None:
+                    yield res
+
+    def __call__(self, cc, *args, **kwargs):
+        from benchbuild.settings import CFG
+        from benchbuild.utils.schema import CompileStat
+        from benchbuild.utils.db import persist_compilestats
+        self.project.name = kwargs.get("project_name", self.project.name)
+
+        cc = handle_stdin(cc["-mllvm", "-stats"], kwargs)
+        with local.env(BB_ENABLE=0):
+            with track_execution(cc, self.project, self.experiment) as run:
+                res = run()
+
+        if res.retcode == 0:
+            stats = []
+            for stat in self.get_compilestats(res.stderr):
+                compile_s = CompileStat()
+                compile_s.name = stat["desc"].rstrip()
+                compile_s.component = stat["component"].rstrip()
+                compile_s.value = stat["value"]
+                stats.append(compile_s)
+
+            components = CFG["cs"]["components"].value()
+            if components is not None:
+                stats = [s for s in stats if str(s.component) in components]
+            names = CFG["cs"]["names"].value()
+            if names is not None:
+                stats = [s for s in stats if str(s.name) in names]
+
+            LOG.info(
+                "\n=========================================================\n"
+                "{:s} results for project {:s}:".format(
+                    self.experiment.NAME, self.project.NAME))
+            LOG.info(
+                "=========================================================\n")
+
+            for stat in stats:
+                LOG.info("{:s} - {:s}".format(str(stat.name), str(stat.value)))
+            LOG.info(
+                "=========================================================\n")
+            persist_compilestats(res.db_run, res.session, stats)

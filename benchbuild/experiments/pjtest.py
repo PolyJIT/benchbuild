@@ -13,8 +13,6 @@ import logging
 import os
 import uuid
 
-from typing import Iterable
-
 import sqlalchemy as sa
 from plumbum import local
 
@@ -22,11 +20,6 @@ from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.reports import Report
 from benchbuild.utils.actions import (Build, Clean, Configure, Download,
                                       MakeBuildDir, Prepare, Run)
-from benchbuild.utils.run import RunInfo
-from benchbuild.utils.cmd import time
-from benchbuild.project import Project
-from benchbuild.experiment import Experiment
-from benchbuild.settings import Configuration
 from benchbuild.settings import CFG
 
 from benchbuild.extensions import \
@@ -128,93 +121,8 @@ class Test(PolyJIT):
                     )))
         p.runtime_extension.print()
 
-        actns.extend([
-            MakeBuildDir(p),
-            Prepare(p),
-            Download(p),
-            Configure(p),
-            Build(p),
-            Run(p),
-            Clean(p)
-        ])
+        actns.extend(Test.default_runtime_actions(p))
         return actns
-
-
-def time_polyjit_and_polly(project: Project,
-                           experiment: Experiment,
-                           config: Configuration,
-                           jobs: int,
-                           run_f: str,
-                           args: Iterable[str],
-                           **kwargs):
-    """
-    Run the given binary wrapped with time.
-
-    Args:
-        project: The benchbuild.project.
-        experiment: The benchbuild.experiment.
-        config: The benchbuild.settings.config.
-        jobs: Number of cores we should use for this execution.
-        run_f: The file we want to execute.
-        args: List of arguments that should be passed to the wrapped binary.
-        **kwargs: Dictionary with our keyword args. We support the following
-            entries:
-
-            project_name: The real name of our project. This might not
-                be the same as the configured project name, if we got wrapped
-                with ::benchbuild.project.wrap_dynamic
-            has_stdin: Signals whether we should take care of stdin.
-    """
-    from benchbuild.utils.run import track_execution, fetch_time_output
-    from benchbuild.settings import CFG
-    from benchbuild.utils.db import persist_time, persist_config
-
-    CFG.update(config)
-    project.name = kwargs.get("project_name", project.name)
-    timing_tag = "BB-JIT: "
-
-    may_wrap = kwargs.get("may_wrap", True)
-
-    run_cmd = local[run_f]
-    run_cmd = run_cmd[args]
-    if may_wrap:
-        run_cmd = time["-f", timing_tag + "%U-%S-%e", run_cmd]
-
-    def handle_timing_info(run_info):
-        if may_wrap:
-            timings = fetch_time_output(
-                timing_tag, timing_tag + "{:g}-{:g}-{:g}",
-                run_info.stderr.split("\n"))
-            if timings:
-                persist_time(run_info.db_run, run_info.session, timings)
-            else:
-                logging.warning("No timing information found.")
-        return run_info
-
-    ri_1 = RunInfo()
-    ri_2 = RunInfo()
-    with track_execution(run_cmd, project, experiment) as run:
-        with local.env(OMP_NUM_THREADS=str(jobs),
-                       POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-            ri_1 = handle_timing_info(run())
-            persist_config(ri_1.db_run, ri_1.session, {
-                "cores": str(jobs - 1),
-                "cores-config": str(jobs),
-                "recompilation": "enabled",
-                "specialization": "enabled"})
-
-    with track_execution(run_cmd, project, experiment) as run:
-        with local.env(OMP_NUM_THREADS=str(jobs),
-                       POLLI_DISABLE_SPECIALIZATION=1,
-                       POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-            ri_2 = handle_timing_info(run())
-            persist_config(ri_2.db_run, ri_2.session, {
-                "cores": str(jobs - 1),
-                "cores-config": str(jobs),
-                "recompilation": "enabled",
-                "specialization": "disabled"})
-
-    return ri_1 + ri_2
 
 
 class StatusReport(Report):

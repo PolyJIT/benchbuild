@@ -11,9 +11,7 @@ The fittest generated sequences and the compilestats of the whole progress are
 then written into a persisted data base for further analysis.
 """
 import csv
-import uuid
 import os
-from functools import partial
 import random
 import concurrent.futures as cf
 import multiprocessing
@@ -21,12 +19,10 @@ import sys
 import parse
 import sqlalchemy as sa
 
-from benchbuild.extensions import RuntimeExtension, ExtractCompileStats
-
+from benchbuild.extensions import (RuntimeExtension, ExtractCompileStats)
 from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import (MakeBuildDir, Prepare, Download,
-                                      Configure, Build, Clean)
+
 from benchbuild.utils.cmd import (mktemp)
 from benchbuild.utils.run import track_execution
 from benchbuild.reports import Report
@@ -131,29 +127,6 @@ def filter_compiler_commandline(cmd, predicate=lambda x: True):
 
     set_args(cmd, result)
 
-def run_sequence(compiler, key, sequence, fitness_func):
-    """
-    Execute and compile a given sequence, to calculate its fitness value
-    with a given function and metric.
-    """
-
-    local_compiler = compiler[sequence, "-polly-detect"]
-    _, _, stderr = local_compiler.run(retcode=None)
-    stats = [s for s in ExtractCompileStats.get_compilestats(stderr) \
-                if s['desc'] in [
-                    "Number of regions that a valid part of Scop",
-                    "The # of regions"
-                ]]
-    scops = [s for s in stats if s['component'].strip() == 'polly-detect']
-    regns = [s for s in stats if s['component'].strip() == 'region']
-    regns_not_in_scops = \
-        [fitness_func(r['value'], s['value']) for s, r in zip(scops, regns)]
-
-    if regns_not_in_scops:
-        return (key, regns_not_in_scops[0])
-    else:
-        return (key, sys.maxsize)
-
 
 def unique_compiler_cmds(run_f):
     """Verifys that compiler comands are not excecuted twice."""
@@ -229,6 +202,7 @@ def persist_sequence(run, sequence, fitness_val):
     session.commit()
 
 
+
 class SequenceReport(Report):
     """Handles the view of the sequences in the database."""
 
@@ -267,167 +241,190 @@ class SequenceReport(Report):
                 csv_writer.writerows(data)
 
 
-def genetic1_opt_sequences(project, experiment, config,
-                           jobs, run_f, *args, **kwargs):
+class RunSequence(ExtractCompileStats):
     """
-    Generates custom sequences for a provided application using the first of the
-    two genetic opt algorithms.
-
-    Args:
-        project: The name of the project the test is being run for.
-        experiment: The benchbuild.experiment.
-        config: The config from benchbuild.settings.
-        jobs: Number of cores to be used for the execution.
-        run_f: The file that needs to be execute.
-        args: List of arguments that will be passed to the wrapped binary.
-        kwargs: Dictonary with the keyword arguments.
-
-    Returns:
-        The generated custom sequences as a list.
+    Execute and compile a given sequence, to calculate its fitness value
+    with a given function and metric.
     """
-    seq_to_fitness = {}
-    gene_pool, _, _ = get_defaults()
-    chromosome_size, population_size, generations = get_genetic_defaults()
-    run_info = track_execution(run_f, project, experiment)
+    def __call__(self, compiler, key, sequence, fitness_func, *args, **kwargs):
+        local_compiler = compiler[sequence, "-polly-detect"]
+        _, _, stderr = local_compiler.run(retcode=None)
+        stats = [s for s in self.get_compilestats(stderr) \
+                    if s['desc'] in [
+                        "Number of regions that a valid part of Scop",
+                        "The # of regions"
+                    ]]
+        scops = [s for s in stats if s['component'].strip() == 'polly-detect']
+        regns = [s for s in stats if s['component'].strip() == 'region']
+        regns_not_in_scops = \
+            [fitness_func(r['value'], s['value']) for s, r in zip(scops, regns)]
 
-    def crossover(upper_half):
+        if regns_not_in_scops:
+            return (key, regns_not_in_scops[0])
+        else:
+            return (key, sys.maxsize)
+
+
+class FindFittestSequenceGenetic1(RuntimeExtension):
+    def __call__(self, cc, *args, **kwargs):
         """
-        Crossover of two genes and filling of the vacancies in the population by
-        using two random chromosomes and recombine their halfs.
+        Generates custom sequences for a provided application using the first of the
+        two genetic opt algorithms.
+
+        Args:
+            project: The name of the project the test is being run for.
+            experiment: The benchbuild.experiment.
+            config: The config from benchbuild.settings.
+            jobs: Number of cores to be used for the execution.
+            run_f: The file that needs to be execute.
+            args: List of arguments that will be passed to the wrapped binary.
+            kwargs: Dictonary with the keyword arguments.
+
+        Returns:
+            The generated custom sequences as a list.
         """
-        random1 = random.choice(upper_half)
-        random2 = random.choice(upper_half)
-        half_index = len(random1) // 2
+        seq_to_fitness = {}
+        gene_pool, _, _ = get_defaults()
+        chromosome_size, population_size, generations = get_genetic_defaults()
+        run_info = track_execution(cc, self.project, self.experiment)
 
-        new_chromosomes = [random1[:half_index] + random2[half_index:],
-                           random1[half_index:] + random2[:half_index],
-                           random2[:half_index] + random1[half_index:],
-                           random2[half_index:] + random1[:half_index]]
+        def crossover(upper_half):
+            """
+            Crossover of two genes and filling of the vacancies in the population by
+            using two random chromosomes and recombine their halfs.
+            """
+            random1 = random.choice(upper_half)
+            random2 = random.choice(upper_half)
+            half_index = len(random1) // 2
 
-        return new_chromosomes
+            new_chromosomes = [random1[:half_index] + random2[half_index:],
+                               random1[half_index:] + random2[:half_index],
+                               random2[:half_index] + random1[half_index:],
+                               random2[half_index:] + random1[:half_index]]
 
-    def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
-        """Simulates the change of a population within a single generation."""
-        # calculate the fitness value of each chromosome
-        with cf.ThreadPoolExecutor(
-            max_workers=CFG["jobs"].value() * 5) as pool:
+            return new_chromosomes
 
-            future_to_fitness = extend_gene_future([], chromosomes, pool)
+        def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
+            """Simulates the change of a population within a single generation."""
+            # calculate the fitness value of each chromosome
+            with cf.ThreadPoolExecutor(
+                max_workers=CFG["jobs"].value() * 5) as pool:
 
-            for future_fitness in cf.as_completed(future_to_fitness):
-                key, fitness = future_fitness.result()
-                old_fitness = seq_to_fitness.get(key, sys.maxsize)
-                seq_to_fitness[key] = min(old_fitness, int(fitness))
-        # sort the chromosomes by their fitness value
-        chromosomes.sort(key=lambda c: seq_to_fitness[str(c)], reverse=True)
+                future_to_fitness = extend_gene_future([], chromosomes, pool)
 
-        # divide the chromosome into two halves and delete the weakest one
-        index_half = len(chromosomes) // 2
-        lower_half = chromosomes[:index_half]
-        upper_half = chromosomes[index_half:]
+                for future_fitness in cf.as_completed(future_to_fitness):
+                    key, fitness = future_fitness.result()
+                    old_fitness = seq_to_fitness.get(key, sys.maxsize)
+                    seq_to_fitness[key] = min(old_fitness, int(fitness))
+            # sort the chromosomes by their fitness value
+            chromosomes.sort(key=lambda c: seq_to_fitness[str(c)], reverse=True)
 
-        # delete four weak chromosomes
-        del lower_half[0]
-        random.shuffle(lower_half)
+            # divide the chromosome into two halves and delete the weakest one
+            index_half = len(chromosomes) // 2
+            lower_half = chromosomes[:index_half]
+            upper_half = chromosomes[index_half:]
 
-        for _ in range(0, 3):
-            lower_half.pop()
+            # delete four weak chromosomes
+            del lower_half[0]
+            random.shuffle(lower_half)
 
-        new_chromosomes = crossover(upper_half)
+            for _ in range(0, 3):
+                lower_half.pop()
 
-        # mutate the fittest chromosome of this generation
-        fittest_chromosome = upper_half.pop()
-        lower_half = mutate(lower_half, gene_pool, 10)
-        upper_half = mutate(upper_half, gene_pool, 5)
+            new_chromosomes = crossover(upper_half)
 
-        # rejoin all chromosomes
-        upper_half.append(fittest_chromosome)
-        chromosomes = lower_half + upper_half + new_chromosomes
+            # mutate the fittest chromosome of this generation
+            fittest_chromosome = upper_half.pop()
+            lower_half = mutate(lower_half, gene_pool, 10)
+            upper_half = mutate(upper_half, gene_pool, 5)
 
-        return chromosomes, fittest_chromosome
+            # rejoin all chromosomes
+            upper_half.append(fittest_chromosome)
+            chromosomes = lower_half + upper_half + new_chromosomes
 
-
-    def generate_random_gene_sequence(gene_pool):
-        """Generates a random sequence of genes."""
-        genes = []
-        for _ in range(chromosome_size):
-            genes.append(random.choice(gene_pool))
-
-        return genes
-
-
-    def extend_gene_future(future_to_fitness, chromosomes, pool):
-        """Generate the future of the fitness values from the chromosomes."""
-        def fitness(lhs, rhs):
-            """Defines the fitnesses metric."""
-            return (lhs - rhs) / rhs
-
-        future_to_fitness.extend(
-            [pool.submit(run_sequence, opt_cmd, str(chromosome),
-                         chromosome, fitness) \
-                for chromosome in chromosomes]
-        )
-        return future_to_fitness
+            return chromosomes, fittest_chromosome
 
 
-    def delete_duplicates(chromosomes, gene_pool):
-        """Deletes duplicates in the chromosomes of the population."""
-        new_chromosomes = []
-        for chromosome in chromosomes:
-            new_chromosomes.append(tuple(chromosome))
+        def generate_random_gene_sequence(gene_pool):
+            """Generates a random sequence of genes."""
+            genes = []
+            for _ in range(chromosome_size):
+                genes.append(random.choice(gene_pool))
 
+            return genes
+
+
+        def extend_gene_future(future_to_fitness, chromosomes, pool):
+            def fitness(lhs, rhs):
+                """Defines the fitnesses metric."""
+                return (lhs - rhs) / rhs
+
+            future_to_fitness.extend(
+                [pool.submit(self.call_next, opt_cmd, str(chromosome),
+                             chromosome, fitness) \
+                    for chromosome in chromosomes]
+            )
+            return future_to_fitness
+
+
+        def delete_duplicates(chromosomes, gene_pool):
+            """Deletes duplicates in the chromosomes of the population."""
+            new_chromosomes = []
+            for chromosome in chromosomes:
+                new_chromosomes.append(tuple(chromosome))
+
+            chromosomes = []
+            new_chromosomes = list(set(new_chromosomes))
+            diff = population_size - len(new_chromosomes)
+
+            if diff > 0:
+                for _ in range(diff):
+                    chromosomes.append(generate_random_gene_sequence(gene_pool))
+
+            for chromosome in new_chromosomes:
+                chromosomes.append(list(chromosome))
+
+            return chromosomes
+
+
+        def mutate(chromosomes, gene_pool, mutation_probability):
+            """Performs mutation on chromosomes with a certain probability."""
+            mutated_chromosomes = []
+
+            for chromosome in chromosomes:
+                mutated_chromosome = list(chromosome)
+                chromosome_size = len(mutated_chromosome)
+
+                for i in range(chromosome_size):
+                    if random.randint(1, 100) <= mutation_probability:
+                        mutated_chromosome[i] = random.choice(gene_pool)
+
+                mutated_chromosomes.append(mutated_chromosome)
+
+            return mutated_chromosomes
+
+        with run_info as run:
+            run_info = run()
+        filter_compiler_commandline(cc, filter_invalid_flags)
+        complete_ir = link_ir(cc)
+        from benchbuild.utils.cmd import opt
+        opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
         chromosomes = []
-        new_chromosomes = list(set(new_chromosomes))
-        diff = population_size - len(new_chromosomes)
+        fittest_chromosome = []
 
-        if diff > 0:
-            for _ in range(diff):
-                chromosomes.append(generate_random_gene_sequence(gene_pool))
+        for _ in range(population_size):
+            chromosomes.append(generate_random_gene_sequence(gene_pool))
 
-        for chromosome in new_chromosomes:
-            chromosomes.append(list(chromosome))
+        for i in range(generations):
+            chromosomes, fittest_chromosome = simulate_generation(chromosomes,
+                                                                gene_pool,
+                                                                seq_to_fitness)
+            if i < generations - 1:
+                chromosomes = delete_duplicates(chromosomes, gene_pool)
 
-        return chromosomes
-
-
-    def mutate(chromosomes, gene_pool, mutation_probability):
-        """Performs mutation on chromosomes with a certain probability."""
-        mutated_chromosomes = []
-
-        for chromosome in chromosomes:
-            mutated_chromosome = list(chromosome)
-            chromosome_size = len(mutated_chromosome)
-
-            for i in range(chromosome_size):
-                if random.randint(1, 100) <= mutation_probability:
-                    mutated_chromosome[i] = random.choice(gene_pool)
-
-            mutated_chromosomes.append(mutated_chromosome)
-
-        return mutated_chromosomes
-
-    with run_info as run:
-        run_info = run()
-    filter_compiler_commandline(run_f, filter_invalid_flags)
-    complete_ir = link_ir(run_f)
-    from benchbuild.utils.cmd import opt
-    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
-    chromosomes = []
-    fittest_chromosome = []
-
-    for _ in range(population_size):
-        chromosomes.append(generate_random_gene_sequence(gene_pool))
-
-    for i in range(generations):
-        chromosomes, fittest_chromosome = simulate_generation(chromosomes,
-                                                              gene_pool,
-                                                              seq_to_fitness)
-        if i < generations - 1:
-            chromosomes = delete_duplicates(chromosomes, gene_pool)
-
-    persist_sequence(run_info,
-                     fittest_chromosome,
-                     seq_to_fitness[str(fittest_chromosome)])
+        persist_sequence(run_info,
+                        fittest_chromosome,
+                        seq_to_fitness[str(fittest_chromosome)])
 
 
 class Genetic1Sequence(PolyJIT):
@@ -442,186 +439,175 @@ class Genetic1Sequence(PolyJIT):
 
     NAME = "pj-seq-genetic1-opt"
 
-    def actions_for_project(self, project):
+    def actions_for_project(self, p):
         """Execute the actions for the test."""
 
-        project = PolyJIT.init_project(project)
-
-        actions = []
+        project = PolyJIT.init_project(p)
         project.cflags = ["-mllvm", "-stats"]
-        project.run_uuid = uuid.uuid4()
-        jobs = int(CFG["jobs"].value())
+        cfg = {"jobs": int(CFG["jobs"].value())}
 
-        project.compiler_extension = partial(
-            genetic1_opt_sequences, project, self, CFG, jobs)
+        project.compiler_extension = \
+            FindFittestSequenceGenetic1(
+                project, self, cfg,
+                RunSequence(project, self, cfg))
 
-        actions.extend([
-            MakeBuildDir(project),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
-            Clean(project)
-        ])
-        return actions
+        return self.default_compiletime_actions(project)
 
 
-def genetic2_opt_sequences(project, experiment, config,
-                           jobs, run_f, *args, **kwargs):
-    """
-    Generates custom sequences for a provided application using the second
-    genetic opt algorithm.
+class FindFittestSequenceGenetic2(RuntimeExtension):
+    def __call__(self, cc, *args, **kwargs):
+        """
+        Generates custom sequences for a provided application using the second
+        genetic opt algorithm.
 
-    Args:
-        project: The name of the project the test is being run for.
-        experiment: The benchbuild.experiment.
-        config: The config from benchbuild.settings.
-        jobs: Number of cores to be used for the execution.
-        run_f: The file that needs to be execute.
-        args: List of arguments that will be passed to the wrapped binary.
-        kwargs: Dictonary with the keyword arguments.
+        Args:
+            project: The name of the project the test is being run for.
+            experiment: The benchbuild.experiment.
+            config: The config from benchbuild.settings.
+            jobs: Number of cores to be used for the execution.
+            run_f: The file that needs to be execute.
+            args: List of arguments that will be passed to the wrapped binary.
+            kwargs: Dictonary with the keyword arguments.
 
-    Returns:
-        The generated custom sequence.
-    """
-    seq_to_fitness = {}
-    gene_pool, _, _ = get_defaults()
-    chromosome_size, population_size, generations = get_genetic_defaults()
-    run_info = track_execution(run_f, project, experiment)
+        Returns:
+            The generated custom sequence.
+        """
+        seq_to_fitness = {}
+        gene_pool, _, _ = get_defaults()
+        chromosome_size, population_size, generations = get_genetic_defaults()
+        run_info = track_execution(cc, self.project, self.experiment)
 
-    def generate_random_gene_sequence(gene_pool):
-        """Generates a random sequence of genes."""
-        genes = []
-        for _ in range(chromosome_size):
-            genes.append(random.choice(gene_pool))
+        def generate_random_gene_sequence(gene_pool):
+            """Generates a random sequence of genes."""
+            genes = []
+            for _ in range(chromosome_size):
+                genes.append(random.choice(gene_pool))
 
-        return genes
+            return genes
 
-    def extend_gene_future(future_to_fitness, chromosomes, pool):
-        """Generate the future of the fitness values from the chromosomes."""
-        def fitness(lhs, rhs):
-            """Defines the fitnesses metric."""
-            return (lhs - rhs) / rhs
+        def extend_gene_future(future_to_fitness, chromosomes, pool):
+            """Generate the future of the fitness values from the chromosomes."""
+            def fitness(lhs, rhs):
+                """Defines the fitnesses metric."""
+                return (lhs - rhs) / rhs
 
-        future_to_fitness.extend(
-            [pool.submit(run_sequence, opt_cmd, str(chromosome),
-                         chromosome, fitness) \
-                for chromosome in chromosomes]
-        )
-        return future_to_fitness
+            future_to_fitness.extend(
+                [pool.submit(self.call_next, opt_cmd, str(chromosome),
+                             chromosome, fitness)
+                 for chromosome in chromosomes]
+            )
+            return future_to_fitness
 
-    def delete_duplicates(chromosomes, gene_pool):
-        """Deletes duplicates in the chromosomes of the population."""
-        new_chromosomes = []
-        for chromosome in chromosomes:
-            new_chromosomes.append(tuple(chromosome))
+        def delete_duplicates(chromosomes, gene_pool):
+            """Deletes duplicates in the chromosomes of the population."""
+            new_chromosomes = []
+            for chromosome in chromosomes:
+                new_chromosomes.append(tuple(chromosome))
 
+            chromosomes = []
+            new_chromosomes = list(set(new_chromosomes))
+            diff = population_size - len(new_chromosomes)
+
+            if diff > 0:
+                for _ in range(diff):
+                    chromosomes.append(generate_random_gene_sequence(gene_pool))
+
+            for chromosome in new_chromosomes:
+                chromosomes.append(list(chromosome))
+
+            return chromosomes
+
+
+        def mutate(chromosomes, gene_pool, mutation_probability):
+            """Performs mutation on chromosomes with a certain probability."""
+            mutated_chromosomes = []
+
+            for chromosome in chromosomes:
+                mutated_chromosome = list(chromosome)
+                chromosome_size = len(mutated_chromosome)
+
+                for i in range(chromosome_size):
+                    if random.randint(1, 100) <= mutation_probability:
+                        mutated_chromosome[i] = random.choice(gene_pool)
+
+                mutated_chromosomes.append(mutated_chromosome)
+
+            return mutated_chromosomes
+
+        def crossover(fittest_chromosome, best_chromosomes):
+            """
+            Crossover of two genes and filling of the vacancies in the population by
+            taking two of the fittest chromosomes and recombining them.
+            """
+            new_chromosomes = []
+            num_of_new = population_size - len(best_chromosomes)
+            half_index = len(fittest_chromosome) // 2
+
+            while len(new_chromosomes) < num_of_new:
+                best1 = random.choice(best_chromosomes)
+                best2 = random.choice(best_chromosomes)
+                new_chromosomes.append(best1[:half_index] + best2[half_index:])
+                if len(new_chromosomes) < num_of_new:
+                    new_chromosomes.append(best1[half_index:] + best2[:half_index])
+                if len(new_chromosomes) < num_of_new:
+                    new_chromosomes.append(best2[:half_index] + best1[half_index:])
+                if len(new_chromosomes) < num_of_new:
+                    new_chromosomes.append(best2[half_index:] + best1[:half_index])
+
+            return new_chromosomes
+
+        def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
+            """Simulates the change of a population within a single generation."""
+            # calculate the fitness value of each chromosome
+            with cf.ThreadPoolExecutor(
+                max_workers=CFG["jobs"].value() * 5) as pool:
+
+                future_to_fitness = extend_gene_future([], chromosomes, pool)
+
+                for future_fitness in cf.as_completed(future_to_fitness):
+                    key, fitness = future_fitness.result()
+                    old_fitness = seq_to_fitness.get(key, sys.maxsize)
+                    seq_to_fitness[key] = min(old_fitness, int(fitness))
+            # sort the chromosomes by their fitness value
+            chromosomes.sort(key=lambda c: seq_to_fitness[str(c)], reverse=True)
+
+            # best 10% of chromosomes survive without change
+            num_best = len(chromosomes) // 10
+            fittest_chromosome = chromosomes.pop()
+            best_chromosomes = [fittest_chromosome]
+            for _ in range(num_best - 1):
+                best_chromosomes.append(chromosomes.pop())
+
+            new_chromosomes = crossover(fittest_chromosome, best_chromosomes)
+
+            # mutate the new chromosomes
+            new_chromosomes = mutate(new_chromosomes, gene_pool, 10)
+
+            # rejoin all chromosomes
+            chromosomes = best_chromosomes + new_chromosomes
+
+            return chromosomes, fittest_chromosome
+
+        with run_info as run:
+            run_info = run()
+        filter_compiler_commandline(cc, filter_invalid_flags)
+        complete_ir = link_ir(cc)
+        from benchbuild.utils.cmd import opt
+        opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
         chromosomes = []
-        new_chromosomes = list(set(new_chromosomes))
-        diff = population_size - len(new_chromosomes)
+        fittest_chromosome = []
 
-        if diff > 0:
-            for _ in range(diff):
-                chromosomes.append(generate_random_gene_sequence(gene_pool))
+        for _ in range(population_size):
+            chromosomes.append(generate_random_gene_sequence(gene_pool))
 
-        for chromosome in new_chromosomes:
-            chromosomes.append(list(chromosome))
+        for i in range(generations):
+            chromosomes, fittest_chromosome = \
+                simulate_generation(chromosomes, gene_pool, seq_to_fitness)
+            if i < generations - 1:
+                chromosomes = delete_duplicates(chromosomes, gene_pool)
 
-        return chromosomes
-
-
-    def mutate(chromosomes, gene_pool, mutation_probability):
-        """Performs mutation on chromosomes with a certain probability."""
-        mutated_chromosomes = []
-
-        for chromosome in chromosomes:
-            mutated_chromosome = list(chromosome)
-            chromosome_size = len(mutated_chromosome)
-
-            for i in range(chromosome_size):
-                if random.randint(1, 100) <= mutation_probability:
-                    mutated_chromosome[i] = random.choice(gene_pool)
-
-            mutated_chromosomes.append(mutated_chromosome)
-
-        return mutated_chromosomes
-
-    def crossover(fittest_chromosome, best_chromosomes):
-        """
-        Crossover of two genes and filling of the vacancies in the population by
-        taking two of the fittest chromosomes and recombining them.
-        """
-        new_chromosomes = []
-        num_of_new = population_size - len(best_chromosomes)
-        half_index = len(fittest_chromosome) // 2
-
-        while len(new_chromosomes) < num_of_new:
-            best1 = random.choice(best_chromosomes)
-            best2 = random.choice(best_chromosomes)
-            new_chromosomes.append(best1[:half_index] + best2[half_index:])
-            if len(new_chromosomes) < num_of_new:
-                new_chromosomes.append(best1[half_index:] + best2[:half_index])
-            if len(new_chromosomes) < num_of_new:
-                new_chromosomes.append(best2[:half_index] + best1[half_index:])
-            if len(new_chromosomes) < num_of_new:
-                new_chromosomes.append(best2[half_index:] + best1[:half_index])
-
-        return new_chromosomes
-
-    def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
-        """Simulates the change of a population within a single generation."""
-        # calculate the fitness value of each chromosome
-        with cf.ThreadPoolExecutor(
-            max_workers=CFG["jobs"].value() * 5) as pool:
-
-            future_to_fitness = extend_gene_future([], chromosomes, pool)
-
-            for future_fitness in cf.as_completed(future_to_fitness):
-                key, fitness = future_fitness.result()
-                old_fitness = seq_to_fitness.get(key, sys.maxsize)
-                seq_to_fitness[key] = min(old_fitness, int(fitness))
-        # sort the chromosomes by their fitness value
-        chromosomes.sort(key=lambda c: seq_to_fitness[str(c)], reverse=True)
-
-        # best 10% of chromosomes survive without change
-        num_best = len(chromosomes) // 10
-        fittest_chromosome = chromosomes.pop()
-        best_chromosomes = [fittest_chromosome]
-        for _ in range(num_best - 1):
-            best_chromosomes.append(chromosomes.pop())
-
-        new_chromosomes = crossover(fittest_chromosome, best_chromosomes)
-
-        # mutate the new chromosomes
-        new_chromosomes = mutate(new_chromosomes, gene_pool, 10)
-
-        # rejoin all chromosomes
-        chromosomes = best_chromosomes + new_chromosomes
-
-        return chromosomes, fittest_chromosome
-
-    with run_info as run:
-        run_info = run()
-    filter_compiler_commandline(run_f, filter_invalid_flags)
-    complete_ir = link_ir(run_f)
-    from benchbuild.utils.cmd import opt
-    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
-    chromosomes = []
-    fittest_chromosome = []
-
-    for _ in range(population_size):
-        chromosomes.append(generate_random_gene_sequence(gene_pool))
-
-    for i in range(generations):
-        chromosomes, fittest_chromosome = simulate_generation(chromosomes,
-                                                              gene_pool,
-                                                              seq_to_fitness)
-        if i < generations - 1:
-            chromosomes = delete_duplicates(chromosomes, gene_pool)
-
-    persist_sequence(run_info,
-                     fittest_chromosome,
-                     seq_to_fitness[str(fittest_chromosome)])
+        persist_sequence(run_info, fittest_chromosome,
+                         seq_to_fitness[str(fittest_chromosome)])
 
 
 class Genetic2Sequence(PolyJIT):
@@ -638,24 +624,23 @@ class Genetic2Sequence(PolyJIT):
 
     NAME = "pj-seq-genetic2-opt"
 
-    def actions_for_project(self, project):
+    def actions_for_project(self, p):
         """Execute the actions for the test."""
 
-        project = PolyJIT.init_project(project)
+        p = PolyJIT.init_project(p)
+        p.cflags = ["-mllvm", "-stats"]
+        cfg = {"jobs": int(CFG["jobs"].value())}
 
-        project.cflags = ["-mllvm", "-stats"]
-        jobs = int(CFG["jobs"].value())
 
-        project.compiler_extension = partial(
-            genetic2_opt_sequences, project, self, CFG, jobs)
+        p.compiler_extension = \
+            FindFittestSequenceGenetic2(
+                p, self, cfg,
+                RunSequence(p, self, cfg))
 
-        return Genetic2Sequence.default_compiletime_actions(project)
+        return Genetic2Sequence.default_compiletime_actions(p)
+
 
 class FindFittestSequenceHillclimber(RuntimeExtension):
-    """
-    Generates custom sequences for a provided application using the hillclimber
-    algorithm.
-    """
     def __call__(self, cc, *args, **kwargs):
         seq_to_fitness = {}
         pass_space, seq_length, iterations = get_defaults()
@@ -683,14 +668,14 @@ class FindFittestSequenceHillclimber(RuntimeExtension):
                     neighbours.append(neighbour)
 
                 future_to_fitness.extend(
-                    [pool.submit(run_sequence, opt_cmd, str(sequence),
+                    [pool.submit(self.call_next, opt_cmd, str(sequence),
                                  sequence, fitness)]
                 )
 
-            future_to_fitness.extend([pool.submit(run_sequence, opt_cmd,
-                                                  str(neighbour), neighbour,
-                                                  fitness)
-                                      for neighbour in neighbours])
+            future_to_fitness.extend(
+                [pool.submit(self.call_next,
+                             opt_cmd, str(neighbour), neighbour, fitness)
+                 for neighbour in neighbours])
 
             return future_to_fitness, neighbours
 
@@ -769,44 +754,21 @@ class HillclimberSequences(PolyJIT):
 
     NAME = "pj-seq-hillclimber"
 
-    def actions_for_project(self, project):
+    def actions_for_project(self, p):
         """Execute the actions for the test."""
 
-        project = PolyJIT.init_project(project)
-
+        project = PolyJIT.init_project(p)
         project.cflags = ["-mllvm", "-stats"]
-        project.run_uuid = uuid.uuid4()
         cfg = {'jobs': int(CFG["jobs"].value())}
 
         project.compiler_extension = \
-            FindFittestSequenceHillclimber(project, self, config=cfg)
+            FindFittestSequenceHillclimber(
+                project, self, cfg,
+                RunSequence(project, self, cfg))
         return HillclimberSequences.default_compiletime_actions(project)
 
 
 class FindFittestSequenceGreedy(RuntimeExtension):
-    """
-    Generates the custom sequences for a provided application with the greedy
-    algorithm.
-    I therfor use the greedy algorithm Christoph Woller used as well.
-    Args:
-        project: The name of the project the test is being run for.
-        experiment: The benchbuild.experiment.
-        config: The config from benchbuild.settings.
-        jobs: Number of cores to be used for the execution.
-        run_f: The file that needs to be execute.
-        args: List of arguments that will be passed to the wrapped binary.
-        kwargs: Dictonary with the keyword arguments.
-
-    Returns:
-        The generated custom sequences as a list.
-    """
-    def __init__(self, project, experiment, config, *extensions):
-        self.config = config
-        self.project = project
-        self.experiment = experiment
-
-        super(FindFittestSequenceGreedy, self).__init__(*extensions)
-
     def __call__(self, cc, *args, **kwargs):
         seq_to_fitness = {}
         generated_sequences = []
@@ -830,8 +792,8 @@ class FindFittestSequenceGreedy(RuntimeExtension):
                 sequences.extend(new_sequences)
                 future_to_fitness.extend(
                     [pool.submit(
-                        run_sequence, opt_cmd, str(seq), seq, fitness)
-                        for seq in new_sequences]
+                        self.call_next, opt_cmd, str(seq), seq, fitness)
+                     for seq in new_sequences]
                 )
             return future_to_fitness, sequences
 
@@ -906,14 +868,16 @@ class GreedySequences(PolyJIT):
 
     NAME = "pj-seq-greedy"
 
-    def actions_for_project(self, project):
+    def actions_for_project(self, p):
         """Execute the actions for the test."""
 
-        project = PolyJIT.init_project(project)
+        project = PolyJIT.init_project(p)
         project.cflags = ["-mllvm", "-stats"]
         cfg = {'jobs': int(CFG["jobs"].value())}
 
         project.compiler_extension = \
-            FindFittestSequenceGreedy(project, self, config=cfg)
+            FindFittestSequenceGreedy(
+                project, self, cfg,
+                RunSequence(project, self, cfg))
 
         return GreedySequences.default_compiletime_actions(project)

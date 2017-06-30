@@ -8,68 +8,20 @@ execution profiles of PolyJIT:
   2) PolyJIT enabled, without specialization
 """
 import csv
-import glob
 import logging
 import os
 import uuid
 
 import sqlalchemy as sa
-from plumbum import local
 
 from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.reports import Report
 from benchbuild.settings import CFG
 from benchbuild.extensions import \
-    (RunWithTime, RuntimeExtension, Extension,
-     LogTrackingMixin, LogAdditionals)
+    (RunWithTime, LogAdditionals, RunWithPolyJIT,
+     RunWithoutPolyJIT, RegisterPolyJITLogs)
 
 LOG = logging.getLogger()
-
-class RegisterPolyJITLogs(LogTrackingMixin, Extension):
-    def __call__(self, *args, **kwargs):
-        """Redirect to RunWithTime, but register additional logs."""
-        ret = self.call_next(*args, **kwargs)
-        files = glob.glob(os.path.join(os.path.curdir, "polyjit.[0-9]+.log"))
-
-        for file in files:
-            self.add_log(file)
-
-        return ret
-
-
-class RunWithPolyJIT(RuntimeExtension):
-    def __call__(self, binary_command, *args, **kwargs):
-        config = self.config
-        if config is not None and 'jobs' in config.keys():
-            jobs = config['jobs']
-        else:
-            logging.warning("Parameter 'config' was unusable, using defaults")
-            jobs = CFG["jobs"].value()
-
-        ret = None
-        with local.env(OMP_NUM_THREADS=str(jobs),
-                       POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-            ret = super(RunWithPolyJIT, self).__call__(
-                binary_command, *args, config, **kwargs)
-        return ret
-
-
-class RunWithoutPolyJIT(RuntimeExtension):
-    def __call__(self, binary_command, *args, **kwargs):
-        config = self.config
-        if config is not None and 'jobs' in config.keys():
-            jobs = config['jobs']
-        else:
-            logging.warning("Parameter 'config' was unusable, using defaults")
-            jobs = CFG["jobs"].value()
-
-        ret = None
-        with local.env(OMP_NUM_THREADS=str(jobs),
-                       POLLI_DISABLE_SPECIALIZATION=1,
-                       POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-            ret = super(RunWithoutPolyJIT, self).__call__(
-                binary_command, *args, config, **kwargs)
-        return ret
 
 
 class Test(PolyJIT):

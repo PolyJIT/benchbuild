@@ -16,11 +16,8 @@ Measurements
 """
 
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.experiments.raw import run_with_time
-from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
-                                      Clean, MakeBuildDir, Run, Echo)
+from benchbuild.extensions import RunWithTime, RuntimeExtension
 from benchbuild.settings import CFG
-import functools
 
 
 class PollyOpenMPVectorizer(RuntimeExperiment):
@@ -37,17 +34,9 @@ class PollyOpenMPVectorizer(RuntimeExperiment):
                           "-mllvm", "-polly-parallel",
                           "-mllvm", "-polly-vectorizer=stripmine"]
         project.ldflags = ["-lgomp"]
-        project.runtime_extension = functools.partial(
-            run_with_time, project, self, CFG, CFG["jobs"].value())
-        actns = [
-            MakeBuildDir(project),
-            Echo("Compiling... {}".format(project.name)),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
-            Echo("Running... {}".format(project.name)),
-            Run(project),
-            Clean(project),
-        ]
-        return actns
+        project.runtime_extension = \
+            RunWithTime(
+                RuntimeExtension(project, self,
+                                 {'jobs': int(CFG["jobs"].value())}))
+
+        return self.default_runtime_actions(project)

@@ -16,17 +16,16 @@ Measurements
     time.system_s - The time spent in kernel space in seconds (aka system time)
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
-
-from benchbuild.experiment import RuntimeExperiment
-from benchbuild.experiments.raw import run_with_time
-from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
-                                      Clean, MakeBuildDir, Run, Echo)
-from benchbuild.settings import CFG
 import functools
 import warnings
 import copy
 import uuid
 import re
+
+from benchbuild.experiment import RuntimeExperiment
+from benchbuild.extension import RunWithTime, RuntimeExtension
+from benchbuild.settings import CFG
+
 
 
 class ShouldNotBeNone(RuntimeWarning):
@@ -65,18 +64,10 @@ class PollyPerformance(RuntimeExperiment):
             cp.run_uuid = uuid.uuid4()
 
             cp.cflags += ["-mllvm", "-polly-num-threads={0}".format(i)]
-            cp.runtime_extension = functools.partial(
-                run_with_time, cp, self, CFG, i)
+            cp.runtime_extension = \
+                RunWithTime(
+                    RuntimeExtension(cp, self, {'jobs': i}))
 
-            actns.extend([
-                MakeBuildDir(cp),
-                Echo("{0} core configuration. Configure & Compile".format(i)),
-                Prepare(cp),
-                Download(cp),
-                Configure(cp),
-                Build(cp),
-                Echo("{0} core configuration. Run".format(i)),
-                Run(cp),
-                Clean(cp)
-            ])
+            actns.extend(self.default_runtime_actions(cp))
+
         return actns

@@ -21,7 +21,7 @@ import sys
 import parse
 import sqlalchemy as sa
 
-from benchbuild.experiments.compilestats import get_compilestats
+from benchbuild.extensions import RuntimeExtension, ExtractCompileStats
 
 from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.settings import CFG
@@ -139,7 +139,7 @@ def run_sequence(compiler, key, sequence, fitness_func):
 
     local_compiler = compiler[sequence, "-polly-detect"]
     _, _, stderr = local_compiler.run(retcode=None)
-    stats = [s for s in get_compilestats(stderr) \
+    stats = [s for s in ExtractCompileStats.get_compilestats(stderr) \
                 if s['desc'] in [
                     "Number of regions that a valid part of Scop",
                     "The # of regions"
@@ -643,142 +643,118 @@ class Genetic2Sequence(PolyJIT):
 
         project = PolyJIT.init_project(project)
 
-        actions = []
         project.cflags = ["-mllvm", "-stats"]
-        project.run_uuid = uuid.uuid4()
         jobs = int(CFG["jobs"].value())
 
         project.compiler_extension = partial(
             genetic2_opt_sequences, project, self, CFG, jobs)
 
-        actions.extend([
-            MakeBuildDir(project),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
-            Clean(project)
-        ])
-        return actions
+        return Genetic2Sequence.default_compiletime_actions(project)
 
-
-def hillclimber_sequences(project, experiment, config,
-                          jobs, run_f, *args, **kwargs):
+class FindFittestSequenceHillclimber(RuntimeExtension):
     """
     Generates custom sequences for a provided application using the hillclimber
     algorithm.
-
-    Args:
-        project: The name of the project the test is being run for.
-        experiment: The benchbuild.experiment.
-        config: The config from benchbuild.settings.
-        jobs: Number of cores to be used for the execution.
-        run_f: The file that needs to be execute.
-        args: List of arguments that will be passed to the wrapped binary.
-        kwargs: Dictonary with the keyword arguments.
-
-    Returns:
-        The generated custom sequence.
     """
-    seq_to_fitness = {}
-    pass_space, seq_length, iterations = get_defaults()
-    run_info = track_execution(run_f, project, experiment)
+    def __call__(self, cc, *args, **kwargs):
+        seq_to_fitness = {}
+        pass_space, seq_length, iterations = get_defaults()
+        run_info = track_execution(cc, self.project, self.experiment)
 
-    def fitness(lhs, rhs):
-        """Defines the fitnesses metric."""
-        return lhs - rhs
+        def fitness(lhs, rhs):
+            """Defines the fitnesses metric."""
+            return lhs - rhs
 
-    def extend_future(sequence, pool):
-        """
-        Generate the future of the fitness values from the sequence.
-        """
-        neighbours = []
-        future_to_fitness = []
+        def extend_future(sequence, pool):
+            """
+            Generate the future of the fitness values from the sequence.
+            """
+            neighbours = []
+            future_to_fitness = []
 
-        # generate the neighbours of the current base sequence
-        for i in range(seq_length):
-            remaining_passes = list(pass_space)
-            remaining_passes.remove(sequence[i])
+            # generate the neighbours of the current base sequence
+            for i in range(seq_length):
+                remaining_passes = list(pass_space)
+                remaining_passes.remove(sequence[i])
 
-            for remaining_pass in remaining_passes:
-                neighbour = list(sequence)
-                neighbour[i] = remaining_pass
-                neighbours.append(neighbour)
+                for remaining_pass in remaining_passes:
+                    neighbour = list(sequence)
+                    neighbour[i] = remaining_pass
+                    neighbours.append(neighbour)
 
-            future_to_fitness.extend(
-                [pool.submit(run_sequence, opt_cmd, str(sequence),
-                             sequence, fitness)]
-            )
+                future_to_fitness.extend(
+                    [pool.submit(run_sequence, opt_cmd, str(sequence),
+                                 sequence, fitness)]
+                )
 
-        future_to_fitness.extend([pool.submit(run_sequence, opt_cmd,
-                                              str(neighbour), neighbour,
-                                              fitness)
-                                  for neighbour in neighbours])
+            future_to_fitness.extend([pool.submit(run_sequence, opt_cmd,
+                                                  str(neighbour), neighbour,
+                                                  fitness)
+                                      for neighbour in neighbours])
 
-        return future_to_fitness, neighbours
+            return future_to_fitness, neighbours
 
-    def create_random_sequence(pass_space, seq_length):
-        """Creates a random sequence."""
-        sequence = []
-        for _ in range(seq_length):
-            sequence.append(random.choice(pass_space))
+        def create_random_sequence(pass_space, seq_length):
+            """Creates a random sequence."""
+            sequence = []
+            for _ in range(seq_length):
+                sequence.append(random.choice(pass_space))
 
-        return sequence
+            return sequence
 
-    def climb(sequence, seq_to_fitness):
-        """
-        Find the best sequence and calculate all of its neighbours. If the
-        best performing neighbour is fitter than the base sequence,
-        the neighbour becomes the new base sequence. Repeat until the base
-        sequence has the best performance compared to its neighbours.
-        """
-        changed = True
-        future_to_fitness = []
-        base_sequence = sequence
-        base_sequence_key = str(sequence)
-        with cf.ThreadPoolExecutor(
-            max_workers=CFG["jobs"].value() * 5) as pool:
+        def climb(sequence, seq_to_fitness):
+            """
+            Find the best sequence and calculate all of its neighbours. If the
+            best performing neighbour is fitter than the base sequence,
+            the neighbour becomes the new base sequence. Repeat until the base
+            sequence has the best performance compared to its neighbours.
+            """
+            changed = True
+            future_to_fitness = []
+            base_sequence = sequence
+            base_sequence_key = str(sequence)
+            with cf.ThreadPoolExecutor(max_workers=CFG["jobs"].value() * 5) \
+                    as pool:
+                while changed:
+                    changed = False
+                    future_to_fitness, neighbours = \
+                        extend_future(base_sequence, pool)
+                    for future_fitness in cf.as_completed(future_to_fitness):
+                        key, fitness_val = future_fitness.result()
+                        old_fitness = seq_to_fitness.get(key, sys.maxsize)
+                        seq_to_fitness[key] = min(old_fitness, fitness_val)
 
-            while changed:
-                changed = False
-                future_to_fitness, neighbours = extend_future(base_sequence,
-                                                              pool)
-                for future_fitness in cf.as_completed(future_to_fitness):
-                    key, fitness_val = future_fitness.result()
-                    #sys.maxsize becomes the value if no value is stored at key
-                    old_fitness = seq_to_fitness.get(key, sys.maxsize)
-                    seq_to_fitness[key] = min(old_fitness, fitness_val)
+                    for neighbour in neighbours:
+                        if seq_to_fitness[base_sequence_key] \
+                                > seq_to_fitness[str(neighbour)]:
+                            base_sequence = neighbour
+                            base_sequence_key = str(neighbour)
+                            changed = True
 
-                for neighbour in neighbours:
-                    if seq_to_fitness[base_sequence_key] \
-                            > seq_to_fitness[str(neighbour)]:
-                        base_sequence = neighbour
-                        base_sequence_key = str(neighbour)
-                        changed = True
+            return base_sequence, seq_to_fitness
 
-        return base_sequence, seq_to_fitness
+        with run_info as run:
+            run_info = run()
+        filter_compiler_commandline(cc, filter_invalid_flags)
+        complete_ir = link_ir(cc)
+        from benchbuild.utils.cmd import opt
+        opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
 
-    with run_info as run:
-        run_info = run()
-    filter_compiler_commandline(run_f, filter_invalid_flags)
-    complete_ir = link_ir(run_f)
-    from benchbuild.utils.cmd import opt
-    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
+        best_sequence = []
+        seq_to_fitness = multiprocessing.Manager().dict()
 
-    best_sequence = []
-    seq_to_fitness = multiprocessing.Manager().dict()
+        for _ in range(iterations):
+            base_sequence = create_random_sequence(pass_space, seq_length)
+            best_sequence, seq_to_fitness = \
+                climb(base_sequence, seq_to_fitness)
 
-    for _ in range(iterations):
-        base_sequence = create_random_sequence(pass_space, seq_length)
-        best_sequence, seq_to_fitness = climb(base_sequence, seq_to_fitness)
+            if not best_sequence or seq_to_fitness[str(best_sequence)] \
+                    > seq_to_fitness[str(base_sequence)]:
+                best_sequence = base_sequence
 
-        if not best_sequence or seq_to_fitness[str(best_sequence)] \
-                > seq_to_fitness[str(base_sequence)]:
-            best_sequence = base_sequence
-
-    persist_sequence(run_info,
-                     best_sequence,
-                     seq_to_fitness[str(best_sequence)])
+        persist_sequence(run_info,
+                         best_sequence,
+                         seq_to_fitness[str(best_sequence)])
 
 
 class HillclimberSequences(PolyJIT):
@@ -798,27 +774,16 @@ class HillclimberSequences(PolyJIT):
 
         project = PolyJIT.init_project(project)
 
-        actions = []
         project.cflags = ["-mllvm", "-stats"]
         project.run_uuid = uuid.uuid4()
-        jobs = int(CFG["jobs"].value())
+        cfg = {'jobs': int(CFG["jobs"].value())}
 
-        project.compiler_extension = partial(
-            hillclimber_sequences, project, self, CFG, jobs)
-
-        actions.extend([
-            MakeBuildDir(project),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
-            Clean(project)
-        ])
-        return actions
+        project.compiler_extension = \
+            FindFittestSequenceHillclimber(project, self, config=cfg)
+        return HillclimberSequences.default_compiletime_actions(project)
 
 
-def greedy_sequences(project, experiment, config,
-                     jobs, run_f, *args, **kwargs):
+class FindFittestSequenceGreedy(RuntimeExtension):
     """
     Generates the custom sequences for a provided application with the greedy
     algorithm.
@@ -835,87 +800,97 @@ def greedy_sequences(project, experiment, config,
     Returns:
         The generated custom sequences as a list.
     """
-    seq_to_fitness = {}
-    generated_sequences = []
-    pass_space, seq_length, iterations = get_defaults()
-    run_info = track_execution(run_f, project, experiment)
+    def __init__(self, project, experiment, config, *extensions):
+        self.config = config
+        self.project = project
+        self.experiment = experiment
 
-    def extend_future(base_sequence, pool):
-        """Generate the future of the fitness values from the sequences."""
-        def fitness(lhs, rhs):
-            """Defines the fitnesses metric."""
-            return lhs - rhs
+        super(FindFittestSequenceGreedy, self).__init__(*extensions)
 
-        future_to_fitness = []
-        sequences = []
-        for flag in pass_space:
-            new_sequences = []
-            new_sequences.append(list(base_sequence) + [flag])
-            if base_sequence:
-                new_sequences.append([flag] + list(base_sequence))
+    def __call__(self, cc, *args, **kwargs):
+        seq_to_fitness = {}
+        generated_sequences = []
+        pass_space, seq_length, iterations = get_defaults()
+        run_info = track_execution(cc, self.project, self.experiment)
 
-            sequences.extend(new_sequences)
-            future_to_fitness.extend(
-                [pool.submit(run_sequence, opt_cmd, str(seq), seq, fitness) \
-                    for seq in new_sequences]
-            )
-        return future_to_fitness, sequences
+        def extend_future(base_sequence, pool):
+            """Generate the future of the fitness values from the sequences."""
+            def fitness(lhs, rhs):
+                """Defines the fitnesses metric."""
+                return lhs - rhs
 
-    def create_greedy_sequences():
-        """
-        Generate the sequences, starting from a base_sequence, then calculate
-        their fitnesses and add the fittest one.
+            future_to_fitness = []
+            sequences = []
+            for flag in pass_space:
+                new_sequences = []
+                new_sequences.append(list(base_sequence) + [flag])
+                if base_sequence:
+                    new_sequences.append([flag] + list(base_sequence))
 
-        Return: A list of the fittest generated sequences.
-        """
-        with cf.ThreadPoolExecutor(
-            max_workers=CFG["jobs"].value() * 5) as pool:
+                sequences.extend(new_sequences)
+                future_to_fitness.extend(
+                    [pool.submit(
+                        run_sequence, opt_cmd, str(seq), seq, fitness)
+                        for seq in new_sequences]
+                )
+            return future_to_fitness, sequences
 
-            for _ in range(iterations):
-                base_sequence = []
-                while len(base_sequence) < seq_length:
-                    future_to_fitness, sequences = \
-                        extend_future(base_sequence, pool)
+        def create_greedy_sequences():
+            """
+            Generate the sequences, starting from a base_sequence, then calculate
+            their fitnesses and add the fittest one.
 
-                    for future_fitness in cf.as_completed(future_to_fitness):
-                        key, fitness = future_fitness.result()
-                        old_fitness = seq_to_fitness.get(key, sys.maxsize)
-                        seq_to_fitness[key] = min(old_fitness, fitness)
+            Return: A list of the fittest generated sequences.
+            """
+            with cf.ThreadPoolExecutor(
+                max_workers=CFG["jobs"].value() * 5) as pool:
 
-                    # sort the sequences by their fitness in ascending order
-                    sequences.sort(key=lambda s: seq_to_fitness[str(s)],
-                                   reverse=True)
+                for _ in range(iterations):
+                    base_sequence = []
+                    while len(base_sequence) < seq_length:
+                        future_to_fitness, sequences = \
+                            extend_future(base_sequence, pool)
 
-                    fittest = sequences.pop()
-                    fittest_fitness_value = seq_to_fitness[str(fittest)]
-                    fittest_sequences = [fittest]
+                        for future_fitness in cf.as_completed(future_to_fitness):
+                            key, fitness = future_fitness.result()
+                            old_fitness = seq_to_fitness.get(key, sys.maxsize)
+                            seq_to_fitness[key] = min(old_fitness, fitness)
 
-                    next_fittest = fittest
-                    while next_fittest == fittest and len(sequences) > 1:
-                        next_fittest = sequences.pop()
-                        if seq_to_fitness[str(next_fittest)] == \
-                                fittest_fitness_value:
-                            fittest_sequences.append(next_fittest)
+                        # sort the sequences by their fitness in ascending order
+                        sequences.sort(key=lambda s: seq_to_fitness[str(s)],
+                                       reverse=True)
 
-                    base_sequence = random.choice(fittest_sequences)
-            generated_sequences.append(base_sequence)
-        return generated_sequences
+                        fittest = sequences.pop()
+                        fittest_fitness_value = seq_to_fitness[str(fittest)]
+                        fittest_sequences = [fittest]
 
-    with run_info as run:
-        run_info = run()
-    filter_compiler_commandline(run_f, filter_invalid_flags)
-    complete_ir = link_ir(run_f)
-    from benchbuild.utils.cmd import opt
-    opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
+                        next_fittest = fittest
+                        while next_fittest == fittest and len(sequences) > 1:
+                            next_fittest = sequences.pop()
+                            if seq_to_fitness[str(next_fittest)] == \
+                                    fittest_fitness_value:
+                                fittest_sequences.append(next_fittest)
 
-    generated_sequences = create_greedy_sequences()
-    generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)], reverse=True)
-    max_fitness = 0
-    for seq in generated_sequences:
-        cur_fitness = seq_to_fitness[str(seq)]
-        max_fitness = max(max_fitness, cur_fitness)
-    fittest_sequence = generated_sequences.pop()
-    persist_sequence(run_info, fittest_sequence, max_fitness)
+                        base_sequence = random.choice(fittest_sequences)
+                generated_sequences.append(base_sequence)
+            return generated_sequences
+
+        with run_info as run:
+            run_info = run()
+        filter_compiler_commandline(cc, filter_invalid_flags)
+        complete_ir = link_ir(cc)
+        from benchbuild.utils.cmd import opt
+        opt_cmd = opt[complete_ir, "-disable-output", "-stats"]
+
+        generated_sequences = create_greedy_sequences()
+        generated_sequences.sort(
+            key=lambda s: seq_to_fitness[str(s)], reverse=True)
+        max_fitness = 0
+        for seq in generated_sequences:
+            cur_fitness = seq_to_fitness[str(seq)]
+            max_fitness = max(max_fitness, cur_fitness)
+        fittest_sequence = generated_sequences.pop()
+        persist_sequence(run_info, fittest_sequence, max_fitness)
 
 
 class GreedySequences(PolyJIT):
@@ -935,21 +910,10 @@ class GreedySequences(PolyJIT):
         """Execute the actions for the test."""
 
         project = PolyJIT.init_project(project)
-
-        actions = []
         project.cflags = ["-mllvm", "-stats"]
-        project.run_uuid = uuid.uuid4()
-        jobs = int(CFG["jobs"].value())
+        cfg = {'jobs': int(CFG["jobs"].value())}
 
-        project.compiler_extension = partial(
-            greedy_sequences, project, self, CFG, jobs)
+        project.compiler_extension = \
+            FindFittestSequenceGreedy(project, self, config=cfg)
 
-        actions.extend([
-            MakeBuildDir(project),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
-            Clean(project)
-        ])
-        return actions
+        return GreedySequences.default_compiletime_actions(project)

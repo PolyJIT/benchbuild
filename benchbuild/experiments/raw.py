@@ -27,4 +27,4 @@ class RawRuntime(RuntimeExperiment):
         """Compile & Run the experiment with -O3 enabled."""
         project.cflags = ["-O3", "-fno-omit-frame-pointer"]
         project.runtime_extension = RunWithTime(project, self, {})
-        self.default_runtime_actions(project)
+        return self.default_runtime_actions(project)

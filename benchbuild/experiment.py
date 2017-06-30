@@ -172,6 +172,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
     @staticmethod
     def default_runtime_actions(project):
+        """Return a series of actions for a run time experiment."""
         return [
             MakeBuildDir(project),
             Prepare(project),
@@ -184,13 +185,13 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
     @staticmethod
     def default_compiletime_actions(project):
+        """Return a series of actions for a compile time experiment."""
         return [
             MakeBuildDir(project),
             Prepare(project),
             Download(project),
             Configure(project),
             Build(project),
-            Run(project),
             Clean(project)
         ]
 

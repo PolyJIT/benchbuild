@@ -18,10 +18,7 @@ from plumbum import local
 
 from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.reports import Report
-from benchbuild.utils.actions import (Build, Clean, Configure, Download,
-                                      MakeBuildDir, Prepare, Run)
 from benchbuild.settings import CFG
-
 from benchbuild.extensions import \
     (RunWithTime, RuntimeExtension, Extension,
      LogTrackingMixin, LogAdditionals)
@@ -86,8 +83,6 @@ class Test(PolyJIT):
 
     def actions_for_project(self, p):
         p = PolyJIT.init_project(p)
-
-        actns = []
         p.run_uuid = uuid.uuid4()
         jobs = int(CFG["jobs"].value())
         p.cflags += ["-Rpass-missed=polli*",
@@ -119,10 +114,7 @@ class Test(PolyJIT):
                         RunWithPolyJIT(p, self, cfg_with_jit),
                         RunWithoutPolyJIT(p, self, cfg_without_jit)
                     )))
-        p.runtime_extension.print()
-
-        actns.extend(Test.default_runtime_actions(p))
-        return actns
+        return Test.default_runtime_actions(p)
 
 
 class StatusReport(Report):

@@ -37,10 +37,9 @@ from plumbum import local
 from benchbuild import projects
 from benchbuild.project import ProjectRegistry
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import (Clean,
-                                      CleanExtra,
-                                      MakeBuildDir,
-                                      RequireAll)
+from benchbuild.utils.actions import (Build, Clean, CleanExtra, Configure,
+                                      Download, MakeBuildDir, Prepare,
+                                      Run, RequireAll)
 
 
 def get_group_projects(group, experiment):
@@ -170,6 +169,30 @@ class Experiment(object, metaclass=ExperimentRegistry):
         actns.append(Clean(self, check_empty=True))
         actns.append(CleanExtra(self))
         return actns
+
+    @staticmethod
+    def default_runtime_actions(project):
+        return [
+            MakeBuildDir(project),
+            Prepare(project),
+            Download(project),
+            Configure(project),
+            Build(project),
+            Run(project),
+            Clean(project)
+        ]
+
+    @staticmethod
+    def default_compiletime_actions(project):
+        return [
+            MakeBuildDir(project),
+            Prepare(project),
+            Download(project),
+            Configure(project),
+            Build(project),
+            Run(project),
+            Clean(project)
+        ]
 
 
 class RuntimeExperiment(Experiment):

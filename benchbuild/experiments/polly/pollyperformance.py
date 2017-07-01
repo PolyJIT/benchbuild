@@ -16,16 +16,14 @@ Measurements
     time.system_s - The time spent in kernel space in seconds (aka system time)
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
-import functools
 import warnings
 import copy
 import uuid
 import re
 
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.extension import RunWithTime, RuntimeExtension
+from benchbuild.extensions import RunWithTime, RuntimeExtension
 from benchbuild.settings import CFG
-
 
 
 class ShouldNotBeNone(RuntimeWarning):

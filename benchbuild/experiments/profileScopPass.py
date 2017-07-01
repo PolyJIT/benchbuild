@@ -27,11 +27,9 @@ def RunInstrumented(project, experiment, run_f, *args, **kwargs):
 class PProfExperiment(Experiment):
     """The pprof experiment with fancy description."""
 
-    NAME = "pprof"
+    NAME = "profileScopPass"
 
     def actions_for_project(self, project):
-        #project.cflags = ["-Xclang", "-load", "-Xclang", "libpjit.so", "-Xclang", "-load", "-Xclang", "LLVMPprof.so", "/home/stefan/PolyJIT_Build/polli-prefix/src/polli-build/lib/libpjit.so"] #Use -O3?
-        #project.ldflags = ["-lpprof"]
         project.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so", "/home/stefan/PolyJIT_Install/lib/libpjit.so"]
         project.runtime_extension = partial(RunInstrumented, project, self)
         actns = [

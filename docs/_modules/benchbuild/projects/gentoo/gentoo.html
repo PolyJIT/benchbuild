@@ -1,0 +1,242 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.projects.gentoo.gentoo &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for benchbuild.projects.gentoo.gentoo</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The Gentoo module for running tests on builds from the portage tree.</span>
+
+<span class="sd">This will install a stage3 image of gentoo together with a recent snapshot</span>
+<span class="sd">of the portage tree. For building / executing arbitrary projects successfully</span>
+<span class="sd">it is necessary to keep the installed image as close to the host system as</span>
+<span class="sd">possible.</span>
+<span class="sd">In order to speed up your experience, you can replace the stage3 image that we</span>
+<span class="sd">pull from the distfiles mirror with a new image that contains all necessary</span>
+<span class="sd">dependencies for your experiments. Make sure you update the hash alongside</span>
+<span class="sd">the gentoo image in benchbuild&#39;s source directory.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">cp</span>  <span class="c1"># pylint: disable=E0401</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">wrap_cc_in_uchroot</span><span class="p">,</span> <span class="n">wrap_cxx_in_uchroot</span>
+<span class="kn">from</span> <span class="nn">benchbuild</span> <span class="k">import</span> <span class="n">project</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.path</span> <span class="k">import</span> <span class="n">mkfile_uchroot</span><span class="p">,</span> <span class="n">mkdir_uchroot</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.path</span> <span class="k">import</span> <span class="n">list_to_path</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">uchroot_env</span><span class="p">,</span> <span class="n">uchroot_mounts</span>
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">container</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.container</span> <span class="k">import</span> <span class="n">Gentoo</span>
+
+
+<div class="viewcode-block" id="GentooGroup"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup">[docs]</a><span class="k">class</span> <span class="nc">GentooGroup</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">Project</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gentoo ProjectGroup is the base class for every portage build.&quot;&quot;&quot;</span>
+
+    <span class="n">GROUP</span> <span class="o">=</span> <span class="s1">&#39;gentoo&#39;</span>
+    <span class="n">CONTAINER</span> <span class="o">=</span> <span class="n">Gentoo</span><span class="p">()</span>
+    <span class="n">SRC_FILE</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GentooGroup</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="s2">&quot;gentoo&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GentooGroup.build"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="GentooGroup.download"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;unionfs&quot;</span><span class="p">][</span><span class="s2">&quot;enable&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">():</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">unpack_container</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">Project</span><span class="o">.</span><span class="n">CONTAINER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GentooGroup.write_wgetrc"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup.write_wgetrc">[docs]</a>    <span class="k">def</span> <span class="nf">write_wgetrc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">mkfile_uchroot</span><span class="p">(</span><span class="s2">&quot;/etc/wgetrc&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">wgetrc</span><span class="p">:</span>
+            <span class="n">hp</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;gentoo&quot;</span><span class="p">][</span><span class="s2">&quot;http_proxy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="n">fp</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;gentoo&quot;</span><span class="p">][</span><span class="s2">&quot;ftp_proxy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">hp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">http_s</span> <span class="o">=</span> <span class="s2">&quot;http_proxy = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">hp</span><span class="p">))</span>
+                <span class="n">https_s</span> <span class="o">=</span> <span class="s2">&quot;https_proxy = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">hp</span><span class="p">))</span>
+                <span class="n">wgetrc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;use_proxy = on</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">wgetrc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">http_s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">wgetrc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">https_s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">fp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">fp_s</span> <span class="o">=</span> <span class="s2">&quot;ftp_proxy=</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span>
+                <span class="n">wgetrc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fp_s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GentooGroup.write_makeconfig"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup.write_makeconfig">[docs]</a>    <span class="k">def</span> <span class="nf">write_makeconfig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">mkfile_uchroot</span><span class="p">(</span><span class="s2">&quot;/etc/portage/make.conf&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">makeconf</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">PORTAGE_USERNAME=root</span>
+<span class="s1">PORTAGE_GROUPNAME=root</span>
+<span class="s1">CFLAGS=&quot;-O2 -pipe&quot;</span>
+<span class="s1">CXXFLAGS=&quot;$</span><span class="si">{CFLAGS}</span><span class="s1">&quot;</span>
+<span class="s1">FEATURES=&quot;-xattr&quot;</span>
+<span class="s1">CC=&quot;/clang&quot;</span>
+<span class="s1">CXX=&quot;/clang++&quot;</span>
+
+<span class="s1">CHOST=&quot;x86_64-pc-linux-gnu&quot;</span>
+<span class="s1">USE=&quot;bindist mmx sse sse2&quot;</span>
+<span class="s1">PORTDIR=&quot;/usr/portage&quot;</span>
+<span class="s1">DISTDIR=&quot;$</span><span class="si">{PORTDIR}</span><span class="s1">/distfiles&quot;</span>
+<span class="s1">PKGDIR=&quot;$</span><span class="si">{PORTDIR}</span><span class="s1">/packages&quot;</span>
+<span class="s1">PYTHON_TARGETS=&quot;python2_7 python3_5&quot;</span>
+<span class="s1">&#39;&#39;&#39;</span>
+
+            <span class="n">makeconf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+            <span class="n">hp</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;gentoo&quot;</span><span class="p">][</span><span class="s2">&quot;http_proxy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">hp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">http_s</span> <span class="o">=</span> <span class="s2">&quot;http_proxy=</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">hp</span><span class="p">))</span>
+                <span class="n">https_s</span> <span class="o">=</span> <span class="s2">&quot;https_proxy=</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">hp</span><span class="p">))</span>
+                <span class="n">makeconf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">http_s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">makeconf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">https_s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">fp</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;gentoo&quot;</span><span class="p">][</span><span class="s2">&quot;ftp_proxy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">fp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">fp_s</span> <span class="o">=</span> <span class="s2">&quot;ftp_proxy=</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span>
+                <span class="n">makeconf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fp_s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">rp</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;gentoo&quot;</span><span class="p">][</span><span class="s2">&quot;rsync_proxy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">rp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">rp_s</span> <span class="o">=</span> <span class="s2">&quot;RSYNC_PROXY=</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">rp</span><span class="p">))</span>
+                <span class="n">makeconf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rp_s</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GentooGroup.write_bashrc"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup.write_bashrc">[docs]</a>    <span class="k">def</span> <span class="nf">write_bashrc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">mkfile_uchroot</span><span class="p">(</span><span class="s2">&quot;/etc/portage/bashrc&quot;</span><span class="p">)</span>
+        <span class="n">paths</span><span class="p">,</span> <span class="n">libs</span> <span class="o">=</span> <span class="n">uchroot_env</span><span class="p">(</span>
+                <span class="n">uchroot_mounts</span><span class="p">(</span><span class="s2">&quot;mnt&quot;</span><span class="p">,</span>
+                               <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">][</span><span class="s2">&quot;mounts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
+        <span class="n">p_paths</span><span class="p">,</span> <span class="n">p_libs</span> <span class="o">=</span> <span class="n">uchroot_env</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">][</span><span class="s2">&quot;prefixes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bashrc</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">export PATH=&quot;</span><span class="si">{0}</span><span class="s1">:${{PATH}}&quot;</span>
+<span class="s1">export LD_LIBRARY_PATH=&quot;</span><span class="si">{1}</span><span class="s1">:${{LD_LIBRARY_PATH}}&quot;</span>
+<span class="s1">&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">list_to_path</span><span class="p">(</span><span class="n">paths</span> <span class="o">+</span> <span class="n">p_paths</span><span class="p">),</span>
+           <span class="n">list_to_path</span><span class="p">(</span><span class="n">libs</span> <span class="o">+</span> <span class="n">p_libs</span><span class="p">))</span>
+
+            <span class="n">bashrc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GentooGroup.write_layout"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup.write_layout">[docs]</a>    <span class="k">def</span> <span class="nf">write_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">mkdir_uchroot</span><span class="p">(</span><span class="s2">&quot;/etc/portage/metadata&quot;</span><span class="p">)</span>
+        <span class="n">mkfile_uchroot</span><span class="p">(</span><span class="s2">&quot;/etc/portage/metadata/layout.conf&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">layoutconf</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;masters = gentoo&#39;&#39;&#39;</span>
+            <span class="n">layoutconf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GentooGroup.configure"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_bashrc</span><span class="p">(</span><span class="s2">&quot;etc/portage/bashrc&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_makeconfig</span><span class="p">(</span><span class="s2">&quot;etc/portage/make.conf&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_wgetrc</span><span class="p">(</span><span class="s2">&quot;etc/wgetrc&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_layout</span><span class="p">(</span><span class="s2">&quot;etc/portage/metadata/layout.conf&quot;</span><span class="p">)</span>
+
+        <span class="n">mkfile_uchroot</span><span class="p">(</span><span class="s2">&quot;/etc/resolv.conf&quot;</span><span class="p">)</span>
+        <span class="n">cp</span><span class="p">(</span><span class="s2">&quot;/etc/resolv.conf&quot;</span><span class="p">,</span> <span class="s2">&quot;etc/resolv.conf&quot;</span><span class="p">)</span>
+
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;config_file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">config_file</span><span class="p">)):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;log.file&quot;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
+                <span class="n">paths</span><span class="p">,</span> <span class="n">libs</span> <span class="o">=</span> \
+                        <span class="n">uchroot_env</span><span class="p">(</span>
+                            <span class="n">uchroot_mounts</span><span class="p">(</span><span class="s2">&quot;mnt&quot;</span><span class="p">,</span>
+                                <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">][</span><span class="s2">&quot;mounts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
+                <span class="n">UCHROOT_CFG</span> <span class="o">=</span> <span class="n">CFG</span>
+                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;plugins&quot;</span><span class="p">][</span><span class="s2">&quot;projects&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;compiler_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paths</span>
+                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;compiler_ld_library_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
+
+                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;binary_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paths</span>
+                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;binary_ld_library_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
+
+                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;lookup_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paths</span>
+                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;lookup_ld_library_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
+
+                <span class="n">mkfile_uchroot</span><span class="p">(</span><span class="s2">&quot;/.benchbuild.json&quot;</span><span class="p">)</span>
+                <span class="n">UCHROOT_CFG</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;.benchbuild.json&quot;</span><span class="p">)</span>
+
+        <span class="n">wrap_cc_in_uchroot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+        <span class="n">wrap_cxx_in_uchroot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../projects.html">benchbuild.projects</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

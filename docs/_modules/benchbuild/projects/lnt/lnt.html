@@ -1,0 +1,252 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.projects.lnt.lnt &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for benchbuild.projects.lnt.lnt</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">LNT based measurements.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">benchbuild.project</span> <span class="k">import</span> <span class="n">Project</span>
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang</span><span class="p">,</span> <span class="n">lt_clang_cxx</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Git</span><span class="p">,</span> <span class="n">CopyNoFail</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap_dynamic</span>
+
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">virtualenv</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">mkdir</span><span class="p">,</span> <span class="n">rm</span>
+
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+
+
+<div class="viewcode-block" id="LNTGroup"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.LNTGroup">[docs]</a><span class="k">class</span> <span class="nc">LNTGroup</span><span class="p">(</span><span class="n">Project</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;LNT ProjectGroup for running the lnt test suite.&quot;&quot;&quot;</span>
+
+    <span class="n">DOMAIN</span> <span class="o">=</span> <span class="s1">&#39;lnt&#39;</span>
+    <span class="n">GROUP</span> <span class="o">=</span> <span class="s1">&#39;lnt&#39;</span>
+    <span class="n">VERSION</span> <span class="o">=</span> <span class="s1">&#39;9.0.1.13&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LNTGroup</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="s2">&quot;lnt&quot;</span><span class="p">)</span>
+
+    <span class="n">src_dir</span> <span class="o">=</span> <span class="s2">&quot;lnt&quot;</span>
+    <span class="n">src_uri</span> <span class="o">=</span> <span class="s2">&quot;http://llvm.org/git/lnt&quot;</span>
+    <span class="n">test_suite_dir</span> <span class="o">=</span> <span class="s2">&quot;test-suite&quot;</span>
+    <span class="n">test_suite_uri</span> <span class="o">=</span> <span class="s2">&quot;http://llvm.org/git/test-suite&quot;</span>
+
+<div class="viewcode-block" id="LNTGroup.download"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.LNTGroup.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">Git</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_uri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_dir</span><span class="p">)</span>
+        <span class="n">Git</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_suite_uri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_suite_dir</span><span class="p">)</span>
+
+        <span class="n">virtualenv</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="s2">&quot;--python=python2&quot;</span><span class="p">,</span> <span class="p">)</span>
+        <span class="n">python</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">)]</span>
+        <span class="n">python</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_dir</span><span class="p">,</span> <span class="s2">&quot;setup.py&quot;</span><span class="p">),</span> <span class="s2">&quot;develop&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LNTGroup.configure"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.LNTGroup.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sandbox_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">sandbox_dir</span><span class="p">):</span>
+            <span class="n">rm</span><span class="p">(</span><span class="s2">&quot;-rf&quot;</span><span class="p">,</span> <span class="n">sandbox_dir</span><span class="p">)</span>
+
+        <span class="n">mkdir</span><span class="p">(</span><span class="n">sandbox_dir</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LNTGroup.build"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.LNTGroup.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="SingleSourceBenchmarks"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.SingleSourceBenchmarks">[docs]</a><span class="k">class</span> <span class="nc">SingleSourceBenchmarks</span><span class="p">(</span><span class="n">LNTGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;SingleSourceBenchmarks&#39;</span>
+
+<div class="viewcode-block" id="SingleSourceBenchmarks.run_tests"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">wrap_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;lnt_runner&quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+        <span class="n">lnt</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;lnt&quot;</span><span class="p">)]</span>
+        <span class="n">sandbox_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">)</span>
+
+        <span class="n">clang</span> <span class="o">=</span> <span class="n">lt_clang</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+        <span class="n">clang_cxx</span> <span class="o">=</span> <span class="n">lt_clang_cxx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+
+        <span class="n">run</span><span class="p">(</span><span class="n">lnt</span><span class="p">[</span><span class="s2">&quot;runtest&quot;</span><span class="p">,</span> <span class="s2">&quot;nt&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;-j1&quot;</span><span class="p">,</span> <span class="s2">&quot;--sandbox&quot;</span><span class="p">,</span> <span class="n">sandbox_dir</span><span class="p">,</span> <span class="s2">&quot;--cc&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">clang</span><span class="p">),</span> <span class="s2">&quot;--cxx&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">clang_cxx</span><span class="p">),</span> <span class="s2">&quot;--test-suite&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_suite_dir</span><span class="p">),</span> <span class="s2">&quot;--test-style&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;--make-param=RUNUNDER=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exp</span><span class="p">),</span> <span class="s2">&quot;--only-test=&quot;</span> <span class="o">+</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;SingleSource&quot;</span><span class="p">,</span> <span class="s2">&quot;Benchmarks&quot;</span><span class="p">),</span> <span class="s2">&quot;-v&quot;</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="MultiSourceBenchmarks"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.MultiSourceBenchmarks">[docs]</a><span class="k">class</span> <span class="nc">MultiSourceBenchmarks</span><span class="p">(</span><span class="n">LNTGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;MultiSourceBenchmarks&#39;</span>
+
+<div class="viewcode-block" id="MultiSourceBenchmarks.run_tests"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">wrap_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;lnt_runner&quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+        <span class="n">lnt</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;lnt&quot;</span><span class="p">)]</span>
+        <span class="n">sandbox_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">)</span>
+
+        <span class="n">clang</span> <span class="o">=</span> <span class="n">lt_clang</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+        <span class="n">clang_cxx</span> <span class="o">=</span> <span class="n">lt_clang_cxx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+
+        <span class="n">run</span><span class="p">(</span><span class="n">lnt</span><span class="p">[</span><span class="s2">&quot;runtest&quot;</span><span class="p">,</span> <span class="s2">&quot;nt&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;-j1&quot;</span><span class="p">,</span> <span class="s2">&quot;--sandbox&quot;</span><span class="p">,</span> <span class="n">sandbox_dir</span><span class="p">,</span> <span class="s2">&quot;--cc&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">clang</span><span class="p">),</span> <span class="s2">&quot;--cxx&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">clang_cxx</span><span class="p">),</span> <span class="s2">&quot;--test-suite&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_suite_dir</span><span class="p">),</span> <span class="s2">&quot;--test-style&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;--make-param=RUNUNDER=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exp</span><span class="p">),</span> <span class="s2">&quot;--only-test=&quot;</span> <span class="o">+</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;MultiSource&quot;</span><span class="p">,</span> <span class="s2">&quot;Benchmarks&quot;</span><span class="p">)])</span></div></div>
+
+
+<div class="viewcode-block" id="MultiSourceApplications"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.MultiSourceApplications">[docs]</a><span class="k">class</span> <span class="nc">MultiSourceApplications</span><span class="p">(</span><span class="n">LNTGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;MultiSourceApplications&#39;</span>
+
+<div class="viewcode-block" id="MultiSourceApplications.run_tests"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.MultiSourceApplications.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">wrap_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;lnt_runner&quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+        <span class="n">lnt</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;lnt&quot;</span><span class="p">)]</span>
+        <span class="n">sandbox_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">)</span>
+
+        <span class="n">clang</span> <span class="o">=</span> <span class="n">lt_clang</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+        <span class="n">clang_cxx</span> <span class="o">=</span> <span class="n">lt_clang_cxx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+
+        <span class="n">run</span><span class="p">(</span><span class="n">lnt</span><span class="p">[</span><span class="s2">&quot;runtest&quot;</span><span class="p">,</span> <span class="s2">&quot;nt&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;-j1&quot;</span><span class="p">,</span> <span class="s2">&quot;--sandbox&quot;</span><span class="p">,</span> <span class="n">sandbox_dir</span><span class="p">,</span> <span class="s2">&quot;--cc&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">clang</span><span class="p">),</span> <span class="s2">&quot;--cxx&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">clang_cxx</span><span class="p">),</span> <span class="s2">&quot;--test-suite&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_suite_dir</span><span class="p">),</span> <span class="s2">&quot;--test-style&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;--make-param=RUNUNDER=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exp</span><span class="p">),</span> <span class="s2">&quot;--only-test=&quot;</span> <span class="o">+</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;MultiSource&quot;</span><span class="p">,</span> <span class="s2">&quot;Applications&quot;</span><span class="p">)])</span></div></div>
+
+
+<div class="viewcode-block" id="SPEC2006"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.SPEC2006">[docs]</a><span class="k">class</span> <span class="nc">SPEC2006</span><span class="p">(</span><span class="n">LNTGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;SPEC2006&#39;</span>
+
+<div class="viewcode-block" id="SPEC2006.download"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.SPEC2006.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">CopyNoFail</span><span class="p">(</span><span class="s1">&#39;speccpu2006&#39;</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">SPEC2006</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;======================================================&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;SPECCPU2006 not found in </span><span class="si">%s</span><span class="s1">. This project will fail.&#39;</span><span class="p">,</span> <span class="n">CFG</span><span class="p">[</span>
+                <span class="s1">&#39;tmp_dir&#39;</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;======================================================&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SPEC2006.run_tests"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.SPEC2006.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">wrap_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;lnt_runner&quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+        <span class="n">lnt</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;lnt&quot;</span><span class="p">)]</span>
+        <span class="n">sandbox_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">)</span>
+
+        <span class="n">clang</span> <span class="o">=</span> <span class="n">lt_clang</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+        <span class="n">clang_cxx</span> <span class="o">=</span> <span class="n">lt_clang_cxx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+
+        <span class="n">run</span><span class="p">(</span><span class="n">lnt</span><span class="p">[</span><span class="s2">&quot;runtest&quot;</span><span class="p">,</span> <span class="s2">&quot;nt&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;-j1&quot;</span><span class="p">,</span> <span class="s2">&quot;--sandbox&quot;</span><span class="p">,</span> <span class="n">sandbox_dir</span><span class="p">,</span> <span class="s2">&quot;--cc&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">clang</span><span class="p">),</span> <span class="s2">&quot;--cxx&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">clang_cxx</span><span class="p">),</span> <span class="s2">&quot;--test-suite&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_suite_dir</span><span class="p">),</span> <span class="s2">&quot;--test-style&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;--test-external&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span>
+                <span class="s2">&quot;--make-param=RUNUNDER=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="n">exp</span><span class="p">),</span> <span class="s2">&quot;--only-test=&quot;</span> <span class="o">+</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;External&quot;</span><span class="p">,</span> <span class="s2">&quot;SPEC&quot;</span><span class="p">)])</span></div></div>
+
+
+<div class="viewcode-block" id="Povray"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.Povray">[docs]</a><span class="k">class</span> <span class="nc">Povray</span><span class="p">(</span><span class="n">LNTGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;Povray&#39;</span>
+
+    <span class="n">povray_url</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/POV-Ray/povray&quot;</span>
+    <span class="n">povray_src_dir</span> <span class="o">=</span> <span class="s2">&quot;Povray&quot;</span>
+
+<div class="viewcode-block" id="Povray.download"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.Povray.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Povray</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+        <span class="n">Git</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">povray_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">povray_src_dir</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Povray.run_tests"><a class="viewcode-back" href="../../../../benchbuild.projects.lnt.html#benchbuild.projects.lnt.lnt.Povray.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">wrap_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;lnt_runner&quot;</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+        <span class="n">lnt</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;lnt&quot;</span><span class="p">)]</span>
+        <span class="n">sandbox_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">)</span>
+
+        <span class="n">clang</span> <span class="o">=</span> <span class="n">lt_clang</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+        <span class="n">clang_cxx</span> <span class="o">=</span> <span class="n">lt_clang_cxx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+
+        <span class="n">run</span><span class="p">(</span><span class="n">lnt</span><span class="p">[</span><span class="s2">&quot;runtest&quot;</span><span class="p">,</span> <span class="s2">&quot;nt&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;-j1&quot;</span><span class="p">,</span> <span class="s2">&quot;--sandbox&quot;</span><span class="p">,</span> <span class="n">sandbox_dir</span><span class="p">,</span> <span class="s2">&quot;--cc&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">clang</span><span class="p">),</span> <span class="s2">&quot;--cxx&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">clang_cxx</span><span class="p">),</span> <span class="s2">&quot;--test-suite&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_suite_dir</span><span class="p">),</span> <span class="s2">&quot;--test-style&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;--test-external&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span>
+                <span class="s2">&quot;--make-param=RUNUNDER=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="n">exp</span><span class="p">),</span> <span class="s2">&quot;--only-test=&quot;</span> <span class="o">+</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;External&quot;</span><span class="p">,</span> <span class="s2">&quot;Povray&quot;</span><span class="p">)])</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../projects.html">benchbuild.projects</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

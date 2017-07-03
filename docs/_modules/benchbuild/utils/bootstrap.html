@@ -1,0 +1,226 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.utils.bootstrap &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for benchbuild.utils.bootstrap</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Helper functions for bootstrapping external dependencies. &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">benchbuild.utils.user_interface</span> <span class="k">as</span> <span class="nn">ui</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span><span class="p">,</span> <span class="n">TF</span>
+<span class="kn">from</span> <span class="nn">benchbuild</span> <span class="k">import</span> <span class="n">settings</span>
+
+<span class="n">ask</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">ask</span>
+
+
+<div class="viewcode-block" id="find_package"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.bootstrap.find_package">[docs]</a><span class="k">def</span> <span class="nf">find_package</span><span class="p">(</span><span class="n">binary</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">cmd</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checking for </span><span class="si">{}</span><span class="s2"> - Yes [</span><span class="si">{}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checking for </span><span class="si">{}</span><span class="s2">  - No&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">binary</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<span class="n">PACKAGES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;unionfs&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;gentoo base system&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sys-fs/unionfs-fuse&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;ubuntu&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;unionfs-fuse&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;debian&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;unionfs-fuse&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;postgres&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;gentoo base system&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dev-db/postgres&quot;</span><span class="p">,</span> <span class="s2">&quot;dev-libs/libpqxx&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;ubuntu&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;libpq-dev&quot;</span><span class="p">,</span> <span class="s2">&quot;libpqxx-dev&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;debian&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;libpq-dev&quot;</span><span class="p">,</span> <span class="s2">&quot;libpqxx-dev&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;fusermount&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;gentoo base system&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sys-fs/fuse&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;ubuntu&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;fuse&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;debian&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;fuse&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">PACKAGE_MANAGER</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;gentoo base system&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;cmd&quot;</span><span class="p">:</span> <span class="s2">&quot;emerge&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-a&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;ubuntu&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;cmd&quot;</span><span class="p">:</span> <span class="s2">&quot;apt-get&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;install&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;debian&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;cmd&quot;</span><span class="p">:</span> <span class="s2">&quot;apt-get&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;install&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="install_uchroot"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.bootstrap.install_uchroot">[docs]</a><span class="k">def</span> <span class="nf">install_uchroot</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">git</span><span class="p">,</span> <span class="n">mkdir</span>
+    <span class="n">builddir</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;build_dir&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="n">builddir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;erlent/.git&quot;</span><span class="p">):</span>
+            <span class="n">git</span><span class="p">(</span><span class="s2">&quot;clone&quot;</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;uchroot&quot;</span><span class="p">][</span><span class="s2">&quot;repo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="s2">&quot;erlent&quot;</span><span class="p">):</span>
+                <span class="n">git</span><span class="p">(</span><span class="s2">&quot;pull&quot;</span><span class="p">,</span> <span class="s2">&quot;--rebase&quot;</span><span class="p">)</span>
+        <span class="n">mkdir</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;erlent/build&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="s2">&quot;erlent/build&quot;</span><span class="p">):</span>
+            <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">cmake</span>
+            <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">make</span>
+            <span class="n">cmake</span><span class="p">(</span><span class="s2">&quot;../&quot;</span><span class="p">)</span>
+            <span class="n">make</span><span class="p">()</span>
+    <span class="n">erlent_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">builddir</span><span class="p">,</span> <span class="s2">&quot;erlent&quot;</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">))</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">erlent_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span>
+        <span class="s2">&quot;PATH&quot;</span><span class="p">]])</span>
+    <span class="n">local</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">PATH</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">find_package</span><span class="p">(</span><span class="s2">&quot;uchroot&quot;</span><span class="p">):</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;lookup_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">erlent_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_uchroot_config"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.bootstrap.check_uchroot_config">[docs]</a><span class="k">def</span> <span class="nf">check_uchroot_config</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">grep</span>
+    <span class="kn">from</span> <span class="nn">getpass</span> <span class="k">import</span> <span class="n">getuser</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checking configuration of &#39;uchroot&#39;&quot;</span><span class="p">)</span>
+
+    <span class="n">fuse_grep</span> <span class="o">=</span> <span class="n">grep</span><span class="p">[</span><span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="s1">&#39;-e&#39;</span><span class="p">]</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">getuser</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">fuse_grep</span><span class="p">[</span><span class="s2">&quot;^user_allow_other&quot;</span><span class="p">,</span> <span class="s2">&quot;/etc/fuse.conf&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">TF</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;uchroot needs &#39;user_allow_other&#39; enabled in &#39;/etc/fuse.conf&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">fuse_grep</span><span class="p">[</span><span class="s2">&quot;^</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">),</span> <span class="s2">&quot;/etc/subuid&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">TF</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;uchroot needs an entry for user &#39;</span><span class="si">{0}</span><span class="s2">&#39; in &#39;/etc/subuid&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">username</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">fuse_grep</span><span class="p">[</span><span class="s2">&quot;^</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">),</span> <span class="s2">&quot;/etc/subgid&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">TF</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;uchroot needs an entry for user &#39;</span><span class="si">{0}</span><span class="s2">&#39; in &#39;/etc/subgid&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">username</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="linux_distribution_major"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.bootstrap.linux_distribution_major">[docs]</a><span class="k">def</span> <span class="nf">linux_distribution_major</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Linux&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">platform</span><span class="o">.</span><span class="n">linux_distribution</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="install_package"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.bootstrap.install_package">[docs]</a><span class="k">def</span> <span class="nf">install_package</span><span class="p">(</span><span class="n">pkg_name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">pkg_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PACKAGES</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No bootstrap support for package &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pkg_name</span><span class="p">))</span>
+    <span class="n">linux</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">linux_distribution_major</span><span class="p">()</span>
+    <span class="n">linux</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">linux</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+    <span class="n">package_manager</span> <span class="o">=</span> <span class="n">PACKAGE_MANAGER</span><span class="p">[</span><span class="n">linux</span><span class="p">]</span>
+    <span class="n">packages</span> <span class="o">=</span> <span class="n">PACKAGES</span><span class="p">[</span><span class="n">pkg_name</span><span class="p">][</span><span class="n">linux</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">pkg_name_on_host</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You are missing the package: &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pkg_name_on_host</span><span class="p">))</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="s2">&quot;sudo&quot;</span><span class="p">]</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd</span><span class="p">[</span><span class="n">package_manager</span><span class="p">[</span><span class="s2">&quot;cmd&quot;</span><span class="p">],</span>
+                  <span class="n">package_manager</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">],</span>
+                  <span class="n">pkg_name_on_host</span><span class="p">]</span>
+        <span class="n">cmd_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ask</span><span class="p">(</span><span class="s2">&quot;Run &#39;</span><span class="si">{cmd}</span><span class="s2">&#39; to install it?&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmd</span><span class="o">=</span><span class="n">cmd_str</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running: &#39;</span><span class="si">{cmd}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmd</span><span class="o">=</span><span class="n">cmd_str</span><span class="p">))</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="p">(</span><span class="n">cmd</span> <span class="o">&amp;</span> <span class="n">TF</span><span class="p">(</span><span class="n">retcode</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOT INSTALLED&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="provide_package"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.bootstrap.provide_package">[docs]</a><span class="k">def</span> <span class="nf">provide_package</span><span class="p">(</span><span class="n">pkg_name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">find_package</span><span class="p">(</span><span class="n">pkg_name</span><span class="p">):</span>
+        <span class="n">install_package</span><span class="p">(</span><span class="n">pkg_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="provide_packages"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.bootstrap.provide_packages">[docs]</a><span class="k">def</span> <span class="nf">provide_packages</span><span class="p">(</span><span class="n">pkg_names</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">pkg_name</span> <span class="ow">in</span> <span class="n">pkg_names</span><span class="p">:</span>
+        <span class="n">provide_package</span><span class="p">(</span><span class="n">pkg_name</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

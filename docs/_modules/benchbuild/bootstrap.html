@@ -1,0 +1,135 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.bootstrap &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for benchbuild.bootstrap</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">cli</span>
+<span class="kn">import</span> <span class="nn">benchbuild.utils.bootstrap</span> <span class="k">as</span> <span class="nn">bs</span>
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+
+<span class="n">provide_package</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">provide_package</span>
+<span class="n">provide_packages</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">provide_packages</span>
+<span class="n">find_package</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">find_package</span>
+<span class="n">install_package</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">find_package</span>
+<span class="n">install_uchroot</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">install_uchroot</span>
+<span class="n">check_uchroot_config</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">check_uchroot_config</span>
+
+
+<div class="viewcode-block" id="BenchBuildBootstrap"><a class="viewcode-back" href="../../benchbuild.html#benchbuild.bootstrap.BenchBuildBootstrap">[docs]</a><span class="k">class</span> <span class="nc">BenchBuildBootstrap</span><span class="p">(</span><span class="n">cli</span><span class="o">.</span><span class="n">Application</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Bootstrap benchbuild external dependencies, if possible.&quot;&quot;&quot;</span>
+
+    <span class="n">store_config</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">Flag</span><span class="p">([</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--save-config&quot;</span><span class="p">],</span>
+                            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Save benchbuild&#39;s configuration.&quot;</span><span class="p">,</span>
+                            <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BenchBuildBootstrap.main"><a class="viewcode-back" href="../../benchbuild.html#benchbuild.bootstrap.BenchBuildBootstrap.main">[docs]</a>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checking benchbuild binary dependencies...&quot;</span><span class="p">)</span>
+        <span class="n">provide_package</span><span class="p">(</span><span class="s2">&quot;cmake&quot;</span><span class="p">)</span>
+        <span class="n">provide_package</span><span class="p">(</span><span class="s2">&quot;fusermount&quot;</span><span class="p">)</span>
+        <span class="n">provide_package</span><span class="p">(</span><span class="s2">&quot;unionfs&quot;</span><span class="p">)</span>
+        <span class="n">provide_package</span><span class="p">(</span><span class="s2">&quot;postgres&quot;</span><span class="p">)</span>
+
+        <span class="n">has_uchroot</span> <span class="o">=</span> <span class="n">find_package</span><span class="p">(</span><span class="s2">&quot;uchroot&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_uchroot</span><span class="p">:</span>
+            <span class="n">install_uchroot</span><span class="p">()</span>
+            <span class="n">has_uchroot</span> <span class="o">=</span> <span class="n">find_package</span><span class="p">(</span><span class="s2">&quot;uchroot&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">has_uchroot</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOT INSTALLED&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_uchroot</span><span class="p">:</span>
+            <span class="n">check_uchroot_config</span><span class="p">()</span>
+
+        <span class="n">provide_packages</span><span class="p">([</span>
+            <span class="s2">&quot;mkdir&quot;</span><span class="p">,</span> <span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;tar&quot;</span><span class="p">,</span> <span class="s2">&quot;mv&quot;</span><span class="p">,</span> <span class="s2">&quot;rm&quot;</span><span class="p">,</span> <span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;rmdir&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chmod&quot;</span><span class="p">,</span> <span class="s2">&quot;cp&quot;</span><span class="p">,</span> <span class="s2">&quot;ln&quot;</span><span class="p">,</span> <span class="s2">&quot;make&quot;</span><span class="p">,</span> <span class="s2">&quot;unzip&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="s2">&quot;find&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;echo&quot;</span><span class="p">,</span> <span class="s2">&quot;grep&quot;</span><span class="p">,</span> <span class="s2">&quot;sed&quot;</span><span class="p">,</span> <span class="s2">&quot;sh&quot;</span><span class="p">,</span> <span class="s2">&quot;autoreconf&quot;</span><span class="p">,</span> <span class="s2">&quot;ruby&quot;</span><span class="p">,</span> <span class="s2">&quot;curl&quot;</span><span class="p">,</span> <span class="s2">&quot;tail&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kill&quot;</span><span class="p">,</span> <span class="s2">&quot;virtualenv&quot;</span><span class="p">,</span> <span class="s2">&quot;timeout&quot;</span>
+        <span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_config</span><span class="p">:</span>
+            <span class="n">config_path</span> <span class="o">=</span> <span class="s2">&quot;.benchbuild.json&quot;</span>
+            <span class="n">CFG</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Storing config in </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">config_path</span><span class="p">)))</span>
+            <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

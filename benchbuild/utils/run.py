@@ -1,13 +1,14 @@
 """Experiment helpers."""
 import os
-from benchbuild.settings import CFG
-from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
-from benchbuild.utils.path import list_to_path
-from contextlib import contextmanager
-from benchbuild import settings
-from plumbum import local, ProcessExecutionError
 import logging
 import subprocess
+from contextlib import contextmanager
+
+from benchbuild.settings import CFG
+from benchbuild.utils.cmd import mkdir
+from benchbuild.utils.path import list_to_path
+from benchbuild import settings
+from plumbum import local
 
 
 LOG = logging.getLogger()
@@ -172,7 +173,6 @@ def begin(command, project, ename, group):
     """
     from benchbuild.utils.db import create_run
     from benchbuild.utils import schema as s
-    from benchbuild.settings import CFG
     from datetime import datetime
 
     db_run, session = create_run(command, project, ename, group)

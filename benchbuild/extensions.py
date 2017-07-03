@@ -88,15 +88,20 @@ class LogTrackingMixin(object):
 class LogAdditionals(Extension):
     """Log any additional log files that were registered."""
     def __call__(self, *args, **kwargs):
+        from benchbuild.utils.cmd import cat
+        from plumbum import FG
         if not self.next_extensions:
             return None
 
         res = self.call_next(*args, **kwargs)
 
         for ext in self.next_extensions:
-            if issubclass(LogTrackingMixin, ext.__class__):
+            if issubclass(ext.__class__, (LogTrackingMixin)):
+                LOG.debug("::: Checking additional log files from: {}".format(ext))
                 for log in ext.logs:
-                    print(log)
+                    LOG.debug("::: Dumping content of '{}'.".format(log))
+                    cat[log] & FG
+                    LOG.debug("::: Dumping content of '{}' complete.".format(log))
 
         return res
 
@@ -128,6 +133,7 @@ class RunWithTime(Extension):
 
         res = self.call_next(run_cmd, *args, **kwargs)
         return handle_timing(res)
+
 
 class ExtractCompileStats(Extension):
     def __init__(self, project, experiment, config, *extensions):
@@ -251,8 +257,11 @@ class RunWithoutPolyJIT(RuntimeExtension):
 class RegisterPolyJITLogs(LogTrackingMixin, Extension):
     def __call__(self, *args, **kwargs):
         """Redirect to RunWithTime, but register additional logs."""
-        ret = self.call_next(*args, **kwargs)
-        files = glob.glob(os.path.join(os.path.curdir, "polyjit.[0-9]+.log"))
+        from benchbuild.utils.cmd import ls
+        with local.env(POLLI_ENABLE_FILE_LOG=1):
+            ret = self.call_next(*args, **kwargs)
+        curdir = os.path.realpath(os.path.curdir)
+        files = glob.glob(os.path.join(curdir, "polyjit.*.log"))
 
         for file in files:
             self.add_log(file)

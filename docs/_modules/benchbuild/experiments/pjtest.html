@@ -1,0 +1,275 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.experiments.pjtest &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for benchbuild.experiments.pjtest</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A test experiment for PolyJIT.</span>
+
+<span class="sd">This experiment should only be used to test various features of PolyJIT. It</span>
+<span class="sd">provides only 1 configuration (maximum number of cores) and tests 2 run-time</span>
+<span class="sd">execution profiles of PolyJIT:</span>
+<span class="sd">  1) PolyJIT enabled, with specialization</span>
+<span class="sd">  2) PolyJIT enabled, without specialization</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="k">as</span> <span class="nn">sa</span>
+
+<span class="kn">from</span> <span class="nn">benchbuild.experiments.polyjit</span> <span class="k">import</span> <span class="n">PolyJIT</span>
+<span class="kn">from</span> <span class="nn">benchbuild.reports</span> <span class="k">import</span> <span class="n">Report</span>
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+<span class="kn">from</span> <span class="nn">benchbuild.extensions</span> <span class="k">import</span> \
+    <span class="p">(</span><span class="n">RunWithTime</span><span class="p">,</span> <span class="n">LogAdditionals</span><span class="p">,</span> <span class="n">RunWithPolyJIT</span><span class="p">,</span>
+     <span class="n">RunWithoutPolyJIT</span><span class="p">,</span> <span class="n">RegisterPolyJITLogs</span><span class="p">)</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Test"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.Test">[docs]</a><span class="k">class</span> <span class="nc">Test</span><span class="p">(</span><span class="n">PolyJIT</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An experiment that executes all projects with PolyJIT support.</span>
+
+<span class="sd">    This is our default experiment for speedup measurements.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;pj-test&quot;</span>
+
+<div class="viewcode-block" id="Test.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.Test.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">run_uuid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">cflags</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-Rpass-missed=polli*&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-stats&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polly-num-threads=</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">jobs</span><span class="p">)]</span>
+
+        <span class="n">cfg_with_jit</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="n">jobs</span><span class="p">,</span>
+            <span class="s2">&quot;cflags&quot;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span>
+            <span class="s2">&quot;cores&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">jobs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;cores-config&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">jobs</span><span class="p">),</span>
+            <span class="s2">&quot;recompilation&quot;</span><span class="p">:</span> <span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;specialization&quot;</span><span class="p">:</span> <span class="s2">&quot;enabled&quot;</span>
+        <span class="p">}</span>
+
+        <span class="n">cfg_without_jit</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="n">jobs</span><span class="p">,</span>
+            <span class="s2">&quot;cflags&quot;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span>
+            <span class="s2">&quot;cores&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">jobs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;cores-config&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">jobs</span><span class="p">),</span>
+            <span class="s2">&quot;recompilation&quot;</span><span class="p">:</span> <span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;specialization&quot;</span><span class="p">:</span> <span class="s2">&quot;disabled&quot;</span>
+        <span class="p">}</span>
+
+        <span class="n">p</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
+            <span class="n">LogAdditionals</span><span class="p">(</span>
+                <span class="n">RegisterPolyJITLogs</span><span class="p">(</span>
+                    <span class="n">RunWithTime</span><span class="p">(</span>
+                        <span class="n">RunWithPolyJIT</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cfg_with_jit</span><span class="p">),</span>
+                        <span class="n">RunWithoutPolyJIT</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cfg_without_jit</span><span class="p">)</span>
+                    <span class="p">)))</span>
+        <span class="k">return</span> <span class="n">Test</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="StatusReport"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.StatusReport">[docs]</a><span class="k">class</span> <span class="nc">StatusReport</span><span class="p">(</span><span class="n">Report</span><span class="p">):</span>
+
+    <span class="n">SUPPORTED_EXPERIMENTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pj-test&quot;</span><span class="p">,</span> <span class="s2">&quot;pj-seq-test&quot;</span><span class="p">,</span> <span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="s2">&quot;pj&quot;</span><span class="p">,</span> <span class="s2">&quot;pj-raw&quot;</span><span class="p">,</span> <span class="s2">&quot;pollytest&quot;</span><span class="p">]</span>
+    <span class="n">QUERY_STATUS</span> <span class="o">=</span> \
+        <span class="n">sa</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">select</span><span class="p">([</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;_group&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;runs&#39;</span><span class="p">)</span>
+        <span class="p">])</span><span class="o">.</span>\
+        <span class="n">select_from</span><span class="p">(</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">exp_status</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">bindparam</span><span class="p">(</span><span class="s1">&#39;exp_ids&#39;</span><span class="p">))</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="StatusReport.report"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.StatusReport.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;I found the following matching experiment ids&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_ids</span><span class="p">]))</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="n">StatusReport</span><span class="o">.</span>\
+            <span class="n">QUERY_STATUS</span><span class="o">.</span><span class="n">unique_params</span><span class="p">(</span><span class="n">exp_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_ids</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span>
+               <span class="p">(</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;runs&#39;</span><span class="p">),</span>
+               <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qry</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="StatusReport.generate"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.StatusReport.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">():</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_path</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{prefix}</span><span class="s2">_</span><span class="si">{name}{ending}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">prefix</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">ending</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_out</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Writing &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">csv_out</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                <span class="n">csv_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csv_out</span><span class="p">)</span>
+                <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">([</span><span class="n">header</span><span class="p">])</span>
+                <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="TestReport"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.TestReport">[docs]</a><span class="k">class</span> <span class="nc">TestReport</span><span class="p">(</span><span class="n">Report</span><span class="p">):</span>
+
+    <span class="n">SUPPORTED_EXPERIMENTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pj-test&quot;</span><span class="p">]</span>
+
+    <span class="n">QUERY_TOTAL</span> <span class="o">=</span> \
+        <span class="n">sa</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">select</span><span class="p">([</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;project&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;domain&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;speedup&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;ohcov_0&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;ohcov_1&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;dyncov_0&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;dyncov_1&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;cachehits_0&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;cachehits_1&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;variants_0&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;variants_1&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;codegen_0&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;codegen_1&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;scops_0&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;scops_1&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;t_0&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;o_0&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;t_1&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;o_1&#39;</span><span class="p">)</span>
+        <span class="p">])</span><span class="o">.</span>\
+        <span class="n">select_from</span><span class="p">(</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">pj_test_eval</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">bindparam</span><span class="p">(</span><span class="s1">&#39;exp_ids&#39;</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="n">QUERY_REGION</span> <span class="o">=</span> \
+        <span class="n">sa</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">select</span><span class="p">([</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;project&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;region&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;cores&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;t_polly&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;t_polyjit&#39;</span><span class="p">),</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;speedup&#39;</span><span class="p">)</span>
+        <span class="p">])</span><span class="o">.</span>\
+        <span class="n">select_from</span><span class="p">(</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">pj_test_region_wise</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">bindparam</span><span class="p">(</span><span class="s1">&#39;exp_ids&#39;</span><span class="p">))</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="TestReport.report"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.TestReport.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;I found the following matching experiment ids&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_ids</span><span class="p">]))</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="n">TestReport</span><span class="o">.</span><span class="n">QUERY_TOTAL</span><span class="o">.</span><span class="n">unique_params</span><span class="p">(</span><span class="n">exp_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_ids</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="s2">&quot;complete&quot;</span><span class="p">,</span>
+               <span class="p">(</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="s1">&#39;domain&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;speedup&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;ohcov_0&#39;</span><span class="p">,</span> <span class="s1">&#39;ocov_1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;dyncov_0&#39;</span><span class="p">,</span> <span class="s1">&#39;dyncov_1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;cachehits_0&#39;</span><span class="p">,</span> <span class="s1">&#39;cachehits_1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;variants_0&#39;</span><span class="p">,</span> <span class="s1">&#39;variants_1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;codegen_0&#39;</span><span class="p">,</span> <span class="s1">&#39;codegen_1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;scops_0&#39;</span><span class="p">,</span> <span class="s1">&#39;scops_1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;t_0&#39;</span><span class="p">,</span> <span class="s1">&#39;o_0&#39;</span><span class="p">,</span> <span class="s1">&#39;t_1&#39;</span><span class="p">,</span> <span class="s1">&#39;o_1&#39;</span><span class="p">),</span>
+               <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qry</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="n">TestReport</span><span class="o">.</span><span class="n">QUERY_REGION</span><span class="o">.</span><span class="n">unique_params</span><span class="p">(</span><span class="n">exp_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_ids</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="s2">&quot;regions&quot;</span><span class="p">,</span>
+               <span class="p">(</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="s1">&#39;region&#39;</span><span class="p">,</span> <span class="s1">&#39;cores&#39;</span><span class="p">,</span> <span class="s1">&#39;T_Polly&#39;</span><span class="p">,</span> <span class="s1">&#39;T_PolyJIT&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;speedup&#39;</span><span class="p">),</span>
+               <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qry</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="TestReport.generate"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.TestReport.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">():</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_path</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{prefix}</span><span class="s2">_</span><span class="si">{name}{ending}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">prefix</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">ending</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_out</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Writing &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">csv_out</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                <span class="n">csv_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csv_out</span><span class="p">)</span>
+                <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">([</span><span class="n">header</span><span class="p">])</span>
+                <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../experiments.html">benchbuild.experiments</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

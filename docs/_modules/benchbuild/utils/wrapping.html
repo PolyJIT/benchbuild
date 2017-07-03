@@ -1,0 +1,307 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.utils.wrapping &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for benchbuild.utils.wrapping</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">dill</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">mv</span><span class="p">,</span> <span class="n">chmod</span><span class="p">,</span> <span class="n">rm</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.path</span> <span class="k">import</span> <span class="n">list_to_path</span><span class="p">,</span> <span class="n">template_str</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">uchroot_no_llvm</span> <span class="k">as</span> <span class="n">uchroot</span>
+
+<span class="n">PROJECT_BIN_F_EXT</span> <span class="o">=</span> <span class="s2">&quot;.bin&quot;</span>
+<span class="n">PROJECT_BLOB_F_EXT</span> <span class="o">=</span> <span class="s2">&quot;.postproc&quot;</span>
+
+
+<div class="viewcode-block" id="strip_path_prefix"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.wrapping.strip_path_prefix">[docs]</a><span class="k">def</span> <span class="nf">strip_path_prefix</span><span class="p">(</span><span class="n">ipath</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Strip prefix from path.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ipath: input path</span>
+<span class="sd">        prefix: the prefix to remove, if it is found in :ipath:</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; strip_path_prefix(&quot;/foo/bar&quot;, &quot;/bar&quot;)</span>
+<span class="sd">        &#39;/foo/bar&#39;</span>
+<span class="sd">        &gt;&gt;&gt; strip_path_prefix(&quot;/foo/bar&quot;, &quot;/&quot;)</span>
+<span class="sd">        &#39;foo/bar&#39;</span>
+<span class="sd">        &gt;&gt;&gt; strip_path_prefix(&quot;/foo/bar&quot;, &quot;/foo&quot;)</span>
+<span class="sd">        &#39;/bar&#39;</span>
+<span class="sd">        &gt;&gt;&gt; strip_path_prefix(&quot;/foo/bar&quot;, &quot;None&quot;)</span>
+<span class="sd">        &#39;/foo/bar&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">prefix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ipath</span>
+
+    <span class="k">return</span> <span class="n">ipath</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span> <span class="k">if</span> <span class="n">ipath</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="k">else</span> <span class="n">ipath</span></div>
+
+
+<div class="viewcode-block" id="wrap"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.wrapping.wrap">[docs]</a><span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">sprefix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">template_vars</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Wrap the binary :name: with the function :runner:.</span>
+
+<span class="sd">    This module generates a python tool that replaces :name:</span>
+<span class="sd">    The function in runner only accepts the replaced binaries</span>
+<span class="sd">    name as argument. We use the cloudpickle package to</span>
+<span class="sd">    perform the serialization, make sure :runner: can be serialized</span>
+<span class="sd">    with it and you&#39;re fine.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Binary we want to wrap</span>
+<span class="sd">        runner: Function that should run instead of :name:</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A plumbum command, ready to launch.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name_absolute</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">real_f</span> <span class="o">=</span> <span class="n">name_absolute</span> <span class="o">+</span> <span class="n">PROJECT_BIN_F_EXT</span>
+    <span class="k">if</span> <span class="n">sprefix</span><span class="p">:</span>
+        <span class="n">run</span><span class="p">(</span><span class="n">uchroot</span><span class="p">()[</span><span class="s2">&quot;/bin/mv&quot;</span><span class="p">,</span> <span class="n">strip_path_prefix</span><span class="p">(</span><span class="n">name_absolute</span><span class="p">,</span> <span class="n">sprefix</span><span class="p">),</span>
+                      <span class="n">strip_path_prefix</span><span class="p">(</span><span class="n">real_f</span><span class="p">,</span> <span class="n">sprefix</span><span class="p">)])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">run</span><span class="p">(</span><span class="n">mv</span><span class="p">[</span><span class="n">name_absolute</span><span class="p">,</span> <span class="n">real_f</span><span class="p">])</span>
+
+    <span class="n">blob_f</span> <span class="o">=</span> <span class="n">name_absolute</span> <span class="o">+</span> <span class="n">PROJECT_BLOB_F_EXT</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">blob_f</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">blob</span><span class="p">:</span>
+        <span class="n">dill</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">runner</span><span class="p">,</span> <span class="n">blob</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">bin_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;binary_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+    <span class="n">bin_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">([</span><span class="n">bin_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]])</span>
+
+    <span class="n">bin_lib_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;binary_ld_library_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+    <span class="n">bin_lib_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">([</span><span class="n">bin_lib_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">]])</span>
+
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_host&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;host&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;port&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_pass&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;pass&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_user&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;user&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_path</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;ld_lib_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_lib_path</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;blobf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strip_path_prefix</span><span class="p">(</span><span class="n">blob_f</span><span class="p">,</span> <span class="n">sprefix</span><span class="p">)</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;runf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strip_path_prefix</span><span class="p">(</span><span class="n">real_f</span><span class="p">,</span> <span class="n">sprefix</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;python&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">template_vars</span><span class="p">:</span>
+        <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;python&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">name_absolute</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">wrapper</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">template_str</span><span class="p">(</span><span class="s2">&quot;templates/run_static.py.inc&quot;</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">template_vars</span><span class="p">)</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="n">run</span><span class="p">(</span><span class="n">chmod</span><span class="p">[</span><span class="s2">&quot;+x&quot;</span><span class="p">,</span> <span class="n">name_absolute</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">local</span><span class="p">[</span><span class="n">name_absolute</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="wrap_dynamic"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.wrapping.wrap_dynamic">[docs]</a><span class="k">def</span> <span class="nf">wrap_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">sprefix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">template_vars</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrap the binary :name with the function :runner.</span>
+
+<span class="sd">    This module generates a python tool :name: that can replace</span>
+<span class="sd">    a yet unspecified binary.</span>
+<span class="sd">    It behaves similar to the :wrap: function. However, the first</span>
+<span class="sd">    argument is the actual binary name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: name of the python module</span>
+<span class="sd">        runner: Function that should run the real binary</span>
+<span class="sd">        base_class: The base_class of our project.</span>
+<span class="sd">        base_module: The module of base_class.</span>
+
+<span class="sd">    Returns: plumbum command, readty to launch.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="n">base_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__module__</span>
+
+    <span class="n">name_absolute</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">blob_f</span> <span class="o">=</span> <span class="n">name_absolute</span> <span class="o">+</span> <span class="n">PROJECT_BLOB_F_EXT</span>
+    <span class="n">real_f</span> <span class="o">=</span> <span class="n">name_absolute</span> <span class="o">+</span> <span class="n">PROJECT_BIN_F_EXT</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">blob_f</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">blob</span><span class="p">:</span>
+        <span class="n">blob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dill</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">runner</span><span class="p">))</span>
+
+    <span class="n">bin_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;binary_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+    <span class="n">bin_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">([</span><span class="n">bin_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]])</span>
+
+    <span class="n">bin_lib_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;binary_ld_library_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">(</span>
+    <span class="p">))</span>
+    <span class="n">bin_lib_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">([</span><span class="n">bin_lib_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span>
+        <span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">]])</span>
+
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_host&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;host&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;port&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_pass&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;pass&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_user&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;user&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_path</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;ld_lib_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_lib_path</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;blobf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strip_path_prefix</span><span class="p">(</span><span class="n">blob_f</span><span class="p">,</span> <span class="n">sprefix</span><span class="p">)</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;runf&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strip_path_prefix</span><span class="p">(</span><span class="n">real_f</span><span class="p">,</span> <span class="n">sprefix</span><span class="p">)</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;base_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_class</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;base_module&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_module</span>
+
+    <span class="k">if</span> <span class="s1">&#39;python&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">template_vars</span><span class="p">:</span>
+        <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;python&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">name_absolute</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">wrapper</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">template_str</span><span class="p">(</span><span class="s2">&quot;templates/run_dynamic.py.inc&quot;</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">template_vars</span><span class="p">)</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="n">chmod</span><span class="p">(</span><span class="s2">&quot;+x&quot;</span><span class="p">,</span> <span class="n">name_absolute</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">local</span><span class="p">[</span><span class="n">name_absolute</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="wrap_cc"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.wrapping.wrap_cc">[docs]</a><span class="k">def</span> <span class="nf">wrap_cc</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span>
+            <span class="n">compiler_ext_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">template_vars</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Substitute a compiler with a script that hides CFLAGS &amp; LDFLAGS.</span>
+
+<span class="sd">    This will generate a wrapper script in the current directory</span>
+<span class="sd">    and return a complete plumbum command to it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filepath (str): Path to the wrapper script.</span>
+<span class="sd">        cflags (list(str)): The CFLAGS we want to hide.</span>
+<span class="sd">        ldflags (list(str)): The LDFLAGS we want to hide.</span>
+<span class="sd">        compiler (benchbuild.utils.cmd): Real compiler command we should call in the</span>
+<span class="sd">            script.</span>
+<span class="sd">        extension: A function that will be pickled alongside the compiler.</span>
+<span class="sd">            It will be called before the actual compilation took place. This</span>
+<span class="sd">            way you can intercept the compilation process with arbitrary python</span>
+<span class="sd">            code.</span>
+<span class="sd">        compiler_ext_name: The name that we should give to the generated</span>
+<span class="sd">            dill blob for :func:</span>
+
+<span class="sd">    Returns (benchbuild.utils.cmd):</span>
+<span class="sd">        Command of the new compiler we can call.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cc_f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filepath</span> <span class="o">+</span> <span class="s2">&quot;.benchbuild.cc&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cc_f</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cc</span><span class="p">:</span>
+        <span class="n">cc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dill</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">compiler</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">compiler_ext_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cc_f</span> <span class="o">=</span> <span class="n">compiler_ext_name</span><span class="p">(</span><span class="s2">&quot;.benchbuild.cc&quot;</span><span class="p">)</span>
+
+    <span class="n">blob_f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filepath</span> <span class="o">+</span> <span class="n">PROJECT_BLOB_F_EXT</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">extension</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">blob_f</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">blob</span><span class="p">:</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dill</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">extension</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">compiler_ext_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">blob_f</span> <span class="o">=</span> <span class="n">compiler_ext_name</span><span class="p">(</span><span class="n">PROJECT_BLOB_F_EXT</span><span class="p">)</span>
+
+    <span class="c1"># Update LDFLAGS with configure compiler_ld_library_path. This way</span>
+    <span class="c1"># the libraries found in LD_LIBRARY_PATH are available at link-time too.</span>
+    <span class="n">lib_path_list</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;compiler_ld_library_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="n">ldflags</span> <span class="o">=</span> <span class="n">ldflags</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;-L&quot;</span> <span class="o">+</span> <span class="n">pelem</span> <span class="k">for</span> <span class="n">pelem</span> <span class="ow">in</span> <span class="n">lib_path_list</span> <span class="k">if</span> <span class="n">pelem</span><span class="p">]</span>
+
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_host&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;host&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;port&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_pass&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;pass&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;db_user&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;user&quot;</span><span class="p">])</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;CFG_FILE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;config_file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;CC_F&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cc_f</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;CFLAGS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cflags</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;LDFLAGS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ldflags</span>
+    <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;BLOB_F&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blob_f</span>
+
+    <span class="k">if</span> <span class="s1">&#39;python&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">template_vars</span><span class="p">:</span>
+        <span class="n">template_vars</span><span class="p">[</span><span class="s1">&#39;python&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">wrapper</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">template_str</span><span class="p">(</span><span class="s2">&quot;templates/compiler.py.inc&quot;</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">template_vars</span><span class="p">)</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="n">chmod</span><span class="p">(</span><span class="s2">&quot;+x&quot;</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="wrap_in_uchroot"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.wrapping.wrap_in_uchroot">[docs]</a><span class="k">def</span> <span class="nf">wrap_in_uchroot</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">sprefix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">wrap</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">sprefix</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="s2">&quot;/usr/bin/env python3&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="wrap_dynamic_in_uchroot"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.wrapping.wrap_dynamic_in_uchroot">[docs]</a><span class="k">def</span> <span class="nf">wrap_dynamic_in_uchroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">sprefix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">wrap_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">sprefix</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="s2">&quot;/usr/bin/env python3&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

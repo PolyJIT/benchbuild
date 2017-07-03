@@ -1,0 +1,287 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.projects.polybench.polybench &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for benchbuild.projects.polybench.polybench</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">benchbuild.project</span> <span class="k">import</span> <span class="n">Project</span>
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Wget</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span>
+
+<span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">tar</span><span class="p">,</span> <span class="n">cp</span>
+
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+
+
+<div class="viewcode-block" id="PolyBenchGroup"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.PolyBenchGroup">[docs]</a><span class="k">class</span> <span class="nc">PolyBenchGroup</span><span class="p">(</span><span class="n">Project</span><span class="p">):</span>
+    <span class="n">DOMAIN</span> <span class="o">=</span> <span class="s1">&#39;polybench&#39;</span>
+    <span class="n">GROUP</span> <span class="o">=</span> <span class="s1">&#39;polybench&#39;</span>
+    <span class="n">VERSION</span> <span class="o">=</span> <span class="s1">&#39;4.2&#39;</span>
+    <span class="n">path_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;correlation&quot;</span><span class="p">:</span> <span class="s2">&quot;datamining&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;covariance&quot;</span><span class="p">:</span> <span class="s2">&quot;datamining&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2mm&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/kernels&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;3mm&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/kernels&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;atax&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/kernels&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bicg&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/kernels&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;doitgen&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/kernels&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mvt&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/kernels&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cholesky&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/solvers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;durbin&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/solvers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lu&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/solvers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ludcmp&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/solvers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gramschmidt&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/solvers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;trisolv&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/solvers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gemm&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/blas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gemver&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/blas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gesummv&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/blas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;symm&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/blas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;syr2k&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/blas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;syrk&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/blas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;trmm&quot;</span><span class="p">:</span> <span class="s2">&quot;linear-algebra/blas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;adi&quot;</span><span class="p">:</span> <span class="s2">&quot;stencils&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fdtd-2d&quot;</span><span class="p">:</span> <span class="s2">&quot;stencils&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;heat-3d&quot;</span><span class="p">:</span> <span class="s2">&quot;stencils&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jacobi-1d&quot;</span><span class="p">:</span> <span class="s2">&quot;stencils&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jacobi-2d&quot;</span><span class="p">:</span> <span class="s2">&quot;stencils&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;seidel-2d&quot;</span><span class="p">:</span> <span class="s2">&quot;stencils&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nussinov&quot;</span><span class="p">:</span> <span class="s2">&quot;medley&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;deriche&quot;</span><span class="p">:</span> <span class="s2">&quot;medley&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;floyd-warshall&quot;</span><span class="p">:</span> <span class="s2">&quot;medley&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="s2">&quot;polybench&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sourcedir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;src_dir&quot;</span><span class="p">]),</span> <span class="s2">&quot;polybench&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_derived_filenames</span><span class="p">()</span>
+
+    <span class="n">src_dir</span> <span class="o">=</span> <span class="s2">&quot;polybench-c-</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">VERSION</span><span class="p">)</span>
+    <span class="n">SRC_FILE</span> <span class="o">=</span> <span class="n">src_dir</span> <span class="o">+</span> <span class="s2">&quot;.tar.gz&quot;</span>
+    <span class="n">src_uri</span> <span class="o">=</span> <span class="s2">&quot;http://downloads.sourceforge.net/project/polybench/&quot;</span> <span class="o">+</span> <span class="n">SRC_FILE</span>
+
+<div class="viewcode-block" id="PolyBenchGroup.download"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.PolyBenchGroup.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">Wget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_uri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_file</span><span class="p">)</span>
+        <span class="n">tar</span><span class="p">(</span><span class="s1">&#39;xfz&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_file</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="PolyBenchGroup.configure"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.PolyBenchGroup.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cp</span><span class="p">(</span><span class="s2">&quot;-ar&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.dir&quot;</span><span class="p">)</span>
+        <span class="n">cp</span><span class="p">(</span><span class="s2">&quot;-ar&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_dir</span><span class="p">,</span> <span class="s2">&quot;utilities&quot;</span><span class="p">),</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PolyBenchGroup.build"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.PolyBenchGroup.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">src_file</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.dir&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.c&quot;</span><span class="p">)</span>
+        <span class="n">clang</span> <span class="o">=</span> <span class="n">lt_clang</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">(</span><span class="n">clang</span><span class="p">[</span><span class="s2">&quot;-I&quot;</span><span class="p">,</span> <span class="s2">&quot;utilities&quot;</span><span class="p">,</span> <span class="s2">&quot;-I&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                  <span class="s2">&quot;-DPOLYBENCH_USE_C99_PROTO&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;-DEXTRALARGE_DATASET&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;-DPOLYBENCH_USE_RESTRICT&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;utilities/polybench.c&quot;</span><span class="p">,</span> <span class="n">src_file</span><span class="p">,</span> <span class="s2">&quot;-lm&quot;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_f</span><span class="p">])</span></div></div>
+
+<span class="c1"># Datamining</span>
+
+
+<div class="viewcode-block" id="Correlation"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Correlation">[docs]</a><span class="k">class</span> <span class="nc">Correlation</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;correlation&#39;</span></div>
+
+
+<div class="viewcode-block" id="Covariance"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Covariance">[docs]</a><span class="k">class</span> <span class="nc">Covariance</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;covariance&#39;</span></div>
+
+
+<div class="viewcode-block" id="TwoMM"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.TwoMM">[docs]</a><span class="k">class</span> <span class="nc">TwoMM</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;2mm&#39;</span></div>
+
+
+<div class="viewcode-block" id="ThreeMM"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.ThreeMM">[docs]</a><span class="k">class</span> <span class="nc">ThreeMM</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;3mm&#39;</span></div>
+
+
+<div class="viewcode-block" id="Atax"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Atax">[docs]</a><span class="k">class</span> <span class="nc">Atax</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;atax&#39;</span></div>
+
+
+<div class="viewcode-block" id="BicG"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.BicG">[docs]</a><span class="k">class</span> <span class="nc">BicG</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;bicg&#39;</span></div>
+
+
+<div class="viewcode-block" id="Doitgen"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Doitgen">[docs]</a><span class="k">class</span> <span class="nc">Doitgen</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;doitgen&#39;</span></div>
+
+
+<div class="viewcode-block" id="Mvt"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Mvt">[docs]</a><span class="k">class</span> <span class="nc">Mvt</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;mvt&#39;</span></div>
+
+
+<div class="viewcode-block" id="Gemm"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Gemm">[docs]</a><span class="k">class</span> <span class="nc">Gemm</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;gemm&#39;</span></div>
+
+
+<div class="viewcode-block" id="Gemver"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Gemver">[docs]</a><span class="k">class</span> <span class="nc">Gemver</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;gemver&#39;</span></div>
+
+
+<div class="viewcode-block" id="Gesummv"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Gesummv">[docs]</a><span class="k">class</span> <span class="nc">Gesummv</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;gesummv&#39;</span></div>
+
+
+<div class="viewcode-block" id="Symm"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Symm">[docs]</a><span class="k">class</span> <span class="nc">Symm</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;symm&#39;</span></div>
+
+
+<div class="viewcode-block" id="Syr2k"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Syr2k">[docs]</a><span class="k">class</span> <span class="nc">Syr2k</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;syr2k&#39;</span></div>
+
+
+<div class="viewcode-block" id="Syrk"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Syrk">[docs]</a><span class="k">class</span> <span class="nc">Syrk</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;syrk&#39;</span></div>
+
+
+<div class="viewcode-block" id="Trmm"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Trmm">[docs]</a><span class="k">class</span> <span class="nc">Trmm</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;trmm&#39;</span></div>
+
+
+<div class="viewcode-block" id="Cholesky"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Cholesky">[docs]</a><span class="k">class</span> <span class="nc">Cholesky</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;cholesky&#39;</span></div>
+
+
+<div class="viewcode-block" id="Durbin"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Durbin">[docs]</a><span class="k">class</span> <span class="nc">Durbin</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;durbin&#39;</span></div>
+
+
+<div class="viewcode-block" id="Gramschmidt"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Gramschmidt">[docs]</a><span class="k">class</span> <span class="nc">Gramschmidt</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;gramschmidt&#39;</span></div>
+
+
+<div class="viewcode-block" id="Lu"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Lu">[docs]</a><span class="k">class</span> <span class="nc">Lu</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;lu&#39;</span></div>
+
+
+<div class="viewcode-block" id="LuDCMP"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.LuDCMP">[docs]</a><span class="k">class</span> <span class="nc">LuDCMP</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;ludcmp&#39;</span></div>
+
+
+<div class="viewcode-block" id="Trisolv"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Trisolv">[docs]</a><span class="k">class</span> <span class="nc">Trisolv</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;trisolv&#39;</span></div>
+
+
+<div class="viewcode-block" id="Deriche"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Deriche">[docs]</a><span class="k">class</span> <span class="nc">Deriche</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;deriche&#39;</span></div>
+
+
+<div class="viewcode-block" id="FloydWarshall"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.FloydWarshall">[docs]</a><span class="k">class</span> <span class="nc">FloydWarshall</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;floyd-warshall&#39;</span></div>
+
+
+<div class="viewcode-block" id="Nussinov"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Nussinov">[docs]</a><span class="k">class</span> <span class="nc">Nussinov</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;nussinov&#39;</span></div>
+
+
+<div class="viewcode-block" id="Adi"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Adi">[docs]</a><span class="k">class</span> <span class="nc">Adi</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;adi&#39;</span></div>
+
+
+<div class="viewcode-block" id="FDTD2D"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.FDTD2D">[docs]</a><span class="k">class</span> <span class="nc">FDTD2D</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;fdtd-2d&#39;</span></div>
+
+
+<div class="viewcode-block" id="Jacobi1D"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Jacobi1D">[docs]</a><span class="k">class</span> <span class="nc">Jacobi1D</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;jacobi-1d&#39;</span></div>
+
+
+<div class="viewcode-block" id="Jacobi2Dimper"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Jacobi2Dimper">[docs]</a><span class="k">class</span> <span class="nc">Jacobi2Dimper</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;jacobi-2d&#39;</span></div>
+
+
+<div class="viewcode-block" id="Seidel2D"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Seidel2D">[docs]</a><span class="k">class</span> <span class="nc">Seidel2D</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;seidel-2d&#39;</span></div>
+
+
+<div class="viewcode-block" id="Heat3D"><a class="viewcode-back" href="../../../../benchbuild.projects.polybench.html#benchbuild.projects.polybench.polybench.Heat3D">[docs]</a><span class="k">class</span> <span class="nc">Heat3D</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;heat-3d&#39;</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../projects.html">benchbuild.projects</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

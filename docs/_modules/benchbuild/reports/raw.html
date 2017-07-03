@@ -1,0 +1,133 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.reports.raw &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for benchbuild.reports.raw</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">benchbuild.reports</span> <span class="k">import</span> <span class="n">Report</span>
+<span class="kn">import</span> <span class="nn">benchbuild.utils.schema</span> <span class="k">as</span> <span class="nn">schema</span>
+
+
+<span class="n">Experiment</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Experiment</span>
+<span class="n">Project</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Project</span>
+<span class="n">Run</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Run</span>
+<span class="n">Metrics</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Metric</span>
+<span class="n">Config</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Config</span>
+
+
+<div class="viewcode-block" id="RawReport"><a class="viewcode-back" href="../../../benchbuild.reports.html#benchbuild.reports.raw.RawReport">[docs]</a><span class="k">class</span> <span class="nc">RawReport</span><span class="p">(</span><span class="n">Report</span><span class="p">):</span>
+
+    <span class="n">SUPPORTED_EXPERIMENTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;raw&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="RawReport.report"><a class="viewcode-back" href="../../../benchbuild.reports.html#benchbuild.reports.raw.RawReport.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">exp_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">exp_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">exp_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_ids</span><span class="p">]</span>
+        <span class="n">qr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="n">Experiment</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">Experiment</span><span class="o">.</span><span class="n">begin</span><span class="p">,</span> <span class="n">Experiment</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">Experiment</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">Run</span><span class="o">.</span><span class="n">experiment_group</span><span class="p">,</span>
+            <span class="n">Run</span><span class="o">.</span><span class="n">project_name</span><span class="p">,</span> <span class="n">Run</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">Run</span><span class="o">.</span><span class="n">run_group</span><span class="p">,</span>
+            <span class="n">Metrics</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">Metrics</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">Config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">Config</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Run</span><span class="o">.</span><span class="n">experiment_group</span> <span class="o">==</span> <span class="n">Experiment</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Run</span><span class="o">.</span><span class="n">experiment_group</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">exp_ids</span><span class="p">))</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Run</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">Metrics</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Run</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">Config</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">qr</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">r</span></div>
+
+<div class="viewcode-block" id="RawReport.generate"><a class="viewcode-back" href="../../../benchbuild.reports.html#benchbuild.reports.raw.RawReport.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">results_f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">results_f</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_f</span><span class="p">:</span>
+            <span class="n">fieldnames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;exp_name&quot;</span><span class="p">,</span> <span class="s2">&quot;exp_begin&quot;</span><span class="p">,</span> <span class="s2">&quot;exp_end&quot;</span><span class="p">,</span> <span class="s2">&quot;exp_desc&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;exp_id&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;run_group&quot;</span><span class="p">,</span> <span class="s2">&quot;metric&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="s2">&quot;config_value&quot;</span><span class="p">]</span>
+            <span class="n">csv_w</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csv_f</span><span class="p">)</span>
+            <span class="n">csv_w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">fieldnames</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">():</span>
+                <span class="n">csv_w</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../reports.html">benchbuild.reports</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

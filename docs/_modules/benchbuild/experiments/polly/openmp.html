@@ -1,0 +1,135 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.experiments.polly.openmp &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for benchbuild.experiments.polly.openmp</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The &#39;polly-openmp&#39; Experiment.</span>
+
+<span class="sd">This experiment applies polly&#39;s transformations with openmp code generation</span>
+<span class="sd">enabled to all projects and measures the runtime.</span>
+
+<span class="sd">This forms the baseline numbers for the other experiments.</span>
+
+<span class="sd">Measurements</span>
+<span class="sd">------------</span>
+
+<span class="sd">3 Metrics are generated during this experiment:</span>
+<span class="sd">    time.user_s - The time spent in user space in seconds (aka virtual time)</span>
+<span class="sd">    time.system_s - The time spent in kernel space in seconds (aka system time)</span>
+<span class="sd">    time.real_s - The time spent overall in seconds (aka Wall clock)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="kn">from</span> <span class="nn">benchbuild.experiment</span> <span class="k">import</span> <span class="n">RuntimeExperiment</span>
+<span class="kn">from</span> <span class="nn">benchbuild.extensions</span> <span class="k">import</span> <span class="n">RunWithTime</span><span class="p">,</span> <span class="n">RuntimeExtension</span>
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+
+
+<div class="viewcode-block" id="PollyOpenMP"><a class="viewcode-back" href="../../../../benchbuild.experiments.polly.html#benchbuild.experiments.polly.openmp.PollyOpenMP">[docs]</a><span class="k">class</span> <span class="nc">PollyOpenMP</span><span class="p">(</span><span class="n">RuntimeExperiment</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Timing experiment with Polly &amp; OpenMP support.&quot;&quot;&quot;</span>
+
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;polly-openmp&quot;</span>
+
+<div class="viewcode-block" id="PollyOpenMP.actions_for_project"><a class="viewcode-back" href="../../../../benchbuild.experiments.polly.html#benchbuild.experiments.polly.openmp.PollyOpenMP.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build &amp; Run each project with Polly &amp; OpenMP support.&quot;&quot;&quot;</span>
+        <span class="n">actns</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">p</span><span class="o">.</span><span class="n">ldflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-lgomp&quot;</span><span class="p">]</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-O3&quot;</span><span class="p">,</span> <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;-load&quot;</span><span class="p">,</span> <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;LLVMPolly.so&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polly&quot;</span><span class="p">,</span> <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polly-parallel&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">cp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="n">cp</span><span class="o">.</span><span class="n">run_uuid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+            <span class="n">cp</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
+                <span class="n">RunWithTime</span><span class="p">(</span>
+                    <span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}))</span>
+            <span class="n">actns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">cp</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">actns</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../experiments.html">benchbuild.experiments</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

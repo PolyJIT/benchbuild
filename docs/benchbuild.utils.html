@@ -1,0 +1,2172 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.utils package &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="benchbuild.reports package" href="benchbuild.reports.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-benchbuild.utils">
+<span id="benchbuild-utils-package"></span><h1>benchbuild.utils package<a class="headerlink" href="#module-benchbuild.utils" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-benchbuild.utils.actions">
+<span id="benchbuild-utils-actions-module"></span><h2>benchbuild.utils.actions module<a class="headerlink" href="#module-benchbuild.utils.actions" title="Permalink to this headline">¶</a></h2>
+<p>This defines classes that can be used to implement a series of Actions.</p>
+<dl class="class">
+<dt id="benchbuild.utils.actions.Any">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">Any</code><span class="sig-paren">(</span><em>actions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Any"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Any" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Any.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Just run all actions, no questions asked.’</em><a class="headerlink" href="#benchbuild.utils.actions.Any.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Any.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘ANY’</em><a class="headerlink" href="#benchbuild.utils.actions.Any.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.Build">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">Build</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Build.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Build the project’</em><a class="headerlink" href="#benchbuild.utils.actions.Build.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Build.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘BUILD’</em><a class="headerlink" href="#benchbuild.utils.actions.Build.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.Clean">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">Clean</code><span class="sig-paren">(</span><em>project_or_experiment</em>, <em>action_fn=None</em>, <em>check_empty=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Clean.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Cleans the build directory’</em><a class="headerlink" href="#benchbuild.utils.actions.Clean.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Clean.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘CLEAN’</em><a class="headerlink" href="#benchbuild.utils.actions.Clean.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.CleanExtra">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">CleanExtra</code><span class="sig-paren">(</span><em>project_or_experiment</em>, <em>action_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#CleanExtra"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.CleanExtra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.CleanExtra.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Cleans the extra directories.’</em><a class="headerlink" href="#benchbuild.utils.actions.CleanExtra.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.CleanExtra.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘CLEAN EXTRA’</em><a class="headerlink" href="#benchbuild.utils.actions.CleanExtra.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.Configure">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">Configure</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Configure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Configure.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Configure project source files’</em><a class="headerlink" href="#benchbuild.utils.actions.Configure.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Configure.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘CONFIGURE’</em><a class="headerlink" href="#benchbuild.utils.actions.Configure.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.Download">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">Download</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Download.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Download project source files’</em><a class="headerlink" href="#benchbuild.utils.actions.Download.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Download.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘DOWNLOAD’</em><a class="headerlink" href="#benchbuild.utils.actions.Download.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.Echo">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">Echo</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Echo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Echo.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Print a message.’</em><a class="headerlink" href="#benchbuild.utils.actions.Echo.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Echo.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘ECHO’</em><a class="headerlink" href="#benchbuild.utils.actions.Echo.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.Experiment">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">Experiment</code><span class="sig-paren">(</span><em>experiment</em>, <em>actions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Any" title="benchbuild.utils.actions.Any"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Any</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Experiment.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Run a experiment, wrapped in a db transaction’</em><a class="headerlink" href="#benchbuild.utils.actions.Experiment.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Experiment.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘EXPERIMENT’</em><a class="headerlink" href="#benchbuild.utils.actions.Experiment.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.actions.Experiment.begin_transaction">
+<code class="descname">begin_transaction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Experiment.begin_transaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Experiment.begin_transaction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.actions.Experiment.end_transaction">
+<code class="descname">end_transaction</code><span class="sig-paren">(</span><em>experiment</em>, <em>session</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Experiment.end_transaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Experiment.end_transaction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.MakeBuildDir">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">MakeBuildDir</code><span class="sig-paren">(</span><em>project_or_experiment</em>, <em>action_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#MakeBuildDir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.MakeBuildDir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.MakeBuildDir.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Create the build directory’</em><a class="headerlink" href="#benchbuild.utils.actions.MakeBuildDir.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.MakeBuildDir.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘MKDIR’</em><a class="headerlink" href="#benchbuild.utils.actions.MakeBuildDir.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.Prepare">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">Prepare</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Prepare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Prepare.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Prepare project build folder’</em><a class="headerlink" href="#benchbuild.utils.actions.Prepare.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Prepare.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘PREPARE’</em><a class="headerlink" href="#benchbuild.utils.actions.Prepare.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.RequireAll">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">RequireAll</code><span class="sig-paren">(</span><em>actions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#RequireAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.RequireAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.Run">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">Run</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.actions.Step" title="benchbuild.utils.actions.Step"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.actions.Step</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Run.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = ‘Execute the run action’</em><a class="headerlink" href="#benchbuild.utils.actions.Run.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Run.NAME">
+<code class="descname">NAME</code><em class="property"> = ‘RUN’</em><a class="headerlink" href="#benchbuild.utils.actions.Run.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.Step">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">Step</code><span class="sig-paren">(</span><em>project_or_experiment</em>, <em>action_fn=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Step.DESCRIPTION">
+<code class="descname">DESCRIPTION</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.actions.Step.DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.Step.NAME">
+<code class="descname">NAME</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.actions.Step.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.actions.Step.onerror">
+<code class="descname">onerror</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#Step.onerror"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.Step.onerror" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.StepClass">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">StepClass</code><a class="reference internal" href="_modules/benchbuild/utils/actions.html#StepClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.StepClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">abc.ABCMeta</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.actions.StepResult">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.actions.</code><code class="descname">StepResult</code><a class="reference internal" href="_modules/benchbuild/utils/actions.html#StepResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.StepResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.StepResult.ERROR">
+<code class="descname">ERROR</code><em class="property"> = 2</em><a class="headerlink" href="#benchbuild.utils.actions.StepResult.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.actions.StepResult.OK">
+<code class="descname">OK</code><em class="property"> = (1,)</em><a class="headerlink" href="#benchbuild.utils.actions.StepResult.OK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.actions.log_before_after">
+<code class="descclassname">benchbuild.utils.actions.</code><code class="descname">log_before_after</code><span class="sig-paren">(</span><em>name</em>, <em>desc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#log_before_after"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.log_before_after" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.actions.to_step_result">
+<code class="descclassname">benchbuild.utils.actions.</code><code class="descname">to_step_result</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/actions.html#to_step_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.actions.to_step_result" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.bootstrap">
+<span id="benchbuild-utils-bootstrap-module"></span><h2>benchbuild.utils.bootstrap module<a class="headerlink" href="#module-benchbuild.utils.bootstrap" title="Permalink to this headline">¶</a></h2>
+<p>Helper functions for bootstrapping external dependencies.</p>
+<dl class="function">
+<dt id="benchbuild.utils.bootstrap.check_uchroot_config">
+<code class="descclassname">benchbuild.utils.bootstrap.</code><code class="descname">check_uchroot_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/bootstrap.html#check_uchroot_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.bootstrap.check_uchroot_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.bootstrap.find_package">
+<code class="descclassname">benchbuild.utils.bootstrap.</code><code class="descname">find_package</code><span class="sig-paren">(</span><em>binary</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/bootstrap.html#find_package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.bootstrap.find_package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.bootstrap.install_package">
+<code class="descclassname">benchbuild.utils.bootstrap.</code><code class="descname">install_package</code><span class="sig-paren">(</span><em>pkg_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/bootstrap.html#install_package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.bootstrap.install_package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.bootstrap.install_uchroot">
+<code class="descclassname">benchbuild.utils.bootstrap.</code><code class="descname">install_uchroot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/bootstrap.html#install_uchroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.bootstrap.install_uchroot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.bootstrap.linux_distribution_major">
+<code class="descclassname">benchbuild.utils.bootstrap.</code><code class="descname">linux_distribution_major</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/bootstrap.html#linux_distribution_major"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.bootstrap.linux_distribution_major" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.bootstrap.provide_package">
+<code class="descclassname">benchbuild.utils.bootstrap.</code><code class="descname">provide_package</code><span class="sig-paren">(</span><em>pkg_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/bootstrap.html#provide_package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.bootstrap.provide_package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.bootstrap.provide_packages">
+<code class="descclassname">benchbuild.utils.bootstrap.</code><code class="descname">provide_packages</code><span class="sig-paren">(</span><em>pkg_names</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/bootstrap.html#provide_packages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.bootstrap.provide_packages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.compiler">
+<span id="benchbuild-utils-compiler-module"></span><h2>benchbuild.utils.compiler module<a class="headerlink" href="#module-benchbuild.utils.compiler" title="Permalink to this headline">¶</a></h2>
+<p>Helper functions for dealing with compiler replacement.</p>
+<p>This provides a few key functions to deal with varying/measuring the compilers
+used inside the benchbuild study.
+From a high-level view, there are 2 interesting functions:</p>
+<blockquote>
+<div><ul class="simple">
+<li>lt_clang(cflags, ldflags, func)</li>
+<li>lt_clang_cxx(cflags, ldflags, func)</li>
+</ul>
+</div></blockquote>
+<p>These generate a wrapped clang/clang++ in the current working directory and
+hide the given cflags/ldflags from the calling build system. Both will
+give you a working plumbum command and call a python script that redirects
+to the real clang/clang++ given the additional cflags&amp;ldflags.</p>
+<dl class="docutils">
+<dt>The wrapper-script generated for both functions can be found inside:</dt>
+<dd><ul class="first last simple">
+<li>wrap_cc()</li>
+</ul>
+</dd>
+<dt>The remaining methods:</dt>
+<dd><ul class="first last simple">
+<li>llvm()</li>
+<li>llvm_libs()</li>
+<li>clang()</li>
+<li>clang_cxx()</li>
+</ul>
+</dd>
+</dl>
+<p>Are just convencience methods that can be used when interacting with the
+configured llvm/clang source directories.</p>
+<dl class="class">
+<dt id="benchbuild.utils.compiler.ExperimentCommand">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">ExperimentCommand</code><span class="sig-paren">(</span><em>cmd</em>, <em>args</em>, <em>exp_args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#ExperimentCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.ExperimentCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">plumbum.commands.base.BoundCommand</span></code></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.compiler.ExperimentCommand.args">
+<code class="descname">args</code><a class="headerlink" href="#benchbuild.utils.compiler.ExperimentCommand.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.compiler.ExperimentCommand.cmd">
+<code class="descname">cmd</code><a class="headerlink" href="#benchbuild.utils.compiler.ExperimentCommand.cmd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.clang">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">clang</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#clang"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.clang" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a usable clang plumbum command.</p>
+<p>This searches for a usable clang in the llvm binary path (See llvm()) and
+returns a plumbum command to call it.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>plumbum Command that executes clang++</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.clang_cxx">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">clang_cxx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#clang_cxx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.clang_cxx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a usable clang++ plumbum command.</p>
+<p>This searches for a usable clang++ in the llvm binary path (See llvm()) and
+returns a plumbum command to call it.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>plumbum Command that executes clang++</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.llvm">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">llvm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#llvm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.llvm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the path where all llvm binaries can be found.</p>
+<dl class="docutils">
+<dt>Environment variable:</dt>
+<dd>BB_LLVM_DIR</dd>
+<dt>Returns:</dt>
+<dd>LLVM binary path.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.llvm_libs">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">llvm_libs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#llvm_libs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.llvm_libs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the path where all llvm libraries can be found.</p>
+<dl class="docutils">
+<dt>Environment variable:</dt>
+<dd>BB_LLVM_DIR</dd>
+<dt>Returns:</dt>
+<dd>LLVM library path.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.lt_clang">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">lt_clang</code><span class="sig-paren">(</span><em>cflags</em>, <em>ldflags</em>, <em>func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#lt_clang"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.lt_clang" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a clang that hides CFLAGS and LDFLAGS.</p>
+<p>This will generate a wrapper script in the current directory
+and return a complete plumbum command to it.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cflags: The CFLAGS we want to hide.
+ldflags: The LDFLAGS we want to hide.
+func (optional): A function that will be pickled alongside the compiler.</p>
+<blockquote class="last">
+<div>It will be called before the actual compilation took place. This
+way you can intercept the compilation process with arbitrary python
+code.</div></blockquote>
+</dd>
+<dt>Returns (benchbuild.utils.cmd):</dt>
+<dd>Path to the new clang command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.lt_clang_cxx">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">lt_clang_cxx</code><span class="sig-paren">(</span><em>cflags</em>, <em>ldflags</em>, <em>func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#lt_clang_cxx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.lt_clang_cxx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a clang++ that hides CFLAGS and LDFLAGS.</p>
+<p>This will generate a wrapper script in the current directory
+and return a complete plumbum command to it.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cflags: The CFLAGS we want to hide.
+ldflags: The LDFLAGS we want to hide.
+func (optional): A function that will be pickled alongside the compiler.</p>
+<blockquote class="last">
+<div>It will be called before the actual compilation took place. This
+way you can intercept the compilation process with arbitrary python
+code.</div></blockquote>
+</dd>
+<dt>Returns (benchbuild.utils.cmd):</dt>
+<dd>Path to the new clang command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.wrap_cc_in_uchroot">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">wrap_cc_in_uchroot</code><span class="sig-paren">(</span><em>cflags</em>, <em>ldflags</em>, <em>func=None</em>, <em>cc_name=’clang’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#wrap_cc_in_uchroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.wrap_cc_in_uchroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a clang wrapper that may be called from within a uchroot.</p>
+<p>This basically does the same as lt_clang/lt_clang_cxx. However, we do not
+create a valid plumbum command. The generated script will only work
+inside a uchroot environment that has is root at the current working
+directory, when calling this function.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cflags: The CFLAGS we want to hide
+ldflags: The LDFLAGS we want to hide
+func (optional): A function that will be pickled alongside the compiler.</p>
+<blockquote>
+<div>It will be called before the actual compilation took place. This
+way you can intercept the compilation process with arbitrary python
+code.</div></blockquote>
+<p class="last">uchroot_path: Prefix path of the compiler inside the uchroot.
+cc_name: Name of the generated script.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.wrap_cxx_in_uchroot">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">wrap_cxx_in_uchroot</code><span class="sig-paren">(</span><em>cflags</em>, <em>ldflags</em>, <em>func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#wrap_cxx_in_uchroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.wrap_cxx_in_uchroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegate to wrap_cc_in_uchroot).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.container">
+<span id="benchbuild-utils-container-module"></span><h2>benchbuild.utils.container module<a class="headerlink" href="#module-benchbuild.utils.container" title="Permalink to this headline">¶</a></h2>
+<p>Container utilites.</p>
+<dl class="class">
+<dt id="benchbuild.utils.container.Container">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.container.</code><code class="descname">Container</code><a class="reference internal" href="_modules/benchbuild/utils/container.html#Container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.Container" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.container.Container.filename">
+<code class="descname">filename</code><a class="headerlink" href="#benchbuild.utils.container.Container.filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.container.Container.local">
+<code class="descname">local</code><a class="headerlink" href="#benchbuild.utils.container.Container.local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the current location of a container.
+Also unpacks the project if necessary.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>target: The path, where the container lies in the end.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.container.Container.name">
+<code class="descname">name</code><em class="property"> = ‘container’</em><a class="headerlink" href="#benchbuild.utils.container.Container.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.container.Container.remote">
+<code class="descname">remote</code><a class="headerlink" href="#benchbuild.utils.container.Container.remote" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.container.Gentoo">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.container.</code><code class="descname">Gentoo</code><a class="reference internal" href="_modules/benchbuild/utils/container.html#Gentoo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.Gentoo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.container.Container" title="benchbuild.utils.container.Container"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.container.Container</span></code></a></p>
+<dl class="method">
+<dt id="benchbuild.utils.container.Gentoo.latest_src_uri">
+<code class="descname">latest_src_uri</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#Gentoo.latest_src_uri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.Gentoo.latest_src_uri" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.container.Gentoo.name">
+<code class="descname">name</code><em class="property"> = ‘gentoo’</em><a class="headerlink" href="#benchbuild.utils.container.Gentoo.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.container.Gentoo.remote">
+<code class="descname">remote</code><a class="headerlink" href="#benchbuild.utils.container.Gentoo.remote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a remote URL of the requested container.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.container.Ubuntu">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.container.</code><code class="descname">Ubuntu</code><a class="reference internal" href="_modules/benchbuild/utils/container.html#Ubuntu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.Ubuntu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.container.Container" title="benchbuild.utils.container.Container"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.utils.container.Container</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.container.Ubuntu.name">
+<code class="descname">name</code><em class="property"> = ‘ubuntu’</em><a class="headerlink" href="#benchbuild.utils.container.Ubuntu.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.container.Ubuntu.remote">
+<code class="descname">remote</code><a class="headerlink" href="#benchbuild.utils.container.Ubuntu.remote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a remote URL of the requested container.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.container.cached">
+<code class="descclassname">benchbuild.utils.container.</code><code class="descname">cached</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#cached"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.cached" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.container.is_valid_container">
+<code class="descclassname">benchbuild.utils.container.</code><code class="descname">is_valid_container</code><span class="sig-paren">(</span><em>container</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#is_valid_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.is_valid_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a container exists and is unpacked.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path: The location where the container is expected.</dd>
+<dt>Returns:</dt>
+<dd>True if the container is valid, False if the container needs to
+unpacked or if the path does not exist yet.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.container.unpack_container">
+<code class="descclassname">benchbuild.utils.container.</code><code class="descname">unpack_container</code><span class="sig-paren">(</span><em>container</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#unpack_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.unpack_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unpack a container usable by uchroot.</p>
+<p>Method that checks if a directory for the container exists,
+checks if erlent support is needed and then unpacks the
+container accordingly.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path: The location where the container is, that needs to be unpacked.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.db">
+<span id="benchbuild-utils-db-module"></span><h2>benchbuild.utils.db module<a class="headerlink" href="#module-benchbuild.utils.db" title="Permalink to this headline">¶</a></h2>
+<p>Database support module for the benchbuild study.</p>
+<dl class="function">
+<dt id="benchbuild.utils.db.create_run">
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">create_run</code><span class="sig-paren">(</span><em>cmd</em>, <em>project</em>, <em>exp</em>, <em>grp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#create_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.create_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new ‘run’ in the database.</p>
+<p>This creates a new transaction in the database and creates a new
+run in this transaction. Afterwards we return both the transaction as
+well as the run itself. The user is responsible for committing it when
+the time comes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cmd: The command that has been executed.
+prj: The project this run belongs to.
+exp: The experiment this run belongs to.
+grp: The run_group (uuid) we blong to.</dd>
+<dt>Returns:</dt>
+<dd>The inserted tuple representing the run and the session opened with
+the new run. Don’t forget to commit it at some point.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.db.create_run_group">
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">create_run_group</code><span class="sig-paren">(</span><em>prj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#create_run_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.create_run_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new ‘run_group’ in the database.</p>
+<p>This creates a new transaction in the database and creates a new run_group
+within this transaction. Afterwards we return both the transaction as well
+as the run_group itself. The user is responsible for committing it when the
+time comes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>prj - The project for which we open the run_group.</dd>
+<dt>Returns:</dt>
+<dd>A tuple (group, session) containing both the newly created run_group and
+the transaction object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.db.persist_compilestats">
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">persist_compilestats</code><span class="sig-paren">(</span><em>run</em>, <em>session</em>, <em>stats</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#persist_compilestats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.persist_compilestats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist the run results in the database.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>run: The run we attach the compilestats to.
+session: The db transaction we belong to.
+stats: The stats we want to store in the database.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.db.persist_config">
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">persist_config</code><span class="sig-paren">(</span><em>run</em>, <em>session</em>, <em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#persist_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.persist_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist the configuration in as key-value pairs.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>run: The run we attach the config to.
+session: The db transaction we belong to.
+cfg: The configuration we want to persist.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.db.persist_experiment">
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">persist_experiment</code><span class="sig-paren">(</span><em>experiment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#persist_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.persist_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist this experiment in the benchbuild database.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>experiment: The experiment we want to persist.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.db.persist_likwid">
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">persist_likwid</code><span class="sig-paren">(</span><em>run</em>, <em>session</em>, <em>measurements</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#persist_likwid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.persist_likwid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist all likwid results.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>run: The run we attach our measurements to.
+session: The db transaction we belong to.
+measurements: The likwid measurements we want to store.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.db.persist_perf">
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">persist_perf</code><span class="sig-paren">(</span><em>run</em>, <em>session</em>, <em>svg_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#persist_perf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.persist_perf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist the flamegraph in the database.</p>
+<p>The flamegraph exists as a SVG image on disk until we persist it in the
+database.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>run: The run we attach these perf measurements to.
+session: The db transaction we belong to.
+svg_path: The path to the SVG file we want to store.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.db.persist_project">
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">persist_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#persist_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.persist_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist this project in the benchbuild database.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>project: The project we want to persist.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.db.persist_time">
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">persist_time</code><span class="sig-paren">(</span><em>run</em>, <em>session</em>, <em>timings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#persist_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.persist_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist the run results in the database.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>run: The run we attach this timing results to.
+session: The db transaction we belong to.
+timings: The timing measurements we want to store.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.downloader">
+<span id="benchbuild-utils-downloader-module"></span><h2>benchbuild.utils.downloader module<a class="headerlink" href="#module-benchbuild.utils.downloader" title="Permalink to this headline">¶</a></h2>
+<p>Downloading helper functions for benchbuild.</p>
+<p>The helpers defined in this module provide access to some common Downloading
+methods for the source code of benchbuild projects.
+All downloads will be cached in BB_TMP_DIR and locked down with a hash that
+is generated after the first download. If the hash matches the file/folder
+found in BB_TMP_DIR, nothing will be downloaded at all.</p>
+<dl class="docutils">
+<dt>Supported methods:</dt>
+<dd>Copy, CopyNoFail, Wget, Git, Svn, Rsync</dd>
+</dl>
+<dl class="function">
+<dt id="benchbuild.utils.downloader.Copy">
+<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">Copy</code><span class="sig-paren">(</span><em>From</em>, <em>To</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#Copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.Copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Small copy wrapper.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>From (str): Path to the SOURCE.
+To (str): Path to the TARGET.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.downloader.CopyNoFail">
+<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">CopyNoFail</code><span class="sig-paren">(</span><em>src</em>, <em>root=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#CopyNoFail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.CopyNoFail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just copy fName into the current working directory, if it exists.</p>
+<p>No action is executed, if fName does not exist. No Hash is checked.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">src: The filename we want to copy to ‘.’.
+root: The optional source dir we should pull fName from. Defaults</p>
+<blockquote class="last">
+<div>to benchbuild.settings.CFG[“tmpdir”].</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>True, if we copied something.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.downloader.Git">
+<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">Git</code><span class="sig-paren">(</span><em>src_url</em>, <em>tgt_name</em>, <em>tgt_root=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#Git"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.Git" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a shallow clone of the given repo</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">src_url (str): Git URL of the SOURCE repo.
+tgt_name (str): Name of the repo folder on disk.
+tgt_root (str): TARGET folder for the git repo.</p>
+<blockquote class="last">
+<div>Defaults to <code class="docutils literal"><span class="pre">CFG[&quot;tmpdir&quot;]</span></code></div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.downloader.Rsync">
+<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">Rsync</code><span class="sig-paren">(</span><em>url</em>, <em>tgt_name</em>, <em>tgt_root=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#Rsync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.Rsync" title="Permalink to this definition">¶</a></dt>
+<dd><p>RSync a folder.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">url (str): The url of the SOURCE location.
+fname (str): The name of the TARGET.
+to (str): Path of the target location.</p>
+<blockquote class="last">
+<div>Defaults to <code class="docutils literal"><span class="pre">CFG[&quot;tmpdir&quot;]</span></code>.</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.downloader.Svn">
+<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">Svn</code><span class="sig-paren">(</span><em>url</em>, <em>fname</em>, <em>to=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#Svn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.Svn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checkout the SVN repo.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">url (str): The SVN SOURCE repo.
+fname (str): The name of the repo on disk.
+to (str): The name of the TARGET folder on disk.</p>
+<blockquote class="last">
+<div>Defaults to <code class="docutils literal"><span class="pre">CFG[&quot;tmpdir&quot;]</span></code></div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.downloader.Wget">
+<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">Wget</code><span class="sig-paren">(</span><em>src_url</em>, <em>tgt_name</em>, <em>tgt_root=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#Wget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.Wget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download url, if required.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">src_url (str): Our SOURCE url.
+tgt_name (str): The filename we want to have on disk.
+tgt_root (str): The TARGET directory for the download.</p>
+<blockquote class="last">
+<div>Defaults to <code class="docutils literal"><span class="pre">CFG[&quot;tmpdir&quot;]</span></code>.</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.downloader.get_hash_of_dirs">
+<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">get_hash_of_dirs</code><span class="sig-paren">(</span><em>directory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#get_hash_of_dirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.get_hash_of_dirs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively hash the contents of the given directory.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>directory (str): The root directory we want to hash.</dd>
+<dt>Returns:</dt>
+<dd>A hash of all the contents in the directory.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.downloader.source_required">
+<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">source_required</code><span class="sig-paren">(</span><em>src_file</em>, <em>src_root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#source_required"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.source_required" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check, if a download is required.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>src_file: The filename to check for.
+src_root: The path we find the file in.</dd>
+<dt>Returns:</dt>
+<dd>True, if we need to download something, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.downloader.update_hash">
+<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">update_hash</code><span class="sig-paren">(</span><em>src</em>, <em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#update_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.update_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the hash for the given file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>src: The file name.
+root: The path of the given file.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.log">
+<span id="benchbuild-utils-log-module"></span><h2>benchbuild.utils.log module<a class="headerlink" href="#module-benchbuild.utils.log" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="benchbuild.utils.log.configure">
+<code class="descclassname">benchbuild.utils.log.</code><code class="descname">configure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/log.html#configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.log.configure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load logging configuration from our own defaults.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.log.set_defaults">
+<code class="descclassname">benchbuild.utils.log.</code><code class="descname">set_defaults</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/log.html#set_defaults"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.log.set_defaults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the loggers default settings.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.path">
+<span id="benchbuild-utils-path-module"></span><h2>benchbuild.utils.path module<a class="headerlink" href="#module-benchbuild.utils.path" title="Permalink to this headline">¶</a></h2>
+<p>Path utilities for benchbuild.</p>
+<dl class="function">
+<dt id="benchbuild.utils.path.determine_path">
+<code class="descclassname">benchbuild.utils.path.</code><code class="descname">determine_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/path.html#determine_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.path.determine_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Borrowed from wxglade.py</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.path.list_to_path">
+<code class="descclassname">benchbuild.utils.path.</code><code class="descname">list_to_path</code><span class="sig-paren">(</span><em>pathlist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/path.html#list_to_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.path.list_to_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a list of path elements to a path string.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.path.mkdir_uchroot">
+<code class="descclassname">benchbuild.utils.path.</code><code class="descname">mkdir_uchroot</code><span class="sig-paren">(</span><em>dirpath</em>, <em>root=’.’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/path.html#mkdir_uchroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.path.mkdir_uchroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a file inside a uchroot env.</p>
+<p>You will want to use this when you need to create a file with apropriate
+rights inside a uchroot container with subuid/subgid handling enabled.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>dirpath:</dt>
+<dd>The dirpath that should be created. Absolute inside the
+uchroot container.</dd>
+<dt>root:</dt>
+<dd>The root PATH of the container filesystem as seen outside of
+the container.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.path.mkfile_uchroot">
+<code class="descclassname">benchbuild.utils.path.</code><code class="descname">mkfile_uchroot</code><span class="sig-paren">(</span><em>filepath</em>, <em>root=’.’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/path.html#mkfile_uchroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.path.mkfile_uchroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a file inside a uchroot env.</p>
+<p>You will want to use this when you need to create a file with apropriate
+rights inside a uchroot container with subuid/subgid handling enabled.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filepath:</dt>
+<dd>The filepath that should be created. Absolute inside the
+uchroot container.</dd>
+<dt>root:</dt>
+<dd>The root PATH of the container filesystem as seen outside of
+the container.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.path.path_to_list">
+<code class="descclassname">benchbuild.utils.path.</code><code class="descname">path_to_list</code><span class="sig-paren">(</span><em>pathstr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/path.html#path_to_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.path.path_to_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conver a path string to a list of path elements.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.path.template_files">
+<code class="descclassname">benchbuild.utils.path.</code><code class="descname">template_files</code><span class="sig-paren">(</span><em>path</em>, <em>exts=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/path.html#template_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.path.template_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of filenames found at &#64;path.</p>
+<p>The list of filenames can be filtered by extensions.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>path: Existing filepath we want to list.
+exts: List of extensions to filter by.</dd>
+<dt>Returns:</dt>
+<dd>A list of filenames found in the path.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.path.template_str">
+<code class="descclassname">benchbuild.utils.path.</code><code class="descname">template_str</code><span class="sig-paren">(</span><em>template</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/path.html#template_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.path.template_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a template file from the resources and return it as str.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.run">
+<span id="benchbuild-utils-run-module"></span><h2>benchbuild.utils.run module<a class="headerlink" href="#module-benchbuild.utils.run" title="Permalink to this headline">¶</a></h2>
+<p>Experiment helpers.</p>
+<dl class="exception">
+<dt id="benchbuild.utils.run.GuardedRunException">
+<em class="property">exception </em><code class="descclassname">benchbuild.utils.run.</code><code class="descname">GuardedRunException</code><span class="sig-paren">(</span><em>what</em>, <em>db_run</em>, <em>session</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#GuardedRunException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.GuardedRunException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>BB Run exception.</p>
+<p>Contains an exception that ocurred during execution of a benchbuild
+experiment.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.run.RunInfo">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.run.</code><code class="descname">RunInfo</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#RunInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.RunInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.run.RunInfo.db_run">
+<code class="descname">db_run</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.run.RunInfo.db_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.run.RunInfo.retcode">
+<code class="descname">retcode</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.run.RunInfo.retcode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.run.RunInfo.session">
+<code class="descname">session</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.run.RunInfo.session" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.run.RunInfo.stderr">
+<code class="descname">stderr</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.run.RunInfo.stderr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.run.RunInfo.stdout">
+<code class="descname">stdout</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.run.RunInfo.stdout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="benchbuild.utils.run.UnmountError">
+<em class="property">exception </em><code class="descclassname">benchbuild.utils.run.</code><code class="descname">UnmountError</code><a class="reference internal" href="_modules/benchbuild/utils/run.html#UnmountError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.UnmountError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">BaseException</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.begin">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">begin</code><span class="sig-paren">(</span><em>command</em>, <em>project</em>, <em>ename</em>, <em>group</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Begin a run in the database log.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>command: The command that will be executed.
+pname: The project name we belong to.
+ename: The experiment name we belong to.
+group: The run group we belong to.</dd>
+<dt>Returns:</dt>
+<dd>(run, session), where run is the generated run instance and session the
+associated transaction for later use.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.begin_run_group">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">begin_run_group</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#begin_run_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.begin_run_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Begin a run_group in the database.</p>
+<p>A run_group groups a set of runs for a given project. This models a series
+of runs that form a complete binary runtime test.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>project: The project we begin a new run_group for.</dd>
+<dt>Returns:</dt>
+<dd><code class="docutils literal"><span class="pre">(group,</span> <span class="pre">session)</span></code> where group is the created group in the
+database and session is the database session this group lives in.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.end">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">end</code><span class="sig-paren">(</span><em>db_run</em>, <em>session</em>, <em>stdout</em>, <em>stderr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>End a run in the database log (Successfully).</p>
+<p>This will persist the log information in the database and commit the
+transaction.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>db_run: The <code class="docutils literal"><span class="pre">run</span></code> schema object we belong to
+session: The db transaction we belong to.
+stdout: The stdout we captured of the run.
+stderr: The stderr we capture of the run.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.end_run_group">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">end_run_group</code><span class="sig-paren">(</span><em>group</em>, <em>session</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#end_run_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.end_run_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>End the run_group successfully.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>group: The run_group we want to complete.
+session: The database transaction we will finish.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.exit_code_from_run_infos">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">exit_code_from_run_infos</code><span class="sig-paren">(</span><em>run_infos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#exit_code_from_run_infos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.exit_code_from_run_infos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.fail">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">fail</code><span class="sig-paren">(</span><em>db_run</em>, <em>session</em>, <em>retcode</em>, <em>stdout</em>, <em>stderr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#fail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.fail" title="Permalink to this definition">¶</a></dt>
+<dd><p>End a run in the database log (Unsuccessfully).</p>
+<p>This will persist the log information in the database and commit the
+transaction.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>db_run: The <code class="docutils literal"><span class="pre">run</span></code> schema object we belong to
+session: The db transaction we belong to.
+retcode: The return code we captured of the run.
+stdout: The stdout we captured of the run.
+stderr: The stderr we capture of the run.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.fail_run_group">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">fail_run_group</code><span class="sig-paren">(</span><em>group</em>, <em>session</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#fail_run_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.fail_run_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>End the run_group unsuccessfully.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>group: The run_group we want to complete.
+session: The database transaction we will finish.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.fetch_time_output">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">fetch_time_output</code><span class="sig-paren">(</span><em>marker</em>, <em>format_s</em>, <em>ins</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#fetch_time_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.fetch_time_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch the output /usr/bin/time from a.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>marker: The marker that limits the time output
+format_s: The format string used to parse the timings
+ins: A list of lines we look for the output.</dd>
+<dt>Returns:</dt>
+<dd>A list of timing tuples</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.handle_stdin">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">handle_stdin</code><span class="sig-paren">(</span><em>cmd</em>, <em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#handle_stdin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.handle_stdin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle stdin for wrapped runtime executors.</p>
+<p>This little helper checks the kwargs for a <cite>has_stdin</cite> key containing
+a boolean value. If necessary it will pipe in the stdin of this process
+into the plumbum command.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cmd (benchbuild.utils.cmd): Command to wrap a stdin handler around.
+kwargs: Dictionary containing the kwargs.</p>
+<blockquote class="last">
+<div>We check for they key <cite>has_stdin</cite></div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>A new plumbum command that deals with stdin redirection, if needed.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.in_builddir">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">in_builddir</code><span class="sig-paren">(</span><em>sub=’.’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#in_builddir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.in_builddir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorate a project phase with a local working directory change.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>sub: An optional subdirectory to change into.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.run">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">run</code><span class="sig-paren">(</span><em>command</em>, <em>retcode=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a plumbum command, depending on the user’s settings.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>command: The plumbumb command to execute.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.store_config">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">store_config</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#store_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.store_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for storing the configuration in the project’s builddir.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.track_execution">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">track_execution</code><span class="sig-paren">(</span><em>cmd</em>, <em>project</em>, <em>experiment</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#track_execution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.track_execution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Guard the execution of the given command.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cmd: the command we guard.
+pname: the database we run under.
+ename: the database session this run belongs to.
+run_group: the run group this execution will belong to.</dd>
+<dt>Raises:</dt>
+<dd><dl class="first last docutils">
+<dt>RunException: If the <code class="docutils literal"><span class="pre">cmd</span></code> encounters an error we wrap the exception</dt>
+<dd>in a RunException and re-raise. This ends the run unsuccessfully.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.uchroot">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">uchroot</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#uchroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.uchroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a customizable uchroot command.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>args: List of additional arguments for uchroot (typical: mounts)</dd>
+<dt>Return:</dt>
+<dd>chroot_cmd</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.uchroot_env">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">uchroot_env</code><span class="sig-paren">(</span><em>mounts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#uchroot_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.uchroot_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the environment of the change root for the user.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>mounts: The mountpoints of the current user.</dd>
+<dt>Return:</dt>
+<dd>paths
+ld_libs</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.uchroot_mounts">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">uchroot_mounts</code><span class="sig-paren">(</span><em>prefix</em>, <em>mounts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#uchroot_mounts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.uchroot_mounts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mountpoints of the current user.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>prefix: Define where the job was running if it ran on a cluster.
+mounts: All mounts the user currently uses in his file system.</dd>
+<dt>Return:</dt>
+<dd>mntpoints</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.uchroot_no_args">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">uchroot_no_args</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#uchroot_no_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.uchroot_no_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the uchroot command without any customizations.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.uchroot_no_llvm">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">uchroot_no_llvm</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#uchroot_no_llvm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.uchroot_no_llvm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a customizable uchroot command.</p>
+<p>The command will be executed inside a uchroot environment.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>args: List of additional arguments for uchroot (typical: mounts)</dd>
+<dt>Return:</dt>
+<dd>chroot_cmd</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.uchroot_with_mounts">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">uchroot_with_mounts</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#uchroot_with_mounts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.uchroot_with_mounts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a uchroot command with all mounts enabled.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.unionfs">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">unionfs</code><span class="sig-paren">(</span><em>base_dir=’./base’</em>, <em>image_dir=’./image’</em>, <em>image_prefix=None</em>, <em>mountpoint=’./union’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#unionfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.unionfs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for the UnionFS feature.</p>
+<p>This configures a unionfs for projects. The given base_dir and/or image_dir
+are layered as follows:</p>
+<blockquote>
+<div>image_dir=RW:base_dir=RO</div></blockquote>
+<p>All writes go to the image_dir, while base_dir delivers the (read-only)
+versions of the rest of the filesystem.</p>
+<p>The unified version will be provided in the project’s builddir. Unmouting
+is done as soon as the function completes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>base_dir:The unpacked container of a project delievered by a method</dt>
+<dd>out of the container utils.</dd>
+<dt>image_dir: Virtual image of the actual file system represented by the</dt>
+<dd>build_dir of a project.</dd>
+<dt>image_prefix: Useful prefix if the projects run on a cluster,</dt>
+<dd>to identify where the job came from and where it runs.</dd>
+<dt>mountpoint: Location where the filesystems merge, currently per default</dt>
+<dd>as ‘./union’.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.unionfs_is_active">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">unionfs_is_active</code><span class="sig-paren">(</span><em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#unionfs_is_active"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.unionfs_is_active" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.unionfs_set_up">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">unionfs_set_up</code><span class="sig-paren">(</span><em>ro_base</em>, <em>rw_image</em>, <em>mountpoint</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#unionfs_set_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.unionfs_set_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup a unionfs via unionfs-fuse.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>ro_base: base_directory of the project
+rw_image: virtual image of actual file system
+mountpoint: location where ro_base and rw_image merge</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.run.with_env_recursive">
+<code class="descclassname">benchbuild.utils.run.</code><code class="descname">with_env_recursive</code><span class="sig-paren">(</span><em>cmd</em>, <em>**envvars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#with_env_recursive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.with_env_recursive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively updates the environment of cmd and all its subcommands.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cmd - A plumbum command-like object
+<a href="#id1"><span class="problematic" id="id2">**</span></a>envvars - The environment variables to update</dd>
+<dt>Returns:</dt>
+<dd>The updated command.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.schema">
+<span id="benchbuild-utils-schema-module"></span><h2>benchbuild.utils.schema module<a class="headerlink" href="#module-benchbuild.utils.schema" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="database-schema-for-benchbuild">
+<h3>Database schema for benchbuild<a class="headerlink" href="#database-schema-for-benchbuild" title="Permalink to this headline">¶</a></h3>
+<p>The schema should initialize itself on an empty database. For now, we do not
+support automatic upgrades on schema changes. You might encounter some
+roadbumps when using an older version of benchbuild.</p>
+<p>Furthermore, for now, we are restricted to postgresql databases, although we
+already support arbitrary connection strings via config.</p>
+<p>If you want to use reports that use one of our SQL functions, you need to
+initialize the functions first using the following command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>&gt; <span class="nv">BB_DB_CREATE_FUNCTIONS</span><span class="o">=</span><span class="nb">true</span> benchbuild run -E empty -l
+</pre></div>
+</div>
+<p>After that you (normally) do not need to do this agains, unless we supply
+a new version that you are interested in.
+As soon as we have alembic running, we can provide automatic up/downgrade
+paths for you.</p>
+<dl class="class">
+<dt id="benchbuild.utils.schema.CompileStat">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">CompileStat</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#CompileStat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.CompileStat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store compilestats as given by LLVM’s ‘-stats’ commoand.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.CompileStat.component">
+<code class="descname">component</code><a class="headerlink" href="#benchbuild.utils.schema.CompileStat.component" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.CompileStat.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.CompileStat.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.CompileStat.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.CompileStat.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.CompileStat.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.CompileStat.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.CompileStat.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.CompileStat.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Config">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Config</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store customized information about a run.</p>
+<p>You can store arbitrary configuration information about a run here.
+Use it for extended filtering against the run table.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Config.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Config.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Config.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Config.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Config.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.Config.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Event">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store PAPI profiling based events.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.duration">
+<code class="descname">duration</code><a class="headerlink" href="#benchbuild.utils.schema.Event.duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.Event.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Event.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Event.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.start">
+<code class="descname">start</code><a class="headerlink" href="#benchbuild.utils.schema.Event.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.tid">
+<code class="descname">tid</code><a class="headerlink" href="#benchbuild.utils.schema.Event.tid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.type">
+<code class="descname">type</code><a class="headerlink" href="#benchbuild.utils.schema.Event.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Experiment">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Experiment</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store metadata about experiments.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Experiment.begin">
+<code class="descname">begin</code><a class="headerlink" href="#benchbuild.utils.schema.Experiment.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Experiment.description">
+<code class="descname">description</code><a class="headerlink" href="#benchbuild.utils.schema.Experiment.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Experiment.end">
+<code class="descname">end</code><a class="headerlink" href="#benchbuild.utils.schema.Experiment.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Experiment.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.Experiment.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Experiment.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Experiment.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.GlobalConfig">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">GlobalConfig</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#GlobalConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.GlobalConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store customized information about a run.</p>
+<p>You can store arbitrary configuration information about a run here.
+Use it for extended filtering against the run table.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.GlobalConfig.experiment_group">
+<code class="descname">experiment_group</code><a class="headerlink" href="#benchbuild.utils.schema.GlobalConfig.experiment_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.GlobalConfig.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.GlobalConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.GlobalConfig.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.GlobalConfig.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.IslAst">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">IslAst</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#IslAst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.IslAst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store default metrics, simple name value store.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.IslAst.ast">
+<code class="descname">ast</code><a class="headerlink" href="#benchbuild.utils.schema.IslAst.ast" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.IslAst.function">
+<code class="descname">function</code><a class="headerlink" href="#benchbuild.utils.schema.IslAst.function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.IslAst.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.IslAst.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Likwid">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Likwid</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Likwid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Likwid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store measurement results of likwid based experiments.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Likwid.core">
+<code class="descname">core</code><a class="headerlink" href="#benchbuild.utils.schema.Likwid.core" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Likwid.metric">
+<code class="descname">metric</code><a class="headerlink" href="#benchbuild.utils.schema.Likwid.metric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Likwid.region">
+<code class="descname">region</code><a class="headerlink" href="#benchbuild.utils.schema.Likwid.region" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Likwid.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Likwid.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Likwid.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.Likwid.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Metadata">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Metadata</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store metadata information for every run.</p>
+<p>If you happen to have some free-form data that belongs to the database,
+this is the place for it.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metadata.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Metadata.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metadata.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Metadata.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metadata.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.Metadata.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Metric">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Metric</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store default metrics, simple name value store.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metric.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Metric.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metric.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Metric.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metric.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.Metric.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.PerfEvent">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">PerfEvent</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#PerfEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.PerfEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store PAPI profiling based events.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.PerfEvent.duration">
+<code class="descname">duration</code><a class="headerlink" href="#benchbuild.utils.schema.PerfEvent.duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.PerfEvent.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.PerfEvent.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.PerfEvent.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.PerfEvent.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.PerfEvent.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.PerfEvent.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.PerfEvent.start">
+<code class="descname">start</code><a class="headerlink" href="#benchbuild.utils.schema.PerfEvent.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.PerfEvent.tid">
+<code class="descname">tid</code><a class="headerlink" href="#benchbuild.utils.schema.PerfEvent.tid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.PerfEvent.type">
+<code class="descname">type</code><a class="headerlink" href="#benchbuild.utils.schema.PerfEvent.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Project">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Project</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store project metadata.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.description">
+<code class="descname">description</code><a class="headerlink" href="#benchbuild.utils.schema.Project.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.domain">
+<code class="descname">domain</code><a class="headerlink" href="#benchbuild.utils.schema.Project.domain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.group_name">
+<code class="descname">group_name</code><a class="headerlink" href="#benchbuild.utils.schema.Project.group_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Project.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.src_url">
+<code class="descname">src_url</code><a class="headerlink" href="#benchbuild.utils.schema.Project.src_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.version">
+<code class="descname">version</code><a class="headerlink" href="#benchbuild.utils.schema.Project.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.RegressionTest">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">RegressionTest</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#RegressionTest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.RegressionTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store regression tests for all projects.</p>
+<p>This relation is filled from the PolyJIT side, not from benchbuild-study.
+We collect all JIT SCoPs found by PolyJIT in this relation for
+regression-test generation.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RegressionTest.module">
+<code class="descname">module</code><a class="headerlink" href="#benchbuild.utils.schema.RegressionTest.module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RegressionTest.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.RegressionTest.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RegressionTest.project_name">
+<code class="descname">project_name</code><a class="headerlink" href="#benchbuild.utils.schema.RegressionTest.project_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RegressionTest.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.RegressionTest.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Run">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Run</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store a run for each executed test binary.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.begin">
+<code class="descname">begin</code><a class="headerlink" href="#benchbuild.utils.schema.Run.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.command">
+<code class="descname">command</code><a class="headerlink" href="#benchbuild.utils.schema.Run.command" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.end">
+<code class="descname">end</code><a class="headerlink" href="#benchbuild.utils.schema.Run.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.experiment_group">
+<code class="descname">experiment_group</code><a class="headerlink" href="#benchbuild.utils.schema.Run.experiment_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.experiment_name">
+<code class="descname">experiment_name</code><a class="headerlink" href="#benchbuild.utils.schema.Run.experiment_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.Run.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.project_name">
+<code class="descname">project_name</code><a class="headerlink" href="#benchbuild.utils.schema.Run.project_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.run_group">
+<code class="descname">run_group</code><a class="headerlink" href="#benchbuild.utils.schema.Run.run_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.status">
+<code class="descname">status</code><a class="headerlink" href="#benchbuild.utils.schema.Run.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.RunGroup">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">RunGroup</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#RunGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.RunGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store information about a run group.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.begin">
+<code class="descname">begin</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.end">
+<code class="descname">end</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.experiment">
+<code class="descname">experiment</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.experiment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.project">
+<code class="descname">project</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.project" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.status">
+<code class="descname">status</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.RunLog">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">RunLog</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#RunLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.RunLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store log information for every run.</p>
+<p>Properties like, start time, finish time, exit code, stderr, stdout
+are stored here.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.begin">
+<code class="descname">begin</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.config">
+<code class="descname">config</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.end">
+<code class="descname">end</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.status">
+<code class="descname">status</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.stderr">
+<code class="descname">stderr</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.stderr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.stdout">
+<code class="descname">stdout</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.stdout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Schedule">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Schedule</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Schedule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store default metrics, simple name value store.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Schedule.function">
+<code class="descname">function</code><a class="headerlink" href="#benchbuild.utils.schema.Schedule.function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Schedule.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Schedule.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Schedule.schedule">
+<code class="descname">schedule</code><a class="headerlink" href="#benchbuild.utils.schema.Schedule.schedule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Sequence">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Sequence</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store a the fittest sequence of an opt command and its fitness value.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Sequence.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Sequence.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Sequence.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Sequence.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Sequence.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.Sequence.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.schema.Session">
+<code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Session</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#benchbuild.utils.schema.Session" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.SessionManager">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">SessionManager</code><a class="reference internal" href="_modules/benchbuild/utils/schema.html#SessionManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.SessionManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="benchbuild.utils.schema.SessionManager.get">
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#SessionManager.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.SessionManager.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.schema.init_functions">
+<code class="descclassname">benchbuild.utils.schema.</code><code class="descname">init_functions</code><span class="sig-paren">(</span><em>connection</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#init_functions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.init_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all SQL functions in the database.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-benchbuild.utils.slurm">
+<span id="benchbuild-utils-slurm-module"></span><h2>benchbuild.utils.slurm module<a class="headerlink" href="#module-benchbuild.utils.slurm" title="Permalink to this headline">¶</a></h2>
+<p>SLURM support for the benchbuild study.</p>
+<p>This module can be used to generate bash scripts that can be executed by
+the SLURM controller either as batch or interactive script.</p>
+<dl class="function">
+<dt id="benchbuild.utils.slurm.dump_slurm_script">
+<code class="descclassname">benchbuild.utils.slurm.</code><code class="descname">dump_slurm_script</code><span class="sig-paren">(</span><em>script_name</em>, <em>benchbuild</em>, <em>experiment</em>, <em>projects</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/slurm.html#dump_slurm_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.slurm.dump_slurm_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump a bash script that can be given to SLURM.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">script_name (str): name of the bash script.
+commands (list(benchbuild.utils.cmd)):</p>
+<blockquote>
+<div>List of plumbum commands to write to the bash script.</div></blockquote>
+<dl class="last docutils">
+<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs: Dictionary with all environment variable bindings we should</dt>
+<dd>map in the bash script.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.slurm.prepare_directories">
+<code class="descclassname">benchbuild.utils.slurm.</code><code class="descname">prepare_directories</code><span class="sig-paren">(</span><em>dirs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/slurm.html#prepare_directories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.slurm.prepare_directories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make sure that the required directories exist.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>dirs - the directories we want.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.slurm.prepare_slurm_script">
+<code class="descclassname">benchbuild.utils.slurm.</code><code class="descname">prepare_slurm_script</code><span class="sig-paren">(</span><em>experiment</em>, <em>projects</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/slurm.html#prepare_slurm_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.slurm.prepare_slurm_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare a slurm script that executes the experiment for a given project.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>experiment: The experiment we want to execute
+projects: All projects we generate an array job for.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.user_interface">
+<span id="benchbuild-utils-user-interface-module"></span><h2>benchbuild.utils.user_interface module<a class="headerlink" href="#module-benchbuild.utils.user_interface" title="Permalink to this headline">¶</a></h2>
+<p>User interface helpers for benchbuild.</p>
+<dl class="function">
+<dt id="benchbuild.utils.user_interface.ask">
+<code class="descclassname">benchbuild.utils.user_interface.</code><code class="descname">ask</code><span class="sig-paren">(</span><em>question</em>, <em>default_answer=False</em>, <em>default_answer_str=’no’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/user_interface.html#ask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.user_interface.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.user_interface.query_yes_no">
+<code class="descclassname">benchbuild.utils.user_interface.</code><code class="descname">query_yes_no</code><span class="sig-paren">(</span><em>question</em>, <em>default=’yes’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/user_interface.html#query_yes_no"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.user_interface.query_yes_no" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask a yes/no question via raw_input() and return their answer.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">question (str): Question hat is presented to the user.
+default (str): The presumed answer, if the user just hits &lt;Enter&gt;.</p>
+<blockquote class="last">
+<div>It must be “yes” (the default), “no” or None (meaning
+an answer is required of the user).</div></blockquote>
+</dd>
+<dt>Returns (boolean):</dt>
+<dd>True, if ‘yes’, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.versions">
+<span id="benchbuild-utils-versions-module"></span><h2>benchbuild.utils.versions module<a class="headerlink" href="#module-benchbuild.utils.versions" title="Permalink to this headline">¶</a></h2>
+<p>Gather version information for BB.</p>
+<dl class="function">
+<dt id="benchbuild.utils.versions.get_git_hash">
+<code class="descclassname">benchbuild.utils.versions.</code><code class="descname">get_git_hash</code><span class="sig-paren">(</span><em>from_url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/versions.html#get_git_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.versions.get_git_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the git commit hash of HEAD from :from_url.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>from_url: The file system url of our git repository.</dd>
+<dt>Returns:</dt>
+<dd>git commit hash of HEAD, or empty string.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.versions.get_version_from_cache_dir">
+<code class="descclassname">benchbuild.utils.versions.</code><code class="descname">get_version_from_cache_dir</code><span class="sig-paren">(</span><em>src_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/versions.html#get_version_from_cache_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.versions.get_version_from_cache_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a version for a project out of the hash.</p>
+<p>The hash is taken from the directory of the source file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>src_file: The source file of the project using this function.</dd>
+<dt>Returns:</dt>
+<dd>Either returns the first 8 digits of the hash as string,
+the entire hash as a string if the hash consists out of less
+than 7 digits or None if the path is incorrect.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-benchbuild.utils.wrapping">
+<span id="benchbuild-utils-wrapping-module"></span><h2>benchbuild.utils.wrapping module<a class="headerlink" href="#module-benchbuild.utils.wrapping" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="benchbuild.utils.wrapping.strip_path_prefix">
+<code class="descclassname">benchbuild.utils.wrapping.</code><code class="descname">strip_path_prefix</code><span class="sig-paren">(</span><em>ipath</em>, <em>prefix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/wrapping.html#strip_path_prefix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.wrapping.strip_path_prefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strip prefix from path.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>ipath: input path
+prefix: the prefix to remove, if it is found in :ipath:</dd>
+<dt>Examples:</dt>
+<dd><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">strip_path_prefix</span><span class="p">(</span><span class="s2">&quot;/foo/bar&quot;</span><span class="p">,</span> <span class="s2">&quot;/bar&quot;</span><span class="p">)</span>
+<span class="go">&#39;/foo/bar&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">strip_path_prefix</span><span class="p">(</span><span class="s2">&quot;/foo/bar&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="go">&#39;foo/bar&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">strip_path_prefix</span><span class="p">(</span><span class="s2">&quot;/foo/bar&quot;</span><span class="p">,</span> <span class="s2">&quot;/foo&quot;</span><span class="p">)</span>
+<span class="go">&#39;/bar&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">strip_path_prefix</span><span class="p">(</span><span class="s2">&quot;/foo/bar&quot;</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">)</span>
+<span class="go">&#39;/foo/bar&#39;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.wrapping.wrap">
+<code class="descclassname">benchbuild.utils.wrapping.</code><code class="descname">wrap</code><span class="sig-paren">(</span><em>name</em>, <em>runner</em>, <em>sprefix=None</em>, <em>**template_vars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/wrapping.html#wrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.wrapping.wrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap the binary :name: with the function :runner:.</p>
+<p>This module generates a python tool that replaces :name:
+The function in runner only accepts the replaced binaries
+name as argument. We use the cloudpickle package to
+perform the serialization, make sure :runner: can be serialized
+with it and you’re fine.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name: Binary we want to wrap
+runner: Function that should run instead of :name:</dd>
+<dt>Returns:</dt>
+<dd>A plumbum command, ready to launch.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.wrapping.wrap_cc">
+<code class="descclassname">benchbuild.utils.wrapping.</code><code class="descname">wrap_cc</code><span class="sig-paren">(</span><em>filepath</em>, <em>cflags</em>, <em>ldflags</em>, <em>compiler</em>, <em>extension</em>, <em>compiler_ext_name=None</em>, <em>**template_vars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/wrapping.html#wrap_cc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.wrapping.wrap_cc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Substitute a compiler with a script that hides CFLAGS &amp; LDFLAGS.</p>
+<p>This will generate a wrapper script in the current directory
+and return a complete plumbum command to it.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">filepath (str): Path to the wrapper script.
+cflags (list(str)): The CFLAGS we want to hide.
+ldflags (list(str)): The LDFLAGS we want to hide.
+compiler (benchbuild.utils.cmd): Real compiler command we should call in the</p>
+<blockquote>
+<div>script.</div></blockquote>
+<dl class="last docutils">
+<dt>extension: A function that will be pickled alongside the compiler.</dt>
+<dd>It will be called before the actual compilation took place. This
+way you can intercept the compilation process with arbitrary python
+code.</dd>
+<dt>compiler_ext_name: The name that we should give to the generated</dt>
+<dd>dill blob for :func:</dd>
+</dl>
+</dd>
+<dt>Returns (benchbuild.utils.cmd):</dt>
+<dd>Command of the new compiler we can call.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.wrapping.wrap_dynamic">
+<code class="descclassname">benchbuild.utils.wrapping.</code><code class="descname">wrap_dynamic</code><span class="sig-paren">(</span><em>self</em>, <em>name</em>, <em>runner</em>, <em>sprefix=None</em>, <em>**template_vars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/wrapping.html#wrap_dynamic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.wrapping.wrap_dynamic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap the binary :name with the function :runner.</p>
+<p>This module generates a python tool :name: that can replace
+a yet unspecified binary.
+It behaves similar to the :wrap: function. However, the first
+argument is the actual binary name.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name: name of the python module
+runner: Function that should run the real binary
+base_class: The base_class of our project.
+base_module: The module of base_class.</dd>
+</dl>
+<p>Returns: plumbum command, readty to launch.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.wrapping.wrap_dynamic_in_uchroot">
+<code class="descclassname">benchbuild.utils.wrapping.</code><code class="descname">wrap_dynamic_in_uchroot</code><span class="sig-paren">(</span><em>self</em>, <em>name</em>, <em>runner</em>, <em>sprefix=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/wrapping.html#wrap_dynamic_in_uchroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.wrapping.wrap_dynamic_in_uchroot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.wrapping.wrap_in_uchroot">
+<code class="descclassname">benchbuild.utils.wrapping.</code><code class="descname">wrap_in_uchroot</code><span class="sig-paren">(</span><em>name</em>, <em>runner</em>, <em>sprefix=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/wrapping.html#wrap_in_uchroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.wrapping.wrap_in_uchroot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">benchbuild.utils package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.actions">benchbuild.utils.actions module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.bootstrap">benchbuild.utils.bootstrap module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.compiler">benchbuild.utils.compiler module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.container">benchbuild.utils.container module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.db">benchbuild.utils.db module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.downloader">benchbuild.utils.downloader module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.log">benchbuild.utils.log module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.path">benchbuild.utils.path module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.run">benchbuild.utils.run module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.schema">benchbuild.utils.schema module</a><ul>
+<li><a class="reference internal" href="#database-schema-for-benchbuild">Database schema for benchbuild</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-benchbuild.utils.slurm">benchbuild.utils.slurm module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.user_interface">benchbuild.utils.user_interface module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.versions">benchbuild.utils.versions module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.utils.wrapping">benchbuild.utils.wrapping module</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="benchbuild.html">benchbuild package</a><ul>
+      <li>Previous: <a href="benchbuild.reports.html" title="previous chapter">benchbuild.reports package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/benchbuild.utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

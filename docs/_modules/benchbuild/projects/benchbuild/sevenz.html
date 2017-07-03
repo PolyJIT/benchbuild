@@ -1,0 +1,134 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>benchbuild.projects.benchbuild.sevenz &#8212; benchbuild 1.3.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.3.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for benchbuild.projects.benchbuild.sevenz</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
+<span class="kn">from</span> <span class="nn">benchbuild.projects.benchbuild.group</span> <span class="k">import</span> <span class="n">BenchBuildGroup</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang</span><span class="p">,</span> <span class="n">lt_clang_cxx</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Wget</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span>
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">make</span><span class="p">,</span> <span class="n">tar</span><span class="p">,</span> <span class="n">cp</span>
+
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+
+
+<div class="viewcode-block" id="SevenZip"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.sevenz.SevenZip">[docs]</a><span class="k">class</span> <span class="nc">SevenZip</span><span class="p">(</span><span class="n">BenchBuildGroup</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; 7Zip &quot;&quot;&quot;</span>
+
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;7z&#39;</span>
+    <span class="n">DOMAIN</span> <span class="o">=</span> <span class="s1">&#39;compression&#39;</span>
+    <span class="n">VERSION</span> <span class="o">=</span> <span class="s1">&#39;9.38.1&#39;</span>
+
+<div class="viewcode-block" id="SevenZip.run_tests"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.sevenz.SevenZip.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_dir</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;7za&quot;</span><span class="p">),</span> <span class="n">experiment</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">(</span><span class="n">exp</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;-mmt1&quot;</span><span class="p">])</span></div>
+
+    <span class="n">src_dir</span> <span class="o">=</span> <span class="s2">&quot;p7zip_</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">VERSION</span><span class="p">)</span>
+    <span class="n">SRC_FILE</span> <span class="o">=</span> <span class="n">src_dir</span> <span class="o">+</span> <span class="s2">&quot;_src_all.tar.bz2&quot;</span>
+    <span class="n">src_uri</span> <span class="o">=</span> <span class="s2">&quot;http://downloads.sourceforge.net/project/p7zip/p7zip/</span><span class="si">{0}</span><span class="s2">/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">VERSION</span><span class="p">)</span> <span class="o">+</span> \
+       <span class="n">SRC_FILE</span>
+
+<div class="viewcode-block" id="SevenZip.download"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.sevenz.SevenZip.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">Wget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_uri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SRC_FILE</span><span class="p">)</span>
+        <span class="n">tar</span><span class="p">(</span><span class="s1">&#39;xfj&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SRC_FILE</span><span class="p">)</span>
+        <span class="n">cp</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_dir</span><span class="p">,</span> <span class="s2">&quot;makefile.linux_clang_amd64_asm&quot;</span><span class="p">),</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_dir</span><span class="p">,</span> <span class="s2">&quot;makefile.machine&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SevenZip.configure"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.sevenz.SevenZip.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="SevenZip.build"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.sevenz.SevenZip.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">clang</span> <span class="o">=</span> <span class="n">lt_clang</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+        <span class="n">clang_cxx</span> <span class="o">=</span> <span class="n">lt_clang_cxx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_dir</span><span class="p">):</span>
+            <span class="n">run</span><span class="p">(</span><span class="n">make</span><span class="p">[</span><span class="s2">&quot;CC=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">clang</span><span class="p">),</span> <span class="s2">&quot;CXX=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">clang_cxx</span><span class="p">),</span> <span class="s2">&quot;clean&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;all&quot;</span><span class="p">])</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../projects.html">benchbuild.projects</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Andreas Simbürger.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

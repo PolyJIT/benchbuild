@@ -8,7 +8,7 @@
     
     <title>benchbuild.projects.benchbuild package &#8212; benchbuild 1.3.2 documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -27,16 +27,92 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="benchbuild.projects.gentoo package" href="benchbuild.projects.gentoo.html" />
-    <link rel="prev" title="benchbuild.projects.apollo package" href="benchbuild.projects.apollo.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
+    <link rel="prev" title="benchbuild.projects.apollo package" href="benchbuild.projects.apollo.html" /> 
   </head>
   <body>
-  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.projects.gentoo.html" title="benchbuild.projects.gentoo package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.projects.apollo.html" title="benchbuild.projects.apollo package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 1.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="benchbuild.html" >benchbuild package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="benchbuild.projects.html" accesskey="U">benchbuild.projects package</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">benchbuild.projects.benchbuild package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.bzip2">benchbuild.projects.benchbuild.bzip2 module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.ccrypt">benchbuild.projects.benchbuild.ccrypt module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.crafty">benchbuild.projects.benchbuild.crafty module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.crocopat">benchbuild.projects.benchbuild.crocopat module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.ffmpeg">benchbuild.projects.benchbuild.ffmpeg module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.group">benchbuild.projects.benchbuild.group module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.gzip">benchbuild.projects.benchbuild.gzip module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.js">benchbuild.projects.benchbuild.js module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.lammps">benchbuild.projects.benchbuild.lammps module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.lapack">benchbuild.projects.benchbuild.lapack module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.leveldb">benchbuild.projects.benchbuild.leveldb module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.linpack">benchbuild.projects.benchbuild.linpack module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.lulesh">benchbuild.projects.benchbuild.lulesh module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.luleshomp">benchbuild.projects.benchbuild.luleshomp module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.mcrypt">benchbuild.projects.benchbuild.mcrypt module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.minisat">benchbuild.projects.benchbuild.minisat module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.openssl">benchbuild.projects.benchbuild.openssl module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.postgres">benchbuild.projects.benchbuild.postgres module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.povray">benchbuild.projects.benchbuild.povray module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.python">benchbuild.projects.benchbuild.python module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.rasdaman">benchbuild.projects.benchbuild.rasdaman module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.ruby">benchbuild.projects.benchbuild.ruby module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.sdcc">benchbuild.projects.benchbuild.sdcc module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.sevenz">benchbuild.projects.benchbuild.sevenz module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.sqlite3">benchbuild.projects.benchbuild.sqlite3 module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.tcc">benchbuild.projects.benchbuild.tcc module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.x264">benchbuild.projects.benchbuild.x264 module</a></li>
+<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.xz">benchbuild.projects.benchbuild.xz module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="benchbuild.projects.apollo.html"
+                        title="previous chapter">benchbuild.projects.apollo package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="benchbuild.projects.gentoo.html"
+                        title="next chapter">benchbuild.projects.gentoo package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.projects.benchbuild.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -1723,91 +1799,31 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">benchbuild.projects.benchbuild package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.bzip2">benchbuild.projects.benchbuild.bzip2 module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.ccrypt">benchbuild.projects.benchbuild.ccrypt module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.crafty">benchbuild.projects.benchbuild.crafty module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.crocopat">benchbuild.projects.benchbuild.crocopat module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.ffmpeg">benchbuild.projects.benchbuild.ffmpeg module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.group">benchbuild.projects.benchbuild.group module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.gzip">benchbuild.projects.benchbuild.gzip module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.js">benchbuild.projects.benchbuild.js module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.lammps">benchbuild.projects.benchbuild.lammps module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.lapack">benchbuild.projects.benchbuild.lapack module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.leveldb">benchbuild.projects.benchbuild.leveldb module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.linpack">benchbuild.projects.benchbuild.linpack module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.lulesh">benchbuild.projects.benchbuild.lulesh module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.luleshomp">benchbuild.projects.benchbuild.luleshomp module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.mcrypt">benchbuild.projects.benchbuild.mcrypt module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.minisat">benchbuild.projects.benchbuild.minisat module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.openssl">benchbuild.projects.benchbuild.openssl module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.postgres">benchbuild.projects.benchbuild.postgres module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.povray">benchbuild.projects.benchbuild.povray module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.python">benchbuild.projects.benchbuild.python module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.rasdaman">benchbuild.projects.benchbuild.rasdaman module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.ruby">benchbuild.projects.benchbuild.ruby module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.sdcc">benchbuild.projects.benchbuild.sdcc module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.sevenz">benchbuild.projects.benchbuild.sevenz module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.sqlite3">benchbuild.projects.benchbuild.sqlite3 module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.tcc">benchbuild.projects.benchbuild.tcc module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.x264">benchbuild.projects.benchbuild.x264 module</a></li>
-<li><a class="reference internal" href="#module-benchbuild.projects.benchbuild.xz">benchbuild.projects.benchbuild.xz module</a></li>
-</ul>
-</li>
-</ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="benchbuild.html">benchbuild package</a><ul>
-  <li><a href="benchbuild.projects.html">benchbuild.projects package</a><ul>
-      <li>Previous: <a href="benchbuild.projects.apollo.html" title="previous chapter">benchbuild.projects.apollo package</a></li>
-      <li>Next: <a href="benchbuild.projects.gentoo.html" title="next chapter">benchbuild.projects.gentoo package</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/benchbuild.projects.benchbuild.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2017, Andreas Simbürger.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
-      
-      |
-      <a href="_sources/benchbuild.projects.benchbuild.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.projects.gentoo.html" title="benchbuild.projects.gentoo package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.projects.apollo.html" title="benchbuild.projects.apollo package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 1.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="benchbuild.html" >benchbuild package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+    </div>
   </body>
 </html>

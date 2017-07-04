@@ -33,3 +33,17 @@ class DictTestCase(unittest.TestCase):
                TEST=[1,2]):
             self.assertEqual(a['TEST'], [0,1,2])
         self.assertEqual(a['TEST'], 0)
+
+    def test_default_extender_fn(self):
+        a = edict(extend_as_list)
+        a['TEST'] = 0
+        with a(TEST=[1,2]):
+            self.assertEqual(a['TEST'], [0,1,2])
+        self.assertEqual(a['TEST'], 0)
+
+    def test_non_existing_key(self):
+        b = edict(extend_as_list)
+        b.clear()
+        with b(TEST=[1,2]):
+            self.assertEqual(b['TEST'], [1,2])
+        self.assertNotIn('TEST', b)

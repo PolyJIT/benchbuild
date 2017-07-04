@@ -16,11 +16,14 @@ from plumbum import local
 import benchbuild.extensions as ext
 from benchbuild.utils.actions import (Any, RequireAll)
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.utils.dict import ExtensibleDict
+from benchbuild.utils.dict import ExtensibleDict, extend_as_list
+
+
+LOG = logging.getLogger()
 
 
 class PolyJITConfig(object):
-    __config = ExtensibleDict()
+    __config = ExtensibleDict(extend_as_list)
 
     @property
     def argv(self):
@@ -29,7 +32,8 @@ class PolyJITConfig(object):
 
 class EnablePolyJIT(PolyJITConfig, ext.Extension):
     def __call__(self, binary_command, *args, **kwargs):
-        ret = self.call_next(binary_command, *args, **kwargs)
+        with local.env(PJIT_ARGS=" ".join(self.argv['PJIT_ARGS'])):
+            ret = self.call_next(binary_command, *args, **kwargs)
         return ret
 
 
@@ -37,7 +41,8 @@ class DisablePolyJIT(PolyJITConfig, ext.Extension):
     def __call__(self, binary_command, *args, **kwargs):
         ret = None
         with self.argv(PJIT_ARGS="-pjit-no-specialization"):
-            ret = self.call_next(binary_command, *args, **kwargs)
+            with local.env(PJIT_ARGS=" ".join(self.argv['PJIT_ARGS'])):
+                ret = self.call_next(binary_command, *args, **kwargs)
         return ret
 
 
@@ -85,7 +90,7 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
     run_cmd = local[run_f]
     run_cmd = handle_stdin(run_cmd[args], kwargs)
 
-    with local.env(POLLI_ENABLE_PAPI=1, OMP_NUM_THREADS=jobs):
+    with local.env(OMP_NUM_THREADS=jobs):
         with track_execution(run_cmd, project, experiment) as run:
             run_info = run()
 

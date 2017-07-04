@@ -6,6 +6,7 @@ when running with polyjit support enabled.
 """
 import copy
 import glob
+import logging
 import uuid
 from abc import abstractmethod
 from functools import partial

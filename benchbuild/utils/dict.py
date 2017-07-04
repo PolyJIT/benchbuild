@@ -27,7 +27,11 @@ class ExtensibleDict(object):
     """A dictionary that provides temporary modification."""
 
     _current = dict()
+    _extender_fn = None
 
+    def __init__(self, extender_fn=None):
+        self._extender_fn = extender_fn
+        super(ExtensibleDict, self).__init__()
 
     @contextmanager
     def __call__(self, *args, extender_fn=None, **kwargs):
@@ -50,6 +54,9 @@ class ExtensibleDict(object):
             An updated dictionary.
         """
         previous = self._current.copy()
+        if extender_fn is None:
+            extender_fn = self._extender_fn
+
         self.update(extender_fn, **kwargs)
         try:
             yield

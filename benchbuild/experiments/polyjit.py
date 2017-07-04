@@ -29,10 +29,21 @@ class PolyJITConfig(object):
     def argv(self):
         return PolyJITConfig.__config
 
+    def value_to_str(self, key):
+        if key not in self.argv:
+            return ""
+        value = self.argv[key]
+        if isinstance(value, str):
+            return value
+        elif isinstance(value, list):
+            return " ".join(value)
+        else:
+            return value
+
 
 class EnablePolyJIT(PolyJITConfig, ext.Extension):
     def __call__(self, binary_command, *args, **kwargs):
-        with local.env(PJIT_ARGS=" ".join(self.argv['PJIT_ARGS'])):
+        with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
             ret = self.call_next(binary_command, *args, **kwargs)
         return ret
 
@@ -41,7 +52,7 @@ class DisablePolyJIT(PolyJITConfig, ext.Extension):
     def __call__(self, binary_command, *args, **kwargs):
         ret = None
         with self.argv(PJIT_ARGS="-pjit-no-specialization"):
-            with local.env(PJIT_ARGS=" ".join(self.argv['PJIT_ARGS'])):
+            with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
                 ret = self.call_next(binary_command, *args, **kwargs)
         return ret
 

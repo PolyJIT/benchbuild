@@ -57,13 +57,13 @@ class PapiScopCoverage(RuntimeExperiment):
         """
         p.ldflags = p.ldflags + ["-lpjit", "-lpprof", "-lpapi"]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polli", "-mllvm", "-jitable", "-mllvm",
+                    "-mllvm", "-polli", "-mllvm",
                     "-instrument", "-mllvm", "-no-recompilation", "-mllvm",
                     "-polly-detect-keep-going"]
-        p.compiler_extension = ExtractCompileStats(p, self, {})
+        p.compiler_extension = ExtractCompileStats(p, self)
         p.runtime_extension = \
             RunWithTime(
-                RuntimeExtension(p, self, {'jobs': 1}))
+                RuntimeExtension(p, self, config={'jobs': 1}))
 
         def evaluate_calibration(e):
             from benchbuild.utils.cmd import pprof_calibrate
@@ -93,10 +93,10 @@ class PapiStandardScopCoverage(PapiScopCoverage):
                     "-mllvm", "-polli", "-mllvm", "-instrument", "-mllvm",
                     "-no-recompilation", "-mllvm",
                     "-polly-detect-keep-going"]
-        p.compiler_extension = ExtractCompileStats(p, self, {})
+        p.compiler_extension = ExtractCompileStats(p, self)
         p.runtime_extension = \
             RunWithTime(
-                RuntimeExtension(p, self, {'jobs': 1}))
+                RuntimeExtension(p, self, config={'jobs': 1}))
 
         def evaluate_calibration(e):
             from benchbuild.utils.cmd import pprof_calibrate

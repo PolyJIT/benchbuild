@@ -19,7 +19,7 @@ import sys
 import parse
 import sqlalchemy as sa
 
-from benchbuild.extensions import (RuntimeExtension, ExtractCompileStats)
+import benchbuild.extensions as ext
 from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.settings import CFG
 
@@ -241,7 +241,7 @@ class SequenceReport(Report):
                 csv_writer.writerows(data)
 
 
-class RunSequence(ExtractCompileStats):
+class RunSequence(ext.ExtractCompileStats):
     """
     Execute and compile a given sequence, to calculate its fitness value
     with a given function and metric.
@@ -265,7 +265,7 @@ class RunSequence(ExtractCompileStats):
             return (key, sys.maxsize)
 
 
-class FindFittestSequenceGenetic1(RuntimeExtension):
+class FindFittestSequenceGenetic1(ext.RuntimeExtension):
     def __call__(self, cc, *args, **kwargs):
         """
         Generates custom sequences for a provided application using the first of the
@@ -447,14 +447,14 @@ class Genetic1Sequence(PolyJIT):
         cfg = {"jobs": int(CFG["jobs"].value())}
 
         project.compiler_extension = \
-            FindFittestSequenceGenetic1(
-                project, self, cfg,
-                RunSequence(project, self, cfg))
+            FindFittestSequenceGenetic1(project, self, 
+                RunSequence(project, self, config=cfg),
+                config=cfg)
 
         return self.default_compiletime_actions(project)
 
 
-class FindFittestSequenceGenetic2(RuntimeExtension):
+class FindFittestSequenceGenetic2(ext.RuntimeExtension):
     def __call__(self, cc, *args, **kwargs):
         """
         Generates custom sequences for a provided application using the second
@@ -633,14 +633,14 @@ class Genetic2Sequence(PolyJIT):
 
 
         p.compiler_extension = \
-            FindFittestSequenceGenetic2(
-                p, self, cfg,
-                RunSequence(p, self, cfg))
+            FindFittestSequenceGenetic2(p, self,
+                RunSequence(p, self, config=cfg),
+                config=cfg)
 
         return Genetic2Sequence.default_compiletime_actions(p)
 
 
-class FindFittestSequenceHillclimber(RuntimeExtension):
+class FindFittestSequenceHillclimber(ext.RuntimeExtension):
     def __call__(self, cc, *args, **kwargs):
         seq_to_fitness = {}
         pass_space, seq_length, iterations = get_defaults()
@@ -762,13 +762,13 @@ class HillclimberSequences(PolyJIT):
         cfg = {'jobs': int(CFG["jobs"].value())}
 
         project.compiler_extension = \
-            FindFittestSequenceHillclimber(
-                project, self, cfg,
-                RunSequence(project, self, cfg))
+            FindFittestSequenceHillclimber(project, self,
+                RunSequence(project, self, config=cfg),
+                config=cfg)
         return HillclimberSequences.default_compiletime_actions(project)
 
 
-class FindFittestSequenceGreedy(RuntimeExtension):
+class FindFittestSequenceGreedy(ext.RuntimeExtension):
     def __call__(self, cc, *args, **kwargs):
         seq_to_fitness = {}
         generated_sequences = []
@@ -877,7 +877,8 @@ class GreedySequences(PolyJIT):
 
         project.compiler_extension = \
             FindFittestSequenceGreedy(
-                project, self, cfg,
-                RunSequence(project, self, cfg))
+                project, self,
+                RunSequence(project, self, config=cfg),
+                config=cfg)
 
         return GreedySequences.default_compiletime_actions(project)

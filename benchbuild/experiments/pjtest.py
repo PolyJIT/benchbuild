@@ -17,9 +17,10 @@ import sqlalchemy as sa
 from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.reports import Report
 from benchbuild.settings import CFG
-from benchbuild.extensions import \
-    (RunWithTime, LogAdditionals, RunWithPolyJIT,
-     RunWithoutPolyJIT, RegisterPolyJITLogs)
+
+import benchbuild.extensions as ext
+from benchbuild.experiments.polyjit import \
+    (EnablePolyJIT, DisablePolyJIT, RegisterPolyJITLogs)
 
 LOG = logging.getLogger()
 
@@ -60,11 +61,13 @@ class Test(PolyJIT):
         }
 
         p.runtime_extension = \
-            LogAdditionals(
+            ext.LogAdditionals(
                 RegisterPolyJITLogs(
-                    RunWithTime(
-                        RunWithPolyJIT(p, self, cfg_with_jit),
-                        RunWithoutPolyJIT(p, self, cfg_without_jit)
+                    ext.RunWithTime(
+                        EnablePolyJIT(
+                            ext.RuntimeExtension(p, self, config=cfg_with_jit)),
+                        DisablePolyJIT(
+                            ext.RuntimeExtension(p, self, config=cfg_without_jit))
                     )))
         return Test.default_runtime_actions(p)
 

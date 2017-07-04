@@ -1,8 +1,6 @@
 """
 Extension base-classes for compile-time and run-time experiments.
 """
-import glob
-import os
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import Iterable
@@ -18,9 +16,10 @@ LOG = logging.getLogger()
 
 
 class Extension(metaclass=ABCMeta):
-    def __init__(self, *extensions):
+    def __init__(self, *extensions, config=None):
         """Initialize an extension with an arbitrary number of children."""
         self.next_extensions = extensions
+        self.config = config
 
     def call_next(self, *args, **kwargs):
         """Call all child extensions with the same arguments."""
@@ -49,14 +48,12 @@ class Extension(metaclass=ABCMeta):
     def __call__(self, *args, **kwargs):
         raise NotImplementedError("Must provide implementation in subclass")
 
-
 class RuntimeExtension(Extension):
-    def __init__(self, project, experiment, config, *extensions):
-        self.config = config
+    def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
         self.experiment = experiment
 
-        super(RuntimeExtension, self).__init__(*extensions)
+        super(RuntimeExtension, self).__init__(*extensions, config=config)
 
     def __call__(self, binary_command, *args, **kwargs):
         self.project.name = kwargs.get("project_name", self.project.name)
@@ -136,12 +133,11 @@ class RunWithTime(Extension):
 
 
 class ExtractCompileStats(Extension):
-    def __init__(self, project, experiment, config, *extensions):
-        self.config = config
+    def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
         self.experiment = experiment
 
-        super(ExtractCompileStats, self).__init__(*extensions)
+        super(ExtractCompileStats, self).__init__(*extensions, config=config)
 
     def get_compilestats(self, prog_out):
         """ Get the LLVM compilation stats from :prog_out:. """
@@ -196,7 +192,10 @@ class ExtractCompileStats(Extension):
         else:
             LOG.info("There was an error while compiling.")
 
-class RunWithOpenMPLimit(RuntimeExtension):
+class SetThreadLimit(Extension):
+    def __init__(self, *extensions, config=None):
+        super(SetThreadLimit, self).__init__(*extensions, config=config)
+
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.settings import CFG
 
@@ -209,61 +208,5 @@ class RunWithOpenMPLimit(RuntimeExtension):
 
         ret = None
         with local.env(OMP_NUM_THREADS=str(jobs)):
-            ret = \
-                super(RunWithOpenMPLimit, self).__call__(
-                    binary_command, *args, config, **kwargs)
-        return ret
-
-
-class RunWithPolyJIT(RuntimeExtension):
-    def __call__(self, binary_command, *args, **kwargs):
-        from benchbuild.settings import CFG
-
-        config = self.config
-        if config is not None and 'jobs' in config.keys():
-            jobs = config['jobs']
-        else:
-            logging.warning("Parameter 'config' was unusable, using defaults")
-            jobs = CFG["jobs"].value()
-
-        ret = None
-        with local.env(OMP_NUM_THREADS=str(jobs),
-                       POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-            ret = super(RunWithPolyJIT, self).__call__(
-                binary_command, *args, config, **kwargs)
-        return ret
-
-
-class RunWithoutPolyJIT(RuntimeExtension):
-    def __call__(self, binary_command, *args, **kwargs):
-        from benchbuild.settings import CFG
-
-        config = self.config
-        if config is not None and 'jobs' in config.keys():
-            jobs = config['jobs']
-        else:
-            logging.warning("Parameter 'config' was unusable, using defaults")
-            jobs = CFG["jobs"].value()
-
-        ret = None
-        with local.env(OMP_NUM_THREADS=str(jobs),
-                       POLLI_DISABLE_SPECIALIZATION=1,
-                       POLLI_LOG_FILE=CFG["slurm"]["extra_log"].value()):
-            ret = super(RunWithoutPolyJIT, self).__call__(
-                binary_command, *args, config, **kwargs)
-        return ret
-
-
-class RegisterPolyJITLogs(LogTrackingMixin, Extension):
-    def __call__(self, *args, **kwargs):
-        """Redirect to RunWithTime, but register additional logs."""
-        from benchbuild.utils.cmd import ls
-        with local.env(POLLI_ENABLE_FILE_LOG=1):
-            ret = self.call_next(*args, **kwargs)
-        curdir = os.path.realpath(os.path.curdir)
-        files = glob.glob(os.path.join(curdir, "polyjit.*.log"))
-
-        for file in files:
-            self.add_log(file)
-
+            ret = self.call_next(binary_command, *args, **kwargs)
         return ret

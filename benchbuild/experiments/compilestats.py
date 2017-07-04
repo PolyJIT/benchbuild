@@ -15,7 +15,7 @@ class CompilestatsExperiment(RuntimeExperiment):
     NAME = "cs"
 
     def actions_for_project(self, p):
-        p.compiler_extension = ExtractCompileStats(p, self, {})
+        p.compiler_extension = ExtractCompileStats(p, self)
         return CompilestatsExperiment.default_compiletime_actions(p)
 
 
@@ -29,5 +29,5 @@ class PollyCompilestatsExperiment(RuntimeExperiment):
                     "-Xclang", "-load",
                     "-Xclang", "LLVMPolly.so",
                     "-mllvm", "-polly"]
-        p.compiler_extension = ExtractCompileStats(p, self, {})
+        p.compiler_extension = ExtractCompileStats(p, self)
         return CompilestatsExperiment.default_compiletime_actions(p)

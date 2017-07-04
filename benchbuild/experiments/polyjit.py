@@ -5,20 +5,54 @@ This experiment uses likwid to measure the performance of all binaries
 when running with polyjit support enabled.
 """
 import copy
+import glob
 import uuid
 from abc import abstractmethod
 from functools import partial
-from os import path
+import os
 
 from plumbum import local
 
+import benchbuild.extensions as ext
 from benchbuild.utils.actions import (Any, RequireAll)
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.extensions import (LogAdditionals, RegisterPolyJITLogs,
-                                   RuntimeExtension, RunWithTime,
-                                   RunWithPolyJIT, RunWithOpenMPLimit,
-                                   ExtractCompileStats)
+from benchbuild.utils.dict import ExtensibleDict
 
+
+class PolyJITConfig(object):
+    __config = ExtensibleDict()
+
+    @property
+    def argv(self):
+        return PolyJITConfig.__config
+
+
+class EnablePolyJIT(PolyJITConfig, ext.Extension):
+    def __call__(self, binary_command, *args, **kwargs):
+        ret = self.call_next(binary_command, *args, **kwargs)
+        return ret
+
+
+class DisablePolyJIT(PolyJITConfig, ext.Extension):
+    def __call__(self, binary_command, *args, **kwargs):
+        ret = None
+        with self.argv(PJIT_ARGS="-pjit-no-specialization"):
+            ret = self.call_next(binary_command, *args, **kwargs)
+        return ret
+
+
+class RegisterPolyJITLogs(PolyJITConfig, ext.LogTrackingMixin, ext.Extension):
+    def __call__(self, *args, **kwargs):
+        """Redirect to RunWithTime, but register additional logs."""
+        with self.argv(PJIT_ARGS="-polli-enable-log"):
+            ret = self.call_next(*args, **kwargs)
+        curdir = os.path.realpath(os.path.curdir)
+        files = glob.glob(os.path.join(curdir, "polyjit.*.log"))
+
+        for file in files:
+            self.add_log(file)
+
+        return ret
 
 def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
     """
@@ -58,7 +92,7 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
     persist_config(run_info.db_run, run_info.session,
                    {"cores": str(jobs)})
 
-class RunWithLikwid(RuntimeExtension):
+class RunWithLikwid(ext.RuntimeExtension):
     """
     Run the given file wrapped by likwid.
 
@@ -87,8 +121,8 @@ class RunWithLikwid(RuntimeExtension):
         self.project.name = kwargs.get("project_name", self.project.name)
 
         likwid_f = self.project.name + ".txt"
-        likwid_path = path.join(CFG["likwiddir"], "bin")
-        likwid_perfctr = local[path.join(likwid_path, "likwid-perfctr")]
+        likwid_path = os.path.join(CFG["likwiddir"], "bin")
+        likwid_perfctr = local[os.path.join(likwid_path, "likwid-perfctr")]
 
         jobs = self.config['jobs']
         for group in ["CLOCK"]:
@@ -146,10 +180,10 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
         with track_execution(run_cmd, project, experiment) as run:
             ri = run(retcode=None)
 
-        fg_path = path.join(CFG["src_dir"], "extern/FlameGraph")
-        if path.exists(fg_path):
-            sc_perf = local[path.join(fg_path, "stackcollapse-perf.pl")]
-            flamegraph = local[path.join(fg_path, "flamegraph.pl")]
+        fg_path = os.path.join(CFG["src_dir"], "extern/FlameGraph")
+        if os.path.exists(fg_path):
+            sc_perf = local[os.path.join(fg_path, "stackcollapse-perf.pl")]
+            flamegraph = local[os.path.join(fg_path, "flamegraph.pl")]
 
             fold_cmd = ((perf["script"] | sc_perf) > run_f + ".folded")
             graph_cmd = (flamegraph[run_f + ".folded"] > run_f + ".svg")
@@ -183,13 +217,13 @@ class PolyJIT(RuntimeExperiment):
         project.cflags = ["-fno-omit-frame-pointer",
                           "-rdynamic",
                           "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                          "-O3", "-mllvm", "-jitable",
+                          "-O3",
                           "-mllvm", "-polli-allow-modref-calls",
                           "-mllvm", "-polli"]
         return project
 
     @abstractmethod
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         pass
 
 
@@ -211,8 +245,10 @@ class PolyJITFull(PolyJIT):
         rawp = copy.deepcopy(p)
         rawp.run_uuid = uuid.uuid4()
         rawp.runtime_extension = \
-            RunWithTime(
-                RunWithOpenMPLimit(rawp, self, {"jobs": 1}))
+            ext.RunWithTime(
+                ext.SetThreadLimit(
+                    ext.RuntimeExtension(rawp, self, config={"jobs": 1}),
+                    config={"jobs": 1}))
         actns.append(RequireAll(self.default_runtime_actions(rawp)))
 
         pollyp = copy.deepcopy(p)
@@ -221,8 +257,10 @@ class PolyJITFull(PolyJIT):
                          "-Xclang", "LLVMPolly.so",
                          "-mllvm", "-polly", "-mllvm", "-polly-parallel"]
         pollyp.runtime_extension = \
-            RunWithTime(
-                RunWithOpenMPLimit(pollyp, self, {"jobs": 1}))
+            ext.RunWithTime(
+                ext.SetThreadLimit(
+                    ext.RuntimeExtension(pollyp, self, config={"jobs": 1}),
+                    config={"jobs": 1}))
         actns.append(RequireAll(self.default_runtime_actions(pollyp)))
 
         jitp = copy.deepcopy(p)
@@ -241,10 +279,14 @@ class PolyJITFull(PolyJIT):
             }
 
             cp.runtime_extension = \
-                LogAdditionals(
+                ext.LogAdditionals(
                     RegisterPolyJITLogs(
-                        RunWithTime(
-                            RunWithPolyJIT(cp, self, cfg))))
+                        ext.RunWithTime(
+                            DisablePolyJIT(
+                                ext.SetThreadLimit(
+                                    ext.RuntimeExtension(cp, self, config=cfg),
+                                    config=cfg
+                                )))))
             actns.append(RequireAll(self.default_runtime_actions(cp)))
 
         for i in range(2, int(str(CFG["jobs"])) + 1):
@@ -257,10 +299,14 @@ class PolyJITFull(PolyJIT):
                 "recompilation": "enabled"
             }
             cp.runtime_extension = \
-                LogAdditionals(
+                ext.LogAdditionals(
                     RegisterPolyJITLogs(
-                        RunWithTime(
-                            RunWithPolyJIT(cp, self, cfg))))
+                        ext.RunWithTime(
+                            EnablePolyJIT(
+                                ext.SetThreadLimit(
+                                    ext.RuntimeExtension(cp, self, config=cfg),
+                                    config=cfg
+                                )))))
             actns.append(RequireAll(self.default_runtime_actions(cp)))
 
         return [Any(actns)]
@@ -286,14 +332,15 @@ class PJITRaw(PolyJIT):
             cp.run_uuid = uuid.uuid4()
             cp.cflags += ["-mllvm", "-polly-num-threads={0}".format(i)]
             cp.runtime_extension = \
-                LogAdditionals(
+                ext.LogAdditionals(
                     RegisterPolyJITLogs(
-                        RunWithTime(
-                            RunWithPolyJIT(p, self, {
-                                "jobs": i,
-                                "cores": str(i-1),
-                                "cores-config": str(i),
-                                "recompilation": "enabled"}))))
+                        ext.RunWithTime(
+                            EnablePolyJIT(
+                                ext.RuntimeExtension(p, self, config={
+                                    "jobs": i,
+                                    "cores": str(i-1),
+                                    "cores-config": str(i),
+                                    "recompilation": "enabled"})))))
 
             actns.extend(self.default_runtime_actions(cp))
         return actns
@@ -342,8 +389,9 @@ class PJITlikwid(PolyJIT):
             cp.run_uuid = uuid.uuid4()
             cp.runtime_extension = \
                 RunWithLikwid(
-                    cp, self, {'jobs': i},
-                    RuntimeExtension(cp, self, {'jobs': i}))
+                    cp, self,
+                    ext.RuntimeExtension(cp, self, config={'jobs': i}),
+                    config={'jobs': i})
 
             actns.append(RequireAll(self.default_runtime_actions(cp)))
         return actns
@@ -392,7 +440,7 @@ class Compilestats(PolyJIT):
 
     def actions_for_project(self, p):
         p = PolyJIT.init_project(p)
-        p.compiler_extension = ExtractCompileStats(p, self, {})
+        p.compiler_extension = ext.ExtractCompileStats(p, self)
         return self.default_compiletime_actions(p)
 
 
@@ -445,7 +493,7 @@ class PJITpapi(PolyJIT):
         actns = []
         for i in range(1, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(p)
-            cp.compiler_extension = ExtractCompileStats(cp, self, {})
+            cp.compiler_extension = ext.ExtractCompileStats(cp, self)
             cp.runtime_extension = partial(run_with_papi, p, self, CFG, i)
             actns.extend(self.default_runtime_actions(cp))
 

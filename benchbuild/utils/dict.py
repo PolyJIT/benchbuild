@@ -9,13 +9,18 @@ def extend_as_list(original_dict, **kwargs):
     for k, v in kwargs.items():
         if k in original_dict:
             oldv = new_dict[k]
-            if not hasattr(oldv, '__iter__'):
+            if not hasattr(oldv, 'extend'):
                 oldv = [oldv]
+
+            if isinstance(v, str):
+                v = [v]
             if hasattr(v, '__iter__'):
                 oldv.extend(v)
             else:
                 oldv.append(v)
             new_dict[k] = oldv
+        else:
+            new_dict[k] = v
     return new_dict
 
 class ExtensibleDict(object):

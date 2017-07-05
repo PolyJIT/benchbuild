@@ -20,7 +20,7 @@ from benchbuild.experiment import RuntimeExperiment
 from benchbuild.utils.dict import ExtensibleDict, extend_as_list
 
 
-LOG = logging.getLogger()
+LOG = logging.getLogger(__name__)
 
 
 class PolyJITConfig(object):
@@ -34,12 +34,10 @@ class PolyJITConfig(object):
         if key not in self.argv:
             return ""
         value = self.argv[key]
-        if isinstance(value, str):
-            return value
-        elif isinstance(value, list):
-            return " ".join(value)
-        else:
-            return value
+        if isinstance(value, list):
+            value = " ".join(value)
+        LOG.debug("Constructed: {0}={1}".format(key, value))
+        return value
 
 
 class EnablePolyJIT(PolyJITConfig, ext.Extension):

@@ -30,7 +30,10 @@ class PProfExperiment(Experiment):
     NAME = "profileScopDetection"
 
     def actions_for_project(self, project):
-        project.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so", "/home/stefan/PolyJIT_Install/lib/libpjit.so"]
+        project.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                "-O3",
+                "-mllvm", "-profileScopDetection"]
+        project.ldflags = ["-lpjit"]
         project.runtime_extension = partial(RunInstrumented, project, self)
         actns = [
             MakeBuildDir(project),

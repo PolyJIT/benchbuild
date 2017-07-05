@@ -1,6 +1,31 @@
-import dill
+"""
+Wrapper utilities for benchbuild.
+
+This module provides methods to wrap binaries with extensions that are
+pickled alongside the original binary.
+In place of the original binary a new python module is generated that
+loads the pickle and redirects the program call with all its arguments
+to it. This allows interception of arbitrary programs for experimentation.
+
+Examples:
+    TODO
+
+Compiler Wrappers:
+    The compiler wrappers substitute the compiler call with a script that
+    produces the expected output from the original compiler call first.
+    Afterwards the pickle is loaded and the original call is forwarded to the
+    pickle. This way the user is not obligated to produce valid output during
+    his own experiment.
+
+Runtime Wrappers:
+    These directly forward the binary call to the pickle without any execution
+    of the binary. We cannot guarantee that repeated execution is valid, therefore,
+    we let the user decide what the program should do.
+"""
 import os
 import sys
+import dill
+
 from plumbum import local
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mv, chmod, rm

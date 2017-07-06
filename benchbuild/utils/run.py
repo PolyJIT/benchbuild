@@ -289,14 +289,10 @@ def track_execution(cmd, project, experiment, **kwargs):
             in a RunException and re-raise. This ends the run unsuccessfully.
     """
     from plumbum.commands import ProcessExecutionError
-    from warnings import warn
 
     db_run, session = begin(cmd, project, experiment.name,
                             project.run_uuid)
-    ex = None
-
     settings.CFG["db"]["run_id"] = db_run.id
-    settings.CFG["use_file"] = 0
 
     def runner(retcode=0, ri = None):
         cmd_env = settings.to_env_dict(settings.CFG)
@@ -331,7 +327,7 @@ def track_execution(cmd, project, experiment, **kwargs):
                 LOG.error(str(ex))
             except KeyboardInterrupt:
                 fail(db_run, session, -1, "", "KeyboardInterrupt")
-                warn("Interrupted by user input")
+                LOG.warning("Interrupted by user input")
                 raise
         return r
     yield runner

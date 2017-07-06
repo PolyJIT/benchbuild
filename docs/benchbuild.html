@@ -5,12 +5,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>benchbuild package &#8212; benchbuild 1.3.2 documentation</title>
-    
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -310,7 +307,7 @@
 <p>Manage uchroot containers.</p>
 <dl class="attribute">
 <dt id="benchbuild.container.Container.VERSION">
-<code class="descname">VERSION</code><em class="property"> = ‘1.3.2-$Id: 27c6304d5b863f8699b24a4a32796a98138cdeb5 $’</em><a class="headerlink" href="#benchbuild.container.Container.VERSION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">VERSION</code><em class="property"> = '1.3.2-$Id: 368cd101effb73db8613ad317c098cf05a2845de $'</em><a class="headerlink" href="#benchbuild.container.Container.VERSION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -546,7 +543,7 @@ projects inside the mounted container, that also gets returned afterwards.</p>
 <p>Frontend for running/building the benchbuild study framework.</p>
 <dl class="attribute">
 <dt id="benchbuild.driver.PollyProfiling.VERSION">
-<code class="descname">VERSION</code><em class="property"> = ‘1.3.2-$Id: 27c6304d5b863f8699b24a4a32796a98138cdeb5 $’</em><a class="headerlink" href="#benchbuild.driver.PollyProfiling.VERSION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">VERSION</code><em class="property"> = '1.3.2-$Id: 368cd101effb73db8613ad317c098cf05a2845de $'</em><a class="headerlink" href="#benchbuild.driver.PollyProfiling.VERSION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -746,7 +743,7 @@ experiment.</dd>
 <p>Extension base-classes for compile-time and run-time experiments.</p>
 <dl class="class">
 <dt id="benchbuild.extensions.Extension">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">Extension</code><span class="sig-paren">(</span><em>*extensions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#Extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.Extension" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">Extension</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#Extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.Extension" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="benchbuild.extensions.Extension.call_next">
@@ -764,7 +761,7 @@ experiment.</dd>
 
 <dl class="class">
 <dt id="benchbuild.extensions.ExtractCompileStats">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">ExtractCompileStats</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>config</em>, <em>*extensions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#ExtractCompileStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.ExtractCompileStats" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">ExtractCompileStats</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#ExtractCompileStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.ExtractCompileStats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
 <dl class="method">
 <dt id="benchbuild.extensions.ExtractCompileStats.get_compilestats">
@@ -776,7 +773,7 @@ experiment.</dd>
 
 <dl class="class">
 <dt id="benchbuild.extensions.LogAdditionals">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">LogAdditionals</code><span class="sig-paren">(</span><em>*extensions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#LogAdditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.LogAdditionals" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">LogAdditionals</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#LogAdditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.LogAdditionals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
 <p>Log any additional log files that were registered.</p>
 </dd></dl>
@@ -799,39 +796,21 @@ experiment.</dd>
 </dd></dl>
 
 <dl class="class">
-<dt id="benchbuild.extensions.RegisterPolyJITLogs">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RegisterPolyJITLogs</code><span class="sig-paren">(</span><em>*extensions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RegisterPolyJITLogs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RegisterPolyJITLogs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.LogTrackingMixin" title="benchbuild.extensions.LogTrackingMixin"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.LogTrackingMixin</span></code></a>, <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.RunWithOpenMPLimit">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RunWithOpenMPLimit</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>config</em>, <em>*extensions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RunWithOpenMPLimit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RunWithOpenMPLimit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.RuntimeExtension" title="benchbuild.extensions.RuntimeExtension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.RuntimeExtension</span></code></a></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.RunWithPolyJIT">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RunWithPolyJIT</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>config</em>, <em>*extensions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RunWithPolyJIT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RunWithPolyJIT" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.RuntimeExtension" title="benchbuild.extensions.RuntimeExtension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.RuntimeExtension</span></code></a></p>
-</dd></dl>
-
-<dl class="class">
 <dt id="benchbuild.extensions.RunWithTime">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RunWithTime</code><span class="sig-paren">(</span><em>*extensions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RunWithTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RunWithTime" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RunWithTime</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RunWithTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RunWithTime" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
 <p>Wrap a command with time and store the timings in the database.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="benchbuild.extensions.RunWithoutPolyJIT">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RunWithoutPolyJIT</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>config</em>, <em>*extensions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RunWithoutPolyJIT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RunWithoutPolyJIT" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.RuntimeExtension" title="benchbuild.extensions.RuntimeExtension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.RuntimeExtension</span></code></a></p>
+<dt id="benchbuild.extensions.RuntimeExtension">
+<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RuntimeExtension</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RuntimeExtension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RuntimeExtension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
 </dd></dl>
 
 <dl class="class">
-<dt id="benchbuild.extensions.RuntimeExtension">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RuntimeExtension</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>config</em>, <em>*extensions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RuntimeExtension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RuntimeExtension" title="Permalink to this definition">¶</a></dt>
+<dt id="benchbuild.extensions.SetThreadLimit">
+<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">SetThreadLimit</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#SetThreadLimit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.SetThreadLimit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
 </dd></dl>
 
@@ -842,7 +821,7 @@ experiment.</dd>
 <p>Extract information from likwid’s CSV output.</p>
 <dl class="function">
 <dt id="benchbuild.likwid.fetch_cols">
-<code class="descclassname">benchbuild.likwid.</code><code class="descname">fetch_cols</code><span class="sig-paren">(</span><em>fstream</em>, <em>split_char=’</em>, <em>’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/likwid.html#fetch_cols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.likwid.fetch_cols" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">benchbuild.likwid.</code><code class="descname">fetch_cols</code><span class="sig-paren">(</span><em>fstream</em>, <em>split_char='</em>, <em>'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/likwid.html#fetch_cols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.likwid.fetch_cols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch columns from likwid’s output stream.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -1125,7 +1104,7 @@ run: A function that takes the run command.</dd>
 sure to run every project method in the project’s build directory.</p>
 <dl class="attribute">
 <dt id="benchbuild.project.ProjectDecorator.decorated_methods">
-<code class="descname">decorated_methods</code><em class="property"> = [‘build’, ‘configure’, ‘download’, ‘prepare’, ‘run_tests’]</em><a class="headerlink" href="#benchbuild.project.ProjectDecorator.decorated_methods" title="Permalink to this definition">¶</a></dt>
+<code class="descname">decorated_methods</code><em class="property"> = ['build', 'configure', 'download', 'prepare', 'run_tests']</em><a class="headerlink" href="#benchbuild.project.ProjectDecorator.decorated_methods" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1411,7 +1390,7 @@ userspace-only program.</p>
 
 <dl class="function">
 <dt id="benchbuild.settings.find_config">
-<code class="descclassname">benchbuild.settings.</code><code class="descname">find_config</code><span class="sig-paren">(</span><em>default=’.benchbuild.json’</em>, <em>root=’.’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/settings.html#find_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.settings.find_config" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">benchbuild.settings.</code><code class="descname">find_config</code><span class="sig-paren">(</span><em>default='.benchbuild.json'</em>, <em>root='.'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/settings.html#find_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.settings.find_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the path to the default config file.</p>
 <p>We look at :root: for the :default: config file. If we can’t find it
 there we start looking at the parent directory recursively until we
@@ -1540,7 +1519,7 @@ on a configurable SLURM cluster.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

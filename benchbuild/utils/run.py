@@ -244,8 +244,8 @@ def fail(db_run, session, retcode, stdout, stderr):
 
 class RunInfo(object):
     retcode = None
-    stdout = None
-    stderr = None
+    stdout = []
+    stderr = []
     session = None
     db_run = None
 
@@ -264,6 +264,13 @@ class RunInfo(object):
             db_run=[self.db_run, rhs.db_run],
             session=self.session)
         return r
+
+    def __str__(self):
+        return "<RunInfo (ec={}, run_id={}, stdout={}, stderr={})>".format(
+            self.retcode, self.db_run.id, len(self.stdout), len(self.stderr))
+
+    def __repr__(self):
+        return str(self)
 
 
 @contextmanager

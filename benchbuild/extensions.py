@@ -25,12 +25,12 @@ class Extension(metaclass=ABCMeta):
         """Call all child extensions with the same arguments."""
         all_results = []
         for ext in self.next_extensions:
-            LOG.debug(":: Invoking - {}".format(ext.__class__))
+            LOG.debug("Invoking - {}".format(ext.__class__))
             result = ext(*args, **kwargs)
-            LOG.debug(":: Completed - {}".format(ext.__class__))
-            LOG.debug(":: Got - {}".format(result))
+            LOG.debug("Completed - {}".format(ext.__class__))
+            LOG.debug("Got - {}".format(result))
             if result is None:
-                LOG.warning(":: No return from: {}".format(ext.__class__))
+                LOG.warning("No return from: {}".format(ext.__class__))
                 continue
             if isinstance(result, Iterable):
                 all_results.extend(result)
@@ -94,11 +94,11 @@ class LogAdditionals(Extension):
 
         for ext in self.next_extensions:
             if issubclass(ext.__class__, (LogTrackingMixin)):
-                LOG.debug("::: Checking additional log files from: {}".format(ext))
+                LOG.debug("Checking additional log files from: {}".format(ext))
                 for log in ext.logs:
-                    LOG.debug("::: Dumping content of '{}'.".format(log))
+                    LOG.debug("Dumping content of '{}'.".format(log))
                     cat[log] & FG
-                    LOG.debug("::: Dumping content of '{}' complete.".format(log))
+                    LOG.debug("Dumping content of '{}' complete.".format(log))
 
         return res
 

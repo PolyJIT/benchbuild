@@ -446,7 +446,7 @@ def __lazy_session__():
         from sqlalchemy import event
         session = connection_manager.get()()
 
-        i =
+        i = 0
         @event.listens_for(session, 'after_transaction_create')
         def receive_after_transaction_create(session, transaction):
             nonlocal i

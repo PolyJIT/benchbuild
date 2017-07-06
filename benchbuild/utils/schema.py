@@ -23,9 +23,12 @@ paths for you.
 """
 
 import logging
+import uuid
 import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum
+from sqlalchemy.types import TypeDecorator, CHAR
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -33,6 +36,51 @@ from benchbuild.settings import CFG
 from benchbuild.utils import path as bbpath
 
 BASE = declarative_base()
+
+
+"""Source: http://docs.sqlalchemy.org/en/rel_0_9/core/custom_types.html?highlight=guid#backend-agnostic-guid-type"""
+class GUID(TypeDecorator):
+    """Platform-independent GUID type.
+
+    Uses Postgresql's UUID type, otherwise uses
+    CHAR(32), storing as stringified hex values.
+
+    """
+    impl = CHAR
+    as_uuid = False
+
+    def __init__(self, *args, as_uuid=False, **kwargs):
+        self.as_uuid = as_uuid
+        super(GUID, self).__init__(*args, **kwargs)
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(UUID(as_uuid=self.as_uuid))
+        else:
+            return dialect.type_descriptor(CHAR(32))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif dialect.name == 'postgresql':
+            return str(value)
+        else:
+            if not isinstance(value, uuid.UUID):
+                return "%.32x" % uuid.UUID(value).bytes
+            else:
+                # hexstring
+                return "%.32x" % value.int
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+
+        if isinstance(value, uuid.UUID):
+            return value
+        else:
+            return uuid.UUID(value)
+
+"""Source: http://docs.sqlalchemy.org/en/rel_0_9/core/custom_types.html?highlight=guid#backend-agnostic-guid-type"""
 
 class Run(BASE):
     """Store a run for each executed test binary."""
@@ -43,8 +91,8 @@ class Run(BASE):
     command = Column(String)
     project_name = Column(String, ForeignKey("project.name"), index=True)
     experiment_name = Column(String, index=True)
-    run_group = Column(postgresql.UUID, index=True)
-    experiment_group = Column(postgresql.UUID,
+    run_group = Column(GUID(as_uuid=True), index=True)
+    experiment_group = Column(GUID(as_uuid=True),
                               ForeignKey("experiment.id"),
                               index=True)
     begin = Column(DateTime(timezone=False))
@@ -61,10 +109,10 @@ class RunGroup(BASE):
 
     __tablename__ = 'rungroup'
 
-    id = Column(postgresql.UUID(as_uuid=True), primary_key=True, index=True)
+    id = Column(GUID(as_uuid=True), primary_key=True, index=True)
     project = Column(String, ForeignKey("project.name"), index=True)
     experiment = Column(
-        postgresql.UUID(as_uuid=True),
+        GUID(as_uuid=True),
         ForeignKey("experiment.id",
                    ondelete="CASCADE",
                    onupdate="CASCADE"),
@@ -82,7 +130,7 @@ class Experiment(BASE):
 
     name = Column(String)
     description = Column(String)
-    id = Column(postgresql.UUID(as_uuid=True), primary_key=True)
+    id = Column(GUID(as_uuid=True), primary_key=True)
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
 
@@ -323,7 +371,7 @@ class GlobalConfig(BASE):
     __tablename__ = 'globalconfig'
 
     experiment_group = Column(
-        postgresql.UUID(as_uuid=True),
+        GUID(as_uuid=True),
         ForeignKey("experiment.id",
                    onupdate="CASCADE",
                    ondelete="CASCADE"),

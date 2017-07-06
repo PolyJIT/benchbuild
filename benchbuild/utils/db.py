@@ -3,7 +3,7 @@ import logging
 from benchbuild.settings import CFG
 from sqlalchemy.exc import IntegrityError
 
-logger = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 def create_run(cmd, project, exp, grp):
@@ -98,7 +98,7 @@ def persist_project(project):
         newp.group_name = group_name
         newp.version = version
         session.add(newp)
-        logger.debug("Poject INSERT: %s", newp)
+        LOG.debug("Poject INSERT: %s", newp)
     else:
         newp_value = {
             "name": name,
@@ -109,7 +109,7 @@ def persist_project(project):
             "version": version
         }
         projects.update(newp_value)
-        logger.debug("Project UPDATE: %s", newp_value)
+        LOG.debug("Project UPDATE: %s", newp_value)
 
     session.commit()
     return (projects, session)
@@ -138,10 +138,10 @@ def persist_experiment(experiment):
         newe.description = desc
         session.add(newe)
         ret = newe
-        logger.debug("New experiment: %s", newe)
+        LOG.debug("New experiment: %s", newe)
     else:
         exps.update({'name': name, 'description': desc})
-        logger.debug("Update experiments: %s", exps)
+        LOG.debug("Update experiments: %s", exps)
         ret = exps.first()
     try:
         session.commit()

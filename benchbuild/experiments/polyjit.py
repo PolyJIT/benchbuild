@@ -21,6 +21,16 @@ from benchbuild.utils.dict import ExtensibleDict, extend_as_list
 
 LOG = logging.getLogger(__name__)
 
+def verbosity_to_polyjit_log_level(verbosity : int):
+    polyjit_log_levels = {
+        0 : "off",
+        1 : "error",
+        2 : "warn",
+        3 : "info",
+        4 : "debug",
+        5 : "trace"
+    }
+    return polyjit_log_levels[verbosity]
 
 class PolyJITConfig(object):
     __config = ExtensibleDict(extend_as_list)
@@ -58,7 +68,11 @@ class DisablePolyJIT(PolyJITConfig, ext.Extension):
 class RegisterPolyJITLogs(PolyJITConfig, ext.LogTrackingMixin, ext.Extension):
     def __call__(self, *args, **kwargs):
         """Redirect to RunWithTime, but register additional logs."""
-        with self.argv(PJIT_ARGS="-polli-enable-log"):
+        from benchbuild.settings import CFG
+
+        log_level = verbosity_to_polyjit_log_level(CFG["verbosity"].value())
+        with self.argv(PJIT_ARGS=["-polli-enable-log",
+                                  "-polli-log-level={}".format(log_level)]):
             ret = self.call_next(*args, **kwargs)
         curdir = os.path.realpath(os.path.curdir)
         files = glob.glob(os.path.join(curdir, "polyjit.*.log"))

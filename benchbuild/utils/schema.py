@@ -26,8 +26,10 @@ import logging
 import uuid
 import sqlalchemy as sa
 from sqlalchemy import create_engine
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum
-from sqlalchemy.types import TypeDecorator, CHAR
+from sqlalchemy import (
+    Column, ForeignKey, Integer, String, DateTime, Enum)
+from sqlalchemy.types import (
+    TypeDecorator, BigInteger, SmallInteger, Float, Numeric, CHAR)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.declarative import declarative_base
@@ -145,7 +147,7 @@ class Likwid(BASE):
 
     metric = Column(String, primary_key=True, index=True)
     region = Column(String, primary_key=True, index=True)
-    value = Column(postgresql.DOUBLE_PRECISION)
+    value = Column(Float)
     core = Column(String, primary_key=True)
     run_id = Column(Integer,
                     ForeignKey("run.id",
@@ -161,7 +163,7 @@ class Metric(BASE):
     __tablename__ = 'metrics'
 
     name = Column(String, primary_key=True, index=True, nullable=False)
-    value = Column(postgresql.DOUBLE_PRECISION)
+    value = Column(Float)
     run_id = Column(Integer,
                     ForeignKey("run.id",
                                onupdate="CASCADE",
@@ -182,7 +184,7 @@ class Sequence(BASE):
     name = Column(String, primary_key=False, index=True, nullable=False)
 
     #the fitness value of the sequence
-    value = Column(postgresql.DOUBLE_PRECISION)
+    value = Column(Float)
 
     run_id = Column(Integer,
                     ForeignKey("run.id",
@@ -228,11 +230,11 @@ class Event(BASE):
     __tablename__ = 'benchbuild_events'
 
     name = Column(String, index=True)
-    start = Column(postgresql.NUMERIC, primary_key=True)
-    duration = Column(postgresql.NUMERIC)
+    start = Column(Numeric, primary_key=True)
+    duration = Column(Numeric)
     id = Column(Integer, primary_key=True)
-    type = Column(postgresql.SMALLINT)
-    tid = Column(postgresql.BIGINT)
+    type = Column(SmallInteger)
+    tid = Column(BigInteger)
     run_id = Column(Integer,
                     ForeignKey("run.id",
                                onupdate="CASCADE",
@@ -247,11 +249,11 @@ class PerfEvent(BASE):
     __tablename__ = 'benchbuild_perf_events'
 
     name = Column(String, index=True)
-    start = Column(postgresql.NUMERIC, primary_key=True)
-    duration = Column(postgresql.NUMERIC)
+    start = Column(Numeric, primary_key=True)
+    duration = Column(Numeric)
     id = Column(Integer, primary_key=True)
-    type = Column(postgresql.SMALLINT)
-    tid = Column(postgresql.BIGINT)
+    type = Column(SmallInteger)
+    tid = Column(BigInteger)
     run_id = Column(Integer,
                     ForeignKey("run.id",
                                onupdate="CASCADE",
@@ -285,10 +287,10 @@ class CompileStat(BASE):
 
     __tablename__ = 'compilestats'
 
-    id = Column(postgresql.BIGINT, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     name = Column(String, index=True)
     component = Column(String, index=True)
-    value = Column(postgresql.NUMERIC)
+    value = Column(Numeric)
     run_id = Column(Integer,
                     ForeignKey("run.id",
                                onupdate="CASCADE",

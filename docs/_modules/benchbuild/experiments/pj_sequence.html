@@ -5,12 +5,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>benchbuild.experiments.pj_sequence &#8212; benchbuild 1.3.2 documentation</title>
-    
     <link rel="stylesheet" href="../../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
@@ -84,7 +81,7 @@
 <span class="kn">import</span> <span class="nn">parse</span>
 <span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="k">as</span> <span class="nn">sa</span>
 
-<span class="kn">from</span> <span class="nn">benchbuild.extensions</span> <span class="k">import</span> <span class="p">(</span><span class="n">RuntimeExtension</span><span class="p">,</span> <span class="n">ExtractCompileStats</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">benchbuild.extensions</span> <span class="k">as</span> <span class="nn">ext</span>
 <span class="kn">from</span> <span class="nn">benchbuild.experiments.polyjit</span> <span class="k">import</span> <span class="n">PolyJIT</span>
 <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 
@@ -306,7 +303,7 @@
                 <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="RunSequence"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.RunSequence">[docs]</a><span class="k">class</span> <span class="nc">RunSequence</span><span class="p">(</span><span class="n">ExtractCompileStats</span><span class="p">):</span>
+<div class="viewcode-block" id="RunSequence"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.RunSequence">[docs]</a><span class="k">class</span> <span class="nc">RunSequence</span><span class="p">(</span><span class="n">ext</span><span class="o">.</span><span class="n">ExtractCompileStats</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Execute and compile a given sequence, to calculate its fitness value</span>
 <span class="sd">    with a given function and metric.</span>
@@ -330,7 +327,7 @@
             <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FindFittestSequenceGenetic1"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.FindFittestSequenceGenetic1">[docs]</a><span class="k">class</span> <span class="nc">FindFittestSequenceGenetic1</span><span class="p">(</span><span class="n">RuntimeExtension</span><span class="p">):</span>
+<div class="viewcode-block" id="FindFittestSequenceGenetic1"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.FindFittestSequenceGenetic1">[docs]</a><span class="k">class</span> <span class="nc">FindFittestSequenceGenetic1</span><span class="p">(</span><span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cc</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates custom sequences for a provided application using the first of the</span>
@@ -512,14 +509,14 @@
         <span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;jobs&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())}</span>
 
         <span class="n">project</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> \
-            <span class="n">FindFittestSequenceGenetic1</span><span class="p">(</span>
-                <span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span>
-                <span class="n">RunSequence</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">))</span>
+            <span class="n">FindFittestSequenceGenetic1</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> 
+                <span class="n">RunSequence</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_compiletime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="FindFittestSequenceGenetic2"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.FindFittestSequenceGenetic2">[docs]</a><span class="k">class</span> <span class="nc">FindFittestSequenceGenetic2</span><span class="p">(</span><span class="n">RuntimeExtension</span><span class="p">):</span>
+<div class="viewcode-block" id="FindFittestSequenceGenetic2"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.FindFittestSequenceGenetic2">[docs]</a><span class="k">class</span> <span class="nc">FindFittestSequenceGenetic2</span><span class="p">(</span><span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cc</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates custom sequences for a provided application using the second</span>
@@ -698,14 +695,14 @@
 
 
         <span class="n">p</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> \
-            <span class="n">FindFittestSequenceGenetic2</span><span class="p">(</span>
-                <span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span>
-                <span class="n">RunSequence</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">))</span>
+            <span class="n">FindFittestSequenceGenetic2</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span>
+                <span class="n">RunSequence</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">Genetic2Sequence</span><span class="o">.</span><span class="n">default_compiletime_actions</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="FindFittestSequenceHillclimber"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.FindFittestSequenceHillclimber">[docs]</a><span class="k">class</span> <span class="nc">FindFittestSequenceHillclimber</span><span class="p">(</span><span class="n">RuntimeExtension</span><span class="p">):</span>
+<div class="viewcode-block" id="FindFittestSequenceHillclimber"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.FindFittestSequenceHillclimber">[docs]</a><span class="k">class</span> <span class="nc">FindFittestSequenceHillclimber</span><span class="p">(</span><span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cc</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">seq_to_fitness</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">pass_space</span><span class="p">,</span> <span class="n">seq_length</span><span class="p">,</span> <span class="n">iterations</span> <span class="o">=</span> <span class="n">get_defaults</span><span class="p">()</span>
@@ -827,13 +824,13 @@
         <span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())}</span>
 
         <span class="n">project</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> \
-            <span class="n">FindFittestSequenceHillclimber</span><span class="p">(</span>
-                <span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span>
-                <span class="n">RunSequence</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">))</span>
+            <span class="n">FindFittestSequenceHillclimber</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span>
+                <span class="n">RunSequence</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">HillclimberSequences</span><span class="o">.</span><span class="n">default_compiletime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="FindFittestSequenceGreedy"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.FindFittestSequenceGreedy">[docs]</a><span class="k">class</span> <span class="nc">FindFittestSequenceGreedy</span><span class="p">(</span><span class="n">RuntimeExtension</span><span class="p">):</span>
+<div class="viewcode-block" id="FindFittestSequenceGreedy"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.FindFittestSequenceGreedy">[docs]</a><span class="k">class</span> <span class="nc">FindFittestSequenceGreedy</span><span class="p">(</span><span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cc</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">seq_to_fitness</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">generated_sequences</span> <span class="o">=</span> <span class="p">[]</span>
@@ -942,8 +939,9 @@
 
         <span class="n">project</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> \
             <span class="n">FindFittestSequenceGreedy</span><span class="p">(</span>
-                <span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span>
-                <span class="n">RunSequence</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">))</span>
+                <span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span>
+                <span class="n">RunSequence</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">GreedySequences</span><span class="o">.</span><span class="n">default_compiletime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span></div></div>
 </pre></div>
@@ -969,7 +967,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

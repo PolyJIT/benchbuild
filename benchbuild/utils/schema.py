@@ -38,6 +38,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils import path as bbpath
 
 BASE = declarative_base()
+LOG = logging.getLogger()
 
 
 """Source: http://docs.sqlalchemy.org/en/rel_0_9/core/custom_types.html?highlight=guid#backend-agnostic-guid-type"""
@@ -403,7 +404,6 @@ class RegressionTest(BASE):
     module = Column(String)
     project_name = Column(String)
 
-
 class SessionManager(object):
     def __init__(self):
         logger = logging.getLogger(__name__)
@@ -442,7 +442,24 @@ def __lazy_session__():
         nonlocal connection_manager
         if connection_manager is None:
             connection_manager = SessionManager()
-        return connection_manager.get()()
+
+        from sqlalchemy import event
+        session = connection_manager.get()()
+
+        i =
+        @event.listens_for(session, 'after_transaction_create')
+        def receive_after_transaction_create(session, transaction):
+            nonlocal i
+            i = i + 1
+            LOG.debug("New transaction. %d running." % i)
+
+        @event.listens_for(session, 'after_transaction_end')
+        def receive_after_transaction_end(session, transaction):
+            nonlocal i
+            i = i - 1
+            LOG.debug("Transaction ended %d still alive." % (i))
+
+        return session
 
     return __lazy_session_wrapped
 

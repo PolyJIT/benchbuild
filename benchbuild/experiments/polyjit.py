@@ -45,12 +45,47 @@ class PolyJITConfig(object):
         value = self.argv[key]
         if isinstance(value, list):
             value = " ".join(value)
-        LOG.debug("Constructed: {0}={1}".format(key, value))
+        LOG.debug(" {0}={1}".format(key, value))
         return value
 
 
+class EnableJITDatabase(PolyJITConfig, ext.Extension):
+    def __init__(self, *args, project=None, **kwargs):
+        super(EnableJITDatabase, self).__init__(*args, project=project, **kwargs)
+        self.project = project
+
+    def __call__(self, binary_command, *args, **kwargs):
+        from benchbuild.settings import CFG
+
+        pjit_args = [
+            "-polli-db-experiment=%s" % CFG["experiment"].value(),
+            "-polli-db-experiment-uuid=%s" % CFG["experiment_id"].value(),
+            "-polli-db-argv='%s'" % str(binary_command),
+            "-polli-db-enable",
+            "-polli-db-host=%s" % CFG["db"]["host"].value(),
+            "-polli-db-port=%d" % CFG["db"]["port"].value(),
+            "-polli-db-username=%s" % CFG["db"]["user"].value(),
+            "-polli-db-password=%s" % CFG["db"]["pass"].value(),
+            "-polli-db-name=%s" % CFG["db"]["name"].value(),
+        ]
+
+        if self.project is not None:
+            pjit_args.extend([
+                "-polli-db-project=%s" % self.project.name,
+                "-polli-db-domain=%s" % self.project.domain,
+                "-polli-db-group=%s" % self.project.group,
+                "-polli-db-src-uri='%s'" % self.project.src_file,
+                "-polli-db-run-group=%s" % self.project.run_uuid
+            ])
+        else:
+            LOG.error("Project was not set. Database activation will be invalid.")
+
+        with self.argv(PJIT_ARGS=pjit_args):
+            return self.call_next(binary_command, *args, **kwargs)
+
 class EnablePolyJIT(PolyJITConfig, ext.Extension):
     def __call__(self, binary_command, *args, **kwargs):
+        ret = None
         with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
             ret = self.call_next(binary_command, *args, **kwargs)
         return ret
@@ -63,7 +98,6 @@ class DisablePolyJIT(PolyJITConfig, ext.Extension):
             with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
                 ret = self.call_next(binary_command, *args, **kwargs)
         return ret
-
 
 class RegisterPolyJITLogs(PolyJITConfig, ext.LogTrackingMixin, ext.Extension):
     def __call__(self, *args, **kwargs):
@@ -171,7 +205,7 @@ class PolyJITFull(PolyJIT):
                 ext.LogAdditionals(
                     RegisterPolyJITLogs(
                         ext.RunWithTime(
-                            DisablePolyJIT(
+                            DisablePolyJIT(cp,
                                 ext.SetThreadLimit(
                                     ext.RuntimeExtension(cp, self, config=cfg),
                                     config=cfg
@@ -195,7 +229,8 @@ class PolyJITFull(PolyJIT):
                                 ext.SetThreadLimit(
                                     ext.RuntimeExtension(cp, self, config=cfg),
                                     config=cfg
-                                )))))
+                                ),
+                                project = cp))))
             actns.append(RequireAll(self.default_runtime_actions(cp)))
 
         return [Any(actns)]

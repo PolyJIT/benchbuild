@@ -19,8 +19,7 @@ from benchbuild.reports import Report
 from benchbuild.settings import CFG
 
 import benchbuild.extensions as ext
-from benchbuild.experiments.polyjit import \
-    (EnablePolyJIT, DisablePolyJIT, RegisterPolyJITLogs)
+import benchbuild.experiments.polyjit as pj
 
 LOG = logging.getLogger()
 
@@ -62,13 +61,17 @@ class Test(PolyJIT):
 
         p.runtime_extension = \
             ext.LogAdditionals(
-                RegisterPolyJITLogs(
+                pj.RegisterPolyJITLogs(
                     ext.RunWithTime(
-                        EnablePolyJIT(
-                            ext.RuntimeExtension(p, self, config=cfg_with_jit)),
-                        DisablePolyJIT(
-                            ext.RuntimeExtension(p, self, config=cfg_without_jit))
-                    )))
+                        pj.EnableJITDatabase(
+                            pj.EnablePolyJIT(
+                                ext.RuntimeExtension(p, self, config=cfg_with_jit),
+                                project = p),
+                            pj.DisablePolyJIT(
+                                ext.RuntimeExtension(p, self, config=cfg_without_jit),
+                                project = p),
+                            project = p
+                        ))))
         return Test.default_runtime_actions(p)
 
 

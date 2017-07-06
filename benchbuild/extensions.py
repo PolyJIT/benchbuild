@@ -16,7 +16,7 @@ LOG = logging.getLogger()
 
 
 class Extension(metaclass=ABCMeta):
-    def __init__(self, *extensions, config=None):
+    def __init__(self, *extensions, config=None, **kwargs):
         """Initialize an extension with an arbitrary number of children."""
         self.next_extensions = extensions
         self.config = config
@@ -25,12 +25,11 @@ class Extension(metaclass=ABCMeta):
         """Call all child extensions with the same arguments."""
         all_results = []
         for ext in self.next_extensions:
-            LOG.debug("Invoking - {}".format(ext.__class__))
+            LOG.debug("Invoking - %s " % ext.__class__)
             result = ext(*args, **kwargs)
-            LOG.debug("Completed - {}".format(ext.__class__))
-            LOG.debug("Got - {}".format(result))
+            LOG.debug("Completed - %s => %s" % (ext.__class__, result))
             if result is None:
-                LOG.warning("No return from: {}".format(ext.__class__))
+                LOG.warning("No result from: %s" % ext.__class__)
                 continue
             if isinstance(result, Iterable):
                 all_results.extend(result)

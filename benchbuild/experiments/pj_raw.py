@@ -31,7 +31,8 @@ class PJITRaw(pj.PolyJIT):
                                     "jobs": i,
                                     "cores": str(i-1),
                                     "cores-config": str(i),
-                                    "recompilation": "enabled"})))))
+                                    "recompilation": "enabled"}),
+                                project=p))))
 
             actns.extend(self.default_runtime_actions(cp))
         return actns

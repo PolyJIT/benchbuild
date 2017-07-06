@@ -57,9 +57,10 @@ class PapiScopCoverage(RuntimeExperiment):
         """
         p.ldflags = p.ldflags + ["-lpjit", "-lpprof", "-lpapi"]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polli", "-mllvm",
-                    "-instrument", "-mllvm", "-no-recompilation", "-mllvm",
-                    "-polly-detect-keep-going"]
+                    "-mllvm", "-polli",
+                    "-mllvm", "-polli-instrument",
+                    "-mllvm", "-polli-no-recompilation",
+                    "-mllvm", "-polly-detect-keep-going"]
         p.compiler_extension = ExtractCompileStats(p, self)
         p.runtime_extension = \
             RunWithTime(
@@ -90,9 +91,10 @@ class PapiStandardScopCoverage(PapiScopCoverage):
         """
         p.ldflags = p.ldflags + ["-lpjit", "-lbenchbuild", "-lpapi"]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polli", "-mllvm", "-instrument", "-mllvm",
-                    "-no-recompilation", "-mllvm",
-                    "-polly-detect-keep-going"]
+                    "-mllvm", "-polli",
+                    "-mllvm", "-polli-instrument",
+                    "-mllvm", "-polli-no-recompilation",
+                    "-mllvm", "-polly-detect-keep-going"]
         p.compiler_extension = ExtractCompileStats(p, self)
         p.runtime_extension = \
             RunWithTime(

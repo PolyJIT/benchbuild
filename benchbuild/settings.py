@@ -674,7 +674,6 @@ CFG["plugins"] = {
             "benchbuild.experiments.pj_collect",
             "benchbuild.experiments.pj_cs",
             "benchbuild.experiments.pj_papi",
-            "benchbuild.experiments.compilestats_ewpt",
             "benchbuild.experiments.pj_sequence",
             "benchbuild.experiments.pollytest"
         ],

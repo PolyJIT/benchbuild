@@ -115,17 +115,21 @@ class RunWithTime(Extension):
 
         def handle_timing(run_infos):
             """Takes care of the formating for the timing statistics."""
+            from benchbuild.utils import schema as s
+
+            session = s.Session()
             for run_info in run_infos:
+                LOG.debug("Persisting time for '{}'".format(run_info))
                 if may_wrap:
                     timings = fetch_time_output(
                         time_tag,
                         time_tag + "{:g}-{:g}-{:g}",
                         run_info.stderr.split("\n"))
                     if timings:
-                        persist_time(run_info.db_run, run_info.session,
-                                     timings)
+                        persist_time(run_info.db_run, session, timings)
                     else:
                         LOG.warning("No timing information found.")
+            session.commit()
             return run_infos
 
         res = self.call_next(run_cmd, *args, **kwargs)

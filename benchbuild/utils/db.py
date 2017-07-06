@@ -6,6 +6,16 @@ from sqlalchemy.exc import IntegrityError
 LOG = logging.getLogger(__name__)
 
 
+def validate(func):
+    def validate_run_func(run, session, *args, **kwargs):
+        if run.status == 'failed':
+            LOG.debug("Run failed. Execution of '{}' cancelled".format(str(func)))
+            return None
+
+        return func(run, session, *args, **kwargs)
+    return validate_run_func
+
+
 def create_run(cmd, project, exp, grp):
     """
     Create a new 'run' in the database.
@@ -173,6 +183,7 @@ def persist_likwid(run, session, measurements):
     session.commit()
 
 
+@validate
 def persist_time(run, session, timings):
     """
     Persist the run results in the database.
@@ -194,7 +205,6 @@ def persist_time(run, session, timings):
         session.add(s.Metric(name="time.real_s",
                              value=timing[2],
                              run_id=run.id))
-    session.commit()
 
 
 def persist_perf(run, session, svg_path):

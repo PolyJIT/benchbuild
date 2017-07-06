@@ -109,7 +109,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
     def __init__(self, projects=None, group=None):
         self.projects = {}
         self.sourcedir = CFG["src_dir"].value()
-        self.builddir = path.join(str(CFG["build_dir"].value()), self.name)
+        self.builddir = str(CFG["build_dir"].value())
         self.testdir = CFG["test_dir"].value()
         self._actions = []
 
@@ -160,15 +160,15 @@ class Experiment(object, metaclass=ExperimentRegistry):
         """
 
     def actions(self):
-        actns = [Clean(self), MakeBuildDir(self)]
+        actions = []
 
         for project in self.projects:
             p = self.projects[project](self)
-            actns.append(RequireAll(self.actions_for_project(p)))
+            actions.append(Clean(p))
+            actions.append(RequireAll(self.actions_for_project(p)))
 
-        actns.append(Clean(self, check_empty=True))
-        actns.append(CleanExtra(self))
-        return actns
+        actions.append(CleanExtra(self))
+        return actions
 
     @staticmethod
     def default_runtime_actions(project):

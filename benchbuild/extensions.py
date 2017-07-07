@@ -127,7 +127,6 @@ class RunWithTime(Extension):
                         persist_time(run_info.db_run, session, timings)
                     else:
                         LOG.warning("No timing information found.")
-            session.commit()
             return run_infos
 
         res = self.call_next(run_cmd, *args, **kwargs)

@@ -5,6 +5,7 @@ benchbuild's run command.
 This subcommand executes experiments on a set of user-controlled projects.
 See the output of benchbuild run --help for more information.
 """
+import logging
 import os
 import sys
 from plumbum import cli
@@ -13,6 +14,9 @@ from benchbuild.utils.actions import Experiment
 from benchbuild.utils import user_interface as ui
 from benchbuild import experiments
 from benchbuild import experiment
+
+
+LOG = logging.getLogger(__name__)
 
 
 class BenchBuildRun(cli.Application):

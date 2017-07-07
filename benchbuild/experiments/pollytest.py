@@ -37,7 +37,7 @@ class PollyTest(Experiment):
         newp.runtime_extension = RunWithTime(
             RuntimeExtension(p, self, config=cfg))
 
-        newp.compiler_extension = ExtractCompileStats(p, self, cfg)
+        newp.compiler_extension = ExtractCompileStats(p, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
         newp = copy.deepcopy(p)
@@ -48,7 +48,7 @@ class PollyTest(Experiment):
         }
         newp.runtime_extension = RunWithTime(
             RuntimeExtension(p, self, config=cfg))
-        newp.compiler_extension = ExtractCompileStats(p, self, cfg)
+        newp.compiler_extension = ExtractCompileStats(p, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
         newp = copy.deepcopy(p)
@@ -62,7 +62,7 @@ class PollyTest(Experiment):
         }
         newp.runtime_extension = RunWithTime(
             RuntimeExtension(p, self, config=cfg))
-        newp.compiler_extension = ExtractCompileStats(p, self, cfg)
+        newp.compiler_extension = ExtractCompileStats(p, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
         newp = copy.deepcopy(p)
@@ -78,7 +78,7 @@ class PollyTest(Experiment):
         }
         newp.runtime_extension = RunWithTime(
             RuntimeExtension(p, self, config=cfg))
-        newp.compiler_extension = ExtractCompileStats(p, self, cfg)
+        newp.compiler_extension = ExtractCompileStats(p, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
         newp = copy.deepcopy(p)
@@ -92,6 +92,6 @@ class PollyTest(Experiment):
         }
         newp.runtime_extension = RunWithTime(
             RuntimeExtension(p, self, config=cfg))
-        newp.compiler_extension = ExtractCompileStats(p, self, cfg)
+        newp.compiler_extension = ExtractCompileStats(p, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
         return actns

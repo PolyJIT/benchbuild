@@ -61,7 +61,6 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
             "-polli-db-experiment=%s" % CFG["experiment"].value(),
             "-polli-db-experiment-uuid=%s" % CFG["experiment_id"].value(),
             "-polli-db-argv='%s'" % str(binary_command),
-            "-polli-db-enable",
             "-polli-db-host=%s" % CFG["db"]["host"].value(),
             "-polli-db-port=%d" % CFG["db"]["port"].value(),
             "-polli-db-username=%s" % CFG["db"]["user"].value(),
@@ -71,6 +70,7 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
 
         if self.project is not None:
             pjit_args.extend([
+                "-polli-db-enable",
                 "-polli-db-project=%s" % self.project.name,
                 "-polli-db-domain=%s" % self.project.domain,
                 "-polli-db-group=%s" % self.project.group,

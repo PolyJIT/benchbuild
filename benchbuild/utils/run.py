@@ -43,6 +43,9 @@ def handle_stdin(cmd, kwargs):
 
 
 def exit_code_from_run_infos(run_infos):
+    if not hasattr(run_infos, "__iter__"):
+        return run_infos.retcode
+
     rcs = [ri.retcode for ri in run_infos]
     max_rc = max(rcs)
     min_rc = min(rcs)

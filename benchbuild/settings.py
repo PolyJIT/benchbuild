@@ -338,6 +338,10 @@ CFG = Configuration(
             "desc": "The verbosity level of the logger. Range: 0-4",
             "default": 0
         },
+        "debug": {
+            "desc": "Should debug logging be enabled?",
+            "default": False
+        },
         "config_file": {
             "desc": "Config file path of benchbuild. Not guaranteed to exist.",
             "default": None,

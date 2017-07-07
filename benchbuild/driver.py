@@ -11,13 +11,18 @@ class PollyProfiling(cli.Application):
     _list_env = False
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
+    debug = cli.Flag('-d', help="Enable debugging output")
 
     def main(self, *args):
         self.verbosity = self.verbosity if self.verbosity < 4 else 3
+        if self.debug:
+            self.verbosity = 3
         settings.CFG["verbosity"] = self.verbosity
+        settings.CFG["debug"] = self.debug
 
         log.configure()
         log.set_defaults()
+
         if settings.CFG["db"]["create_functions"].value():
             from benchbuild.utils.schema import init_functions, Session
             init_functions(Session())

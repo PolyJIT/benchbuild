@@ -2,12 +2,16 @@ import logging
 import logging.config as lc
 from benchbuild import settings
 
-__LOG_DICT = {
+LOG_DICT = {
     "version": 1,
     "formatters": {
         "brief": {
             'class': 'logging.Formatter',
             'format': '%(message)s'
+        },
+        "details": {
+            'class': 'logging.Formatter',
+            'format': '%(name)s (%(filename)s:%(lineno)s) [%(levelname)s] %(message)s'
         },
         "plumbum": {
             'class': 'logging.Formatter',
@@ -19,17 +23,23 @@ __LOG_DICT = {
             'class': 'logging.StreamHandler',
             'formatter': 'brief'
         },
+        "details": {
+            'class': 'logging.StreamHandler',
+            'formatter': 'details'
+        },
         "plumbum": {
             'class': 'logging.StreamHandler',
             'formatter': 'plumbum'
         }
     },
     "loggers": {
-        "benchbuild": {},
-        "benchbuild.steps": {},
+        "benchbuild": {'propagate': True},
         "plumbum.local": {'level': 'DEBUG',
                           'handlers': ['plumbum'],
                           'propagate': False},
+        "sqlalchemy.engine": {
+            "level": "ERROR"
+        },
         "parse": {
             'level': 'WARN',
             'handlers': ['console'],
@@ -44,7 +54,10 @@ __LOG_DICT = {
 
 def configure():
     """Load logging configuration from our own defaults."""
-    lc.dictConfig(__LOG_DICT)
+    debug = settings.CFG["debug"].value()
+    if debug:
+        LOG_DICT["root"]["handlers"] = ["details"]
+    lc.dictConfig(LOG_DICT)
 
 
 def set_defaults():
@@ -57,5 +70,5 @@ def set_defaults():
     }
 
     logging.captureWarnings(True)
-    LOG = logging.getLogger()
-    LOG.setLevel(log_levels[settings.CFG["verbosity"].value()])
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_levels[settings.CFG["verbosity"].value()])

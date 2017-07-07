@@ -27,6 +27,11 @@ class BenchBuildRun(cli.Application):
     _list = False
     _list_experiments = False
     _group_name = None
+    _test_full = False
+
+    @cli.switch(["--full"], help="Test all experiments for the project")
+    def full(self):
+        self._test_full = True
 
     @cli.switch(["-E", "--experiment"],
                 str,
@@ -44,7 +49,6 @@ class BenchBuildRun(cli.Application):
     @cli.switch(["-P", "--project"],
                 str,
                 list=True,
-                requires=["--experiment"],
                 help="Specify projects to run")
     def projects(self, projects):
         self._project_names = projects
@@ -129,16 +133,24 @@ class BenchBuildRun(cli.Application):
                     print("Created directory {0}.".format(builddir))
 
         actns = []
-        for exp_name in self._experiment_names:
-            if exp_name in exps:
-                exp_cls = exps[exp_name]
-                exp = exp_cls(project_names, group_name)
-                eactn = Experiment(exp, exp.actions())
-                actns.append(eactn)
-            else:
-                from logging import error
-                error("Could not find {} in the experiment registry.",
-                      exp_name)
+
+        exps_to_run = []
+        if self._test_full:
+            exps_to_run = exps.values()
+        else:
+            if len(self._experiment_names) == 0:
+                print("No experiment selected. Did you forget to use -E?")
+            for exp_name in self._experiment_names:
+                if exp_name in exps:
+                    exps_to_run.append(exps[exp_name])
+                else:
+                    LOG.error("Could not find {} in the experiment registry.",
+                              exp_name)
+
+        for exp_cls in exps_to_run:
+            exp = exp_cls(project_names, group_name)
+            eactn = Experiment(exp, exp.actions())
+            actns.append(eactn)
 
         num_actions = sum([len(x) for x in actns])
         print("Number of actions to execute: {}".format(num_actions))

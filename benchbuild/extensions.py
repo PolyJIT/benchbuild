@@ -57,14 +57,13 @@ class RuntimeExtension(Extension):
     def __call__(self, binary_command, *args, **kwargs):
         self.project.name = kwargs.get("project_name", self.project.name)
 
-        res = self.call_next(binary_command, *args, **kwargs)
-
         cmd = handle_stdin(binary_command, kwargs)
         with track_execution(cmd, self.project,
                              self.experiment, **kwargs) as run:
             run_info = run()
             if self.config:
                 persist_config(run_info.db_run, run_info.session, self.config)
+        res = self.call_next(binary_command, *args, **kwargs)
         res.append(run_info)
         return res
 

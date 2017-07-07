@@ -31,7 +31,6 @@ from sqlalchemy import (
 from sqlalchemy.types import (
     TypeDecorator, BigInteger, SmallInteger, Float, Numeric, CHAR)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from benchbuild.settings import CFG
@@ -406,8 +405,6 @@ class RegressionTest(BASE):
 
 class SessionManager(object):
     def __init__(self):
-        logger = logging.getLogger(__name__)
-
         self.__test_mode = CFG['db']['rollback'].value()
         self.engine = create_engine(
             "{dialect}://{u}:{p}@{h}:{P}/{db}".format(
@@ -420,7 +417,7 @@ class SessionManager(object):
         self.connection = self.engine.connect()
         self.__transaction = None
         if self.__test_mode:
-            logger.warning(
+            LOG.warning(
                 "DB test mode active, all actions will be rolled back.")
             self.__transaction = self.connection.begin()
 
@@ -442,23 +439,6 @@ def __lazy_session__():
         nonlocal connection_manager
         if connection_manager is None:
             connection_manager = SessionManager()
-
-        from sqlalchemy import event
-        session = connection_manager.get()()
-
-        i = 0
-        @event.listens_for(session, 'after_transaction_create')
-        def receive_after_transaction_create(session, transaction):
-            nonlocal i
-            i = i + 1
-            LOG.debug("New transaction. %d running." % i)
-
-        @event.listens_for(session, 'after_transaction_end')
-        def receive_after_transaction_end(session, transaction):
-            nonlocal i
-            i = i - 1
-            LOG.debug("Transaction ended %d still alive." % (i))
-
         return session
 
     return __lazy_session_wrapped
@@ -474,8 +454,8 @@ def init_functions(connection):
         func = sa.DDL(
             bbpath.template_str(file)
         )
-        print("Loading: {0}".format(file))
-        print(func.compile())
+        LOG.info("Loading: {0}".format(file))
+        LOG.info(func.compile())
         connection.execute(func)
         connection.commit()
 

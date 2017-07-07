@@ -73,38 +73,6 @@ def fetch_time_output(marker, format_s, ins):
     return [_f for _f in res if _f]
 
 
-class GuardedRunException(Exception):
-    """
-    BB Run exception.
-
-    Contains an exception that ocurred during execution of a benchbuild
-    experiment.
-    """
-
-    def __init__(self, what, db_run, session):
-        """
-        Exception raised when a binary failed to execute properly.
-
-        Args:
-            what: the original exception.
-            run: the run during which we encountered ``what``.
-            session: the db session we want to log to.
-        """
-        super(GuardedRunException, self).__init__()
-
-        self.what = what
-        self.run = db_run
-
-        if isinstance(what, KeyboardInterrupt):
-            session.rollback()
-
-    def __str__(self):
-        return self.what.__str__()
-
-    def __repr__(self):
-        return self.what.__repr__()
-
-
 def begin_run_group(project):
     """
     Begin a run_group in the database.
@@ -160,7 +128,7 @@ def fail_run_group(group, session):
     session.commit()
 
 
-def begin(command, project, ename, group):
+def __begin(command, project, ename, group):
     """
     Begin a run in the database log.
 
@@ -192,7 +160,7 @@ def begin(command, project, ename, group):
     return db_run, session
 
 
-def end(db_run, session, stdout, stderr):
+def __end(db_run, session, stdout, stderr):
     """
     End a run in the database log (Successfully).
 
@@ -218,7 +186,7 @@ def end(db_run, session, stdout, stderr):
     session.commit()
 
 
-def fail(db_run, session, retcode, stdout, stderr):
+def __fail(db_run, session, retcode, stdout, stderr):
     """
     End a run in the database log (Unsuccessfully).
 
@@ -293,8 +261,8 @@ def track_execution(cmd, project, experiment, **kwargs):
     """
     from plumbum.commands import ProcessExecutionError
 
-    db_run, session = begin(cmd, project, experiment.name,
-                            project.run_uuid)
+    db_run, session = __begin(cmd, project, experiment.name,
+                              project.run_uuid)
     settings.CFG["db"]["run_id"] = db_run.id
 
     def runner(retcode=0, ri = None):
@@ -316,7 +284,7 @@ def track_execution(cmd, project, experiment, **kwargs):
                     stderr=str(stderr),
                     db_run=db_run,
                     session=session) + ri
-                end(db_run, session, str(stdout), str(stderr))
+                __end(db_run, session, str(stdout), str(stderr))
                 LOG.info("Tracked process completed successfully")
             except ProcessExecutionError as ex:
                 r = RunInfo(
@@ -325,11 +293,11 @@ def track_execution(cmd, project, experiment, **kwargs):
                     stderr=ex.stderr,
                     db_run=db_run,
                     session=session) + ri
-                fail(db_run, session, r.retcode, r.stdout, r.stderr)
+                __fail(db_run, session, r.retcode, r.stdout, r.stderr)
                 LOG.info("Tracked process failed")
                 LOG.error(str(ex))
             except KeyboardInterrupt:
-                fail(db_run, session, -1, "", "KeyboardInterrupt")
+                __fail(db_run, session, -1, "", "KeyboardInterrupt")
                 LOG.warning("Interrupted by user input")
                 raise
         return r

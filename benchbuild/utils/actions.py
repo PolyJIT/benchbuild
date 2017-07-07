@@ -282,7 +282,9 @@ class Experiment(Any):
     def __init__(self, experiment, actions):
         self._experiment = experiment
         actions = \
-            [Echo("Start experiment: {0}".format(experiment.name))] + actions
+            [Echo("Start experiment: {0}".format(experiment.name))] + \
+            actions + \
+            [Echo("Completed experiment: {0}".format(experiment.name))]
         super(Experiment, self).__init__(actions)
 
     def begin_transaction(self):

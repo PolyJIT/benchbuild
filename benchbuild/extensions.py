@@ -165,14 +165,13 @@ class ExtractCompileStats(Extension):
         clang = handle_stdin(cc["-mllvm", "-stats"], kwargs)
         run_config = kwargs.get("run_config", None)
 
-        with local.env(BB_ENABLE=0):
-            with track_execution(clang, self.project, self.experiment) as run:
-                run_info = run()
-                if run_config is not None:
-                    persist_config(
-                        run_info.db_run, run_info.session, run_config)
+        with track_execution(clang, self.project, self.experiment) as run:
+            run_info = run()
+            if run_config is not None:
+                persist_config(
+                    run_info.db_run, run_info.session, run_config)
 
-        if run_info.retcode == 0:
+        if run_info.db_run.status == "completed":
             stats = []
             for stat in self.get_compilestats(run_info.stderr):
                 compile_s = CompileStat()
@@ -182,17 +181,27 @@ class ExtractCompileStats(Extension):
                 stats.append(compile_s)
 
             components = CFG["cs"]["components"].value()
-            if components is not None:
-                stats = [s for s in stats if str(s.component) in components]
             names = CFG["cs"]["names"].value()
-            if names is not None:
-                stats = [s for s in stats if str(s.name) in names]
+
+            stats = [s for s in stats if str(s.component) in components] \
+                if components is not None else stats
+            stats = [s for s in stats if str(s.name) in names] \
+                if names is not None else stats
+
             if stats:
+                for stat in stats:
+                    LOG.info(" %s.%s = %s" % (stat.name, stat.component, stat.value))
                 persist_compilestats(run_info.db_run, run_info.session, stats)
             else:
-                LOG.info("No compilestats collected.")
+                LOG.info("No compilestats left, after filtering.")
+                LOG.warning("  Components: %s" % components)
+                LOG.warning("  Names:      %s" % names)
         else:
             LOG.info("There was an error while compiling.")
+
+        ret = self.call_next(cc, *args, **kwargs)
+        ret.append(run_info)
+        return ret
 
 class SetThreadLimit(Extension):
     def __init__(self, *extensions, config=None):

@@ -44,7 +44,7 @@ def create_run(cmd, project, exp, grp):
                 run_group=str(grp),
                 experiment_group=str(CFG["experiment_id"]))
     session.add(run)
-    session.flush()
+    session.commit()
 
     return (run, session)
 
@@ -72,7 +72,7 @@ def create_run_group(prj):
                        project=prj.name,
                        experiment=str(CFG["experiment_id"]))
     session.add(group)
-    session.flush()
+    session.commit()
 
     return (group, session)
 
@@ -180,7 +180,6 @@ def persist_likwid(run, session, measurements):
                                   core=core,
                                   run_id=run.id)
         session.add(db_measurement)
-    session.commit()
 
 
 @validate
@@ -226,7 +225,6 @@ def persist_perf(run, session, svg_path):
         session.add(s.Metadata(name="perf.flamegraph",
                                value=svg_data,
                                run_id=run.id))
-    session.commit()
 
 
 def persist_compilestats(run, session, stats):
@@ -241,7 +239,6 @@ def persist_compilestats(run, session, stats):
     for stat in stats:
         stat.run_id = run.id
         session.add(stat)
-    session.commit()
 
 
 def persist_config(run, session, cfg):
@@ -259,4 +256,3 @@ def persist_config(run, session, cfg):
         session.add(s.Config(name=cfg_elem,
                              value=cfg[cfg_elem],
                              run_id=run.id))
-    session.commit()

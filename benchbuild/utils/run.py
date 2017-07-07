@@ -153,9 +153,8 @@ def __begin(command, project, ename, group):
     log.run_id = db_run.id
     log.begin = datetime.now()
     log.config = repr(CFG)
-
     session.add(log)
-    session.commit()
+    session.add(db_run)
 
     return db_run, session
 
@@ -183,7 +182,7 @@ def __end(db_run, session, stdout, stderr):
     db_run.end = datetime.now()
     db_run.status = 'completed'
     session.add(log)
-    session.commit()
+    session.add(db_run)
 
 
 def __fail(db_run, session, retcode, stdout, stderr):
@@ -210,7 +209,7 @@ def __fail(db_run, session, retcode, stdout, stderr):
     db_run.end = datetime.now()
     db_run.status = 'failed'
     session.add(log)
-    session.commit()
+    session.add(db_run)
 
 
 class RunInfo(object):
@@ -302,6 +301,7 @@ def track_execution(cmd, project, experiment, **kwargs):
                 raise
         return r
     yield runner
+    session.commit()
 
 
 def run(command, retcode=0):

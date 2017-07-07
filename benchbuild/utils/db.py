@@ -65,12 +65,12 @@ def create_run_group(prj):
         A tuple (group, session) containing both the newly created run_group and
         the transaction object.
     """
-    from benchbuild.utils import schema
+    from benchbuild.utils import schema as s
 
-    session = schema.Session()
-    group = schema.RunGroup(id=prj.run_uuid,
-                            project=prj.name,
-                            experiment=str(CFG["experiment_id"]))
+    session = s.Session()
+    group = s.RunGroup(id=prj.run_uuid,
+                       project=prj.name,
+                       experiment=str(CFG["experiment_id"]))
     session.add(group)
     session.flush()
 

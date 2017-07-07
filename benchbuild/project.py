@@ -170,7 +170,6 @@ class Project(object, metaclass=ProjectDecorator):
         Args:
             experiment: The experiment we run this project under
         """
-        from benchbuild.utils.run import GuardedRunException
         from benchbuild.utils.run import (begin_run_group, end_run_group,
                                           fail_run_group)
         CFG["experiment"] = self.experiment.name
@@ -185,8 +184,6 @@ class Project(object, metaclass=ProjectDecorator):
             try:
                 self.run_tests(experiment, ur.run)
                 end_run_group(group, session)
-            except GuardedRunException:
-                fail_run_group(group, session)
             except KeyboardInterrupt:
                 fail_run_group(group, session)
                 raise

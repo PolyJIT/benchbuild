@@ -12,7 +12,7 @@ from benchbuild.utils.run import (track_execution,
                                   fetch_time_output)
 from benchbuild.utils.db import persist_config, persist_time
 
-LOG = logging.getLogger()
+LOG = logging.getLogger(__name__)
 
 
 class Extension(metaclass=ABCMeta):

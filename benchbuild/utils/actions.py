@@ -3,7 +3,6 @@ This defines classes that can be used to implement a series of Actions.
 """
 from benchbuild.settings import CFG
 from benchbuild.utils.db import persist_experiment
-from benchbuild.utils.run import GuardedRunException
 
 from plumbum import local
 from benchbuild.utils.cmd import mkdir, rm, rmdir
@@ -354,7 +353,7 @@ class RequireAll(Step):
                 self._exlog.error(str(proc_ex))
                 self._exlog.error("==== ERROR ====\n")
                 result = StepResult.ERROR
-            except (OSError, GuardedRunException) as os_ex:
+            except (OSError) as os_ex:
                 self._exlog.exception("Exception in step #{0}: {1}".format(
                     i, action))
                 result = StepResult.ERROR

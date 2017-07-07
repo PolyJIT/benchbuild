@@ -437,11 +437,15 @@ class SessionManager(object):
 def __lazy_session__():
     """Initialize the connection manager lazily."""
     connection_manager = None
+    session = None
 
     def __lazy_session_wrapped():
         nonlocal connection_manager
+        nonlocal session
         if connection_manager is None:
             connection_manager = SessionManager()
+        if session is None:
+            session = connection_manager.get()()
         return session
 
     return __lazy_session_wrapped

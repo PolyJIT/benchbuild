@@ -447,7 +447,6 @@ def __lazy_session__():
         if session is None:
             session = connection_manager.get()()
         return session
-
     return __lazy_session_wrapped
 
 Session = __lazy_session__()

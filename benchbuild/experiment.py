@@ -29,8 +29,6 @@ An experiment performs the following actions in order:
 
 """
 from abc import abstractmethod
-from os import path
-
 import regex
 from plumbum import local
 

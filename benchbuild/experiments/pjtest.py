@@ -21,7 +21,7 @@ from benchbuild.settings import CFG
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
 
-LOG = logging.getLogger()
+LOG = logging.getLogger(__name__)
 
 
 class Test(PolyJIT):

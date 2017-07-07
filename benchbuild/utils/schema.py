@@ -37,7 +37,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils import path as bbpath
 
 BASE = declarative_base()
-LOG = logging.getLogger()
+LOG = logging.getLogger(__name__)
 
 
 """Source: http://docs.sqlalchemy.org/en/rel_0_9/core/custom_types.html?highlight=guid#backend-agnostic-guid-type"""

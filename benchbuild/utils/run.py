@@ -11,7 +11,7 @@ from benchbuild import settings
 from plumbum import local
 
 
-LOG = logging.getLogger()
+LOG = logging.getLogger(__name__)
 
 
 def handle_stdin(cmd, kwargs):

@@ -12,7 +12,7 @@ from benchbuild.extensions import (RunWithTime, RuntimeExtension,
                                    ExtractCompileStats)
 from benchbuild.experiment import Experiment
 
-LOG = logging.getLogger()
+LOG = logging.getLogger(__name__)
 
 
 class PollyTest(Experiment):

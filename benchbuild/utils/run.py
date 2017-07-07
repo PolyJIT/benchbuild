@@ -9,6 +9,7 @@ from benchbuild.utils.cmd import mkdir
 from benchbuild.utils.path import list_to_path
 from benchbuild import settings
 from plumbum import local
+from plumbum.commands import ProcessExecutionError
 
 
 LOG = logging.getLogger(__name__)
@@ -128,100 +129,108 @@ def fail_run_group(group, session):
     session.commit()
 
 
-def __begin(command, project, ename, group):
-    """
-    Begin a run in the database log.
-
-    Args:
-        command: The command that will be executed.
-        pname: The project name we belong to.
-        ename: The experiment name we belong to.
-        group: The run group we belong to.
-
-    Returns:
-        (run, session), where run is the generated run instance and session the
-        associated transaction for later use.
-    """
-    from benchbuild.utils.db import create_run
-    from benchbuild.utils import schema as s
-    from datetime import datetime
-
-    db_run, session = create_run(command, project, ename, group)
-    db_run.begin = datetime.now()
-    db_run.status = 'running'
-    log = s.RunLog()
-    log.run_id = db_run.id
-    log.begin = datetime.now()
-    log.config = repr(CFG)
-    session.add(log)
-    session.add(db_run)
-
-    return db_run, session
-
-
-def __end(db_run, session, stdout, stderr):
-    """
-    End a run in the database log (Successfully).
-
-    This will persist the log information in the database and commit the
-    transaction.
-
-    Args:
-        db_run: The ``run`` schema object we belong to
-        session: The db transaction we belong to.
-        stdout: The stdout we captured of the run.
-        stderr: The stderr we capture of the run.
-    """
-    from benchbuild.utils.schema import RunLog
-    from datetime import datetime
-    log = session.query(RunLog).filter(RunLog.run_id == db_run.id).one()
-    log.stderr = stderr
-    log.stdout = stdout
-    log.status = 0
-    log.end = datetime.now()
-    db_run.end = datetime.now()
-    db_run.status = 'completed'
-    session.add(log)
-    session.add(db_run)
-
-
-def __fail(db_run, session, retcode, stdout, stderr):
-    """
-    End a run in the database log (Unsuccessfully).
-
-    This will persist the log information in the database and commit the
-    transaction.
-
-    Args:
-        db_run: The ``run`` schema object we belong to
-        session: The db transaction we belong to.
-        retcode: The return code we captured of the run.
-        stdout: The stdout we captured of the run.
-        stderr: The stderr we capture of the run.
-    """
-    from benchbuild.utils.schema import RunLog
-    from datetime import datetime
-    log = session.query(RunLog).filter(RunLog.run_id == db_run.id).one()
-    log.stderr = stderr
-    log.stdout = stdout
-    log.status = retcode
-    log.end = datetime.now()
-    db_run.end = datetime.now()
-    db_run.status = 'failed'
-    session.add(log)
-    session.add(db_run)
-
-
 class RunInfo(object):
-    retcode = None
-    stdout = []
-    stderr = []
-    session = None
-    db_run = None
+    def __begin(self, command, project, ename, group):
+        """
+        Begin a run in the database log.
+
+        Args:
+            command: The command that will be executed.
+            pname: The project name we belong to.
+            ename: The experiment name we belong to.
+            group: The run group we belong to.
+
+        Returns:
+            (run, session), where run is the generated run instance and session the
+            associated transaction for later use.
+        """
+        from benchbuild.utils.db import create_run
+        from benchbuild.utils import schema as s
+        from datetime import datetime
+
+        db_run, session = create_run(command, project, ename, group)
+        db_run.begin = datetime.now()
+        db_run.status = 'running'
+        log = s.RunLog()
+        log.run_id = db_run.id
+        log.begin = datetime.now()
+        log.config = repr(CFG)
+        session.add(log)
+        session.add(db_run)
+
+        self.db_run = db_run
+        self.session = session
+
+
+    def __end(self, stdout, stderr):
+        """
+        End a run in the database log (Successfully).
+
+        This will persist the log information in the database and commit the
+        transaction.
+
+        Args:
+            db_run: The ``run`` schema object we belong to
+            session: The db transaction we belong to.
+            stdout: The stdout we captured of the run.
+            stderr: The stderr we capture of the run.
+        """
+        from benchbuild.utils.schema import RunLog
+        from datetime import datetime
+
+        run_id = self.db_run.id
+
+        log = self.session.query(RunLog).filter(RunLog.run_id == run_id).one()
+        log.stderr = stderr
+        log.stdout = stdout
+        log.status = 0
+        log.end = datetime.now()
+
+        self.db_run.end = datetime.now()
+        self.db_run.status = 'completed'
+        self.session.add(log)
+        self.session.add(self.db_run)
+
+
+    def __fail(self, retcode, stdout, stderr):
+        """
+        End a run in the database log (Unsuccessfully).
+
+        This will persist the log information in the database and commit the
+        transaction.
+
+        Args:
+            db_run: The ``run`` schema object we belong to
+            session: The db transaction we belong to.
+            retcode: The return code we captured of the run.
+            stdout: The stdout we captured of the run.
+            stderr: The stderr we capture of the run.
+        """
+        from benchbuild.utils.schema import RunLog
+        from datetime import datetime
+        run_id = self.db_run.id
+
+        log = session.query(RunLog).filter(RunLog.run_id == run_id).one()
+        log.stderr = stderr
+        log.stdout = stdout
+        log.status = retcode
+        log.end = datetime.now()
+
+        self.db_run.end = datetime.now()
+        self.db_run.status = 'failed'
+        self.session.add(log)
+        self.session.add(self.db_run)
+
 
     def __init__(self, **kwargs):
         for k in kwargs:
             self.__setattr__(k, kwargs[k])
+        self.__begin(self.cmd, self.project,
+                     self.experiment.name, self.project.run_uuid)
+
+        run_id = self.db_run.id
+        settings.CFG["db"]["run_id"] = run_id
+
 
     def __add__(self, rhs):
         if rhs is None:
@@ -234,6 +243,39 @@ class RunInfo(object):
             db_run=[self.db_run, rhs.db_run],
             session=self.session)
         return r
+
+    def __call__(self, *args, retcode=None, ri = None, **kwargs):
+        from subprocess import PIPE
+        cmd_env = settings.to_env_dict(settings.CFG)
+
+        res = None
+        with local.env(**cmd_env):
+            has_stdin = kwargs.get("has_stdin", False)
+            try:
+                rc, stdout, stderr = self.cmd.run(
+                    retcode=retcode,
+                    stdin=PIPE if has_stdin else None,
+                    stderr=PIPE,
+                    stdout=PIPE)
+                self.__end(str(stdout), str(stderr))
+                LOG.info("Tracked process completed successfully")
+            except ProcessExecutionError as ex:
+                self.__fail(rc, stdout, stderr)
+                LOG.info("Tracked process failed")
+                LOG.error(str(ex))
+            except KeyboardInterrupt:
+                self.__fail(-1, "", "KeyboardInterrupt")
+                LOG.warning("Interrupted by user input")
+                raise
+
+        self.retcode = rc
+        self.stdout = stdout
+        self.stderr = stderr
+
+        return self
+
+    def commit(self):
+        self.session.commit()
 
     def __str__(self):
         return "<RunInfo (ec={}, run_id={}, stdout={}, stderr={})>".format(
@@ -258,50 +300,9 @@ def track_execution(cmd, project, experiment, **kwargs):
         RunException: If the ``cmd`` encounters an error we wrap the exception
             in a RunException and re-raise. This ends the run unsuccessfully.
     """
-    from plumbum.commands import ProcessExecutionError
-
-    db_run, session = __begin(cmd, project, experiment.name,
-                              project.run_uuid)
-    settings.CFG["db"]["run_id"] = db_run.id
-
-    def runner(retcode=0, ri = None):
-        cmd_env = settings.to_env_dict(settings.CFG)
-        r = RunInfo()
-        with local.env(**cmd_env):
-            has_stdin = kwargs.get("has_stdin", False)
-            try:
-                from subprocess import PIPE
-                ec, stdout, stderr = cmd.run(
-                    retcode=retcode,
-                    stdin=PIPE if has_stdin else None,
-                    stderr=PIPE,
-                    stdout=PIPE)
-
-                r = RunInfo(
-                    retcode=ec,
-                    stdout=str(stdout),
-                    stderr=str(stderr),
-                    db_run=db_run,
-                    session=session) + ri
-                __end(db_run, session, str(stdout), str(stderr))
-                LOG.info("Tracked process completed successfully")
-            except ProcessExecutionError as ex:
-                r = RunInfo(
-                    retcode=ex.retcode,
-                    stdout=ex.stdout,
-                    stderr=ex.stderr,
-                    db_run=db_run,
-                    session=session) + ri
-                __fail(db_run, session, r.retcode, r.stdout, r.stderr)
-                LOG.info("Tracked process failed")
-                LOG.error(str(ex))
-            except KeyboardInterrupt:
-                __fail(db_run, session, -1, "", "KeyboardInterrupt")
-                LOG.warning("Interrupted by user input")
-                raise
-        return r
+    runner = RunInfo(cmd=cmd, project=project, experiment=experiment, **kwargs)
     yield runner
-    session.commit()
+    runner.commit()
 
 
 def run(command, retcode=0):
@@ -658,7 +659,6 @@ def unionfs(base_dir='./base',
 def store_config(func):
     """Decorator for storing the configuration in the project's builddir."""
     from functools import wraps
-    from benchbuild.settings import CFG
 
     @wraps(func)
     def wrap_store_config(self, *args, **kwargs):

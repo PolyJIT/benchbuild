@@ -415,6 +415,9 @@ class SessionManager(object):
                 db=CFG["db"]["name"],
                 dialect=CFG["db"]["dialect"]))
         self.connection = self.engine.connect()
+        self.connection.execution_options(
+            isolation_level="READ COMMITTED"
+        )
         self.__transaction = None
         if self.__test_mode:
             LOG.warning(

@@ -381,17 +381,11 @@ CFG = Configuration(
             "Number of jobs that can be used for building and running.",
             "default": str(available_cpu_count())
         },
-        "experiment_id": {
-            "desc":
-            "The experiment UUID we run everything under."
-            "This groups the project runs in the database.",
-            "default": str(uuid.uuid4()),
-            "export": False
-        },
-        "experiment": {
-            "desc": "The experiment name we run everything under.",
-            "default": "empty",
-            "export": False
+        "experiments": {
+            "default": {
+                "empty": str(uuid.uuid4())
+            },
+            "desc": "Dictionary of all experiments we want a defined uuid for."
         },
         "clean": {
             "default": True,

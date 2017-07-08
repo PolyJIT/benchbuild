@@ -58,7 +58,7 @@ class Slurm(cli.Application):
         """Run a group of projects under the given experiments"""
         self._group_names = groups
 
-    def __go__(self, project_names, exp_name):
+    def __go__(self, project_names, experiment):
         prj_registry = project.ProjectRegistry
         projects = prj_registry.projects
         project_names = self._project_names
@@ -82,7 +82,7 @@ class Slurm(cli.Application):
         prj_keys = sorted(projects.keys())
         print("{0} Projects".format(len(prj_keys)))
 
-        slurm.prepare_slurm_script(exp_name, prj_keys)
+        slurm.prepare_slurm_script(experiment, prj_keys)
 
     def main(self):
         """Main entry point of benchbuild run."""
@@ -98,13 +98,17 @@ class Slurm(cli.Application):
 
         CFG["slurm"]["logs"] = os.path.abspath(os.path.join(CFG[
             'build_dir'].value(), CFG['slurm']['logs'].value()))
-        CFG["slurm"]["node_dir"] = os.path.abspath(os.path.join(CFG["slurm"][
-            "node_dir"].value(), CFG["experiment_id"].value()))
         CFG["build_dir"] = CFG["slurm"]["node_dir"].value()
 
         print("Experiment: " + exp_name)
         if exp_name in exp_registry.experiments:
-            self.__go__(project_names, exp_name)
+            exp_cls = exp_registry.experiments[exp_name]
+            exp = exp_cls(project_names)
+
+            CFG["slurm"]["node_dir"] = os.path.abspath(
+                os.path.join(CFG["slurm"]["node_dir"].value(),
+                             exp.id))
+            self.__go__(project_names, exp)
         else:
             from logging import error
             error("Could not find {} in the experiment registry.", exp_name)

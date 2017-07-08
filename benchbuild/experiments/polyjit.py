@@ -21,14 +21,14 @@ from benchbuild.utils.dict import ExtensibleDict, extend_as_list
 
 LOG = logging.getLogger(__name__)
 
-def verbosity_to_polyjit_log_level(verbosity : int):
+def verbosity_to_polyjit_log_level(verbosity: int):
     polyjit_log_levels = {
-        0 : "off",
-        1 : "error",
-        2 : "warn",
-        3 : "info",
-        4 : "debug",
-        5 : "trace"
+        0: "off",
+        1: "error",
+        2: "warn",
+        3: "info",
+        4: "debug",
+        5: "trace"
     }
     return polyjit_log_levels[verbosity]
 
@@ -50,16 +50,16 @@ class PolyJITConfig(object):
 
 
 class EnableJITDatabase(PolyJITConfig, ext.Extension):
-    def __init__(self, *args, project=None, **kwargs):
+    def __init__(self, *args, project=None, experiment=None, **kwargs):
         super(EnableJITDatabase, self).__init__(*args, project=project, **kwargs)
         self.project = project
 
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.settings import CFG
-
+        experiment = self.project.experiment
         pjit_args = [
-            "-polli-db-experiment=%s" % CFG["experiment"].value(),
-            "-polli-db-experiment-uuid=%s" % CFG["experiment_id"].value(),
+            "-polli-db-experiment=%s" % experiment.name,
+            "-polli-db-experiment-uuid=%s" % experiment.id,
             "-polli-db-argv='%s'" % str(binary_command),
             "-polli-db-host=%s" % CFG["db"]["host"].value(),
             "-polli-db-port=%d" % CFG["db"]["port"].value(),

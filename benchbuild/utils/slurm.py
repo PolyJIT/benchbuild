@@ -14,7 +14,7 @@ from benchbuild.settings import CFG
 INFO = logging.info
 
 
-def __prepare_node_commands(experiment):
+def __prepare_node_commands():
     """Get a list of bash commands that prepare the SLURM node."""
     prefix = CFG["slurm"]["node_dir"].value()
     node_image = CFG["slurm"]["node_image"].value()
@@ -96,13 +96,14 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
             slurm.write("'{0}'\n".format(str(project)))
         slurm.write(")\n")
         slurm.write("_project=\"${projects[$SLURM_ARRAY_TASK_ID]}\"\n")
+
         slurm_log_path = os.path.join(
             os.path.dirname(CFG['slurm']['logs'].value()),
-            str(CFG['experiment_id'].value()) + '-$_project')
+            experiment.id + '-$_project')
         slurm.write("exec 1> {log}\n".format(log=slurm_log_path))
         slurm.write("exec 2>&1\n")
 
-        slurm.write(__prepare_node_commands(experiment))
+        slurm.write(__prepare_node_commands())
         slurm.write("\n")
         cfg_vars = repr(CFG).split('\n')
         cfg_vars = "\nexport ".join(cfg_vars)
@@ -110,14 +111,14 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm.write(cfg_vars)
         slurm.write("\n")
         slurm.write("scontrol update JobId=${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID} ")
-        slurm.write("JobName=\"{0} $_project\"\n".format(experiment))
+        slurm.write("JobName=\"{0} $_project\"\n".format(experiment.name))
         slurm.write("\n")
         slurm.write("srun -c 1 hostname\n")
 
         # Write the experiment command.
         slurm.write(__cleanup_node_commands(slurm_log_path))
         slurm.write(
-            str(benchbuild["-P", "$_project", "-E", experiment]) + "\n")
+            str(benchbuild["-P", "$_project", "-E", experiment.name]) + "\n")
 
     bash("-n", script_name)
     chmod("+x", script_name)
@@ -135,7 +136,8 @@ def prepare_slurm_script(experiment, projects):
 
     benchbuild_c = local["benchbuild"]
     slurm_script = path.join(os.getcwd(),
-                             experiment + "-" + str(CFG['slurm']['script']))
+                             experiment.name + "-" +
+                             str(CFG['slurm']['script']))
 
     # We need to wrap the benchbuild run inside srun to avoid HyperThreading.
     srun = local["srun"]
@@ -144,8 +146,8 @@ def prepare_slurm_script(experiment, projects):
     if not CFG["slurm"]["turbo"].value():
         srun = srun["--pstate-turbo=off"]
     srun = srun[benchbuild_c["-v", "run"]]
-    print("SLURM script written to {0}".format(slurm_script))
     dump_slurm_script(slurm_script, srun, experiment, projects)
+    print("SLURM script written to {0}".format(slurm_script))
     return slurm_script
 
 

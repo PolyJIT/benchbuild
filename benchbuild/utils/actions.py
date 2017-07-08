@@ -219,9 +219,7 @@ class Run(Step):
         if not self._action_fn:
             return
 
-        with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
-                       BB_USE_DATABSE=1):
-            self._action_fn()
+        self._action_fn()
 
     def __str__(self, indent=0):
         return textwrap.indent(
@@ -311,8 +309,7 @@ class Experiment(Any):
         experiment, session = self.begin_transaction()
         try:
             for a in self._actions:
-                with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"])):
-                    result = a()
+                result = a()
         except KeyboardInterrupt:
             error("User requested termination.")
         except Exception:

@@ -42,7 +42,7 @@ def create_run(cmd, project, exp, grp):
                 project_name=project.name,
                 experiment_name=exp,
                 run_group=str(grp),
-                experiment_group=str(CFG["experiment_id"]))
+                experiment_group=project.experiment.id)
     session.add(run)
     session.commit()
 
@@ -68,9 +68,10 @@ def create_run_group(prj):
     from benchbuild.utils import schema as s
 
     session = s.Session()
+    experiment = prj.experiment
     group = s.RunGroup(id=prj.run_uuid,
                        project=prj.name,
-                       experiment=str(CFG["experiment_id"]))
+                       experiment=experiment.id)
     session.add(group)
     session.commit()
 
@@ -136,7 +137,8 @@ def persist_experiment(experiment):
 
     session = Session()
 
-    cfg_exp = CFG['experiment_id'].value()
+    cfg_exp = experiment.id
+    LOG.debug("Using experiment ID stored in config: %s" % cfg_exp)
     exps = session.query(Experiment).filter(Experiment.id == cfg_exp)
     desc = CFG["experiment_description"].value()
     name = experiment.name

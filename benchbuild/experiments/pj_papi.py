@@ -69,11 +69,9 @@ class PJITpapi(pj.PolyJIT):
             DESCRIPTION = "Analyze the experiment after completion."
 
         def run_pprof_analyze():
-            from benchbuild.settings import CFG
             from benchbuild.utils.cmd import pprof_analyze
 
-            with local.env(BB_EXPERIMENT_ID=str(CFG["experiment_id"]),
-                           BB_EXPERIMENT=self.name,
+            with local.env(BB_EXPERIMENT=self.name,
                            BB_USE_DATABASE=1,
                            BB_USE_FILE=0,
                            BB_USE_CSV=0):

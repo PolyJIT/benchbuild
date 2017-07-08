@@ -30,6 +30,7 @@ An experiment performs the following actions in order:
 """
 from abc import abstractmethod
 import regex
+import uuid
 from plumbum import local
 
 from benchbuild import projects
@@ -111,6 +112,13 @@ class Experiment(object, metaclass=ExperimentRegistry):
         self.testdir = CFG["test_dir"].value()
         self._actions = []
 
+        cfg_exps = CFG["experiments"].value()
+        if self.name in cfg_exps:
+            self.id = cfg_exps[self.name]
+        else:
+            self.id = str(uuid.uuid4())
+            cfg_exps[self.name]  = self.id
+            CFG["experiments"] = cfg_exps
         self.populate_projects(projects, group)
 
     def populate_projects(self, projects_to_filter=None, group=None):

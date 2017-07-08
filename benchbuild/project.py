@@ -128,7 +128,8 @@ class Project(object, metaclass=ProjectDecorator):
         self.experiment = exp
         self.group_name = group
         self.sourcedir = path.join(str(CFG["src_dir"]), self.name)
-        self.builddir = path.join(str(CFG["build_dir"]), "{0}-{1}-{2}".format(exp.name, self.name, CFG["experiment_id"]))
+        self.builddir = path.join(str(CFG["build_dir"]), "{0}-{1}-{2}".format(
+            exp.name, self.name, exp.id))
         if group:
             self.testdir = path.join(
                 str(CFG["test_dir"]), self.domain, group, self.name)

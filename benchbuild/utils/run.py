@@ -141,8 +141,8 @@ class RunInfo(object):
             group: The run group we belong to.
 
         Returns:
-            (run, session), where run is the generated run instance and session the
-            associated transaction for later use.
+            (run, session), where run is the generated run instance and
+            session the associated transaction for later use.
         """
         from benchbuild.utils.db import create_run
         from benchbuild.utils import schema as s
@@ -160,7 +160,6 @@ class RunInfo(object):
 
         self.db_run = db_run
         self.session = session
-
 
     def __end(self, stdout, stderr):
         """
@@ -191,7 +190,6 @@ class RunInfo(object):
         self.session.add(log)
         self.session.add(self.db_run)
 
-
     def __fail(self, retcode, stdout, stderr):
         """
         End a run in the database log (Unsuccessfully).
@@ -210,7 +208,7 @@ class RunInfo(object):
         from datetime import datetime
         run_id = self.db_run.id
 
-        log = session.query(RunLog).filter(RunLog.run_id == run_id).one()
+        log = self.session.query(RunLog).filter(RunLog.run_id == run_id).one()
         log.stderr = stderr
         log.stdout = stdout
         log.status = retcode
@@ -221,8 +219,10 @@ class RunInfo(object):
         self.session.add(log)
         self.session.add(self.db_run)
 
-
     def __init__(self, **kwargs):
+        self.cmd = None
+        self.project = None
+        self.experiment = None
         for k in kwargs:
             self.__setattr__(k, kwargs[k])
         self.__begin(self.cmd, self.project,
@@ -230,7 +230,6 @@ class RunInfo(object):
 
         run_id = self.db_run.id
         settings.CFG["db"]["run_id"] = run_id
-
 
     def __add__(self, rhs):
         if rhs is None:
@@ -244,11 +243,10 @@ class RunInfo(object):
             session=self.session)
         return r
 
-    def __call__(self, *args, retcode=None, ri = None, **kwargs):
+    def __call__(self, *args, retcode=None, ri=None, **kwargs):
         from subprocess import PIPE
         cmd_env = settings.to_env_dict(settings.CFG)
 
-        res = None
         with local.env(**cmd_env):
             has_stdin = kwargs.get("has_stdin", False)
             try:
@@ -321,9 +319,10 @@ def uchroot_no_args():
     from benchbuild.utils.cmd import uchroot
 
     prefixes = CFG["container"]["prefixes"].value()
-    p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
+    p_paths, p_libs = uchroot_env(prefixes)
 
-    uchroot = with_env_recursive(uchroot,
+    uchroot = with_env_recursive(
+        uchroot,
         LD_LIBRARY_PATH=list_to_path(p_libs),
         PATH=list_to_path(p_paths))
 
@@ -431,7 +430,7 @@ def uchroot_with_mounts(*args, **kwargs):
     paths, libs = uchroot_env(mounts)
 
     prefixes = CFG["container"]["prefixes"].value()
-    p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
+    p_paths, p_libs = uchroot_env(prefixes)
 
     uchroot_cmd = with_env_recursive(
         uchroot_cmd,
@@ -671,4 +670,3 @@ def store_config(func):
         return func(self, *args, **kwargs)
 
     return wrap_store_config
-

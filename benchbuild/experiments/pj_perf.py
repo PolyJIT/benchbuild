@@ -1,5 +1,6 @@
 import copy
-from functools import partial
+import functools as ft
+import os
 import uuid
 
 import benchbuild.experiments.polyjit as pj
@@ -69,6 +70,6 @@ class PJITperf(pj.PolyJIT):
         for i in range(1, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(p)
             cp.run_uuid = uuid.uuid4()
-            cp.runtime_extension = partial(run_with_perf, cp, self, CFG, i)
+            cp.runtime_extension = ft.partial(run_with_perf, cp, self, CFG, i)
             actns.extend(self.default_runtime_actions(cp))
         return actns

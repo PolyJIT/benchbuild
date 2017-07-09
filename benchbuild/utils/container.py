@@ -8,6 +8,8 @@ from benchbuild.utils.cmd import cp, mkdir, bash, rm, curl, tail, cut
 from benchbuild.utils.downloader import Wget
 from plumbum import local, TF
 
+LOG = logging.getLogger(__name__)
+
 
 def cached(func):
     ret = None
@@ -37,8 +39,7 @@ def is_valid_container(container, path):
         with open(tmp_hash_path, 'r') as tmp_file:
             tmp_hash = tmp_file.readline()
     except IOError:
-        logger = logging.getLogger(__name__)
-        logger.info("No .hash-file in the tmp-directory.")
+        LOG.info("No .hash-file in the tmp-directory.")
 
     container_hash_path = os.path.abspath(os.path.join(path,
                                                        "gentoo.tar.bz2.hash"))
@@ -92,8 +93,8 @@ def unpack_container(container, path):
         if not os.path.samefile(name, container.filename):
             rm(name)
         else:
-            logging.warning("File contents do not match: {0} != {1}",
-                            name, container.filename)
+            LOG.warning("File contents do not match: %s != %s" %
+                        (name, container.filename))
         cp(container.filename + ".hash", path)
 
 
@@ -144,7 +145,6 @@ class Gentoo(Container):
             Latest src_uri from gentoo's distfiles mirror.
         """
         from plumbum import ProcessExecutionError
-        from logging import error
 
         latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
                      "latest-stage3-amd64.txt"
@@ -154,8 +154,8 @@ class Gentoo(Container):
                        cut["-f1", "-d "])().strip()
         except ProcessExecutionError as proc_ex:
             src_uri = "NOT-FOUND"
-            error("Could not determine latest stage3 src uri: {0}",
-                  str(proc_ex))
+            LOG.error(
+                "Could not determine latest stage3 src uri: %s" % str(proc_ex))
         return src_uri
 
     @property

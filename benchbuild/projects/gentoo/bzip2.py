@@ -7,7 +7,6 @@ from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot
-
 from benchbuild.utils.cmd import tar  # pylint: disable=E0401
 
 

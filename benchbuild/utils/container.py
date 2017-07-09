@@ -93,8 +93,8 @@ def unpack_container(container, path):
         if not os.path.samefile(name, container.filename):
             rm(name)
         else:
-            LOG.warning("File contents do not match: %s != %s" %
-                        (name, container.filename))
+            LOG.warning("File contents do not match: %s != %s",
+                        name, container.filename)
         cp(container.filename + ".hash", path)
 
 
@@ -155,7 +155,7 @@ class Gentoo(Container):
         except ProcessExecutionError as proc_ex:
             src_uri = "NOT-FOUND"
             LOG.error(
-                "Could not determine latest stage3 src uri: %s" % str(proc_ex))
+                "Could not determine latest stage3 src uri: %s", str(proc_ex))
         return src_uri
 
     @property

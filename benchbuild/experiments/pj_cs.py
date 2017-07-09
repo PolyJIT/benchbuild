@@ -7,7 +7,7 @@ class Compilestats(pj.PolyJIT):
 
     NAME = "pj-cs"
 
-    def actions_for_project(self, p):
-        p = pj.PolyJIT.init_project(p)
-        p.compiler_extension = ext.ExtractCompileStats(p, self)
-        return self.default_compiletime_actions(p)
+    def actions_for_project(self, project):
+        project = pj.PolyJIT.init_project(project)
+        project.compiler_extension = ext.ExtractCompileStats(project, self)
+        return self.default_compiletime_actions(project)

@@ -61,43 +61,43 @@ class PJITpapi(pj.PolyJIT):
 
     NAME = "pj-papi"
 
-    #FIXME: Check, if pporf_analyze is actually needed anymore.
-    #def actions(self):
-    #    """Do the postprocessing, after all projects are done."""
-    #    actions = super(PJITpapi, self).actions()
-    #    from benchbuild.utils.actions import Step
+#    FIXME: Check, if pporf_analyze is actually needed anymore.
+#    def actions(self):
+#        """Do the postprocessing, after all projects are done."""
+#        actions = super(PJITpapi, self).actions()
+#        from benchbuild.utils.actions import Step
+#
+#        class Analyze(Step):
+#            NAME = "ANALYZE"
+#            DESCRIPTION = "Analyze the experiment after completion."
+#
+#        def run_pprof_analyze():
+#            from benchbuild.utils.cmd import pprof_analyze
+#
+#            with local.env(BB_EXPERIMENT=self.name,
+#                           BB_USE_DATABASE=1,
+#                           BB_USE_FILE=0,
+#                           BB_USE_CSV=0):
+#                pprof_analyze()
+#
+#        actions.append(
+#            Analyze(self, run_pprof_analyze)
+#        )
+#
+#        return actions
 
-    #    class Analyze(Step):
-    #        NAME = "ANALYZE"
-    #        DESCRIPTION = "Analyze the experiment after completion."
-
-    #    def run_pprof_analyze():
-    #        from benchbuild.utils.cmd import pprof_analyze
-
-    #        with local.env(BB_EXPERIMENT=self.name,
-    #                       BB_USE_DATABASE=1,
-    #                       BB_USE_FILE=0,
-    #                       BB_USE_CSV=0):
-    #            pprof_analyze()
-
-    #    actions.append(
-    #        Analyze(self, run_pprof_analyze)
-    #    )
-
-    #    return actions
-
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         from benchbuild.settings import CFG
 
-        p = pj.PolyJIT.init_project(p)
-        p.cflags = ["-mllvm", "-polli-instrument"] + p.cflags
-        p.ldflags = p.ldflags + ["-lpprof"]
+        project = pj.PolyJIT.init_project(project)
+        project.cflags = ["-mllvm", "-polli-instrument"] + project.cflags
+        project.ldflags = project.ldflags + ["-lpprof"]
 
         actns = []
         for i in range(1, int(str(CFG["jobs"])) + 1):
-            cp = copy.deepcopy(p)
+            cp = copy.deepcopy(project)
             cp.compiler_extension = ext.ExtractCompileStats(cp, self)
-            cp.runtime_extension = partial(run_with_papi, p, self, CFG, i)
+            cp.runtime_extension = partial(run_with_papi, cp, self, CFG, i)
             actns.extend(self.default_runtime_actions(cp))
 
         return actns

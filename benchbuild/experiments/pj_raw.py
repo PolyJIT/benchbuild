@@ -13,14 +13,14 @@ class PJITRaw(pj.PolyJIT):
 
     NAME = "pj-raw"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         from benchbuild.settings import CFG
 
-        p = pj.PolyJIT.init_project(p)
+        project = pj.PolyJIT.init_project(project)
 
         actns = []
         for i in range(2, int(str(CFG["jobs"])) + 1):
-            cp = copy.deepcopy(p)
+            cp = copy.deepcopy(project)
             cp.run_uuid = uuid.uuid4()
             cp.cflags += ["-mllvm", "-polly-num-threads={0}".format(i)]
             cp.runtime_extension = \
@@ -28,12 +28,12 @@ class PJITRaw(pj.PolyJIT):
                     pj.RegisterPolyJITLogs(
                         ext.RunWithTime(
                             pj.EnablePolyJIT(
-                                ext.RuntimeExtension(p, self, config={
+                                ext.RuntimeExtension(cp, self, config={
                                     "jobs": i,
                                     "cores": str(i-1),
                                     "cores-config": str(i),
                                     "recompilation": "enabled"}),
-                                project=p))))
+                                project=cp))))
 
             actns.extend(self.default_runtime_actions(cp))
         return actns

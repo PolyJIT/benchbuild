@@ -23,11 +23,11 @@ class PollyTest(Experiment):
     """
     NAME = "pollytest"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         actns = []
-        p.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolly.so"]
+        project.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolly.so"]
 
-        newp = copy.deepcopy(p)
+        newp = copy.deepcopy(project)
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + ["-O3"]
         cfg = {
@@ -35,23 +35,23 @@ class PollyTest(Experiment):
         }
 
         newp.runtime_extension = RunWithTime(
-            RuntimeExtension(p, self, config=cfg))
+            RuntimeExtension(newp, self, config=cfg))
 
-        newp.compiler_extension = ExtractCompileStats(p, self, config=cfg)
+        newp.compiler_extension = ExtractCompileStats(newp, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
-        newp = copy.deepcopy(p)
+        newp = copy.deepcopy(project)
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + ["-O3", "-mllvm", "-polly"]
         cfg = {
             "cflags": "-O3 -polly"
         }
         newp.runtime_extension = RunWithTime(
-            RuntimeExtension(p, self, config=cfg))
-        newp.compiler_extension = ExtractCompileStats(p, self, config=cfg)
+            RuntimeExtension(newp, self, config=cfg))
+        newp.compiler_extension = ExtractCompileStats(newp, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
-        newp = copy.deepcopy(p)
+        newp = copy.deepcopy(project)
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + [
            "-O3", "-mllvm",
@@ -61,11 +61,11 @@ class PollyTest(Experiment):
             "cflags": "-O3 -polly -polly-position=before-vectorizer"
         }
         newp.runtime_extension = RunWithTime(
-            RuntimeExtension(p, self, config=cfg))
-        newp.compiler_extension = ExtractCompileStats(p, self, config=cfg)
+            RuntimeExtension(newp, self, config=cfg))
+        newp.compiler_extension = ExtractCompileStats(newp, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
-        newp = copy.deepcopy(p)
+        newp = copy.deepcopy(project)
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + [
            "-O3", "-mllvm",
@@ -77,11 +77,11 @@ class PollyTest(Experiment):
                       "-polly-process-unprofitable"
         }
         newp.runtime_extension = RunWithTime(
-            RuntimeExtension(p, self, config=cfg))
-        newp.compiler_extension = ExtractCompileStats(p, self, config=cfg)
+            RuntimeExtension(newp, self, config=cfg))
+        newp.compiler_extension = ExtractCompileStats(newp, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
-        newp = copy.deepcopy(p)
+        newp = copy.deepcopy(project)
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + [
            "-O3", "-mllvm",
@@ -91,7 +91,7 @@ class PollyTest(Experiment):
             "cflags": "-O3 -polly -polly-process-unprofitable"
         }
         newp.runtime_extension = RunWithTime(
-            RuntimeExtension(p, self, config=cfg))
-        newp.compiler_extension = ExtractCompileStats(p, self, config=cfg)
+            RuntimeExtension(newp, self, config=cfg))
+        newp.compiler_extension = ExtractCompileStats(newp, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
         return actns

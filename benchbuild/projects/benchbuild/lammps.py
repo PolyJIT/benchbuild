@@ -1,14 +1,13 @@
+from os import path
+from glob import glob
+
 from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
-
-from plumbum import local
 from benchbuild.utils.cmd import cp, make
-
-from os import path
-from glob import glob
+from plumbum import local
 
 
 class Lammps(BenchBuildGroup):

@@ -434,10 +434,10 @@ class Genetic1Sequence(PolyJIT):
 
     NAME = "pj-seq-genetic1-opt"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         """Execute the actions for the test."""
 
-        project = PolyJIT.init_project(p)
+        project = PolyJIT.init_project(project)
         project.cflags = ["-mllvm", "-stats"]
         cfg = {"jobs": int(CFG["jobs"].value())}
 
@@ -623,10 +623,10 @@ class Genetic2Sequence(PolyJIT):
 
     NAME = "pj-seq-genetic2-opt"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         """Execute the actions for the test."""
 
-        p = PolyJIT.init_project(p)
+        p = PolyJIT.init_project(project)
         p.cflags = ["-mllvm", "-stats"]
         cfg = {"jobs": int(CFG["jobs"].value())}
 
@@ -753,10 +753,10 @@ class HillclimberSequences(PolyJIT):
 
     NAME = "pj-seq-hillclimber"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         """Execute the actions for the test."""
 
-        project = PolyJIT.init_project(p)
+        project = PolyJIT.init_project(project)
         project.cflags = ["-mllvm", "-stats"]
         cfg = {'jobs': int(CFG["jobs"].value())}
 
@@ -867,10 +867,10 @@ class GreedySequences(PolyJIT):
 
     NAME = "pj-seq-greedy"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         """Execute the actions for the test."""
 
-        project = PolyJIT.init_project(p)
+        project = PolyJIT.init_project(project)
         project.cflags = ["-mllvm", "-stats"]
         cfg = {'jobs': int(CFG["jobs"].value())}
 

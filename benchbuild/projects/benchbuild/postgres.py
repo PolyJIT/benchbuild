@@ -1,9 +1,8 @@
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
-
-from plumbum import FG, local
-from benchbuild.utils.cmd import cp, echo, chmod
-
 from os import path
+
+from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.utils.cmd import cp, echo, chmod
+from plumbum import FG, local
 
 
 class Postgres(BenchBuildGroup):

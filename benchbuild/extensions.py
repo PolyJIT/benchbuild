@@ -25,11 +25,11 @@ class Extension(metaclass=ABCMeta):
         """Call all child extensions with the same arguments."""
         all_results = []
         for ext in self.next_extensions:
-            LOG.debug("Invoking - %s " % ext.__class__)
+            LOG.debug("Invoking - %s ", ext.__class__)
             result = ext(*args, **kwargs)
-            LOG.debug("Completed - %s => %s" % (ext.__class__, result))
+            LOG.debug("Completed - %s => %s", ext.__class__, result)
             if result is None:
-                LOG.warning("No result from: %s" % ext.__class__)
+                LOG.warning("No result from: %s", ext.__class__)
                 continue
             if isinstance(result, Iterable):
                 all_results.extend(result)
@@ -39,7 +39,7 @@ class Extension(metaclass=ABCMeta):
 
     def print(self, indent=0):
         """Print a structural view of the registered extensions."""
-        LOG.info("{}:: {}".format(indent * " ", self.__class__))
+        LOG.info("%s:: %s", indent * " ", self.__class__)
         for ext in self.next_extensions:
             ext.print(indent=indent+2)
 
@@ -93,11 +93,11 @@ class LogAdditionals(Extension):
 
         for ext in self.next_extensions:
             if issubclass(ext.__class__, (LogTrackingMixin)):
-                LOG.debug("Checking additional log files from: {}".format(ext))
+                LOG.debug("Checking additional log files from: %s", ext)
                 for log in ext.logs:
-                    LOG.debug("Dumping content of '{}'.".format(log))
+                    LOG.debug("Dumping content of '%s'.", log)
                     cat[log] & FG
-                    LOG.debug("Dumping content of '{}' complete.".format(log))
+                    LOG.debug("Dumping content of '%s' complete.", log)
 
         return res
 
@@ -118,7 +118,7 @@ class RunWithTime(Extension):
 
             session = s.Session()
             for run_info in run_infos:
-                LOG.debug("Persisting time for '{}'".format(run_info))
+                LOG.debug("Persisting time for '%s'", run_info)
                 if may_wrap:
                     timings = fetch_time_output(
                         time_tag,
@@ -191,13 +191,13 @@ class ExtractCompileStats(Extension):
 
             if stats:
                 for stat in stats:
-                    LOG.info(" %s.%s = %s" %
-                             (stat.name, stat.component, stat.value))
+                    LOG.info(" %s.%s = %s",
+                             stat.name, stat.component, stat.value)
                 persist_compilestats(run_info.db_run, run_info.session, stats)
             else:
                 LOG.info("No compilestats left, after filtering.")
-                LOG.warning("  Components: %s" % components)
-                LOG.warning("  Names:      %s" % names)
+                LOG.warning("  Components: %s", components)
+                LOG.warning("  Names:      %s", names)
         else:
             LOG.info("There was an error while compiling.")
 
@@ -217,7 +217,7 @@ class SetThreadLimit(Extension):
         if config is not None and 'jobs' in config.keys():
             jobs = config['jobs']
         else:
-            logging.warning("Parameter 'config' was unusable, using defaults")
+            LOG.warning("Parameter 'config' was unusable, using defaults")
             jobs = CFG["jobs"].value()
 
         ret = None

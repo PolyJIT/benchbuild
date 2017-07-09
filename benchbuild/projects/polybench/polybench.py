@@ -1,12 +1,10 @@
+from os import path
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
-
 from benchbuild.utils.cmd import tar, cp
-
-from os import path
 
 
 class PolyBenchGroup(Project):

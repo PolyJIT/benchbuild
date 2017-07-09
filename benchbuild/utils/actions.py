@@ -2,6 +2,7 @@
 This defines classes that can be used to implement a series of Actions.
 """
 import abc
+from datetime import datetime
 import enum
 import functools as ft
 import logging
@@ -15,7 +16,6 @@ from benchbuild.utils.db import persist_experiment
 
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from plumbum import ProcessExecutionError
-from datetime import datetime
 
 
 LOG = logging.getLogger("benchbuild.steps")
@@ -42,12 +42,12 @@ def log_before_after(name, desc):
     def func_decorator(f):
         @ft.wraps(f)
         def wrapper(*args, **kwargs):
-            LOG.info("\n{} - {}".format(name, desc))
+            LOG.info("\n%s - %s", name, desc)
             res = f(*args, **kwargs)
             if res == StepResult.OK:
-                LOG.info("{} - OK\n".format(name))
+                LOG.info("%s - OK\n", name)
             else:
-                LOG.error("{} - ERROR\n".format(name))
+                LOG.error("%s - ERROR\n", name)
             return res
 
         return wrapper
@@ -118,8 +118,7 @@ class Clean(Step):
         for part in psutil.disk_partitions(all=True):
             if os.path.commonpath([part.mountpoint, real_root]) == real_root:
                 if not part.fstype == "fuse.unionfs":
-                    logging.error(
-                        "NON-UnionFS mountpoint found under {0}".format(root))
+                    LOG.error("NON-UnionFS mountpoint found under %s", root)
                 else:
                     umount_paths.append(part.mountpoint)
 
@@ -250,7 +249,6 @@ class Any(Step):
 
     def __init__(self, actions):
         self._actions = actions
-        LOG = logging.getLogger('benchbuild')
         super(Any, self).__init__(None, None)
 
     def __len__(self):
@@ -263,8 +261,7 @@ class Any(Step):
             result = a()
             cnt = cnt + 1
             if result == StepResult.ERROR:
-                LOG.warn("{0} actions left in queue".format(
-                    length - cnt))
+                LOG.warn("%d actions left in queue", length - cnt)
         return StepResult.OK
 
     def __str__(self, indent=0):
@@ -347,18 +344,16 @@ class RequireAll(Step):
             except ProcessExecutionError as proc_ex:
                 LOG.error("\n==== ERROR ====")
                 LOG.error(
-                    "Execution of a binary failed in step: {0}".format(
-                        str(action)))
+                    "Execution of a binary failed in step: %s", str(action))
                 LOG.error(str(proc_ex))
                 LOG.error("==== ERROR ====\n")
                 result = StepResult.ERROR
             except (OSError) as os_ex:
-                LOG.error("Exception in step #{0}: {1}".format(i, action))
+                LOG.error("Exception in step #%d: %s", (i, str(action)))
                 result = StepResult.ERROR
 
             if result != StepResult.OK:
-                LOG.error("Execution of #{0}: '{1}' failed.".format(
-                    i, str(action)))
+                LOG.error("Execution of #%d: '%s' failed.", (i, str(action)))
                 action.onerror()
                 return result
 

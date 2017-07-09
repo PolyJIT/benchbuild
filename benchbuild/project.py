@@ -3,10 +3,8 @@ import warnings
 from abc import abstractmethod
 from functools import partial
 from os import listdir, path
-
-from plumbum import local
 from typing import Callable, Iterable
-
+from plumbum import local
 import benchbuild.utils.run as ur
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir, rm, rmdir

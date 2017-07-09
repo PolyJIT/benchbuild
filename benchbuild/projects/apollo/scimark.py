@@ -1,10 +1,10 @@
+from os import path
 from benchbuild.projects.apollo.group import ApolloGroup
 from benchbuild.utils.wrapping import wrap
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.cmd import unzip, make
 from benchbuild.utils.run import run
-from os import path
 
 
 class SciMark(ApolloGroup):

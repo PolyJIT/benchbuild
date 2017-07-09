@@ -1,6 +1,6 @@
+from os import path
 from benchbuild.project import Project
 from benchbuild.settings import CFG
-from os import path
 
 
 class ApolloGroup(Project):

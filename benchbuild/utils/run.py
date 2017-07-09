@@ -495,14 +495,13 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
         rw_image: virtual image of actual file system
         mountpoint: location where ro_base and rw_image merge
     """
-    log = logging.getLogger("benchbuild")
     if not os.path.exists(mountpoint):
         mkdir("-p", mountpoint)
     if not os.path.exists(ro_base):
-        log.error("Base dir does not exist: '{0}'".format(ro_base))
+        LOG.error("Base dir does not exist: '%s'", ro_base)
         raise ValueError("Base directory does not exist")
     if not os.path.exists(rw_image):
-        log.error("Image dir does not exist: '{0}'".format(ro_base))
+        LOG.error("Image dir does not exist: '%s'", ro_base)
         raise ValueError("Image directory does not exist")
 
     from benchbuild.utils.cmd import unionfs

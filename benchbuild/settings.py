@@ -15,6 +15,8 @@ import copy
 from datetime import datetime
 from plumbum import local
 
+LOG = logging.getLogger(__name__)
+
 
 def available_cpu_count():
     """
@@ -27,7 +29,6 @@ def available_cpu_count():
     Returns:
         Number of avaialable CPUs.
     """
-    log = logging.getLogger('benchbuild')
 
     # cpuset
     # cpuset may restrict the number of *available* processors
@@ -39,14 +40,14 @@ def available_cpu_count():
             if res > 0:
                 return res
     except IOError:
-        log.debug("Could not get the number of allowed CPUs")
+        LOG.debug("Could not get the number of allowed CPUs")
 
     # http://code.google.com/p/psutil/
     try:
         import psutil
         return psutil.cpu_count()  # psutil.NUM_CPUS on old versions
     except (ImportError, AttributeError):
-        log.debug("Could not get the number of allowed CPUs")
+        LOG.debug("Could not get the number of allowed CPUs")
 
     # POSIX
     try:
@@ -55,7 +56,7 @@ def available_cpu_count():
         if res > 0:
             return res
     except (AttributeError, ValueError):
-        log.debug("Could not get the number of allowed CPUs")
+        LOG.debug("Could not get the number of allowed CPUs")
 
     # Linux
     try:
@@ -64,7 +65,7 @@ def available_cpu_count():
         if res > 0:
             return res
     except IOError:
-        log.debug("Could not get the number of allowed CPUs")
+        LOG.debug("Could not get the number of allowed CPUs")
 
     raise Exception('Can not determine number of CPUs on this system')
 
@@ -176,10 +177,7 @@ class Configuration():
                     if k in inode:
                         load_rec(inode[k], config[k])
                     else:
-                        log = logging.getLogger('benchbuild')
-                        log.debug(
-                            "+ config element: '{cfg}'".format(cfg=k)
-                        )
+                        LOG.debug("+ config element: '%s'", k)
                 else:
                     inode[k] = config[k]
 
@@ -416,7 +414,7 @@ CFG = Configuration(
             "default": 1
         },
         "sequence": {
-            "desc": "The name of the sequence that should be used for " + \
+            "desc": "The name of the sequence that should be used for "
                     "preoptimization.",
             "default": "no_preperation"
         }
@@ -843,8 +841,7 @@ def __init_config(cfg):
     if config_path:
         cfg.load(config_path)
         cfg["config_file"] = os.path.abspath(config_path)
-        logging.debug("Configuration loaded from {0}".format(os.path.abspath(
-            config_path)))
+        LOG.debug("Configuration loaded from %s", os.path.abspath(config_path))
     cfg.init_from_env()
 
 

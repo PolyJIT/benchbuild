@@ -33,17 +33,18 @@ class Test(PolyJIT):
 
     NAME = "pj-test"
 
-    def actions_for_project(self, p):
-        p = PolyJIT.init_project(p)
-        p.run_uuid = uuid.uuid4()
+    def actions_for_project(self, project):
+        project = PolyJIT.init_project(project)
+        project.run_uuid = uuid.uuid4()
         jobs = int(CFG["jobs"].value())
-        p.cflags += ["-Rpass-missed=polli*",
-                     "-mllvm", "-stats",
-                     "-mllvm", "-polly-num-threads={0}".format(jobs)]
+        project.cflags += [
+            "-Rpass-missed=polli*",
+            "-mllvm", "-stats",
+            "-mllvm", "-polly-num-threads={0}".format(jobs)]
 
         cfg_with_jit = {
             'jobs': jobs,
-            "cflags": p.cflags,
+            "cflags": project.cflags,
             "cores": str(jobs - 1),
             "cores-config": str(jobs),
             "recompilation": "enabled",
@@ -52,7 +53,7 @@ class Test(PolyJIT):
 
         cfg_without_jit = {
             'jobs': jobs,
-            "cflags": p.cflags,
+            "cflags": project.cflags,
             "cores": str(jobs - 1),
             "cores-config": str(jobs),
             "recompilation": "enabled",
@@ -63,19 +64,19 @@ class Test(PolyJIT):
             pj.EnableJITDatabase(
                 pj.EnablePolyJIT(
                     ext.RuntimeExtension(
-                        p, self, config=cfg_with_jit),
-                    project=p),
+                        project, self, config=cfg_with_jit),
+                    project=project),
                 pj.DisablePolyJIT(
                     ext.RuntimeExtension(
-                        p, self, config=cfg_without_jit),
-                    project=p),
-                project=p)
+                        project, self, config=cfg_without_jit),
+                    project=project),
+                project=project)
 
-        p.runtime_extension = \
+        project.runtime_extension = \
             ext.LogAdditionals(
                 pj.RegisterPolyJITLogs(
                     ext.RunWithTime(pjit_extension)))
-        return Test.default_runtime_actions(p)
+        return Test.default_runtime_actions(project)
 
 
 class StatusReport(Report):

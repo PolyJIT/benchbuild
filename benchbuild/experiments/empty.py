@@ -14,11 +14,11 @@ class Empty(Experiment):
 
     NAME = "empty"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         """ Do nothing. """
         return [
-            MakeBuildDir(p),
-            Download(p),
-            Configure(p),
-            Clean(p)
+            MakeBuildDir(project),
+            Download(project),
+            Configure(project),
+            Clean(project)
         ]

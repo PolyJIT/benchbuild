@@ -1,14 +1,14 @@
+from os import path
+import logging
+
 from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
-from plumbum import local
 from benchbuild.utils.cmd import make, tar
-
-from os import path
-import logging
+from plumbum import local
 
 
 class OpenBlas(BenchBuildGroup):

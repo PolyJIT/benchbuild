@@ -3,12 +3,15 @@ LAMMPS (sci-physics/lammps) project within gentoo chroot.
 """
 from os import path
 from glob import glob
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap, strip_path_prefix
+
+from benchbuild.utils.wrapping import \
+    (wrap_in_uchroot as wrap, strip_path_prefix)
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run, uchroot
-from plumbum import local
 from benchbuild.utils.cmd import tar  # pylint: disable=E0401
+
+from plumbum import local
 
 
 class Lammps(GentooGroup):

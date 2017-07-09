@@ -72,15 +72,15 @@ class PJITlikwid(pj.PolyJIT):
 
     NAME = "pj-likwid"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         from benchbuild.settings import CFG
 
-        p = pj.PolyJIT.init_project(p)
-        p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
+        project = pj.PolyJIT.init_project(project)
+        project.cflags = ["-DLIKWID_PERFMON"] + project.cflags
 
         actns = []
         for i in range(1, int(str(CFG["jobs"])) + 1):
-            cp = copy.deepcopy(p)
+            cp = copy.deepcopy(project)
             cp.run_uuid = uuid.uuid4()
             cp.runtime_extension = \
                 RunWithLikwid(

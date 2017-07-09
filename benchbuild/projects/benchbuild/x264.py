@@ -4,7 +4,6 @@ from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
-from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import local
 from benchbuild.utils.cmd import cp, make
@@ -18,7 +17,6 @@ class X264(BenchBuildGroup):
     NAME = "x264"
     DOMAIN = "multimedia"
     SRC_FILE = 'x264.git'
-    
 
     inputfiles = {"tbbt-small.y4m": [],
                   "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}

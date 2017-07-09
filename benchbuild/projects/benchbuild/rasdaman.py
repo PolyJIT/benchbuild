@@ -5,7 +5,6 @@ from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
-from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import local
 from benchbuild.utils.cmd import autoreconf, make
@@ -19,7 +18,6 @@ class Rasdaman(BenchBuildGroup):
     NAME = 'Rasdaman'
     DOMAIN = 'database'
     SRC_FILE = 'rasdaman.git'
-    
 
     src_uri = "git://rasdaman.org/rasdaman.git"
 

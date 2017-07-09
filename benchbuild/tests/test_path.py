@@ -1,5 +1,4 @@
 import unittest
-from plumbum.cmd import true
 
 
 class TestPathToList(unittest.TestCase):

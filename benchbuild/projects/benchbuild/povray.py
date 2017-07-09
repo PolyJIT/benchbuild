@@ -3,7 +3,6 @@ from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
-from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import FG, local
 from benchbuild.utils.cmd import cp, find, tar, make, rm, head, grep, sed, sh
@@ -18,7 +17,6 @@ class Povray(BenchBuildGroup):
     NAME = 'povray'
     DOMAIN = 'multimedia'
     SRC_FILE = 'povray.git'
-    
 
     src_uri = "https://github.com/POV-Ray/povray"
     boost_src_dir = "boost_1_59_0"

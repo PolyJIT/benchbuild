@@ -46,8 +46,9 @@ class ReportRegistry(type):
                 else:
                     ReportRegistry.reports[exp] = [cls]
 
+
 def load_experiment_ids_from_names(session, names):
-    from sqlalchemy import  func, column
+    from sqlalchemy import func, column
     from sqlalchemy.sql import select, bindparam
 
     exps = select([column('id')]).\
@@ -58,6 +59,7 @@ def load_experiment_ids_from_names(session, names):
         exps.unique_params(names=names)
     )
     return r1.fetchall()
+
 
 class Report(object, metaclass=ReportRegistry):
 

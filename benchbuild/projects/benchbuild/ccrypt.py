@@ -5,7 +5,7 @@ from benchbuild.utils.downloader import Wget
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from os import path
 from plumbum import local
-from benchbuild.utils.cmd import ln, tar, make
+from benchbuild.utils.cmd import tar, make
 
 
 class Ccrypt(BenchBuildGroup):

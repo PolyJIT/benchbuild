@@ -3,6 +3,7 @@
 https://github.com/dbasden/python-digraphtools/blob/master/digraphtools/topsort.py
 """
 
+
 def partial_order_to_grid(poset, n):
     """poset is given in 2tuples of indexes into a list containing a linear
     extension as the indices are into a list containing a valid topological

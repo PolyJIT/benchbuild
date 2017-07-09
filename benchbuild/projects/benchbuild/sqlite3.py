@@ -3,7 +3,6 @@ from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.downloader import Wget, Git
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.run import run
-from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import local
 from benchbuild.utils.cmd import unzip, make
@@ -19,7 +18,7 @@ class SQLite3(BenchBuildGroup):
 
     src_dir = "sqlite-amalgamation-3080900"
     SRC_FILE = src_dir + ".zip"
-    
+
     src_uri = "http://www.sqlite.org/2015/" + SRC_FILE
 
     def download(self):

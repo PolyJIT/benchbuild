@@ -3,8 +3,6 @@ from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang_cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
-from benchbuild.utils.versions import get_version_from_cache_dir
-
 
 
 class Lulesh(BenchBuildGroup):
@@ -13,7 +11,6 @@ class Lulesh(BenchBuildGroup):
     NAME = 'lulesh'
     DOMAIN = 'scientific'
     SRC_FILE = 'LULESH.cc'
-    
 
     def run_tests(self, experiment, run):
         exp = wrap(self.run_f, experiment)

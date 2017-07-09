@@ -25,14 +25,13 @@ class BenchBuildTest(cli.Application):
 
     def get_check_line(self, name, module):
         from plumbum import local
-        from benchbuild.utils.compiler import llvm
         from benchbuild.utils.compiler import llvm_libs
         from benchbuild.utils.cmd import sed, opt
 
         with local.env(LD_LIBRARY_PATH=llvm_libs()):
             # Magic. ;-)
             ret, _, err = \
-                (opt[self.opt_flags()] << \
+                (opt[self.opt_flags()] <<
                     (sed[r"0,/\#0/s///"] << module)()).run(retcode=None)
             if not ret == 0:
                 print(("{0} is broken:".format(name)))

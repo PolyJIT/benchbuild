@@ -6,7 +6,7 @@ directories for benchbuild. No compilation & no run can be done with it.
 """
 
 from benchbuild.experiment import Experiment
-from benchbuild.utils.actions import Download, Configure, Build, MakeBuildDir, Clean
+from benchbuild.utils.actions import Download, Configure, MakeBuildDir, Clean
 
 
 class Empty(Experiment):

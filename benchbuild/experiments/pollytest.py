@@ -42,7 +42,7 @@ class PollyTest(Experiment):
 
         newp = copy.deepcopy(p)
         newp.run_uuid = uuid.uuid4()
-        newp.cflags = newp.cflags +  ["-O3", "-mllvm", "-polly"]
+        newp.cflags = newp.cflags + ["-O3", "-mllvm", "-polly"]
         cfg = {
             "cflags": "-O3 -polly"
         }
@@ -53,10 +53,10 @@ class PollyTest(Experiment):
 
         newp = copy.deepcopy(p)
         newp.run_uuid = uuid.uuid4()
-        newp.cflags = newp.cflags + \
-                      ["-O3", "-mllvm",
-                       "-polly", "-mllvm",
-                       "-polly-position=before-vectorizer"]
+        newp.cflags = newp.cflags + [
+           "-O3", "-mllvm",
+           "-polly", "-mllvm",
+           "-polly-position=before-vectorizer"]
         cfg = {
             "cflags": "-O3 -polly -polly-position=before-vectorizer"
         }
@@ -67,11 +67,11 @@ class PollyTest(Experiment):
 
         newp = copy.deepcopy(p)
         newp.run_uuid = uuid.uuid4()
-        newp.cflags = newp.cflags + \
-                      ["-O3", "-mllvm",
-                       "-polly", "-mllvm",
-                       "-polly-process-unprofitable",
-                       "-mllvm", "-polly-position=before-vectorizer"]
+        newp.cflags = newp.cflags + [
+           "-O3", "-mllvm",
+           "-polly", "-mllvm",
+           "-polly-process-unprofitable",
+           "-mllvm", "-polly-position=before-vectorizer"]
         cfg = {
             "cflags": "-O3 -polly -polly-position=before-vectorizer "
                       "-polly-process-unprofitable"
@@ -83,10 +83,10 @@ class PollyTest(Experiment):
 
         newp = copy.deepcopy(p)
         newp.run_uuid = uuid.uuid4()
-        newp.cflags = newp.cflags + \
-                      ["-O3", "-mllvm",
-                       "-polly", "-mllvm",
-                       "-polly-process-unprofitable"]
+        newp.cflags = newp.cflags + [
+           "-O3", "-mllvm",
+           "-polly", "-mllvm",
+           "-polly-process-unprofitable"]
         cfg = {
             "cflags": "-O3 -polly -polly-process-unprofitable"
         }

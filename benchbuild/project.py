@@ -5,7 +5,7 @@ from functools import partial
 from os import listdir, path
 
 from plumbum import local
-from typing import Callable, Iterable 
+from typing import Callable, Iterable
 
 import benchbuild.utils.run as ur
 from benchbuild.settings import CFG

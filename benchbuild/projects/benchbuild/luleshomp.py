@@ -4,7 +4,6 @@ from benchbuild.utils.compiler import lt_clang_cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.settings import CFG
-from benchbuild.utils.versions import get_version_from_cache_dir
 
 from os import path
 
@@ -15,7 +14,6 @@ class LuleshOMP(BenchBuildGroup):
     NAME = 'lulesh-omp'
     DOMAIN = 'scientific'
     SRC_FILE = 'LULESH_OMP.cc'
-    
 
     def run_tests(self, experiment, run):
         exp = wrap(self.run_f, experiment)

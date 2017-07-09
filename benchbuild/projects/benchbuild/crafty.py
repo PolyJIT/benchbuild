@@ -1,6 +1,6 @@
 from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from os import path
@@ -41,7 +41,6 @@ class Crafty(BenchBuildGroup):
             crafty_make = make["target=UNIX", "CC="+str(clang),
                                "opt="+" ".join(target_opts), "crafty-make"]
             run(crafty_make)
-
 
     def run_tests(self, experiment, run):
         with local.cwd(self.src_dir):

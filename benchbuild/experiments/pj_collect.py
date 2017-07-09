@@ -38,4 +38,3 @@ class PJITRegression(pj.PolyJIT):
         project.compiler_extension = partial(_track_compilestats,
                                              project, self, CFG)
         return self.default_compiletime_actions(project)
-

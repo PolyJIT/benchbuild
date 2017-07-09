@@ -9,8 +9,6 @@ from benchbuild.experiment import RuntimeExperiment
 from benchbuild.extensions import (ExtractCompileStats, RunWithTime,
                                    RuntimeExtension)
 from benchbuild.utils.actions import Step
-from benchbuild.settings import CFG
-from plumbum import local
 
 
 class Calibrate(Step):
@@ -32,7 +30,7 @@ class PapiScopCoverage(RuntimeExperiment):
         """Do the postprocessing, after all projects are done."""
         actions = super(PapiScopCoverage, self).actions()
 
-#FIXME: Still required?
+# FIXME: Still required?
 #        def run_pprof_analyze():
 #            from benchbuild.utils.cmd import pprof_analyze
 #

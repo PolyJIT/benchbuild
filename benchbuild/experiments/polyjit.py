@@ -201,15 +201,19 @@ class PolyJITFull(PolyJIT):
                 "recompilation": "disabled"
             }
 
+            pjit_extension = \
+                EnableJITDatabase(
+                    DisablePolyJIT(
+                        ext.SetThreadLimit(
+                            ext.RuntimeExtension(cp, self, config=cfg),
+                            config=cfg),
+                        project=cp),
+                    project=cp)
+
             cp.runtime_extension = \
                 ext.LogAdditionals(
                     RegisterPolyJITLogs(
-                        ext.RunWithTime(
-                            DisablePolyJIT(cp,
-                                ext.SetThreadLimit(
-                                    ext.RuntimeExtension(cp, self, config=cfg),
-                                    config=cfg
-                                )))))
+                        ext.RunWithTime(pjit_extension)))
             actns.append(RequireAll(self.default_runtime_actions(cp)))
 
         for i in range(2, int(str(CFG["jobs"])) + 1):
@@ -221,16 +225,19 @@ class PolyJITFull(PolyJIT):
                 "cores-config": str(i),
                 "recompilation": "enabled"
             }
+
+            pjit_extension = \
+                EnableJITDatabase(
+                    EnablePolyJIT(
+                        ext.SetThreadLimit(
+                            ext.RuntimeExtension(cp, self, config=cfg),
+                            config=cfg),
+                        project=cp),
+                    project=cp)
             cp.runtime_extension = \
                 ext.LogAdditionals(
                     RegisterPolyJITLogs(
-                        ext.RunWithTime(
-                            EnablePolyJIT(
-                                ext.SetThreadLimit(
-                                    ext.RuntimeExtension(cp, self, config=cfg),
-                                    config=cfg
-                                ),
-                                project = cp))))
+                        ext.RunWithTime(pjit_extension)))
             actns.append(RequireAll(self.default_runtime_actions(cp)))
 
         return [Any(actns)]

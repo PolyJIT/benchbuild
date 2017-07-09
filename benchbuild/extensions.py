@@ -47,6 +47,7 @@ class Extension(metaclass=ABCMeta):
     def __call__(self, *args, **kwargs):
         raise NotImplementedError("Must provide implementation in subclass")
 
+
 class RuntimeExtension(Extension):
     def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
@@ -190,7 +191,8 @@ class ExtractCompileStats(Extension):
 
             if stats:
                 for stat in stats:
-                    LOG.info(" %s.%s = %s" % (stat.name, stat.component, stat.value))
+                    LOG.info(" %s.%s = %s" %
+                             (stat.name, stat.component, stat.value))
                 persist_compilestats(run_info.db_run, run_info.session, stats)
             else:
                 LOG.info("No compilestats left, after filtering.")
@@ -202,6 +204,7 @@ class ExtractCompileStats(Extension):
         ret = self.call_next(cc, *args, **kwargs)
         ret.append(run_info)
         return ret
+
 
 class SetThreadLimit(Extension):
     def __init__(self, *extensions, config=None):

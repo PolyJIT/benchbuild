@@ -180,7 +180,7 @@ def filter_invalid_flags(item):
     ]
 
     prefix_list = ['-o', '-l', '-L']
-    result = not item in filter_list
+    result = item not in filter_list
     result = result and not any([item.startswith(x) for x in prefix_list])
     return result
 
@@ -202,7 +202,6 @@ def persist_sequence(run, sequence, fitness_val):
     session.commit()
 
 
-
 class SequenceReport(Report):
     """Handles the view of the sequences in the database."""
 
@@ -215,8 +214,6 @@ class SequenceReport(Report):
         ]).select_from(sa.table('sequences'))
 
     def report(self):
-        """Writes a report after getting the data out of the db with a query."""
-
         print("I found the following matching experiment ids")
         print(" \n".join([str(x) for x in self.experiment_ids]))
 
@@ -231,10 +228,11 @@ class SequenceReport(Report):
         for name, header, data in self.report():
             fname = os.path.basename(self.out_path)
 
-            with open("{prefix}_{name}{ending}".format(
+            fname = "{prefix}_{name}{ending}".format(
                 prefix=os.path.splitext(fname)[0],
                 ending=os.path.splitext(fname)[-1],
-                name=name), 'w') as csv_out:
+                name=name)
+            with open(fname, 'w') as csv_out:
                 print("Writing '{0}'".format(csv_out.name))
                 csv_writer = csv.writer(csv_out)
                 csv_writer.writerows([header])
@@ -249,15 +247,16 @@ class RunSequence(ext.ExtractCompileStats):
     def __call__(self, compiler, key, sequence, fitness_func, *args, **kwargs):
         local_compiler = compiler[sequence, "-polly-detect"]
         _, _, stderr = local_compiler.run(retcode=None)
-        stats = [s for s in self.get_compilestats(stderr) \
-                    if s['desc'] in [
-                        "Number of regions that a valid part of Scop",
-                        "The # of regions"
-                    ]]
+        stats = [s for s in self.get_compilestats(stderr)
+                 if s['desc'] in [
+                     "Number of regions that a valid part of Scop",
+                     "The # of regions"
+                 ]]
         scops = [s for s in stats if s['component'].strip() == 'polly-detect']
         regns = [s for s in stats if s['component'].strip() == 'region']
-        regns_not_in_scops = \
-            [fitness_func(r['value'], s['value']) for s, r in zip(scops, regns)]
+        regns_not_in_scops = [
+            fitness_func(r['value'], s['value']) for s, r in zip(scops, regns)
+        ]
 
         if regns_not_in_scops:
             return (key, regns_not_in_scops[0])
@@ -268,8 +267,7 @@ class RunSequence(ext.ExtractCompileStats):
 class FindFittestSequenceGenetic1(ext.RuntimeExtension):
     def __call__(self, cc, *args, **kwargs):
         """
-        Generates custom sequences for a provided application using the first of the
-        two genetic opt algorithms.
+        Generates custom sequences using the first genetic opt algorithms.
 
         Args:
             project: The name of the project the test is being run for.
@@ -290,7 +288,9 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
 
         def crossover(upper_half):
             """
-            Crossover of two genes and filling of the vacancies in the population by
+            Crossover of two genes.
+
+            This crosses two gense and fills the vacancies in the population by
             using two random chromosomes and recombine their halfs.
             """
             random1 = random.choice(upper_half)
@@ -305,11 +305,10 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
             return new_chromosomes
 
         def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
-            """Simulates the change of a population within a single generation."""
+            """Simulate the change of a population in a single generation."""
             # calculate the fitness value of each chromosome
-            with cf.ThreadPoolExecutor(
-                max_workers=CFG["jobs"].value() * 5) as pool:
-
+            jobs = CFG["jobs"].value() * 5
+            with cf.ThreadPoolExecutor(jobs) as pool:
                 future_to_fitness = extend_gene_future([], chromosomes, pool)
 
                 for future_fitness in cf.as_completed(future_to_fitness):
@@ -317,7 +316,8 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
                     old_fitness = seq_to_fitness.get(key, sys.maxsize)
                     seq_to_fitness[key] = min(old_fitness, int(fitness))
             # sort the chromosomes by their fitness value
-            chromosomes.sort(key=lambda c: seq_to_fitness[str(c)], reverse=True)
+            chromosomes.sort(key=lambda c: seq_to_fitness[str(c)],
+                             reverse=True)
 
             # divide the chromosome into two halves and delete the weakest one
             index_half = len(chromosomes) // 2
@@ -344,7 +344,6 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
 
             return chromosomes, fittest_chromosome
 
-
         def generate_random_gene_sequence(gene_pool):
             """Generates a random sequence of genes."""
             genes = []
@@ -353,7 +352,6 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
 
             return genes
 
-
         def extend_gene_future(future_to_fitness, chromosomes, pool):
             def fitness(lhs, rhs):
                 """Defines the fitnesses metric."""
@@ -361,11 +359,10 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
 
             future_to_fitness.extend(
                 [pool.submit(self.call_next, opt_cmd, str(chromosome),
-                             chromosome, fitness) \
+                             chromosome, fitness)
                     for chromosome in chromosomes]
             )
             return future_to_fitness
-
 
         def delete_duplicates(chromosomes, gene_pool):
             """Deletes duplicates in the chromosomes of the population."""
@@ -379,13 +376,13 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
 
             if diff > 0:
                 for _ in range(diff):
-                    chromosomes.append(generate_random_gene_sequence(gene_pool))
+                    chromosomes.append(
+                        generate_random_gene_sequence(gene_pool))
 
             for chromosome in new_chromosomes:
                 chromosomes.append(list(chromosome))
 
             return chromosomes
-
 
         def mutate(chromosomes, gene_pool, mutation_probability):
             """Performs mutation on chromosomes with a certain probability."""
@@ -416,15 +413,13 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
             chromosomes.append(generate_random_gene_sequence(gene_pool))
 
         for i in range(generations):
-            chromosomes, fittest_chromosome = simulate_generation(chromosomes,
-                                                                gene_pool,
-                                                                seq_to_fitness)
+            chromosomes, fittest_chromosome = simulate_generation(
+                chromosomes, gene_pool, seq_to_fitness)
             if i < generations - 1:
                 chromosomes = delete_duplicates(chromosomes, gene_pool)
 
-        persist_sequence(run_info,
-                        fittest_chromosome,
-                        seq_to_fitness[str(fittest_chromosome)])
+        persist_sequence(run_info, fittest_chromosome,
+                         seq_to_fitness[str(fittest_chromosome)])
 
 
 class Genetic1Sequence(PolyJIT):
@@ -447,7 +442,8 @@ class Genetic1Sequence(PolyJIT):
         cfg = {"jobs": int(CFG["jobs"].value())}
 
         project.compiler_extension = \
-            FindFittestSequenceGenetic1(project, self, 
+            FindFittestSequenceGenetic1(
+                project, self,
                 RunSequence(project, self, config=cfg),
                 config=cfg)
 
@@ -486,7 +482,7 @@ class FindFittestSequenceGenetic2(ext.RuntimeExtension):
             return genes
 
         def extend_gene_future(future_to_fitness, chromosomes, pool):
-            """Generate the future of the fitness values from the chromosomes."""
+            """Extend with future values from the chromosomes."""
             def fitness(lhs, rhs):
                 """Defines the fitnesses metric."""
                 return (lhs - rhs) / rhs
@@ -510,13 +506,13 @@ class FindFittestSequenceGenetic2(ext.RuntimeExtension):
 
             if diff > 0:
                 for _ in range(diff):
-                    chromosomes.append(generate_random_gene_sequence(gene_pool))
+                    chromosomes.append(
+                        generate_random_gene_sequence(gene_pool))
 
             for chromosome in new_chromosomes:
                 chromosomes.append(list(chromosome))
 
             return chromosomes
-
 
         def mutate(chromosomes, gene_pool, mutation_probability):
             """Performs mutation on chromosomes with a certain probability."""
@@ -536,7 +532,7 @@ class FindFittestSequenceGenetic2(ext.RuntimeExtension):
 
         def crossover(fittest_chromosome, best_chromosomes):
             """
-            Crossover of two genes and filling of the vacancies in the population by
+            Crossover two genes and fill the vacancies in the population by
             taking two of the fittest chromosomes and recombining them.
             """
             new_chromosomes = []
@@ -548,20 +544,22 @@ class FindFittestSequenceGenetic2(ext.RuntimeExtension):
                 best2 = random.choice(best_chromosomes)
                 new_chromosomes.append(best1[:half_index] + best2[half_index:])
                 if len(new_chromosomes) < num_of_new:
-                    new_chromosomes.append(best1[half_index:] + best2[:half_index])
+                    new_chromosomes.append(
+                        best1[half_index:] + best2[:half_index])
                 if len(new_chromosomes) < num_of_new:
-                    new_chromosomes.append(best2[:half_index] + best1[half_index:])
+                    new_chromosomes.append(
+                        best2[:half_index] + best1[half_index:])
                 if len(new_chromosomes) < num_of_new:
-                    new_chromosomes.append(best2[half_index:] + best1[:half_index])
+                    new_chromosomes.append(
+                        best2[half_index:] + best1[:half_index])
 
             return new_chromosomes
 
         def simulate_generation(chromosomes, gene_pool, seq_to_fitness):
-            """Simulates the change of a population within a single generation."""
+            """Simulate the change of a population in a single generation."""
             # calculate the fitness value of each chromosome
-            with cf.ThreadPoolExecutor(
-                max_workers=CFG["jobs"].value() * 5) as pool:
-
+            jobs = CFG["jobs"].value() * 5
+            with cf.ThreadPoolExecutor(jobs) as pool:
                 future_to_fitness = extend_gene_future([], chromosomes, pool)
 
                 for future_fitness in cf.as_completed(future_to_fitness):
@@ -569,7 +567,8 @@ class FindFittestSequenceGenetic2(ext.RuntimeExtension):
                     old_fitness = seq_to_fitness.get(key, sys.maxsize)
                     seq_to_fitness[key] = min(old_fitness, int(fitness))
             # sort the chromosomes by their fitness value
-            chromosomes.sort(key=lambda c: seq_to_fitness[str(c)], reverse=True)
+            chromosomes.sort(key=lambda c: seq_to_fitness[str(c)],
+                             reverse=True)
 
             # best 10% of chromosomes survive without change
             num_best = len(chromosomes) // 10
@@ -631,9 +630,9 @@ class Genetic2Sequence(PolyJIT):
         p.cflags = ["-mllvm", "-stats"]
         cfg = {"jobs": int(CFG["jobs"].value())}
 
-
         p.compiler_extension = \
-            FindFittestSequenceGenetic2(p, self,
+            FindFittestSequenceGenetic2(
+                p, self,
                 RunSequence(p, self, config=cfg),
                 config=cfg)
 
@@ -762,7 +761,8 @@ class HillclimberSequences(PolyJIT):
         cfg = {'jobs': int(CFG["jobs"].value())}
 
         project.compiler_extension = \
-            FindFittestSequenceHillclimber(project, self,
+            FindFittestSequenceHillclimber(
+                project, self,
                 RunSequence(project, self, config=cfg),
                 config=cfg)
         return HillclimberSequences.default_compiletime_actions(project)
@@ -799,26 +799,25 @@ class FindFittestSequenceGreedy(ext.RuntimeExtension):
 
         def create_greedy_sequences():
             """
-            Generate the sequences, starting from a base_sequence, then calculate
-            their fitnesses and add the fittest one.
+            Create an optimal sequence, using a greedy algorithm.
 
             Return: A list of the fittest generated sequences.
             """
-            with cf.ThreadPoolExecutor(
-                max_workers=CFG["jobs"].value() * 5) as pool:
 
+            jobs = CFG["jobs"].value() * 5
+            with cf.ThreadPoolExecutor(max_workers=jobs) as pool:
                 for _ in range(iterations):
                     base_sequence = []
                     while len(base_sequence) < seq_length:
                         future_to_fitness, sequences = \
                             extend_future(base_sequence, pool)
 
-                        for future_fitness in cf.as_completed(future_to_fitness):
+                        for future_fitness in cf.as_completed(
+                                future_to_fitness):
                             key, fitness = future_fitness.result()
                             old_fitness = seq_to_fitness.get(key, sys.maxsize)
                             seq_to_fitness[key] = min(old_fitness, fitness)
 
-                        # sort the sequences by their fitness in ascending order
                         sequences.sort(key=lambda s: seq_to_fitness[str(s)],
                                        reverse=True)
 

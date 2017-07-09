@@ -4,7 +4,6 @@ from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Svn
 from benchbuild.utils.run import run
-from benchbuild.utils.versions import get_version_from_cache_dir
 
 from plumbum import local
 from benchbuild.utils.cmd import make
@@ -14,7 +13,6 @@ class SDCC(BenchBuildGroup):
     NAME = 'sdcc'
     DOMAIN = 'compilation'
     SRC_FILE = 'sdcc'
-    
 
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + SRC_FILE
 

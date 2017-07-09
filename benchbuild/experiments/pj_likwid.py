@@ -1,6 +1,5 @@
 import copy
 import plumbum as pb
-import os
 import uuid
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
@@ -29,7 +28,6 @@ class RunWithLikwid(ext.RuntimeExtension):
     """
 
     def __call__(self, binary_command, *args, may_wrap=True, **kwargs):
-        from benchbuild.settings import CFG
         from benchbuild.utils.db import persist_likwid, persist_config
         from benchbuild.likwid import get_likwid_perfctr
         from benchbuild.utils.cmd import rm

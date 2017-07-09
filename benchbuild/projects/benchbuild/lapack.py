@@ -6,7 +6,6 @@ from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
 from plumbum import local
 from benchbuild.utils.cmd import make, tar
-from benchbuild.utils.versions import get_version_from_cache_dir
 
 from os import path
 import logging
@@ -16,7 +15,6 @@ class OpenBlas(BenchBuildGroup):
     NAME = 'openblas'
     DOMAIN = 'scientific'
     SRC_FILE = 'OpenBLAS'
-
 
     src_uri = "https://github.com/xianyi/" + SRC_FILE
 

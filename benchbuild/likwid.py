@@ -98,7 +98,8 @@ def read_structs(fstream):
         fstream: Likwid's output file stream.
 
     Returns:
-        A generator that can be used to iterate over all structs in the fstream.
+        A generator that can be used to iterate over all structs in the
+        fstream.
     """
     struct = read_struct(fstream)
     while struct is not None:

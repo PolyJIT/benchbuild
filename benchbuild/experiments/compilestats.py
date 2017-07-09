@@ -9,6 +9,7 @@ by llvm.
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.extensions import ExtractCompileStats
 
+
 class CompilestatsExperiment(RuntimeExperiment):
     """The compilestats experiment."""
 
@@ -17,6 +18,7 @@ class CompilestatsExperiment(RuntimeExperiment):
     def actions_for_project(self, p):
         p.compiler_extension = ExtractCompileStats(p, self)
         return CompilestatsExperiment.default_compiletime_actions(p)
+
 
 
 class PollyCompilestatsExperiment(RuntimeExperiment):

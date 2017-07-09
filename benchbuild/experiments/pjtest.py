@@ -71,7 +71,6 @@ class Test(PolyJIT):
                     project=p),
                 project=p)
 
-
         p.runtime_extension = \
             ext.LogAdditionals(
                 pj.RegisterPolyJITLogs(
@@ -81,7 +80,12 @@ class Test(PolyJIT):
 
 class StatusReport(Report):
 
-    SUPPORTED_EXPERIMENTS = ["pj-test", "pj-seq-test", "raw", "pj", "pj-raw", "pollytest"]
+    SUPPORTED_EXPERIMENTS = ["pj-test",
+                             "pj-seq-test",
+                             "raw",
+                             "pj",
+                             "pj-raw",
+                             "pollytest"]
     QUERY_STATUS = \
         sa.sql.select([
             sa.column('name'),
@@ -107,10 +111,11 @@ class StatusReport(Report):
         for name, header, data in self.report():
             fname = os.path.basename(self.out_path)
 
-            with open("{prefix}_{name}{ending}".format(
+            fname = "{prefix}_{name}{ending}".format(
                 prefix=os.path.splitext(fname)[0],
                 ending=os.path.splitext(fname)[-1],
-                name=name), 'w') as csv_out:
+                name=name)
+            with open(fname, 'w') as csv_out:
                 print("Writing '{0}'".format(csv_out.name))
                 csv_writer = csv.writer(csv_out)
                 csv_writer.writerows([header])
@@ -176,7 +181,8 @@ class TestReport(Report):
                 'scops_0', 'scops_1',
                 't_0', 'o_0', 't_1', 'o_1'),
                self.session.execute(qry).fetchall())
-        qry = TestReport.QUERY_REGION.unique_params(exp_ids=self.experiment_ids)
+        qry = TestReport.QUERY_REGION.unique_params(
+            exp_ids=self.experiment_ids)
         yield ("regions",
                ('project', 'region', 'cores', 'T_Polly', 'T_PolyJIT',
                 'speedup'),
@@ -186,10 +192,11 @@ class TestReport(Report):
         for name, header, data in self.report():
             fname = os.path.basename(self.out_path)
 
-            with open("{prefix}_{name}{ending}".format(
+            fname = "{prefix}_{name}{ending}".format(
                 prefix=os.path.splitext(fname)[0],
                 ending=os.path.splitext(fname)[-1],
-                name=name), 'w') as csv_out:
+                name=name)
+            with open(fname, 'w') as csv_out:
                 print("Writing '{0}'".format(csv_out.name))
                 csv_writer = csv.writer(csv_out)
                 csv_writer.writerows([header])

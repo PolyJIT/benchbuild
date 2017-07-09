@@ -3,7 +3,6 @@ This Test will run through benchbuild's execution pipeline.
 """
 import os
 import unittest
-from contextlib import contextmanager
 from benchbuild.utils import cmd
 
 

@@ -2,13 +2,12 @@
 Generic experiment to test portage packages within gentoo chroot.
 """
 import logging
-import os
 from benchbuild.projects.gentoo import autoportage
 from benchbuild.utils.run import run, uchroot_no_args
 from benchbuild.utils.container import Gentoo
 from plumbum import local, ProcessExecutionError
 
-#pylint: disable=too-few-public-methods
+
 class FuncClass(object):
 
     """

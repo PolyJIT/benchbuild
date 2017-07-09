@@ -28,7 +28,7 @@ import dill
 
 from plumbum import local
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import mv, chmod, rm
+from benchbuild.utils.cmd import mv, chmod
 from benchbuild.utils.path import list_to_path, template_str
 from benchbuild.utils.run import run, uchroot_no_llvm as uchroot
 

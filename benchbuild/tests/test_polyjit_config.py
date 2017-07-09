@@ -2,8 +2,8 @@
 Test the PolyJITConfig objects.
 """
 import unittest
-from benchbuild.utils.dict import extend_as_list
 from benchbuild.experiments.polyjit import EnablePolyJIT, DisablePolyJIT
+
 
 class DictTestCase(unittest.TestCase):
 

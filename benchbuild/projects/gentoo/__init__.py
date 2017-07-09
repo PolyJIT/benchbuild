@@ -19,7 +19,8 @@ from . import info
 from . import eix
 
 from benchbuild.settings import CFG
-# Dynamically create projects from the gentoo ebuild index.
+
+
 def __initialize_dynamic_projects__(autotest_path):
     import os
     import logging

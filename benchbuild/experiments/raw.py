@@ -18,6 +18,7 @@ Measurements
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.extensions import RunWithTime, RuntimeExtension
 
+
 class RawRuntime(RuntimeExperiment):
     """The polyjit experiment."""
 

@@ -21,6 +21,7 @@ from benchbuild.utils.dict import ExtensibleDict, extend_as_list
 
 LOG = logging.getLogger(__name__)
 
+
 def verbosity_to_polyjit_log_level(verbosity: int):
     polyjit_log_levels = {
         0: "off",
@@ -31,6 +32,7 @@ def verbosity_to_polyjit_log_level(verbosity: int):
         5: "trace"
     }
     return polyjit_log_levels[verbosity]
+
 
 class PolyJITConfig(object):
     __config = ExtensibleDict(extend_as_list)
@@ -51,7 +53,8 @@ class PolyJITConfig(object):
 
 class EnableJITDatabase(PolyJITConfig, ext.Extension):
     def __init__(self, *args, project=None, experiment=None, **kwargs):
-        super(EnableJITDatabase, self).__init__(*args, project=project, **kwargs)
+        super(EnableJITDatabase, self).__init__(*args,
+                                                project=project, **kwargs)
         self.project = project
 
     def __call__(self, binary_command, *args, **kwargs):
@@ -78,10 +81,12 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
                 "-polli-db-run-group=%s" % self.project.run_uuid
             ])
         else:
-            LOG.error("Project was not set. Database activation will be invalid.")
+            LOG.error("Project was not set."
+                      " Database activation will be invalid.")
 
         with self.argv(PJIT_ARGS=pjit_args):
             return self.call_next(binary_command, *args, **kwargs)
+
 
 class EnablePolyJIT(PolyJITConfig, ext.Extension):
     def __call__(self, binary_command, *args, **kwargs):
@@ -98,6 +103,7 @@ class DisablePolyJIT(PolyJITConfig, ext.Extension):
             with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
                 ret = self.call_next(binary_command, *args, **kwargs)
         return ret
+
 
 class RegisterPolyJITLogs(PolyJITConfig, ext.LogTrackingMixin, ext.Extension):
     def __call__(self, *args, **kwargs):

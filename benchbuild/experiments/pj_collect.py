@@ -1,4 +1,3 @@
-import copy
 from functools import partial
 
 import benchbuild.experiments.polyjit as pj

@@ -40,7 +40,6 @@ BASE = declarative_base()
 LOG = logging.getLogger(__name__)
 
 
-"""Source: http://docs.sqlalchemy.org/en/rel_0_9/core/custom_types.html?highlight=guid#backend-agnostic-guid-type"""
 class GUID(TypeDecorator):
     """Platform-independent GUID type.
 
@@ -82,7 +81,6 @@ class GUID(TypeDecorator):
         else:
             return uuid.UUID(value)
 
-"""Source: http://docs.sqlalchemy.org/en/rel_0_9/core/custom_types.html?highlight=guid#backend-agnostic-guid-type"""
 
 class Run(BASE):
     """Store a run for each executed test binary."""
@@ -180,10 +178,7 @@ class Sequence(BASE):
 
     __tablename__ = 'sequences'
 
-    #the sequence that offers the best fitness value
     name = Column(String, primary_key=False, index=True, nullable=False)
-
-    #the fitness value of the sequence
     value = Column(Float)
 
     run_id = Column(Integer,
@@ -243,6 +238,7 @@ class Event(BASE):
                     index=True,
                     primary_key=True)
 
+
 class PerfEvent(BASE):
     """Store PAPI profiling based events."""
 
@@ -261,6 +257,7 @@ class PerfEvent(BASE):
                     nullable=False,
                     index=True,
                     primary_key=True)
+
 
 class Project(BASE):
     """Store project metadata."""
@@ -403,6 +400,7 @@ class RegressionTest(BASE):
     module = Column(String)
     project_name = Column(String)
 
+
 class SessionManager(object):
     def __init__(self):
         self.__test_mode = CFG['db']['rollback'].value()
@@ -464,4 +462,3 @@ def init_functions(connection):
         LOG.info(func.compile())
         connection.execute(func)
         connection.commit()
-

@@ -1,6 +1,7 @@
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
 
+
 class Compilestats(pj.PolyJIT):
     """Gather compilestats, with enabled JIT."""
 

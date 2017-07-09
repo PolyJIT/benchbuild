@@ -6,6 +6,7 @@ from benchbuild.utils.cmd import unzip, make
 from benchbuild.utils.run import run
 from os import path
 
+
 class SciMark(ApolloGroup):
     """SciMark"""
 

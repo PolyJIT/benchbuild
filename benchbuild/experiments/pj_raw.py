@@ -3,6 +3,7 @@ import uuid
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
 
+
 class PJITRaw(pj.PolyJIT):
     """
     An experiment that executes all projects with PolyJIT support.

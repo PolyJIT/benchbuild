@@ -1,5 +1,4 @@
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from benchbuild.utils.run import run
 
 from plumbum import FG, local
 from benchbuild.utils.cmd import cp, echo, chmod

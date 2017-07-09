@@ -6,7 +6,6 @@ from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, CopyNoFail
-from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap_dynamic
 
 from plumbum import local

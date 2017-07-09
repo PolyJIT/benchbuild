@@ -486,6 +486,7 @@ def in_builddir(sub='.'):
 
     return wrap_in_builddir
 
+
 def unionfs_set_up(ro_base, rw_image, mountpoint):
     """
     Setup a unionfs via unionfs-fuse.
@@ -512,9 +513,9 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
     return unionfs["-f", "-o", "auto_unmount,allow_other,cow",
                    rw_image + "=RW:" + ro_base + "=RO", mountpoint]
 
+
 def unionfs_is_active(root):
     import psutil
-    from benchbuild.utils.cmd import sleep
 
     real_root = os.path.realpath(root)
     for part in psutil.disk_partitions(all=True):
@@ -523,8 +524,10 @@ def unionfs_is_active(root):
                 return True
     return False
 
+
 class UnmountError(BaseException):
     pass
+
 
 def unionfs(base_dir='./base',
             image_dir='./image',

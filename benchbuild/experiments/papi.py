@@ -32,18 +32,19 @@ class PapiScopCoverage(RuntimeExperiment):
         """Do the postprocessing, after all projects are done."""
         actions = super(PapiScopCoverage, self).actions()
 
-        def run_pprof_analyze():
-            from benchbuild.utils.cmd import pprof_analyze
-
-            with local.env(BB_EXPERIMENT=self.name,
-                           BB_USE_DATABASE=1,
-                           BB_USE_FILE=0,
-                           BB_USE_CSV=0):
-                pprof_analyze()
-
-        actions.extend([
-            Analyze(self, run_pprof_analyze),
-        ])
+#FIXME: Still required?
+#        def run_pprof_analyze():
+#            from benchbuild.utils.cmd import pprof_analyze
+#
+#            with local.env(BB_EXPERIMENT=self.name,
+#                           BB_USE_DATABASE=1,
+#                           BB_USE_FILE=0,
+#                           BB_USE_CSV=0):
+#                pprof_analyze()
+#
+#        actions.extend([
+#            Analyze(self, run_pprof_analyze),
+#        ])
 
         return actions
 
@@ -70,7 +71,6 @@ class PapiScopCoverage(RuntimeExperiment):
             papi_calibration = e.get_papi_calibration(p, pprof_calibrate)
             e.persist_calibration(p, pprof_calibrate, papi_calibration)
 
-
         actns = self.default_runtime_actions(p)
         actns.append(Calibrate(self, evaluate_calibration))
         return self.default_runtime_actions(p)
@@ -88,7 +88,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
         This experiment uses the -jitable flag of libPolyJIT to generate
         dynamic SCoP coverage.
         """
-        p.ldflags = p.ldflags + ["-lpjit", "-lbenchbuild", "-lpapi"]
+        p.ldflags = p.ldflags + ["-lpjit", "-lpprof", "-lpapi"]
         p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                     "-mllvm", "-polli",
                     "-mllvm", "-polli-instrument",
@@ -103,7 +103,6 @@ class PapiStandardScopCoverage(PapiScopCoverage):
             from benchbuild.utils.cmd import pprof_calibrate
             papi_calibration = e.get_papi_calibration(p, pprof_calibrate)
             e.persist_calibration(p, pprof_calibrate, papi_calibration)
-
 
         actns = self.default_runtime_actions(p)
         actns.append(Calibrate(self, evaluate_calibration))

@@ -38,12 +38,14 @@ def run_with_papi(project, experiment, config, jobs, run_f, args, **kwargs):
     run_cmd = local[run_f]
     run_cmd = handle_stdin(run_cmd[args], kwargs)
 
+    run_info = None
     with local.env(OMP_NUM_THREADS=jobs):
         with track_execution(run_cmd, project, experiment) as run:
             run_info = run()
 
     persist_config(run_info.db_run, run_info.session,
                    {"cores": str(jobs)})
+    return run_info
 
 
 class PJITpapi(pj.PolyJIT):
@@ -59,35 +61,36 @@ class PJITpapi(pj.PolyJIT):
 
     NAME = "pj-papi"
 
-    def actions(self):
-        """Do the postprocessing, after all projects are done."""
-        actions = super(PJITpapi, self).actions()
-        from benchbuild.utils.actions import Step
+    #FIXME: Check, if pporf_analyze is actually needed anymore.
+    #def actions(self):
+    #    """Do the postprocessing, after all projects are done."""
+    #    actions = super(PJITpapi, self).actions()
+    #    from benchbuild.utils.actions import Step
 
-        class Analyze(Step):
-            NAME = "ANALYZE"
-            DESCRIPTION = "Analyze the experiment after completion."
+    #    class Analyze(Step):
+    #        NAME = "ANALYZE"
+    #        DESCRIPTION = "Analyze the experiment after completion."
 
-        def run_pprof_analyze():
-            from benchbuild.utils.cmd import pprof_analyze
+    #    def run_pprof_analyze():
+    #        from benchbuild.utils.cmd import pprof_analyze
 
-            with local.env(BB_EXPERIMENT=self.name,
-                           BB_USE_DATABASE=1,
-                           BB_USE_FILE=0,
-                           BB_USE_CSV=0):
-                pprof_analyze()
+    #        with local.env(BB_EXPERIMENT=self.name,
+    #                       BB_USE_DATABASE=1,
+    #                       BB_USE_FILE=0,
+    #                       BB_USE_CSV=0):
+    #            pprof_analyze()
 
-        actions.append(
-            Analyze(self, run_pprof_analyze)
-        )
+    #    actions.append(
+    #        Analyze(self, run_pprof_analyze)
+    #    )
 
-        return actions
+    #    return actions
 
     def actions_for_project(self, p):
         from benchbuild.settings import CFG
 
         p = pj.PolyJIT.init_project(p)
-        p.cflags = ["-mllvm", "-instrument"] + p.cflags
+        p.cflags = ["-mllvm", "-polli-instrument"] + p.cflags
         p.ldflags = p.ldflags + ["-lpprof"]
 
         actns = []

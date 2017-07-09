@@ -117,7 +117,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
             self.id = cfg_exps[self.name]
         else:
             self.id = str(uuid.uuid4())
-            cfg_exps[self.name]  = self.id
+            cfg_exps[self.name] = self.id
             CFG["experiments"] = cfg_exps
         self.populate_projects(projects, group)
 

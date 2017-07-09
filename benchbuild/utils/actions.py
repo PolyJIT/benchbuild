@@ -1,33 +1,34 @@
 """
 This defines classes that can be used to implement a series of Actions.
 """
+import abc
+import enum
+import functools as ft
+import logging
+import os
+import sys
+import textwrap
+import traceback
+
 from benchbuild.settings import CFG
 from benchbuild.utils.db import persist_experiment
 
-from plumbum import local
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from plumbum import ProcessExecutionError
-from functools import partial, wraps
 from datetime import datetime
-from logging import error
-import os
-import logging
-import sys
-import traceback
-import warnings
-import textwrap
-from abc import ABCMeta
-from enum import Enum, unique
 
 
-@unique
-class StepResult(Enum):
+LOG = logging.getLogger("benchbuild.steps")
+
+
+@enum.unique
+class StepResult(enum.Enum):
     OK = 1,
     ERROR = 2
 
 
 def to_step_result(f):
-    @wraps(f)
+    @ft.wraps(f)
     def wrapper(*args, **kwargs):
         res = f(*args, **kwargs)
         if not res:
@@ -38,17 +39,15 @@ def to_step_result(f):
 
 
 def log_before_after(name, desc):
-    _log = logging.getLogger(name='benchbuild.steps')
-
     def func_decorator(f):
-        @wraps(f)
+        @ft.wraps(f)
         def wrapper(*args, **kwargs):
-            _log.info("\n{} - {}".format(name, desc))
+            LOG.info("\n{} - {}".format(name, desc))
             res = f(*args, **kwargs)
             if res == StepResult.OK:
-                _log.info("{} - OK\n".format(name))
+                LOG.info("{} - OK\n".format(name))
             else:
-                _log.error("{} - ERROR\n".format(name))
+                LOG.error("{} - ERROR\n".format(name))
             return res
 
         return wrapper
@@ -56,9 +55,9 @@ def log_before_after(name, desc):
     return func_decorator
 
 
-class StepClass(ABCMeta):
+class StepClass(abc.ABCMeta):
     def __new__(metacls, name, bases, namespace, **kwds):
-        result = ABCMeta.__new__(metacls, name, bases, dict(namespace))
+        result = abc.ABCMeta.__new__(metacls, name, bases, dict(namespace))
 
         NAME = result.NAME
         DESCRIPTION = result.DESCRIPTION
@@ -100,7 +99,8 @@ class Clean(Step):
     NAME = "CLEAN"
     DESCRIPTION = "Cleans the build directory"
 
-    def __init__(self, project_or_experiment, action_fn=None, check_empty=False):
+    def __init__(self, project_or_experiment,
+                 action_fn=None, check_empty=False):
         super(Clean, self).__init__(project_or_experiment, action_fn)
         self.check_empty = check_empty
 
@@ -109,7 +109,8 @@ class Clean(Step):
         Unmount any remaining mountpoints under :root.
 
         Args:
-            root: All UnionFS-mountpoints under this directory will be unmounted.
+            root: All UnionFS-mountpoints under this directory will be
+                  unmounted.
         """
         import psutil
         umount_paths = []
@@ -121,7 +122,6 @@ class Clean(Step):
                         "NON-UnionFS mountpoint found under {0}".format(root))
                 else:
                     umount_paths.append(part.mountpoint)
-
 
     def __call__(self):
         if not CFG['clean'].value():
@@ -210,7 +210,7 @@ class Run(Step):
     DESCRIPTION = "Execute the run action"
 
     def __init__(self, project):
-        action_fn = partial(project.run, project.runtime_extension)
+        action_fn = ft.partial(project.run, project.runtime_extension)
         super(Run, self).__init__(project, action_fn)
 
     def __call__(self):
@@ -250,7 +250,7 @@ class Any(Step):
 
     def __init__(self, actions):
         self._actions = actions
-        self._exlog = logging.getLogger('benchbuild')
+        LOG = logging.getLogger('benchbuild')
         super(Any, self).__init__(None, None)
 
     def __len__(self):
@@ -263,7 +263,7 @@ class Any(Step):
             result = a()
             cnt = cnt + 1
             if result == StepResult.ERROR:
-                self._exlog.warn("{0} actions left in queue".format(
+                LOG.warn("{0} actions left in queue".format(
                     length - cnt))
         return StepResult.OK
 
@@ -311,12 +311,13 @@ class Experiment(Any):
             for a in self._actions:
                 result = a()
         except KeyboardInterrupt:
-            error("User requested termination.")
+            result = StepResult.ERROR
+            LOG.error("User requested termination.")
         except Exception:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            formatted = "".join(traceback.format_exception(exc_type, exc_value,
-                                                           exc_traceback))
-            warnings.warn(formatted, category=RuntimeWarning)
+            e_type, e_value, e_traceb = sys.exc_info()
+            lines = traceback.format_exception(e_type, e_value, e_traceb)
+            result = StepResult.ERROR
+            LOG.error("".join(lines))
             print("Shutting down...")
         finally:
             self.end_transaction(experiment, session)
@@ -334,7 +335,6 @@ class Experiment(Any):
 class RequireAll(Step):
     def __init__(self, actions):
         self._actions = actions
-        self._exlog = logging.getLogger('benchbuild')
         super(RequireAll, self).__init__(None, None)
 
     def __len__(self):
@@ -345,20 +345,19 @@ class RequireAll(Step):
             try:
                 result = action()
             except ProcessExecutionError as proc_ex:
-                self._exlog.error("\n==== ERROR ====")
-                self._exlog.error(
+                LOG.error("\n==== ERROR ====")
+                LOG.error(
                     "Execution of a binary failed in step: {0}".format(
                         str(action)))
-                self._exlog.error(str(proc_ex))
-                self._exlog.error("==== ERROR ====\n")
+                LOG.error(str(proc_ex))
+                LOG.error("==== ERROR ====\n")
                 result = StepResult.ERROR
             except (OSError) as os_ex:
-                self._exlog.exception("Exception in step #{0}: {1}".format(
-                    i, action))
+                LOG.error("Exception in step #{0}: {1}".format(i, action))
                 result = StepResult.ERROR
 
             if result != StepResult.OK:
-                self._exlog.error("Execution of #{0}: '{1}' failed.".format(
+                LOG.error("Execution of #{0}: '{1}' failed.".format(
                     i, str(action)))
                 action.onerror()
                 return result

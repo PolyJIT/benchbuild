@@ -33,7 +33,7 @@ LOG_DICT = {
         }
     },
     "loggers": {
-        "benchbuild": {},
+        "benchbuild": {'propagate': False},
         "plumbum.local": {'level': 'DEBUG',
                           'handlers': ['plumbum'],
                           'propagate': False},

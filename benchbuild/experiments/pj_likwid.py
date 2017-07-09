@@ -1,4 +1,6 @@
 import copy
+import plumbum as pb
+import os
 import uuid
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
@@ -31,32 +33,33 @@ class RunWithLikwid(ext.RuntimeExtension):
         from benchbuild.utils.db import persist_likwid, persist_config
         from benchbuild.likwid import get_likwid_perfctr
         from benchbuild.utils.cmd import rm
+        from benchbuild.utils.cmd import likwid_perfctr
 
         self.project.name = kwargs.get("project_name", self.project.name)
 
         likwid_f = self.project.name + ".txt"
-        likwid_path = os.path.join(CFG["likwiddir"], "bin")
-        likwid_perfctr = local[os.path.join(likwid_path, "likwid-perfctr")]
 
         jobs = self.config['jobs']
+        res = []
         for group in ["CLOCK"]:
             run_cmd = \
                 likwid_perfctr["-O", "-o", likwid_f, "-m",
                                "-C", "0-{0:d}".format(jobs),
                                "-g", group, binary_command]
 
-            res = []
-            with local.env(POLLI_ENABLE_LIKWID=1):
-                res = self.call_next(run_cmd, *args, **kwargs)
+            with pb.local.env(POLLI_ENABLE_LIKWID=1):
+                res.extend(self.call_next(run_cmd, *args, **kwargs))
 
             likwid_measurement = get_likwid_perfctr(likwid_f)
             for run_info in res:
-                persist_likwid(run_info.db_run, run_info.session, likwid_measurement)
+                persist_likwid(run_info.db_run, run_info.session,
+                               likwid_measurement)
                 persist_config(run_info.db_run, run_info.session, {
                     "cores": str(jobs),
                     "likwid.group": group
                 })
             rm("-f", likwid_f)
+        return res
 
 
 class PJITlikwid(pj.PolyJIT):
@@ -89,4 +92,3 @@ class PJITlikwid(pj.PolyJIT):
 
             actns.append(RequireAll(self.default_runtime_actions(cp)))
         return actns
-

@@ -11,7 +11,8 @@ dependencies for your experiments. Make sure you update the hash alongside
 the gentoo image in benchbuild's source directory.
 
 """
-from os import path
+import os
+
 from benchbuild.utils.cmd import cp  # pylint: disable=E0401
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild import project
@@ -38,7 +39,8 @@ class GentooGroup(project.Project):
 
     def download(self):
         if not CFG["unionfs"]["enable"].value():
-            container.unpack_container(project.Project.CONTAINER, self.builddir)
+            container.unpack_container(
+                project.Project.CONTAINER, self.builddir)
 
     def write_wgetrc(self, path):
         mkfile_uchroot("/etc/wgetrc")
@@ -129,25 +131,25 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
 
         config_file = CFG["config_file"].value()
 
-        if path.exists(str(config_file)):
-            with open("log.file", 'w') as outf:
-                paths, libs = \
-                        uchroot_env(
-                            uchroot_mounts("mnt",
-                                CFG["container"]["mounts"].value()))
-                UCHROOT_CFG = CFG
-                UCHROOT_CFG["plugins"]["projects"] = []
-                UCHROOT_CFG["env"]["compiler_path"] = paths
-                UCHROOT_CFG["env"]["compiler_ld_library_path"] = libs
+        if os.path.exists(str(config_file)):
+            paths, libs = \
+                    uchroot_env(
+                        uchroot_mounts(
+                            "mnt",
+                            CFG["container"]["mounts"].value()))
+            UCHROOT_CFG = CFG
+            UCHROOT_CFG["plugins"]["projects"] = []
+            UCHROOT_CFG["env"]["compiler_path"] = paths
+            UCHROOT_CFG["env"]["compiler_ld_library_path"] = libs
 
-                UCHROOT_CFG["env"]["binary_path"] = paths
-                UCHROOT_CFG["env"]["binary_ld_library_path"] = libs
+            UCHROOT_CFG["env"]["binary_path"] = paths
+            UCHROOT_CFG["env"]["binary_ld_library_path"] = libs
 
-                UCHROOT_CFG["env"]["lookup_path"] = paths
-                UCHROOT_CFG["env"]["lookup_ld_library_path"] = libs
+            UCHROOT_CFG["env"]["lookup_path"] = paths
+            UCHROOT_CFG["env"]["lookup_ld_library_path"] = libs
 
-                mkfile_uchroot("/.benchbuild.json")
-                UCHROOT_CFG.store(".benchbuild.json")
+            mkfile_uchroot("/.benchbuild.json")
+            UCHROOT_CFG.store(".benchbuild.json")
 
         wrap_cc_in_uchroot(self.cflags, self.ldflags, self.compiler_extension)
         wrap_cxx_in_uchroot(self.cflags, self.ldflags, self.compiler_extension)

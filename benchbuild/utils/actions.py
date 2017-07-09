@@ -349,11 +349,11 @@ class RequireAll(Step):
                 LOG.error("==== ERROR ====\n")
                 result = StepResult.ERROR
             except (OSError) as os_ex:
-                LOG.error("Exception in step #%d: %s", (i, str(action)))
+                LOG.error("Exception in step #%d: %s", i, str(action))
                 result = StepResult.ERROR
 
             if result != StepResult.OK:
-                LOG.error("Execution of #%d: '%s' failed.", (i, str(action)))
+                LOG.error("Execution of #%d: '%s' failed.", i, str(action))
                 action.onerror()
                 return result
 

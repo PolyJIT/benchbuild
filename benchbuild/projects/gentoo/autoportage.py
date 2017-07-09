@@ -20,6 +20,6 @@ class AutoPortage(GentooGroup):
                              retcode=None)
         run(emerge_in_chroot[prog])
 
-    def run_tests(self, _):
+    def run_tests(self, *args, **kwargs):
         log = logging.getLogger('benchbuild')
         log.warn('Not implemented')

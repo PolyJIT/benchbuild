@@ -46,32 +46,33 @@ class PapiScopCoverage(RuntimeExperiment):
 
         return actions
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         """
         Create & Run a papi-instrumented version of the project.
 
         This experiment uses the -jitable flag of libPolyJIT to generate
         dynamic SCoP coverage.
         """
-        p.ldflags = p.ldflags + ["-lpjit", "-lpprof", "-lpapi"]
-        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polli",
-                    "-mllvm", "-polli-instrument",
-                    "-mllvm", "-polli-no-recompilation",
-                    "-mllvm", "-polly-detect-keep-going"]
-        p.compiler_extension = ExtractCompileStats(p, self)
-        p.runtime_extension = \
+        project.ldflags = project.ldflags + ["-lpjit", "-lpprof", "-lpapi"]
+        project.cflags = [
+            "-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+            "-mllvm", "-polli",
+            "-mllvm", "-polli-instrument",
+            "-mllvm", "-polli-no-recompilation",
+            "-mllvm", "-polly-detect-keep-going"]
+        project.compiler_extension = ExtractCompileStats(project, self)
+        project.runtime_extension = \
             RunWithTime(
-                RuntimeExtension(p, self, config={'jobs': 1}))
+                RuntimeExtension(project, self, config={'jobs': 1}))
 
         def evaluate_calibration(e):
             from benchbuild.utils.cmd import pprof_calibrate
-            papi_calibration = e.get_papi_calibration(p, pprof_calibrate)
-            e.persist_calibration(p, pprof_calibrate, papi_calibration)
+            papi_calibration = e.get_papi_calibration(project, pprof_calibrate)
+            e.persist_calibration(project, pprof_calibrate, papi_calibration)
 
-        actns = self.default_runtime_actions(p)
+        actns = self.default_runtime_actions(project)
         actns.append(Calibrate(self, evaluate_calibration))
-        return self.default_runtime_actions(p)
+        return self.default_runtime_actions(project)
 
 
 class PapiStandardScopCoverage(PapiScopCoverage):
@@ -79,30 +80,30 @@ class PapiStandardScopCoverage(PapiScopCoverage):
 
     NAME = "papi-std"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         """
         Create & Run a papi-instrumented version of the project.
 
         This experiment uses the -jitable flag of libPolyJIT to generate
         dynamic SCoP coverage.
         """
-        p.ldflags = p.ldflags + ["-lpjit", "-lpprof", "-lpapi"]
-        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                    "-mllvm", "-polli",
-                    "-mllvm", "-polli-instrument",
-                    "-mllvm", "-polli-no-recompilation",
-                    "-mllvm", "-polly-detect-keep-going"]
-        p.compiler_extension = ExtractCompileStats(p, self)
-        p.runtime_extension = \
+        project.ldflags = project.ldflags + ["-lpjit", "-lpprof", "-lpapi"]
+        project.cflags = [
+            "-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+            "-mllvm", "-polli",
+            "-mllvm", "-polli-instrument",
+            "-mllvm", "-polli-no-recompilation",
+            "-mllvm", "-polly-detect-keep-going"]
+        project.compiler_extension = ExtractCompileStats(project, self)
+        project.runtime_extension = \
             RunWithTime(
-                RuntimeExtension(p, self, config={'jobs': 1}))
+                RuntimeExtension(project, self, config={'jobs': 1}))
 
         def evaluate_calibration(e):
             from benchbuild.utils.cmd import pprof_calibrate
-            papi_calibration = e.get_papi_calibration(p, pprof_calibrate)
-            e.persist_calibration(p, pprof_calibrate, papi_calibration)
+            papi_calibration = e.get_papi_calibration(project, pprof_calibrate)
+            e.persist_calibration(project, pprof_calibrate, papi_calibration)
 
-        actns = self.default_runtime_actions(p)
+        actns = self.default_runtime_actions(project)
         actns.append(Calibrate(self, evaluate_calibration))
-        return self.default_runtime_actions(p)
-
+        return self.default_runtime_actions(project)

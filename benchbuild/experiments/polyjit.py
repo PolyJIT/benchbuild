@@ -47,7 +47,7 @@ class PolyJITConfig(object):
         value = self.argv[key]
         if isinstance(value, list):
             value = " ".join(value)
-        LOG.debug(" {0}={1}".format(key, value))
+        LOG.debug(" %s=%s", key, value)
         return value
 
 
@@ -165,13 +165,13 @@ class PolyJITFull(PolyJIT):
 
     NAME = "pj"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         from benchbuild.settings import CFG
 
-        p.cflags = ["-O3", "-fno-omit-frame-pointer"]
+        project.cflags = ["-O3", "-fno-omit-frame-pointer"]
 
         actns = []
-        rawp = copy.deepcopy(p)
+        rawp = copy.deepcopy(project)
         rawp.run_uuid = uuid.uuid4()
         rawp.runtime_extension = \
             ext.RunWithTime(
@@ -180,7 +180,7 @@ class PolyJITFull(PolyJIT):
                     config={"jobs": 1}))
         actns.append(RequireAll(self.default_runtime_actions(rawp)))
 
-        pollyp = copy.deepcopy(p)
+        pollyp = copy.deepcopy(project)
         pollyp.run_uuid = uuid.uuid4()
         pollyp.cflags = ["-Xclang", "-load",
                          "-Xclang", "LLVMPolly.so",
@@ -192,7 +192,7 @@ class PolyJITFull(PolyJIT):
                     config={"jobs": 1}))
         actns.append(RequireAll(self.default_runtime_actions(pollyp)))
 
-        jitp = copy.deepcopy(p)
+        jitp = copy.deepcopy(project)
         jitp = PolyJIT.init_project(jitp)
         norecomp = copy.deepcopy(jitp)
         norecomp.cflags += ["-mllvm", "-polli-no-recompilation"]

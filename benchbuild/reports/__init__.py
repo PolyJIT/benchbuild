@@ -5,6 +5,8 @@ from benchbuild.settings import CFG
 import logging
 import importlib
 
+LOG = logging.getLogger(__name__)
+
 
 def discover():
     """
@@ -24,14 +26,13 @@ def discover():
         Found report: benchbuild.reports.raw
     """
     if CFG["plugins"]["autoload"].value():
-        log = logging.getLogger('benchbuild')
         report_plugins = CFG["plugins"]["reports"].value()
         for ep in report_plugins:
             try:
                 importlib.import_module(ep)
-                log.debug("Found report: {0}".format(ep))
+                LOG.debug("Found report: %s", ep)
             except ImportError:
-                log.error("Could not find '{0}'".format(ep))
+                LOG.error("Could not find '%s'", ep)
 
 
 class ReportRegistry(type):

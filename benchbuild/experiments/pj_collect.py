@@ -17,7 +17,7 @@ class PJITRegression(pj.PolyJIT):
 
     NAME = "pj-collect"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         from benchbuild.settings import CFG
         from benchbuild.utils.run import track_execution
 
@@ -33,8 +33,9 @@ class PJITRegression(pj.PolyJIT):
             with track_execution(clang, project, experiment) as run:
                 run()
 
-        p = pj.PolyJIT.init_project(p)
-        p.cflags = ["-DLIKWID_PERFMON"] + p.cflags
-        p.compiler_extension = partial(_track_compilestats, p, self, CFG)
-        return self.default_compiletime_actions(p)
+        project = pj.PolyJIT.init_project(project)
+        project.cflags = ["-DLIKWID_PERFMON"] + project.cflags
+        project.compiler_extension = partial(_track_compilestats,
+                                             project, self, CFG)
+        return self.default_compiletime_actions(project)
 

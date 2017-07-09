@@ -1,11 +1,11 @@
+from os import path
 from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
-from os import path
-from plumbum import local
 from benchbuild.utils.cmd import cat, make, unzip, mv, mkdir
+from plumbum import local
 
 
 class Crafty(BenchBuildGroup):

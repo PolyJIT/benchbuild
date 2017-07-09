@@ -144,7 +144,7 @@ class BenchBuildRun(cli.Application):
                 if exp_name in exps:
                     exps_to_run.append(exps[exp_name])
                 else:
-                    LOG.error("Could not find %s in the experiment registry." %
+                    LOG.error("Could not find %s in the experiment registry.",
                               exp_name)
 
         for exp_cls in exps_to_run:

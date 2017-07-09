@@ -1,15 +1,13 @@
 import logging
+from os import path
 
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
-
-from plumbum import local
 from benchbuild.utils.cmd import autoreconf, make
-
-from os import path
+from plumbum import local
 
 
 class Rasdaman(BenchBuildGroup):

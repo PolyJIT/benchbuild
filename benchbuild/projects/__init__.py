@@ -11,15 +11,16 @@ from benchbuild.settings import CFG
 import logging
 import importlib
 
+LOG = logging.getLogger(__name__)
+
 
 def discover():
     if CFG["plugins"]["autoload"].value():
-        log = logging.getLogger('benchbuild')
         project_plugins = CFG["plugins"]["projects"].value()
         for pp in project_plugins:
-            log.debug("Found project: {0}".format(pp))
+            LOG.debug("Found project: %s", pp)
             try:
                 importlib.import_module(pp)
             except ImportError as ie:
-                log.error("Could not find '{0}'".format(pp))
-                log.error("ImportError: {0}".format(ie.msg))
+                LOG.error("Could not find '%s'", pp)
+                LOG.error("ImportError: %s", ie.msg)

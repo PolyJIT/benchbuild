@@ -1,14 +1,13 @@
+from os import path
+
 from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
-
-from plumbum import FG, local
 from benchbuild.utils.cmd import cp, find, tar, make, rm, head, grep, sed, sh
 from benchbuild.utils.cmd import mkdir
-
-from os import path
+from plumbum import FG, local
 
 
 class Povray(BenchBuildGroup):
@@ -21,7 +20,8 @@ class Povray(BenchBuildGroup):
     src_uri = "https://github.com/POV-Ray/povray"
     boost_src_dir = "boost_1_59_0"
     boost_src_file = boost_src_dir + ".tar.bz2"
-    boost_src_uri = "http://sourceforge.net/projects/boost/files/boost/1.59.0/" + \
+    boost_src_uri = \
+        "http://sourceforge.net/projects/boost/files/boost/1.59.0/" + \
         boost_src_file
 
     def download(self):

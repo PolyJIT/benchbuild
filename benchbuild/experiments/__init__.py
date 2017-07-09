@@ -11,6 +11,8 @@ from benchbuild.settings import CFG
 import logging
 import importlib
 
+LOG = logging.getLogger(__name__)
+
 
 def discover():
     """
@@ -31,12 +33,11 @@ def discover():
         Found experiment: benchbuild.experiments.raw
     """
     if CFG["plugins"]["autoload"].value():
-        log = logging.getLogger('benchbuild')
         experiment_plugins = CFG["plugins"]["experiments"].value()
         for ep in experiment_plugins:
             try:
                 importlib.import_module(ep)
-                log.debug("Found experiment: {0}".format(ep))
+                LOG.debug("Found experiment: %s", ep)
             except ImportError as ie:
-                log.error("Could not find '{0}'".format(ep))
-                log.error("ImportError: {0}".format(ie.msg))
+                LOG.error("Could not find '%s'", ep)
+                LOG.error("ImportError: %s", ie.msg)

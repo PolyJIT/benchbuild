@@ -27,20 +27,21 @@ class PollyOpenMP(RuntimeExperiment):
 
     NAME = "polly-openmp"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         """Build & Run each project with Polly & OpenMP support."""
         actns = []
 
-        p.ldflags = ["-lgomp"]
-        p.cflags = ["-O3", "-Xclang", "-load", "-Xclang", "LLVMPolly.so",
-                    "-mllvm", "-polly", "-mllvm", "-polly-parallel"]
+        project.ldflags = ["-lgomp"]
+        project.cflags = [
+            "-O3", "-Xclang", "-load", "-Xclang", "LLVMPolly.so",
+            "-mllvm", "-polly", "-mllvm", "-polly-parallel"]
 
         for i in range(2, int(str(CFG["jobs"])) + 1):
-            cp = copy.deepcopy(p)
+            cp = copy.deepcopy(project)
             cp.run_uuid = uuid.uuid4()
             cp.runtime_extension = \
                 RunWithTime(
-                    RuntimeExtension(p, self, {'jobs': i}))
+                    RuntimeExtension(cp, self, {'jobs': i}))
             actns.extend(self.default_runtime_actions(cp))
 
         return actns

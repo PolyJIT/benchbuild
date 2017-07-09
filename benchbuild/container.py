@@ -1,4 +1,8 @@
-from plumbum import cli, local, TF, FG, ProcessExecutionError
+from abc import abstractmethod
+import logging
+import os
+import sys
+
 from benchbuild.utils.cmd import tar, mkdir, mv, rm, bash, cp
 from benchbuild.settings import CFG, update_env
 from benchbuild.utils import log
@@ -11,10 +15,9 @@ from benchbuild.utils.run import (run, uchroot, uchroot_with_mounts,
                                   uchroot_mounts)
 from benchbuild.utils.downloader import Copy, update_hash
 from benchbuild.utils.user_interface import ask
-from abc import abstractmethod
-import logging
-import sys
-import os
+from plumbum import cli, local, TF, FG, ProcessExecutionError
+
+LOG = logging.getLogger(__name__)
 
 
 def clean_directories(builddir, in_dir=True, out_dir=True):
@@ -86,9 +89,9 @@ def run_in_container(command, container_dir, mounts):
 
         cmd_path = os.path.join(container_dir, command[0].lstrip('/'))
         if not os.path.exists(cmd_path):
-            logging.error(
-                "The command does not exist inside the container! {0}".format(
-                    cmd_path))
+            LOG.error(
+                "The command does not exist inside the container! %s",
+                cmd_path)
             return
 
         cmd = uchroot[command]
@@ -315,7 +318,7 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
                     run(emerge_in_chroot["--sync"])
                 if CFG["container"]["strategy"]["polyjit"]["upgrade"].value():
                     run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
-                                        "--with-bdeps=y", "@world"])
+                                         "--with-bdeps=y", "@world"])
                 run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
                 for pkg in packages:
                     if (has_pkg[pkg["name"]] & TF):
@@ -468,10 +471,10 @@ class ContainerCreate(cli.Application):
             in_container = setup_container(builddir, in_container)
 
         self._strategy.run(MockObj(builddir=builddir,
-                                  in_container=in_container,
-                                  out_container=out_container,
-                                  mounts=mounts,
-                                  shell=shell))
+                                   in_container=in_container,
+                                   out_container=out_container,
+                                   mounts=mounts,
+                                   shell=shell))
         clean_directories(builddir, in_is_file, True)
 
 

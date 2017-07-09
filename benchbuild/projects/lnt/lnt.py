@@ -2,17 +2,16 @@
 LNT based measurements.
 
 """
+from os import path
+
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, CopyNoFail
 from benchbuild.utils.wrapping import wrap_dynamic
+from benchbuild.utils.cmd import virtualenv, mkdir, rm
 
 from plumbum import local
-from benchbuild.utils.cmd import virtualenv
-from benchbuild.utils.cmd import mkdir, rm
-
-from os import path
 
 
 class LNTGroup(Project):

@@ -1,11 +1,10 @@
+from os import path
+
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
-
 from benchbuild.utils.cmd import patch, cp
-
-from os import path
 
 
 class Linpack(BenchBuildGroup):

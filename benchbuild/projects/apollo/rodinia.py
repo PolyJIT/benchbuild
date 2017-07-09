@@ -1,3 +1,4 @@
+from os import path
 
 from benchbuild.projects.apollo.group import ApolloGroup
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
@@ -5,7 +6,6 @@ from benchbuild.utils.downloader import Wget
 from benchbuild.utils.cmd import tar, make
 from benchbuild.utils.run import run
 from plumbum import local
-from os import path
 
 
 class Rodinia(ApolloGroup):

@@ -9,7 +9,7 @@ LOG = logging.getLogger(__name__)
 def validate(func):
     def validate_run_func(run, session, *args, **kwargs):
         if run.status == 'failed':
-            LOG.debug("Run failed. Execution of '{}' cancelled".format(str(func)))
+            LOG.debug("Run failed. Execution of '%s' cancelled", str(func))
             return None
 
         return func(run, session, *args, **kwargs)
@@ -138,7 +138,7 @@ def persist_experiment(experiment):
     session = Session()
 
     cfg_exp = experiment.id
-    LOG.debug("Using experiment ID stored in config: %s" % cfg_exp)
+    LOG.debug("Using experiment ID stored in config: %s", cfg_exp)
     exps = session.query(Experiment).filter(Experiment.id == cfg_exp)
     desc = CFG["experiment_description"].value()
     name = experiment.name

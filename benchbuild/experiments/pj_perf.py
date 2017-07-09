@@ -61,14 +61,14 @@ class PJITperf(pj.PolyJIT):
 
     NAME = "pj-perf"
 
-    def actions_for_project(self, p):
+    def actions_for_project(self, project):
         from benchbuild.settings import CFG
 
-        p = pj.PolyJIT.init_project(p)
+        project = pj.PolyJIT.init_project(project)
 
         actns = []
         for i in range(1, int(str(CFG["jobs"])) + 1):
-            cp = copy.deepcopy(p)
+            cp = copy.deepcopy(project)
             cp.run_uuid = uuid.uuid4()
             cp.runtime_extension = ft.partial(run_with_perf, cp, self, CFG, i)
             actns.extend(self.default_runtime_actions(cp))

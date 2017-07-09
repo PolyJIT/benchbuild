@@ -1,11 +1,11 @@
+from os import path
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.wrapping import wrap
 from benchbuild.utils.run import run
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-from os import path
-from plumbum import local
 from benchbuild.utils.cmd import tar, make
+from plumbum import local
 
 
 class Ccrypt(BenchBuildGroup):
@@ -17,7 +17,9 @@ class Ccrypt(BenchBuildGroup):
     SRC_FILE = 'ccrypt-{0}.tar.gz'.format(VERSION)
 
     src_dir = "ccrypt-{0}".format(VERSION)
-    src_uri = "http://ccrypt.sourceforge.net/download/ccrypt-{0}.tar.gz".format(VERSION)
+    src_uri = \
+        "http://ccrypt.sourceforge.net/download/ccrypt-{0}.tar.gz".format(
+            VERSION)
 
     def download(self):
         Wget(self.src_uri, self.SRC_FILE)

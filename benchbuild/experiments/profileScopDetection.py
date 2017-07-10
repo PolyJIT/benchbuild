@@ -3,28 +3,11 @@ The 'pprof' Experiment.
 
 TODO Description
 """
-import logging
-
-from benchbuild.experiment import Experiment
-from benchbuild.utils.actions import (Prepare, Build, Download, Configure,
-                                      Clean, MakeBuildDir, Run, Echo)
-from benchbuild.utils.run import track_execution, fetch_time_output
-from benchbuild.utils.db import persist_time, persist_config
-from benchbuild.utils.cmd import time
-
-from benchbuild.settings import CFG
-from functools import partial
-from plumbum import local
+import benchbuild.experiment as exp
+import benchbuild.extensions as ext
 
 
-def RunInstrumented(project, experiment, run_f, *args, **kwargs):
-    command = local[run_f]
-    with track_execution(command, project, experiment) as run:
-        ri = run()
-
-    return ri
-
-class PProfExperiment(Experiment):
+class PProfExperiment(exp.Experiment):
     """The pprof experiment with fancy description."""
 
     NAME = "profileScopDetection"
@@ -34,16 +17,8 @@ class PProfExperiment(Experiment):
                 "-O3",
                 "-mllvm", "-profileScopDetection"]
         project.ldflags = ["-lpjit"]
-        project.runtime_extension = partial(RunInstrumented, project, self)
-        actns = [
-            MakeBuildDir(project),
-            Echo("Compiling... {}".format(project.name)),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
-            Echo("Running... {}".format(project.name)),
-            Run(project),
-            Clean(project),
-        ]
-        return actns
+        project.runtime_extension = ext.RunWithTime(
+                ext.RuntimeExtension(project, self, config={})
+            )
+
+        return self.default_runtime_actions(project)

@@ -1,14 +1,14 @@
 """
-The 'pprof' Experiment.
-
-TODO Description
+This experiment instruments the parent if any given SCoP and prints the reason
+why the parent is not part of the SCoP.
 """
 import benchbuild.experiment as exp
 import benchbuild.extensions as ext
 
 
 class PProfExperiment(exp.Experiment):
-    """The pprof experiment with fancy description."""
+    """This experiment instruments the parent if any given SCoP and prints the
+    reason why the parent is not part of the SCoP."""
 
     NAME = "profileScopDetection"
 

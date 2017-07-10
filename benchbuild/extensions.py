@@ -159,18 +159,19 @@ class ExtractCompileStats(Extension):
                     yield res
 
     def __call__(self, cc, *args, **kwargs):
-        from benchbuild.utils.schema import CompileStat
+        from benchbuild.utils.schema import CompileStat, Session
         from benchbuild.utils.db import persist_compilestats
         from benchbuild.settings import CFG
 
         clang = handle_stdin(cc["-mllvm", "-stats"], kwargs)
         run_config = kwargs.get("run_config", None)
 
+        session = Session()
         with track_execution(clang, self.project, self.experiment) as run:
             run_info = run()
             if run_config is not None:
                 persist_config(
-                    run_info.db_run, run_info.session, run_config)
+                    run_info.db_run, session, run_config)
 
         if run_info.db_run.status == "completed":
             stats = []
@@ -191,8 +192,8 @@ class ExtractCompileStats(Extension):
 
             if stats:
                 for stat in stats:
-                    LOG.info(" %s.%s = %s",
-                             stat.name, stat.component, stat.value)
+                    LOG.info(" [%s] %s = %s",
+                             stat.component, stat.name, stat.value)
                 persist_compilestats(run_info.db_run, run_info.session, stats)
             else:
                 LOG.info("No compilestats left, after filtering.")
@@ -203,6 +204,7 @@ class ExtractCompileStats(Extension):
 
         ret = self.call_next(cc, *args, **kwargs)
         ret.append(run_info)
+        session.commit()
         return ret
 
 

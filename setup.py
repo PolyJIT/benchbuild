@@ -9,6 +9,10 @@ extra_files = [
     "templates/slurm-cleanup-node.sh.inc"
 ]
 
+src_extra_files = [
+    "patches/linpack.patch"
+]
+
 sql_extra_files = [
     "func.compare_region_wise2.sql",
     "func.experiments.sql",
@@ -31,7 +35,8 @@ setup(
     packages=find_packages(exclude=["docs", "extern", "filters", "linker",
                                     "src", "statistics", "tests", "results"]),
     package_data={"benchbuild.utils": extra_files,
-                  "benchbuild": sql_extra_files},
+                  "benchbuild": sql_extra_files,
+                  "becnbuild.projects": src_extra_files},
     include_package_data=True,
     install_requires=[
         "lazy==1.2",

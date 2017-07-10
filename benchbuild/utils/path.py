@@ -48,6 +48,9 @@ def template_files(path, exts=[]):
     files = [os.path.join(path, f) for f in files]
     return files
 
+def template_path(template):
+    """Return path to template file."""
+    return os.path.join(determine_path(), template)
 
 def template_str(template):
     """Read a template file from the resources and return it as str."""

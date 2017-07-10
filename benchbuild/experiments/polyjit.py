@@ -23,6 +23,7 @@ LOG = logging.getLogger(__name__)
 
 
 def verbosity_to_polyjit_log_level(verbosity: int):
+    """Transfers the verbosity level to a useable polyjit format."""
     polyjit_log_levels = {
         0: "off",
         1: "error",
@@ -35,13 +36,16 @@ def verbosity_to_polyjit_log_level(verbosity: int):
 
 
 class PolyJITConfig(object):
+    """Object that stores the configuraion of the JIT."""
     __config = ExtensibleDict(extend_as_list)
 
     @property
     def argv(self):
+        """Getter for the configuration held by the config object."""
         return PolyJITConfig.__config
 
     def value_to_str(self, key):
+        """Prints the value of a given key."""
         if key not in self.argv:
             return ""
         value = self.argv[key]
@@ -52,7 +56,9 @@ class PolyJITConfig(object):
 
 
 class EnableJITDatabase(PolyJITConfig, ext.Extension):
+    """The run and given extensions store polli's statistics to the database."""
     def __init__(self, *args, project=None, experiment=None, **kwargs):
+        """Initialize the db object for the JIT."""
         super(EnableJITDatabase, self).__init__(*args,
                                                 project=project, **kwargs)
         self.project = project
@@ -89,6 +95,7 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
 
 
 class EnablePolyJIT(PolyJITConfig, ext.Extension):
+    """Call the child extensions with an activated PolyJIT."""
     def __call__(self, binary_command, *args, **kwargs):
         ret = None
         with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
@@ -97,6 +104,7 @@ class EnablePolyJIT(PolyJITConfig, ext.Extension):
 
 
 class DisablePolyJIT(PolyJITConfig, ext.Extension):
+    """Deactivate the JIT for the following extensions."""
     def __call__(self, binary_command, *args, **kwargs):
         ret = None
         with self.argv(PJIT_ARGS="-polli-no-specialization"):
@@ -106,6 +114,7 @@ class DisablePolyJIT(PolyJITConfig, ext.Extension):
 
 
 class RegisterPolyJITLogs(PolyJITConfig, ext.LogTrackingMixin, ext.Extension):
+    """Extends the following RunWithTime extensions with extra PolyJIT logs."""
     def __call__(self, *args, **kwargs):
         """Redirect to RunWithTime, but register additional logs."""
         from benchbuild.settings import CFG

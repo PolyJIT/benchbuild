@@ -20,6 +20,9 @@ install:
   - pip install .
   - pip install -r requirements.txt
 
+env:
+  - BB_UNIONFS_ENABLE=false
+
 before_script:
   - psql -c 'create database pprof;' -U postgres
   - benchbuild bootstrap -s
@@ -31,4 +34,3 @@ script:
 branches:
   only:
     - master
-    - develop

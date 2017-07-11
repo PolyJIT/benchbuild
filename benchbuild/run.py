@@ -185,7 +185,7 @@ Summary:
             print("Failed:")
             for fail in failed:
                 print(fail)
-
+        return len(failed)
 
 
 def print_projects(exp):

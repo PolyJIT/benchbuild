@@ -22,7 +22,7 @@ install:
 
 before_script:
   - psql -c 'create database pprof;' -U postgres
-  - benchbuild bootstrap
+  - benchbuild bootstrap -s
 
 script:
   - py.test benchbuild/

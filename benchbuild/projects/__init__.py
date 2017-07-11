@@ -18,10 +18,9 @@ LOG = logging.getLogger(__name__)
 def discover():
     if CFG["plugins"]["autoload"].value():
         project_plugins = CFG["plugins"]["projects"].value()
-        for pp in project_plugins:
-            LOG.debug("Found project: %s", pp)
+        for project_plugin in project_plugins:
             try:
-                importlib.import_module(pp)
-            except ImportError as ie:
-                LOG.error("Could not find '%s'", pp)
-                LOG.error("ImportError: %s", ie.msg)
+                importlib.import_module(project_plugin)
+            except ImportError as import_error:
+                LOG.error("Could not find '%s'", project_plugin)
+                LOG.error("ImportError: %s", import_error.msg)

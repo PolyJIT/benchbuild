@@ -640,6 +640,7 @@ def unionfs(base_dir='./base',
                   (proc.poll() is None):
                 pass
 
+            ret = None
             if proc.poll() is None:
                 try:
                     with local.cwd(abs_mount_dir):

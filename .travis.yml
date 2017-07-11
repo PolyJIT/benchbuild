@@ -30,7 +30,7 @@ before_script:
 
 script:
   - py.test benchbuild/
-  - benchbuild -vvvv run --full -P test
+  - benchbuild run --full -P test
 
 branches:
   only:

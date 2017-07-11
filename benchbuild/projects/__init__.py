@@ -7,9 +7,10 @@ loaded automatically. See configuration variables:
  *_PLUGINS_PROJECTS
 
 """
-from benchbuild.settings import CFG
 import logging
 import importlib
+
+from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
 

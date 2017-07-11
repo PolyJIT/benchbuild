@@ -7,9 +7,10 @@ loaded automatically. See configuration variables:
  *_PLUGINS_EXPERIMENTS
 
 """
-from benchbuild.settings import CFG
 import logging
 import importlib
+
+from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
 
@@ -34,10 +35,9 @@ def discover():
     """
     if CFG["plugins"]["autoload"].value():
         experiment_plugins = CFG["plugins"]["experiments"].value()
-        for ep in experiment_plugins:
+        for exp_plugin in experiment_plugins:
             try:
-                importlib.import_module(ep)
-                LOG.debug("Found experiment: %s", ep)
-            except ImportError as ie:
-                LOG.error("Could not find '%s'", ep)
-                LOG.error("ImportError: %s", ie.msg)
+                importlib.import_module(exp_plugin)
+            except ImportError as import_error:
+                LOG.error("Could not find '%s'", exp_plugin)
+                LOG.error("ImportError: %s", import_error.msg)

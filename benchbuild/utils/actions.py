@@ -20,7 +20,6 @@ from plumbum import ProcessExecutionError
 
 LOG = logging.getLogger("benchbuild.steps")
 
-
 @enum.unique
 class StepResult(enum.Enum):
     OK = 1,
@@ -32,11 +31,13 @@ def to_step_result(f):
     def wrapper(*args, **kwargs):
         res = f(*args, **kwargs)
         if not res:
-            res = StepResult.OK
+            res = [StepResult.OK]
+
+        if not hasattr(res, "__iter__"):
+            res = [res]
         return res
 
     return wrapper
-
 
 def log_before_after(name, desc):
     def func_decorator(f):
@@ -44,7 +45,7 @@ def log_before_after(name, desc):
         def wrapper(*args, **kwargs):
             LOG.info("\n%s - %s", name, desc)
             res = f(*args, **kwargs)
-            if res == StepResult.OK:
+            if StepResult.ERROR not in res:
                 LOG.info("%s - OK\n", name)
             else:
                 LOG.error("%s - ERROR\n", name)
@@ -83,8 +84,9 @@ class Step(metaclass=StepClass):
 
     def __call__(self):
         if not self._action_fn:
-            return
+            return StepResult.ERROR
         self._action_fn()
+        return StepResult.OK
 
     def __str__(self, indent=0):
         return textwrap.indent(
@@ -259,10 +261,10 @@ class Any(Step):
         cnt = 0
         for a in self._actions:
             result = a()
+
             cnt = cnt + 1
-            if result == StepResult.ERROR:
-                LOG.warn("%d actions left in queue", length - cnt)
-        return StepResult.OK
+            if StepResult.ERROR in result:
+                LOG.warning("%d actions left in queue", length - cnt)
 
     def __str__(self, indent=0):
         sub_actns = [a.__str__(indent + 1) for a in self._actions]
@@ -301,25 +303,27 @@ class Experiment(Any):
         session.commit()
 
     def __call__(self):
-        result = StepResult.OK
-
-        experiment, session = self.begin_transaction()
+        results = []
         try:
+            experiment, session = self.begin_transaction()
             for a in self._actions:
-                result = a()
-        except KeyboardInterrupt:
-            result = StepResult.ERROR
-            LOG.error("User requested termination.")
-        except Exception:
-            e_type, e_value, e_traceb = sys.exc_info()
-            lines = traceback.format_exception(e_type, e_value, e_traceb)
-            result = StepResult.ERROR
-            LOG.error("".join(lines))
-            print("Shutting down...")
+                try:
+                    result = a()
+                    results.extend(result)
+                except KeyboardInterrupt:
+                    results.append(StepResult.ERROR)
+                    LOG.error("User requested termination.")
+                    raise
+                except Exception:
+                    e_type, e_value, e_traceb = sys.exc_info()
+                    lines = traceback.format_exception(
+                        e_type, e_value, e_traceb)
+                    results.append(StepResult.ERROR)
+                    LOG.error("".join(lines))
+                    raise
         finally:
             self.end_transaction(experiment, session)
-
-        return result
+        return results
 
     def __str__(self, indent=0):
         sub_actns = [a.__str__(indent + 1) for a in self._actions]
@@ -338,24 +342,25 @@ class RequireAll(Step):
         return sum([len(x) for x in self._actions])
 
     def __call__(self):
+        results = []
         for i, action in enumerate(self._actions):
             try:
-                result = action()
+                results.extend(action())
             except ProcessExecutionError as proc_ex:
                 LOG.error("\n==== ERROR ====")
                 LOG.error(
                     "Execution of a binary failed in step: %s", str(action))
                 LOG.error(str(proc_ex))
                 LOG.error("==== ERROR ====\n")
-                result = StepResult.ERROR
+                results.append(StepResult.ERROR)
             except (OSError) as os_ex:
                 LOG.error("Exception in step #%d: %s", i, str(action))
-                result = StepResult.ERROR
+                results.append(StepResult.ERROR)
 
-            if result != StepResult.OK:
+            if StepResult.ERROR in results:
                 LOG.error("Execution of #%d: '%s' failed.", i, str(action))
                 action.onerror()
-                return result
+        return results
 
     def __str__(self, indent=0):
         sub_actns = [a.__str__(indent + 1) for a in self._actions]
@@ -369,12 +374,13 @@ class CleanExtra(Step):
 
     def __call__(self):
         if not CFG['clean'].value():
-            return
+            return StepResult.OK
 
         paths = CFG["cleanup_paths"].value()
         for p in paths:
             if os.path.exists(p):
                 rm("-r", p)
+        return StepResult.OK
 
     def __str__(self, indent=0):
         paths = CFG["cleanup_paths"].value()

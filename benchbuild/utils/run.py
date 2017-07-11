@@ -223,6 +223,10 @@ class RunInfo(object):
         self.cmd = None
         self.project = None
         self.experiment = None
+        self.retcode = 0
+        self.stdout = None
+        self.stderr = None
+
         for k in kwargs:
             self.__setattr__(k, kwargs[k])
         self.__begin(self.cmd, self.project,
@@ -243,32 +247,39 @@ class RunInfo(object):
             session=self.session)
         return r
 
-    def __call__(self, *args, retcode=None, ri=None, **kwargs):
+    def __call__(self, *args, expected_retcode=0, ri=None, **kwargs):
         from subprocess import PIPE
         cmd_env = settings.to_env_dict(settings.CFG)
 
         with local.env(**cmd_env):
             has_stdin = kwargs.get("has_stdin", False)
             try:
-                rc, stdout, stderr = self.cmd.run(
-                    retcode=retcode,
+                retcode, stdout, stderr = self.cmd.run(
+                    retcode=expected_retcode,
                     stdin=PIPE if has_stdin else None,
                     stderr=PIPE,
                     stdout=PIPE)
+
+                self.retcode = retcode
+                self.stdout = stdout
+                self.stderr = stderr
                 self.__end(str(stdout), str(stderr))
-                LOG.info("Tracked process completed successfully")
+                LOG.debug("Tracked process completed successfully")
             except ProcessExecutionError as ex:
-                self.__fail(rc, stdout, stderr)
-                LOG.info("Tracked process failed")
+                self.__fail(ex.retcode, ex.stderr, ex.stdout)
+                self.retcode = ex.retcode
+                self.stdout = ex.stdout
+                self.stderr = ex.stderr
+
+                LOG.debug("Tracked process failed")
                 LOG.error(str(ex))
             except KeyboardInterrupt:
+                self.retcode = retcode
+                self.stdout = stdout
+                self.stderr = stderr
                 self.__fail(-1, "", "KeyboardInterrupt")
                 LOG.warning("Interrupted by user input")
                 raise
-
-        self.retcode = rc
-        self.stdout = stdout
-        self.stderr = stderr
 
         return self
 

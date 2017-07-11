@@ -26,15 +26,21 @@ class Extension(metaclass=ABCMeta):
         all_results = []
         for ext in self.next_extensions:
             LOG.debug("Invoking - %s ", ext.__class__)
-            result = ext(*args, **kwargs)
-            LOG.debug("Completed - %s => %s", ext.__class__, result)
-            if result is None:
+            results = ext(*args, **kwargs)
+            LOG.debug("Completed - %s => %s", ext.__class__, results)
+            if results is None:
                 LOG.warning("No result from: %s", ext.__class__)
                 continue
-            if isinstance(result, Iterable):
-                all_results.extend(result)
+            if isinstance(results, Iterable):
+                all_results.extend(results)
             else:
-                all_results.append(result)
+                all_results.append(results)
+
+        for result in all_results:
+            if result.db_run.status == "completed":
+                LOG.debug("Successful - %s => %s", ext.__class__, result)
+            else:
+                LOG.debug("Failed - %s => %s", ext.__class__, result)
         return all_results
 
     def print(self, indent=0):

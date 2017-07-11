@@ -8,9 +8,10 @@ See the output of benchbuild run --help for more information.
 import logging
 import os
 import sys
+import time
 from plumbum import cli
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import Experiment
+from benchbuild.utils.actions import Experiment, StepResult
 from benchbuild.utils import user_interface as ui
 from benchbuild import experiments
 from benchbuild import experiment
@@ -158,9 +159,33 @@ class BenchBuildRun(cli.Application):
             print(a)
         print()
 
+        failed = []
+        start = 0
+        end = 0
         if not self.pretend:
+            start = time.perf_counter()
             for a in actns:
-                a()
+                res = a()
+                if hasattr(res, "__iter__"):
+                    if StepResult.ERROR in res:
+                        failed.append(a)
+                else:
+                    if res != StepResult.OK:
+                        failed.append(a)
+            end = time.perf_counter()
+        print("""
+Summary:
+    {num_total} actions were in the queue.
+    {num_failed} actions failed to execute.
+
+    This run took: {elapsed_time:8.3} seconds.
+        """.format(num_total=num_actions, num_failed=len(failed), elapsed_time=end-start))
+
+        if len(failed) > 0:
+            print("Failed:")
+            for fail in failed:
+                print(fail)
+
 
 
 def print_projects(exp):

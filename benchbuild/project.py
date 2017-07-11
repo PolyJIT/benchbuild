@@ -4,16 +4,16 @@ from abc import abstractmethod
 from functools import partial
 from os import listdir, path
 from typing import Callable, Iterable
-from plumbum import local
 import benchbuild.utils.run as ur
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.db import persist_project
-from benchbuild.utils.run import in_builddir, store_config, unionfs
-from benchbuild.utils.run import RunInfo
+from benchbuild.utils.run import in_builddir, store_config, unionfs, RunInfo
 from benchbuild.utils.versions import get_version_from_cache_dir
 from benchbuild.utils.wrapping import wrap
+
+from plumbum import local, ProcessExecutionError
 
 
 class ProjectRegistry(type):
@@ -183,6 +183,9 @@ class Project(object, metaclass=ProjectDecorator):
             try:
                 self.run_tests(experiment, ur.run)
                 end_run_group(group, session)
+            except ProcessExecutionError:
+                fail_run_group(group, session)
+                raise
             except KeyboardInterrupt:
                 fail_run_group(group, session)
                 raise

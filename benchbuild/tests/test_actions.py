@@ -33,9 +33,9 @@ class ActionsTestCase(unittest.TestCase):
     def test_for_all_pass(self):
         ep = EmptyProject(EmptyExperiment())
         actn = a.RequireAll([PassAlways(ep)])
-        self.assertEqual(actn(), a.StepResult.OK)
+        self.assertEqual(actn(), [a.StepResult.OK])
 
     def test_for_all_fail(self):
         ep = EmptyProject(EmptyExperiment())
         actn = a.RequireAll([FailAlways(ep)])
-        self.assertEqual(actn(), a.StepResult.ERROR)
+        self.assertEqual(actn(), [a.StepResult.ERROR])

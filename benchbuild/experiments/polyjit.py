@@ -55,6 +55,12 @@ class PolyJITConfig(object):
         return value
 
 
+class ClearPolyJITConfig(PolyJITConfig, ext.Extension):
+    def __call__(self, *args, **kwargs):
+        with self.argv(PJIT_ARGS="", extender_fn=None):
+            return self.call_next(*args, **kwargs)
+
+
 class EnableJITDatabase(PolyJITConfig, ext.Extension):
     """The run and given extensions store polli's statistics to the database."""
     def __init__(self, *args, project=None, experiment=None, **kwargs):

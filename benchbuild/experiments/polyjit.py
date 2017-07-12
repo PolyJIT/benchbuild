@@ -44,6 +44,9 @@ class PolyJITConfig(object):
         """Getter for the configuration held by the config object."""
         return PolyJITConfig.__config
 
+    def clear(self):
+        PolyJITConfig.__config.clear()
+
     def value_to_str(self, key):
         """Prints the value of a given key."""
         if key not in self.argv:
@@ -57,8 +60,8 @@ class PolyJITConfig(object):
 
 class ClearPolyJITConfig(PolyJITConfig, ext.Extension):
     def __call__(self, *args, **kwargs):
-        with self.argv(PJIT_ARGS="", extender_fn=None):
-            return self.call_next(*args, **kwargs)
+        self.clear()
+        return self.call_next(*args, **kwargs)
 
 
 class EnableJITDatabase(PolyJITConfig, ext.Extension):

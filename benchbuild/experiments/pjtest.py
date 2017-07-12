@@ -56,17 +56,20 @@ class Test(pj.PolyJIT):
             "specialization": "disabled"
         }
 
-        pjit_extension = \
-            pj.EnableJITDatabase(
-                pj.EnablePolyJIT(
-                    ext.RuntimeExtension(
-                        project, self, config=cfg_with_jit),
-                    project=project),
-                pj.DisablePolyJIT(
-                    ext.RuntimeExtension(
-                        project, self, config=cfg_without_jit),
-                    project=project),
-                project=project)
+        pjit_extension = ext.Extension(
+            pj.ClearPolyJITConfig(
+                pj.EnableJITDatabase(
+                    pj.EnablePolyJIT(
+                        ext.RuntimeExtension(
+                            project, self, config=cfg_with_jit),
+                        project=project), project=project)),
+            pj.ClearPolyJITConfig(
+                pj.EnableJITDatabase(
+                    pj.DisablePolyJIT(
+                        ext.RuntimeExtension(
+                            project, self, config=cfg_without_jit),
+                        project=project), project=project))
+        )
 
         project.runtime_extension = \
             ext.LogAdditionals(

@@ -49,9 +49,8 @@ class Extension(metaclass=ABCMeta):
         for ext in self.next_extensions:
             ext.print(indent=indent+2)
 
-    @abstractmethod
     def __call__(self, *args, **kwargs):
-        raise NotImplementedError("Must provide implementation in subclass")
+        return self.call_next(*args, **kwargs)
 
 
 class RuntimeExtension(Extension):

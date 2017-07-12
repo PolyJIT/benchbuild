@@ -171,7 +171,7 @@ class ExtractCompileStats(Extension):
         from benchbuild.settings import CFG
 
         clang = handle_stdin(cc["-mllvm", "-stats"], kwargs)
-        run_config = kwargs.get("run_config", None)
+        run_config = self.config
 
         session = Session()
         with track_execution(clang, self.project, self.experiment) as run:

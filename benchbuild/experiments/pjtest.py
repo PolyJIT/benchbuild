@@ -11,20 +11,16 @@ import csv
 import logging
 import os
 import uuid
-
 import sqlalchemy as sa
-
-from benchbuild.experiments.polyjit import PolyJIT
-from benchbuild.reports import Report
-from benchbuild.settings import CFG
-
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
+import benchbuild.reports as reports
+import benchbuild.settings as settings
 
 LOG = logging.getLogger(__name__)
 
 
-class Test(PolyJIT):
+class Test(pj.PolyJIT):
     """
     An experiment that executes all projects with PolyJIT support.
 
@@ -34,9 +30,9 @@ class Test(PolyJIT):
     NAME = "pj-test"
 
     def actions_for_project(self, project):
-        project = PolyJIT.init_project(project)
+        project = pj.PolyJIT.init_project(project)
         project.run_uuid = uuid.uuid4()
-        jobs = int(CFG["jobs"].value())
+        jobs = int(settings.CFG["jobs"].value())
         project.cflags += [
             "-Rpass-missed=polli*",
             "-mllvm", "-stats",
@@ -79,53 +75,8 @@ class Test(PolyJIT):
         return Test.default_runtime_actions(project)
 
 
-class StatusReport(Report):
-
-    SUPPORTED_EXPERIMENTS = ["pj-test",
-                             "pj-seq-test",
-                             "raw",
-                             "pj",
-                             "pj-raw",
-                             "pollytest"]
-    QUERY_STATUS = \
-        sa.sql.select([
-            sa.column('name'),
-            sa.column('_group'),
-            sa.column('status'),
-            sa.column('runs')
-        ]).\
-        select_from(
-            sa.func.exp_status(sa.sql.bindparam('exp_ids'))
-        )
-
-    def report(self):
-        print("I found the following matching experiment ids")
-        print("  \n".join([str(x) for x in self.experiment_ids]))
-
-        qry = StatusReport.\
-            QUERY_STATUS.unique_params(exp_ids=self.experiment_ids)
-        yield ("status",
-               ('project', 'group', 'status', 'runs'),
-               self.session.execute(qry).fetchall())
-
-    def generate(self):
-        for name, header, data in self.report():
-            fname = os.path.basename(self.out_path)
-
-            fname = "{prefix}_{name}{ending}".format(
-                prefix=os.path.splitext(fname)[0],
-                ending=os.path.splitext(fname)[-1],
-                name=name)
-            with open(fname, 'w') as csv_out:
-                print("Writing '{0}'".format(csv_out.name))
-                csv_writer = csv.writer(csv_out)
-                csv_writer.writerows([header])
-                csv_writer.writerows(data)
-
-
-class TestReport(Report):
-
-    SUPPORTED_EXPERIMENTS = ["pj-test"]
+class TestReport(reports.Report):
+    SUPPORTED_EXPERIMENTS = ['pj-test']
 
     QUERY_TOTAL = \
         sa.sql.select([

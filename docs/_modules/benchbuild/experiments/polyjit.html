@@ -83,42 +83,90 @@
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<div class="viewcode-block" id="verbosity_to_polyjit_log_level"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.verbosity_to_polyjit_log_level">[docs]</a><span class="k">def</span> <span class="nf">verbosity_to_polyjit_log_level</span><span class="p">(</span><span class="n">verbosity</span> <span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+
+<div class="viewcode-block" id="verbosity_to_polyjit_log_level"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.verbosity_to_polyjit_log_level">[docs]</a><span class="k">def</span> <span class="nf">verbosity_to_polyjit_log_level</span><span class="p">(</span><span class="n">verbosity</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Transfers the verbosity level to a useable polyjit format.&quot;&quot;&quot;</span>
     <span class="n">polyjit_log_levels</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="mi">0</span> <span class="p">:</span> <span class="s2">&quot;off&quot;</span><span class="p">,</span>
-        <span class="mi">1</span> <span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-        <span class="mi">2</span> <span class="p">:</span> <span class="s2">&quot;warn&quot;</span><span class="p">,</span>
-        <span class="mi">3</span> <span class="p">:</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span>
-        <span class="mi">4</span> <span class="p">:</span> <span class="s2">&quot;debug&quot;</span><span class="p">,</span>
-        <span class="mi">5</span> <span class="p">:</span> <span class="s2">&quot;trace&quot;</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;off&quot;</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;warn&quot;</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;debug&quot;</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;trace&quot;</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="n">polyjit_log_levels</span><span class="p">[</span><span class="n">verbosity</span><span class="p">]</span></div>
 
+
 <div class="viewcode-block" id="PolyJITConfig"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.PolyJITConfig">[docs]</a><span class="k">class</span> <span class="nc">PolyJITConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Object that stores the configuraion of the JIT.&quot;&quot;&quot;</span>
     <span class="n">__config</span> <span class="o">=</span> <span class="n">ExtensibleDict</span><span class="p">(</span><span class="n">extend_as_list</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">argv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Getter for the configuration held by the config object.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">PolyJITConfig</span><span class="o">.</span><span class="n">__config</span>
 
 <div class="viewcode-block" id="PolyJITConfig.value_to_str"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.PolyJITConfig.value_to_str">[docs]</a>    <span class="k">def</span> <span class="nf">value_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prints the value of a given key.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Constructed: </span><span class="si">{0}</span><span class="s2">=</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%s</span><span class="s2">=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span></div></div>
 
 
-<div class="viewcode-block" id="EnablePolyJIT"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.EnablePolyJIT">[docs]</a><span class="k">class</span> <span class="nc">EnablePolyJIT</span><span class="p">(</span><span class="n">PolyJITConfig</span><span class="p">,</span> <span class="n">ext</span><span class="o">.</span><span class="n">Extension</span><span class="p">):</span>
+<div class="viewcode-block" id="EnableJITDatabase"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.EnableJITDatabase">[docs]</a><span class="k">class</span> <span class="nc">EnableJITDatabase</span><span class="p">(</span><span class="n">PolyJITConfig</span><span class="p">,</span> <span class="n">ext</span><span class="o">.</span><span class="n">Extension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The run and given extensions store polli&#39;s statistics to the database.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the db object for the JIT.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EnableJITDatabase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                                                <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="n">project</span>
+
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary_command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+        <span class="n">experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">experiment</span>
+        <span class="n">pjit_args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;-polli-db-experiment=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;-polli-db-experiment-uuid=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">experiment</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">&quot;-polli-db-argv=&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">binary_command</span><span class="p">),</span>
+            <span class="s2">&quot;-polli-db-host=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;host&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+            <span class="s2">&quot;-polli-db-port=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;port&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+            <span class="s2">&quot;-polli-db-username=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;user&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+            <span class="s2">&quot;-polli-db-password=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;pass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+            <span class="s2">&quot;-polli-db-name=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pjit_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+                <span class="s2">&quot;-polli-db-enable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-polli-db-project=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;-polli-db-domain=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span>
+                <span class="s2">&quot;-polli-db-group=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
+                <span class="s2">&quot;-polli-db-src-uri=&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">src_file</span><span class="p">,</span>
+                <span class="s2">&quot;-polli-db-run-group=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">run_uuid</span>
+            <span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Project was not set.&quot;</span>
+                      <span class="s2">&quot; Database activation will be invalid.&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">argv</span><span class="p">(</span><span class="n">PJIT_ARGS</span><span class="o">=</span><span class="n">pjit_args</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_next</span><span class="p">(</span><span class="n">binary_command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EnablePolyJIT"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.EnablePolyJIT">[docs]</a><span class="k">class</span> <span class="nc">EnablePolyJIT</span><span class="p">(</span><span class="n">PolyJITConfig</span><span class="p">,</span> <span class="n">ext</span><span class="o">.</span><span class="n">Extension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Call the child extensions with an activated PolyJIT.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary_command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">env</span><span class="p">(</span><span class="n">PJIT_ARGS</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value_to_str</span><span class="p">(</span><span class="s1">&#39;PJIT_ARGS&#39;</span><span class="p">)):</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_next</span><span class="p">(</span><span class="n">binary_command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
 <div class="viewcode-block" id="DisablePolyJIT"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.DisablePolyJIT">[docs]</a><span class="k">class</span> <span class="nc">DisablePolyJIT</span><span class="p">(</span><span class="n">PolyJITConfig</span><span class="p">,</span> <span class="n">ext</span><span class="o">.</span><span class="n">Extension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Deactivate the JIT for the following extensions.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary_command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">argv</span><span class="p">(</span><span class="n">PJIT_ARGS</span><span class="o">=</span><span class="s2">&quot;-polli-no-specialization&quot;</span><span class="p">):</span>
@@ -128,6 +176,7 @@
 
 
 <div class="viewcode-block" id="RegisterPolyJITLogs"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.RegisterPolyJITLogs">[docs]</a><span class="k">class</span> <span class="nc">RegisterPolyJITLogs</span><span class="p">(</span><span class="n">PolyJITConfig</span><span class="p">,</span> <span class="n">ext</span><span class="o">.</span><span class="n">LogTrackingMixin</span><span class="p">,</span> <span class="n">ext</span><span class="o">.</span><span class="n">Extension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extends the following RunWithTime extensions with extra PolyJIT logs.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Redirect to RunWithTime, but register additional logs.&quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
@@ -187,13 +236,13 @@
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;pj&quot;</span>
 
-<div class="viewcode-block" id="PolyJITFull.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.PolyJITFull.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="PolyJITFull.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.polyjit.PolyJITFull.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 
-        <span class="n">p</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-O3&quot;</span><span class="p">,</span> <span class="s2">&quot;-fno-omit-frame-pointer&quot;</span><span class="p">]</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-O3&quot;</span><span class="p">,</span> <span class="s2">&quot;-fno-omit-frame-pointer&quot;</span><span class="p">]</span>
 
         <span class="n">actns</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">rawp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">rawp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
         <span class="n">rawp</span><span class="o">.</span><span class="n">run_uuid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
         <span class="n">rawp</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
             <span class="n">ext</span><span class="o">.</span><span class="n">RunWithTime</span><span class="p">(</span>
@@ -202,7 +251,7 @@
                     <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;jobs&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))</span>
         <span class="n">actns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RequireAll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">rawp</span><span class="p">)))</span>
 
-        <span class="n">pollyp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">pollyp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
         <span class="n">pollyp</span><span class="o">.</span><span class="n">run_uuid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
         <span class="n">pollyp</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;-load&quot;</span><span class="p">,</span>
                          <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;LLVMPolly.so&quot;</span><span class="p">,</span>
@@ -214,7 +263,7 @@
                     <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;jobs&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))</span>
         <span class="n">actns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RequireAll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">pollyp</span><span class="p">)))</span>
 
-        <span class="n">jitp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">jitp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
         <span class="n">jitp</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">jitp</span><span class="p">)</span>
         <span class="n">norecomp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">jitp</span><span class="p">)</span>
         <span class="n">norecomp</span><span class="o">.</span><span class="n">cflags</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polli-no-recompilation&quot;</span><span class="p">]</span>
@@ -229,15 +278,19 @@
                 <span class="s2">&quot;recompilation&quot;</span><span class="p">:</span> <span class="s2">&quot;disabled&quot;</span>
             <span class="p">}</span>
 
+            <span class="n">pjit_extension</span> <span class="o">=</span> \
+                <span class="n">EnableJITDatabase</span><span class="p">(</span>
+                    <span class="n">DisablePolyJIT</span><span class="p">(</span>
+                        <span class="n">ext</span><span class="o">.</span><span class="n">SetThreadLimit</span><span class="p">(</span>
+                            <span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
+                            <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
+                        <span class="n">project</span><span class="o">=</span><span class="n">cp</span><span class="p">),</span>
+                    <span class="n">project</span><span class="o">=</span><span class="n">cp</span><span class="p">)</span>
+
             <span class="n">cp</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
                 <span class="n">ext</span><span class="o">.</span><span class="n">LogAdditionals</span><span class="p">(</span>
                     <span class="n">RegisterPolyJITLogs</span><span class="p">(</span>
-                        <span class="n">ext</span><span class="o">.</span><span class="n">RunWithTime</span><span class="p">(</span>
-                            <span class="n">DisablePolyJIT</span><span class="p">(</span>
-                                <span class="n">ext</span><span class="o">.</span><span class="n">SetThreadLimit</span><span class="p">(</span>
-                                    <span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
-                                    <span class="n">config</span><span class="o">=</span><span class="n">cfg</span>
-                                <span class="p">)))))</span>
+                        <span class="n">ext</span><span class="o">.</span><span class="n">RunWithTime</span><span class="p">(</span><span class="n">pjit_extension</span><span class="p">)))</span>
             <span class="n">actns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RequireAll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">cp</span><span class="p">)))</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
@@ -249,15 +302,19 @@
                 <span class="s2">&quot;cores-config&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span>
                 <span class="s2">&quot;recompilation&quot;</span><span class="p">:</span> <span class="s2">&quot;enabled&quot;</span>
             <span class="p">}</span>
+
+            <span class="n">pjit_extension</span> <span class="o">=</span> \
+                <span class="n">EnableJITDatabase</span><span class="p">(</span>
+                    <span class="n">EnablePolyJIT</span><span class="p">(</span>
+                        <span class="n">ext</span><span class="o">.</span><span class="n">SetThreadLimit</span><span class="p">(</span>
+                            <span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
+                            <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
+                        <span class="n">project</span><span class="o">=</span><span class="n">cp</span><span class="p">),</span>
+                    <span class="n">project</span><span class="o">=</span><span class="n">cp</span><span class="p">)</span>
             <span class="n">cp</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
                 <span class="n">ext</span><span class="o">.</span><span class="n">LogAdditionals</span><span class="p">(</span>
                     <span class="n">RegisterPolyJITLogs</span><span class="p">(</span>
-                        <span class="n">ext</span><span class="o">.</span><span class="n">RunWithTime</span><span class="p">(</span>
-                            <span class="n">EnablePolyJIT</span><span class="p">(</span>
-                                <span class="n">ext</span><span class="o">.</span><span class="n">SetThreadLimit</span><span class="p">(</span>
-                                    <span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
-                                    <span class="n">config</span><span class="o">=</span><span class="n">cfg</span>
-                                <span class="p">)))))</span>
+                        <span class="n">ext</span><span class="o">.</span><span class="n">RunWithTime</span><span class="p">(</span><span class="n">pjit_extension</span><span class="p">)))</span>
             <span class="n">actns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RequireAll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">cp</span><span class="p">)))</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">Any</span><span class="p">(</span><span class="n">actns</span><span class="p">)]</span></div></div>

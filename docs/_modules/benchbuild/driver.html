@@ -72,13 +72,18 @@
     <span class="n">_list_env</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="n">verbosity</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">CountOf</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose output&quot;</span><span class="p">)</span>
+    <span class="n">debug</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable debugging output&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PollyProfiling.main"><a class="viewcode-back" href="../../benchbuild.html#benchbuild.driver.PollyProfiling.main">[docs]</a>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="k">else</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;verbosity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span>
 
         <span class="n">log</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
         <span class="n">log</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;create_functions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">():</span>
             <span class="kn">from</span> <span class="nn">benchbuild.utils.schema</span> <span class="k">import</span> <span class="n">init_functions</span><span class="p">,</span> <span class="n">Session</span>
             <span class="n">init_functions</span><span class="p">(</span><span class="n">Session</span><span class="p">())</span>

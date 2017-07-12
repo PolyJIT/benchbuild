@@ -124,7 +124,6 @@ loaded automatically. See configuration variables:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">discover</span><span class="p">()</span>
 <span class="go">Could not find &#39;benchbuild.non.existing&#39;</span>
 <span class="go">ImportError: No module named &#39;benchbuild.non&#39;</span>
-<span class="go">Found experiment: benchbuild.experiments.raw</span>
 </pre></div>
 </div>
 </dd>
@@ -192,7 +191,7 @@ by llvm.</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.compilestats.CompilestatsExperiment.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/compilestats.html#CompilestatsExperiment.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.compilestats.CompilestatsExperiment.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/compilestats.html#CompilestatsExperiment.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.compilestats.CompilestatsExperiment.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -209,7 +208,7 @@ by llvm.</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.compilestats.PollyCompilestatsExperiment.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/compilestats.html#PollyCompilestatsExperiment.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.compilestats.PollyCompilestatsExperiment.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/compilestats.html#PollyCompilestatsExperiment.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.compilestats.PollyCompilestatsExperiment.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -232,7 +231,7 @@ directories for benchbuild. No compilation &amp; no run can be done with it.</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.empty.Empty.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/empty.html#Empty.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.empty.Empty.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/empty.html#Empty.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.empty.Empty.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do nothing.</p>
 </dd></dl>
 
@@ -294,7 +293,7 @@ project with libbenchbuild support to work.</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.papi.PapiScopCoverage.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/papi.html#PapiScopCoverage.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.papi.PapiScopCoverage.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/papi.html#PapiScopCoverage.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.papi.PapiScopCoverage.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create &amp; Run a papi-instrumented version of the project.</p>
 <p>This experiment uses the -jitable flag of libPolyJIT to generate
 dynamic SCoP coverage.</p>
@@ -314,7 +313,7 @@ dynamic SCoP coverage.</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.papi.PapiStandardScopCoverage.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/papi.html#PapiStandardScopCoverage.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.papi.PapiStandardScopCoverage.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/papi.html#PapiStandardScopCoverage.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.papi.PapiStandardScopCoverage.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create &amp; Run a papi-instrumented version of the project.</p>
 <p>This experiment uses the -jitable flag of libPolyJIT to generate
 dynamic SCoP coverage.</p>
@@ -372,7 +371,7 @@ a database for further analysis.</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.pj_sequence.Genetic1Sequence.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_sequence.html#Genetic1Sequence.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_sequence.Genetic1Sequence.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_sequence.html#Genetic1Sequence.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_sequence.Genetic1Sequence.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the actions for the test.</p>
 </dd></dl>
 
@@ -394,7 +393,7 @@ a database for further analysis.</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.pj_sequence.Genetic2Sequence.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_sequence.html#Genetic2Sequence.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_sequence.Genetic2Sequence.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_sequence.html#Genetic2Sequence.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_sequence.Genetic2Sequence.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the actions for the test.</p>
 </dd></dl>
 
@@ -416,7 +415,7 @@ This shall become the default experiment for sequence analysis.</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.pj_sequence.GreedySequences.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_sequence.html#GreedySequences.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_sequence.GreedySequences.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_sequence.html#GreedySequences.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_sequence.GreedySequences.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the actions for the test.</p>
 </dd></dl>
 
@@ -437,7 +436,7 @@ into a database to be analyzed later on.</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.pj_sequence.HillclimberSequences.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_sequence.html#HillclimberSequences.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_sequence.HillclimberSequences.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_sequence.html#HillclimberSequences.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_sequence.HillclimberSequences.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the actions for the test.</p>
 </dd></dl>
 
@@ -458,7 +457,7 @@ with a given function and metric.</p>
 <p>Handles the view of the sequences in the database.</p>
 <dl class="attribute">
 <dt id="benchbuild.experiments.pj_sequence.SequenceReport.QUERY_TOTAL">
-<code class="descname">QUERY_TOTAL</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7f27e59904a8; Select object&gt;</em><a class="headerlink" href="#benchbuild.experiments.pj_sequence.SequenceReport.QUERY_TOTAL" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QUERY_TOTAL</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7f68b394c320; Select object&gt;</em><a class="headerlink" href="#benchbuild.experiments.pj_sequence.SequenceReport.QUERY_TOTAL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -475,8 +474,7 @@ with a given function and metric.</p>
 <dl class="method">
 <dt id="benchbuild.experiments.pj_sequence.SequenceReport.report">
 <code class="descname">report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_sequence.html#SequenceReport.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_sequence.SequenceReport.report" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes a report after getting the data out of the db with a query.</p>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -567,7 +565,7 @@ execution profiles of PolyJIT:</p>
 <dd><p>Bases: <a class="reference internal" href="benchbuild.reports.html#benchbuild.reports.Report" title="benchbuild.reports.Report"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.reports.Report</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.experiments.pjtest.StatusReport.QUERY_STATUS">
-<code class="descname">QUERY_STATUS</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7f27e55befd0; Select object&gt;</em><a class="headerlink" href="#benchbuild.experiments.pjtest.StatusReport.QUERY_STATUS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QUERY_STATUS</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7f68b334a860; Select object&gt;</em><a class="headerlink" href="#benchbuild.experiments.pjtest.StatusReport.QUERY_STATUS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -600,7 +598,7 @@ execution profiles of PolyJIT:</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.pjtest.Test.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pjtest.html#Test.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pjtest.Test.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pjtest.html#Test.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pjtest.Test.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -611,12 +609,12 @@ execution profiles of PolyJIT:</p>
 <dd><p>Bases: <a class="reference internal" href="benchbuild.reports.html#benchbuild.reports.Report" title="benchbuild.reports.Report"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.reports.Report</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.experiments.pjtest.TestReport.QUERY_REGION">
-<code class="descname">QUERY_REGION</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7f27e554e7b8; Select object&gt;</em><a class="headerlink" href="#benchbuild.experiments.pjtest.TestReport.QUERY_REGION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QUERY_REGION</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7f68b334f048; Select object&gt;</em><a class="headerlink" href="#benchbuild.experiments.pjtest.TestReport.QUERY_REGION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="benchbuild.experiments.pjtest.TestReport.QUERY_TOTAL">
-<code class="descname">QUERY_TOTAL</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7f27e554e550; Select object&gt;</em><a class="headerlink" href="#benchbuild.experiments.pjtest.TestReport.QUERY_TOTAL" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QUERY_TOTAL</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7f68b334ada0; Select object&gt;</em><a class="headerlink" href="#benchbuild.experiments.pjtest.TestReport.QUERY_TOTAL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -655,7 +653,7 @@ time’s behavior regarding the position of polly and unprofitable processes.</p
 
 <dl class="method">
 <dt id="benchbuild.experiments.pollytest.PollyTest.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pollytest.html#PollyTest.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pollytest.PollyTest.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pollytest.html#PollyTest.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pollytest.PollyTest.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -668,14 +666,23 @@ time’s behavior regarding the position of polly and unprofitable processes.</p
 when running with polyjit support enabled.</p>
 <dl class="class">
 <dt id="benchbuild.experiments.polyjit.DisablePolyJIT">
-<em class="property">class </em><code class="descclassname">benchbuild.experiments.polyjit.</code><code class="descname">DisablePolyJIT</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#DisablePolyJIT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.DisablePolyJIT" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.polyjit.</code><code class="descname">DisablePolyJIT</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#DisablePolyJIT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.DisablePolyJIT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.experiments.polyjit.PolyJITConfig" title="benchbuild.experiments.polyjit.PolyJITConfig"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.experiments.polyjit.PolyJITConfig</span></code></a>, <a class="reference internal" href="benchbuild.html#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
+<p>Deactivate the JIT for the following extensions.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.experiments.polyjit.EnableJITDatabase">
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.polyjit.</code><code class="descname">EnableJITDatabase</code><span class="sig-paren">(</span><em>*args</em>, <em>project=None</em>, <em>experiment=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#EnableJITDatabase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.EnableJITDatabase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.experiments.polyjit.PolyJITConfig" title="benchbuild.experiments.polyjit.PolyJITConfig"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.experiments.polyjit.PolyJITConfig</span></code></a>, <a class="reference internal" href="benchbuild.html#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
+<p>The run and given extensions store polli’s statistics to the database.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.experiments.polyjit.EnablePolyJIT">
-<em class="property">class </em><code class="descclassname">benchbuild.experiments.polyjit.</code><code class="descname">EnablePolyJIT</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#EnablePolyJIT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.EnablePolyJIT" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.polyjit.</code><code class="descname">EnablePolyJIT</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#EnablePolyJIT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.EnablePolyJIT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.experiments.polyjit.PolyJITConfig" title="benchbuild.experiments.polyjit.PolyJITConfig"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.experiments.polyjit.PolyJITConfig</span></code></a>, <a class="reference internal" href="benchbuild.html#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
+<p>Call the child extensions with an activated PolyJIT.</p>
 </dd></dl>
 
 <dl class="class">
@@ -712,15 +719,18 @@ when running with polyjit support enabled.</p>
 <dt id="benchbuild.experiments.polyjit.PolyJITConfig">
 <em class="property">class </em><code class="descclassname">benchbuild.experiments.polyjit.</code><code class="descname">PolyJITConfig</code><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#PolyJITConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.PolyJITConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Object that stores the configuraion of the JIT.</p>
 <dl class="attribute">
 <dt id="benchbuild.experiments.polyjit.PolyJITConfig.argv">
 <code class="descname">argv</code><a class="headerlink" href="#benchbuild.experiments.polyjit.PolyJITConfig.argv" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Getter for the configuration held by the config object.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="benchbuild.experiments.polyjit.PolyJITConfig.value_to_str">
 <code class="descname">value_to_str</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#PolyJITConfig.value_to_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.PolyJITConfig.value_to_str" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Prints the value of a given key.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -737,21 +747,23 @@ when running with polyjit support enabled.</p>
 
 <dl class="method">
 <dt id="benchbuild.experiments.polyjit.PolyJITFull.actions_for_project">
-<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#PolyJITFull.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.PolyJITFull.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#PolyJITFull.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.PolyJITFull.actions_for_project" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.experiments.polyjit.RegisterPolyJITLogs">
-<em class="property">class </em><code class="descclassname">benchbuild.experiments.polyjit.</code><code class="descname">RegisterPolyJITLogs</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#RegisterPolyJITLogs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.RegisterPolyJITLogs" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.polyjit.</code><code class="descname">RegisterPolyJITLogs</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#RegisterPolyJITLogs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.RegisterPolyJITLogs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.experiments.polyjit.PolyJITConfig" title="benchbuild.experiments.polyjit.PolyJITConfig"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.experiments.polyjit.PolyJITConfig</span></code></a>, <a class="reference internal" href="benchbuild.html#benchbuild.extensions.LogTrackingMixin" title="benchbuild.extensions.LogTrackingMixin"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.LogTrackingMixin</span></code></a>, <a class="reference internal" href="benchbuild.html#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
+<p>Extends the following RunWithTime extensions with extra PolyJIT logs.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="benchbuild.experiments.polyjit.verbosity_to_polyjit_log_level">
 <code class="descclassname">benchbuild.experiments.polyjit.</code><code class="descname">verbosity_to_polyjit_log_level</code><span class="sig-paren">(</span><em>verbosity: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/polyjit.html#verbosity_to_polyjit_log_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.polyjit.verbosity_to_polyjit_log_level" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Transfers the verbosity level to a useable polyjit format.</p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-benchbuild.experiments.raw">

@@ -60,13 +60,14 @@
           <div class="body" role="main">
             
   <h1>Source code for benchbuild.projects.apollo.scimark</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">benchbuild.projects.apollo.group</span> <span class="k">import</span> <span class="n">ApolloGroup</span>
+<span></span><span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">benchbuild.projects.apollo.group</span> <span class="k">import</span> <span class="n">ApolloGroup</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Wget</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">unzip</span><span class="p">,</span> <span class="n">make</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+
 
 <div class="viewcode-block" id="SciMark"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.html#benchbuild.projects.apollo.scimark.SciMark">[docs]</a><span class="k">class</span> <span class="nc">SciMark</span><span class="p">(</span><span class="n">ApolloGroup</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;SciMark&quot;&quot;&quot;</span>

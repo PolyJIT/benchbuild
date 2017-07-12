@@ -71,14 +71,15 @@
 <span class="kn">from</span> <span class="nn">benchbuild.experiment</span> <span class="k">import</span> <span class="n">RuntimeExperiment</span>
 <span class="kn">from</span> <span class="nn">benchbuild.extensions</span> <span class="k">import</span> <span class="n">ExtractCompileStats</span>
 
+
 <div class="viewcode-block" id="CompilestatsExperiment"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.compilestats.CompilestatsExperiment">[docs]</a><span class="k">class</span> <span class="nc">CompilestatsExperiment</span><span class="p">(</span><span class="n">RuntimeExperiment</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The compilestats experiment.&quot;&quot;&quot;</span>
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;cs&quot;</span>
 
-<div class="viewcode-block" id="CompilestatsExperiment.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.compilestats.CompilestatsExperiment.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> <span class="n">ExtractCompileStats</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">CompilestatsExperiment</span><span class="o">.</span><span class="n">default_compiletime_actions</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="CompilestatsExperiment.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.compilestats.CompilestatsExperiment.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> <span class="n">ExtractCompileStats</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CompilestatsExperiment</span><span class="o">.</span><span class="n">default_compiletime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="PollyCompilestatsExperiment"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.compilestats.PollyCompilestatsExperiment">[docs]</a><span class="k">class</span> <span class="nc">PollyCompilestatsExperiment</span><span class="p">(</span><span class="n">RuntimeExperiment</span><span class="p">):</span>
@@ -86,13 +87,13 @@
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;p-cs&quot;</span>
 
-<div class="viewcode-block" id="PollyCompilestatsExperiment.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.compilestats.PollyCompilestatsExperiment.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-O3&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;-load&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;LLVMPolly.so&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polly&quot;</span><span class="p">]</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> <span class="n">ExtractCompileStats</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">CompilestatsExperiment</span><span class="o">.</span><span class="n">default_compiletime_actions</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="PollyCompilestatsExperiment.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.compilestats.PollyCompilestatsExperiment.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-O3&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;-load&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;LLVMPolly.so&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polly&quot;</span><span class="p">]</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> <span class="n">ExtractCompileStats</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CompilestatsExperiment</span><span class="o">.</span><span class="n">default_compiletime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

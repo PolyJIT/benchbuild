@@ -73,7 +73,8 @@
 <span class="sd">the gentoo image in benchbuild&#39;s source directory.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
 <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">cp</span>  <span class="c1"># pylint: disable=E0401</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">wrap_cc_in_uchroot</span><span class="p">,</span> <span class="n">wrap_cxx_in_uchroot</span>
 <span class="kn">from</span> <span class="nn">benchbuild</span> <span class="k">import</span> <span class="n">project</span>
@@ -100,7 +101,8 @@
 
 <div class="viewcode-block" id="GentooGroup.download"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;unionfs&quot;</span><span class="p">][</span><span class="s2">&quot;enable&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">():</span>
-            <span class="n">container</span><span class="o">.</span><span class="n">unpack_container</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">Project</span><span class="o">.</span><span class="n">CONTAINER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">)</span></div>
+            <span class="n">container</span><span class="o">.</span><span class="n">unpack_container</span><span class="p">(</span>
+                <span class="n">project</span><span class="o">.</span><span class="n">Project</span><span class="o">.</span><span class="n">CONTAINER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GentooGroup.write_wgetrc"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup.write_wgetrc">[docs]</a>    <span class="k">def</span> <span class="nf">write_wgetrc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">mkfile_uchroot</span><span class="p">(</span><span class="s2">&quot;/etc/wgetrc&quot;</span><span class="p">)</span>
@@ -191,25 +193,25 @@
 
         <span class="n">config_file</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;config_file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">config_file</span><span class="p">)):</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;log.file&quot;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
-                <span class="n">paths</span><span class="p">,</span> <span class="n">libs</span> <span class="o">=</span> \
-                        <span class="n">uchroot_env</span><span class="p">(</span>
-                            <span class="n">uchroot_mounts</span><span class="p">(</span><span class="s2">&quot;mnt&quot;</span><span class="p">,</span>
-                                <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">][</span><span class="s2">&quot;mounts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
-                <span class="n">UCHROOT_CFG</span> <span class="o">=</span> <span class="n">CFG</span>
-                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;plugins&quot;</span><span class="p">][</span><span class="s2">&quot;projects&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;compiler_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paths</span>
-                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;compiler_ld_library_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">config_file</span><span class="p">)):</span>
+            <span class="n">paths</span><span class="p">,</span> <span class="n">libs</span> <span class="o">=</span> \
+                    <span class="n">uchroot_env</span><span class="p">(</span>
+                        <span class="n">uchroot_mounts</span><span class="p">(</span>
+                            <span class="s2">&quot;mnt&quot;</span><span class="p">,</span>
+                            <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">][</span><span class="s2">&quot;mounts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
+            <span class="n">UCHROOT_CFG</span> <span class="o">=</span> <span class="n">CFG</span>
+            <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;plugins&quot;</span><span class="p">][</span><span class="s2">&quot;projects&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;compiler_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paths</span>
+            <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;compiler_ld_library_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
 
-                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;binary_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paths</span>
-                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;binary_ld_library_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
+            <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;binary_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paths</span>
+            <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;binary_ld_library_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
 
-                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;lookup_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paths</span>
-                <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;lookup_ld_library_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
+            <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;lookup_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paths</span>
+            <span class="n">UCHROOT_CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;lookup_ld_library_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">libs</span>
 
-                <span class="n">mkfile_uchroot</span><span class="p">(</span><span class="s2">&quot;/.benchbuild.json&quot;</span><span class="p">)</span>
-                <span class="n">UCHROOT_CFG</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;.benchbuild.json&quot;</span><span class="p">)</span>
+            <span class="n">mkfile_uchroot</span><span class="p">(</span><span class="s2">&quot;/.benchbuild.json&quot;</span><span class="p">)</span>
+            <span class="n">UCHROOT_CFG</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="s2">&quot;.benchbuild.json&quot;</span><span class="p">)</span>
 
         <span class="n">wrap_cc_in_uchroot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span>
         <span class="n">wrap_cxx_in_uchroot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldflags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler_extension</span><span class="p">)</span></div></div>

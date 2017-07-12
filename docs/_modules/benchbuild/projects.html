@@ -68,22 +68,23 @@
 <span class="sd"> *_PLUGINS_PROJECTS</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
+
+<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="discover"><a class="viewcode-back" href="../../benchbuild.projects.html#benchbuild.projects.discover">[docs]</a><span class="k">def</span> <span class="nf">discover</span><span class="p">():</span>
     <span class="k">if</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;plugins&quot;</span><span class="p">][</span><span class="s2">&quot;autoload&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">():</span>
-        <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;benchbuild&#39;</span><span class="p">)</span>
         <span class="n">project_plugins</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;plugins&quot;</span><span class="p">][</span><span class="s2">&quot;projects&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">project_plugins</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found project: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pp</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">project_plugin</span> <span class="ow">in</span> <span class="n">project_plugins</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ie</span><span class="p">:</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not find &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pp</span><span class="p">))</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ImportError: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ie</span><span class="o">.</span><span class="n">msg</span><span class="p">))</span></div>
+                <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">project_plugin</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">import_error</span><span class="p">:</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not find &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">project_plugin</span><span class="p">)</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ImportError: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">import_error</span><span class="o">.</span><span class="n">msg</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

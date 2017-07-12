@@ -60,17 +60,15 @@
           <div class="body" role="main">
             
   <h1>Source code for benchbuild.projects.benchbuild.sqlite3</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
+<span></span><span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+
+<span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
 <span class="kn">from</span> <span class="nn">benchbuild.projects.benchbuild.group</span> <span class="k">import</span> <span class="n">BenchBuildGroup</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Wget</span><span class="p">,</span> <span class="n">Git</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang</span><span class="p">,</span> <span class="n">lt_clang_cxx</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span>
-<span class="kn">from</span> <span class="nn">benchbuild.utils.versions</span> <span class="k">import</span> <span class="n">get_version_from_cache_dir</span>
-
-<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">unzip</span><span class="p">,</span> <span class="n">make</span>
-
-<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 
 
 <div class="viewcode-block" id="SQLite3"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.sqlite3.SQLite3">[docs]</a><span class="k">class</span> <span class="nc">SQLite3</span><span class="p">(</span><span class="n">BenchBuildGroup</span><span class="p">):</span>
@@ -81,7 +79,7 @@
 
     <span class="n">src_dir</span> <span class="o">=</span> <span class="s2">&quot;sqlite-amalgamation-3080900&quot;</span>
     <span class="n">SRC_FILE</span> <span class="o">=</span> <span class="n">src_dir</span> <span class="o">+</span> <span class="s2">&quot;.zip&quot;</span>
-    
+
     <span class="n">src_uri</span> <span class="o">=</span> <span class="s2">&quot;http://www.sqlite.org/2015/&quot;</span> <span class="o">+</span> <span class="n">SRC_FILE</span>
 
 <div class="viewcode-block" id="SQLite3.download"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.sqlite3.SQLite3.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

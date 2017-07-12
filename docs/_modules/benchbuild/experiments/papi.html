@@ -71,8 +71,6 @@
 <span class="kn">from</span> <span class="nn">benchbuild.extensions</span> <span class="k">import</span> <span class="p">(</span><span class="n">ExtractCompileStats</span><span class="p">,</span> <span class="n">RunWithTime</span><span class="p">,</span>
                                    <span class="n">RuntimeExtension</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.actions</span> <span class="k">import</span> <span class="n">Step</span>
-<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
-<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 
 
 <div class="viewcode-block" id="Calibrate"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.papi.Calibrate">[docs]</a><span class="k">class</span> <span class="nc">Calibrate</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
@@ -94,48 +92,49 @@
         <span class="sd">&quot;&quot;&quot;Do the postprocessing, after all projects are done.&quot;&quot;&quot;</span>
         <span class="n">actions</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PapiScopCoverage</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">actions</span><span class="p">()</span>
 
-        <span class="k">def</span> <span class="nf">run_pprof_analyze</span><span class="p">():</span>
-            <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">pprof_analyze</span>
-
-            <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">env</span><span class="p">(</span><span class="n">BB_EXPERIMENT_ID</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;experiment_id&quot;</span><span class="p">]),</span>
-                           <span class="n">BB_EXPERIMENT</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                           <span class="n">BB_USE_DATABASE</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                           <span class="n">BB_USE_FILE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                           <span class="n">BB_USE_CSV</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-                <span class="n">pprof_analyze</span><span class="p">()</span>
-
-        <span class="n">actions</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
-            <span class="n">Analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_pprof_analyze</span><span class="p">),</span>
-        <span class="p">])</span>
+<span class="c1"># FIXME: Still required?</span>
+<span class="c1">#        def run_pprof_analyze():</span>
+<span class="c1">#            from benchbuild.utils.cmd import pprof_analyze</span>
+<span class="c1">#</span>
+<span class="c1">#            with local.env(BB_EXPERIMENT=self.name,</span>
+<span class="c1">#                           BB_USE_DATABASE=1,</span>
+<span class="c1">#                           BB_USE_FILE=0,</span>
+<span class="c1">#                           BB_USE_CSV=0):</span>
+<span class="c1">#                pprof_analyze()</span>
+<span class="c1">#</span>
+<span class="c1">#        actions.extend([</span>
+<span class="c1">#            Analyze(self, run_pprof_analyze),</span>
+<span class="c1">#        ])</span>
 
         <span class="k">return</span> <span class="n">actions</span></div>
 
-<div class="viewcode-block" id="PapiScopCoverage.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.papi.PapiScopCoverage.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="PapiScopCoverage.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.papi.PapiScopCoverage.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create &amp; Run a papi-instrumented version of the project.</span>
 
 <span class="sd">        This experiment uses the -jitable flag of libPolyJIT to generate</span>
 <span class="sd">        dynamic SCoP coverage.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">ldflags</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">ldflags</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;-lpjit&quot;</span><span class="p">,</span> <span class="s2">&quot;-lpprof&quot;</span><span class="p">,</span> <span class="s2">&quot;-lpapi&quot;</span><span class="p">]</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-O3&quot;</span><span class="p">,</span> <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;-load&quot;</span><span class="p">,</span> <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;LLVMPolyJIT.so&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polli&quot;</span><span class="p">,</span> <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-instrument&quot;</span><span class="p">,</span> <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-no-recompilation&quot;</span><span class="p">,</span> <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-polly-detect-keep-going&quot;</span><span class="p">]</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> <span class="n">ExtractCompileStats</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
+        <span class="n">project</span><span class="o">.</span><span class="n">ldflags</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">ldflags</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;-lpjit&quot;</span><span class="p">,</span> <span class="s2">&quot;-lpprof&quot;</span><span class="p">,</span> <span class="s2">&quot;-lpapi&quot;</span><span class="p">]</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;-O3&quot;</span><span class="p">,</span> <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;-load&quot;</span><span class="p">,</span> <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;LLVMPolyJIT.so&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polli&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polli-instrument&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polli-no-recompilation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polly-detect-keep-going&quot;</span><span class="p">]</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> <span class="n">ExtractCompileStats</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
             <span class="n">RunWithTime</span><span class="p">(</span>
-                <span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))</span>
+                <span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))</span>
 
         <span class="k">def</span> <span class="nf">evaluate_calibration</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
             <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">pprof_calibrate</span>
-            <span class="n">papi_calibration</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_papi_calibration</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">)</span>
-            <span class="n">e</span><span class="o">.</span><span class="n">persist_calibration</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">,</span> <span class="n">papi_calibration</span><span class="p">)</span>
+            <span class="n">papi_calibration</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_papi_calibration</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">)</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">persist_calibration</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">,</span> <span class="n">papi_calibration</span><span class="p">)</span>
 
-
-        <span class="n">actns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">actns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
         <span class="n">actns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluate_calibration</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="PapiStandardScopCoverage"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.papi.PapiStandardScopCoverage">[docs]</a><span class="k">class</span> <span class="nc">PapiStandardScopCoverage</span><span class="p">(</span><span class="n">PapiScopCoverage</span><span class="p">):</span>
@@ -143,33 +142,33 @@
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;papi-std&quot;</span>
 
-<div class="viewcode-block" id="PapiStandardScopCoverage.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.papi.PapiStandardScopCoverage.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="PapiStandardScopCoverage.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.papi.PapiStandardScopCoverage.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create &amp; Run a papi-instrumented version of the project.</span>
 
 <span class="sd">        This experiment uses the -jitable flag of libPolyJIT to generate</span>
 <span class="sd">        dynamic SCoP coverage.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">ldflags</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">ldflags</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;-lpjit&quot;</span><span class="p">,</span> <span class="s2">&quot;-lbenchbuild&quot;</span><span class="p">,</span> <span class="s2">&quot;-lpapi&quot;</span><span class="p">]</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-O3&quot;</span><span class="p">,</span> <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;-load&quot;</span><span class="p">,</span> <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;LLVMPolyJIT.so&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polli&quot;</span><span class="p">,</span> <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-instrument&quot;</span><span class="p">,</span> <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-no-recompilation&quot;</span><span class="p">,</span> <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-polly-detect-keep-going&quot;</span><span class="p">]</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> <span class="n">ExtractCompileStats</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
+        <span class="n">project</span><span class="o">.</span><span class="n">ldflags</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">ldflags</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;-lpjit&quot;</span><span class="p">,</span> <span class="s2">&quot;-lpprof&quot;</span><span class="p">,</span> <span class="s2">&quot;-lpapi&quot;</span><span class="p">]</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;-O3&quot;</span><span class="p">,</span> <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;-load&quot;</span><span class="p">,</span> <span class="s2">&quot;-Xclang&quot;</span><span class="p">,</span> <span class="s2">&quot;LLVMPolyJIT.so&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polli&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polli-instrument&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polli-no-recompilation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polly-detect-keep-going&quot;</span><span class="p">]</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> <span class="n">ExtractCompileStats</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
             <span class="n">RunWithTime</span><span class="p">(</span>
-                <span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))</span>
+                <span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))</span>
 
         <span class="k">def</span> <span class="nf">evaluate_calibration</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
             <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">pprof_calibrate</span>
-            <span class="n">papi_calibration</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_papi_calibration</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">)</span>
-            <span class="n">e</span><span class="o">.</span><span class="n">persist_calibration</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">,</span> <span class="n">papi_calibration</span><span class="p">)</span>
+            <span class="n">papi_calibration</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_papi_calibration</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">)</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">persist_calibration</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">,</span> <span class="n">papi_calibration</span><span class="p">)</span>
 
-
-        <span class="n">actns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">actns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
         <span class="n">actns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluate_calibration</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

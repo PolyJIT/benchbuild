@@ -60,18 +60,17 @@
           <div class="body" role="main">
             
   <h1>Source code for benchbuild.projects.benchbuild.x264</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
+<span></span><span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+
+<span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
 <span class="kn">from</span> <span class="nn">benchbuild.projects.benchbuild.group</span> <span class="k">import</span> <span class="n">BenchBuildGroup</span>
 <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Git</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span>
-<span class="kn">from</span> <span class="nn">benchbuild.utils.versions</span> <span class="k">import</span> <span class="n">get_version_from_cache_dir</span>
-
-<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">cp</span><span class="p">,</span> <span class="n">make</span>
 
-<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 
 
 <div class="viewcode-block" id="X264"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.x264.X264">[docs]</a><span class="k">class</span> <span class="nc">X264</span><span class="p">(</span><span class="n">BenchBuildGroup</span><span class="p">):</span>
@@ -80,7 +79,6 @@
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;x264&quot;</span>
     <span class="n">DOMAIN</span> <span class="o">=</span> <span class="s2">&quot;multimedia&quot;</span>
     <span class="n">SRC_FILE</span> <span class="o">=</span> <span class="s1">&#39;x264.git&#39;</span>
-    
 
     <span class="n">inputfiles</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tbbt-small.y4m&quot;</span><span class="p">:</span> <span class="p">[],</span>
                   <span class="s2">&quot;Sintel.2010.720p.raw&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;--input-res&quot;</span><span class="p">,</span> <span class="s2">&quot;1280x720&quot;</span><span class="p">]}</span>

@@ -778,15 +778,13 @@ svg_path: The path to the SVG file we want to store.</dd>
 
 <dl class="function">
 <dt id="benchbuild.utils.db.persist_time">
-<code class="descclassname">benchbuild.utils.db.</code><code class="descname">persist_time</code><span class="sig-paren">(</span><em>run</em>, <em>session</em>, <em>timings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#persist_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.persist_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>Persist the run results in the database.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>run: The run we attach this timing results to.
-session: The db transaction we belong to.
-timings: The timing measurements we want to store.</dd>
-</dl>
-</dd></dl>
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">persist_time</code><span class="sig-paren">(</span><em>run</em>, <em>session</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#persist_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.persist_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.db.validate">
+<code class="descclassname">benchbuild.utils.db.</code><code class="descname">validate</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/db.html#validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.db.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="module-benchbuild.utils.downloader">
@@ -1017,6 +1015,12 @@ exts: List of extensions to filter by.</dd>
 </dd></dl>
 
 <dl class="function">
+<dt id="benchbuild.utils.path.template_path">
+<code class="descclassname">benchbuild.utils.path.</code><code class="descname">template_path</code><span class="sig-paren">(</span><em>template</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/path.html#template_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.path.template_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return path to template file.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="benchbuild.utils.path.template_str">
 <code class="descclassname">benchbuild.utils.path.</code><code class="descname">template_str</code><span class="sig-paren">(</span><em>template</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/path.html#template_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.path.template_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a template file from the resources and return it as str.</p>
@@ -1026,42 +1030,13 @@ exts: List of extensions to filter by.</dd>
 <div class="section" id="module-benchbuild.utils.run">
 <span id="benchbuild-utils-run-module"></span><h2>benchbuild.utils.run module<a class="headerlink" href="#module-benchbuild.utils.run" title="Permalink to this headline">¶</a></h2>
 <p>Experiment helpers.</p>
-<dl class="exception">
-<dt id="benchbuild.utils.run.GuardedRunException">
-<em class="property">exception </em><code class="descclassname">benchbuild.utils.run.</code><code class="descname">GuardedRunException</code><span class="sig-paren">(</span><em>what</em>, <em>db_run</em>, <em>session</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#GuardedRunException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.GuardedRunException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
-<p>BB Run exception.</p>
-<p>Contains an exception that ocurred during execution of a benchbuild
-experiment.</p>
-</dd></dl>
-
 <dl class="class">
 <dt id="benchbuild.utils.run.RunInfo">
 <em class="property">class </em><code class="descclassname">benchbuild.utils.run.</code><code class="descname">RunInfo</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#RunInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.RunInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<dl class="attribute">
-<dt id="benchbuild.utils.run.RunInfo.db_run">
-<code class="descname">db_run</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.run.RunInfo.db_run" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="benchbuild.utils.run.RunInfo.retcode">
-<code class="descname">retcode</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.run.RunInfo.retcode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="benchbuild.utils.run.RunInfo.session">
-<code class="descname">session</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.run.RunInfo.session" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="benchbuild.utils.run.RunInfo.stderr">
-<code class="descname">stderr</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.run.RunInfo.stderr" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="benchbuild.utils.run.RunInfo.stdout">
-<code class="descname">stdout</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.utils.run.RunInfo.stdout" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="benchbuild.utils.run.RunInfo.commit">
+<code class="descname">commit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#RunInfo.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.RunInfo.commit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1070,22 +1045,6 @@ experiment.</p>
 <dt id="benchbuild.utils.run.UnmountError">
 <em class="property">exception </em><code class="descclassname">benchbuild.utils.run.</code><code class="descname">UnmountError</code><a class="reference internal" href="_modules/benchbuild/utils/run.html#UnmountError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.UnmountError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">BaseException</span></code></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="benchbuild.utils.run.begin">
-<code class="descclassname">benchbuild.utils.run.</code><code class="descname">begin</code><span class="sig-paren">(</span><em>command</em>, <em>project</em>, <em>ename</em>, <em>group</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.begin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Begin a run in the database log.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>command: The command that will be executed.
-pname: The project name we belong to.
-ename: The experiment name we belong to.
-group: The run group we belong to.</dd>
-<dt>Returns:</dt>
-<dd>(run, session), where run is the generated run instance and session the
-associated transaction for later use.</dd>
-</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1104,21 +1063,6 @@ database and session is the database session this group lives in.</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="benchbuild.utils.run.end">
-<code class="descclassname">benchbuild.utils.run.</code><code class="descname">end</code><span class="sig-paren">(</span><em>db_run</em>, <em>session</em>, <em>stdout</em>, <em>stderr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.end" title="Permalink to this definition">¶</a></dt>
-<dd><p>End a run in the database log (Successfully).</p>
-<p>This will persist the log information in the database and commit the
-transaction.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>db_run: The <code class="docutils literal"><span class="pre">run</span></code> schema object we belong to
-session: The db transaction we belong to.
-stdout: The stdout we captured of the run.
-stderr: The stderr we capture of the run.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="benchbuild.utils.run.end_run_group">
 <code class="descclassname">benchbuild.utils.run.</code><code class="descname">end_run_group</code><span class="sig-paren">(</span><em>group</em>, <em>session</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#end_run_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.end_run_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>End the run_group successfully.</p>
@@ -1133,22 +1077,6 @@ session: The database transaction we will finish.</dd>
 <dt id="benchbuild.utils.run.exit_code_from_run_infos">
 <code class="descclassname">benchbuild.utils.run.</code><code class="descname">exit_code_from_run_infos</code><span class="sig-paren">(</span><em>run_infos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#exit_code_from_run_infos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.exit_code_from_run_infos" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="function">
-<dt id="benchbuild.utils.run.fail">
-<code class="descclassname">benchbuild.utils.run.</code><code class="descname">fail</code><span class="sig-paren">(</span><em>db_run</em>, <em>session</em>, <em>retcode</em>, <em>stdout</em>, <em>stderr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/run.html#fail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.run.fail" title="Permalink to this definition">¶</a></dt>
-<dd><p>End a run in the database log (Unsuccessfully).</p>
-<p>This will persist the log information in the database and commit the
-transaction.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>db_run: The <code class="docutils literal"><span class="pre">run</span></code> schema object we belong to
-session: The db transaction we belong to.
-retcode: The return code we captured of the run.
-stdout: The stdout we captured of the run.
-stderr: The stderr we capture of the run.</dd>
-</dl>
-</dd></dl>
 
 <dl class="function">
 <dt id="benchbuild.utils.run.fail_run_group">
@@ -1379,13 +1307,6 @@ initialize the functions first using the following command:</p>
 a new version that you are interested in.
 As soon as we have alembic running, we can provide automatic up/downgrade
 paths for you.</p>
-<dl class="attribute">
-<dt id="benchbuild.utils.schema.BASE">
-<code class="descclassname">benchbuild.utils.schema.</code><code class="descname">BASE</code><a class="headerlink" href="#benchbuild.utils.schema.BASE" title="Permalink to this definition">¶</a></dt>
-<dd><p>Source: <a class="reference external" href="http://docs.sqlalchemy.org/en/rel_0_9/core/custom_types.html?highlight=guid#backend-agnostic-guid-type">http://docs.sqlalchemy.org/en/rel_0_9/core/custom_types.html?highlight=guid#backend-agnostic-guid-type</a></p>
-<p>alias of <code class="xref py py-class docutils literal"><span class="pre">Base</span></code></p>
-</dd></dl>
-
 <dl class="class">
 <dt id="benchbuild.utils.schema.CompileStat">
 <em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">CompileStat</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#CompileStat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.CompileStat" title="Permalink to this definition">¶</a></dt>

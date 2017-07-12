@@ -109,6 +109,9 @@
     <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">files</span></div>
 
+<div class="viewcode-block" id="template_path"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.path.template_path">[docs]</a><span class="k">def</span> <span class="nf">template_path</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return path to template file.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">determine_path</span><span class="p">(),</span> <span class="n">template</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="template_str"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.path.template_str">[docs]</a><span class="k">def</span> <span class="nf">template_str</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read a template file from the resources and return it as str.&quot;&quot;&quot;</span>

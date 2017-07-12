@@ -458,7 +458,7 @@ def init_functions(connection):
         func = sa.DDL(
             bbpath.template_str(file)
         )
-        LOG.info("Loading: %s", file)
-        LOG.info(func.compile())
+        LOG.info("Loading: '%s' into database", file)
+        LOG.debug(func.compile())
         connection.execute(func)
         connection.commit()

@@ -36,3 +36,4 @@ dist/
 .cache/
 .benchbuild.json
 .coverage
+.vscode

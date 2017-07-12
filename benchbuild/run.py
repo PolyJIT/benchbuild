@@ -178,7 +178,7 @@ Summary:
     {num_total} actions were in the queue.
     {num_failed} actions failed to execute.
 
-    This run took: {elapsed_time:8.3} seconds.
+    This run took: {elapsed_time:8.3f} seconds.
         """.format(num_total=num_actions, num_failed=len(failed), elapsed_time=end-start))
 
         if len(failed) > 0:

@@ -1,9 +1,9 @@
 """
 Register reports for an experiment
 """
-from benchbuild.settings import CFG
-import logging
 import importlib
+import logging
+from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
 

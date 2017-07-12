@@ -69,6 +69,7 @@ class RuntimeExtension(Extension):
                              self.experiment, **kwargs) as run:
             run_info = run()
             if self.config:
+                LOG.info(self.config)
                 persist_config(run_info.db_run, run_info.session, self.config)
         res = self.call_next(binary_command, *args, **kwargs)
         res.append(run_info)

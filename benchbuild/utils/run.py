@@ -373,9 +373,10 @@ def uchroot_mounts(prefix, mounts):
     i = 0
     mntpoints = []
     for mount in mounts:
-        mntpoint = "{0}/{1}".format(prefix, str(i))
-        mntpoints.append(mntpoint)
-        i = i + 1
+        if not isinstance(mount, dict):
+            mntpoint = "{0}/{1}".format(prefix, str(i))
+            mntpoints.append(mntpoint)
+            i = i + 1
     return mntpoints
 
 
@@ -384,11 +385,16 @@ def _uchroot_mounts(prefix, mounts, uchroot):
     new_uchroot = uchroot
     mntpoints = []
     for mount in mounts:
-        mntpoint = "{0}/{1}".format(prefix, str(i))
-        mkdir("-p", mntpoint)
-        new_uchroot = new_uchroot["-M", "{0}:/{1}".format(mount, mntpoint)]
-        mntpoints.append(mntpoint)
-        i = i + 1
+        src_mount = mount
+        if isinstance(mount, dict):
+            src_mount = mount["src"]
+            tgt_mount = mount["tgt"]
+        else:
+            tgt_mount = "{0}/{1}".format(prefix, str(i))
+            i = i + 1
+        mkdir("-p", tgt_mount)
+        new_uchroot = new_uchroot["-M", "{0}:/{1}".format(src_mount, tgt_mount)]
+        mntpoints.append(tgt_mount)
     return new_uchroot, mntpoints
 
 

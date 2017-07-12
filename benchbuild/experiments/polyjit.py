@@ -107,8 +107,9 @@ class EnablePolyJIT(PolyJITConfig, ext.Extension):
     """Call the child extensions with an activated PolyJIT."""
     def __call__(self, binary_command, *args, **kwargs):
         ret = None
-        with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
-            ret = self.call_next(binary_command, *args, **kwargs)
+        with self.argv(PJIT_ARGS="-polli-use-polly-options"):
+            with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
+                ret = self.call_next(binary_command, *args, **kwargs)
         return ret
 
 
@@ -116,7 +117,8 @@ class DisablePolyJIT(PolyJITConfig, ext.Extension):
     """Deactivate the JIT for the following extensions."""
     def __call__(self, binary_command, *args, **kwargs):
         ret = None
-        with self.argv(PJIT_ARGS="-polli-no-specialization"):
+        with self.argv(PJIT_ARGS=["-polli-no-specialization",
+                                  "-polli-use-polly-options"]):
             with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
                 ret = self.call_next(binary_command, *args, **kwargs)
         return ret

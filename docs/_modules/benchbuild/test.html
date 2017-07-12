@@ -86,14 +86,13 @@
 
 <div class="viewcode-block" id="BenchBuildTest.get_check_line"><a class="viewcode-back" href="../../benchbuild.html#benchbuild.test.BenchBuildTest.get_check_line">[docs]</a>    <span class="k">def</span> <span class="nf">get_check_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
-        <span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">llvm</span>
         <span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">llvm_libs</span>
         <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">sed</span><span class="p">,</span> <span class="n">opt</span>
 
         <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">env</span><span class="p">(</span><span class="n">LD_LIBRARY_PATH</span><span class="o">=</span><span class="n">llvm_libs</span><span class="p">()):</span>
             <span class="c1"># Magic. ;-)</span>
             <span class="n">ret</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> \
-                <span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_flags</span><span class="p">()]</span> <span class="o">&lt;&lt;</span> \
+                <span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_flags</span><span class="p">()]</span> <span class="o">&lt;&lt;</span>
                     <span class="p">(</span><span class="n">sed</span><span class="p">[</span><span class="sa">r</span><span class="s2">&quot;0,/\#0/s///&quot;</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">module</span><span class="p">)())</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">retcode</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> is broken:&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)))</span>

@@ -242,7 +242,7 @@
     <span class="p">]</span>
 
     <span class="n">prefix_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;-l&#39;</span><span class="p">,</span> <span class="s1">&#39;-L&#39;</span><span class="p">]</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">filter_list</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filter_list</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">prefix_list</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
@@ -264,7 +264,6 @@
     <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
 
-
 <div class="viewcode-block" id="SequenceReport"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.SequenceReport">[docs]</a><span class="k">class</span> <span class="nc">SequenceReport</span><span class="p">(</span><span class="n">Report</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Handles the view of the sequences in the database.&quot;&quot;&quot;</span>
 
@@ -277,8 +276,6 @@
         <span class="p">])</span><span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s1">&#39;sequences&#39;</span><span class="p">))</span>
 
 <div class="viewcode-block" id="SequenceReport.report"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.SequenceReport.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Writes a report after getting the data out of the db with a query.&quot;&quot;&quot;</span>
-
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;I found the following matching experiment ids&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_ids</span><span class="p">]))</span>
 
@@ -293,10 +290,11 @@
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">():</span>
             <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_path</span><span class="p">)</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{prefix}</span><span class="s2">_</span><span class="si">{name}{ending}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{prefix}</span><span class="s2">_</span><span class="si">{name}{ending}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">prefix</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="n">ending</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_out</span><span class="p">:</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_out</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Writing &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">csv_out</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
                 <span class="n">csv_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csv_out</span><span class="p">)</span>
                 <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">([</span><span class="n">header</span><span class="p">])</span>
@@ -311,15 +309,16 @@
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span> <span class="n">fitness_func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">local_compiler</span> <span class="o">=</span> <span class="n">compiler</span><span class="p">[</span><span class="n">sequence</span><span class="p">,</span> <span class="s2">&quot;-polly-detect&quot;</span><span class="p">]</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">local_compiler</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">retcode</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="n">stats</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_compilestats</span><span class="p">(</span><span class="n">stderr</span><span class="p">)</span> \
-                    <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span>
-                        <span class="s2">&quot;Number of regions that a valid part of Scop&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;The # of regions&quot;</span>
-                    <span class="p">]]</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_compilestats</span><span class="p">(</span><span class="n">stderr</span><span class="p">)</span>
+                 <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span>
+                     <span class="s2">&quot;Number of regions that a valid part of Scop&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;The # of regions&quot;</span>
+                 <span class="p">]]</span>
         <span class="n">scops</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stats</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;component&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;polly-detect&#39;</span><span class="p">]</span>
         <span class="n">regns</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stats</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;component&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;region&#39;</span><span class="p">]</span>
-        <span class="n">regns_not_in_scops</span> <span class="o">=</span> \
-            <span class="p">[</span><span class="n">fitness_func</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">scops</span><span class="p">,</span> <span class="n">regns</span><span class="p">)]</span>
+        <span class="n">regns_not_in_scops</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">fitness_func</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">scops</span><span class="p">,</span> <span class="n">regns</span><span class="p">)</span>
+        <span class="p">]</span>
 
         <span class="k">if</span> <span class="n">regns_not_in_scops</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">regns_not_in_scops</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -330,8 +329,7 @@
 <div class="viewcode-block" id="FindFittestSequenceGenetic1"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.FindFittestSequenceGenetic1">[docs]</a><span class="k">class</span> <span class="nc">FindFittestSequenceGenetic1</span><span class="p">(</span><span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cc</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generates custom sequences for a provided application using the first of the</span>
-<span class="sd">        two genetic opt algorithms.</span>
+<span class="sd">        Generates custom sequences using the first genetic opt algorithms.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            project: The name of the project the test is being run for.</span>
@@ -352,7 +350,9 @@
 
         <span class="k">def</span> <span class="nf">crossover</span><span class="p">(</span><span class="n">upper_half</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Crossover of two genes and filling of the vacancies in the population by</span>
+<span class="sd">            Crossover of two genes.</span>
+
+<span class="sd">            This crosses two gense and fills the vacancies in the population by</span>
 <span class="sd">            using two random chromosomes and recombine their halfs.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">random1</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">upper_half</span><span class="p">)</span>
@@ -367,11 +367,10 @@
             <span class="k">return</span> <span class="n">new_chromosomes</span>
 
         <span class="k">def</span> <span class="nf">simulate_generation</span><span class="p">(</span><span class="n">chromosomes</span><span class="p">,</span> <span class="n">gene_pool</span><span class="p">,</span> <span class="n">seq_to_fitness</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;Simulates the change of a population within a single generation.&quot;&quot;&quot;</span>
+            <span class="sd">&quot;&quot;&quot;Simulate the change of a population in a single generation.&quot;&quot;&quot;</span>
             <span class="c1"># calculate the fitness value of each chromosome</span>
-            <span class="k">with</span> <span class="n">cf</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span>
-                <span class="n">max_workers</span><span class="o">=</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-
+            <span class="n">jobs</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5</span>
+            <span class="k">with</span> <span class="n">cf</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
                 <span class="n">future_to_fitness</span> <span class="o">=</span> <span class="n">extend_gene_future</span><span class="p">([],</span> <span class="n">chromosomes</span><span class="p">,</span> <span class="n">pool</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">future_fitness</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_fitness</span><span class="p">):</span>
@@ -379,7 +378,8 @@
                     <span class="n">old_fitness</span> <span class="o">=</span> <span class="n">seq_to_fitness</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
                     <span class="n">seq_to_fitness</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">old_fitness</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">fitness</span><span class="p">))</span>
             <span class="c1"># sort the chromosomes by their fitness value</span>
-            <span class="n">chromosomes</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">seq_to_fitness</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">chromosomes</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">seq_to_fitness</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)],</span>
+                             <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># divide the chromosome into two halves and delete the weakest one</span>
             <span class="n">index_half</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chromosomes</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
@@ -406,7 +406,6 @@
 
             <span class="k">return</span> <span class="n">chromosomes</span><span class="p">,</span> <span class="n">fittest_chromosome</span>
 
-
         <span class="k">def</span> <span class="nf">generate_random_gene_sequence</span><span class="p">(</span><span class="n">gene_pool</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Generates a random sequence of genes.&quot;&quot;&quot;</span>
             <span class="n">genes</span> <span class="o">=</span> <span class="p">[]</span>
@@ -415,7 +414,6 @@
 
             <span class="k">return</span> <span class="n">genes</span>
 
-
         <span class="k">def</span> <span class="nf">extend_gene_future</span><span class="p">(</span><span class="n">future_to_fitness</span><span class="p">,</span> <span class="n">chromosomes</span><span class="p">,</span> <span class="n">pool</span><span class="p">):</span>
             <span class="k">def</span> <span class="nf">fitness</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">):</span>
                 <span class="sd">&quot;&quot;&quot;Defines the fitnesses metric.&quot;&quot;&quot;</span>
@@ -423,11 +421,10 @@
 
             <span class="n">future_to_fitness</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="p">[</span><span class="n">pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call_next</span><span class="p">,</span> <span class="n">opt_cmd</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">chromosome</span><span class="p">),</span>
-                             <span class="n">chromosome</span><span class="p">,</span> <span class="n">fitness</span><span class="p">)</span> \
+                             <span class="n">chromosome</span><span class="p">,</span> <span class="n">fitness</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="n">chromosomes</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">future_to_fitness</span>
-
 
         <span class="k">def</span> <span class="nf">delete_duplicates</span><span class="p">(</span><span class="n">chromosomes</span><span class="p">,</span> <span class="n">gene_pool</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Deletes duplicates in the chromosomes of the population.&quot;&quot;&quot;</span>
@@ -441,13 +438,13 @@
 
             <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">diff</span><span class="p">):</span>
-                    <span class="n">chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generate_random_gene_sequence</span><span class="p">(</span><span class="n">gene_pool</span><span class="p">))</span>
+                    <span class="n">chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">generate_random_gene_sequence</span><span class="p">(</span><span class="n">gene_pool</span><span class="p">))</span>
 
             <span class="k">for</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="n">new_chromosomes</span><span class="p">:</span>
                 <span class="n">chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">chromosome</span><span class="p">))</span>
 
             <span class="k">return</span> <span class="n">chromosomes</span>
-
 
         <span class="k">def</span> <span class="nf">mutate</span><span class="p">(</span><span class="n">chromosomes</span><span class="p">,</span> <span class="n">gene_pool</span><span class="p">,</span> <span class="n">mutation_probability</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Performs mutation on chromosomes with a certain probability.&quot;&quot;&quot;</span>
@@ -478,15 +475,13 @@
             <span class="n">chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generate_random_gene_sequence</span><span class="p">(</span><span class="n">gene_pool</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">generations</span><span class="p">):</span>
-            <span class="n">chromosomes</span><span class="p">,</span> <span class="n">fittest_chromosome</span> <span class="o">=</span> <span class="n">simulate_generation</span><span class="p">(</span><span class="n">chromosomes</span><span class="p">,</span>
-                                                                <span class="n">gene_pool</span><span class="p">,</span>
-                                                                <span class="n">seq_to_fitness</span><span class="p">)</span>
+            <span class="n">chromosomes</span><span class="p">,</span> <span class="n">fittest_chromosome</span> <span class="o">=</span> <span class="n">simulate_generation</span><span class="p">(</span>
+                <span class="n">chromosomes</span><span class="p">,</span> <span class="n">gene_pool</span><span class="p">,</span> <span class="n">seq_to_fitness</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">generations</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">chromosomes</span> <span class="o">=</span> <span class="n">delete_duplicates</span><span class="p">(</span><span class="n">chromosomes</span><span class="p">,</span> <span class="n">gene_pool</span><span class="p">)</span>
 
-        <span class="n">persist_sequence</span><span class="p">(</span><span class="n">run_info</span><span class="p">,</span>
-                        <span class="n">fittest_chromosome</span><span class="p">,</span>
-                        <span class="n">seq_to_fitness</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">fittest_chromosome</span><span class="p">)])</span></div>
+        <span class="n">persist_sequence</span><span class="p">(</span><span class="n">run_info</span><span class="p">,</span> <span class="n">fittest_chromosome</span><span class="p">,</span>
+                         <span class="n">seq_to_fitness</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">fittest_chromosome</span><span class="p">)])</span></div>
 
 
 <div class="viewcode-block" id="Genetic1Sequence"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.Genetic1Sequence">[docs]</a><span class="k">class</span> <span class="nc">Genetic1Sequence</span><span class="p">(</span><span class="n">PolyJIT</span><span class="p">):</span>
@@ -501,15 +496,16 @@
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;pj-seq-genetic1-opt&quot;</span>
 
-<div class="viewcode-block" id="Genetic1Sequence.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.Genetic1Sequence.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="Genetic1Sequence.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.Genetic1Sequence.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Execute the actions for the test.&quot;&quot;&quot;</span>
 
-        <span class="n">project</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
         <span class="n">project</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-stats&quot;</span><span class="p">]</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;jobs&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())}</span>
 
         <span class="n">project</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> \
-            <span class="n">FindFittestSequenceGenetic1</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> 
+            <span class="n">FindFittestSequenceGenetic1</span><span class="p">(</span>
+                <span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span>
                 <span class="n">RunSequence</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
 
@@ -548,7 +544,7 @@
             <span class="k">return</span> <span class="n">genes</span>
 
         <span class="k">def</span> <span class="nf">extend_gene_future</span><span class="p">(</span><span class="n">future_to_fitness</span><span class="p">,</span> <span class="n">chromosomes</span><span class="p">,</span> <span class="n">pool</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;Generate the future of the fitness values from the chromosomes.&quot;&quot;&quot;</span>
+            <span class="sd">&quot;&quot;&quot;Extend with future values from the chromosomes.&quot;&quot;&quot;</span>
             <span class="k">def</span> <span class="nf">fitness</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">):</span>
                 <span class="sd">&quot;&quot;&quot;Defines the fitnesses metric.&quot;&quot;&quot;</span>
                 <span class="k">return</span> <span class="p">(</span><span class="n">lhs</span> <span class="o">-</span> <span class="n">rhs</span><span class="p">)</span> <span class="o">/</span> <span class="n">rhs</span>
@@ -572,13 +568,13 @@
 
             <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">diff</span><span class="p">):</span>
-                    <span class="n">chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generate_random_gene_sequence</span><span class="p">(</span><span class="n">gene_pool</span><span class="p">))</span>
+                    <span class="n">chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">generate_random_gene_sequence</span><span class="p">(</span><span class="n">gene_pool</span><span class="p">))</span>
 
             <span class="k">for</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="n">new_chromosomes</span><span class="p">:</span>
                 <span class="n">chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">chromosome</span><span class="p">))</span>
 
             <span class="k">return</span> <span class="n">chromosomes</span>
-
 
         <span class="k">def</span> <span class="nf">mutate</span><span class="p">(</span><span class="n">chromosomes</span><span class="p">,</span> <span class="n">gene_pool</span><span class="p">,</span> <span class="n">mutation_probability</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Performs mutation on chromosomes with a certain probability.&quot;&quot;&quot;</span>
@@ -598,7 +594,7 @@
 
         <span class="k">def</span> <span class="nf">crossover</span><span class="p">(</span><span class="n">fittest_chromosome</span><span class="p">,</span> <span class="n">best_chromosomes</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Crossover of two genes and filling of the vacancies in the population by</span>
+<span class="sd">            Crossover two genes and fill the vacancies in the population by</span>
 <span class="sd">            taking two of the fittest chromosomes and recombining them.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">new_chromosomes</span> <span class="o">=</span> <span class="p">[]</span>
@@ -610,20 +606,22 @@
                 <span class="n">best2</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">best_chromosomes</span><span class="p">)</span>
                 <span class="n">new_chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best1</span><span class="p">[:</span><span class="n">half_index</span><span class="p">]</span> <span class="o">+</span> <span class="n">best2</span><span class="p">[</span><span class="n">half_index</span><span class="p">:])</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_chromosomes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_of_new</span><span class="p">:</span>
-                    <span class="n">new_chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best1</span><span class="p">[</span><span class="n">half_index</span><span class="p">:]</span> <span class="o">+</span> <span class="n">best2</span><span class="p">[:</span><span class="n">half_index</span><span class="p">])</span>
+                    <span class="n">new_chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">best1</span><span class="p">[</span><span class="n">half_index</span><span class="p">:]</span> <span class="o">+</span> <span class="n">best2</span><span class="p">[:</span><span class="n">half_index</span><span class="p">])</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_chromosomes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_of_new</span><span class="p">:</span>
-                    <span class="n">new_chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best2</span><span class="p">[:</span><span class="n">half_index</span><span class="p">]</span> <span class="o">+</span> <span class="n">best1</span><span class="p">[</span><span class="n">half_index</span><span class="p">:])</span>
+                    <span class="n">new_chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">best2</span><span class="p">[:</span><span class="n">half_index</span><span class="p">]</span> <span class="o">+</span> <span class="n">best1</span><span class="p">[</span><span class="n">half_index</span><span class="p">:])</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_chromosomes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_of_new</span><span class="p">:</span>
-                    <span class="n">new_chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best2</span><span class="p">[</span><span class="n">half_index</span><span class="p">:]</span> <span class="o">+</span> <span class="n">best1</span><span class="p">[:</span><span class="n">half_index</span><span class="p">])</span>
+                    <span class="n">new_chromosomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">best2</span><span class="p">[</span><span class="n">half_index</span><span class="p">:]</span> <span class="o">+</span> <span class="n">best1</span><span class="p">[:</span><span class="n">half_index</span><span class="p">])</span>
 
             <span class="k">return</span> <span class="n">new_chromosomes</span>
 
         <span class="k">def</span> <span class="nf">simulate_generation</span><span class="p">(</span><span class="n">chromosomes</span><span class="p">,</span> <span class="n">gene_pool</span><span class="p">,</span> <span class="n">seq_to_fitness</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;Simulates the change of a population within a single generation.&quot;&quot;&quot;</span>
+            <span class="sd">&quot;&quot;&quot;Simulate the change of a population in a single generation.&quot;&quot;&quot;</span>
             <span class="c1"># calculate the fitness value of each chromosome</span>
-            <span class="k">with</span> <span class="n">cf</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span>
-                <span class="n">max_workers</span><span class="o">=</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-
+            <span class="n">jobs</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5</span>
+            <span class="k">with</span> <span class="n">cf</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
                 <span class="n">future_to_fitness</span> <span class="o">=</span> <span class="n">extend_gene_future</span><span class="p">([],</span> <span class="n">chromosomes</span><span class="p">,</span> <span class="n">pool</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">future_fitness</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_fitness</span><span class="p">):</span>
@@ -631,7 +629,8 @@
                     <span class="n">old_fitness</span> <span class="o">=</span> <span class="n">seq_to_fitness</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
                     <span class="n">seq_to_fitness</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">old_fitness</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">fitness</span><span class="p">))</span>
             <span class="c1"># sort the chromosomes by their fitness value</span>
-            <span class="n">chromosomes</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">seq_to_fitness</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">chromosomes</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">seq_to_fitness</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)],</span>
+                             <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># best 10% of chromosomes survive without change</span>
             <span class="n">num_best</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chromosomes</span><span class="p">)</span> <span class="o">//</span> <span class="mi">10</span>
@@ -686,16 +685,16 @@
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;pj-seq-genetic2-opt&quot;</span>
 
-<div class="viewcode-block" id="Genetic2Sequence.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.Genetic2Sequence.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="Genetic2Sequence.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.Genetic2Sequence.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Execute the actions for the test.&quot;&quot;&quot;</span>
 
-        <span class="n">p</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
         <span class="n">p</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-stats&quot;</span><span class="p">]</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;jobs&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())}</span>
 
-
         <span class="n">p</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> \
-            <span class="n">FindFittestSequenceGenetic2</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span>
+            <span class="n">FindFittestSequenceGenetic2</span><span class="p">(</span>
+                <span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span>
                 <span class="n">RunSequence</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
 
@@ -816,15 +815,16 @@
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;pj-seq-hillclimber&quot;</span>
 
-<div class="viewcode-block" id="HillclimberSequences.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.HillclimberSequences.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="HillclimberSequences.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.HillclimberSequences.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Execute the actions for the test.&quot;&quot;&quot;</span>
 
-        <span class="n">project</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
         <span class="n">project</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-stats&quot;</span><span class="p">]</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())}</span>
 
         <span class="n">project</span><span class="o">.</span><span class="n">compiler_extension</span> <span class="o">=</span> \
-            <span class="n">FindFittestSequenceHillclimber</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span>
+            <span class="n">FindFittestSequenceHillclimber</span><span class="p">(</span>
+                <span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span>
                 <span class="n">RunSequence</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">),</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">HillclimberSequences</span><span class="o">.</span><span class="n">default_compiletime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span></div></div>
@@ -861,26 +861,25 @@
 
         <span class="k">def</span> <span class="nf">create_greedy_sequences</span><span class="p">():</span>
             <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Generate the sequences, starting from a base_sequence, then calculate</span>
-<span class="sd">            their fitnesses and add the fittest one.</span>
+<span class="sd">            Create an optimal sequence, using a greedy algorithm.</span>
 
 <span class="sd">            Return: A list of the fittest generated sequences.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
-            <span class="k">with</span> <span class="n">cf</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span>
-                <span class="n">max_workers</span><span class="o">=</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
 
+            <span class="n">jobs</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5</span>
+            <span class="k">with</span> <span class="n">cf</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">jobs</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
                     <span class="n">base_sequence</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">base_sequence</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">seq_length</span><span class="p">:</span>
                         <span class="n">future_to_fitness</span><span class="p">,</span> <span class="n">sequences</span> <span class="o">=</span> \
                             <span class="n">extend_future</span><span class="p">(</span><span class="n">base_sequence</span><span class="p">,</span> <span class="n">pool</span><span class="p">)</span>
 
-                        <span class="k">for</span> <span class="n">future_fitness</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_fitness</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">future_fitness</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">as_completed</span><span class="p">(</span>
+                                <span class="n">future_to_fitness</span><span class="p">):</span>
                             <span class="n">key</span><span class="p">,</span> <span class="n">fitness</span> <span class="o">=</span> <span class="n">future_fitness</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
                             <span class="n">old_fitness</span> <span class="o">=</span> <span class="n">seq_to_fitness</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
                             <span class="n">seq_to_fitness</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">old_fitness</span><span class="p">,</span> <span class="n">fitness</span><span class="p">)</span>
 
-                        <span class="c1"># sort the sequences by their fitness in ascending order</span>
                         <span class="n">sequences</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">seq_to_fitness</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)],</span>
                                        <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -930,10 +929,10 @@
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;pj-seq-greedy&quot;</span>
 
-<div class="viewcode-block" id="GreedySequences.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.GreedySequences.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="GreedySequences.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pj_sequence.GreedySequences.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Execute the actions for the test.&quot;&quot;&quot;</span>
 
-        <span class="n">project</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
         <span class="n">project</span><span class="o">.</span><span class="n">cflags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-stats&quot;</span><span class="p">]</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())}</span>
 

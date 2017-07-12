@@ -63,12 +63,16 @@
 <span class="kn">import</span> <span class="nn">logging.config</span> <span class="k">as</span> <span class="nn">lc</span>
 <span class="kn">from</span> <span class="nn">benchbuild</span> <span class="k">import</span> <span class="n">settings</span>
 
-<span class="n">__LOG_DICT</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">LOG_DICT</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
     <span class="s2">&quot;formatters&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;brief&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;logging.Formatter&#39;</span><span class="p">,</span>
             <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;logging.Formatter&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%(name)s</span><span class="s1"> (</span><span class="si">%(filename)s</span><span class="s1">:</span><span class="si">%(lineno)s</span><span class="s1">) [</span><span class="si">%(levelname)s</span><span class="s1">] </span><span class="si">%(message)s</span><span class="s1">&#39;</span>
         <span class="p">},</span>
         <span class="s2">&quot;plumbum&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;logging.Formatter&#39;</span><span class="p">,</span>
@@ -80,17 +84,23 @@
             <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;logging.StreamHandler&#39;</span><span class="p">,</span>
             <span class="s1">&#39;formatter&#39;</span><span class="p">:</span> <span class="s1">&#39;brief&#39;</span>
         <span class="p">},</span>
+        <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;logging.StreamHandler&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;formatter&#39;</span><span class="p">:</span> <span class="s1">&#39;details&#39;</span>
+        <span class="p">},</span>
         <span class="s2">&quot;plumbum&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;logging.StreamHandler&#39;</span><span class="p">,</span>
             <span class="s1">&#39;formatter&#39;</span><span class="p">:</span> <span class="s1">&#39;plumbum&#39;</span>
         <span class="p">}</span>
     <span class="p">},</span>
     <span class="s2">&quot;loggers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;benchbuild&quot;</span><span class="p">:</span> <span class="p">{},</span>
-        <span class="s2">&quot;benchbuild.steps&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;benchbuild&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;propagate&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
         <span class="s2">&quot;plumbum.local&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span>
                           <span class="s1">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;plumbum&#39;</span><span class="p">],</span>
                           <span class="s1">&#39;propagate&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="s2">&quot;sqlalchemy.engine&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;ERROR&quot;</span>
+        <span class="p">},</span>
         <span class="s2">&quot;parse&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;WARN&#39;</span><span class="p">,</span>
             <span class="s1">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;console&#39;</span><span class="p">],</span>
@@ -105,7 +115,10 @@
 
 <div class="viewcode-block" id="configure"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.log.configure">[docs]</a><span class="k">def</span> <span class="nf">configure</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Load logging configuration from our own defaults.&quot;&quot;&quot;</span>
-    <span class="n">lc</span><span class="o">.</span><span class="n">dictConfig</span><span class="p">(</span><span class="n">__LOG_DICT</span><span class="p">)</span></div>
+    <span class="n">debug</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="n">LOG_DICT</span><span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">][</span><span class="s2">&quot;handlers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;details&quot;</span><span class="p">]</span>
+    <span class="n">lc</span><span class="o">.</span><span class="n">dictConfig</span><span class="p">(</span><span class="n">LOG_DICT</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="set_defaults"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.log.set_defaults">[docs]</a><span class="k">def</span> <span class="nf">set_defaults</span><span class="p">():</span>
@@ -118,8 +131,8 @@
     <span class="p">}</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">captureWarnings</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
-    <span class="n">LOG</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_levels</span><span class="p">[</span><span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;verbosity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()])</span></div>
+    <span class="n">root_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">root_logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_levels</span><span class="p">[</span><span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;verbosity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()])</span></div>
 </pre></div>
 
           </div>

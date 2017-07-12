@@ -64,7 +64,17 @@
 <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="k">import</span> <span class="n">IntegrityError</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="validate"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.db.validate">[docs]</a><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">validate_run_func</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;failed&#39;</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Run failed. Execution of &#39;</span><span class="si">%s</span><span class="s2">&#39; cancelled&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">validate_run_func</span></div>
 
 
 <div class="viewcode-block" id="create_run"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.db.create_run">[docs]</a><span class="k">def</span> <span class="nf">create_run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">grp</span><span class="p">):</span>
@@ -93,9 +103,9 @@
                 <span class="n">project_name</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">experiment_name</span><span class="o">=</span><span class="n">exp</span><span class="p">,</span>
                 <span class="n">run_group</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">grp</span><span class="p">),</span>
-                <span class="n">experiment_group</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;experiment_id&quot;</span><span class="p">]))</span>
+                <span class="n">experiment_group</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
     <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span></div>
 
@@ -116,14 +126,15 @@
 <span class="sd">        A tuple (group, session) containing both the newly created run_group and</span>
 <span class="sd">        the transaction object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">schema</span>
+    <span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">schema</span> <span class="k">as</span> <span class="n">s</span>
 
-    <span class="n">session</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
-    <span class="n">group</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">RunGroup</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">prj</span><span class="o">.</span><span class="n">run_uuid</span><span class="p">,</span>
-                            <span class="n">project</span><span class="o">=</span><span class="n">prj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                            <span class="n">experiment</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;experiment_id&quot;</span><span class="p">]))</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+    <span class="n">experiment</span> <span class="o">=</span> <span class="n">prj</span><span class="o">.</span><span class="n">experiment</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">RunGroup</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">prj</span><span class="o">.</span><span class="n">run_uuid</span><span class="p">,</span>
+                       <span class="n">project</span><span class="o">=</span><span class="n">prj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                       <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
     <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span></div>
 
@@ -159,7 +170,7 @@
         <span class="n">newp</span><span class="o">.</span><span class="n">group_name</span> <span class="o">=</span> <span class="n">group_name</span>
         <span class="n">newp</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
         <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">newp</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Poject INSERT: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newp</span><span class="p">)</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Poject INSERT: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newp</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">newp_value</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
@@ -170,7 +181,7 @@
             <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">version</span>
         <span class="p">}</span>
         <span class="n">projects</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">newp_value</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Project UPDATE: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newp_value</span><span class="p">)</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Project UPDATE: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newp_value</span><span class="p">)</span>
 
     <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">projects</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span></div>
@@ -187,7 +198,8 @@
 
     <span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">()</span>
 
-    <span class="n">cfg_exp</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;experiment_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="n">cfg_exp</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">id</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Using experiment ID stored in config: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cfg_exp</span><span class="p">)</span>
     <span class="n">exps</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Experiment</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Experiment</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">cfg_exp</span><span class="p">)</span>
     <span class="n">desc</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;experiment_description&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">name</span>
@@ -199,10 +211,10 @@
         <span class="n">newe</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">desc</span>
         <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">newe</span><span class="p">)</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">newe</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;New experiment: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newe</span><span class="p">)</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;New experiment: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">newe</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">exps</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">desc</span><span class="p">})</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Update experiments: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exps</span><span class="p">)</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Update experiments: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exps</span><span class="p">)</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">exps</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
@@ -230,11 +242,11 @@
                                   <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
                                   <span class="n">core</span><span class="o">=</span><span class="n">core</span><span class="p">,</span>
                                   <span class="n">run_id</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-        <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">db_measurement</span><span class="p">)</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+        <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">db_measurement</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="persist_time"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.db.persist_time">[docs]</a><span class="k">def</span> <span class="nf">persist_time</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">timings</span><span class="p">):</span>
+<div class="viewcode-block" id="persist_time"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.db.persist_time">[docs]</a><span class="nd">@validate</span>
+<span class="k">def</span> <span class="nf">persist_time</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">timings</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Persist the run results in the database.</span>
 
@@ -254,8 +266,7 @@
                              <span class="n">run_id</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
         <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">Metric</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;time.real_s&quot;</span><span class="p">,</span>
                              <span class="n">value</span><span class="o">=</span><span class="n">timing</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-                             <span class="n">run_id</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+                             <span class="n">run_id</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">id</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="persist_perf"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.db.persist_perf">[docs]</a><span class="k">def</span> <span class="nf">persist_perf</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">svg_path</span><span class="p">):</span>
@@ -276,8 +287,7 @@
         <span class="n">svg_data</span> <span class="o">=</span> <span class="n">svg_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">Metadata</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;perf.flamegraph&quot;</span><span class="p">,</span>
                                <span class="n">value</span><span class="o">=</span><span class="n">svg_data</span><span class="p">,</span>
-                               <span class="n">run_id</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+                               <span class="n">run_id</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">id</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="persist_compilestats"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.db.persist_compilestats">[docs]</a><span class="k">def</span> <span class="nf">persist_compilestats</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">stats</span><span class="p">):</span>
@@ -291,8 +301,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">:</span>
         <span class="n">stat</span><span class="o">.</span><span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">id</span>
-        <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stat</span><span class="p">)</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+        <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stat</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="persist_config"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.db.persist_config">[docs]</a><span class="k">def</span> <span class="nf">persist_config</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
@@ -309,8 +318,7 @@
     <span class="k">for</span> <span class="n">cfg_elem</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
         <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cfg_elem</span><span class="p">,</span>
                              <span class="n">value</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="n">cfg_elem</span><span class="p">],</span>
-                             <span class="n">run_id</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+                             <span class="n">run_id</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">id</span><span class="p">))</span></div>
 </pre></div>
 
           </div>

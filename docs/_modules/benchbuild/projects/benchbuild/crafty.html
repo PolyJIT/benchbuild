@@ -60,14 +60,14 @@
           <div class="body" role="main">
             
   <h1>Source code for benchbuild.projects.benchbuild.crafty</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
+<span></span><span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
 <span class="kn">from</span> <span class="nn">benchbuild.projects.benchbuild.group</span> <span class="k">import</span> <span class="n">BenchBuildGroup</span>
-<span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang</span><span class="p">,</span> <span class="n">lt_clang_cxx</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Wget</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">cat</span><span class="p">,</span> <span class="n">make</span><span class="p">,</span> <span class="n">unzip</span><span class="p">,</span> <span class="n">mv</span><span class="p">,</span> <span class="n">mkdir</span>
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 
 
 <div class="viewcode-block" id="Crafty"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.crafty.Crafty">[docs]</a><span class="k">class</span> <span class="nc">Crafty</span><span class="p">(</span><span class="n">BenchBuildGroup</span><span class="p">):</span>
@@ -103,7 +103,6 @@
             <span class="n">crafty_make</span> <span class="o">=</span> <span class="n">make</span><span class="p">[</span><span class="s2">&quot;target=UNIX&quot;</span><span class="p">,</span> <span class="s2">&quot;CC=&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">clang</span><span class="p">),</span>
                                <span class="s2">&quot;opt=&quot;</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_opts</span><span class="p">),</span> <span class="s2">&quot;crafty-make&quot;</span><span class="p">]</span>
             <span class="n">run</span><span class="p">(</span><span class="n">crafty_make</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="Crafty.run_tests"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.crafty.Crafty.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_dir</span><span class="p">):</span>

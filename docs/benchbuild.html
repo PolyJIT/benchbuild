@@ -307,7 +307,7 @@
 <p>Manage uchroot containers.</p>
 <dl class="attribute">
 <dt id="benchbuild.container.Container.VERSION">
-<code class="descname">VERSION</code><em class="property"> = '1.3.2-$Id: 368cd101effb73db8613ad317c098cf05a2845de $'</em><a class="headerlink" href="#benchbuild.container.Container.VERSION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">VERSION</code><em class="property"> = '1.3.2-$Id: 939f59b20ec941f3fed6f764aab6d4dfc97c43fe $'</em><a class="headerlink" href="#benchbuild.container.Container.VERSION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -543,8 +543,14 @@ projects inside the mounted container, that also gets returned afterwards.</p>
 <p>Frontend for running/building the benchbuild study framework.</p>
 <dl class="attribute">
 <dt id="benchbuild.driver.PollyProfiling.VERSION">
-<code class="descname">VERSION</code><em class="property"> = '1.3.2-$Id: 368cd101effb73db8613ad317c098cf05a2845de $'</em><a class="headerlink" href="#benchbuild.driver.PollyProfiling.VERSION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">VERSION</code><em class="property"> = '1.3.2-$Id: 939f59b20ec941f3fed6f764aab6d4dfc97c43fe $'</em><a class="headerlink" href="#benchbuild.driver.PollyProfiling.VERSION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.driver.PollyProfiling.debug">
+<code class="descname">debug</code><a class="headerlink" href="#benchbuild.driver.PollyProfiling.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets an attribute</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="benchbuild.driver.PollyProfiling.main">
@@ -743,7 +749,7 @@ experiment.</dd>
 <p>Extension base-classes for compile-time and run-time experiments.</p>
 <dl class="class">
 <dt id="benchbuild.extensions.Extension">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">Extension</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#Extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.Extension" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">Extension</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#Extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.Extension" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="benchbuild.extensions.Extension.call_next">
@@ -773,7 +779,7 @@ experiment.</dd>
 
 <dl class="class">
 <dt id="benchbuild.extensions.LogAdditionals">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">LogAdditionals</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#LogAdditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.LogAdditionals" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">LogAdditionals</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#LogAdditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.LogAdditionals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
 <p>Log any additional log files that were registered.</p>
 </dd></dl>
@@ -797,7 +803,7 @@ experiment.</dd>
 
 <dl class="class">
 <dt id="benchbuild.extensions.RunWithTime">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RunWithTime</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RunWithTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RunWithTime" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RunWithTime</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RunWithTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RunWithTime" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
 <p>Wrap a command with time and store the timings in the database.</p>
 </dd></dl>
@@ -881,7 +887,8 @@ the region, the metric, the core and the actual value.</dd>
 <dt>Args:</dt>
 <dd>fstream: Likwid’s output file stream.</dd>
 <dt>Returns:</dt>
-<dd>A generator that can be used to iterate over all structs in the fstream.</dd>
+<dd>A generator that can be used to iterate over all structs in the
+fstream.</dd>
 </dl>
 </dd></dl>
 
@@ -1170,6 +1177,11 @@ See the output of benchbuild run –help for more information.</p>
 <dl class="method">
 <dt id="benchbuild.run.BenchBuildRun.experiments">
 <code class="descname">experiments</code><span class="sig-paren">(</span><em>experiments</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/run.html#BenchBuildRun.experiments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.run.BenchBuildRun.experiments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.run.BenchBuildRun.full">
+<code class="descname">full</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/run.html#BenchBuildRun.full"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.run.BenchBuildRun.full" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">

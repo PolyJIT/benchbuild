@@ -64,13 +64,12 @@
 <span class="sd">Generic experiment to test portage packages within gentoo chroot.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">benchbuild.projects.gentoo</span> <span class="k">import</span> <span class="n">autoportage</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">uchroot_no_args</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.container</span> <span class="k">import</span> <span class="n">Gentoo</span>
 <span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span><span class="p">,</span> <span class="n">ProcessExecutionError</span>
 
-<span class="c1">#pylint: disable=too-few-public-methods</span>
+
 <div class="viewcode-block" id="FuncClass"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.portage_gen.FuncClass">[docs]</a><span class="k">class</span> <span class="nc">FuncClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>

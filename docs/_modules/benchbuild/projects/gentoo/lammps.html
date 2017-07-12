@@ -65,12 +65,15 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
 <span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
-<span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap_in_uchroot</span> <span class="k">as</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">strip_path_prefix</span>
+
+<span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> \
+    <span class="p">(</span><span class="n">wrap_in_uchroot</span> <span class="k">as</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">strip_path_prefix</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">benchbuild.projects.gentoo.gentoo</span> <span class="k">import</span> <span class="n">GentooGroup</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Wget</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">uchroot</span>
-<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">tar</span>  <span class="c1"># pylint: disable=E0401</span>
+
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 
 
 <div class="viewcode-block" id="Lammps"><a class="viewcode-back" href="../../../../benchbuild.projects.gentoo.html#benchbuild.projects.gentoo.lammps.Lammps">[docs]</a><span class="k">class</span> <span class="nc">Lammps</span><span class="p">(</span><span class="n">GentooGroup</span><span class="p">):</span>

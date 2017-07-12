@@ -65,8 +65,6 @@
 <span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang_cxx</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Wget</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span>
-<span class="kn">from</span> <span class="nn">benchbuild.utils.versions</span> <span class="k">import</span> <span class="n">get_version_from_cache_dir</span>
-
 
 
 <div class="viewcode-block" id="Lulesh"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.lulesh.Lulesh">[docs]</a><span class="k">class</span> <span class="nc">Lulesh</span><span class="p">(</span><span class="n">BenchBuildGroup</span><span class="p">):</span>
@@ -75,7 +73,6 @@
     <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;lulesh&#39;</span>
     <span class="n">DOMAIN</span> <span class="o">=</span> <span class="s1">&#39;scientific&#39;</span>
     <span class="n">SRC_FILE</span> <span class="o">=</span> <span class="s1">&#39;LULESH.cc&#39;</span>
-    
 
 <div class="viewcode-block" id="Lulesh.run_tests"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.html#benchbuild.projects.benchbuild.lulesh.Lulesh.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
         <span class="n">exp</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_f</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>

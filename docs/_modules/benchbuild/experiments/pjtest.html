@@ -81,10 +81,9 @@
 <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 
 <span class="kn">import</span> <span class="nn">benchbuild.extensions</span> <span class="k">as</span> <span class="nn">ext</span>
-<span class="kn">from</span> <span class="nn">benchbuild.experiments.polyjit</span> <span class="k">import</span> \
-    <span class="p">(</span><span class="n">EnablePolyJIT</span><span class="p">,</span> <span class="n">DisablePolyJIT</span><span class="p">,</span> <span class="n">RegisterPolyJITLogs</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">benchbuild.experiments.polyjit</span> <span class="k">as</span> <span class="nn">pj</span>
 
-<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Test"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.Test">[docs]</a><span class="k">class</span> <span class="nc">Test</span><span class="p">(</span><span class="n">PolyJIT</span><span class="p">):</span>
@@ -96,17 +95,18 @@
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;pj-test&quot;</span>
 
-<div class="viewcode-block" id="Test.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.Test.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">run_uuid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+<div class="viewcode-block" id="Test.actions_for_project"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.Test.actions_for_project">[docs]</a>    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="n">PolyJIT</span><span class="o">.</span><span class="n">init_project</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">run_uuid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
         <span class="n">jobs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">cflags</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-Rpass-missed=polli*&quot;</span><span class="p">,</span>
-                     <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-stats&quot;</span><span class="p">,</span>
-                     <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polly-num-threads=</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">jobs</span><span class="p">)]</span>
+        <span class="n">project</span><span class="o">.</span><span class="n">cflags</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;-Rpass-missed=polli*&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-stats&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-mllvm&quot;</span><span class="p">,</span> <span class="s2">&quot;-polly-num-threads=</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">jobs</span><span class="p">)]</span>
 
         <span class="n">cfg_with_jit</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="n">jobs</span><span class="p">,</span>
-            <span class="s2">&quot;cflags&quot;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span>
+            <span class="s2">&quot;cflags&quot;</span><span class="p">:</span> <span class="n">project</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span>
             <span class="s2">&quot;cores&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">jobs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
             <span class="s2">&quot;cores-config&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">jobs</span><span class="p">),</span>
             <span class="s2">&quot;recompilation&quot;</span><span class="p">:</span> <span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
@@ -115,28 +115,40 @@
 
         <span class="n">cfg_without_jit</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;jobs&#39;</span><span class="p">:</span> <span class="n">jobs</span><span class="p">,</span>
-            <span class="s2">&quot;cflags&quot;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span>
+            <span class="s2">&quot;cflags&quot;</span><span class="p">:</span> <span class="n">project</span><span class="o">.</span><span class="n">cflags</span><span class="p">,</span>
             <span class="s2">&quot;cores&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">jobs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
             <span class="s2">&quot;cores-config&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">jobs</span><span class="p">),</span>
             <span class="s2">&quot;recompilation&quot;</span><span class="p">:</span> <span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
             <span class="s2">&quot;specialization&quot;</span><span class="p">:</span> <span class="s2">&quot;disabled&quot;</span>
         <span class="p">}</span>
 
-        <span class="n">p</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
+        <span class="n">pjit_extension</span> <span class="o">=</span> \
+            <span class="n">pj</span><span class="o">.</span><span class="n">EnableJITDatabase</span><span class="p">(</span>
+                <span class="n">pj</span><span class="o">.</span><span class="n">EnablePolyJIT</span><span class="p">(</span>
+                    <span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">(</span>
+                        <span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg_with_jit</span><span class="p">),</span>
+                    <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">),</span>
+                <span class="n">pj</span><span class="o">.</span><span class="n">DisablePolyJIT</span><span class="p">(</span>
+                    <span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">(</span>
+                        <span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg_without_jit</span><span class="p">),</span>
+                    <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">),</span>
+                <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
+
+        <span class="n">project</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
             <span class="n">ext</span><span class="o">.</span><span class="n">LogAdditionals</span><span class="p">(</span>
-                <span class="n">RegisterPolyJITLogs</span><span class="p">(</span>
-                    <span class="n">ext</span><span class="o">.</span><span class="n">RunWithTime</span><span class="p">(</span>
-                        <span class="n">EnablePolyJIT</span><span class="p">(</span>
-                            <span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg_with_jit</span><span class="p">)),</span>
-                        <span class="n">DisablePolyJIT</span><span class="p">(</span>
-                            <span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg_without_jit</span><span class="p">))</span>
-                    <span class="p">)))</span>
-        <span class="k">return</span> <span class="n">Test</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
+                <span class="n">pj</span><span class="o">.</span><span class="n">RegisterPolyJITLogs</span><span class="p">(</span>
+                    <span class="n">ext</span><span class="o">.</span><span class="n">RunWithTime</span><span class="p">(</span><span class="n">pjit_extension</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">Test</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="StatusReport"><a class="viewcode-back" href="../../../benchbuild.experiments.html#benchbuild.experiments.pjtest.StatusReport">[docs]</a><span class="k">class</span> <span class="nc">StatusReport</span><span class="p">(</span><span class="n">Report</span><span class="p">):</span>
 
-    <span class="n">SUPPORTED_EXPERIMENTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pj-test&quot;</span><span class="p">,</span> <span class="s2">&quot;pj-seq-test&quot;</span><span class="p">,</span> <span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="s2">&quot;pj&quot;</span><span class="p">,</span> <span class="s2">&quot;pj-raw&quot;</span><span class="p">,</span> <span class="s2">&quot;pollytest&quot;</span><span class="p">]</span>
+    <span class="n">SUPPORTED_EXPERIMENTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pj-test&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;pj-seq-test&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;raw&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;pj&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;pj-raw&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;pollytest&quot;</span><span class="p">]</span>
     <span class="n">QUERY_STATUS</span> <span class="o">=</span> \
         <span class="n">sa</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">select</span><span class="p">([</span>
             <span class="n">sa</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">),</span>
@@ -162,10 +174,11 @@
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">():</span>
             <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_path</span><span class="p">)</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{prefix}</span><span class="s2">_</span><span class="si">{name}{ending}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{prefix}</span><span class="s2">_</span><span class="si">{name}{ending}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">prefix</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="n">ending</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_out</span><span class="p">:</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_out</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Writing &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">csv_out</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
                 <span class="n">csv_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csv_out</span><span class="p">)</span>
                 <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">([</span><span class="n">header</span><span class="p">])</span>
@@ -231,7 +244,8 @@
                 <span class="s1">&#39;scops_0&#39;</span><span class="p">,</span> <span class="s1">&#39;scops_1&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;t_0&#39;</span><span class="p">,</span> <span class="s1">&#39;o_0&#39;</span><span class="p">,</span> <span class="s1">&#39;t_1&#39;</span><span class="p">,</span> <span class="s1">&#39;o_1&#39;</span><span class="p">),</span>
                <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">qry</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
-        <span class="n">qry</span> <span class="o">=</span> <span class="n">TestReport</span><span class="o">.</span><span class="n">QUERY_REGION</span><span class="o">.</span><span class="n">unique_params</span><span class="p">(</span><span class="n">exp_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_ids</span><span class="p">)</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="n">TestReport</span><span class="o">.</span><span class="n">QUERY_REGION</span><span class="o">.</span><span class="n">unique_params</span><span class="p">(</span>
+            <span class="n">exp_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_ids</span><span class="p">)</span>
         <span class="k">yield</span> <span class="p">(</span><span class="s2">&quot;regions&quot;</span><span class="p">,</span>
                <span class="p">(</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="s1">&#39;region&#39;</span><span class="p">,</span> <span class="s1">&#39;cores&#39;</span><span class="p">,</span> <span class="s1">&#39;T_Polly&#39;</span><span class="p">,</span> <span class="s1">&#39;T_PolyJIT&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;speedup&#39;</span><span class="p">),</span>
@@ -241,10 +255,11 @@
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">():</span>
             <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_path</span><span class="p">)</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{prefix}</span><span class="s2">_</span><span class="si">{name}{ending}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{prefix}</span><span class="s2">_</span><span class="si">{name}{ending}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">prefix</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="n">ending</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_out</span><span class="p">:</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_out</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Writing &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">csv_out</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
                 <span class="n">csv_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csv_out</span><span class="p">)</span>
                 <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">([</span><span class="n">header</span><span class="p">])</span>

@@ -70,9 +70,10 @@
 <span class="kn">from</span> <span class="nn">benchbuild.utils.path</span> <span class="k">import</span> <span class="n">list_to_path</span>
 <span class="kn">from</span> <span class="nn">benchbuild</span> <span class="k">import</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
+<span class="kn">from</span> <span class="nn">plumbum.commands</span> <span class="k">import</span> <span class="n">ProcessExecutionError</span>
 
 
-<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="handle_stdin"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.handle_stdin">[docs]</a><span class="k">def</span> <span class="nf">handle_stdin</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
@@ -104,6 +105,9 @@
 
 
 <div class="viewcode-block" id="exit_code_from_run_infos"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.exit_code_from_run_infos">[docs]</a><span class="k">def</span> <span class="nf">exit_code_from_run_infos</span><span class="p">(</span><span class="n">run_infos</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">run_infos</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">run_infos</span><span class="o">.</span><span class="n">retcode</span>
+
     <span class="n">rcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ri</span><span class="o">.</span><span class="n">retcode</span> <span class="k">for</span> <span class="n">ri</span> <span class="ow">in</span> <span class="n">run_infos</span><span class="p">]</span>
     <span class="n">max_rc</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">rcs</span><span class="p">)</span>
     <span class="n">min_rc</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">rcs</span><span class="p">)</span>
@@ -129,38 +133,6 @@
     <span class="n">timings</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ins</span> <span class="k">if</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
     <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">parse</span><span class="p">(</span><span class="n">format_s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">timings</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">_f</span> <span class="k">for</span> <span class="n">_f</span> <span class="ow">in</span> <span class="n">res</span> <span class="k">if</span> <span class="n">_f</span><span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="GuardedRunException"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.GuardedRunException">[docs]</a><span class="k">class</span> <span class="nc">GuardedRunException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    BB Run exception.</span>
-
-<span class="sd">    Contains an exception that ocurred during execution of a benchbuild</span>
-<span class="sd">    experiment.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">db_run</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Exception raised when a binary failed to execute properly.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            what: the original exception.</span>
-<span class="sd">            run: the run during which we encountered ``what``.</span>
-<span class="sd">            session: the db session we want to log to.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">GuardedRunException</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">what</span> <span class="o">=</span> <span class="n">what</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">run</span> <span class="o">=</span> <span class="n">db_run</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">what</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
-            <span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">what</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">what</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="begin_run_group"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.begin_run_group">[docs]</a><span class="k">def</span> <span class="nf">begin_run_group</span><span class="p">(</span><span class="n">project</span><span class="p">):</span>
@@ -218,101 +190,111 @@
     <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="begin"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.begin">[docs]</a><span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">ename</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Begin a run in the database log.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        command: The command that will be executed.</span>
-<span class="sd">        pname: The project name we belong to.</span>
-<span class="sd">        ename: The experiment name we belong to.</span>
-<span class="sd">        group: The run group we belong to.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        (run, session), where run is the generated run instance and session the</span>
-<span class="sd">        associated transaction for later use.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">benchbuild.utils.db</span> <span class="k">import</span> <span class="n">create_run</span>
-    <span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">schema</span> <span class="k">as</span> <span class="n">s</span>
-    <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
-
-    <span class="n">db_run</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">create_run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">ename</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
-    <span class="n">db_run</span><span class="o">.</span><span class="n">begin</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-    <span class="n">db_run</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;running&#39;</span>
-    <span class="n">log</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">RunLog</span><span class="p">()</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">run_id</span> <span class="o">=</span> <span class="n">db_run</span><span class="o">.</span><span class="n">id</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">begin</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">CFG</span><span class="p">)</span>
-
-    <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">db_run</span><span class="p">,</span> <span class="n">session</span></div>
-
-
-<div class="viewcode-block" id="end"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.end">[docs]</a><span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="n">db_run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    End a run in the database log (Successfully).</span>
-
-<span class="sd">    This will persist the log information in the database and commit the</span>
-<span class="sd">    transaction.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        db_run: The ``run`` schema object we belong to</span>
-<span class="sd">        session: The db transaction we belong to.</span>
-<span class="sd">        stdout: The stdout we captured of the run.</span>
-<span class="sd">        stderr: The stderr we capture of the run.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">benchbuild.utils.schema</span> <span class="k">import</span> <span class="n">RunLog</span>
-    <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
-    <span class="n">log</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">RunLog</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">RunLog</span><span class="o">.</span><span class="n">run_id</span> <span class="o">==</span> <span class="n">db_run</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">stderr</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-    <span class="n">db_run</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-    <span class="n">db_run</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;completed&#39;</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
-
-
-<div class="viewcode-block" id="fail"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.fail">[docs]</a><span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="n">db_run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">retcode</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    End a run in the database log (Unsuccessfully).</span>
-
-<span class="sd">    This will persist the log information in the database and commit the</span>
-<span class="sd">    transaction.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        db_run: The ``run`` schema object we belong to</span>
-<span class="sd">        session: The db transaction we belong to.</span>
-<span class="sd">        retcode: The return code we captured of the run.</span>
-<span class="sd">        stdout: The stdout we captured of the run.</span>
-<span class="sd">        stderr: The stderr we capture of the run.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">benchbuild.utils.schema</span> <span class="k">import</span> <span class="n">RunLog</span>
-    <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
-    <span class="n">log</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">RunLog</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">RunLog</span><span class="o">.</span><span class="n">run_id</span> <span class="o">==</span> <span class="n">db_run</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">stderr</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">retcode</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-    <span class="n">db_run</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-    <span class="n">db_run</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;failed&#39;</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
-    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
-
-
 <div class="viewcode-block" id="RunInfo"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.RunInfo">[docs]</a><span class="k">class</span> <span class="nc">RunInfo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="n">retcode</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">stdout</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">stderr</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">session</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">db_run</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">def</span> <span class="nf">__begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">ename</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Begin a run in the database log.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            command: The command that will be executed.</span>
+<span class="sd">            pname: The project name we belong to.</span>
+<span class="sd">            ename: The experiment name we belong to.</span>
+<span class="sd">            group: The run group we belong to.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (run, session), where run is the generated run instance and</span>
+<span class="sd">            session the associated transaction for later use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">benchbuild.utils.db</span> <span class="k">import</span> <span class="n">create_run</span>
+        <span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">schema</span> <span class="k">as</span> <span class="n">s</span>
+        <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+        <span class="n">db_run</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">create_run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">ename</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
+        <span class="n">db_run</span><span class="o">.</span><span class="n">begin</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">db_run</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;running&#39;</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">RunLog</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">run_id</span> <span class="o">=</span> <span class="n">db_run</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">begin</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">CFG</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">db_run</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_run</span> <span class="o">=</span> <span class="n">db_run</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
+
+    <span class="k">def</span> <span class="nf">__end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        End a run in the database log (Successfully).</span>
+
+<span class="sd">        This will persist the log information in the database and commit the</span>
+<span class="sd">        transaction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            db_run: The ``run`` schema object we belong to</span>
+<span class="sd">            session: The db transaction we belong to.</span>
+<span class="sd">            stdout: The stdout we captured of the run.</span>
+<span class="sd">            stderr: The stderr we capture of the run.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">benchbuild.utils.schema</span> <span class="k">import</span> <span class="n">RunLog</span>
+        <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+        <span class="n">run_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="o">.</span><span class="n">id</span>
+
+        <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">RunLog</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">RunLog</span><span class="o">.</span><span class="n">run_id</span> <span class="o">==</span> <span class="n">run_id</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">stderr</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;completed&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">retcode</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        End a run in the database log (Unsuccessfully).</span>
+
+<span class="sd">        This will persist the log information in the database and commit the</span>
+<span class="sd">        transaction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            db_run: The ``run`` schema object we belong to</span>
+<span class="sd">            session: The db transaction we belong to.</span>
+<span class="sd">            retcode: The return code we captured of the run.</span>
+<span class="sd">            stdout: The stdout we captured of the run.</span>
+<span class="sd">            stderr: The stderr we capture of the run.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">benchbuild.utils.schema</span> <span class="k">import</span> <span class="n">RunLog</span>
+        <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+        <span class="n">run_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="o">.</span><span class="n">id</span>
+
+        <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">RunLog</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">RunLog</span><span class="o">.</span><span class="n">run_id</span> <span class="o">==</span> <span class="n">run_id</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">stderr</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">retcode</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;failed&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">retcode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__begin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">run_uuid</span><span class="p">)</span>
+
+        <span class="n">run_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;run_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">run_id</span>
 
     <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rhs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">rhs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -324,7 +306,53 @@
             <span class="n">stderr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stderr</span> <span class="o">+</span> <span class="n">rhs</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
             <span class="n">db_run</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="p">,</span> <span class="n">rhs</span><span class="o">.</span><span class="n">db_run</span><span class="p">],</span>
             <span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">r</span></div>
+        <span class="k">return</span> <span class="n">r</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">expected_retcode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ri</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">subprocess</span> <span class="k">import</span> <span class="n">PIPE</span>
+        <span class="n">cmd_env</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">to_env_dict</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">env</span><span class="p">(</span><span class="o">**</span><span class="n">cmd_env</span><span class="p">):</span>
+            <span class="n">has_stdin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;has_stdin&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">retcode</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                    <span class="n">retcode</span><span class="o">=</span><span class="n">expected_retcode</span><span class="p">,</span>
+                    <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span> <span class="k">if</span> <span class="n">has_stdin</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span>
+                    <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">retcode</span> <span class="o">=</span> <span class="n">retcode</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">stderr</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__end</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">stdout</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">stderr</span><span class="p">))</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Tracked process completed successfully&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ProcessExecutionError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__fail</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">retcode</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">retcode</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">retcode</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">stdout</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">stderr</span>
+
+                <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Tracked process failed&quot;</span><span class="p">)</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">retcode</span> <span class="o">=</span> <span class="n">retcode</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">stderr</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__fail</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;KeyboardInterrupt&quot;</span><span class="p">)</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Interrupted by user input&quot;</span><span class="p">)</span>
+                <span class="k">raise</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="RunInfo.commit"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.RunInfo.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;RunInfo (ec=</span><span class="si">{}</span><span class="s2">, run_id=</span><span class="si">{}</span><span class="s2">, stdout=</span><span class="si">{}</span><span class="s2">, stderr=</span><span class="si">{}</span><span class="s2">)&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">retcode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_run</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="track_execution"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.track_execution">[docs]</a><span class="nd">@contextmanager</span>
@@ -342,53 +370,9 @@
 <span class="sd">        RunException: If the ``cmd`` encounters an error we wrap the exception</span>
 <span class="sd">            in a RunException and re-raise. This ends the run unsuccessfully.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">plumbum.commands</span> <span class="k">import</span> <span class="n">ProcessExecutionError</span>
-    <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
-
-    <span class="n">db_run</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">begin</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                            <span class="n">project</span><span class="o">.</span><span class="n">run_uuid</span><span class="p">)</span>
-    <span class="n">ex</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;db&quot;</span><span class="p">][</span><span class="s2">&quot;run_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">db_run</span><span class="o">.</span><span class="n">id</span>
-    <span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;use_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">def</span> <span class="nf">runner</span><span class="p">(</span><span class="n">retcode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ri</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="n">cmd_env</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">to_env_dict</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">CFG</span><span class="p">)</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">RunInfo</span><span class="p">()</span>
-        <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">env</span><span class="p">(</span><span class="o">**</span><span class="n">cmd_env</span><span class="p">):</span>
-            <span class="n">has_stdin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;has_stdin&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="kn">from</span> <span class="nn">subprocess</span> <span class="k">import</span> <span class="n">PIPE</span>
-                <span class="n">ec</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                    <span class="n">retcode</span><span class="o">=</span><span class="n">retcode</span><span class="p">,</span>
-                    <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span> <span class="k">if</span> <span class="n">has_stdin</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                    <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span>
-                    <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-
-                <span class="n">r</span> <span class="o">=</span> <span class="n">RunInfo</span><span class="p">(</span>
-                    <span class="n">retcode</span><span class="o">=</span><span class="n">ec</span><span class="p">,</span>
-                    <span class="n">stdout</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">stdout</span><span class="p">),</span>
-                    <span class="n">stderr</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">stderr</span><span class="p">),</span>
-                    <span class="n">db_run</span><span class="o">=</span><span class="n">db_run</span><span class="p">,</span>
-                    <span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span> <span class="o">+</span> <span class="n">ri</span>
-                <span class="n">end</span><span class="p">(</span><span class="n">db_run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">stdout</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">stderr</span><span class="p">))</span>
-                <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tracked process completed successfully&quot;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">ProcessExecutionError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">r</span> <span class="o">=</span> <span class="n">RunInfo</span><span class="p">(</span>
-                    <span class="n">retcode</span><span class="o">=</span><span class="n">ex</span><span class="o">.</span><span class="n">retcode</span><span class="p">,</span>
-                    <span class="n">stdout</span><span class="o">=</span><span class="n">ex</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
-                    <span class="n">stderr</span><span class="o">=</span><span class="n">ex</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
-                    <span class="n">db_run</span><span class="o">=</span><span class="n">db_run</span><span class="p">,</span>
-                    <span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span> <span class="o">+</span> <span class="n">ri</span>
-                <span class="n">fail</span><span class="p">(</span><span class="n">db_run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">retcode</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-                <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tracked process failed&quot;</span><span class="p">)</span>
-                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
-            <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-                <span class="n">fail</span><span class="p">(</span><span class="n">db_run</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;KeyboardInterrupt&quot;</span><span class="p">)</span>
-                <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Interrupted by user input&quot;</span><span class="p">)</span>
-                <span class="k">raise</span>
-        <span class="k">return</span> <span class="n">r</span>
-    <span class="k">yield</span> <span class="n">runner</span></div>
+    <span class="n">runner</span> <span class="o">=</span> <span class="n">RunInfo</span><span class="p">(</span><span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">runner</span>
+    <span class="n">runner</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="run"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">retcode</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
@@ -407,9 +391,10 @@
     <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">uchroot</span>
 
     <span class="n">prefixes</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">][</span><span class="s2">&quot;prefixes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
-    <span class="n">p_paths</span><span class="p">,</span> <span class="n">p_libs</span> <span class="o">=</span> <span class="n">uchroot_env</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">][</span><span class="s2">&quot;prefixes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+    <span class="n">p_paths</span><span class="p">,</span> <span class="n">p_libs</span> <span class="o">=</span> <span class="n">uchroot_env</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
 
-    <span class="n">uchroot</span> <span class="o">=</span> <span class="n">with_env_recursive</span><span class="p">(</span><span class="n">uchroot</span><span class="p">,</span>
+    <span class="n">uchroot</span> <span class="o">=</span> <span class="n">with_env_recursive</span><span class="p">(</span>
+        <span class="n">uchroot</span><span class="p">,</span>
         <span class="n">LD_LIBRARY_PATH</span><span class="o">=</span><span class="n">list_to_path</span><span class="p">(</span><span class="n">p_libs</span><span class="p">),</span>
         <span class="n">PATH</span><span class="o">=</span><span class="n">list_to_path</span><span class="p">(</span><span class="n">p_paths</span><span class="p">))</span>
 
@@ -517,7 +502,7 @@
     <span class="n">paths</span><span class="p">,</span> <span class="n">libs</span> <span class="o">=</span> <span class="n">uchroot_env</span><span class="p">(</span><span class="n">mounts</span><span class="p">)</span>
 
     <span class="n">prefixes</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">][</span><span class="s2">&quot;prefixes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
-    <span class="n">p_paths</span><span class="p">,</span> <span class="n">p_libs</span> <span class="o">=</span> <span class="n">uchroot_env</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">][</span><span class="s2">&quot;prefixes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+    <span class="n">p_paths</span><span class="p">,</span> <span class="n">p_libs</span> <span class="o">=</span> <span class="n">uchroot_env</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
 
     <span class="n">uchroot_cmd</span> <span class="o">=</span> <span class="n">with_env_recursive</span><span class="p">(</span>
         <span class="n">uchroot_cmd</span><span class="p">,</span>
@@ -572,6 +557,7 @@
 
     <span class="k">return</span> <span class="n">wrap_in_builddir</span></div>
 
+
 <div class="viewcode-block" id="unionfs_set_up"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.unionfs_set_up">[docs]</a><span class="k">def</span> <span class="nf">unionfs_set_up</span><span class="p">(</span><span class="n">ro_base</span><span class="p">,</span> <span class="n">rw_image</span><span class="p">,</span> <span class="n">mountpoint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Setup a unionfs via unionfs-fuse.</span>
@@ -581,14 +567,13 @@
 <span class="sd">        rw_image: virtual image of actual file system</span>
 <span class="sd">        mountpoint: location where ro_base and rw_image merge</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;benchbuild&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">mountpoint</span><span class="p">):</span>
         <span class="n">mkdir</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="n">mountpoint</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ro_base</span><span class="p">):</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Base dir does not exist: &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ro_base</span><span class="p">))</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Base dir does not exist: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">ro_base</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Base directory does not exist&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">rw_image</span><span class="p">):</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Image dir does not exist: &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ro_base</span><span class="p">))</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Image dir does not exist: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">ro_base</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Image directory does not exist&quot;</span><span class="p">)</span>
 
     <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">unionfs</span>
@@ -598,9 +583,9 @@
     <span class="k">return</span> <span class="n">unionfs</span><span class="p">[</span><span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;auto_unmount,allow_other,cow&quot;</span><span class="p">,</span>
                    <span class="n">rw_image</span> <span class="o">+</span> <span class="s2">&quot;=RW:&quot;</span> <span class="o">+</span> <span class="n">ro_base</span> <span class="o">+</span> <span class="s2">&quot;=RO&quot;</span><span class="p">,</span> <span class="n">mountpoint</span><span class="p">]</span></div>
 
+
 <div class="viewcode-block" id="unionfs_is_active"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.unionfs_is_active">[docs]</a><span class="k">def</span> <span class="nf">unionfs_is_active</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">psutil</span>
-    <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">sleep</span>
 
     <span class="n">real_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">psutil</span><span class="o">.</span><span class="n">disk_partitions</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -609,8 +594,10 @@
                 <span class="k">return</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="kc">False</span></div>
 
+
 <div class="viewcode-block" id="UnmountError"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.UnmountError">[docs]</a><span class="k">class</span> <span class="nc">UnmountError</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
     <span class="k">pass</span></div>
+
 
 <div class="viewcode-block" id="unionfs"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.unionfs">[docs]</a><span class="k">def</span> <span class="nf">unionfs</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;./base&#39;</span><span class="p">,</span>
             <span class="n">image_dir</span><span class="o">=</span><span class="s1">&#39;./image&#39;</span><span class="p">,</span>
@@ -714,6 +701,7 @@
                   <span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="k">pass</span>
 
+            <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">proc</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="n">abs_mount_dir</span><span class="p">):</span>
@@ -745,7 +733,6 @@
 <div class="viewcode-block" id="store_config"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.run.store_config">[docs]</a><span class="k">def</span> <span class="nf">store_config</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decorator for storing the configuration in the project&#39;s builddir.&quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">wraps</span>
-    <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrap_store_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -755,7 +742,6 @@
         <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">wrap_store_config</span></div>
-
 </pre></div>
 
           </div>

@@ -232,13 +232,15 @@ class PolyJITFull(PolyJIT):
             }
 
             pjit_extension = \
-                EnableJITDatabase(
-                    DisablePolyJIT(
-                        ext.SetThreadLimit(
-                            ext.RuntimeExtension(cp, self, config=cfg),
-                            config=cfg),
-                        project=cp),
-                    project=cp)
+                ClearPolyJITConfig(
+                    EnableJITDatabase(
+                        DisablePolyJIT(
+                            ext.SetThreadLimit(
+                                ext.RuntimeExtension(cp, self, config=cfg),
+                                config=cfg),
+                            project=cp),
+                        project=cp)
+                )
 
             cp.runtime_extension = \
                 ext.LogAdditionals(
@@ -258,13 +260,15 @@ class PolyJITFull(PolyJIT):
             }
 
             pjit_extension = \
-                EnableJITDatabase(
-                    EnablePolyJIT(
-                        ext.SetThreadLimit(
-                            ext.RuntimeExtension(cp, self, config=cfg),
-                            config=cfg),
-                        project=cp),
-                    project=cp)
+                ClearPolyJITConfig(
+                    EnableJITDatabase(
+                        EnablePolyJIT(
+                            ext.SetThreadLimit(
+                                ext.RuntimeExtension(cp, self, config=cfg),
+                                config=cfg),
+                            project=cp),
+                        project=cp)
+                )
             cp.runtime_extension = \
                 ext.LogAdditionals(
                     RegisterPolyJITLogs(

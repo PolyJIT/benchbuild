@@ -27,13 +27,18 @@ class PJITRaw(pj.PolyJIT):
                 ext.LogAdditionals(
                     pj.RegisterPolyJITLogs(
                         ext.RunWithTime(
-                            pj.EnablePolyJIT(
-                                ext.RuntimeExtension(cp, self, config={
-                                    "jobs": i,
-                                    "cores": str(i-1),
-                                    "cores-config": str(i),
-                                    "recompilation": "enabled"}),
-                                project=cp))))
+                            pj.ClearPolyJITConfig(
+                                pj.EnablePolyJIT(
+                                    ext.RuntimeExtension(cp, self, config={
+                                        "jobs": i,
+                                        "cores": str(i-1),
+                                        "cores-config": str(i),
+                                        "recompilation": "enabled"}),
+                                    project=cp)
+                            )
+                        )
+                    )
+                )
 
             actns.extend(self.default_runtime_actions(cp))
         return actns

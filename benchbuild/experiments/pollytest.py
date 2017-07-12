@@ -31,12 +31,8 @@ class PollyTest(Experiment):
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + ["-O3"]
         cfg = {
-            "cflags": "-O3"
+            "name": "-O3"
         }
-
-        newp.runtime_extension = RunWithTime(
-            RuntimeExtension(newp, self, config=cfg))
-
         newp.compiler_extension = ExtractCompileStats(newp, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
@@ -44,10 +40,8 @@ class PollyTest(Experiment):
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + ["-O3", "-mllvm", "-polly"]
         cfg = {
-            "cflags": "-O3 -polly"
+            "name": "-O3 -polly"
         }
-        newp.runtime_extension = RunWithTime(
-            RuntimeExtension(newp, self, config=cfg))
         newp.compiler_extension = ExtractCompileStats(newp, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
@@ -58,10 +52,8 @@ class PollyTest(Experiment):
            "-polly", "-mllvm",
            "-polly-position=before-vectorizer"]
         cfg = {
-            "cflags": "-O3 -polly -polly-position=before-vectorizer"
+            "name": "-O3 -polly -polly-position=before-vectorizer"
         }
-        newp.runtime_extension = RunWithTime(
-            RuntimeExtension(newp, self, config=cfg))
         newp.compiler_extension = ExtractCompileStats(newp, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
@@ -73,11 +65,9 @@ class PollyTest(Experiment):
            "-polly-process-unprofitable",
            "-mllvm", "-polly-position=before-vectorizer"]
         cfg = {
-            "cflags": "-O3 -polly -polly-position=before-vectorizer "
-                      "-polly-process-unprofitable"
+            "name": "-O3 -polly -polly-position=before-vectorizer "
+                    "-polly-process-unprofitable"
         }
-        newp.runtime_extension = RunWithTime(
-            RuntimeExtension(newp, self, config=cfg))
         newp.compiler_extension = ExtractCompileStats(newp, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
 
@@ -88,10 +78,8 @@ class PollyTest(Experiment):
            "-polly", "-mllvm",
            "-polly-process-unprofitable"]
         cfg = {
-            "cflags": "-O3 -polly -polly-process-unprofitable"
+            "name": "-O3 -polly -polly-process-unprofitable"
         }
-        newp.runtime_extension = RunWithTime(
-            RuntimeExtension(newp, self, config=cfg))
         newp.compiler_extension = ExtractCompileStats(newp, self, config=cfg)
         actns.extend(self.default_compiletime_actions(newp))
         return actns

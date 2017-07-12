@@ -156,7 +156,6 @@ class PolyJIT(RuntimeExperiment):
                           "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                           "-O3",
                           "-mllvm", "-polli-enable-log",
-                          "-mllvm", "-polli-allow-modref-calls",
                           "-mllvm", "-polli"]
         return project
 
@@ -185,7 +184,10 @@ class PolyJITFull(PolyJIT):
         rawp.runtime_extension = \
             ext.RunWithTime(
                 ext.SetThreadLimit(
-                    ext.RuntimeExtension(rawp, self, config={"jobs": 1}),
+                    ext.RuntimeExtension(
+                        rawp, self,
+                        config={"jobs": 1,
+                                "name" : "Baseline O3"}),
                     config={"jobs": 1}))
         actns.append(RequireAll(self.default_runtime_actions(rawp)))
 
@@ -197,7 +199,10 @@ class PolyJITFull(PolyJIT):
         pollyp.runtime_extension = \
             ext.RunWithTime(
                 ext.SetThreadLimit(
-                    ext.RuntimeExtension(pollyp, self, config={"jobs": 1}),
+                    ext.RuntimeExtension(
+                        pollyp, self,
+                        config={"jobs": 1,
+                                "name": "Polly (Parallel)"}),
                     config={"jobs": 1}))
         actns.append(RequireAll(self.default_runtime_actions(pollyp)))
 
@@ -213,7 +218,8 @@ class PolyJITFull(PolyJIT):
                 "jobs": i,
                 "cores": str(i-1),
                 "cores-config": str(i),
-                "recompilation": "disabled"
+                "recompilation": "disabled",
+                "name": "PolyJIT (No Recompilation)"
             }
 
             pjit_extension = \
@@ -238,7 +244,8 @@ class PolyJITFull(PolyJIT):
                 "jobs": i,
                 "cores": str(i-1),
                 "cores-config": str(i),
-                "recompilation": "enabled"
+                "recompilation": "enabled",
+                "name": "PolyJIT (Recompilation)"
             }
 
             pjit_extension = \

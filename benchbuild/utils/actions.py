@@ -313,14 +313,13 @@ class Experiment(Any):
                 except KeyboardInterrupt:
                     results.append(StepResult.ERROR)
                     LOG.error("User requested termination.")
-                    raise
+                    break
                 except Exception:
                     e_type, e_value, e_traceb = sys.exc_info()
                     lines = traceback.format_exception(
                         e_type, e_value, e_traceb)
                     results.append(StepResult.ERROR)
                     LOG.error("".join(lines))
-                    raise
         finally:
             self.end_transaction(experiment, session)
         return results

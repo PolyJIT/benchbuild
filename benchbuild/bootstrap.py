@@ -42,7 +42,7 @@ class BenchBuildBootstrap(cli.Application):
         ])
 
         if self.store_config:
-            config_path = ".benchbuild.json"
+            config_path = ".benchbuild.yml"
             CFG.store(config_path)
             print("Storing config in {0}".format(os.path.abspath(config_path)))
             exit(0)

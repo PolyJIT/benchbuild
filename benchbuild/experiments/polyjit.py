@@ -164,6 +164,7 @@ class PolyJIT(RuntimeExperiment):
         project.ldflags += ["-lpjit", "-lgomp"]
         project.cflags = ["-fno-omit-frame-pointer",
                           "-rdynamic",
+                          "-Xclang", "-load", "-Xclang", "LLVMPolly.so",
                           "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                           "-O3",
                           "-mllvm", "-polli-enable-log",
@@ -205,7 +206,6 @@ class PolyJITFull(PolyJIT):
         pollyp = copy.deepcopy(project)
         pollyp.run_uuid = uuid.uuid4()
         pollyp.cflags = ["-Xclang", "-load",
-                         "-Xclang", "LLVMPolly.so",
                          "-mllvm", "-polly", "-mllvm", "-polly-parallel"]
         pollyp.runtime_extension = \
             ext.RunWithTime(

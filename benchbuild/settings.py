@@ -4,13 +4,14 @@ Settings module for benchbuild.
 All settings are stored in a simple dictionary. Each
 setting should be modifiable via environment variable.
 """
+import copy
 import json
+import logging
 import os
 import uuid
 import re
 import warnings
-import logging
-import copy
+import yaml
 
 from datetime import datetime
 from plumbum import local
@@ -108,6 +109,10 @@ def escape_json(raw_str):
     return raw_str
 
 
+def is_yaml(cfg_file):
+    return os.path.splitext(cfg_file)[1] in [".yml", ".yaml"]
+
+
 class Configuration():
     """
     Dictionary-like data structure to contain all configuration variables.
@@ -164,7 +169,11 @@ class Configuration():
         selfcopy.filter_exports()
 
         with open(config_file, 'w') as outf:
-            json.dump(selfcopy.node, outf, cls=UUIDEncoder, indent=True)
+            if is_yaml(config_file):
+                yaml.dump(selfcopy.node, outf, width=80, indent=4,
+                          default_flow_style=False)
+            else:
+                json.dump(selfcopy.node, outf, cls=UUIDEncoder, indent=True)
 
     def load(self, _from):
         """Load the configuration dictionary from file."""
@@ -181,10 +190,13 @@ class Configuration():
                 else:
                     inode[k] = config[k]
 
-        if os.path.exists(_from):
-            with open(_from, 'r') as inf:
-                load_rec(self.node, json.load(inf))
-                self['config_file'] = os.path.abspath(_from)
+        with open(_from, 'r') as infile:
+            if is_yaml(_from):
+                load_rec(self.node, yaml.load(infile))
+            else:
+                load_rec(self.node, json.load(infile))
+            self['config_file'] = os.path.abspath(_from)
+            print("Loaded from %s" % _from)
 
     def has_value(self):
         """Check, if the node contains a 'value'."""
@@ -800,7 +812,13 @@ CFG["container"] = {
 }
 
 
-def find_config(default='.benchbuild.json', root=os.curdir):
+def find_config(test_file=None,
+                defaults=[
+                    ".benchbuild.yml",
+                    ".benchbuild.yaml",
+                    ".benchbuild.json"
+                ],
+                root=os.curdir):
     """
     Find the path to the default config file.
 
@@ -816,12 +834,21 @@ def find_config(default='.benchbuild.json', root=os.curdir):
     Returns:
         Path to the default config file, None if we can't find anything.
     """
-    cur_path = os.path.join(root, default)
-    if os.path.exists(cur_path):
-        return cur_path
+    def walk_rec(cur_path, root):
+        cur_path = os.path.join(root, test_file)
+        if os.path.exists(cur_path):
+            return cur_path
+        else:
+            new_root = os.path.abspath(os.path.join(root, os.pardir))
+            return walk_rec(cur_path, new_root) if new_root != root else None
+
+    if test_file is not None:
+        return walk_rec(test_file, root)
     else:
-        new_root = os.path.abspath(os.path.join(root, os.pardir))
-        return find_config(default, new_root) if new_root != root else None
+        for test_file in defaults:
+            ret = walk_rec(test_file, root)
+            if ret is not None:
+               return ret
 
 
 def __init_config(cfg):

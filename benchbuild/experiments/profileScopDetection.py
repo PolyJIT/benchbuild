@@ -13,9 +13,10 @@ class PProfExperiment(exp.Experiment):
     NAME = "profileScopDetection"
 
     def actions_for_project(self, project):
-        project.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+        project.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolly.so",
+                "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                 "-O3",
-                "-mllvm", "-profileScopDetection"]
+                "-mllvm", "-polli-profile-scops"]
         project.ldflags = ["-lpjit"]
         project.runtime_extension = ext.RunWithTime(
                 ext.RuntimeExtension(project, self, config={})

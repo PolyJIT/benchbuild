@@ -1,7 +1,7 @@
 import logging
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.run import run, uchroot
+from benchbuild.utils.run import uretry, uchroot
 from plumbum import local
 
 
@@ -18,7 +18,7 @@ class AutoPortage(GentooGroup):
                              "--autounmask-write=y",
                              prog,
                              retcode=None)
-        run(emerge_in_chroot[prog])
+        uretry(emerge_in_chroot[prog])
 
     def run_tests(self, *args, **kwargs):
         log = logging.getLogger('benchbuild')

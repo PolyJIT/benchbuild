@@ -6,9 +6,12 @@ from time import sleep
 from psutil import Process
 from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.run import run, uchroot
+from benchbuild.utils.run import uretry, uchroot
 from plumbum import local
 from benchbuild.utils.cmd import kill, mkdir  # pylint: disable=E0401
+
+
+run = uretry
 
 
 class Postgresql(GentooGroup):

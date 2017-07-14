@@ -5,7 +5,7 @@ from os import path
 from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import run, uchroot
+from benchbuild.utils.run import uretry, uchroot
 
 
 class X264(GentooGroup):
@@ -27,7 +27,7 @@ class X264(GentooGroup):
 
     def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        run(emerge_in_chroot["media-video/x264-encoder"])
+        uretry(emerge_in_chroot["media-video/x264-encoder"])
 
     def run_tests(self, experiment, run):
         wrap(
@@ -48,5 +48,5 @@ class X264(GentooGroup):
 
         for ifile in self.inputfiles:
             for _, test in enumerate(tests):
-                run(x264[ifile, self.inputfiles[ifile], "--threads", "1", "-o",
-                         "/dev/null", test.split(" ")])
+                uretry(x264[ifile, self.inputfiles[ifile], "--threads", "1", "-o",
+                            "/dev/null", test.split(" ")])

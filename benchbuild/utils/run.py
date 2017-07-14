@@ -1,4 +1,5 @@
 """Experiment helpers."""
+import enum
 import os
 import logging
 import subprocess
@@ -372,7 +373,21 @@ def uchroot_no_args():
         LD_LIBRARY_PATH=list_to_path(p_libs),
         PATH=list_to_path(p_paths))
 
-    return RetryOnRetcode(uchroot, retcode=[128])
+    class UchrootEC(enum.Enum):
+        MNT_FAILED = 255,
+        MNT_PROC_FAILED = 254,
+        MNT_DEV_FAILED = 253,
+        MNT_SYS_FAILED = 252,
+        MNT_PTS_FAILED = 251
+
+
+    return RetryOnRetcode(uchroot,
+                          retcode=[
+                              UchrootEC.MNT_PROC_FAILED.value,
+                              UchrootEC.MNT_DEV_FAILED.value,
+                              UchrootEC.MNT_SYS_FAILED.value,
+                              UchrootEC.MNT_PTS_FAILED.value
+                          ])
 
 
 def uchroot_no_llvm(*args, **kwargs):

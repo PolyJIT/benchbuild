@@ -10,6 +10,7 @@ from benchbuild.utils.path import list_to_path
 from benchbuild import settings
 from plumbum import local
 from plumbum.commands import ProcessExecutionError
+from plumbum.commands.base import BoundCommand
 
 
 LOG = logging.getLogger(__name__)
@@ -325,6 +326,36 @@ def run(command, retcode=0):
     command & TEE(retcode=retcode)
 
 
+class RetryOnRetcode(BoundCommand):
+    def __init__(self, cmd, retcode=None):
+        super(RetryOnRetcode, self).__init__(cmd.cmd, cmd.args)
+
+        self.retry_retcode = list(retcode) \
+            if hasattr(retcode, "__iter__") else [retcode]
+
+    def bound_command(self, *args):
+        ret = super(RetryOnRetcode, self).bound_command(*args)
+        return RetryOnRetcode(ret, retcode=self.retry_retcode)
+
+    def with_env(self, **envvars):
+        ret = super(RetryOnRetcode, self).with_env(**envvars)
+        return RetryOnRetcode(ret, retcode=self.retry_retcode)
+
+    def run(self, *args, retries = 0, **kwargs):
+        retcode = None
+        try:
+            retcode = super(RetryOnRetcode, self).run(args, **kwargs)
+        except ProcessExecutionError as proc_ex:
+            retcode = proc_ex.retcode
+        if retcode in self.retry_retcode:
+            self.run(*args, retries=retries + 1, **kwargs)
+            LOG.warning(
+                "Retry after receiving retcode = %d (retry on: %s)",
+                retcode, self.retry_retcode)
+        LOG.warning("Different result after %d retries.", retries)
+        return retcode
+
+
 def uchroot_no_args():
     """Return the uchroot command without any customizations."""
     from benchbuild.utils.cmd import uchroot
@@ -337,7 +368,7 @@ def uchroot_no_args():
         LD_LIBRARY_PATH=list_to_path(p_libs),
         PATH=list_to_path(p_paths))
 
-    return uchroot
+    return RetryOnRetcode(uchroot, retcode=[128])
 
 
 def uchroot_no_llvm(*args, **kwargs):

@@ -10,7 +10,7 @@ from benchbuild.utils.path import list_to_path
 from benchbuild import settings
 from plumbum import local
 from plumbum.commands import ProcessExecutionError
-from plumbum.commands.base import BoundCommand
+from plumbum.commands.base import BaseCommand
 
 
 LOG = logging.getLogger(__name__)
@@ -326,25 +326,29 @@ def run(command, retcode=0):
     command & TEE(retcode=retcode)
 
 
-class RetryOnRetcode(BoundCommand):
+class RetryOnRetcode(BaseCommand):
+    __slots__ = ["cmd", "retry_retcode"]
     def __init__(self, cmd, retcode=None):
-        super(RetryOnRetcode, self).__init__(cmd.cmd, cmd.args)
-
+        self.cmd = cmd
         self.retry_retcode = list(retcode) \
             if hasattr(retcode, "__iter__") else [retcode]
+    
+    def __repr__(self):
+        return "RetryOnRetcode(%r, %r)" % (self.cmd, self.retry_retcode)
 
-    def bound_command(self, *args):
-        ret = super(RetryOnRetcode, self).bound_command(*args)
-        return RetryOnRetcode(ret, retcode=self.retry_retcode)
+    def _get_encoding(self):
+        return self.cmd._get_encoding()
 
-    def with_env(self, **envvars):
-        ret = super(RetryOnRetcode, self).with_env(**envvars)
-        return RetryOnRetcode(ret, retcode=self.retry_retcode)
+    def formulate(self, level = 0, args = ()):
+        return self.cmd.formulate(level + 1, args)
+
+    def popen(self, args = (), **kwargs):
+        return self.cmd.popen(args, **kwargs)
 
     def run(self, *args, retries = 0, **kwargs):
         retcode = None
         try:
-            retcode = super(RetryOnRetcode, self).run(args, **kwargs)
+            retcode = self.cmd.run(args, **kwargs)
         except ProcessExecutionError as proc_ex:
             retcode = proc_ex.retcode
         if retcode in self.retry_retcode:

@@ -329,33 +329,47 @@ def run(command, retcode=0):
 
 class RetryOnRetcode(BaseCommand):
     __slots__ = ["cmd", "retry_retcode"]
+
     def __init__(self, cmd, retcode=None):
         self.cmd = cmd
         self.retry_retcode = list(retcode) \
             if hasattr(retcode, "__iter__") else [retcode]
-    
+        LOG.debug("New ROR: %r", self)
+
     def __repr__(self):
         return "RetryOnRetcode(%r, %r)" % (self.cmd, self.retry_retcode)
 
     def _get_encoding(self):
         return self.cmd._get_encoding()
 
-    def formulate(self, level = 0, args = ()):
+    def formulate(self, level=0, args=()):
         return self.cmd.formulate(level + 1, args)
+
+    def __getitem__(self, args):
+        new_cmd = self.cmd.__getitem__(args)
+        return RetryOnRetcode(new_cmd, retcode=self.retry_retcode)
+
+    def with_env(self, **envvars):
+        new_cmd = self.cmd.with_env(**envvars)
+        return RetryOnRetcode(new_cmd, retcode=self.retry_retcode)
 
     @property
     def machine(self):
         return self.cmd.machine
 
-    def popen(self, args = (), **kwargs):
+    def popen(self, args=(), **kwargs):
         return self.cmd.popen(args, **kwargs)
 
-    def run(self, *args, retries = 0, **kwargs):
+    def run(self, *args, retries=0, **kwargs):
         retcode = None
         try:
             retcode = self.cmd.run(args, **kwargs)
         except ProcessExecutionError as proc_ex:
             retcode = proc_ex.retcode
+
+        if retries > 100:
+            return retcode
+
         if retcode in self.retry_retcode:
             self.run(*args, retries=retries + 1, **kwargs)
             LOG.warning(
@@ -383,7 +397,6 @@ def uchroot_no_args():
         MNT_DEV_FAILED = 253,
         MNT_SYS_FAILED = 252,
         MNT_PTS_FAILED = 251
-
 
     return RetryOnRetcode(uchroot,
                           retcode=[

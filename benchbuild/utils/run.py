@@ -343,6 +343,10 @@ class RetryOnRetcode(BaseCommand):
     def formulate(self, level = 0, args = ()):
         return self.cmd.formulate(level + 1, args)
 
+    @property
+    def machine(self):
+        return self.cmd.machine
+
     def popen(self, args = (), **kwargs):
         return self.cmd.popen(args, **kwargs)
 

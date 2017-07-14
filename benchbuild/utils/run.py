@@ -14,7 +14,7 @@ from plumbum.commands import ProcessExecutionError
 from plumbum.commands.base import BaseCommand
 
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger("benchbuild")
 
 
 def handle_stdin(cmd, kwargs):
@@ -327,57 +327,37 @@ def run(command, retcode=0):
     command & TEE(retcode=retcode)
 
 
-class RetryOnRetcode(BaseCommand):
-    __slots__ = ["cmd", "retry_retcode"]
+class UchrootEC(enum.Enum):
+    MNT_FAILED = 255
+    MNT_PROC_FAILED = 254
+    MNT_DEV_FAILED = 253
+    MNT_SYS_FAILED = 252
+    MNT_PTS_FAILED = 251
 
-    def __init__(self, cmd, retcode=None):
-        self.cmd = cmd
-        self.retry_retcode = list(retcode) \
-            if hasattr(retcode, "__iter__") else [retcode]
-        LOG.debug("New ROR: %r", self)
+def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
+    try:
+        run(pb_cmd, retcode)
+    except ProcessExecutionError as proc_ex:
+        new_retcode = proc_ex.retcode
+        if retries > max_retries:
+            LOG.error("Retried %d times. No change. Abort", retries)
+            raise
 
-    def __repr__(self):
-        return "RetryOnRetcode(%r, %r)" % (self.cmd, self.retry_retcode)
+        if new_retcode in retry_retcodes:
+            retry(pb_cmd, retries=retries+1,
+                          max_retries=max_retries,
+                          retcode=retcode,
+                          retry_retcodes=retry_retcodes)
+        else:
+            raise
 
-    def _get_encoding(self):
-        return self.cmd._get_encoding()
-
-    def formulate(self, level=0, args=()):
-        return self.cmd.formulate(level + 1, args)
-
-    def __getitem__(self, args):
-        new_cmd = self.cmd.__getitem__(args)
-        return RetryOnRetcode(new_cmd, retcode=self.retry_retcode)
-
-    def with_env(self, **envvars):
-        new_cmd = self.cmd.with_env(**envvars)
-        return RetryOnRetcode(new_cmd, retcode=self.retry_retcode)
-
-    @property
-    def machine(self):
-        return self.cmd.machine
-
-    def popen(self, args=(), **kwargs):
-        return self.cmd.popen(args, **kwargs)
-
-    def run(self, *args, retries=0, **kwargs):
-        retcode = None
-        try:
-            retcode = self.cmd.run(args, **kwargs)
-        except ProcessExecutionError as proc_ex:
-            retcode = proc_ex.retcode
-
-        if retries > 100:
-            return retcode
-
-        if retcode in self.retry_retcode:
-            self.run(*args, retries=retries + 1, **kwargs)
-            LOG.warning(
-                "Retry after receiving retcode = %d (retry on: %s)",
-                retcode, self.retry_retcode)
-        LOG.warning("Different result after %d retries.", retries)
-        return retcode
-
+def uretry(cmd, retcode=0):
+    retry(cmd, retcode=retcode, retry_retcodes=[
+        UchrootEC.MNT_PROC_FAILED.value,
+        UchrootEC.MNT_DEV_FAILED.value,
+        UchrootEC.MNT_SYS_FAILED.value,
+        UchrootEC.MNT_PTS_FAILED.value
+    ])
 
 def uchroot_no_args():
     """Return the uchroot command without any customizations."""
@@ -391,20 +371,8 @@ def uchroot_no_args():
         LD_LIBRARY_PATH=list_to_path(p_libs),
         PATH=list_to_path(p_paths))
 
-    class UchrootEC(enum.Enum):
-        MNT_FAILED = 255,
-        MNT_PROC_FAILED = 254,
-        MNT_DEV_FAILED = 253,
-        MNT_SYS_FAILED = 252,
-        MNT_PTS_FAILED = 251
 
-    return RetryOnRetcode(uchroot,
-                          retcode=[
-                              UchrootEC.MNT_PROC_FAILED.value,
-                              UchrootEC.MNT_DEV_FAILED.value,
-                              UchrootEC.MNT_SYS_FAILED.value,
-                              UchrootEC.MNT_PTS_FAILED.value
-                          ])
+    return uchroot
 
 
 def uchroot_no_llvm(*args, **kwargs):

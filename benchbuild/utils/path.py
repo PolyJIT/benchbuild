@@ -74,12 +74,13 @@ def mkfile_uchroot(filepath, root="."):
             The root PATH of the container filesystem as seen outside of
             the container.
     """
-    from benchbuild.utils.run import uchroot_no_args
+    from benchbuild.utils.run import uchroot_no_args, uretry
+
 
     uchroot = uchroot_no_args()
     uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
     uchroot = uchroot[os.path.abspath(root)]
-    uchroot("--", "/bin/touch", filepath)
+    uretry(uchroot["--", "/bin/touch", filepath])
 
 
 def mkdir_uchroot(dirpath, root="."):
@@ -97,9 +98,9 @@ def mkdir_uchroot(dirpath, root="."):
             The root PATH of the container filesystem as seen outside of
             the container.
     """
-    from benchbuild.utils.run import uchroot_no_args
+    from benchbuild.utils.run import uchroot_no_args, uretry
 
     uchroot = uchroot_no_args()
     uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
     uchroot = uchroot[os.path.abspath(root)]
-    uchroot("--", "/bin/mkdir", "-p", dirpath)
+    uretry(uchroot["--", "/bin/mkdir", "-p", dirpath])

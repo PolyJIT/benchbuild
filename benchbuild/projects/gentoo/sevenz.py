@@ -4,7 +4,10 @@ p7zip experiment within gentoo chroot.
 from os import path
 from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.run import run, uchroot
+from benchbuild.utils.run import uretry, uchroot
+
+
+run = uretry
 
 
 class SevenZip(GentooGroup):

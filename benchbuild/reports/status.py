@@ -4,6 +4,7 @@ import sqlalchemy as sa
 from benchbuild.reports import Report
 from benchbuild.experiment import ExperimentRegistry
 
+
 class StatusReport(Report):
     SUPPORTED_EXPERIMENTS = list(ExperimentRegistry.experiments.keys())
     QUERY_STATUS = \

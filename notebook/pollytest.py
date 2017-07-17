@@ -6,11 +6,9 @@ import pandas as pd
 import sqlalchemy as sa
 import plotly
 import plotly.graph_objs as go
-plotly.offline.init_notebook_mode()
 
 settings.CFG.load(".benchbuild.yml")
 session = schema.Session()
-#%%
 QUERY_EVAL = \
     sa.sql.select([
         sa.column('project'),
@@ -26,12 +24,12 @@ QUERY_EVAL = \
             sa.sql.bindparam('components')))
 qry = QUERY_EVAL.unique_params(exp_ids=[uuid.UUID("6c9d1f23-d9ee-4744-88ea-243dcaa50cd4")],
                                components=["polly-scops"])
-df = pd.read_sql_query(qry, session.bind)
 #%%
+df = pd.read_sql_query(qry, session.bind)
 print(df.head())
 
 #%%
-comps = df['component'].unique()
+comps = df['variable'].unique()
 print(comps)
 
 layout = go.Layout(
@@ -41,7 +39,7 @@ layout = go.Layout(
 traces = []
 comp = 'Number of valid Scops'
 
-data = df.loc[df.component == comp]
+data = df.loc[df.variable == comp]
 traces.append(
         go.Bar(
             x = data["project"],
@@ -69,8 +67,8 @@ traces.append(
 #%%
 layout = go.Layout(
     barmode='grouped',
-    height=1024,
-    width=1920,
+    height=600,
+    width=600,
     xaxis=dict(
         autorange=True,
         showgrid=False,
@@ -82,5 +80,11 @@ layout = go.Layout(
     ),
     title=comp
 )
+
+from plotly import __version__
+from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
+
 fig = go.Figure(data=traces, layout=layout)
-plotly.offline.plot(fig, filename='grouped-bar.html')
+init_notebook_mode()
+iplot(fig, filename='grouped-bar.html')
+print(__version__)

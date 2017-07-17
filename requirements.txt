@@ -12,6 +12,7 @@ docutils==0.12
 lazy==1.2
 pandas>=0.20.3
 parse==1.6.6
+plotly>=2.0.12
 pbr==1.8.1
 plumbum>=1.6.0
 pockets==0.3

@@ -1,8 +1,8 @@
 #%%
+import uuid
 import benchbuild.settings as settings
 import benchbuild.utils.schema as schema
 import pandas as pd
-import uuid
 import sqlalchemy as sa
 import plotly
 import plotly.graph_objs as go
@@ -14,7 +14,7 @@ session = schema.Session()
 QUERY_EVAL = \
     sa.sql.select([
         sa.column('project'),
-        sa.column('component'),
+        sa.column('variable'),
         sa.column('p'),
         sa.column('pv'),
         sa.column('pvu'),

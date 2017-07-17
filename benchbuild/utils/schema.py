@@ -454,11 +454,11 @@ def init_functions(connection):
     """Initialize all SQL functions in the database."""
     if CFG["db"]["create_functions"].value():
         print("Refreshing SQL functions...")
-    for file in bbpath.template_files("../sql/", exts=[".sql"]):
-        func = sa.DDL(
-            bbpath.template_str(file)
-        )
-        LOG.info("Loading: '%s' into database", file)
-        LOG.debug(func.compile())
-        connection.execute(func)
-        connection.commit()
+        for file in bbpath.template_files("../sql/", exts=[".sql"]):
+            func = sa.DDL(
+                bbpath.template_str(file)
+            )
+            LOG.info("Loading: '%s' into database", file)
+            LOG.debug(func.compile())
+            connection.execute(func)
+            connection.commit()

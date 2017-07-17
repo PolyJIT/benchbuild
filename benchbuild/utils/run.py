@@ -6,6 +6,7 @@ import subprocess
 from contextlib import contextmanager
 
 from benchbuild.settings import CFG
+import benchbuild.signals as signals
 from benchbuild.utils.cmd import mkdir
 from benchbuild.utils.path import list_to_path
 from benchbuild import settings
@@ -231,8 +232,10 @@ class RunInfo(object):
 
         for k in kwargs:
             self.__setattr__(k, kwargs[k])
+        # This is not atomic, careful!
         self.__begin(self.cmd, self.project,
                      self.experiment.name, self.project.run_uuid)
+        signals.handlers.register(self.__fail, 15, "SIGTERM", "SIGTERM")
 
         run_id = self.db_run.id
         settings.CFG["db"]["run_id"] = run_id
@@ -282,6 +285,9 @@ class RunInfo(object):
                 self.__fail(-1, "", "KeyboardInterrupt")
                 LOG.warning("Interrupted by user input")
                 raise
+            finally:
+                signals.handlers.deregister(self.__fail,
+                                            15, "SIGTERM", "SIGTERM")
 
         return self
 

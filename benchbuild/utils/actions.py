@@ -309,8 +309,12 @@ class Experiment(Any):
 
     def __call__(self):
         results = []
+        experiment = None
+        session = None
         try:
-            experiment, session = self.begin_transaction()
+            res = self.begin_transaction()
+            experiment = res[0]
+            session = res[1]
             for a in self._actions:
                 try:
                     result = a()
@@ -327,6 +331,8 @@ class Experiment(Any):
                     LOG.error("".join(lines))
         finally:
             self.end_transaction(experiment, session)
+            signals.handlers.deregister(self.end_transaction,
+                                        experiment, session)
         return results
 
     def __str__(self, indent=0):

@@ -55,10 +55,10 @@ BEGIN
     P1.project AS project,
     P1.variable AS component,
 
-    P1.value AS p,
-    P2.value AS pv,
-    P3.value AS pvu,
-    P4.value AS pu
+    coalesce(P1.value, 0) AS p,
+    coalesce(P2.value, 0) AS pv,
+    coalesce(P3.value, 0) AS pvu,
+    coalesce(P4.value, 0) AS pu
   FROM
               cs_component_vals_per_config(exp_ids, components,
                 '-O3 -polly') as P1

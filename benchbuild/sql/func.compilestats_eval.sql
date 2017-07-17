@@ -22,7 +22,7 @@ BEGIN
   RETURN QUERY
     SELECT
       run.project_name AS project,
-      compilestats.name AS variable,
+      CAST(compilestats.name AS TEXT) AS variable,
       SUM(compilestats.value) AS value
     FROM
       run, compilestats, cs_config(exp_ids, config) AS cfg
@@ -42,7 +42,7 @@ CREATE OR REPLACE FUNCTION pollytest_eval(exp_ids UUID[], components VARCHAR[])
   RETURNS
     TABLE(
       project VARCHAR,
-      component TEXT,
+      variable TEXT,
       p     NUMERIC,
       pv    NUMERIC,
       pvu   NUMERIC,
@@ -53,7 +53,7 @@ BEGIN
   RETURN QUERY
   SELECT
     P1.project AS project,
-    P1.variable AS component,
+    P1.variable AS variable,
 
     coalesce(P1.value, 0) AS p,
     coalesce(P2.value, 0) AS pv,
@@ -77,7 +77,7 @@ BEGIN
   WHERE TRUE
   ORDER BY
     project,
-    component
+    variable
   ;
 END
 $BODY$ LANGUAGE plpgsql;

@@ -5,6 +5,7 @@ from functools import partial
 from os import listdir, path
 from typing import Callable, Iterable
 import benchbuild.utils.run as ur
+import benchbuild.signals as signals
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.container import Gentoo
@@ -180,6 +181,8 @@ class Project(object, metaclass=ProjectDecorator):
         CFG["db"]["run_group"] = str(self.run_uuid)
         with local.cwd(self.builddir):
             group, session = begin_run_group(self)
+            signals.handlers.register(fail_run_group, group, session)
+
             try:
                 self.run_tests(experiment, ur.run)
                 end_run_group(group, session)
@@ -189,6 +192,9 @@ class Project(object, metaclass=ProjectDecorator):
             except KeyboardInterrupt:
                 fail_run_group(group, session)
                 raise
+            finally:
+                signals.handlers.deregister(fail_run_group, group, session)
+
             if CFG["clean"].value():
                 self.clean()
 

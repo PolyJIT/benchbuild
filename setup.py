@@ -25,7 +25,8 @@ sql_extra_files = [
     "func.run_durations.sql",
     "func.speedup.sql",
     "func.total_dyncov.sql",
-    "func.pj-test-eval.sql"
+    "func.pj-test-eval.sql",
+    "func.compilestats_eval.sql"
 ]
 
 setup(
@@ -51,6 +52,7 @@ setup(
         "psycopg2",
         "sqlalchemy-migrate",
         "six>=1.7.0",
+        "pandas>=0.20.3",
         "psutil>=4.0.0",
         "pylint>=1.5.5",
         "PyYAML>=3.12"

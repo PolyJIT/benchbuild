@@ -11,6 +11,7 @@ import sys
 import textwrap
 import traceback
 
+import benchbuild.signals as signals
 from benchbuild.settings import CFG
 from benchbuild.utils.db import persist_experiment
 
@@ -292,6 +293,10 @@ class Experiment(Any):
             experiment.begin = min(experiment.begin, datetime.now())
         session.add(experiment)
         session.commit()
+
+        # React to external signals
+        signals.handlers.register(self.end_transaction, experiment, session)
+
         return experiment, session
 
     def end_transaction(self, experiment, session):

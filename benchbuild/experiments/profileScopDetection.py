@@ -4,6 +4,8 @@ why the parent is not part of the SCoP.
 """
 import benchbuild.experiment as exp
 import benchbuild.extensions as ext
+import benchbuild.experiments.polyjit as pj
+
 import copy
 import functools as ft
 import logging
@@ -17,24 +19,6 @@ from benchbuild.extensions import Extension
 
 LOG = logging.getLogger(__name__)
 
-def run_with_profilescops(project, experiment, config, jobs, run_f, args, **kwargs):
-    print("HERE");
-
-    from benchbuild.settings import CFG
-    from benchbuild.utils.run import track_execution, handle_stdin
-
-    CFG.update(config)
-    project.name = kwargs.get("project_name", project.name)
-    run_cmd = local[run_f]
-    print(run_cmd)
-    run_cmd = handle_stdin(run_cmd[args], kwargs)
-    #run_cmd = perf["record", "-q", "-F", 6249, "-g", run_cmd]
-
-    with track_execution(run_cmd, project, experiment) as run:
-        ri = run()
-
-    persist_scopinfos(ri)
-
 def persist_scopinfos(run):
     from benchbuild.utils import schema as s
     LOG.debug("Persist scops for '%s'", run)
@@ -46,8 +30,41 @@ def persist_scopinfos(run):
 class RunWithPprofExperiment(Extension):
     """Write data of profileScopDetection into the database"""
     def __call__(self, *args, **kwargs):
-        from benchbuild.utils.cmd import time
+        def handle_profileScopDetection(run_infos):
+            """
+            Takes care of writing the information of profileScopDetection into
+            the database.
+            """
+            from benchbuild.utils import schema as s
 
+            session = s.Session()
+            for run_info in run_infos:
+                print("Stderr: " + run_info.stderr)
+                print("Stdout: " + run_info.stdout)
+                persist_scopinfos(run_info)
+
+            session.commit()
+            return run_infos
+
+        res = self.call_next(*args, **kwargs)
+        return handle_profileScopDetection(res)
+
+
+class EnableProfiling(pj.PolyJITConfig, ext.Extension):
+    def __call__(self, *args, **kwargs):
+        ret = None
+        with self.argv(PJIT_ARGS="-polli-db-execute-atexit"):
+            with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
+                ret = self.call_next(*args, **kwargs)
+        return ret
+
+class CaptureProfilingDebugOutput(ext.Extension):
+    def __init__(self, *extensions, project=None, experiment=None, **kwargs):
+        super(CaptureProfilingDebugOutput, self).__init__(*extensions, **kwargs)
+        self.project = project
+        self.experiment = experiment
+
+    def __call__(self, *args, **kwargs):
         def handle_profileScopDetection(run_infos):
             """
             Takes care of writing the information of profileScopDetection into
@@ -84,30 +101,29 @@ class PProfExperiment(exp.Experiment):
                 "-O3",
                 "-mllvm", "-polli-profile-scops"]
         project.ldflags = ["-lpjit"]
+        project.compiler_extension = CaptureProfilingDebugOutput(
+            ext.RuntimeExtension(project, self),
+            project=project, experiment=self)
 
-        cp = copy.deepcopy(project)
-        cp.run_uuid = uuid.uuid4()
         pjit_extension = \
                 ClearPolyJITConfig(
                     EnableJITDatabase(
-                        EnablePolyJIT(
+                        EnableProfiling(
                             RunWithPprofExperiment(
-                                ext.RuntimeExtension(cp, self,
+                                ext.RuntimeExtension(project, self,
                                     config={"jobs": 1,
                                         "name": "profileScopDetection"
                                         }
                                     ),
                                 config={"jobs": 1}
                             ),
-                        project=cp),
-                    project=cp)
+                        project=project),
+                    project=project)
                 )
-        cp.runtime_extension = \
+        project.runtime_extension = \
                 ext.LogAdditionals(
                         RegisterPolyJITLogs(
                             ext.RunWithTime(pjit_extension)
                         )
                 )
-        actns.append(RequireAll(self.default_runtime_actions(cp)))
-
-        return [Any(actns)]
+        return self.default_runtime_actions(project)

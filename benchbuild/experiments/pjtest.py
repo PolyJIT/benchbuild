@@ -58,23 +58,24 @@ class Test(pj.PolyJIT):
 
         pjit_extension = ext.Extension(
             pj.ClearPolyJITConfig(
-                pj.EnableJITDatabase(
-                    pj.EnablePolyJIT(
-                        ext.RuntimeExtension(
-                            project, self, config=cfg_with_jit),
-                        project=project), project=project)),
+                ext.LogAdditionals(
+                    pj.RegisterPolyJITLogs(
+                        pj.EnableJITDatabase(
+                            pj.EnablePolyJIT(
+                                ext.RuntimeExtension(
+                                    project, self, config=cfg_with_jit),
+                                project=project), project=project)))),
             pj.ClearPolyJITConfig(
-                pj.EnableJITDatabase(
-                    pj.DisablePolyJIT(
-                        ext.RuntimeExtension(
-                            project, self, config=cfg_without_jit),
-                        project=project), project=project))
+                ext.LogAdditionals(
+                    pj.RegisterPolyJITLogs(
+                        pj.EnableJITDatabase(
+                            pj.DisablePolyJIT(
+                                ext.RuntimeExtension(
+                                    project, self, config=cfg_without_jit),
+                                project=project), project=project))))
         )
 
-        project.runtime_extension = \
-            ext.LogAdditionals(
-                pj.RegisterPolyJITLogs(
-                    ext.RunWithTime(pjit_extension)))
+        project.runtime_extension = ext.RunWithTime(pjit_extension)
         return Test.default_runtime_actions(project)
 
 

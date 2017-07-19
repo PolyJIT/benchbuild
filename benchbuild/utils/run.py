@@ -227,8 +227,8 @@ class RunInfo(object):
         self.project = None
         self.experiment = None
         self.retcode = 0
-        self.stdout = None
-        self.stderr = None
+        self.stdout = []
+        self.stderr = []
 
         for k in kwargs:
             self.__setattr__(k, kwargs[k])

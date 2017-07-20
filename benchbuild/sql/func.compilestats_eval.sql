@@ -84,12 +84,16 @@ $BODY$ LANGUAGE plpgsql;
 
 DROP FUNCTION IF EXISTS pollytest_eval_melted(exp_ids UUID[], components VARCHAR[]);
 create or replace function pollytest_eval_melted(exp_ids uuid[], components character varying[])
-  returns TABLE(project character varying, variable text, metric character varying, value integer)
+  returns TABLE(project character varying, variable character varying, metric TEXT, value bigint)
 LANGUAGE plpgsql
 AS $$
 BEGIN
   RETURN QUERY
-  SELECT run.project_name AS project, config.value AS variable, compilestats.name AS metric, SUM(CAST(compilestats.value AS INTEGER)) AS value
+  SELECT
+    run.project_name AS project,
+    config.value AS variable,
+    compilestats.name AS metric,
+    SUM(CAST(compilestats.value AS INTEGER)) AS value
   FROM
     run
     LEFT OUTER JOIN config

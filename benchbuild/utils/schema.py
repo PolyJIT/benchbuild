@@ -414,7 +414,8 @@ class ScopDetection(BASE):
                                ondelete="CASCADE"),
                     nullable=False,
                     primary_key=True)
-    invalidReason = Column(String)
+    invalidReason = Column(String,
+                    primary_key=True)
     count = Column(Integer)
 
 

@@ -8,8 +8,10 @@ import benchbuild.experiments.polyjit as pj
 
 import copy
 import functools as ft
+import glob
 import logging
 import uuid
+import os
 from plumbum import local
 
 from benchbuild.utils.run import track_execution
@@ -19,38 +21,23 @@ from benchbuild.extensions import Extension
 
 LOG = logging.getLogger(__name__)
 
-def persist_scopinfos(run):
+def persist_scopinfos(run, invalidReason, count):
+    """Persists the given information"""
     from benchbuild.utils import schema as s
     LOG.debug("Persist scops for '%s'", run)
     session = run.session
     session.add(s.ScopDetection(
-        run_id=run.db_run.id, invalidReason="Not yet implemented", count=-1))
+        run_id=run.db_run.id, invalidReason=invalidReason, count=count))
 
 
 class RunWithPprofExperiment(Extension):
     """Write data of profileScopDetection into the database"""
     def __call__(self, *args, **kwargs):
-        def handle_profileScopDetection(run_infos):
-            """
-            Takes care of writing the information of profileScopDetection into
-            the database.
-            """
-            from benchbuild.utils import schema as s
-
-            session = s.Session()
-            for run_info in run_infos:
-                print("Stderr: " + run_info.stderr)
-                print("Stdout: " + run_info.stdout)
-                persist_scopinfos(run_info)
-
-            session.commit()
-            return run_infos
-
-        res = self.call_next(*args, **kwargs)
-        return handle_profileScopDetection(res)
+        return self.call_next(*args, **kwargs)
 
 
 class EnableProfiling(pj.PolyJITConfig, ext.Extension):
+    """Adds options for enabling profiling of SCoPs"""
     def __call__(self, *args, **kwargs):
         ret = None
         with self.argv(PJIT_ARGS="-polli-db-execute-atexit"):
@@ -59,6 +46,7 @@ class EnableProfiling(pj.PolyJITConfig, ext.Extension):
         return ret
 
 class CaptureProfilingDebugOutput(ext.Extension):
+    """Capture the output of the profiling pass and persist it"""
     def __init__(self, *extensions, project=None, experiment=None, **kwargs):
         super(CaptureProfilingDebugOutput, self).__init__(*extensions, **kwargs)
         self.project = project
@@ -72,11 +60,17 @@ class CaptureProfilingDebugOutput(ext.Extension):
             """
             from benchbuild.utils import schema as s
 
+            files = glob.glob(os.path.join(
+                os.path.realpath(os.path.curdir), "profileScops.log"))
+            for file in files:
+                lines=file.readlines()
+                for line in lines:
+                    LOG.debug(line)
+
             session = s.Session()
-            for run_info in run_infos:
-                print("Stderr: " + run_info.stderr)
-                print("Stdout: " + run_info.stdout)
-                persist_scopinfos(run_info)
+            invalidReason = "Not yet implemented"
+            count = -1
+            persist_scopinfos(run_infos[0], invalidReason, count)
 
             session.commit()
             return run_infos

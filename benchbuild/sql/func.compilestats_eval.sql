@@ -90,12 +90,14 @@ AS $$
 BEGIN
   RETURN QUERY
   SELECT
-    run.project_name AS project,
+    project.name AS project,
     config.value AS variable,
     compilestats.name AS metric,
     SUM(CAST(compilestats.value AS INTEGER)) AS value
   FROM
-    run
+    project
+    LEFT OUTER JOIN run
+    ON (run.project_name = project.name)
     LEFT OUTER JOIN config
     ON (run.id = config.run_id)
     LEFT OUTER JOIN compilestats

@@ -84,8 +84,7 @@ def generate_group_plot(title, traces):
 
 init_notebook_mode()
 for metric in metrics:
-    if metric == 'Number of valid Scops':
-        m_data = get_metric_data(metric, df)
-        traces = generate_traces(m_data, configs)
-        generate_group_plot(metric, traces)
-        print("Writing %s" % metric + ".png")
+    m_data = get_metric_data(metric, df)
+    traces = generate_traces(m_data, configs)
+    generate_group_plot(metric, traces)
+    print("Writing %s" % metric + ".png")

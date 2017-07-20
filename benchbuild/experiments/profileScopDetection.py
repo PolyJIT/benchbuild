@@ -24,7 +24,6 @@ LOG = logging.getLogger(__name__)
 def persist_scopinfos(run, invalidReason, count):
     """Persists the given information"""
     from benchbuild.utils import schema as s
-    LOG.debug("Persist scops for '%s'", run)
     session = run.session
     session.add(s.ScopDetection(
         run_id=run.db_run.id, invalidReason=invalidReason, count=count))
@@ -59,20 +58,47 @@ class CaptureProfilingDebugOutput(ext.Extension):
             the database.
             """
             from benchbuild.utils import schema as s
+            from parse import compile
 
-            files = glob.glob(os.path.join(
+            instrumentedPattern = compile("{} [info] Instrumented SCoPs: {:d}")
+            notInstrumentedPattern = compile("{} [info] Not instrumented SCoPs: {:d}")
+            invalidReasonPattern = compile("{} [info] {} is invalid because of: {}")
+
+            instrumentedCounter = 0
+            notInstrumentedCounter = 0;
+            invalidReasons = {}
+
+            paths = glob.glob(os.path.join(
                 os.path.realpath(os.path.curdir), "profileScops.log"))
-            for file in files:
-                lines=file.readlines()
-                for line in lines:
-                    LOG.debug(line)
+            for path in paths:
+                file = open(path, 'r')
+                for line in file:
+                    data = instrumentedPattern.parse(line)
+                    if data is not None:
+                        instrumentedCounter+=data[1]
+                        continue
+                    
+                    data = notInstrumentedPattern.parse(line)
+                    if data is not None:
+                        notInstrumentedCounter += data[1]
+                        continue
+
+                    data = invalidReasonPattern.parse(line)
+                    if data is not None:
+                        reason = data[2]
+                        if reason not in invalidReasons:
+                            invalidReasons[reason] = 0
+                        invalidReasons[reason]+=1
 
             session = s.Session()
-            invalidReason = "Not yet implemented"
-            count = -1
-            persist_scopinfos(run_infos[0], invalidReason, count)
+            for reason in invalidReasons:
+                persist_scopinfos(run_infos[0], reason, invalidReasons[reason])
 
             session.commit()
+
+            print("Instrumented SCoPs: ", instrumentedCounter)
+            print("Not instrumented SCoPs: ", notInstrumentedCounter)
+
             return run_infos
 
         res = self.call_next(*args, **kwargs)

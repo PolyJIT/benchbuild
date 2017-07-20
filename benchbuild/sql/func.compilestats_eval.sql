@@ -81,3 +81,28 @@ BEGIN
   ;
 END
 $BODY$ LANGUAGE plpgsql;
+
+DROP FUNCTION IF EXISTS pollytest_eval_melted(exp_ids UUID[], components VARCHAR[]);
+create or replace function pollytest_eval_melted(exp_ids uuid[], components character varying[]) returns TABLE(project character varying, variable text, metric character varying, value integer)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  SELECT run.project_name AS project, config.value AS variable, compilestats.name AS metric, SUM(CAST(compilestats.value AS INTEGER)) AS value
+  FROM
+    run
+    LEFT OUTER JOIN config
+    ON (run.id = config.run_id)
+    LEFT OUTER JOIN compilestats
+    ON (run.id = compilestats.run_id)
+  WHERE
+    experiment_group = ANY (exp_ids) AND
+    compilestats.component = ANY(components) AND
+    config.name = 'name' 
+  group by
+    run.project_name, config.value, compilestats.name
+  order by
+    run.project_name,
+    config.value,
+    compilestats.name;
+END
+$$;

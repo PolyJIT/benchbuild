@@ -2,21 +2,17 @@
 This experiment instruments the parent if any given SCoP and prints the reason
 why the parent is not part of the SCoP.
 """
+import glob
+import logging
+import os
+
+from plumbum import local
+
 import benchbuild.experiment as exp
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
-
-import copy
-import functools as ft
-import glob
-import logging
-import uuid
-import os
-from plumbum import local
-
-from benchbuild.utils.run import track_execution
 from benchbuild.experiments.polyjit import ClearPolyJITConfig,\
-        EnableJITDatabase, EnablePolyJIT, RegisterPolyJITLogs, RequireAll, Any
+        EnableJITDatabase, RegisterPolyJITLogs
 from benchbuild.extensions import Extension
 
 LOG = logging.getLogger(__name__)
@@ -112,38 +108,32 @@ class PProfExperiment(exp.Experiment):
     NAME = "profileScopDetection"
 
     def actions_for_project(self, project):
-        from benchbuild.settings import CFG
-
-        actns = []
-
         project.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolly.so",
-                "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                "-O3",
-                "-mllvm", "-polli-profile-scops"]
+                          "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
+                          "-O3", "-mllvm", "-polli-profile-scops"]
         project.ldflags = ["-lpjit"]
         project.compiler_extension = CaptureProfilingDebugOutput(
-                ext.RuntimeExtension(project, self),
-                project=project, experiment=self)
+            ext.RuntimeExtension(project, self),
+            project=project, experiment=self)
 
         pjit_extension = \
                 ClearPolyJITConfig(
-                        EnableJITDatabase(
-                            EnableProfiling(
-                                RunWithPprofExperiment(
-                                    ext.RuntimeExtension(project, self,
-                                        config={"jobs": 1,
+                    EnableJITDatabase(
+                        EnableProfiling(
+                            RunWithPprofExperiment(
+                                ext.RuntimeExtension(
+                                    project, self,
+                                    config={"jobs": 1,
                                             "name": "profileScopDetection"
-                                            }
-                                        ),
-                                    config={"jobs": 1}
-                                    ),
-                                project=project),
-                            project=project)
-                        )
-                project.runtime_extension = \
-                        ext.LogAdditionals(
-                                RegisterPolyJITLogs(
-                                    ext.RunWithTime(pjit_extension)
-                                    )
-                                )
-                        return self.default_runtime_actions(project)
+                                           }),
+                                config={"jobs": 1}),
+                            project=project),
+                        project=project)
+                )
+        project.runtime_extension = \
+            ext.LogAdditionals(
+                RegisterPolyJITLogs(
+                    ext.RunWithTime(pjit_extension)
+                )
+            )
+        return self.default_runtime_actions(project)

@@ -26,7 +26,7 @@ def persist_scopinfos(run, invalidReason, count):
     from benchbuild.utils import schema as s
     session = run.session
     session.add(s.ScopDetection(
-        run_id=run.db_run.id, invalidReason=invalidReason, count=count))
+        run_id=run.db_run.id, invalid_reason=invalidReason, count=count))
 
 
 class RunWithPprofExperiment(Extension):
@@ -77,7 +77,7 @@ class CaptureProfilingDebugOutput(ext.Extension):
                     if data is not None:
                         instrumentedCounter+=data[1]
                         continue
-                    
+
                     data = notInstrumentedPattern.parse(line)
                     if data is not None:
                         notInstrumentedCounter += data[1]
@@ -122,28 +122,28 @@ class PProfExperiment(exp.Experiment):
                 "-mllvm", "-polli-profile-scops"]
         project.ldflags = ["-lpjit"]
         project.compiler_extension = CaptureProfilingDebugOutput(
-            ext.RuntimeExtension(project, self),
-            project=project, experiment=self)
+                ext.RuntimeExtension(project, self),
+                project=project, experiment=self)
 
         pjit_extension = \
                 ClearPolyJITConfig(
-                    EnableJITDatabase(
-                        EnableProfiling(
-                            RunWithPprofExperiment(
-                                ext.RuntimeExtension(project, self,
-                                    config={"jobs": 1,
-                                        "name": "profileScopDetection"
-                                        }
+                        EnableJITDatabase(
+                            EnableProfiling(
+                                RunWithPprofExperiment(
+                                    ext.RuntimeExtension(project, self,
+                                        config={"jobs": 1,
+                                            "name": "profileScopDetection"
+                                            }
+                                        ),
+                                    config={"jobs": 1}
                                     ),
-                                config={"jobs": 1}
-                            ),
-                        project=project),
-                    project=project)
-                )
-        project.runtime_extension = \
-                ext.LogAdditionals(
-                        RegisterPolyJITLogs(
-                            ext.RunWithTime(pjit_extension)
+                                project=project),
+                            project=project)
                         )
-                )
-        return self.default_runtime_actions(project)
+                project.runtime_extension = \
+                        ext.LogAdditionals(
+                                RegisterPolyJITLogs(
+                                    ext.RunWithTime(pjit_extension)
+                                    )
+                                )
+                        return self.default_runtime_actions(project)

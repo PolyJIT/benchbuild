@@ -7,8 +7,8 @@ time's behavior regarding the position of polly and unprofitable processes.
 import copy
 import logging
 import os
-import pandas as pd
 import uuid
+import pandas as pd
 
 import sqlalchemy as sa
 import benchbuild.experiment as exp

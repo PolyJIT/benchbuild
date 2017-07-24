@@ -11,9 +11,9 @@ import os
 import uuid
 import re
 import warnings
+from datetime import datetime
 import yaml
 
-from datetime import datetime
 from plumbum import local
 
 LOG = logging.getLogger(__name__)

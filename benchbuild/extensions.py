@@ -2,7 +2,7 @@
 Extension base-classes for compile-time and run-time experiments.
 """
 import logging
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 from collections import Iterable
 
 import parse

@@ -131,9 +131,9 @@ class PProfExperiment(exp.Experiment):
                         project=project)
                 )
         project.runtime_extension = \
-            ext.LogAdditionals(
-                RegisterPolyJITLogs(
-                    ext.RunWithTime(pjit_extension)
+                ext.LogAdditionals(
+                    RegisterPolyJITLogs(
+                        ext.RunWithTime(pjit_extension)
+                    )
                 )
-            )
         return self.default_runtime_actions(project)

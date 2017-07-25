@@ -107,7 +107,7 @@ class EnablePolyJIT(PolyJITConfig, ext.Extension):
     """Call the child extensions with an activated PolyJIT."""
     def __call__(self, binary_command, *args, **kwargs):
         ret = None
-        with self.argv(PJIT_ARGS="-polli-use-polly-options"):
+        with self.argv(PJIT_ARGS=["-polli-use-polly-options"]):
             with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
                 ret = self.call_next(binary_command, *args, **kwargs)
         return ret

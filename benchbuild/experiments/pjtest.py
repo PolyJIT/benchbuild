@@ -20,15 +20,6 @@ import benchbuild.settings as settings
 LOG = logging.getLogger(__name__)
 
 
-class EnableDBExport(pj.PolyJITConfig, ext.Extension):
-    """Call the child extensions with an activated PolyJIT."""
-    def __call__(self, binary_command, *args, **kwargs):
-        ret = None
-        with self.argv(PJIT_ARGS=["-polli-optimizer=debug", "-polli-database-export"]):
-            ret = self.call_next(binary_command, *args, **kwargs)
-        return ret
-
-
 class Test(pj.PolyJIT):
     """
     An experiment that executes all projects with PolyJIT support.
@@ -88,6 +79,16 @@ class Test(pj.PolyJIT):
         return Test.default_runtime_actions(project)
 
 
+class EnableDBExport(pj.PolyJITConfig, ext.Extension):
+    """Call the child extensions with an activated PolyJIT."""
+    def __call__(self, binary_command, *args, **kwargs):
+        ret = None
+        with self.argv(PJIT_ARGS=["-polli-optimizer=debug",
+                                  "-polli-database-export"]):
+            ret = self.call_next(binary_command, *args, **kwargs)
+        return ret
+
+
 class JitExportGeneratedCode(pj.PolyJIT):
     """
     An experiment that executes all projects with PolyJIT support.
@@ -124,25 +125,25 @@ class JitExportGeneratedCode(pj.PolyJIT):
             "specialization": "disabled"
         }
 
+        jit = ext.RuntimeExtension(project, self, config=cfg_with_jit)
+        enable_jit = pj.EnablePolyJIT(jit, project=project)
+
+        no_jit = ext.RuntimeExtension(project, self, config=cfg_without_jit)
+        disable_jit = pj.EnablePolyJIT(no_jit, project=project)
+
         pjit_extension = ext.Extension(
             pj.ClearPolyJITConfig(
                 ext.LogAdditionals(
                     pj.RegisterPolyJITLogs(
                         pj.EnableJITDatabase(
-                            EnableDBExport(
-                                pj.EnablePolyJIT(
-                                    ext.RuntimeExtension(
-                                        project, self, config=cfg_with_jit),
-                                    project=project), project=project))))),
+                            EnableDBExport(enable_jit),
+                            project=project)))),
             pj.ClearPolyJITConfig(
                 ext.LogAdditionals(
                     pj.RegisterPolyJITLogs(
                         pj.EnableJITDatabase(
-                            EnableDBExport(
-                                pj.DisablePolyJIT(
-                                    ext.RuntimeExtension(
-                                        project, self, config=cfg_without_jit),
-                                    project=project), project=project)))))
+                            EnableDBExport(disable_jit),
+                            project=project))))
         )
 
         project.runtime_extension = ext.RunWithTime(pjit_extension)

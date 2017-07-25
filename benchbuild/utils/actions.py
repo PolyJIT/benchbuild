@@ -127,16 +127,21 @@ class Clean(Step):
 
     def __call__(self):
         if not CFG['clean'].value():
+            LOG.warn("Clean disabled by config.")
             return
         if not self._obj:
+            LOG.warn("No object assigned to this action.")
             return
         obj_builddir = os.path.abspath(self._obj.builddir)
         if os.path.exists(obj_builddir):
+            LOG.debug("Path %s exists", obj_builddir)
             self.__clean_mountpoints__(obj_builddir)
             if self.check_empty:
                 rmdir(obj_builddir, retcode=None)
             else:
                 rm("-rf", obj_builddir)
+        else:
+            LOG.debug("Path %s did not exist anymore", obj_builddir)
 
     def __str__(self, indent=0):
         return textwrap.indent("* {0}: Clean the directory: {1}".format(
@@ -320,15 +325,18 @@ class Experiment(Any):
                     result = a()
                     results.extend(result)
                 except KeyboardInterrupt:
+                    LOG.info("Experiment aborting by user request")
                     results.append(StepResult.ERROR)
-                    LOG.error("User requested termination.")
                     break
                 except Exception:
+                    LOG.error("Experiment terminates "
+                              "because we got an exception:")
                     e_type, e_value, e_traceb = sys.exc_info()
                     lines = traceback.format_exception(
                         e_type, e_value, e_traceb)
                     results.append(StepResult.ERROR)
                     LOG.error("".join(lines))
+                    break
         finally:
             self.end_transaction(experiment, session)
             signals.handlers.deregister(self.end_transaction,
@@ -363,8 +371,13 @@ class RequireAll(Step):
                 LOG.error(str(proc_ex))
                 LOG.error("==== ERROR ====\n")
                 results.append(StepResult.ERROR)
+            except KeyboardInterrupt:
+                LOG.info("User requested termination.")
+                action.onerror()
+                raise
             except (OSError) as os_ex:
-                LOG.error("Exception in step #%d: %s", i, str(action))
+                LOG.error("Exception in step #%d: %s", i, str(action),
+                          exc_info=sys.exc_info())
                 results.append(StepResult.ERROR)
 
             if StepResult.ERROR in results:

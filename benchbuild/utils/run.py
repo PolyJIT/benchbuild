@@ -693,8 +693,10 @@ def unionfs(base_dir='./base',
                     with local.cwd(abs_mount_dir):
                         ret = func(project, *args, **kwargs)
                 finally:
-                    from signal import SIGINT
+                    project.builddir = project_builddir_bak
+                    project.setup_derived_filenames()
 
+                    from signal import SIGINT
                     is_running = proc.poll() is None
                     while unionfs_is_active(root=abs_mount_dir) and is_running:
                         try:
@@ -703,12 +705,11 @@ def unionfs(base_dir='./base',
                         except subprocess.TimeoutExpired:
                             proc.kill()
                             is_running = False
+                    LOG.debug("Unionfs shut down.")
 
             if unionfs_is_active(root=abs_mount_dir):
                 raise UnmountError()
 
-            project.builddir = project_builddir_bak
-            project.setup_derived_filenames()
             return ret
 
         return wrap_in_union_fs_func

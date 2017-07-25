@@ -1,4 +1,6 @@
 """Project handling for the benchbuild study."""
+import logging
+import sys
 import warnings
 from abc import abstractmethod
 from functools import partial
@@ -15,6 +17,9 @@ from benchbuild.utils.versions import get_version_from_cache_dir
 from benchbuild.utils.wrapping import wrap
 
 from plumbum import local, ProcessExecutionError
+
+
+LOG = logging.getLogger(__name__)
 
 
 class ProjectRegistry(type):
@@ -157,8 +162,7 @@ class Project(object, metaclass=ProjectDecorator):
             run: A function that takes the run command.
         """
         exp = wrap(self.run_f, experiment)
-        with local.cwd(self.builddir):
-            run(exp)
+        run(exp)
 
     def run(self, experiment):
         """
@@ -181,6 +185,7 @@ class Project(object, metaclass=ProjectDecorator):
         CFG["db"]["run_group"] = str(self.run_uuid)
         with local.cwd(self.builddir):
             group, session = begin_run_group(self)
+            LOG.debug("Registering signal handler")
             signals.handlers.register(fail_run_group, group, session)
 
             try:
@@ -193,6 +198,7 @@ class Project(object, metaclass=ProjectDecorator):
                 fail_run_group(group, session)
                 raise
             finally:
+                LOG.debug("Disabling signal handler")
                 signals.handlers.deregister(fail_run_group, group, session)
 
             if CFG["clean"].value():

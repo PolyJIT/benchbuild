@@ -196,7 +196,7 @@ class Configuration():
             else:
                 load_rec(self.node, json.load(infile))
             self['config_file'] = os.path.abspath(_from)
-            print("Loaded from %s" % _from)
+            LOG.info("Loaded from %s" % _from)
 
     def has_value(self):
         """Check, if the node contains a 'value'."""

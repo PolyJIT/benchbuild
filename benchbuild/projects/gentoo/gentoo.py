@@ -148,8 +148,8 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
             UCHROOT_CFG["env"]["lookup_path"] = paths
             UCHROOT_CFG["env"]["lookup_ld_library_path"] = libs
 
-            mkfile_uchroot("/.benchbuild.json")
-            UCHROOT_CFG.store(".benchbuild.json")
+            mkfile_uchroot("/.benchbuild.yml")
+            UCHROOT_CFG.store(".benchbuild.yml")
 
         wrap_cc_in_uchroot(self.cflags, self.ldflags, self.compiler_extension)
         wrap_cxx_in_uchroot(self.cflags, self.ldflags, self.compiler_extension)

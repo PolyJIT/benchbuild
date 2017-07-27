@@ -71,6 +71,7 @@ class PolyBenchGroup(Project):
                   "-DPOLYBENCH_USE_C99_PROTO",
                   "-DEXTRALARGE_DATASET",
                   "-DPOLYBENCH_USE_RESTRICT",
+                  "-DPOLYBENCH_DUMPARRAYS",
                   "utilities/polybench.c", src_file, "-lm", "-o", self.run_f])
 
 # Datamining

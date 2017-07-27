@@ -239,26 +239,6 @@ class Event(BASE):
                     primary_key=True)
 
 
-class PerfEvent(BASE):
-    """Store PAPI profiling based events."""
-
-    __tablename__ = 'benchbuild_perf_events'
-
-    name = Column(String, index=True)
-    start = Column(Numeric, primary_key=True)
-    duration = Column(Numeric)
-    id = Column(Integer, primary_key=True)
-    type = Column(SmallInteger)
-    tid = Column(BigInteger)
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    nullable=False,
-                    index=True,
-                    primary_key=True)
-
-
 class Project(BASE):
     """Store project metadata."""
 

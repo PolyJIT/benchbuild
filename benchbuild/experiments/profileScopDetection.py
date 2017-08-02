@@ -18,11 +18,19 @@ from benchbuild.extensions import Extension
 LOG = logging.getLogger(__name__)
 
 def persist_scopinfos(run, invalidReason, count):
-    """Persists the given information"""
+    """Persists the given information about SCoPs"""
     from benchbuild.utils import schema as s
     session = run.session
     session.add(s.ScopDetection(
         run_id=run.db_run.id, invalid_reason=invalidReason, count=count))
+
+
+def persist_scopratio_infos(run, rationame, counter):
+    """Persists the given information about the ratio of instructions"""
+    from benchbuild.utils import schema as s
+    session = run.session
+    session.add(s.ScopDetectionRatio(
+        run_id=run.db_run.id, ratio=rationame, count=counter))
 
 
 class RunWithPprofExperiment(Extension):
@@ -57,12 +65,23 @@ class CaptureProfilingDebugOutput(ext.Extension):
             from parse import compile
 
             instrumentedPattern = compile("{} [info] Instrumented SCoPs: {:d}")
-            notInstrumentedPattern = compile("{} [info] Not instrumented SCoPs: {:d}")
-            invalidReasonPattern = compile("{} [info] {} is invalid because of: {}")
+            notInstrumentedPattern \
+                    = compile("{} [info] Not instrumented SCoPs: {:d}")
+            invalidReasonPattern \
+                    = compile("{} [info] {} is invalid because of: {}")
+            instructionCountScopPattern \
+                    = compile("{} [info] Instruction count SCoPs: {:d}")
+            instructionCountParentPattern \
+                    = compile("{} [info] Instruction count parents: {:d}")
+            instructionCountAllPattern \
+                    = compile("{} [info] Instruction count all: {:d}")
 
             instrumentedCounter = 0
-            notInstrumentedCounter = 0;
+            notInstrumentedCounter = 0
             invalidReasons = {}
+            instructionCountScops = 0
+            instructionCountParents = 0
+            instructionCountAll = 0
 
             paths = glob.glob(os.path.join(
                 os.path.realpath(os.path.curdir), "profileScops.log"))
@@ -84,16 +103,41 @@ class CaptureProfilingDebugOutput(ext.Extension):
                         reason = data[2]
                         if reason not in invalidReasons:
                             invalidReasons[reason] = 0
-                        invalidReasons[reason]+=1
+                        invalidReasons[reason] += 1
+                        continue
+
+                    data = instructionCountScopPattern.parse(line)
+                    if data is not None:
+                        instructionCountScops += data[1]
+                        continue
+
+                    data = instructionCountParentPattern.parse(line)
+                    if data is not None:
+                        instructionCountParents += data[1]
+                        continue
+
+                    data = instructionCountAllPattern.parse(line)
+                    if data is not None:
+                        instructionCountAll += data[1]
 
             session = s.Session()
             for reason in invalidReasons:
                 persist_scopinfos(run_infos[0], reason, invalidReasons[reason])
 
+            persist_scopratio_infos(\
+                    run_infos[0], "SCoPs", instructionCountScops)
+            persist_scopratio_infos(\
+                    run_infos[0], "parents", instructionCountParents)
+            persist_scopratio_infos(\
+                    run_infos[0], "all", instructionCountAll)
+
             session.commit()
 
             print("Instrumented SCoPs: ", instrumentedCounter)
             print("Not instrumented SCoPs: ", notInstrumentedCounter)
+            print("Instruction count SCoPs: ", instructionCountScops)
+            print("Instruction count parents: ", instructionCountParents)
+            print("Instruction count all: ", instructionCountAll)
 
             return run_infos
 

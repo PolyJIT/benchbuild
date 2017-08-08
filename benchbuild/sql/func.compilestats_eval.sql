@@ -107,9 +107,9 @@ BEGIN
     compilestats.component = ANY(components) AND
     config.name = 'name' 
   group by
-    run.project_name, config.value, compilestats.name
+    project.name, config.value, compilestats.name
   order by
-    run.project_name,
+    project.name,
     config.value,
     compilestats.name;
 END

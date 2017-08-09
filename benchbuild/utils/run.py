@@ -725,7 +725,7 @@ def store_config(func):
     def wrap_store_config(self, *args, **kwargs):
         """Wrapper that contains the actual storage call for the config."""
         p = os.path.abspath(os.path.join(self.builddir))
-        CFG.store(os.path.join(p, ".benchbuild.json"))
+        CFG.store(os.path.join(p, ".benchbuild.yml"))
         return func(self, *args, **kwargs)
 
     return wrap_store_config

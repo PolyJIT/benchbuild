@@ -871,7 +871,7 @@ def __init_config(cfg):
     if config_path:
         cfg.load(config_path)
         cfg["config_file"] = os.path.abspath(config_path)
-        LOG.debug("Configuration loaded from %s", os.path.abspath(config_path))
+        LOG.info("Configuration loaded from %s", os.path.abspath(config_path))
     cfg.init_from_env()
 
 

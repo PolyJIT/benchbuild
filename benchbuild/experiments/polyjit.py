@@ -75,24 +75,24 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
         from benchbuild.settings import CFG
         experiment = self.project.experiment
         pjit_args = [
-            "-polli-db-experiment=%s" % experiment.name,
-            "-polli-db-experiment-uuid=%s" % experiment.id,
-            "-polli-db-argv='%s'" % str(binary_command),
-            "-polli-db-host=%s" % CFG["db"]["host"].value(),
-            "-polli-db-port=%d" % CFG["db"]["port"].value(),
-            "-polli-db-username=%s" % CFG["db"]["user"].value(),
-            "-polli-db-password=%s" % CFG["db"]["pass"].value(),
-            "-polli-db-name=%s" % CFG["db"]["name"].value(),
+            "-polli-db-experiment='{:s}'".format(experiment.name),
+            "-polli-db-experiment-uuid='{:s}'".format(experiment.id),
+            "-polli-db-argv='{:s}'".format(str(binary_command)),
+            "-polli-db-host='{:s}'".format(CFG["db"]["host"].value()),
+            "-polli-db-port={:d}".format(CFG["db"]["port"].value()),
+            "-polli-db-username={:s}".format(CFG["db"]["user"].value()),
+            "-polli-db-password={:s}".format(CFG["db"]["pass"].value()),
+            "-polli-db-name='{:s}'".format(CFG["db"]["name"].value()),
         ]
 
         if self.project is not None:
             pjit_args.extend([
                 "-polli-db-enable",
-                "-polli-db-project=%s" % self.project.name,
-                "-polli-db-domain=%s" % self.project.domain,
-                "-polli-db-group=%s" % self.project.group,
+                "-polli-db-project='%s'" % self.project.name,
+                "-polli-db-domain='%s'" % self.project.domain,
+                "-polli-db-group='%s'" % self.project.group,
                 "-polli-db-src-uri='%s'" % self.project.src_file,
-                "-polli-db-run-group=%s" % self.project.run_uuid
+                "-polli-db-run-group='%s'" % self.project.run_uuid
             ])
         else:
             LOG.error("Project was not set."

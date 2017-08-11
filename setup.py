@@ -56,7 +56,7 @@ setup(
         "psutil>=4.0.0",
         "pylint>=1.5.5",
         "PyYAML>=3.12",
-        "Jinja2>=2.9.6",
+        "Jinja2>=2.2",
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

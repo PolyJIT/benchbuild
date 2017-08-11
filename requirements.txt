@@ -29,3 +29,4 @@ sqlparse==0.1.18
 virtualenv==13.1.0
 wheel==0.24.0
 PyYAML>=3.12
+Jinja2>=2.2

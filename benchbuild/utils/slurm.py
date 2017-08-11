@@ -45,7 +45,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         lstrip_blocks=True,
         loader=PackageLoader('benchbuild', 'utils/templates')
     )
-    template: Template = env.get_template('slurm.sh.inc')
+    template = env.get_template('slurm.sh.inc')
 
     with open(script_name, 'w') as slurm2:
         slurm2.write(

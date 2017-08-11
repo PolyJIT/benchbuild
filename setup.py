@@ -5,8 +5,7 @@ extra_files = [
     "templates/compiler.py.inc",
     "templates/run_static.py.inc",
     "templates/run_dynamic.py.inc",
-    "templates/slurm-prepare-node.sh.inc",
-    "templates/slurm-cleanup-node.sh.inc"
+    "templates/slurm.sh.inc"
 ]
 
 src_extra_files = [
@@ -56,7 +55,8 @@ setup(
         "plotly>=2.0.12",
         "psutil>=4.0.0",
         "pylint>=1.5.5",
-        "PyYAML>=3.12"
+        "PyYAML>=3.12",
+        "Jinja2>=2.9.6",
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

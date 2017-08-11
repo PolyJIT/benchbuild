@@ -7,41 +7,10 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 from plumbum import local
-from benchbuild.utils.cmd import bash, chmod, mkdir  # pylint: disable=E0401
-from benchbuild.utils.path import template_str
+from benchbuild.utils.cmd import bash, chmod, mkdir
 from benchbuild.settings import CFG
 
 INFO = logging.info
-
-
-def __prepare_node_commands():
-    """Get a list of bash commands that prepare the SLURM node."""
-    prefix = CFG["slurm"]["node_dir"].value()
-    node_image = CFG["slurm"]["node_image"].value()
-    lockfile = prefix + ".lock"
-
-    lines = template_str("templates/slurm-prepare-node.sh.inc")
-    lines = lines.format(prefix=prefix,
-                         lockfile=lockfile,
-                         node_image=node_image)
-
-    return lines
-
-
-def __cleanup_node_commands(logfile):
-    prefix = CFG["slurm"]["node_dir"].value()
-    lockfile = os.path.join(prefix + ".clean-in-progress.lock")
-    slurm_account = CFG["slurm"]["account"]
-    slurm_partition = CFG["slurm"]["partition"]
-    lines = template_str("templates/slurm-cleanup-node.sh.inc")
-    lines = lines.format(lockfile=lockfile,
-                         lockdir=prefix,
-                         prefix=prefix,
-                         slurm_account=slurm_account,
-                         slurm_partition=slurm_partition,
-                         logfile=logfile,
-                         nice_clean=CFG["slurm"]["nice_clean"].value())
-    return lines
 
 
 def __get_slurm_path():
@@ -67,58 +36,40 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
     """
-    log_path = os.path.join(CFG['slurm']['logs'].value())
-    max_running_jobs = CFG['slurm']['max_running'].value()
-    with open(script_name, 'w') as slurm:
-        lines = """#!/bin/bash
-#SBATCH -o /dev/null
-#SBATCH -t \"{timelimit}\"
-#SBATCH --ntasks 1
-#SBATCH --cpus-per-task {cpus}
-"""
+    from jinja2 import Environment, Template, PackageLoader
 
-        slurm.write(lines.format(log=str(log_path),
-                                 timelimit=str(CFG['slurm']['timelimit']),
-                                 cpus=str(CFG['slurm']['cpus_per_task'])))
+    logs_dir = os.path.dirname(CFG['slurm']['logs'].value())
+    node_command = str(benchbuild["-P", "$_project", "-E", experiment.name])
+    env = Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=PackageLoader('benchbuild', 'utils/templates')
+    )
+    template: Template = env.get_template('slurm.sh.inc')
 
-        if not CFG['slurm']['multithread'].value():
-            slurm.write("#SBATCH --hint=nomultithread\n")
-        if CFG['slurm']['exclusive'].value():
-            slurm.write("#SBATCH --exclusive\n")
-        slurm.write("#SBATCH --array=0-{0}".format(len(projects) - 1))
-        slurm.write("%{0}\n".format(max_running_jobs) if max_running_jobs > 0
-                    else '\n')
-        slurm.write("#SBATCH --nice={0}\n".format(
-            CFG["slurm"]["nice"].value()))
-
-        slurm.write("projects=(\n")
-        for project in projects:
-            slurm.write("'{0}'\n".format(str(project)))
-        slurm.write(")\n")
-        slurm.write("_project=\"${projects[$SLURM_ARRAY_TASK_ID]}\"\n")
-
-        slurm_log_path = os.path.join(
-            os.path.dirname(CFG['slurm']['logs'].value()),
-            experiment.id + '-$_project')
-        slurm.write("exec 1> {log}\n".format(log=slurm_log_path))
-        slurm.write("exec 2>&1\n")
-
-        slurm.write(__prepare_node_commands())
-        slurm.write("\n")
-        cfg_vars = repr(CFG).split('\n')
-        cfg_vars = "\nexport ".join(cfg_vars)
-        slurm.write("export ")
-        slurm.write(cfg_vars)
-        slurm.write("\n")
-        slurm.write("scontrol update JobId=${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID} ")
-        slurm.write("JobName=\"{0} $_project\"\n".format(experiment.name))
-        slurm.write("\n")
-        slurm.write("srun -c 1 hostname\n")
-
-        # Write the experiment command.
-        slurm.write(__cleanup_node_commands(slurm_log_path))
-        slurm.write(
-            str(benchbuild["-P", "$_project", "-E", experiment.name]) + "\n")
+    with open(script_name, 'w') as slurm2:
+        slurm2.write(
+            template.render(
+                config=["export " + x for x in repr(CFG).split('\n')],
+                clean_lockdir=CFG["slurm"]["node_dir"].value(),
+                clean_lockfile=CFG["slurm"]["node_dir"].value() + ".clean-in-progress.lock",
+                cpus=CFG['slurm']['cpus_per_task'].value(),
+                exclusive=CFG['slurm']['exclusive'].value(),
+                lockfile=CFG['slurm']["node_dir"].value() + ".lock",
+                log=os.path.join(logs_dir, experiment.id),
+                name=experiment.name,
+                nice=CFG['slurm']['nice'].value(),
+                nice_clean=CFG["slurm"]["nice_clean"].value(),
+                node_command=node_command,
+                no_multithreading=not CFG['slurm']['multithread'].value(),
+                ntasks=1,
+                prefix=CFG["slurm"]["node_dir"].value(),
+                projects=projects,
+                slurm_account=CFG["slurm"]["account"].value(),
+                slurm_partition=CFG["slurm"]["partition"].value(),
+                timelimit=CFG['slurm']['timelimit'].value(),
+            )
+        )
 
     bash("-n", script_name)
     chmod("+x", script_name)

@@ -112,7 +112,7 @@ class RunWithTime(Extension):
     """Wrap a command with time and store the timings in the database."""
     def __call__(self, binary_command, *args, may_wrap=True, **kwargs):
         from benchbuild.utils.cmd import time
-        run_cmd = run_cmd[args]
+        run_cmd = binary_command[args]
         time_tag = "BENCHBUILD: "
         if may_wrap:
             run_cmd = time["-f", time_tag + "%U-%S-%e", run_cmd]

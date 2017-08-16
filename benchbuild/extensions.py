@@ -36,11 +36,11 @@ class Extension(metaclass=ABCMeta):
             else:
                 all_results.append(results)
 
-        for result in all_results:
-            if result.db_run.status == "completed":
-                LOG.debug("  [OK] - %s => %s", ext.__class__, result)
-            else:
-                LOG.debug("  [FAIL] - %s => %s", ext.__class__, result)
+            for result in all_results:
+                if result.db_run.status == "completed":
+                    LOG.debug("  [OK] - %s => %s", ext.__class__, result)
+                else:
+                    LOG.debug("  [FAIL] - %s => %s", ext.__class__, result)
         return all_results
 
     def print(self, indent=0):
@@ -112,7 +112,6 @@ class RunWithTime(Extension):
     """Wrap a command with time and store the timings in the database."""
     def __call__(self, binary_command, *args, may_wrap=True, **kwargs):
         from benchbuild.utils.cmd import time
-        run_cmd = local[binary_command]
         run_cmd = run_cmd[args]
         time_tag = "BENCHBUILD: "
         if may_wrap:

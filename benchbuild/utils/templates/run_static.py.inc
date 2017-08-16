@@ -13,13 +13,13 @@ settings.update_env()
 log.configure()
 log.set_defaults()
 
-RUN_F = "{runf}"
+RUN_F = local["{runf}"]
 ARGS = sys.argv[1:]
 F = None
 if path.exists("{blobf}"):
     with local.env(PATH="{path}",
                    LD_LIBRARY_PATH="{ld_lib_path}",
-                   BB_CMD=RUN_F + " ".join(ARGS)):
+                   BB_CMD=str(RUN_F) + " ".join(ARGS)):
         with open("{blobf}", "rb") as p:
             F = dill.load(p)
         if F is not None:

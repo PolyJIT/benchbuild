@@ -64,6 +64,7 @@ class RuntimeExtension(Extension):
         self.project.name = kwargs.get("project_name", self.project.name)
 
         cmd = handle_stdin(binary_command, kwargs)
+        cmd = cmd[args]
         with track_execution(cmd, self.project,
                              self.experiment, **kwargs) as run:
             run_info = run()
@@ -112,10 +113,9 @@ class RunWithTime(Extension):
     """Wrap a command with time and store the timings in the database."""
     def __call__(self, binary_command, *args, may_wrap=True, **kwargs):
         from benchbuild.utils.cmd import time
-        run_cmd = binary_command[args]
         time_tag = "BENCHBUILD: "
         if may_wrap:
-            run_cmd = time["-f", time_tag + "%U-%S-%e", run_cmd]
+            run_cmd = time["-f", time_tag + "%U-%S-%e", binary_command]
 
         def handle_timing(run_infos):
             """Takes care of the formating for the timing statistics."""

@@ -128,11 +128,16 @@ class RegisterPolyJITLogs(PolyJITConfig, ext.LogTrackingMixin, ext.Extension):
         from benchbuild.settings import CFG
 
         log_level = verbosity_to_polyjit_log_level(CFG["verbosity"].value())
+
+        curdir = os.path.realpath(os.path.curdir)
+        files_before = glob.glob(os.path.join(curdir, "polyjit.*.log"))
+
         with self.argv(PJIT_ARGS=["-polli-enable-log",
                                   "-polli-log-level={}".format(log_level)]):
             ret = self.call_next(*args, **kwargs)
-        curdir = os.path.realpath(os.path.curdir)
         files = glob.glob(os.path.join(curdir, "polyjit.*.log"))
+        files = [
+            new_file for new_file in files if new_file not in files_before]
 
         for file in files:
             self.add_log(file)

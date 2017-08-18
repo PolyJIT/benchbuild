@@ -535,8 +535,11 @@ def in_builddir(sub='.'):
         def wrap_in_builddir_func(self, *args, **kwargs):
             """The actual function inside the wrapper for the new builddir."""
             p = path.abspath(path.join(self.builddir, sub))
-            with local.cwd(p):
-                return func(self, *args, **kwargs)
+            try:
+                with local.cwd(p):
+                    return func(self, *args, **kwargs)
+            except FileNotFoundError:
+                LOG.debug("Chdir to %s failed. Directory does not exist.", p)
 
         return wrap_in_builddir_func
 

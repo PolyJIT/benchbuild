@@ -188,8 +188,9 @@ Summary:
 
         if failed:
             print("Failed:")
-        for fail in failed:
-            print(fail)
+            for fail in failed:
+                print(fail)
+
         return len(failed)
 
 

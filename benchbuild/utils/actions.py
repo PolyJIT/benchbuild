@@ -50,7 +50,8 @@ def prepend_status(f):
     @ft.wraps(f)
     def wrapper(self, *args, **kwargs):
         res = f(self, *args, **kwargs)
-        res = "[{status}]".format(status=self.status.name) + res
+        if self.status is not StepResult.UNSET:
+            res = "[{status}]".format(status=self.status.name) + res
         return res
     return wrapper
 
@@ -260,8 +261,8 @@ class Run(Step):
         if not self._action_fn:
             return
 
-        res = self._action_fn()
-        self.status = res
+        self._action_fn()
+        self.status = StepResult.OK
 
     def __str__(self, indent=0):
         return textwrap.indent(
@@ -275,7 +276,7 @@ class Echo(Step):
 
     def __init__(self, message):
         self._message = message
-        self._status = StepResult.OK
+        self._status = StepResult.UNSET
 
     def __str__(self, indent=0):
         return textwrap.indent("* echo: {0}".format(self._message),
@@ -422,6 +423,7 @@ class RequireAll(Step):
             except KeyboardInterrupt:
                 LOG.info("User requested termination.")
                 action.onerror()
+                results.append(StepResult.ERROR)
                 raise
             except (OSError) as os_ex:
                 LOG.error("Exception in step #%d: %s", i, str(action),

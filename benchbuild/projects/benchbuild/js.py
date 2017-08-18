@@ -56,6 +56,7 @@ class SpiderMonkey(BenchBuildGroup):
                 with local.env(CC=str(clang),
                                CXX=str(clang_cxx)):
                     configure = local["../configure"]
+                    configure = configure["--without-system-zlib"]
                     run(configure)
 
     def build(self):

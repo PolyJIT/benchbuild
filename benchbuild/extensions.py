@@ -36,11 +36,11 @@ class Extension(metaclass=ABCMeta):
             else:
                 all_results.append(results)
 
-            for result in all_results:
-                if result.db_run.status == "completed":
-                    LOG.debug("  [OK] - %s => %s", ext.__class__, result)
-                else:
-                    LOG.debug("  [FAIL] - %s => %s", ext.__class__, result)
+        for result in all_results:
+            if result.db_run.status == "completed":
+                LOG.debug("  [OK] - %s => %s", ext.__class__, result)
+            else:
+                LOG.debug("  [FAIL] - %s => %s", ext.__class__, result)
         return all_results
 
     def print(self, indent=0):

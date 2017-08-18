@@ -162,29 +162,34 @@ class BenchBuildRun(cli.Application):
         failed = []
         start = 0
         end = 0
-        if not self.pretend:
-            start = time.perf_counter()
-            for a in actns:
-                res = a()
-                if hasattr(res, "__iter__"):
-                    if StepResult.ERROR in res:
-                        failed.append(a)
-                else:
-                    if res != StepResult.OK:
-                        failed.append(a)
-            end = time.perf_counter()
+        if self.pretend:
+            return 0
+
+        def has_failed(res):
+            fstatus = [StepResult.ERROR, StepResult.CAN_CONTINUE]
+            return len([x for x in res if x in fstatus]) > 0
+
+        start = time.perf_counter()
+        for a in actns:
+            res = a()
+
+            if has_failed(res):
+                failed.append(a)
+        end = time.perf_counter()
+
         print("""
 Summary:
     {num_total} actions were in the queue.
     {num_failed} actions failed to execute.
 
     This run took: {elapsed_time:8.3f} seconds.
-        """.format(num_total=num_actions, num_failed=len(failed), elapsed_time=end-start))
+        """.format(num_total=num_actions, num_failed=len(failed),
+                   elapsed_time=end-start))
 
-        if len(failed) > 0:
+        if failed:
             print("Failed:")
-            for fail in failed:
-                print(fail)
+        for fail in failed:
+            print(fail)
         return len(failed)
 
 

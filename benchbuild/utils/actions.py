@@ -21,10 +21,15 @@ from plumbum import ProcessExecutionError
 
 LOG = logging.getLogger("benchbuild.steps")
 
+
 @enum.unique
-class StepResult(enum.Enum):
+class StepResult(enum.IntEnum):
+    UNSET = 0,
     OK = 1,
-    ERROR = 2
+    CAN_CONTINUE = 2
+    ERROR = 3,
+
+
 
 
 def to_step_result(f):
@@ -39,6 +44,16 @@ def to_step_result(f):
         return res
 
     return wrapper
+
+
+def prepend_status(f):
+    @ft.wraps(f)
+    def wrapper(self, *args, **kwargs):
+        res = f(self, *args, **kwargs)
+        res = "[{status}]".format(status=self.status.name) + res
+        return res
+    return wrapper
+
 
 def log_before_after(name, desc):
     def func_decorator(f):
@@ -69,6 +84,7 @@ class StepClass(abc.ABCMeta):
         else:
             result.__call__ = to_step_result(result.__call__)
 
+        result.__str__ = prepend_status(result.__str__)
         return result
 
 
@@ -79,20 +95,36 @@ class Step(metaclass=StepClass):
     def __init__(self, project_or_experiment, action_fn=None):
         self._obj = project_or_experiment
         self._action_fn = action_fn
+        self._status = StepResult.UNSET
 
     def __len__(self):
         return 1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        raise StopIteration
 
     def __call__(self):
         if not self._action_fn:
             return StepResult.ERROR
         self._action_fn()
+        self.status = StepResult.OK
         return StepResult.OK
 
     def __str__(self, indent=0):
         return textwrap.indent(
-            "* {0}: Execute configured action.".format(self._obj.name),
-            indent * " ")
+            "* {name}: Execute configured action.".format(
+                    name=self._obj.name), indent * " ")
+
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        self._status = value
 
     def onerror(self):
         Clean(self._obj)()
@@ -142,6 +174,7 @@ class Clean(Step):
                 rm("-rf", obj_builddir)
         else:
             LOG.debug("Path %s did not exist anymore", obj_builddir)
+        self.status = StepResult.OK
 
     def __str__(self, indent=0):
         return textwrap.indent("* {0}: Clean the directory: {1}".format(
@@ -157,6 +190,7 @@ class MakeBuildDir(Step):
             return
         if not os.path.exists(self._obj.builddir):
             mkdir("-p", self._obj.builddir)
+        self.status = StepResult.OK
 
     def __str__(self, indent=0):
         return textwrap.indent(
@@ -226,7 +260,8 @@ class Run(Step):
         if not self._action_fn:
             return
 
-        self._action_fn()
+        res = self._action_fn()
+        self.status = res
 
     def __str__(self, indent=0):
         return textwrap.indent(
@@ -240,6 +275,7 @@ class Echo(Step):
 
     def __init__(self, message):
         self._message = message
+        self._status = StepResult.OK
 
     def __str__(self, indent=0):
         return textwrap.indent("* echo: {0}".format(self._message),
@@ -262,15 +298,23 @@ class Any(Step):
     def __len__(self):
         return sum([len(x) for x in self._actions])
 
+    def __iter__(self):
+        return self._actions.__iter__()
+
     def __call__(self):
         length = len(self._actions)
         cnt = 0
+        results = [StepResult.OK]
         for a in self._actions:
-            result = a()
-
             cnt = cnt + 1
+            result = a()
+            results.append(result)
+
             if StepResult.ERROR in result:
                 LOG.warning("%d actions left in queue", length - cnt)
+        self.status = StepResult.OK
+        if StepResult.EROR in results:
+            self.status = StepResult.CAN_CONTINUE
 
     def __str__(self, indent=0):
         sub_actns = [a.__str__(indent + 1) for a in self._actions]
@@ -341,6 +385,7 @@ class Experiment(Any):
             self.end_transaction(experiment, session)
             signals.handlers.deregister(self.end_transaction,
                                         experiment, session)
+        self.status = max(results)
         return results
 
     def __str__(self, indent=0):
@@ -358,6 +403,9 @@ class RequireAll(Step):
 
     def __len__(self):
         return sum([len(x) for x in self._actions])
+
+    def __iter__(self):
+        return self._actions.__iter__()
 
     def __call__(self):
         results = []
@@ -382,7 +430,13 @@ class RequireAll(Step):
 
             if StepResult.ERROR in results:
                 LOG.error("Execution of #%d: '%s' failed.", i, str(action))
+                LOG.error("'%s' cannot continue.", str(self))
+                action.status = StepResult.ERROR
                 action.onerror()
+                self.status = StepResult.ERROR
+                return results
+
+        self.status = StepResult.OK
         return results
 
     def __str__(self, indent=0):
@@ -403,7 +457,7 @@ class CleanExtra(Step):
         for p in paths:
             if os.path.exists(p):
                 rm("-r", p)
-        return StepResult.OK
+        self.status = StepResult.OK
 
     def __str__(self, indent=0):
         paths = CFG["cleanup_paths"].value()

@@ -514,8 +514,8 @@ def uchroot(*args, **kwargs):
     p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
 
     uchroot_cmd = uchroot_cmd.with_env(
-            LD_LIBRARY_PATH=list_to_path(libs + p_libs),
-            PATH=list_to_path(paths + p_paths))
+        LD_LIBRARY_PATH=list_to_path(libs + p_libs),
+        PATH=list_to_path(paths + p_paths))
     return uchroot_cmd["--"]
 
 
@@ -527,7 +527,6 @@ def in_builddir(sub='.'):
         sub: An optional subdirectory to change into.
     """
     from functools import wraps
-    from plumbum import local
     from os import path
 
     def wrap_in_builddir(func):

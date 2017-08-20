@@ -34,7 +34,7 @@ LOG_DICT = {
     },
     "loggers": {
         "benchbuild": {'propagate': True},
-        "plumbum.local": {'level': 'DEBUG',
+        "plumbum.local": {'level': 'WARNING',
                           'handlers': ['plumbum'],
                           'propagate': False},
         "sqlalchemy.engine": {

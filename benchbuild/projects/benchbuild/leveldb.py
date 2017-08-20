@@ -40,7 +40,7 @@ class LevelDB(BenchBuildGroup):
             experiment: The experiment's run function.
         """
         exp = wrap(
-            path.join(self.SRC_FILE, "out-shared", "db_bench"), experiment)
+            path.join(self.SRC_FILE, "out-static", "db_bench"), experiment)
         with local.env(LD_LIBRARY_PATH="{}:{}".format(
                 path.join(self.SRC_FILE, "out-shared"),
                 getenv("LD_LIBRARY_PATH", ""))):

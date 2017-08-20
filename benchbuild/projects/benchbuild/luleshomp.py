@@ -1,11 +1,8 @@
-from os import path
-
 from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
 from benchbuild.utils.compiler import lt_clang_cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
-from benchbuild.settings import CFG
 
 
 class LuleshOMP(BenchBuildGroup):
@@ -29,8 +26,12 @@ class LuleshOMP(BenchBuildGroup):
         pass
 
     def build(self):
-        self.cflags += ["-fopenmp", "-I" + path.join(
-            str(CFG["llvm"]["dir"]), "include")]
+        """
+        Build process for OpenMP enabled LULESH code:
+
+        Required: openmp (omp.h) needs to be available.
+        """
+        self.cflags += ["-fopenmp"]
 
         clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                  self.compiler_extension)

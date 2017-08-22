@@ -711,7 +711,6 @@ CFG["plugins"] = {
             "benchbuild.projects.benchbuild.mcrypt",
             "benchbuild.projects.benchbuild.minisat",
             "benchbuild.projects.benchbuild.openssl",
-            "benchbuild.projects.benchbuild.postgres",
             "benchbuild.projects.benchbuild.povray",
             "benchbuild.projects.benchbuild.python",
             "benchbuild.projects.benchbuild.rasdaman",

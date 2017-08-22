@@ -74,7 +74,7 @@ class MCrypt(BenchBuildGroup):
                            CXX=lt_clang_cxx(self.cflags, self.ldflags,
                                             self.compiler_extension),
                            LD_LIBRARY_PATH=path.join(self.builddir, "lib") +
-                           ":" + CFG["ld_library_path"],
+                           ":" + CFG["ld_library_path"].value(),
                            LDFLAGS="-L" + path.join(self.builddir, "lib"),
                            CFLAGS="-I" + path.join(self.builddir, "include")):
                 run(configure["--disable-dependency-tracking",

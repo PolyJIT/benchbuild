@@ -44,7 +44,7 @@ class BOTSGroup(Project):
         "sort": "serial/sort",
         "sparselu": "serial/sparselu",
         "strassen": "serial/strassen",
-        # FIXME: Seems to be broken - "uts": "serial/uts"
+        "uts": "serial/uts"
     }
 
     input_dict = {
@@ -185,5 +185,5 @@ class Strassen(BOTSGroup):
     NAME = 'strassen'
 
 
-class UTS(BOTSGroup):
-    NAME = 'uts'
+# FIXME: Seems to be broken - class UTS(BOTSGroup):
+# FIXME: Seems to be broken -     NAME = 'uts'

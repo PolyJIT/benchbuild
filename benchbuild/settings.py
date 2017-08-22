@@ -694,6 +694,7 @@ CFG["plugins"] = {
             "benchbuild.projects.gentoo",
             "benchbuild.projects.lnt.lnt",
             "benchbuild.projects.polybench.polybench",
+            "benchbuild.projects.benchbuild.bots",
             "benchbuild.projects.benchbuild.bzip2",
             "benchbuild.projects.benchbuild.ccrypt",
             "benchbuild.projects.benchbuild.crafty",

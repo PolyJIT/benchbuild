@@ -73,8 +73,6 @@ class PolyBenchGroup(Project):
                   "-DPOLYBENCH_USE_RESTRICT",
                   "utilities/polybench.c", src_file, "-lm", "-o", self.run_f])
 
-# Datamining
-
 
 class Correlation(PolyBenchGroup):
     NAME = 'correlation'

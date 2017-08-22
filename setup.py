@@ -57,6 +57,8 @@ setup(
         "pylint>=1.5.5",
         "PyYAML>=3.12",
         "Jinja2>=2.2",
+        "numpy>=1.8.2",
+        "scipy==0.19.1",
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

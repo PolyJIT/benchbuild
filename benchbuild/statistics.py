@@ -7,18 +7,21 @@ from benchbuild.extensions import Extension
 from benchbuild.utils.schema import Session
 
 from numpy import median
+from scipy import stats
 
 LOG = logging.getLogger(__name__)
 
 TIMEOUT = 5
+POPMEAN = 0.0
 P_VAL = 0.9
 
-TEST_P_VALUE = 0.5
-
-
-def test_func(*args):
-    """Just for testing purposes."""
-    return TEST_P_VALUE
+def dist_func(results):
+    """
+    The default p value calculation of the experiment under the assumption
+    that the results are normally distributed.
+    """
+    _, p_val = stats.ttest_1samp(results, POPMEAN)
+    return p_val
 
 
 class Statistics(Extension):
@@ -32,7 +35,7 @@ class Statistics(Extension):
 
         super(Statistics, self).__init__(*extensions, config=config)
 
-    def __call__(self, *args, min_p_val=P_VAL, dist_func=test_func, **kwargs):
+    def __call__(self, *args, min_p_val=P_VAL, results=[], **kwargs):
         """
         The call of this extension runs the following extensions until a the
         p value the user specified is reached or the run times out.
@@ -40,9 +43,6 @@ class Statistics(Extension):
         Kwargs:
             min_p_val: The minimum p value the user wants to reach with
                        the running experiment.
-            dist_func: The distribution function that calculates the p value of
-                       the running experiment.
-
         Returns:
             The run after executing the afterwards following extensions.
         """
@@ -56,7 +56,7 @@ class Statistics(Extension):
         while iterator < TIMEOUT and cur_p_val < min_p_val:
             iterator += 1
             LOG.debug("Iteration: %s", str(iterator))
-            cur_p_val = dist_func(*args)
+            cur_p_val = dist_func(results)
             calculated_ps.append(cur_p_val)
             res = self.call_next(*args, **kwargs)
             session.commit()

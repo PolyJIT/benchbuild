@@ -8,6 +8,7 @@ from plumbum.commands.modifiers import TEE
 from plumbum import ProcessExecutionError
 from benchbuild.utils.cmd import timeout, sh
 from benchbuild.utils.compiler import ExperimentCommand
+from benchbuild.utils.run import exit_code_from_run_infos
 from benchbuild.utils import log
 
 os.environ["BB_CONFIG_FILE"] = "{CFG_FILE}"
@@ -68,11 +69,13 @@ def invoke_external_measurement(cmd):
                   "rb") as p:
             f = dill.load(p)
 
+    ret = None
     if f is not None:
         if not sys.stdin.isatty():
-            f(cmd, has_stdin=True)
+            ret = f(cmd, has_stdin=True)
         else:
-            f(cmd)
+            ret = f(cmd)
+    return ret
 
 
 def run(cmd):
@@ -108,13 +111,13 @@ def main():
         return retcode
     else:
         fc = construct_cc(CC, flags, CFLAGS, LDFLAGS, input_files)
+        run_infos = None
         try:
-            retcode, stdout, stderr = run(fc)
-            invoke_external_measurement(fc)
-            return retcode
+            run_infos = invoke_external_measurement(fc)
+            return exit_code_from_run_infos(run_infos)
         except ProcessExecutionError:
             fc = construct_cc_default(CC, flags, input_files)
-            retcode, stdout, stderr = run(fc)
+            retcode, _, _ = run(fc)
             return retcode
 
 if __name__ == "__main__":

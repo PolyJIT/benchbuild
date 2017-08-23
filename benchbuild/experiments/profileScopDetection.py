@@ -156,26 +156,28 @@ class PProfExperiment(exp.Experiment):
                           "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                           "-O3", "-mllvm", "-polli-profile-scops"]
         project.ldflags = ["-lpjit"]
-        project.compiler_extension = CaptureProfilingDebugOutput(
-            ext.RuntimeExtension(project, self),
-            project=project, experiment=self)
+        project.compiler_extension = \
+            CaptureProfilingDebugOutput(
+                ext.RuntimeExtension(project, self),
+                project=project, experiment=self)
 
         pjit_extension = \
-                ClearPolyJITConfig(
-                    EnableJITDatabase(
-                        EnableProfiling(
-                            RunWithPprofExperiment(
-                                ext.RuntimeExtension(
-                                    project, self,
-                                    config={"jobs": 1,
-                                            "name": "profileScopDetection"
-                                           }),
-                                config={"jobs": 1}),
-                            project=project),
-                        project=project)
-                )
+            ClearPolyJITConfig(
+                EnableJITDatabase(
+                    EnableProfiling(
+                        RunWithPprofExperiment(
+                            ext.RuntimeExtension(
+                                project, self,
+                                config={
+                                    "jobs": 1,
+                                    "name": "profileScopDetection"
+                                }),
+                            config={"jobs": 1}),
+                        project=project),
+                    project=project)
+            )
         project.runtime_extension = \
-                ext.LogAdditionals(
-                    RegisterPolyJITLogs(pjit_extension)
-                )
+            ext.LogAdditionals(
+                RegisterPolyJITLogs(pjit_extension)
+            )
         return self.default_runtime_actions(project)

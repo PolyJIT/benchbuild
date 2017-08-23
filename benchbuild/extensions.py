@@ -37,8 +37,11 @@ class Extension(metaclass=ABCMeta):
                 all_results.append(results)
 
         for result in all_results:
-            if result.db_run.status == "completed":
+            if (hasattr(result, 'db_run')
+                    and result.db_run.status == "completed"):
                 LOG.debug("  [OK] - %s => %s", ext.__class__, result)
+            elif not hasattr(result, 'db_run'):
+                LOG.debug(" [NO RUN_INFO] - %s => %s", ext.__class__, result)
             else:
                 LOG.debug("  [FAIL] - %s => %s", ext.__class__, result)
         return all_results

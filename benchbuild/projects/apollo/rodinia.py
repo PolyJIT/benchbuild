@@ -348,11 +348,11 @@ class LUD(RodiniaGroup):
 
 #TODO: class MummerGPU(RodiniaGroup):
 #TODO:     NAME = 'mummergpu'
-#TODO: 
+#TODO:
 
 #FIXME: Compiles, but SIGABRT class Myocyte(RodiniaGroup):
 #FIXME: Compiles, but SIGABRT     NAME = 'myocyte'
-#FIXME: Compiles, but SIGABRT 
+#FIXME: Compiles, but SIGABRT
 #FIXME: Compiles, but SIGABRT     config = {
 #FIXME: Compiles, but SIGABRT         "dir": "openmp/myocyte",
 #FIXME: Compiles, but SIGABRT         "src": {

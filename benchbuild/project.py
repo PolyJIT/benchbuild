@@ -1,6 +1,5 @@
 """Project handling for the benchbuild study."""
 import logging
-import sys
 import warnings
 from abc import abstractmethod
 from functools import partial
@@ -8,6 +7,8 @@ from os import listdir, path
 from typing import Callable, Iterable
 import benchbuild.utils.run as ur
 import benchbuild.signals as signals
+import benchbuild.extensions as ext
+
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.container import Gentoo
@@ -143,6 +144,7 @@ class Project(object, metaclass=ProjectDecorator):
 
         self.cflags = []
         self.ldflags = []
+        self.compiler_extension = ext.RuntimeExtension(self, exp)
 
         self.setup_derived_filenames()
         persist_project(self)

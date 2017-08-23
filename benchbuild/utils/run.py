@@ -47,6 +47,8 @@ def handle_stdin(cmd, kwargs):
 
 
 def exit_code_from_run_infos(run_infos):
+    assert(run_infos is not None)
+
     if not hasattr(run_infos, "__iter__"):
         return run_infos.retcode
 

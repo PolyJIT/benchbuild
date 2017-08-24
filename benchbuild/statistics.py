@@ -3,10 +3,9 @@ Handle all statsitic related classes and methods.
 """
 import logging
 
+from statistics import median
 from benchbuild.extensions import Extension
 from benchbuild.utils.schema import Session
-
-from numpy import median
 from scipy import stats
 
 LOG = logging.getLogger(__name__)

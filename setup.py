@@ -39,7 +39,6 @@ setup(
                   "becnbuild.projects": src_extra_files},
     include_package_data=True,
     install_requires=[
-        "lazy==1.2",
         "SQLAlchemy==1.0.4",
         "dill==0.2.6",
         "plumbum>=1.5.0",
@@ -52,7 +51,6 @@ setup(
         "sqlalchemy-migrate",
         "six>=1.7.0",
         "pandas>=0.20.3",
-        "plotly>=2.0.12",
         "psutil>=4.0.0",
         "pylint>=1.5.5",
         "PyYAML>=3.12",

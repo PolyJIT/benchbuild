@@ -29,11 +29,16 @@ An experiment performs the following actions in order:
 
 """
 from abc import abstractmethod
-import regex
 import uuid
+import typing as t
+
+import regex
 from plumbum import local
 
-from benchbuild import projects
+import benchbuild.projects as all_projects
+import benchbuild.project as prj
+import benchbuild.settings as settings
+from benchbuild.project import Project
 from benchbuild.project import ProjectRegistry
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Build, Clean, CleanExtra, Configure,
@@ -41,7 +46,7 @@ from benchbuild.utils.actions import (Build, Clean, CleanExtra, Configure,
                                       Run, RequireAll)
 
 
-def get_group_projects(group, experiment):
+def get_group_projects(group: str, experiment) -> t.List[Project]:
     """
     Get a list of project names for the given group.
 
@@ -136,7 +141,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
                 whole groups.
         """
         self.projects = {}
-        projects.discover()
+        all_projects.discover()
         prjs = ProjectRegistry.projects
         if projects_to_filter:
             allkeys = set(list(prjs.keys()))

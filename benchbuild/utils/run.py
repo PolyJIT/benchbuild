@@ -3,6 +3,7 @@ import enum
 import os
 import logging
 import subprocess
+import typing as t
 from contextlib import contextmanager
 
 from benchbuild.settings import CFG
@@ -12,7 +13,6 @@ from benchbuild.utils.path import list_to_path
 from benchbuild import settings
 from plumbum import local
 from plumbum.commands import ProcessExecutionError
-from plumbum.commands.base import BaseCommand
 
 
 LOG = logging.getLogger(__name__)
@@ -44,20 +44,6 @@ def handle_stdin(cmd, kwargs):
     run_cmd = (run_cmd > sys.stdout) if has_stdout else cmd
 
     return run_cmd
-
-
-def exit_code_from_run_infos(run_infos):
-    assert(run_infos is not None)
-
-    if not hasattr(run_infos, "__iter__"):
-        return run_infos.retcode
-
-    rcs = [ri.retcode for ri in run_infos]
-    max_rc = max(rcs)
-    min_rc = min(rcs)
-    if max_rc == 0:
-        return min_rc
-    return max_rc
 
 
 def fetch_time_output(marker, format_s, ins):
@@ -302,6 +288,20 @@ class RunInfo(object):
 
     def __repr__(self):
         return str(self)
+
+
+def exit_code_from_run_infos(run_infos: t.List[RunInfo]):
+    assert(run_infos is not None)
+
+    if not hasattr(run_infos, "__iter__"):
+        return run_infos.retcode
+
+    rcs = [ri.retcode for ri in run_infos]
+    max_rc = max(rcs)
+    min_rc = min(rcs)
+    if max_rc == 0:
+        return min_rc
+    return max_rc
 
 
 @contextmanager

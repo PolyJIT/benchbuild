@@ -10,6 +10,7 @@ import os
 import sys
 import textwrap
 import traceback
+import typing as t
 
 import benchbuild.signals as signals
 from benchbuild.settings import CFG
@@ -75,7 +76,7 @@ def notify_step_begin_end(f):
 
 
 
-def log_before_after(name, desc):
+def log_before_after(name: str, desc: str):
     def func_decorator(f):
         @ft.wraps(f)
         def wrapper(*args, **kwargs):
@@ -163,7 +164,7 @@ class Clean(Step):
         super(Clean, self).__init__(project_or_experiment, action_fn)
         self.check_empty = check_empty
 
-    def __clean_mountpoints__(self, root):
+    def __clean_mountpoints__(self, root: str):
         """
         Unmount any remaining mountpoints under :root.
 

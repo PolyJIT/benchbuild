@@ -11,7 +11,7 @@ import sys
 import time
 from plumbum import cli
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import Experiment, StepResult
+from benchbuild.utils.actions import Step, Experiment, StepResult
 from benchbuild.utils import user_interface as ui
 from benchbuild import experiments
 from benchbuild import experiment
@@ -169,13 +169,27 @@ class BenchBuildRun(cli.Application):
             fstatus = [StepResult.ERROR, StepResult.CAN_CONTINUE]
             return len([x for x in res if x in fstatus]) > 0
 
+        pg_bar = cli.progress.Progress(
+            length=num_actions,
+            has_output=CFG["verbosity"].value() > 0,
+            body=True,
+            timer=False)
+
+        def on_step_end(step, f):
+            pg_bar.increment()
+
+        Step.ON_STEP_END.append(on_step_end)
+
+        pg_bar.start()
         start = time.perf_counter()
-        for a in actns:
-            res = a()
+        for action in actns:
+            res = action()
 
             if has_failed(res):
-                failed.append(a)
+                failed.append(action)
+
         end = time.perf_counter()
+        pg_bar.done()
 
         print("""
 Summary:

@@ -213,9 +213,6 @@ class ExtractCompileStats(Extension):
 
 
 class SetThreadLimit(Extension):
-    def __init__(self, *extensions, config=None):
-        super(SetThreadLimit, self).__init__(*extensions, config=config)
-
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.settings import CFG
 

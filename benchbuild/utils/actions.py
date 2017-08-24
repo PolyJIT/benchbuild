@@ -55,6 +55,25 @@ def prepend_status(f):
         return res
     return wrapper
 
+def notify_step_begin_end(f):
+    @ft.wraps(f)
+    def wrapper(self, *args, **kwargs):
+        cls = self.__class__
+        on_step_begin = cls.ON_STEP_BEGIN
+        on_step_end = cls.ON_STEP_END
+
+        for begin_listener in on_step_begin:
+            begin_listener(self)
+
+        res =  f(self, *args, **kwargs)
+
+        for end_listener in on_step_end:
+            end_listener(self, f)
+        return res
+    return wrapper
+
+
+
 
 def log_before_after(name, desc):
     def func_decorator(f):
@@ -93,6 +112,9 @@ class Step(metaclass=StepClass):
     NAME = None
     DESCRIPTION = None
 
+    ON_STEP_BEGIN = []
+    ON_STEP_END = []
+
     def __init__(self, project_or_experiment, action_fn=None):
         self._obj = project_or_experiment
         self._action_fn = action_fn
@@ -107,6 +129,7 @@ class Step(metaclass=StepClass):
     def __next__(self):
         raise StopIteration
 
+    @notify_step_begin_end
     def __call__(self):
         if not self._action_fn:
             return StepResult.ERROR
@@ -158,6 +181,7 @@ class Clean(Step):
                 else:
                     umount_paths.append(part.mountpoint)
 
+    @notify_step_begin_end
     def __call__(self):
         if not CFG['clean'].value():
             LOG.warn("Clean disabled by config.")
@@ -186,6 +210,7 @@ class MakeBuildDir(Step):
     NAME = "MKDIR"
     DESCRIPTION = "Create the build directory"
 
+    @notify_step_begin_end
     def __call__(self):
         if not self._obj:
             return
@@ -255,6 +280,7 @@ class Run(Step):
         action_fn = ft.partial(project.run, project.runtime_extension)
         super(Run, self).__init__(project, action_fn)
 
+    @notify_step_begin_end
     def __call__(self):
         if not self._obj:
             return
@@ -282,10 +308,9 @@ class Echo(Step):
         return textwrap.indent("* echo: {0}".format(self._message),
                                indent * " ")
 
+    @notify_step_begin_end
     def __call__(self):
-        print()
-        print(self._message)
-        print()
+        LOG.info(self._message)
 
 
 class Any(Step):
@@ -297,11 +322,12 @@ class Any(Step):
         super(Any, self).__init__(None, None)
 
     def __len__(self):
-        return sum([len(x) for x in self._actions])
+        return sum([len(x) for x in self._actions]) + 1
 
     def __iter__(self):
         return self._actions.__iter__()
 
+    @notify_step_begin_end
     def __call__(self):
         length = len(self._actions)
         cnt = 0
@@ -357,6 +383,7 @@ class Experiment(Any):
         session.add(experiment)
         session.commit()
 
+    @notify_step_begin_end
     def __call__(self):
         results = []
         experiment = None
@@ -403,11 +430,12 @@ class RequireAll(Step):
         super(RequireAll, self).__init__(None, None)
 
     def __len__(self):
-        return sum([len(x) for x in self._actions])
+        return sum([len(x) for x in self._actions]) + 1
 
     def __iter__(self):
         return self._actions.__iter__()
 
+    @notify_step_begin_end
     def __call__(self):
         results = []
         for i, action in enumerate(self._actions):
@@ -451,6 +479,7 @@ class CleanExtra(Step):
     NAME = "CLEAN EXTRA"
     DESCRIPTION = "Cleans the extra directories."
 
+    @notify_step_begin_end
     def __call__(self):
         if not CFG['clean'].value():
             return StepResult.OK

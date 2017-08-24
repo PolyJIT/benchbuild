@@ -23,7 +23,7 @@ class PollyMSE(RuntimeExperiment):
             "-mllvm", "-polly",
             "-mllvm", "-polly-enable-mse",
             "-mllvm", "-polly-process-unprofitable",
-            "-mllvm", "-polly-optree-analyze-known=0",
+            "-mllvm", "-polly-enable-optree=0",
             "-mllvm", "-polly-enable-delicm=0",
         ]
         project.compiler_extension = ExtractCompileStats(project, self)

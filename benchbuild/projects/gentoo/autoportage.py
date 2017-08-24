@@ -21,5 +21,5 @@ class AutoPortage(GentooGroup):
         uretry(emerge_in_chroot[prog])
 
     def run_tests(self, *args, **kwargs):
-        log = logging.getLogger('benchbuild')
+        log = logging.getLogger(__name__)
         log.warn('Not implemented')

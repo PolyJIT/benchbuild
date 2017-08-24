@@ -57,17 +57,17 @@ class ProjectDecorator(ProjectRegistry):
         config_deco = store_config
 
         methods = ProjectDecorator.decorated_methods
-        for k, v in attrs.items():
-            if (k in methods) and hasattr(cls, k):
-                wrapped_fun = v
-                if k == 'configure':
+        for key, value in attrs.items():
+            if (key in methods) and hasattr(cls, key):
+                wrapped_fun = value
+                if key == 'configure':
                     wrapped_fun = config_deco(wrapped_fun)
 
                 if unionfs_deco is not None:
                     wrapped_fun = unionfs_deco()(wrapped_fun)
 
                 wrapped_fun = in_builddir('.')(wrapped_fun)
-                setattr(cls, k, wrapped_fun)
+                setattr(cls, key, wrapped_fun)
 
         super(ProjectDecorator, cls).__init__(name, bases, attrs)
 

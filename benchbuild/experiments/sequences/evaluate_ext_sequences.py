@@ -46,7 +46,7 @@ def calculate_fitness_value(sequence, seq_to_fitness, key, program):
 def evaluate_best_sequence(program):
     """"Generates optimization sequences from a dependency graph and calculates
     the best of these sequences for the specified program."""
-    log = logging.getLogger()
+    log = logging.getLogger(__name__)
     # Get different topological sorting arrangements.
     sequences = pprof_utilities.read_sequences(SEQUENCE_FILE_PATH,
                                                SEQUENCE_FILE, SEQUENCE_PREFIX)

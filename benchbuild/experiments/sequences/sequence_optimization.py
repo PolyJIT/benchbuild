@@ -184,7 +184,7 @@ def start_shortening(experiment, program):
         program (string): the name of the application from which the custom
             optimization sequence should be shortened.
     """
-    log = logging.getLogger()
+    log = logging.getLogger(__name__)
     file_name = experiment + '/' + program + '.heuristic-compilestats.raw'
     sequence = pprof_utilities.read_sequence(DEFAULT_FILE_PATH, file_name)
     seq_to_fitness = multiprocessing.Manager().dict()
@@ -212,7 +212,7 @@ def start_shortening(experiment, program):
 
 def __usage():
     """Prints out the usage of this python script."""
-    logging.getLogger().warning('Wrong usage!\n'
+    logging.getLogger(__name__).warning('Wrong usage!\n'
           'Usage: optimize_sequence --experiment=exp --program=prog')
 
 

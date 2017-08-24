@@ -19,7 +19,7 @@ from benchbuild.utils.cmd import mkdir, rm, rmdir
 from plumbum import ProcessExecutionError
 
 
-LOG = logging.getLogger("benchbuild.steps")
+LOG = logging.getLogger(__name__)
 
 
 @enum.unique

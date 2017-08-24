@@ -30,7 +30,7 @@ class OpenBlas(BenchBuildGroup):
             run(make["CC=" + str(clang)])
 
     def run_tests(self, experiment, run):
-        log = logging.getLogger('benchbuild')
+        log = logging.getLogger(__name__)
         log.warn('Not implemented')
 
 

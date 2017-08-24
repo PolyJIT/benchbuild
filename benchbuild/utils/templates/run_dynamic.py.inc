@@ -19,7 +19,7 @@ l.configure()
 l.set_defaults()
 settings.update_env()
 
-log = logging.getLogger("run")
+log = logging.getLogger(__name__)
 log.setLevel(logging.ERROR)
 log.addHandler(logging.StreamHandler(stream=sys.stderr))
 

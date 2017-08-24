@@ -15,7 +15,7 @@ from plumbum.commands import ProcessExecutionError
 from plumbum.commands.base import BaseCommand
 
 
-LOG = logging.getLogger("benchbuild")
+LOG = logging.getLogger(__name__)
 
 
 def handle_stdin(cmd, kwargs):

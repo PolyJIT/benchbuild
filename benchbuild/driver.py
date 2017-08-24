@@ -14,7 +14,7 @@ class PollyProfiling(cli.Application):
     debug = cli.Flag('-d', help="Enable debugging output")
 
     def main(self, *args):
-        self.verbosity = self.verbosity if self.verbosity < 4 else 3
+        self.verbosity = self.verbosity if self.verbosity < 6 else 5
         if self.debug:
             self.verbosity = 3
         settings.CFG["verbosity"] = self.verbosity

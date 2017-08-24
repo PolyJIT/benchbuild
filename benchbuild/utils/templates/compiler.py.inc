@@ -15,7 +15,7 @@ os.environ["BB_CONFIG_FILE"] = "{CFG_FILE}"
 from benchbuild.settings import CFG, update_env
 
 log.configure()
-log = logging.getLogger("benchbuild")
+log = logging.getLogger(__name__)
 log.addHandler(logging.StreamHandler(stream=sys.stderr))
 log.setLevel(logging.DEBUG)
 

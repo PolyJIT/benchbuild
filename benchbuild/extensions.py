@@ -27,23 +27,19 @@ class Extension(metaclass=ABCMeta):
         for ext in self.next_extensions:
             LOG.debug("  ++ - %s ", ext.__class__)
             results = ext(*args, **kwargs)
-            LOG.debug("  -- - %s => %s", ext.__class__, results)
             if results is None:
                 LOG.warning("No result from: %s", ext.__class__)
                 continue
+            result_list = []
             if isinstance(results, Iterable):
-                all_results.extend(results)
+                result_list.extend(results)
             else:
-                all_results.append(results)
+                result_list.append(results)
+            status_list = [r.db_run.status for r in result_list]
+            LOG.debug("  -- %s - %s => %s", str(status_list), ext.__class__, results)
 
-        for result in all_results:
-            if (hasattr(result, 'db_run')
-                    and result.db_run.status == "completed"):
-                LOG.debug("  [OK] - %s => %s", ext.__class__, result)
-            elif not hasattr(result, 'db_run'):
-                LOG.debug(" [NO RUN_INFO] - %s => %s", ext.__class__, result)
-            else:
-                LOG.debug("  [FAIL] - %s => %s", ext.__class__, result)
+            all_results.extend(result_list)
+
         return all_results
 
     def print(self, indent=0):

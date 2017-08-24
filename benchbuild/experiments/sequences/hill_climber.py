@@ -132,7 +132,7 @@ def climb(sequence, program, pass_space, seq_to_fitness):
         seq_to_fitness (dict): dictionary that stores calculated fitness
             values.
     """
-    log = logging.getLogger()
+    log = logging.getLogger(__name__)
     base_sequence = sequence
     base_sequence_key = str(base_sequence)
     log.debug("Start climbing...")
@@ -201,7 +201,7 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
     """
     global print_debug
     print_debug = debug
-    log = logging.getLogger()
+    log = logging.getLogger(__name__)
 
     best_sequence = []
     seq_to_fitness = multiprocessing.Manager().dict()

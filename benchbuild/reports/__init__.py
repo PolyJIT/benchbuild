@@ -18,8 +18,8 @@ def discover():
         >>> import logging as lg
         >>> import sys
         >>> l = lg.getLogger('benchbuild')
-        >>> lg.getLogger('benchbuild').setLevel(lg.DEBUG)
-        >>> lg.getLogger('benchbuild').handlers = [lg.StreamHandler(stream=sys.stdout)]
+        >>> l.setLevel(lg.DEBUG)
+        >>> l.handlers = [lg.StreamHandler(stream=sys.stdout)]
         >>> CFG["plugins"]["reports"] = ["benchbuild.non.existing", "benchbuild.reports.raw"]
         >>> discover()
         Could not find 'benchbuild.non.existing'

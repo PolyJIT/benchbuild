@@ -41,7 +41,7 @@ def test_effect_of_flag(program, flag, prepending, both, file_path, file_name):
         file_name (string): the name of the file that contains the sequence for
             the program.
     """
-    log = logging.getLogger()
+    log = logging.getLogger(__name__)
     sequence = pprof_utilities.read_sequence(file_path, file_name)
 
     if sequence and flag not in sequence:
@@ -65,7 +65,7 @@ def test_effect_of_flag(program, flag, prepending, both, file_path, file_name):
 
 def __usage():
     """Prints out the usage of this python script."""
-    logging.getLogger().warning(
+    logging.getLogger(__name__).warning(
         "Wrong usage!\n" + "You have to specify a flag whose effect should "
                            "be tested!\n" + "Usage: flag_effect.py -f ["
                                             "/--flag=] FLAG_NAME ["

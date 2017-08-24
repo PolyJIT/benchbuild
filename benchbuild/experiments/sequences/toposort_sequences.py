@@ -84,7 +84,7 @@ def calculate_fitness_value(sequence, seq_to_fitness, key, program):
 def generate_custom_sequence(program):
     """"Generates optimization sequences from a dependency graph and calculates
     the best of these sequences for the specified program."""
-    log = logging.getLogger()
+    log = logging.getLogger(__name__)
     # Get different topological sorting arrangements.
     sequences = __create_sequences()
     seq_to_fitness = multiprocessing.Manager().dict()

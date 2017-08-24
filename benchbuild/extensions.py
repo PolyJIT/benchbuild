@@ -2,6 +2,7 @@
 Extension base-classes for compile-time and run-time experiments.
 """
 import logging
+import yaml
 from abc import ABCMeta
 from collections import Iterable
 
@@ -68,7 +69,11 @@ class RuntimeExtension(Extension):
                              self.experiment, **kwargs) as run:
             run_info = run()
             if self.config:
-                LOG.info(self.config)
+                LOG.info(yaml.dump(self.config,
+                                   width=40,
+                                   indent=4,
+                                   default_flow_style=False))
+
                 persist_config(run_info.db_run, run_info.session, self.config)
         res = self.call_next(binary_command, *args, **kwargs)
         res.append(run_info)

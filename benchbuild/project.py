@@ -121,7 +121,7 @@ class Project(object, metaclass=ProjectDecorator):
 
         return new_self
 
-    def __init__(self, exp, group=None):
+    def __init__(self, exp, group: str = None):
         """
         Setup a new project.
 

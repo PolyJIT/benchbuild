@@ -12,7 +12,7 @@ import time
 from plumbum import cli
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import Step, Experiment, StepResult
-from benchbuild.utils import user_interface as ui
+from benchbuild.utils import progress, user_interface as ui
 from benchbuild import experiments
 from benchbuild import experiment
 
@@ -169,7 +169,9 @@ class BenchBuildRun(cli.Application):
             fstatus = [StepResult.ERROR, StepResult.CAN_CONTINUE]
             return len([x for x in res if x in fstatus]) > 0
 
-        pg_bar = cli.progress.Progress(
+        pg_bar = progress.ProgressBar(
+            width=80,
+            pg_char='|',
             length=num_actions,
             has_output=CFG["verbosity"].value() > 0,
             body=True,

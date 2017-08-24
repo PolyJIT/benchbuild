@@ -1,4 +1,4 @@
-include benchbuild container README.md
+include README.rst
 recursive-include benchbuild/utils/templates *.py.inc *.sh.inc
 recursive-include benchbuild/projects/patches *.patch
 recursive-include benchbuild/sql *.sql

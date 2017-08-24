@@ -30,7 +30,7 @@ sql_extra_files = [
 
 setup(
     name='benchbuild',
-    version='1.3.2',
+    version='2.0',
     url='https://github.com/PolyJIT/benchbuild',
     packages=find_packages(exclude=["docs", "extern", "filters", "linker",
                                     "src", "statistics", "tests", "results"]),

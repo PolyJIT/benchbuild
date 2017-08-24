@@ -24,7 +24,7 @@ def find_most_frequent_sequence():
     """Search the heuristic-compilestats files for frequently occurring
     best sequences.
     """
-    log = logging.getLogger()
+    log = logging.getLogger(__name__)
     sequence_to_programs = dict()
     number_programs = 0
 

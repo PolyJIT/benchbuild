@@ -26,10 +26,12 @@ def verbosity_to_polyjit_log_level(verbosity: int):
     """Transfers the verbosity level to a useable polyjit format."""
     polyjit_log_levels = {
         0: "off",
-        1: "warn",
-        2: "info",
-        3: "debug",
-        4: "trace"
+        1: "error",
+        2: "warn",
+        3: "info",
+        4: "debug",
+        5: "trace",
+        6: "trace",
     }
     return polyjit_log_levels[verbosity]
 

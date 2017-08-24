@@ -57,5 +57,5 @@ class Rasdaman(BenchBuildGroup):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, experiment, run):
-        log = logging.getLogger('benchbuild')
+        log = logging.getLogger(__name__)
         log.warn('Not implemented')

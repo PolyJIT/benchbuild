@@ -89,7 +89,7 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
     generated_sequences = []
     seq_to_fitness = multiprocessing.Manager().dict()
 
-    log = logging.getLogger()
+    log = logging.getLogger(__name__)
     for i in range(iterations):
         log.debug("=======================================")
         log.debug("Iteration: " + str(i + 1))

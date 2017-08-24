@@ -167,7 +167,7 @@ class Population(object):
         seq_to_fitness = multiprocessing.Manager().dict()
 
         for i in range(gen):
-            logging.getLogger().debug(self)
+            logging.getLogger(__name__).debug(self)
             self.simulate_generation(seq_to_fitness)
 
             if i < gen - 1:
@@ -247,7 +247,7 @@ class Population(object):
 
     def __mutate(self, chromosomes, mutation_probability, seq_to_fitness):
         """Performs mutations on chromosomes with a certain probability."""
-        log = logging.getLogger()
+        log = logging.getLogger(__name__)
 
         for chromosome in chromosomes:
             for i in range(self.chromosome_size):
@@ -274,7 +274,7 @@ class Population(object):
 
     def __delete_duplicates(self):
         """Deletes duplicates in the chromosomes of the population."""
-        log = logging.getLogger()
+        log = logging.getLogger(__name__)
         log.debug("\n---> Duplicate check <---")
 
         chromosomes = list(set(self.chromosomes))

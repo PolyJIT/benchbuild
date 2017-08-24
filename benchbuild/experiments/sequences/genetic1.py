@@ -164,7 +164,7 @@ class Population(object):
                 specified environment.
         """
         for i in range(generations):
-            logging.getLogger().debug(self)
+            logging.getLogger(__name__).debug(self)
             self.__simulate_generation()
 
             if i < generations - 1:
@@ -255,7 +255,7 @@ class Population(object):
         for chromosome in chromosomes:
             for i in range(self.chromosome_size):
                 if random.randint(1, 100) <= mutation_probability:
-                    logging.getLogger().debug(
+                    logging.getLogger(__name__).debug(
                         "---> Mutation in Chromosome " + str(
                             chromosome.chromosome_id) + "in gene " + str(i)
                         + " <---")
@@ -264,7 +264,7 @@ class Population(object):
 
     def __delete_duplicates(self):
         """Deletes duplicates in the chromosomes of the population."""
-        log = logging.getLogger()
+        log = logging.getLogger(__name__)
         log.debug("\n---> Duplicate check <---")
 
         chromosomes = list(set(self.chromosomes))

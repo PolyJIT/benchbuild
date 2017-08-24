@@ -51,7 +51,6 @@ setup(
         "psutil>=4.0.0",
         "PyYAML>=3.12",
         "Jinja2>=2.2",
-        "numpy>=1.8.2",
         "scipy==0.19.1",
     ],
     author="Andreas Simbuerger",

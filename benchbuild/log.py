@@ -23,8 +23,6 @@ def print_logs(query, types=None):
     if query is None:
         return
 
-    query = query.filter(RunLog.status != 0)
-
     for run, log in query:
         print(("{0} @ {1} - {2} id: {3} group: {4} status: {5}".format(
             run.finished, run.experiment_name, run.project_name,

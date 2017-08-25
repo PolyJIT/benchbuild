@@ -353,9 +353,9 @@ def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
 
         if new_retcode in retry_retcodes:
             retry(pb_cmd, retries=retries+1,
-                          max_retries=max_retries,
-                          retcode=retcode,
-                          retry_retcodes=retry_retcodes)
+                  max_retries=max_retries,
+                  retcode=retcode,
+                  retry_retcodes=retry_retcodes)
         else:
             raise
 

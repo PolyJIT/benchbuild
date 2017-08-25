@@ -8,7 +8,7 @@ from statistics import median
 from benchbuild.extensions import Extension
 from benchbuild.utils.schema import Session
 from benchbuild.utils.run import track_execution, handle_stdin
-from scipy import stats
+# from scipy import stats
 
 LOG = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ def dist_func(run_info):
         for stat in results:
             values.append(stat["value"])
             print("value added to the array: " + stat["value"])
-        _, p_val = stats.ttest_1samp(values, NULLHYPO)
+#        _, p_val = stats.ttest_1samp(values, NULLHYPO)
     return p_val
 
 

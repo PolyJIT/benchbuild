@@ -11,7 +11,7 @@ import benchbuild.signals as signals
 from benchbuild.utils.cmd import mkdir
 from benchbuild.utils.path import list_to_path
 from benchbuild import settings
-from plumbum import local
+from plumbum import local, TEE
 from plumbum.commands import ProcessExecutionError
 
 

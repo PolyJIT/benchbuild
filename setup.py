@@ -50,8 +50,7 @@ setup(
         "pandas>=0.20.3",
         "psutil>=4.0.0",
         "PyYAML>=3.12",
-        "Jinja2>=2.2",
-        "scipy==0.19.1",
+        "Jinja2>=2.2"
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

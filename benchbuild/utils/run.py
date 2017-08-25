@@ -329,10 +329,10 @@ def run(command, retcode=0):
     Execute a plumbum command, depending on the user's settings.
 
     Args:
+    command & TEE(retcode=retcode)
         command: The plumbumb command to execute.
     """
-    from plumbum.commands.modifiers import TEE
-    command & TEE(retcode=retcode)
+    return command & TEE(retcode=retcode)
 
 
 class UchrootEC(enum.Enum):

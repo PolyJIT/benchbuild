@@ -28,14 +28,14 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
             has_stdin: Signals whether we should take care of stdin.
     """
     from benchbuild.settings import CFG
-    from benchbuild.utils.run import track_execution, handle_stdin
+    from benchbuild.utils.run import track_execution
     from benchbuild.utils.db import persist_perf, persist_config
     from benchbuild.utils.cmd import perf
 
     CFG.update(config)
     project.name = kwargs.get("project_name", project.name)
     run_cmd = local[run_f]
-    run_cmd = handle_stdin(run_cmd[args], kwargs)
+    run_cmd = run_cmd[args]
     run_cmd = perf["record", "-q", "-F", 6249, "-g", run_cmd]
 
     with local.env(OMP_NUM_THREADS=str(jobs)):

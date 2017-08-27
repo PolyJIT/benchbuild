@@ -10,31 +10,48 @@ from benchbuild.utils.run import exit_code_from_run_infos
 from benchbuild import settings
 from plumbum import local, FG
 
-settings.update_env()
-log.configure()
-log.set_defaults()
 
 LOG = logging.getLogger(__name__)
-RUN_F = local["{runf}"]
-ARGS = sys.argv[1:]
-F = None
 
-with local.env(PATH="{path}",
-               LD_LIBRARY_PATH="{ld_lib_path}",
-               BB_CMD=str(RUN_F) + " ".join(ARGS)):
-    if not path.exists("{blobf}"):
-        LOG.info("No measurement blob found at %s", "{blobf}")
-        RETCODE, _, _ = RUN_F[ARGS] & FG
-        sys.exit(RETCODE)
 
-    with open("{blobf}", "rb") as p:
-        F = dill.load(p)
-    if F is not None:
-        RI = F(RUN_F, ARGS,
-               has_stdin=not sys.stdin.isatty(),
-               has_stdout=not sys.stdout.isatty())
-        sys.exit(exit_code_from_run_infos(RI))
-    else:
+def main(argv):
+    settings.update_env()
+    log.configure()
+    log.set_defaults()
+
+    real_command = local["{runf}"]
+    real_command_args = sys.argv[1:]
+
+    has_stdin = not sys.stdin.isatty()
+    has_stdout = not sys.stdout.isatty()
+
+    if has_stdin:
+        real_command = (real_command < sys.stdin)
+    if has_stdout:
+        real_command = (real_command > sys.stdout)
+
+    with local.env(PATH="{path}",
+                   LD_LIBRARY_PATH="{ld_lib_path}",
+                   BB_CMD=str(real_command) + " ".join(real_command_args)):
+        if not path.exists("{blobf}"):
+            LOG.info("No measurement blob found at %s", "{blobf}")
+            exitcode, _, _ = real_command[real_command_args] & FG
+            return exitcode
+
+        measurement_function = None
+        with open("{blobf}", "rb") as p:
+            measurement_function = dill.load(p)
+
+        if measurement_function:
+            run_info = measurement_function(
+                real_command,
+                real_command_args)
+            return exit_code_from_run_infos(run_info)
+
         LOG.error("Unable to load measurement blob %s", "{blobf}")
-        RETCODE, _, _ = RUN_F[ARGS] & FG
-        sys.exit(RETCODE)
+        exitcode, _, _ = real_command[real_command_args] & FG
+        return exitcode
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

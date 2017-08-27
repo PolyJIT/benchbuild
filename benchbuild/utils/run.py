@@ -18,34 +18,6 @@ from plumbum.commands import ProcessExecutionError
 LOG = logging.getLogger(__name__)
 
 
-def handle_stdin(cmd, kwargs):
-    """
-    Handle stdin for wrapped runtime executors.
-
-    This little helper checks the kwargs for a `has_stdin` key containing
-    a boolean value. If necessary it will pipe in the stdin of this process
-    into the plumbum command.
-
-    Args:
-        cmd (benchbuild.utils.cmd): Command to wrap a stdin handler around.
-        kwargs: Dictionary containing the kwargs.
-            We check for they key `has_stdin`
-
-    Returns:
-        A new plumbum command that deals with stdin redirection, if needed.
-    """
-    assert isinstance(kwargs, dict)
-    import sys
-
-    has_stdin = kwargs.get("has_stdin", False)
-    has_stdout = kwargs.get("has_stdout", False)
-
-    run_cmd = (cmd < sys.stdin) if has_stdin else cmd
-    run_cmd = (run_cmd > sys.stdout) if has_stdout else cmd
-
-    return run_cmd
-
-
 def fetch_time_output(marker, format_s, ins):
     """
     Fetch the output /usr/bin/time from a.
@@ -247,11 +219,16 @@ class RunInfo(object):
         with local.env(**cmd_env):
             has_stdin = kwargs.get("has_stdin", False)
             try:
-                retcode, stdout, stderr = self.cmd.run(
-                    retcode=expected_retcode,
-                    stdin=PIPE if has_stdin else None,
-                    stderr=PIPE,
-                    stdout=PIPE)
+                LOG.debug("Command has input via stdin")
+                if has_stdin:
+                    retcode, stdout, stderr = self.cmd.run(
+                        retcode=expected_retcode,
+                        stdin=PIPE,
+                        stderr=PIPE,
+                        stdout=PIPE)
+                else:
+                    retcode, stdout, stderr = \
+                        self.cmd & TEE(retcode=expected_retcode)
 
                 self.retcode = retcode
                 self.stdout = stdout

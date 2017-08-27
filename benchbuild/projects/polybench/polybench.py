@@ -1,5 +1,4 @@
 import logging
-import parse
 from os import path
 
 from benchbuild.project import Project
@@ -14,17 +13,17 @@ LOG = logging.getLogger(__name__)
 
 
 def get_dump_arrays_output(data):
-    start_tag = "==BEGIN DUMP_ARRAYS=="
-    end_tag = "==END DUMP_ARRAYS=="
+    start_tag = "==BEGIN"
+    end_tag = "==END"
 
     found_start = False
     found_end = False
 
     out = []
-    for line in data:
-        if start_tag == line:
+    for line in data.split("\n"):
+        if start_tag in line:
             found_start = True
-        if end_tag == line:
+        if end_tag in line:
             found_end = True
         if found_start and not found_end:
             out.append(line)
@@ -114,20 +113,15 @@ class PolyBenchGroup(Project):
         exp = wrap(noopts_file, experiment)
         _, _, stderr = run(exp)
         with open(noopts_file + ".stderr", 'w') as outf:
-            outf.writelines(stderr)
+            outf.writelines(get_dump_arrays_output(stderr))
 
         exp = wrap(self.run_f, experiment)
         _, _, stderr = run(exp)
         with open(self.run_f + ".stderr", 'w') as outf:
-            outf.writelines(stderr)
+            outf.writelines(get_dump_arrays_output(stderr))
 
         diff_cmd = diff[noopts_file+".stderr", self.run_f+".stderr"]
-        retcode, stdout, stderr = run(diff_cmd, retcode=[0, 1])
-        if retcode == 1:
-            LOG.warning("Not the same output!")
-            LOG.warning(stdout)
-            LOG.warning(stderr)
-
+        retcode, stdout, stderr = run(diff_cmd, retcode=0)
 
 
 class Correlation(PolyBenchGroup):

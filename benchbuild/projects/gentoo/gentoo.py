@@ -24,6 +24,113 @@ from benchbuild.utils import container
 from benchbuild.utils.container import Gentoo
 
 
+def write_makeconfig(path):
+    """
+    Write a valid gentoo make.conf file to :path:.
+
+    Args:
+        path - The output path of the make.conf
+    """
+
+    mkfile_uchroot("/etc/portage/make.conf")
+    with open(path, 'w') as makeconf:
+        lines = '''
+PORTAGE_USERNAME=root
+PORTAGE_GROUPNAME=root
+CFLAGS="-O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+FEATURES="-xattr"
+CC="/clang"
+CXX="/clang++"
+
+CHOST="x86_64-pc-linux-gnu"
+USE="bindist mmx sse sse2"
+PORTDIR="/usr/portage"
+DISTDIR="${PORTDIR}/distfiles"
+PKGDIR="${PORTDIR}/packages"
+PYTHON_TARGETS="python2_7 python3_5"
+'''
+
+        makeconf.write(lines)
+        http_proxy = CFG["gentoo"]["http_proxy"].value()
+        if http_proxy is not None:
+            http_s = "http_proxy={0}".format(str(http_proxy))
+            https_s = "https_proxy={0}".format(str(http_proxy))
+            makeconf.write(http_s + "\n")
+            makeconf.write(https_s + "\n")
+
+        ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
+        if ftp_proxy is not None:
+            fp_s = "ftp_proxy={0}".format(str(ftp_proxy))
+            makeconf.write(fp_s + "\n")
+
+        rsync_proxy = CFG["gentoo"]["rsync_proxy"].value()
+        if rsync_proxy is not None:
+            rp_s = "RSYNC_PROXY={0}".format(str(rsync_proxy))
+            makeconf.write(rp_s + "\n")
+
+
+def write_bashrc(path):
+    """
+    Write a valid gentoo bashrc file to :path:.
+
+    Args:
+        path - The output path of the make.conf
+    """
+
+    mkfile_uchroot("/etc/portage/bashrc")
+    paths, libs = uchroot_env(
+        uchroot_mounts("mnt", CFG["container"]["mounts"].value()))
+    p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
+
+    with open(path, 'w') as bashrc:
+        lines = '''
+export PATH="{0}:${{PATH}}"
+export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
+'''.format(list_to_path(paths + p_paths), list_to_path(libs + p_libs))
+
+        bashrc.write(lines)
+
+
+def write_layout(path):
+    """
+    Write a valid gentoo layout file to :path:.
+
+    Args:
+        path - The output path of the layout.conf
+    """
+
+    mkdir_uchroot("/etc/portage/metadata")
+    mkfile_uchroot("/etc/portage/metadata/layout.conf")
+    with open(path, 'w') as layoutconf:
+        lines = '''masters = gentoo'''
+        layoutconf.write(lines)
+
+
+def write_wgetrc(path):
+    """
+    Write a valid gentoo wgetrc file to :path:.
+
+    Args:
+        path - The output path of the wgetrc
+    """
+    mkfile_uchroot("/etc/wgetrc")
+
+    with open(path, 'w') as wgetrc:
+        http_proxy = CFG["gentoo"]["http_proxy"].value()
+        ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
+        if http_proxy is not None:
+            http_s = "http_proxy = {0}".format(str(http_proxy))
+            https_s = "https_proxy = {0}".format(str(http_proxy))
+            wgetrc.write("use_proxy = on\n")
+            wgetrc.write(http_s + "\n")
+            wgetrc.write(https_s + "\n")
+
+        if ftp_proxy is not None:
+            fp_s = "ftp_proxy={0}".format(str(ftp_proxy))
+            wgetrc.write(fp_s + "\n")
+
+
 class GentooGroup(project.Project):
     """Gentoo ProjectGroup is the base class for every portage build."""
 
@@ -42,87 +149,11 @@ class GentooGroup(project.Project):
             container.unpack_container(
                 project.Project.CONTAINER, self.builddir)
 
-    def write_wgetrc(self, path):
-        mkfile_uchroot("/etc/wgetrc")
-
-        with open(path, 'w') as wgetrc:
-            http_proxy = CFG["gentoo"]["http_proxy"].value()
-            ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
-            if http_proxy is not None:
-                http_s = "http_proxy = {0}".format(str(http_proxy))
-                https_s = "https_proxy = {0}".format(str(http_proxy))
-                wgetrc.write("use_proxy = on\n")
-                wgetrc.write(http_s + "\n")
-                wgetrc.write(https_s + "\n")
-
-            if ftp_proxy is not None:
-                fp_s = "ftp_proxy={0}".format(str(ftp_proxy))
-                wgetrc.write(fp_s + "\n")
-
-    def write_makeconfig(self, path):
-        mkfile_uchroot("/etc/portage/make.conf")
-        with open(path, 'w') as makeconf:
-            lines = '''
-PORTAGE_USERNAME=root
-PORTAGE_GROUPNAME=root
-CFLAGS="-O2 -pipe"
-CXXFLAGS="${CFLAGS}"
-FEATURES="-xattr"
-CC="/clang"
-CXX="/clang++"
-
-CHOST="x86_64-pc-linux-gnu"
-USE="bindist mmx sse sse2"
-PORTDIR="/usr/portage"
-DISTDIR="${PORTDIR}/distfiles"
-PKGDIR="${PORTDIR}/packages"
-PYTHON_TARGETS="python2_7 python3_5"
-'''
-
-            makeconf.write(lines)
-            http_proxy = CFG["gentoo"]["http_proxy"].value()
-            if http_proxy is not None:
-                http_s = "http_proxy={0}".format(str(http_proxy))
-                https_s = "https_proxy={0}".format(str(http_proxy))
-                makeconf.write(http_s + "\n")
-                makeconf.write(https_s + "\n")
-
-            ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
-            if ftp_proxy is not None:
-                fp_s = "ftp_proxy={0}".format(str(ftp_proxy))
-                makeconf.write(fp_s + "\n")
-
-            rsync_proxy = CFG["gentoo"]["rsync_proxy"].value()
-            if rsync_proxy is not None:
-                rp_s = "RSYNC_PROXY={0}".format(str(rsync_proxy))
-                makeconf.write(rp_s + "\n")
-
-    def write_bashrc(self, path):
-        mkfile_uchroot("/etc/portage/bashrc")
-        paths, libs = uchroot_env(
-            uchroot_mounts("mnt", CFG["container"]["mounts"].value()))
-        p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
-
-        with open(path, 'w') as bashrc:
-            lines = '''
-export PATH="{0}:${{PATH}}"
-export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
-'''.format(list_to_path(paths + p_paths), list_to_path(libs + p_libs))
-
-            bashrc.write(lines)
-
-    def write_layout(self, path):
-        mkdir_uchroot("/etc/portage/metadata")
-        mkfile_uchroot("/etc/portage/metadata/layout.conf")
-        with open(path, 'w') as layoutconf:
-            lines = '''masters = gentoo'''
-            layoutconf.write(lines)
-
     def configure(self):
-        self.write_bashrc("etc/portage/bashrc")
-        self.write_makeconfig("etc/portage/make.conf")
-        self.write_wgetrc("etc/wgetrc")
-        self.write_layout("etc/portage/metadata/layout.conf")
+        write_bashrc("etc/portage/bashrc")
+        write_makeconfig("etc/portage/make.conf")
+        write_wgetrc("etc/wgetrc")
+        write_layout("etc/portage/metadata/layout.conf")
 
         mkfile_uchroot("/etc/resolv.conf")
         cp("/etc/resolv.conf", "etc/resolv.conf")

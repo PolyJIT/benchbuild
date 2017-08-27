@@ -25,11 +25,9 @@ class PJITRegression(pj.PolyJIT):
                                 **kwargs):
             """Compile the project and track the compilestats."""
             from benchbuild.settings import CFG
-            from benchbuild.utils.run import handle_stdin
 
             CFG.update(config)
-            clang = handle_stdin(clang["-mllvm", "-polli-collect-modules"],
-                                 kwargs)
+            clang = clang["-mllvm", "-polli-collect-modules"]
             with track_execution(clang, project, experiment) as run:
                 run()
 

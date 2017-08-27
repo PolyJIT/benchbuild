@@ -8,9 +8,7 @@ from collections import Iterable
 
 import parse
 from plumbum import local
-from benchbuild.utils.run import (track_execution,
-                                  handle_stdin,
-                                  fetch_time_output)
+from benchbuild.utils.run import (track_execution, fetch_time_output)
 from benchbuild.utils.db import persist_config, persist_time
 
 LOG = logging.getLogger(__name__)
@@ -63,8 +61,7 @@ class RuntimeExtension(Extension):
     def __call__(self, binary_command, *args, **kwargs):
         self.project.name = kwargs.get("project_name", self.project.name)
 
-        cmd = handle_stdin(binary_command, kwargs)
-        cmd = cmd[args]
+        cmd = binary_command[args]
         with track_execution(cmd, self.project,
                              self.experiment, **kwargs) as run:
             run_info = run()
@@ -172,7 +169,7 @@ class ExtractCompileStats(Extension):
         from benchbuild.utils.db import persist_compilestats
         from benchbuild.settings import CFG
 
-        clang = handle_stdin(cc["-mllvm", "-stats"], kwargs)
+        clang = cc["-mllvm", "-stats"]
         run_config = self.config
 
         session = Session()

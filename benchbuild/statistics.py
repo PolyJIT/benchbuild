@@ -7,7 +7,7 @@ import parse
 from statistics import median
 from benchbuild.extensions import Extension
 from benchbuild.utils.schema import Session
-from benchbuild.utils.run import track_execution, handle_stdin
+from benchbuild.utils.run import track_execution
 # from scipy import stats
 
 LOG = logging.getLogger(__name__)
@@ -77,7 +77,7 @@ class Statistics(Extension):
         session = Session()
 
         LOG.info("Started experiment until it has reached the wanted p value.")
-        clang = handle_stdin(cc["-mllvm", "-stats"], kwargs)
+        clang = cc["-mllvm", "-stats"]
         while iterator < timeout and cur_p_val < min_p_val:
             results = self.call_next(cc, *args, **kwargs)
             if results is not None:

@@ -1,10 +1,35 @@
+import logging
+import parse
 from os import path
+
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import run
-from benchbuild.utils.cmd import tar, cp
+from benchbuild.utils.wrapping import wrap
+from benchbuild.utils.cmd import tar, cp, diff
+
+
+LOG = logging.getLogger(__name__)
+
+
+def get_dump_arrays_output(data):
+    start_tag = "==BEGIN DUMP_ARRAYS=="
+    end_tag = "==END DUMP_ARRAYS=="
+
+    found_start = False
+    found_end = False
+
+    out = []
+    for line in data:
+        if start_tag == line:
+            found_start = True
+        if end_tag == line:
+            found_end = True
+        if found_start and not found_end:
+            out.append(line)
+
+    return out
 
 
 class PolyBenchGroup(Project):
@@ -65,13 +90,44 @@ class PolyBenchGroup(Project):
         cp("-ar", path.join(self.src_dir, "utilities"), ".")
 
     def build(self):
+        from benchbuild.utils.run import run
         src_file = path.join(self.name + ".dir", self.name + ".c")
+        clang_no_opts = lt_clang([], [], self.compiler_extension)
+        polybench_opts = [
+            "-DPOLYBENCH_USE_C99_PROTO",
+            "-DMINI_DATASET",
+            "-DPOLYBENCH_DUMP_ARRAYS",
+            "-DPOLYBENCH_USE_RESTRICT"
+        ]
+        run(clang_no_opts[
+            "-I", "utilities", "-I", self.name,
+            polybench_opts,
+            "utilities/polybench.c", src_file, "-lm", "-o",
+            self.run_f + ".no-opts"])
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         run(clang["-I", "utilities", "-I", self.name,
-                  "-DPOLYBENCH_USE_C99_PROTO",
-                  "-DEXTRALARGE_DATASET",
-                  "-DPOLYBENCH_USE_RESTRICT",
+                  polybench_opts,
                   "utilities/polybench.c", src_file, "-lm", "-o", self.run_f])
+
+    def run_tests(self, experiment, run):
+        noopts_file = self.run_f + ".no-opts"
+        exp = wrap(noopts_file, experiment)
+        _, _, stderr = run(exp)
+        with open(noopts_file + ".stderr", 'w') as outf:
+            outf.writelines(stderr)
+
+        exp = wrap(self.run_f, experiment)
+        _, _, stderr = run(exp)
+        with open(self.run_f + ".stderr", 'w') as outf:
+            outf.writelines(stderr)
+
+        diff_cmd = diff[noopts_file+".stderr", self.run_f+".stderr"]
+        retcode, stdout, stderr = run(diff_cmd, retcode=[0, 1])
+        if retcode == 1:
+            LOG.warning("Not the same output!")
+            LOG.warning(stdout)
+            LOG.warning(stderr)
+
 
 
 class Correlation(PolyBenchGroup):

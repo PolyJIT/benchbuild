@@ -29,10 +29,10 @@ class CommandAlias(ModuleType):
             check = __ALIASES__[command]
 
         path = path_to_list(getenv("PATH", default=""))
-        path = CFG["env"]["binary_path"].value() + path
+        path = CFG["env"]["path"].value() + path
 
         libs_path = path_to_list(getenv("LD_LIBRARY_PATH", default=""))
-        libs_path = CFG["env"]["binary_ld_library_path"].value() + libs_path
+        libs_path = CFG["env"]["ld_library_path"].value() + libs_path
 
         if self.__override_all__ is not None:
             check = [self.__override_all__]

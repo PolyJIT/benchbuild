@@ -139,14 +139,9 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
                             CFG["container"]["mounts"].value()))
             UCHROOT_CFG = CFG
             UCHROOT_CFG["plugins"]["projects"] = []
-            UCHROOT_CFG["env"]["compiler_path"] = paths
-            UCHROOT_CFG["env"]["compiler_ld_library_path"] = libs
 
-            UCHROOT_CFG["env"]["binary_path"] = paths
-            UCHROOT_CFG["env"]["binary_ld_library_path"] = libs
-
-            UCHROOT_CFG["env"]["lookup_path"] = paths
-            UCHROOT_CFG["env"]["lookup_ld_library_path"] = libs
+            UCHROOT_CFG["env"]["path"] = paths
+            UCHROOT_CFG["env"]["ld_library_path"] = libs
 
             mkfile_uchroot("/.benchbuild.yml")
             UCHROOT_CFG.store(".benchbuild.yml")

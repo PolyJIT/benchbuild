@@ -89,10 +89,10 @@ def wrap(name, runner, sprefix=None, **template_vars):
     with open(blob_f, 'wb') as blob:
         dill.dump(runner, blob, protocol=-1, recurse=True)
 
-    bin_path = list_to_path(CFG["env"]["binary_path"].value())
+    bin_path = list_to_path(CFG["env"]["path"].value())
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
-    bin_lib_path = list_to_path(CFG["env"]["binary_ld_library_path"].value())
+    bin_lib_path = list_to_path(CFG["env"]["ld_library_path"].value())
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 
     template_vars['db_host'] = str(CFG["db"]["host"])
@@ -143,10 +143,10 @@ def wrap_dynamic(self, name, runner, sprefix=None, **template_vars):
     with open(blob_f, 'wb') as blob:
         blob.write(dill.dumps(runner))
 
-    bin_path = list_to_path(CFG["env"]["binary_path"].value())
+    bin_path = list_to_path(CFG["env"]["path"].value())
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
-    bin_lib_path = list_to_path(CFG["env"]["binary_ld_library_path"].value(
+    bin_lib_path = list_to_path(CFG["env"]["ld_library_path"].value(
     ))
     bin_lib_path = list_to_path([bin_lib_path, os.environ[
         "LD_LIBRARY_PATH"]])
@@ -211,9 +211,9 @@ def wrap_cc(filepath, cflags, ldflags, compiler, extension,
         if compiler_ext_name is not None:
             blob_f = compiler_ext_name(PROJECT_BLOB_F_EXT)
 
-    # Update LDFLAGS with configure compiler_ld_library_path. This way
+    # Update LDFLAGS with configure ld_library_path. This way
     # the libraries found in LD_LIBRARY_PATH are available at link-time too.
-    lib_path_list = CFG["env"]["compiler_ld_library_path"].value()
+    lib_path_list = CFG["env"]["ld_library_path"].value()
     ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
 
     template_vars['db_host'] = str(CFG["db"]["host"])

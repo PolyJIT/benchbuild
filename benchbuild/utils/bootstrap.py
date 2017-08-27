@@ -75,7 +75,7 @@ def install_uchroot():
     local.env.update(PATH=os.environ["PATH"])
     if not find_package("uchroot"):
         sys.exit(-1)
-    settings.CFG["env"]["lookup_path"].value().append(erlent_path)
+    settings.CFG["env"]["path"].value().append(erlent_path)
 
 
 def check_uchroot_config():

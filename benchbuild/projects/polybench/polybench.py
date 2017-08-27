@@ -20,7 +20,7 @@ def get_dump_arrays_output(data):
     found_end = False
 
     out = []
-    for line in data.split("\n"):
+    for line in data:
         if start_tag in line:
             found_start = True
         if end_tag in line:
@@ -110,18 +110,28 @@ class PolyBenchGroup(Project):
 
     def run_tests(self, experiment, run):
         noopts_file = self.run_f + ".no-opts"
-        exp = wrap(noopts_file, experiment)
-        _, _, stderr = run(exp)
-        with open(noopts_file + ".stderr", 'w') as outf:
-            outf.writelines(get_dump_arrays_output(stderr))
+        noopts_file_stderr = noopts_file + ".stderr"
+        noopts_file_stderr_2 = noopts_file_stderr + ".2"
 
-        exp = wrap(self.run_f, experiment)
-        _, _, stderr = run(exp)
-        with open(self.run_f + ".stderr", 'w') as outf:
-            outf.writelines(get_dump_arrays_output(stderr))
+        opts_file = self.run_f
+        opts_file_stderr = self.run_f + ".stderr"
+        opts_file_stderr_2 = opts_file_stderr + ".2"
 
-        diff_cmd = diff[noopts_file+".stderr", self.run_f+".stderr"]
-        retcode, stdout, stderr = run(diff_cmd, retcode=0)
+        run(wrap(noopts_file, experiment))
+        run(wrap(opts_file, experiment))
+
+        with open(noopts_file_stderr, 'r') as inf:
+            stderr = inf.readlines()
+            with open(noopts_file_stderr_2, 'w') as fd_stderr:
+                fd_stderr.writelines(get_dump_arrays_output(stderr))
+
+        with open(opts_file_stderr, 'r') as inf:
+            stderr = inf.readlines()
+            with open(opts_file_stderr_2, 'w') as fd_stderr:
+                fd_stderr.writelines(get_dump_arrays_output(stderr))
+
+        diff_cmd = diff[noopts_file_stderr_2, opts_file_stderr_2]
+        run(diff_cmd, retcode=0)
 
 
 class Correlation(PolyBenchGroup):

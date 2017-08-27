@@ -257,7 +257,6 @@ class RunInfo(object):
                 self.stdout = stdout
                 self.stderr = stderr
                 self.__end(str(stdout), str(stderr))
-                LOG.debug("Tracked process completed successfully")
             except ProcessExecutionError as ex:
                 self.__fail(ex.retcode, ex.stderr, ex.stdout)
                 self.retcode = ex.retcode
@@ -341,6 +340,7 @@ class UchrootEC(enum.Enum):
     MNT_DEV_FAILED = 253
     MNT_SYS_FAILED = 252
     MNT_PTS_FAILED = 251
+
 
 def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
     try:

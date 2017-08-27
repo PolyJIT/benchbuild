@@ -13,7 +13,7 @@ the gentoo image in benchbuild's source directory.
 """
 import os
 
-from benchbuild.utils.cmd import cp  # pylint: disable=E0401
+from benchbuild.utils.cmd import cp
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild import project
 from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
@@ -46,17 +46,17 @@ class GentooGroup(project.Project):
         mkfile_uchroot("/etc/wgetrc")
 
         with open(path, 'w') as wgetrc:
-            hp = CFG["gentoo"]["http_proxy"].value()
-            fp = CFG["gentoo"]["ftp_proxy"].value()
-            if hp is not None:
-                http_s = "http_proxy = {0}".format(str(hp))
-                https_s = "https_proxy = {0}".format(str(hp))
+            http_proxy = CFG["gentoo"]["http_proxy"].value()
+            ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
+            if http_proxy is not None:
+                http_s = "http_proxy = {0}".format(str(http_proxy))
+                https_s = "https_proxy = {0}".format(str(http_proxy))
                 wgetrc.write("use_proxy = on\n")
                 wgetrc.write(http_s + "\n")
                 wgetrc.write(https_s + "\n")
 
-            if fp is not None:
-                fp_s = "ftp_proxy={0}".format(str(fp))
+            if ftp_proxy is not None:
+                fp_s = "ftp_proxy={0}".format(str(ftp_proxy))
                 wgetrc.write(fp_s + "\n")
 
     def write_makeconfig(self, path):
@@ -80,36 +80,34 @@ PYTHON_TARGETS="python2_7 python3_5"
 '''
 
             makeconf.write(lines)
-            hp = CFG["gentoo"]["http_proxy"].value()
-            if hp is not None:
-                http_s = "http_proxy={0}".format(str(hp))
-                https_s = "https_proxy={0}".format(str(hp))
+            http_proxy = CFG["gentoo"]["http_proxy"].value()
+            if http_proxy is not None:
+                http_s = "http_proxy={0}".format(str(http_proxy))
+                https_s = "https_proxy={0}".format(str(http_proxy))
                 makeconf.write(http_s + "\n")
                 makeconf.write(https_s + "\n")
 
-            fp = CFG["gentoo"]["ftp_proxy"].value()
-            if fp is not None:
-                fp_s = "ftp_proxy={0}".format(str(fp))
+            ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
+            if ftp_proxy is not None:
+                fp_s = "ftp_proxy={0}".format(str(ftp_proxy))
                 makeconf.write(fp_s + "\n")
 
-            rp = CFG["gentoo"]["rsync_proxy"].value()
-            if rp is not None:
-                rp_s = "RSYNC_PROXY={0}".format(str(rp))
+            rsync_proxy = CFG["gentoo"]["rsync_proxy"].value()
+            if rsync_proxy is not None:
+                rp_s = "RSYNC_PROXY={0}".format(str(rsync_proxy))
                 makeconf.write(rp_s + "\n")
 
     def write_bashrc(self, path):
         mkfile_uchroot("/etc/portage/bashrc")
         paths, libs = uchroot_env(
-                uchroot_mounts("mnt",
-                               CFG["container"]["mounts"].value()))
+            uchroot_mounts("mnt", CFG["container"]["mounts"].value()))
         p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
 
         with open(path, 'w') as bashrc:
             lines = '''
 export PATH="{0}:${{PATH}}"
 export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
-'''.format(list_to_path(paths + p_paths),
-           list_to_path(libs + p_libs))
+'''.format(list_to_path(paths + p_paths), list_to_path(libs + p_libs))
 
             bashrc.write(lines)
 
@@ -137,14 +135,14 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
                         uchroot_mounts(
                             "mnt",
                             CFG["container"]["mounts"].value()))
-            UCHROOT_CFG = CFG
-            UCHROOT_CFG["plugins"]["projects"] = []
+            uchroot_cfg = CFG
+            uchroot_cfg["plugins"]["projects"] = []
 
-            UCHROOT_CFG["env"]["path"] = paths
-            UCHROOT_CFG["env"]["ld_library_path"] = libs
+            uchroot_cfg["env"]["path"] = paths
+            uchroot_cfg["env"]["ld_library_path"] = libs
 
             mkfile_uchroot("/.benchbuild.yml")
-            UCHROOT_CFG.store(".benchbuild.yml")
+            uchroot_cfg.store(".benchbuild.yml")
 
         wrap_cc_in_uchroot(self.cflags, self.ldflags, self.compiler_extension)
         wrap_cxx_in_uchroot(self.cflags, self.ldflags, self.compiler_extension)

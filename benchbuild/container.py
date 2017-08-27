@@ -283,14 +283,14 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
                         uchroot_mounts("mnt",
                                        CFG["container"]["mounts"].value()))
             uchroot_cfg = CFG
-            uchroot_cfg["env"]["compiler_path"] = paths
-            uchroot_cfg["env"]["compiler_ld_library_path"] = libs
+            uchroot_cfg["env"]["path"] = paths
+            uchroot_cfg["env"]["ld_library_path"] = libs
 
-            uchroot_cfg["env"]["binary_path"] = paths
-            uchroot_cfg["env"]["binary_ld_library_path"] = libs
+            uchroot_cfg["env"]["path"] = paths
+            uchroot_cfg["env"]["ld_library_path"] = libs
 
-            uchroot_cfg["env"]["lookup_path"] = paths
-            uchroot_cfg["env"]["lookup_ld_library_path"] = libs
+            uchroot_cfg["env"]["path"] = paths
+            uchroot_cfg["env"]["ld_library_path"] = libs
 
             mkfile_uchroot("/.benchbuild.json")
             uchroot_cfg.store(".benchbuild.json")

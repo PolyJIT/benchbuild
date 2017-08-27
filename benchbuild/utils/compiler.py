@@ -52,7 +52,7 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='clang'):
     from plumbum import local
 
     def compiler():  # pylint:  disable=C0111
-        pi = __get_compiler_paths()
+        pi = __get_paths()
         cc = local["/usr/bin/env"]
         cc = cc[cc_name]
         cc = cc.with_env(LD_LIBRARY_PATH=pi["ld_library_path"])
@@ -146,14 +146,14 @@ def llvm_libs():
     return path.join(str(CFG["llvm"]["dir"]), "lib")
 
 
-def __get_compiler_paths():
+def __get_paths():
     from os import getenv
     from benchbuild.utils.path import list_to_path
 
     path = getenv("PATH", "")
     lib_path = getenv("LD_LIBRARY_PATH", "")
-    _lib_path = CFG["env"]["compiler_ld_library_path"].value()
-    _path = CFG["env"]["compiler_path"].value()
+    _lib_path = CFG["env"]["ld_library_path"].value()
+    _path = CFG["env"]["path"].value()
     _lib_path = list_to_path(_lib_path)
     _path = list_to_path(_path)
 
@@ -175,7 +175,7 @@ def clang_cxx():
     """
     from os import path
     from plumbum import local
-    pinfo = __get_compiler_paths()
+    pinfo = __get_paths()
     clang = local[path.join(llvm(), "clang++")]
     clang = clang.setenv(PATH=pinfo["path"],
                          LD_LIBRARY_PATH=pinfo["ld_library_path"])
@@ -194,7 +194,7 @@ def clang():
     """
     from os import path
     from plumbum import local
-    pinfo = __get_compiler_paths()
+    pinfo = __get_paths()
     clang = local[path.join(llvm(), "clang")]
     clang = clang.setenv(PATH=pinfo["path"],
                          LD_LIBRARY_PATH=pinfo["ld_library_path"])

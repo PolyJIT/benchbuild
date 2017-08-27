@@ -452,36 +452,12 @@ CFG["unionfs"] = {
 }
 
 CFG["env"] = {
-    "compiler_ld_library_path": {
-        "desc":
-        "List of paths to be added to the LD_LIBRARY_PATH variable of all "
-        "compiler invocations.",
+    "ld_library_path": {
+        "desc": "LD_LIBRARY_PATH for benchbuild.",
         "default": []
     },
-    "compiler_path": {
-        "desc":
-        "List of paths to be added to all PATH variable of all compiler "
-        "invocations.",
-        "default": []
-    },
-    "binary_ld_library_path": {
-        "desc":
-        "List of paths to be added to the LD_LIBRARY_PATH variable of all "
-        "binary invocations.",
-        "default": []
-    },
-    "binary_path": {
-        "desc":
-        "List of paths to be added to the PATH variable of all binary"
-        "invocations.",
-        "default": []
-    },
-    "lookup_path": {
-        "desc": "Search path for plumbum imports",
-        "default": []
-    },
-    "lookup_ld_library_path": {
-        "desc": "LD_LIBRARY_PATH for plumbum imports",
+    "path": {
+        "desc": "PATH for benchbuild.",
         "default": []
     }
 }
@@ -877,13 +853,13 @@ def __init_config(cfg):
 
 
 def update_env():
-    lookup_path = CFG["env"]["lookup_path"].value()
-    lookup_path = os.path.pathsep.join(lookup_path)
+    path = CFG["env"]["path"].value()
+    path = os.path.pathsep.join(path)
     if "PATH" in os.environ:
-        lookup_path = os.path.pathsep.join([lookup_path, os.environ["PATH"]])
-    os.environ["PATH"] = lookup_path
+        path = os.path.pathsep.join([path, os.environ["PATH"]])
+    os.environ["PATH"] = path
 
-    lib_path = CFG["env"]["lookup_ld_library_path"].value()
+    lib_path = CFG["env"]["ld_library_path"].value()
     lib_path = os.path.pathsep.join(lib_path)
     if "LD_LIBRARY_PATH" in os.environ:
         lib_path = os.path.pathsep.join([lib_path,

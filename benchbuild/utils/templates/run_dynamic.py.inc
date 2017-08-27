@@ -1,67 +1,84 @@
 #!{python}
 #
-from benchbuild.project import Project
-from benchbuild.utils import log as l
-from benchbuild import settings
-from benchbuild.experiment import Experiment
-from plumbum import cli, local
-from os import path, getenv
-from benchbuild.experiment import Experiment as E
-from benchbuild.settings import CFG
-from {base_module} import {base_class} as PBC
-
 import logging
 import os
 import sys
 import dill
 
-l.configure()
-l.set_defaults()
-settings.update_env()
+from benchbuild.project import Project
+from benchbuild.utils import log
+from benchbuild import settings
+from benchbuild.experiment import Experiment
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.ERROR)
-log.addHandler(logging.StreamHandler(stream=sys.stderr))
+from plumbum import local, FG
+from {base_module} import {base_class} as PBC
 
-EXPERIMENT_NAME = getenv("BB_EXPERIMENT", "unknown")
-DOMAIN_NAME = getenv("BB_DOMAIN", PBC.DOMAIN)
-GROUP_NAME = getenv("BB_GROUP", PBC.GROUP)
 
-if not len(sys.argv) >= 2:
-    log.error("Not enough arguments provided!\\n")
-    log.error("Got: " + sys.argv + "\\n")
-    sys.exit(1)
+LOG = logging.getLogger(__name__)
+LOG.setLevel(logging.ERROR)
 
-f = None
-RUN_F = sys.argv[1]
-ARGS = sys.argv[2:]
-PROJECT_NAME = path.basename(RUN_F)
+EXPERIMENT_NAME = os.getenv("BB_EXPERIMENT", "unknown")
+DOMAIN_NAME = os.getenv("BB_DOMAIN", PBC.DOMAIN)
+GROUP_NAME = os.getenv("BB_GROUP", PBC.GROUP)
 
-if path.exists("{blobf}"):
+
+def main(argv):
+    settings.update_env()
+    log.configure()
+    log.set_defaults()
+
+    assert len(argv) >= 2, "2 or more arguments needed for the wrapper!"
+
+    run_f = sys.argv[1]
+    real_command = local[run_f]
+    real_command_args = sys.argv[2:]
+    project_name = os.path.basename(run_f)
+
+    has_stdin = not sys.stdin.isatty()
+    has_stdout = not sys.stdout.isatty()
+
+    if has_stdin:
+        real_command = (real_command < sys.stdin)
+    if has_stdout:
+        real_command = (real_command > sys.stdout)
+
     with local.env(PATH="{path}",
                    LD_LIBRARY_PATH="{ld_lib_path}",
-                   BB_CMD=RUN_F):
+                   BB_CMD=run_f):
+        if os.path.exists("{blobf}"):
+            LOG.info("No measurement blob found at %s", "{blobf}")
+            exitcode, _, _ = real_command[real_command_args] & FG
+            return exitcode
+
+        measurement_function = None
         with open("{blobf}", "rb") as p:
-            f = dill.load(p)
-        if f is not None:
-            project_cls = type("Dyn_" + PROJECT_NAME, (PBC,), {{
-                "NAME": PROJECT_NAME,
+            measurement_function = dill.load(p)
+
+        if measurement_function:
+            project_cls = type("Dyn_" + project_name, (PBC,), {{
+                "NAME": project_name,
                 "DOMAIN": DOMAIN_NAME,
                 "GROUP": GROUP_NAME,
                 "__module__": "__main__"
             }})
 
-            experiment_cls = type(EXPERIMENT_NAME, (E,), {{
+            experiment_cls = type(EXPERIMENT_NAME, (Experiment,), {{
                 "NAME": EXPERIMENT_NAME
             }})
 
-            e = experiment_cls([PROJECT_NAME], [GROUP_NAME])
+            e = experiment_cls([project_name], [GROUP_NAME])
             p = project_cls(e)
 
-            ri = f(RUN_F, ARGS,
-                   has_stdin=not sys.stdin.isatty(),
-                   has_stdout=not sys.stdout.isatty(),
-                   project_name=PROJECT_NAME)
-            sys.exit(ri.retcode)
-        else:
-            sys.exit(1)
+            run_info = measurement_function(
+                real_command,
+                real_command_args,
+                project_name=project_name)
+            return run_info.retcode
+
+        LOG.error("Unable to load measurement blob %s", "{blobf}")
+        exitcode, _, _ = real_command[real_command_args] & FG
+        return exitcode
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

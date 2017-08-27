@@ -4,6 +4,7 @@ import os
 import logging
 import subprocess
 import typing as t
+import sys
 from contextlib import contextmanager
 
 from benchbuild.settings import CFG
@@ -217,18 +218,23 @@ class RunInfo(object):
         cmd_env = settings.to_env_dict(settings.CFG)
 
         with local.env(**cmd_env):
-            has_stdin = kwargs.get("has_stdin", False)
             try:
                 LOG.debug("Command has input via stdin")
-                if has_stdin:
-                    retcode, stdout, stderr = self.cmd.run(
-                        retcode=expected_retcode,
-                        stdin=PIPE,
-                        stderr=PIPE,
-                        stdout=PIPE)
-                else:
-                    retcode, stdout, stderr = \
-                        self.cmd & TEE(retcode=expected_retcode)
+                bin_name = sys.argv[0]
+                retcode, stdout, stderr = self.cmd.run(
+                    retcode=expected_retcode,
+                    stdin=PIPE,
+                    stderr=PIPE,
+                    stdout=PIPE)
+                f_stdout = bin_name + ".stdout"
+                with open(f_stdout, 'w') as fd_stdout:
+                    LOG.debug("stdout goes to: %s", f_stdout)
+                    fd_stdout.write(stdout)
+
+                f_stderr = bin_name + ".stderr"
+                with open(f_stderr, 'w') as fd_stderr:
+                    LOG.debug("stderr goes to: %s", f_stderr)
+                    fd_stderr.write(stderr)
 
                 self.retcode = retcode
                 self.stdout = stdout

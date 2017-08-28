@@ -6,6 +6,7 @@ import yaml
 from abc import ABCMeta
 from collections import Iterable
 
+import os
 import parse
 from plumbum import local
 from benchbuild.utils.run import (track_execution, fetch_time_output)
@@ -62,6 +63,7 @@ class RuntimeExtension(Extension):
         self.project.name = kwargs.get("project_name", self.project.name)
 
         cmd = binary_command[args]
+        self.config['baseline'] = os.getenv("BB_IS_BASELINE", "False")
         with track_execution(cmd, self.project,
                              self.experiment, **kwargs) as run:
             run_info = run()

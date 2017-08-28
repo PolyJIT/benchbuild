@@ -8,7 +8,7 @@ import dill
 from benchbuild.utils import log
 from benchbuild.utils.run import exit_code_from_run_infos
 from benchbuild import settings
-from plumbum import local, FG
+from plumbum import local, TEE
 
 
 LOG = logging.getLogger(__name__)
@@ -27,15 +27,15 @@ def main(argv):
 
     if has_stdin:
         real_command = (real_command < sys.stdin)
-    if has_stdout:
-        real_command = (real_command > sys.stdout)
+    #FIXME: Do we need this? if has_stdout:
+    #FIXME: Do we need this?     real_command = (real_command > sys.stdout)
 
     with local.env(PATH="{path}",
                    LD_LIBRARY_PATH="{ld_lib_path}",
                    BB_CMD=str(real_command) + " ".join(real_command_args)):
         if not path.exists("{blobf}"):
             LOG.info("No measurement blob found at %s", "{blobf}")
-            exitcode, _, _ = real_command[real_command_args] & FG
+            exitcode, _, _ = real_command[real_command_args] & TEE
             return exitcode
 
         measurement_function = None
@@ -49,7 +49,7 @@ def main(argv):
             return exit_code_from_run_infos(run_info)
 
         LOG.error("Unable to load measurement blob %s", "{blobf}")
-        exitcode, _, _ = real_command[real_command_args] & FG
+        exitcode, _, _ = real_command[real_command_args] & TEE
         return exitcode
 
 

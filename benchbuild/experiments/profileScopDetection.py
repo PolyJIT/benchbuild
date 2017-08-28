@@ -64,38 +64,36 @@ class CaptureProfilingDebugOutput(ext.Extension):
             from benchbuild.utils import schema as s
             from parse import compile
 
-            instrumentedPattern = compile("{} [info] Instrumented SCoPs: {:d}")
-            notInstrumentedPattern \
+            instrumentedScopPattern \
+                    = compile("{} [info] Instrumented SCoPs: {:d}")
+            nonInstrumentedScopPattern \
                     = compile("{} [info] Not instrumented SCoPs: {:d}")
             invalidReasonPattern \
                     = compile("{} [info] {} is invalid because of: {}")
-            instructionCountScopPattern \
-                    = compile("{} [info] Instruction count SCoPs: {:d}")
-            instructionCountParentPattern \
-                    = compile("{} [info] Instruction count parents: {:d}")
-            instructionCountAllPattern \
-                    = compile("{} [info] Instruction count all: {:d}")
+            instrumentedParentPattern \
+                    = compile("{} [info] Instrumented parents: {:d}")
+            nonInstrumentedParentPattern \
+                    = compile("{} [info] Not instrumented parents: {:d}")
 
-            instrumentedCounter = 0
-            notInstrumentedCounter = 0
+            instrumentedScopCounter = 0
+            nonInstrumentedScopCounter = 0
             invalidReasons = {}
-            instructionCountScops = 0
-            instructionCountParents = 0
-            instructionCountAll = 0
+            instrumentedParentCounter = 0
+            nonInstrumentedParentCounter = 0
 
             paths = glob.glob(os.path.join(
                 os.path.realpath(os.path.curdir), "profileScops.log"))
             for path in paths:
                 file = open(path, 'r')
                 for line in file:
-                    data = instrumentedPattern.parse(line)
+                    data = instrumentedScopPattern.parse(line)
                     if data is not None:
-                        instrumentedCounter+=data[1]
+                        instrumentedScopCounter+=data[1]
                         continue
 
-                    data = notInstrumentedPattern.parse(line)
+                    data = nonInstrumentedScopPattern.parse(line)
                     if data is not None:
-                        notInstrumentedCounter += data[1]
+                        nonInstrumentedScopCounter += data[1]
                         continue
 
                     data = invalidReasonPattern.parse(line)
@@ -106,38 +104,26 @@ class CaptureProfilingDebugOutput(ext.Extension):
                         invalidReasons[reason] += 1
                         continue
 
-                    data = instructionCountScopPattern.parse(line)
+                    data = instrumentedParentPattern.parse(line)
                     if data is not None:
-                        instructionCountScops += data[1]
+                        instrumentedParentCounter+=data[1]
                         continue
 
-                    data = instructionCountParentPattern.parse(line)
+                    data = nonInstrumentedParentPattern.parse(line)
                     if data is not None:
-                        instructionCountParents += data[1]
+                        nonInstrumentedParentCounter += data[1]
                         continue
-
-                    data = instructionCountAllPattern.parse(line)
-                    if data is not None:
-                        instructionCountAll += data[1]
 
             session = s.Session()
             for reason in invalidReasons:
                 persist_scopinfos(run_infos[0], reason, invalidReasons[reason])
 
-            persist_scopratio_infos(\
-                    run_infos[0], "SCoPs", instructionCountScops)
-            persist_scopratio_infos(\
-                    run_infos[0], "parents", instructionCountParents)
-            persist_scopratio_infos(\
-                    run_infos[0], "all", instructionCountAll)
-
             session.commit()
 
-            print("Instrumented SCoPs: ", instrumentedCounter)
-            print("Not instrumented SCoPs: ", notInstrumentedCounter)
-            print("Instruction count SCoPs: ", instructionCountScops)
-            print("Instruction count parents: ", instructionCountParents)
-            print("Instruction count all: ", instructionCountAll)
+            print("Instrumented SCoPs: ", instrumentedScopCounter)
+            print("Not instrumented SCoPs: ", nonInstrumentedScopCounter)
+            print("Instrumented parents: ", instrumentedParentCounter)
+            print("Not instrumented parents: ", nonInstrumentedParentCounter)
 
             return run_infos
 

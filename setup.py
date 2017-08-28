@@ -25,7 +25,8 @@ sql_extra_files = [
     "func.speedup.sql",
     "func.total_dyncov.sql",
     "func.pj-test-eval.sql",
-    "func.compilestats_eval.sql"
+    "func.compilestats_eval.sql",
+    "func.polly_mse.sql",
 ]
 
 setup(

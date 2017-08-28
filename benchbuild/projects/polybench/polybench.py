@@ -1,6 +1,7 @@
 import logging
 from os import path
 
+import benchbuild.extensions as ext
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang
@@ -96,7 +97,7 @@ class PolyBenchGroup(Project):
         clang_no_opts = lt_clang([], [], self.compiler_extension)
         polybench_opts = [
             "-DPOLYBENCH_USE_C99_PROTO",
-            "-DLARGE_DATASET",
+            "-DMEDIUM_DATASET",
             "-DPOLYBENCH_DUMP_ARRAYS",
             "-DPOLYBENCH_USE_RESTRICT"
         ]

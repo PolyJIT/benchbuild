@@ -4,13 +4,18 @@ Test Maximal Static Expansion.
 This tests the maximal static expansion implementation by
 Nicholas Bonfante (implemented in LLVM/Polly).
 """
+import csv
 import logging
+import os
 import benchbuild.extensions as ext
 
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.utils.run import fetch_time_output
 from benchbuild.utils.db import persist_time
 from benchbuild.settings import CFG
+from benchbuild.reports import Report
+
+import sqlalchemy as sa
 
 
 LOG = logging.getLogger(__name__)
@@ -98,3 +103,34 @@ class PollyMSE(RuntimeExperiment):
                                          'jobs': int(CFG["jobs"].value())}))
 
         return self.default_runtime_actions(project)
+
+
+class PollyMSEReport(Report):
+    SUPPORTED_EXPERIMENTS = ["polly-mse"]
+
+    QUERY_EVAL = \
+        sa.sql.select([
+            sa.column('project_name'),
+            sa.column('name'),
+            sa.column('bvalue'),
+            sa.column('mvalue')
+        ]).\
+        select_from(
+            sa.func.polly_mse_eval(sa.sql.bindparam('exp_ids'))
+        )
+
+    def report(self):
+        qry = PollyMSEReport.QUERY_EVAL.unique_params(
+            exp_ids=self.experiment_ids)
+        return self.session.execute(qry).fetchall()
+
+    def generate(self):
+        fname = os.path.abspath(self.out_path)
+        fname = "{prefix}_mse{ending}".format(
+            prefix=os.path.splitext(fname)[0],
+            ending=os.path.splitext(fname)[-1])
+        res = self.report()
+        with open(fname, 'w') as csv_f:
+            csv_writer = csv.writer(csv_f)
+            csv_writer.writerows([("projct_name", "name", "bvalue", "mvalue")])
+            csv_writer.writerows(res)

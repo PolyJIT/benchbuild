@@ -418,24 +418,6 @@ class ScopDetection(BASE):
     count = Column(Integer)
 
 
-class ScopDetectionRatio(BASE):
-    """
-    Store results of polli-profile-scops ratio measurements
-    """
-
-    __tablename__ = 'profilescopsratio'
-
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    nullable=False,
-                    primary_key=True)
-    ratio = Column(String,
-                    primary_key=True)
-    count = Column(Integer)
-
-
 class SessionManager(object):
     def __init__(self):
         self.__test_mode = CFG['db']['rollback'].value()

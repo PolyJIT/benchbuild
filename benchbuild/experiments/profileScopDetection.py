@@ -25,14 +25,6 @@ def persist_scopinfos(run, invalidReason, count):
         run_id=run.db_run.id, invalid_reason=invalidReason, count=count))
 
 
-def persist_scopratio_infos(run, rationame, counter):
-    """Persists the given information about the ratio of instructions"""
-    from benchbuild.utils import schema as s
-    session = run.session
-    session.add(s.ScopDetectionRatio(
-        run_id=run.db_run.id, ratio=rationame, count=counter))
-
-
 class RunWithPprofExperiment(Extension):
     """Write data of profileScopDetection into the database"""
     def __call__(self, *args, **kwargs):

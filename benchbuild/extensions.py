@@ -63,7 +63,6 @@ class RuntimeExtension(Extension):
         self.project.name = kwargs.get("project_name", self.project.name)
 
         cmd = binary_command[args]
-        self.config['baseline'] = os.getenv("BB_IS_BASELINE", "False")
         with track_execution(cmd, self.project,
                              self.experiment, **kwargs) as run:
             run_info = run()
@@ -72,7 +71,8 @@ class RuntimeExtension(Extension):
                                    width=40,
                                    indent=4,
                                    default_flow_style=False))
-
+                self.config['baseline'] = \
+                    os.getenv("BB_IS_BASELINE", "False")
                 persist_config(run_info.db_run, run_info.session, self.config)
         res = self.call_next(binary_command, *args, **kwargs)
         res.append(run_info)

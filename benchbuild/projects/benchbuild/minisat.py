@@ -1,4 +1,4 @@
-from os import path, getenv
+from os import path, getenv, environ, pathsep
 from glob import glob
 
 from benchbuild.utils.wrapping import wrap
@@ -18,17 +18,16 @@ class Minisat(BenchBuildGroup):
     SRC_FILE = 'minisat.git'
 
     def run_tests(self, experiment, run):
+        minisat_lib_path = path.abspath(path.join(self.SRC_FILE, "build", "dynamic", "lib"))
+        environ["LD_LIBRARY_PATH"] += pathsep + minisat_lib_path
         exp = wrap(
             path.join(self.SRC_FILE, "build", "dynamic", "bin", "minisat"),
             experiment)
 
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
-        minisat_lib_path = path.join(self.SRC_FILE, "build", "dynamic", "lib")
 
         for test_f in testfiles:
-            with local.env(LD_LIBRARY_PATH=minisat_lib_path + ":" + getenv(
-                    "LD_LIBRARY_PATH", "")):
-                run((exp < test_f), None)
+            run((exp < test_f), None)
 
     src_uri = "https://github.com/niklasso/minisat"
 

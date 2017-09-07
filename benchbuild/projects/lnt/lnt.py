@@ -129,7 +129,7 @@ class SPEC2006(LNTGroup):
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
                     self.builddir, self.test_suite_dir), "--test-style",
-                "simple", "--test-external", self.builddir,
+                "simple", "--test-externals", self.builddir,
                 "--make-param=RUNUNDER=" + str(
                     exp), "--only-test=" + path.join("External", "SPEC")])
 
@@ -156,6 +156,6 @@ class Povray(LNTGroup):
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
                     self.builddir, self.test_suite_dir), "--test-style",
-                "simple", "--test-external", self.builddir,
+                "simple", "--test-externals", self.builddir,
                 "--make-param=RUNUNDER=" + str(
                     exp), "--only-test=" + path.join("External", "Povray")])

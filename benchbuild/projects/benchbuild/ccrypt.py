@@ -34,10 +34,7 @@ class Ccrypt(BenchBuildGroup):
         with local.cwd(ccrypt_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang),
-                           CXX=str(clang_cxx),
-                           CFLAGS=" ".join(self.cflags),
-                           CXXFLAGS=" ".join(self.cflags),
-                           LDFLAGS=" ".join(self.ldflags)):
+                    CXX=str(clang_cxx)):
                 run(configure)
 
     def build(self):

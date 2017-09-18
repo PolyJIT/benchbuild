@@ -9,6 +9,7 @@ from benchbuild.project import Project
 from benchbuild.utils import log
 from benchbuild import settings
 from benchbuild.experiment import Experiment
+from benchbuild.utils.run import exit_code_from_run_infos
 
 from plumbum import local, FG
 from {base_module} import {base_class} as PBC
@@ -34,18 +35,10 @@ def main(argv):
     real_command_args = sys.argv[2:]
     project_name = os.path.basename(run_f)
 
-    #has_stdin = not sys.stdin.isatty()
-    #has_stdout = not sys.stdout.isatty()
-
-    #if has_stdin:
-    #    real_command = (real_command < sys.stdin)
-    #if has_stdout:
-    #    real_command = (real_command > sys.stdout)
-
     with local.env(PATH="{path}",
                    LD_LIBRARY_PATH="{ld_lib_path}",
-                   BB_CMD=run_f):
-        if os.path.exists("{blobf}"):
+                   BB_CMD=str(real_command) + " ".join(real_command_args)):
+        if not os.path.exists("{blobf}"):
             LOG.info("No measurement blob found at %s", "{blobf}")
             exitcode, _, _ = real_command[real_command_args] & FG
             return exitcode
@@ -73,7 +66,7 @@ def main(argv):
                 real_command,
                 real_command_args,
                 project_name=project_name)
-            return run_info.retcode
+            return exit_code_from_run_infos(run_info)
 
         LOG.error("Unable to load measurement blob %s", "{blobf}")
         exitcode, _, _ = real_command[real_command_args] & FG

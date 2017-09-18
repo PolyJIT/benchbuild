@@ -3,8 +3,6 @@ LNT based measurements.
 
 """
 from os import path
-import logging
-import sys
 
 from benchbuild.project import Project
 from benchbuild.settings import CFG
@@ -15,7 +13,6 @@ from benchbuild.utils.cmd import virtualenv, mkdir, rm
 
 from plumbum import local
 
-log = logging.getLogger(__name__)
 
 class LNTGroup(Project):
     """LNT ProjectGroup for running the lnt test suite."""
@@ -35,12 +32,6 @@ class LNTGroup(Project):
     def download(self):
         Git(self.src_uri, self.src_dir)
         Git(self.test_suite_uri, self.test_suite_dir)
-
-        #According to https://stackoverflow.com/questions/1871549/python-determine-if-running-inside-virtualenv
-        if hasattr(sys, 'real_prefix'):
-            log.warn("You are trying to execute a project using \"virtualenv\" "
-                    + "while you seem to use benchbuild installed within a "
-                    + "\"virtualenv\". This is likely to not work!")
 
         virtualenv("local", "--python=python2", )
         python = local[path.join("local", "bin", "python")]

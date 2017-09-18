@@ -214,18 +214,14 @@ class RunInfo(object):
         return r
 
     def __call__(self, *args, expected_retcode=0, ri=None, **kwargs):
-        from subprocess import PIPE
         cmd_env = settings.to_env_dict(settings.CFG)
 
         with local.env(**cmd_env):
             try:
                 LOG.debug("Command has input via stdin")
                 bin_name = sys.argv[0]
-                retcode, stdout, stderr = self.cmd.run(
-                    retcode=expected_retcode,
-                    stdin=PIPE,
-                    stderr=PIPE,
-                    stdout=PIPE)
+                retcode, stdout, stderr = \
+                    self.cmd & TEE(retcode=expected_retcode)
                 f_stdout = bin_name + ".stdout"
                 with open(f_stdout, 'w') as fd_stdout:
                     LOG.debug("stdout goes to: %s", f_stdout)

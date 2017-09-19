@@ -65,8 +65,7 @@ def strip_debug_flags(flags):
 def invoke_external_measurement(cmd):
     f = None
     if os.path.exists(BLOB_F):
-        with open(BLOB_F,
-                  "rb") as p:
+        with open(BLOB_F, "rb") as p:
             f = dill.load(p)
 
     ret = None

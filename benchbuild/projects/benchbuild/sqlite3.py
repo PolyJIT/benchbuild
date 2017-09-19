@@ -48,8 +48,9 @@ class SQLite3(BenchBuildGroup):
         # We need to place sqlite3 in front of all other flags.
         self.ldflags += ["-L{0}".format(path.abspath(sqlite_dir))]
         self.cflags += ["-I{0}".format(path.abspath(sqlite_dir))]
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags)
-        clang = lt_clang(self.cflags, self.ldflags)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                 self.compiler_extension)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
 
         with local.cwd(leveldb_dir):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):

@@ -26,7 +26,7 @@ class LibreSSL(BenchBuildGroup):
 
     def configure(self):
         self.cflags += ["-fPIC"]
-        clang = lt_clang(self.cflags, self.ldflags)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         configure = local[path.join(self.src_dir, "configure")]
 
         with local.cwd(self.src_dir):

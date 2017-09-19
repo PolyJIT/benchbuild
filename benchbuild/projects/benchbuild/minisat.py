@@ -17,7 +17,7 @@ class Minisat(BenchBuildGroup):
     DOMAIN = 'verification'
     SRC_FILE = 'minisat.git'
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         minisat_lib_path = path.abspath(path.join(
             self.SRC_FILE, "build", "dynamic", "lib"))
 
@@ -28,8 +28,8 @@ class Minisat(BenchBuildGroup):
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
 
         for test_f in testfiles:
-            with local.env(LD_LIBRARY_PATH=minisat_lib_path):
-                run((exp < test_f), None)
+            cmd = (exp.with_env(LD_LIBRARY_PATH=minisat_lib_path) < test_f)
+            runner(cmd, None)
 
     src_uri = "https://github.com/niklasso/minisat"
 

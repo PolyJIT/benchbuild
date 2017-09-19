@@ -22,14 +22,6 @@ def main(argv):
     real_command = local["{runf}"]
     real_command_args = sys.argv[1:]
 
-    #has_stdin = not sys.stdin.isatty()
-    #has_stdout = not sys.stdout.isatty()
-
-    #if has_stdin:
-    #    real_command = (real_command < sys.stdin)
-    #if has_stdout:
-    #   real_command = (real_command > sys.stdout)
-
     with local.env(PATH="{path}",
                    LD_LIBRARY_PATH="{ld_lib_path}",
                    BB_CMD=str(real_command) + " ".join(real_command_args)):

@@ -85,8 +85,11 @@ def prepare_slurm_script(experiment, projects):
         projects: All projects we generate an array job for.
     """
     from os import path
+    import sys
 
-    benchbuild_c = local["benchbuild"]
+    # Assume that we run the slurm subcommand of benchbuild.
+    print(sys.argv[0])
+    benchbuild_c = local[sys.argv[0]]
     slurm_script = path.join(os.getcwd(),
                              experiment.name + "-" +
                              str(CFG['slurm']['script']))

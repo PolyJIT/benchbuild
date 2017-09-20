@@ -6,6 +6,7 @@ the SLURM controller either as batch or interactive script.
 """
 import logging
 import os
+import sys
 from plumbum import local
 from benchbuild.utils.cmd import bash, chmod, mkdir
 from benchbuild.settings import CFG
@@ -36,7 +37,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
     """
-    from jinja2 import Environment, Template, PackageLoader
+    from jinja2 import Environment, PackageLoader
 
     logs_dir = os.path.dirname(CFG['slurm']['logs'].value())
     node_command = str(benchbuild["-P", "$_project", "-E", experiment.name])
@@ -84,15 +85,12 @@ def prepare_slurm_script(experiment, projects):
         experiment: The experiment we want to execute
         projects: All projects we generate an array job for.
     """
-    from os import path
-    import sys
 
     # Assume that we run the slurm subcommand of benchbuild.
-    print(sys.argv[0])
-    benchbuild_c = local[sys.argv[0]]
-    slurm_script = path.join(os.getcwd(),
-                             experiment.name + "-" +
-                             str(CFG['slurm']['script']))
+    benchbuild_c = local[os.path.abspath(sys.argv[0])]
+    slurm_script = os.path.join(os.getcwd(),
+                                experiment.name + "-" +
+                                str(CFG['slurm']['script']))
 
     # We need to wrap the benchbuild run inside srun to avoid HyperThreading.
     srun = local["srun"]

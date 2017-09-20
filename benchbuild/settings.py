@@ -341,7 +341,7 @@ CFG = Configuration(
     node={
         "version": {
             "desc": "Version Number",
-            "default": "2.0-$Id$",
+            "default": "2.0.1-$Id$",
             "export": False
         },
         "verbosity": {

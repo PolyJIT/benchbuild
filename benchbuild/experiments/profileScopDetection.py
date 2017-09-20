@@ -134,8 +134,7 @@ class PProfExperiment(exp.Experiment):
                           "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
                           "-O3",
                           "-mllvm", "-polli-profile-scops",
-                          "-mllvm", "-polly-process-unprofitable",
-                          "-mllvm", "-polli-process-unprofitable"]
+                          "-mllvm", "-polly-process-unprofitable"]
         project.ldflags = ["-lpjit"]
         project.compiler_extension = \
             CaptureProfilingDebugOutput(

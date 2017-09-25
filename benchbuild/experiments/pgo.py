@@ -30,9 +30,9 @@ class PGO(exp.Experiment):
         import uuid
 
         no_pgo_project = copy.deepcopy(project)
-        no_pgo_project = uuid.uuid4()
+        no_pgo_project.run_uuid = uuid.uuid4()
         pgo_project = copy.deepcopy(project)
-        pgo_project = uuid.uuid4()
+        pgo_project.run_uuid = uuid.uuid4()
 
         project.cflags += [
             "-O3",
@@ -55,7 +55,7 @@ class PGO(exp.Experiment):
             "name": "no-pgo"
         }
         no_pgo_project.compiler_extension = \
-            ext.ExtractCompilestats(project, self, config=cfg_no_pgo)
+            ext.ExtractCompileStats(project, self, config=cfg_no_pgo)
 
         pgo_project.cflags += [
             "-O3",

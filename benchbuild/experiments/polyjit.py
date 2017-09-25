@@ -203,7 +203,7 @@ class PolyJITFull(PolyJIT):
                     ext.RuntimeExtension(
                         rawp, self,
                         config={"jobs": 1,
-                                "name" : "Baseline O3"}),
+                                "name": "Baseline O3"}),
                     config={"jobs": 1}))
         actns.append(RequireAll(self.default_runtime_actions(rawp)))
 

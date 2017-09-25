@@ -341,7 +341,7 @@ class Any(Step):
             if StepResult.ERROR in result:
                 LOG.warning("%d actions left in queue", length - cnt)
         self.status = StepResult.OK
-        if StepResult.EROR in results:
+        if StepResult.ERROR in results:
             self.status = StepResult.CAN_CONTINUE
 
     def __str__(self, indent=0):

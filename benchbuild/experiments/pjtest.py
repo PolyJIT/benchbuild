@@ -34,7 +34,6 @@ class Test(pj.PolyJIT):
         project.run_uuid = uuid.uuid4()
         jobs = int(settings.CFG["jobs"].value())
         project.cflags += [
-            "-Rpass-missed=polli*",
             "-mllvm", "-stats",
             "-mllvm", "-polly-num-threads={0}".format(jobs)]
 

@@ -87,4 +87,4 @@ class PGO(exp.Experiment):
         actions.append(actns.RequireAll(
             self.default_runtime_actions(pgo_project)))
 
-        return [actns.Any(actions)]
+        return actions

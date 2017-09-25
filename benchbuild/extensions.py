@@ -79,6 +79,16 @@ class RuntimeExtension(Extension):
         return res
 
 
+class RunWithTimeout(RuntimeExtension):
+    def __call__(self, binary_command, *args, **kwargs):
+        from benchbuild.utils.cmd import timeout
+
+        cmd = binary_command
+        cmd = timeout["2m", cmd]
+
+        return super(RunWithTimeout, self).__call__(cmd, *args, **kwargs)
+
+
 class LogTrackingMixin(object):
     """Add log-registering capabilities to extensions."""
     _logs = []
@@ -167,11 +177,13 @@ class ExtractCompileStats(Extension):
                     yield res
 
     def __call__(self, cc, *args, **kwargs):
-        from benchbuild.utils.schema import CompileStat, Session
+        from benchbuild.utils.cmd import timeout
         from benchbuild.utils.db import persist_compilestats
+        from benchbuild.utils.schema import CompileStat, Session
         from benchbuild.settings import CFG
 
         clang = cc["-mllvm", "-stats"]
+        clang = timeout["2m", clang]
         run_config = self.config
 
         session = Session()

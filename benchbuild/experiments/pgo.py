@@ -55,7 +55,9 @@ class PGO(exp.Experiment):
             "name": "no-pgo"
         }
         no_pgo_project.compiler_extension = \
-            ext.ExtractCompileStats(project, self, config=cfg_no_pgo)
+            ext.RunWithTimeout(
+                ext.ExtractCompileStats(project, self, config=cfg_no_pgo)
+            )
 
         pgo_project.cflags += [
             "-O3",

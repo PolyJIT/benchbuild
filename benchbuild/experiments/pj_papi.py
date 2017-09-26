@@ -96,7 +96,8 @@ class PJITpapi(pj.PolyJIT):
         actns = []
         for i in range(1, int(str(CFG["jobs"])) + 1):
             cp = copy.deepcopy(project)
-            cp.compiler_extension = ext.ExtractCompileStats(cp, self)
+            cp.compiler_extension = \
+                ext.RunWithTimeout(ext.ExtractCompileStats(cp, self))
             cp.runtime_extension = partial(run_with_papi, cp, self, CFG, i)
             actns.extend(self.default_runtime_actions(cp))
 

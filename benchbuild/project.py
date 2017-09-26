@@ -144,7 +144,8 @@ class Project(object, metaclass=ProjectDecorator):
 
         self.cflags = []
         self.ldflags = []
-        self.compiler_extension = ext.RunWithTimeout(self, exp)
+        self.compiler_extension = \
+            ext.RunWithTimeout(ext.RunCompiler(self, exp))
 
         self.setup_derived_filenames()
         persist_project(self)

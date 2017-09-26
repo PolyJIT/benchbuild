@@ -6,8 +6,7 @@ project with libbenchbuild support to work.
 
 """
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.extensions import (ExtractCompileStats, RunWithTime,
-                                   RuntimeExtension)
+import benchbuild.extensions as ext
 from benchbuild.utils.actions import Step
 
 
@@ -60,10 +59,11 @@ class PapiScopCoverage(RuntimeExperiment):
             "-mllvm", "-polli-instrument",
             "-mllvm", "-polli-no-recompilation",
             "-mllvm", "-polly-detect-keep-going"]
-        project.compiler_extension = ExtractCompileStats(project, self)
+        project.compiler_extension = \
+            ext.RunWithTimeout(ext.ExtractCompileStats(project, self))
         project.runtime_extension = \
-            RunWithTime(
-                RuntimeExtension(project, self, config={'jobs': 1}))
+            ext.RunWithTime(
+                ext.RuntimeExtension(project, self, config={'jobs': 1}))
 
         def evaluate_calibration(e):
             from benchbuild.utils.cmd import pprof_calibrate
@@ -94,10 +94,11 @@ class PapiStandardScopCoverage(PapiScopCoverage):
             "-mllvm", "-polli-instrument",
             "-mllvm", "-polli-no-recompilation",
             "-mllvm", "-polly-detect-keep-going"]
-        project.compiler_extension = ExtractCompileStats(project, self)
+        project.compiler_extension = \
+            ext.RunWithTimeout(ext.ExtractCompileStats(project, self))
         project.runtime_extension = \
-            RunWithTime(
-                RuntimeExtension(project, self, config={'jobs': 1}))
+            ext.RunWithTime(
+                ext.RuntimeExtension(project, self, config={'jobs': 1}))
 
         def evaluate_calibration(e):
             from benchbuild.utils.cmd import pprof_calibrate

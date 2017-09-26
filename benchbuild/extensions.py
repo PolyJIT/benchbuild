@@ -79,14 +79,10 @@ class RuntimeExtension(Extension):
         return res
 
 
-class RunWithTimeout(RuntimeExtension):
+class RunWithTimeout(Extension):
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.utils.cmd import timeout
-
-        cmd = binary_command
-        cmd = timeout["2m", cmd]
-
-        return super(RunWithTimeout, self).__call__(cmd, *args, **kwargs)
+        return self.call_next(timeout["2m", binary_command], *args, **kwargs)
 
 
 class LogTrackingMixin(object):
@@ -176,16 +172,21 @@ class ExtractCompileStats(Extension):
                 if res is not None:
                     yield res
 
-    def __call__(self, cc, *args, **kwargs):
-        from benchbuild.utils.cmd import timeout
+    def __call__(self, cc, *args,
+                 experiment_cflags=[],
+                 experiment_ldflags=[], **kwargs):
         from benchbuild.utils.db import persist_compilestats
         from benchbuild.utils.schema import CompileStat, Session
         from benchbuild.settings import CFG
 
-        clang = cc["-mllvm", "-stats"]
-        clang = timeout["2m", clang]
-        run_config = self.config
+        original_command = cc[args]
+        clang = cc["-Qunused-arguments"]
+        clang = clang[args]
+        clang = clang[experiment_cflags]
+        clang = clang[experiment_ldflags]
+        clang = clang["-mllvm", "-stats"]
 
+        run_config = self.config
         session = Session()
         with track_execution(clang, self.project, self.experiment) as run:
             run_info = run()
@@ -193,39 +194,82 @@ class ExtractCompileStats(Extension):
                 persist_config(
                     run_info.db_run, session, run_config)
 
-        if run_info.db_run.status == "completed":
-            stats = []
-            for stat in self.get_compilestats(run_info.stderr):
-                compile_s = CompileStat()
-                compile_s.name = stat["desc"].rstrip()
-                compile_s.component = stat["component"].rstrip()
-                compile_s.value = stat["value"]
-                stats.append(compile_s)
+            if not run_info.has_failed:
+                stats = []
+                for stat in self.get_compilestats(run_info.stderr):
+                    compile_s = CompileStat()
+                    compile_s.name = stat["desc"].rstrip()
+                    compile_s.component = stat["component"].rstrip()
+                    compile_s.value = stat["value"]
+                    stats.append(compile_s)
 
-            components = CFG["cs"]["components"].value()
-            names = CFG["cs"]["names"].value()
+                components = CFG["cs"]["components"].value()
+                names = CFG["cs"]["names"].value()
 
-            stats = [s for s in stats if str(s.component) in components] \
-                if components is not None else stats
-            stats = [s for s in stats if str(s.name) in names] \
-                if names is not None else stats
+                stats = [s for s in stats if str(s.component) in components] \
+                    if components is not None else stats
+                stats = [s for s in stats if str(s.name) in names] \
+                    if names is not None else stats
 
-            if stats:
-                for stat in stats:
-                    LOG.info(" [%s] %s = %s",
-                             stat.component, stat.name, stat.value)
-                persist_compilestats(run_info.db_run, run_info.session, stats)
+                if stats:
+                    for stat in stats:
+                        LOG.info(" [%s] %s = %s",
+                                 stat.component, stat.name, stat.value)
+                    persist_compilestats(run_info.db_run, run_info.session,
+                                         stats)
+                else:
+                    LOG.info("No compilestats left, after filtering.")
+                    LOG.warning("  Components: %s", components)
+                    LOG.warning("  Names:      %s", names)
             else:
-                LOG.info("No compilestats left, after filtering.")
-                LOG.warning("  Components: %s", components)
-                LOG.warning("  Names:      %s", names)
-        else:
-            LOG.info("There was an error while compiling.")
+                with track_execution(original_command, self.project,
+                                     self.experiment, **kwargs) as run:
+                    LOG.warning("Fallback to: %s", str(original_command))
+                    run_info = run()
 
         ret = self.call_next(cc, *args, **kwargs)
         ret.append(run_info)
         session.commit()
         return ret
+
+
+class RunCompiler(Extension):
+    def __init__(self, project, experiment, *extensions, config=None):
+        self.project = project
+        self.experiment = experiment
+
+        super(RunCompiler, self).__init__(*extensions, config=config)
+
+    def __call__(self, command, *args,
+                 experiment_cflags=[],
+                 experiment_ldflags=[],
+                 rerun_on_error=True,
+                 **kwargs):
+        original_command = command[args]
+        new_command = command["-Qunused-arguments"]
+        new_command = new_command[args]
+        new_command = new_command[experiment_cflags]
+        new_command = new_command[experiment_ldflags]
+
+        with track_execution(new_command, self.project,
+                             self.experiment, **kwargs) as run:
+            run_info = run()
+            if self.config:
+                LOG.info(yaml.dump(self.config,
+                                   width=40,
+                                   indent=4,
+                                   default_flow_style=False))
+                persist_config(run_info.db_run, run_info.session, self.config)
+
+            if run_info.has_failed:
+                with track_execution(original_command, self.project,
+                                     self.experiment, **kwargs) as run:
+                    LOG.warning("Fallback to: %s", str(original_command))
+                    run_info = run()
+
+        res = self.call_next(new_command, *args, **kwargs)
+        res.append(run_info)
+        return res
 
 
 class SetThreadLimit(Extension):

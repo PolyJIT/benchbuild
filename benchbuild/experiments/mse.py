@@ -11,7 +11,6 @@ import benchbuild.extensions as ext
 
 from benchbuild.experiment import RuntimeExperiment
 from benchbuild.utils.run import fetch_time_output
-from benchbuild.utils.db import persist_time
 from benchbuild.settings import CFG
 from benchbuild.reports import Report
 
@@ -95,7 +94,8 @@ class PollyMSE(RuntimeExperiment):
             "-mllvm", "-polly-enable-optree=0",
             "-mllvm", "-polly-enable-delicm=0",
         ]
-        project.compiler_extension = ext.ExtractCompileStats(project, self)
+        project.compiler_extension = \
+            ext.RunWithTimeout(ext.ExtractCompileStats(project, self))
         project.runtime_extension = \
             MeasureTimeAndMemory(
                 ext.RuntimeExtension(project, self,

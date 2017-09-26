@@ -135,7 +135,7 @@ class PProfExperiment(exp.Experiment):
                           "-O3",
                           "-mllvm", "-polli-profile-scops",
                           "-mllvm", "-polly-process-unprofitable"]
-        project.ldflags = ["-lpjit"]
+        project.ldflags = ["-lpjit", "-lpapi"]
         project.compiler_extension = \
             CaptureProfilingDebugOutput(
                 ext.RuntimeExtension(project, self),

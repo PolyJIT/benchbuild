@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 extra_files = [
-    "templates/compiler.py.inc",
+    "templates/run_compiler.py.inc",
     "templates/run_static.py.inc",
     "templates/run_dynamic.py.inc",
     "templates/slurm.sh.inc"

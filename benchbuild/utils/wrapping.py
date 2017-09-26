@@ -22,18 +22,20 @@ Runtime Wrappers:
     of the binary. We cannot guarantee that repeated execution is valid, therefore,
     we let the user decide what the program should do.
 """
+import dill
+import logging
 import os
 import sys
-import dill
 
 from plumbum import local
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mv, chmod
-from benchbuild.utils.path import list_to_path, template_str
+from benchbuild.utils.path import list_to_path
 from benchbuild.utils.run import run, uchroot_no_llvm as uchroot
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
+LOG = logging.getLogger(__name__)
 
 
 def strip_path_prefix(ipath, prefix):
@@ -61,7 +63,17 @@ def strip_path_prefix(ipath, prefix):
     return ipath[len(prefix):] if ipath.startswith(prefix) else ipath
 
 
-def wrap(name, runner, sprefix=None, **template_vars):
+def unpickle(pickle_file):
+    """Unpickle a python object from the given path."""
+    pickle = None
+    with open(pickle_file, "rb") as pickle_f:
+        pickle = dill.load(pickle_f)
+    if not pickle:
+        LOG.error("Could not load python object from file")
+    return pickle
+
+
+def wrap(name, runner, sprefix=None, python=sys.executable):
     """ Wrap the binary :name: with the function :runner:.
 
     This module generates a python tool that replaces :name:
@@ -77,6 +89,14 @@ def wrap(name, runner, sprefix=None, **template_vars):
     Returns:
         A plumbum command, ready to launch.
     """
+    from jinja2 import Environment, PackageLoader
+    env = Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=PackageLoader('benchbuild', 'utils/templates')
+    )
+    template = env.get_template('run_static.py.inc')
+
     name_absolute = os.path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
     if sprefix:
@@ -95,28 +115,22 @@ def wrap(name, runner, sprefix=None, **template_vars):
     bin_lib_path = list_to_path(CFG["env"]["ld_library_path"].value())
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 
-    template_vars['db_host'] = str(CFG["db"]["host"])
-    template_vars['db_name'] = str(CFG["db"]["name"])
-    template_vars['db_port'] = str(CFG["db"]["port"])
-    template_vars['db_pass'] = str(CFG["db"]["pass"])
-    template_vars['db_user'] = str(CFG["db"]["user"])
-    template_vars['path'] = bin_path
-    template_vars['ld_lib_path'] = bin_lib_path
-    template_vars['blobf'] = strip_path_prefix(blob_f, sprefix)
-    template_vars['runf'] = strip_path_prefix(real_f, sprefix)
-
-    if 'python' not in template_vars:
-        template_vars['python'] = sys.executable
-
     with open(name_absolute, 'w') as wrapper:
-        lines = template_str("templates/run_static.py.inc")
-        lines = lines.format(**template_vars)
-        wrapper.write(lines)
+        wrapper.write(
+            template.render(
+                runf=strip_path_prefix(real_f, sprefix),
+                blobf=strip_path_prefix(blob_f, sprefix),
+                path=str(bin_path),
+                ld_library_path=str(bin_lib_path),
+                python=python,
+            )
+        )
+
     run(chmod["+x", name_absolute])
     return local[name_absolute]
 
 
-def wrap_dynamic(self, name, runner, sprefix=None, **template_vars):
+def wrap_dynamic(self, name, runner, sprefix=None, python=sys.executable):
     """
     Wrap the binary :name with the function :runner.
 
@@ -134,6 +148,14 @@ def wrap_dynamic(self, name, runner, sprefix=None, **template_vars):
     Returns: plumbum command, readty to launch.
 
     """
+    from jinja2 import Environment, PackageLoader
+    env = Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=PackageLoader('benchbuild', 'utils/templates')
+    )
+    template = env.get_template('run_static.py.inc')
+
     base_class = self.__class__.__name__
     base_module = self.__module__
 
@@ -146,36 +168,30 @@ def wrap_dynamic(self, name, runner, sprefix=None, **template_vars):
     bin_path = list_to_path(CFG["env"]["path"].value())
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
-    bin_lib_path = list_to_path(CFG["env"]["ld_library_path"].value(
-    ))
-    bin_lib_path = list_to_path([bin_lib_path, os.environ[
-        "LD_LIBRARY_PATH"]])
-
-    template_vars['db_host'] = str(CFG["db"]["host"])
-    template_vars['db_name'] = str(CFG["db"]["name"])
-    template_vars['db_port'] = str(CFG["db"]["port"])
-    template_vars['db_pass'] = str(CFG["db"]["pass"])
-    template_vars['db_user'] = str(CFG["db"]["user"])
-    template_vars['path'] = bin_path
-    template_vars['ld_lib_path'] = bin_lib_path
-    template_vars['blobf'] = strip_path_prefix(blob_f, sprefix)
-    template_vars['runf'] = strip_path_prefix(real_f, sprefix)
-    template_vars['base_class'] = base_class
-    template_vars['base_module'] = base_module
-
-    if 'python' not in template_vars:
-        template_vars['python'] = sys.executable
+    bin_lib_path = \
+        list_to_path(CFG["env"]["ld_library_path"].value())
+    bin_lib_path = \
+        list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 
     with open(name_absolute, 'w') as wrapper:
-        lines = template_str("templates/run_dynamic.py.inc")
-        lines = lines.format(**template_vars)
-        wrapper.write(lines)
+        wrapper.write(
+            template.render(
+                runf=strip_path_prefix(real_f, sprefix),
+                blobf=strip_path_prefix(blob_f, sprefix),
+                path=str(bin_path),
+                base_class=base_class,
+                base_module=base_module,
+                ld_library_path=str(bin_lib_path),
+                python=python,
+            )
+        )
+
     chmod("+x", name_absolute)
     return local[name_absolute]
 
 
 def wrap_cc(filepath, cflags, ldflags, compiler, extension,
-            compiler_ext_name=None, **template_vars):
+            compiler_ext_name=None, python=sys.executable):
     """
     Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
 
@@ -198,9 +214,17 @@ def wrap_cc(filepath, cflags, ldflags, compiler, extension,
     Returns (benchbuild.utils.cmd):
         Command of the new compiler we can call.
     """
+    from jinja2 import Environment, PackageLoader
+    env = Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=PackageLoader('benchbuild', 'utils/templates')
+    )
+    template = env.get_template('run_compiler.py.inc')
+
     cc_f = os.path.abspath(filepath + ".benchbuild.cc")
-    with open(cc_f, 'wb') as cc:
-        cc.write(dill.dumps(compiler()))
+    with open(cc_f, 'wb') as compiler_pickle:
+        compiler_pickle.write(dill.dumps(compiler()))
         if compiler_ext_name is not None:
             cc_f = compiler_ext_name(".benchbuild.cc")
 
@@ -216,25 +240,19 @@ def wrap_cc(filepath, cflags, ldflags, compiler, extension,
     lib_path_list = CFG["env"]["ld_library_path"].value()
     ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
 
-    template_vars['db_host'] = str(CFG["db"]["host"])
-    template_vars['db_name'] = str(CFG["db"]["name"])
-    template_vars['db_port'] = str(CFG["db"]["port"])
-    template_vars['db_pass'] = str(CFG["db"]["pass"])
-    template_vars['db_user'] = str(CFG["db"]["user"])
-    template_vars['CFG_FILE'] = CFG["config_file"].value()
-    template_vars['CC_F'] = cc_f
-    template_vars['CFLAGS'] = cflags
-    template_vars['LDFLAGS'] = ldflags
-    template_vars['BLOB_F'] = blob_f
-
-    if 'python' not in template_vars:
-        template_vars['python'] = sys.executable
-
     with open(filepath, 'w') as wrapper:
-        lines = template_str("templates/compiler.py.inc")
-        lines = lines.format(**template_vars)
-        wrapper.write(lines)
-        chmod("+x", filepath)
+        wrapper.write(
+            template.render(
+                cc_f=cc_f,
+                blob_f=blob_f,
+                cflags=cflags,
+                ldflags=ldflags,
+                python=python
+            )
+        )
+
+    chmod("+x", filepath)
+    return local[filepath]
 
 
 def wrap_in_uchroot(name, runner, sprefix=None):

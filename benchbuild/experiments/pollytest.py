@@ -38,7 +38,7 @@ class PollyTest(exp.Experiment):
             "name": "-O3"
         }
         newp.compiler_extension = \
-            ext.ExtractCompileStats(newp, self, config=cfg)
+            ext.RunWithTimeout(ext.ExtractCompileStats(newp, self, config=cfg))
         actns.extend(self.default_compiletime_actions(newp))
 
         newp = copy.deepcopy(project)
@@ -48,48 +48,48 @@ class PollyTest(exp.Experiment):
             "name": "-O3 -polly"
         }
         newp.compiler_extension = \
-            ext.ExtractCompileStats(newp, self, config=cfg)
+            ext.RunWithTimeout(ext.ExtractCompileStats(newp, self, config=cfg))
         actns.extend(self.default_compiletime_actions(newp))
 
         newp = copy.deepcopy(project)
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + [
-           "-O3", "-mllvm",
-           "-polly", "-mllvm",
-           "-polly-position=before-vectorizer"]
+            "-O3", "-mllvm",
+            "-polly", "-mllvm",
+            "-polly-position=before-vectorizer"]
         cfg = {
             "name": "-O3 -polly -polly-position=before-vectorizer"
         }
         newp.compiler_extension = \
-            ext.ExtractCompileStats(newp, self, config=cfg)
+            ext.RunWithTimeout(ext.ExtractCompileStats(newp, self, config=cfg))
         actns.extend(self.default_compiletime_actions(newp))
 
         newp = copy.deepcopy(project)
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + [
-           "-O3", "-mllvm",
-           "-polly", "-mllvm",
-           "-polly-process-unprofitable",
-           "-mllvm", "-polly-position=before-vectorizer"]
+            "-O3", "-mllvm",
+            "-polly", "-mllvm",
+            "-polly-process-unprofitable",
+            "-mllvm", "-polly-position=before-vectorizer"]
         cfg = {
             "name": "-O3 -polly -polly-position=before-vectorizer "
                     "-polly-process-unprofitable"
         }
         newp.compiler_extension = \
-            ext.ExtractCompileStats(newp, self, config=cfg)
+            ext.RunWithTimeout(ext.ExtractCompileStats(newp, self, config=cfg))
         actns.extend(self.default_compiletime_actions(newp))
 
         newp = copy.deepcopy(project)
         newp.run_uuid = uuid.uuid4()
         newp.cflags = newp.cflags + [
-           "-O3", "-mllvm",
-           "-polly", "-mllvm",
-           "-polly-process-unprofitable"]
+            "-O3", "-mllvm",
+            "-polly", "-mllvm",
+            "-polly-process-unprofitable"]
         cfg = {
             "name": "-O3 -polly -polly-process-unprofitable"
         }
         newp.compiler_extension = \
-            ext.ExtractCompileStats(newp, self, config=cfg)
+            ext.RunWithTimeout(ext.ExtractCompileStats(newp, self, config=cfg))
         actns.extend(self.default_compiletime_actions(newp))
         return actns
 

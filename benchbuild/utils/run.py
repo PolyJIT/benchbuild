@@ -180,11 +180,13 @@ class RunInfo(object):
 
         self.db_run.end = datetime.now()
         self.db_run.status = 'failed'
+        self.failed = True
         self.session.add(log)
         self.session.add(self.db_run)
 
     def __init__(self, **kwargs):
         self.cmd = None
+        self.failed = False
         self.project = None
         self.experiment = None
         self.retcode = 0
@@ -212,6 +214,11 @@ class RunInfo(object):
             db_run=[self.db_run, rhs.db_run],
             session=self.session)
         return r
+
+    @property
+    def has_failed(self):
+        """Check, whether this run failed."""
+        return self.failed
 
     def __call__(self, *args, expected_retcode=0, ri=None, **kwargs):
         cmd_env = settings.to_env_dict(settings.CFG)

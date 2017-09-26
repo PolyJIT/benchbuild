@@ -9,5 +9,6 @@ class Compilestats(pj.PolyJIT):
 
     def actions_for_project(self, project):
         project = pj.PolyJIT.init_project(project)
-        project.compiler_extension = ext.ExtractCompileStats(project, self)
+        project.compiler_extension = \
+            ext.RunWithTimeout(ext.ExtractCompileStats(project, self))
         return self.default_compiletime_actions(project)

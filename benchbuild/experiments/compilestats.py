@@ -7,7 +7,7 @@ by llvm.
 
 """
 from benchbuild.experiment import RuntimeExperiment
-from benchbuild.extensions import ExtractCompileStats
+import benchbuild.extensions as ext
 
 
 class CompilestatsExperiment(RuntimeExperiment):
@@ -16,7 +16,8 @@ class CompilestatsExperiment(RuntimeExperiment):
     NAME = "cs"
 
     def actions_for_project(self, project):
-        project.compiler_extension = ExtractCompileStats(project, self)
+        project.compiler_extension = \
+            ext.RunWithTimeout(ext.ExtractCompileStats(project, self))
         return CompilestatsExperiment.default_compiletime_actions(project)
 
 
@@ -30,5 +31,6 @@ class PollyCompilestatsExperiment(RuntimeExperiment):
                           "-Xclang", "-load",
                           "-Xclang", "LLVMPolly.so",
                           "-mllvm", "-polly"]
-        project.compiler_extension = ExtractCompileStats(project, self)
+        project.compiler_extension = \
+            ext.RunWithTimeout(ext.ExtractCompileStats(project, self))
         return CompilestatsExperiment.default_compiletime_actions(project)

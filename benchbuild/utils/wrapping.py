@@ -154,7 +154,7 @@ def wrap_dynamic(self, name, runner, sprefix=None, python=sys.executable):
         lstrip_blocks=True,
         loader=PackageLoader('benchbuild', 'utils/templates')
     )
-    template = env.get_template('run_static.py.inc')
+    template = env.get_template('run_dynamic.py.inc')
 
     base_class = self.__class__.__name__
     base_module = self.__module__

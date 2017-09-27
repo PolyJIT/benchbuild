@@ -2,16 +2,22 @@
 LNT based measurements.
 
 """
+from glob import glob
 from os import path
+
+import logging
 
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, CopyNoFail
 from benchbuild.utils.wrapping import wrap_dynamic
-from benchbuild.utils.cmd import virtualenv, mkdir, rm
+from benchbuild.utils.cmd import virtualenv, mkdir, rm, cat
 
-from plumbum import local
+from plumbum import local, FG
+
+
+LOG = logging.getLogger(__name__)
 
 
 class LNTGroup(Project):
@@ -44,6 +50,22 @@ class LNTGroup(Project):
 
         mkdir(sandbox_dir)
 
+    def before_run_tests(self, experiment, run):
+        exp = wrap_dynamic(self, "lnt_runner", experiment)
+        lnt = local[path.join("local", "bin", "lnt")]
+        sandbox_dir = path.join(self.builddir, "run")
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                 self.compiler_extension)
+
+        return (exp, lnt, sandbox_dir, clang, clang_cxx)
+
+    def after_run_tests(self, sandbox_dir):
+        logfiles = glob(path.join(sandbox_dir, "./*/test.log"))
+        for log in logfiles:
+            LOG.info("Dumping contents of: %s", log)
+            cat[log] & FG
+
     def build(self):
         pass
 
@@ -52,13 +74,8 @@ class SingleSourceBenchmarks(LNTGroup):
     NAME = 'SingleSourceBenchmarks'
 
     def run_tests(self, experiment, run):
-        exp = wrap_dynamic(self, "lnt_runner", experiment)
-        lnt = local[path.join("local", "bin", "lnt")]
-        sandbox_dir = path.join(self.builddir, "run")
-
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        exp, lnt, sandbox_dir, clang, clang_cxx = \
+            self.before_run_tests(experiment, run)
 
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
@@ -66,18 +83,15 @@ class SingleSourceBenchmarks(LNTGroup):
                 "simple", "--make-param=RUNUNDER=" + str(exp), "--only-test=" +
                 path.join("SingleSource", "Benchmarks"), "-v"])
 
+        self.after_run_tests(sandbox_dir)
+
 
 class MultiSourceBenchmarks(LNTGroup):
     NAME = 'MultiSourceBenchmarks'
 
     def run_tests(self, experiment, run):
-        exp = wrap_dynamic(self, "lnt_runner", experiment)
-        lnt = local[path.join("local", "bin", "lnt")]
-        sandbox_dir = path.join(self.builddir, "run")
-
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        exp, lnt, sandbox_dir, clang, clang_cxx = \
+            self.before_run_tests(experiment, run)
 
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
@@ -85,24 +99,23 @@ class MultiSourceBenchmarks(LNTGroup):
                 "simple", "--make-param=RUNUNDER=" + str(exp), "--only-test=" +
                 path.join("MultiSource", "Benchmarks")])
 
+        self.after_run_tests(sandbox_dir)
+
 
 class MultiSourceApplications(LNTGroup):
     NAME = 'MultiSourceApplications'
 
     def run_tests(self, experiment, run):
-        exp = wrap_dynamic(self, "lnt_runner", experiment)
-        lnt = local[path.join("local", "bin", "lnt")]
-        sandbox_dir = path.join(self.builddir, "run")
-
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        exp, lnt, sandbox_dir, clang, clang_cxx = \
+            self.before_run_tests(experiment, run)
 
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
                     self.builddir, self.test_suite_dir), "--test-style",
                 "simple", "--make-param=RUNUNDER=" + str(exp), "--only-test=" +
                 path.join("MultiSource", "Applications")])
+
+        self.after_run_tests(sandbox_dir)
 
 
 class SPEC2006(LNTGroup):
@@ -118,13 +131,8 @@ class SPEC2006(LNTGroup):
             print('======================================================')
 
     def run_tests(self, experiment, run):
-        exp = wrap_dynamic(self, "lnt_runner", experiment)
-        lnt = local[path.join("local", "bin", "lnt")]
-        sandbox_dir = path.join(self.builddir, "run")
-
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        exp, lnt, sandbox_dir, clang, clang_cxx = \
+            self.before_run_tests(experiment, run)
 
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
@@ -132,6 +140,8 @@ class SPEC2006(LNTGroup):
                 "simple", "--test-externals", self.builddir,
                 "--make-param=RUNUNDER=" + str(
                     exp), "--only-test=" + path.join("External", "SPEC")])
+
+        self.after_run_tests(sandbox_dir)
 
 
 class Povray(LNTGroup):
@@ -145,13 +155,8 @@ class Povray(LNTGroup):
         Git(self.povray_url, self.povray_src_dir)
 
     def run_tests(self, experiment, run):
-        exp = wrap_dynamic(self, "lnt_runner", experiment)
-        lnt = local[path.join("local", "bin", "lnt")]
-        sandbox_dir = path.join(self.builddir, "run")
-
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        exp, lnt, sandbox_dir, clang, clang_cxx = \
+            self.before_run_tests(experiment, run)
 
         run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
                 str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
@@ -159,3 +164,5 @@ class Povray(LNTGroup):
                 "simple", "--test-externals", self.builddir,
                 "--make-param=RUNUNDER=" + str(
                     exp), "--only-test=" + path.join("External", "Povray")])
+
+        self.after_run_tests(sandbox_dir)

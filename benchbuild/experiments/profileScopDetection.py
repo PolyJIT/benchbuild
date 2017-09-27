@@ -138,7 +138,9 @@ class PProfExperiment(exp.Experiment):
         project.ldflags = ["-lpjit", "-lpapi"]
         project.compiler_extension = \
             CaptureProfilingDebugOutput(
-                ext.RuntimeExtension(project, self),
+                ext.RunWithTimeout(
+                    ext.RunCompiler(project, self)
+                ),
                 project=project, experiment=self)
 
         pjit_extension = \

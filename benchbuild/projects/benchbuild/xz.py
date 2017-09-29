@@ -49,7 +49,7 @@ class XZ(BenchBuildGroup):
         run(exp["--decompress", "-f", "-k", "liberty.jpg.xz"])
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags)
+        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
         with local.cwd(self.src_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang)):

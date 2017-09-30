@@ -82,13 +82,12 @@ class PGO(exp.Experiment):
             self.default_runtime_actions(project)))
         actions.insert(-1, actns.SaveProfile(project))
 
-        actns_nopgo = actns.RequireAll(
-            self.default_runtime_actions(no_pgo_project))
+        actns_nopgo = self.default_runtime_actions(no_pgo_project)
         actns_nopgo.insert(3, actns.RetrieveFile(project, "prog.profdata"))
-        actions.append(actns_nopgo)
+        actions.append(actns.RequireAll(actns_nopgo))
 
-        actns_pgo = actns.RequireAll(self.default_runtime_actions(pgo_project))
+        actns_pgo = self.default_runtime_actions(pgo_project)
         actns_pgo.insert(3, actns.RetrieveFile(project, "prog.profdata"))
-        actions.append(actns_pgo)
+        actions.append(actns.RequireAll(actns_pgo))
 
         return actions

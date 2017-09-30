@@ -509,11 +509,11 @@ class SaveProfile(Step):
     @notify_step_begin_end
     def __call__(self): 
         obj_builddir = self._obj.builddir
-        rawprofile = os.path.abs_path(obj_builddir / "prog.profraw")
+        rawprofile = os.path.abspath(obj_builddir / "prog.profraw")
         processed_profile = obj_builddir / "prog.profdata"
         llvm_profdata("merge", 
                         "-output={}".format(rawprofile),
-                        os.path.abs_path(processed_profile))
+                        os.path.abspath(processed_profile))
         from benchbuild.utils.db import create_and_persist_file
         create_and_persist_file("prog.profdata", 
                                 processed_profile,

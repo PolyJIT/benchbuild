@@ -16,7 +16,7 @@ import benchbuild.signals as signals
 from benchbuild.settings import CFG
 from benchbuild.utils.db import persist_experiment
 
-from benchbuild.utils.cmd import mkdir, rm, rmdir
+from benchbuild.utils.cmd import mkdir, rm, rmdir, llvm_profdata
 from plumbum import ProcessExecutionError
 
 

@@ -4,7 +4,6 @@ import benchbuild.experiment as exp
 import benchbuild.extensions as ext
 import benchbuild.settings as settings
 
-from benchbuild.utils.cmd import llvm_profdata
 
 LOG = logging.getLogger(__name__)
 

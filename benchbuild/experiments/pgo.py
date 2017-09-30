@@ -4,6 +4,8 @@ import benchbuild.experiment as exp
 import benchbuild.extensions as ext
 import benchbuild.settings as settings
 
+from benchbuild.utils.cmd import llvm_profdata
+
 LOG = logging.getLogger(__name__)
 
 
@@ -45,8 +47,10 @@ class PGO(exp.Experiment):
         project.compiler_extension = \
             ext.RuntimeExtension(project, self, config=cfg_inst)
 
+        # Still activating pgo for clang pgo optimisation
         no_pgo_project.cflags += [
             "-O3",
+            "-fprofile-instr-use=prog.profdata",
             "-mllvm", "-polly",
             "-mllvm", "-stats"
         ]
@@ -64,6 +68,7 @@ class PGO(exp.Experiment):
             "-fprofile-instr-use=prog.profdata",
             "-mllvm", "-polly",
             "-mllvm", "-polly-pgo-enable"
+            "-mllvm", "-stats"
         ]
         cfg_pgo = {
             "cflags": pgo_project.cflags,
@@ -73,20 +78,47 @@ class PGO(exp.Experiment):
             ext.RunWithTime(ext.RuntimeExtension(project, self))
 
         actions = []
-        #TODO: Add a an experiment _action_ that collects the profile-data from
-        #      every compilation command and plugs it into llvm-profdata
-        #      the result needs to be stored in the database.
-        #      This needs to be plugged between Compile and Run to have
-        #      access to all artifacts.
         actions.append(actns.RequireAll(
             self.default_runtime_actions(project)))
+        actions.append(SaveProfile(project))
+        actions.append(RetrieveFile(project, "prog.profdata"))
         actions.append(actns.RequireAll(
             self.default_runtime_actions(no_pgo_project)))
-        #TODO: Add an experiment _action_ that pulls the appropriate
-        #      profile-data from the database and plugs it into a known
-        #      file usable by all subsequent compiler-calls (add it
-        #      to the cflags of pgo_project above).
+        actions.append(RetrieveFile(project, "prog.profdata"))
         actions.append(actns.RequireAll(
             self.default_runtime_actions(pgo_project)))
 
         return actions
+
+class SaveProfile(actns.Step): 
+    NAME = "SAVEPROFILE"
+    DESCRIPTION = "Save a profile in llvm format in the DB"
+
+    def __init__(self, project_or_experiment):
+        super(SaveProfile, self).__init__(project_or_experiment, None)
+
+    @notify_step_begin_end
+    def __call__(self): 
+        obj_builddir = self._obj.builddir
+        rawprofile = os.path.abs_path(obj_builddir / "prog.profraw")
+        processed_profile = obj_builddir / "prog.profdata"
+        llvm_profdata("merge", 
+                        "-output={}".format(rawprofile),
+                        os.path.abs_path(processed_profile))
+        from benchbuild.utils.db import create_and_persist_file
+        create_and_persist_file("prog.profdata", 
+                                processed_profile,
+                                self._obj)
+        self.status = actns.StepResult.OK
+
+class RetrieveFile(actns.Step):
+    def __init__(self, project_or_experiment, filename):
+        super(RetrieveFile, self).__init__(project_or_experiment, None)
+        self.filename = filename
+
+    @notify_step_begin_end
+    def __call__(self):
+        rep = self._obj.builddir
+        from benchbuild.utils.db import extract_file
+        extract_file(self.filename, rep, self._obj)
+        self.status = actns.StepResult.OK

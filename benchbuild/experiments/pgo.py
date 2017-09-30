@@ -77,9 +77,9 @@ class PGO(exp.Experiment):
             ext.RunWithTime(ext.RuntimeExtension(project, self))
 
         actions = []
-        actions.append(actns.RequireAll(
-            self.default_runtime_actions(project)))
-        actions.insert(-1, actns.SaveProfile(project))
+        action_registerprofile = self.default_runtime_actions(project)
+        action_registerprofile.insert(-1, actns.SaveProfile(project))
+        actions.append(actns.RequireAll(action_registerprofile))
 
         actns_nopgo = self.default_runtime_actions(no_pgo_project)
         actns_nopgo.insert(3, actns.RetrieveFile(project, "prog.profdata"))

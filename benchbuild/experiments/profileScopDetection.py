@@ -148,12 +148,14 @@ class PProfExperiment(exp.Experiment):
                 EnableJITDatabase(
                     EnableProfiling(
                         RunWithPprofExperiment(
-                            ext.RuntimeExtension(
-                                project, self,
-                                config={
-                                    "jobs": 1,
-                                    "name": "profileScopDetection"
-                                }),
+                            ext.RunWithTime(
+                                ext.RuntimeExtension(
+                                    project, self,
+                                    config={
+                                        "jobs": 1,
+                                        "name": "profileScopDetection"
+                                    }),
+                                ),
                             config={"jobs": 1}),
                         project=project),
                     project=project)

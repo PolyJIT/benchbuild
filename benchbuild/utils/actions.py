@@ -499,7 +499,7 @@ class CleanExtra(Step):
                 p), indent * " "))
         return "\n".join(lines)
 
-class SaveProfile(actns.Step): 
+class SaveProfile(Step): 
     NAME = "SAVEPROFILE"
     DESCRIPTION = "Save a profile in llvm format in the DB"
 
@@ -520,7 +520,7 @@ class SaveProfile(actns.Step):
                                 self._obj)
         self.status = StepResult.OK
 
-class RetrieveFile(actns.Step):
+class RetrieveFile(Step):
     def __init__(self, project_or_experiment, filename):
         super(RetrieveFile, self).__init__(project_or_experiment, None)
         self.filename = filename

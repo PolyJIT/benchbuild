@@ -167,9 +167,9 @@ def create_and_persist_file(filename, f, project):
     from benchbuild.utils.schema import Session, FileContent
 
     session = Session()
-    exp = project.name
+    expid = project.experiment.id
     rungroup = project.run_uuid
-    session.add(FileContent(experience_name=exp,
+    session.add(FileContent(experience_id=expid,
                                 rungroup_id=rungroup,
                                 filename=filename,
                                 content=f.read_bytes()))

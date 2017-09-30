@@ -425,16 +425,16 @@ class FileContent(BASE):
 
     __tablename__ = "filecontents"
 
-    experience_name = Column(String,
-                    #ForeignKey("run.experiment_name",
-                    #           onupdate="CASCADE",
-                    #           ondelete="CASCADE"),
+    experience_id = Column(GUID,
+                    ForeignKey("experiment.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
                     nullable=False,
                     primary_key=True)
     rungroup_id = Column(GUID,
-                    #ForeignKey("run.run_group",
-                    #           onupdate="CASCADE",
-                    #           ondelete="CASCADE"),
+                    ForeignKey("rungroup.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
                     nullable=False,
                     primary_key=True)
     filename = Column(String, 

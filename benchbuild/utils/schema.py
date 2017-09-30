@@ -333,7 +333,7 @@ class Regions(BASE):
                     primary_key=True)
 
     duration = Column(Numeric)
-    id  = Column(BigInteger, primary_key=True)
+    id  = Column(Numeric, primary_key=True)
     name = Column(String)
     events = Column(BigInteger)
 

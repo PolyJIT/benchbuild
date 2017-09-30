@@ -438,7 +438,7 @@ class FileContent(BASE):
                     nullable=False,
                     primary_key=True)
     filename = Column(String, 
-                        nullable=False
+                        nullable=False,
                         primary_key=True) 
     content = Column(LargeBinary)
 

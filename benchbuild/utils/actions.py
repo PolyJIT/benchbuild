@@ -498,3 +498,36 @@ class CleanExtra(Step):
             lines.append(textwrap.indent("* Clean the directory: {0}".format(
                 p), indent * " "))
         return "\n".join(lines)
+
+class SaveProfile(actns.Step): 
+    NAME = "SAVEPROFILE"
+    DESCRIPTION = "Save a profile in llvm format in the DB"
+
+    def __init__(self, project_or_experiment):
+        super(SaveProfile, self).__init__(project_or_experiment, None)
+
+    @notify_step_begin_end
+    def __call__(self): 
+        obj_builddir = self._obj.builddir
+        rawprofile = os.path.abs_path(obj_builddir / "prog.profraw")
+        processed_profile = obj_builddir / "prog.profdata"
+        llvm_profdata("merge", 
+                        "-output={}".format(rawprofile),
+                        os.path.abs_path(processed_profile))
+        from benchbuild.utils.db import create_and_persist_file
+        create_and_persist_file("prog.profdata", 
+                                processed_profile,
+                                self._obj)
+        self.status = actns.StepResult.OK
+
+class RetrieveFile(actns.Step):
+    def __init__(self, project_or_experiment, filename):
+        super(RetrieveFile, self).__init__(project_or_experiment, None)
+        self.filename = filename
+
+    @notify_step_begin_end
+    def __call__(self):
+        rep = self._obj.builddir
+        from benchbuild.utils.db import extract_file
+        extract_file(self.filename, rep, self._obj)
+        self.status = actns.StepResult.OK

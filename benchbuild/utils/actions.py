@@ -518,7 +518,7 @@ class SaveProfile(actns.Step):
         create_and_persist_file("prog.profdata", 
                                 processed_profile,
                                 self._obj)
-        self.status = actns.StepResult.OK
+        self.status = StepResult.OK
 
 class RetrieveFile(actns.Step):
     def __init__(self, project_or_experiment, filename):
@@ -530,4 +530,4 @@ class RetrieveFile(actns.Step):
         rep = self._obj.builddir
         from benchbuild.utils.db import extract_file
         extract_file(self.filename, rep, self._obj)
-        self.status = actns.StepResult.OK
+        self.status = StepResult.OK

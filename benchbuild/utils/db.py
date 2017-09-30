@@ -173,7 +173,7 @@ def create_and_persist_file(filename, f, project):
                                 rungroup_id=rungroup,
                                 filename=filename,
                                 content=f.read_bytes()))
-        session.commit()
+    session.commit()
 
 def extract_file(filename, rep, project):
     from benchbuild.util.schema import Session, FileContent

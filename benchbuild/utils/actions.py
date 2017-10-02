@@ -16,7 +16,7 @@ import benchbuild.signals as signals
 from benchbuild.settings import CFG
 from benchbuild.utils.db import persist_experiment
 
-from benchbuild.utils.cmd import mkdir, rm, rmdir
+from benchbuild.utils.cmd import mkdir, rm, rmdir, llvm_profdata
 from plumbum import ProcessExecutionError
 
 
@@ -498,3 +498,40 @@ class CleanExtra(Step):
             lines.append(textwrap.indent("* Clean the directory: {0}".format(
                 p), indent * " "))
         return "\n".join(lines)
+
+class SaveProfile(Step): 
+    NAME = "SAVEPROFILE"
+    DESCRIPTION = "Save a profile in llvm format in the DB"
+
+    def __init__(self, project_or_experiment):
+        super(SaveProfile, self).__init__(project_or_experiment, None)
+
+    @notify_step_begin_end
+    def __call__(self): 
+        from pathlib import Path
+        obj_builddir = Path(self._obj.builddir)
+        rawprofile = list(obj_builddir.glob("**/prog-*.profraw"))[0]
+        processed_profile = obj_builddir / "prog.profdata"
+        llvm_profdata("merge", 
+                        "-output={}".format(processed_profile.absolute()),
+                        rawprofile.absolute())
+        from benchbuild.utils.db import create_and_persist_file
+        create_and_persist_file("prog.profdata", 
+                                processed_profile,
+                                self._obj)
+        self.status = StepResult.OK
+
+class RetrieveFile(Step):
+    NAME = "RETRIEVEFILE"
+    DESCRIPTION = "Retrieve a file from the database"
+    def __init__(self, project_or_experiment, filename):
+        super(RetrieveFile, self).__init__(project_or_experiment, None)
+        self.filename = filename
+
+    @notify_step_begin_end
+    def __call__(self):
+        from pathlib import Path
+        rep = Path(self._obj.builddir)
+        from benchbuild.utils.db import extract_file
+        extract_file(self.filename, rep, self._obj)
+        self.status = StepResult.OK

@@ -163,6 +163,29 @@ def persist_experiment(experiment):
 
     return (ret, session)
 
+def create_and_persist_file(filename, f, project):
+    from benchbuild.utils.schema import Session, FileContent
+
+    session = Session()
+    expid = project.experiment.id
+    rungroup = project.run_uuid
+    session.add(FileContent(experience_id=expid,
+                                rungroup_id=rungroup,
+                                filename=filename,
+                                content=f.read_bytes()))
+    session.commit()
+
+def extract_file(filename, rep, project):
+    from benchbuild.util.schema import Session, FileContent
+    from sqlalchemy import and_
+
+    session = Session()
+    exp = project.name
+    run_group = project.run_uuid
+    f = session.query(FileContent).get((exp, run_group, filename))
+    if f:
+        (rep/filename).write_bytes(f.content)
+
 
 def persist_likwid(run, session, measurements):
     """

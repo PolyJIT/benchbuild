@@ -510,7 +510,7 @@ class SaveProfile(Step):
     def __call__(self): 
         from pathlib import Path
         obj_builddir = Path(self._obj.builddir)
-        rawprofile = obj_builddir / "prog-*.profraw"
+        rawprofile = obj_builddir.glob("prog-*.profraw")[0]
         processed_profile = obj_builddir / "prog.profdata"
         llvm_profdata("merge", 
                         "-output={}".format(processed_profile.absolute()),
@@ -522,6 +522,8 @@ class SaveProfile(Step):
         self.status = StepResult.OK
 
 class RetrieveFile(Step):
+    NAME = "RETRIEVEFILE"
+    DESCRIPTION = "Retrieve a file from the database"
     def __init__(self, project_or_experiment, filename):
         super(RetrieveFile, self).__init__(project_or_experiment, None)
         self.filename = filename

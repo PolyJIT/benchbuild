@@ -510,7 +510,7 @@ class SaveProfile(Step):
     def __call__(self): 
         from pathlib import Path
         obj_builddir = Path(self._obj.builddir)
-        rawprofile = list(obj_builddir.glob("prog-*.profraw"))[0]
+        rawprofile = obj_builddir/"prog.profraw"
         processed_profile = obj_builddir / "prog.profdata"
         llvm_profdata("merge", 
                         "-output={}".format(processed_profile.absolute()),

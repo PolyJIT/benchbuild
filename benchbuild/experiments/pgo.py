@@ -37,7 +37,7 @@ class PGO(exp.Experiment):
 
         project.cflags += [
             "-O3",
-            "-fprofile-instr-generate=prog.profraw"
+            "-fprofile-instr-generate=prog-%m.profraw"
         ]
         cfg_inst = {
             "cflags": project.cflags,

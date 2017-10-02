@@ -513,8 +513,8 @@ class SaveProfile(Step):
         rawprofile = obj_builddir / "prog-*.profraw"
         processed_profile = obj_builddir / "prog.profdata"
         llvm_profdata("merge", 
-                        "-output={}".format(rawprofile),
-                        processed_profile.absolute())
+                        "-output={}".format(processed_profile.absolute()),
+                        rawprofile.absolute())
         from benchbuild.utils.db import create_and_persist_file
         create_and_persist_file("prog.profdata", 
                                 processed_profile,

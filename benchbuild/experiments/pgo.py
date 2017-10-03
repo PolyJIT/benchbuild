@@ -2,7 +2,7 @@ import logging
 import benchbuild.utils.actions as actns
 import benchbuild.experiment as exp
 import benchbuild.extensions as ext
-import benchbuild.settings as settings
+
 
 LOG = logging.getLogger(__name__)
 
@@ -36,17 +36,20 @@ class PGO(exp.Experiment):
 
         project.cflags += [
             "-O3",
-            "-fprofile-instr-generate=prog.profraw"
+            "-fprofile-generate=./raw-profiles"
         ]
         cfg_inst = {
             "cflags": project.cflags,
             "name": "inst"
         }
         project.compiler_extension = \
-            ext.RuntimeExtension(project, self, config=cfg_inst)
+            ext.RunWithTimeout(
+                ext.RunCompiler(project, self, config=cfg_inst))
 
+        # Still activating pgo for clang pgo optimisation
         no_pgo_project.cflags += [
             "-O3",
+            "-fprofile-use=./raw-profiles",
             "-mllvm", "-polly",
             "-mllvm", "-stats"
         ]
@@ -61,32 +64,50 @@ class PGO(exp.Experiment):
 
         pgo_project.cflags += [
             "-O3",
-            "-fprofile-instr-use=prog.profdata",
+            "-fprofile-use=./raw-profiles",
             "-mllvm", "-polly",
             "-mllvm", "-polly-pgo-enable"
+            "-mllvm", "-stats"
         ]
         cfg_pgo = {
             "cflags": pgo_project.cflags,
             "name": "pgo"
         }
         pgo_project.compiler_extension = \
-            ext.RunWithTime(ext.RuntimeExtension(project, self))
+            ext.RunWithTime(ext.RuntimeExtension(project, self),
+                            config=cfg_pgo)
 
-        actions = []
-        #TODO: Add a an experiment _action_ that collects the profile-data from
-        #      every compilation command and plugs it into llvm-profdata
-        #      the result needs to be stored in the database.
-        #      This needs to be plugged between Compile and Run to have
-        #      access to all artifacts.
-        actions.append(actns.RequireAll(
-            self.default_runtime_actions(project)))
-        actions.append(actns.RequireAll(
-            self.default_runtime_actions(no_pgo_project)))
-        #TODO: Add an experiment _action_ that pulls the appropriate
-        #      profile-data from the database and plugs it into a known
-        #      file usable by all subsequent compiler-calls (add it
-        #      to the cflags of pgo_project above).
-        actions.append(actns.RequireAll(
-            self.default_runtime_actions(pgo_project)))
-
+        actions = [
+            actns.RequireAll([
+                actns.MakeBuildDir(project),
+                actns.Prepare(project),
+                actns.Download(project),
+                actns.Configure(project),
+                actns.Build(project),
+                actns.Run(project),
+                actns.SaveProfile(project, filename='prog.profdata'),
+                actns.Clean(project),
+            ]),
+            actns.RequireAll([
+                actns.MakeBuildDir(no_pgo_project),
+                actns.Prepare(no_pgo_project),
+                actns.Download(no_pgo_project),
+                actns.Configure(no_pgo_project),
+                actns.Build(no_pgo_project),
+                actns.Run(no_pgo_project),
+                actns.Clean(no_pgo_project)
+            ]),
+            actns.RequireAll([
+                actns.MakeBuildDir(pgo_project),
+                actns.Prepare(pgo_project),
+                actns.Download(pgo_project),
+                actns.Configure(pgo_project),
+                actns.RetrieveFile(pgo_project,
+                                   filename="prog.profdata",
+                                   run_group=project.run_uuid),
+                actns.Build(pgo_project),
+                actns.Run(pgo_project),
+                actns.Clean(pgo_project)
+            ])
+        ]
         return actions

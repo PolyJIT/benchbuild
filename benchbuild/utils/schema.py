@@ -29,7 +29,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import (
     Column, ForeignKey, Integer, String, DateTime, Enum)
 from sqlalchemy.types import (
-    TypeDecorator, BigInteger, SmallInteger, Float, Numeric, CHAR)
+    TypeDecorator, BigInteger, SmallInteger, Float, Numeric, CHAR, LargeBinary)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -416,6 +416,26 @@ class ScopDetection(BASE):
     invalid_reason = Column(String,
                     primary_key=True)
     count = Column(Integer)
+
+
+class FileContent(BASE):
+    """
+    Store content of a file for being able to retrieve it
+    later
+    """
+
+    __tablename__ = "filecontents"
+
+    experience_id = Column(GUID,
+                           ForeignKey("experiment.id",
+                                      onupdate="CASCADE", ondelete="CASCADE"),
+                           nullable=False, primary_key=True)
+    rungroup_id = Column(GUID,
+                         ForeignKey("rungroup.id",
+                                    onupdate="CASCADE", ondelete="CASCADE"),
+                         nullable=False, primary_key=True)
+    filename = Column(String, nullable=False, primary_key=True)
+    content = Column(LargeBinary)
 
 
 class SessionManager(object):

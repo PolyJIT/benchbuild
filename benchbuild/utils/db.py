@@ -1,5 +1,6 @@
 """Database support module for the benchbuild study."""
 import logging
+import os
 from benchbuild.settings import CFG
 from sqlalchemy.exc import IntegrityError
 
@@ -162,6 +163,58 @@ def persist_experiment(experiment):
         persist_experiment(experiment)
 
     return (ret, session)
+
+
+def persist_file(f, experiment_id, run_group):
+    """
+    Persist a file in the FileContent relation.
+
+    Args:
+        f (str):
+            The filename we want to persist.
+        experiment_id (uuid):
+            The experiment uuid this file needs to be assigned to.
+        run_group (uuid):
+            The run group uuid this file needs to be assigned to.
+    """
+    from benchbuild.utils.schema import Session, FileContent
+    import pathlib
+    session = Session()
+
+    filename = os.path.basename(f)
+    filepath = pathlib.Path(f)
+    session = Session()
+    session.add(FileContent(experience_id=experiment_id,
+                            rungroup_id=run_group,
+                            filename=filename,
+                            content=filepath.read_bytes()))
+    session.commit()
+
+
+def extract_file(filename, outfile, exp_id, run_group):
+    """
+    Extract a previously stored file form the database.
+
+    Args:
+        filename (str):
+            The name of the file associated to the content in the database.
+        outfile (str):
+            The filepath we want to store the content to.
+        exp_id (uuid):
+            The experiment uuid the file was stored in.
+        run_group (uuid):
+            The run_group the file was stored in.
+    """
+    from benchbuild.utils.schema import Session, FileContent
+    import pathlib
+
+    session = Session()
+    result = session.query(FileContent).get((exp_id, run_group, filename))
+    if result:
+        filepath = pathlib.Path(outfile)
+        filepath.write_bytes(result.content)
+    else:
+        LOG.error("No file found in database.")
 
 
 def persist_likwid(run, session, measurements):

@@ -5,19 +5,19 @@ import abc
 from datetime import datetime
 import enum
 import functools as ft
+import glob
 import logging
 import os
 import sys
 import textwrap
 import traceback
-import typing as t
 
 import benchbuild.signals as signals
 from benchbuild.settings import CFG
 from benchbuild.utils.db import persist_experiment
 
-from benchbuild.utils.cmd import mkdir, rm, rmdir
-from plumbum import ProcessExecutionError
+from benchbuild.utils.cmd import mkdir, rm, rmdir, llvm_profdata
+from plumbum import ProcessExecutionError, local
 
 
 LOG = logging.getLogger(__name__)
@@ -25,12 +25,10 @@ LOG = logging.getLogger(__name__)
 
 @enum.unique
 class StepResult(enum.IntEnum):
-    UNSET = 0,
-    OK = 1,
+    UNSET = 0
+    OK = 1
     CAN_CONTINUE = 2
-    ERROR = 3,
-
-
+    ERROR = 3
 
 
 def to_step_result(f):
@@ -498,3 +496,59 @@ class CleanExtra(Step):
             lines.append(textwrap.indent("* Clean the directory: {0}".format(
                 p), indent * " "))
         return "\n".join(lines)
+
+
+class SaveProfile(Step):
+    NAME = "SAVEPROFILE"
+    DESCRIPTION = "Save a profile in llvm format in the DB"
+
+    def __init__(self, project_or_experiment, filename):
+        super(SaveProfile, self).__init__(project_or_experiment, None)
+        self.filename = filename
+
+    @notify_step_begin_end
+    def __call__(self):
+        from benchbuild.utils.db import persist_file
+        from benchbuild.project import Project
+        if not isinstance(self._obj, Project):
+            raise AttributeError
+
+        obj_builddir = self._obj.builddir
+        outfile = os.path.abspath(os.path.join(obj_builddir, self.filename))
+        profiles = os.path.abspath(os.path.join(obj_builddir, "raw-profiles"))
+        with local.cwd(profiles):
+            merge_profdata = llvm_profdata["merge",
+                                           "-output={}".format(outfile)]
+            merge_profdata = merge_profdata[glob.glob('default_*.profraw')]
+            merge_profdata()
+
+        exp_id = self._obj.experiment.id
+        run_group = self._obj.run_uuid
+
+        persist_file(outfile, exp_id, run_group)
+        self.status = StepResult.OK
+
+
+class RetrieveFile(Step):
+    NAME = "RETRIEVEFILE"
+    DESCRIPTION = "Retrieve a file from the database"
+
+    def __init__(self, project_or_experiment, filename, run_group):
+        super(RetrieveFile, self).__init__(project_or_experiment, None)
+        self.filename = filename
+        self.run_group = run_group
+
+    @notify_step_begin_end
+    def __call__(self):
+        from benchbuild.project import Project
+        from benchbuild.utils.db import extract_file
+
+        if not isinstance(self._obj, Project):
+            raise AttributeError
+
+        obj_builddir = self._obj.builddir
+        outfile = os.path.abspath(os.path.join(obj_builddir, self.filename))
+        exp_id = self._obj.experiment.id
+        extract_file(self.filename, outfile, exp_id, self.run_group)
+
+        self.status = StepResult.OK

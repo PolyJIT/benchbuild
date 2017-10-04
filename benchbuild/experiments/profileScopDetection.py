@@ -2,15 +2,18 @@
 This experiment instruments the parent if any given SCoP and prints the reason
 why the parent is not part of the SCoP.
 """
+import csv
 import glob
 import logging
 import os
 
 from plumbum import local
+import sqlalchemy as sa
 
 import benchbuild.experiment as exp
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
+import benchbuild.reports as reports
 from benchbuild.experiments.polyjit import ClearPolyJITConfig,\
         EnableJITDatabase, RegisterPolyJITLogs
 from benchbuild.extensions import Extension
@@ -166,3 +169,43 @@ class PProfExperiment(exp.Experiment):
                 RegisterPolyJITLogs(pjit_extension)
             )
         return self.default_runtime_actions(project)
+
+
+class TestReport(reports.Report):
+    SUPPORTED_EXPERIMENTS = ['profileScopDetection']
+
+    QUERY_TOTAL = \
+        sa.sql.select([
+            sa.column('project'),
+            sa.column('t_scop'),
+            sa.column('t_total'),
+            sa.column('dyncov')
+        ]).\
+        select_from(
+            sa.func.profile_scops_ratios(sa.sql.bindparam('exp_ids'),
+                                         sa.sql.bindparam('filter_str'))
+        )
+
+    def report(self):
+        print("I found the following matching experiment ids")
+        print("  \n".join([str(x) for x in self.experiment_ids]))
+
+        qry = TestReport.QUERY_TOTAL.unique_params(exp_ids=self.experiment_ids,
+                                                   filter_str='%::SCoP')
+        yield ("complete",
+               ('project', 't_scop', 't_total', 'dyncov'),
+               self.session.execute(qry).fetchall())
+
+    def generate(self):
+        for name, header, data in self.report():
+            fname = os.path.basename(self.out_path)
+
+            fname = "{prefix}_{name}{ending}".format(
+                prefix=os.path.splitext(fname)[0],
+                ending=os.path.splitext(fname)[-1],
+                name=name)
+            with open(fname, 'w') as csv_out:
+                print("Writing '{0}'".format(csv_out.name))
+                csv_writer = csv.writer(csv_out)
+                csv_writer.writerows([header])
+                csv_writer.writerows(data)

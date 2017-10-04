@@ -1,13 +1,12 @@
 """
 Extension base-classes for compile-time and run-time experiments.
 """
-import logging
-import yaml
 from abc import ABCMeta
 from collections import Iterable
-
+import logging
 import os
 import parse
+import yaml
 from plumbum import local
 from benchbuild.utils.run import (track_execution, fetch_time_output)
 from benchbuild.utils.db import persist_config, persist_time
@@ -36,7 +35,8 @@ class Extension(metaclass=ABCMeta):
             else:
                 result_list.append(results)
             status_list = [r.db_run.status for r in result_list]
-            LOG.debug("  -- %s - %s => %s", str(status_list), ext.__class__, results)
+            LOG.debug("  -- %s - %s => %s", str(status_list), ext.__class__,
+                      results)
 
             all_results.extend(result_list)
 

@@ -139,7 +139,8 @@ class PProfExperiment(exp.Experiment):
         project.compiler_extension = \
             CaptureProfilingDebugOutput(
                 ext.RunWithTimeout(
-                    ext.RunCompiler(project, self)
+                    ext.RunCompiler(project, self),
+                    limit="10m"
                 ),
                 project=project, experiment=self)
 

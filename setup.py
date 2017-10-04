@@ -27,6 +27,7 @@ sql_extra_files = [
     "func.pj-test-eval.sql",
     "func.compilestats_eval.sql",
     "func.polly_mse.sql",
+    "func.profileScopDetection-eval.sql"
 ]
 
 setup(

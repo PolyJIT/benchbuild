@@ -1,24 +1,24 @@
 DROP FUNCTION public.profile_scops_exec_times(uuid[]);
 CREATE OR REPLACE FUNCTION public.profile_scops_exec_times(IN exp_ids uuid[])
   RETURNS TABLE(project character varying, execTime_us DOUBLE PRECISION) AS
-$BODY$                                                                                                                                                     
-BEGIN                                                                                                                                                         
-  RETURN QUERY                                                                                                                                                
-        select sub.project, sub.execTime_us from (                                                                                                                
-          select                                                                                                                                              
-              run.project_name as project,                                                                                                                    
-              run.run_group,                                                                                                                                  
-              SUM(metrics.value * 1000000) as execTime_us                                                                                                     
-          from run, metrics                                                                                                                                   
-          where run.id = metrics.run_id and                                                                                                                   
-                run.experiment_group = ANY (exp_ids) and                                                                                                      
-                metrics.name = 'time.real_s'                                                                                                                  
-          group by                                                                                                                                            
-                run.project_name, run.run_group                                                                                                               
-        ) as sub;                                                                                                                                             
-end                                                                                                                                                           
 $BODY$
-  LANGUAGE plpgsql
+BEGIN
+  RETURN QUERY
+        select sub.project, sub.execTime_us from (
+          select
+              run.project_name as project,
+              run.run_group,
+              SUM(metrics.value * 1000000) as execTime_us
+          from run, metrics
+          where run.id = metrics.run_id and
+                run.experiment_group = ANY (exp_ids) and
+                metrics.name = 'time.real_s'
+          group by
+                run.project_name, run.run_group
+        ) as sub;
+end
+$BODY$
+  LANGUAGE plpgsql;
 
 DROP FUNCTION IF EXISTS profile_scops_valid_regions(exp_ids UUID[]);
 CREATE OR REPLACE FUNCTION profile_scops_valid_regions(exp_ids UUID[])
@@ -53,7 +53,7 @@ CREATE OR REPLACE FUNCTION profile_scops_count_invalid_regions(exp_ids UUID[])
 	returns INTEGER
 AS $BODY$
 BEGIN
-  RETURN 
+  RETURN
 	(select
 		count(*) as num_invalid
 	from
@@ -94,7 +94,7 @@ BEGIN
 			run
 		  where
 			  valid_regions.name like filter_str and
-			  run.id = valid_regions.run_id	
+			  run.id = valid_regions.run_id
 		  group by
 			  run.project_name
 		) as scops

@@ -1,5 +1,5 @@
-DROP FUNCTION public.profile_scops_exec_times(uuid[]);
-CREATE OR REPLACE FUNCTION public.profile_scops_exec_times(IN exp_ids uuid[])
+DROP FUNCTION public.profile_scops_exec_times(exp_ids uuid[]);
+CREATE OR REPLACE FUNCTION public.profile_scops_exec_times(exp_ids uuid[])
   RETURNS TABLE(project character varying, execTime_us DOUBLE PRECISION) AS
 $BODY$
 BEGIN

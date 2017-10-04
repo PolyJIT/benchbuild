@@ -11,11 +11,11 @@ import csv
 import logging
 import os
 import uuid
-import sqlalchemy as sa
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
 import benchbuild.reports as reports
 import benchbuild.settings as settings
+import benchbuild.statistics as statistics
 
 LOG = logging.getLogger(__name__)
 
@@ -74,7 +74,9 @@ class Test(pj.PolyJIT):
                                 project=project), project=project))))
         )
 
-        project.runtime_extension = ext.RunWithTime(pjit_extension)
+        #TODO give the results/stats as argument for the p_val calculation
+        project.runtime_extension = \
+	    statistics.Statistics(project, self, ext.RunWithTime(pjit_extension))
         return Test.default_runtime_actions(project)
 
 
@@ -150,6 +152,10 @@ class JitExportGeneratedCode(pj.PolyJIT):
 
 
 class TestReport(reports.Report):
+    """
+    Writes report to the database.
+    """
+    import sqlalchemy as sa
     SUPPORTED_EXPERIMENTS = ['pj-test']
 
     QUERY_TOTAL = \

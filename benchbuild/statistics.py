@@ -77,12 +77,12 @@ class Statistics(Extension):
         session = Session()
 
         LOG.info("Started experiment until it has reached the wanted p value.")
-        clang = cc["-mllvm", "-stats"]
         while iterator < timeout and cur_p_val < min_p_val:
             results = self.call_next(cc, *args, **kwargs)
             if results is not None:
-                with track_execution(clang, self.project, self.experiment):
-                    run_info = results[0]()
+                with track_execution(results[0], self.project,
+                                     self.experiment, **kwargs) as run:
+                    run_info = run()
                 cur_p_val = dist_func(run_info)
                 LOG.debug(
                     "In the %s. iteration a p-value of %s was calculated.",

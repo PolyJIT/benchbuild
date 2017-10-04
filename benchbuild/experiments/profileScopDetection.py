@@ -112,10 +112,10 @@ class CaptureProfilingDebugOutput(ext.Extension):
 
             session.commit()
 
-            print("Instrumented SCoPs: ", instrumentedScopCounter)
-            print("Not instrumented SCoPs: ", nonInstrumentedScopCounter)
-            print("Instrumented parents: ", instrumentedParentCounter)
-            print("Not instrumented parents: ", nonInstrumentedParentCounter)
+            #print("Instrumented SCoPs: ", instrumentedScopCounter)
+            #print("Not instrumented SCoPs: ", nonInstrumentedScopCounter)
+            #print("Instrumented parents: ", instrumentedParentCounter)
+            #print("Not instrumented parents: ", nonInstrumentedParentCounter)
 
             return run_infos
 

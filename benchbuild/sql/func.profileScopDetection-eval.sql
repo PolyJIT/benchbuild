@@ -93,12 +93,52 @@ BEGIN
             profile_scops_valid_regions(exp_ids) AS valid_regions,
             run
           WHERE
-              valid_regions.name like filter_str and
+              valid_regions.name LIKE filter_str AND
               run.id = valid_regions.run_id
           GROUP BY
               run.project_name
         ) AS scops
     WHERE
         total.project = scops.project;
+END
+$BODY$ language plpgsql;
+
+DROP FUNCTION IF EXISTS profile_scops_toplevel_scops(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION profile_scops_toplevel_scops(exp_ids UUID[])
+    RETURNS TABLE (
+        run_id INTEGER,
+        duration NUMERIC,
+        id NUMERIC,
+        name VARCHAR,
+        events BIGINT
+    )
+AS $BODY$
+BEGIN
+  RETURN QUERY
+    SELECT
+        ValidRegions.run_id,
+        ValidRegions.duration,
+        ValidRegions.id,
+        ValidRegions.name,
+        ValidRegions.events
+    FROM
+        profile_scops_valid_regions(exp_ids) AS ValidRegions
+    WHERE
+        "name" IN (
+            SELECT scopName
+            FROM (
+                SELECT (splitarray[1] || '::Parent') AS parentName, "name" AS scopName
+                FROM (
+                    SELECT *, string_to_array("name", '::SCoP') AS splitarray
+                    FROM profile_scops_valid_regions(exp_ids) AS ValidRegions
+                    WHERE "name" LIKE '%::SCoP'
+                ) AS Splits
+            ) AS Names
+            WHERE parentName NOT IN (
+                SELECT "name"
+                FROM profile_scops_valid_regions(exp_ids) AS ValidRegions
+                WHERE "name" LIKE '%::Parent'
+            )
+        );
 END
 $BODY$ language plpgsql;

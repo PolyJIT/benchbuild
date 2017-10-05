@@ -4,26 +4,26 @@ CREATE OR REPLACE FUNCTION public.profile_scops_exec_times(exp_ids uuid[])
 $BODY$
 BEGIN
   RETURN QUERY
-        select sub.project, sub.execTime_us from (
-          select
-              run.project_name as project,
+        SELECT sub.project, sub.execTime_us FROM (
+          SELECT
+              run.project_name AS project,
               run.run_group,
-              SUM(metrics.value * 1000000) as execTime_us
-          from run, metrics
-          where run.id = metrics.run_id and
+              SUM(metrics.value * 1000000) AS execTime_us
+          FROM run, metrics
+          WHERE run.id = metrics.run_id and
                 run.experiment_group = ANY (exp_ids) and
                 metrics.name = 'time.real_s'
-          group by
+          GROUP BY
                 run.project_name, run.run_group
-        ) as sub;
-end
+        ) AS sub;
+END
 $BODY$
   LANGUAGE plpgsql;
 
 DROP FUNCTION IF EXISTS profile_scops_valid_regions(exp_ids UUID[]);
 CREATE OR REPLACE FUNCTION profile_scops_valid_regions(exp_ids UUID[])
-    returns
-    table(run_id INTEGER,
+    RETURNS
+    TABLE(run_id INTEGER,
           duration NUMERIC,
       id NUMERIC,
       name VARCHAR,
@@ -31,46 +31,46 @@ CREATE OR REPLACE FUNCTION profile_scops_valid_regions(exp_ids UUID[])
 AS $BODY$
 BEGIN
   RETURN QUERY
-    select
+    SELECT
         regions.run_id,
         regions.duration,
         regions.id,
         regions.name,
         regions.events
-    from
+    FROM
         run, regions, metrics
-    where
+    WHERE
         run.id = regions.run_id and
         run.id = metrics.run_id and
         metrics.name = 'time.real_s' and
         metrics.value * 1000000 >= regions.duration and
         run.experiment_group = ANY (exp_ids);
-end
+END
 $BODY$ language plpgsql;
 
 DROP FUNCTION IF EXISTS profile_scops_count_invalid_regions(exp_ids UUID[]);
 CREATE OR REPLACE FUNCTION profile_scops_count_invalid_regions(exp_ids UUID[])
-    returns INTEGER
+    RETURNS INTEGER
 AS $BODY$
 BEGIN
   RETURN
-    (select
-        count(*) as num_invalid
-    from
+    (SELECT
+        count(*) AS num_invalid
+    FROM
         run, regions, metrics
-    where
+    WHERE
         run.id = regions.run_id and
         run.id = metrics.run_id and
         metrics.name = 'time.real_s' and
         metrics.value * 1000000 < regions.duration and
         run.experiment_group = ANY (exp_ids));
-end
+END
 $BODY$ language plpgsql;
 
 DROP FUNCTION IF EXISTS profile_scops_ratios(exp_ids UUID[], filter_str VARCHAR);
 CREATE OR REPLACE FUNCTION profile_scops_ratios(exp_ids UUID[], filter_str VARCHAR)
-    returns
-    table (
+    RETURNS
+    TABLE (
     project VARCHAR,
     T_SCoP NUMERIC,
     T_Total DOUBLE PRECISION,
@@ -78,27 +78,27 @@ CREATE OR REPLACE FUNCTION profile_scops_ratios(exp_ids UUID[], filter_str VARCH
 AS $BODY$
 BEGIN
   RETURN QUERY
-    select
+    SELECT
         total.project,
         scops.t_scop,
         total.exectime_us,
-        (scops.t_scop * 100/ total.exectime_us) as DynCov_pct
-    from
-        profile_scops_exec_times(exp_ids) as total,
+        (scops.t_scop * 100/ total.exectime_us) AS DynCov_pct
+    FROM
+        profile_scops_exec_times(exp_ids) AS total,
         (
-          select
-            run.project_name as project,
-            SUM(valid_regions.duration) as T_SCoP
-          from
-            profile_scops_valid_regions(exp_ids) as valid_regions,
+          SELECT
+            run.project_name AS project,
+            SUM(valid_regions.duration) AS T_SCoP
+          FROM
+            profile_scops_valid_regions(exp_ids) AS valid_regions,
             run
-          where
+          WHERE
               valid_regions.name like filter_str and
               run.id = valid_regions.run_id
-          group by
+          GROUP BY
               run.project_name
-        ) as scops
-    where
+        ) AS scops
+    WHERE
         total.project = scops.project;
-end
+END
 $BODY$ language plpgsql;

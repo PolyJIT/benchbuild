@@ -143,8 +143,8 @@ BEGIN
 END
 $BODY$ language plpgsql;
 
-DROP FUNCTION IF EXISTS profile_scops_ratios_maxRegions(exp_ids UUID[]);
-CREATE OR REPLACE FUNCTION profile_scops_ratios_maxRegions(exp_ids UUID[])
+DROP FUNCTION IF EXISTS profile_scops_ratios_max_regions(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION profile_scops_ratios_max_regions(exp_ids UUID[])
     RETURNS TABLE (
         project VARCHAR,
         T_Parent NUMERIC,

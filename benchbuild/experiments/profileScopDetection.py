@@ -174,7 +174,7 @@ class PProfExperiment(exp.Experiment):
 class TestReport(reports.Report):
     SUPPORTED_EXPERIMENTS = ['profileScopDetection']
 
-    QUERY_TOTAL = \
+    QUERY_RATIOS_SCOPS = \
         sa.sql.select([
             sa.column('project'),
             sa.column('t_scop'),
@@ -186,15 +186,32 @@ class TestReport(reports.Report):
                                          sa.sql.bindparam('filter_str'))
         )
 
+    QUERY_RATIOS_MAX_REGIONS = \
+        sa.sql.select([
+            sa.column('project'),
+            sa.column('t_parent'),
+            sa.column('t_total'),
+            sa.column('dyncov')
+        ]).\
+        select_from(
+            sa.func.profile_scops_ratios_max_regions(sa.sql.bindparam('exp_ids'))
+        )
+
     def report(self):
         print("I found the following matching experiment ids")
         print("  \n".join([str(x) for x in self.experiment_ids]))
 
-        qry = TestReport.QUERY_TOTAL.unique_params(exp_ids=self.experiment_ids,
-                                                   filter_str='%::SCoP')
-        yield ("complete",
+        queryRatiosScops = TestReport.QUERY_RATIOS_SCOPS.unique_params(
+                exp_ids=self.experiment_ids, filter_str='%::SCoP')
+        yield ("ratiosScops",
                ('project', 't_scop', 't_total', 'dyncov'),
-               self.session.execute(qry).fetchall())
+               self.session.execute(queryRatiosScops).fetchall())
+
+        queryRatiosMaxRegions = TestReport.QUERY_RATIOS_MAX_REGIONS.unique_params(
+                exp_ids=self.experiment_ids)
+        yield ("ratiosMaxRegions",
+               ('project', 't_parent', 't_total', 'dyncov'),
+               self.session.execute(queryRatiosMaxRegions).fetchall())
 
     def generate(self):
         for name, header, data in self.report():

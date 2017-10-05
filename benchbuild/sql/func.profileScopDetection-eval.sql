@@ -142,3 +142,48 @@ BEGIN
         );
 END
 $BODY$ language plpgsql;
+
+DROP FUNCTION IF EXISTS profile_scops_ratios_maxRegions(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION profile_scops_ratios_maxRegions(exp_ids UUID[])
+    RETURNS TABLE (
+        project VARCHAR,
+        T_Parent NUMERIC,
+        T_Total DOUBLE PRECISION,
+        DynCov DOUBLE PRECISION
+    )
+AS $BODY$
+BEGIN
+  RETURN QUERY
+    SELECT
+        MaxParents.project,
+        sum(MaxParents.t_parent) AS t_parent,
+        sum(MaxParents.exectime_us) AS exectime_us,
+        sum(MaxParents.dyncov_pct) AS dyncov_pct
+    FROM (
+        SELECT
+            total.project,
+            parents.t_parent,
+            total.exectime_us,
+            (parents.t_parent * 100/ total.exectime_us) AS DynCov_pct
+        FROM
+            profile_scops_exec_times(exp_ids) AS total,
+            (
+                SELECT
+                    run.project_name AS project,
+                    toplevel.duration AS t_parent
+                FROM
+                    profile_scops_toplevel_scops(exp_ids) AS toplevel,
+                    run
+                WHERE
+                    run.id = toplevel.run_id
+            ) AS parents
+        WHERE
+            total.project = parents.project
+        UNION ALL
+        SELECT *
+        FROM
+            profile_scops_ratios(exp_ids, '%::Parent')
+    ) AS MaxParents
+    GROUP BY MaxParents.project;
+END
+$BODY$ language plpgsql;

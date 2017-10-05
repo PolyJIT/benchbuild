@@ -1,4 +1,4 @@
-DROP FUNCTION public.profile_scops_exec_times(exp_ids uuid[]);
+DROP FUNCTION IF EXISTS profile_scops_exec_times(exp_ids uuid[]);
 CREATE OR REPLACE FUNCTION public.profile_scops_exec_times(exp_ids uuid[])
   RETURNS TABLE(project character varying, execTime_us DOUBLE PRECISION) AS
 $BODY$
@@ -131,13 +131,13 @@ BEGIN
                 FROM (
                     SELECT *, string_to_array(V1."name", '::SCoP') AS splitarray
                     FROM profile_scops_valid_regions(exp_ids) AS V1
-                    WHERE V1."name" LIKE '%::SCoP'
+                    WHERE V1."name" LIKE '%%::SCoP'
                 ) AS Splits
             ) AS Names
             WHERE parentName NOT IN (
                 SELECT V2."name"
                 FROM profile_scops_valid_regions(exp_ids) AS V2
-                WHERE V2."name" LIKE '%::Parent'
+                WHERE V2."name" LIKE '%%::Parent'
             )
         );
 END
@@ -182,7 +182,7 @@ BEGIN
         UNION ALL
         SELECT *
         FROM
-            profile_scops_ratios(exp_ids, '%::Parent')
+            profile_scops_ratios(exp_ids, '%%::Parent')
     ) AS MaxParents
     GROUP BY MaxParents.project;
 END

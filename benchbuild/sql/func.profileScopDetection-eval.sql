@@ -124,20 +124,20 @@ BEGIN
     FROM
         profile_scops_valid_regions(exp_ids) AS ValidRegions
     WHERE
-        "name" IN (
+        ValidRegions."name" IN (
             SELECT scopName
             FROM (
-                SELECT (splitarray[1] || '::Parent') AS parentName, "name" AS scopName
+                SELECT (splitarray[1] || '::Parent') AS parentName, Splits."name" AS scopName
                 FROM (
-                    SELECT *, string_to_array("name", '::SCoP') AS splitarray
-                    FROM profile_scops_valid_regions(exp_ids) AS ValidRegions
-                    WHERE "name" LIKE '%::SCoP'
+                    SELECT *, string_to_array(V1."name", '::SCoP') AS splitarray
+                    FROM profile_scops_valid_regions(exp_ids) AS V1
+                    WHERE V1."name" LIKE '%::SCoP'
                 ) AS Splits
             ) AS Names
             WHERE parentName NOT IN (
-                SELECT "name"
-                FROM profile_scops_valid_regions(exp_ids) AS ValidRegions
-                WHERE "name" LIKE '%::Parent'
+                SELECT V2."name"
+                FROM profile_scops_valid_regions(exp_ids) AS V2
+                WHERE V2."name" LIKE '%::Parent'
             )
         );
 END

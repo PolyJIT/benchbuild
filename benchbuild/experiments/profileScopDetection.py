@@ -20,6 +20,7 @@ from benchbuild.extensions import Extension
 
 LOG = logging.getLogger(__name__)
 
+
 def persist_scopinfos(run, invalidReason, count):
     """Persists the given information about SCoPs"""
     from benchbuild.utils import schema as s
@@ -43,10 +44,13 @@ class EnableProfiling(pj.PolyJITConfig, ext.Extension):
                 ret = self.call_next(*args, **kwargs)
         return ret
 
+
 class CaptureProfilingDebugOutput(ext.Extension):
     """Capture the output of the profiling pass and persist it"""
+
     def __init__(self, *extensions, project=None, experiment=None, **kwargs):
-        super(CaptureProfilingDebugOutput, self).__init__(*extensions, **kwargs)
+        super(CaptureProfilingDebugOutput, self).__init__(
+            *extensions, **kwargs)
         self.project = project
         self.experiment = experiment
 
@@ -57,18 +61,18 @@ class CaptureProfilingDebugOutput(ext.Extension):
             the database.
             """
             from benchbuild.utils import schema as s
-            from parse import compile
+            import parse
 
             instrumentedScopPattern \
-                    = compile("{} [info] Instrumented SCoPs: {:d}")
+                = parse.compile("{} [info] Instrumented SCoPs: {:d}")
             nonInstrumentedScopPattern \
-                    = compile("{} [info] Not instrumented SCoPs: {:d}")
+                = parse.compile("{} [info] Not instrumented SCoPs: {:d}")
             invalidReasonPattern \
-                    = compile("{} [info] {} is invalid because of: {}")
+                = parse.compile("{} [info] {} is invalid because of: {}")
             instrumentedParentPattern \
-                    = compile("{} [info] Instrumented parents: {:d}")
+                = parse.compile("{} [info] Instrumented parents: {:d}")
             nonInstrumentedParentPattern \
-                    = compile("{} [info] Not instrumented parents: {:d}")
+                = parse.compile("{} [info] Not instrumented parents: {:d}")
 
             instrumentedScopCounter = 0
             nonInstrumentedScopCounter = 0
@@ -78,48 +82,52 @@ class CaptureProfilingDebugOutput(ext.Extension):
 
             paths = glob.glob(os.path.join(
                 os.path.realpath(os.path.curdir), "profileScops.log"))
+
+            def handle_data(line):
+                nonlocal instrumentedScopCounter
+                nonlocal nonInstrumentedScopCounter
+                nonlocal invalidReasons
+                nonlocal instrumentedParentCounter
+                nonlocal nonInstrumentedParentCounter
+
+                data = instrumentedScopPattern.parse(line)
+                if data is not None:
+                    instrumentedScopCounter += data[1]
+                    return
+
+                data = nonInstrumentedScopPattern.parse(line)
+                if data is not None:
+                    nonInstrumentedScopCounter += data[1]
+                    return
+
+                data = invalidReasonPattern.parse(line)
+                if data is not None:
+                    reason = data[2]
+                    if reason not in invalidReasons:
+                        invalidReasons[reason] = 0
+                    invalidReasons[reason] += 1
+                    return
+
+                data = instrumentedParentPattern.parse(line)
+                if data is not None:
+                    instrumentedParentCounter += data[1]
+                    return
+
+                data = nonInstrumentedParentPattern.parse(line)
+                if data is not None:
+                    nonInstrumentedParentCounter += data[1]
+                    return
+
             for path in paths:
-                file = open(path, 'r')
-                for line in file:
-                    data = instrumentedScopPattern.parse(line)
-                    if data is not None:
-                        instrumentedScopCounter+=data[1]
-                        continue
-
-                    data = nonInstrumentedScopPattern.parse(line)
-                    if data is not None:
-                        nonInstrumentedScopCounter += data[1]
-                        continue
-
-                    data = invalidReasonPattern.parse(line)
-                    if data is not None:
-                        reason = data[2]
-                        if reason not in invalidReasons:
-                            invalidReasons[reason] = 0
-                        invalidReasons[reason] += 1
-                        continue
-
-                    data = instrumentedParentPattern.parse(line)
-                    if data is not None:
-                        instrumentedParentCounter+=data[1]
-                        continue
-
-                    data = nonInstrumentedParentPattern.parse(line)
-                    if data is not None:
-                        nonInstrumentedParentCounter += data[1]
-                        continue
+                with open(path, 'r') as file_hdl:
+                    for line in file_hdl:
+                        handle_data(line)
 
             session = s.Session()
             for reason in invalidReasons:
                 persist_scopinfos(run_infos[0], reason, invalidReasons[reason])
 
             session.commit()
-
-            #print("Instrumented SCoPs: ", instrumentedScopCounter)
-            #print("Not instrumented SCoPs: ", nonInstrumentedScopCounter)
-            #print("Instrumented parents: ", instrumentedParentCounter)
-            #print("Not instrumented parents: ", nonInstrumentedParentCounter)
-
             return run_infos
 
         res = self.call_next(*args, **kwargs)

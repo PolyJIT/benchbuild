@@ -248,7 +248,7 @@ class Project(BASE):
     description = Column(String)
     src_url = Column(String)
     domain = Column(String)
-    group_name = Column(String)
+    group_name = Column(String, primary_key=True)
     version = Column(String)
 
     def __repr__(self):

@@ -49,7 +49,7 @@ class PGO(exp.Experiment):
         # Still activating pgo for clang pgo optimisation
         no_pgo_project.cflags += [
             "-O3",
-            "-fprofile-use=./raw-profiles",
+            "-fprofile-use=./prog.profdata",
             "-mllvm", "-polly",
             "-mllvm", "-stats"
         ]
@@ -64,7 +64,7 @@ class PGO(exp.Experiment):
 
         pgo_project.cflags += [
             "-O3",
-            "-fprofile-use=./raw-profiles",
+            "-fprofile-use=./prog.profdata",
             "-mllvm", "-polly",
             "-mllvm", "-polly-pgo-enable"
             "-mllvm", "-stats"

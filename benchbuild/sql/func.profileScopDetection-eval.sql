@@ -67,6 +67,24 @@ BEGIN
 END
 $BODY$ language plpgsql;
 
+DROP FUNCTION IF EXISTS profile_scops_ratio_valid_regions(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION profile_scops_ratio_valid_regions(exp_ids UUID[])
+    RETURNS INTEGER
+AS $BODY$
+BEGIN
+  RETURN
+    (SELECT 100*(1-(
+                SELECT *
+                FROM profile_scops_count_invalid_regions(exp_ids)
+            )::DOUBLE PRECISION / (
+                SELECT count(*)
+                FROM profile_scops_valid_regions(exp_ids)
+            )
+        ) AS usefulRatio
+    );
+END
+$BODY$ language plpgsql;
+
 DROP FUNCTION IF EXISTS profile_scops_ratios(exp_ids UUID[], filter_str VARCHAR);
 CREATE OR REPLACE FUNCTION profile_scops_ratios(exp_ids UUID[], filter_str VARCHAR)
     RETURNS
@@ -185,5 +203,56 @@ BEGIN
             profile_scops_ratios(exp_ids, '%%::Parent')
     ) AS MaxParents
     GROUP BY MaxParents.project;
+END
+$BODY$ language plpgsql;
+
+DROP FUNCTION IF EXISTS profile_scops_invalid_reasons_grouped(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION profile_scops_invalid_reasons_grouped(exp_ids UUID[])
+    RETURNS TABLE (
+        invalid_reason VARCHAR,
+        occurrence BIGINT
+    )
+AS $BODY$
+BEGIN
+  RETURN QUERY
+    SELECT grouped.invalid_reason, sum(count) AS sum
+    FROM (
+        SELECT CASE
+                WHEN InvalidReasons.invalid_reason LIKE 'Non affine loop bound ''***COULDNOTCOMPUTE***''%'
+                    THEN 'Non affine loop bound ''***COULDNOTCOMPUTE***'''
+                WHEN InvalidReasons.invalid_reason LIKE 'Non affine loop bound%'
+                    THEN 'Non affine loop bound'
+                WHEN InvalidReasons.invalid_reason LIKE 'Condition in BB%neither constant nor an icmp instruction'
+                    THEN 'Condition in BB neither constant nor an icmp instruction'
+                WHEN InvalidReasons.invalid_reason LIKE 'Call instruction:%'
+                    THEN 'Call instruction'
+                WHEN InvalidReasons.invalid_reason LIKE 'Non affine access function%'
+                    THEN 'Non affine access function'
+                WHEN InvalidReasons.invalid_reason LIKE 'Non affine branch in BB%'
+                    THEN 'Non affine branch in BB'
+                WHEN InvalidReasons.invalid_reason LIKE 'Possible aliasing%'
+                    THEN 'Possible aliasing'
+                WHEN InvalidReasons.invalid_reason LIKE 'Base address not invariant in current region%'
+                    THEN 'Base address not invariant in current region'
+                WHEN InvalidReasons.invalid_reason LIKE 'Alloca instruction%'
+                    THEN 'Alloca instruction'
+                WHEN InvalidReasons.invalid_reason LIKE 'Non-simple memory access%'
+                    THEN 'Non-simple memory access'
+                WHEN InvalidReasons.invalid_reason LIKE 'Find bad intToptr prt%'
+                    THEN 'Find bad intToPointer pointer'
+                WHEN InvalidReasons.invalid_reason LIKE 'Condition based on ''undef'' value in BB%'
+                    THEN 'Condition based on undefined value in BB'
+                WHEN InvalidReasons.invalid_reason LIKE 'Unreachable in exit block%'
+                    THEN 'Unreachable in exit block'
+                ELSE InvalidReasons.invalid_reason
+            END, count
+            FROM (
+                SELECT profileScops.invalid_reason, count
+                FROM profilescops, run
+                WHERE run.id = profileScops.run_id
+                    AND run.experiment_group = ANY(exp_ids)
+            ) AS InvalidReasons
+        ) AS grouped
+    GROUP BY grouped.invalid_reason;
 END
 $BODY$ language plpgsql;

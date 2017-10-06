@@ -94,7 +94,7 @@ def persist_project(project):
     desc = project.__doc__
     src_url = ''
     domain = project.domain
-    group_name = project.group_name
+    group_name = project.group
     version = project.version() if callable(project.version) else project.version
     try:
         src_url = project.src_uri

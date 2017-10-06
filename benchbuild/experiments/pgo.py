@@ -45,6 +45,8 @@ class PGO(exp.Experiment):
         project.compiler_extension = \
             ext.RunWithTimeout(
                 ext.RunCompiler(project, self, config=cfg_inst))
+        project.runtime_extension = \
+            ext.RuntimeExtension(project, self, config=cfg_inst)
 
         # Still activating pgo for clang pgo optimisation
         no_pgo_project.cflags += [

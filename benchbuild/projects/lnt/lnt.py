@@ -27,6 +27,11 @@ class LNTGroup(Project):
     GROUP = 'lnt'
     VERSION = '9.0.1.13'
 
+    NAME_FILTERS = [
+        r'(?P<name>.+)\.simple',
+        r'(?P<name>.+)-(dbl|flt)',
+    ]
+
     def __init__(self, exp):
         super(LNTGroup, self).__init__(exp, "lnt")
 
@@ -51,7 +56,8 @@ class LNTGroup(Project):
         mkdir(sandbox_dir)
 
     def before_run_tests(self, experiment, run):
-        exp = wrap_dynamic(self, "lnt_runner", experiment)
+        exp = wrap_dynamic(self, "lnt_runner", experiment,
+                           name_filters=LNTGroup.NAME_FILTERS)
         lnt = local[path.join("local", "bin", "lnt")]
         sandbox_dir = path.join(self.builddir, "run")
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
@@ -72,6 +78,7 @@ class LNTGroup(Project):
 
 class SingleSourceBenchmarks(LNTGroup):
     NAME = 'SingleSourceBenchmarks'
+    DOMAIN = 'LNT (SSB)'
 
     def run_tests(self, experiment, run):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
@@ -88,6 +95,7 @@ class SingleSourceBenchmarks(LNTGroup):
 
 class MultiSourceBenchmarks(LNTGroup):
     NAME = 'MultiSourceBenchmarks'
+    DOMAIN = 'LNT (MSB)'
 
     def run_tests(self, experiment, run):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
@@ -104,6 +112,7 @@ class MultiSourceBenchmarks(LNTGroup):
 
 class MultiSourceApplications(LNTGroup):
     NAME = 'MultiSourceApplications'
+    DOMAIN = 'LNT (MSA)'
 
     def run_tests(self, experiment, run):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
@@ -120,6 +129,7 @@ class MultiSourceApplications(LNTGroup):
 
 class SPEC2006(LNTGroup):
     NAME = 'SPEC2006'
+    DOMAIN = 'LNT (Ext)'
 
     def download(self):
         if CopyNoFail('speccpu2006'):
@@ -146,6 +156,7 @@ class SPEC2006(LNTGroup):
 
 class Povray(LNTGroup):
     NAME = 'Povray'
+    DOMAIN = 'LNT (Ext)'
 
     povray_url = "https://github.com/POV-Ray/povray"
     povray_src_dir = "Povray"

@@ -2,6 +2,7 @@
 #
 import logging
 import os
+import re
 import sys
 
 from benchbuild.utils import log
@@ -20,7 +21,7 @@ LOG = logging.getLogger(__name__)
 EXPERIMENT_NAME = os.getenv("BB_EXPERIMENT", "unknown")
 DOMAIN_NAME = os.getenv("BB_DOMAIN", PBC.DOMAIN)
 GROUP_NAME = os.getenv("BB_GROUP", PBC.GROUP)
-
+FILTER_EXPRESSIONS = {{ name_filters }}
 
 def main(argv):
     settings.update_env()
@@ -33,6 +34,12 @@ def main(argv):
     real_command = local[run_f]
     real_command_args = argv[2:]
     project_name = os.path.basename(run_f)
+
+    if FILTER_EXPRESSIONS:
+        for name_filter in FILTER_EXPRESSIONS:
+            match = re.match(name_filter, project_name)
+            if match:
+                project_name = match.group('name')
 
     with local.env(PATH="{{ path }}",
                    LD_LIBRARY_PATH="{{ ld_lib_path }}",

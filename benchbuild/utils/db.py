@@ -193,7 +193,7 @@ def persist_file(f, experiment_id, run_group):
 
 def extract_file(filename, outfile, exp_id, run_group):
     """
-    Extract a previously stored file form the database.
+    Extract a previously stored file from the database.
 
     Args:
         filename (str):

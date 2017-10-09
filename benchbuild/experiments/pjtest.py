@@ -11,7 +11,6 @@ import csv
 import logging
 import os
 import uuid
-import sqlalchemy as sa
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
 import benchbuild.reports as reports
@@ -150,6 +149,10 @@ class JitExportGeneratedCode(pj.PolyJIT):
 
 
 class TestReport(reports.Report):
+    """
+    Writes report to the database.
+    """
+    import sqlalchemy as sa
     SUPPORTED_EXPERIMENTS = ['pj-test']
 
     QUERY_TOTAL = \

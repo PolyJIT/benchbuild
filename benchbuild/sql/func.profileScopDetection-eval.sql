@@ -117,7 +117,8 @@ BEGIN
               run.project_name
         ) AS scops
     WHERE
-        total.project = scops.project;
+        total.project = scops.project
+    ORDER BY DynCov_pct DESC;
 END
 $BODY$ language plpgsql;
 
@@ -202,7 +203,8 @@ BEGIN
         FROM
             profile_scops_ratios(exp_ids, '%%::Parent')
     ) AS MaxParents
-    GROUP BY MaxParents.project;
+    GROUP BY MaxParents.project
+    ORDER BY dyncov_pct DESC;
 END
 $BODY$ language plpgsql;
 

@@ -50,8 +50,8 @@ class Extension(metaclass=ABCMeta):
         for ext in self.next_extensions:
             ext.print(indent=indent+2)
 
-    def __call__(self, cc, *args, **kwargs):
-        return self.call_next(cc, *args, **kwargs)
+    def __call__(self, *args, **kwargs):
+        return self.call_next(*args, **kwargs)
 
 
 class RuntimeExtension(Extension):

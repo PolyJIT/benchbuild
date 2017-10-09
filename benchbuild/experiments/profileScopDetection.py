@@ -205,13 +205,13 @@ class TestReport(reports.Report):
             sa.func.profile_scops_ratios_max_regions(sa.sql.bindparam('exp_ids'))
         )
 
-    QUERY_RATIO_VALID_REGIONS = \
-        sa.sql.select([
-            sa.column('usefulRatio')
-        ]).\
-        select_from(
-            sa.func.profile_scops_ratio_valid_regions(sa.sql.bindparam('exp_ids'))
-        )
+    #QUERY_RATIO_VALID_REGIONS = \
+    #    sa.sql.select([
+    #        sa.column('usefulRatio')
+    #    ]).\
+    #    select_from(
+    #        sa.func.profile_scops_ratio_valid_regions(sa.sql.bindparam('exp_ids'))
+    #    )
 
     QUERY_INVALID_REASONS = \
         sa.sql.select([
@@ -238,11 +238,11 @@ class TestReport(reports.Report):
                ('project', 't_parent', 't_total', 'dyncov'),
                self.session.execute(queryRatiosMaxRegions).fetchall())
 
-        queryRatioValidRegions = TestReport.QUERY_RATIO_VALID_REGIONS.unique_params(
-                exp_ids=self.experiment_ids)
-        yield ("ratioValidRegions",
-               ('usefulRatio'),
-               self.session.execute(queryRatioValidRegions).fetchall())
+        #queryRatioValidRegions = TestReport.QUERY_RATIO_VALID_REGIONS.unique_params(
+        #        exp_ids=self.experiment_ids)
+        #yield ("ratioValidRegions",
+        #       ('usefulRatio'),
+        #       self.session.execute(queryRatioValidRegions).fetchall())
 
         queryInvalidReasons = TestReport.QUERY_INVALID_REASONS.unique_params(
                 exp_ids=self.experiment_ids)

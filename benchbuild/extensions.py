@@ -21,12 +21,12 @@ class Extension(metaclass=ABCMeta):
         self.next_extensions = extensions
         self.config = config
 
-    def call_next(self, cc, *args, **kwargs):
+    def call_next(self, *args, **kwargs):
         """Call all child extensions with the same arguments."""
         all_results = []
         for ext in self.next_extensions:
             LOG.debug("  ++ - %s ", ext.__class__)
-            results = ext(cc, *args, **kwargs)
+            results = ext(*args, **kwargs)
             LOG.debug("  -- - %s => %s", ext.__class__, results)
             if results is None:
                 LOG.warning("No result from: %s", ext.__class__)

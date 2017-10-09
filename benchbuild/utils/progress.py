@@ -42,7 +42,10 @@ class ProgressBar(cli.progress.ProgressBase):
         in the width of the progress bar.
         """
         width = self.width
-        percent = max(self.value, 0)/self.length
+        if self.length == 0:
+            percent = 1
+        else:
+            percent = max(self.value, 0)/self.length
         pg_char = self.pg_char
         ending = ' ' + (self.str_time_remaining()
                         if self.timer

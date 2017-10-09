@@ -204,9 +204,6 @@ class Project(object, metaclass=ProjectDecorator):
                 LOG.debug("Disabling signal handler")
                 signals.handlers.deregister(fail_run_group, group, session)
 
-            if CFG["clean"].value():
-                self.clean()
-
     def clean(self):
         """Clean the project build directory."""
         if path.exists(self.builddir) and listdir(self.builddir) == []:

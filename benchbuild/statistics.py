@@ -38,10 +38,11 @@ def dist_func(run_info):
                 except ValueError:
                     LOG.warning("Could not parse: '" + line + "'\n")
 
-        for stat in results:
-            values.append(stat["value"])
-            print("value added to the array: " + stat["value"])
-        #_, p_val = stats.ttest_1samp(values, NULLHYPO)
+        if results is not None:
+            for stat in results:
+                values.append(stat["value"])
+                print("value added to the array: " + stat["value"])
+            #_, p_val = stats.ttest_1samp(values, NULLHYPO)
     return p_val
 
 

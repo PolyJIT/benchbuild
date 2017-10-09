@@ -15,7 +15,6 @@ import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
 import benchbuild.reports as reports
 import benchbuild.settings as settings
-import benchbuild.statistics as statistics
 
 LOG = logging.getLogger(__name__)
 
@@ -74,9 +73,7 @@ class Test(pj.PolyJIT):
                                 project=project), project=project))))
         )
 
-        #TODO give the results/stats as argument for the p_val calculation
-        project.runtime_extension = \
-	    statistics.Statistics(project, self, ext.RunWithTime(pjit_extension))
+        project.runtime_extension = ext.RunWithTime(pjit_extension)
         return Test.default_runtime_actions(project)
 
 

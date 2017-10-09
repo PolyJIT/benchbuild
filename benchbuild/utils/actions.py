@@ -516,11 +516,11 @@ class SaveProfile(Step):
         obj_builddir = self._obj.builddir
         outfile = os.path.abspath(os.path.join(obj_builddir, self.filename))
         profiles = os.path.abspath(os.path.join(obj_builddir, "raw-profiles"))
-        #with local.cwd(profiles):
-        #    merge_profdata = llvm_profdata["merge",
-        #                                   "-output={}".format(outfile)]
-        #    merge_profdata = merge_profdata[glob.glob('default_*.profraw')]
-        #    merge_profdata()
+        with local.cwd(profiles):
+            merge_profdata = llvm_profdata["merge",
+                                           "-output={}".format(outfile)]
+            merge_profdata = merge_profdata[glob.glob('default_*.profraw')]
+            merge_profdata()
 
         exp_id = self._obj.experiment.id
         run_group = self._obj.run_uuid

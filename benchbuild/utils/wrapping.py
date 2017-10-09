@@ -130,7 +130,10 @@ def wrap(name, runner, sprefix=None, python=sys.executable):
     return local[name_absolute]
 
 
-def wrap_dynamic(self, name, runner, sprefix=None, python=sys.executable):
+def wrap_dynamic(self, name, runner,
+                 sprefix=None,
+                 python=sys.executable,
+                 name_filters=None):
     """
     Wrap the binary :name with the function :runner.
 
@@ -142,8 +145,15 @@ def wrap_dynamic(self, name, runner, sprefix=None, python=sys.executable):
     Args:
         name: name of the python module
         runner: Function that should run the real binary
-        base_class: The base_class of our project.
-        base_module: The module of base_class.
+        sprefix: Prefix that should be used for commands.
+        python: The python executable that should be used.
+        name_filters:
+            List of regex expressions that are used to filter the
+            real project name. Make sure to include a match group named
+            'name' in the regex, e.g.,
+            [
+                r'foo(?P<name>.)-flt'
+            ]
 
     Returns: plumbum command, readty to launch.
 
@@ -183,6 +193,7 @@ def wrap_dynamic(self, name, runner, sprefix=None, python=sys.executable):
                 base_module=base_module,
                 ld_library_path=str(bin_lib_path),
                 python=python,
+                name_filters=name_filters
             )
         )
 

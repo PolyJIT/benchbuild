@@ -1,13 +1,12 @@
 """
 Extension base-classes for compile-time and run-time experiments.
 """
-import logging
-import yaml
 from abc import ABCMeta
 from collections import Iterable
-
+import logging
 import os
 import parse
+import yaml
 from plumbum import local
 from benchbuild.utils.run import (track_execution, fetch_time_output)
 from benchbuild.utils.db import persist_config, persist_time
@@ -82,9 +81,14 @@ class RuntimeExtension(Extension):
 
 
 class RunWithTimeout(Extension):
+    def __init__(self, *extensions, limit="2m", **kwargs):
+        super(RunWithTimeout, self).__init__(*extensions, **kwargs)
+        self.limit = limit
+
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.utils.cmd import timeout
-        return self.call_next(timeout["2m", binary_command], *args, **kwargs)
+        return self.call_next(timeout[
+            self.limit, binary_command], *args, **kwargs)
 
 
 class LogTrackingMixin(object):

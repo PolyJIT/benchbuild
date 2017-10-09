@@ -7,8 +7,9 @@ import parse
 from statistics import median
 from benchbuild.extensions import Extension
 from benchbuild.utils.schema import Session
-from benchbuild.utils.run import track_execution
-# from scipy import stats
+
+"""Currently scipy is disabled due to scipy having a dependencie on numpy."""
+#from scipy import stats
 
 LOG = logging.getLogger(__name__)
 
@@ -37,10 +38,11 @@ def dist_func(run_info):
                 except ValueError:
                     LOG.warning("Could not parse: '" + line + "'\n")
 
-        for stat in results:
-            values.append(stat["value"])
-            print("value added to the array: " + stat["value"])
-#        _, p_val = stats.ttest_1samp(values, NULLHYPO)
+        if results is not None:
+            for stat in results:
+                values.append(stat["value"])
+                print("value added to the array: " + stat["value"])
+            #_, p_val = stats.ttest_1samp(values, NULLHYPO)
     return p_val
 
 
@@ -55,7 +57,7 @@ class Statistics(Extension):
 
         super(Statistics, self).__init__(*extensions, config=config)
 
-    def __call__(self, cc, *args, min_p_val=P_VAL, timeout=TIMEOUT, **kwargs):
+    def __call__(self, *args, min_p_val=P_VAL, timeout=TIMEOUT, **kwargs):
         """
         The call of this extension runs the following extensions until a the
         p value the user specified is reached or the run times out.
@@ -77,12 +79,11 @@ class Statistics(Extension):
         session = Session()
 
         LOG.info("Started experiment until it has reached the wanted p value.")
-        clang = cc["-mllvm", "-stats"]
         while iterator < timeout and cur_p_val < min_p_val:
-            results = self.call_next(cc, *args, **kwargs)
+            results = self.call_next(*args, **kwargs)
             if results is not None:
-                with track_execution(clang, self.project, self.experiment):
-                    run_info = results[0]()
+                #takes the first run_info object from the results
+                run_info = results[0]
                 cur_p_val = dist_func(run_info)
                 LOG.debug(
                     "In the %s. iteration a p-value of %s was calculated.",

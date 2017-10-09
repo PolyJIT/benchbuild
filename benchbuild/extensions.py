@@ -26,6 +26,7 @@ class Extension(metaclass=ABCMeta):
         for ext in self.next_extensions:
             LOG.debug("  ++ - %s ", ext.__class__)
             results = ext(*args, **kwargs)
+            LOG.debug("  -- - %s => %s", ext.__class__, results)
             if results is None:
                 LOG.warning("No result from: %s", ext.__class__)
                 continue
@@ -35,8 +36,8 @@ class Extension(metaclass=ABCMeta):
             else:
                 result_list.append(results)
             status_list = [r.db_run.status for r in result_list]
-            LOG.debug("  -- %s - %s => %s", str(status_list), ext.__class__,
-                      results)
+            LOG.debug("  -- %s - %s => %s", str(status_list),
+                      ext.__class__, results)
 
             all_results.extend(result_list)
 

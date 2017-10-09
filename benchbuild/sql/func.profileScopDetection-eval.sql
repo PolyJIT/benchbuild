@@ -50,7 +50,7 @@ $BODY$ language plpgsql;
 
 DROP FUNCTION IF EXISTS profile_scops_count_invalid_regions(exp_ids UUID[]);
 CREATE OR REPLACE FUNCTION profile_scops_count_invalid_regions(exp_ids UUID[])
-    RETURNS INTEGER
+    RETURNS DOUBLE PRECISION
 AS $BODY$
 BEGIN
   RETURN
@@ -69,7 +69,7 @@ $BODY$ language plpgsql;
 
 DROP FUNCTION IF EXISTS profile_scops_ratio_valid_regions(exp_ids UUID[]);
 CREATE OR REPLACE FUNCTION profile_scops_ratio_valid_regions(exp_ids UUID[])
-    RETURNS INTEGER
+    RETURNS DOUBLE PRECISION
 AS $BODY$
 BEGIN
   RETURN
@@ -80,7 +80,7 @@ BEGIN
                 SELECT count(*)
                 FROM profile_scops_valid_regions(exp_ids)
             )
-        ) AS usefulRatio
+        )
     );
 END
 $BODY$ language plpgsql;

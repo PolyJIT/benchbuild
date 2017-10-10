@@ -19,12 +19,12 @@ class ErrorCommand(BoundCommand):
     without the entire study to crash.
     The experiment will fail anyway, but without the entire programm crashing.
     """
-    def run(self, cmd, _):
+    def run(self, *args, **kwargs):
         """Simply raises the AttributeError for a missing command."""
-        LOG.error("Unable to import %s.", cmd)
-        raise AttributeError(cmd)
+        LOG.error("Unable to import a needed module.")
+        raise AttributeError(__name__ + ".cmd")
 
-ERROR = ErrorCommand(__name__ + ".cmd", __name__ + ".cmd")
+ERROR = ErrorCommand(__name__ + ".cmd", ErrorCommand.__doc__)
 
 class CommandAlias(ModuleType):
     """Module-hack, adapted from plumbum."""
@@ -34,7 +34,7 @@ class CommandAlias(ModuleType):
     __overrides__ = {}
     __override_all__ = None
 
-    def __getattr__(self, cmd):
+    def __getattr__(self, command):
         """Proxy getter for plumbum commands."""
         from os import getenv
         from plumbum import local
@@ -42,13 +42,13 @@ class CommandAlias(ModuleType):
         from benchbuild.utils.path import list_to_path
         from benchbuild.utils.path import path_to_list
 
-        check = [cmd]
+        check = [command]
 
-        if cmd in self.__overrides__:
-            check = self.__overrides__[cmd]
+        if command in self.__overrides__:
+            check = self.__overrides__[command]
 
-        if cmd  in __ALIASES__:
-            check = __ALIASES__[cmd]
+        if command in __ALIASES__:
+            check = __ALIASES__[command]
 
         path = path_to_list(getenv("PATH", default=""))
         path = CFG["env"]["path"].value() + path
@@ -61,8 +61,8 @@ class CommandAlias(ModuleType):
 
         for alias_command in check:
             try:
-                command = local[alias_command]
-                command = command.with_env(
+                cmd = local[alias_command]
+                cmd = cmd.with_env(
                     PATH=list_to_path(path),
                     LD_LIBRARY_PATH=list_to_path(libs_path))
                 return cmd
@@ -71,16 +71,15 @@ class CommandAlias(ModuleType):
         LOG.warn("No command found a module. This run will fail.")
         return ERROR
 
-    def __getitem__(self, cmd):
-        return self.__getattr__(cmd)
+    def __getitem__(self, command):
+        return self.__getattr__(command)
 
     __path__ = []
     __file__ = __file__
 
 
-COMMAND = CommandAlias(__name__ + ".cmd", CommandAlias.__doc__)
-if not isinstance(COMMAND, ErrorCommand):
-    sys.modules[COMMAND.__name__] = COMMAND
+cmd = CommandAlias(__name__ + ".cmd", CommandAlias.__doc__)
+sys.modules[cmd.__name__] = cmd
 
 del sys
 del logging

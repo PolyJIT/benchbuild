@@ -38,3 +38,4 @@ dist/
 .coverage
 .vscode
 .tox/
+.benchbuild.yml

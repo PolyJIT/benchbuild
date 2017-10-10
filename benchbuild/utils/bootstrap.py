@@ -83,7 +83,7 @@ def check_uchroot_config():
     from getpass import getuser
     print("Checking configuration of 'uchroot'")
 
-    fuse_grep = grep["-q", '-e']
+    fuse_grep = grep['-q', '-e']
     username = getuser()
 
     if not (fuse_grep["^user_allow_other", "/etc/fuse.conf"] & TF):

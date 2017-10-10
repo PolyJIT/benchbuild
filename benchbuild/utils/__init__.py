@@ -1,8 +1,30 @@
+"""
+Module handler that makes sure the modules for our commands are build similar
+to plumbum. The built modules are only active during a run of an experiment and
+get deleted afterwards.
+"""
 import sys
+import logging
 from types import ModuleType
+from plumbum.commands.base import BoundCommand
 
 __ALIASES__ = {"unionfs": ["unionfs_fuse", "unionfs"]}
+LOG = logging.getLogger(__name__)
 
+
+class ErrorCommand(BoundCommand):
+    """
+    A command that raises an exception when it gets called.
+    This allows us to call the study with experiments who use incorrect imports,
+    without the entire study to crash.
+    The experiment will fail anyway, but without the entire programm crashing.
+    """
+    def run(self, cmd, _):
+        """Simply raises the AttributeError for a missing command."""
+        LOG.error("Unable to import %s.", cmd)
+        raise AttributeError(cmd)
+
+ERROR = ErrorCommand(__name__ + ".cmd", __name__ + ".cmd")
 
 class CommandAlias(ModuleType):
     """Module-hack, adapted from plumbum."""
@@ -12,7 +34,7 @@ class CommandAlias(ModuleType):
     __overrides__ = {}
     __override_all__ = None
 
-    def __getattr__(self, command):
+    def __getattr__(self, cmd):
         """Proxy getter for plumbum commands."""
         from os import getenv
         from plumbum import local
@@ -20,13 +42,13 @@ class CommandAlias(ModuleType):
         from benchbuild.utils.path import list_to_path
         from benchbuild.utils.path import path_to_list
 
-        check = [command]
+        check = [cmd]
 
-        if command in self.__overrides__:
-            check = self.__overrides__[command]
+        if cmd in self.__overrides__:
+            check = self.__overrides__[cmd]
 
-        if command in __ALIASES__:
-            check = __ALIASES__[command]
+        if cmd  in __ALIASES__:
+            check = __ALIASES__[cmd]
 
         path = path_to_list(getenv("PATH", default=""))
         path = CFG["env"]["path"].value() + path
@@ -39,25 +61,30 @@ class CommandAlias(ModuleType):
 
         for alias_command in check:
             try:
-                cmd = local[alias_command]
-                cmd = cmd.with_env(
+                command = local[alias_command]
+                command = command.with_env(
                     PATH=list_to_path(path),
                     LD_LIBRARY_PATH=list_to_path(libs_path))
                 return cmd
             except AttributeError:
                 pass
-        raise AttributeError(command)
+        LOG.warn("No command found a module. This run will fail.")
+        return ERROR
 
-    def __getitem__(self, command):
-        return self.__getattr__(command)
+    def __getitem__(self, cmd):
+        return self.__getattr__(cmd)
 
     __path__ = []
     __file__ = __file__
 
 
-cmd = CommandAlias(__name__ + ".cmd", CommandAlias.__doc__)
-sys.modules[cmd.__name__] = cmd
+COMMAND = CommandAlias(__name__ + ".cmd", CommandAlias.__doc__)
+if not isinstance(COMMAND, ErrorCommand):
+    sys.modules[COMMAND.__name__] = COMMAND
 
 del sys
+del logging
 del ModuleType
 del CommandAlias
+del BoundCommand
+del ErrorCommand

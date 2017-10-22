@@ -27,7 +27,7 @@ import uuid
 import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy import (
-    Column, ForeignKey, Integer, String, DateTime, Enum)
+    Column, ForeignKey, ForeignKeyConstraint, Integer, String, DateTime, Enum)
 from sqlalchemy.types import (
     TypeDecorator, BigInteger, SmallInteger, Float, Numeric, CHAR, LargeBinary)
 from sqlalchemy.dialects.postgresql import UUID
@@ -86,11 +86,15 @@ class Run(BASE):
     """Store a run for each executed test binary."""
 
     __tablename__ = 'run'
+    __table_args__ = (
+        ForeignKeyConstraint(['project_name', 'project_group'],
+                             ['project.name', 'project.group_name']),
+    )
 
     id = Column(Integer, primary_key=True)
     command = Column(String)
-    project_name = Column(String, ForeignKey("project.name"), index=True)
-    project_group = Column(String, ForeignKey("project.name"), index=True)
+    project_name = Column(String, index=True)
+    project_group = Column(String, index=True)
     experiment_name = Column(String, index=True)
     run_group = Column(GUID(as_uuid=True), index=True)
     experiment_group = Column(GUID(as_uuid=True),

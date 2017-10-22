@@ -110,7 +110,6 @@ class RunGroup(BASE):
     __tablename__ = 'rungroup'
 
     id = Column(GUID(as_uuid=True), primary_key=True, index=True)
-    project = Column(String, ForeignKey("project.name"), index=True)
     experiment = Column(
         GUID(as_uuid=True),
         ForeignKey("experiment.id",

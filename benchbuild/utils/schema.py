@@ -90,6 +90,7 @@ class Run(BASE):
     id = Column(Integer, primary_key=True)
     command = Column(String)
     project_name = Column(String, ForeignKey("project.name"), index=True)
+    project_group = Column(String, ForeignKey("project.name"), index=True)
     experiment_name = Column(String, index=True)
     run_group = Column(GUID(as_uuid=True), index=True)
     experiment_group = Column(GUID(as_uuid=True),

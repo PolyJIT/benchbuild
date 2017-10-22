@@ -71,7 +71,6 @@ def create_run_group(prj):
     session = s.Session()
     experiment = prj.experiment
     group = s.RunGroup(id=prj.run_uuid,
-                       project=prj.name,
                        experiment=experiment.id)
     session.add(group)
     session.commit()

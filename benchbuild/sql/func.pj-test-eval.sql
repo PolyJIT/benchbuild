@@ -65,8 +65,8 @@ BEGIN
     total.project_name                            AS project,
     (O_0.duration / T_0.duration * 100)           AS ohcov_0,
     (O_1.duration / T_1.duration * 100)           AS ohcov_1,
-    (scops_0.sum / (T_0.duration - codegen_0.sum) * 100) AS dyncov_0,
-    (scops_1.sum / (T_1.duration - codegen_1.sum) * 100) AS dyncov_1,
+    (scops_0.sum / T_0.duration * 100)            AS dyncov_0,
+    (scops_1.sum / T_1.duration * 100)            AS dyncov_1,
     ch_0.sum                                        AS cachehits_0,
     ch_1.sum                                        AS cachehits_1,
     variants_0.sum                                  AS variants_0,
@@ -270,7 +270,7 @@ SELECT
   coverage.o_0 / 1000000                      AS OH_POLLY,
   coverage.t_1 / 1000000                      AS T_PJIT,
   coverage.o_1 / 1000000                      AS OH_PJIT,
-  speedup(coverage.t_0 - coverage.o_0, coverage.t_1 - coverage.o_1) AS speedup
+  speedup(coverage.t_0, coverage.t_1) AS speedup
 FROM
   pj_test_total_dyncov(exp_ids)       AS coverage
   LEFT JOIN

@@ -61,4 +61,4 @@ class LibreSSL(BenchBuildGroup):
                 wrap(path.abspath(binary), experiment)
 
         with local.cwd(self.src_dir):
-            run(make["V=1", "check"])
+            run(make["V=1", "check", "-i"])

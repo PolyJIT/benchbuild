@@ -663,7 +663,8 @@ CFG["plugins"] = {
             "benchbuild.experiments.pgo",
             "benchbuild.experiments.pollytest",
             "benchbuild.experiments.profileScopDetection",
-            "benchbuild.experiments.mse"
+            "benchbuild.experiments.mse",
+            "benchbuild.experiments.ijpp"
         ],
         "desc": "The experiment plugins we know about."
     },

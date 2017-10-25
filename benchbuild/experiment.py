@@ -66,7 +66,7 @@ def get_group_projects(group: str, experiment) -> t.List[Project]:
     for name in projects:
         project = projects[name]
 
-        if project.group_name == group:
+        if project.group == group:
             group.append(name)
     return group
 

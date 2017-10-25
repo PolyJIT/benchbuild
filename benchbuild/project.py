@@ -131,7 +131,8 @@ class Project(object, metaclass=ProjectDecorator):
                 finding group specific test input files.
         """
         self.experiment = exp
-        self.group = group
+        if group is not None:
+            self.group = group
         self.sourcedir = path.join(str(CFG["src_dir"]), self.name)
         self.builddir = path.join(str(CFG["build_dir"]), "{0}-{1}-{2}".format(
             exp.name, self.name, exp.id))

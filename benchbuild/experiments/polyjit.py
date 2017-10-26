@@ -104,6 +104,16 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
             return self.call_next(binary_command, *args, **kwargs)
 
 
+class EnablePolyJIT_Opt(PolyJITConfig, ext.Extension):
+    """Call the child extensions with an activated PolyJIT."""
+    def __call__(self, *args, **kwargs):
+        ret = None
+        with self.argv(PJIT_ARGS=["-polli-use-polly-options=false"]):
+            with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
+                ret = self.call_next(*args, **kwargs)
+        return ret
+
+
 class EnablePolyJIT(PolyJITConfig, ext.Extension):
     """Call the child extensions with an activated PolyJIT."""
     def __call__(self, *args, **kwargs):

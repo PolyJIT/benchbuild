@@ -49,11 +49,17 @@ class IJPP(pj.PolyJIT):
             "-Xclang", "-load",
             "-Xclang", "LLVMPolly.so",
             "-O3",
-            "-mllvm", "-polly"
+            "-mllvm", "-polly",
+            "-mllvm", "-polly-parallel"
         ]
 
         cfg_jit_inside = {
             "name": "PolyJIT",
+            "cores": jobs,
+        }
+
+        cfg_jit_inside_opt = {
+            "name": "PolyJIT_Opt",
             "cores": jobs,
         }
 
@@ -74,6 +80,14 @@ class IJPP(pj.PolyJIT):
 
         # First we configure the "insides"
         pjit_extension = ext.Extension(
+            pj.ClearPolyJITConfig(
+                ext.LogAdditionals(
+                    pj.RegisterPolyJITLogs(
+                        pj.EnableJITDatabase(
+                            pj.EnablePolyJIT_Opt(
+                                ext.RuntimeExtension(
+                                    project, self, config=cfg_jit_inside_opt),
+                                project=project), project=project)))),
             pj.ClearPolyJITConfig(
                 ext.LogAdditionals(
                     pj.RegisterPolyJITLogs(
@@ -104,6 +118,7 @@ class IJPP(pj.PolyJIT):
                     naked_polly_project, self, config=cfg_polly_naked))
 
         return [
+            actions.Echo("Stage: JIT Configurations"),
             actions.MakeBuildDir(project),
             actions.Prepare(project),
             actions.Download(project),
@@ -111,7 +126,9 @@ class IJPP(pj.PolyJIT):
             actions.Build(project),
             actions.Run(project),
             actions.Clean(project),
+            actions.Echo("Stage: JIT Configurations"),
 
+            actions.Echo("Stage: O3"),
             actions.MakeBuildDir(naked_project),
             actions.Prepare(naked_project),
             actions.Download(naked_project),
@@ -119,14 +136,17 @@ class IJPP(pj.PolyJIT):
             actions.Build(naked_project),
             actions.Run(naked_project),
             actions.Clean(naked_project),
+            actions.Echo("Stage: O3"),
 
+            actions.Echo("Stage: O3 Polly"),
             actions.MakeBuildDir(naked_polly_project),
             actions.Prepare(naked_polly_project),
             actions.Download(naked_polly_project),
             actions.Configure(naked_polly_project),
             actions.Build(naked_polly_project),
             actions.Run(naked_polly_project),
-            actions.Clean(naked_polly_project)
+            actions.Clean(naked_polly_project),
+            actions.Echo("Stage: O3 Polly")
         ]
 
 

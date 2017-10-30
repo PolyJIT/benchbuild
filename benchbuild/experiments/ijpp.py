@@ -2,12 +2,17 @@
 Experiments and evaluation used for IJPP Journal
 """
 import copy
+import csv
 import logging
+import os
 import uuid
 import benchbuild.utils.actions as actions
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
+import benchbuild.reports as reports
 import benchbuild.settings as settings
+import sqlalchemy as sa
+
 
 LOG = logging.getLogger(__name__)
 
@@ -220,3 +225,39 @@ class JitExportGeneratedCode(pj.PolyJIT):
         project.runtime_extension = ext.RunWithTime(pjit_extension)
         return JitExportGeneratedCode.default_runtime_actions(project)
 
+
+class IJPPReport(reports.Report):
+    SUPPORTED_EXPERIMENTS = ['ijpp']
+
+    QUERY_TIME = \
+        sa.sql.select([
+            sa.column('project'),
+            sa.column('group'),
+            sa.column('domain'),
+            sa.column('config'),
+            sa.column('time'),
+            sa.column('variants')
+        ]).select_from(sa.func.ijpp_total_runtime(sa.sql.bindparam('exp_ids')))
+
+    def report(self):
+        print("I found the following matching experiment ids")
+        print("  \n".join([str(x) for x in self.experiment_ids]))
+
+        qry = IJPPReport.QUERY_TIME.unique_params(exp_ids=self.experiment_ids)
+        yield ("runtime",
+               ('project', 'group', 'domain', 'config', 'time', 'variants'),
+               self.session.execute(qry).fetchall())
+
+    def generate(self):
+        for name, header, data in self.report():
+            fname = os.path.basename(self.out_path)
+
+            fname = "ijpp_{prefix}_{name}{ending}".format(
+                prefix=os.path.splitext(fname)[0],
+                ending=os.path.splitext(fname)[-1],
+                name=name)
+            with open(fname, 'w') as csv_out:
+                print("Writing '{0}'".format(csv_out.name))
+                csv_writer = csv.writer(csv_out)
+                csv_writer.writerows([header])
+                csv_writer.writerows(data)

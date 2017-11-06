@@ -45,7 +45,8 @@ class IJPP(pj.PolyJIT):
 
         jobs = int(settings.CFG["jobs"].value())
         project.cflags += [
-            "-mllvm", "-polly-num-threads={0}".format(jobs)]
+            "-mllvm", "-polly-num-threads={0}".format(jobs), "-fopenmp"
+        ]
 
         naked_project.cflags += [
             "-O3"
@@ -55,7 +56,8 @@ class IJPP(pj.PolyJIT):
             "-Xclang", "LLVMPolly.so",
             "-O3",
             "-mllvm", "-polly",
-            "-mllvm", "-polly-parallel"
+            "-mllvm", "-polly-parallel",
+            "-fopenmp"
         ]
 
         cfg_jit_inside = {

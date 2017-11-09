@@ -238,7 +238,8 @@ class IJPPReport(reports.Report):
             sa.column('domain'),
             sa.column('config'),
             sa.column('time'),
-            sa.column('variants')
+            sa.column('variants'),
+            sa.column('cachehits')
         ]).select_from(sa.func.ijpp_total_runtime(sa.sql.bindparam('exp_ids')))
 
     def report(self):
@@ -247,7 +248,8 @@ class IJPPReport(reports.Report):
 
         qry = IJPPReport.QUERY_TIME.unique_params(exp_ids=self.experiment_ids)
         yield ("runtime",
-               ('project', 'group', 'domain', 'config', 'time', 'variants'),
+               ('project', 'group', 'domain', 'config', 'time', 'variants',
+                'cachehits'),
                self.session.execute(qry).fetchall())
 
     def generate(self):

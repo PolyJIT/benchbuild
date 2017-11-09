@@ -97,7 +97,7 @@ class PolyBenchGroup(Project):
         clang_no_opts = lt_clang([], [], self.compiler_extension)
         polybench_opts = [
             "-DPOLYBENCH_USE_C99_PROTO",
-            "-DLARGE_DATASET",
+            "-DEXTRALARGE_DATASET",
             "-DPOLYBENCH_DUMP_ARRAYS",
             "-DPOLYBENCH_USE_RESTRICT"
         ]

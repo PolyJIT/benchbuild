@@ -47,6 +47,9 @@ class IJPP(pj.PolyJIT):
         project.cflags += [
             "-mllvm", "-polly-num-threads={0}".format(jobs), "-fopenmp"
         ]
+        project.ldflags += [
+            "lgomp"
+        ]
 
         naked_project.cflags += [
             "-O3"
@@ -125,35 +128,41 @@ class IJPP(pj.PolyJIT):
                     naked_polly_project, self, config=cfg_polly_naked))
 
         return [
-            actions.Echo("Stage: JIT Configurations"),
-            actions.MakeBuildDir(project),
-            actions.Prepare(project),
-            actions.Download(project),
-            actions.Configure(project),
-            actions.Build(project),
-            actions.Run(project),
-            actions.Clean(project),
-            actions.Echo("Stage: JIT Configurations"),
-
-            actions.Echo("Stage: O3"),
-            actions.MakeBuildDir(naked_project),
-            actions.Prepare(naked_project),
-            actions.Download(naked_project),
-            actions.Configure(naked_project),
-            actions.Build(naked_project),
-            actions.Run(naked_project),
-            actions.Clean(naked_project),
-            actions.Echo("Stage: O3"),
-
-            actions.Echo("Stage: O3 Polly"),
-            actions.MakeBuildDir(naked_polly_project),
-            actions.Prepare(naked_polly_project),
-            actions.Download(naked_polly_project),
-            actions.Configure(naked_polly_project),
-            actions.Build(naked_polly_project),
-            actions.Run(naked_polly_project),
-            actions.Clean(naked_polly_project),
-            actions.Echo("Stage: O3 Polly")
+            actions.Any([
+                actions.RequireAll([
+                    actions.Echo("Stage: JIT Configurations"),
+                    actions.MakeBuildDir(project),
+                    actions.Prepare(project),
+                    actions.Download(project),
+                    actions.Configure(project),
+                    actions.Build(project),
+                    actions.Run(project),
+                    actions.Clean(project),
+                    actions.Echo("Stage: JIT Configurations"),
+                ]),
+                actions.RequireAll([
+                    actions.Echo("Stage: O3"),
+                    actions.MakeBuildDir(naked_project),
+                    actions.Prepare(naked_project),
+                    actions.Download(naked_project),
+                    actions.Configure(naked_project),
+                    actions.Build(naked_project),
+                    actions.Run(naked_project),
+                    actions.Clean(naked_project),
+                    actions.Echo("Stage: O3")
+                ]),
+                actions.RequireAll([
+                    actions.Echo("Stage: O3 Polly"),
+                    actions.MakeBuildDir(naked_polly_project),
+                    actions.Prepare(naked_polly_project),
+                    actions.Download(naked_polly_project),
+                    actions.Configure(naked_polly_project),
+                    actions.Build(naked_polly_project),
+                    actions.Run(naked_polly_project),
+                    actions.Clean(naked_polly_project),
+                    actions.Echo("Stage: O3 Polly")
+                ])
+            ])
         ]
 
 

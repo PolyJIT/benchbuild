@@ -48,7 +48,7 @@ class IJPP(pj.PolyJIT):
             "-mllvm", "-polly-num-threads={0}".format(jobs), "-fopenmp"
         ]
         project.ldflags += [
-            "lgomp"
+            "-lgomp"
         ]
 
         naked_project.cflags += [

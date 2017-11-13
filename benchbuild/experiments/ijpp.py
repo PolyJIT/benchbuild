@@ -251,6 +251,17 @@ class IJPPReport(reports.Report):
             sa.column('cachehits')
         ]).select_from(sa.func.ijpp_total_runtime(sa.sql.bindparam('exp_ids')))
 
+    QUERY_REGION = \
+        sa.sql.select([
+            sa.column('project'),
+            sa.column('region'),
+            sa.column('config'),
+            sa.column('runtime')
+        ]).\
+        select_from(
+            sa.func.ijpp_region_wise(sa.sql.bindparam('exp_ids'))
+        )
+
     def report(self):
         print("I found the following matching experiment ids")
         print("  \n".join([str(x) for x in self.experiment_ids]))
@@ -259,6 +270,12 @@ class IJPPReport(reports.Report):
         yield ("runtime",
                ('project', 'group', 'domain', 'config', 'time', 'variants',
                 'cachehits'),
+               self.session.execute(qry).fetchall())
+
+        qry = IJPPReport.QUERY_REGION.unique_params(exp_ids=self.experiment_ids)
+        yield ("regions",
+               ('project', 'region', 'cores', 't_polly', 't_polyjit',
+                'speedup'),
                self.session.execute(qry).fetchall())
 
     def generate(self):

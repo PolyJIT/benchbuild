@@ -272,10 +272,10 @@ class IJPPReport(reports.Report):
                 'cachehits'),
                self.session.execute(qry).fetchall())
 
-        qry = IJPPReport.QUERY_REGION.unique_params(exp_ids=self.experiment_ids)
+        qry = IJPPReport.QUERY_REGION.unique_params(
+            exp_ids=self.experiment_ids)
         yield ("regions",
-               ('project', 'region', 'cores', 't_polly', 't_polyjit',
-                'speedup'),
+               ('project', 'region', 'cores', 'runtime'),
                self.session.execute(qry).fetchall())
 
     def generate(self):

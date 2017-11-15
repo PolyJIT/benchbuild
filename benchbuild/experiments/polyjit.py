@@ -190,6 +190,41 @@ class PolyJIT(RuntimeExperiment):
         pass
 
 
+class PolyJITSimple(PolyJIT):
+    """Simple runtime-testing with PolyJIT."""
+    NAME = "pj-simple"
+
+    def actions_for_project(self, project):
+        project = PolyJIT.init_project(project)
+        project.run_uuid = uuid.uuid4()
+        project.cflags += [
+            "-mllvm", "-stats"
+        ]
+
+        cfg = {
+            "cflags": project.cflags,
+            "recompilation": "enabled",
+            "specialization": "enabled"
+        }
+
+        pjit_extension = ext.Extension(
+            ClearPolyJITConfig(
+                ext.LogAdditionals(
+                    RegisterPolyJITLogs(
+                        EnableJITDatabase(
+                            EnablePolyJIT(
+                                ext.RuntimeExtension(
+                                    project, self, config=cfg),
+                                project=project), project=project)
+                    )
+                )
+            )
+        )
+
+        project.runtime_extension = ext.RunWithTime(pjit_extension)
+        return PolyJITSimple.default_runtime_actions(project)
+
+
 class PolyJITFull(PolyJIT):
     """
     An experiment that executes all projects with PolyJIT support.

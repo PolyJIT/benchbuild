@@ -190,33 +190,29 @@ class JitExportGeneratedCode(pj.PolyJIT):
         project.run_uuid = uuid.uuid4()
         jobs = int(settings.CFG["jobs"].value())
         project.cflags += [
-            "-Rpass-missed=polli*",
             "-mllvm", "-stats",
             "-mllvm", "-polly-num-threads={0}".format(jobs)]
 
+        project.ldflags += [
+            "-lgomp"
+        ]
+
         cfg_with_jit = {
-            'jobs': jobs,
-            "cflags": project.cflags,
-            "cores": str(jobs - 1),
-            "cores-config": str(jobs),
-            "recompilation": "enabled",
-            "specialization": "enabled"
+            "name": "PolyJIT",
+            "cores": jobs
         }
 
         cfg_without_jit = {
-            'jobs': jobs,
-            "cflags": project.cflags,
-            "cores": str(jobs - 1),
-            "cores-config": str(jobs),
-            "recompilation": "enabled",
-            "specialization": "disabled"
+            "name": "polly.inside",
+            "cores": jobs
         }
+
 
         jit = ext.RuntimeExtension(project, self, config=cfg_with_jit)
         enable_jit = pj.EnablePolyJIT(jit, project=project)
 
         no_jit = ext.RuntimeExtension(project, self, config=cfg_without_jit)
-        disable_jit = pj.EnablePolyJIT(no_jit, project=project)
+        disable_jit = pj.DisablePolyJIT(no_jit, project=project)
 
         pjit_extension = ext.Extension(
             pj.ClearPolyJITConfig(

@@ -68,7 +68,7 @@ RETURN QUERY
 	WHERE
 	  config.name = 'baseline' AND
 	  config.value = 'False' AND
-	  run.experiment_group = '69a1c642-a03d-4c99-9d22-bc5361f01ba9'
+	  run.experiment_group = ANY (exp_ids)
        ) as rrun
       LEFT JOIN config ON (rrun.id = config.run_id)
       LEFT JOIN regions ON (rrun.id = regions.run_id)

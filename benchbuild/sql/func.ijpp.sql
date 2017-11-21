@@ -86,23 +86,28 @@ CREATE OR REPLACE FUNCTION ijpp_db_export_per_config(exp_ids UUID [], configs VA
 RETURNS TABLE(
 	project    VARCHAR,
 	"group"    VARCHAR,
-        "function" VARCHAR,
+  "function" VARCHAR,
 	"ast" 	   VARCHAR,
 	"schedule" VARCHAR,
+  "stderr"   VARCHAR,
 	"cfg"	   VARCHAR)
 AS $BODY$ BEGIN
 RETURN QUERY
-    SELECT
+    SELECT DISTINCT
       project_name as project,
       project_group as "group",
       isl_asts.function as "function",
       isl_asts.ast,
       schedules.schedule,
+      tiny_log.stderr AS stderr,
       config.value      AS cfg
     FROM run
-      JOIN isl_asts ON (run.id = isl_asts.run_id)
-      JOIN schedules ON (run.id = schedules.run_id)
-      JOIN config ON (run.id = config.run_id)
+      LEFT JOIN isl_asts ON (run.id = isl_asts.run_id)
+      LEFT JOIN schedules ON (run.id = schedules.run_id)
+      LEFT JOIN config ON (run.id = config.run_id)
+      LEFT OUTER JOIN (
+        SELECT log."run_id", CAST(left(log."stderr", 240) AS VARCHAR) as stderr FROM log
+      ) AS tiny_log on (run.id = tiny_log.run_id)
     WHERE
       isl_asts.function = schedules.function AND
       config.value = ANY (configs) AND
@@ -114,19 +119,23 @@ CREATE OR REPLACE FUNCTION ijpp_db_export(exp_ids UUID [])
 RETURNS TABLE(
 	project            VARCHAR,
 	"group"            VARCHAR,
-        "function"         VARCHAR,
+  "function"         VARCHAR,
 	"jit_ast" 	   VARCHAR,
 	"jit_schedule" 	   VARCHAR,
+	"jit_stderr" 	   VARCHAR,
 	"polly_ast" 	   VARCHAR,
-	"polly_schedule"   VARCHAR
+	"polly_schedule"   VARCHAR,
+	"polly_stderr" 	   VARCHAR
 )
 AS $BODY$ BEGIN
 RETURN QUERY
   select
-    t1."project" as "project", t1."group" as "group",
-    t1."function" as "function",
+    coalesce(t1."project", t2."project") as "project", coalesce(t1."group", t2."group") as "group",
+    coalesce(t1."function", t2."function") as "function",
     t1.ast AS jit_ast, t1.schedule AS jit_schedule,
-    t2.ast AS polly_ast, t2.schedule AS polly_ast
+    t1.stderr AS jit_stderr,
+    t2.ast AS polly_ast, t2.schedule AS polly_ast,
+    t2.stderr AS polly_stderr
   from
 	ijpp_db_export_per_config(exp_ids, '{PolyJIT}') AS t1
 	FULL OUTER JOIN

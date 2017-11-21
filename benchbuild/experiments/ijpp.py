@@ -241,33 +241,48 @@ class DBReport(reports.Report):
             sa.column('function'),
             sa.column('jit_ast'),
             sa.column('jit_schedule'),
+            sa.column('jit_stderr'),
             sa.column('polly_ast'),
-            sa.column('polly_schedule')
+            sa.column('polly_schedule'),
+            sa.column('polly_stderr')
         ]).select_from(sa.func.ijpp_db_export(sa.sql.bindparam('exp_ids')))
 
 
     def report(self):
         qry = DBReport.QUERY_CODE.unique_params(exp_ids=self.experiment_ids)
-        yield ("codes",
-               ('project', 'group', 'function',
-                'jit_ast', 'jit_schedule',
-                'polly_ast', 'polly_schedule'),
-               self.session.execute(qry).fetchall())
-
+        yield ("codes", self.session.execute(qry).fetchall())
 
     def generate(self):
-        for name, header, data in self.report():
+        from jinja2 import Environment, PackageLoader
+        import parse
+        import pprint
+        env = Environment(
+            trim_blocks=True,
+            lstrip_blocks=True,
+            loader=PackageLoader('benchbuild', 'utils/templates')
+        )
+        template = env.get_template('ijpp_code_report.html.inc')
+        for name, data in self.report():
             fname = os.path.basename(self.out_path)
 
-            fname = "pj-db-export_{prefix}_{name}{ending}".format(
+            data = [ (
+                     row[0], row[1],
+                     parse.parse("{name}_{id:d}_{mod_hash:d}.pjit.scop_{fn_hash:d}", row[2]),
+                     row[3],
+                     row[4],
+                     row[5],
+                     row[6],
+                     row[7],
+                     row[8]) for row in data]
+
+            fname = "pj-db-export_{prefix}_{name}.html".format(
                 prefix=os.path.splitext(fname)[0],
-                ending=os.path.splitext(fname)[-1],
                 name=name)
-            with open(fname, 'w') as csv_out:
-                print("Writing '{0}'".format(csv_out.name))
-                csv_writer = csv.writer(csv_out)
-                csv_writer.writerows([header])
-                csv_writer.writerows(data)
+            with open(fname, 'w') as outfile:
+                print("Writing '{0}'".format(outfile.name))
+                outfile.write(template.render(
+                    data=data
+                ))
 
 class IJPPReport(reports.Report):
     SUPPORTED_EXPERIMENTS = ['ijpp', "pj-simple"]

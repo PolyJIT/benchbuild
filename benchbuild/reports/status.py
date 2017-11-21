@@ -19,9 +19,6 @@ class StatusReport(Report):
         )
 
     def report(self):
-        print("I found the following matching experiment ids")
-        print("  \n".join([str(x) for x in self.experiment_ids]))
-
         qry = StatusReport.\
             QUERY_STATUS.unique_params(exp_ids=self.experiment_ids)
         yield ("status",

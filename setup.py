@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from setuptools import setup, find_packages
 
 extra_files = [
@@ -40,6 +39,8 @@ setup(
                   "benchbuild": sql_extra_files,
                   "becnbuild.projects": src_extra_files},
     include_package_data=True,
+    setup_requires=["pytest-runner"],
+    tests_require=["pytest"],
     install_requires=[
         "dill>=0.2",
         "SQLAlchemy>=1.0",
@@ -68,4 +69,4 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3'
     ],
-    keywords="benchbuild experiments run-time", )
+    keywords="benchbuild experiments run-time")

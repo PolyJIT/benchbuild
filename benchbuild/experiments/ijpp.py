@@ -232,9 +232,45 @@ class JitExportGeneratedCode(pj.PolyJIT):
         project.runtime_extension = ext.RunWithTime(pjit_extension)
         return JitExportGeneratedCode.default_runtime_actions(project)
 
+class DBReport(reports.Report):
+    SUPPORTED_EXPERIMENTS = ['pj-db-export']
+    QUERY_CODE = \
+        sa.sql.select([
+            sa.column('project'),
+            sa.column('group'),
+            sa.column('function'),
+            sa.column('jit_ast'),
+            sa.column('jit_schedule'),
+            sa.column('polly_ast'),
+            sa.column('polly_schedule')
+        ]).select_from(sa.func.ijpp_db_export(sa.sql.bindparam('exp_ids')))
+
+
+    def report(self):
+        qry = DBReport.QUERY_CODE.unique_params(exp_ids=self.experiment_ids)
+        yield ("codes",
+               ('project', 'group', 'function',
+                'jit_ast', 'jit_schedule',
+                'polly_ast', 'polly_schedule'),
+               self.session.execute(qry).fetchall())
+
+
+    def generate(self):
+        for name, header, data in self.report():
+            fname = os.path.basename(self.out_path)
+
+            fname = "pj-db-export_{prefix}_{name}{ending}".format(
+                prefix=os.path.splitext(fname)[0],
+                ending=os.path.splitext(fname)[-1],
+                name=name)
+            with open(fname, 'w') as csv_out:
+                print("Writing '{0}'".format(csv_out.name))
+                csv_writer = csv.writer(csv_out)
+                csv_writer.writerows([header])
+                csv_writer.writerows(data)
 
 class IJPPReport(reports.Report):
-    SUPPORTED_EXPERIMENTS = ['ijpp']
+    SUPPORTED_EXPERIMENTS = ['ijpp', "pj-simple"]
 
     QUERY_TIME = \
         sa.sql.select([
@@ -259,9 +295,6 @@ class IJPPReport(reports.Report):
         )
 
     def report(self):
-        print("I found the following matching experiment ids")
-        print("  \n".join([str(x) for x in self.experiment_ids]))
-
         qry = IJPPReport.QUERY_TIME.unique_params(exp_ids=self.experiment_ids)
         yield ("runtime",
                ('project', 'group', 'domain', 'config', 'time', 'variants',

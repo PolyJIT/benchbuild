@@ -80,3 +80,56 @@ RETURN QUERY
   ORDER BY project, region, config;
 END $BODY$ LANGUAGE plpgsql;
 
+
+DROP FUNCTION IF EXISTS ijpp_db_export_per_config(exp_ids UUID[], configs VARCHAR[]);
+CREATE OR REPLACE FUNCTION ijpp_db_export_per_config(exp_ids UUID [], configs VARCHAR[])
+RETURNS TABLE(
+	project    VARCHAR,
+	"group"    VARCHAR,
+        "function" VARCHAR,
+	"ast" 	   VARCHAR,
+	"schedule" VARCHAR,
+	"cfg"	   VARCHAR)
+AS $BODY$ BEGIN
+RETURN QUERY
+    SELECT
+      project_name as project,
+      project_group as "group",
+      isl_asts.function as "function",
+      isl_asts.ast,
+      schedules.schedule,
+      config.value      AS cfg
+    FROM run
+      JOIN isl_asts ON (run.id = isl_asts.run_id)
+      JOIN schedules ON (run.id = schedules.run_id)
+      JOIN config ON (run.id = config.run_id)
+    WHERE
+      isl_asts.function = schedules.function AND
+      config.value = ANY (configs) AND
+      experiment_group = ANY (exp_ids);
+END $BODY$ LANGUAGE plpgsql;
+
+DROP FUNCTION IF EXISTS ijpp_db_export(exp_ids UUID[]);
+CREATE OR REPLACE FUNCTION ijpp_db_export(exp_ids UUID [])
+RETURNS TABLE(
+	project            VARCHAR,
+	"group"            VARCHAR,
+        "function"         VARCHAR,
+	"jit_ast" 	   VARCHAR,
+	"jit_schedule" 	   VARCHAR,
+	"polly_ast" 	   VARCHAR,
+	"polly_schedule"   VARCHAR
+)
+AS $BODY$ BEGIN
+RETURN QUERY
+  select
+    t1."project" as "project", t1."group" as "group",
+    t1."function" as "function",
+    t1.ast AS jit_ast, t1.schedule AS jit_schedule,
+    t2.ast AS polly_ast, t2.schedule AS polly_ast
+  from
+	ijpp_db_export_per_config(exp_ids, '{PolyJIT}') AS t1
+	FULL OUTER JOIN
+	ijpp_db_export_per_config(exp_ids, '{polly.inside}') AS t2
+	on (t1.project = t2.project AND t1."function" = t2."function");
+END $BODY$ LANGUAGE plpgsql;

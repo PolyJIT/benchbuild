@@ -7,6 +7,7 @@ import logging
 import os
 import uuid
 import benchbuild.utils.actions as actions
+import benchbuild.utils.schedule_tree as st
 import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
 import benchbuild.reports as reports
@@ -269,10 +270,10 @@ class DBReport(reports.Report):
                      row[0], row[1],
                      parse.parse("{name}_{id:d}_{mod_hash:d}.pjit.scop_{fn_hash:d}", row[2]),
                      row[3],
-                     row[4],
+                     st.parse_schedule_tree(row[4]),
                      row[5],
                      row[6],
-                     row[7],
+                     st.parse_schedule_tree(row[7]),
                      row[8]) for row in data]
 
             fname = "pj-db-export_{prefix}_{name}.html".format(

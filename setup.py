@@ -52,6 +52,7 @@ setup(
         "sqlalchemy-migrate",
         "pandas>=0.20.3",
         "psutil>=4.0.0",
+        "pyparsing>=2.2",
         "PyYAML>=3.12",
         "Jinja2>=2.2"
     ],

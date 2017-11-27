@@ -189,7 +189,6 @@ class Project(object, metaclass=ProjectDecorator):
         CFG["db"]["run_group"] = str(self.run_uuid)
         with local.cwd(self.builddir):
             group, session = begin_run_group(self)
-            LOG.debug("Registering signal handler")
             signals.handlers.register(fail_run_group, group, session)
 
             try:
@@ -202,7 +201,6 @@ class Project(object, metaclass=ProjectDecorator):
                 fail_run_group(group, session)
                 raise
             finally:
-                LOG.debug("Disabling signal handler")
                 signals.handlers.deregister(fail_run_group, group, session)
 
     def clean(self):

@@ -16,11 +16,9 @@ class CleanupOnSignal(object):
 
     def register(self, callable, *args, **kwargs):
         new_func = functools.partial(callable, *args, **kwargs)
-        LOG.debug("Registering new function %r", new_func)
         self.__stored_procedures[callable] = new_func
 
     def deregister(self, callable, *args, **kwargs):
-        LOG.debug("Unregistering handler")
         del self.__stored_procedures[callable]
 
     def __call__(self):

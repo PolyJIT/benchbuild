@@ -123,6 +123,16 @@ class EnablePolyJIT(PolyJITConfig, ext.Extension):
         return ret
 
 
+class DisableDelinearization(PolyJITConfig, ext.Extension):
+    """Deactivate the JIT for the following extensions."""
+    def __call__(self, *args, **kwargs):
+        ret = None
+        with self.argv(PJIT_ARGS=["-polli-no-delinearization"]):
+            with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
+                ret = self.call_next(*args, **kwargs)
+        return ret
+
+
 class DisablePolyJIT(PolyJITConfig, ext.Extension):
     """Deactivate the JIT for the following extensions."""
     def __call__(self, *args, **kwargs):
@@ -195,9 +205,14 @@ class PolyJITSimple(PolyJIT):
     NAME = "pj-simple"
 
     def actions_for_project(self, project):
+        from benchbuild.settings import CFG
+
         project = PolyJIT.init_project(project)
         project.run_uuid = uuid.uuid4()
+        log_level = verbosity_to_polyjit_log_level(CFG["verbosity"].value())
+
         project.cflags += [
+            "-mllvm", "-polli-log-level={}".format(log_level),
             "-mllvm", "-stats"
         ]
 

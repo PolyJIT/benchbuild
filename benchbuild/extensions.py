@@ -43,6 +43,10 @@ class Extension(metaclass=ABCMeta):
 
         return all_results
 
+    def __lshift__(self, rhs):
+        rhs.next_extensions = [self]
+        return rhs
+
     def print(self, indent=0):
         """Print a structural view of the registered extensions."""
         LOG.info("%s:: %s", indent * " ", self.__class__)

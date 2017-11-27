@@ -8,8 +8,9 @@ import os
 import uuid
 import benchbuild.utils.actions as actions
 import benchbuild.utils.schedule_tree as st
-import benchbuild.extensions as ext
+import benchbuild.experiment as exp
 import benchbuild.experiments.polyjit as pj
+import benchbuild.extensions as ext
 import benchbuild.reports as reports
 import benchbuild.settings as settings
 import sqlalchemy as sa
@@ -64,105 +65,108 @@ class IJPP(pj.PolyJIT):
             "-fopenmp"
         ]
 
-        cfg_jit_inside = {
-            "name": "PolyJIT",
-            "cores": jobs,
-        }
+        ext_jit_opt = ext.RuntimeExtension(
+            project, self, config={
+                "name": "PolyJIT_Opt",
+                "cores": jobs,
+            }) \
+            << ext.RunWithTime() \
+            << pj.EnablePolyJIT_Opt(project=project) \
+            << pj.EnableJITDatabase(project=project) \
+            << pj.RegisterPolyJITLogs() \
+            << pj.ClearPolyJITConfig()
 
-        cfg_jit_inside_opt = {
-            "name": "PolyJIT_Opt",
-            "cores": jobs,
-        }
+        ext_jit = ext.RuntimeExtension(
+            project, self, config={
+                "name": "PolyJIT",
+                "cores": jobs,
+            }) \
+            << ext.RunWithTime() \
+            << pj.EnablePolyJIT(project=project) \
+            << pj.EnableJITDatabase(project=project) \
+            << pj.RegisterPolyJITLogs() \
+            << pj.ClearPolyJITConfig()
 
-        cfg_polly_inside = {
-            "name": "polly.inside",
-            "cores": jobs
-        }
+        ext_jit_polly = ext.RuntimeExtension(
+            project, self, config={
+                "name": "polly.inside",
+                "cores": jobs
+            }) \
+            << ext.RunWithTime() \
+            << pj.DisablePolyJIT(project=project) \
+            << pj.EnableJITDatabase(project=project) \
+            << pj.RegisterPolyJITLogs() \
+            << pj.ClearPolyJITConfig()
 
-        cfg_o3_naked = {
-            "name": "o3.naked",
-            "cores": jobs
-        }
+        ext_jit_no_delin = ext.RuntimeExtension(
+            project, self, config={
+                "name": "PolyJIT.no-delin",
+                "cores": jobs
+            }) \
+            << ext.RunWithTime() \
+            << pj.DisableDelinearization(project=project) \
+            << pj.EnablePolyJIT(project=project) \
+            << pj.EnableJITDatabase(project=project) \
+            << pj.RegisterPolyJITLogs() \
+            << pj.ClearPolyJITConfig()
 
-        cfg_polly_naked = {
-            "name": "polly.naked",
-            "cores": jobs
-        }
+        ext_jit_polly_no_delin = ext.RuntimeExtension(
+            project, self, config={
+                "name": "polly.inside.no-delin",
+                "cores": jobs
+            }) \
+            << ext.RunWithTime() \
+            << pj.DisableDelinearization(project=project) \
+            << pj.DisablePolyJIT(project=project) \
+            << pj.EnableJITDatabase(project=project) \
+            << pj.RegisterPolyJITLogs() \
+            << pj.ClearPolyJITConfig()
 
-        # First we configure the "insides"
-        pjit_extension = ext.Extension(
-            pj.ClearPolyJITConfig(
-                ext.LogAdditionals(
-                    pj.RegisterPolyJITLogs(
-                        pj.EnableJITDatabase(
-                            pj.EnablePolyJIT_Opt(
-                                ext.RuntimeExtension(
-                                    project, self, config=cfg_jit_inside_opt),
-                                project=project), project=project)))),
-            pj.ClearPolyJITConfig(
-                ext.LogAdditionals(
-                    pj.RegisterPolyJITLogs(
-                        pj.EnableJITDatabase(
-                            pj.EnablePolyJIT(
-                                ext.RuntimeExtension(
-                                    project, self, config=cfg_jit_inside),
-                                project=project), project=project)))),
-            pj.ClearPolyJITConfig(
-                ext.LogAdditionals(
-                    pj.RegisterPolyJITLogs(
-                        pj.EnableJITDatabase(
-                            pj.DisablePolyJIT(
-                                ext.RuntimeExtension(
-                                    project, self, config=cfg_polly_inside),
-                                project=project), project=project))))
+        # JIT configurations:
+        #   PolyJIT, polly.inside,
+        #   PolyJIT_Opt, polly.inside.no-delin
+        project.runtime_extension = ext.Extension(
+            ext_jit_opt,
+            ext_jit,
+            ext_jit_polly,
+            ext_jit_no_delin,
+            ext_jit_polly_no_delin
         )
 
-        project.runtime_extension = \
-            ext.RunWithTime(pjit_extension)
-        naked_project.runtime_extension = \
-            ext.RunWithTime(
-                ext.RuntimeExtension(
-                    naked_project, self, config=cfg_o3_naked))
-        naked_polly_project.runtime_extension = \
-            ext.RunWithTime(
-                ext.RuntimeExtension(
-                    naked_polly_project, self, config=cfg_polly_naked))
+        # O3
+        naked_project.runtime_extension = ext.RuntimeExtension(
+            naked_project, self, config={
+                "name": "o3.naked",
+                "cores": jobs
+            }) \
+            << ext.RunWithTime()
+
+        # Polly
+        naked_polly_project.runtime_extension = ext.RuntimeExtension(
+            naked_polly_project, self, config={
+                "name": "polly.naked",
+                "cores": jobs
+            }) \
+            << ext.RunWithTime()
+
+        def ijpp_config(_project, name):
+            return actions.RequireAll([
+                actions.Echo("Stage: JIT Configurations"),
+                actions.MakeBuildDir(_project),
+                actions.Prepare(_project),
+                actions.Download(_project),
+                actions.Configure(_project),
+                actions.Build(_project),
+                actions.Run(_project),
+                actions.Clean(_project),
+                actions.Echo(name),
+            ])
 
         return [
             actions.Any([
-                actions.RequireAll([
-                    actions.Echo("Stage: JIT Configurations"),
-                    actions.MakeBuildDir(project),
-                    actions.Prepare(project),
-                    actions.Download(project),
-                    actions.Configure(project),
-                    actions.Build(project),
-                    actions.Run(project),
-                    actions.Clean(project),
-                    actions.Echo("Stage: JIT Configurations"),
-                ]),
-                actions.RequireAll([
-                    actions.Echo("Stage: O3"),
-                    actions.MakeBuildDir(naked_project),
-                    actions.Prepare(naked_project),
-                    actions.Download(naked_project),
-                    actions.Configure(naked_project),
-                    actions.Build(naked_project),
-                    actions.Run(naked_project),
-                    actions.Clean(naked_project),
-                    actions.Echo("Stage: O3")
-                ]),
-                actions.RequireAll([
-                    actions.Echo("Stage: O3 Polly"),
-                    actions.MakeBuildDir(naked_polly_project),
-                    actions.Prepare(naked_polly_project),
-                    actions.Download(naked_polly_project),
-                    actions.Configure(naked_polly_project),
-                    actions.Build(naked_polly_project),
-                    actions.Run(naked_polly_project),
-                    actions.Clean(naked_polly_project),
-                    actions.Echo("Stage: O3 Polly")
-                ])
+                ijpp_config(project, "Stage: JIT Configurations"),
+                ijpp_config(naked_project, "Stage: O3"),
+                ijpp_config(naked_polly_project, "Stage: O3 Polly")
             ])
         ]
 

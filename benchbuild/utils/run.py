@@ -225,18 +225,15 @@ class RunInfo(object):
 
         with local.env(**cmd_env):
             try:
-                LOG.debug("Command has input via stdin")
                 bin_name = sys.argv[0]
                 retcode, stdout, stderr = \
                     self.cmd & TEE(retcode=expected_retcode)
                 f_stdout = bin_name + ".stdout"
+                f_stderr = bin_name + ".stderr"
                 with open(f_stdout, 'w') as fd_stdout:
-                    LOG.debug("stdout goes to: %s", f_stdout)
                     fd_stdout.write(stdout)
 
-                f_stderr = bin_name + ".stderr"
                 with open(f_stderr, 'w') as fd_stderr:
-                    LOG.debug("stderr goes to: %s", f_stderr)
                     fd_stderr.write(stderr)
 
                 self.retcode = retcode

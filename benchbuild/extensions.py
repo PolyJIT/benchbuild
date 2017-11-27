@@ -72,10 +72,14 @@ class RuntimeExtension(Extension):
                              self.experiment, **kwargs) as run:
             run_info = run()
             if self.config:
+                LOG.info("")
+                LOG.info("==CONFIG==")
                 LOG.info(yaml.dump(self.config,
                                    width=40,
                                    indent=4,
                                    default_flow_style=False))
+                LOG.info("==CONFIG==")
+                LOG.info("")
                 self.config['baseline'] = \
                     os.getenv("BB_IS_BASELINE", "False")
                 persist_config(run_info.db_run, run_info.session, self.config)
@@ -119,7 +123,6 @@ class LogAdditionals(Extension):
 
         for ext in self.next_extensions:
             if issubclass(ext.__class__, (LogTrackingMixin)):
-                LOG.debug("Checking additional log files from: %s", ext)
                 for log in ext.logs:
                     LOG.debug("Dumping content of '%s'.", log)
                     cat[log] & FG
@@ -142,7 +145,6 @@ class RunWithTime(Extension):
 
             session = s.Session()
             for run_info in run_infos:
-                LOG.debug("Persisting time for '%s'", run_info)
                 if may_wrap:
                     timings = fetch_time_output(
                         time_tag,

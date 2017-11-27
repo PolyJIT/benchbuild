@@ -121,4 +121,5 @@ def parse_schedule_tree(tree_str):
         ret = _ROOT.parseString(tree_str)
         return str(ret[0])
     except p.ParseException as ex:
+        LOG.warning(str(ex))
         return str(ex)

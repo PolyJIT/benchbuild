@@ -36,26 +36,13 @@ class IJPP(pj.PolyJIT):
     NAME = "ijpp"
 
     def actions_for_project(self, project):
-        naked_project = copy.deepcopy(project)
-        naked_project.run_uuid = uuid.uuid4()
-
-        naked_polly_project = copy.deepcopy(project)
-        naked_polly_project.run_uuid = uuid.uuid4()
-
-        project = pj.PolyJIT.init_project(project)
-        project.run_uuid = uuid.uuid4()
-
         jobs = int(settings.CFG["jobs"].value())
-        project.cflags += [
-            "-mllvm", "-polly-num-threads={0}".format(jobs), "-fopenmp"
-        ]
-        project.ldflags += [
-            "-lgomp"
-        ]
-
+        naked_project = project.clone()
         naked_project.cflags += [
             "-O3"
         ]
+
+        naked_polly_project = project.clone()
         naked_polly_project.cflags += [
             "-Xclang", "-load",
             "-Xclang", "LLVMPolly.so",
@@ -63,6 +50,14 @@ class IJPP(pj.PolyJIT):
             "-mllvm", "-polly",
             "-mllvm", "-polly-parallel",
             "-fopenmp"
+        ]
+
+        project = pj.PolyJIT.init_project(project)
+        project.cflags += [
+            "-mllvm", "-polly-num-threads={0}".format(jobs), "-fopenmp"
+        ]
+        project.ldflags += [
+            "-lgomp"
         ]
 
         ext_jit_opt = ext.RuntimeExtension(

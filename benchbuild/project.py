@@ -1,5 +1,7 @@
 """Project handling for the benchbuild study."""
+import copy
 import logging
+import uuid
 import warnings
 from abc import abstractmethod
 from functools import partial
@@ -306,3 +308,9 @@ class Project(object, metaclass=ProjectDecorator):
     @abstractmethod
     def build(self):
         """Build the project."""
+
+    def clone(self):
+        """Create a deepcopy of ourself."""
+        new_p = copy.deepcopy(self)
+        new_p.run_uuid = uuid.uuid4()
+        return new_p

@@ -89,7 +89,7 @@ class RuntimeExtension(Extension):
 
 
 class RunWithTimeout(Extension):
-    def __init__(self, *extensions, limit="2m", **kwargs):
+    def __init__(self, *extensions, limit="10m", **kwargs):
         super(RunWithTimeout, self).__init__(*extensions, **kwargs)
         self.limit = limit
 

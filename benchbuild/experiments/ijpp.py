@@ -65,7 +65,6 @@ class IJPP(pj.PolyJIT):
                 "name": "PolyJIT_Opt",
                 "cores": jobs,
             }) \
-            << ext.RunWithTime() \
             << pj.EnablePolyJIT_Opt(project=project) \
             << pj.EnableJITDatabase(project=project) \
             << pj.RegisterPolyJITLogs() \
@@ -76,7 +75,6 @@ class IJPP(pj.PolyJIT):
                 "name": "PolyJIT",
                 "cores": jobs,
             }) \
-            << ext.RunWithTime() \
             << pj.EnablePolyJIT(project=project) \
             << pj.EnableJITDatabase(project=project) \
             << pj.RegisterPolyJITLogs() \
@@ -87,7 +85,6 @@ class IJPP(pj.PolyJIT):
                 "name": "polly.inside",
                 "cores": jobs
             }) \
-            << ext.RunWithTime() \
             << pj.DisablePolyJIT(project=project) \
             << pj.EnableJITDatabase(project=project) \
             << pj.RegisterPolyJITLogs() \
@@ -98,7 +95,6 @@ class IJPP(pj.PolyJIT):
                 "name": "PolyJIT.no-delin",
                 "cores": jobs
             }) \
-            << ext.RunWithTime() \
             << pj.DisableDelinearization(project=project) \
             << pj.EnablePolyJIT(project=project) \
             << pj.EnableJITDatabase(project=project) \
@@ -110,7 +106,6 @@ class IJPP(pj.PolyJIT):
                 "name": "polly.inside.no-delin",
                 "cores": jobs
             }) \
-            << ext.RunWithTime() \
             << pj.DisableDelinearization(project=project) \
             << pj.DisablePolyJIT(project=project) \
             << pj.EnableJITDatabase(project=project) \

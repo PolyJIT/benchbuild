@@ -86,10 +86,10 @@ CREATE OR REPLACE FUNCTION ijpp_db_export_per_config(exp_ids UUID [], configs VA
 RETURNS TABLE(
 	project    VARCHAR,
 	"group"    VARCHAR,
-  "function" VARCHAR,
+        "function" VARCHAR,
 	"ast" 	   VARCHAR,
 	"schedule" VARCHAR,
-  "stderr"   VARCHAR,
+        "stderr"   VARCHAR,
 	"cfg"	   VARCHAR)
 AS $BODY$ BEGIN
 RETURN QUERY
@@ -119,7 +119,7 @@ CREATE OR REPLACE FUNCTION ijpp_db_export(exp_ids UUID [])
 RETURNS TABLE(
 	project            VARCHAR,
 	"group"            VARCHAR,
-  "function"         VARCHAR,
+        "function"         VARCHAR,
 	"jit_ast" 	   VARCHAR,
 	"jit_schedule" 	   VARCHAR,
 	"jit_stderr" 	   VARCHAR,

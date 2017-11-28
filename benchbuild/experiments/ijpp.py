@@ -121,7 +121,7 @@ class IJPP(pj.PolyJIT):
             ext_jit_polly,
             ext_jit_no_delin,
             ext_jit_polly_no_delin
-        )
+        ) << ext.RunWithTime()
 
         # O3
         naked_project.runtime_extension = ext.RuntimeExtension(

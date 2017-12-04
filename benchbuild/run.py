@@ -226,7 +226,7 @@ def print_projects(exp):
         if prj.GROUP not in grouped_by:
             grouped_by[prj.GROUP] = []
 
-        grouped_by[prj.GROUP].append(name)
+        grouped_by[prj.GROUP].append(prj.NAME)
 
     for name in grouped_by:
         from textwrap import wrap

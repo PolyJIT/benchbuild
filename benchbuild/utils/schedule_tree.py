@@ -1,7 +1,7 @@
 """ Parsing utilities for Polly's ScheduleTree representation. """
+import logging
 import textwrap as t
 import pyparsing as p
-import logging
 
 
 LOG = logging.getLogger(__name__)
@@ -13,7 +13,10 @@ class Node(object):
         self.value = tok[2]
     
     def indent(self, level=0, idt=' '):
-        return t.indent('"{:s}": "{:s}"'.format(self.name, self.value), level*idt)
+        val = self.value
+        if not isinstance(self.value, str):
+            val = self.value.indent(level)
+        return t.indent('"{:s}": "{:s}"'.format(self.name, val), level*idt)
 
 
 class CoincidenceNode(object):
@@ -33,6 +36,9 @@ class RootNode(object):
         self.children = tok[1]
 
     def indent(self, level=0, idt=' '):
+        ret = []
+        for r in self.children:
+            ret += r.indent(level+2)
         ret = [child.indent(level+2) for child in self.children]
         ret = ",\n".join(ret)
 
@@ -44,12 +50,10 @@ class RootNode(object):
 
 class ChildNode(RootNode):
     def __init__(self, tok):
-        self.name = tok[0]
-        self.children = tok[3]
+        self.elem = tok[0]
 
     def indent(self, level=0, idt=' '):
-        ret_super = super(ChildNode, self).indent()
-        ret = '"{:s}": {:s}'.format(self.name, ret_super)
+        ret = self.elem.indent(level)
         return t.indent(ret, level*idt)
 
 class SequenceNode(object):
@@ -64,53 +68,64 @@ class SequenceNode(object):
         ret += '\n]'
         return t.indent(ret, level * idt)
 
-class SeqElemNode(object):
-    def __init__(self, tok):
-        self.val = tok[1:-1]
 
-    def indent(self, level=0, idt=' '):
-        ret = "{\n"
-        ret += ",\n".join([elem.indent(level+2) for elem in self.val])
-        ret += "\n}"
+_NUM = p.Word(p.nums, max=1)
+_NUM_LIST = p.Group(p.delimitedList(_NUM))
 
-        return t.indent(ret, level*idt)
+_STR = p.QuotedString('"')
 
+_KW_CHILD = p.Keyword("child")
+_KW_COINCIDENT = p.Keyword("coincident")
+_KW_DOMAIN = p.Keyword("domain")
+_KW_FILTER = p.Keyword("filter")
+_KW_MARK = p.Keyword("mark")
+_KW_OPTIONS = p.Keyword("options")
+_KW_PERMUTABLE = p.Keyword("permutable")
+_KW_SCHEDULE = p.Keyword("schedule")
+_KW_EXTENSION = p.Keyword("extension")
+_KW_SEQUENCE = p.Keyword("sequence")
 
-_CHILD       = p.Forward()
-_NUMS        = p.Word(p.nums, max=1)
-_QUOTED_STR  = p.QuotedString('"')
+_CHILD_NODE = p.Forward()
+_ROOT = p.Forward()
 
-_DOMAIN      = (p.Keyword("domain")     + ":" + _QUOTED_STR)
-_DOMAIN.addParseAction(Node)
+_DOMAIN      = _KW_DOMAIN     + ":" + _STR
+_SCHEDULE    = _KW_SCHEDULE   + ":" + _STR
+_FILTER      = _KW_FILTER     + ":" + _STR
+_MARK        = _KW_MARK       + ":" + _STR
+_PERMUTABLE  = _KW_PERMUTABLE + ":" + _NUM
+_COINCIDENT  = _KW_COINCIDENT + ":" + "[" + _NUM_LIST + "]"
+_OPTIONS     = _KW_OPTIONS    + ":" + _STR
+_EXTENSION   = _KW_EXTENSION  + ":" + _STR
 
-_SCHEDULE    = p.Keyword("schedule")   + ":" + _QUOTED_STR
-_SCHEDULE.addParseAction(Node)
+_SEQ_ELEM_LIST = p.delimitedList(_ROOT)
+_SEQUENCE    = _KW_SEQUENCE + ":" + "[" + p.Group(p.delimitedList(_ROOT)) + "]"
+_CHILD = _KW_CHILD + ":" + _ROOT
+_CHILD_NODE  << (
+                 _CHILD      |
+                 _COINCIDENT |
+                 _DOMAIN     | 
+                 _EXTENSION  |
+                 _FILTER     |
+                 _MARK       |
+                 _OPTIONS    |
+                 _PERMUTABLE |
+                 _SCHEDULE   |
+                 _SEQUENCE
+                )
+_ROOT << ("{" + p.Group(p.delimitedList(_CHILD_NODE)) + "}")
 
-_FILTER_NODE = p.Keyword("filter")     + ":" + _QUOTED_STR
-_FILTER_NODE.addParseAction(Node)
-
-_MARK        = p.Keyword("mark")       + ":" + _QUOTED_STR
-_MARK.addParseAction(Node)
-
-_PERMUTABLE  = p.Keyword("permutable") + ":" + _NUMS
-_PERMUTABLE.addParseAction(Node)
-
-_COINCIDENT  = p.Keyword("coincident") + ":" + "[" + p.Group(p.delimitedList(_NUMS)) + "]"
+_CHILD.addParseAction(Node)
+_CHILD_NODE.addParseAction(ChildNode)
 _COINCIDENT.addParseAction(CoincidenceNode)
-
-_SEQ_ELEM    = "{" + p.delimitedList(_FILTER_NODE | _CHILD) + "}"
-_SEQ_ELEM.addParseAction(SeqElemNode)
-
-_SEQUENCE    = p.Keyword("sequence")   + ":" + "[" + p.Group(p.delimitedList(_SEQ_ELEM)) + "]"
-_SEQUENCE.addParseAction(SequenceNode)
-
-_CHILD_NODE  = _DOMAIN | _SCHEDULE | _SEQUENCE | _PERMUTABLE | _COINCIDENT | _MARK | _CHILD
-_CHILD      << p.Keyword("child") + ":" + "{" + p.Group(p.delimitedList(_CHILD_NODE)) + "}"
-_CHILD.addParseAction(ChildNode)
-
-_ROOT_NODE   = _DOMAIN | _CHILD
-_ROOT = "{" + p.Group(p.delimitedList(_ROOT_NODE)) + "}"
+_DOMAIN.addParseAction(Node)
+_FILTER.addParseAction(Node)
+_MARK.addParseAction(Node)
+_OPTIONS.addParseAction(Node)
+_PERMUTABLE.addParseAction(Node)
 _ROOT.addParseAction(RootNode)
+_EXTENSION.addParseAction(Node)
+_SCHEDULE.addParseAction(Node)
+_SEQUENCE.addParseAction(SequenceNode)
 
 def parse_schedule_tree(tree_str):
     if tree_str is None:
@@ -121,5 +136,7 @@ def parse_schedule_tree(tree_str):
         ret = _ROOT.parseString(tree_str)
         return str(ret[0])
     except p.ParseException as ex:
+        LOG.warning("Failed to parse:")
         LOG.warning(str(ex))
-        return str(ex)
+        LOG.warning(tree_str)
+        return None

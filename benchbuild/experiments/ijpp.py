@@ -260,16 +260,15 @@ class DBReport(reports.Report):
         for name, data in self.report():
             fname = os.path.basename(self.out_path)
 
-            data = [ (
-                     row[0], row[1],
-                     parse.parse("{name}_{id:d}_{mod_hash:d}.pjit.scop_{fn_hash:d}", row[2]),
-                     row[3],
-                     st.parse_schedule_tree(row[4]),
-                     row[5],
-                     row[6],
-                     st.parse_schedule_tree(row[7]),
-                     row[8]) for row in data]
+            def parse_fn_name(fn_name_str):
+                return \
+                    parse.parse(
+                        "{name}_{id:d}_{mod_hash:d}.pjit.scop_{fn_hash:d}",
+                        fn_name_str)
 
+            data = [(row[0], row[1], parse_fn_name(row[2]), row[3],
+                     st.parse_schedule_tree(row[4]), row[5], row[6],
+                     st.parse_schedule_tree(row[7]), row[8]) for row in data]
             fname = "pj-db-export_{prefix}_{name}.html".format(
                 prefix=os.path.splitext(fname)[0],
                 name=name)

@@ -34,8 +34,12 @@ class ProjectRegistry(type):
         """Register a project in the registry."""
         super(ProjectRegistry, cls).__init__(name, bases, attrs)
 
-        if cls.NAME is not None and cls.DOMAIN is not None:
-            ProjectRegistry.projects[cls.NAME] = cls
+        if cls.NAME is not None and \
+           cls.DOMAIN is not None and \
+           cls.GROUP is not None:
+
+           key = "{name}_{group}".format(name=cls.NAME, group=cls.GROUP)
+           ProjectRegistry.projects[key] = cls
 
 
 class ProjectDecorator(ProjectRegistry):
@@ -136,8 +140,8 @@ class Project(object, metaclass=ProjectDecorator):
         if group is not None:
             self.group = group
         self.sourcedir = path.join(str(CFG["src_dir"]), self.name)
-        self.builddir = path.join(str(CFG["build_dir"]), "{0}-{1}-{2}".format(
-            exp.name, self.name, exp.id))
+        self.builddir = path.join(str(CFG["build_dir"]),
+            "{0}-{1}-{2}-{3}".format(exp.name, self.name, self.group, exp.id))
         if group:
             self.testdir = path.join(
                 str(CFG["test_dir"]), self.domain, group, self.name)
@@ -314,3 +318,40 @@ class Project(object, metaclass=ProjectDecorator):
         new_p = copy.deepcopy(self)
         new_p.run_uuid = uuid.uuid4()
         return new_p
+
+
+def populate(projects_to_filter=None, group=None):
+    """
+    Populate the list of projects that belong to this experiment.
+
+    Args:
+        projects_to_filter (list):
+            List of projects we want to assign to this experiment.
+            We intersect the list of projects with the list of supported
+            projects to get the list of projects that belong to this
+            experiment.
+        group (str):
+            In addition to the project filter, we provide a way to filter
+            whole groups.
+    """
+    import benchbuild.projects as all_projects
+    all_projects.discover()
+
+    prjs = ProjectRegistry.projects
+    if projects_to_filter:
+        allkeys = set(list(prjs.keys()))
+        usrkeys = set(projects_to_filter)
+        prjs = {x: prjs[x] for x in allkeys & usrkeys}
+
+    if group:
+        prjs = {
+            name: cls
+            for name, cls in prjs.items() if cls.GROUP == group
+        }
+
+    if projects_to_filter is None:
+        projects_to_filter = []
+
+    return {
+        x: prjs[x] for x in prjs
+        if prjs[x].DOMAIN != "debug" or x in projects_to_filter}

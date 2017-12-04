@@ -1,7 +1,6 @@
 import logging
 from os import path
 
-import benchbuild.extensions as ext
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.compiler import lt_clang
@@ -72,7 +71,7 @@ class PolyBenchGroup(Project):
     }
 
     def __init__(self, exp):
-        super(PolyBenchGroup, self).__init__(exp, "polybench")
+        super(PolyBenchGroup, self).__init__(exp, self.GROUP)
         self.sourcedir = path.join(
             str(CFG["src_dir"]), "polybench", self.path_dict[self.name],
             self.name)

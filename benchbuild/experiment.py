@@ -29,24 +29,21 @@ An experiment performs the following actions in order:
 
 """
 from abc import abstractmethod
+import copy
 import uuid
 import typing as t
 
 import regex
 from plumbum import local
 
-import benchbuild.projects as all_projects
-import benchbuild.project as prj
-import benchbuild.settings as settings
-from benchbuild.project import Project
-from benchbuild.project import ProjectRegistry
+import benchbuild.project as p
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Build, Clean, CleanExtra, Configure,
                                       Download, MakeBuildDir, Prepare,
                                       Run, RequireAll)
 
 
-def get_group_projects(group: str, experiment) -> t.List[Project]:
+def get_group_projects(group: str, experiment) -> t.List[p.Project]:
     """
     Get a list of project names for the given group.
 
@@ -111,7 +108,6 @@ class Experiment(object, metaclass=ExperimentRegistry):
         return new_self
 
     def __init__(self, projects=None, group=None):
-        self.projects = {}
         self.sourcedir = CFG["src_dir"].value()
         self.builddir = str(CFG["build_dir"].value())
         self.testdir = CFG["test_dir"].value()
@@ -124,42 +120,8 @@ class Experiment(object, metaclass=ExperimentRegistry):
             self.id = str(uuid.uuid4())
             cfg_exps[self.name] = self.id
             CFG["experiments"] = cfg_exps
-        self.populate_projects(projects, group)
 
-    def populate_projects(self, projects_to_filter=None, group=None):
-        """
-        Populate the list of projects that belong to this experiment.
-
-        Args:
-            projects_to_filter (list):
-                List of projects we want to assign to this experiment.
-                We intersect the list of projects with the list of supported
-                projects to get the list of projects that belong to this
-                experiment.
-            group (str):
-                In addition to the project filter, we provide a way to filter
-                whole groups.
-        """
-        self.projects = {}
-        all_projects.discover()
-        prjs = ProjectRegistry.projects
-        if projects_to_filter:
-            allkeys = set(list(prjs.keys()))
-            usrkeys = set(projects_to_filter)
-            prjs = {x: prjs[x] for x in allkeys & usrkeys}
-
-        if group:
-            prjs = {
-                name: cls
-                for name, cls in prjs.items() if cls.GROUP == group
-            }
-
-        if projects_to_filter is None:
-            projects_to_filter = []
-
-        self.projects = {
-            x: prjs[x] for x in prjs
-            if prjs[x].DOMAIN != "debug" or x in projects_to_filter}
+        self.projects = p.populate(projects, group)
 
     @abstractmethod
     def actions_for_project(self, project):
@@ -255,3 +217,16 @@ class RuntimeExperiment(Experiment):
                               run_id=run.id)
             session.add(metric)
             session.commit()
+
+
+class Configuration(object):
+    """Build a set of experiment actions out of a list of configurations."""
+
+    def __init__(self, project=None, config=None):
+        _project = copy.deepcopy(project)
+        self.config = {}
+        if project is not None and config is not None:
+            self.config[_project] = config
+
+    def __add__(self, rhs):
+        self.config.update(rhs.config)

@@ -192,39 +192,36 @@ class JitExportGeneratedCode(pj.PolyJIT):
             "-lgomp"
         ]
 
-        cfg_with_jit = {
-            "name": "PolyJIT",
-            "cores": jobs
-        }
+        enable_jit = ext.RuntimeExtension(
+            project, self, config={
+                "name": "PolyJIT",
+                "cores": jobs
+            }) \
+            << pj.EnablePolyJIT(project=project) \
+            << EnableDBExport() \
+            << pj.EnableJITDatabase(project=project) \
+            << pj.RegisterPolyJITLogs() \
+            << ext.LogAdditionals() \
+            << pj.ClearPolyJITConfig()
 
-        cfg_without_jit = {
-            "name": "polly.inside",
-            "cores": jobs
-        }
+        disable_jit = ext.RuntimeExtension(
+            project, self, config={
+                "name": "polly.inside",
+                "cores": jobs
+            }) \
+            << pj.DisablePolyJIT(project=project) \
+            << EnableDBExport() \
+            << pj.EnableJITDatabase(project=project) \
+            << pj.RegisterPolyJITLogs() \
+            << ext.LogAdditionals() \
+            << pj.ClearPolyJITConfig()
 
 
-        jit = ext.RuntimeExtension(project, self, config=cfg_with_jit)
-        enable_jit = pj.EnablePolyJIT(jit, project=project)
-
-        no_jit = ext.RuntimeExtension(project, self, config=cfg_without_jit)
-        disable_jit = pj.DisablePolyJIT(no_jit, project=project)
-
-        pjit_extension = ext.Extension(
-            pj.ClearPolyJITConfig(
-                ext.LogAdditionals(
-                    pj.RegisterPolyJITLogs(
-                        pj.EnableJITDatabase(
-                            EnableDBExport(enable_jit),
-                            project=project)))),
-            pj.ClearPolyJITConfig(
-                ext.LogAdditionals(
-                    pj.RegisterPolyJITLogs(
-                        pj.EnableJITDatabase(
-                            EnableDBExport(disable_jit),
-                            project=project))))
+        project.runtime_extension = ext.Extension(
+            enable_jit,
+            disable_jit
         )
 
-        project.runtime_extension = ext.RunWithTime(pjit_extension)
         return JitExportGeneratedCode.default_runtime_actions(project)
 
 class DBReport(reports.Report):

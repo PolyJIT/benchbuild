@@ -88,7 +88,9 @@ def persist_project(project):
     """
     from benchbuild.utils.schema import Project, Session
     session = Session()
-    projects = session.query(Project).filter(Project.name == project.name)
+    projects = session.query(Project) \
+        .filter(Project.name == project.name) \
+        .filter(Project.group_name == project.group)
 
     name = project.name
     desc = project.__doc__
@@ -109,8 +111,8 @@ def persist_project(project):
         newp.domain = domain
         newp.group_name = group_name
         newp.version = version
-        session.add(newp)
         LOG.debug("Poject INSERT: %s", newp)
+        session.add(newp)
     else:
         newp_value = {
             "name": name,
@@ -120,8 +122,8 @@ def persist_project(project):
             "group_name": group_name,
             "version": version
         }
-        projects.update(newp_value)
         LOG.debug("Project UPDATE: %s", newp_value)
+        projects.update(newp_value)
 
     session.commit()
     return (projects, session)

@@ -15,7 +15,7 @@ class Node(object):
     def indent(self, level=0, idt=' '):
         val = self.value
         if not isinstance(self.value, str):
-            val = self.value.indent(level)
+            val = self.value.indent(1)
         return t.indent('"{:s}": "{:s}"'.format(self.name, val), level*idt)
 
 
@@ -54,7 +54,7 @@ class ChildNode(RootNode):
 
     def indent(self, level=0, idt=' '):
         ret = self.elem.indent(level)
-        return t.indent(ret, level*idt)
+        return ret
 
 class SequenceNode(object):
     def __init__(self, tok):
@@ -64,7 +64,7 @@ class SequenceNode(object):
     def indent(self, level=0, idt=' '):
         ret = '"{:s}": [\n'.format(self.name)
         for child in self.children:
-            ret += child.indent(level+2) + ',\n'
+            ret += child.indent(0) + ',\n'
         ret += '\n]'
         return t.indent(ret, level * idt)
 

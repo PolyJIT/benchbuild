@@ -103,7 +103,7 @@ _CHILD = _KW_CHILD + ":" + _ROOT
 _CHILD_NODE  << (
                  _CHILD      |
                  _COINCIDENT |
-                 _DOMAIN     | 
+                 _DOMAIN     |
                  _EXTENSION  |
                  _FILTER     |
                  _MARK       |

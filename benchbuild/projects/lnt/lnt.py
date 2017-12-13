@@ -84,11 +84,14 @@ class SingleSourceBenchmarks(LNTGroup):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
             self.before_run_tests(experiment, run)
 
-        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
-                str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
-                    self.builddir, self.test_suite_dir), "--test-style",
-                "simple", "--make-param=RUNUNDER=" + str(exp), "--only-test=" +
-                path.join("SingleSource", "Benchmarks"), "-v"])
+        run(lnt["runtest", "nt", "-v", "-j1",
+                "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("SingleSource", "Benchmarks")])
 
         self.after_run_tests(sandbox_dir)
 
@@ -101,11 +104,14 @@ class MultiSourceBenchmarks(LNTGroup):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
             self.before_run_tests(experiment, run)
 
-        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
-                str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
-                    self.builddir, self.test_suite_dir), "--test-style",
-                "simple", "--make-param=RUNUNDER=" + str(exp), "--only-test=" +
-                path.join("MultiSource", "Benchmarks")])
+        run(lnt["runtest", "nt", "-v", "-j1",
+                "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("MultiSource", "Benchmarks")])
 
         self.after_run_tests(sandbox_dir)
 
@@ -118,11 +124,14 @@ class MultiSourceApplications(LNTGroup):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
             self.before_run_tests(experiment, run)
 
-        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
-                str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
-                    self.builddir, self.test_suite_dir), "--test-style",
-                "simple", "--make-param=RUNUNDER=" + str(exp), "--only-test=" +
-                path.join("MultiSource", "Applications")])
+        run(lnt["runtest", "nt", "-v", "-j1",
+                "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("MultiSource", "Applications")])
 
         self.after_run_tests(sandbox_dir)
 
@@ -144,12 +153,18 @@ class SPEC2006(LNTGroup):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
             self.before_run_tests(experiment, run)
 
-        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
-                str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
-                    self.builddir, self.test_suite_dir), "--test-style",
-                "simple", "--test-externals", self.builddir,
-                "--make-param=RUNUNDER=" + str(
-                    exp), "--only-test=" + path.join("External", "SPEC")])
+        run(lnt["runtest", "nt", "-v", "-j1",
+                "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--test-externals", self.builddir,
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("External", "SPEC")])
+
+        self.after_run_tests(sandbox_dir)
+
 
         self.after_run_tests(sandbox_dir)
 
@@ -169,11 +184,14 @@ class Povray(LNTGroup):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
             self.before_run_tests(experiment, run)
 
-        run(lnt["runtest", "nt", "-v", "-j1", "--sandbox", sandbox_dir, "--cc",
-                str(clang), "--cxx", str(clang_cxx), "--test-suite", path.join(
-                    self.builddir, self.test_suite_dir), "--test-style",
-                "simple", "--test-externals", self.builddir,
-                "--make-param=RUNUNDER=" + str(
-                    exp), "--only-test=" + path.join("External", "Povray")])
+        run(lnt["runtest", "nt", "-v", "-j1",
+                "--sandbox", sandbox_dir,
+                "--cc", str(clang),
+                "--cxx", str(clang_cxx),
+                "--test-suite", path.join(self.builddir, self.test_suite_dir),
+                "--test-style", "simple",
+                "--test-externals", self.builddir,
+                "--make-param=RUNUNDER=" + str(exp),
+                "--only-test=" + path.join("External", "Povray")])
 
         self.after_run_tests(sandbox_dir)

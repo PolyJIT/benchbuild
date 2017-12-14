@@ -189,14 +189,22 @@ END $BODY$ LANGUAGE plpgsql;
 
 DROP FUNCTION IF EXISTS ijpp_runs_by_config(exp_id UUID, config_name VARCHAR);
 CREATE OR REPLACE FUNCTION ijpp_runs_by_config(exp_id UUID, config_name VARCHAR)
-  returns table(id INTEGER, value VARCHAR) as $BODY$
-BEGIN
-  RETURN QUERY
-    SELECT rrun.id,
-           rrun.config
-    FROM ijpp_valid_run(exp_id) as rrun
+RETURNS TABLE (
+    id INTEGER,
+    project_name VARCHAR,
+    project_group VARCHAR,
+    config VARCHAR
+)
+AS $BODY$ BEGIN
+RETURN QUERY
+    SELECT
+    	run_1.id,
+   		run_1.project_name,
+        run_1.project_group,
+        run_1.config
+    FROM ijpp_valid_run(exp_id) as run_1
     WHERE
-      rrun.config = config_name;
+      run_1.config = config_name;
 END $BODY$ language plpgsql;
 
 DROP FUNCTION IF EXISTS ijpp_project_region_time(region_name VARCHAR, exp_id UUID, config_name VARCHAR);
@@ -376,8 +384,7 @@ RETURNS TABLE (
   config         VARCHAR,
   cores          VARCHAR,
   region_name    VARCHAR,
-  runtime        NUMERIC,
-  specialization VARCHAR
+  runtime        NUMERIC
 )
 AS $BODY$ BEGIN
 RETURN QUERY
@@ -387,19 +394,18 @@ RETURN QUERY
     run_1.config           AS config,
     config.value           AS cores,
     regions.name           AS region_name,
-    SUM(regions.duration)  AS runtime,
-    spec.value             AS specialization
+    SUM(regions.duration)  AS runtime
   FROM
-           ijpp_valid_run(exp_id)                   AS run_1
-      JOIN ijpp_runs_by_config(exp_id, config_name) AS spec ON (run_1.id = spec.id)
+      ijpp_runs_by_config(exp_id, config_name) AS run_1
       JOIN config                                           ON (run_1.id = config.run_id)
-      JOIN regions                                          ON (run_1.id = regions.id)
+      JOIN regions                                          ON (run_1.id = regions.run_id)
   WHERE
     config.name = 'cores'
   GROUP BY
-    run_1.project_name, run_1.project_group, run_1.config, regions.name, config.value, spec.value
+    run_1.project_name, run_1.project_group, run_1.config, regions.name, config.value, run_1.config
   ORDER BY
     run_1.project_name, run_1.project_group, run_1.config, runtime, config.value;
+
 END $BODY$ language plpgsql;
 
 DROP FUNCTION IF EXISTS ijpp_region_wise_compare(exp_id UUID);
@@ -433,7 +439,7 @@ RETURN QUERY
         spec_enabled.runtime AS runtime_polly,
         spec_disabled.runtime AS runtime_polyjit
       FROM
-             ijpp_run_regions(exp_id, 'PolyJIT') as spec_enabled
+             ijpp_run_regions(exp_id, 'PolyJIT')               as spec_enabled
         JOIN ijpp_run_regions(exp_id, 'polly.inside.no-delin') as spec_disabled
         ON (spec_enabled.project_name = spec_disabled.project_name AND
             spec_enabled.project_group = spec_disabled.project_group AND

@@ -445,8 +445,8 @@ RETURN QUERY
             spec_enabled.project_group = spec_disabled.project_group AND
             spec_enabled.region_name = spec_disabled.region_name AND
             spec_enabled.cores = spec_disabled.cores)
---      WHERE
---        spec_enabled.region != ALL ('{START, CODEGEN, VARIANTS, CACHE_HIT}'::VARCHAR[])
+      WHERE
+        spec_enabled.region_name != ALL ('{START, CODEGEN, VARIANTS, CACHE_HIT}'::VARCHAR[])
       ORDER BY
         project_name, project_group, cores, region
     ) AS results

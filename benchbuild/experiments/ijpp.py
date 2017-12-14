@@ -287,7 +287,7 @@ class IJPPReport(reports.Report):
             sa.column('time'),
             sa.column('variants'),
             sa.column('cachehits')
-        ]).select_from(sa.func.ijpp_total_runtime(sa.sql.bindparam('exp_ids')))
+        ]).select_from(sa.func.ijpp_total_runtime(sa.sql.bindparam('exp_id')))
 
     QUERY_REGION = \
         sa.sql.select([
@@ -297,12 +297,13 @@ class IJPPReport(reports.Report):
             sa.column('runtime')
         ]).\
         select_from(
-            sa.func.ijpp_region_wise(sa.sql.bindparam('exp_ids'))
+            sa.func.ijpp_region_wise(sa.sql.bindparam('exp_id'))
         )
 
     QUERY_IJPP_TOTAL = \
         sa.sql.select([
-            sa.column('project'),
+            sa.column('project_name'),
+            sa.column('project_group'),
             sa.column('domain'),
             sa.column('speedup'),
             sa.column('ohcov_0'),
@@ -323,12 +324,13 @@ class IJPPReport(reports.Report):
             sa.column('o_1')
         ]).\
         select_from(
-            sa.func.ijpp_eval(sa.sql.bindparam('exp_ids'))
+            sa.func.ijpp_eval(sa.sql.bindparam('exp_id'))
         )
 
     QUERY_IJPP_REGION = \
         sa.sql.select([
-            sa.column('project'),
+            sa.column('project_name'),
+            sa.column('project_group'),
             sa.column('region'),
             sa.column('cores'),
             sa.column('t_polly'),
@@ -336,51 +338,50 @@ class IJPPReport(reports.Report):
             sa.column('speedup')
         ]).\
         select_from(
-            sa.func.ijpp_region_wise_compare(sa.sql.bindparam('exp_ids'))
+            sa.func.ijpp_region_wise_compare(sa.sql.bindparam('exp_id'))
         )
 
 
     def report(self):
-        qry = IJPPReport.QUERY_TIME.unique_params(exp_ids=self.experiment_ids)
-        yield ("runtime",
-               ('project', 'group', 'domain', 'config', 'time', 'variants',
-                'cachehits'),
-               self.session.execute(qry).fetchall())
+        for exp_id in self.experiment_ids:
+            qry = IJPPReport.QUERY_TIME.unique_params(exp_id=exp_id)
+            yield ("runtime", exp_id,
+                ('project', 'group', 'domain', 'config', 'time', 'variants',
+                    'cachehits'),
+                self.session.execute(qry).fetchall())
 
-        qry = IJPPReport.QUERY_REGION.unique_params(
-            exp_ids=self.experiment_ids)
-        yield ("regions",
-               ('project', 'region', 'cores', 'runtime'),
-               self.session.execute(qry).fetchall())
+            qry = IJPPReport.QUERY_REGION.unique_params(exp_id=exp_id)
+            yield ("regions", exp_id,
+                ('project', 'region', 'cores', 'runtime'),
+                self.session.execute(qry).fetchall())
 
-        qry = IJPPReport.QUERY_IJPP_TOTAL.unique_params(
-            exp_ids=self.experiment_ids)
+            qry = IJPPReport.QUERY_IJPP_TOTAL.unique_params(exp_id=exp_id)
+            yield ("complete", exp_id,
+                ('project', 'group', 'domain',
+                 'speedup',
+                 'ohcov_0', 'ocov_1',
+                 'dyncov_0', 'dyncov_1',
+                 'cachehits_0', 'cachehits_1',
+                 'variants_0', 'variants_1',
+                 'codegen_0', 'codegen_1',
+                 'scops_0', 'scops_1',
+                 't_0', 'o_0', 't_1', 'o_1'),
+                self.session.execute(qry).fetchall())
 
-        yield ("complete",
-               ('project', 'domain',
-                'speedup',
-                'ohcov_0', 'ocov_1',
-                'dyncov_0', 'dyncov_1',
-                'cachehits_0', 'cachehits_1',
-                'variants_0', 'variants_1',
-                'codegen_0', 'codegen_1',
-                'scops_0', 'scops_1',
-                't_0', 'o_0', 't_1', 'o_1'),
-               self.session.execute(qry).fetchall())
-        qry = IJPPReport.QUERY_IJPP_REGION.unique_params(
-            exp_ids=self.experiment_ids)
-        yield ("region_compare",
-               ('project', 'region', 'cores', 'T_Polly', 'T_PolyJIT',
-                'speedup'),
-               self.session.execute(qry).fetchall())
+            qry = IJPPReport.QUERY_IJPP_REGION.unique_params(exp_id=exp_id)
+            yield ("region_compare", exp_id,
+                ('project', 'region', 'cores', 'T_Polly', 'T_PolyJIT',
+                    'speedup'),
+                self.session.execute(qry).fetchall())
 
     def generate(self):
-        for name, header, data in self.report():
+        for name, exp_id, header, data in self.report():
             fname = os.path.basename(self.out_path)
 
-            fname = "ijpp_{prefix}_{name}{ending}".format(
+            fname = "ijpp_{prefix}_{name}_{exp_id}{ending}".format(
                 prefix=os.path.splitext(fname)[0],
                 ending=os.path.splitext(fname)[-1],
+                exp_id=exp_id,
                 name=name)
             with open(fname, 'w') as csv_out:
                 print("Writing '{0}'".format(csv_out.name))

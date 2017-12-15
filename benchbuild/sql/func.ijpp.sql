@@ -245,9 +245,9 @@ AS $BODY$ BEGIN
     run_1.project_group,
     SUM(regions.duration)
   FROM
-         ijpp_valid_run(exp_id)                    AS run_1
+         ijpp_valid_run(exp_id)                   AS run_1
     JOIN ijpp_runs_by_config(exp_id, config_name) AS run_2 ON (run_1.id = run_2.id)
-    JOIN regions                                            ON (run_1.id = regions.run_id)
+    JOIN regions                                           ON (run_1.id = regions.run_id)
   WHERE
     regions.name != ALL (region_names)
   GROUP BY

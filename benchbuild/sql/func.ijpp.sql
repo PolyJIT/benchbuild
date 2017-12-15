@@ -368,8 +368,8 @@ RETURN QUERY
       project ON (coverage.project_name = project.name)
   WHERE
     coverage.t_0 > 1000 AND
-    coverage.scops_1 is not NULL and
     coverage.variants_1 > 0 and
+    coverage.scops_1 is not NULL and
     coverage.t_1 is not NULL
   ORDER BY
     project.domain ASC,

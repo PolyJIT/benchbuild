@@ -359,7 +359,7 @@ class IJPPReport(reports.Report):
             yield ("complete", exp_id,
                 ('project', 'group', 'domain',
                  'speedup',
-                 'ohcov_0', 'ocov_1',
+                 'ohcov_0', 'ohcov_1',
                  'dyncov_0', 'dyncov_1',
                  'cachehits_0', 'cachehits_1',
                  'variants_0', 'variants_1',

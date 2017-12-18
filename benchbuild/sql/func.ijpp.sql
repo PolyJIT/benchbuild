@@ -322,7 +322,7 @@ AS $BODY$ BEGIN
                                                                                                 AS scops_0 ON (scops_0.project_name = T_0.project_name AND scops_0.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time_not_in('{START, CODEGEN, VARIANTS, CACHE_HIT, REQUESTS, BLOCKED}'::VARCHAR[], exp_id, 'PolyJIT'))
                                                                                                 AS scops_1 ON (scops_1.project_name = T_0.project_name AND scops_1.project_group = T_0.project_group)
-  WHERE TRUE;--B_1.duration != variants_1.duration;
+  WHERE B_1.duration != variants_1.duration;
 END
 $BODY$ LANGUAGE plpgsql;
 

@@ -286,7 +286,9 @@ class IJPPReport(reports.Report):
             sa.column('config'),
             sa.column('time'),
             sa.column('variants'),
-            sa.column('cachehits')
+            sa.column('cachehits'),
+            sa.column('requests'),
+            sa.column('blocked')
         ]).select_from(sa.func.ijpp_total_runtime(sa.sql.bindparam('exp_id')))
 
     QUERY_REGION = \
@@ -347,7 +349,7 @@ class IJPPReport(reports.Report):
             qry = IJPPReport.QUERY_TIME.unique_params(exp_id=exp_id)
             yield ("runtime", exp_id,
                 ('project', 'group', 'domain', 'config', 'time', 'variants',
-                    'cachehits'),
+                    'cachehits', 'requests', 'blocked'),
                 self.session.execute(qry).fetchall())
 
             qry = IJPPReport.QUERY_REGION.unique_params(exp_id=exp_id)
@@ -370,8 +372,8 @@ class IJPPReport(reports.Report):
 
             qry = IJPPReport.QUERY_IJPP_REGION.unique_params(exp_id=exp_id)
             yield ("region_compare", exp_id,
-                ('project', 'region', 'cores', 'T_Polly', 'T_PolyJIT',
-                    'speedup'),
+                ('project', 'group', 'region', 'cores', 'T_Polly', 'T_PolyJIT',
+                 'speedup'),
                 self.session.execute(qry).fetchall())
 
     def generate(self):

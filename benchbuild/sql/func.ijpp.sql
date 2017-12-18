@@ -64,7 +64,9 @@ RETURNS TABLE(
   config VARCHAR,
   "time" DOUBLE PRECISION,
   variants NUMERIC,
-  cachehits NUMERIC
+  cachehits NUMERIC,
+  requests NUMERIC,
+  blocked NUMERIC
 )
 AS $BODY$ BEGIN
 RETURN QUERY
@@ -75,7 +77,9 @@ RETURN QUERY
     rrun.config,
     SUM(COALESCE(r.duration / 1000000, metrics.value)) AS time,
     SUM(COALESCE(vars.duration, 0)) AS variants,
-    SUM(COALESCE(chits.duration, 0)) AS cachehits
+    SUM(COALESCE(chits.duration, 0)) AS cachehits,
+    SUM(COALESCE(rqsts.duration, 0)) AS requests,
+    SUM(COALESCE(blkd.duration, 0)) AS blocked
   FROM
          ijpp_valid_run(exp_id) AS rrun
     JOIN metrics ON (rrun.id = metrics.run_id)
@@ -83,6 +87,10 @@ RETURN QUERY
          (SELECT * FROM regions WHERE regions.name = 'VARIANTS') AS vars ON (rrun.id = vars.run_id)
     FULL OUTER JOIN
          (SELECT * FROM regions WHERE regions.name = 'CACHE_HIT') AS chits ON (rrun.id = chits.run_id)
+    FULL OUTER JOIN
+         (SELECT * FROM regions WHERE regions.name = 'REQUESTS') AS rqsts ON (rrun.id = rqsts.run_id)
+    FULL OUTER JOIN
+         (SELECT * FROM regions WHERE regions.name = 'BLOCKED') AS blkd ON (rrun.id = blkd.run_id)
     FULL OUTER JOIN
          (SELECT * FROM regions WHERE regions.name = 'START') AS r ON (rrun.id = r.run_id)
     JOIN project AS prj ON (rrun.project_name = prj.name AND
@@ -113,7 +121,7 @@ RETURN QUERY
   FROM ijpp_valid_run(exp_id) AS rrun
       LEFT JOIN regions ON (rrun.id = regions.run_id)
   WHERE
-    regions.name != ALL ('{START, CODEGEN, CACHE_HIT, VARIANTS}'::VARCHAR[])
+    regions.name != ALL ('{START, CODEGEN, CACHE_HIT, VARIANTS, REQUESTS, BLOCKED}'::VARCHAR[])
   GROUP BY
     rrun.project_name, regions.name, rrun.config
   ORDER BY project, region, config;
@@ -436,8 +444,8 @@ RETURN QUERY
         spec_enabled.project_group AS project_group,
         spec_enabled.region_name AS region_name,
         spec_enabled.cores AS cores,
-        spec_enabled.runtime AS runtime_polly,
-        spec_disabled.runtime AS runtime_polyjit
+        spec_enabled.runtime AS runtime_polyjit,
+        spec_disabled.runtime AS runtime_polly
       FROM
              ijpp_run_regions(exp_id, 'PolyJIT')               as spec_enabled
         JOIN ijpp_run_regions(exp_id, 'polly.inside.no-delin') as spec_disabled
@@ -446,7 +454,7 @@ RETURN QUERY
             spec_enabled.region_name = spec_disabled.region_name AND
             spec_enabled.cores = spec_disabled.cores)
       WHERE
-        spec_enabled.region_name != ALL ('{START, CODEGEN, VARIANTS, CACHE_HIT}'::VARCHAR[])
+        spec_enabled.region_name != ALL ('{START, CODEGEN, VARIANTS, CACHE_HIT, REQUESTS, BLOCKED}'::VARCHAR[])
       ORDER BY
         project_name, project_group, cores, region
     ) AS results

@@ -287,8 +287,8 @@ RETURNS TABLE (
 AS $BODY$ BEGIN
   RETURN QUERY
   SELECT
-    total.project_name                            AS project_name,
-    total.project_group                           AS project_group,
+    T_0.project_name                              AS project_name,
+    T_0.project_group                             AS project_group,
     (O_0.duration / T_0.duration * 100)           AS ohcov_0,
     (O_1.duration / T_1.duration * 100)           AS ohcov_1,
     (scops_0.duration / T_0.duration * 100)       AS dyncov_0,
@@ -306,20 +306,23 @@ AS $BODY$ BEGIN
     T_1.duration                                  AS t_1,
     O_1.duration                                  AS o_1
   FROM
-         (SELECT * FROM ijpp_project_region_time('START',     exp_id, 'polly.inside.no-delin')) AS total
-    JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'polly.inside.no-delin')) AS codegen_0  ON (codegen_0.project_name = total.project_name AND codegen_0.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'PolyJIT'))               AS codegen_1  ON (codegen_1.project_name = total.project_name AND codegen_1.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time('CACHE_HIT', exp_id, 'polly.inside.no-delin')) AS ch_0       ON (ch_0.project_name = total.project_name AND ch_0.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time('CACHE_HIT', exp_id, 'PolyJIT'))               AS ch_1       ON (ch_1.project_name = total.project_name AND ch_1.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time('VARIANTS',  exp_id, 'polly.inside.no-delin')) AS variants_0 ON (variants_0.project_name = total.project_name AND variants_0.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time('VARIANTS',  exp_id, 'PolyJIT'))               AS variants_1 ON (variants_1.project_name = total.project_name AND variants_1.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time_not_in('{START, CODEGEN, VARIANTS, CACHE_HIT}'::VARCHAR[], exp_id, 'polly.inside.no-delin')) AS scops_0 ON (scops_0.project_name = total.project_name AND scops_0.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time_not_in('{START, CODEGEN, VARIANTS, CACHE_HIT}'::VARCHAR[], exp_id, 'PolyJIT'))               AS scops_1 ON (scops_1.project_name = total.project_name AND scops_1.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time('START',     exp_id, 'polly.inside.no-delin')) AS T_0 ON (T_0.project_name = total.project_name AND T_0.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'polly.inside.no-delin')) AS O_0 ON (O_0.project_name = total.project_name AND O_0.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time('START',     exp_id, 'PolyJIT'))               AS T_1 ON (T_1.project_name = total.project_name AND T_1.project_group = total.project_group)
-    JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'PolyJIT'))               AS O_1 ON (O_1.project_name = total.project_name AND O_1.project_group = total.project_group)
-  WHERE TRUE;
+         (SELECT * FROM ijpp_project_region_time('START',     exp_id, 'polly.inside.no-delin')) AS T_0
+    JOIN (SELECT * FROM ijpp_project_region_time('START',     exp_id, 'PolyJIT'))               AS T_1 ON (T_1.project_name = T_0.project_name AND T_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'polly.inside.no-delin')) AS codegen_0  ON (codegen_0.project_name = T_0.project_name AND codegen_0.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'PolyJIT'))               AS codegen_1  ON (codegen_1.project_name = T_0.project_name AND codegen_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('CACHE_HIT', exp_id, 'polly.inside.no-delin')) AS ch_0       ON (ch_0.project_name = T_0.project_name AND ch_0.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('CACHE_HIT', exp_id, 'PolyJIT'))               AS ch_1       ON (ch_1.project_name = T_0.project_name AND ch_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('VARIANTS',  exp_id, 'polly.inside.no-delin')) AS variants_0 ON (variants_0.project_name = T_0.project_name AND variants_0.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('VARIANTS',  exp_id, 'PolyJIT'))               AS variants_1 ON (variants_1.project_name = T_0.project_name AND variants_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'polly.inside.no-delin')) AS O_0 ON (O_0.project_name = T_0.project_name AND O_0.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'PolyJIT'))               AS O_1 ON (O_1.project_name = T_0.project_name AND O_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('BLOCKED',   exp_id, 'polly.inside.no-delin')) AS B_0 ON (B_0.project_name = T_0.project_name AND B_0.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('BLOCKED',   exp_id, 'PolyJIT'))               AS B_1 ON (B_1.project_name = T_0.project_name AND B_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time_not_in('{START, CODEGEN, VARIANTS, CACHE_HIT, REQUESTS, BLOCKED}'::VARCHAR[], exp_id, 'polly.inside.no-delin'))
+                                                                                                AS scops_0 ON (scops_0.project_name = T_0.project_name AND scops_0.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time_not_in('{START, CODEGEN, VARIANTS, CACHE_HIT, REQUESTS, BLOCKED}'::VARCHAR[], exp_id, 'PolyJIT'))
+                                                                                                AS scops_1 ON (scops_1.project_name = T_0.project_name AND scops_1.project_group = T_0.project_group)
+  WHERE TRUE;--B_1.duration != variants_1.duration;
 END
 $BODY$ LANGUAGE plpgsql;
 
@@ -373,12 +376,11 @@ RETURN QUERY
   FROM
     ijpp_total_dyncov(exp_ids)                  AS coverage
     LEFT JOIN
-      project ON (coverage.project_name = project.name)
+      project ON (coverage.project_name = project.name AND coverage.project_group = project.group_name)
   WHERE
-    coverage.t_0 > 1000 AND
     coverage.variants_1 > 0 and
-    coverage.scops_1 is not NULL and
-    coverage.t_1 is not NULL
+    coverage.t_0 > 0 and
+    coverage.t_1 > 0
   ORDER BY
     project.domain ASC,
     coverage.dyncov_1 DESC;

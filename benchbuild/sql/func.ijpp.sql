@@ -83,18 +83,18 @@ RETURN QUERY
   FROM
          ijpp_valid_run(exp_id) AS rrun
     JOIN metrics ON (rrun.id = metrics.run_id)
-    FULL OUTER JOIN
+    LEFT JOIN
          (SELECT * FROM regions WHERE regions.name = 'VARIANTS') AS vars ON (rrun.id = vars.run_id)
-    FULL OUTER JOIN
+    LEFT JOIN
          (SELECT * FROM regions WHERE regions.name = 'CACHE_HIT') AS chits ON (rrun.id = chits.run_id)
-    FULL OUTER JOIN
+    LEFT JOIN
          (SELECT * FROM regions WHERE regions.name = 'REQUESTS') AS rqsts ON (rrun.id = rqsts.run_id)
-    FULL OUTER JOIN
+    LEFT JOIN
          (SELECT * FROM regions WHERE regions.name = 'BLOCKED') AS blkd ON (rrun.id = blkd.run_id)
-    FULL OUTER JOIN
+    LEFT JOIN
          (SELECT * FROM regions WHERE regions.name = 'START') AS r ON (rrun.id = r.run_id)
-    JOIN project AS prj ON (rrun.project_name = prj.name AND
-                            rrun.project_group = prj.group_name)
+    LEFT JOIN project AS prj ON (rrun.project_name = prj.name AND
+                                 rrun.project_group = prj.group_name)
   WHERE
     metrics.name = 'time.real_s'
   GROUP BY
@@ -208,8 +208,8 @@ RETURN QUERY
     SELECT
     	run_1.id,
    		run_1.project_name,
-        run_1.project_group,
-        run_1.config
+      run_1.project_group,
+      run_1.config
     FROM ijpp_valid_run(exp_id) as run_1
     WHERE
       run_1.config = config_name;
@@ -270,20 +270,32 @@ RETURNS TABLE (
   project_group  VARCHAR,
   ohcov_0   NUMERIC,
   ohcov_1   NUMERIC,
+  ohcov_2   NUMERIC,
   dyncov_0   NUMERIC,
   dyncov_1   NUMERIC,
+  dyncov_2   NUMERIC,
   cachehits_0 NUMERIC,
   cachehits_1 NUMERIC,
+  cachehits_2 NUMERIC,
   variants_0 NUMERIC,
   variants_1 NUMERIC,
+  variants_2 NUMERIC,
+  blocked_0 NUMERIC,
+  blocked_1 NUMERIC,
+  blocked_2 NUMERIC,
   codegen_0   NUMERIC,
   codegen_1   NUMERIC,
+  codegen_2   NUMERIC,
   scops_0   NUMERIC,
   scops_1   NUMERIC,
+  scops_2   NUMERIC,
   t_0       NUMERIC,
   o_0       NUMERIC,
   t_1       NUMERIC,
-  o_1       NUMERIC)
+  o_1       NUMERIC,
+  t_2       NUMERIC,
+  o_2       NUMERIC
+  )
 AS $BODY$ BEGIN
   RETURN QUERY
   SELECT
@@ -291,64 +303,95 @@ AS $BODY$ BEGIN
     T_0.project_group                             AS project_group,
     (O_0.duration / T_0.duration * 100)           AS ohcov_0,
     (O_1.duration / T_1.duration * 100)           AS ohcov_1,
+    (O_2.duration / T_2.duration * 100)           AS ohcov_2,
     (scops_0.duration / T_0.duration * 100)       AS dyncov_0,
     (scops_1.duration / T_1.duration * 100)       AS dyncov_1,
-    ch_0.duration                                 AS cachehits_0,
-    ch_1.duration                                 AS cachehits_1,
-    variants_0.duration                           AS variants_0,
-    variants_1.duration                           AS variants_1,
-    codegen_0.duration                            AS codegen_0,
-    codegen_1.duration                            AS codegen_1,
-    scops_0.duration                              AS scops_0,
-    scops_1.duration                              AS scops_1,
-    T_0.duration                                  AS t_0,
-    O_0.duration                                  AS o_0,
-    T_1.duration                                  AS t_1,
-    O_1.duration                                  AS o_1
+    (scops_2.duration / T_2.duration * 100)       AS dyncov_2,
+    COALESCE(ch_0.duration, 0)                    AS cachehits_0,
+    COALESCE(ch_1.duration, 0)                    AS cachehits_1,
+    COALESCE(ch_2.duration, 0)                    AS cachehits_2,
+    COALESCE(variants_0.duration, 0)              AS variants_0,
+    COALESCE(variants_1.duration, 0)              AS variants_1,
+    COALESCE(variants_2.duration, 0)              AS variants_2,
+    COALESCE(B_0.duration, 0)                     AS blocked_0,
+    COALESCE(B_1.duration, 0)                     AS blocked_1,
+    COALESCE(B_2.duration, 0)                     AS blocked_2,
+    COALESCE(codegen_0.duration, 0)               AS codegen_0,
+    COALESCE(codegen_1.duration, 0)               AS codegen_1,
+    COALESCE(codegen_2.duration, 0)               AS codegen_2,
+    COALESCE(scops_0.duration, 0)                 AS scops_0,
+    COALESCE(scops_1.duration, 0)                 AS scops_1,
+    COALESCE(scops_2.duration, 0)                 AS scops_2,
+    COALESCE(T_0.duration, 0)                     AS t_0,
+    COALESCE(O_0.duration, 0)                     AS o_0,
+    COALESCE(T_1.duration, 0)                     AS t_1,
+    COALESCE(O_1.duration, 0)                     AS o_1,
+    COALESCE(T_2.duration, 0)                     AS t_2,
+    COALESCE(O_2.duration, 0)                     AS o_2
   FROM
-         (SELECT * FROM ijpp_project_region_time('START',     exp_id, 'polly.inside.no-delin')) AS T_0
-    JOIN (SELECT * FROM ijpp_project_region_time('START',     exp_id, 'PolyJIT'))               AS T_1 ON (T_1.project_name = T_0.project_name AND T_1.project_group = T_0.project_group)
+              (SELECT * FROM ijpp_project_region_time('START',     exp_id, 'polly.inside.no-delin')) AS T_0
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('START',     exp_id, 'PolyJIT'))               AS T_1 ON (T_1.project_name = T_0.project_name AND T_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('START',     exp_id, 'polly.inside'))          AS T_2 ON (T_2.project_name = T_0.project_name AND T_2.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'polly.inside.no-delin')) AS codegen_0  ON (codegen_0.project_name = T_0.project_name AND codegen_0.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'PolyJIT'))               AS codegen_1  ON (codegen_1.project_name = T_0.project_name AND codegen_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'polly.inside'))          AS codegen_2  ON (codegen_2.project_name = T_0.project_name AND codegen_2.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time('CACHE_HIT', exp_id, 'polly.inside.no-delin')) AS ch_0       ON (ch_0.project_name = T_0.project_name AND ch_0.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time('CACHE_HIT', exp_id, 'PolyJIT'))               AS ch_1       ON (ch_1.project_name = T_0.project_name AND ch_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('CACHE_HIT', exp_id, 'polly.inside'))          AS ch_2       ON (ch_2.project_name = T_0.project_name AND ch_2.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time('VARIANTS',  exp_id, 'polly.inside.no-delin')) AS variants_0 ON (variants_0.project_name = T_0.project_name AND variants_0.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time('VARIANTS',  exp_id, 'PolyJIT'))               AS variants_1 ON (variants_1.project_name = T_0.project_name AND variants_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('VARIANTS',  exp_id, 'polly.inside'))          AS variants_2 ON (variants_2.project_name = T_0.project_name AND variants_2.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'polly.inside.no-delin')) AS O_0 ON (O_0.project_name = T_0.project_name AND O_0.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'PolyJIT'))               AS O_1 ON (O_1.project_name = T_0.project_name AND O_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('CODEGEN',   exp_id, 'polly.inside'))          AS O_2 ON (O_2.project_name = T_0.project_name AND O_2.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time('BLOCKED',   exp_id, 'polly.inside.no-delin')) AS B_0 ON (B_0.project_name = T_0.project_name AND B_0.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time('BLOCKED',   exp_id, 'PolyJIT'))               AS B_1 ON (B_1.project_name = T_0.project_name AND B_1.project_group = T_0.project_group)
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time('BLOCKED',   exp_id, 'polly.inside'))          AS B_2 ON (B_2.project_name = T_0.project_name AND B_2.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time_not_in('{START, CODEGEN, VARIANTS, CACHE_HIT, REQUESTS, BLOCKED}'::VARCHAR[], exp_id, 'polly.inside.no-delin'))
                                                                                                 AS scops_0 ON (scops_0.project_name = T_0.project_name AND scops_0.project_group = T_0.project_group)
     LEFT JOIN (SELECT * FROM ijpp_project_region_time_not_in('{START, CODEGEN, VARIANTS, CACHE_HIT, REQUESTS, BLOCKED}'::VARCHAR[], exp_id, 'PolyJIT'))
                                                                                                 AS scops_1 ON (scops_1.project_name = T_0.project_name AND scops_1.project_group = T_0.project_group)
-  WHERE B_1.duration != variants_1.duration;
+    LEFT JOIN (SELECT * FROM ijpp_project_region_time_not_in('{START, CODEGEN, VARIANTS, CACHE_HIT, REQUESTS, BLOCKED}'::VARCHAR[], exp_id, 'polly.inside'))
+                                                                                                AS scops_2 ON (scops_2.project_name = T_0.project_name AND scops_2.project_group = T_0.project_group)
+  WHERE TRUE;--B_1.duration != variants_1.duration;
 END
 $BODY$ LANGUAGE plpgsql;
 
 DROP FUNCTION IF EXISTS ijpp_eval(exp_ids UUID);
 CREATE OR REPLACE FUNCTION ijpp_eval(exp_ids UUID)
 RETURNS TABLE (
-  project_name   VARCHAR,
-  project_group   VARCHAR,
-  domain    VARCHAR,
-  ohcov_0   NUMERIC,
-  ohcov_1   NUMERIC,
-  dyncov_0   NUMERIC,
-  dyncov_1   NUMERIC,
+  project_name VARCHAR,
+  project_group VARCHAR,
+  domain VARCHAR,
+  ohcov_0 NUMERIC,
+  ohcov_1 NUMERIC,
+  ohcov_2 NUMERIC,
+  dyncov_0 NUMERIC,
+  dyncov_1 NUMERIC,
+  dyncov_2 NUMERIC,
   cachehits_0 NUMERIC,
   cachehits_1 NUMERIC,
+  cachehits_2 NUMERIC,
   variants_0 NUMERIC,
   variants_1 NUMERIC,
-  codegen_0   NUMERIC,
-  codegen_1   NUMERIC,
-  scops_0   NUMERIC,
-  scops_1   NUMERIC,
-  t_0       NUMERIC,
-  o_0       NUMERIC,
-  t_1       NUMERIC,
-  o_1       NUMERIC,
-  speedup   NUMERIC
+  variants_2 NUMERIC,
+  blocked_0 NUMERIC,
+  blocked_1 NUMERIC,
+  blocked_2 NUMERIC,
+  codegen_0 NUMERIC,
+  codegen_1 NUMERIC,
+  codegen_2 NUMERIC,
+  scops_0 NUMERIC,
+  scops_1 NUMERIC,
+  scops_2 NUMERIC,
+  t_0 NUMERIC,
+  o_0 NUMERIC,
+  t_1 NUMERIC,
+  o_1 NUMERIC,
+  t_2 NUMERIC,
+  o_2 NUMERIC,
+  speedup_0 NUMERIC,
+  speedup_2 NUMERIC
 )
 AS $BODY$ BEGIN
 RETURN QUERY
@@ -358,21 +401,33 @@ RETURN QUERY
     project.domain                              AS domain,
     coverage.ohcov_0                            AS OhCov_POLLY,
     coverage.ohcov_1                            AS OhCov_PJIT,
+    coverage.ohcov_2                            AS OhCov_POLLY_1,
     coverage.dyncov_0                           AS DynCov_POLLY,
     coverage.dyncov_1                           AS DynCov_PJIT,
+    coverage.dyncov_2                           AS DynCov_POLLY_1,
     coverage.cachehits_0                        AS CH_POLLY,
     coverage.cachehits_1                        AS CH_PJIT,
+    coverage.cachehits_2                        AS CH_POLLY_1,
     coverage.variants_0                         AS VARS_POLLY,
     coverage.variants_1                         AS VARS_PJIT,
+    coverage.variants_2                         AS VARS_POLLY_1,
+    coverage.blocked_0                          AS BLKD_POLLY,
+    coverage.blocked_1                          AS BLKD_PJIT,
+    coverage.blocked_2                          AS BLKD_POLLY_1,
     coverage.codegen_0 / 1000000                AS Oh_POLLY,
     coverage.codegen_1 / 1000000                AS Oh_PJIT,
+    coverage.codegen_2 / 1000000                AS Oh_POLLY_1,
     coverage.scops_0 / 1000000                  AS Scop_POLLY,
     coverage.scops_1 / 1000000                  AS Scops_PJIT,
+    coverage.scops_2 / 1000000                  AS Scops_POLLY_1,
     coverage.t_0 / 1000000                      AS T_POLLY,
     coverage.o_0 / 1000000                      AS OH_POLLY,
     coverage.t_1 / 1000000                      AS T_PJIT,
     coverage.o_1 / 1000000                      AS OH_PJIT,
-    speedup(coverage.t_0, coverage.t_1)         AS speedup
+    coverage.t_2 / 1000000                      AS T_POLLY_1,
+    coverage.o_2 / 1000000                      AS OH_POLLY_1,
+    speedup(coverage.t_0, coverage.t_1)         AS speedup_0,
+    speedup(coverage.t_2, coverage.t_1)         AS speedup_1
   FROM
     ijpp_total_dyncov(exp_ids)                  AS coverage
     LEFT JOIN

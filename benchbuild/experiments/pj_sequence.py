@@ -85,7 +85,12 @@ def get_genetic_defaults():
 
 
 def get_args(cmd):
-    """Returns the arguments of a command."""
+    """
+    Returns the arguments of a command.
+    Asserts if the given command is not part of the experiment.
+    Args:
+        cmd: The clang command of which the arguments are returned.
+    """
     assert hasattr(cmd, 'cmd')
 
     if hasattr(cmd, 'args'):
@@ -95,7 +100,13 @@ def get_args(cmd):
 
 
 def set_args(cmd, new_args):
-    """Sets the arguments of a command."""
+    """
+    Sets the arguments of a command.
+    Also asserts if the command is empty.
+    Args:
+        cmd: The clang command that is getting its arguments set.
+        new_args: The new additional arguments of the command.
+    """
     assert hasattr(cmd, 'cmd')
 
     if hasattr(cmd, 'args'):

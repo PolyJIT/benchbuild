@@ -2,54 +2,21 @@
 Handle all statsitic related classes and methods.
 """
 import logging
-import parse
 
-from statistics import median
 from benchbuild.extensions import Extension
 from benchbuild.utils.schema import Session
 
-"""Currently scipy is disabled due to scipy having a dependency on numpy."""
-#from scipy import stats
-
 LOG = logging.getLogger(__name__)
 
-TIMEOUT = 5
-NULLHYPO = 0.0 # means the results are not related to each other
-P_VAL = 0.6 # with a chance of 60% the null hypothesis is wrong
-
-def dist_func(run_info):
-    """
-    The default p value calculation of the experiment under the assumption
-    that the results are normally distributed in a two-tailed test static.
-    The p value gets calculated based on one sample array of results.
-    This sample pool is created by putting all values of a measured project
-    into a list.
-    """
-    values = []
-    p_val = 0.0
-    if run_info.db_run.status == "completed":
-        results = []
-        result_pattern = parse.compile("{value:d} {component} - {desc}\n")
-
-        for line in run_info.stderr.split("\n"):
-            if line:
-                try:
-                    results = result_pattern.search(line + "\n")
-                except ValueError:
-                    LOG.warning("Could not parse: '" + line + "'\n")
-
-        if results is not None:
-            for stat in results:
-                values.append(stat["value"])
-                print("value added to the array: " + stat["value"])
-            #_, p_val = stats.ttest_1samp(values, NULLHYPO)
-    return p_val
-
+TIMEOUT = 3
 
 class Statistics(Extension):
     """
     Extend a run to be repeated until it reaches a statistically significance
     specified by the user.
+
+    An example on how to use this extension can be found in the Pollytest
+    Experiment.
     """
     def __init__(self, project, experiment, *extensions, config=None, **kwargs):
         self.project = project
@@ -57,53 +24,26 @@ class Statistics(Extension):
 
         super(Statistics, self).__init__(*extensions, config=config)
 
-    def __call__(self, *args, min_p_val=P_VAL, timeout=TIMEOUT, **kwargs):
+    def __call__(self, *args, timeout=TIMEOUT, **kwargs):
         """
-        The call of this extension runs the following extensions until a the
-        p value the user specified is reached or the run times out.
+        The call of this extension runs the following extensions untile the
+        timeout was reached.
 
-        Args:
-            cc: The compiler commando that becomes clang.
         Kwargs:
-            min_p_val: The minimum p value the user wants to reach with
-                       the running experiment.
             timeout: The amount of trys the user wants to give the experiment
                      before it gets interrupted.
         Returns:
-            The run after executing the afterwards following extensions.
+            The run info object after executing the
+            afterwards following extensions.
         """
-        calculated_ps = []
-        cur_p_val = 0.0
-        iterator = 1
-        res = None
+        iterator = 0
         session = Session()
 
-        LOG.info("Started experiment until it has reached the wanted p value.")
-        while iterator < timeout and cur_p_val < min_p_val:
+        while iterator < timeout:
             results = self.call_next(*args, **kwargs)
-            if results is not None:
-                #takes the first run_info object from the results
-                run_info = results[0]
-                cur_p_val = dist_func(run_info)
-                LOG.debug(
-                    "In the %s. iteration a p-value of %s was calculated.",
-                    iterator, cur_p_val)
-                calculated_ps.append(cur_p_val)
-                session.commit()
-            else:
-                LOG.info("There were no following extensions to run.")
-                break
             iterator += 1
+        session.commit()
 
-        if iterator < TIMEOUT and min_p_val <= cur_p_val:
-            LOG.info("The statistically significance of p = %s was reached.",
-                     cur_p_val)
-        else:
-            LOG.info("The experiment did not manage to reach the " +
-                     " statistically significance of %s before timing out.",
-                     min_p_val)
-
-        median_p = median(calculated_ps)
-        LOG.info("Overall a median of %s, " +
-                 "was reached by all calculated p values.", median_p)
-        return res
+        LOG.info("Overall one command was executed %s, " +
+                 "times.", iterator)
+        return results

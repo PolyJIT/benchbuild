@@ -8,7 +8,7 @@ from statistics import median
 from benchbuild.extensions import Extension
 from benchbuild.utils.schema import Session
 
-"""Currently scipy is disabled due to scipy having a dependencie on numpy."""
+"""Currently scipy is disabled due to scipy having a dependency on numpy."""
 #from scipy import stats
 
 LOG = logging.getLogger(__name__)

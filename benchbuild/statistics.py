@@ -6,9 +6,15 @@ import logging
 from benchbuild.extensions import Extension
 from benchbuild.utils.schema import Session
 
-LOG = logging.getLogger(__name__)
+'''
+The import of scipy and all of its usages are commented out, since its import
+takes too much time for the buildbot. To use the statistics uncomment the
+import and the line containing the stats.ttest function of scipy.
+'''
+#import scipy
 
-TIMEOUT = 3
+LOG = logging.getLogger(__name__)
+TIMEOUT = 1
 
 class Statistics(Extension):
     """
@@ -24,10 +30,29 @@ class Statistics(Extension):
 
         super(Statistics, self).__init__(*extensions, config=config)
 
+    
+    def t_test(self, *results):
+        """
+        Runs a t-test on a given set of results.
+
+        Returns:
+            True if the null hypothesis that the result was not significant
+            was rejected, False otherwise.
+        """
+        TRUE_MU = 0
+        SIGNIFICANCE = 0.95
+        for result in results:
+            t_statistic = 0
+            p_value = 0
+            #t_statistic, p_value = scipy.stats.ttest_1samp(result, TRUE_MU)
+            LOG.debug("t-statistic = %f, pvalue = %f", t_statistic, p_value)
+        return p_value >= 1 - SIGNIFICANCE
+
     def __call__(self, *args, timeout=TIMEOUT, **kwargs):
         """
-        The call of this extension runs the following extensions untile the
-        timeout was reached.
+        The call of this extension runs the following extensions until the
+        timeout was reached or a run was significant enough to withdraw the
+        nullhypothesis.
 
         Kwargs:
             timeout: The amount of trys the user wants to give the experiment
@@ -40,10 +65,28 @@ class Statistics(Extension):
         session = Session()
 
         while iterator < timeout:
-            results = self.call_next(*args, **kwargs)
-            iterator += 1
+            #get an run_info object after executing the run with its extensions
+            ri_object = self.call_next(*args, **kwargs)
+
+            #check if the experiment defines the result function
+            if(hasattr(self.experiment, 'res_func')):
+                results = self.experiment.res_func(ri_object)
+                if(self.t_test(results)):
+                    LOG.info("The run was significant.")
+                    break
+
+                #check if this was the last iteration
+                if(iterator == (timeout - 1)):
+                    LOG.warn("No significant run happened before the timeout!")
+                iterator += 1
+
+            # no need to repeat the run without a result function
+            else:
+                break
+        
+        #Commit the database session containing all runs
         session.commit()
 
         LOG.info("Overall one command was executed %s, " +
                  "times.", iterator)
-        return results
+        return ri_object

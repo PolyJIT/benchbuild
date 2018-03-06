@@ -27,6 +27,17 @@ PostgreSQL, but the backend is not configurable at the moment).
 In addition to the PostgreSQL server, you need libpqxx available for
 the psycopg2 package that benchbuild uses to connect.
 
+``benchbuild`` requires a database and a database user.
+The default setup of PostgreSQL can be create by executing these two queries:
+
+.. code-block:: psql
+
+  postgres=# CREATE USER benchbuild;
+  
+  postgres=# CREATE DATABASE benchbuild;
+  
+In case you want to adapt the database settings, checkout the `db` section in the config file.
+
 Installation
 ------------
 

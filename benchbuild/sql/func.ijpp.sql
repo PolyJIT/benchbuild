@@ -128,15 +128,15 @@ RETURN QUERY
 END $BODY$ LANGUAGE plpgsql;
 
 
-DROP FUNCTION IF EXISTS ijpp_db_export_per_config(exp_ids UUID, configs VARCHAR[]);
-CREATE OR REPLACE FUNCTION ijpp_db_export_per_config(exp_ids UUID, configs VARCHAR[])
+DROP FUNCTION IF EXISTS ijpp_db_export_per_config(exp_id UUID, configs VARCHAR[]);
+CREATE OR REPLACE FUNCTION ijpp_db_export_per_config(exp_id UUID, configs VARCHAR[])
 RETURNS TABLE (
 	project    VARCHAR,
 	"group"    VARCHAR,
-  "function" VARCHAR,
+        "function" VARCHAR,
 	"ast" 	   VARCHAR,
 	"schedule" VARCHAR,
-  "stderr"   VARCHAR,
+        "stderr"   VARCHAR,
 	"cfg"	   VARCHAR
 )
 AS $BODY$ BEGIN
@@ -162,8 +162,8 @@ RETURN QUERY
       experiment_group = exp_id;
 END $BODY$ LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS ijpp_db_export(exp_ids UUID);
-CREATE OR REPLACE FUNCTION ijpp_db_export(exp_ids UUID )
+DROP FUNCTION IF EXISTS ijpp_db_export(exp_id UUID);
+CREATE OR REPLACE FUNCTION ijpp_db_export(exp_id UUID)
 RETURNS TABLE(
   project            VARCHAR,
   "group"            VARCHAR,

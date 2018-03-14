@@ -237,12 +237,14 @@ class DBReport(reports.Report):
             sa.column('polly_ast'),
             sa.column('polly_schedule'),
             sa.column('polly_stderr')
-        ]).select_from(sa.func.ijpp_db_export(sa.sql.bindparam('exp_ids')))
+        ]).select_from(sa.func.ijpp_db_export(sa.sql.bindparam('exp_id')))
 
 
     def report(self):
-        qry = DBReport.QUERY_CODE.unique_params(exp_ids=self.experiment_ids)
-        yield ("codes", self.session.execute(qry).fetchall())
+        for exp_id in self.experiment_ids:
+            qry = DBReport.QUERY_CODE.unique_params(exp_id=exp_id)
+            yield ("codes", exp_id,
+                   self.session.execute(qry).fetchall())
 
     def generate(self):
         from jinja2 import Environment, PackageLoader
@@ -254,7 +256,7 @@ class DBReport(reports.Report):
             loader=PackageLoader('benchbuild', 'utils/templates')
         )
         template = env.get_template('ijpp_code_report.html.inc')
-        for name, data in self.report():
+        for name, exp_id, data in self.report():
             fname = os.path.basename(self.out_path)
 
             def parse_fn_name(fn_name_str):
@@ -266,14 +268,12 @@ class DBReport(reports.Report):
             data = [(row[0], row[1], parse_fn_name(row[2]), row[3],
                      st.parse_schedule_tree(row[4]), row[5], row[6],
                      st.parse_schedule_tree(row[7]), row[8]) for row in data]
-            fname = "pj-db-export_{prefix}_{name}.html".format(
+            fname = "pj-db-export_{prefix}_{name}_{exp_id}.html".format(
                 prefix=os.path.splitext(fname)[0],
-                name=name)
+                name=name, exp_id=exp_id)
             with open(fname, 'w') as outfile:
                 print("Writing '{0}'".format(outfile.name))
-                outfile.write(template.render(
-                    data=data
-                ))
+                outfile.write(template.render(data=data))
 
 class IJPPReport(reports.Report):
     SUPPORTED_EXPERIMENTS = ['ijpp', "pj-simple"]

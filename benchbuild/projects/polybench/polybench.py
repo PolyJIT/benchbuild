@@ -120,21 +120,21 @@ class PolyBenchGroup(Project):
         opts_file_stderr_2 = opts_file_stderr + ".2"
 
         run(wrap(opts_file, experiment))
-        with local.env(BB_IS_BASELINE=True):
-            run(wrap(noopts_file, experiment))
+        #with local.env(BB_IS_BASELINE=True):
+        #    run(wrap(noopts_file, experiment))
 
-        with open(noopts_file_stderr, 'r') as inf:
-            stderr = inf.readlines()
-            with open(noopts_file_stderr_2, 'w') as fd_stderr:
-                fd_stderr.writelines(get_dump_arrays_output(stderr))
+        #with open(noopts_file_stderr, 'r') as inf:
+        #    stderr = inf.readlines()
+        #    with open(noopts_file_stderr_2, 'w') as fd_stderr:
+        #        fd_stderr.writelines(get_dump_arrays_output(stderr))
 
-        with open(opts_file_stderr, 'r') as inf:
-            stderr = inf.readlines()
-            with open(opts_file_stderr_2, 'w') as fd_stderr:
-                fd_stderr.writelines(get_dump_arrays_output(stderr))
+        #with open(opts_file_stderr, 'r') as inf:
+        #    stderr = inf.readlines()
+        #    with open(opts_file_stderr_2, 'w') as fd_stderr:
+        #        fd_stderr.writelines(get_dump_arrays_output(stderr))
 
-        diff_cmd = diff[noopts_file_stderr_2, opts_file_stderr_2]
-        run(diff_cmd, retcode=0)
+        #diff_cmd = diff[noopts_file_stderr_2, opts_file_stderr_2]
+        #run(diff_cmd, retcode=0)
 
 
 class Correlation(PolyBenchGroup):

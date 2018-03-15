@@ -20,6 +20,7 @@ from benchbuild.utils.versions import get_version_from_cache_dir
 from benchbuild.utils.wrapping import wrap
 
 from plumbum import local, ProcessExecutionError
+from pygtrie import StringTrie
 
 
 LOG = logging.getLogger(__name__)
@@ -28,7 +29,7 @@ LOG = logging.getLogger(__name__)
 class ProjectRegistry(type):
     """Registry for benchbuild projects."""
 
-    projects = {}
+    projects = StringTrie()
 
     def __init__(cls, name, bases, attrs):
         """Register a project in the registry."""
@@ -38,7 +39,7 @@ class ProjectRegistry(type):
            cls.DOMAIN is not None and \
            cls.GROUP is not None:
 
-           key = "{name}_{group}".format(name=cls.NAME, group=cls.GROUP)
+           key = "{name}/{group}".format(name=cls.NAME, group=cls.GROUP)
            ProjectRegistry.projects[key] = cls
 
 
@@ -334,23 +335,26 @@ def populate(projects_to_filter=None, group=None):
             In addition to the project filter, we provide a way to filter
             whole groups.
     """
+    if projects_to_filter is None:
+        projects_to_filter = []
+
     import benchbuild.projects as all_projects
     all_projects.discover()
 
     prjs = ProjectRegistry.projects
     if projects_to_filter:
-        allkeys = set(list(prjs.keys()))
-        usrkeys = set(projects_to_filter)
-        prjs = {x: prjs[x] for x in allkeys & usrkeys}
+        prjs = {}
+        for filter_project in set(projects_to_filter):
+            try:
+                prjs.update({x : y for x, y in ProjectRegistry.projects.items(prefix=filter_project)})
+            except KeyError:
+                pass
 
     if group:
         prjs = {
             name: cls
             for name, cls in prjs.items() if cls.GROUP == group
         }
-
-    if projects_to_filter is None:
-        projects_to_filter = []
 
     return {
         x: prjs[x] for x in prjs

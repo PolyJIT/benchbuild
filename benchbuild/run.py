@@ -150,8 +150,11 @@ class BenchBuildRun(cli.Application):
 
         for exp_cls in exps_to_run:
             exp = exp_cls(project_names, group_name)
-            eactn = Experiment(exp, exp.actions())
-            actns.append(eactn)
+            if not exp.projects:
+                print_projects(exp)
+            else:
+                eactn = Experiment(exp, exp.actions())
+                actns.append(eactn)
 
         num_actions = sum([len(x) for x in actns])
         print("Number of actions to execute: {}".format(num_actions))
@@ -220,6 +223,9 @@ def print_projects(exp):
     """
     grouped_by = {}
     projects = exp.projects
+    if not projects:
+        print("Your selection didn't include any projects for this experiment.")
+
     for name in projects:
         prj = projects[name]
 

@@ -8,6 +8,7 @@ psycopg2>=2.7
 sqlalchemy-migrate
 pandas>=0.20.3
 psutil>=4.0.0
+pygtrie>=2.2
 pyparsing>=2.2
 PyYAML>=3.12
 Jinja2>=2.2

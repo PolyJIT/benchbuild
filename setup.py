@@ -31,7 +31,7 @@ sql_extra_files = [
 
 setup(
     name='benchbuild',
-    version='2.0.1',
+    version='2.0.2,
     url='https://github.com/PolyJIT/benchbuild',
     packages=find_packages(exclude=["docs", "extern", "filters", "linker",
                                     "src", "statistics", "tests", "results"]),
@@ -52,6 +52,7 @@ setup(
         "sqlalchemy-migrate",
         "pandas>=0.20.3",
         "psutil>=4.0.0",
+        "pygtrie>=2.2",
         "pyparsing>=2.2",
         "PyYAML>=3.12",
         "Jinja2>=2.2"

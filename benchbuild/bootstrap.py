@@ -1,6 +1,7 @@
 import os
 from plumbum import cli
 import benchbuild.utils.bootstrap as bs
+import benchbuild.utils.path as p
 from benchbuild.settings import CFG
 
 provide_package = bs.provide_package
@@ -19,6 +20,7 @@ class BenchBuildBootstrap(cli.Application):
                             default=False)
 
     def main(self, *args):
+        p.mkdir_interactive(str(CFG["build_dir"]))
         print("Checking benchbuild binary dependencies...")
         provide_package("cmake")
         provide_package("fusermount")

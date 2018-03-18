@@ -12,7 +12,7 @@ import time
 from plumbum import cli
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import Step, Experiment, StepResult
-from benchbuild.utils import progress, user_interface as ui
+from benchbuild.utils import progress, user_interface as ui, path
 from benchbuild import experiments
 from benchbuild import experiment
 
@@ -120,21 +120,9 @@ class BenchBuildRun(cli.Application):
             exit(0)
 
         if self._project_names:
-            builddir = os.path.abspath(str(CFG["build_dir"]))
-            if not os.path.exists(builddir):
-                response = True
-                if sys.stdin.isatty():
-                    response = ui.query_yes_no(
-                        "The build directory {dirname} does not exist yet."
-                        "Should I create it?".format(dirname=builddir),
-                        "no")
-
-                if response:
-                    mkdir("-p", builddir)
-                    print("Created directory {0}.".format(builddir))
+            path.mkdir_interactive(str(CFG["build_dir"]))
 
         actns = []
-
         exps_to_run = []
         if self._test_full:
             exps_to_run = exps.values()

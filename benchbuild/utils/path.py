@@ -2,6 +2,8 @@
 import os
 import sys
 
+import benchbuild.utils.user_interface as ui
+
 
 def list_to_path(pathlist):
     """Convert a list of path elements to a path string."""
@@ -104,3 +106,28 @@ def mkdir_uchroot(dirpath, root="."):
     uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
     uchroot = uchroot[os.path.abspath(root)]
     uretry(uchroot["--", "/bin/mkdir", "-p", dirpath])
+
+
+def mkdir_interactive(dirpath):
+    """
+    Create a directory if required.
+
+    This will query the user for a confirmation.
+
+    Args:
+        dirname: The path to create.
+    """
+    from benchbuild.utils.cmd import mkdir
+    if os.path.exists(dirpath):
+        return
+
+    response = True
+    if sys.stdin.isatty():
+        response = ui.query_yes_no(
+            "The build directory {dirname} does not exist yet. "
+            "Should I create it?".format(dirname=dirpath),
+            "no")
+
+    if response:
+        mkdir("-p", dirpath)
+        print("Created directory {0}.".format(dirpath))

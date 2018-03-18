@@ -35,6 +35,15 @@ PACKAGES = {
         "gentoo base system": ["sys-fs/fuse"],
         "ubuntu": ["fuse"],
         "debian": ["fuse"]
+    },
+    "cmake": {
+        "gentoo base system": ["dev-util/cmake"],
+        "ubuntu": ["cmake"],
+        "debian": ["cmake"]
+    },
+    "autoreconf": {
+        "ubuntu": ["autoconf"],
+        "debian": ["autoconf"]
     }
 }
 

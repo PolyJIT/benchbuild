@@ -378,14 +378,6 @@ CFG = Configuration(
             "desc": "Temporary dir. This will be used for caching downloads.",
             "default": os.path.join(os.getcwd(), "tmp")
         },
-        "path": {
-            "desc": "Additional PATH variable for benchbuild.",
-            "default": ""
-        },
-        "ld_library_path": {
-            "desc": "Additional library path for benchbuild.",
-            "default": ""
-        },
         "jobs": {
             "desc":
             "Number of jobs that can be used for building and running.",
@@ -420,10 +412,6 @@ CFG = Configuration(
             "List of existing paths that benchbuild should delete in addition "
             "to the default cleanup steps.",
             "export": False
-        },
-        "use_database": {
-            "desc": "LEGACY: Store results from libpprof in the database.",
-            "default": 1
         },
         "sequence": {
             "desc": "The name of the sequence that should be used for "

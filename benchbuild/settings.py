@@ -420,6 +420,17 @@ CFG = Configuration(
         }
     })
 
+CFG["compiler"] = {
+    "c": {
+        "desc": "The C compiler we should use.",
+        "default": "clang"
+    },
+    "cxx": {
+        "desc": "The C++ compiler we should use.",
+        "default": "clang++"
+    }
+}
+
 CFG["unionfs"] = {
     "enable": {
         "default": True,
@@ -461,37 +472,13 @@ CFG["llvm"] = {
 }
 
 CFG['db'] = {
-    "host": {
-        "desc": "host name of our db.",
-        "default": "localhost"
-    },
-    "port": {
-        "desc": "port to connect to the database",
-        "default": 5432
-    },
-    "name": {
-        "desc": "The name of the PostgreSQL database that will be used.",
-        "default": "benchbuild"
-    },
-    "user": {
-        "desc":
-        "The name of the PostgreSQL user to connect to the database with.",
-        "default": "benchbuild"
-    },
-    "pass": {
-        "desc":
-        "The password for the PostgreSQL user used to connect to the database "
-        "with.",
-        "default": "benchbuild"
+    "connect_string": {
+        "desc": "sqlalchemy connect string",
+        "default": "postgresql+psycopg2://benchbuild:benchbuild@localhost:5432/benchbuild"
     },
     "rollback": {
         "desc": "Rollback all operations after benchbuild completes.",
         "default": False
-    },
-    "dialect": {
-        "desc": "Which database backend should we use? "
-                "Refer to sqlalchemy for available options.",
-        "default": "postgresql+psycopg2"
     },
     "create_functions": {
         "default": False,

@@ -29,7 +29,7 @@ from benchbuild.utils.wrapping import wrap_cc
 from plumbum.commands.base import BoundCommand
 
 
-def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='clang'):
+def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='cc'):
     """
     Generate a clang wrapper that may be called from within a uchroot.
 
@@ -66,7 +66,7 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='clang'):
 
 def wrap_cxx_in_uchroot(cflags, ldflags, func=None):
     """Delegate to wrap_cc_in_uchroot)."""
-    wrap_cc_in_uchroot(cflags, ldflags, func, 'clang++')
+    wrap_cc_in_uchroot(cflags, ldflags, func, CFG["compiler"]["cc"].value())
 
 
 def lt_clang(cflags, ldflags, func=None):
@@ -89,8 +89,10 @@ def lt_clang(cflags, ldflags, func=None):
     """
     from benchbuild.utils import cmd
 
-    wrap_cc("clang", cflags, ldflags, clang, func)
-    return cmd["./clang"]
+    cc = CFG["compiler"]["cc"].value()
+    print("Compiler" + cc)
+    wrap_cc(cc, cflags, ldflags, compiler(cc), func)
+    return cmd["./cc"]
 
 
 def lt_clang_cxx(cflags, ldflags, func=None):
@@ -113,37 +115,9 @@ def lt_clang_cxx(cflags, ldflags, func=None):
     """
     from plumbum import local
 
-    wrap_cc("clang++", cflags, ldflags, clang_cxx, func)
-    return local["./clang++"]
-
-
-def llvm():
-    """
-    Get the path where all llvm binaries can be found.
-
-    Environment variable:
-        BB_LLVM_DIR
-
-    Returns:
-        LLVM binary path.
-    """
-
-    from os import path
-    return path.join(str(CFG["llvm"]["dir"]), "bin")
-
-
-def llvm_libs():
-    """
-    Get the path where all llvm libraries can be found.
-
-    Environment variable:
-        BB_LLVM_DIR
-
-    Returns:
-        LLVM library path.
-    """
-    from os import path
-    return path.join(str(CFG["llvm"]["dir"]), "lib")
+    cxx = CFG["compiler"]["cxx"].value()
+    wrap_cc(cxx, cflags, ldflags, compiler(cxx), func)
+    return local["./c++"]
 
 
 def __get_paths():
@@ -163,7 +137,7 @@ def __get_paths():
     return {"ld_library_path": lib_path, "path": path}
 
 
-def clang_cxx():
+def compiler(name):
     """
     Get a usable clang++ plumbum command.
 
@@ -173,32 +147,12 @@ def clang_cxx():
     Returns:
         plumbum Command that executes clang++
     """
-    from os import path
     from plumbum import local
     pinfo = __get_paths()
-    clang = local[path.join(llvm(), "clang++")]
-    clang = clang.setenv(PATH=pinfo["path"],
-                         LD_LIBRARY_PATH=pinfo["ld_library_path"])
-    return clang
-
-
-def clang():
-    """
-    Get a usable clang plumbum command.
-
-    This searches for a usable clang in the llvm binary path (See llvm()) and
-    returns a plumbum command to call it.
-
-    Returns:
-        plumbum Command that executes clang++
-    """
-    from os import path
-    from plumbum import local
-    pinfo = __get_paths()
-    clang = local[path.join(llvm(), "clang")]
-    clang = clang.setenv(PATH=pinfo["path"],
-                         LD_LIBRARY_PATH=pinfo["ld_library_path"])
-    return clang
+    _compiler = local[name]
+    _compiler = _compiler.setenv(PATH=pinfo["path"],
+                                 LD_LIBRARY_PATH=pinfo["ld_library_path"])
+    return _compiler
 
 
 class ExperimentCommand(BoundCommand):

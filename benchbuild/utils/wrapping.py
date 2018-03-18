@@ -263,6 +263,10 @@ def wrap_cc(filepath, cflags, ldflags, compiler, extension,
         )
 
     chmod("+x", filepath)
+    LOG.debug("Placed wrapper in: {wrapper} for compiler {compiler}".format(
+        wrapper=os.path.abspath(filepath),
+        compiler=compiler()
+    ))
     return local[filepath]
 
 

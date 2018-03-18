@@ -183,7 +183,7 @@ class RuntimeExperiment(Experiment):
                 The calibration command we will use.
         """
         with local.cwd(self.builddir):
-            with local.env(BB_USE_DATABASE=0, BB_USE_CSV=0, BB_USE_FILE=0):
+            with local.env(BB_USE_CSV=0, BB_USE_FILE=0):
                 calib_out = calibrate_call()
 
         calib_pattern = regex.compile(

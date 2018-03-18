@@ -33,7 +33,7 @@ def detect_scops(opt_flags, program):
     command = OPT_CALL + opt_flags + STATS_FLAGS + [program]
     print('Opt call: ' + str(command))
     fnull = open(os.devnull, 'w')
-    p = compiler(CFG["compiler"]["cxx"].value()
+    p = compiler(CFG["compiler"]["cxx"].value())
     _, stderr = p.communicate()
     output = stderr.splitlines()
 

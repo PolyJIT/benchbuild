@@ -15,12 +15,6 @@ to the real clang/clang++ given the additional cflags&ldflags.
 The wrapper-script generated for both functions can be found inside:
     * wrap_cc()
 
-The remaining methods:
-    * llvm()
-    * llvm_libs()
-    * clang()
-    * clang_cxx()
-
 Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
@@ -141,8 +135,7 @@ def compiler(name):
     """
     Get a usable clang++ plumbum command.
 
-    This searches for a usable clang++ in the llvm binary path (See llvm()) and
-    returns a plumbum command to call it.
+    This searches for a usable clang++ in the llvm binary path
 
     Returns:
         plumbum Command that executes clang++

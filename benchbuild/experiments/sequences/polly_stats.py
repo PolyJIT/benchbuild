@@ -3,7 +3,7 @@
 information from calls of the LLVM opt tool.
 """
 import os
-from benchbuild.utils.compiler import clang_cxx
+from benchbuild.utils.compiler import compiler
 
 __author__ = "Christoph Woller"
 __credits__ = ["Christoph Woller"]
@@ -33,7 +33,7 @@ def detect_scops(opt_flags, program):
     command = OPT_CALL + opt_flags + STATS_FLAGS + [program]
     print('Opt call: ' + str(command))
     fnull = open(os.devnull, 'w')
-    p = clang_cxx()
+    p = compiler(CFG["compiler"]["cxx"].value()
     _, stderr = p.communicate()
     output = stderr.splitlines()
 
@@ -68,7 +68,7 @@ def __get_number_of_certain_stats_line(opt_flags, program, line_a, line_b=None,
     command.extend(STATS_FLAGS)
     command.append(program)
     fnull = open(os.devnull, 'w')
-    p = clang_cxx()
+    p = compiler(CFG["compiler"]["cxx"].value()
     _, stderr = p.communicate()
     stderr = stderr.splitlines()
 

@@ -60,7 +60,7 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='cc'):
 
 def wrap_cxx_in_uchroot(cflags, ldflags, func=None):
     """Delegate to wrap_cc_in_uchroot)."""
-    wrap_cc_in_uchroot(cflags, ldflags, func, CFG["compiler"]["cc"].value())
+    wrap_cc_in_uchroot(cflags, ldflags, func, CFG["compiler"]["cxx"].value())
 
 
 def lt_clang(cflags, ldflags, func=None):
@@ -85,7 +85,7 @@ def lt_clang(cflags, ldflags, func=None):
 
     cc = CFG["compiler"]["c"].value()
     wrap_cc(cc, cflags, ldflags, compiler(cc), func)
-    return cmd["./cc"]
+    return cmd["./{name}".format(name=cc)]
 
 
 def lt_clang_cxx(cflags, ldflags, func=None):
@@ -106,11 +106,11 @@ def lt_clang_cxx(cflags, ldflags, func=None):
     Returns (benchbuild.utils.cmd):
         Path to the new clang command.
     """
-    from plumbum import local
+    from benchbuild.utils import cmd
 
     cxx = CFG["compiler"]["cxx"].value()
     wrap_cc(cxx, cflags, ldflags, compiler(cxx), func)
-    return local["./c++"]
+    return cmd["./{name}".format(name=cxx)]
 
 
 def __get_paths():

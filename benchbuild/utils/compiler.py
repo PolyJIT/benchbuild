@@ -84,7 +84,6 @@ def lt_clang(cflags, ldflags, func=None):
     from benchbuild.utils import cmd
 
     cc = CFG["compiler"]["cc"].value()
-    print("Compiler" + cc)
     wrap_cc(cc, cflags, ldflags, compiler(cc), func)
     return cmd["./cc"]
 

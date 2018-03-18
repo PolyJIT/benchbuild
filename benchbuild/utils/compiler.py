@@ -144,7 +144,7 @@ def compiler(name):
     _compiler = local[name]
     _compiler = _compiler.setenv(PATH=pinfo["path"],
                                  LD_LIBRARY_PATH=pinfo["ld_library_path"])
-    return _compiler
+    return lambda : _compiler
 
 
 class ExperimentCommand(BoundCommand):

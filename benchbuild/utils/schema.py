@@ -67,10 +67,10 @@ class GUID(TypeDecorator):
             return str(value)
         else:
             if not isinstance(value, uuid.UUID):
-                return "%.32x" % uuid.UUID(value).bytes
+                return "%s" % uuid.UUID(value)
             else:
                 # hexstring
-                return "%.32x" % value.int
+                return "%x" % value.int
 
     def process_result_value(self, value, dialect):
         if value is None:
@@ -79,7 +79,8 @@ class GUID(TypeDecorator):
         if isinstance(value, uuid.UUID):
             return value
         else:
-            return uuid.UUID(value)
+            LOG.error(str(value))
+            return uuid.UUID(str(value))
 
 
 class Run(BASE):
@@ -445,18 +446,15 @@ class FileContent(BASE):
 class SessionManager(object):
     def __init__(self):
         self.__test_mode = CFG['db']['rollback'].value()
-        self.engine = create_engine(
-            "{dialect}://{u}:{p}@{h}:{P}/{db}".format(
-                u=CFG["db"]["user"],
-                h=CFG["db"]["host"],
-                P=CFG["db"]["port"],
-                p=CFG["db"]["pass"],
-                db=CFG["db"]["name"],
-                dialect=CFG["db"]["dialect"]))
+        self.engine = create_engine(CFG["db"]["connect_string"].value())
         self.connection = self.engine.connect()
-        self.connection.execution_options(
-            isolation_level="READ COMMITTED"
-        )
+        try:
+            self.connection.execution_options(
+                isolation_level="READ COMMITTED"
+            )
+        except sa.exc.ArgumentError as error:
+            LOG.error("Unable to set isolation level to READ COMMITTED")
+
         self.__transaction = None
         if self.__test_mode:
             LOG.warning(

@@ -18,6 +18,7 @@ from benchbuild.utils.db import persist_experiment
 
 from benchbuild.utils.cmd import mkdir, rm, rmdir, llvm_profdata
 from plumbum import ProcessExecutionError, local
+import sqlalchemy as sa
 
 
 LOG = logging.getLogger(__name__)
@@ -365,7 +366,11 @@ class Experiment(Any):
         else:
             experiment.begin = min(experiment.begin, datetime.now())
         session.add(experiment)
-        session.commit()
+        try:
+            session.commit()
+        except sa.orm.exc.StaleDataError: 
+            LOG.error("Transaction isolation level caused a StaleDataError")
+            
 
         # React to external signals
         signals.handlers.register(self.end_transaction, experiment, session)
@@ -373,12 +378,15 @@ class Experiment(Any):
         return experiment, session
 
     def end_transaction(self, experiment, session):
-        if experiment.end is None:
-            experiment.end = datetime.now()
-        else:
-            experiment.end = max(experiment.end, datetime.now())
-        session.add(experiment)
-        session.commit()
+        try:
+            if experiment.end is None:
+                experiment.end = datetime.now()
+            else:
+                experiment.end = max(experiment.end, datetime.now())
+            session.add(experiment)
+            session.commit()
+        except sa.exc.InvalidRequestError as inv_req:
+            LOG.error(inv_req)
 
     @notify_step_begin_end
     def __call__(self):

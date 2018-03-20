@@ -73,18 +73,30 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
                                                 project=project, **kwargs)
         self.project = project
 
+    def __deconstruct(self, connect_str):
+        """Deconstruct a full PostgreSQL connect_str."""
+        import parse
+        print(connect_str)
+        res = parse.parse("{dialect}://{user}:{password}@{host}:{port}/{name}",
+                          connect_str)
+        print(res)
+        return (res['dialect'], res['user'], res['password'],
+                res['host'], res['port'], res['name'])
+
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.settings import CFG
         experiment = self.project.experiment
+        _, user, password, host, port, name = \
+            self.__deconstruct(CFG["db"]["connect_string"].value())
         pjit_args = [
             "-polli-db-experiment='{:s}'".format(experiment.name),
             "-polli-db-experiment-uuid='{:s}'".format(experiment.id),
             "-polli-db-argv='{:s}'".format(str(binary_command)),
-            "-polli-db-host='{:s}'".format(CFG["db"]["host"].value()),
-            "-polli-db-port={:d}".format(CFG["db"]["port"].value()),
-            "-polli-db-username={:s}".format(CFG["db"]["user"].value()),
-            "-polli-db-password={:s}".format(CFG["db"]["pass"].value()),
-            "-polli-db-name='{:s}'".format(CFG["db"]["name"].value()),
+            "-polli-db-host='{:s}'".format(host),
+            "-polli-db-port={:s}".format(port),
+            "-polli-db-username={:s}".format(user),
+            "-polli-db-password={:s}".format(password),
+            "-polli-db-name='{:s}'".format(name),
         ]
 
         if self.project is not None:

@@ -191,12 +191,10 @@ class Configuration():
                     inode[k] = config[k]
 
         with open(_from, 'r') as infile:
-            if is_yaml(_from):
-                load_rec(self.node, yaml.load(infile))
-            else:
-                load_rec(self.node, json.load(infile))
+            obj = yaml.load(infile) if is_yaml(_from) else json.load(infile)
+            upgrade(obj)
+            load_rec(self.node, obj)
             self['config_file'] = os.path.abspath(_from)
-            LOG.info("Loaded from %s" % _from)
 
     def has_value(self):
         """Check, if the node contains a 'value'."""
@@ -826,7 +824,6 @@ def __init_config(cfg):
     if config_path:
         cfg.load(config_path)
         cfg["config_file"] = os.path.abspath(config_path)
-        LOG.info("Configuration loaded from %s", os.path.abspath(config_path))
     cfg.init_from_env()
 
 
@@ -849,6 +846,27 @@ def update_env():
     local.env.update(PATH=os.environ["PATH"])
     local.env.update(LD_LIBRARY_PATH=os.environ["LD_LIBRARY_PATH"])
 
+
+def upgrade(cfg):
+    """Provide forward migration for configuration files."""
+    db_node = cfg["db"]
+    old_db_elems = ["host", "name", "port", "pass", "user", "dialect"]
+    has_old_db_elems = [x in db_node for x in old_db_elems]
+
+    print("Checking for necessary upgrades to the configuration...")
+    if any(has_old_db_elems):
+        print(
+            "Old database configuration found. "
+            "Converting to new connect_string. "
+            "This will *not* be stored in the configuration automatically.")
+        CFG["db"]["connect_string"] = \
+            "{dialect}://{user}:{password}@{host}:{port}/{name}".format(
+                dialect = cfg["db"]["dialect"]["value"],
+                user = cfg["db"]["user"]["value"],
+                password = cfg["db"]["pass"]["value"],
+                host = cfg["db"]["host"]["value"],
+                port = cfg["db"]["port"]["value"],
+                name = cfg["db"]["name"]["value"])
 
 __init_config(CFG)
 update_env()

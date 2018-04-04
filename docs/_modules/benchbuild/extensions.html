@@ -55,7 +55,7 @@
 
 <div class="viewcode-block" id="Extension"><a class="viewcode-back" href="../../benchbuild.extensions.html#benchbuild.extensions.Extension">[docs]</a><span class="k">class</span> <span class="nc">Extension</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An experiment functor to implement composable experiments.</span>
-<span class="sd">    </span>
+
 <span class="sd">    An experiment extension is always callable with an arbitrary amount of</span>
 <span class="sd">    arguments. The varargs component of an extension&#39;s `__call__` operator</span>
 <span class="sd">    is fed the binary command that we currently execute and all arguments</span>
@@ -69,7 +69,7 @@
 <span class="sd">            stored for this extension.</span>
 <span class="sd">        **kwargs: Variable length list of options we can handle, only `config`</span>
 <span class="sd">            is used in the base class.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Attributes:</span>
 <span class="sd">        next_extensions: Variable length list of child extensions we manage.</span>
 <span class="sd">        config (:obj:`dict`, optional): Dictionary of name value pairs to be</span>
@@ -82,11 +82,11 @@
 
 <div class="viewcode-block" id="Extension.call_next"><a class="viewcode-back" href="../../benchbuild.extensions.html#benchbuild.extensions.Extension.call_next">[docs]</a>    <span class="k">def</span> <span class="nf">call_next</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">RunInfo</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Call all child extensions with the given arguments.</span>
-<span class="sd">        </span>
+
 <span class="sd">        This calls all child extensions and collects the results for</span>
 <span class="sd">        our own parent. Use this to control the execution of your</span>
 <span class="sd">        nested extensions from your own extension.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            :obj:`list` of :obj:`RunInfo`: A list of collected</span>
 <span class="sd">                results of our child extensions.</span>

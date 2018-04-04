@@ -2,9 +2,10 @@ Welcome to benchbuild's documentation!
 ======================================
 
 .. toctree::
-        benchbuild.extensions
-        benchbuild.experiment
-        benchbuild.project
+    benchbuild.experiment
+    benchbuild.project
+    benchbuild.extensions
+    benchbuild.utils
 
 
 Indices and tables

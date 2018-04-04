@@ -1,5 +1,5 @@
-benchbuild\.projects package
-============================
+benchbuild.projects package
+===========================
 
 .. automodule:: benchbuild.projects
     :members:
@@ -16,4 +16,5 @@ Subpackages
     benchbuild.projects.gentoo
     benchbuild.projects.lnt
     benchbuild.projects.polybench
+    benchbuild.projects.test
 

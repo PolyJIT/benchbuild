@@ -1,5 +1,5 @@
-benchbuild\.experiments package
-===============================
+benchbuild.experiments package
+==============================
 
 .. automodule:: benchbuild.experiments
     :members:
@@ -16,68 +16,24 @@ Subpackages
 Submodules
 ----------
 
-benchbuild\.experiments\.compilestats module
---------------------------------------------
+.. toctree::
 
-.. automodule:: benchbuild.experiments.compilestats
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-benchbuild\.experiments\.empty module
--------------------------------------
-
-.. automodule:: benchbuild.experiments.empty
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-benchbuild\.experiments\.papi module
-------------------------------------
-
-.. automodule:: benchbuild.experiments.papi
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-benchbuild\.experiments\.pj\_sequence module
---------------------------------------------
-
-.. automodule:: benchbuild.experiments.pj_sequence
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-benchbuild\.experiments\.pjtest module
---------------------------------------
-
-.. automodule:: benchbuild.experiments.pjtest
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-benchbuild\.experiments\.pollytest module
------------------------------------------
-
-.. automodule:: benchbuild.experiments.pollytest
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-benchbuild\.experiments\.polyjit module
----------------------------------------
-
-.. automodule:: benchbuild.experiments.polyjit
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-benchbuild\.experiments\.raw module
------------------------------------
-
-.. automodule:: benchbuild.experiments.raw
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   benchbuild.experiments.compilestats
+   benchbuild.experiments.empty
+   benchbuild.experiments.ijpp
+   benchbuild.experiments.mse
+   benchbuild.experiments.papi
+   benchbuild.experiments.pgo
+   benchbuild.experiments.pj_collect
+   benchbuild.experiments.pj_cs
+   benchbuild.experiments.pj_likwid
+   benchbuild.experiments.pj_papi
+   benchbuild.experiments.pj_perf
+   benchbuild.experiments.pj_raw
+   benchbuild.experiments.pj_sequence
+   benchbuild.experiments.pjtest
+   benchbuild.experiments.pollytest
+   benchbuild.experiments.polyjit
+   benchbuild.experiments.profileScopDetection
+   benchbuild.experiments.raw
 

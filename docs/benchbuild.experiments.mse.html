@@ -1,0 +1,165 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>benchbuild.experiments.mse module &#8212; benchbuild 2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-benchbuild.experiments.mse">
+<span id="benchbuild-experiments-mse-module"></span><h1>benchbuild.experiments.mse module<a class="headerlink" href="#module-benchbuild.experiments.mse" title="Permalink to this headline">¶</a></h1>
+<p>Test Maximal Static Expansion.</p>
+<p>This tests the maximal static expansion implementation by
+Nicholas Bonfante (implemented in LLVM/Polly).</p>
+<dl class="class">
+<dt id="benchbuild.experiments.mse.MeasureTimeAndMemory">
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.mse.</code><code class="descname">MeasureTimeAndMemory</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/mse.html#MeasureTimeAndMemory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.mse.MeasureTimeAndMemory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.extensions.html#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
+<p>Wrap a command with time and store the timings in the database.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.experiments.mse.PollyMSE">
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.mse.</code><code class="descname">PollyMSE</code><span class="sig-paren">(</span><em>projects=None</em>, <em>group=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/mse.html#PollyMSE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.mse.PollyMSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.experiment.html#benchbuild.experiment.RuntimeExperiment" title="benchbuild.experiment.RuntimeExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.experiment.RuntimeExperiment</span></code></a></p>
+<p>The polly experiment.</p>
+<dl class="attribute">
+<dt id="benchbuild.experiments.mse.PollyMSE.NAME">
+<code class="descname">NAME</code><em class="property"> = 'polly-mse'</em><a class="headerlink" href="#benchbuild.experiments.mse.PollyMSE.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiments.mse.PollyMSE.actions_for_project">
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/mse.html#PollyMSE.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.mse.PollyMSE.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile &amp; Run the experiment with -O3 enabled.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.experiments.mse.PollyMSEReport">
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.mse.</code><code class="descname">PollyMSEReport</code><span class="sig-paren">(</span><em>exp_name</em>, <em>exp_ids</em>, <em>out_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/mse.html#PollyMSEReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.mse.PollyMSEReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.reports.html#benchbuild.reports.Report" title="benchbuild.reports.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.reports.Report</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.experiments.mse.PollyMSEReport.NAME">
+<code class="descname">NAME</code><em class="property"> = 'polly-mse'</em><a class="headerlink" href="#benchbuild.experiments.mse.PollyMSEReport.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.experiments.mse.PollyMSEReport.QUERY_EVAL">
+<code class="descname">QUERY_EVAL</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7f25d4197358; Select object&gt;</em><a class="headerlink" href="#benchbuild.experiments.mse.PollyMSEReport.QUERY_EVAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.experiments.mse.PollyMSEReport.SUPPORTED_EXPERIMENTS">
+<code class="descname">SUPPORTED_EXPERIMENTS</code><em class="property"> = ['polly-mse']</em><a class="headerlink" href="#benchbuild.experiments.mse.PollyMSEReport.SUPPORTED_EXPERIMENTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiments.mse.PollyMSEReport.generate">
+<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/mse.html#PollyMSEReport.generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.mse.PollyMSEReport.generate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiments.mse.PollyMSEReport.report">
+<code class="descname">report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/mse.html#PollyMSEReport.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.mse.PollyMSEReport.report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.experiments.mse.mse_persist_time_and_memory">
+<code class="descclassname">benchbuild.experiments.mse.</code><code class="descname">mse_persist_time_and_memory</code><span class="sig-paren">(</span><em>run</em>, <em>session</em>, <em>timings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/mse.html#mse_persist_time_and_memory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.mse.mse_persist_time_and_memory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist the memory results in the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>run</strong> – The run we attach this timing results to.</li>
+<li><strong>session</strong> – The db transaction we belong to.</li>
+<li><strong>timings</strong> – The timing measurements we want to store.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.experiments.mse.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>

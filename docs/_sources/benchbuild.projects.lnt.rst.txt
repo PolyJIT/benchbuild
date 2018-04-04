@@ -1,5 +1,5 @@
-benchbuild\.projects\.lnt package
-=================================
+benchbuild.projects.lnt package
+===============================
 
 .. automodule:: benchbuild.projects.lnt
     :members:
@@ -9,12 +9,7 @@ benchbuild\.projects\.lnt package
 Submodules
 ----------
 
-benchbuild\.projects\.lnt\.lnt module
--------------------------------------
+.. toctree::
 
-.. automodule:: benchbuild.projects.lnt.lnt
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   benchbuild.projects.lnt.lnt
 

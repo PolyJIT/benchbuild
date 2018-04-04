@@ -6,22 +6,53 @@ from collections import Iterable
 import logging
 import os
 import parse
+import typing as t
 import yaml
 from plumbum import local
-from benchbuild.utils.run import (track_execution, fetch_time_output)
+from benchbuild.utils.run import (track_execution, fetch_time_output, RunInfo)
 from benchbuild.utils.db import persist_config, persist_time
 
 LOG = logging.getLogger(__name__)
 
 
 class Extension(metaclass=ABCMeta):
+    """An experiment functor to implement composable experiments.
+
+    An experiment extension is always callable with an arbitrary amount of
+    arguments. The varargs component of an extension's `__call__` operator
+    is fed the binary command that we currently execute and all arguments
+    to the binary.
+    Any customization necessary for the extension (e.g, dynamic configuration
+    options) has to be passed by keyword argument.
+
+    Args:
+        *extensions: Variable length list of child extensions we manage.
+        config (:obj:`dict`, optional): Dictionary of name value pairs to be
+            stored for this extension.
+        **kwargs: Variable length list of options we can handle, only `config`
+            is used in the base class.
+
+    Attributes:
+        next_extensions: Variable length list of child extensions we manage.
+        config (:obj:`dict`, optional): Dictionary of name value pairs to be
+            stored for this extension.
+    """
     def __init__(self, *extensions, config=None, **kwargs):
         """Initialize an extension with an arbitrary number of children."""
         self.next_extensions = extensions
         self.config = config
 
-    def call_next(self, *args, **kwargs):
-        """Call all child extensions with the same arguments."""
+    def call_next(self, *args, **kwargs) -> t.List[RunInfo]:
+        """Call all child extensions with the given arguments.
+
+        This calls all child extensions and collects the results for
+        our own parent. Use this to control the execution of your
+        nested extensions from your own extension.
+
+        Returns:
+            :obj:`list` of :obj:`RunInfo`: A list of collected
+                results of our child extensions.
+        """
         all_results = []
         for ext in self.next_extensions:
             LOG.debug("  ++ - %s ", ext.__class__)

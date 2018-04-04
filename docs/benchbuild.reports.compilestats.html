@@ -1,0 +1,118 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>benchbuild.reports.compilestats module &#8212; benchbuild 2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-benchbuild.reports.compilestats">
+<span id="benchbuild-reports-compilestats-module"></span><h1>benchbuild.reports.compilestats module<a class="headerlink" href="#module-benchbuild.reports.compilestats" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="benchbuild.reports.compilestats.CompileStatsReport">
+<em class="property">class </em><code class="descclassname">benchbuild.reports.compilestats.</code><code class="descname">CompileStatsReport</code><span class="sig-paren">(</span><em>exp_name</em>, <em>exp_ids</em>, <em>out_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/reports/compilestats.html#CompileStatsReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.reports.compilestats.CompileStatsReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.reports.html#benchbuild.reports.Report" title="benchbuild.reports.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.reports.Report</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.reports.compilestats.CompileStatsReport.NAME">
+<code class="descname">NAME</code><em class="property"> = 'compilestats'</em><a class="headerlink" href="#benchbuild.reports.compilestats.CompileStatsReport.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.reports.compilestats.CompileStatsReport.QUERY_STATUS">
+<code class="descname">QUERY_STATUS</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7f25c05e9278; Select object&gt;</em><a class="headerlink" href="#benchbuild.reports.compilestats.CompileStatsReport.QUERY_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.reports.compilestats.CompileStatsReport.SUPPORTED_EXPERIMENTS">
+<code class="descname">SUPPORTED_EXPERIMENTS</code><em class="property"> = ['cs', 'p-cs', 'empty', 'no-measurement', 'pj-simple', 'pj', 'ijpp', 'pj-db-export', 'polly-mse', 'papi', 'papi-std', 'pgo', 'pj-collect', 'pj-cs', 'pj-likwid', 'pj-papi', 'pj-perf', 'pj-raw', 'pj-seq-genetic1-opt', 'pj-seq-genetic2-opt', 'pj-seq-hillclimber', 'pj-seq-greedy', 'pj-test', 'polly-openmp', 'polly-openmpvect', 'polly', 'pollyperformance', 'polly-vectorize', 'profileScopDetection', 'raw']</em><a class="headerlink" href="#benchbuild.reports.compilestats.CompileStatsReport.SUPPORTED_EXPERIMENTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.reports.compilestats.CompileStatsReport.generate">
+<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/reports/compilestats.html#CompileStatsReport.generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.reports.compilestats.CompileStatsReport.generate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.reports.compilestats.CompileStatsReport.report">
+<code class="descname">report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/reports/compilestats.html#CompileStatsReport.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.reports.compilestats.CompileStatsReport.report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.reports.compilestats.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>

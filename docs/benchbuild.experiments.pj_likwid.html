@@ -1,0 +1,148 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>benchbuild.experiments.pj_likwid module &#8212; benchbuild 2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-benchbuild.experiments.pj_likwid">
+<span id="benchbuild-experiments-pj-likwid-module"></span><h1>benchbuild.experiments.pj_likwid module<a class="headerlink" href="#module-benchbuild.experiments.pj_likwid" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="benchbuild.experiments.pj_likwid.PJITlikwid">
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.pj_likwid.</code><code class="descname">PJITlikwid</code><span class="sig-paren">(</span><em>projects=None</em>, <em>group=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_likwid.html#PJITlikwid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_likwid.PJITlikwid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.experiments.polyjit.html#benchbuild.experiments.polyjit.PolyJIT" title="benchbuild.experiments.polyjit.PolyJIT"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.experiments.polyjit.PolyJIT</span></code></a></p>
+<p>An experiment that uses likwid’s instrumentation API for profiling.</p>
+<p>This instruments all projects with likwid instrumentation API calls
+in key regions of the JIT.</p>
+<p>This allows for arbitrary profiling of PolyJIT’s overhead and run-time</p>
+<dl class="attribute">
+<dt id="benchbuild.experiments.pj_likwid.PJITlikwid.NAME">
+<code class="descname">NAME</code><em class="property"> = 'pj-likwid'</em><a class="headerlink" href="#benchbuild.experiments.pj_likwid.PJITlikwid.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiments.pj_likwid.PJITlikwid.actions_for_project">
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_likwid.html#PJITlikwid.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_likwid.PJITlikwid.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the actions a project wants to run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>project</strong> (<em>benchbuild.Project</em>) – the project we want to run.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.experiments.pj_likwid.RunWithLikwid">
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.pj_likwid.</code><code class="descname">RunWithLikwid</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pj_likwid.html#RunWithLikwid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pj_likwid.RunWithLikwid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.extensions.html#benchbuild.extensions.RuntimeExtension" title="benchbuild.extensions.RuntimeExtension"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.extensions.RuntimeExtension</span></code></a></p>
+<p>Run the given file wrapped by likwid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>project</strong> – The benchbuild.project.</li>
+<li><strong>experiment</strong> – The benchbuild.experiment.</li>
+<li><strong>config</strong> – The benchbuild.settings.config.</li>
+<li><strong>jobs</strong> – Number of cores we should use for this exection.</li>
+<li><strong>run_f</strong> – The file we want to execute.</li>
+<li><strong>args</strong> – List of arguments that should be passed to the wrapped binary.</li>
+<li><strong>**kwargs</strong> – <p>Dictionary with our keyword args. We support the following
+entries:</p>
+<dl class="docutils">
+<dt>project_name: The real name of our project. This might not</dt>
+<dd>be the same as the configured project name, if we got wrapped
+with ::benchbuild.project.wrap_dynamic</dd>
+</dl>
+<p>has_stdin: Signals whether we should take care of stdin.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.experiments.pj_likwid.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>

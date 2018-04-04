@@ -1,16 +1,10 @@
-.. benchbuild documentation master file, created by
-   sphinx-quickstart on Mon Jul  3 14:53:07 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to benchbuild's documentation!
 ======================================
 
 .. toctree::
-   :maxdepth: 4
-   :caption: Contents:
-
-   benchbuild
+        benchbuild.extensions
+        benchbuild.experiment
+        benchbuild.project
 
 
 Indices and tables

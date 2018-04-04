@@ -4,27 +4,18 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>sqlalchemy.sql.selectable &#8212; benchbuild 1.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../_static/sphinxdoc.css" type="text/css" />
+    <title>sqlalchemy.sql.selectable &#8212; benchbuild 2.0.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '1.3.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -34,24 +25,10 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 1.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 2.0.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -60,7 +37,7 @@
             
   <h1>Source code for sqlalchemy.sql.selectable</h1><div class="highlight"><pre>
 <span></span><span class="c1"># sql/selectable.py</span>
-<span class="c1"># Copyright (C) 2005-2015 the SQLAlchemy authors and contributors</span>
+<span class="c1"># Copyright (C) 2005-2017 the SQLAlchemy authors and contributors</span>
 <span class="c1"># &lt;see AUTHORS file&gt;</span>
 <span class="c1">#</span>
 <span class="c1"># This module is part of SQLAlchemy and is released under</span>
@@ -164,7 +141,7 @@
 
 
 <span class="k">def</span> <span class="nf">subquery</span><span class="p">(</span><span class="n">alias</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return an :class:`.Alias` object derived</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return an :class:`.Alias` object derived</span>
 <span class="sd">    from a :class:`.Select`.</span>
 
 <span class="sd">    name</span>
@@ -219,7 +196,74 @@
 <span class="sd">     .. versionadded:: 0.9.0</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">selectable</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="n">flat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_interpret_as_from</span><span class="p">(</span><span class="n">selectable</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="n">flat</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">lateral</span><span class="p">(</span><span class="n">selectable</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a :class:`.Lateral` object.</span>
+
+<span class="sd">    :class:`.Lateral` is an :class:`.Alias` subclass that represents</span>
+<span class="sd">    a subquery with the LATERAL keyword applied to it.</span>
+
+<span class="sd">    The special behavior of a LATERAL subquery is that it appears in the</span>
+<span class="sd">    FROM clause of an enclosing SELECT, but may correlate to other</span>
+<span class="sd">    FROM clauses of that SELECT.   It is a special case of subquery</span>
+<span class="sd">    only supported by a small number of backends, currently more recent</span>
+<span class="sd">    PostgreSQL versions.</span>
+
+<span class="sd">    .. versionadded:: 1.1</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :ref:`lateral_selects` -  overview of usage.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_interpret_as_from</span><span class="p">(</span><span class="n">selectable</span><span class="p">)</span><span class="o">.</span><span class="n">lateral</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">tablesample</span><span class="p">(</span><span class="n">selectable</span><span class="p">,</span> <span class="n">sampling</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a :class:`.TableSample` object.</span>
+
+<span class="sd">    :class:`.TableSample` is an :class:`.Alias` subclass that represents</span>
+<span class="sd">    a table with the TABLESAMPLE clause applied to it.</span>
+<span class="sd">    :func:`~.expression.tablesample`</span>
+<span class="sd">    is also available from the :class:`.FromClause` class via the</span>
+<span class="sd">    :meth:`.FromClause.tablesample` method.</span>
+
+<span class="sd">    The TABLESAMPLE clause allows selecting a randomly selected approximate</span>
+<span class="sd">    percentage of rows from a table. It supports multiple sampling methods,</span>
+<span class="sd">    most commonly BERNOULLI and SYSTEM.</span>
+
+<span class="sd">    e.g.::</span>
+
+<span class="sd">        from sqlalchemy import func</span>
+
+<span class="sd">        selectable = people.tablesample(</span>
+<span class="sd">                    func.bernoulli(1),</span>
+<span class="sd">                    name=&#39;alias&#39;,</span>
+<span class="sd">                    seed=func.random())</span>
+<span class="sd">        stmt = select([selectable.c.people_id])</span>
+
+<span class="sd">    Assuming ``people`` with a column ``people_id``, the above</span>
+<span class="sd">    statement would render as::</span>
+
+<span class="sd">        SELECT alias.people_id FROM</span>
+<span class="sd">        people AS alias TABLESAMPLE bernoulli(:bernoulli_1)</span>
+<span class="sd">        REPEATABLE (random())</span>
+
+<span class="sd">    .. versionadded:: 1.1</span>
+
+<span class="sd">    :param sampling: a ``float`` percentage between 0 and 100 or</span>
+<span class="sd">        :class:`.functions.Function`.</span>
+
+<span class="sd">    :param name: optional alias name</span>
+
+<span class="sd">    :param seed: any real-valued SQL expression.  When specified, the</span>
+<span class="sd">     REPEATABLE sub-clause is also rendered.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_interpret_as_from</span><span class="p">(</span><span class="n">selectable</span><span class="p">)</span><span class="o">.</span><span class="n">tablesample</span><span class="p">(</span>
+        <span class="n">sampling</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Selectable</span><span class="p">(</span><span class="n">ClauseElement</span><span class="p">):</span>
@@ -238,7 +282,7 @@
 
     <span class="nd">@_generative</span>
     <span class="k">def</span> <span class="nf">prefix_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">expr</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add one or more expressions following the statement keyword, i.e.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Add one or more expressions following the statement keyword, i.e.</span>
 <span class="sd">        SELECT, INSERT, UPDATE, or DELETE. Generative.</span>
 
 <span class="sd">        This is used to support backend-specific prefix keywords such as those</span>
@@ -275,7 +319,7 @@
 
     <span class="nd">@_generative</span>
     <span class="k">def</span> <span class="nf">suffix_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">expr</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add one or more expressions following the statement as a whole.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Add one or more expressions following the statement as a whole.</span>
 
 <span class="sd">        This is used to support backend-specific suffix keywords on</span>
 <span class="sd">        certain constructs.</span>
@@ -285,7 +329,7 @@
 <span class="sd">            stmt = select([col1, col2]).cte().suffix_with(</span>
 <span class="sd">                &quot;cycle empno set y_cycle to 1 default 0&quot;, dialect=&quot;oracle&quot;)</span>
 
-<span class="sd">        Multiple prefixes can be specified by multiple calls</span>
+<span class="sd">        Multiple suffixes can be specified by multiple calls</span>
 <span class="sd">        to :meth:`.suffix_with`.</span>
 
 <span class="sd">        :param \*expr: textual or :class:`.ClauseElement` construct which</span>
@@ -345,12 +389,39 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="nf">_translate_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">effective_schema</span><span class="p">,</span> <span class="n">map_</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">effective_schema</span>
+
     <span class="n">_memoized_property</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">group_expirable_memoized_property</span><span class="p">([</span><span class="s2">&quot;_columns&quot;</span><span class="p">])</span>
 
+    <span class="nd">@util</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span>
+        <span class="s1">&#39;1.1&#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;``FromClause.count()`` is deprecated. Counting &quot;</span>
+        <span class="s2">&quot;rows requires that the correct column expression and &quot;</span>
+        <span class="s2">&quot;accommodations for joins, DISTINCT, etc. must be made, &quot;</span>
+        <span class="s2">&quot;otherwise results may not be what&#39;s expected. &quot;</span>
+        <span class="s2">&quot;Please use an appropriate ``func.count()`` expression &quot;</span>
+        <span class="s2">&quot;directly.&quot;</span><span class="p">)</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">dependencies</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.sql.functions&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functions</span><span class="p">,</span> <span class="n">whereclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return a SELECT COUNT generated against this</span>
-<span class="sd">        :class:`.FromClause`.&quot;&quot;&quot;</span>
+<span class="sd">        :class:`.FromClause`.</span>
+
+<span class="sd">        The function generates COUNT against the</span>
+<span class="sd">        first column in the primary key of the table, or against</span>
+<span class="sd">        the first column in the table overall.   Explicit use of</span>
+<span class="sd">        ``func.count()`` should be preferred::</span>
+
+<span class="sd">            row_count = conn.scalar(</span>
+<span class="sd">                select([func.count(&#39;*&#39;)]).select_from(table)</span>
+<span class="sd">            )</span>
+
+
+<span class="sd">        .. seealso::</span>
+
+<span class="sd">            :data:`.func`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">:</span>
             <span class="n">col</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -374,7 +445,7 @@
 
         <span class="k">return</span> <span class="n">Select</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">whereclause</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">isouter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">isouter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a :class:`.Join` from this :class:`.FromClause`</span>
 <span class="sd">        to another :class:`FromClause`.</span>
 
@@ -402,6 +473,11 @@
 
 <span class="sd">        :param isouter: if True, render a LEFT OUTER JOIN, instead of JOIN.</span>
 
+<span class="sd">        :param full: if True, render a FULL OUTER JOIN, instead of LEFT OUTER</span>
+<span class="sd">         JOIN.  Implies :paramref:`.FromClause.join.isouter`.</span>
+
+<span class="sd">         .. versionadded:: 1.1</span>
+
 <span class="sd">        .. seealso::</span>
 
 <span class="sd">            :func:`.join` - standalone function</span>
@@ -410,9 +486,9 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">Join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="p">,</span> <span class="n">isouter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="p">,</span> <span class="n">isouter</span><span class="p">,</span> <span class="n">full</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">outerjoin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">outerjoin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a :class:`.Join` from this :class:`.FromClause`</span>
 <span class="sd">        to another :class:`FromClause`, with the &quot;isouter&quot; flag set to</span>
 <span class="sd">        True.</span>
@@ -440,6 +516,11 @@
 <span class="sd">         join.  If left at ``None``, :meth:`.FromClause.join` will attempt to</span>
 <span class="sd">         join the two tables based on a foreign key relationship.</span>
 
+<span class="sd">        :param full: if True, render a FULL OUTER JOIN, instead of</span>
+<span class="sd">         LEFT OUTER JOIN.</span>
+
+<span class="sd">         .. versionadded:: 1.1</span>
+
 <span class="sd">        .. seealso::</span>
 
 <span class="sd">            :meth:`.FromClause.join`</span>
@@ -448,7 +529,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">Join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">full</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return an alias of this :class:`.FromClause`.</span>
@@ -463,6 +544,36 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">Alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">lateral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a LATERAL alias of this :class:`.FromClause`.</span>
+
+<span class="sd">        The return value is the :class:`.Lateral` construct also</span>
+<span class="sd">        provided by the top-level :func:`~.expression.lateral` function.</span>
+
+<span class="sd">        .. versionadded:: 1.1</span>
+
+<span class="sd">        .. seealso::</span>
+
+<span class="sd">            :ref:`lateral_selects` -  overview of usage.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Lateral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">tablesample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sampling</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a TABLESAMPLE alias of this :class:`.FromClause`.</span>
+
+<span class="sd">        The return value is the :class:`.TableSample` construct also</span>
+<span class="sd">        provided by the top-level :func:`~.expression.tablesample` function.</span>
+
+<span class="sd">        .. versionadded:: 1.1</span>
+
+<span class="sd">        .. seealso::</span>
+
+<span class="sd">            :func:`~.expression.tablesample` - usage guidelines and parameters</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">TableSample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sampling</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">is_derived_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fromclause</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if this FromClause is &#39;derived&#39; from the given</span>
@@ -709,7 +820,7 @@
 
     <span class="n">_is_join</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">isouter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">isouter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Construct a new :class:`.Join`.</span>
 
 <span class="sd">        The usual entrypoint here is the :func:`~.expression.join`</span>
@@ -726,9 +837,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">onclause</span> <span class="o">=</span> <span class="n">onclause</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">isouter</span> <span class="o">=</span> <span class="n">isouter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full</span> <span class="o">=</span> <span class="n">full</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_create_outerjoin</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_create_outerjoin</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an ``OUTER JOIN`` clause element.</span>
 
 <span class="sd">        The returned object is an instance of :class:`.Join`.</span>
@@ -750,10 +862,11 @@
 <span class="sd">        :class:`.Join` object.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="p">,</span> <span class="n">isouter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="p">,</span> <span class="n">isouter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="n">full</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_create_join</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">isouter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_create_join</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">isouter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Produce a :class:`.Join` object, given two :class:`.FromClause`</span>
 <span class="sd">        expressions.</span>
 
@@ -785,6 +898,10 @@
 
 <span class="sd">        :param isouter: if True, render a LEFT OUTER JOIN, instead of JOIN.</span>
 
+<span class="sd">        :param full: if True, render a FULL OUTER JOIN, instead of JOIN.</span>
+
+<span class="sd">         .. versionadded:: 1.1</span>
+
 <span class="sd">        .. seealso::</span>
 
 <span class="sd">            :meth:`.FromClause.join` - method form, based on a given left side</span>
@@ -793,7 +910,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="p">,</span> <span class="n">isouter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">onclause</span><span class="p">,</span> <span class="n">isouter</span><span class="p">,</span> <span class="n">full</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -829,7 +946,7 @@
         <span class="k">if</span> <span class="n">col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cols_populated</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">foreign_keys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">foreign_keys</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">foreign_keys</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">primary_key</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">col</span>
@@ -979,14 +1096,14 @@
                 <span class="s2">&quot;join explicitly.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">whereclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a :class:`.Select` from this :class:`.Join`.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create a :class:`.Select` from this :class:`.Join`.</span>
 
 <span class="sd">        The equivalent long-hand form, given a :class:`.Join` object</span>
 <span class="sd">        ``j``, is::</span>
 
 <span class="sd">            from sqlalchemy import select</span>
-<span class="sd">            j = select([j.left, j.right], **kw).\\</span>
-<span class="sd">                        where(whereclause).\\</span>
+<span class="sd">            j = select([j.left, j.right], **kw).\</span>
+<span class="sd">                        where(whereclause).\</span>
 <span class="sd">                        select_from(j)</span>
 
 <span class="sd">        :param whereclause: the WHERE criterion that will be sent to</span>
@@ -1006,7 +1123,7 @@
 
     <span class="nd">@util</span><span class="o">.</span><span class="n">dependencies</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.sql.util&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sqlutil</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return an alias of this :class:`.Join`.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;return an alias of this :class:`.Join`.</span>
 
 <span class="sd">        The default behavior here is to first produce a SELECT</span>
 <span class="sd">        construct from this :class:`.Join`, then to produce an</span>
@@ -1031,9 +1148,9 @@
 
 <span class="sd">            from sqlalchemy import select, alias</span>
 <span class="sd">            j = alias(</span>
-<span class="sd">                select([j.left, j.right]).\\</span>
-<span class="sd">                    select_from(j).\\</span>
-<span class="sd">                    with_labels(True).\\</span>
+<span class="sd">                select([j.left, j.right]).\</span>
+<span class="sd">                    select_from(j).\</span>
+<span class="sd">                    with_labels(True).\</span>
 <span class="sd">                    correlate(False),</span>
 <span class="sd">                name=name</span>
 <span class="sd">            )</span>
@@ -1111,7 +1228,7 @@
                 <span class="n">chain</span><span class="p">(</span><span class="n">sqlutil</span><span class="o">.</span><span class="n">ClauseAdapter</span><span class="p">(</span><span class="n">right_a</span><span class="p">))</span>
 
             <span class="k">return</span> <span class="n">left_a</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">right_a</span><span class="p">,</span> <span class="n">adapter</span><span class="o">.</span><span class="n">traverse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onclause</span><span class="p">),</span>
-                               <span class="n">isouter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">isouter</span><span class="p">)</span>
+                               <span class="n">isouter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">isouter</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">full</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">use_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">correlate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
@@ -1161,6 +1278,14 @@
             <span class="n">name</span> <span class="o">=</span> <span class="n">_anonymous_label</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%%</span><span class="s1">(</span><span class="si">%d</span><span class="s1"> </span><span class="si">%s</span><span class="s1">)s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">name</span>
                                                     <span class="ow">or</span> <span class="s1">&#39;anon&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">self_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">CompoundSelect</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">,</span> <span class="n">Select</span><span class="p">)</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="o">.</span><span class="n">_needs_parens_for_grouping</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">FromGrouping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Alias</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">self_group</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1223,6 +1348,59 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">bind</span>
 
 
+<span class="k">class</span> <span class="nc">Lateral</span><span class="p">(</span><span class="n">Alias</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represent a LATERAL subquery.</span>
+
+<span class="sd">    This object is constructed from the :func:`~.expression.lateral` module</span>
+<span class="sd">    level function as well as the :meth:`.FromClause.lateral` method available</span>
+<span class="sd">    on all :class:`.FromClause` subclasses.</span>
+
+<span class="sd">    While LATERAL is part of the SQL standard, curently only more recent</span>
+<span class="sd">    PostgreSQL versions provide support for this keyword.</span>
+
+<span class="sd">    .. versionadded:: 1.1</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :ref:`lateral_selects` -  overview of usage.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__visit_name__</span> <span class="o">=</span> <span class="s1">&#39;lateral&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">TableSample</span><span class="p">(</span><span class="n">Alias</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represent a TABLESAMPLE clause.</span>
+
+<span class="sd">    This object is constructed from the :func:`~.expression.tablesample` module</span>
+<span class="sd">    level function as well as the :meth:`.FromClause.tablesample` method available</span>
+<span class="sd">    on all :class:`.FromClause` subclasses.</span>
+
+<span class="sd">    .. versionadded:: 1.1</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :func:`~.expression.tablesample`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__visit_name__</span> <span class="o">=</span> <span class="s1">&#39;tablesample&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selectable</span><span class="p">,</span> <span class="n">sampling</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampling</span> <span class="o">=</span> <span class="n">sampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TableSample</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">selectable</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@util</span><span class="o">.</span><span class="n">dependencies</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.sql.functions&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_get_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functions</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling</span><span class="p">,</span> <span class="n">functions</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">functions</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampling</span><span class="p">)</span>
+
+
 <span class="k">class</span> <span class="nc">CTE</span><span class="p">(</span><span class="n">Generative</span><span class="p">,</span> <span class="n">HasSuffixes</span><span class="p">,</span> <span class="n">Alias</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represent a Common Table Expression.</span>
 
@@ -1247,6 +1425,23 @@
         <span class="k">if</span> <span class="n">_suffixes</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_suffixes</span> <span class="o">=</span> <span class="n">_suffixes</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CTE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">selectable</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_copy_internals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clone</span><span class="o">=</span><span class="n">_clone</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CTE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_copy_internals</span><span class="p">(</span><span class="n">clone</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cte_alias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cte_alias</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_restates</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span>
+            <span class="n">clone</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restates</span>
+        <span class="p">])</span>
+
+    <span class="nd">@util</span><span class="o">.</span><span class="n">dependencies</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.sql.dml&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_populate_column_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dml</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="n">dml</span><span class="o">.</span><span class="n">UpdateBase</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">_returning</span><span class="p">:</span>
+                <span class="n">col</span><span class="o">.</span><span class="n">_make_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">_all_columns</span><span class="p">:</span>
+                <span class="n">col</span><span class="o">.</span><span class="n">_make_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">CTE</span><span class="p">(</span>
@@ -1274,6 +1469,174 @@
             <span class="n">_restates</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_restates</span><span class="o">.</span><span class="n">union</span><span class="p">([</span><span class="bp">self</span><span class="p">]),</span>
             <span class="n">_suffixes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_suffixes</span>
         <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">HasCTE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Mixin that declares a class to include CTE support.</span>
+
+<span class="sd">    .. versionadded:: 1.1</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">cte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a new :class:`.CTE`, or Common Table Expression instance.</span>
+
+<span class="sd">        Common table expressions are a SQL standard whereby SELECT</span>
+<span class="sd">        statements can draw upon secondary statements specified along</span>
+<span class="sd">        with the primary statement, using a clause called &quot;WITH&quot;.</span>
+<span class="sd">        Special semantics regarding UNION can also be employed to</span>
+<span class="sd">        allow &quot;recursive&quot; queries, where a SELECT statement can draw</span>
+<span class="sd">        upon the set of rows that have previously been selected.</span>
+
+<span class="sd">        CTEs can also be applied to DML constructs UPDATE, INSERT</span>
+<span class="sd">        and DELETE on some databases, both as a source of CTE rows</span>
+<span class="sd">        when combined with RETURNING, as well as a consumer of</span>
+<span class="sd">        CTE rows.</span>
+
+<span class="sd">        SQLAlchemy detects :class:`.CTE` objects, which are treated</span>
+<span class="sd">        similarly to :class:`.Alias` objects, as special elements</span>
+<span class="sd">        to be delivered to the FROM clause of the statement as well</span>
+<span class="sd">        as to a WITH clause at the top of the statement.</span>
+
+<span class="sd">        .. versionchanged:: 1.1 Added support for UPDATE/INSERT/DELETE as</span>
+<span class="sd">           CTE, CTEs added to UPDATE/INSERT/DELETE.</span>
+
+<span class="sd">        :param name: name given to the common table expression.  Like</span>
+<span class="sd">         :meth:`._FromClause.alias`, the name can be left as ``None``</span>
+<span class="sd">         in which case an anonymous symbol will be used at query</span>
+<span class="sd">         compile time.</span>
+<span class="sd">        :param recursive: if ``True``, will render ``WITH RECURSIVE``.</span>
+<span class="sd">         A recursive common table expression is intended to be used in</span>
+<span class="sd">         conjunction with UNION ALL in order to derive rows</span>
+<span class="sd">         from those already selected.</span>
+
+<span class="sd">        The following examples include two from PostgreSQL&#39;s documentation at</span>
+<span class="sd">        http://www.postgresql.org/docs/current/static/queries-with.html,</span>
+<span class="sd">        as well as additional examples.</span>
+
+<span class="sd">        Example 1, non recursive::</span>
+
+<span class="sd">            from sqlalchemy import (Table, Column, String, Integer,</span>
+<span class="sd">                                    MetaData, select, func)</span>
+
+<span class="sd">            metadata = MetaData()</span>
+
+<span class="sd">            orders = Table(&#39;orders&#39;, metadata,</span>
+<span class="sd">                Column(&#39;region&#39;, String),</span>
+<span class="sd">                Column(&#39;amount&#39;, Integer),</span>
+<span class="sd">                Column(&#39;product&#39;, String),</span>
+<span class="sd">                Column(&#39;quantity&#39;, Integer)</span>
+<span class="sd">            )</span>
+
+<span class="sd">            regional_sales = select([</span>
+<span class="sd">                                orders.c.region,</span>
+<span class="sd">                                func.sum(orders.c.amount).label(&#39;total_sales&#39;)</span>
+<span class="sd">                            ]).group_by(orders.c.region).cte(&quot;regional_sales&quot;)</span>
+
+
+<span class="sd">            top_regions = select([regional_sales.c.region]).\</span>
+<span class="sd">                    where(</span>
+<span class="sd">                        regional_sales.c.total_sales &gt;</span>
+<span class="sd">                        select([</span>
+<span class="sd">                            func.sum(regional_sales.c.total_sales)/10</span>
+<span class="sd">                        ])</span>
+<span class="sd">                    ).cte(&quot;top_regions&quot;)</span>
+
+<span class="sd">            statement = select([</span>
+<span class="sd">                        orders.c.region,</span>
+<span class="sd">                        orders.c.product,</span>
+<span class="sd">                        func.sum(orders.c.quantity).label(&quot;product_units&quot;),</span>
+<span class="sd">                        func.sum(orders.c.amount).label(&quot;product_sales&quot;)</span>
+<span class="sd">                ]).where(orders.c.region.in_(</span>
+<span class="sd">                    select([top_regions.c.region])</span>
+<span class="sd">                )).group_by(orders.c.region, orders.c.product)</span>
+
+<span class="sd">            result = conn.execute(statement).fetchall()</span>
+
+<span class="sd">        Example 2, WITH RECURSIVE::</span>
+
+<span class="sd">            from sqlalchemy import (Table, Column, String, Integer,</span>
+<span class="sd">                                    MetaData, select, func)</span>
+
+<span class="sd">            metadata = MetaData()</span>
+
+<span class="sd">            parts = Table(&#39;parts&#39;, metadata,</span>
+<span class="sd">                Column(&#39;part&#39;, String),</span>
+<span class="sd">                Column(&#39;sub_part&#39;, String),</span>
+<span class="sd">                Column(&#39;quantity&#39;, Integer),</span>
+<span class="sd">            )</span>
+
+<span class="sd">            included_parts = select([</span>
+<span class="sd">                                parts.c.sub_part,</span>
+<span class="sd">                                parts.c.part,</span>
+<span class="sd">                                parts.c.quantity]).\</span>
+<span class="sd">                                where(parts.c.part==&#39;our part&#39;).\</span>
+<span class="sd">                                cte(recursive=True)</span>
+
+
+<span class="sd">            incl_alias = included_parts.alias()</span>
+<span class="sd">            parts_alias = parts.alias()</span>
+<span class="sd">            included_parts = included_parts.union_all(</span>
+<span class="sd">                select([</span>
+<span class="sd">                    parts_alias.c.sub_part,</span>
+<span class="sd">                    parts_alias.c.part,</span>
+<span class="sd">                    parts_alias.c.quantity</span>
+<span class="sd">                ]).</span>
+<span class="sd">                    where(parts_alias.c.part==incl_alias.c.sub_part)</span>
+<span class="sd">            )</span>
+
+<span class="sd">            statement = select([</span>
+<span class="sd">                        included_parts.c.sub_part,</span>
+<span class="sd">                        func.sum(included_parts.c.quantity).</span>
+<span class="sd">                          label(&#39;total_quantity&#39;)</span>
+<span class="sd">                    ]).\</span>
+<span class="sd">                    group_by(included_parts.c.sub_part)</span>
+
+<span class="sd">            result = conn.execute(statement).fetchall()</span>
+
+<span class="sd">        Example 3, an upsert using UPDATE and INSERT with CTEs::</span>
+
+<span class="sd">            from datetime import date</span>
+<span class="sd">            from sqlalchemy import (MetaData, Table, Column, Integer,</span>
+<span class="sd">                                    Date, select, literal, and_, exists)</span>
+
+<span class="sd">            metadata = MetaData()</span>
+
+<span class="sd">            visitors = Table(&#39;visitors&#39;, metadata,</span>
+<span class="sd">                Column(&#39;product_id&#39;, Integer, primary_key=True),</span>
+<span class="sd">                Column(&#39;date&#39;, Date, primary_key=True),</span>
+<span class="sd">                Column(&#39;count&#39;, Integer),</span>
+<span class="sd">            )</span>
+
+<span class="sd">            # add 5 visitors for the product_id == 1</span>
+<span class="sd">            product_id = 1</span>
+<span class="sd">            day = date.today()</span>
+<span class="sd">            count = 5</span>
+
+<span class="sd">            update_cte = (</span>
+<span class="sd">                visitors.update()</span>
+<span class="sd">                .where(and_(visitors.c.product_id == product_id,</span>
+<span class="sd">                            visitors.c.date == day))</span>
+<span class="sd">                .values(count=visitors.c.count + count)</span>
+<span class="sd">                .returning(literal(1))</span>
+<span class="sd">                .cte(&#39;update_cte&#39;)</span>
+<span class="sd">            )</span>
+
+<span class="sd">            upsert = visitors.insert().from_select(</span>
+<span class="sd">                [visitors.c.product_id, visitors.c.date, visitors.c.count],</span>
+<span class="sd">                select([literal(product_id), literal(day), literal(count)])</span>
+<span class="sd">                    .where(~exists(update_cte.select()))</span>
+<span class="sd">            )</span>
+
+<span class="sd">            connection.execute(upsert)</span>
+
+<span class="sd">        .. seealso::</span>
+
+<span class="sd">            :meth:`.orm.query.Query.cte` - ORM version of</span>
+<span class="sd">            :meth:`.HasCTE.cte`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">CTE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">FromGrouping</span><span class="p">(</span><span class="n">FromClause</span><span class="p">):</span>
@@ -1414,21 +1777,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="nd">@util</span><span class="o">.</span><span class="n">dependencies</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.sql.functions&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functions</span><span class="p">,</span> <span class="n">whereclause</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return a SELECT COUNT generated against this</span>
-<span class="sd">        :class:`.TableClause`.&quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">:</span>
-            <span class="n">col</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">col</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">Select</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">functions</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;tbl_row_count&#39;</span><span class="p">)],</span>
-            <span class="n">whereclause</span><span class="p">,</span>
-            <span class="n">from_obj</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="p">],</span>
-            <span class="o">**</span><span class="n">params</span><span class="p">)</span>
-
     <span class="nd">@util</span><span class="o">.</span><span class="n">dependencies</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.sql.dml&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dml</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generate an :func:`.insert` construct against this</span>
@@ -1485,7 +1833,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parse_legacy_select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parse the for_update arugment of :func:`.select`.</span>
+        <span class="sd">&quot;&quot;&quot;Parse the for_update argument of :func:`.select`.</span>
 
 <span class="sd">        :param mode: Defines the lockmode to use.</span>
 
@@ -1535,14 +1883,19 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">of</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">of</span> <span class="o">=</span> <span class="p">[</span><span class="n">clone</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">of</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nowait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">of</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">nowait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">of</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">skip_locked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">key_share</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Represents arguments specified to :meth:`.Select.for_update`.</span>
 
 <span class="sd">        .. versionadded:: 0.9.0</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">nowait</span> <span class="o">=</span> <span class="n">nowait</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read</span> <span class="o">=</span> <span class="n">read</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_locked</span> <span class="o">=</span> <span class="n">skip_locked</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_share</span> <span class="o">=</span> <span class="n">key_share</span>
         <span class="k">if</span> <span class="n">of</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">of</span> <span class="o">=</span> <span class="p">[</span><span class="n">_interpret_as_column_or_from</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
                        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">util</span><span class="o">.</span><span class="n">to_list</span><span class="p">(</span><span class="n">of</span><span class="p">)]</span>
@@ -1550,7 +1903,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">of</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<span class="k">class</span> <span class="nc">SelectBase</span><span class="p">(</span><span class="n">Executable</span><span class="p">,</span> <span class="n">FromClause</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">SelectBase</span><span class="p">(</span><span class="n">HasCTE</span><span class="p">,</span> <span class="n">Executable</span><span class="p">,</span> <span class="n">FromClause</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for SELECT statements.</span>
 
 
@@ -1583,125 +1936,6 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_scalar</span><span class="p">()</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">cte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a new :class:`.CTE`, or Common Table Expression instance.</span>
-
-<span class="sd">        Common table expressions are a SQL standard whereby SELECT</span>
-<span class="sd">        statements can draw upon secondary statements specified along</span>
-<span class="sd">        with the primary statement, using a clause called &quot;WITH&quot;.</span>
-<span class="sd">        Special semantics regarding UNION can also be employed to</span>
-<span class="sd">        allow &quot;recursive&quot; queries, where a SELECT statement can draw</span>
-<span class="sd">        upon the set of rows that have previously been selected.</span>
-
-<span class="sd">        SQLAlchemy detects :class:`.CTE` objects, which are treated</span>
-<span class="sd">        similarly to :class:`.Alias` objects, as special elements</span>
-<span class="sd">        to be delivered to the FROM clause of the statement as well</span>
-<span class="sd">        as to a WITH clause at the top of the statement.</span>
-
-<span class="sd">        .. versionadded:: 0.7.6</span>
-
-<span class="sd">        :param name: name given to the common table expression.  Like</span>
-<span class="sd">         :meth:`._FromClause.alias`, the name can be left as ``None``</span>
-<span class="sd">         in which case an anonymous symbol will be used at query</span>
-<span class="sd">         compile time.</span>
-<span class="sd">        :param recursive: if ``True``, will render ``WITH RECURSIVE``.</span>
-<span class="sd">         A recursive common table expression is intended to be used in</span>
-<span class="sd">         conjunction with UNION ALL in order to derive rows</span>
-<span class="sd">         from those already selected.</span>
-
-<span class="sd">        The following examples illustrate two examples from</span>
-<span class="sd">        Postgresql&#39;s documentation at</span>
-<span class="sd">        http://www.postgresql.org/docs/8.4/static/queries-with.html.</span>
-
-<span class="sd">        Example 1, non recursive::</span>
-
-<span class="sd">            from sqlalchemy import (Table, Column, String, Integer,</span>
-<span class="sd">                                    MetaData, select, func)</span>
-
-<span class="sd">            metadata = MetaData()</span>
-
-<span class="sd">            orders = Table(&#39;orders&#39;, metadata,</span>
-<span class="sd">                Column(&#39;region&#39;, String),</span>
-<span class="sd">                Column(&#39;amount&#39;, Integer),</span>
-<span class="sd">                Column(&#39;product&#39;, String),</span>
-<span class="sd">                Column(&#39;quantity&#39;, Integer)</span>
-<span class="sd">            )</span>
-
-<span class="sd">            regional_sales = select([</span>
-<span class="sd">                                orders.c.region,</span>
-<span class="sd">                                func.sum(orders.c.amount).label(&#39;total_sales&#39;)</span>
-<span class="sd">                            ]).group_by(orders.c.region).cte(&quot;regional_sales&quot;)</span>
-
-
-<span class="sd">            top_regions = select([regional_sales.c.region]).\\</span>
-<span class="sd">                    where(</span>
-<span class="sd">                        regional_sales.c.total_sales &gt;</span>
-<span class="sd">                        select([</span>
-<span class="sd">                            func.sum(regional_sales.c.total_sales)/10</span>
-<span class="sd">                        ])</span>
-<span class="sd">                    ).cte(&quot;top_regions&quot;)</span>
-
-<span class="sd">            statement = select([</span>
-<span class="sd">                        orders.c.region,</span>
-<span class="sd">                        orders.c.product,</span>
-<span class="sd">                        func.sum(orders.c.quantity).label(&quot;product_units&quot;),</span>
-<span class="sd">                        func.sum(orders.c.amount).label(&quot;product_sales&quot;)</span>
-<span class="sd">                ]).where(orders.c.region.in_(</span>
-<span class="sd">                    select([top_regions.c.region])</span>
-<span class="sd">                )).group_by(orders.c.region, orders.c.product)</span>
-
-<span class="sd">            result = conn.execute(statement).fetchall()</span>
-
-<span class="sd">        Example 2, WITH RECURSIVE::</span>
-
-<span class="sd">            from sqlalchemy import (Table, Column, String, Integer,</span>
-<span class="sd">                                    MetaData, select, func)</span>
-
-<span class="sd">            metadata = MetaData()</span>
-
-<span class="sd">            parts = Table(&#39;parts&#39;, metadata,</span>
-<span class="sd">                Column(&#39;part&#39;, String),</span>
-<span class="sd">                Column(&#39;sub_part&#39;, String),</span>
-<span class="sd">                Column(&#39;quantity&#39;, Integer),</span>
-<span class="sd">            )</span>
-
-<span class="sd">            included_parts = select([</span>
-<span class="sd">                                parts.c.sub_part,</span>
-<span class="sd">                                parts.c.part,</span>
-<span class="sd">                                parts.c.quantity]).\\</span>
-<span class="sd">                                where(parts.c.part==&#39;our part&#39;).\\</span>
-<span class="sd">                                cte(recursive=True)</span>
-
-
-<span class="sd">            incl_alias = included_parts.alias()</span>
-<span class="sd">            parts_alias = parts.alias()</span>
-<span class="sd">            included_parts = included_parts.union_all(</span>
-<span class="sd">                select([</span>
-<span class="sd">                    parts_alias.c.sub_part,</span>
-<span class="sd">                    parts_alias.c.part,</span>
-<span class="sd">                    parts_alias.c.quantity</span>
-<span class="sd">                ]).</span>
-<span class="sd">                    where(parts_alias.c.part==incl_alias.c.sub_part)</span>
-<span class="sd">            )</span>
-
-<span class="sd">            statement = select([</span>
-<span class="sd">                        included_parts.c.sub_part,</span>
-<span class="sd">                        func.sum(included_parts.c.quantity).</span>
-<span class="sd">                          label(&#39;total_quantity&#39;)</span>
-<span class="sd">                    ]).\\</span>
-<span class="sd">                    group_by(included_parts.c.sub_part)</span>
-
-<span class="sd">            result = conn.execute(statement).fetchall()</span>
-
-
-<span class="sd">        .. seealso::</span>
-
-<span class="sd">            :meth:`.orm.query.Query.cte` - ORM version of</span>
-<span class="sd">            :meth:`.SelectBase.cte`.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">CTE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)</span>
 
     <span class="nd">@_generative</span>
     <span class="nd">@util</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s1">&#39;0.6&#39;</span><span class="p">,</span>
@@ -1804,14 +2038,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_for_update_arg</span> <span class="o">=</span> <span class="n">ForUpdateArg</span><span class="o">.</span><span class="n">parse_legacy_select</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@_generative</span>
-    <span class="k">def</span> <span class="nf">with_for_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nowait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">of</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">with_for_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nowait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">of</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">skip_locked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">key_share</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Specify a ``FOR UPDATE`` clause for this :class:`.GenerativeSelect`.</span>
 
 <span class="sd">        E.g.::</span>
 
 <span class="sd">            stmt = select([table]).with_for_update(nowait=True)</span>
 
-<span class="sd">        On a database like Postgresql or Oracle, the above would render a</span>
+<span class="sd">        On a database like PostgreSQL or Oracle, the above would render a</span>
 <span class="sd">        statement like::</span>
 
 <span class="sd">            SELECT table.a, table.b FROM table FOR UPDATE NOWAIT</span>
@@ -1827,10 +2062,10 @@
 <span class="sd">        variants.</span>
 
 <span class="sd">        :param nowait: boolean; will render ``FOR UPDATE NOWAIT`` on Oracle</span>
-<span class="sd">         and Postgresql dialects.</span>
+<span class="sd">         and PostgreSQL dialects.</span>
 
 <span class="sd">        :param read: boolean; will render ``LOCK IN SHARE MODE`` on MySQL,</span>
-<span class="sd">         ``FOR SHARE`` on Postgresql.  On Postgresql, when combined with</span>
+<span class="sd">         ``FOR SHARE`` on PostgreSQL.  On PostgreSQL, when combined with</span>
 <span class="sd">         ``nowait``, will render ``FOR SHARE NOWAIT``.</span>
 
 <span class="sd">        :param of: SQL expression or list of SQL expression elements</span>
@@ -1839,10 +2074,22 @@
 <span class="sd">         and Oracle.  May render as a table or as a column depending on</span>
 <span class="sd">         backend.</span>
 
-<span class="sd">        .. versionadded:: 0.9.0</span>
+<span class="sd">        :param skip_locked: boolean, will render ``FOR UPDATE SKIP LOCKED``</span>
+<span class="sd">         on Oracle and PostgreSQL dialects or ``FOR SHARE SKIP LOCKED`` if</span>
+<span class="sd">         ``read=True`` is also specified.</span>
+
+<span class="sd">         .. versionadded:: 1.1.0</span>
+
+<span class="sd">        :param key_share: boolean, will render ``FOR NO KEY UPDATE``,</span>
+<span class="sd">         or if combined with ``read=True`` will render ``FOR KEY SHARE``,</span>
+<span class="sd">         on the PostgreSQL dialect.</span>
+
+<span class="sd">         .. versionadded:: 1.1.0</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_for_update_arg</span> <span class="o">=</span> <span class="n">ForUpdateArg</span><span class="p">(</span><span class="n">nowait</span><span class="o">=</span><span class="n">nowait</span><span class="p">,</span> <span class="n">read</span><span class="o">=</span><span class="n">read</span><span class="p">,</span> <span class="n">of</span><span class="o">=</span><span class="n">of</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_for_update_arg</span> <span class="o">=</span> <span class="n">ForUpdateArg</span><span class="p">(</span><span class="n">nowait</span><span class="o">=</span><span class="n">nowait</span><span class="p">,</span> <span class="n">read</span><span class="o">=</span><span class="n">read</span><span class="p">,</span> <span class="n">of</span><span class="o">=</span><span class="n">of</span><span class="p">,</span>
+                                            <span class="n">skip_locked</span><span class="o">=</span><span class="n">skip_locked</span><span class="p">,</span>
+                                            <span class="n">key_share</span><span class="o">=</span><span class="n">key_share</span><span class="p">)</span>
 
     <span class="nd">@_generative</span>
     <span class="k">def</span> <span class="nf">apply_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2069,11 +2316,11 @@
         <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span>
+        <span class="k">return</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_create_union</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">selects</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a ``UNION`` of multiple selectables.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a ``UNION`` of multiple selectables.</span>
 
 <span class="sd">        The returned object is an instance of</span>
 <span class="sd">        :class:`.CompoundSelect`.</span>
@@ -2093,7 +2340,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_create_union_all</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">selects</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a ``UNION ALL`` of multiple selectables.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a ``UNION ALL`` of multiple selectables.</span>
 
 <span class="sd">        The returned object is an instance of</span>
 <span class="sd">        :class:`.CompoundSelect`.</span>
@@ -2113,7 +2360,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_create_except</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">selects</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return an ``EXCEPT`` of multiple selectables.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return an ``EXCEPT`` of multiple selectables.</span>
 
 <span class="sd">        The returned object is an instance of</span>
 <span class="sd">        :class:`.CompoundSelect`.</span>
@@ -2130,7 +2377,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_create_except_all</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">selects</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return an ``EXCEPT ALL`` of multiple selectables.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return an ``EXCEPT ALL`` of multiple selectables.</span>
 
 <span class="sd">        The returned object is an instance of</span>
 <span class="sd">        :class:`.CompoundSelect`.</span>
@@ -2147,7 +2394,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_create_intersect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">selects</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return an ``INTERSECT`` of multiple selectables.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return an ``INTERSECT`` of multiple selectables.</span>
 
 <span class="sd">        The returned object is an instance of</span>
 <span class="sd">        :class:`.CompoundSelect`.</span>
@@ -2164,7 +2411,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_create_intersect_all</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">selects</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return an ``INTERSECT ALL`` of multiple selectables.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return an ``INTERSECT ALL`` of multiple selectables.</span>
 
 <span class="sd">        The returned object is an instance of</span>
 <span class="sd">        :class:`.CompoundSelect`.</span>
@@ -2379,7 +2626,7 @@
 
 <span class="sd">          The boolean argument may also be a column expression or list</span>
 <span class="sd">          of column expressions - this is a special calling form which</span>
-<span class="sd">          is understood by the Postgresql dialect to render the</span>
+<span class="sd">          is understood by the PostgreSQL dialect to render the</span>
 <span class="sd">          ``DISTINCT ON (&lt;columns&gt;)`` syntax.</span>
 
 <span class="sd">          ``distinct`` is also available on an existing :class:`.Select`</span>
@@ -2401,10 +2648,10 @@
 <span class="sd">          specific backends, including:</span>
 
 <span class="sd">          * ``&quot;read&quot;`` - on MySQL, translates to ``LOCK IN SHARE MODE``;</span>
-<span class="sd">            on Postgresql, translates to ``FOR SHARE``.</span>
-<span class="sd">          * ``&quot;nowait&quot;`` - on Postgresql and Oracle, translates to</span>
+<span class="sd">            on PostgreSQL, translates to ``FOR SHARE``.</span>
+<span class="sd">          * ``&quot;nowait&quot;`` - on PostgreSQL and Oracle, translates to</span>
 <span class="sd">            ``FOR UPDATE NOWAIT``.</span>
-<span class="sd">          * ``&quot;read_nowait&quot;`` - on Postgresql, translates to</span>
+<span class="sd">          * ``&quot;read_nowait&quot;`` - on PostgreSQL, translates to</span>
 <span class="sd">            ``FOR SHARE NOWAIT``.</span>
 
 <span class="sd">         .. seealso::</span>
@@ -2668,7 +2915,7 @@
 
     <span class="nd">@_generative</span>
     <span class="k">def</span> <span class="nf">with_hint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selectable</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">dialect_name</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add an indexing or other executional context hint for the given</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Add an indexing or other executional context hint for the given</span>
 <span class="sd">        selectable to this :class:`.Select`.</span>
 
 <span class="sd">        The text of the hint is rendered in the appropriate</span>
@@ -2680,7 +2927,7 @@
 <span class="sd">        the table or alias. E.g. when using Oracle, the</span>
 <span class="sd">        following::</span>
 
-<span class="sd">            select([mytable]).\\</span>
+<span class="sd">            select([mytable]).\</span>
 <span class="sd">                with_hint(mytable, &quot;index(%(name)s ix_mytable)&quot;)</span>
 
 <span class="sd">        Would render SQL as::</span>
@@ -2691,8 +2938,8 @@
 <span class="sd">        hint to a particular backend. Such as, to add hints for both Oracle</span>
 <span class="sd">        and Sybase simultaneously::</span>
 
-<span class="sd">            select([mytable]).\\</span>
-<span class="sd">                with_hint(mytable, &quot;index(%(name)s ix_mytable)&quot;, &#39;oracle&#39;).\\</span>
+<span class="sd">            select([mytable]).\</span>
+<span class="sd">                with_hint(mytable, &quot;index(%(name)s ix_mytable)&quot;, &#39;oracle&#39;).\</span>
 <span class="sd">                with_hint(mytable, &quot;WITH INDEX ix_mytable&quot;, &#39;sybase&#39;)</span>
 
 <span class="sd">        .. seealso::</span>
@@ -2742,10 +2989,11 @@
         <span class="n">only_froms</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span>
             <span class="n">_select_iterables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">froms</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">_allow_label_resolve</span><span class="p">)</span>
+        <span class="n">only_cols</span> <span class="o">=</span> <span class="n">with_cols</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">only_froms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">with_cols</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">with_cols</span><span class="p">,</span> <span class="n">only_froms</span>
+        <span class="k">return</span> <span class="n">with_cols</span><span class="p">,</span> <span class="n">only_froms</span><span class="p">,</span> <span class="n">only_cols</span>
 
     <span class="k">def</span> <span class="nf">is_derived_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fromclause</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span> <span class="ow">in</span> <span class="n">fromclause</span><span class="o">.</span><span class="n">_cloned_set</span><span class="p">:</span>
@@ -2816,6 +3064,14 @@
         <span class="sd">&quot;&quot;&quot;return a new select() construct with the given column expression</span>
 <span class="sd">            added to its columns clause.</span>
 
+<span class="sd">            E.g.::</span>
+
+<span class="sd">                my_select = my_select.column(table.c.new_column)</span>
+
+<span class="sd">            See the documentation for :meth:`.Select.with_only_columns`</span>
+<span class="sd">            for guidelines on adding /replacing the columns of a</span>
+<span class="sd">            :class:`.Select` object.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">append_column</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
 
@@ -2853,27 +3109,8 @@
 
     <span class="nd">@_generative</span>
     <span class="k">def</span> <span class="nf">with_only_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a new :func:`.select` construct with its columns</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a new :func:`.select` construct with its columns</span>
 <span class="sd">        clause replaced with the given columns.</span>
-
-<span class="sd">        .. versionchanged:: 0.7.3</span>
-<span class="sd">            Due to a bug fix, this method has a slight</span>
-<span class="sd">            behavioral change as of version 0.7.3.</span>
-<span class="sd">            Prior to version 0.7.3, the FROM clause of</span>
-<span class="sd">            a :func:`.select` was calculated upfront and as new columns</span>
-<span class="sd">            were added; in 0.7.3 and later it&#39;s calculated</span>
-<span class="sd">            at compile time, fixing an issue regarding late binding</span>
-<span class="sd">            of columns to parent tables.  This changes the behavior of</span>
-<span class="sd">            :meth:`.Select.with_only_columns` in that FROM clauses no</span>
-<span class="sd">            longer represented in the new list are dropped,</span>
-<span class="sd">            but this behavior is more consistent in</span>
-<span class="sd">            that the FROM clauses are consistently derived from the</span>
-<span class="sd">            current columns clause.  The original intent of this method</span>
-<span class="sd">            is to allow trimming of the existing columns list to be fewer</span>
-<span class="sd">            columns than originally present; the use case of replacing</span>
-<span class="sd">            the columns list with an entirely different one hadn&#39;t</span>
-<span class="sd">            been anticipated until 0.7.3 was released; the usage</span>
-<span class="sd">            guidelines below illustrate how this should be done.</span>
 
 <span class="sd">        This method is exactly equivalent to as if the original</span>
 <span class="sd">        :func:`.select` had been called with the given columns</span>
@@ -2904,7 +3141,7 @@
 <span class="sd">        else (i.e. not in the WHERE clause, etc.) is to set it using</span>
 <span class="sd">        :meth:`.Select.select_from`::</span>
 
-<span class="sd">            &gt;&gt;&gt; s1 = select([table1.c.a, table2.c.b]).\\</span>
+<span class="sd">            &gt;&gt;&gt; s1 = select([table1.c.a, table2.c.b]).\</span>
 <span class="sd">            ...         select_from(table1.join(table2,</span>
 <span class="sd">            ...                 table1.c.a==table2.c.a))</span>
 <span class="sd">            &gt;&gt;&gt; s2 = s1.with_only_columns([table2.c.b])</span>
@@ -2967,11 +3204,11 @@
 
     <span class="nd">@_generative</span>
     <span class="k">def</span> <span class="nf">distinct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">expr</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a new select() construct which will apply DISTINCT to its</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a new select() construct which will apply DISTINCT to its</span>
 <span class="sd">        columns clause.</span>
 
 <span class="sd">        :param \*expr: optional column expressions.  When present,</span>
-<span class="sd">         the Postgresql dialect will render a ``DISTINCT ON (&lt;expressions&gt;&gt;)``</span>
+<span class="sd">         the PostgreSQL dialect will render a ``DISTINCT ON (&lt;expressions&gt;&gt;)``</span>
 <span class="sd">         construct.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2986,7 +3223,7 @@
 
     <span class="nd">@_generative</span>
     <span class="k">def</span> <span class="nf">select_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fromclause</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return a new :func:`.select` construct with the</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;return a new :func:`.select` construct with the</span>
 <span class="sd">        given FROM expression</span>
 <span class="sd">        merged into its list of FROM objects.</span>
 
@@ -2994,7 +3231,7 @@
 
 <span class="sd">            table1 = table(&#39;t1&#39;, column(&#39;a&#39;))</span>
 <span class="sd">            table2 = table(&#39;t2&#39;, column(&#39;b&#39;))</span>
-<span class="sd">            s = select([table1.c.a]).\\</span>
+<span class="sd">            s = select([table1.c.a]).\</span>
 <span class="sd">                select_from(</span>
 <span class="sd">                    table1.join(table2, table1.c.a==table2.c.b)</span>
 <span class="sd">                )</span>
@@ -3020,7 +3257,7 @@
 
     <span class="nd">@_generative</span>
     <span class="k">def</span> <span class="nf">correlate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">fromclauses</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return a new :class:`.Select` which will correlate the given FROM</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;return a new :class:`.Select` which will correlate the given FROM</span>
 <span class="sd">        clauses to that of an enclosing :class:`.Select`.</span>
 
 <span class="sd">        Calling this method turns off the :class:`.Select` object&#39;s</span>
@@ -3083,7 +3320,7 @@
 
     <span class="nd">@_generative</span>
     <span class="k">def</span> <span class="nf">correlate_except</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">fromclauses</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return a new :class:`.Select` which will omit the given FROM</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;return a new :class:`.Select` which will omit the given FROM</span>
 <span class="sd">        clauses from the auto-correlation process.</span>
 
 <span class="sd">        Calling :meth:`.Select.correlate_except` turns off the</span>
@@ -3141,9 +3378,17 @@
         <span class="sd">&quot;&quot;&quot;append the given column expression to the columns clause of this</span>
 <span class="sd">        select() construct.</span>
 
+<span class="sd">        E.g.::</span>
+
+<span class="sd">            my_select.append_column(some_table.c.new_column)</span>
+
 <span class="sd">        This is an **in-place** mutation method; the</span>
 <span class="sd">        :meth:`~.Select.column` method is preferred, as it provides standard</span>
 <span class="sd">        :term:`method chaining`.</span>
+
+<span class="sd">        See the documentation for :meth:`.Select.with_only_columns`</span>
+<span class="sd">        for guidelines on adding /replacing the columns of a</span>
+<span class="sd">        :class:`.Select` object.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reset_exported</span><span class="p">()</span>
@@ -3269,6 +3514,13 @@
                 <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="kc">None</span>
 
+    <span class="k">def</span> <span class="nf">_needs_parens_for_grouping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_limit_clause</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_offset_clause</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span>
+            <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_order_by_clause</span><span class="o">.</span><span class="n">clauses</span><span class="p">)</span>
+        <span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">self_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">against</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return a &#39;grouping&#39; construct as per the ClauseElement</span>
 <span class="sd">        specification.</span>
@@ -3278,7 +3530,8 @@
 <span class="sd">        expressions and should not require explicit use.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">against</span><span class="p">,</span> <span class="n">CompoundSelect</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">against</span><span class="p">,</span> <span class="n">CompoundSelect</span><span class="p">)</span> <span class="ow">and</span> \
+                <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_parens_for_grouping</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="n">FromGrouping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -3465,9 +3718,10 @@
 
     <span class="n">_textual</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">element</span> <span class="o">=</span> <span class="n">text</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">column_args</span> <span class="o">=</span> <span class="n">columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positional</span> <span class="o">=</span> <span class="n">positional</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_bind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3500,6 +3754,22 @@
           </div>
         </div>
       </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
       <div class="clearer"></div>
     </div>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -3511,13 +3781,13 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 1.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 2.0.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2017, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
   </body>
 </html>

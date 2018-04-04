@@ -144,50 +144,6 @@ gets a list of experiment names that work as a filter.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="benchbuild.experiment.RuntimeExperiment">
-<em class="property">class </em><code class="descclassname">benchbuild.experiment.</code><code class="descname">RuntimeExperiment</code><span class="sig-paren">(</span><em>projects=None</em>, <em>group=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#RuntimeExperiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.RuntimeExperiment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.experiment.Experiment" title="benchbuild.experiment.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.experiment.Experiment</span></code></a></p>
-<p>Additional runtime only features for experiments.</p>
-<dl class="method">
-<dt id="benchbuild.experiment.RuntimeExperiment.get_papi_calibration">
-<code class="descname">get_papi_calibration</code><span class="sig-paren">(</span><em>project</em>, <em>calibrate_call</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#RuntimeExperiment.get_papi_calibration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.RuntimeExperiment.get_papi_calibration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get calibration values for PAPI based measurements.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>project</strong> (<a class="reference internal" href="benchbuild.utils.schema.html#benchbuild.utils.schema.Project" title="benchbuild.utils.schema.Project"><em>Project</em></a>) – Unused (deprecated).</li>
-<li><strong>calibrate_call</strong> (<em>benchbuild.utils.cmd</em>) – The calibration command we will use.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.experiment.RuntimeExperiment.persist_calibration">
-<code class="descname">persist_calibration</code><span class="sig-paren">(</span><em>project</em>, <em>cmd</em>, <em>calibration</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#RuntimeExperiment.persist_calibration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.RuntimeExperiment.persist_calibration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Persist the result of a calibration call.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>project</strong> (<em>benchbuild.Project</em>) – The calibration values will be assigned to this project.</li>
-<li><strong>cmd</strong> (<em>benchbuild.utils.cmd</em>) – The command we used to generate the calibration values.</li>
-<li><strong>calibration</strong> (<em>int</em>) – The calibration time in nanoseconds.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="function">
 <dt id="benchbuild.experiment.get_group_projects">
 <code class="descclassname">benchbuild.experiment.</code><code class="descname">get_group_projects</code><span class="sig-paren">(</span><em>group: str</em>, <em>experiment</em><span class="sig-paren">)</span> &#x2192; List[benchbuild.project.Project]<a class="reference internal" href="_modules/benchbuild/experiment.html#get_group_projects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.get_group_projects" title="Permalink to this definition">¶</a></dt>

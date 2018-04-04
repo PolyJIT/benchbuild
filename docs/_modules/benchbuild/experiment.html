@@ -66,19 +66,18 @@
 <span class="sd">        This to perform all your experiment needs.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">uuid</span>
 <span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">t</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span>
 
-<span class="kn">import</span> <span class="nn">regex</span>
 <span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 
 <span class="kn">import</span> <span class="nn">benchbuild.project</span> <span class="k">as</span> <span class="nn">p</span>
 <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.actions</span> <span class="k">import</span> <span class="p">(</span><span class="n">Build</span><span class="p">,</span> <span class="n">Clean</span><span class="p">,</span> <span class="n">CleanExtra</span><span class="p">,</span> <span class="n">Configure</span><span class="p">,</span>
                                       <span class="n">Download</span><span class="p">,</span> <span class="n">MakeBuildDir</span><span class="p">,</span> <span class="n">Prepare</span><span class="p">,</span>
-                                      <span class="n">Run</span><span class="p">,</span> <span class="n">RequireAll</span><span class="p">)</span>
+                                      <span class="n">RequireAll</span><span class="p">,</span> <span class="n">Run</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_group_projects"><a class="viewcode-back" href="../../benchbuild.experiment.html#benchbuild.experiment.get_group_projects">[docs]</a><span class="k">def</span> <span class="nf">get_group_projects</span><span class="p">(</span><span class="n">group</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">Project</span><span class="p">]:</span>
@@ -205,56 +204,6 @@
             <span class="n">Build</span><span class="p">(</span><span class="n">project</span><span class="p">),</span>
             <span class="n">Clean</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
         <span class="p">]</span></div></div>
-
-
-<div class="viewcode-block" id="RuntimeExperiment"><a class="viewcode-back" href="../../benchbuild.experiment.html#benchbuild.experiment.RuntimeExperiment">[docs]</a><span class="k">class</span> <span class="nc">RuntimeExperiment</span><span class="p">(</span><span class="n">Experiment</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Additional runtime only features for experiments.&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="RuntimeExperiment.get_papi_calibration"><a class="viewcode-back" href="../../benchbuild.experiment.html#benchbuild.experiment.RuntimeExperiment.get_papi_calibration">[docs]</a>    <span class="k">def</span> <span class="nf">get_papi_calibration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">calibrate_call</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get calibration values for PAPI based measurements.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            project (Project):</span>
-<span class="sd">                Unused (deprecated).</span>
-<span class="sd">            calibrate_call (benchbuild.utils.cmd):</span>
-<span class="sd">                The calibration command we will use.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">):</span>
-            <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">env</span><span class="p">(</span><span class="n">BB_USE_CSV</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">BB_USE_FILE</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-                <span class="n">calib_out</span> <span class="o">=</span> <span class="n">calibrate_call</span><span class="p">()</span>
-
-        <span class="n">calib_pattern</span> <span class="o">=</span> <span class="n">regex</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s1">&#39;Real time per call \(ns\): (?P&lt;val&gt;[0-9]+.[0-9]+)&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">calib_out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">calib_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">res</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;val&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="RuntimeExperiment.persist_calibration"><a class="viewcode-back" href="../../benchbuild.experiment.html#benchbuild.experiment.RuntimeExperiment.persist_calibration">[docs]</a>    <span class="k">def</span> <span class="nf">persist_calibration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">calibration</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Persist the result of a calibration call.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            project (benchbuild.Project):</span>
-<span class="sd">                The calibration values will be assigned to this project.</span>
-<span class="sd">            cmd (benchbuild.utils.cmd):</span>
-<span class="sd">                The command we used to generate the calibration values.</span>
-<span class="sd">            calibration (int):</span>
-<span class="sd">                The calibration time in nanoseconds.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">calibration</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">benchbuild.utils.db</span> <span class="k">import</span> <span class="n">create_run</span>
-            <span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">schema</span> <span class="k">as</span> <span class="n">s</span>
-
-            <span class="n">run</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">create_run</span><span class="p">(</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="p">),</span> <span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">project</span><span class="o">.</span><span class="n">run_uuid</span><span class="p">)</span>
-            <span class="n">metric</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Metric</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;papi.calibration.time_ns&quot;</span><span class="p">,</span>
-                              <span class="n">value</span><span class="o">=</span><span class="n">calibration</span><span class="p">,</span>
-                              <span class="n">run_id</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-            <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
-            <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="Configuration"><a class="viewcode-back" href="../../benchbuild.experiment.html#benchbuild.experiment.Configuration">[docs]</a><span class="k">class</span> <span class="nc">Configuration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>

@@ -310,16 +310,16 @@
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="exit_code_from_run_infos"><a class="viewcode-back" href="../../../benchbuild.utils.run.html#benchbuild.utils.run.exit_code_from_run_infos">[docs]</a><span class="k">def</span> <span class="nf">exit_code_from_run_infos</span><span class="p">(</span><span class="n">run_infos</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">RunInfo</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Generate a single exit code from a list of RunInfo objects.</span>
 
 <span class="sd">    Takes a list of RunInfos and returns the exit code that is furthest away</span>
 <span class="sd">    from 0.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        run_infos (t.List[RunInfo]): [description]</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        int: [description]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -354,14 +354,14 @@
 <span class="sd">    The given command (`cmd`) will be executed inside a database context. As soon</span>
 <span class="sd">    as you leave the context we will commit the transaction. Any necessary modifications</span>
 <span class="sd">    to the database can be identified inside the context with the RunInfo object.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        cmd: The command we guard.</span>
 <span class="sd">        project: The project we track for.</span>
 <span class="sd">        experiment: The experiment we track for.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Yields:</span>
-<span class="sd">        RunInfo: A context object that carries the necessary database transaction. </span>
+<span class="sd">        RunInfo: A context object that carries the necessary database transaction.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">runner</span> <span class="o">=</span> <span class="n">RunInfo</span><span class="p">(</span><span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>

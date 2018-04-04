@@ -1,0 +1,290 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>benchbuild.project module &#8212; benchbuild 2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="benchbuild.experiment module" href="benchbuild.experiment.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.experiment.html" title="benchbuild.experiment module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-benchbuild.project">
+<span id="benchbuild-project-module"></span><h1>benchbuild.project module<a class="headerlink" href="#module-benchbuild.project" title="Permalink to this headline">¶</a></h1>
+<p>Project handling for the benchbuild study.</p>
+<dl class="class">
+<dt id="benchbuild.project.Project">
+<em class="property">class </em><code class="descclassname">benchbuild.project.</code><code class="descname">Project</code><span class="sig-paren">(</span><em>exp</em>, <em>group: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#Project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.Project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>benchbuild’s Project class.</p>
+<dl class="docutils">
+<dt>A project defines how run-time testing and cleaning is done for this</dt>
+<dd>IR project</dd>
+</dl>
+<dl class="attribute">
+<dt id="benchbuild.project.Project.CONTAINER">
+<code class="descname">CONTAINER</code><em class="property"> = &lt;benchbuild.utils.container.Gentoo object&gt;</em><a class="headerlink" href="#benchbuild.project.Project.CONTAINER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.project.Project.DOMAIN">
+<code class="descname">DOMAIN</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.project.Project.DOMAIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.project.Project.GROUP">
+<code class="descname">GROUP</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.project.Project.GROUP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.project.Project.NAME">
+<code class="descname">NAME</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.project.Project.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.project.Project.SRC_FILE">
+<code class="descname">SRC_FILE</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.project.Project.SRC_FILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.project.Project.VERSION">
+<code class="descname">VERSION</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.project.Project.VERSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.project.Project.build">
+<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#Project.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.Project.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the project.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.project.Project.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#Project.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.Project.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean the project build directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.project.Project.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#Project.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.Project.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a deepcopy of ourself.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.project.Project.compiler_extension">
+<code class="descname">compiler_extension</code><a class="headerlink" href="#benchbuild.project.Project.compiler_extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the compiler extension registered to this project.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.project.Project.configure">
+<code class="descname">configure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#Project.configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.Project.configure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the project.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.project.Project.download">
+<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#Project.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.Project.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the input source for this project.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.project.Project.prepare">
+<code class="descname">prepare</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#Project.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.Project.prepare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare the build diretory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.project.Project.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>experiment</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#Project.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.Project.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the tests of this project.</p>
+<p>This method initializes the default environment and takes care of
+cleaning up the mess we made, after a successfull run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>experiment</strong> – The experiment we run this project under</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.project.Project.run_tests">
+<code class="descname">run_tests</code><span class="sig-paren">(</span><em>experiment</em>, <em>run</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#Project.run_tests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.Project.run_tests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the tests of this project.</p>
+<p>Clients override this method to provide customized run-time tests.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>experiment</strong> – The experiment we run this project under</li>
+<li><strong>run</strong> – A function that takes the run command.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.project.Project.run_uuid">
+<code class="descname">run_uuid</code><a class="headerlink" href="#benchbuild.project.Project.run_uuid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the UUID that groups all tests for one project run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>create_new</strong> – Create a fresh UUID (Default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.project.Project.runtime_extension">
+<code class="descname">runtime_extension</code><a class="headerlink" href="#benchbuild.project.Project.runtime_extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the runtime extension registered for this project.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.project.Project.setup_derived_filenames">
+<code class="descname">setup_derived_filenames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#Project.setup_derived_filenames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.Project.setup_derived_filenames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct all derived file names.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.project.ProjectDecorator">
+<em class="property">class </em><code class="descclassname">benchbuild.project.</code><code class="descname">ProjectDecorator</code><span class="sig-paren">(</span><em>name</em>, <em>bases</em>, <em>attrs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#ProjectDecorator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.ProjectDecorator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.project.ProjectRegistry" title="benchbuild.project.ProjectRegistry"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.project.ProjectRegistry</span></code></a></p>
+<p>Decorate the interface of a project with the in_builddir decorator.</p>
+<p>This is just a small safety net for benchbuild users, because we make
+sure to run every project method in the project’s build directory.</p>
+<dl class="attribute">
+<dt id="benchbuild.project.ProjectDecorator.decorated_methods">
+<code class="descname">decorated_methods</code><em class="property"> = ['build', 'configure', 'download', 'prepare', 'run_tests']</em><a class="headerlink" href="#benchbuild.project.ProjectDecorator.decorated_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.project.ProjectRegistry">
+<em class="property">class </em><code class="descclassname">benchbuild.project.</code><code class="descname">ProjectRegistry</code><span class="sig-paren">(</span><em>name</em>, <em>bases</em>, <em>attrs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#ProjectRegistry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.ProjectRegistry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></p>
+<p>Registry for benchbuild projects.</p>
+<dl class="attribute">
+<dt id="benchbuild.project.ProjectRegistry.projects">
+<code class="descname">projects</code><em class="property"> = Trie()</em><a class="headerlink" href="#benchbuild.project.ProjectRegistry.projects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.project.populate">
+<code class="descclassname">benchbuild.project.</code><code class="descname">populate</code><span class="sig-paren">(</span><em>projects_to_filter=None</em>, <em>group=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/project.html#populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.project.populate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Populate the list of projects that belong to this experiment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>projects_to_filter</strong> (<em>list</em>) – List of projects we want to assign to this experiment.
+We intersect the list of projects with the list of supported
+projects to get the list of projects that belong to this
+experiment.</li>
+<li><strong>group</strong> (<em>str</em>) – In addition to the project filter, we provide a way to filter
+whole groups.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="benchbuild.experiment.html"
+                        title="previous chapter">benchbuild.experiment module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.project.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.experiment.html" title="benchbuild.experiment module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>

@@ -1,5 +1,5 @@
-benchbuild\.reports package
-===========================
+benchbuild.reports package
+==========================
 
 .. automodule:: benchbuild.reports
     :members:
@@ -9,12 +9,9 @@ benchbuild\.reports package
 Submodules
 ----------
 
-benchbuild\.reports\.raw module
--------------------------------
+.. toctree::
 
-.. automodule:: benchbuild.reports.raw
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   benchbuild.reports.compilestats
+   benchbuild.reports.raw
+   benchbuild.reports.status
 

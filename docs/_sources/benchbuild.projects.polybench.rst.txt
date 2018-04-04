@@ -1,5 +1,5 @@
-benchbuild\.projects\.polybench package
-=======================================
+benchbuild.projects.polybench package
+=====================================
 
 .. automodule:: benchbuild.projects.polybench
     :members:
@@ -9,12 +9,8 @@ benchbuild\.projects\.polybench package
 Submodules
 ----------
 
-benchbuild\.projects\.polybench\.polybench module
--------------------------------------------------
+.. toctree::
 
-.. automodule:: benchbuild.projects.polybench.polybench
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   benchbuild.projects.polybench.polybench-mod
+   benchbuild.projects.polybench.polybench
 

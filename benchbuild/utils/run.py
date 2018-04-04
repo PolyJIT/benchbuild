@@ -272,7 +272,18 @@ class RunInfo(object):
         return str(self)
 
 
-def exit_code_from_run_infos(run_infos: t.List[RunInfo]):
+def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
+    """Generate a single exit code from a list of RunInfo objects.
+
+    Takes a list of RunInfos and returns the exit code that is furthest away
+    from 0.
+
+    Args:
+        run_infos (t.List[RunInfo]): [description]
+
+    Returns:
+        int: [description]
+    """
     assert(run_infos is not None)
 
     if not hasattr(run_infos, "__iter__"):
@@ -286,13 +297,9 @@ def exit_code_from_run_infos(run_infos: t.List[RunInfo]):
     return max_rc
 
 
-@contextmanager
-def track_execution(cmd, project, experiment, **kwargs):
     """
-    Guard the execution of the given command.
 
     Args:
-        cmd: the command we guard.
         pname: the database we run under.
         ename: the database session this run belongs to.
         run_group: the run group this execution will belong to.
@@ -301,17 +308,32 @@ def track_execution(cmd, project, experiment, **kwargs):
         RunException: If the ``cmd`` encounters an error we wrap the exception
             in a RunException and re-raise. This ends the run unsuccessfully.
     """
+@contextmanager
+def track_execution(cmd, project, experiment, **kwargs):
+    """Guard the execution of the given command.
+
+    The given command (`cmd`) will be executed inside a database context. As soon
+    as you leave the context we will commit the transaction. Any necessary modifications
+    to the database can be identified inside the context with the RunInfo object.
+
+    Args:
+        cmd: The command we guard.
+        project: The project we track for.
+        experiment: The experiment we track for.
+
+    Yields:
+        RunInfo: A context object that carries the necessary database transaction.
+    """
+
     runner = RunInfo(cmd=cmd, project=project, experiment=experiment, **kwargs)
     yield runner
     runner.commit()
 
 
 def run(command, retcode=0):
-    """
-    Execute a plumbum command, depending on the user's settings.
+    """Execute a plumbum command, depending on the user's settings.
 
     Args:
-    command & TEE(retcode=retcode)
         command: The plumbumb command to execute.
     """
     return command & TEE(retcode=retcode)

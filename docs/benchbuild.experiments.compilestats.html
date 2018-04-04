@@ -1,0 +1,143 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>benchbuild.experiments.compilestats module &#8212; benchbuild 2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-benchbuild.experiments.compilestats">
+<span id="benchbuild-experiments-compilestats-module"></span><h1>benchbuild.experiments.compilestats module<a class="headerlink" href="#module-benchbuild.experiments.compilestats" title="Permalink to this headline">¶</a></h1>
+<p>The ‘compilestats’ experiment.</p>
+<p>This experiment is a basic experiment in the benchbuild study. It simply runs
+all projects after compiling it with -O3 and catches all statistics emitted
+by llvm.</p>
+<dl class="class">
+<dt id="benchbuild.experiments.compilestats.CompilestatsExperiment">
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.compilestats.</code><code class="descname">CompilestatsExperiment</code><span class="sig-paren">(</span><em>projects=None</em>, <em>group=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/compilestats.html#CompilestatsExperiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.compilestats.CompilestatsExperiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.experiment.html#benchbuild.experiment.RuntimeExperiment" title="benchbuild.experiment.RuntimeExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.experiment.RuntimeExperiment</span></code></a></p>
+<p>The compilestats experiment.</p>
+<dl class="attribute">
+<dt id="benchbuild.experiments.compilestats.CompilestatsExperiment.NAME">
+<code class="descname">NAME</code><em class="property"> = 'cs'</em><a class="headerlink" href="#benchbuild.experiments.compilestats.CompilestatsExperiment.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiments.compilestats.CompilestatsExperiment.actions_for_project">
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/compilestats.html#CompilestatsExperiment.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.compilestats.CompilestatsExperiment.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the actions a project wants to run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>project</strong> (<em>benchbuild.Project</em>) – the project we want to run.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.experiments.compilestats.PollyCompilestatsExperiment">
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.compilestats.</code><code class="descname">PollyCompilestatsExperiment</code><span class="sig-paren">(</span><em>projects=None</em>, <em>group=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/compilestats.html#PollyCompilestatsExperiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.compilestats.PollyCompilestatsExperiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.experiment.html#benchbuild.experiment.RuntimeExperiment" title="benchbuild.experiment.RuntimeExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.experiment.RuntimeExperiment</span></code></a></p>
+<p>The compilestats experiment with polly enabled.</p>
+<dl class="attribute">
+<dt id="benchbuild.experiments.compilestats.PollyCompilestatsExperiment.NAME">
+<code class="descname">NAME</code><em class="property"> = 'p-cs'</em><a class="headerlink" href="#benchbuild.experiments.compilestats.PollyCompilestatsExperiment.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiments.compilestats.PollyCompilestatsExperiment.actions_for_project">
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/compilestats.html#PollyCompilestatsExperiment.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.compilestats.PollyCompilestatsExperiment.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the actions a project wants to run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>project</strong> (<em>benchbuild.Project</em>) – the project we want to run.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.experiments.compilestats.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>

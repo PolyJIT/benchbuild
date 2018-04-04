@@ -1,0 +1,806 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>benchbuild.utils.schema module &#8212; benchbuild 2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-benchbuild.utils.schema">
+<span id="benchbuild-utils-schema-module"></span><h1>benchbuild.utils.schema module<a class="headerlink" href="#module-benchbuild.utils.schema" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="database-schema-for-benchbuild">
+<h2>Database schema for benchbuild<a class="headerlink" href="#database-schema-for-benchbuild" title="Permalink to this headline">¶</a></h2>
+<p>The schema should initialize itself on an empty database. For now, we do not
+support automatic upgrades on schema changes. You might encounter some
+roadbumps when using an older version of benchbuild.</p>
+<p>Furthermore, for now, we are restricted to postgresql databases, although we
+already support arbitrary connection strings via config.</p>
+<p>If you want to use reports that use one of our SQL functions, you need to
+initialize the functions first using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&gt; <span class="nv">BB_DB_CREATE_FUNCTIONS</span><span class="o">=</span><span class="nb">true</span> benchbuild run -E empty -l
+</pre></div>
+</div>
+<p>After that you (normally) do not need to do this agains, unless we supply
+a new version that you are interested in.
+As soon as we have alembic running, we can provide automatic up/downgrade
+paths for you.</p>
+<dl class="class">
+<dt id="benchbuild.utils.schema.CompileStat">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">CompileStat</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#CompileStat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.CompileStat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store compilestats as given by LLVM’s ‘-stats’ commoand.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.CompileStat.component">
+<code class="descname">component</code><a class="headerlink" href="#benchbuild.utils.schema.CompileStat.component" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.CompileStat.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.CompileStat.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.CompileStat.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.CompileStat.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.CompileStat.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.CompileStat.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.CompileStat.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.CompileStat.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Config">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Config</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store customized information about a run.</p>
+<p>You can store arbitrary configuration information about a run here.
+Use it for extended filtering against the run table.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Config.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Config.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Config.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Config.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Config.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.Config.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Event">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store PAPI profiling based events.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.duration">
+<code class="descname">duration</code><a class="headerlink" href="#benchbuild.utils.schema.Event.duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.Event.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Event.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Event.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.start">
+<code class="descname">start</code><a class="headerlink" href="#benchbuild.utils.schema.Event.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.tid">
+<code class="descname">tid</code><a class="headerlink" href="#benchbuild.utils.schema.Event.tid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Event.type">
+<code class="descname">type</code><a class="headerlink" href="#benchbuild.utils.schema.Event.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Experiment">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Experiment</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store metadata about experiments.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Experiment.begin">
+<code class="descname">begin</code><a class="headerlink" href="#benchbuild.utils.schema.Experiment.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Experiment.description">
+<code class="descname">description</code><a class="headerlink" href="#benchbuild.utils.schema.Experiment.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Experiment.end">
+<code class="descname">end</code><a class="headerlink" href="#benchbuild.utils.schema.Experiment.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Experiment.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.Experiment.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Experiment.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Experiment.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.FileContent">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">FileContent</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#FileContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.FileContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store content of a file for being able to retrieve it
+later</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.FileContent.content">
+<code class="descname">content</code><a class="headerlink" href="#benchbuild.utils.schema.FileContent.content" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.FileContent.experience_id">
+<code class="descname">experience_id</code><a class="headerlink" href="#benchbuild.utils.schema.FileContent.experience_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.FileContent.filename">
+<code class="descname">filename</code><a class="headerlink" href="#benchbuild.utils.schema.FileContent.filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.FileContent.rungroup_id">
+<code class="descname">rungroup_id</code><a class="headerlink" href="#benchbuild.utils.schema.FileContent.rungroup_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.GUID">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">GUID</code><span class="sig-paren">(</span><em>*args</em>, <em>as_uuid=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#GUID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.GUID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.type_api.TypeDecorator</span></code></p>
+<p>Platform-independent GUID type.</p>
+<p>Uses Postgresql’s UUID type, otherwise uses
+CHAR(32), storing as stringified hex values.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.GUID.as_uuid">
+<code class="descname">as_uuid</code><em class="property"> = False</em><a class="headerlink" href="#benchbuild.utils.schema.GUID.as_uuid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.GUID.impl">
+<code class="descname">impl</code><a class="headerlink" href="#benchbuild.utils.schema.GUID.impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.sqltypes.CHAR</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.schema.GUID.load_dialect_impl">
+<code class="descname">load_dialect_impl</code><span class="sig-paren">(</span><em>dialect</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#GUID.load_dialect_impl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.GUID.load_dialect_impl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeEngine</span></code> object corresponding to a dialect.</p>
+<p>This is an end-user override hook that can be used to provide
+differing types depending on the given dialect.  It is used
+by the <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeDecorator</span></code> implementation of <code class="xref py py-meth docutils literal notranslate"><span class="pre">type_engine()</span></code>
+to help determine what type should ultimately be returned
+for a given <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeDecorator</span></code>.</p>
+<p>By default returns <code class="docutils literal notranslate"><span class="pre">self.impl</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.schema.GUID.process_bind_param">
+<code class="descname">process_bind_param</code><span class="sig-paren">(</span><em>value</em>, <em>dialect</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#GUID.process_bind_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.GUID.process_bind_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive a bound parameter value to be converted.</p>
+<p>Subclasses override this method to return the
+value that should be passed along to the underlying
+<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeEngine</span></code> object, and from there to the
+DBAPI <code class="docutils literal notranslate"><span class="pre">execute()</span></code> method.</p>
+<p>The operation could be anything desired to perform custom
+behavior, such as transforming or serializing data.
+This could also be used as a hook for validating logic.</p>
+<p>This operation should be designed with the reverse operation
+in mind, which would be the process_result_value method of
+this class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> – Data to operate upon, of any type expected by
+this method in the subclass.  Can be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+<li><strong>dialect</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">Dialect</span></code> in use.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.schema.GUID.process_result_value">
+<code class="descname">process_result_value</code><span class="sig-paren">(</span><em>value</em>, <em>dialect</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#GUID.process_result_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.GUID.process_result_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive a result-row column value to be converted.</p>
+<p>Subclasses should implement this method to operate on data
+fetched from the database.</p>
+<p>Subclasses override this method to return the
+value that should be passed back to the application,
+given a value that is already processed by
+the underlying <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeEngine</span></code> object, originally
+from the DBAPI cursor method <code class="docutils literal notranslate"><span class="pre">fetchone()</span></code> or similar.</p>
+<p>The operation could be anything desired to perform custom
+behavior, such as transforming or serializing data.
+This could also be used as a hook for validating logic.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> – Data to operate upon, of any type expected by
+this method in the subclass.  Can be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+<li><strong>dialect</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">Dialect</span></code> in use.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This operation should be designed to be reversible by
+the “process_bind_param” method of this class.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.GlobalConfig">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">GlobalConfig</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#GlobalConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.GlobalConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store customized information about a run.</p>
+<p>You can store arbitrary configuration information about a run here.
+Use it for extended filtering against the run table.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.GlobalConfig.experiment_group">
+<code class="descname">experiment_group</code><a class="headerlink" href="#benchbuild.utils.schema.GlobalConfig.experiment_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.GlobalConfig.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.GlobalConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.GlobalConfig.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.GlobalConfig.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.IslAst">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">IslAst</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#IslAst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.IslAst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store default metrics, simple name value store.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.IslAst.ast">
+<code class="descname">ast</code><a class="headerlink" href="#benchbuild.utils.schema.IslAst.ast" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.IslAst.function">
+<code class="descname">function</code><a class="headerlink" href="#benchbuild.utils.schema.IslAst.function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.IslAst.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.IslAst.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Likwid">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Likwid</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Likwid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Likwid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store measurement results of likwid based experiments.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Likwid.core">
+<code class="descname">core</code><a class="headerlink" href="#benchbuild.utils.schema.Likwid.core" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Likwid.metric">
+<code class="descname">metric</code><a class="headerlink" href="#benchbuild.utils.schema.Likwid.metric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Likwid.region">
+<code class="descname">region</code><a class="headerlink" href="#benchbuild.utils.schema.Likwid.region" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Likwid.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Likwid.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Likwid.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.Likwid.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Metadata">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Metadata</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store metadata information for every run.</p>
+<p>If you happen to have some free-form data that belongs to the database,
+this is the place for it.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metadata.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Metadata.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metadata.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Metadata.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metadata.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.Metadata.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Metric">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Metric</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store default metrics, simple name value store.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metric.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Metric.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metric.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Metric.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Metric.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.Metric.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Project">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Project</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store project metadata.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.description">
+<code class="descname">description</code><a class="headerlink" href="#benchbuild.utils.schema.Project.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.domain">
+<code class="descname">domain</code><a class="headerlink" href="#benchbuild.utils.schema.Project.domain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.group_name">
+<code class="descname">group_name</code><a class="headerlink" href="#benchbuild.utils.schema.Project.group_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Project.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.src_url">
+<code class="descname">src_url</code><a class="headerlink" href="#benchbuild.utils.schema.Project.src_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Project.version">
+<code class="descname">version</code><a class="headerlink" href="#benchbuild.utils.schema.Project.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Regions">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Regions</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store region metadata generated by libpjit.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Regions.duration">
+<code class="descname">duration</code><a class="headerlink" href="#benchbuild.utils.schema.Regions.duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Regions.events">
+<code class="descname">events</code><a class="headerlink" href="#benchbuild.utils.schema.Regions.events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Regions.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.Regions.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Regions.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Regions.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Regions.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Regions.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.RegressionTest">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">RegressionTest</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#RegressionTest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.RegressionTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store regression tests for all projects.</p>
+<p>This relation is filled from the PolyJIT side, not from benchbuild-study.
+We collect all JIT SCoPs found by PolyJIT in this relation for
+regression-test generation.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RegressionTest.module">
+<code class="descname">module</code><a class="headerlink" href="#benchbuild.utils.schema.RegressionTest.module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RegressionTest.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.RegressionTest.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RegressionTest.project_name">
+<code class="descname">project_name</code><a class="headerlink" href="#benchbuild.utils.schema.RegressionTest.project_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RegressionTest.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.RegressionTest.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Run">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Run</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store a run for each executed test binary.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.begin">
+<code class="descname">begin</code><a class="headerlink" href="#benchbuild.utils.schema.Run.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.command">
+<code class="descname">command</code><a class="headerlink" href="#benchbuild.utils.schema.Run.command" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.end">
+<code class="descname">end</code><a class="headerlink" href="#benchbuild.utils.schema.Run.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.experiment_group">
+<code class="descname">experiment_group</code><a class="headerlink" href="#benchbuild.utils.schema.Run.experiment_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.experiment_name">
+<code class="descname">experiment_name</code><a class="headerlink" href="#benchbuild.utils.schema.Run.experiment_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.Run.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.project_group">
+<code class="descname">project_group</code><a class="headerlink" href="#benchbuild.utils.schema.Run.project_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.project_name">
+<code class="descname">project_name</code><a class="headerlink" href="#benchbuild.utils.schema.Run.project_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.run_group">
+<code class="descname">run_group</code><a class="headerlink" href="#benchbuild.utils.schema.Run.run_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Run.status">
+<code class="descname">status</code><a class="headerlink" href="#benchbuild.utils.schema.Run.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.RunGroup">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">RunGroup</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#RunGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.RunGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store information about a run group.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.begin">
+<code class="descname">begin</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.end">
+<code class="descname">end</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.experiment">
+<code class="descname">experiment</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.experiment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunGroup.status">
+<code class="descname">status</code><a class="headerlink" href="#benchbuild.utils.schema.RunGroup.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.RunLog">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">RunLog</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#RunLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.RunLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store log information for every run.</p>
+<p>Properties like, start time, finish time, exit code, stderr, stdout
+are stored here.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.begin">
+<code class="descname">begin</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.begin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.config">
+<code class="descname">config</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.end">
+<code class="descname">end</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.status">
+<code class="descname">status</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.stderr">
+<code class="descname">stderr</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.stderr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.RunLog.stdout">
+<code class="descname">stdout</code><a class="headerlink" href="#benchbuild.utils.schema.RunLog.stdout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Schedule">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Schedule</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Schedule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store default metrics, simple name value store.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Schedule.function">
+<code class="descname">function</code><a class="headerlink" href="#benchbuild.utils.schema.Schedule.function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Schedule.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Schedule.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Schedule.schedule">
+<code class="descname">schedule</code><a class="headerlink" href="#benchbuild.utils.schema.Schedule.schedule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.ScopDetection">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">ScopDetection</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#ScopDetection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.ScopDetection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store results of polli-profile-scops</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.ScopDetection.count">
+<code class="descname">count</code><a class="headerlink" href="#benchbuild.utils.schema.ScopDetection.count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.ScopDetection.invalid_reason">
+<code class="descname">invalid_reason</code><a class="headerlink" href="#benchbuild.utils.schema.ScopDetection.invalid_reason" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.ScopDetection.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.ScopDetection.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.Sequence">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Sequence</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#Sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.Sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Store a the fittest sequence of an opt command and its fitness value.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Sequence.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.utils.schema.Sequence.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Sequence.run_id">
+<code class="descname">run_id</code><a class="headerlink" href="#benchbuild.utils.schema.Sequence.run_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.schema.Sequence.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.schema.Sequence.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.schema.Session">
+<code class="descclassname">benchbuild.utils.schema.</code><code class="descname">Session</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#benchbuild.utils.schema.Session" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.schema.SessionManager">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.schema.</code><code class="descname">SessionManager</code><a class="reference internal" href="_modules/benchbuild/utils/schema.html#SessionManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.SessionManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="benchbuild.utils.schema.SessionManager.get">
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#SessionManager.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.SessionManager.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.schema.init_functions">
+<code class="descclassname">benchbuild.utils.schema.</code><code class="descname">init_functions</code><span class="sig-paren">(</span><em>connection</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/schema.html#init_functions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.schema.init_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all SQL functions in the database.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">benchbuild.utils.schema module</a><ul>
+<li><a class="reference internal" href="#database-schema-for-benchbuild">Database schema for benchbuild</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.utils.schema.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>

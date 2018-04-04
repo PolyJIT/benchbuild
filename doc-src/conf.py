@@ -33,6 +33,7 @@
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode']
 
@@ -50,7 +51,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'benchbuild'
-copyright = '2017, Andreas Simbürger'
+copyright = '2018, Andreas Simbürger'
 author = 'Andreas Simbürger'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -86,7 +87,7 @@ todo_include_todos = True
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinxdoc'
+html_theme = 'nature'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

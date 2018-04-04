@@ -4,27 +4,18 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>benchbuild.utils.compiler &#8212; benchbuild 1.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../_static/sphinxdoc.css" type="text/css" />
+    <title>benchbuild.utils.compiler &#8212; benchbuild 2.0.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '1.3.2',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -34,24 +25,11 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 1.3.2 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 2.0.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../utils.html" accesskey="U">benchbuild.utils</a> &#187;</li> 
       </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -76,12 +54,6 @@
 <span class="sd">The wrapper-script generated for both functions can be found inside:</span>
 <span class="sd">    * wrap_cc()</span>
 
-<span class="sd">The remaining methods:</span>
-<span class="sd">    * llvm()</span>
-<span class="sd">    * llvm_libs()</span>
-<span class="sd">    * clang()</span>
-<span class="sd">    * clang_cxx()</span>
-
 <span class="sd">Are just convencience methods that can be used when interacting with the</span>
 <span class="sd">configured llvm/clang source directories.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -90,7 +62,7 @@
 <span class="kn">from</span> <span class="nn">plumbum.commands.base</span> <span class="k">import</span> <span class="n">BoundCommand</span>
 
 
-<div class="viewcode-block" id="wrap_cc_in_uchroot"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.compiler.wrap_cc_in_uchroot">[docs]</a><span class="k">def</span> <span class="nf">wrap_cc_in_uchroot</span><span class="p">(</span><span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cc_name</span><span class="o">=</span><span class="s1">&#39;clang&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="wrap_cc_in_uchroot"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.wrap_cc_in_uchroot">[docs]</a><span class="k">def</span> <span class="nf">wrap_cc_in_uchroot</span><span class="p">(</span><span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cc_name</span><span class="o">=</span><span class="s1">&#39;cc&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a clang wrapper that may be called from within a uchroot.</span>
 
@@ -113,7 +85,7 @@
     <span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 
     <span class="k">def</span> <span class="nf">compiler</span><span class="p">():</span>  <span class="c1"># pylint:  disable=C0111</span>
-        <span class="n">pi</span> <span class="o">=</span> <span class="n">__get_compiler_paths</span><span class="p">()</span>
+        <span class="n">pi</span> <span class="o">=</span> <span class="n">__get_paths</span><span class="p">()</span>
         <span class="n">cc</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="s2">&quot;/usr/bin/env&quot;</span><span class="p">]</span>
         <span class="n">cc</span> <span class="o">=</span> <span class="n">cc</span><span class="p">[</span><span class="n">cc_name</span><span class="p">]</span>
         <span class="n">cc</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">with_env</span><span class="p">(</span><span class="n">LD_LIBRARY_PATH</span><span class="o">=</span><span class="n">pi</span><span class="p">[</span><span class="s2">&quot;ld_library_path&quot;</span><span class="p">])</span>
@@ -125,12 +97,12 @@
             <span class="n">python</span><span class="o">=</span><span class="s2">&quot;/usr/bin/env python3&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="wrap_cxx_in_uchroot"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.compiler.wrap_cxx_in_uchroot">[docs]</a><span class="k">def</span> <span class="nf">wrap_cxx_in_uchroot</span><span class="p">(</span><span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="wrap_cxx_in_uchroot"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.wrap_cxx_in_uchroot">[docs]</a><span class="k">def</span> <span class="nf">wrap_cxx_in_uchroot</span><span class="p">(</span><span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Delegate to wrap_cc_in_uchroot).&quot;&quot;&quot;</span>
-    <span class="n">wrap_cc_in_uchroot</span><span class="p">(</span><span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="s1">&#39;clang++&#39;</span><span class="p">)</span></div>
+    <span class="n">wrap_cc_in_uchroot</span><span class="p">(</span><span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;compiler&quot;</span><span class="p">][</span><span class="s2">&quot;cxx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="lt_clang"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.compiler.lt_clang">[docs]</a><span class="k">def</span> <span class="nf">lt_clang</span><span class="p">(</span><span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="lt_clang"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.lt_clang">[docs]</a><span class="k">def</span> <span class="nf">lt_clang</span><span class="p">(</span><span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a clang that hides CFLAGS and LDFLAGS.</span>
 
@@ -150,11 +122,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">cmd</span>
 
-    <span class="n">wrap_cc</span><span class="p">(</span><span class="s2">&quot;clang&quot;</span><span class="p">,</span> <span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">clang</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">cmd</span><span class="p">[</span><span class="s2">&quot;./clang&quot;</span><span class="p">]</span></div>
+    <span class="n">cc</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;compiler&quot;</span><span class="p">][</span><span class="s2">&quot;c&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="n">wrap_cc</span><span class="p">(</span><span class="n">cc</span><span class="p">,</span> <span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">compiler</span><span class="p">(</span><span class="n">cc</span><span class="p">),</span> <span class="n">func</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmd</span><span class="p">[</span><span class="s2">&quot;./</span><span class="si">{name}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cc</span><span class="p">)]</span></div>
 
 
-<div class="viewcode-block" id="lt_clang_cxx"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.compiler.lt_clang_cxx">[docs]</a><span class="k">def</span> <span class="nf">lt_clang_cxx</span><span class="p">(</span><span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="lt_clang_cxx"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.lt_clang_cxx">[docs]</a><span class="k">def</span> <span class="nf">lt_clang_cxx</span><span class="p">(</span><span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a clang++ that hides CFLAGS and LDFLAGS.</span>
 
@@ -172,49 +145,21 @@
 <span class="sd">    Returns (benchbuild.utils.cmd):</span>
 <span class="sd">        Path to the new clang command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
+    <span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">cmd</span>
 
-    <span class="n">wrap_cc</span><span class="p">(</span><span class="s2">&quot;clang++&quot;</span><span class="p">,</span> <span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">clang_cxx</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">local</span><span class="p">[</span><span class="s2">&quot;./clang++&quot;</span><span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="llvm"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.compiler.llvm">[docs]</a><span class="k">def</span> <span class="nf">llvm</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the path where all llvm binaries can be found.</span>
-
-<span class="sd">    Environment variable:</span>
-<span class="sd">        BB_LLVM_DIR</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        LLVM binary path.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
-    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;llvm&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">]),</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span></div>
+    <span class="n">cxx</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;compiler&quot;</span><span class="p">][</span><span class="s2">&quot;cxx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="n">wrap_cc</span><span class="p">(</span><span class="n">cxx</span><span class="p">,</span> <span class="n">cflags</span><span class="p">,</span> <span class="n">ldflags</span><span class="p">,</span> <span class="n">compiler</span><span class="p">(</span><span class="n">cxx</span><span class="p">),</span> <span class="n">func</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmd</span><span class="p">[</span><span class="s2">&quot;./</span><span class="si">{name}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cxx</span><span class="p">)]</span></div>
 
 
-<div class="viewcode-block" id="llvm_libs"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.compiler.llvm_libs">[docs]</a><span class="k">def</span> <span class="nf">llvm_libs</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the path where all llvm libraries can be found.</span>
-
-<span class="sd">    Environment variable:</span>
-<span class="sd">        BB_LLVM_DIR</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        LLVM library path.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
-    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;llvm&quot;</span><span class="p">][</span><span class="s2">&quot;dir&quot;</span><span class="p">]),</span> <span class="s2">&quot;lib&quot;</span><span class="p">)</span></div>
-
-
-<span class="k">def</span> <span class="nf">__get_compiler_paths</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">__get_paths</span><span class="p">():</span>
     <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">getenv</span>
     <span class="kn">from</span> <span class="nn">benchbuild.utils.path</span> <span class="k">import</span> <span class="n">list_to_path</span>
 
     <span class="n">path</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
     <span class="n">lib_path</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">_lib_path</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;compiler_ld_library_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
-    <span class="n">_path</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;compiler_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="n">_lib_path</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;ld_library_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="n">_path</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
     <span class="n">_lib_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">(</span><span class="n">_lib_path</span><span class="p">)</span>
     <span class="n">_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">(</span><span class="n">_path</span><span class="p">)</span>
 
@@ -224,45 +169,24 @@
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ld_library_path&quot;</span><span class="p">:</span> <span class="n">lib_path</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span>
 
 
-<div class="viewcode-block" id="clang_cxx"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.compiler.clang_cxx">[docs]</a><span class="k">def</span> <span class="nf">clang_cxx</span><span class="p">():</span>
+<div class="viewcode-block" id="compiler"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.compiler">[docs]</a><span class="k">def</span> <span class="nf">compiler</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a usable clang++ plumbum command.</span>
 
-<span class="sd">    This searches for a usable clang++ in the llvm binary path (See llvm()) and</span>
-<span class="sd">    returns a plumbum command to call it.</span>
+<span class="sd">    This searches for a usable clang++ in the llvm binary path</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        plumbum Command that executes clang++</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
     <span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
-    <span class="n">pinfo</span> <span class="o">=</span> <span class="n">__get_compiler_paths</span><span class="p">()</span>
-    <span class="n">clang</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">llvm</span><span class="p">(),</span> <span class="s2">&quot;clang++&quot;</span><span class="p">)]</span>
-    <span class="n">clang</span> <span class="o">=</span> <span class="n">clang</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="n">PATH</span><span class="o">=</span><span class="n">pinfo</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span>
-                         <span class="n">LD_LIBRARY_PATH</span><span class="o">=</span><span class="n">pinfo</span><span class="p">[</span><span class="s2">&quot;ld_library_path&quot;</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">clang</span></div>
+    <span class="n">pinfo</span> <span class="o">=</span> <span class="n">__get_paths</span><span class="p">()</span>
+    <span class="n">_compiler</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="n">_compiler</span> <span class="o">=</span> <span class="n">_compiler</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="n">PATH</span><span class="o">=</span><span class="n">pinfo</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span>
+                                 <span class="n">LD_LIBRARY_PATH</span><span class="o">=</span><span class="n">pinfo</span><span class="p">[</span><span class="s2">&quot;ld_library_path&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">_compiler</span></div>
 
 
-<div class="viewcode-block" id="clang"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.compiler.clang">[docs]</a><span class="k">def</span> <span class="nf">clang</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get a usable clang plumbum command.</span>
-
-<span class="sd">    This searches for a usable clang in the llvm binary path (See llvm()) and</span>
-<span class="sd">    returns a plumbum command to call it.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        plumbum Command that executes clang++</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
-    <span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
-    <span class="n">pinfo</span> <span class="o">=</span> <span class="n">__get_compiler_paths</span><span class="p">()</span>
-    <span class="n">clang</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">llvm</span><span class="p">(),</span> <span class="s2">&quot;clang&quot;</span><span class="p">)]</span>
-    <span class="n">clang</span> <span class="o">=</span> <span class="n">clang</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="n">PATH</span><span class="o">=</span><span class="n">pinfo</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span>
-                         <span class="n">LD_LIBRARY_PATH</span><span class="o">=</span><span class="n">pinfo</span><span class="p">[</span><span class="s2">&quot;ld_library_path&quot;</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">clang</span></div>
-
-
-<div class="viewcode-block" id="ExperimentCommand"><a class="viewcode-back" href="../../../benchbuild.utils.html#benchbuild.utils.compiler.ExperimentCommand">[docs]</a><span class="k">class</span> <span class="nc">ExperimentCommand</span><span class="p">(</span><span class="n">BoundCommand</span><span class="p">):</span>
+<div class="viewcode-block" id="ExperimentCommand"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.ExperimentCommand">[docs]</a><span class="k">class</span> <span class="nc">ExperimentCommand</span><span class="p">(</span><span class="n">BoundCommand</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cmd&quot;</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">exp_args</span><span class="p">):</span>
@@ -273,6 +197,22 @@
 </pre></div>
 
           </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -286,13 +226,14 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 1.3.2 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 2.0.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../utils.html" >benchbuild.utils</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2017, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
   </body>
 </html>

@@ -1,0 +1,286 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>benchbuild.experiment module &#8212; benchbuild 2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="benchbuild.project module" href="benchbuild.project.html" />
+    <link rel="prev" title="benchbuild.extensions module" href="benchbuild.extensions.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.project.html" title="benchbuild.project module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.extensions.html" title="benchbuild.extensions module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-benchbuild.experiment">
+<span id="benchbuild-experiment-module"></span><h1>benchbuild.experiment module<a class="headerlink" href="#module-benchbuild.experiment" title="Permalink to this headline">¶</a></h1>
+<p>BenchBuild’s skeleton for experiments.</p>
+<p>An benchbuild.experiment defines a series of phases that constitute a
+benchbuild compatible experiment. This is the default implementation of an
+experiment.</p>
+<p>Clients can derive from class class::benchbuild.experiment.Experiment and
+override the methods relvant to their experiment.</p>
+<p>An experiment can have a variable number of phases / steps / substeps.</p>
+<div class="section" id="phases-steps-substeps">
+<h2>Phases / Steps / Substeps<a class="headerlink" href="#phases-steps-substeps" title="Permalink to this headline">¶</a></h2>
+<p>All phases/steps/substeps support being used as a context manager. All 3 of
+them catch ProcessExecutionErrors that may be thrown from plumbum, without
+aborting the whole experiment. However, an error is tracked.</p>
+</div>
+<div class="section" id="actions">
+<h2>Actions<a class="headerlink" href="#actions" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>An experiment performs the following actions in order:</dt>
+<dd><ol class="first last arabic simple">
+<li>clean - Clean any previous runs that collide with our directory</li>
+<li><dl class="first docutils">
+<dt>prepare - Prepare the experiment, this is a good place to copy relevant</dt>
+<dd>files over for testing.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>run (run_tests) - Run the experiment. The ‘meat’ lies here. Override</dt>
+<dd>This to perform all your experiment needs.</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+<dl class="class">
+<dt id="benchbuild.experiment.Configuration">
+<em class="property">class </em><code class="descclassname">benchbuild.experiment.</code><code class="descname">Configuration</code><span class="sig-paren">(</span><em>project=None</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Build a set of experiment actions out of a list of configurations.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.experiment.Experiment">
+<em class="property">class </em><code class="descclassname">benchbuild.experiment.</code><code class="descname">Experiment</code><span class="sig-paren">(</span><em>projects=None</em>, <em>group=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A series of commands executed on a project that form an experiment.</p>
+<p>The default implementation should provide a sane environment for all
+derivates.</p>
+<p>One important task executed by the basic implementation is setting up
+the default set of projects that belong to this project.
+As every project gets registered in the ProjectFactory, the experiment
+gets a list of experiment names that work as a filter.</p>
+<dl class="attribute">
+<dt id="benchbuild.experiment.Experiment.NAME">
+<code class="descname">NAME</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.experiment.Experiment.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiment.Experiment.actions">
+<code class="descname">actions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.actions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiment.Experiment.actions_for_project">
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the actions a project wants to run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>project</strong> (<em>benchbuild.Project</em>) – the project we want to run.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="benchbuild.experiment.Experiment.default_compiletime_actions">
+<em class="property">static </em><code class="descname">default_compiletime_actions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.default_compiletime_actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.default_compiletime_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a series of actions for a compile time experiment.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="benchbuild.experiment.Experiment.default_runtime_actions">
+<em class="property">static </em><code class="descname">default_runtime_actions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.default_runtime_actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.default_runtime_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a series of actions for a run time experiment.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.experiment.ExperimentRegistry">
+<em class="property">class </em><code class="descclassname">benchbuild.experiment.</code><code class="descname">ExperimentRegistry</code><span class="sig-paren">(</span><em>name</em>, <em>bases</em>, <em>dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#ExperimentRegistry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.ExperimentRegistry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></p>
+<p>Registry for benchbuild experiments.</p>
+<dl class="attribute">
+<dt id="benchbuild.experiment.ExperimentRegistry.experiments">
+<code class="descname">experiments</code><em class="property"> = {}</em><a class="headerlink" href="#benchbuild.experiment.ExperimentRegistry.experiments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.experiment.RuntimeExperiment">
+<em class="property">class </em><code class="descclassname">benchbuild.experiment.</code><code class="descname">RuntimeExperiment</code><span class="sig-paren">(</span><em>projects=None</em>, <em>group=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#RuntimeExperiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.RuntimeExperiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#benchbuild.experiment.Experiment" title="benchbuild.experiment.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.experiment.Experiment</span></code></a></p>
+<p>Additional runtime only features for experiments.</p>
+<dl class="method">
+<dt id="benchbuild.experiment.RuntimeExperiment.get_papi_calibration">
+<code class="descname">get_papi_calibration</code><span class="sig-paren">(</span><em>project</em>, <em>calibrate_call</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#RuntimeExperiment.get_papi_calibration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.RuntimeExperiment.get_papi_calibration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get calibration values for PAPI based measurements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>project</strong> (<a class="reference internal" href="benchbuild.project.html#benchbuild.project.Project" title="benchbuild.project.Project"><em>Project</em></a>) – Unused (deprecated).</li>
+<li><strong>calibrate_call</strong> (<em>benchbuild.utils.cmd</em>) – The calibration command we will use.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiment.RuntimeExperiment.persist_calibration">
+<code class="descname">persist_calibration</code><span class="sig-paren">(</span><em>project</em>, <em>cmd</em>, <em>calibration</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#RuntimeExperiment.persist_calibration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.RuntimeExperiment.persist_calibration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist the result of a calibration call.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>project</strong> (<em>benchbuild.Project</em>) – The calibration values will be assigned to this project.</li>
+<li><strong>cmd</strong> (<em>benchbuild.utils.cmd</em>) – The command we used to generate the calibration values.</li>
+<li><strong>calibration</strong> (<em>int</em>) – The calibration time in nanoseconds.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.experiment.get_group_projects">
+<code class="descclassname">benchbuild.experiment.</code><code class="descname">get_group_projects</code><span class="sig-paren">(</span><em>group: str</em>, <em>experiment</em><span class="sig-paren">)</span> &#x2192; List[benchbuild.project.Project]<a class="reference internal" href="_modules/benchbuild/experiment.html#get_group_projects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.get_group_projects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of project names for the given group.</p>
+<p>Filter the projects assigned to this experiment by group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group</strong> (<em>str</em>) – The group.</li>
+<li><strong>experiment</strong> (<em>benchbuild.Experiment</em>) – The experiment we draw our projects
+to filter from.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns (list):</dt>
+<dd>A list of project names for the group that are supported by this
+experiment.</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">benchbuild.experiment module</a><ul>
+<li><a class="reference internal" href="#phases-steps-substeps">Phases / Steps / Substeps</a></li>
+<li><a class="reference internal" href="#actions">Actions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="benchbuild.extensions.html"
+                        title="previous chapter">benchbuild.extensions module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="benchbuild.project.html"
+                        title="next chapter">benchbuild.project module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.experiment.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.project.html" title="benchbuild.project module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.extensions.html" title="benchbuild.extensions module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,231 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>benchbuild.utils.compiler module &#8212; benchbuild 2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-benchbuild.utils.compiler">
+<span id="benchbuild-utils-compiler-module"></span><h1>benchbuild.utils.compiler module<a class="headerlink" href="#module-benchbuild.utils.compiler" title="Permalink to this headline">¶</a></h1>
+<p>Helper functions for dealing with compiler replacement.</p>
+<p>This provides a few key functions to deal with varying/measuring the compilers
+used inside the benchbuild study.
+From a high-level view, there are 2 interesting functions:</p>
+<blockquote>
+<div><ul class="simple">
+<li>lt_clang(cflags, ldflags, func)</li>
+<li>lt_clang_cxx(cflags, ldflags, func)</li>
+</ul>
+</div></blockquote>
+<p>These generate a wrapped clang/clang++ in the current working directory and
+hide the given cflags/ldflags from the calling build system. Both will
+give you a working plumbum command and call a python script that redirects
+to the real clang/clang++ given the additional cflags&amp;ldflags.</p>
+<dl class="docutils">
+<dt>The wrapper-script generated for both functions can be found inside:</dt>
+<dd><ul class="first last simple">
+<li>wrap_cc()</li>
+</ul>
+</dd>
+</dl>
+<p>Are just convencience methods that can be used when interacting with the
+configured llvm/clang source directories.</p>
+<dl class="class">
+<dt id="benchbuild.utils.compiler.ExperimentCommand">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">ExperimentCommand</code><span class="sig-paren">(</span><em>cmd</em>, <em>args</em>, <em>exp_args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#ExperimentCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.ExperimentCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">plumbum.commands.base.BoundCommand</span></code></p>
+<dl class="attribute">
+<dt id="benchbuild.utils.compiler.ExperimentCommand.args">
+<code class="descname">args</code><a class="headerlink" href="#benchbuild.utils.compiler.ExperimentCommand.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.compiler.ExperimentCommand.cmd">
+<code class="descname">cmd</code><a class="headerlink" href="#benchbuild.utils.compiler.ExperimentCommand.cmd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.compiler">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">compiler</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.compiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a usable clang++ plumbum command.</p>
+<p>This searches for a usable clang++ in the llvm binary path</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">plumbum Command that executes clang++</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.lt_clang">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">lt_clang</code><span class="sig-paren">(</span><em>cflags</em>, <em>ldflags</em>, <em>func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#lt_clang"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.lt_clang" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a clang that hides CFLAGS and LDFLAGS.</p>
+<p>This will generate a wrapper script in the current directory
+and return a complete plumbum command to it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cflags</strong> – The CFLAGS we want to hide.</li>
+<li><strong>ldflags</strong> – The LDFLAGS we want to hide.</li>
+<li><strong>func</strong> (<em>optional</em>) – A function that will be pickled alongside the compiler.
+It will be called before the actual compilation took place. This
+way you can intercept the compilation process with arbitrary python
+code.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns (benchbuild.utils.cmd):</dt>
+<dd>Path to the new clang command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.lt_clang_cxx">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">lt_clang_cxx</code><span class="sig-paren">(</span><em>cflags</em>, <em>ldflags</em>, <em>func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#lt_clang_cxx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.lt_clang_cxx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a clang++ that hides CFLAGS and LDFLAGS.</p>
+<p>This will generate a wrapper script in the current directory
+and return a complete plumbum command to it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cflags</strong> – The CFLAGS we want to hide.</li>
+<li><strong>ldflags</strong> – The LDFLAGS we want to hide.</li>
+<li><strong>func</strong> (<em>optional</em>) – A function that will be pickled alongside the compiler.
+It will be called before the actual compilation took place. This
+way you can intercept the compilation process with arbitrary python
+code.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns (benchbuild.utils.cmd):</dt>
+<dd>Path to the new clang command.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.wrap_cc_in_uchroot">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">wrap_cc_in_uchroot</code><span class="sig-paren">(</span><em>cflags</em>, <em>ldflags</em>, <em>func=None</em>, <em>cc_name='cc'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#wrap_cc_in_uchroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.wrap_cc_in_uchroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a clang wrapper that may be called from within a uchroot.</p>
+<p>This basically does the same as lt_clang/lt_clang_cxx. However, we do not
+create a valid plumbum command. The generated script will only work
+inside a uchroot environment that has is root at the current working
+directory, when calling this function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cflags</strong> – The CFLAGS we want to hide</li>
+<li><strong>ldflags</strong> – The LDFLAGS we want to hide</li>
+<li><strong>func</strong> (<em>optional</em>) – A function that will be pickled alongside the compiler.
+It will be called before the actual compilation took place. This
+way you can intercept the compilation process with arbitrary python
+code.</li>
+<li><strong>uchroot_path</strong> – Prefix path of the compiler inside the uchroot.</li>
+<li><strong>cc_name</strong> – Name of the generated script.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.compiler.wrap_cxx_in_uchroot">
+<code class="descclassname">benchbuild.utils.compiler.</code><code class="descname">wrap_cxx_in_uchroot</code><span class="sig-paren">(</span><em>cflags</em>, <em>ldflags</em>, <em>func=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/compiler.html#wrap_cxx_in_uchroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.compiler.wrap_cxx_in_uchroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegate to wrap_cc_in_uchroot).</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.utils.compiler.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 2.0.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>

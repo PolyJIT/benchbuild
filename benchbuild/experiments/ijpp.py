@@ -225,6 +225,7 @@ class JitExportGeneratedCode(pj.PolyJIT):
         return JitExportGeneratedCode.default_runtime_actions(project)
 
 class DBReport(reports.Report):
+    NAME = "pj-db-export"
     SUPPORTED_EXPERIMENTS = ['pj-db-export']
     QUERY_CODE = \
         sa.sql.select([
@@ -276,6 +277,7 @@ class DBReport(reports.Report):
                 outfile.write(template.render(data=data))
 
 class IJPPReport(reports.Report):
+    NAME = "ijpp"
     SUPPORTED_EXPERIMENTS = ['ijpp', "pj-simple"]
 
     QUERY_TIME = \
@@ -354,7 +356,6 @@ class IJPPReport(reports.Report):
         select_from(
             sa.func.ijpp_region_wise_compare(sa.sql.bindparam('exp_id'))
         )
-
 
     def report(self):
         for exp_id in self.experiment_ids:

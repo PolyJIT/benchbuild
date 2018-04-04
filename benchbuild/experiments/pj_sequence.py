@@ -216,6 +216,7 @@ def persist_sequence(run, sequence, fitness_val):
 class SequenceReport(Report):
     """Handles the view of the sequences in the database."""
 
+    NAME = "sequences"
     SUPPORTED_EXPERIMENTS = ["pj-seq-hillclimber", "pj-seq-genetic1-opt",
                              "pj-seq-genetic2-opt", "pj-seq-greedy"]
     QUERY_TOTAL = \

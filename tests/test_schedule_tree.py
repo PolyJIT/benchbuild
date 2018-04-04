@@ -2,57 +2,57 @@
 import benchbuild.utils.schedule_tree as st
 
 def test_domain_1():
-    res = st._DOMAIN.parseString('domain: ""')
+    res = st.DOMAIN.parseString('domain: ""')
     assert res != None
 
 def test_domain_2():
-    res = st._DOMAIN.parseString('domain: "{ Stmt2[i1, i1] : 0 <= i0 <= 254 and 0 <= i1 <= 255 }"')
+    res = st.DOMAIN.parseString('domain: "{ Stmt2[i1, i1] : 0 <= i0 <= 254 and 0 <= i1 <= 255 }"')
     assert res != None
 
 def test_schedule_1():
-    res = st._SCHEDULE.parseString('schedule: ""')
+    res = st.SCHEDULE.parseString('schedule: ""')
     assert res != None
 
 def test_schedule_2():
-    res = st._SCHEDULE.parseString('schedule: "[{ Stmt2[i0, i1] -> [(i0)] }]"')
+    res = st.SCHEDULE.parseString('schedule: "[{ Stmt2[i0, i1] -> [(i0)] }]"')
     assert res != None
 
 def test_filter_1():
-    res = st._FILTER.parseString('filter: ""')
+    res = st.FILTER.parseString('filter: ""')
     assert res != None
 
 def test_mark_1():
-    res = st._MARK.parseString('mark: ""')
+    res = st.MARK.parseString('mark: ""')
     assert res != None
 
 def test_permutable_1():
-    res = st._PERMUTABLE.parseString('permutable: 1')
+    res = st.PERMUTABLE.parseString('permutable: 1')
     assert res != None
 
 def test_permutable_2():
-    res = st._PERMUTABLE.parseString('permutable: 0')
+    res = st.PERMUTABLE.parseString('permutable: 0')
     assert res != None
 
 def test_coincident_1():
-    res = st._COINCIDENT.parseString('coincident: [0]')
+    res = st.COINCIDENT.parseString('coincident: [0]')
     assert res != None
 
 def test_coincident_2():
-    res = st._COINCIDENT.parseString('coincident: [0, 1]')
+    res = st.COINCIDENT.parseString('coincident: [0, 1]')
     assert res != None
 
 def test_sequence_1():
-    res = st._SEQUENCE.parseString('sequence: [ { filter: "" } ]')
+    res = st.SEQUENCE.parseString('sequence: [ { filter: "" } ]')
     assert res != None
 
 def test_sequence_2():
-    res = st._SEQUENCE.parseString('sequence: [ { ' \
-                                                 'filter: "", ' \
-                                                 'child: { ' \
-                                                    'permutable: 1 ' \
-                                                 '}'
-                                               '}' \
-                                             ']')
+    res = st.SEQUENCE.parseString('sequence: [ { ' \
+                                                'filter: "", ' \
+                                                'child: { ' \
+                                                   'permutable: 1 ' \
+                                                '}'
+                                              '}' \
+                                            ']')
     assert res != None
 
 def test_schedule_tree_1():

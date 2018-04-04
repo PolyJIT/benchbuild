@@ -48,7 +48,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">benchbuild.extensions</span> <span class="k">as</span> <span class="nn">ext</span>
 
-<span class="kn">from</span> <span class="nn">benchbuild.experiment</span> <span class="k">import</span> <span class="n">RuntimeExperiment</span>
+<span class="kn">from</span> <span class="nn">benchbuild.experiment</span> <span class="k">import</span> <span class="n">Experiment</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">fetch_time_output</span>
 <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 <span class="kn">from</span> <span class="nn">benchbuild.reports</span> <span class="k">import</span> <span class="n">Report</span>
@@ -117,7 +117,7 @@
         <span class="k">return</span> <span class="n">handle_timing</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="PollyMSE"><a class="viewcode-back" href="../../../benchbuild.experiments.mse.html#benchbuild.experiments.mse.PollyMSE">[docs]</a><span class="k">class</span> <span class="nc">PollyMSE</span><span class="p">(</span><span class="n">RuntimeExperiment</span><span class="p">):</span>
+<div class="viewcode-block" id="PollyMSE"><a class="viewcode-back" href="../../../benchbuild.experiments.mse.html#benchbuild.experiments.mse.PollyMSE">[docs]</a><span class="k">class</span> <span class="nc">PollyMSE</span><span class="p">(</span><span class="n">Experiment</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The polly experiment.&quot;&quot;&quot;</span>
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;polly-mse&quot;</span>

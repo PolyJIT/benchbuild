@@ -44,7 +44,7 @@
 <span class="sd">project with libbenchbuild support to work.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">benchbuild.experiment</span> <span class="k">import</span> <span class="n">RuntimeExperiment</span>
+<span class="kn">from</span> <span class="nn">benchbuild.experiment</span> <span class="k">import</span> <span class="n">Experiment</span>
 <span class="kn">import</span> <span class="nn">benchbuild.extensions</span> <span class="k">as</span> <span class="nn">ext</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.actions</span> <span class="k">import</span> <span class="n">Step</span>
 
@@ -59,7 +59,7 @@
     <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Analyze the experiment after completion.&quot;</span></div>
 
 
-<div class="viewcode-block" id="PapiScopCoverage"><a class="viewcode-back" href="../../../benchbuild.experiments.papi.html#benchbuild.experiments.papi.PapiScopCoverage">[docs]</a><span class="k">class</span> <span class="nc">PapiScopCoverage</span><span class="p">(</span><span class="n">RuntimeExperiment</span><span class="p">):</span>
+<div class="viewcode-block" id="PapiScopCoverage"><a class="viewcode-back" href="../../../benchbuild.experiments.papi.html#benchbuild.experiments.papi.PapiScopCoverage">[docs]</a><span class="k">class</span> <span class="nc">PapiScopCoverage</span><span class="p">(</span><span class="n">Experiment</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;PAPI-based dynamic SCoP coverage measurement.&quot;&quot;&quot;</span>
 
     <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;papi&quot;</span>
@@ -67,19 +67,6 @@
 <div class="viewcode-block" id="PapiScopCoverage.actions"><a class="viewcode-back" href="../../../benchbuild.experiments.papi.html#benchbuild.experiments.papi.PapiScopCoverage.actions">[docs]</a>    <span class="k">def</span> <span class="nf">actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Do the postprocessing, after all projects are done.&quot;&quot;&quot;</span>
         <span class="n">actions</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PapiScopCoverage</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">actions</span><span class="p">()</span>
-
-<span class="c1"># FIXME: Still required?</span>
-<span class="c1">#        def run_pprof_analyze():</span>
-<span class="c1">#            from benchbuild.utils.cmd import pprof_analyze</span>
-<span class="c1">#</span>
-<span class="c1">#            with local.env(BB_EXPERIMENT=self.name,</span>
-<span class="c1">#                           BB_USE_FILE=0,</span>
-<span class="c1">#                           BB_USE_CSV=0):</span>
-<span class="c1">#                pprof_analyze()</span>
-<span class="c1">#</span>
-<span class="c1">#        actions.extend([</span>
-<span class="c1">#            Analyze(self, run_pprof_analyze),</span>
-<span class="c1">#        ])</span>
 
         <span class="k">return</span> <span class="n">actions</span></div>
 
@@ -105,7 +92,7 @@
 
         <span class="k">def</span> <span class="nf">evaluate_calibration</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
             <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">pprof_calibrate</span>
-            <span class="n">papi_calibration</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_papi_calibration</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">)</span>
+            <span class="n">papi_calibration</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_papi_calibration</span><span class="p">(</span><span class="n">pprof_calibrate</span><span class="p">)</span>
             <span class="n">e</span><span class="o">.</span><span class="n">persist_calibration</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">,</span> <span class="n">papi_calibration</span><span class="p">)</span>
 
         <span class="n">actns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
@@ -140,7 +127,7 @@
 
         <span class="k">def</span> <span class="nf">evaluate_calibration</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
             <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">pprof_calibrate</span>
-            <span class="n">papi_calibration</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_papi_calibration</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">)</span>
+            <span class="n">papi_calibration</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">get_papi_calibration</span><span class="p">(</span><span class="n">pprof_calibrate</span><span class="p">)</span>
             <span class="n">e</span><span class="o">.</span><span class="n">persist_calibration</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">pprof_calibrate</span><span class="p">,</span> <span class="n">papi_calibration</span><span class="p">)</span>
 
         <span class="n">actns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>

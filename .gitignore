@@ -39,3 +39,4 @@ dist/
 .vscode
 .tox/
 .benchbuild.yml
+*.csv

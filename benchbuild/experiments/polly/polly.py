@@ -17,12 +17,12 @@ Measurements
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
 
-from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiment import Experiment
 from benchbuild.extensions import RunWithTime, RuntimeExtension
 from benchbuild.settings import CFG
 
 
-class Polly(RuntimeExperiment):
+class Polly(Experiment):
     """The polly experiment."""
 
     NAME = "polly"

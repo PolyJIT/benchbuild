@@ -17,12 +17,12 @@ Measurements
 import copy
 import uuid
 
-from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiment import Experiment
 from benchbuild.extensions import RunWithTime, RuntimeExtension
 from benchbuild.settings import CFG
 
 
-class PollyOpenMP(RuntimeExperiment):
+class PollyOpenMP(Experiment):
     """Timing experiment with Polly & OpenMP support."""
 
     NAME = "polly-openmp"

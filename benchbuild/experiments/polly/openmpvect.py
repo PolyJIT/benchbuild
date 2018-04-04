@@ -15,12 +15,12 @@ Measurements
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
 
-from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiment import Experiment
 from benchbuild.extensions import RunWithTime, RuntimeExtension
 from benchbuild.settings import CFG
 
 
-class PollyOpenMPVectorizer(RuntimeExperiment):
+class PollyOpenMPVectorizer(Experiment):
     """Timing experiment with Polly & OpenMP+Vectorizer support."""
 
     NAME = "polly-openmpvect"

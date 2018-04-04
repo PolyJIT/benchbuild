@@ -106,6 +106,7 @@ class PollyMSE(RuntimeExperiment):
 
 
 class PollyMSEReport(Report):
+    NAME = "polly-mse"
     SUPPORTED_EXPERIMENTS = ["polly-mse"]
 
     QUERY_EVAL = \

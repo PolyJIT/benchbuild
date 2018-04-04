@@ -13,6 +13,7 @@ Config = schema.Config
 
 class RawReport(Report):
 
+    NAME = "raw"
     SUPPORTED_EXPERIMENTS = ["raw"]
 
     def report(self):

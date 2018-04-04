@@ -40,12 +40,8 @@ class ReportRegistry(type):
 
     def __init__(cls, name, bases, dict):
         super(ReportRegistry, cls).__init__(name, bases, dict)
-        if cls.SUPPORTED_EXPERIMENTS is not None:
-            for exp in cls.SUPPORTED_EXPERIMENTS:
-                if exp in ReportRegistry.reports:
-                    ReportRegistry.reports[exp].append(cls)
-                else:
-                    ReportRegistry.reports[exp] = [cls]
+        if cls.NAME is not None:
+            ReportRegistry.reports[cls.NAME] = cls
 
 
 def load_experiment_ids_from_names(session, names):
@@ -64,7 +60,8 @@ def load_experiment_ids_from_names(session, names):
 
 class Report(object, metaclass=ReportRegistry):
 
-    SUPPORTED_EXPERIMENTS = []
+    SUPPORTED_EXPERIMENTS = None
+    NAME = None
 
     def __new__(cls, *args, **kwargs):
         new_self = super(Report, cls).__new__(cls)
@@ -72,7 +69,12 @@ class Report(object, metaclass=ReportRegistry):
             raise AttributeError(
                 "{0} @ {1} does not define a SUPPORTED_EXPERIMENTS attribute"
                 .format(cls.__name__, cls.__module__))
-        new_self.experiments = cls.SUPPORTED_EXPERIMENTS
+
+        if cls.NAME is None:
+            raise AttributeError(
+                "{0} @ {1} does not define a NAME attribute"
+                .format(cls.__name__, cls.__module__))
+        new_self.name = cls.NAME
         return new_self
 
     def __init__(self, exp_name, exp_ids, out_path):

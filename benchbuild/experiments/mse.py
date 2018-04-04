@@ -9,7 +9,7 @@ import logging
 import os
 import benchbuild.extensions as ext
 
-from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiment import Experiment
 from benchbuild.utils.run import fetch_time_output
 from benchbuild.settings import CFG
 from benchbuild.reports import Report
@@ -78,7 +78,7 @@ class MeasureTimeAndMemory(ext.Extension):
         return handle_timing(res)
 
 
-class PollyMSE(RuntimeExperiment):
+class PollyMSE(Experiment):
     """The polly experiment."""
 
     NAME = "polly-mse"

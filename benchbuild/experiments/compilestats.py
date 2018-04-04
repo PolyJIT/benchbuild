@@ -6,11 +6,11 @@ all projects after compiling it with -O3 and catches all statistics emitted
 by llvm.
 
 """
-from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiment import Experiment
 import benchbuild.extensions as ext
 
 
-class CompilestatsExperiment(RuntimeExperiment):
+class CompilestatsExperiment(Experiment):
     """The compilestats experiment."""
 
     NAME = "cs"
@@ -21,7 +21,7 @@ class CompilestatsExperiment(RuntimeExperiment):
         return CompilestatsExperiment.default_compiletime_actions(project)
 
 
-class PollyCompilestatsExperiment(RuntimeExperiment):
+class PollyCompilestatsExperiment(Experiment):
     """The compilestats experiment with polly enabled."""
 
     NAME = "p-cs"

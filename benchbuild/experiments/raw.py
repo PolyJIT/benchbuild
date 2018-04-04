@@ -15,11 +15,11 @@ Measurements
     time.system_s - The time spent in kernel space in seconds (aka system time)
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
-from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiment import Experiment
 from benchbuild.extensions import RunWithTime, RuntimeExtension
 
 
-class RawRuntime(RuntimeExperiment):
+class RawRuntime(Experiment):
     """The polyjit experiment."""
 
     NAME = "raw"

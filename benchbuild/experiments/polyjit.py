@@ -15,7 +15,7 @@ from plumbum import local
 
 import benchbuild.extensions as ext
 from benchbuild.utils.actions import (Any, RequireAll)
-from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiment import Experiment
 from benchbuild.utils.dict import ExtensibleDict, extend_as_list
 
 
@@ -179,7 +179,7 @@ class RegisterPolyJITLogs(PolyJITConfig, ext.LogTrackingMixin, ext.Extension):
         return ret
 
 
-class PolyJIT(RuntimeExperiment):
+class PolyJIT(Experiment):
     """The polyjit experiment."""
 
     @classmethod

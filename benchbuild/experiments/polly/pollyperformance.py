@@ -21,7 +21,7 @@ import copy
 import uuid
 import re
 
-from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiment import Experiment
 from benchbuild.extensions import RunWithTime, RuntimeExtension
 from benchbuild.settings import CFG
 
@@ -30,7 +30,7 @@ class ShouldNotBeNone(RuntimeWarning):
     """User warning, if config var is null."""
 
 
-class PollyPerformance(RuntimeExperiment):
+class PollyPerformance(Experiment):
     """ The polly performance experiment. """
 
     NAME = "pollyperformance"

@@ -459,16 +459,6 @@ CFG["env"] = {
     }
 }
 
-CFG["llvm"] = {
-    "dir": {
-        "desc": "Path to LLVM. This will be required.",
-        "default": os.path.join(os.getcwd(), "install")
-    },
-    "src": {
-        "default": os.path.join(os.getcwd(), "benchbuild-llvm")
-    },
-}
-
 CFG['db'] = {
     "connect_string": {
         "desc": "sqlalchemy connect string",

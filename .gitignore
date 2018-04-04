@@ -40,3 +40,4 @@ dist/
 .tox/
 .benchbuild.yml
 *.csv
+.eggs

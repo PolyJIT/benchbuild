@@ -5,7 +5,7 @@ These types of experiments (papi & papi-std) need to instrument the
 project with libbenchbuild support to work.
 
 """
-from benchbuild.experiment import RuntimeExperiment
+from benchbuild.experiment import Experiment
 import benchbuild.extensions as ext
 from benchbuild.utils.actions import Step
 
@@ -20,7 +20,7 @@ class Analyze(Step):
     DESCRIPTION = "Analyze the experiment after completion."
 
 
-class PapiScopCoverage(RuntimeExperiment):
+class PapiScopCoverage(Experiment):
     """PAPI-based dynamic SCoP coverage measurement."""
 
     NAME = "papi"
@@ -28,19 +28,6 @@ class PapiScopCoverage(RuntimeExperiment):
     def actions(self):
         """Do the postprocessing, after all projects are done."""
         actions = super(PapiScopCoverage, self).actions()
-
-# FIXME: Still required?
-#        def run_pprof_analyze():
-#            from benchbuild.utils.cmd import pprof_analyze
-#
-#            with local.env(BB_EXPERIMENT=self.name,
-#                           BB_USE_FILE=0,
-#                           BB_USE_CSV=0):
-#                pprof_analyze()
-#
-#        actions.extend([
-#            Analyze(self, run_pprof_analyze),
-#        ])
 
         return actions
 
@@ -66,7 +53,7 @@ class PapiScopCoverage(RuntimeExperiment):
 
         def evaluate_calibration(e):
             from benchbuild.utils.cmd import pprof_calibrate
-            papi_calibration = e.get_papi_calibration(project, pprof_calibrate)
+            papi_calibration = e.get_papi_calibration(pprof_calibrate)
             e.persist_calibration(project, pprof_calibrate, papi_calibration)
 
         actns = self.default_runtime_actions(project)
@@ -101,7 +88,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
 
         def evaluate_calibration(e):
             from benchbuild.utils.cmd import pprof_calibrate
-            papi_calibration = e.get_papi_calibration(project, pprof_calibrate)
+            papi_calibration = e.get_papi_calibration(pprof_calibrate)
             e.persist_calibration(project, pprof_calibrate, papi_calibration)
 
         actns = self.default_runtime_actions(project)

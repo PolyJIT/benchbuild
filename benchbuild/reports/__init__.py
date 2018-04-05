@@ -3,6 +3,7 @@ Register reports for an experiment
 """
 import importlib
 import logging
+import typing as t
 from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
@@ -60,12 +61,12 @@ def load_experiment_ids_from_names(session, names):
 
 class Report(object, metaclass=ReportRegistry):
 
-    SUPPORTED_EXPERIMENTS = None
+    SUPPORTED_EXPERIMENTS : t.List[str] = []
     NAME = None
 
     def __new__(cls, *args, **kwargs):
         new_self = super(Report, cls).__new__(cls)
-        if cls.SUPPORTED_EXPERIMENTS is None:
+        if not cls.SUPPORTED_EXPERIMENTS:
             raise AttributeError(
                 "{0} @ {1} does not define a SUPPORTED_EXPERIMENTS attribute"
                 .format(cls.__name__, cls.__module__))

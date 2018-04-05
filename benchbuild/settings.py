@@ -78,7 +78,7 @@ class InvalidConfigKey(RuntimeWarning):
 class UUIDEncoder(json.JSONEncoder):
     """Encoder module for UUID objects."""
 
-    def default(self, o):
+    def default(self, o): # pylint: disable=method-hidden
         """Encode UUID objects as string."""
         if isinstance(o, uuid.UUID):
             return str(o)

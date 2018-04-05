@@ -498,6 +498,5 @@ def init_functions(connection):
                 bbpath.template_str(file)
             )
             LOG.info("Loading: '%s' into database", file)
-            LOG.debug(func.compile())
             connection.execute(func)
             connection.commit()

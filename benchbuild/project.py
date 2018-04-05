@@ -1,13 +1,34 @@
-"""Project handling for the benchbuild study."""
+"""
+# Project
+
+A project in benchbuild is an abstract representation of a software
+system that can live in various stages throughout an experiment.
+It defines two extension points for an experiment to attach on, the
+compile-time phase and the (optional) run-time phase.
+
+An experiment can intercept the compilation phase of a project and perform
+any experiment that requires the source artifacts as input.
+
+Furthermore, it is possible to intercept a project's run-time pahse with
+a measurement.
+
+The project definition ensures that all experiments run through the same
+series of commands in both phases and that all experiments run inside
+a separate build directory in isolation of one another.
+
+## Phases
+
+
+"""
 import copy
 import logging
+import typing as t
 import uuid
-import warnings
 from abc import abstractmethod
 from functools import partial
-from os import listdir, path
-from typing import Callable, Iterable
+from os import getenv, listdir, path
 
+import attr
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
@@ -34,12 +55,9 @@ class ProjectRegistry(type):
         """Register a project in the registry."""
         super(ProjectRegistry, cls).__init__(name, bases, attrs)
 
-        if cls.NAME is not None and \
-           cls.DOMAIN is not None and \
-           cls.GROUP is not None:
-
-           key = "{name}/{group}".format(name=cls.NAME, group=cls.GROUP)
-           ProjectRegistry.projects[key] = cls
+        if None not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
+            key = "{name}/{group}".format(name=cls.NAME, group=cls.GROUP)
+            ProjectRegistry.projects[key] = cls
 
 
 class ProjectDecorator(ProjectRegistry):
@@ -78,20 +96,85 @@ class ProjectDecorator(ProjectRegistry):
         super(ProjectDecorator, cls).__init__(name, bases, attrs)
 
 
+@attr.s
 class Project(object, metaclass=ProjectDecorator):
-    """
-    benchbuild's Project class.
+    """Abstract class for benchbuild projects.
 
-    A project defines how run-time testing and cleaning is done for this
-        IR project
-    """
+    A project is an arbitrary software system usable by benchbuild in
+    experiments.
+    Subclasses of Project are registered automatically by benchbuild, if
+    imported in the same interpreter session. For this to happen, you must list
+    the in the settings under plugins -> projects.
 
-    NAME = None
-    DOMAIN = None
-    GROUP = None
-    VERSION = None
-    SRC_FILE = None
-    CONTAINER = Gentoo()
+    A project implementation *must* provide the following functions:
+        `download`: Download the sources into the build directory.
+        `configure`: Configure the sources, replace the compiler with our
+            wrapper if possible.
+        `build`: Build the sources, with the wrapper compiler.
+    A project implementation *may* provide the following functions:
+        `run_tests`: Wrap any binary that has to be run under the
+            runtime_extension wrapper and execute an implementation defined
+            set of run-time tests.
+            Defaults to a call of a binary with the name `run_f` in the
+            build directory without arguments.
+        `prepare`: Prepare the project's build directory. Defaults to a
+            simple call to 'mkdir'.
+        `clean`: Clean the project's build directory. Defaults to
+            recursive 'rm' on the build directory and can be disabled
+            by setting the environment variable ``BB_CLEAN=false``.
+
+    Raises:
+        AttributeError: Class definition raises an attribute error, if
+            the implementation does not provide a value for the attributes
+            `NAME`, `DOMAIN`, and `GROUP`
+        TypeError: Validation of properties may throw a TypeError.
+
+    Attributes:
+        experiment (benchbuild.experiment.Experiment):
+            The experiment this project is assigned to.
+        name (str, optional):
+            The name of this project. Defaults to `NAME`.
+        domain (str, optional):
+            The application domain of this project. Defaults to `DOMAIN`.
+        group (str, optional):
+            The group this project belongs to. Defaults to `GROUP`.
+        src_file (str, optional):
+            A main src_file this project is assigned to. Defaults to `SRC_FILE`
+        container (benchbuild.utils.container.Container, optional):
+            A uchroot compatible container that we can use for this project.
+            Defaults to `benchbuild.utils.container.Gentoo`.
+        version (str, optional):
+            A version information for this project. Defaults to `VERSION`.
+        builddir (str, optional):
+            The build directory for this project. Auto generated, if not set.
+        testdir (str, optional):
+            The location of any additional test-files for this project, usually stored
+            out of tree. Auto generated, if not set. Usually a project implementation
+            will define this itself.
+        cflags (:obj:`list` of :obj:`str`, optional)
+            A list of cflags used, for compilation of this project.
+        ldflags (:obj:`list` of :obj:`str`, optional)
+            A list of ldflags used, for compilation of this project.
+        run_f (str, optional):
+            A filename that points to the binary we want to track. Usually a project
+            implementation will define this itself.
+        run_uuid (uuid.UUID, optional):
+            An UUID that identifies all binaries executed by a single run of this project.
+            In the database schema this is named the 'run_group'.
+        compiler_extension (callable, optional):
+            A composable extension that will be used in place of the real compiler.
+            Defaults to running the compiler with a timeout command wrapped around it.
+        runtime_extension (callable, optional):
+            A composable extension that will be used in place of any binary this project
+            wants to execute. Which binaries to replace is defined by the implementation
+            using `benchbuild.utils.wrapping.wrap`.
+            Defaults to None.
+    """
+    NAME: t.ClassVar[str] = None
+    DOMAIN: t.ClassVar[str] = None
+    GROUP: t.ClassVar[str] = None
+    VERSION: t.ClassVar[str] = None
+    SRC_FILE: t.ClassVar[str] = None
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -108,52 +191,73 @@ class Project(object, metaclass=ProjectDecorator):
             raise AttributeError(
                 "{0} @ {1} does not define a GROUP class attribute.".format(
                     cls.__name__, cls.__module__))
-        if cls.SRC_FILE is None:
-            warnings.warn(
-                "{0} @ {1} does not offer a source file yet.".format(
-                    cls.__name__, cls.__module__))
-            cls.SRC_FILE = "<not-set>"
-        if cls.CONTAINER is None:
-            warnings.warn(
-                "{0} @ {1} does not offer a container yet.".format(
-                    cls.__name__, cls.__module__))
-
-        new_self.name = cls.NAME
-        new_self.domain = cls.DOMAIN
-        new_self.group = cls.GROUP
-        new_self.src_file = cls.SRC_FILE
-        new_self.version = lambda: get_version_from_cache_dir(cls.SRC_FILE)
-        new_self.container = cls.CONTAINER
-
         return new_self
 
-    def __init__(self, exp, group: str = None):
-        """
-        Setup a new project.
+    experiment: 'benchbuild.experiment.Experiment' = attr.ib()
 
-        Args:
-            exp: The experiment this project belongs to.
-            group: The group this project belongs to. This is useful for
-                finding group specific test input files.
-        """
-        self.experiment = exp
-        if group is not None:
-            self.group = group
-        self.builddir = path.join(str(CFG["build_dir"]),
-            "{0}-{1}-{2}-{3}".format(exp.name, self.name, self.group, exp.id))
-        if group:
-            self.testdir = path.join(
-                str(CFG["test_dir"]), self.domain, group, self.name)
+    name: str = attr.ib(default=attr.Factory(
+        lambda self: type(self).NAME, takes_self=True))
+
+    domain: str = attr.ib(default=attr.Factory(
+        lambda self: type(self).DOMAIN, takes_self=True))
+
+    group: str = attr.ib(default=attr.Factory(
+        lambda self: type(self).GROUP, takes_self=True))
+
+    src_file: str = attr.ib(default=attr.Factory(
+        lambda self: type(self).SRC_FILE, takes_self=True))
+
+    container = attr.ib(default=Gentoo())
+
+    version: str = attr.ib(default=attr.Factory(
+        lambda self: get_version_from_cache_dir(self.src_file),
+        takes_self=True))
+
+    builddir: str = attr.ib(default=attr.Factory(
+        lambda self: path.join(
+            str(CFG["build_dir"]),
+            "{0}-{1}-{2}-{3}".format(self.experiment.name,
+                                     self.name, self.group,
+                                     self.experiment.id)),
+        takes_self=True))
+
+    testdir: str = attr.ib()
+    @testdir.default
+    def default_testdir(self):
+        if self.group:
+            return path.join(str(CFG["test_dir"]),
+                self.domain, self.group, self.name)
         else:
-            self.testdir = path.join(
-                str(CFG["test_dir"]), self.domain, self.name)
+            return  path.join(str(CFG["test_dir"]),
+                self.domain, self.name)
 
-        self.cflags = []
-        self.ldflags = []
-        self.compiler_extension = \
-            ext.RunWithTimeout(ext.RunCompiler(self, exp))
+    cflags = attr.ib(default=attr.Factory(list))
 
-        self.run_f = path.join(self.builddir, self.name)
+    ldflags = attr.ib(default=attr.Factory(list))
+
+    run_f = attr.ib(default=attr.Factory(
+        lambda self: path.join(self.builddir, self.name), takes_self=True))
+
+    run_uuid = attr.ib()
+    @run_uuid.default
+    def default_run_uuid(self):
+        return getenv("BB_DB_RUN_GROUP", uuid.uuid4())
+
+    @run_uuid.validator
+    def check_if_uuid(self, _, value):
+        if not isinstance(value, uuid.UUID):
+            raise TypeError("{attribute} must be a valid UUID object")
+
+    compiler_extension: t.Callable[[str, t.Iterable[str]], RunInfo] = \
+        attr.ib(default=attr.Factory(
+            lambda self: ext.RunWithTimeout(
+                ext.RunCompiler(self, self.experiment)), takes_self=True))
+
+    runtime_extension: t.Callable[[str, t.Iterable[str]], RunInfo] = \
+        attr.ib(default=None)
+
+
+    def __attrs_post_init__(self):
         persist_project(self)
 
     def run_tests(self, experiment, run):
@@ -170,8 +274,7 @@ class Project(object, metaclass=ProjectDecorator):
         run(exp)
 
     def run(self, experiment):
-        """
-        Run the tests of this project.
+        """Run the tests of this project.
 
         This method initializes the default environment and takes care of
         cleaning up the mess we made, after a successfull run.
@@ -210,86 +313,6 @@ class Project(object, metaclass=ProjectDecorator):
         elif path.exists(self.builddir) and listdir(self.builddir) != []:
             rm("-rf", self.builddir)
 
-    @property
-    def compiler_extension(self):
-        """Return the compiler extension registered to this project."""
-        try:
-            return self._compiler_extension
-        except AttributeError:
-            self._compiler_extension = None
-            return self._compiler_extension
-
-    @compiler_extension.setter
-    def compiler_extension(self,
-                           func: Callable[[str, Iterable[str]],
-                                          RunInfo]) -> None:
-        """
-        Set a function as compiler extension.
-
-        Args:
-            func: The compiler extension function. The minimal signature that
-                is required is ::
-                    f(cc, **kwargs)
-                where cc is the original compiler command.
-
-        """
-        self._compiler_extension = func
-
-    @property
-    def runtime_extension(self):
-        """Return the runtime extension registered for this project."""
-        try:
-            return self._runtime_extension
-        except AttributeError:
-            self._runtime_extension = None
-            return self._runtime_extension
-
-    @runtime_extension.setter
-    def runtime_extension(self,
-                          func: Callable[[str, Iterable[str]],
-                                         RunInfo]) -> None:
-        """
-        Set a function as compiler extension.
-
-        Args:
-            func: The compiler extension function. The minimal signature that
-                is required is ::
-                    f(cc, **kwargs)
-                where cc is the original compiler command.
-
-        """
-        self._runtime_extension = func
-
-    @property
-    def run_uuid(self):
-        """
-        Get the UUID that groups all tests for one project run.
-
-        Args:
-            create_new: Create a fresh UUID (Default: False)
-        """
-        from os import getenv
-        from uuid import uuid4
-
-        try:
-            if self._run_uuid is None:
-                self._run_uuid = getenv("BB_DB_RUN_GROUP", uuid4())
-        except AttributeError:
-            self._run_uuid = getenv("BB_DB_RUN_GROUP", uuid4())
-        return self._run_uuid
-
-    @run_uuid.setter
-    def run_uuid(self, value):
-        """
-        Set a new UUID for this project.
-
-        Args:
-            value: The new value to set.
-        """
-        from uuid import UUID
-        if isinstance(value, UUID):
-            self._run_uuid = value
-
     def prepare(self):
         """Prepare the build diretory."""
         if not path.exists(self.builddir):
@@ -312,7 +335,6 @@ class Project(object, metaclass=ProjectDecorator):
         new_p = copy.deepcopy(self)
         new_p.run_uuid = uuid.uuid4()
         return new_p
-
 
 def populate(projects_to_filter=None, group=None):
     """

@@ -7,21 +7,20 @@ from abc import abstractmethod
 from functools import partial
 from os import listdir, path
 from typing import Callable, Iterable
-import benchbuild.utils.run as ur
-import benchbuild.signals as signals
-import benchbuild.extensions as ext
 
+from plumbum import ProcessExecutionError, local
+from pygtrie import StringTrie
+
+import benchbuild.extensions as ext
+import benchbuild.signals as signals
+import benchbuild.utils.run as ur
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.db import persist_project
-from benchbuild.utils.run import in_builddir, store_config, unionfs, RunInfo
+from benchbuild.utils.run import RunInfo, in_builddir, store_config, unionfs
 from benchbuild.utils.versions import get_version_from_cache_dir
 from benchbuild.utils.wrapping import wrap
-
-from plumbum import local, ProcessExecutionError
-from pygtrie import StringTrie
-
 
 LOG = logging.getLogger(__name__)
 

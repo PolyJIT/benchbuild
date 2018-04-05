@@ -155,12 +155,8 @@ class Project(object, metaclass=ProjectDecorator):
         self.compiler_extension = \
             ext.RunWithTimeout(ext.RunCompiler(self, exp))
 
-        self.setup_derived_filenames()
-        persist_project(self)
-
-    def setup_derived_filenames(self):
-        """Construct all derived file names."""
         self.run_f = path.join(self.builddir, self.name)
+        persist_project(self)
 
     def run_tests(self, experiment, run):
         """

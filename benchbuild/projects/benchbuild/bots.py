@@ -92,7 +92,6 @@ class BOTSGroup(Project):
         self.sourcedir = os.path.join(
             str(CFG["src_dir"]), "bots", self.path_dict[self.name],
             self.name)
-        self.setup_derived_filenames()
 
     SRC_FILE = "bots.git"
     src_uri = "https://github.com/bsc-pm/bots"

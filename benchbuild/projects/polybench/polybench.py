@@ -75,7 +75,6 @@ class PolyBenchGroup(Project):
         self.sourcedir = path.join(
             str(CFG["src_dir"]), "polybench", self.path_dict[self.name],
             self.name)
-        self.setup_derived_filenames()
 
     src_dir = "polybench-c-{0}".format(VERSION)
     SRC_FILE = src_dir + ".tar.gz"

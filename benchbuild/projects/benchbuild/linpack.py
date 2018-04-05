@@ -1,12 +1,11 @@
 import logging
-from os import path
 
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.utils.cmd import cp, patch
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.path import template_path
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import patch, cp
 
 LOG = logging.getLogger(__name__)
 

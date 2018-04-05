@@ -7,17 +7,16 @@ when running with polyjit support enabled.
 import copy
 import glob
 import logging
+import os
 import uuid
 from abc import abstractmethod
-import os
 
 from plumbum import local
 
 import benchbuild.extensions as ext
-from benchbuild.utils.actions import (Any, RequireAll)
 from benchbuild.experiment import Experiment
+from benchbuild.utils.actions import Any, RequireAll
 from benchbuild.utils.dict import ExtensibleDict, extend_as_list
-
 
 LOG = logging.getLogger(__name__)
 
@@ -75,11 +74,9 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
 
     def __deconstruct(self, connect_str):
         """Deconstruct a full PostgreSQL connect_str."""
-        import parse
-        print(connect_str)
-        res = parse.parse("{dialect}://{user}:{password}@{host}:{port}/{name}",
+        from parse import parse
+        res = parse("{dialect}://{user}:{password}@{host}:{port}/{name}",
                           connect_str)
-        print(res)
         return (res['dialect'], res['user'], res['password'],
                 res['host'], res['port'], res['name'])
 

@@ -1,6 +1,4 @@
-from os import path
 from benchbuild.project import Project
-from benchbuild.settings import CFG
 
 
 class BenchBuildGroup(Project):

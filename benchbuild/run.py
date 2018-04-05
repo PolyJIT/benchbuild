@@ -7,15 +7,14 @@ See the output of benchbuild run --help for more information.
 """
 import logging
 import os
-import sys
 import time
-from plumbum import cli
-from benchbuild.settings import CFG
-from benchbuild.utils.actions import Step, Experiment, StepResult
-from benchbuild.utils import progress, user_interface as ui, path
-from benchbuild import experiments
-from benchbuild import experiment
 
+from plumbum import cli
+
+from benchbuild import experiment, experiments
+from benchbuild.settings import CFG
+from benchbuild.utils import path, progress
+from benchbuild.utils.actions import Experiment, Step, StepResult
 
 LOG = logging.getLogger(__name__)
 

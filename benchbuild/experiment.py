@@ -28,18 +28,16 @@ An experiment performs the following actions in order:
         This to perform all your experiment needs.
 
 """
-from abc import abstractmethod
 import copy
-import uuid
 import typing as t
-
-from plumbum import local
+import uuid
+from abc import abstractmethod
 
 import benchbuild.project as p
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Build, Clean, CleanExtra, Configure,
                                       Download, MakeBuildDir, Prepare,
-                                      Run, RequireAll)
+                                      RequireAll, Run)
 
 
 def get_group_projects(group: str, experiment) -> t.List[p.Project]:

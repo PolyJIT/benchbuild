@@ -1,13 +1,13 @@
 import os
 
+from plumbum import local
+
 from benchbuild.project import Project
-from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, mkdir
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
-from plumbum import local
 
 
 class BOTSGroup(Project):

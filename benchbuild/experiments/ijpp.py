@@ -1,20 +1,19 @@
 """
 Experiments and evaluation used for IJPP Journal
 """
-import copy
 import csv
 import logging
 import os
 import uuid
-import benchbuild.utils.actions as actions
-import benchbuild.utils.schedule_tree as st
-import benchbuild.experiment as exp
+
+import sqlalchemy as sa
+
 import benchbuild.experiments.polyjit as pj
 import benchbuild.extensions as ext
 import benchbuild.reports as reports
 import benchbuild.settings as settings
-import sqlalchemy as sa
-
+import benchbuild.utils.actions as actions
+import benchbuild.utils.schedule_tree as st
 
 LOG = logging.getLogger(__name__)
 

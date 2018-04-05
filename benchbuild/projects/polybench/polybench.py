@@ -2,14 +2,10 @@ import logging
 from os import path
 
 from benchbuild.project import Project
-from benchbuild.settings import CFG
+from benchbuild.utils.cmd import cp, tar
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.wrapping import wrap
-from benchbuild.utils.cmd import tar, cp, diff
-
-from plumbum import local
-
 
 LOG = logging.getLogger(__name__)
 

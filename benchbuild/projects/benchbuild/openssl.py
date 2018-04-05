@@ -1,12 +1,13 @@
 from os import path
 
+from plumbum import local
+
 from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
-from benchbuild.utils.cmd import tar, find, make
-from plumbum import local
 
 
 class LibreSSL(BenchBuildGroup):

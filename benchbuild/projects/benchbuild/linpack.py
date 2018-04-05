@@ -15,6 +15,7 @@ class Linpack(BenchBuildGroup):
 
     NAME = 'linpack'
     DOMAIN = 'scientific'
+    SRC_FILE = 'linpackc.new'
 
     src_uri = "http://www.netlib.org/benchmark/linpackc.new"
 

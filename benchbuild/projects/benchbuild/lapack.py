@@ -42,12 +42,6 @@ class Lapack(BenchBuildGroup):
 
     def __init__(self, exp):
         super(Lapack, self).__init__(exp)
-        self.sourcedir = path.join(
-            str(CFG["src_dir"]), "src", "lapack", self.name)
-        self.testdir = path.join(
-            str(CFG["test_dir"]), self.domain, "lapack", "tests")
-
-        self.tests = []
 
     src_dir = "CLAPACK-{0}".format(VERSION)
     src_uri = "http://www.netlib.org/clapack/clapack.tgz"

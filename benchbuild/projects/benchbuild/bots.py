@@ -89,9 +89,6 @@ class BOTSGroup(Project):
 
     def __init__(self, exp):
         super(BOTSGroup, self).__init__(exp, "bots")
-        self.sourcedir = os.path.join(
-            str(CFG["src_dir"]), "bots", self.path_dict[self.name],
-            self.name)
 
     SRC_FILE = "bots.git"
     src_uri = "https://github.com/bsc-pm/bots"

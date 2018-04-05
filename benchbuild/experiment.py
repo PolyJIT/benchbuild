@@ -107,7 +107,6 @@ class Experiment(object, metaclass=ExperimentRegistry):
         return new_self
 
     def __init__(self, projects=None, group=None):
-        self.sourcedir = CFG["src_dir"].value()
         self.builddir = str(CFG["build_dir"].value())
         self.testdir = CFG["test_dir"].value()
         self._actions = []

@@ -9,5 +9,4 @@ class ApolloGroup(Project):
     path_suffix = "src"
 
     def __init__(self, exp):
-        super(ApolloGroup, self).__init__(exp, "apollo")
-        self.sourcedir = path.join(str(CFG["src_dir"]), "src", self.name)
+        super(ApolloGroup, self).__init__(exp, self.GROUP)

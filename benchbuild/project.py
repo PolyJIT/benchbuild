@@ -139,7 +139,6 @@ class Project(object, metaclass=ProjectDecorator):
         self.experiment = exp
         if group is not None:
             self.group = group
-        self.sourcedir = path.join(str(CFG["src_dir"]), self.name)
         self.builddir = path.join(str(CFG["build_dir"]),
             "{0}-{1}-{2}-{3}".format(exp.name, self.name, self.group, exp.id))
         if group:

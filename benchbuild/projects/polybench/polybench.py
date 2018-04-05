@@ -72,9 +72,6 @@ class PolyBenchGroup(Project):
 
     def __init__(self, exp):
         super(PolyBenchGroup, self).__init__(exp, self.GROUP)
-        self.sourcedir = path.join(
-            str(CFG["src_dir"]), "polybench", self.path_dict[self.name],
-            self.name)
 
     src_dir = "polybench-c-{0}".format(VERSION)
     SRC_FILE = src_dir + ".tar.gz"

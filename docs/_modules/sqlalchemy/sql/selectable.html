@@ -37,7 +37,7 @@
             
   <h1>Source code for sqlalchemy.sql.selectable</h1><div class="highlight"><pre>
 <span></span><span class="c1"># sql/selectable.py</span>
-<span class="c1"># Copyright (C) 2005-2017 the SQLAlchemy authors and contributors</span>
+<span class="c1"># Copyright (C) 2005-2018 the SQLAlchemy authors and contributors</span>
 <span class="c1"># &lt;see AUTHORS file&gt;</span>
 <span class="c1">#</span>
 <span class="c1"># This module is part of SQLAlchemy and is released under</span>
@@ -1279,13 +1279,13 @@
                                                     <span class="ow">or</span> <span class="s1">&#39;anon&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
-    <span class="k">def</span> <span class="nf">self_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">CompoundSelect</span><span class="p">)</span> <span class="ow">and</span> \
+    <span class="k">def</span> <span class="nf">self_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">against</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">against</span><span class="p">,</span> <span class="n">CompoundSelect</span><span class="p">)</span> <span class="ow">and</span> \
             <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">,</span> <span class="n">Select</span><span class="p">)</span> <span class="ow">and</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="o">.</span><span class="n">_needs_parens_for_grouping</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">FromGrouping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Alias</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">self_group</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Alias</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">self_group</span><span class="p">(</span><span class="n">against</span><span class="o">=</span><span class="n">against</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1429,7 +1429,7 @@
     <span class="k">def</span> <span class="nf">_copy_internals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clone</span><span class="o">=</span><span class="n">_clone</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CTE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_copy_internals</span><span class="p">(</span><span class="n">clone</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cte_alias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_cte_alias</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cte_alias</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cte_alias</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_restates</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span>
             <span class="n">clone</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restates</span>
         <span class="p">])</span>
@@ -1879,6 +1879,19 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ForUpdateArg</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="n">other</span><span class="o">.</span><span class="n">nowait</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nowait</span> <span class="ow">and</span>
+            <span class="n">other</span><span class="o">.</span><span class="n">read</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span> <span class="ow">and</span>
+            <span class="n">other</span><span class="o">.</span><span class="n">skip_locked</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_locked</span> <span class="ow">and</span>
+            <span class="n">other</span><span class="o">.</span><span class="n">key_share</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_share</span> <span class="ow">and</span>
+            <span class="n">other</span><span class="o">.</span><span class="n">of</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">of</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_copy_internals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clone</span><span class="o">=</span><span class="n">_clone</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">of</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">of</span> <span class="o">=</span> <span class="p">[</span><span class="n">clone</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">of</span><span class="p">]</span>
@@ -2307,7 +2320,7 @@
                      <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">_all_columns</span><span class="p">))</span>
                 <span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">selects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">self_group</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">self_group</span><span class="p">(</span><span class="n">against</span><span class="o">=</span><span class="bp">self</span><span class="p">))</span>
 
         <span class="n">GenerativeSelect</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 

@@ -41,14 +41,10 @@
 <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
 
 <span class="kn">from</span> <span class="nn">benchbuild.project</span> <span class="k">import</span> <span class="n">Project</span>
-<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">cp</span><span class="p">,</span> <span class="n">tar</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Wget</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
-<span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">tar</span><span class="p">,</span> <span class="n">cp</span><span class="p">,</span> <span class="n">diff</span>
-
-<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
-
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -111,10 +107,6 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">PolyBenchGroup</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sourcedir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;src_dir&quot;</span><span class="p">]),</span> <span class="s2">&quot;polybench&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setup_derived_filenames</span><span class="p">()</span>
 
     <span class="n">src_dir</span> <span class="o">=</span> <span class="s2">&quot;polybench-c-</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">VERSION</span><span class="p">)</span>
     <span class="n">SRC_FILE</span> <span class="o">=</span> <span class="n">src_dir</span> <span class="o">+</span> <span class="s2">&quot;.tar.gz&quot;</span>

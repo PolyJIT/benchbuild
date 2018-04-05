@@ -45,7 +45,6 @@ setup(
         "dill>=0.2",
         "SQLAlchemy>=1.0",
         "plumbum>=1.5",
-        "regex>=2015",
         "parse>=1.6",
         "virtualenv>=13.1",
         "psycopg2>=2.7",
@@ -55,7 +54,8 @@ setup(
         "pygtrie>=2.2",
         "pyparsing>=2.2",
         "PyYAML>=3.12",
-        "Jinja2>=2.2"
+        "Jinja2>=2.2",
+        "attrs>=17.4.0"
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

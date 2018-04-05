@@ -34,8 +34,64 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="benchbuild-experiments-pollytest-module">
-<h1>benchbuild.experiments.pollytest module<a class="headerlink" href="#benchbuild-experiments-pollytest-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-benchbuild.experiments.pollytest">
+<span id="benchbuild-experiments-pollytest-module"></span><h1>benchbuild.experiments.pollytest module<a class="headerlink" href="#module-benchbuild.experiments.pollytest" title="Permalink to this headline">¶</a></h1>
+<p>The ‘pollytest’ experiment.</p>
+<p>This experiment uses four different configs to analyse the compilestats’ and the
+time’s behavior regarding the position of polly and unprofitable processes.</p>
+<dl class="class">
+<dt id="benchbuild.experiments.pollytest.PollyTest">
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.pollytest.</code><code class="descname">PollyTest</code><span class="sig-paren">(</span><em>projects=None</em>, <em>group=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pollytest.html#PollyTest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pollytest.PollyTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.experiment.html#benchbuild.experiment.Experiment" title="benchbuild.experiment.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.experiment.Experiment</span></code></a></p>
+<p>An experiment that executes projects with different configurations.</p>
+<p>The time and the compilestats are collected.</p>
+<dl class="attribute">
+<dt id="benchbuild.experiments.pollytest.PollyTest.NAME">
+<code class="descname">NAME</code><em class="property"> = 'pollytest'</em><a class="headerlink" href="#benchbuild.experiments.pollytest.PollyTest.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiments.pollytest.PollyTest.actions_for_project">
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pollytest.html#PollyTest.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pollytest.PollyTest.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the actions a project wants to run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>project</strong> (<em>benchbuild.Project</em>) – the project we want to run.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.experiments.pollytest.PollyTestReport">
+<em class="property">class </em><code class="descclassname">benchbuild.experiments.pollytest.</code><code class="descname">PollyTestReport</code><span class="sig-paren">(</span><em>exp_name</em>, <em>exp_ids</em>, <em>out_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pollytest.html#PollyTestReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pollytest.PollyTestReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.reports.html#benchbuild.reports.Report" title="benchbuild.reports.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.reports.Report</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.experiments.pollytest.PollyTestReport.QUERY_EVAL">
+<code class="descname">QUERY_EVAL</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7fe2ad1178d0; Select object&gt;</em><a class="headerlink" href="#benchbuild.experiments.pollytest.PollyTestReport.QUERY_EVAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.experiments.pollytest.PollyTestReport.SUPPORTED_EXPERIMENTS">
+<code class="descname">SUPPORTED_EXPERIMENTS</code><em class="property"> = ['pollytest']</em><a class="headerlink" href="#benchbuild.experiments.pollytest.PollyTestReport.SUPPORTED_EXPERIMENTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiments.pollytest.PollyTestReport.generate">
+<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pollytest.html#PollyTestReport.generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pollytest.PollyTestReport.generate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiments.pollytest.PollyTestReport.report">
+<code class="descname">report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiments/pollytest.html#PollyTestReport.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiments.pollytest.PollyTestReport.report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 

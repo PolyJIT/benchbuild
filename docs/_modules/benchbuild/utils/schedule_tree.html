@@ -108,63 +108,63 @@
         <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">level</span> <span class="o">*</span> <span class="n">idt</span><span class="p">)</span></div></div>
 
 
-<span class="n">_NUM</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">nums</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">_NUM_LIST</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">_NUM</span><span class="p">))</span>
+<span class="n">NUM</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">nums</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">NUM_LIST</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">NUM</span><span class="p">))</span>
 
-<span class="n">_STR</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">QuotedString</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+<span class="n">STR</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">QuotedString</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
 
-<span class="n">_KW_CHILD</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;child&quot;</span><span class="p">)</span>
-<span class="n">_KW_COINCIDENT</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;coincident&quot;</span><span class="p">)</span>
-<span class="n">_KW_DOMAIN</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;domain&quot;</span><span class="p">)</span>
-<span class="n">_KW_FILTER</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">)</span>
-<span class="n">_KW_MARK</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;mark&quot;</span><span class="p">)</span>
-<span class="n">_KW_OPTIONS</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;options&quot;</span><span class="p">)</span>
-<span class="n">_KW_PERMUTABLE</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;permutable&quot;</span><span class="p">)</span>
-<span class="n">_KW_SCHEDULE</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;schedule&quot;</span><span class="p">)</span>
-<span class="n">_KW_EXTENSION</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;extension&quot;</span><span class="p">)</span>
-<span class="n">_KW_SEQUENCE</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;sequence&quot;</span><span class="p">)</span>
+<span class="n">KW_CHILD</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;child&quot;</span><span class="p">)</span>
+<span class="n">KW_COINCIDENT</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;coincident&quot;</span><span class="p">)</span>
+<span class="n">KW_DOMAIN</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;domain&quot;</span><span class="p">)</span>
+<span class="n">KW_FILTER</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">)</span>
+<span class="n">KW_MARK</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;mark&quot;</span><span class="p">)</span>
+<span class="n">KW_OPTIONS</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;options&quot;</span><span class="p">)</span>
+<span class="n">KW_PERMUTABLE</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;permutable&quot;</span><span class="p">)</span>
+<span class="n">KW_SCHEDULE</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;schedule&quot;</span><span class="p">)</span>
+<span class="n">KW_EXTENSION</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;extension&quot;</span><span class="p">)</span>
+<span class="n">KW_SEQUENCE</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Keyword</span><span class="p">(</span><span class="s2">&quot;sequence&quot;</span><span class="p">)</span>
 
-<span class="n">_CHILD_NODE</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Forward</span><span class="p">()</span>
-<span class="n">_ROOT</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Forward</span><span class="p">()</span>
+<span class="n">CHILD_NODE</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Forward</span><span class="p">()</span>
+<span class="n">ROOT</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Forward</span><span class="p">()</span>
 
-<span class="n">_DOMAIN</span>      <span class="o">=</span> <span class="n">_KW_DOMAIN</span>     <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">_STR</span>
-<span class="n">_SCHEDULE</span>    <span class="o">=</span> <span class="n">_KW_SCHEDULE</span>   <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">_STR</span>
-<span class="n">_FILTER</span>      <span class="o">=</span> <span class="n">_KW_FILTER</span>     <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">_STR</span>
-<span class="n">_MARK</span>        <span class="o">=</span> <span class="n">_KW_MARK</span>       <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">_STR</span>
-<span class="n">_PERMUTABLE</span>  <span class="o">=</span> <span class="n">_KW_PERMUTABLE</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">_NUM</span>
-<span class="n">_COINCIDENT</span>  <span class="o">=</span> <span class="n">_KW_COINCIDENT</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="n">_NUM_LIST</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
-<span class="n">_OPTIONS</span>     <span class="o">=</span> <span class="n">_KW_OPTIONS</span>    <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">_STR</span>
-<span class="n">_EXTENSION</span>   <span class="o">=</span> <span class="n">_KW_EXTENSION</span>  <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">_STR</span>
+<span class="n">DOMAIN</span>      <span class="o">=</span> <span class="n">KW_DOMAIN</span>     <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">STR</span>
+<span class="n">SCHEDULE</span>    <span class="o">=</span> <span class="n">KW_SCHEDULE</span>   <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">STR</span>
+<span class="n">FILTER</span>      <span class="o">=</span> <span class="n">KW_FILTER</span>     <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">STR</span>
+<span class="n">MARK</span>        <span class="o">=</span> <span class="n">KW_MARK</span>       <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">STR</span>
+<span class="n">PERMUTABLE</span>  <span class="o">=</span> <span class="n">KW_PERMUTABLE</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">NUM</span>
+<span class="n">COINCIDENT</span>  <span class="o">=</span> <span class="n">KW_COINCIDENT</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="n">NUM_LIST</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+<span class="n">OPTIONS</span>     <span class="o">=</span> <span class="n">KW_OPTIONS</span>    <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">STR</span>
+<span class="n">EXTENSION</span>   <span class="o">=</span> <span class="n">KW_EXTENSION</span>  <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">STR</span>
 
-<span class="n">_SEQ_ELEM_LIST</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">_ROOT</span><span class="p">)</span>
-<span class="n">_SEQUENCE</span>    <span class="o">=</span> <span class="n">_KW_SEQUENCE</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">_ROOT</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
-<span class="n">_CHILD</span> <span class="o">=</span> <span class="n">_KW_CHILD</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">_ROOT</span>
-<span class="n">_CHILD_NODE</span>  <span class="o">&lt;&lt;</span> <span class="p">(</span>
-                 <span class="n">_CHILD</span>      <span class="o">|</span>
-                 <span class="n">_COINCIDENT</span> <span class="o">|</span>
-                 <span class="n">_DOMAIN</span>     <span class="o">|</span>
-                 <span class="n">_EXTENSION</span>  <span class="o">|</span>
-                 <span class="n">_FILTER</span>     <span class="o">|</span>
-                 <span class="n">_MARK</span>       <span class="o">|</span>
-                 <span class="n">_OPTIONS</span>    <span class="o">|</span>
-                 <span class="n">_PERMUTABLE</span> <span class="o">|</span>
-                 <span class="n">_SCHEDULE</span>   <span class="o">|</span>
-                 <span class="n">_SEQUENCE</span>
+<span class="n">SEQ_ELEM_LIST</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">ROOT</span><span class="p">)</span>
+<span class="n">SEQUENCE</span>    <span class="o">=</span> <span class="n">KW_SEQUENCE</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">ROOT</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+<span class="n">CHILD</span> <span class="o">=</span> <span class="n">KW_CHILD</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">ROOT</span>
+<span class="n">CHILD_NODE</span>  <span class="o">&lt;&lt;</span> <span class="p">(</span>
+                 <span class="n">CHILD</span>      <span class="o">|</span>
+                 <span class="n">COINCIDENT</span> <span class="o">|</span>
+                 <span class="n">DOMAIN</span>     <span class="o">|</span>
+                 <span class="n">EXTENSION</span>  <span class="o">|</span>
+                 <span class="n">FILTER</span>     <span class="o">|</span>
+                 <span class="n">MARK</span>       <span class="o">|</span>
+                 <span class="n">OPTIONS</span>    <span class="o">|</span>
+                 <span class="n">PERMUTABLE</span> <span class="o">|</span>
+                 <span class="n">SCHEDULE</span>   <span class="o">|</span>
+                 <span class="n">SEQUENCE</span>
                 <span class="p">)</span>
-<span class="n">_ROOT</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">_CHILD_NODE</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">)</span>
+<span class="n">ROOT</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">CHILD_NODE</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">)</span>
 
-<span class="n">_CHILD</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
-<span class="n">_CHILD_NODE</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">ChildNode</span><span class="p">)</span>
-<span class="n">_COINCIDENT</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">CoincidenceNode</span><span class="p">)</span>
-<span class="n">_DOMAIN</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
-<span class="n">_FILTER</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
-<span class="n">_MARK</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
-<span class="n">_OPTIONS</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
-<span class="n">_PERMUTABLE</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
-<span class="n">_ROOT</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">RootNode</span><span class="p">)</span>
-<span class="n">_EXTENSION</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
-<span class="n">_SCHEDULE</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
-<span class="n">_SEQUENCE</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">SequenceNode</span><span class="p">)</span>
+<span class="n">CHILD</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
+<span class="n">CHILD_NODE</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">ChildNode</span><span class="p">)</span>
+<span class="n">COINCIDENT</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">CoincidenceNode</span><span class="p">)</span>
+<span class="n">DOMAIN</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
+<span class="n">FILTER</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
+<span class="n">MARK</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
+<span class="n">OPTIONS</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
+<span class="n">PERMUTABLE</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
+<span class="n">ROOT</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">RootNode</span><span class="p">)</span>
+<span class="n">EXTENSION</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
+<span class="n">SCHEDULE</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">Node</span><span class="p">)</span>
+<span class="n">SEQUENCE</span><span class="o">.</span><span class="n">addParseAction</span><span class="p">(</span><span class="n">SequenceNode</span><span class="p">)</span>
 
 <div class="viewcode-block" id="parse_schedule_tree"><a class="viewcode-back" href="../../../benchbuild.utils.schedule_tree.html#benchbuild.utils.schedule_tree.parse_schedule_tree">[docs]</a><span class="k">def</span> <span class="nf">parse_schedule_tree</span><span class="p">(</span><span class="n">tree_str</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">tree_str</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -172,7 +172,7 @@
 
     <span class="n">res</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">_ROOT</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">tree_str</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">ROOT</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">tree_str</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">except</span> <span class="n">p</span><span class="o">.</span><span class="n">ParseException</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
         <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to parse:&quot;</span><span class="p">)</span>

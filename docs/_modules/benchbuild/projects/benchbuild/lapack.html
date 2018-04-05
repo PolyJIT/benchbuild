@@ -81,13 +81,6 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Lapack</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">exp</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sourcedir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;src_dir&quot;</span><span class="p">]),</span> <span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="s2">&quot;lapack&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">testdir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;test_dir&quot;</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="s2">&quot;lapack&quot;</span><span class="p">,</span> <span class="s2">&quot;tests&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">setup_derived_filenames</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tests</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">src_dir</span> <span class="o">=</span> <span class="s2">&quot;CLAPACK-</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">VERSION</span><span class="p">)</span>
     <span class="n">src_uri</span> <span class="o">=</span> <span class="s2">&quot;http://www.netlib.org/clapack/clapack.tgz&quot;</span>

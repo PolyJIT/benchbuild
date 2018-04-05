@@ -116,7 +116,7 @@
 <div class="viewcode-block" id="UUIDEncoder"><a class="viewcode-back" href="../../benchbuild.settings.html#benchbuild.settings.UUIDEncoder">[docs]</a><span class="k">class</span> <span class="nc">UUIDEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Encoder module for UUID objects.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="UUIDEncoder.default"><a class="viewcode-back" href="../../benchbuild.settings.html#benchbuild.settings.UUIDEncoder.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+<div class="viewcode-block" id="UUIDEncoder.default"><a class="viewcode-back" href="../../benchbuild.settings.html#benchbuild.settings.UUIDEncoder.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span> <span class="c1"># pylint: disable=method-hidden</span>
         <span class="sd">&quot;&quot;&quot;Encode UUID objects as string.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>

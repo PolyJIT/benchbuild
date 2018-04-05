@@ -537,7 +537,6 @@
                 <span class="n">bbpath</span><span class="o">.</span><span class="n">template_str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading: &#39;</span><span class="si">%s</span><span class="s2">&#39; into database&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
-            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">compile</span><span class="p">())</span>
             <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
             <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 </pre></div>

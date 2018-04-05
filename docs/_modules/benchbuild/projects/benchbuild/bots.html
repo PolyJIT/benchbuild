@@ -39,14 +39,14 @@
   <h1>Source code for benchbuild.projects.benchbuild.bots</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
+
 <span class="kn">from</span> <span class="nn">benchbuild.project</span> <span class="k">import</span> <span class="n">Project</span>
-<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">make</span><span class="p">,</span> <span class="n">mkdir</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">lt_clang</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Git</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
-<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 
 
 <div class="viewcode-block" id="BOTSGroup"><a class="viewcode-back" href="../../../../benchbuild.projects.benchbuild.bots.html#benchbuild.projects.benchbuild.bots.BOTSGroup">[docs]</a><span class="k">class</span> <span class="nc">BOTSGroup</span><span class="p">(</span><span class="n">Project</span><span class="p">):</span>
@@ -128,10 +128,6 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BOTSGroup</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="s2">&quot;bots&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sourcedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;src_dir&quot;</span><span class="p">]),</span> <span class="s2">&quot;bots&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setup_derived_filenames</span><span class="p">()</span>
 
     <span class="n">SRC_FILE</span> <span class="o">=</span> <span class="s2">&quot;bots.git&quot;</span>
     <span class="n">src_uri</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/bsc-pm/bots&quot;</span>

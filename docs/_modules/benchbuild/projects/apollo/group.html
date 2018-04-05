@@ -37,9 +37,7 @@
           <div class="body" role="main">
             
   <h1>Source code for benchbuild.projects.apollo.group</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="nn">benchbuild.project</span> <span class="k">import</span> <span class="n">Project</span>
-<span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
+<span></span><span class="kn">from</span> <span class="nn">benchbuild.project</span> <span class="k">import</span> <span class="n">Project</span>
 
 
 <div class="viewcode-block" id="ApolloGroup"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.group.html#benchbuild.projects.apollo.group.ApolloGroup">[docs]</a><span class="k">class</span> <span class="nc">ApolloGroup</span><span class="p">(</span><span class="n">Project</span><span class="p">):</span>
@@ -48,9 +46,7 @@
     <span class="n">path_suffix</span> <span class="o">=</span> <span class="s2">&quot;src&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ApolloGroup</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="s2">&quot;apollo&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sourcedir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;src_dir&quot;</span><span class="p">]),</span> <span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setup_derived_filenames</span><span class="p">()</span></div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ApolloGroup</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GROUP</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

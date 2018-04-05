@@ -34,8 +34,73 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="benchbuild-reports-status-module">
-<h1>benchbuild.reports.status module<a class="headerlink" href="#benchbuild-reports-status-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-benchbuild.reports.status">
+<span id="benchbuild-reports-status-module"></span><h1>benchbuild.reports.status module<a class="headerlink" href="#module-benchbuild.reports.status" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="benchbuild.reports.status.FullDump">
+<em class="property">class </em><code class="descclassname">benchbuild.reports.status.</code><code class="descname">FullDump</code><span class="sig-paren">(</span><em>exp_name</em>, <em>exp_ids</em>, <em>out_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/reports/status.html#FullDump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.reports.status.FullDump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.reports.html#benchbuild.reports.Report" title="benchbuild.reports.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.reports.Report</span></code></a></p>
+<p>Generate a dump of all rows associated with this experiment.</p>
+<dl class="attribute">
+<dt id="benchbuild.reports.status.FullDump.NAME">
+<code class="descname">NAME</code><em class="property"> = 'full'</em><a class="headerlink" href="#benchbuild.reports.status.FullDump.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.reports.status.FullDump.SUPPORTED_EXPERIMENTS">
+<code class="descname">SUPPORTED_EXPERIMENTS</code><em class="property"> = ['pollytest']</em><a class="headerlink" href="#benchbuild.reports.status.FullDump.SUPPORTED_EXPERIMENTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.reports.status.FullDump.exp_name">
+<code class="descname">exp_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/reports/status.html#FullDump.exp_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.reports.status.FullDump.exp_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.reports.status.FullDump.generate">
+<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/reports/status.html#FullDump.generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.reports.status.FullDump.generate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all rows associated with this experiment.</p>
+<p>This will generate a huge .csv.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.reports.status.FullDump.report">
+<code class="descname">report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/reports/status.html#FullDump.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.reports.status.FullDump.report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.reports.status.StatusReport">
+<em class="property">class </em><code class="descclassname">benchbuild.reports.status.</code><code class="descname">StatusReport</code><span class="sig-paren">(</span><em>exp_name</em>, <em>exp_ids</em>, <em>out_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/reports/status.html#StatusReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.reports.status.StatusReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="benchbuild.reports.html#benchbuild.reports.Report" title="benchbuild.reports.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.reports.Report</span></code></a></p>
+<dl class="attribute">
+<dt id="benchbuild.reports.status.StatusReport.NAME">
+<code class="descname">NAME</code><em class="property"> = 'status'</em><a class="headerlink" href="#benchbuild.reports.status.StatusReport.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.reports.status.StatusReport.QUERY_STATUS">
+<code class="descname">QUERY_STATUS</code><em class="property"> = &lt;sqlalchemy.sql.selectable.Select at 0x7fe2970b3748; Select object&gt;</em><a class="headerlink" href="#benchbuild.reports.status.StatusReport.QUERY_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.reports.status.StatusReport.SUPPORTED_EXPERIMENTS">
+<code class="descname">SUPPORTED_EXPERIMENTS</code><em class="property"> = ['pollytest']</em><a class="headerlink" href="#benchbuild.reports.status.StatusReport.SUPPORTED_EXPERIMENTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.reports.status.StatusReport.generate">
+<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/reports/status.html#StatusReport.generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.reports.status.StatusReport.generate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.reports.status.StatusReport.report">
+<code class="descname">report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/reports/status.html#StatusReport.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.reports.status.StatusReport.report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 

@@ -21,7 +21,6 @@ class RodiniaGroup(Project):
         self.in_src_dir = os.path.join(
             self.src_dir, self.config["dir"]
         )
-        self.setup_derived_filenames()
 
     src_dir = "rodinia_{0}".format(VERSION)
     SRC_FILE = "{0}.tar.bz2".format(src_dir)

@@ -47,7 +47,6 @@ class Lapack(BenchBuildGroup):
         self.testdir = path.join(
             str(CFG["test_dir"]), self.domain, "lapack", "tests")
 
-        self.setup_derived_filenames()
         self.tests = []
 
     src_dir = "CLAPACK-{0}".format(VERSION)

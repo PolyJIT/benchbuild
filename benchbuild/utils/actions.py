@@ -44,6 +44,17 @@ class StepResult(enum.IntEnum):
 
 
 def to_step_result(f):
+    """Convert a function return to a list of StepResults.
+
+    All Step subclasses automatically wrap the result of their
+    __call__ method's result with this wrapper.
+    If the result is not a list of StepResult values, this will generate a default
+    result of `[StepResult.OK]`, or convert the given result into
+    a list.
+
+    Args:
+        f: 
+    """
     @ft.wraps(f)
     def wrapper(*args, **kwargs):
         res = f(*args, **kwargs)
@@ -55,7 +66,6 @@ def to_step_result(f):
         return res
 
     return wrapper
-
 
 def prepend_status(f):
     @ft.wraps(f)

@@ -22,7 +22,6 @@ a separate build directory in isolation of one another.
 """
 import copy
 import logging
-import typing as t
 import uuid
 from abc import abstractmethod
 from functools import partial
@@ -39,7 +38,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.db import persist_project
-from benchbuild.utils.run import RunInfo, in_builddir, store_config, unionfs
+from benchbuild.utils.run import in_builddir, store_config, unionfs
 from benchbuild.utils.versions import get_version_from_cache_dir
 from benchbuild.utils.wrapping import wrap
 
@@ -106,21 +105,20 @@ class Project(object, metaclass=ProjectDecorator):
     imported in the same interpreter session. For this to happen, you must list
     the in the settings under plugins -> projects.
 
-    A project implementation *must* provide the following functions:
-        `download`: Download the sources into the build directory.
-        `configure`: Configure the sources, replace the compiler with our
-            wrapper if possible.
-        `build`: Build the sources, with the wrapper compiler.
+    A project implementation *must* provide the following methods:
+        download: Download the sources into the build directory.
+        configure: Configure the sources, replace the compiler with our wrapper if possible.
+        build: Build the sources, with the wrapper compiler.
 
     A project implementation *may* provide the following functions:
-        `run_tests`: Wrap any binary that has to be run under the
+        run_tests: Wrap any binary that has to be run under the
             runtime_extension wrapper and execute an implementation defined
             set of run-time tests.
             Defaults to a call of a binary with the name `run_f` in the
             build directory without arguments.
-        `prepare`: Prepare the project's build directory. Defaults to a
+        prepare: Prepare the project's build directory. Defaults to a
             simple call to 'mkdir'.
-        `clean`: Clean the project's build directory. Defaults to
+        clean: Clean the project's build directory. Defaults to
             recursive 'rm' on the build directory and can be disabled
             by setting the environment variable ``BB_CLEAN=false``.
 
@@ -162,20 +160,20 @@ class Project(object, metaclass=ProjectDecorator):
         run_uuid (uuid.UUID, optional):
             An UUID that identifies all binaries executed by a single run of this project.
             In the database schema this is named the 'run_group'.
-        compiler_extension (callable, optional):
+        compiler_extension (Callable[str, iterable[str], RunInfo], optional):
             A composable extension that will be used in place of the real compiler.
             Defaults to running the compiler with a timeout command wrapped around it.
-        runtime_extension (callable, optional):
+        runtime_extension (Callable[str, iterable[str], RunInfo], optional):
             A composable extension that will be used in place of any binary this project
             wants to execute. Which binaries to replace is defined by the implementation
             using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
-    NAME: t.ClassVar[str] = None
-    DOMAIN: t.ClassVar[str] = None
-    GROUP: t.ClassVar[str] = None
-    VERSION: t.ClassVar[str] = None
-    SRC_FILE: t.ClassVar[str] = None
+    NAME = None
+    DOMAIN = None
+    GROUP = None
+    VERSION = None
+    SRC_FILE = None
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -194,27 +192,27 @@ class Project(object, metaclass=ProjectDecorator):
                     cls.__name__, cls.__module__))
         return new_self
 
-    experiment: 'benchbuild.experiment.Experiment' = attr.ib()
+    experiment = attr.ib()
 
-    name: str = attr.ib(default=attr.Factory(
+    name = attr.ib(default=attr.Factory(
         lambda self: type(self).NAME, takes_self=True))
 
-    domain: str = attr.ib(default=attr.Factory(
+    domain = attr.ib(default=attr.Factory(
         lambda self: type(self).DOMAIN, takes_self=True))
 
-    group: str = attr.ib(default=attr.Factory(
+    group = attr.ib(default=attr.Factory(
         lambda self: type(self).GROUP, takes_self=True))
 
-    src_file: str = attr.ib(default=attr.Factory(
+    src_file = attr.ib(default=attr.Factory(
         lambda self: type(self).SRC_FILE, takes_self=True))
 
     container = attr.ib(default=Gentoo())
 
-    version: str = attr.ib(default=attr.Factory(
+    version = attr.ib(default=attr.Factory(
         lambda self: get_version_from_cache_dir(self.src_file),
         takes_self=True))
 
-    builddir: str = attr.ib(default=attr.Factory(
+    builddir = attr.ib(default=attr.Factory(
         lambda self: path.join(
             str(CFG["build_dir"]),
             "{0}-{1}-{2}-{3}".format(self.experiment.name,
@@ -222,7 +220,7 @@ class Project(object, metaclass=ProjectDecorator):
                                      self.experiment.id)),
         takes_self=True))
 
-    testdir: str = attr.ib()
+    testdir = attr.ib()
     @testdir.default
     def default_testdir(self):
         if self.group:
@@ -249,13 +247,11 @@ class Project(object, metaclass=ProjectDecorator):
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
-    compiler_extension: t.Callable[[str, t.Iterable[str]], RunInfo] = \
-        attr.ib(default=attr.Factory(
+    compiler_extension = attr.ib(default=attr.Factory(
             lambda self: ext.RunWithTimeout(
                 ext.RunCompiler(self, self.experiment)), takes_self=True))
 
-    runtime_extension: t.Callable[[str, t.Iterable[str]], RunInfo] = \
-        attr.ib(default=None)
+    runtime_extension = attr.ib(default=None)
 
 
     def __attrs_post_init__(self):

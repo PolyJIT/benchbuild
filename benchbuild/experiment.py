@@ -63,9 +63,17 @@ class Experiment(object, metaclass=ExperimentRegistry):
     As every project gets registered in the ProjectFactory, the experiment
     gets a list of experiment names that work as a filter.
 
+    Attributes:
+        name (str): The name of the experiment, defaults to NAME
+        projects (:obj:`list` of `benchbuild.project.Project`):
+            A list of projects that is assigned to this experiment.
+        id (str):
+            A uuid encoded as :obj:`str` used to identify this
+            instance of experiment. Equivalent to the `experiment_group`
+            in the database scheme.
     """
 
-    NAME: t.ClassVar[str] = None
+    NAME = None
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
@@ -76,13 +84,13 @@ class Experiment(object, metaclass=ExperimentRegistry):
                     cls.__name__, cls.__module__))
         return new_self
 
-    name: str = attr.ib(default=attr.Factory(
+    name = attr.ib(default=attr.Factory(
         lambda self: type(self).NAME, takes_self=True))
 
-    projects: t.List['benchbuild.project.Project'] = \
+    projects = \
         attr.ib(default=attr.Factory(list))
 
-    id: str = attr.ib()
+    id = attr.ib()
     @id.default
     def default_id(self):
         cfg_exps = CFG["experiments"].value()

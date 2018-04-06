@@ -84,7 +84,7 @@
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ProjectRegistry"><a class="viewcode-back" href="../../benchbuild.project.html#benchbuild.project.ProjectRegistry">[docs]</a><span class="k">class</span> <span class="nc">ProjectRegistry</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ProjectRegistry</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Registry for benchbuild projects.&quot;&quot;&quot;</span>
 
     <span class="n">projects</span> <span class="o">=</span> <span class="n">StringTrie</span><span class="p">()</span>
@@ -95,10 +95,10 @@
 
         <span class="k">if</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DOMAIN</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">GROUP</span><span class="p">}:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{name}</span><span class="s2">/</span><span class="si">{group}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">GROUP</span><span class="p">)</span>
-            <span class="n">ProjectRegistry</span><span class="o">.</span><span class="n">projects</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span></div>
+            <span class="n">ProjectRegistry</span><span class="o">.</span><span class="n">projects</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>
 
 
-<div class="viewcode-block" id="ProjectDecorator"><a class="viewcode-back" href="../../benchbuild.project.html#benchbuild.project.ProjectDecorator">[docs]</a><span class="k">class</span> <span class="nc">ProjectDecorator</span><span class="p">(</span><span class="n">ProjectRegistry</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ProjectDecorator</span><span class="p">(</span><span class="n">ProjectRegistry</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorate the interface of a project with the in_builddir decorator.</span>
 
@@ -131,7 +131,7 @@
                 <span class="n">wrapped_fun</span> <span class="o">=</span> <span class="n">in_builddir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)(</span><span class="n">wrapped_fun</span><span class="p">)</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">wrapped_fun</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">ProjectDecorator</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ProjectDecorator</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Project"><a class="viewcode-back" href="../../benchbuild.project.html#benchbuild.project.Project">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
@@ -149,6 +149,7 @@
 <span class="sd">        `configure`: Configure the sources, replace the compiler with our</span>
 <span class="sd">            wrapper if possible.</span>
 <span class="sd">        `build`: Build the sources, with the wrapper compiler.</span>
+
 <span class="sd">    A project implementation *may* provide the following functions:</span>
 <span class="sd">        `run_tests`: Wrap any binary that has to be run under the</span>
 <span class="sd">            runtime_extension wrapper and execute an implementation defined</span>
@@ -268,7 +269,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span>  <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;test_dir&quot;</span><span class="p">]),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
-    
+
     <span class="n">cflags</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">Factory</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
 
     <span class="n">ldflags</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">Factory</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
@@ -374,7 +375,7 @@
         <span class="n">new_p</span><span class="o">.</span><span class="n">run_uuid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">new_p</span></div></div>
 
-<div class="viewcode-block" id="populate"><a class="viewcode-back" href="../../benchbuild.project.html#benchbuild.project.populate">[docs]</a><span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="n">projects_to_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="n">projects_to_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Populate the list of projects that belong to this experiment.</span>
 
@@ -411,7 +412,7 @@
 
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">x</span><span class="p">:</span> <span class="n">prjs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">prjs</span>
-        <span class="k">if</span> <span class="n">prjs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">DOMAIN</span> <span class="o">!=</span> <span class="s2">&quot;debug&quot;</span> <span class="ow">or</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">projects_to_filter</span><span class="p">}</span></div>
+        <span class="k">if</span> <span class="n">prjs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">DOMAIN</span> <span class="o">!=</span> <span class="s2">&quot;debug&quot;</span> <span class="ow">or</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">projects_to_filter</span><span class="p">}</span>
 </pre></div>
 
           </div>

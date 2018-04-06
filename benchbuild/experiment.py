@@ -33,36 +33,12 @@ import typing as t
 import uuid
 from abc import abstractmethod
 
-import benchbuild.project as p
+import attr
+
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Build, Clean, CleanExtra, Configure,
                                       Download, MakeBuildDir, Prepare,
                                       RequireAll, Run)
-
-
-def get_group_projects(group: str, experiment) -> t.List[p.Project]:
-    """
-    Get a list of project names for the given group.
-
-    Filter the projects assigned to this experiment by group.
-
-    Args:
-        group (str): The group.
-        experiment (benchbuild.Experiment): The experiment we draw our projects
-            to filter from.
-
-    Returns (list):
-        A list of project names for the group that are supported by this
-        experiment.
-    """
-    group = []
-    projects = experiment.projects
-    for name in projects:
-        project = projects[name]
-
-        if project.group == group:
-            group.append(name)
-    return group
 
 
 class ExperimentRegistry(type):
@@ -78,6 +54,7 @@ class ExperimentRegistry(type):
             ExperimentRegistry.experiments[cls.NAME] = cls
 
 
+@attr.s(cmp=False)
 class Experiment(object, metaclass=ExperimentRegistry):
     """
     A series of commands executed on a project that form an experiment.
@@ -92,7 +69,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
     """
 
-    NAME = None
+    NAME: t.ClassVar[str] = None
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
@@ -101,23 +78,25 @@ class Experiment(object, metaclass=ExperimentRegistry):
             raise AttributeError(
                 "{0} @ {1} does not define a NAME class attribute.".format(
                     cls.__name__, cls.__module__))
-        new_self.name = cls.NAME
         return new_self
 
-    def __init__(self, projects=None, group=None):
-        self.builddir = str(CFG["build_dir"].value())
-        self.testdir = CFG["test_dir"].value()
-        self._actions = []
+    name: str = attr.ib(default=attr.Factory(
+        lambda self: type(self).NAME, takes_self=True))
 
+    projects: t.List['benchbuild.project.Project'] = \
+        attr.ib(default=attr.Factory(list))
+
+    id: str = attr.ib()
+    @id.default
+    def default_id(self):
         cfg_exps = CFG["experiments"].value()
         if self.name in cfg_exps:
-            self.id = cfg_exps[self.name]
+            _id = cfg_exps[self.name]
         else:
-            self.id = str(uuid.uuid4())
-            cfg_exps[self.name] = self.id
+            _id = uuid.uuid4()
+            cfg_exps[self.name] = _id
             CFG["experiments"] = cfg_exps
-
-        self.projects = p.populate(projects, group)
+        return _id
 
     @abstractmethod
     def actions_for_project(self, project):
@@ -134,7 +113,9 @@ class Experiment(object, metaclass=ExperimentRegistry):
         for project in self.projects:
             p = self.projects[project](self)
             actions.append(Clean(p))
-            actions.append(RequireAll(self.actions_for_project(p)))
+            actions.append(
+                RequireAll(obj=p,
+                           actions=self.actions_for_project(p)))
 
         actions.append(CleanExtra(self))
         return actions

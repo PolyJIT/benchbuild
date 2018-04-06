@@ -66,9 +66,6 @@ class PolyBenchGroup(Project):
         "floyd-warshall": "medley",
     }
 
-    def __init__(self, exp):
-        super(PolyBenchGroup, self).__init__(exp, self.GROUP)
-
     src_dir = "polybench-c-{0}".format(VERSION)
     SRC_FILE = src_dir + ".tar.gz"
     src_uri = "http://downloads.sourceforge.net/project/polybench/" + SRC_FILE

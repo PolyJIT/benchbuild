@@ -52,7 +52,6 @@ class TestRun(unittest.TestCase):
             def actions_for_project(self, project):
                 from benchbuild.utils.actions import (
                     Prepare, Download, Configure, Build, Run, Clean)
-                inside = None
                 actns = []
                 project.builddir = "/tmp/throwaway"
                 actns = [Prepare(project),
@@ -63,8 +62,8 @@ class TestRun(unittest.TestCase):
                          Clean(project)]
                 return actns
 
-        exp = MockExp(group="polybench")
-        eactn = Experiment(exp, exp.actions())
+        exp = MockExp()
+        eactn = Experiment(obj=exp, actions=exp.actions())
         old_exists = os.path.exists
         os.path.exists = lambda p: True
         print(eactn)

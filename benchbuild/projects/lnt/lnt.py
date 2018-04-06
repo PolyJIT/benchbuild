@@ -1,7 +1,4 @@
-"""
-LNT based measurements.
-
-"""
+"""LNT based measurements."""
 from glob import glob
 from os import path
 
@@ -31,9 +28,6 @@ class LNTGroup(Project):
         r'(?P<name>.+)\.simple',
         r'(?P<name>.+)-(dbl|flt)',
     ]
-
-    def __init__(self, exp):
-        super(LNTGroup, self).__init__(exp, "lnt")
 
     src_dir = "lnt"
     src_uri = "http://llvm.org/git/lnt"

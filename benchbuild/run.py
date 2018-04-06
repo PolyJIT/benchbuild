@@ -11,7 +11,9 @@ import time
 
 from plumbum import cli
 
-from benchbuild import experiment, experiments
+import benchbuild.experiment as experiment
+import benchbuild.project as project
+import benchbuild.experiments as experiments
 from benchbuild.settings import CFG
 from benchbuild.utils import path, progress
 from benchbuild.utils.actions import Experiment, Step, StepResult
@@ -83,8 +85,6 @@ class BenchBuildRun(cli.Application):
 
     def main(self):
         """Main entry point of benchbuild run."""
-        from benchbuild.utils.cmd import mkdir  # pylint: disable=E0401
-
         project_names = self._project_names
         group_name = self._group_name
 
@@ -103,8 +103,9 @@ class BenchBuildRun(cli.Application):
 
         if self._list:
             for exp_name in self._experiment_names:
+                projects = project.populate(project_names, group_name)
                 exp_cls = exps[exp_name]
-                exp = exp_cls(self._project_names, self._group_name)
+                exp = exp_cls(projects=projects)
                 print_projects(exp)
             exit(0)
 
@@ -136,11 +137,12 @@ class BenchBuildRun(cli.Application):
                               exp_name)
 
         for exp_cls in exps_to_run:
-            exp = exp_cls(project_names, group_name)
+            projects = project.populate(project_names, group_name)
+            exp = exp_cls(projects=projects)
             if not exp.projects:
                 print_projects(exp)
             else:
-                eactn = Experiment(exp, exp.actions())
+                eactn = Experiment(obj=exp, actions=exp.actions())
                 actns.append(eactn)
 
         num_actions = sum([len(x) for x in actns])

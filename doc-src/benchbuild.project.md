@@ -10,10 +10,11 @@ The project definition ensures that all experiments run through the same series 
 
 ## Phases
 As introduced, the main focus of a project lies on two phases.
-    1. Compilation: Any custom extension set to a project's `compiler_extension` property will be run in this phase.
-    2. Runtime: Any custom extension set to a project's `runtime_extension` property will be run in this pahse.
 
-## Example
+1. Compilation: Any custom extension set to a project's `compiler_extension` property will be run in this phase.
+2. Runtime: Any custom extension set to a project's `runtime_extension` property will be run in this pahse.
+
+## Minimal Example
 Let us have a look at a minimal example for a simple new project ``HelloWorld`` written in C.
 First, we start with the minimal structure of a project.
 ```python
@@ -37,6 +38,12 @@ class HelloWorld(p.Project):
 Here we only provide a skeleton without any implementation, so this project can be recognized by benchbuild but not do anything useful, yet.
 ``HelloWorld``'s python package needs to be registered to benchbuild settings under the section: ``plugins -> projects``.
 However, our project lacks any implementation details about wrapping a compiler and a binary, so we won't be able to do anything useful with it.
+
+### Wrapping the Compiler
+
+### Wrapping a Binary
+
+## API Reference
 
 ```eval_rst
 .. autoclass:: benchbuild.project.Project

@@ -2,10 +2,12 @@
 Test the actions module.
 """
 import unittest
-from benchbuild.utils import actions as a
-from benchbuild.project import Project
-from benchbuild.experiment import Experiment
+
 from plumbum import ProcessExecutionError
+
+from benchbuild.experiment import Experiment
+from benchbuild.project import Project
+from benchbuild.utils import actions as a
 
 
 class EmptyProject(Project):
@@ -32,10 +34,10 @@ class PassAlways(a.Step):
 class ActionsTestCase(unittest.TestCase):
     def test_for_all_pass(self):
         ep = EmptyProject(EmptyExperiment())
-        actn = a.RequireAll([PassAlways(ep)])
+        actn = a.RequireAll(actions=[PassAlways(ep)])
         self.assertEqual(actn(), [a.StepResult.OK])
 
     def test_for_all_fail(self):
         ep = EmptyProject(EmptyExperiment())
-        actn = a.RequireAll([FailAlways(ep)])
+        actn = a.RequireAll(actions=[FailAlways(ep)])
         self.assertEqual(actn(), [a.StepResult.ERROR])

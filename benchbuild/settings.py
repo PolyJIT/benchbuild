@@ -301,10 +301,10 @@ class Configuration():
         _repr = []
         if self.has_value():
             return self.__to_env_var__() + "=" + escape_json(json.dumps(
-                self.node['value']))
+                self.node['value'], cls=UUIDEncoder))
         if self.has_default():
             return self.__to_env_var__() + "=" + escape_json(json.dumps(
-                self.node['default']))
+                self.node['default'], cls=UUIDEncoder))
 
         for k in self.node:
             _repr.append(repr(self[k]))

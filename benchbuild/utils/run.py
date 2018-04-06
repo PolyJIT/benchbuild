@@ -96,6 +96,24 @@ def fail_run_group(group, session):
 
 @attr.s(cmp=False)
 class RunInfo(object):
+    """
+    Execution context of wrapped binaries.
+
+    Execution of tracked binaries is guarded with this context
+    object. In here we store everything about a single binary
+    execution for consumption of an experiment.
+
+    Attributes:
+        cmd ():
+        failed ():
+        project ():
+        experiment ():
+        retcode ():
+        stdout ():
+        stderr ():
+        db_run ():
+        session ():
+    """
     def __begin(self, command, project, ename, group):
         """
         Begin a run in the database log.
@@ -187,7 +205,7 @@ class RunInfo(object):
         self.session.add(self.db_run)
 
     cmd = attr.ib(default=None, repr=False)
-    failed: bool = attr.ib(default=False)
+    failed = attr.ib(default=False)
     project = attr.ib(default=None, repr=False)
     experiment = attr.ib(default=None, repr=False)
     retcode = attr.ib(default=0)

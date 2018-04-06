@@ -25,7 +25,7 @@ pygments_style = 'sphinx'
 todo_include_todos = True
 html_theme = 'nature'
 # html_theme_options = {}
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 
 # -- Options for manual page output ---------------------------------------

@@ -1,15 +1,15 @@
-Welcome to benchbuild's documentation!
-======================================
+# Welcome to benchbuild's documentation!
 
+## Core packages
+```eval_rst
 .. toctree::
     benchbuild.experiment
     benchbuild.project
     benchbuild.extensions
-    benchbuild.utils
+    benchbuild
+```
 
-
-Indices and tables
-==================
+## Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`

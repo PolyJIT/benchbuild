@@ -24,15 +24,16 @@ paths for you.
 
 import logging
 import uuid
+
 import sqlalchemy as sa
-from sqlalchemy import create_engine
-from sqlalchemy import (
-    Column, ForeignKey, ForeignKeyConstraint, Integer, String, DateTime, Enum)
-from sqlalchemy.types import (
-    TypeDecorator, BigInteger, SmallInteger, Float, Numeric, CHAR, LargeBinary)
+from sqlalchemy import (Column, DateTime, Enum, ForeignKey,
+                        ForeignKeyConstraint, Integer, String, create_engine)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.types import (CHAR, BigInteger, Float, LargeBinary, Numeric,
+                              SmallInteger, TypeDecorator)
+
 from benchbuild.settings import CFG
 from benchbuild.utils import path as bbpath
 
@@ -45,7 +46,6 @@ class GUID(TypeDecorator):
 
     Uses Postgresql's UUID type, otherwise uses
     CHAR(32), storing as stringified hex values.
-
     """
     impl = CHAR
     as_uuid = False

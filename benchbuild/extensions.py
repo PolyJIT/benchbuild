@@ -1,16 +1,18 @@
 """
 Extension base-classes for compile-time and run-time experiments.
 """
-from abc import ABCMeta
-from collections import Iterable
 import logging
 import os
-import parse
 import typing as t
+from abc import ABCMeta
+from collections import Iterable
+
+import parse
 import yaml
 from plumbum import local
-from benchbuild.utils.run import (track_execution, fetch_time_output, RunInfo)
+
 from benchbuild.utils.db import persist_config, persist_time
+from benchbuild.utils.run import RunInfo, fetch_time_output, track_execution
 
 LOG = logging.getLogger(__name__)
 

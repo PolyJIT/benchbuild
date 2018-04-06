@@ -111,6 +111,7 @@ class Project(object, metaclass=ProjectDecorator):
         `configure`: Configure the sources, replace the compiler with our
             wrapper if possible.
         `build`: Build the sources, with the wrapper compiler.
+
     A project implementation *may* provide the following functions:
         `run_tests`: Wrap any binary that has to be run under the
             runtime_extension wrapper and execute an implementation defined

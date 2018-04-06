@@ -138,9 +138,6 @@ class GentooGroup(project.Project):
     CONTAINER = Gentoo()
     SRC_FILE = None
 
-    def __init__(self, exp):
-        super(GentooGroup, self).__init__(exp, "gentoo")
-
     def build(self):
         pass
 

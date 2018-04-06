@@ -1,20 +1,21 @@
 """Experiment helpers."""
 import enum
-import os
 import logging
+import os
 import subprocess
-import typing as t
 import sys
+import typing as t
 from contextlib import contextmanager
 
-from benchbuild.settings import CFG
-import benchbuild.signals as signals
-from benchbuild.utils.cmd import mkdir
-from benchbuild.utils.path import list_to_path
-from benchbuild import settings
-from plumbum import local, TEE
+import attr
+from plumbum import TEE, local
 from plumbum.commands import ProcessExecutionError
 
+import benchbuild.signals as signals
+from benchbuild import settings
+from benchbuild.settings import CFG
+from benchbuild.utils.cmd import mkdir
+from benchbuild.utils.path import list_to_path
 
 LOG = logging.getLogger(__name__)
 
@@ -93,6 +94,7 @@ def fail_run_group(group, session):
     session.commit()
 
 
+@attr.s(cmp=False)
 class RunInfo(object):
     def __begin(self, command, project, ename, group):
         """
@@ -184,18 +186,18 @@ class RunInfo(object):
         self.session.add(log)
         self.session.add(self.db_run)
 
-    def __init__(self, **kwargs):
-        self.cmd = None
-        self.failed = False
-        self.project = None
-        self.experiment = None
-        self.retcode = 0
-        self.stdout = []
-        self.stderr = []
+    cmd = attr.ib(default=None, repr=False)
+    failed: bool = attr.ib(default=False)
+    project = attr.ib(default=None, repr=False)
+    experiment = attr.ib(default=None, repr=False)
+    retcode = attr.ib(default=0)
+    stdout = attr.ib(default=attr.Factory(list), repr=False)
+    stderr = attr.ib(default=attr.Factory(list), repr=False)
 
-        for k in kwargs:
-            self.__setattr__(k, kwargs[k])
-        # This is not atomic, careful!
+    db_run = attr.ib(init=False, default=None)
+    session = attr.ib(init=False, default=None, repr=False)
+
+    def __attrs_post_init__(self):
         self.__begin(self.cmd, self.project,
                      self.experiment.name, self.project.run_uuid)
         signals.handlers.register(self.__fail, 15, "SIGTERM", "SIGTERM")
@@ -263,13 +265,6 @@ class RunInfo(object):
 
     def commit(self):
         self.session.commit()
-
-    def __str__(self):
-        return "<RunInfo (ec={}, run_id={}, stdout={}, stderr={})>".format(
-            self.retcode, self.db_run.id, len(self.stdout), len(self.stderr))
-
-    def __repr__(self):
-        return str(self)
 
 
 def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:

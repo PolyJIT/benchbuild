@@ -1,8 +1,5 @@
-"""
-This defines classes that can be used to implement a series of Actions.
-"""
+"""This defines classes that can be used to implement a series of Actions."""
 import abc
-from datetime import datetime
 import enum
 import functools as ft
 import glob
@@ -11,15 +8,16 @@ import os
 import sys
 import textwrap
 import traceback
+from datetime import datetime
+
+import attr
+import sqlalchemy as sa
+from plumbum import ProcessExecutionError, local
 
 import benchbuild.signals as signals
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import llvm_profdata, mkdir, rm, rmdir
 from benchbuild.utils.db import persist_experiment
-
-from benchbuild.utils.cmd import mkdir, rm, rmdir, llvm_profdata
-from plumbum import ProcessExecutionError, local
-import sqlalchemy as sa
-
 
 LOG = logging.getLogger(__name__)
 
@@ -106,6 +104,7 @@ class StepClass(abc.ABCMeta):
         return result
 
 
+@attr.s(cmp=False)
 class Step(metaclass=StepClass):
     NAME = None
     DESCRIPTION = None
@@ -113,10 +112,9 @@ class Step(metaclass=StepClass):
     ON_STEP_BEGIN = []
     ON_STEP_END = []
 
-    def __init__(self, project_or_experiment, action_fn=None):
-        self._obj = project_or_experiment
-        self._action_fn = action_fn
-        self._status = StepResult.UNSET
+    obj = attr.ib(default=None, repr=False)
+    action_fn = attr.ib(default=None, repr=False)
+    status = attr.ib(default=StepResult.UNSET)
 
     def __len__(self):
         return 1
@@ -129,37 +127,27 @@ class Step(metaclass=StepClass):
 
     @notify_step_begin_end
     def __call__(self):
-        if not self._action_fn:
+        if not self.action_fn:
             return StepResult.ERROR
-        self._action_fn()
+        self.action_fn()
         self.status = StepResult.OK
         return StepResult.OK
 
     def __str__(self, indent=0):
         return textwrap.indent(
             "* {name}: Execute configured action.".format(
-                    name=self._obj.name), indent * " ")
-
-    @property
-    def status(self):
-        return self._status
-
-    @status.setter
-    def status(self, value):
-        self._status = value
+                name=self.obj.name), indent * " ")
 
     def onerror(self):
-        Clean(self._obj)()
+        Clean(self.obj)()
 
 
+@attr.s
 class Clean(Step):
     NAME = "CLEAN"
     DESCRIPTION = "Cleans the build directory"
 
-    def __init__(self, project_or_experiment,
-                 action_fn=None, check_empty=False):
-        super(Clean, self).__init__(project_or_experiment, action_fn)
-        self.check_empty = check_empty
+    check_empty = attr.ib(default=False)
 
     def __clean_mountpoints__(self, root: str):
         """
@@ -182,12 +170,12 @@ class Clean(Step):
     @notify_step_begin_end
     def __call__(self):
         if not CFG['clean'].value():
-            LOG.warn("Clean disabled by config.")
+            LOG.warning("Clean disabled by config.")
             return
-        if not self._obj:
-            LOG.warn("No object assigned to this action.")
+        if not self.obj:
+            LOG.warning("No object assigned to this action.")
             return
-        obj_builddir = os.path.abspath(self._obj.builddir)
+        obj_builddir = os.path.abspath(self.obj.builddir)
         if os.path.exists(obj_builddir):
             LOG.debug("Path %s exists", obj_builddir)
             self.__clean_mountpoints__(obj_builddir)
@@ -201,7 +189,7 @@ class Clean(Step):
 
     def __str__(self, indent=0):
         return textwrap.indent("* {0}: Clean the directory: {1}".format(
-            self._obj.name, self._obj.builddir), indent * " ")
+            self.obj.name, self.obj.builddir), indent * " ")
 
 
 class MakeBuildDir(Step):
@@ -210,15 +198,15 @@ class MakeBuildDir(Step):
 
     @notify_step_begin_end
     def __call__(self):
-        if not self._obj:
+        if not self.obj:
             return
-        if not os.path.exists(self._obj.builddir):
-            mkdir("-p", self._obj.builddir)
+        if not os.path.exists(self.obj.builddir):
+            mkdir("-p", self.obj.builddir)
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
         return textwrap.indent(
-            "* {0}: Create the build directory".format(self._obj.name),
+            "* {0}: Create the build directory".format(self.obj.name),
             indent * " ")
 
 
@@ -227,10 +215,10 @@ class Prepare(Step):
     DESCRIPTION = "Prepare project build folder"
 
     def __init__(self, project):
-        super(Prepare, self).__init__(project, project.prepare)
+        super(Prepare, self).__init__(obj=project, action_fn=project.prepare)
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Prepare".format(self._obj.name),
+        return textwrap.indent("* {0}: Prepare".format(self.obj.name),
                                indent * " ")
 
 
@@ -239,10 +227,10 @@ class Download(Step):
     DESCRIPTION = "Download project source files"
 
     def __init__(self, project):
-        super(Download, self).__init__(project, project.download)
+        super(Download, self).__init__(obj=project, action_fn=project.download)
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Download".format(self._obj.name),
+        return textwrap.indent("* {0}: Download".format(self.obj.name),
                                indent * " ")
 
 
@@ -251,10 +239,10 @@ class Configure(Step):
     DESCRIPTION = "Configure project source files"
 
     def __init__(self, project):
-        super(Configure, self).__init__(project, project.configure)
+        super(Configure, self).__init__(obj=project, action_fn=project.configure)
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Configure".format(self._obj.name),
+        return textwrap.indent("* {0}: Configure".format(self.obj.name),
                                indent * " ")
 
 
@@ -263,10 +251,10 @@ class Build(Step):
     DESCRIPTION = "Build the project"
 
     def __init__(self, project):
-        super(Build, self).__init__(project, project.build)
+        super(Build, self).__init__(obj=project, action_fn=project.build)
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Compile".format(self._obj.name),
+        return textwrap.indent("* {0}: Compile".format(self.obj.name),
                                indent * " ")
 
 
@@ -276,61 +264,59 @@ class Run(Step):
 
     def __init__(self, project):
         action_fn = ft.partial(project.run, project.runtime_extension)
-        super(Run, self).__init__(project, action_fn)
+        super(Run, self).__init__(obj=project, action_fn=action_fn)
 
     @notify_step_begin_end
     def __call__(self):
-        if not self._obj:
+        if not self.obj:
             return
-        if not self._action_fn:
+        if not self.action_fn:
             return
 
-        self._action_fn()
+        self.action_fn()
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
         return textwrap.indent(
-            "* {0}: Execute run-time tests.".format(self._obj.name),
+            "* {0}: Execute run-time tests.".format(self.obj.name),
             indent * " ")
 
 
+@attr.s
 class Echo(Step):
     NAME = 'ECHO'
     DESCRIPTION = 'Print a message.'
 
-    def __init__(self, message):
-        self._message = message
-        self._status = StepResult.UNSET
+    message = attr.ib(default="")
 
     def __str__(self, indent=0):
-        return textwrap.indent("* echo: {0}".format(self._message),
+        return textwrap.indent("* echo: {0}".format(self.message),
                                indent * " ")
 
     @notify_step_begin_end
     def __call__(self):
-        LOG.info(self._message)
+        LOG.info(self.message)
 
 
+@attr.s(cmp=False)
 class Any(Step):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    def __init__(self, actions):
-        self._actions = actions
-        super(Any, self).__init__(None, None)
+    actions = attr.ib(default=attr.Factory(list), repr=False, cmp=False)
 
     def __len__(self):
-        return sum([len(x) for x in self._actions]) + 1
+        return sum([len(x) for x in self.actions]) + 1
 
     def __iter__(self):
-        return self._actions.__iter__()
+        return self.actions.__iter__()
 
     @notify_step_begin_end
     def __call__(self):
-        length = len(self._actions)
+        length = len(self.actions)
         cnt = 0
         results = [StepResult.OK]
-        for a in self._actions:
+        for a in self.actions:
             cnt = cnt + 1
             result = a()
             results.append(result)
@@ -342,25 +328,24 @@ class Any(Step):
             self.status = StepResult.CAN_CONTINUE
 
     def __str__(self, indent=0):
-        sub_actns = [a.__str__(indent + 1) for a in self._actions]
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
         sub_actns = "\n".join(sub_actns)
         return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
 
 
+@attr.s(cmp=False, hash=True)
 class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
 
-    def __init__(self, experiment, actions):
-        self._experiment = experiment
-        actions = \
-            [Echo("Start experiment: {0}".format(experiment.name))] + \
-            actions + \
-            [Echo("Completed experiment: {0}".format(experiment.name))]
-        super(Experiment, self).__init__(actions)
+    def __attrs_post_init__(self):
+        self.actions = \
+            [Echo(message="Start experiment: {0}".format(self.obj.name))] + \
+            self.actions + \
+            [Echo(message="Completed experiment: {0}".format(self.obj.name))]
 
     def begin_transaction(self):
-        experiment, session = persist_experiment(self._experiment)
+        experiment, session = persist_experiment(self.obj)
         if experiment.begin is None:
             experiment.begin = datetime.now()
         else:
@@ -368,9 +353,8 @@ class Experiment(Any):
         session.add(experiment)
         try:
             session.commit()
-        except sa.orm.exc.StaleDataError: 
+        except sa.orm.exc.StaleDataError:
             LOG.error("Transaction isolation level caused a StaleDataError")
-            
 
         # React to external signals
         signals.handlers.register(self.end_transaction, experiment, session)
@@ -391,13 +375,10 @@ class Experiment(Any):
     @notify_step_begin_end
     def __call__(self):
         results = []
-        experiment = None
         session = None
+        experiment, session = self.begin_transaction()
         try:
-            res = self.begin_transaction()
-            experiment = res[0]
-            session = res[1]
-            for a in self._actions:
+            for a in self.actions:
                 try:
                     result = a()
                     results.extend(result)
@@ -422,28 +403,27 @@ class Experiment(Any):
         return results
 
     def __str__(self, indent=0):
-        sub_actns = [a.__str__(indent + 1) for a in self._actions]
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
         sub_actns = "\n".join(sub_actns)
         return textwrap.indent(
-            "\nExperiment: {0}\n".format(self._experiment.name) + sub_actns,
+            "\nExperiment: {0}\n".format(self.obj.name) + sub_actns,
             indent * " ")
 
 
+@attr.s
 class RequireAll(Step):
-    def __init__(self, actions):
-        self._actions = actions
-        super(RequireAll, self).__init__(None, None)
+    actions = attr.ib(default=attr.Factory(list))
 
     def __len__(self):
-        return sum([len(x) for x in self._actions]) + 1
+        return sum([len(x) for x in self.actions]) + 1
 
     def __iter__(self):
-        return self._actions.__iter__()
+        return self.actions.__iter__()
 
     @notify_step_begin_end
     def __call__(self):
         results = []
-        for i, action in enumerate(self._actions):
+        for i, action in enumerate(self.actions):
             try:
                 results.extend(action())
             except ProcessExecutionError as proc_ex:
@@ -458,7 +438,7 @@ class RequireAll(Step):
                 action.onerror()
                 results.append(StepResult.ERROR)
                 raise
-            except (OSError) as os_ex:
+            except OSError:
                 LOG.error("Exception in step #%d: %s", i, str(action),
                           exc_info=sys.exc_info())
                 results.append(StepResult.ERROR)
@@ -475,7 +455,7 @@ class RequireAll(Step):
         return results
 
     def __str__(self, indent=0):
-        sub_actns = [a.__str__(indent + 1) for a in self._actions]
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
         sub_actns = "\n".join(sub_actns)
         return textwrap.indent("* All required:\n" + sub_actns, indent * " ")
 
@@ -504,22 +484,21 @@ class CleanExtra(Step):
         return "\n".join(lines)
 
 
+@attr.s
 class SaveProfile(Step):
     NAME = "SAVEPROFILE"
     DESCRIPTION = "Save a profile in llvm format in the DB"
 
-    def __init__(self, project_or_experiment, filename):
-        super(SaveProfile, self).__init__(project_or_experiment, None)
-        self.filename = filename
+    filename = attr.ib(default=None)
 
     @notify_step_begin_end
     def __call__(self):
         from benchbuild.utils.db import persist_file
         from benchbuild.project import Project
-        if not isinstance(self._obj, Project):
+        if not isinstance(self.obj, Project):
             raise AttributeError
 
-        obj_builddir = self._obj.builddir
+        obj_builddir = self.obj.builddir
         outfile = os.path.abspath(os.path.join(obj_builddir, self.filename))
         profiles = os.path.abspath(os.path.join(obj_builddir, "raw-profiles"))
         with local.cwd(profiles):
@@ -528,33 +507,32 @@ class SaveProfile(Step):
             merge_profdata = merge_profdata[glob.glob('default_*.profraw')]
             merge_profdata()
 
-        exp_id = self._obj.experiment.id
-        run_group = self._obj.run_uuid
+        exp_id = self.obj.experiment.id
+        run_group = self.obj.run_uuid
 
         persist_file(outfile, exp_id, run_group)
         self.status = StepResult.OK
 
 
+@attr.s
 class RetrieveFile(Step):
     NAME = "RETRIEVEFILE"
     DESCRIPTION = "Retrieve a file from the database"
 
-    def __init__(self, project_or_experiment, filename, run_group):
-        super(RetrieveFile, self).__init__(project_or_experiment, None)
-        self.filename = filename
-        self.run_group = run_group
+    filename = attr.ib(default=None)
+    run_group = attr.ib(default=None)
 
     @notify_step_begin_end
     def __call__(self):
         from benchbuild.project import Project
         from benchbuild.utils.db import extract_file
 
-        if not isinstance(self._obj, Project):
+        if not isinstance(self.obj, Project):
             raise AttributeError
 
-        obj_builddir = self._obj.builddir
+        obj_builddir = self.obj.builddir
         outfile = os.path.abspath(os.path.join(obj_builddir, self.filename))
-        exp_id = self._obj.experiment.id
+        exp_id = self.obj.experiment.id
         extract_file(self.filename, outfile, exp_id, self.run_group)
 
         self.status = StepResult.OK

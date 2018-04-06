@@ -47,7 +47,7 @@ setup(
         "plumbum>=1.5",
         "parse>=1.6",
         "virtualenv>=13.1",
-        "psycopg2>=2.7",
+        "psycopg2-binary>=2.7",
         "sqlalchemy-migrate",
         "pandas>=0.20.3",
         "psutil>=4.0.0",

@@ -1,4 +1,17 @@
-"""This defines classes that can be used to implement a series of Actions."""
+"""
+# Actions
+
+Actions are enhanced callables that are used by `Experiments` to define
+the order of operations a project is put through when the experiment
+executes.
+
+
+## Example
+
+TODO
+```python
+```
+"""
 import abc
 import enum
 import functools as ft

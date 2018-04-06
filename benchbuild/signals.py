@@ -3,7 +3,6 @@ import logging
 import signal
 import sys
 
-
 LOG = logging.getLogger(__name__)
 
 

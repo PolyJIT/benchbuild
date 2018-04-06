@@ -1,8 +1,10 @@
 """Database support module for the benchbuild study."""
 import logging
 import os
-from benchbuild.settings import CFG
+
 from sqlalchemy.exc import IntegrityError
+
+from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
 

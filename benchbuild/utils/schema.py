@@ -1,6 +1,5 @@
 """
-Database schema for benchbuild
-==============================
+# Database schema for benchbuild
 
 The schema should initialize itself on an empty database. For now, we do not
 support automatic upgrades on schema changes. You might encounter some
@@ -12,9 +11,9 @@ already support arbitrary connection strings via config.
 If you want to use reports that use one of our SQL functions, you need to
 initialize the functions first using the following command:
 
-.. code-block:: bash
-
+```bash
   > BB_DB_CREATE_FUNCTIONS=true benchbuild run -E empty -l
+```
 
 After that you (normally) do not need to do this agains, unless we supply
 a new version that you are interested in.

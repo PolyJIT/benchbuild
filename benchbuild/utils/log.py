@@ -1,5 +1,7 @@
 import logging
+
 from benchbuild import settings
+
 
 def configure():
     """Load logging configuration from our own defaults."""

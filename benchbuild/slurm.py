@@ -7,11 +7,11 @@ dumps a slurm batch script that executes everything as an array job
 on a configurable SLURM cluster.
 """
 import os
+
 from plumbum import cli
+
+from benchbuild import experiment, experiments, project, projects
 from benchbuild.settings import CFG
-from benchbuild import experiments
-from benchbuild import projects
-from benchbuild import experiment, project
 from benchbuild.utils import slurm
 
 

@@ -3,7 +3,9 @@ A progress bar based on the plumbum cli.progress.Progress bar, but
 with a changed string representation to adjust the design.
 """
 import sys
+
 from plumbum import cli
+
 
 class ProgressBar(cli.progress.ProgressBase):
     """Class that modifies the progress bar."""

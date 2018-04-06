@@ -10,10 +10,10 @@ import textwrap
 import traceback
 from datetime import datetime
 
-import attr
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError, local
 
+import attr
 import benchbuild.signals as signals
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import llvm_profdata, mkdir, rm, rmdir

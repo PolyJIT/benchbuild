@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+from plumbum import cli
+
 from benchbuild import settings
 from benchbuild.utils import log
-from plumbum import cli
 
 
 class PollyProfiling(cli.Application):

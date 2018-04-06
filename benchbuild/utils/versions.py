@@ -1,7 +1,9 @@
 """Gather version information for BB."""
 
 from os import path
+
 from plumbum import local
+
 from benchbuild.settings import CFG
 from benchbuild.utils.downloader import get_hash_of_dirs
 

@@ -1,8 +1,8 @@
 """ Parsing utilities for Polly's ScheduleTree representation. """
 import logging
 import textwrap as t
-import pyparsing as p
 
+import pyparsing as p
 
 LOG = logging.getLogger(__name__)
 

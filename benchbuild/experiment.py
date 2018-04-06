@@ -1,31 +1,27 @@
 """
-BenchBuild's skeleton for experiments.
+# Experiments
 
-An benchbuild.experiment defines a series of phases that constitute a
-benchbuild compatible experiment. This is the default implementation of an
-experiment.
+An experiment in benchbuild is a simple list of actions that need to be
+executed on every project that is part of the experiment.
+Every `callable` can serve as an action.
 
-Clients can derive from class class::benchbuild.experiment.Experiment and
-override the methods relvant to their experiment.
+However, benchbuild provides many predefined actions that can
+be reused by implementations in the `benchbuild.utils.actions` module.
+Furthermore, if you do not need to control the default order of
+actions for a run-time or a compile-time experiment you can reuse the
+`Experiment.default_runtime_actions` or
+`Experiment.default_compiletime_actions`.
 
-An experiment can have a variable number of phases / steps / substeps.
+Besides the list of actions, it is also the responsibility of an experiment
+to configure each single project that should take part in an experiment.
+This includes setting appropriate `CFLAGS`, `LDFLAGS` and any additional
+metadata that has to be added to binary runs for later evaluation.
 
-Phases / Steps / Substeps
--------------------------
-
-All phases/steps/substeps support being used as a context manager. All 3 of
-them catch ProcessExecutionErrors that may be thrown from plumbum, without
-aborting the whole experiment. However, an error is tracked.
-
-Actions
--------
-
-An experiment performs the following actions in order:
-    1. clean - Clean any previous runs that collide with our directory
-    2. prepare - Prepare the experiment, this is a good place to copy relevant
-                 files over for testing.
-    3. run (run_tests) - Run the experiment. The 'meat' lies here. Override
-        This to perform all your experiment needs.
+## Example
+```python
+class HelloExperiment(Experiment):
+    pass
+```
 
 """
 import copy

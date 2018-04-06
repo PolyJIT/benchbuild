@@ -7,9 +7,11 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 import sys
+
 from plumbum import local
-from benchbuild.utils.cmd import bash, chmod, mkdir
+
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import bash, chmod, mkdir
 
 INFO = logging.info
 

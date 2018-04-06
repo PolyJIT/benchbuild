@@ -1,5 +1,5 @@
 """
-Downloading helper functions for benchbuild.
+# Downloading helper functions for benchbuild.
 
 The helpers defined in this module provide access to some common Downloading
 methods for the source code of benchbuild projects.

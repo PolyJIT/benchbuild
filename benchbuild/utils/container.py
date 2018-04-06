@@ -1,12 +1,12 @@
-"""
-Container utilites.
-"""
-import os
+"""Container utilites."""
 import logging
+import os
+
+from plumbum import TF, local
+
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import cp, mkdir, bash, rm, curl, tail, cut
+from benchbuild.utils.cmd import bash, cp, curl, cut, mkdir, rm, tail
 from benchbuild.utils.downloader import Wget
-from plumbum import local, TF
 
 LOG = logging.getLogger(__name__)
 

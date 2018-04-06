@@ -1,21 +1,20 @@
-from abc import abstractmethod
 import logging
 import os
 import sys
+from abc import abstractmethod
 
-from benchbuild.utils.cmd import tar, mkdir, mv, rm, bash, cp
+from plumbum import FG, TF, ProcessExecutionError, cli, local
+
 from benchbuild.settings import CFG, update_env
 from benchbuild.utils import log
 from benchbuild.utils.bootstrap import find_package, install_uchroot
-from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
-from benchbuild.utils.path import list_to_path
+from benchbuild.utils.cmd import bash, cp, mkdir, mv, rm, tar
 from benchbuild.utils.container import Gentoo
-from benchbuild.utils.run import (run, uchroot, uchroot_with_mounts,
-                                  uchroot_no_args, uchroot_env,
-                                  uchroot_mounts)
 from benchbuild.utils.downloader import Copy, update_hash
+from benchbuild.utils.path import list_to_path, mkdir_uchroot, mkfile_uchroot
+from benchbuild.utils.run import (run, uchroot, uchroot_env, uchroot_mounts,
+                                  uchroot_no_args, uchroot_with_mounts)
 from benchbuild.utils.user_interface import ask
-from plumbum import cli, local, TF, FG, ProcessExecutionError
 
 LOG = logging.getLogger(__name__)
 

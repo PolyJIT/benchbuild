@@ -7,10 +7,10 @@ import sys
 import typing as t
 from contextlib import contextmanager
 
-import attr
 from plumbum import TEE, local
 from plumbum.commands import ProcessExecutionError
 
+import attr
 import benchbuild.signals as signals
 from benchbuild import settings
 from benchbuild.settings import CFG

@@ -12,8 +12,8 @@ import time
 from plumbum import cli
 
 import benchbuild.experiment as experiment
-import benchbuild.project as project
 import benchbuild.experiments as experiments
+import benchbuild.project as project
 from benchbuild.settings import CFG
 from benchbuild.utils import path, progress
 from benchbuild.utils.actions import Experiment, Step, StepResult

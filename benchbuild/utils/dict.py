@@ -1,6 +1,4 @@
-"""
-An extensible dictionary.
-"""
+"""An extensible dictionary."""
 from contextlib import contextmanager
 
 

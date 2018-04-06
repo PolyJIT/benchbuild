@@ -1,6 +1,7 @@
 from plumbum import cli
-import benchbuild.reports as r
+
 import benchbuild.experiments as e
+import benchbuild.reports as r
 
 
 class BenchBuildReport(cli.Application):

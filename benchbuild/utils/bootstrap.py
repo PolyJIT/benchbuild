@@ -1,9 +1,11 @@
 """ Helper functions for bootstrapping external dependencies. """
-import benchbuild.utils.user_interface as ui
-import platform
 import os
+import platform
 import sys
-from plumbum import local, TF
+
+from plumbum import TF, local
+
+import benchbuild.utils.user_interface as ui
 from benchbuild import settings
 
 ask = ui.ask

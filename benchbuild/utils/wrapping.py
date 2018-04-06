@@ -22,16 +22,18 @@ Runtime Wrappers:
     of the binary. We cannot guarantee that repeated execution is valid, therefore,
     we let the user decide what the program should do.
 """
-import dill
 import logging
 import os
 import sys
 
+import dill
 from plumbum import local
+
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import mv, chmod
+from benchbuild.utils.cmd import chmod, mv
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.run import run, uchroot_no_llvm as uchroot
+from benchbuild.utils.run import uchroot_no_llvm as uchroot
+from benchbuild.utils.run import run
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"

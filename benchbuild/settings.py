@@ -8,12 +8,12 @@ import copy
 import json
 import logging
 import os
-import uuid
 import re
+import uuid
 import warnings
 from datetime import datetime
-import yaml
 
+import yaml
 from plumbum import local
 
 LOG = logging.getLogger(__name__)

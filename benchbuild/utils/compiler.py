@@ -18,9 +18,10 @@ The wrapper-script generated for both functions can be found inside:
 Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
+from plumbum.commands.base import BoundCommand
+
 from benchbuild.settings import CFG
 from benchbuild.utils.wrapping import wrap_cc
-from plumbum.commands.base import BoundCommand
 
 
 def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='cc'):

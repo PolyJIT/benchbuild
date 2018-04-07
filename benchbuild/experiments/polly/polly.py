@@ -1,22 +1,7 @@
 """
-The 'polly' Experiment
-====================
-
 This experiment applies polly's transformations to all projects and measures
 the runtime.
-
-This forms the baseline numbers for the other experiments.
-
-
-Measurements
-------------
-
-3 Metrics are generated during this experiment:
-    time.user_s - The time spent in user space in seconds (aka virtual time)
-    time.system_s - The time spent in kernel space in seconds (aka system time)
-    time.real_s - The time spent overall in seconds (aka Wall clock)
 """
-
 from benchbuild.experiment import Experiment
 from benchbuild.extensions import RunWithTime, RuntimeExtension
 from benchbuild.settings import CFG

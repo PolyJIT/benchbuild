@@ -13,7 +13,6 @@ Submodules
 
    benchbuild.experiments.polly.openmp
    benchbuild.experiments.polly.openmpvect
-   benchbuild.experiments.polly.polly
    benchbuild.experiments.polly.pollyperformance
    benchbuild.experiments.polly.vectorize
 

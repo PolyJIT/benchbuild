@@ -48,7 +48,9 @@ def to_step_result(f):
 
     All Step subclasses automatically wrap the result of their
     __call__ method's result with this wrapper.
-    If the result is not a list of StepResult values, this will generate a default
+    If the result is not a list of StepResult values, one will
+    be generated.
+
     result of `[StepResult.OK]`, or convert the given result into
     a list.
 

@@ -1,5 +1,4 @@
-"""
-# Experiments
+"""Experiments
 
 An experiment in benchbuild is a simple list of actions that need to be
 executed on every project that is part of the experiment.
@@ -17,7 +16,8 @@ to configure each single project that should take part in an experiment.
 This includes setting appropriate `CFLAGS`, `LDFLAGS` and any additional
 metadata that has to be added to binary runs for later evaluation.
 
-## Example
+Example
+-------
 ```python
 class HelloExperiment(Experiment):
     pass
@@ -25,7 +25,6 @@ class HelloExperiment(Experiment):
 
 """
 import copy
-import typing as t
 import uuid
 from abc import abstractmethod
 

@@ -25,7 +25,7 @@ class HelloExperiment(Experiment):
 ## API reference
 
 ```eval_rst
-.. automodule:: benchbuild.experiment
+.. autoclass:: benchbuild.experiment.Experiment
     :members:
     :undoc-members:
     :show-inheritance:

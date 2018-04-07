@@ -1,21 +1,27 @@
-benchbuild.experiments package
-==============================
+# Available experiments
 
+```eval_rst
+.. toctree::
+    benchbuild.experiments.ijpp
+    benchbuild.experiments.polly.polly
+```
+
+## API reference
+```eval_rst
 .. automodule:: benchbuild.experiments
     :members:
     :undoc-members:
     :show-inheritance:
+```
 
-Subpackages
------------
-
+### Subpackages
+```eval_rst
 .. toctree::
-
     benchbuild.experiments.polly
+```
+### Submodules
 
-Submodules
-----------
-
+```eval_rst
 .. toctree::
 
    benchbuild.experiments.compilestats
@@ -36,4 +42,4 @@ Submodules
    benchbuild.experiments.polyjit
    benchbuild.experiments.profileScopDetection
    benchbuild.experiments.raw
-
+```

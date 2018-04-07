@@ -1,5 +1,4 @@
-"""
-# Project
+"""Project
 
 A project in benchbuild is an abstract representation of a software
 system that can live in various stages throughout an experiment.
@@ -15,10 +14,6 @@ a measurement.
 The project definition ensures that all experiments run through the same
 series of commands in both phases and that all experiments run inside
 a separate build directory in isolation of one another.
-
-## Phases
-
-
 """
 import copy
 import logging
@@ -222,7 +217,7 @@ class Project(object, metaclass=ProjectDecorator):
 
     testdir = attr.ib()
     @testdir.default
-    def default_testdir(self):
+    def __default_testdir(self):
         if self.group:
             return path.join(str(CFG["test_dir"]),
                 self.domain, self.group, self.name)
@@ -239,11 +234,11 @@ class Project(object, metaclass=ProjectDecorator):
 
     run_uuid = attr.ib()
     @run_uuid.default
-    def default_run_uuid(self):
+    def __default_run_uuid(self):
         return getenv("BB_DB_RUN_GROUP", uuid.uuid4())
 
     @run_uuid.validator
-    def check_if_uuid(self, _, value):
+    def __check_if_uuid(self, _, value):
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
@@ -358,7 +353,8 @@ def populate(projects_to_filter=None, group=None):
         prjs = {}
         for filter_project in set(projects_to_filter):
             try:
-                prjs.update({x : y for x, y in ProjectRegistry.projects.items(prefix=filter_project)})
+                prjs.update({x : y for x, y in \
+                    ProjectRegistry.projects.items(prefix=filter_project)})
             except KeyError:
                 pass
 

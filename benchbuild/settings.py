@@ -431,7 +431,7 @@ CFG["compiler"] = {
 
 CFG["unionfs"] = {
     "enable": {
-        "default": True,
+        "default": False,
         "desc": "Wrap all project operations in a unionfs filesystem."
     },
     "base_dir": {

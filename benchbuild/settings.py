@@ -14,11 +14,15 @@ import warnings
 from datetime import datetime
 
 import yaml
+from pkg_resources import DistributionNotFound, get_distribution
 from plumbum import local
 
-from benchbuild.__version__ import VERSION
-
 LOG = logging.getLogger(__name__)
+
+try:
+    __version__ = get_distribution("benchbuild").version
+except DistributionNotFound:
+    LOG.error("could not find version information.")
 
 
 def available_cpu_count():
@@ -341,7 +345,7 @@ CFG = Configuration(
     node={
         "version": {
             "desc": "Version Number",
-            "default": VERSION,
+            "default": __version__,
             "export": False
         },
         "verbosity": {

@@ -8,12 +8,12 @@ import copy
 import json
 import logging
 import os
-import re
 import uuid
+import re
 import warnings
 from datetime import datetime
-
 import yaml
+
 from plumbum import local
 
 LOG = logging.getLogger(__name__)
@@ -843,7 +843,6 @@ def upgrade(cfg):
     old_db_elems = ["host", "name", "port", "pass", "user", "dialect"]
     has_old_db_elems = [x in db_node for x in old_db_elems]
 
-    print("Checking for necessary upgrades to the configuration...")
     if any(has_old_db_elems):
         print(
             "Old database configuration found. "

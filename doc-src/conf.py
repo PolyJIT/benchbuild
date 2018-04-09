@@ -2,7 +2,7 @@
 import recommonmark
 from recommonmark.parser import CommonMarkParser
 from recommonmark.transform import AutoStructify
-from becnhbuild.utils.__version__ import VERSION
+from becnhbuild.__version__ import VERSION
 
 project = 'benchbuild'
 copyright = '2018, Andreas Simbürger'

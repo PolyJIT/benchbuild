@@ -16,7 +16,7 @@ from datetime import datetime
 import yaml
 from plumbum import local
 
-from benchbuild.utils.__version__ import VERSION
+from benchbuild.__version__ import VERSION
 
 LOG = logging.getLogger(__name__)
 

@@ -41,3 +41,4 @@ dist/
 .benchbuild.yml
 *.csv
 .eggs
+docs/

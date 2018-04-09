@@ -2,6 +2,7 @@
 ![image](https://travis-ci.org/PolyJIT/benchbuild.svg?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/217af919753b4d16b3760282c1274751)](https://www.codacy.com/app/polyjit/benchbuild_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PolyJIT/benchbuild&amp;utm_campaign=Badge_Grade)
 [![Documentation Status](https://readthedocs.org/projects/pprof-study/badge/?version=master)](http://pprof-study.readthedocs.io/en/master/?badge=master)
+[![codecov](https://codecov.io/gh/PolyJIT/benchbuild/branch/master/graph/badge.svg)](https://codecov.io/gh/PolyJIT/benchbuild)
 
 BenchBuild provides a lightweight toolkit to conduct empirical compile-time and run-time experiments.
 Striving to automate all tedious and error-prone tasks, it downloads, configure and builds all supported projects fully automatic and provides tools to wrap the compiler and any resulting binary with a customized measurement.

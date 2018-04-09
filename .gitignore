@@ -42,3 +42,4 @@ dist/
 *.csv
 .eggs
 docs/
+__version__.py

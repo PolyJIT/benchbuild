@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+from benchbuild.utils.__version__ import VERSION
 
 extra_files = [
     "templates/run_compiler.py.inc",
@@ -31,7 +32,7 @@ sql_extra_files = [
 
 setup(
     name='benchbuild',
-    version='2.0.3',
+    version=str(VERSION),
     url='https://github.com/PolyJIT/benchbuild',
     packages=find_packages(exclude=["docs", "extern", "filters", "linker",
                                     "src", "statistics", "tests", "results"]),

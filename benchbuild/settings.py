@@ -8,13 +8,15 @@ import copy
 import json
 import logging
 import os
-import uuid
 import re
+import uuid
 import warnings
 from datetime import datetime
-import yaml
 
+import yaml
 from plumbum import local
+
+from benchbuild.utils.__version__ import VERSION
 
 LOG = logging.getLogger(__name__)
 
@@ -339,7 +341,7 @@ CFG = Configuration(
     node={
         "version": {
             "desc": "Version Number",
-            "default": "2.0.1-$Id: b9b13c9242c155f6fda66e981d19e23e39941f36 $",
+            "default": VERSION,
             "export": False
         },
         "verbosity": {

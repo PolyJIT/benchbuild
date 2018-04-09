@@ -87,7 +87,7 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
             self.__deconstruct(CFG["db"]["connect_string"].value())
         pjit_args = [
             "-polli-db-experiment='{:s}'".format(experiment.name),
-            "-polli-db-experiment-uuid='{:s}'".format(experiment.id),
+            "-polli-db-experiment-uuid='{:s}'".format(str(experiment.id)),
             "-polli-db-argv='{:s}'".format(str(binary_command)),
             "-polli-db-host='{:s}'".format(host),
             "-polli-db-port={:s}".format(port),

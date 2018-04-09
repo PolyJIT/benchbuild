@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 import recommonmark
+from pkg_resources import DistributionNotFound, get_distribution
 from recommonmark.parser import CommonMarkParser
 from recommonmark.transform import AutoStructify
-from pkg_resources import DistributionNotFound, get_distribution
+
 try:
     __version__ = get_distribution("benchbuild").version
 except DistributionNotFound:
-    LOG.error("could not find version information.")
+    pass
 
 project = 'benchbuild'
 copyright = '2018, Andreas Simbürger'
 author = 'Andreas Simbürger'
-version = '2.0'
-release = VERSION
+version = '.'.join(__version__.split('.')[:2])
+release = __version__
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',

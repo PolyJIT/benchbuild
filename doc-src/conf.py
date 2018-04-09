@@ -2,7 +2,11 @@
 import recommonmark
 from recommonmark.parser import CommonMarkParser
 from recommonmark.transform import AutoStructify
-from becnhbuild.__version__ import VERSION
+from pkg_resources import DistributionNotFound, get_distribution
+try:
+    __version__ = get_distribution("benchbuild").version
+except DistributionNotFound:
+    LOG.error("could not find version information.")
 
 project = 'benchbuild'
 copyright = '2018, Andreas Simbürger'

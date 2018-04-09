@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from benchbuild.utils.__version__ import VERSION
+from benchbuild.__version__ import VERSION
 
 extra_files = [
     "templates/run_compiler.py.inc",

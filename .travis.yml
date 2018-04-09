@@ -20,6 +20,7 @@ services:
 install:
   - pip install .
   - pip install -r requirements.txt
+  - pip install codecov
 
 env:
   - BB_UNIONFS_ENABLE=false BB_PLUGINS_EXPERIMENTS='["benchbuild.experiments.raw", "benchbuild.experiments.empty"]';
@@ -31,6 +32,7 @@ before_script:
 script:
   - py.test benchbuild/
   - benchbuild run --full -P test
+  - codecov
 
 branches:
   only:

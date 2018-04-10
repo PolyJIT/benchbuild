@@ -443,8 +443,7 @@ class Experiment(Any):
                     break
         finally:
             self.end_transaction(experiment, session)
-            signals.handlers.deregister(self.end_transaction,
-                                        experiment, session)
+            signals.handlers.deregister(self.end_transaction)
         self.status = max(results)
         return results
 

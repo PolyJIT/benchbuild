@@ -276,8 +276,7 @@ class RunInfo(object):
                 LOG.warning("Interrupted by user input")
                 raise
             finally:
-                signals.handlers.deregister(self.__fail,
-                                            15, "SIGTERM", "SIGTERM")
+                signals.handlers.deregister(self.__fail)
 
         return self
 

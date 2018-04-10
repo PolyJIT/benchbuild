@@ -300,7 +300,7 @@ class Project(object, metaclass=ProjectDecorator):
                 fail_run_group(group, session)
                 raise
             finally:
-                signals.handlers.deregister(fail_run_group, group, session)
+                signals.handlers.deregister(fail_run_group)
 
     def clean(self):
         """Clean the project build directory."""

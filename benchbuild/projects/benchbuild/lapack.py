@@ -36,7 +36,7 @@ class OpenBlas(Project):
         log.warn('Not implemented')
 
 
-class Lapack(BenchBuildGroup):
+class Lapack(Project):
     NAME = 'lapack'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'

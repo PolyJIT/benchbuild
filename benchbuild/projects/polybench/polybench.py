@@ -99,7 +99,7 @@ class PolyBenchGroup(Project):
                   polybench_opts,
                   "utilities/polybench.c", src_file, "-lm", "-o", self.run_f])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         noopts_file = self.run_f + ".no-opts"
         noopts_file_stderr = noopts_file + ".stderr"
         noopts_file_stderr_2 = noopts_file_stderr + ".2"
@@ -108,9 +108,9 @@ class PolyBenchGroup(Project):
         opts_file_stderr = self.run_f + ".stderr"
         opts_file_stderr_2 = opts_file_stderr + ".2"
 
-        run(wrap(opts_file, experiment))
+        runner(wrap(opts_file, experiment))
         #with local.env(BB_IS_BASELINE=True):
-        #    run(wrap(noopts_file, experiment))
+        #    runner(wrap(noopts_file, experiment))
 
         #with open(noopts_file_stderr, 'r') as inf:
         #    stderr = inf.readlines()

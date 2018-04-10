@@ -39,7 +39,7 @@ class Ruby(Project):
         with local.cwd(self.src_dir):
             run(make["-j", CFG["jobs"]])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrap(path.join(self.src_dir, "ruby"), experiment)
 
         with local.env(RUBYOPT=""):

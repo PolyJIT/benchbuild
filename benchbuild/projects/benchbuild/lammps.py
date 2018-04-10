@@ -19,7 +19,7 @@ class Lammps(Project):
     GROUP = 'benchbuild'
     SRC_FILE = 'lammps.git'
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         lammps_dir = os.path.join(self.builddir, self.src_dir, "src")
         exp = wrap(os.path.join(lammps_dir, "lmp_serial"), experiment)
 

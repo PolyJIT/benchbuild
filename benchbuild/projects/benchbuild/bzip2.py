@@ -40,19 +40,19 @@ class Bzip2(Project):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp(testfiles, '.')
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrap(path.join(self.src_dir, "bzip2"), experiment)
 
         # Compress
-        run(exp["-f", "-z", "-k", "--best", "text.html"])
-        run(exp["-f", "-z", "-k", "--best", "chicken.jpg"])
-        run(exp["-f", "-z", "-k", "--best", "control"])
-        run(exp["-f", "-z", "-k", "--best", "input.source"])
-        run(exp["-f", "-z", "-k", "--best", "liberty.jpg"])
+        runner(exp["-f", "-z", "-k", "--best", "text.html"])
+        runner(exp["-f", "-z", "-k", "--best", "chicken.jpg"])
+        runner(exp["-f", "-z", "-k", "--best", "control"])
+        runner(exp["-f", "-z", "-k", "--best", "input.source"])
+        runner(exp["-f", "-z", "-k", "--best", "liberty.jpg"])
 
         # Decompress
-        run(exp["-f", "-k", "--decompress", "text.html.bz2"])
-        run(exp["-f", "-k", "--decompress", "chicken.jpg.bz2"])
-        run(exp["-f", "-k", "--decompress", "control.bz2"])
-        run(exp["-f", "-k", "--decompress", "input.source.bz2"])
-        run(exp["-f", "-k", "--decompress", "liberty.jpg.bz2"])
+        runner(exp["-f", "-k", "--decompress", "text.html.bz2"])
+        runner(exp["-f", "-k", "--decompress", "chicken.jpg.bz2"])
+        runner(exp["-f", "-k", "--decompress", "control.bz2"])
+        runner(exp["-f", "-k", "--decompress", "input.source.bz2"])
+        runner(exp["-f", "-k", "--decompress", "liberty.jpg.bz2"])

@@ -128,7 +128,7 @@ class BOTSGroup(Project):
         with local.cwd(self.SRC_FILE):
             run(make["-C", self.path_dict[self.name]])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
         exp = wrap(os.path.join(self.SRC_FILE, "bin", binary_name), experiment)
 
@@ -136,9 +136,9 @@ class BOTSGroup(Project):
             for test_input in self.input_dict[self.name]:
                 input_file = os.path.join(self.SRC_FILE, "inputs", self.name, test_input)
 
-                run(exp["-f", input_file])
+                runner(exp["-f", input_file])
         else:
-            run(exp)
+            runner(exp)
 
 
 class Alignment(BOTSGroup):

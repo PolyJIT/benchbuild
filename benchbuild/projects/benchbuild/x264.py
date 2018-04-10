@@ -48,7 +48,7 @@ class X264(Project):
         with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrap(path.join(self.SRC_FILE, "x264"), experiment)
 
         tests = [
@@ -65,5 +65,5 @@ class X264(Project):
         for ifile in self.inputfiles:
             testfile = path.join(self.testdir, ifile)
             for _, test in enumerate(tests):
-                run(exp[testfile, self.inputfiles[ifile], "--threads", "1",
+                runner(exp[testfile, self.inputfiles[ifile], "--threads", "1",
                         "-o", "/dev/null", test.split(" ")])

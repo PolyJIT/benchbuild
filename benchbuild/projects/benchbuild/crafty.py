@@ -45,10 +45,10 @@ class Crafty(Project):
                                "opt="+" ".join(target_opts), "crafty-make"]
             run(crafty_make)
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         with local.cwd(self.src_dir):
             exp = wrap("./crafty", experiment)
-            run((cat[path.join(self.testdir, "test1.sh")] | exp),
+            runner((cat[path.join(self.testdir, "test1.sh")] | exp),
                 retcode=[0, 120])
-            run((cat[path.join(self.testdir, "test2.sh")] | exp),
+            runner((cat[path.join(self.testdir, "test2.sh")] | exp),
                 retcode=[0, 120])

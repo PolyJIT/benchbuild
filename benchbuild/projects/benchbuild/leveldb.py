@@ -34,7 +34,7 @@ class LevelDB(Project):
                 make("clean")
                 run(make["all", "-i"])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         """
         Execute LevelDB's runtime configuration.
 
@@ -46,4 +46,4 @@ class LevelDB(Project):
         with local.env(LD_LIBRARY_PATH="{}:{}".format(
                 path.join(self.SRC_FILE, "out-shared"),
                 getenv("LD_LIBRARY_PATH", ""))):
-            run(exp)
+            runner(exp)

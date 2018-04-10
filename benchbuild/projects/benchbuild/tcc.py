@@ -39,7 +39,7 @@ class TCC(Project):
             with local.cwd("build"):
                 run(make)
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         with local.cwd(self.src_dir):
             with local.cwd("build"):
                 wrap("tcc", experiment)

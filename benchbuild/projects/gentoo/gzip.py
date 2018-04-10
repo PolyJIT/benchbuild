@@ -36,7 +36,7 @@ class GZip(GentooGroup):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         run(emerge_in_chroot["app-arch/gzip"])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         wrap(
             path.join(self.builddir, "bin", "gzip"), experiment, self.builddir)
         gzip = uchroot()["/bin/gzip"]

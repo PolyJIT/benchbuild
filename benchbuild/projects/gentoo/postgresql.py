@@ -43,7 +43,7 @@ class Postgresql(GentooGroup):
 
         return path.join(self.builddir, chroot_path.lstrip("/"))
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         pg_data = "/test-data/"
         pg_path = "/usr/lib64/postgresql-9.4/bin/postgres"
         wrap(self.outside(pg_path), experiment, self.builddir)

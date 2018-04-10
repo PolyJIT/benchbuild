@@ -66,7 +66,7 @@ class SpiderMonkey(Project):
         with local.cwd(mozjs_dir):
             run(make["-j", CFG["jobs"].value()])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         mozjs_dir = path.join("mozjs-0.0.0", "js", "src", "obj")
         wrap(path.join(mozjs_dir, "js", "src", "shell", "js"),
              partial(experiment, may_wrap=False))

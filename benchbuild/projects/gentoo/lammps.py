@@ -40,7 +40,7 @@ class Lammps(GentooGroup):
         with local.env(USE="-mpi -doc"):
             run(emerge_in_chroot["sci-physics/lammps"])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         wrap(
             path.join(self.builddir, "usr/bin/lmp_serial"), experiment,
             self.builddir)
@@ -50,4 +50,4 @@ class Lammps(GentooGroup):
         with local.cwd("lammps"):
             tests = glob(path.join(lammps_dir, "in.*"))
             for test in tests:
-                run((lammps < strip_path_prefix(test, self.builddir)))
+                runner((lammps < strip_path_prefix(test, self.builddir)))

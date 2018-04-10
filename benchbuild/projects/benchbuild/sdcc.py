@@ -35,6 +35,6 @@ class SDCC(Project):
         with local.cwd(self.SRC_FILE):
             run(make["-j", CFG["jobs"]])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrap(self.run_f, experiment(self.run_f))
-        run(exp)
+        runner(exp)

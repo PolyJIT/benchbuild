@@ -3,6 +3,7 @@ import benchbuild.utils.compiler as compiler
 import benchbuild.utils.run as run
 import benchbuild.utils.wrapping as wrapping
 
+
 class TestProject(prj.Project):
     """Test project that does nothing."""
     NAME = "test"
@@ -23,6 +24,9 @@ int main(int argc, char **argv) {
             """
             test_source.write(lines)
 
+    def download(self):
+        pass
+
     def configure(self):
         pass
 
@@ -31,9 +35,10 @@ int main(int argc, char **argv) {
                                       self.compiler_extension)
         run.run(clang[self.src_file, "-o", self.src_file + ".out"])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrapping.wrap(self.src_file + ".out", experiment)
-        run(exp)
+        runner(exp)
+
 
 class TestProjectRuntimeFail(prj.Project):
     """Test project that _always_ fails at runtime."""
@@ -64,6 +69,6 @@ int main(int argc, char **argv) {
                                       self.compiler_extension)
         run.run(clang[self.src_file, "-o", self.src_file + ".out"])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrapping.wrap(self.src_file + ".out", experiment)
-        run(exp)
+        runner(exp)

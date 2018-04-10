@@ -45,7 +45,7 @@ class Ccrypt(Project):
         with local.cwd(ccrypt_dir):
             run(make["check"])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
             wrap(path.join(ccrypt_dir, "src", self.name), experiment)

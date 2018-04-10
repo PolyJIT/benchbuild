@@ -30,7 +30,7 @@ class Crafty(GentooGroup):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         run(emerge_in_chroot["games-board/crafty"])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         crafty_path = "/usr/games/bin/crafty"
         wrap(crafty_path.lstrip("/"), experiment, self.builddir)
         crafty = uchroot()[crafty_path]
@@ -117,5 +117,5 @@ quit
 
             test2.write(lines)
 
-        run((cat["test1.sh"] | crafty))
-        run((cat["test2.sh"] | crafty))
+        runner((cat["test1.sh"] | crafty))
+        runner((cat["test2.sh"] | crafty))

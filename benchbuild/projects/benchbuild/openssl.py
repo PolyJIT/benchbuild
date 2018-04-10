@@ -57,7 +57,7 @@ class LibreSSL(Project):
             make_tests = make["-Ctests", "-j8"]
             run(make_tests[LibreSSL.BINARIES])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         with local.cwd(path.join(self.src_dir, "tests")):
             for binary in LibreSSL.BINARIES:
                 wrap(path.abspath(binary), experiment)

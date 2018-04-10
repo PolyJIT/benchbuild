@@ -11,8 +11,9 @@ import csv
 import logging
 import os
 import uuid
-import benchbuild.extensions as ext
+
 import benchbuild.experiments.polyjit as pj
+import benchbuild.extensions as ext
 import benchbuild.reports as reports
 import benchbuild.settings as settings
 
@@ -55,22 +56,18 @@ class Test(pj.PolyJIT):
         }
 
         pjit_extension = ext.Extension(
-            pj.ClearPolyJITConfig(
-                ext.LogAdditionals(
-                    pj.RegisterPolyJITLogs(
-                        pj.EnableJITDatabase(
-                            pj.EnablePolyJIT(
-                                ext.RuntimeExtension(
-                                    project, self, config=cfg_with_jit),
-                                project=project), project=project)))),
-            pj.ClearPolyJITConfig(
-                ext.LogAdditionals(
-                    pj.RegisterPolyJITLogs(
-                        pj.EnableJITDatabase(
-                            pj.DisablePolyJIT(
-                                ext.RuntimeExtension(
-                                    project, self, config=cfg_without_jit),
-                                project=project), project=project))))
+                ext.RuntimeExtension(project, self, config=cfg_with_jit) \
+                << pj.EnablePolyJIT() \
+                << pj.EnableJITDatabase(project=project) \
+                << pj.RegisterPolyJITLogs() \
+                << ext.LogAdditionals() \
+                << pj.ClearPolyJITConfig(),
+                ext.RuntimeExtension(project, self, config=cfg_without_jit) \
+                << pj.DisablePolyJIT() \
+                << pj.EnableJITDatabase(project=project) \
+                << pj.RegisterPolyJITLogs() \
+                << ext.LogAdditionals() \
+                << pj.ClearPolyJITConfig()
         )
 
         project.runtime_extension = ext.RunWithTime(pjit_extension)
@@ -124,10 +121,10 @@ class JitExportGeneratedCode(pj.PolyJIT):
         }
 
         jit = ext.RuntimeExtension(project, self, config=cfg_with_jit)
-        enable_jit = pj.EnablePolyJIT(jit, project=project)
+        enable_jit = pj.EnablePolyJIT(jit)
 
         no_jit = ext.RuntimeExtension(project, self, config=cfg_without_jit)
-        disable_jit = pj.EnablePolyJIT(no_jit, project=project)
+        disable_jit = pj.EnablePolyJIT(no_jit)
 
         pjit_extension = ext.Extension(
             pj.ClearPolyJITConfig(

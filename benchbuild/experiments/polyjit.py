@@ -231,19 +231,14 @@ class PolyJITSimple(PolyJIT):
             "specialization": "enabled"
         }
 
-        pjit_extension = ext.Extension(
-            ClearPolyJITConfig(
-                ext.LogAdditionals(
-                    RegisterPolyJITLogs(
-                        EnableJITDatabase(
-                            EnablePolyJIT(
-                                ext.RuntimeExtension(
-                                    project, self, config=cfg),
-                                project=project), project=project)
-                    )
-                )
-            )
-        )
+        pjit_extension = \
+            ext.RuntimeExtension(project, self, config=cfg) \
+            << EnablePolyJIT() \
+            << EnableJITDatabase(project=project) \
+            << RegisterPolyJITLogs() \
+            << ext.LogAdditionals() \
+            << ClearPolyJITConfig() \
+            << ext.RunWithTime()
 
         project.runtime_extension = ext.RunWithTime(pjit_extension)
         return PolyJITSimple.default_runtime_actions(project)
@@ -267,13 +262,10 @@ class PolyJITFull(PolyJIT):
         rawp = copy.deepcopy(project)
         rawp.run_uuid = uuid.uuid4()
         rawp.runtime_extension = \
-            ext.RunWithTime(
-                ext.SetThreadLimit(
-                    ext.RuntimeExtension(
-                        rawp, self,
-                        config={"jobs": 1,
-                                "name": "Baseline O3"}),
-                    config={"jobs": 1}))
+            ext.RuntimeExtension(
+                rawp, self, config={"jobs": 1, "name": "Baseline O3"}) \
+            << ext.SetThreadLimit(config={"jobs": 1}) \
+            << ext.RunWithTime()
         actns.append(RequireAll(self.default_runtime_actions(rawp)))
 
         pollyp = copy.deepcopy(project)
@@ -282,13 +274,10 @@ class PolyJITFull(PolyJIT):
                          "-Xclang", "LLVMPolly.so",
                          "-mllvm", "-polly", "-mllvm", "-polly-parallel"]
         pollyp.runtime_extension = \
-            ext.RunWithTime(
-                ext.SetThreadLimit(
-                    ext.RuntimeExtension(
-                        pollyp, self,
-                        config={"jobs": 1,
-                                "name": "Polly (Parallel)"}),
-                    config={"jobs": 1}))
+            ext.RuntimeExtension(
+                pollyp, self, config={"jobs": 1, "name": "Polly (Parallel)"}) \
+            << ext.SetThreadLimit(config={"jobs": 1}) \
+            << ext.RunWithTime()
         actns.append(RequireAll(self.default_runtime_actions(pollyp)))
 
         jitp = copy.deepcopy(project)
@@ -307,21 +296,15 @@ class PolyJITFull(PolyJIT):
                 "name": "PolyJIT (No Recompilation)"
             }
 
-            pjit_extension = \
-                ClearPolyJITConfig(
-                    EnableJITDatabase(
-                        DisablePolyJIT(
-                            ext.SetThreadLimit(
-                                ext.RuntimeExtension(cp, self, config=cfg),
-                                config=cfg),
-                            project=cp),
-                        project=cp)
-                )
-
             cp.runtime_extension = \
-                ext.LogAdditionals(
-                    RegisterPolyJITLogs(
-                        ext.RunWithTime(pjit_extension)))
+                ext.RuntimeExtension(cp, self, config=cfg) \
+                << ext.SetThreadLimit(config=cfg) \
+                << DisablePolyJIT() \
+                << EnableJITDatabase(project=cp) \
+                << ClearPolyJITConfig() \
+                << ext.RunWithTime() \
+                << RegisterPolyJITLogs() \
+                << ext.LogAdditionals()
             actns.append(RequireAll(self.default_runtime_actions(cp)))
 
         for i in range(2, int(str(CFG["jobs"])) + 1):
@@ -335,20 +318,14 @@ class PolyJITFull(PolyJIT):
                 "name": "PolyJIT (Recompilation)"
             }
 
-            pjit_extension = \
-                ClearPolyJITConfig(
-                    EnableJITDatabase(
-                        EnablePolyJIT(
-                            ext.SetThreadLimit(
-                                ext.RuntimeExtension(cp, self, config=cfg),
-                                config=cfg),
-                            project=cp),
-                        project=cp)
-                )
             cp.runtime_extension = \
-                ext.LogAdditionals(
-                    RegisterPolyJITLogs(
-                        ext.RunWithTime(pjit_extension)))
+                ext.RuntimeExtension(cp, self, config=cfg) \
+                << ext.SetThreadLimit(config=cfg) \
+                << EnablePolyJIT() \
+                << EnableJITDatabase(project=cp) \
+                << ClearPolyJITConfig() \
+                << RegisterPolyJITLogs() \
+                << ext.LogAdditionals()
             actns.append(RequireAll(self.default_runtime_actions(cp)))
 
         return [Any(actns)]

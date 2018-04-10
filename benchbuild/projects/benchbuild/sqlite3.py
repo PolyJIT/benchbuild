@@ -58,7 +58,7 @@ class SQLite3(Project):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
                 run(make["clean", "out-static/db_bench_sqlite3"])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         leveldb_dir = "leveldb.src"
         with local.cwd(leveldb_dir):
             with local.env(LD_LIBRARY_PATH=path.abspath(self.src_dir)):

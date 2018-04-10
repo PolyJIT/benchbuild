@@ -30,22 +30,22 @@ class Gzip(Project):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp(testfiles, self.builddir)
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrap(path.join(self.src_dir, "gzip"), experiment)
 
         # Compress
-        run(exp["-f", "-k", "--best", "text.html"])
-        run(exp["-f", "-k", "--best", "chicken.jpg"])
-        run(exp["-f", "-k", "--best", "control"])
-        run(exp["-f", "-k", "--best", "input.source"])
-        run(exp["-f", "-k", "--best", "liberty.jpg"])
+        runner(exp["-f", "-k", "--best", "text.html"])
+        runner(exp["-f", "-k", "--best", "chicken.jpg"])
+        runner(exp["-f", "-k", "--best", "control"])
+        runner(exp["-f", "-k", "--best", "input.source"])
+        runner(exp["-f", "-k", "--best", "liberty.jpg"])
 
         # Decompress
-        run(exp["-f", "-k", "--decompress", "text.html.gz"])
-        run(exp["-f", "-k", "--decompress", "chicken.jpg.gz"])
-        run(exp["-f", "-k", "--decompress", "control.gz"])
-        run(exp["-f", "-k", "--decompress", "input.source.gz"])
-        run(exp["-f", "-k", "--decompress", "liberty.jpg.gz"])
+        runner(exp["-f", "-k", "--decompress", "text.html.gz"])
+        runner(exp["-f", "-k", "--decompress", "chicken.jpg.gz"])
+        runner(exp["-f", "-k", "--decompress", "control.gz"])
+        runner(exp["-f", "-k", "--decompress", "input.source.gz"])
+        runner(exp["-f", "-k", "--decompress", "liberty.jpg.gz"])
 
     def download(self):
         Wget(self.src_uri, self.SRC_FILE)

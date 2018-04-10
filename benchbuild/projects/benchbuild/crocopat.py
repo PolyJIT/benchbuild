@@ -18,14 +18,14 @@ class Crocopat(Project):
     GROUP = 'benchbuild'
     VERSION = '2.1.4'
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrap(self.run_f, experiment)
 
         programs = glob(path.join(self.testdir, "programs", "*.rml"))
         projects = glob(path.join(self.testdir, "projects", "*.rsf"))
         for program in programs:
             for project in projects:
-                run((cat[project] | exp[program]), None)
+                runner((cat[project] | exp[program]), None)
 
     src_dir = "crocopat-{0}".format(VERSION)
     SRC_FILE = src_dir + ".zip"

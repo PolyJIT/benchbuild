@@ -31,7 +31,7 @@ class OpenBlas(Project):
         with local.cwd(self.SRC_FILE):
             run(make["CC=" + str(clang)])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         log = logging.getLogger(__name__)
         log.warn('Not implemented')
 
@@ -83,7 +83,7 @@ class Lapack(Project):
                 run(make["-j", CFG["jobs"], "-f", "Makeblat2"])
                 run(make["-j", CFG["jobs"], "-f", "Makeblat3"])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         with local.cwd(self.src_dir):
             with local.cwd(path.join("BLAS")):
                 xblat2s = wrap("xblat2s", experiment)
@@ -96,11 +96,11 @@ class Lapack(Project):
                 xblat3c = wrap("xblat3c", experiment)
                 xblat3z = wrap("xblat3z", experiment)
 
-                run((xblat2s < "sblat2.in"))
-                run((xblat2d < "dblat2.in"))
-                run((xblat2c < "cblat2.in"))
-                run((xblat2z < "zblat2.in"))
-                run((xblat3s < "sblat3.in"))
-                run((xblat3d < "dblat3.in"))
-                run((xblat3c < "cblat3.in"))
-                run((xblat3z < "zblat3.in"))
+                runner((xblat2s < "sblat2.in"))
+                runner((xblat2d < "dblat2.in"))
+                runner((xblat2c < "cblat2.in"))
+                runner((xblat2z < "zblat2.in"))
+                runner((xblat3s < "sblat3.in"))
+                runner((xblat3d < "dblat3.in"))
+                runner((xblat3c < "cblat3.in"))
+                runner((xblat3z < "zblat3.in"))

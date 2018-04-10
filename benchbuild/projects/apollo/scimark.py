@@ -33,6 +33,6 @@ class SciMark(Project):
     def prepare(self):
         pass
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrap(path.join(self.builddir, "scimark2"), experiment)
-        run(exp)
+        runner(exp)

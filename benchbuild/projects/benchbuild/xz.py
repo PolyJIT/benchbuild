@@ -33,22 +33,22 @@ class XZ(Project):
         Wget(self.src_uri, self.SRC_FILE)
         tar('xfz', self.SRC_FILE)
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrap(path.join(self.src_dir, "src", "xz", "xz"), experiment)
 
         # Compress
-        run(exp["--compress", "-f", "-k", "-e", "-9", "text.html"])
-        run(exp["--compress", "-f", "-k", "-e", "-9", "chicken.jpg"])
-        run(exp["--compress", "-f", "-k", "-e", "-9", "control"])
-        run(exp["--compress", "-f", "-k", "-e", "-9", "input.source"])
-        run(exp["--compress", "-f", "-k", "-e", "-9", "liberty.jpg"])
+        runner(exp["--compress", "-f", "-k", "-e", "-9", "text.html"])
+        runner(exp["--compress", "-f", "-k", "-e", "-9", "chicken.jpg"])
+        runner(exp["--compress", "-f", "-k", "-e", "-9", "control"])
+        runner(exp["--compress", "-f", "-k", "-e", "-9", "input.source"])
+        runner(exp["--compress", "-f", "-k", "-e", "-9", "liberty.jpg"])
 
         # Decompress
-        run(exp["--decompress", "-f", "-k", "text.html.xz"])
-        run(exp["--decompress", "-f", "-k", "chicken.jpg.xz"])
-        run(exp["--decompress", "-f", "-k", "control.xz"])
-        run(exp["--decompress", "-f", "-k", "input.source.xz"])
-        run(exp["--decompress", "-f", "-k", "liberty.jpg.xz"])
+        runner(exp["--decompress", "-f", "-k", "text.html.xz"])
+        runner(exp["--decompress", "-f", "-k", "chicken.jpg.xz"])
+        runner(exp["--decompress", "-f", "-k", "control.xz"])
+        runner(exp["--decompress", "-f", "-k", "input.source.xz"])
+        runner(exp["--decompress", "-f", "-k", "liberty.jpg.xz"])
 
     def configure(self):
         clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)

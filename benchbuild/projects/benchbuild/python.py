@@ -41,7 +41,7 @@ class Python(Project):
         with local.cwd(self.src_dir):
             run(make)
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         wrap(path.join(self.src_dir, "python"), experiment)
 
         with local.cwd(self.src_dir):

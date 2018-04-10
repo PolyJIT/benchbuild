@@ -18,9 +18,9 @@ class SevenZip(Project):
     GROUP = 'benchbuild'
     VERSION = '16.02'
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrap(path.join(self.src_dir, "bin", "7za"), experiment)
-        run(exp["b", "-mmt1"])
+        runner(exp["b", "-mmt1"])
 
     src_dir = "p7zip_{0}".format(VERSION)
     SRC_FILE = src_dir + "_src_all.tar.bz2"

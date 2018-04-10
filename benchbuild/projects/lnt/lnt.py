@@ -74,7 +74,7 @@ class SingleSourceBenchmarks(LNTGroup):
     NAME = 'SingleSourceBenchmarks'
     DOMAIN = 'LNT (SSB)'
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
             self.before_run_tests(experiment, run)
 
@@ -94,7 +94,7 @@ class MultiSourceBenchmarks(LNTGroup):
     NAME = 'MultiSourceBenchmarks'
     DOMAIN = 'LNT (MSB)'
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
             self.before_run_tests(experiment, run)
 
@@ -114,7 +114,7 @@ class MultiSourceApplications(LNTGroup):
     NAME = 'MultiSourceApplications'
     DOMAIN = 'LNT (MSA)'
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
             self.before_run_tests(experiment, run)
 
@@ -143,7 +143,7 @@ class SPEC2006(LNTGroup):
                 'tmp_dir']))
             print('======================================================')
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
             self.before_run_tests(experiment, run)
 
@@ -174,7 +174,7 @@ class Povray(LNTGroup):
         super(Povray, self).download()
         Git(self.povray_url, self.povray_src_dir)
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
             self.before_run_tests(experiment, run)
 

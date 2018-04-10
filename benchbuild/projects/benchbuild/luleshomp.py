@@ -13,10 +13,10 @@ class LuleshOMP(Project):
     GROUP = 'benchbuild'
     SRC_FILE = 'LULESH_OMP.cc'
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         exp = wrap(self.run_f, experiment)
         for i in range(1, 15):
-            run(exp[str(i)])
+            runner(exp[str(i)])
 
     src_uri = "https://codesign.llnl.gov/lulesh/" + SRC_FILE
 

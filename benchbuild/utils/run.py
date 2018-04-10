@@ -297,7 +297,7 @@ def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
     Returns:
         int: [description]
     """
-    assert(run_infos is not None)
+    assert run_infos is not None
 
     if not hasattr(run_infos, "__iter__"):
         return run_infos.retcode
@@ -310,17 +310,6 @@ def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
     return max_rc
 
 
-    """
-
-    Args:
-        pname: the database we run under.
-        ename: the database session this run belongs to.
-        run_group: the run group this execution will belong to.
-
-    Raises:
-        RunException: If the ``cmd`` encounters an error we wrap the exception
-            in a RunException and re-raise. This ends the run unsuccessfully.
-    """
 @contextmanager
 def track_execution(cmd, project, experiment, **kwargs):
     """Guard the execution of the given command.
@@ -684,7 +673,7 @@ def unionfs(base_dir='./base',
                 abs_image_dir = os.path.abspath(os.path.join(
                     image_prefix, rel_prj_builddir, image_dir))
 
-                if is_outside_of_builddir:
+                if is_outside_of_builddir(project, abs_image_dir):
                     update_cleanup_paths(abs_image_dir)
             else:
                 abs_image_dir = os.path.abspath(os.path.join(project.builddir,

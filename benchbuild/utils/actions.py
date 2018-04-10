@@ -114,8 +114,8 @@ def log_before_after(name: str, desc: str):
 
 
 class StepClass(abc.ABCMeta):
-    def __new__(metacls, name, bases, namespace, **kwds):
-        result = abc.ABCMeta.__new__(metacls, name, bases, dict(namespace))
+    def __new__(mcs, name, bases, namespace):
+        result = abc.ABCMeta.__new__(mcs, name, bases, dict(namespace))
 
         NAME = result.NAME
         DESCRIPTION = result.DESCRIPTION

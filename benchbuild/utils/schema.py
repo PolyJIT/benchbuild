@@ -451,7 +451,7 @@ class SessionManager(object):
             self.connection.execution_options(
                 isolation_level="READ COMMITTED"
             )
-        except sa.exc.ArgumentError as error:
+        except sa.exc.ArgumentError:
             LOG.error("Unable to set isolation level to READ COMMITTED")
 
         self.__transaction = None

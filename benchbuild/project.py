@@ -143,26 +143,29 @@ class Project(object, metaclass=ProjectDecorator):
         builddir (str, optional):
             The build directory for this project. Auto generated, if not set.
         testdir (str, optional):
-            The location of any additional test-files for this project, usually stored
-            out of tree. Auto generated, if not set. Usually a project implementation
+            The location of any additional test-files for this project,
+            usually stored out of tree. Auto generated, if not set. Usually a
+            project implementation
             will define this itself.
         cflags (:obj:`list` of :obj:`str`, optional)
             A list of cflags used, for compilation of this project.
         ldflags (:obj:`list` of :obj:`str`, optional)
             A list of ldflags used, for compilation of this project.
         run_f (str, optional):
-            A filename that points to the binary we want to track. Usually a project
-            implementation will define this itself.
+            A filename that points to the binary we want to track.
+            Usually a project implementation will define this itself.
         run_uuid (uuid.UUID, optional):
-            An UUID that identifies all binaries executed by a single run of this project.
-            In the database schema this is named the 'run_group'.
+            An UUID that identifies all binaries executed by a single run of
+            this project. In the database schema this is named the 'run_group'.
         compiler_extension (Callable[str, iterable[str], RunInfo], optional):
-            A composable extension that will be used in place of the real compiler.
-            Defaults to running the compiler with a timeout command wrapped around it.
+            A composable extension that will be used in place of the real
+            compiler. Defaults to running the compiler with a timeout command
+            wrapped around it.
         runtime_extension (Callable[str, iterable[str], RunInfo], optional):
-            A composable extension that will be used in place of any binary this project
-            wants to execute. Which binaries to replace is defined by the implementation
-            using `benchbuild.utils.wrapping.wrap`.
+            A composable extension that will be used in place of any binary
+            this project
+            wants to execute. Which binaries to replace is defined by the
+            implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
     NAME = None
@@ -221,10 +224,10 @@ class Project(object, metaclass=ProjectDecorator):
     def __default_testdir(self):
         if self.group:
             return path.join(str(CFG["test_dir"]),
-                self.domain, self.group, self.name)
+                             self.domain, self.group, self.name)
         else:
-            return  path.join(str(CFG["test_dir"]),
-                self.domain, self.name)
+            return path.join(str(CFG["test_dir"]),
+                             self.domain, self.name)
 
     cflags = attr.ib(default=attr.Factory(list))
 
@@ -244,8 +247,8 @@ class Project(object, metaclass=ProjectDecorator):
             raise TypeError("{attribute} must be a valid UUID object")
 
     compiler_extension = attr.ib(default=attr.Factory(
-            lambda self: ext.RunWithTimeout(
-                ext.RunCompiler(self, self.experiment)), takes_self=True))
+        lambda self: ext.RunWithTimeout(
+            ext.RunCompiler(self, self.experiment)), takes_self=True))
 
     runtime_extension = attr.ib(default=None)
 

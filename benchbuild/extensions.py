@@ -8,9 +8,9 @@ from abc import ABCMeta
 from collections import Iterable
 
 import parse
-import yaml
 from plumbum import local
 
+import yaml
 from benchbuild.utils.db import persist_config, persist_time
 from benchbuild.utils.run import RunInfo, fetch_time_output, track_execution
 
@@ -31,15 +31,13 @@ class Extension(metaclass=ABCMeta):
         *extensions: Variable length list of child extensions we manage.
         config (:obj:`dict`, optional): Dictionary of name value pairs to be
             stored for this extension.
-        **kwargs: Variable length list of options we can handle, only `config`
-            is used in the base class.
 
     Attributes:
         next_extensions: Variable length list of child extensions we manage.
         config (:obj:`dict`, optional): Dictionary of name value pairs to be
             stored for this extension.
     """
-    def __init__(self, *extensions, config=None, **kwargs):
+    def __init__(self, *extensions, config=None):
         """Initialize an extension with an arbitrary number of children."""
         self.next_extensions = extensions
         self.config = config
@@ -91,6 +89,12 @@ class Extension(metaclass=ABCMeta):
 
 
 class RuntimeExtension(Extension):
+    """
+    Default extension to execute and track a binary.
+
+    This can be used for runtime experiments to have a controlled,
+    tracked execution of a wrapped binary.
+    """
     def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
         self.experiment = experiment
@@ -122,6 +126,12 @@ class RuntimeExtension(Extension):
 
 
 class RunWithTimeout(Extension):
+    """
+    Guard a binary with a timeout.
+
+    This wraps a any binary with a call to `timeout` and sets
+    the limit to a given value on extension construction.
+    """
     def __init__(self, *extensions, limit="10m", **kwargs):
         super(RunWithTimeout, self).__init__(*extensions, **kwargs)
         self.limit = limit
@@ -137,10 +147,17 @@ class LogTrackingMixin(object):
     _logs = []
 
     def add_log(self, path):
+        """
+        Add a log to the tracked list.
+
+        Args:
+            path (str): Filename of a new log we want to track.
+        """
         self._logs.append(path)
 
     @property
     def logs(self):
+        """Return list of tracked logs."""
         return self._logs
 
 
@@ -158,7 +175,7 @@ class LogAdditionals(Extension):
             if issubclass(ext.__class__, (LogTrackingMixin)):
                 for log in ext.logs:
                     LOG.debug("Dumping content of '%s'.", log)
-                    cat[log] & FG
+                    (cat[log] & FG)
                     LOG.debug("Dumping content of '%s' complete.", log)
 
         return res
@@ -195,6 +212,15 @@ class RunWithTime(Extension):
 
 
 class ExtractCompileStats(Extension):
+    """Extract LLVM's compilation stats.
+
+    This extension extracts the output of LLVM's '-stats' option.
+    You can control the tracked statistics by using the sections
+    `cs.components` and `cs.names` in the configuration.
+
+    Furthermore, this runs the compiler and tracks the state in the databse,
+    similar to RunCompiler.
+    """
     def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
         self.experiment = experiment
@@ -212,7 +238,7 @@ class ExtractCompileStats(Extension):
                     res = stats_pattern.search(line + "\n")
                 except ValueError:
                     LOG.warning(
-                        "Triggered a parser exception for: '" + line + "'\n")
+                        "Triggered a parser exception for: '%s'\n", line)
                     res = None
                 if res is not None:
                     yield res
@@ -279,6 +305,12 @@ class ExtractCompileStats(Extension):
 
 
 class RunCompiler(Extension):
+    """Default extension for compiler execution.
+
+    This extension silences a few warnings, e.g., unused-arguments and
+    handles database tracking for compiler commands. It is used as the default
+    action for compiler execution.
+    """
     def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
         self.experiment = experiment
@@ -318,6 +350,11 @@ class RunCompiler(Extension):
 
 
 class SetThreadLimit(Extension):
+    """Sets the OpenMP thread limit, based on your settings.
+
+    This extension uses the 'jobs' settings and controls the environment
+    variable OMP_NUM_THREADS.
+    """
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.settings import CFG
 

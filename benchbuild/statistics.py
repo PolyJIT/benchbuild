@@ -24,14 +24,14 @@ class Statistics(Extension):
     An example on how to use this extension can be found in the Pollytest
     Experiment.
     """
-    def __init__(self, project, experiment, *extensions, config=None, **kwargs):
+    def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
         self.experiment = experiment
 
         super(Statistics, self).__init__(*extensions, config=config)
 
     
-    def t_test(self, *results):
+    def t_test(self, *results, significance=0.95):
         """
         Runs a t-test on a given set of results.
 
@@ -39,14 +39,13 @@ class Statistics(Extension):
             True if the null hypothesis that the result was not significant
             was rejected, False otherwise.
         """
-        TRUE_MU = 0
-        SIGNIFICANCE = 0.95
         for result in results:
+            del result # Unused temporarily
             t_statistic = 0
             p_value = 0
             #t_statistic, p_value = scipy.stats.ttest_1samp(result, TRUE_MU)
             LOG.debug("t-statistic = %f, pvalue = %f", t_statistic, p_value)
-        return p_value >= 1 - SIGNIFICANCE
+        return p_value >= 1 - significance
 
     def __call__(self, *args, timeout=TIMEOUT, **kwargs):
         """
@@ -77,7 +76,7 @@ class Statistics(Extension):
 
                 #check if this was the last iteration
                 if(iterator == (timeout - 1)):
-                    LOG.warn("No significant run happened before the timeout!")
+                    LOG.warning("No significant run happened before the timeout!")
                 iterator += 1
 
             # no need to repeat the run without a result function

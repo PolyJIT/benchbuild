@@ -32,8 +32,9 @@ class OpenBlas(Project):
             run(make["CC=" + str(clang)])
 
     def run_tests(self, experiment, runner):
+        del experiment, runner
         log = logging.getLogger(__name__)
-        log.warn('Not implemented')
+        log.warning('Not implemented')
 
 
 class Lapack(Project):

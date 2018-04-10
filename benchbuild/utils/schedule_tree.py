@@ -1,4 +1,5 @@
 """ Parsing utilities for Polly's ScheduleTree representation. """
+# pylint: disable=C0326
 import logging
 import textwrap as t
 
@@ -101,17 +102,17 @@ SEQ_ELEM_LIST = p.delimitedList(ROOT)
 SEQUENCE    = KW_SEQUENCE + ":" + "[" + p.Group(p.delimitedList(ROOT)) + "]"
 CHILD = KW_CHILD + ":" + ROOT
 CHILD_NODE  << (
-                 CHILD      |
-                 COINCIDENT |
-                 DOMAIN     |
-                 EXTENSION  |
-                 FILTER     |
-                 MARK       |
-                 OPTIONS    |
-                 PERMUTABLE |
-                 SCHEDULE   |
-                 SEQUENCE
-                )
+    CHILD      |
+    COINCIDENT |
+    DOMAIN     |
+    EXTENSION  |
+    FILTER     |
+    MARK       |
+    OPTIONS    |
+    PERMUTABLE |
+    SCHEDULE   |
+    SEQUENCE
+)
 ROOT << ("{" + p.Group(p.delimitedList(CHILD_NODE)) + "}")
 
 CHILD.addParseAction(Node)
@@ -131,7 +132,6 @@ def parse_schedule_tree(tree_str):
     if tree_str is None:
         return "No Input"
 
-    res = None
     try:
         ret = ROOT.parseString(tree_str)
         return str(ret[0])

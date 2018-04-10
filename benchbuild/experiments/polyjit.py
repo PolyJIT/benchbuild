@@ -66,7 +66,7 @@ class ClearPolyJITConfig(PolyJITConfig, ext.Extension):
 
 class EnableJITDatabase(PolyJITConfig, ext.Extension):
     """The run and given extensions store polli's statistics to the database."""
-    def __init__(self, *args, project=None, experiment=None, **kwargs):
+    def __init__(self, *args, project=None, **kwargs):
         """Initialize the db object for the JIT."""
         super(EnableJITDatabase, self).__init__(*args,
                                                 project=project, **kwargs)

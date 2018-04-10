@@ -76,6 +76,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
+        del args, kwargs # Temporarily unused
         new_self = super(Experiment, cls).__new__(cls)
         if cls.NAME is None:
             raise AttributeError(

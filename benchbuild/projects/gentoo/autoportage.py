@@ -1,8 +1,9 @@
 import logging
 
-from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.run import uretry, uchroot
 from plumbum import local
+
+from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils.run import uchroot, uretry
 
 
 class AutoPortage(GentooGroup):
@@ -20,6 +21,7 @@ class AutoPortage(GentooGroup):
                              retcode=None)
         uretry(emerge_in_chroot[prog])
 
-    def run_tests(self, *args, **kwargs):
+    def run_tests(self, experiment, runner):
+        del experiment, runner # Unused
         log = logging.getLogger(__name__)
-        log.warn('Not implemented')
+        log.warning('Not implemented')

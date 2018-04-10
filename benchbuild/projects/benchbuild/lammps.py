@@ -30,13 +30,16 @@ class Lammps(Project):
             dirname = os.path.dirname(test)
             with local.cwd(dirname):
                 cmd = (exp < test)
-                run(cmd, None)
+                runner(cmd, None)
 
     src_dir = SRC_FILE
     src_uri = "https://github.com/lammps/lammps"
 
     def download(self):
         Git(self.src_uri, self.src_dir)
+
+    def configure(self):
+        pass
 
     def build(self):
         self.ldflags += ["-lgomp"]

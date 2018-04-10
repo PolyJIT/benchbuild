@@ -64,6 +64,9 @@ int main(int argc, char **argv) {
     def configure(self):
         pass
 
+    def download(self):
+        pass
+
     def build(self):
         clang = compiler.lt_clang_cxx(self.cflags, self.ldflags,
                                       self.compiler_extension)

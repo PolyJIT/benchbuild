@@ -13,12 +13,12 @@ class CleanupOnSignal(object):
     def stored_procedures(self):
         return self.__stored_procedures
 
-    def register(self, callable, *args, **kwargs):
-        new_func = functools.partial(callable, *args, **kwargs)
-        self.__stored_procedures[callable] = new_func
+    def register(self, callback, *args, **kwargs):
+        new_func = functools.partial(callback, *args, **kwargs)
+        self.__stored_procedures[callback] = new_func
 
-    def deregister(self, callable, *args, **kwargs):
-        del self.__stored_procedures[callable]
+    def deregister(self, callback):
+        del self.__stored_procedures[callback]
 
     def __call__(self):
         for k in self.stored_procedures:
@@ -28,6 +28,7 @@ class CleanupOnSignal(object):
 handlers = CleanupOnSignal()
 
 def __handle_sigterm(signum, frame):
+    del frame
     LOG.debug("Got SIGTERM, running cleanup handlers")
     handlers()
     sys.exit(signum)

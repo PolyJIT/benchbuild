@@ -21,8 +21,7 @@ class PJITRegression(pj.PolyJIT):
         from benchbuild.settings import CFG
         from benchbuild.utils.run import track_execution
 
-        def _track_compilestats(project, experiment, config, clang,
-                                **kwargs):
+        def _track_compilestats(project, experiment, config, clang):
             """Compile the project and track the compilestats."""
             from benchbuild.settings import CFG
 

@@ -181,5 +181,5 @@ class Strassen(BOTSGroup):
     NAME = 'strassen'
 
 
-# FIXME: Seems to be broken - class UTS(BOTSGroup):
-# FIXME: Seems to be broken -     NAME = 'uts'
+class UTS(BOTSGroup):
+    NAME = 'uts'

@@ -170,6 +170,7 @@ class BenchBuildRun(cli.Application):
             timer=False)
 
         def on_step_end(step, f):
+            del step, f
             pg_bar.increment()
 
         Step.ON_STEP_END.append(on_step_end)

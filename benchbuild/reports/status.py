@@ -61,7 +61,7 @@ class FullDump(Report):
         import benchbuild.utils.schema as s
         tables = s.BASE.metadata.tables
         required_tables = []
-        for name, table in tables.items():
+        for _, table in tables.items():
             if 'run_id' in table.columns and \
                table.name != 'log':
                 required_tables.append(table)

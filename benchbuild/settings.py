@@ -797,7 +797,7 @@ def find_config(test_file=None,
         for test_file in defaults:
             ret = walk_rec(test_file, root)
             if ret is not None:
-               return ret
+                return ret
 
 
 def __init_config(cfg):

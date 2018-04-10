@@ -246,7 +246,6 @@ class DBReport(reports.Report):
     def generate(self):
         from jinja2 import Environment, PackageLoader
         import parse
-        import pprint
         env = Environment(
             trim_blocks=True,
             lstrip_blocks=True,

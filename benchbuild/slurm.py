@@ -38,9 +38,9 @@ class Slurm(cli.Application):
                 list=True,
                 requires=["--experiment"],
                 help="Specify projects to run")
-    def projects(self, projects):
+    def projects(self, project_names):
         """Specify projects to run"""
-        self._project_names = projects
+        self._project_names = project_names
 
     @cli.switch(["-D", "--description"],
                 str,

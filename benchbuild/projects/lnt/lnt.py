@@ -47,7 +47,7 @@ class LNTGroup(Project):
 
         mkdir(sandbox_dir)
 
-    def before_run_tests(self, experiment, run):
+    def before_run_tests(self, experiment):
         exp = wrap_dynamic(self, "lnt_runner", experiment,
                            name_filters=LNTGroup.NAME_FILTERS)
         lnt = local[path.join("local", "bin", "lnt")]
@@ -62,7 +62,7 @@ class LNTGroup(Project):
         logfiles = glob(path.join(sandbox_dir, "./*/test.log"))
         for log in logfiles:
             LOG.info("Dumping contents of: %s", log)
-            cat[log] & FG
+            (cat[log] & FG) # pylint: disable=pointless-statement
 
     def build(self):
         pass
@@ -74,7 +74,7 @@ class SingleSourceBenchmarks(LNTGroup):
 
     def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment, runner)
+            self.before_run_tests(experiment)
 
         runner(lnt["runtest", "nt", "-v", "-j1",
                    "--sandbox", sandbox_dir,
@@ -95,7 +95,7 @@ class MultiSourceBenchmarks(LNTGroup):
 
     def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment, runner)
+            self.before_run_tests(experiment)
 
         runner(lnt["runtest", "nt", "-v", "-j1",
                    "--sandbox", sandbox_dir,
@@ -116,7 +116,7 @@ class MultiSourceApplications(LNTGroup):
 
     def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment, runner)
+            self.before_run_tests(experiment)
 
         runner(lnt["runtest", "nt", "-v", "-j1",
                    "--sandbox", sandbox_dir,
@@ -146,7 +146,7 @@ class SPEC2006(LNTGroup):
 
     def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment, runner)
+            self.before_run_tests(experiment)
 
         runner(lnt["runtest", "nt", "-v", "-j1",
                    "--sandbox", sandbox_dir,
@@ -175,7 +175,7 @@ class Povray(LNTGroup):
 
     def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment, runner)
+            self.before_run_tests(experiment)
 
         runner(lnt["runtest", "nt", "-v", "-j1",
                    "--sandbox", sandbox_dir,

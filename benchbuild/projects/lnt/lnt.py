@@ -77,13 +77,13 @@ class SingleSourceBenchmarks(LNTGroup):
             self.before_run_tests(experiment, runner)
 
         runner(lnt["runtest", "nt", "-v", "-j1",
-                "--sandbox", sandbox_dir,
-                "--cc", str(clang),
-                "--cxx", str(clang_cxx),
-                "--test-suite", path.join(self.builddir, self.test_suite_dir),
-                "--test-style", "simple",
-                "--make-param=RUNUNDER=" + str(exp),
-                "--only-test=" + path.join("SingleSource", "Benchmarks")])
+               "--sandbox", sandbox_dir,
+               "--cc", str(clang),
+               "--cxx", str(clang_cxx),
+               "--test-suite", path.join(self.builddir, self.test_suite_dir),
+               "--test-style", "simple",
+               "--make-param=RUNUNDER=" + str(exp),
+               "--only-test=" + path.join("SingleSource", "Benchmarks")])
 
         self.after_run_tests(sandbox_dir)
 
@@ -117,13 +117,13 @@ class MultiSourceApplications(LNTGroup):
             self.before_run_tests(experiment, runner)
 
         runner(lnt["runtest", "nt", "-v", "-j1",
-                "--sandbox", sandbox_dir,
-                "--cc", str(clang),
-                "--cxx", str(clang_cxx),
-                "--test-suite", path.join(self.builddir, self.test_suite_dir),
-                "--test-style", "simple",
-                "--make-param=RUNUNDER=" + str(exp),
-                "--only-test=" + path.join("MultiSource", "Applications")])
+               "--sandbox", sandbox_dir,
+               "--cc", str(clang),
+               "--cxx", str(clang_cxx),
+               "--test-suite", path.join(self.builddir, self.test_suite_dir),
+               "--test-style", "simple",
+               "--make-param=RUNUNDER=" + str(exp),
+               "--only-test=" + path.join("MultiSource", "Applications")])
 
         self.after_run_tests(sandbox_dir)
 
@@ -146,14 +146,14 @@ class SPEC2006(LNTGroup):
             self.before_run_tests(experiment, runner)
 
         runner(lnt["runtest", "nt", "-v", "-j1",
-                "--sandbox", sandbox_dir,
-                "--cc", str(clang),
-                "--cxx", str(clang_cxx),
-                "--test-suite", path.join(self.builddir, self.test_suite_dir),
-                "--test-style", "simple",
-                "--test-externals", self.builddir,
-                "--make-param=RUNUNDER=" + str(exp),
-                "--only-test=" + path.join("External", "SPEC")])
+               "--sandbox", sandbox_dir,
+               "--cc", str(clang),
+               "--cxx", str(clang_cxx),
+               "--test-suite", path.join(self.builddir, self.test_suite_dir),
+               "--test-style", "simple",
+               "--test-externals", self.builddir,
+               "--make-param=RUNUNDER=" + str(exp),
+               "--only-test=" + path.join("External", "SPEC")])
 
         self.after_run_tests(sandbox_dir)
 
@@ -174,13 +174,13 @@ class Povray(LNTGroup):
             self.before_run_tests(experiment, runner)
 
         runner(lnt["runtest", "nt", "-v", "-j1",
-                "--sandbox", sandbox_dir,
-                "--cc", str(clang),
-                "--cxx", str(clang_cxx),
-                "--test-suite", path.join(self.builddir, self.test_suite_dir),
-                "--test-style", "simple",
-                "--test-externals", self.builddir,
-                "--make-param=RUNUNDER=" + str(exp),
-                "--only-test=" + path.join("External", "Povray")])
+               "--sandbox", sandbox_dir,
+               "--cc", str(clang),
+               "--cxx", str(clang_cxx),
+               "--test-suite", path.join(self.builddir, self.test_suite_dir),
+               "--test-style", "simple",
+               "--test-externals", self.builddir,
+               "--make-param=RUNUNDER=" + str(exp),
+               "--only-test=" + path.join("External", "Povray")])
 
         self.after_run_tests(sandbox_dir)

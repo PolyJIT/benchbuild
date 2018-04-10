@@ -1,3 +1,10 @@
+"""
+Container construction tool.
+
+This tool assists in the creation of customized uchroot containers.
+You can define strategies and apply them on a given container base-image
+to have a fixed way of creating a user-space environment.
+"""
 import logging
 import os
 import sys
@@ -47,11 +54,11 @@ def setup_container(builddir, container):
         container_filename = str(container).split(os.path.sep)[-1]
         container_in = os.path.join("container-in", container_filename)
         Copy(container, container_in)
-        uchroot = uchroot_no_args()
+        uchrt = uchroot_no_args()
 
         with local.cwd("container-in"):
-            uchroot = uchroot["-E", "-A", "-u", "0", "-g", "0", "-C", "-r",
-                              "/", "-w", os.path.abspath("."), "--"]
+            uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-r",
+                          "/", "-w", os.path.abspath("."), "--"]
 
         # Check, if we need erlent support for this archive.
         has_erlent = bash[
@@ -62,7 +69,7 @@ def setup_container(builddir, container):
         # Unpack input container to: container-in
         if not has_erlent:
             cmd = local["/bin/tar"]["xf"]
-            cmd = uchroot[cmd[container_filename]]
+            cmd = uchrt[cmd[container_filename]]
         else:
             cmd = tar["xf"]
             cmd = cmd[os.path.abspath(container_in)]
@@ -73,7 +80,7 @@ def setup_container(builddir, container):
     return os.path.join(builddir, "container-in")
 
 
-def run_in_container(command, container_dir, mounts):
+def run_in_container(command, container_dir):
     """
     Run a given command inside a container.
 
@@ -81,10 +88,10 @@ def run_in_container(command, container_dir, mounts):
     the given command inside the new container.
     """
     with local.cwd(container_dir):
-        uchroot = uchroot_with_mounts()
-        uchroot = uchroot["-E", "-A", "-u", "0", "-g", "0", "-C", "-w",
-                          "/", "-r", os.path.abspath(container_dir)]
-        uchroot = uchroot["--"]
+        uchrt = uchroot_with_mounts()
+        uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-w",
+                      "/", "-r", os.path.abspath(container_dir)]
+        uchrt = uchrt["--"]
 
         cmd_path = os.path.join(container_dir, command[0].lstrip('/'))
         if not os.path.exists(cmd_path):
@@ -93,11 +100,18 @@ def run_in_container(command, container_dir, mounts):
                 cmd_path)
             return
 
-        cmd = uchroot[command]
+        cmd = uchrt[command]
         return cmd & FG
 
 
 def pack_container(in_container, out_file):
+    """
+    Pack a container image into a .tar.bz2 archive.
+
+    Args:
+        in_container (str): Path string to the container image.
+        out_file (str): Output file name.
+    """
     container_filename = os.path.split(out_file)[-1]
     out_container = os.path.join("container-out", container_filename)
     out_container = os.path.abspath(out_container)
@@ -118,7 +132,7 @@ def pack_container(in_container, out_file):
     CFG["container"]["known"].value().append(new_container)
 
 
-def setup_bash_in_container(builddir, container, outfile, mounts, shell):
+def setup_bash_in_container(builddir, container, outfile, shell):
     """
     Setup a bash environment inside a container.
 
@@ -132,11 +146,11 @@ def setup_bash_in_container(builddir, container, outfile, mounts, shell):
               "exit code, no new container will be stored.")
         store_new_container = True
         try:
-            run_in_container(shell, container, mounts)
+            run_in_container(shell, container)
         except ProcessExecutionError:
             store_new_container = False
 
-        if store_new_container:  # pylint: disable=W0104
+        if store_new_container:
             print("Packing new container image.")
             pack_container(container, outfile)
             config_path = CFG["config_file"].value()
@@ -163,6 +177,10 @@ def set_input_container(container, cfg):
 
 
 class MockObj(object):
+    """Context object to be used in strategies.
+
+    This object's attributes are initialized on construction.
+    """
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -172,6 +190,11 @@ class ContainerStrategy(object):
 
     @abstractmethod
     def run(self, context):
+        """Execute a container strategy.
+
+        Args:
+            context: A context object with attributes used for the strategy.
+        """
         pass
 
 
@@ -182,8 +205,7 @@ class BashStrategy(ContainerStrategy):
         print("Entering a shell in the container.\nUse the exit "
               "command to leave the container.")
         setup_bash_in_container(context.builddir, context.in_container,
-                                context.out_container, context.mounts,
-                                context.shell)
+                                context.out_container, context.shell)
 
 
 class SetupPolyJITGentooStrategy(ContainerStrategy):
@@ -194,18 +216,18 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
         mkfile_uchroot("/etc/wgetrc")
 
         with open(path, 'w') as wgetrc:
-            hp = CFG["gentoo"]["http_proxy"].value()
-            fp = CFG["gentoo"]["ftp_proxy"].value()
-            if hp is not None:
-                http_s = "http_proxy = {0}".format(str(hp))
-                https_s = "https_proxy = {0}".format(str(hp))
+            http_proxy = CFG["gentoo"]["http_proxy"].value()
+            ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
+            if http_proxy is not None:
+                http_proxy_s = "http_proxy = {0}".format(str(http_proxy))
+                https_proxy_s = "https_proxy = {0}".format(str(http_proxy))
                 wgetrc.write("use_proxy = on\n")
-                wgetrc.write(http_s + "\n")
-                wgetrc.write(https_s + "\n")
+                wgetrc.write(http_proxy_s + "\n")
+                wgetrc.write(https_proxy_s + "\n")
 
-            if fp is not None:
-                fp_s = "ftp_proxy={0}".format(str(fp))
-                wgetrc.write(fp_s + "\n")
+            if ftp_proxy is not None:
+                ftp_proxy_s = "ftp_proxy={0}".format(str(ftp_proxy))
+                wgetrc.write(ftp_proxy_s + "\n")
 
     def write_makeconfig(self, path):
         """Create the stringed to be written in the settings."""
@@ -226,28 +248,28 @@ PKGDIR="${PORTDIR}/packages"
 '''
 
             makeconf.write(lines)
-            hp = CFG["gentoo"]["http_proxy"].value()
-            if hp is not None:
-                http_s = "http_proxy={0}".format(str(hp))
-                https_s = "https_proxy={0}".format(str(hp))
-                makeconf.write(http_s + "\n")
-                makeconf.write(https_s + "\n")
+            http_proxy = CFG["gentoo"]["http_proxy"].value()
+            if http_proxy is not None:
+                http_proxy_s = "http_proxy={0}".format(str(http_proxy))
+                https_proxy_s = "https_proxy={0}".format(str(http_proxy))
+                makeconf.write(http_proxy_s + "\n")
+                makeconf.write(https_proxy_s + "\n")
 
-            fp = CFG["gentoo"]["ftp_proxy"].value()
-            if fp is not None:
-                fp_s = "ftp_proxy={0}".format(str(fp))
-                makeconf.write(fp_s + "\n")
+            ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
+            if ftp_proxy is not None:
+                ftp_proxy_s = "ftp_proxy={0}".format(str(ftp_proxy))
+                makeconf.write(ftp_proxy_s + "\n")
 
-            rp = CFG["gentoo"]["rsync_proxy"].value()
-            if rp is not None:
-                rp_s = "RSYNC_PROXY={0}".format(str(rp))
-                makeconf.write(rp_s + "\n")
+            rsync_proxy = CFG["gentoo"]["rsync_proxy"].value()
+            if rsync_proxy is not None:
+                rsync_proxy_s = "RSYNC_PROXY={0}".format(str(rsync_proxy))
+                makeconf.write(rsync_proxy_s + "\n")
 
     def write_bashrc(self, path):
         """Write inside a bash and update the shell if necessary."""
         mkfile_uchroot("/etc/portage/bashrc")
         paths, libs = uchroot_env(
-                uchroot_mounts("mnt", CFG["container"]["mounts"].value()))
+            uchroot_mounts("mnt", CFG["container"]["mounts"].value()))
 
         with open(path, 'w') as bashrc:
             lines = '''
@@ -320,11 +342,11 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
                                          "--with-bdeps=y", "@world"])
                 run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
                 for pkg in packages:
-                    if (has_pkg[pkg["name"]] & TF):
+                    if has_pkg[pkg["name"]] & TF:
                         continue
                     env = pkg["env"]
                     with local.env(**env):
-                            run(emerge_in_chroot[pkg["name"]])
+                        run(emerge_in_chroot[pkg["name"]])
 
         print("Packing new container image.")
         with local.cwd(context.builddir):
@@ -335,9 +357,6 @@ class Container(cli.Application):
     """Manage uchroot containers."""
 
     VERSION = CFG["version"].value()
-
-    def __init__(self, exe):
-        super(Container, self).__init__(exe)
 
     @cli.switch(["-i", "--input-file"], str, help="Input container path")
     def input_file(self, container):
@@ -416,7 +435,6 @@ class ContainerRun(cli.Application):
     def main(self, *args):
         builddir = CFG["build_dir"].value()
         in_container = CFG["container"]["input"].value()
-        mounts = CFG["container"]["mounts"].value()
 
         if (in_container is None) or not os.path.exists(in_container):
             in_is_file = False
@@ -428,7 +446,7 @@ class ContainerRun(cli.Application):
                 setup_directories(builddir)
                 in_container = setup_container(builddir, in_container)
 
-        run_in_container(args, in_container, mounts)
+        run_in_container(args, in_container)
         clean_directories(builddir, in_is_file, False)
 
 
@@ -450,6 +468,14 @@ class ContainerCreate(cli.Application):
                 help="Defines the strategy used to create a new container.",
                 mandatory=False)
     def strategy(self, strategy):
+        """Select strategy based on key.
+
+        Args:
+            strategy (str): The strategy to select.
+
+        Returns:
+            A strategy object.
+        """
         self._strategy = {
             "bash": BashStrategy(),
             "polyjit": SetupPolyJITGentooStrategy()
@@ -515,4 +541,5 @@ class ContainerList(cli.Application):
 
 
 def main(*args):
+    """Main entry point for the container tool."""
     return Container.run(*args)

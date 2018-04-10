@@ -114,7 +114,7 @@ def log_before_after(name: str, desc: str):
 
 
 class StepClass(abc.ABCMeta):
-    def __new__(mcs, name, bases, namespace):
+    def __new__(mcs, name, bases, namespace, **_):
         result = abc.ABCMeta.__new__(mcs, name, bases, dict(namespace))
 
         NAME = result.NAME

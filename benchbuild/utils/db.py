@@ -99,7 +99,8 @@ def persist_project(project):
     src_url = ''
     domain = project.domain
     group_name = project.group
-    version = project.version() if callable(project.version) else project.version
+    version = project.version() \
+        if callable(project.version) else project.version
     try:
         src_url = project.src_uri
     except AttributeError:
@@ -162,7 +163,7 @@ def persist_experiment(experiment):
         ret = exps.first()
     try:
         session.commit()
-    except IntegrityError as ie:
+    except IntegrityError:
         session.rollback()
         persist_experiment(experiment)
 

@@ -1,31 +1,36 @@
+#pylint: disable=E1135,E1136
 import os
+import attr
 
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-from benchbuild.utils.downloader import Wget
+from plumbum import local
+
 from benchbuild.project import Project
 from benchbuild.utils.cmd import sh, tar
+from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
-from plumbum import local
 
 
 class RodiniaGroup(Project):
+    """Generic handling of Rodinia benchmarks."""
     DOMAIN = 'rodinia'
     GROUP = 'rodinia'
     VERSION = '3.1'
+    SRC_FILE = "rodinia_{0}.tar.bz2".format(VERSION)
+    CONFIG = {}
 
-    config = {}
+    src_dir = attr.ib(default="rodinia_{0}".format(VERSION))
 
-    def __init__(self, exp):
-        super(RodiniaGroup, self).__init__(exp, "rodinia")
-        self.in_src_dir = os.path.join(
-            self.src_dir, self.config["dir"]
-        )
+    src_uri = attr.ib(
+        default="http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/"
+                "Current/{0}".format(SRC_FILE))
 
-    src_dir = "rodinia_{0}".format(VERSION)
-    SRC_FILE = "{0}.tar.bz2".format(src_dir)
-    src_uri = ("http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/"
-               "Current/{0}".format(SRC_FILE))
+    config = attr.ib(default=attr.Factory(
+        lambda self: type(self).CONFIG, takes_self=True))
+
+    in_src_dir = attr.ib(default=attr.Factory(
+        lambda self: os.path.join(self.src_dir, self.config["dir"])))
 
     def download(self):
         Wget(self.src_uri, self.SRC_FILE)
@@ -34,8 +39,8 @@ class RodiniaGroup(Project):
     def configure(self):
         pass
 
-    def select_compiler(self, cc, cxx):
-        return cc
+    def select_compiler(self, c_compiler, _):
+        return c_compiler
 
     def build(self):
         c_compiler = lt_clang(self.cflags,
@@ -65,8 +70,7 @@ class RodiniaGroup(Project):
 
 class Backprop(RodiniaGroup):
     NAME = 'backprop'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/backprop",
         "src": {
             NAME: [
@@ -85,8 +89,7 @@ class Backprop(RodiniaGroup):
 
 class BFS(RodiniaGroup):
     NAME = 'bfs'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/bfs",
         "src": {
             NAME: [
@@ -99,14 +102,13 @@ class BFS(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, cxx):
-        return cxx
+    def select_compiler(self, _, compiler):
+        return compiler
 
 
 class BPlusTree(RodiniaGroup):
     NAME = 'b+tree'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/b+tree",
         "src": {
             "b+tree.out": [
@@ -126,8 +128,7 @@ class BPlusTree(RodiniaGroup):
 
 class CFD(RodiniaGroup):
     NAME = 'cfd'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/cfd",
         "src": {
             "euler3d_cpu": [
@@ -136,14 +137,13 @@ class CFD(RodiniaGroup):
         }
     }
 
-    def select_compiler(self, _, cxx):
-        return cxx
+    def select_compiler(self, _, compiler):
+        return compiler
 
 
 class HeartWall(RodiniaGroup):
     NAME = 'heartwall'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/heartwall",
         "src": {
             NAME: [
@@ -162,8 +162,7 @@ class HeartWall(RodiniaGroup):
 
 class Hotspot(RodiniaGroup):
     NAME = 'hotspot'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/hotspot",
         "src": {
             NAME: [
@@ -175,14 +174,13 @@ class Hotspot(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, cxx):
-        return cxx
+    def select_compiler(self, _, compiler):
+        return compiler
 
 
 class Hotspot3D(RodiniaGroup):
     NAME = 'hotspot3D'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/hotspot3D",
         "src": {
             "3D": [
@@ -198,8 +196,7 @@ class Hotspot3D(RodiniaGroup):
 
 class KMeans(RodiniaGroup):
     NAME = 'kmeans'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/kmeans",
         "src": {
             "./kmeans_serial/kmeans": [
@@ -224,8 +221,7 @@ class KMeans(RodiniaGroup):
 
 class LavaMD(RodiniaGroup):
     NAME = 'lavaMD'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/lavaMD",
         "src": {
             NAME: [
@@ -244,8 +240,7 @@ class LavaMD(RodiniaGroup):
 
 class Leukocyte(RodiniaGroup):
     NAME = 'leukocyte'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/leukocyte",
         "src": {
             NAME: [
@@ -328,8 +323,7 @@ class Leukocyte(RodiniaGroup):
 
 class LUD(RodiniaGroup):
     NAME = 'lud'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/lud",
         "src": {
             "./omp/lud_omp": [
@@ -345,30 +339,24 @@ class LUD(RodiniaGroup):
         ]
     }
 
-#TODO: class MummerGPU(RodiniaGroup):
-#TODO:     NAME = 'mummergpu'
-#TODO:
-
-#FIXME: Compiles, but SIGABRT class Myocyte(RodiniaGroup):
-#FIXME: Compiles, but SIGABRT     NAME = 'myocyte'
-#FIXME: Compiles, but SIGABRT
-#FIXME: Compiles, but SIGABRT     config = {
-#FIXME: Compiles, but SIGABRT         "dir": "openmp/myocyte",
-#FIXME: Compiles, but SIGABRT         "src": {
-#FIXME: Compiles, but SIGABRT             "./myocyte.out": [
-#FIXME: Compiles, but SIGABRT                 "main.c"
-#FIXME: Compiles, but SIGABRT             ]
-#FIXME: Compiles, but SIGABRT         },
-#FIXME: Compiles, but SIGABRT         "flags": [
-#FIXME: Compiles, but SIGABRT             "-lm",
-#FIXME: Compiles, but SIGABRT             "-fopenmp"
-#FIXME: Compiles, but SIGABRT         ]
-#FIXME: Compiles, but SIGABRT     }
+class Myocyte(RodiniaGroup):
+    NAME = 'myocyte'
+    CONFIG = {
+        "dir": "openmp/myocyte",
+        "src": {
+            "./myocyte.out": [
+                "main.c"
+            ]
+        },
+        "flags": [
+            "-lm",
+            "-fopenmp"
+        ]
+    }
 
 class NN(RodiniaGroup):
     NAME = 'nn'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/nn",
         "src": {
             NAME: [
@@ -383,8 +371,7 @@ class NN(RodiniaGroup):
 
 class NW(RodiniaGroup):
     NAME = 'nw'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/nw",
         "src": {
             "needle": [
@@ -397,14 +384,13 @@ class NW(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, cxx):
-        return cxx
+    def select_compiler(self, _, compiler):
+        return compiler
 
 
 class ParticleFilter(RodiniaGroup):
     NAME = 'particlefilter'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/particlefilter",
         "src": {
             "particle_filter": [
@@ -419,8 +405,7 @@ class ParticleFilter(RodiniaGroup):
 
 class PathFinder(RodiniaGroup):
     NAME = 'pathfinder'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/pathfinder",
         "src": {
             "pathfinder": [
@@ -432,13 +417,12 @@ class PathFinder(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, cxx):
-        return cxx
+    def select_compiler(self, _, compiler):
+        return compiler
 
 class SRAD1(RodiniaGroup):
     NAME = 'srad-1'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/srad/srad_v1",
         "src": {
             "srad": [
@@ -454,8 +438,7 @@ class SRAD1(RodiniaGroup):
 
 class SRAD2(RodiniaGroup):
     NAME = 'srad-2'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/srad/srad_v2",
         "src": {
             "srad": [
@@ -468,13 +451,12 @@ class SRAD2(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, cxx):
-        return cxx
+    def select_compiler(self, _, compiler):
+        return compiler
 
 class StreamCluster(RodiniaGroup):
     NAME = 'streamcluster'
-
-    config = {
+    CONFIG = {
         "dir": "openmp/streamcluster",
         "src": {
             "./sc_omp": [
@@ -487,5 +469,5 @@ class StreamCluster(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, cxx):
-        return cxx
+    def select_compiler(self, _, compiler):
+        return compiler

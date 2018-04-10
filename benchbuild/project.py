@@ -102,7 +102,8 @@ class Project(object, metaclass=ProjectDecorator):
 
     A project implementation *must* provide the following methods:
         download: Download the sources into the build directory.
-        configure: Configure the sources, replace the compiler with our wrapper if possible.
+        configure: Configure the sources, replace the compiler with our wrapper,
+            if possible.
         build: Build the sources, with the wrapper compiler.
 
     A project implementation *may* provide the following functions:
@@ -170,7 +171,7 @@ class Project(object, metaclass=ProjectDecorator):
     VERSION = None
     SRC_FILE = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls):
         """Create a new project instance and set some defaults."""
         new_self = super(Project, cls).__new__(cls)
         if cls.NAME is None:
@@ -252,7 +253,7 @@ class Project(object, metaclass=ProjectDecorator):
     def __attrs_post_init__(self):
         persist_project(self)
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
         """
         Run the tests of this project.
 
@@ -263,7 +264,7 @@ class Project(object, metaclass=ProjectDecorator):
             run: A function that takes the run command.
         """
         exp = wrap(self.run_f, experiment)
-        run(exp)
+        runner(exp)
 
     def run(self, experiment):
         """Run the tests of this project.

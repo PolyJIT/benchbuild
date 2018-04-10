@@ -18,8 +18,6 @@ def print_runs(query):
 
 def print_logs(query, types=None):
     """ Print status logs. """
-    from benchbuild.utils.schema import RunLog
-
     if query is None:
         return
 
@@ -90,7 +88,7 @@ class BenchBuildLog(cli.Application):
         """ Run the log command. """
         from benchbuild.utils.schema import Session, Run, RunLog
 
-        s = Session()
+        session = Session()
 
         exps = self._experiments
         exp_ids = self._experiment_ids
@@ -99,9 +97,9 @@ class BenchBuildLog(cli.Application):
         types = self._types
 
         if types is not None:
-            query = s.query(Run, RunLog).filter(Run.id == RunLog.run_id)
+            query = session.query(Run, RunLog).filter(Run.id == RunLog.run_id)
         else:
-            query = s.query(Run)
+            query = session.query(Run)
 
         if exps is not None:
             query = query.filter(Run.experiment_name.in_(exps))

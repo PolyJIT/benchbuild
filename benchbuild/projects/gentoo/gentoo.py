@@ -13,15 +13,14 @@ the gentoo image in benchbuild's source directory.
 """
 import os
 
-from benchbuild.utils.cmd import cp
-from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild import project
-from benchbuild.utils.path import mkfile_uchroot, mkdir_uchroot
-from benchbuild.utils.path import list_to_path
-from benchbuild.utils.run import uchroot_env, uchroot_mounts
 from benchbuild.settings import CFG
 from benchbuild.utils import container
+from benchbuild.utils.cmd import cp
+from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild.utils.container import Gentoo
+from benchbuild.utils.path import list_to_path, mkdir_uchroot, mkfile_uchroot
+from benchbuild.utils.run import uchroot_env, uchroot_mounts
 
 
 def write_makeconfig(path):
@@ -144,7 +143,7 @@ class GentooGroup(project.Project):
     def download(self):
         if not CFG["unionfs"]["enable"].value():
             container.unpack_container(
-                project.Project.CONTAINER, self.builddir)
+                self.container, self.builddir)
 
     def configure(self):
         write_bashrc("etc/portage/bashrc")

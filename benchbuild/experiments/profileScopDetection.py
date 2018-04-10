@@ -7,15 +7,16 @@ import glob
 import logging
 import os
 
-from plumbum import local
 import sqlalchemy as sa
+from plumbum import local
 
 import benchbuild.experiment as exp
-import benchbuild.extensions as ext
 import benchbuild.experiments.polyjit as pj
+import benchbuild.extensions as ext
 import benchbuild.reports as reports
-from benchbuild.experiments.polyjit import ClearPolyJITConfig,\
-        EnableJITDatabase, RegisterPolyJITLogs
+from benchbuild.experiments.polyjit import (ClearPolyJITConfig,
+                                            EnableJITDatabase,
+                                            RegisterPolyJITLogs)
 from benchbuild.extensions import Extension
 
 LOG = logging.getLogger(__name__)
@@ -148,34 +149,22 @@ class PProfExperiment(exp.Experiment):
                           "-mllvm", "-polly-process-unprofitable"]
         project.ldflags = ["-lpjit", "-lpapi"]
         project.compiler_extension = \
-            CaptureProfilingDebugOutput(
-                ext.RunWithTimeout(
-                    ext.RunCompiler(project, self),
-                    limit="10m"
-                ),
-                project=project, experiment=self)
+            ext.RunCompiler(project, self) \
+            << ext.RunWithTimeout(limit="10m") \
+            << CaptureProfilingDebugOutput(project=project, experiment=self)
 
-        pjit_extension = \
-            ClearPolyJITConfig(
-                EnableJITDatabase(
-                    EnableProfiling(
-                        RunWithPprofExperiment(
-                            ext.RunWithTime(
-                                ext.RuntimeExtension(
-                                    project, self,
-                                    config={
-                                        "jobs": 1,
-                                        "name": "profileScopDetection"
-                                    }),
-                                ),
-                            config={"jobs": 1}),
-                        project=project),
-                    project=project)
-            )
         project.runtime_extension = \
-            ext.LogAdditionals(
-                RegisterPolyJITLogs(pjit_extension)
-            )
+            ext.RuntimeExtension(
+                project, self, config={ "jobs": 1,
+                                        "name": "profileScopDetection"
+                                      }) \
+            << ext.RunWithTime() \
+            << RunWithPprofExperiment(config={"jobs": 1}) \
+            << EnableProfiling() \
+            << EnableJITDatabase(project=project) \
+            << ClearPolyJITConfig() \
+            << RegisterPolyJITLogs() \
+            << ext.LogAdditionals()
         return self.default_runtime_actions(project)
 
 

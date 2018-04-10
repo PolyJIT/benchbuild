@@ -62,7 +62,7 @@ class IJPP(pj.PolyJIT):
                 "cores": jobs,
             }) \
             << pj.EnablePolyJIT_Opt() \
-            << pj.EnableJITDatabase() \
+            << pj.EnableJITDatabase(project=project) \
             << pj.RegisterPolyJITLogs() \
             << pj.ClearPolyJITConfig()
 
@@ -72,7 +72,7 @@ class IJPP(pj.PolyJIT):
                 "cores": jobs,
             }) \
             << pj.EnablePolyJIT() \
-            << pj.EnableJITDatabase() \
+            << pj.EnableJITDatabase(project=project) \
             << pj.RegisterPolyJITLogs() \
             << pj.ClearPolyJITConfig()
 
@@ -82,7 +82,7 @@ class IJPP(pj.PolyJIT):
                 "cores": jobs
             }) \
             << pj.DisablePolyJIT() \
-            << pj.EnableJITDatabase() \
+            << pj.EnableJITDatabase(project=project) \
             << pj.RegisterPolyJITLogs() \
             << pj.ClearPolyJITConfig()
 
@@ -93,7 +93,7 @@ class IJPP(pj.PolyJIT):
             }) \
             << pj.DisableDelinearization() \
             << pj.EnablePolyJIT() \
-            << pj.EnableJITDatabase() \
+            << pj.EnableJITDatabase(project=project) \
             << pj.RegisterPolyJITLogs() \
             << pj.ClearPolyJITConfig()
 
@@ -104,7 +104,7 @@ class IJPP(pj.PolyJIT):
             }) \
             << pj.DisableDelinearization() \
             << pj.DisablePolyJIT() \
-            << pj.EnableJITDatabase() \
+            << pj.EnableJITDatabase(project=project) \
             << pj.RegisterPolyJITLogs() \
             << pj.ClearPolyJITConfig()
 
@@ -195,7 +195,7 @@ class JitExportGeneratedCode(pj.PolyJIT):
             }) \
             << pj.EnablePolyJIT() \
             << EnableDBExport() \
-            << pj.EnableJITDatabase() \
+            << pj.EnableJITDatabase(project=project) \
             << pj.RegisterPolyJITLogs() \
             << ext.LogAdditionals() \
             << pj.ClearPolyJITConfig()
@@ -207,7 +207,7 @@ class JitExportGeneratedCode(pj.PolyJIT):
             }) \
             << pj.DisablePolyJIT() \
             << EnableDBExport() \
-            << pj.EnableJITDatabase() \
+            << pj.EnableJITDatabase(project=project) \
             << pj.RegisterPolyJITLogs() \
             << ext.LogAdditionals() \
             << pj.ClearPolyJITConfig()

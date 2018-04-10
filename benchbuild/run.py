@@ -39,8 +39,8 @@ class BenchBuildRun(cli.Application):
                 str,
                 list=True,
                 help="Specify experiments to run")
-    def experiments(self, experiments):
-        self._experiment_names = experiments
+    def experiments(self, experiment_names):
+        self._experiment_names = experiment_names
 
     @cli.switch(["-D", "--description"],
                 str,

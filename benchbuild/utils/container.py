@@ -123,7 +123,6 @@ class Container(object):
         Returns:
             target: The path, where the container lies in the end.
         """
-        from benchbuild.settings import CFG
         assert self.name in CFG["container"]["images"].value()
         target = os.path.join(CFG["tmp_dir"].value(), self.name)
 

@@ -2,10 +2,12 @@
 Generic experiment to test portage packages within gentoo chroot.
 """
 import logging
+
+from plumbum import ProcessExecutionError, local
+
 from benchbuild.projects.gentoo import autoportage
-from benchbuild.utils.run import run, uchroot_no_args
 from benchbuild.utils.container import Gentoo
-from plumbum import local, ProcessExecutionError
+from benchbuild.utils.run import run, uchroot_no_args
 
 
 class FuncClass(object):

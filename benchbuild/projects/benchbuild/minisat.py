@@ -3,7 +3,7 @@ from os import path
 
 from plumbum import local
 
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.project import Project
 from benchbuild.utils.cmd import git, make
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git
@@ -11,11 +11,12 @@ from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
-class Minisat(BenchBuildGroup):
+class Minisat(Project):
     """ minisat benchmark """
 
     NAME = 'minisat'
     DOMAIN = 'verification'
+    GROUP = 'benchbuild'
     SRC_FILE = 'minisat.git'
 
     def run_tests(self, experiment, runner):

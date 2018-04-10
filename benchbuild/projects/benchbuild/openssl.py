@@ -2,7 +2,7 @@ from os import path
 
 from plumbum import local
 
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.project import Project
 from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
@@ -10,11 +10,12 @@ from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
-class LibreSSL(BenchBuildGroup):
+class LibreSSL(Project):
     """ OpenSSL """
 
     NAME = 'libressl'
     DOMAIN = 'encryption'
+    GROUP = 'benchbuild'
     VERSION = '2.1.6'
 
     src_dir = "libressl-{0}".format(VERSION)

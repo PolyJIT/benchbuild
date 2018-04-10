@@ -1,18 +1,21 @@
 from os import path
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from benchbuild.utils.wrapping import wrap
-from benchbuild.utils.run import run
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-from benchbuild.utils.cmd import tar, make
+
 from plumbum import local
 
+from benchbuild.project import Project
+from benchbuild.utils.cmd import make, tar
+from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.downloader import Wget
+from benchbuild.utils.run import run
+from benchbuild.utils.wrapping import wrap
 
-class Ccrypt(BenchBuildGroup):
+
+class Ccrypt(Project):
     """ ccrypt benchmark """
 
     NAME = 'ccrypt'
     DOMAIN = 'encryption'
+    GROUP = 'benchbuild'
     VERSION = '1.10'
     SRC_FILE = 'ccrypt-{0}.tar.gz'.format(VERSION)
 

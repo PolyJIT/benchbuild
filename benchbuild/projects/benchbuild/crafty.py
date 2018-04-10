@@ -1,18 +1,21 @@
 from os import path
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+
+from plumbum import local
+
+from benchbuild.project import Project
+from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import cat, make, unzip, mv, mkdir
-from plumbum import local
+from benchbuild.utils.wrapping import wrap
 
 
-class Crafty(BenchBuildGroup):
+class Crafty(Project):
     """ crafty benchmark """
 
     NAME = 'crafty'
     DOMAIN = 'scientific'
+    GROUP = 'benchbuild'
     VERSION = '25.2'
 
     src_dir = "crafty-{0}".format(VERSION)

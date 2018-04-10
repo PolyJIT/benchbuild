@@ -1,20 +1,22 @@
 from os import path
 
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import FG, local
+
+from benchbuild.project import Project
+from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, rm, sed,
+                                  sh, tar)
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import cp, find, tar, make, rm, head, grep, sed, sh
-from benchbuild.utils.cmd import mkdir
-from plumbum import FG, local
+from benchbuild.utils.wrapping import wrap
 
 
-class Povray(BenchBuildGroup):
+class Povray(Project):
     """ povray benchmark """
 
     NAME = 'povray'
     DOMAIN = 'multimedia'
+    GROUP = 'benchbuild'
     SRC_FILE = 'povray.git'
 
     src_uri = "https://github.com/POV-Ray/povray"

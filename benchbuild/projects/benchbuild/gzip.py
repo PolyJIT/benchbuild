@@ -1,21 +1,22 @@
 from os import path
 
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import local
+
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import cp, make, tar
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import cp, make, tar
-
-from plumbum import local
+from benchbuild.utils.wrapping import wrap
 
 
-class Gzip(BenchBuildGroup):
+class Gzip(Project):
     """ Gzip """
 
     NAME = 'gzip'
     DOMAIN = 'compression'
+    GROUP = 'benchbuild'
     VERSION = '1.6'
 
     testfiles = ["text.html", "chicken.jpg", "control", "input.source",

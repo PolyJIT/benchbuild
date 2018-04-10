@@ -1,15 +1,16 @@
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.project import Project
 from benchbuild.utils.compiler import lt_clang_cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
+from benchbuild.utils.wrapping import wrap
 
 
-class LuleshOMP(BenchBuildGroup):
+class LuleshOMP(Project):
     """ Lulesh-OMP """
 
     NAME = 'lulesh-omp'
     DOMAIN = 'scientific'
+    GROUP = 'benchbuild'
     SRC_FILE = 'LULESH_OMP.cc'
 
     def run_tests(self, experiment, run):

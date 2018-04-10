@@ -1,19 +1,21 @@
 from os import path
 
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from benchbuild.utils.downloader import Wget, Git
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-from benchbuild.utils.run import run
-from benchbuild.utils.cmd import unzip, make
 from plumbum import local
 
+from benchbuild.project import Project
+from benchbuild.utils.cmd import make, unzip
+from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.downloader import Git, Wget
+from benchbuild.utils.run import run
+from benchbuild.utils.wrapping import wrap
 
-class SQLite3(BenchBuildGroup):
+
+class SQLite3(Project):
     """ SQLite3 """
 
     NAME = 'sqlite3'
     DOMAIN = 'database'
+    GROUP = 'benchbuild'
 
     src_dir = "sqlite-amalgamation-3080900"
     SRC_FILE = src_dir + ".zip"

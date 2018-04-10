@@ -1,6 +1,6 @@
 import logging
 
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.project import Project
 from benchbuild.utils.cmd import cp, patch
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
@@ -10,11 +10,12 @@ from benchbuild.utils.run import run
 LOG = logging.getLogger(__name__)
 
 
-class Linpack(BenchBuildGroup):
+class Linpack(Project):
     """ Linpack (C-Version) """
 
     NAME = 'linpack'
     DOMAIN = 'scientific'
+    GROUP = 'benchbuild'
     SRC_FILE = 'linpackc.new'
 
     src_uri = "http://www.netlib.org/benchmark/linpackc.new"

@@ -1,19 +1,21 @@
-from os import path
 import logging
+from os import path
 
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import local
+
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import make, tar
-from plumbum import local
+from benchbuild.utils.wrapping import wrap
 
 
-class OpenBlas(BenchBuildGroup):
+class OpenBlas(Project):
     NAME = 'openblas'
     DOMAIN = 'scientific'
+    GROUP = 'benchbuild'
     SRC_FILE = 'OpenBLAS'
 
     src_uri = "https://github.com/xianyi/" + SRC_FILE
@@ -37,6 +39,7 @@ class OpenBlas(BenchBuildGroup):
 class Lapack(BenchBuildGroup):
     NAME = 'lapack'
     DOMAIN = 'scientific'
+    GROUP = 'benchbuild'
     VERSION = '3.2.1'
     SRC_FILE = "clapack.tgz"
 

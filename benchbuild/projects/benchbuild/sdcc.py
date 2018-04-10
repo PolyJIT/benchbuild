@@ -1,17 +1,18 @@
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import local
+
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import make
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Svn
 from benchbuild.utils.run import run
-
-from plumbum import local
-from benchbuild.utils.cmd import make
+from benchbuild.utils.wrapping import wrap
 
 
-class SDCC(BenchBuildGroup):
+class SDCC(Project):
     NAME = 'sdcc'
     DOMAIN = 'compilation'
+    GROUP = 'benchbuild'
     SRC_FILE = 'sdcc'
 
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + SRC_FILE

@@ -1,19 +1,21 @@
 from os import path
 
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import local
+
+from benchbuild.project import Project
+from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import make, tar
-from plumbum import local
+from benchbuild.utils.wrapping import wrap
 
 
-class Python(BenchBuildGroup):
+class Python(Project):
     """ python benchmarks """
 
     NAME = 'python'
     DOMAIN = 'compilation'
+    GROUP = 'benchbuild'
     VERSION = '3.4.3'
 
     src_dir = "Python-{0}".format(VERSION)

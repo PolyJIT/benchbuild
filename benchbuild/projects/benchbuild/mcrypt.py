@@ -1,20 +1,22 @@
 from os import path
 
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import local
+
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import make, tar
-from plumbum import local
+from benchbuild.utils.wrapping import wrap
 
 
-class MCrypt(BenchBuildGroup):
+class MCrypt(Project):
     """ MCrypt benchmark """
 
     NAME = 'mcrypt'
     DOMAIN = 'encryption'
+    GROUP = 'benchbuild'
     VERSION = '2.6.8'
 
     src_dir = "mcrypt-{0}".format(VERSION)

@@ -1,3 +1,4 @@
+# pylint: disable=E1101,E1102,E1133
 """
 # Actions
 
@@ -37,13 +38,14 @@ LOG = logging.getLogger(__name__)
 
 @enum.unique
 class StepResult(enum.IntEnum):
+    """Result type for action results."""
     UNSET = 0
     OK = 1
     CAN_CONTINUE = 2
     ERROR = 3
 
 
-def to_step_result(f):
+def to_step_result(func):
     """Convert a function return to a list of StepResults.
 
     All Step subclasses automatically wrap the result of their
@@ -55,11 +57,12 @@ def to_step_result(f):
     a list.
 
     Args:
-        f: 
+        func: The function to wrap.
     """
-    @ft.wraps(f)
+    @ft.wraps(func)
     def wrapper(*args, **kwargs):
-        res = f(*args, **kwargs)
+        """Wrapper stub."""
+        res = func(*args, **kwargs)
         if not res:
             res = [StepResult.OK]
 
@@ -69,18 +72,22 @@ def to_step_result(f):
 
     return wrapper
 
-def prepend_status(f):
-    @ft.wraps(f)
+def prepend_status(func):
+    """Prepends the output of `func` with the status."""
+    @ft.wraps(func)
     def wrapper(self, *args, **kwargs):
-        res = f(self, *args, **kwargs)
+        """Wrapper stub."""
+        res = func(self, *args, **kwargs)
         if self.status is not StepResult.UNSET:
             res = "[{status}]".format(status=self.status.name) + res
         return res
     return wrapper
 
-def notify_step_begin_end(f):
-    @ft.wraps(f)
+def notify_step_begin_end(func):
+    """Print the beginning and the end of a `func`."""
+    @ft.wraps(func)
     def wrapper(self, *args, **kwargs):
+        """Wrapper stub."""
         cls = self.__class__
         on_step_begin = cls.ON_STEP_BEGIN
         on_step_end = cls.ON_STEP_END
@@ -88,18 +95,21 @@ def notify_step_begin_end(f):
         for begin_listener in on_step_begin:
             begin_listener(self)
 
-        res =  f(self, *args, **kwargs)
+        res = func(self, *args, **kwargs)
 
         for end_listener in on_step_end:
-            end_listener(self, f)
+            end_listener(self, func)
         return res
     return wrapper
 
 
 def log_before_after(name: str, desc: str):
+    """Log customized stirng before & after running func."""
     def func_decorator(f):
+        """Wrapper stub."""
         @ft.wraps(f)
         def wrapper(*args, **kwargs):
+            """Wrapper stub."""
             LOG.info("\n%s - %s", name, desc)
             res = f(*args, **kwargs)
             if StepResult.ERROR not in res:
@@ -114,6 +124,7 @@ def log_before_after(name: str, desc: str):
 
 
 class StepClass(abc.ABCMeta):
+    """Decorate `steps` with logging and result conversion."""
     def __new__(mcs, name, bases, namespace, **_):
         result = abc.ABCMeta.__new__(mcs, name, bases, dict(namespace))
 
@@ -131,6 +142,16 @@ class StepClass(abc.ABCMeta):
 
 @attr.s(cmp=False)
 class Step(metaclass=StepClass):
+    """Base class of a step.
+
+    This stores all common attributes for step classes.
+        metaclass ([type], optional): Defaults to StepClass. Takes
+            care of wrapping Steps correctly.
+
+    Raises:
+        StopIteration: If we do not encapsulate more substeps.
+    """
+
     NAME = None
     DESCRIPTION = None
 

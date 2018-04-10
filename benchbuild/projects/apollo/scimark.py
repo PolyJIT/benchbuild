@@ -1,17 +1,19 @@
 from os import path
-from benchbuild.projects.apollo.group import ApolloGroup
-from benchbuild.utils.wrapping import wrap
+
+from benchbuild.project import Project
+from benchbuild.utils.cmd import make, unzip
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.cmd import unzip, make
 from benchbuild.utils.run import run
+from benchbuild.utils.wrapping import wrap
 
 
-class SciMark(ApolloGroup):
+class SciMark(Project):
     """SciMark"""
 
     NAME = 'scimark'
     DOMAIN = 'scientific'
+    GROUP = 'apollo'
     VERSION = "2.1c"
 
     SRC_FILE = "scimark2_1c.zip"

@@ -1,17 +1,19 @@
-from os import path, getenv
+from os import getenv, path
 
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import local
+
+from benchbuild.project import Project
+from benchbuild.utils.cmd import make
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import make
-from plumbum import local
+from benchbuild.utils.wrapping import wrap
 
 
-class LevelDB(BenchBuildGroup):
+class LevelDB(Project):
     NAME = 'leveldb'
     DOMAIN = 'database'
+    GROUP = 'benchbuild'
     SRC_FILE = 'leveldb.src'
 
     src_uri = "https://github.com/google/leveldb"

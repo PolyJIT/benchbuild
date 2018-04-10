@@ -1,15 +1,16 @@
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from benchbuild.project import Project
 from benchbuild.utils.compiler import lt_clang_cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
+from benchbuild.utils.wrapping import wrap
 
 
-class Lulesh(BenchBuildGroup):
+class Lulesh(Project):
     """ Lulesh """
 
     NAME = 'lulesh'
     DOMAIN = 'scientific'
+    GROUP = 'benchbuild'
     SRC_FILE = 'LULESH.cc'
 
     def run_tests(self, experiment, run):

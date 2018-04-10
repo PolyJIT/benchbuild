@@ -1,21 +1,22 @@
 from os import path
 
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import local
+
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import cp, make
 from benchbuild.utils.compiler import lt_clang
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import cp, make
-
-from plumbum import local
+from benchbuild.utils.wrapping import wrap
 
 
-class X264(BenchBuildGroup):
+class X264(Project):
     """ x264 """
 
     NAME = "x264"
     DOMAIN = "multimedia"
+    GROUP = 'benchbuild'
     SRC_FILE = 'x264.git'
 
     inputfiles = {"tbbt-small.y4m": [],

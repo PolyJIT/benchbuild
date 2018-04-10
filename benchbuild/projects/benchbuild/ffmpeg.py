@@ -1,17 +1,19 @@
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from benchbuild.utils.compiler import lt_clang
-from benchbuild.utils.run import run
-from benchbuild.utils.downloader import Wget, Rsync
-from benchbuild.settings import CFG
 from plumbum import local
+
+from benchbuild.project import Project
+from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, tar
+from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.downloader import Rsync, Wget
+from benchbuild.utils.run import run
+from benchbuild.utils.wrapping import wrap
 
 
-class LibAV(BenchBuildGroup):
+class LibAV(Project):
     """ LibAV benchmark """
     NAME = 'ffmpeg'
     DOMAIN = 'multimedia'
+    GROUP = 'benchbuild'
     VERSION = '3.1.3'
 
     src_dir = "ffmpeg-{0}".format(VERSION)

@@ -1,20 +1,21 @@
-import logging
 from os import path
 
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import local
+
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import autoreconf, make
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import autoreconf, make
-from plumbum import local
 
 
-class Rasdaman(BenchBuildGroup):
+class Rasdaman(Project):
     """ Rasdaman """
 
     NAME = 'Rasdaman'
     DOMAIN = 'database'
+    GROUP = 'benchbuild'
     SRC_FILE = 'rasdaman.git'
 
     src_uri = "git://rasdaman.org/rasdaman.git"
@@ -56,6 +57,7 @@ class Rasdaman(BenchBuildGroup):
         with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
-    def run_tests(self, experiment, run):
+    def run_tests(self, experiment, runner):
+        import logging
         log = logging.getLogger(__name__)
-        log.warn('Not implemented')
+        log.warning('Not implemented')

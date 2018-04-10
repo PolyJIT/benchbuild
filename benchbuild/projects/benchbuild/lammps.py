@@ -1,20 +1,22 @@
-from glob import glob
 import os
+from glob import glob
 
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import local
+
+from benchbuild.project import Project
+from benchbuild.utils.cmd import make
 from benchbuild.utils.compiler import lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
-from benchbuild.utils.cmd import make
-from plumbum import local
+from benchbuild.utils.wrapping import wrap
 
 
-class Lammps(BenchBuildGroup):
+class Lammps(Project):
     """ LAMMPS benchmark """
 
     NAME = 'lammps'
     DOMAIN = 'scientific'
+    GROUP = 'benchbuild'
     SRC_FILE = 'lammps.git'
 
     def run_tests(self, experiment, run):

@@ -1,24 +1,26 @@
 from functools import partial
 from os import path
 
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
-from benchbuild.utils.wrapping import wrap
+from plumbum import local
+
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import make, mkdir, tar
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
 from benchbuild.utils.versions import get_git_hash
-from benchbuild.utils.cmd import make, mkdir, tar
-from plumbum import local
+from benchbuild.utils.wrapping import wrap
 
 
-class SpiderMonkey(BenchBuildGroup):
+class SpiderMonkey(Project):
     """
     SpiderMonkey requires a legacy version of autoconf: autoconf-2.13
     """
 
     NAME = 'js'
     DOMAIN = 'compilation'
+    GROUP = 'benchbuild'
 
     src_uri = "https://github.com/mozilla/gecko-dev.git"
     src_dir = "gecko-dev.git"

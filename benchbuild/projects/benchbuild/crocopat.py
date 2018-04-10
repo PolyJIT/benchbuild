@@ -1,19 +1,21 @@
-from os import path
 from glob import glob
+from os import path
 
-from benchbuild.utils.wrapping import wrap
-from benchbuild.projects.benchbuild.group import BenchBuildGroup
+from plumbum import local
+
+from benchbuild.project import Project
+from benchbuild.utils.cmd import cat, make, unzip
 from benchbuild.utils.compiler import lt_clang_cxx
 from benchbuild.utils.downloader import Wget
-from plumbum import local
-from benchbuild.utils.cmd import cat, unzip, make
+from benchbuild.utils.wrapping import wrap
 
 
-class Crocopat(BenchBuildGroup):
+class Crocopat(Project):
     """ crocopat benchmark """
 
     NAME = 'crocopat'
     DOMAIN = 'verification'
+    GROUP = 'benchbuild'
     VERSION = '2.1.4'
 
     def run_tests(self, experiment, run):

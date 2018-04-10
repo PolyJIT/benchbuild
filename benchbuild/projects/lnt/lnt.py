@@ -1,18 +1,16 @@
 """LNT based measurements."""
+import logging
 from glob import glob
 from os import path
 
-import logging
+from plumbum import FG, local
 
 from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv
 from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
-from benchbuild.utils.downloader import Git, CopyNoFail
+from benchbuild.utils.downloader import CopyNoFail, Git
 from benchbuild.utils.wrapping import wrap_dynamic
-from benchbuild.utils.cmd import virtualenv, mkdir, rm, cat
-
-from plumbum import local, FG
-
 
 LOG = logging.getLogger(__name__)
 
@@ -76,9 +74,9 @@ class SingleSourceBenchmarks(LNTGroup):
 
     def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment, run)
+            self.before_run_tests(experiment, runner)
 
-        run(lnt["runtest", "nt", "-v", "-j1",
+        runner(lnt["runtest", "nt", "-v", "-j1",
                 "--sandbox", sandbox_dir,
                 "--cc", str(clang),
                 "--cxx", str(clang_cxx),
@@ -96,9 +94,9 @@ class MultiSourceBenchmarks(LNTGroup):
 
     def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment, run)
+            self.before_run_tests(experiment, runner)
 
-        run(lnt["runtest", "nt", "-v", "-j1",
+        runner(lnt["runtest", "nt", "-v", "-j1",
                 "--sandbox", sandbox_dir,
                 "--cc", str(clang),
                 "--cxx", str(clang_cxx),
@@ -116,9 +114,9 @@ class MultiSourceApplications(LNTGroup):
 
     def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment, run)
+            self.before_run_tests(experiment, runner)
 
-        run(lnt["runtest", "nt", "-v", "-j1",
+        runner(lnt["runtest", "nt", "-v", "-j1",
                 "--sandbox", sandbox_dir,
                 "--cc", str(clang),
                 "--cxx", str(clang_cxx),
@@ -145,9 +143,9 @@ class SPEC2006(LNTGroup):
 
     def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment, run)
+            self.before_run_tests(experiment, runner)
 
-        run(lnt["runtest", "nt", "-v", "-j1",
+        runner(lnt["runtest", "nt", "-v", "-j1",
                 "--sandbox", sandbox_dir,
                 "--cc", str(clang),
                 "--cxx", str(clang_cxx),
@@ -156,9 +154,6 @@ class SPEC2006(LNTGroup):
                 "--test-externals", self.builddir,
                 "--make-param=RUNUNDER=" + str(exp),
                 "--only-test=" + path.join("External", "SPEC")])
-
-        self.after_run_tests(sandbox_dir)
-
 
         self.after_run_tests(sandbox_dir)
 
@@ -176,9 +171,9 @@ class Povray(LNTGroup):
 
     def run_tests(self, experiment, runner):
         exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment, run)
+            self.before_run_tests(experiment, runner)
 
-        run(lnt["runtest", "nt", "-v", "-j1",
+        runner(lnt["runtest", "nt", "-v", "-j1",
                 "--sandbox", sandbox_dir,
                 "--cc", str(clang),
                 "--cxx", str(clang_cxx),

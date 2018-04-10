@@ -61,8 +61,8 @@ class IJPP(pj.PolyJIT):
                 "name": "PolyJIT_Opt",
                 "cores": jobs,
             }) \
-            << pj.EnablePolyJIT_Opt(project=project) \
-            << pj.EnableJITDatabase(project=project) \
+            << pj.EnablePolyJIT_Opt() \
+            << pj.EnableJITDatabase() \
             << pj.RegisterPolyJITLogs() \
             << pj.ClearPolyJITConfig()
 
@@ -71,8 +71,8 @@ class IJPP(pj.PolyJIT):
                 "name": "PolyJIT",
                 "cores": jobs,
             }) \
-            << pj.EnablePolyJIT(project=project) \
-            << pj.EnableJITDatabase(project=project) \
+            << pj.EnablePolyJIT() \
+            << pj.EnableJITDatabase() \
             << pj.RegisterPolyJITLogs() \
             << pj.ClearPolyJITConfig()
 
@@ -81,8 +81,8 @@ class IJPP(pj.PolyJIT):
                 "name": "polly.inside",
                 "cores": jobs
             }) \
-            << pj.DisablePolyJIT(project=project) \
-            << pj.EnableJITDatabase(project=project) \
+            << pj.DisablePolyJIT() \
+            << pj.EnableJITDatabase() \
             << pj.RegisterPolyJITLogs() \
             << pj.ClearPolyJITConfig()
 
@@ -91,9 +91,9 @@ class IJPP(pj.PolyJIT):
                 "name": "PolyJIT.no-delin",
                 "cores": jobs
             }) \
-            << pj.DisableDelinearization(project=project) \
-            << pj.EnablePolyJIT(project=project) \
-            << pj.EnableJITDatabase(project=project) \
+            << pj.DisableDelinearization() \
+            << pj.EnablePolyJIT() \
+            << pj.EnableJITDatabase() \
             << pj.RegisterPolyJITLogs() \
             << pj.ClearPolyJITConfig()
 
@@ -102,9 +102,9 @@ class IJPP(pj.PolyJIT):
                 "name": "polly.inside.no-delin",
                 "cores": jobs
             }) \
-            << pj.DisableDelinearization(project=project) \
-            << pj.DisablePolyJIT(project=project) \
-            << pj.EnableJITDatabase(project=project) \
+            << pj.DisableDelinearization() \
+            << pj.DisablePolyJIT() \
+            << pj.EnableJITDatabase() \
             << pj.RegisterPolyJITLogs() \
             << pj.ClearPolyJITConfig()
 
@@ -193,9 +193,9 @@ class JitExportGeneratedCode(pj.PolyJIT):
                 "name": "PolyJIT",
                 "cores": jobs
             }) \
-            << pj.EnablePolyJIT(project=project) \
+            << pj.EnablePolyJIT() \
             << EnableDBExport() \
-            << pj.EnableJITDatabase(project=project) \
+            << pj.EnableJITDatabase() \
             << pj.RegisterPolyJITLogs() \
             << ext.LogAdditionals() \
             << pj.ClearPolyJITConfig()
@@ -205,9 +205,9 @@ class JitExportGeneratedCode(pj.PolyJIT):
                 "name": "polly.inside",
                 "cores": jobs
             }) \
-            << pj.DisablePolyJIT(project=project) \
+            << pj.DisablePolyJIT() \
             << EnableDBExport() \
-            << pj.EnableJITDatabase(project=project) \
+            << pj.EnableJITDatabase() \
             << pj.RegisterPolyJITLogs() \
             << ext.LogAdditionals() \
             << pj.ClearPolyJITConfig()

@@ -58,31 +58,29 @@ class Slurm(cli.Application):
         """Run a group of projects under the given experiments"""
         self._group_names = groups
 
-    def __go__(self, project_names, experiment):
+    def __go__(self, project_names, exp):
         prj_registry = project.ProjectRegistry
-        projects = prj_registry.projects
+        prjs = prj_registry.projects
         project_names = self._project_names
         if project_names is not None:
-            allkeys = set(list(projects.keys()))
+            allkeys = set(list(prjs.keys()))
             usrkeys = set(project_names)
-            projects = {x: projects[x] for x in allkeys & usrkeys}
+            prjs = {x: prjs[x] for x in allkeys & usrkeys}
 
         group_names = self._group_names
         if group_names is not None:
             groupkeys = set(group_names)
-            projects = {
+            prjs = {
                 name: cls
-                for name, cls in projects.items() if cls.GROUP in groupkeys
+                for name, cls in prjs.items() if cls.GROUP in groupkeys
             }
 
-        projects = {x: projects[x]
-                    for x in projects
-                    if projects[x].DOMAIN != "debug"}
+        prjs = {x: prjs[x] for x in prjs if prjs[x].DOMAIN != "debug"}
 
-        prj_keys = sorted(projects.keys())
+        prj_keys = sorted(prjs.keys())
         print("{0} Projects".format(len(prj_keys)))
 
-        slurm.prepare_slurm_script(experiment, prj_keys)
+        slurm.prepare_slurm_script(exp, prj_keys)
 
     def main(self):
         """Main entry point of benchbuild run."""

@@ -61,11 +61,11 @@ class CommandAlias(ModuleType):
 
         for alias_command in check:
             try:
-                cmd = local[alias_command]
-                cmd = cmd.with_env(
+                alias_cmd = local[alias_command]
+                alias_cmd = alias_cmd.with_env(
                     PATH=list_to_path(path),
                     LD_LIBRARY_PATH=list_to_path(libs_path))
-                return cmd
+                return alias_cmd
             except AttributeError:
                 pass
         LOG.warning("'%s' cannot be found. Import failed.", command)

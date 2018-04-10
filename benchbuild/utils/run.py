@@ -375,18 +375,16 @@ def uretry(cmd, retcode=0):
 
 def uchroot_no_args():
     """Return the uchroot command without any customizations."""
-    from benchbuild.utils.cmd import uchroot
+    from benchbuild.utils.cmd import uchroot as uchrt
 
     prefixes = CFG["container"]["prefixes"].value()
     p_paths, p_libs = uchroot_env(prefixes)
-
-    uchroot = with_env_recursive(
-        uchroot,
+    uchrt = with_env_recursive(
+        uchrt,
         LD_LIBRARY_PATH=list_to_path(p_libs),
         PATH=list_to_path(p_paths))
 
-
-    return uchroot
+    return uchrt
 
 
 def uchroot_no_llvm(*args, **kwargs):
@@ -429,9 +427,9 @@ def uchroot_mounts(prefix, mounts):
     return mntpoints
 
 
-def _uchroot_mounts(prefix, mounts, uchroot):
+def _uchroot_mounts(prefix, mounts, uchrt):
     i = 0
-    new_uchroot = uchroot
+    new_uchroot = uchrt
     mntpoints = []
     for mount in mounts:
         src_mount = mount
@@ -572,12 +570,12 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
         LOG.error("Image dir does not exist: '%s'", ro_base)
         raise ValueError("Image directory does not exist")
 
-    from benchbuild.utils.cmd import unionfs
+    from benchbuild.utils.cmd import unionfs as unionfs_cmd
     ro_base = os.path.abspath(ro_base)
     rw_image = os.path.abspath(rw_image)
     mountpoint = os.path.abspath(mountpoint)
-    return unionfs["-f", "-o", "auto_unmount,allow_other,cow",
-                   rw_image + "=RW:" + ro_base + "=RO", mountpoint]
+    return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow",
+                       rw_image + "=RW:" + ro_base + "=RO", mountpoint]
 
 
 def unionfs_is_active(root):

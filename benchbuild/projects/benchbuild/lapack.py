@@ -43,9 +43,6 @@ class Lapack(Project):
     VERSION = '3.2.1'
     SRC_FILE = "clapack.tgz"
 
-    def __init__(self, exp):
-        super(Lapack, self).__init__(exp)
-
     src_dir = "CLAPACK-{0}".format(VERSION)
     src_uri = "http://www.netlib.org/clapack/clapack.tgz"
 

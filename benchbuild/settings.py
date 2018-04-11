@@ -763,11 +763,7 @@ CFG["container"] = {
 
 
 def find_config(test_file=None,
-                defaults=[
-                    ".benchbuild.yml",
-                    ".benchbuild.yaml",
-                    ".benchbuild.json"
-                ],
+                defaults=None,
                 root=os.curdir):
     """
     Find the path to the default config file.
@@ -784,6 +780,13 @@ def find_config(test_file=None,
     Returns:
         Path to the default config file, None if we can't find anything.
     """
+    if defaults is None:
+        defaults = [
+            ".benchbuild.yml",
+            ".benchbuild.yaml",
+            ".benchbuild.json"
+        ]
+
     def walk_rec(cur_path, root):
         cur_path = os.path.join(root, test_file)
         if os.path.exists(cur_path):

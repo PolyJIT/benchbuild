@@ -29,7 +29,7 @@ class ProjectMock(Project):
 
     def download(self):
         """ Get the project source input. """
-        Wget(self.sourcedir, self.NAME)
+        Wget(self.src_url, self.NAME)
 
     def configure(self):
         """ Configure the parameters of the project. """

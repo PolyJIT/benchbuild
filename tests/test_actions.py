@@ -16,9 +16,21 @@ class EmptyProject(Project):
     GROUP = "debug"
     SRC_FILE = "none"
 
+    def build(self):
+        pass
+
+    def configure(self):
+        pass
+
+    def download(self):
+        pass
+
 
 class EmptyExperiment(Experiment):
     NAME = "test_empty"
+
+    def actions_for_project(self):
+        pass
 
 
 class FailAlways(a.Step):

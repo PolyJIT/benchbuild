@@ -4,38 +4,30 @@ with a changed string representation to adjust the design.
 """
 import sys
 
+import attr
 from plumbum import cli
 
 
 class ProgressBar(cli.progress.ProgressBase):
     """Class that modifies the progress bar."""
 
-    def __init__(self, width=None, pg_char=None, iterator=None, length=None,
-                 timer=True, body=False, has_output=False, clear=True):
-        """
-        The default constructor of plumbums ProgressBase class with the
-        additional option to set the wide of the progress bar in the
-        initialisation of a ProgressBar object.
-        """
-        if width is None:
-            width = cli.termsize.get_terminal_size(default=(0, 0))[0]
-        if pg_char is None:
-            pg_char = '*'
-        if length is None:
-            length = len(iterator)
-        elif iterator is None:
-            iterator = range(length)
-        elif length is None and iterator is None:
-            raise TypeError("Expected either an iterator or a length")
+    width = attr.ib(default=cli.termsize.get_terminal_size(default=(0, 0))[0])
+    pg_char = attr.ib(default='*')
+    iterator = attr.ib(default=None)
+    @iterator.default
+    def default_iterator(self):
+        return range(self.length) if self.length else None
 
-        self.width = width
-        self.pg_char = pg_char
-        self.length = length
-        self.iterator = iterator
-        self.timer = timer
-        self.body = body
-        self.has_output = has_output
-        self.clear = clear
+    length = attr.ib()
+    @length.default
+    def default_length(self):
+        return len(self.iterator) if self.iterator else None
+
+    timer = attr.ib(default=True)
+    body = attr.ib(default=False)
+    has_output = attr.ib(default=False)
+    clear = attr.ib(default=True)
+    value = attr.ib(default=None)
 
     def __str__(self):
         """

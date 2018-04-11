@@ -29,13 +29,6 @@ unsafe-load-any-extension=no
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code
 extension-pkg-whitelist=
-
-# Allow optimization of some AST trees. This will activate a peephole AST
-# optimizer, which will apply various small optimizations. For instance, it can
-# be used to obtain the result of joining multiple strings with the addition
-# operator. Joining a lot of strings can lead to a maximum recursion error in
-# Pylint and this flag can prevent that. It has one side effect, the resulting
-# AST will be different than the one from reality.
 optimize-ast=no
 
 
@@ -47,47 +40,14 @@ confidence=
 
 disable=all
 enable=all
-# Enable the message, report, category or checker with the given id(s). You can
-# either give multiple identifier separated by comma (,) or put this option
-# multiple time. See also the "--disable" option for examples.
-#enable=E0100,E0101,E0102,E0103,E0104,E0105,E0106,E0107,E0108,E0202,E0203,E0211,E0213,E0235,E0601,E0603,E0604,E0701,E0702,E0710,E0711,E0712,E1003,E1004,E1102,E1111,E1120,E1121,E1123,E1124,E1200,E1201,E1205,E1206,E1300,E1301,E1302,E1303,E1304,E1305,E1306,E1310,C0103,C0111,C0112,C0204,C0301,C0303,C0304,C0321,C0325,C0326,C1001,W0101,W0102,W0104,W0105,W0106,W0107,W0108,W0109,W0110,W0120,W0122,W0150,W0199,W0221,E0117,E0001,E0241,W0404,E0704,W0211,E0703,W0231,E1128,E0302,W1301,R0201,E0113,W0410,R0914,C0123,W0201,E0115,E0114,E1126,W0702,W1303,W0622,W0222,W0233,W1305,E1127,E0112,W0613,W1304,W0611,W0601,W1300,W0124,R0203,W1501,E0236,W0612,W0604,W0705,E0238,W0602,R0102,R0202,E0240,W0623,W0711,W0401,W0311,W0212,W0301,E0116,W0223,E0239,E1132,W1307,C0200,E0301,W1306,W1302,R0903,C0102,E0110,W0312,E1125
-
-# Disable the message, report, category or checker with the given id(s). You
-# can either give multiple identifiers separated by comma (,) or put this
-# option multiple times (only on the command line, not in the configuration
-# file where it should appear only once).You can also use "--disable=all" to
-# disable everything first and then reenable specific checks. For example, if
-# you want to run only the similarities checker, you can use "--disable=all
-# --enable=similarities". If you want to run only the classes checker, but have
-# no Warning level messages displayed, use"--disable=all --enable=classes
-# --disable=W"
 
 [REPORTS]
 
-# Set the output format. Available formats are text, parseable, colorized, msvs
-# (visual studio) and html. You can also give a reporter class, eg
-# mypackage.mymodule.MyReporterClass.
 output-format=text
-
-# Put messages in a separate file for each module / package specified on the
-# command line instead of printing them on stdout. Reports (if any) will be
-# written in a file name "pylint_global.[txt|html]".
 files-output=no
-
-# Tells whether to display a full report or only the messages
 reports=no
 
-# Python expression which should return a note less than 10 (10 is the highest
-# note). You have access to the variables errors warning, statement which
-# respectively contain the number of errors / warnings messages and the total
-# number of statements analyzed. This is used by the global evaluation report
-# (RP0004).
 evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
-
-# Template used to display messages. This is a python new-style format string
-# used to format the message information. See doc for all details
-#msg-template=
-
 
 [BASIC]
 
@@ -173,7 +133,7 @@ no-docstring-rgx=^_
 
 # Minimum line length for functions/classes that require docstrings, shorter
 # ones are exempt.
-docstring-min-length=5
+docstring-min-length=10
 
 
 [ELIF]
@@ -318,61 +278,27 @@ exclude-protected=_asdict,_fields,_replace,_source,_make
 
 [DESIGN]
 
-# Maximum number of arguments for function / method
 max-args=5
-
-# Argument names that match this expression will be ignored. Default to name
-# with leading underscore
 ignored-argument-names=_.*
-
-# Maximum number of locals for function / method body
 max-locals=15
-
-# Maximum number of return / yield for function / method body
 max-returns=6
-
-# Maximum number of branch for function / method body
 max-branches=12
-
-# Maximum number of statements in function / method body
 max-statements=50
-
-# Maximum number of parents for a class (see R0901).
 max-parents=7
-
-# Maximum number of attributes for a class (see R0902).
 max-attributes=7
-
-# Minimum number of public methods for a class (see R0903).
-min-public-methods=2
-
-# Maximum number of public methods for a class (see R0904).
+min-public-methods=1
 max-public-methods=20
-
-# Maximum number of boolean expressions in a if statement
 max-bool-expr=5
 
 
 [IMPORTS]
 
-# Deprecated modules which should not be used, separated by a comma
 deprecated-modules=optparse
-
-# Create a graph of every (i.e. internal and external) dependencies in the
-# given file (report RP0402 must not be disabled)
 import-graph=
-
-# Create a graph of external dependencies in the given file (report RP0402 must
-# not be disabled)
 ext-import-graph=
-
-# Create a graph of internal dependencies in the given file (report RP0402 must
-# not be disabled)
 int-import-graph=
 
 
 [EXCEPTIONS]
 
-# Exceptions that will emit a warning when being caught. Defaults to
-# "Exception"
 overgeneral-exceptions=Exception

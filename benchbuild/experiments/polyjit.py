@@ -72,19 +72,20 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
                                                 project=project, **kwargs)
         self.project = project
 
-    def __deconstruct(self, connect_str):
-        """Deconstruct a full PostgreSQL connect_str."""
-        from parse import parse
-        res = parse("{dialect}://{user}:{password}@{host}:{port}/{name}",
-                          connect_str)
-        return (res['dialect'], res['user'], res['password'],
-                res['host'], res['port'], res['name'])
-
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.settings import CFG
         experiment = self.project.experiment
+
+        def deconstruct(connect_str):
+            """Deconstruct a full PostgreSQL connect_str."""
+            from parse import parse
+            res = parse("{dialect}://{user}:{password}@{host}:{port}/{name}",
+                        connect_str)
+            return (res['dialect'], res['user'], res['password'],
+                    res['host'], res['port'], res['name'])
+
         _, user, password, host, port, name = \
-            self.__deconstruct(CFG["db"]["connect_string"].value())
+            deconstruct(CFG["db"]["connect_string"].value())
         pjit_args = [
             "-polli-db-experiment='{:s}'".format(experiment.name),
             "-polli-db-experiment-uuid='{:s}'".format(str(experiment.id)),

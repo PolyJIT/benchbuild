@@ -211,7 +211,8 @@ class BashStrategy(ContainerStrategy):
 class SetupPolyJITGentooStrategy(ContainerStrategy):
     """Interface of using gentoo as a container for an experiment."""
 
-    def write_wgetrc(self, path):
+    @staticmethod
+    def write_wgetrc(path):
         """Wget the project from a specified link."""
         mkfile_uchroot("/etc/wgetrc")
 
@@ -229,7 +230,8 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
                 ftp_proxy_s = "ftp_proxy={0}".format(str(ftp_proxy))
                 wgetrc.write(ftp_proxy_s + "\n")
 
-    def write_makeconfig(self, path):
+    @staticmethod
+    def write_makeconfig(path):
         """Create the stringed to be written in the settings."""
         mkfile_uchroot("/etc/portage/make.conf")
         with open(path, 'w') as makeconf:
@@ -265,7 +267,8 @@ PKGDIR="${PORTDIR}/packages"
                 rsync_proxy_s = "RSYNC_PROXY={0}".format(str(rsync_proxy))
                 makeconf.write(rsync_proxy_s + "\n")
 
-    def write_bashrc(self, path):
+    @staticmethod
+    def write_bashrc(path):
         """Write inside a bash and update the shell if necessary."""
         mkfile_uchroot("/etc/portage/bashrc")
         paths, libs = uchroot_env(
@@ -278,7 +281,8 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
 '''.format(list_to_path(paths), list_to_path(libs))
             bashrc.write(lines)
 
-    def write_layout(self, path):
+    @staticmethod
+    def write_layout(path):
         """Create a layout from the given path."""
         mkdir_uchroot("/etc/portage/metadata")
         mkfile_uchroot("/etc/portage/metadata/layout.conf")
@@ -288,10 +292,11 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
 
     def configure(self):
         """Configure the gentoo container for a PolyJIT experiment."""
-        self.write_bashrc("etc/portage/bashrc")
-        self.write_makeconfig("etc/portage/make.conf")
-        self.write_wgetrc("etc/wgetrc")
-        self.write_layout("etc/portage/metadata/layout.conf")
+        cls = SetupPolyJITGentooStrategy
+        cls.write_bashrc("etc/portage/bashrc")
+        cls.write_makeconfig("etc/portage/make.conf")
+        cls.write_wgetrc("etc/wgetrc")
+        cls.write_layout("etc/portage/metadata/layout.conf")
 
         mkfile_uchroot("/etc/resolv.conf")
         cp("/etc/resolv.conf", "etc/resolv.conf")

@@ -39,7 +39,8 @@ class RodiniaGroup(Project):
     def configure(self):
         pass
 
-    def select_compiler(self, c_compiler, _):
+    @staticmethod
+    def select_compiler(c_compiler, _):
         return c_compiler
 
     def build(self):
@@ -52,7 +53,8 @@ class RodiniaGroup(Project):
 
         with local.cwd(self.in_src_dir):
             for outfile, srcfiles in self.config['src'].items():
-                compiler = self.select_compiler(c_compiler, cxx_compiler)
+                cls = type(self)
+                compiler = cls.select_compiler(c_compiler, cxx_compiler)
                 if "flags" in self.config:
                     compiler = compiler[self.config["flags"]]
                 compiler = compiler[srcfiles]
@@ -102,7 +104,8 @@ class BFS(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, compiler):
+    @staticmethod
+    def select_compiler(_, compiler):
         return compiler
 
 
@@ -137,7 +140,8 @@ class CFD(RodiniaGroup):
         }
     }
 
-    def select_compiler(self, _, compiler):
+    @staticmethod
+    def select_compiler(_, compiler):
         return compiler
 
 
@@ -174,7 +178,8 @@ class Hotspot(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, compiler):
+    @staticmethod
+    def select_compiler(_, compiler):
         return compiler
 
 
@@ -384,7 +389,8 @@ class NW(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, compiler):
+    @staticmethod
+    def select_compiler(_, compiler):
         return compiler
 
 
@@ -417,7 +423,8 @@ class PathFinder(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, compiler):
+    @staticmethod
+    def select_compiler(_, compiler):
         return compiler
 
 class SRAD1(RodiniaGroup):
@@ -451,7 +458,8 @@ class SRAD2(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, compiler):
+    @staticmethod
+    def select_compiler(_, compiler):
         return compiler
 
 class StreamCluster(RodiniaGroup):
@@ -469,5 +477,6 @@ class StreamCluster(RodiniaGroup):
         ]
     }
 
-    def select_compiler(self, _, compiler):
+    @staticmethod
+    def select_compiler(_, compiler):
         return compiler

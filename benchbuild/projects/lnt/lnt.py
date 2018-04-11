@@ -58,7 +58,8 @@ class LNTGroup(Project):
 
         return (exp, lnt, sandbox_dir, clang, clang_cxx)
 
-    def after_run_tests(self, sandbox_dir):
+    @staticmethod
+    def after_run_tests(sandbox_dir):
         logfiles = glob(path.join(sandbox_dir, "./*/test.log"))
         for log in logfiles:
             LOG.info("Dumping contents of: %s", log)
@@ -86,7 +87,7 @@ class SingleSourceBenchmarks(LNTGroup):
                    "--make-param=RUNUNDER=" + str(exp),
                    "--only-test=" + path.join("SingleSource", "Benchmarks")])
 
-        self.after_run_tests(sandbox_dir)
+        type(self).after_run_tests(sandbox_dir)
 
 
 class MultiSourceBenchmarks(LNTGroup):
@@ -107,7 +108,7 @@ class MultiSourceBenchmarks(LNTGroup):
                    "--make-param=RUNUNDER=" + str(exp),
                    "--only-test=" + path.join("MultiSource", "Benchmarks")])
 
-        self.after_run_tests(sandbox_dir)
+        type(self).after_run_tests(sandbox_dir)
 
 
 class MultiSourceApplications(LNTGroup):
@@ -128,7 +129,7 @@ class MultiSourceApplications(LNTGroup):
                    "--make-param=RUNUNDER=" + str(exp),
                    "--only-test=" + path.join("MultiSource", "Applications")])
 
-        self.after_run_tests(sandbox_dir)
+        type(self).after_run_tests(sandbox_dir)
 
 
 class SPEC2006(LNTGroup):

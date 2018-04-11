@@ -227,7 +227,8 @@ class ExtractCompileStats(Extension):
 
         super(ExtractCompileStats, self).__init__(*extensions, config=config)
 
-    def get_compilestats(self, prog_out):
+    @staticmethod
+    def get_compilestats(prog_out):
         """ Get the LLVM compilation stats from :prog_out:. """
 
         stats_pattern = parse.compile("{value:d} {component} - {desc}\n")
@@ -267,7 +268,8 @@ class ExtractCompileStats(Extension):
 
             if not run_info.has_failed:
                 stats = []
-                for stat in self.get_compilestats(run_info.stderr):
+                cls = ExtractCompileStats
+                for stat in cls.get_compilestats(run_info.stderr):
                     compile_s = CompileStat()
                     compile_s.name = stat["desc"].rstrip()
                     compile_s.component = stat["component"].rstrip()

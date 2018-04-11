@@ -25,7 +25,7 @@ class SQLite3(Project):
     def download(self):
         Wget(self.src_uri, self.SRC_FILE)
         unzip(self.SRC_FILE)
-        self.fetch_leveldb()
+        type(self).fetch_leveldb()
 
     def configure(self):
         pass
@@ -39,7 +39,8 @@ class SQLite3(Project):
 
         self.build_leveldb()
 
-    def fetch_leveldb(self):
+    @staticmethod
+    def fetch_leveldb():
         src_uri = "https://github.com/google/leveldb"
         Git(src_uri, "leveldb.src")
 

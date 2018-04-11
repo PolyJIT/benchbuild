@@ -195,7 +195,8 @@ class Clean(Step):
 
     check_empty = attr.ib(default=False)
 
-    def __clean_mountpoints__(self, root: str):
+    @staticmethod
+    def clean_mountpoints(root: str):
         """
         Unmount any remaining mountpoints under :root.
 
@@ -224,7 +225,7 @@ class Clean(Step):
         obj_builddir = os.path.abspath(self.obj.builddir)
         if os.path.exists(obj_builddir):
             LOG.debug("Path %s exists", obj_builddir)
-            self.__clean_mountpoints__(obj_builddir)
+            Clean.clean_mountpoints(obj_builddir)
             if self.check_empty:
                 rmdir(obj_builddir, retcode=None)
             else:
@@ -404,11 +405,12 @@ class Experiment(Any):
             LOG.error("Transaction isolation level caused a StaleDataError")
 
         # React to external signals
-        signals.handlers.register(self.end_transaction, experiment, session)
+        signals.handlers.register(Experiment.end_transaction, experiment, session)
 
         return experiment, session
 
-    def end_transaction(self, experiment, session):
+    @staticmethod
+    def end_transaction(experiment, session):
         try:
             if experiment.end is None:
                 experiment.end = datetime.now()

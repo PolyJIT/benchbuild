@@ -28,6 +28,7 @@ class ProgressBar(cli.progress.ProgressBase):
     has_output = attr.ib(default=False)
     clear = attr.ib(default=True)
     value = attr.ib(default=None)
+    width = attr.ib(default=None)
 
     def __str__(self):
         """

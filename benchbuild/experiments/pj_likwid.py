@@ -1,9 +1,10 @@
 import copy
-import plumbum as pb
 import uuid
-import benchbuild.extensions as ext
-import benchbuild.experiments.polyjit as pj
 
+import plumbum as pb
+
+import benchbuild.experiments.polyjit as pj
+import benchbuild.extensions as ext
 from benchbuild.utils.actions import RequireAll
 
 

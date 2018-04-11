@@ -191,16 +191,9 @@ class TestReport(reports.Report):
             sa.column('dyncov')
         ]).\
         select_from(
-            sa.func.profile_scops_ratios_max_regions(sa.sql.bindparam('exp_ids'))
+            sa.func.profile_scops_ratios_max_regions(
+                sa.sql.bindparam('exp_ids'))
         )
-
-    #QUERY_RATIO_VALID_REGIONS = \
-    #    sa.sql.select([
-    #        sa.column('usefulRatio')
-    #    ]).\
-    #    select_from(
-    #        sa.func.profile_scops_ratio_valid_regions(sa.sql.bindparam('exp_ids'))
-    #    )
 
     QUERY_INVALID_REASONS = \
         sa.sql.select([
@@ -208,32 +201,30 @@ class TestReport(reports.Report):
             sa.column('occurrence')
         ]).\
         select_from(
-            sa.func.profile_scops_invalid_reasons_grouped(sa.sql.bindparam('exp_ids'))
+            sa.func.profile_scops_invalid_reasons_grouped(
+                sa.sql.bindparam('exp_ids'))
         )
 
     def report(self):
         print("I found the following matching experiment ids")
         print("  \n".join([str(x) for x in self.experiment_ids]))
 
-        queryRatiosScops = TestReport.QUERY_RATIOS_SCOPS.unique_params(
+        queryRatiosScops = \
+            TestReport.QUERY_RATIOS_SCOPS.unique_params(
                 exp_ids=self.experiment_ids, filter_str='%::SCoP')
         yield ("ratiosScops",
                ('project', 't_scop', 't_total', 'dyncov'),
                self.session.execute(queryRatiosScops).fetchall())
 
-        queryRatiosMaxRegions = TestReport.QUERY_RATIOS_MAX_REGIONS.unique_params(
+        queryRatiosMaxRegions = \
+            TestReport.QUERY_RATIOS_MAX_REGIONS.unique_params(
                 exp_ids=self.experiment_ids)
         yield ("ratiosMaxRegions",
                ('project', 't_parent', 't_total', 'dyncov'),
                self.session.execute(queryRatiosMaxRegions).fetchall())
 
-        #queryRatioValidRegions = TestReport.QUERY_RATIO_VALID_REGIONS.unique_params(
-        #        exp_ids=self.experiment_ids)
-        #yield ("ratioValidRegions",
-        #       ('usefulRatio'),
-        #       self.session.execute(queryRatioValidRegions).fetchall())
-
-        queryInvalidReasons = TestReport.QUERY_INVALID_REASONS.unique_params(
+        queryInvalidReasons = \
+            TestReport.QUERY_INVALID_REASONS.unique_params(
                 exp_ids=self.experiment_ids)
         yield ("invalidReasons",
                ('invalid_reason', 'occurrence'),

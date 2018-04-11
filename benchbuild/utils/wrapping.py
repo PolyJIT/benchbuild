@@ -19,8 +19,8 @@ Compiler Wrappers:
 
 Runtime Wrappers:
     These directly forward the binary call to the pickle without any execution
-    of the binary. We cannot guarantee that repeated execution is valid, therefore,
-    we let the user decide what the program should do.
+    of the binary. We cannot guarantee that repeated execution is valid,
+    therefore, we let the user decide what the program should do.
 """
 import logging
 import os

@@ -77,10 +77,10 @@ def evaluate_best_sequence(program):
         else:
             equal = False
 
-    log.info("Best sequences " + str(len(fittest_sequences)) + " of "
-          + str(possible_sequences))
+    log.info("Best sequences %d of %s", len(fittest_sequences),
+             str(possible_sequences))
     for sequence in fittest_sequences:
-        log.info("Best: " + str(sequence))
+        log.info("Best: %s", str(sequence))
     log.info("----------------------------------------------------------------")
 
     return random.choice(fittest_sequences)

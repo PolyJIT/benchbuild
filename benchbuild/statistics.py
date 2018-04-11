@@ -76,7 +76,8 @@ class Statistics(Extension):
 
                 #check if this was the last iteration
                 if(iterator == (timeout - 1)):
-                    LOG.warning("No significant run happened before the timeout!")
+                    LOG.warning(
+                        "No significant run happened before the timeout!")
                 iterator += 1
 
             # no need to repeat the run without a result function

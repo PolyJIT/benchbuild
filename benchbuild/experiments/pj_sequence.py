@@ -272,8 +272,7 @@ class RunSequence(ext.ExtractCompileStats):
 
         if regns_not_in_scops:
             return (key, regns_not_in_scops[0])
-        else:
-            return (key, sys.maxsize)
+        return (key, sys.maxsize)
 
 
 class FindFittestSequenceGenetic1(ext.RuntimeExtension):

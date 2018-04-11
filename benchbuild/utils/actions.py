@@ -285,11 +285,12 @@ class Configure(Step):
     DESCRIPTION = "Configure project source files"
 
     def __init__(self, project):
-        super(Configure, self).__init__(obj=project, action_fn=project.configure)
+        super(Configure, self).__init__(
+            obj=project, action_fn=project.configure)
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Configure".format(self.obj.name),
-                               indent * " ")
+        return textwrap.indent(
+            "* {0}: Configure".format(self.obj.name), indent * " ")
 
 
 class Build(Step):

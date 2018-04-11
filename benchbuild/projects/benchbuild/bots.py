@@ -134,7 +134,8 @@ class BOTSGroup(Project):
 
         if self.name in self.input_dict:
             for test_input in self.input_dict[self.name]:
-                input_file = os.path.join(self.SRC_FILE, "inputs", self.name, test_input)
+                input_file = os.path.join(
+                    self.SRC_FILE, "inputs", self.name, test_input)
 
                 runner(exp["-f", input_file])
         else:

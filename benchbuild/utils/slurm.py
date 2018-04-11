@@ -55,7 +55,8 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
             template.render(
                 config=["export " + x for x in repr(CFG).split('\n')],
                 clean_lockdir=CFG["slurm"]["node_dir"].value(),
-                clean_lockfile=CFG["slurm"]["node_dir"].value() + ".clean-in-progress.lock",
+                clean_lockfile=CFG["slurm"]["node_dir"].value() + \
+                    ".clean-in-progress.lock",
                 cpus=CFG['slurm']['cpus_per_task'].value(),
                 exclusive=CFG['slurm']['exclusive'].value(),
                 lockfile=CFG['slurm']["node_dir"].value() + ".lock",

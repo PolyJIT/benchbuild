@@ -44,17 +44,8 @@ def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='cc'):
         cc_name: Name of the generated script.
     """
     from os import path
-    from plumbum import local
 
-    def __compiler__():
-        path_info = __get_paths()
-        compiler_cmd = local["/usr/bin/env"]
-        compiler_cmd = compiler_cmd[cc_name]
-        compiler_cmd = \
-            cc.with_env(LD_LIBRARY_PATH=path_info["ld_library_path"])
-        return compiler_cmd
-
-    def gen_compiler_extension(ext):  # pylint:  disable=C0111
+    def gen_compiler_extension(ext):
         return path.join("/", cc_name + ext)
     wrap_cc(cc_name, cflags, ldflags, compiler, func, gen_compiler_extension,
             python="/usr/bin/env python3")

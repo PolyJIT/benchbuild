@@ -101,7 +101,7 @@ def calculate_neighbours(sequence, seq_to_fitness, pass_space, program):
     pool.apply_async(calculate_fitness_value,
                      args=(sequence, seq_to_fitness, str(sequence), program))
 
-    for i in range(sequence):
+    for i in range(len(sequence)):
         remaining_passes = list(pass_space)
         remaining_passes.remove(sequence[i])
 

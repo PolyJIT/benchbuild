@@ -22,7 +22,7 @@ def determine_path():
         root = os.path.realpath(root)
     return os.path.dirname(os.path.abspath(root))
 
-def template_files(path, exts=[]):
+def template_files(path, exts=None):
     """
     Return a list of filenames found at @path.
 
@@ -39,6 +39,8 @@ def template_files(path, exts=[]):
         _path = os.path.join(determine_path(), path)
     if not (os.path.exists(_path) and os.path.isdir(_path)):
         return []
+    if not exts:
+        exts = []
     files = os.listdir(_path)
     files = [f for f in files if os.path.splitext(f)[-1] in exts]
     files = [os.path.join(path, f) for f in files]

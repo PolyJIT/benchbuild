@@ -1,20 +1,17 @@
 """
 LAMMPS (sci-physics/lammps) project within gentoo chroot.
 """
-from os import path
 from glob import glob
-
-from benchbuild.utils.wrapping import \
-    (wrap_in_uchroot as wrap, strip_path_prefix)
-from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uretry, uchroot
-from benchbuild.utils.cmd import tar  # pylint: disable=E0401
+from os import path
 
 from plumbum import local
 
-
-run = uretry
+from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils.cmd import tar
+from benchbuild.utils.downloader import Wget
+from benchbuild.utils.run import uchroot, uretry
+from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+from benchbuild.utils.wrapping import strip_path_prefix
 
 
 class Lammps(GentooGroup):
@@ -38,7 +35,7 @@ class Lammps(GentooGroup):
     def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         with local.env(USE="-mpi -doc"):
-            run(emerge_in_chroot["sci-physics/lammps"])
+            uretry(emerge_in_chroot["sci-physics/lammps"])
 
     def run_tests(self, experiment, runner):
         wrap(

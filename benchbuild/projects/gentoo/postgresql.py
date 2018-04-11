@@ -3,15 +3,14 @@ postgresql experiment within gentoo chroot.
 """
 from os import path
 from time import sleep
-from psutil import Process
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
-from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.run import uretry, uchroot
+
 from plumbum import local
-from benchbuild.utils.cmd import kill, mkdir  # pylint: disable=E0401
+from psutil import Process
 
-
-run = uretry
+from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils.cmd import kill, mkdir
+from benchbuild.utils.run import uchroot, uretry
+from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 
 
 class Postgresql(GentooGroup):
@@ -24,11 +23,11 @@ class Postgresql(GentooGroup):
     def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         with local.env(USE="server"):
-            run(emerge_in_chroot["dev-db/postgresql:9.4"])
+            uretry(emerge_in_chroot["dev-db/postgresql:9.4"])
 
         pg_socketdir = "/run/postgresql"
         if not path.exists(self.outside(pg_socketdir)):
-            run(mkdir["-p", self.outside(pg_socketdir)])
+            uretry(mkdir["-p", self.outside(pg_socketdir)])
 
     def outside(self, chroot_path):
         """
@@ -57,7 +56,7 @@ class Postgresql(GentooGroup):
 
         with local.env(PGPORT="54329", PGDATA=pg_data):
             if not path.exists(self.outside(pg_data)):
-                run(initdb)
+                runner(initdb)
 
             with pg_server.bgrun() as postgres:
                 #We get the PID of the running 'pg_server, which is actually
@@ -76,9 +75,9 @@ class Postgresql(GentooGroup):
                                  if c.name() == 'postgres.bin' and c.parent(
                                  ).name() != 'postgres.bin']
                 try:
-                    run(createdb)
-                    run(pgbench["-i", "portage"])
-                    run(pgbench["-c", 1, "-S", "-t", 1000000, "portage"])
-                    run(dropdb["portage"])
+                    runner(createdb)
+                    runner(pgbench["-i", "portage"])
+                    runner(pgbench["-c", 1, "-S", "-t", 1000000, "portage"])
+                    runner(dropdb["portage"])
                 finally:
                     kill("-sSIGTERM", real_postgres[0])

@@ -2,14 +2,11 @@
 crafty experiment within gentoo chroot.
 """
 
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils.cmd import cat
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uretry, uchroot
-from benchbuild.utils.cmd import cat  # pylint: disable=E0401
-
-
-run = uretry
+from benchbuild.utils.run import uchroot, uretry
+from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 
 
 class Crafty(GentooGroup):
@@ -28,7 +25,7 @@ class Crafty(GentooGroup):
 
     def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        run(emerge_in_chroot["games-board/crafty"])
+        uretry(emerge_in_chroot["games-board/crafty"])
 
     def run_tests(self, experiment, runner):
         crafty_path = "/usr/games/bin/crafty"

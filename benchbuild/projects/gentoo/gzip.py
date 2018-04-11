@@ -2,14 +2,12 @@
 gzip experiment within gentoo chroot.
 """
 from os import path
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils.cmd import tar
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uretry, uchroot
-from benchbuild.utils.cmd import tar  # pylint: disable=E0401
-
-
-run = uretry
+from benchbuild.utils.run import uchroot, uretry
+from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 
 
 class GZip(GentooGroup):
@@ -34,7 +32,7 @@ class GZip(GentooGroup):
 
     def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        run(emerge_in_chroot["app-arch/gzip"])
+        uretry(emerge_in_chroot["app-arch/gzip"])
 
     def run_tests(self, experiment, runner):
         wrap(
@@ -42,15 +40,15 @@ class GZip(GentooGroup):
         gzip = uchroot()["/bin/gzip"]
 
         # Compress
-        run(gzip["-f", "-k", "--best", "compression/text.html"])
-        run(gzip["-f", "-k", "--best", "compression/chicken.jpg"])
-        run(gzip["-f", "-k", "--best", "compression/control"])
-        run(gzip["-f", "-k", "--best", "compression/input.source"])
-        run(gzip["-f", "-k", "--best", "compression/liberty.jpg"])
+        runner(gzip["-f", "-k", "--best", "compression/text.html"])
+        runner(gzip["-f", "-k", "--best", "compression/chicken.jpg"])
+        runner(gzip["-f", "-k", "--best", "compression/control"])
+        runner(gzip["-f", "-k", "--best", "compression/input.source"])
+        runner(gzip["-f", "-k", "--best", "compression/liberty.jpg"])
 
         # Decompress
-        run(gzip["-f", "-k", "--decompress", "compression/text.html.gz"])
-        run(gzip["-f", "-k", "--decompress", "compression/chicken.jpg.gz"])
-        run(gzip["-f", "-k", "--decompress", "compression/control.gz"])
-        run(gzip["-f", "-k", "--decompress", "compression/input.source.gz"])
-        run(gzip["-f", "-k", "--decompress", "compression/liberty.jpg.gz"])
+        runner(gzip["-f", "-k", "--decompress", "compression/text.html.gz"])
+        runner(gzip["-f", "-k", "--decompress", "compression/chicken.jpg.gz"])
+        runner(gzip["-f", "-k", "--decompress", "compression/control.gz"])
+        runner(gzip["-f", "-k", "--decompress", "compression/input.source.gz"])
+        runner(gzip["-f", "-k", "--decompress", "compression/liberty.jpg.gz"])

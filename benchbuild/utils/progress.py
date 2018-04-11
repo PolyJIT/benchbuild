@@ -13,7 +13,7 @@ class ProgressBar(cli.progress.ProgressBase):
 
     width = attr.ib(default=cli.termsize.get_terminal_size(default=(0, 0))[0])
     pg_char = attr.ib(default='*')
-    iterator = attr.ib(default=None)
+    iterator = attr.ib()
     @iterator.default
     def default_iterator(self):
         return range(self.length) if self.length else None

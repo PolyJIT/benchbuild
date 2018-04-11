@@ -7,28 +7,26 @@ import sys
 import attr
 from plumbum import cli
 
-
+@attr.s
 class ProgressBar(cli.progress.ProgressBase):
     """Class that modifies the progress bar."""
 
     width = attr.ib(default=cli.termsize.get_terminal_size(default=(0, 0))[0])
     pg_char = attr.ib(default='*')
-    iterator = attr.ib()
-    @iterator.default
-    def default_iterator(self):
-        return range(self.length) if self.length else None
-
-    length = attr.ib()
-    @length.default
-    def default_length(self):
-        return len(self.iterator) if self.iterator else None
-
+    iterator = attr.ib(default=None)
+    length = attr.ib(default=None)
     timer = attr.ib(default=True)
     body = attr.ib(default=False)
     has_output = attr.ib(default=False)
     clear = attr.ib(default=True)
     value = attr.ib(default=None)
     width = attr.ib(default=None)
+
+    def __attrs_post_init__(self):
+        if self.length and (self.iterator is None):
+            self.iterator = range(self.length)
+        if self.iterator and (self.length is None):
+            self.length = len(self.iterator)
 
     def __str__(self):
         """

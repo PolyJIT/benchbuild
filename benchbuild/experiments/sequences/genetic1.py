@@ -256,9 +256,8 @@ class Population(object):
             for i in range(self.chromosome_size):
                 if random.randint(1, 100) <= mutation_probability:
                     logging.getLogger(__name__).debug(
-                        "---> Mutation in Chromosome " + str(
-                            chromosome.chromosome_id) + "in gene " + str(i)
-                        + " <---")
+                        "---> Mutation in Chromosome %s in gene %d <---",
+                        str(chromosome.chromosome_id), i)
                     chromosome.genes[i] = random.choice(self.gene_pool)
 
 

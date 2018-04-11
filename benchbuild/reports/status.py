@@ -76,7 +76,8 @@ class FullDump(Report):
                 self.experiment_ids)
         )
 
-        return pd.read_sql_query(joined, self.session.connection(), chunksize=100)
+        return pd.read_sql_query(
+            joined, self.session.connection(), chunksize=100)
 
     def generate(self):
         """

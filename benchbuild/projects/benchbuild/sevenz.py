@@ -24,8 +24,9 @@ class SevenZip(Project):
 
     src_dir = "p7zip_{0}".format(VERSION)
     SRC_FILE = src_dir + "_src_all.tar.bz2"
-    src_uri = "http://downloads.sourceforge.net/project/p7zip/p7zip/{0}/".format(VERSION) + \
-       SRC_FILE
+    src_uri = "http://downloads.sourceforge.net/" \
+              "project/p7zip/p7zip/{0}/".format(VERSION) + \
+              SRC_FILE
 
     def download(self):
         Wget(self.src_uri, self.SRC_FILE)

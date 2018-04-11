@@ -313,9 +313,10 @@ def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
 def track_execution(cmd, project, experiment, **kwargs):
     """Guard the execution of the given command.
 
-    The given command (`cmd`) will be executed inside a database context. As soon
-    as you leave the context we will commit the transaction. Any necessary modifications
-    to the database can be identified inside the context with the RunInfo object.
+    The given command (`cmd`) will be executed inside a database context.
+    As soon as you leave the context we will commit the transaction.
+    Any necessary modifications to the database can be identified inside
+    the context with the RunInfo object.
 
     Args:
         cmd: The command we guard.
@@ -323,7 +324,8 @@ def track_execution(cmd, project, experiment, **kwargs):
         experiment: The experiment we track for.
 
     Yields:
-        RunInfo: A context object that carries the necessary database transaction.
+        RunInfo: A context object that carries the necessary
+            database transaction.
     """
 
     runner = RunInfo(cmd=cmd, project=project, experiment=experiment, **kwargs)

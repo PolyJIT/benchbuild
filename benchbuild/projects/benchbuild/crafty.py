@@ -19,7 +19,8 @@ class Crafty(Project):
     VERSION = '25.2'
 
     src_dir = "crafty-{0}".format(VERSION)
-    src_uri = "http://www.craftychess.com/downloads/source/crafty-{0}.zip".format(VERSION)
+    src_uri = "http://www.craftychess.com/" \
+              "downloads/source/crafty-{0}.zip".format(VERSION)
     SRC_FILE = src_dir + ".zip"
 
     def download(self):

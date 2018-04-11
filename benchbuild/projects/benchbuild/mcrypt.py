@@ -26,7 +26,8 @@ class MCrypt(Project):
 
     libmcrypt_dir = "libmcrypt-2.5.8"
     libmcrypt_file = libmcrypt_dir + ".tar.gz"
-    libmcrypt_uri = "http://sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/" + \
+    libmcrypt_uri = \
+        "http://sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/" + \
         libmcrypt_file
 
     mhash_dir = "mhash-0.9.9.9"

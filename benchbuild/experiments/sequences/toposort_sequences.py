@@ -116,6 +116,6 @@ def generate_custom_sequence(program):
     log.debug("Best sequences " + str(len(fittest_sequences)))
     for sequence in fittest_sequences:
         log.debug("Best: " + str(sequence))
-    log.debug("----------------------------------------------------------------")
+    log.debug("---------------------------------------------------------------")
 
     return random.choice(fittest_sequences)

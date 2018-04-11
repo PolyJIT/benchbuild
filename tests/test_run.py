@@ -30,14 +30,18 @@ class TestShadow(unittest.TestCase):
 
         outside = cmd.mkdir
         inside = test_class().shadow_hook()
-        self.assertEqual(inside.formulate(), true.formulate(),
-                         msg="true (before) is not the same as true (inside)")
-        self.assertNotEqual(mkdir.formulate(), inside.formulate(),
-                            msg="mkdir (before) is not the same as mkdir (inside)")
-        self.assertNotEqual(inside.formulate(), outside.formulate(),
-                            msg="true (before) is not the same as true (after)")
-        self.assertEqual(mkdir.formulate(), outside.formulate(),
-                         msg="mkdir (before) is not the same as mkdir (after)")
+        self.assertEqual(
+            inside.formulate(), true.formulate(),
+            msg="true (before) is not the same as true (inside)")
+        self.assertNotEqual(
+            mkdir.formulate(), inside.formulate(),
+            msg="mkdir (before) is not the same as mkdir (inside)")
+        self.assertNotEqual(
+            inside.formulate(), outside.formulate(),
+            msg="true (before) is not the same as true (after)")
+        self.assertEqual(
+            mkdir.formulate(), outside.formulate(),
+            msg="mkdir (before) is not the same as mkdir (after)")
 
 
 class TestRun(unittest.TestCase):

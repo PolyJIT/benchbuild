@@ -204,7 +204,7 @@ def start_shortening(experiment, program):
             if len(seq) < len(best):
                 best = seq
 
-        log.debug("Optimization Passes: " + str(best))
+        log.debug("Optimization Passes: %s", str(best))
         polly_stats.detect_scops(best, program)
     else:
         log.error('Error! Could not find sequence in raw file!')

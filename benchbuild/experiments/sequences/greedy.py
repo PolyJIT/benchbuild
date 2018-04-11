@@ -92,7 +92,7 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
     log = logging.getLogger(__name__)
     for i in range(iterations):
         log.debug("=======================================")
-        log.debug("Iteration: " + str(i + 1))
+        log.debug("Iteration: %d", i + 1)
         log.debug("=======================================")
         base_sequence = []
 
@@ -101,8 +101,8 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
         while len(base_sequence) < seq_length:
             log.debug(
                 "<=--------------------------------------------------------=>")
-            log.debug("Custom Sequence: " + str(base_sequence))
-            log.debug("Length: " + str(len(base_sequence)))
+            log.debug("Custom Sequence: %s", str(base_sequence))
+            log.debug("Length: %d", len(base_sequence))
             log.debug("---------------------------------")
             log.debug("Child Sequences: ")
 
@@ -157,7 +157,7 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
     generated_sequences.sort(key=lambda s: seq_to_fitness[str(s)])
     log.debug("\n...Finished!")
     log.debug(
-        "Generated Custom Sequences in " + str(iterations) + " Iterations:")
+        "Generated Custom Sequences in %s Iterations:", str(iterations))
     if debug:
         for generated in generated_sequences:
             log.debug(generated)

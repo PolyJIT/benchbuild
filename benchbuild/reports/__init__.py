@@ -65,7 +65,7 @@ class Report(object, metaclass=ReportRegistry):
     NAME = None
 
     def __new__(cls, *args, **kwargs):
-        del args, kwargs # Temporarily unused
+        del args, kwargs  # Temporarily unused
         new_self = super(Report, cls).__new__(cls)
         if not cls.SUPPORTED_EXPERIMENTS:
             raise AttributeError(

@@ -96,5 +96,5 @@ class FullDump(Report):
         first = True
         for chunk in self.report():
             print("Writing chunk to :'{0}'".format(fname))
-            chunk.to_csv(fname, header = first, mode='a')
+            chunk.to_csv(fname, header=first, mode='a')
             first = False

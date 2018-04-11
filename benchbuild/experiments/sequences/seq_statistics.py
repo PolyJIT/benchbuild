@@ -271,7 +271,7 @@ def main(argv):
     except getopt.GetoptError:
         create_best_sequences_stats()
         sys.exit(2)
-    for opt, arg in opts:
+    for opt, _ in opts:
         if opt in ('-h', '--help'):
             __usage()
             sys.exit()

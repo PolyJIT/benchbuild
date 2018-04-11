@@ -43,7 +43,7 @@ def create_random_sequence(pass_space, seq_length):
      """
     sequence = []
 
-    for i in range(seq_length):
+    for _ in range(seq_length):
         sequence.append(random.choice(pass_space))
 
     return sequence

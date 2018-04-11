@@ -22,6 +22,8 @@ class BenchBuildBootstrap(cli.Application):
                             default=False)
 
     def main(self, *args):
+        del args # Unused
+
         p.mkdir_interactive(str(CFG["build_dir"]))
         print("Checking benchbuild binary dependencies...")
         provide_package("cmake")

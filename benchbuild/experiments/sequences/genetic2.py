@@ -137,7 +137,7 @@ class Population(object):
         self.fittest_chromosome = None
         self.chromosomes = []
         self.environment = environment
-        for i in range(self.size):
+        for _ in range(self.size):
             self.chromosomes.append(
                 Chromosome(self.__generate_random_gene_sequence(),
                            self.environment))
@@ -201,7 +201,7 @@ class Population(object):
         num_best = len(self.chromosomes) // 10
         self.fittest_chromosome = self.chromosomes.pop()
         best_chromosomes = [self.fittest_chromosome]
-        for i in range(num_best - 1):
+        for _ in range(num_best - 1):
             best_chromosomes.append(self.chromosomes.pop())
 
         # 4. crossover: fill the vacancies in the population with new
@@ -240,7 +240,7 @@ class Population(object):
     def __generate_random_gene_sequence(self):
         """Generates a random sequence of genes."""
         genes = []
-        for j in range(self.chromosome_size):
+        for _ in range(self.chromosome_size):
             genes.append(random.choice(self.gene_pool))
 
         return genes
@@ -282,7 +282,7 @@ class Population(object):
 
         if diff > 0:
             log.debug("---> Duplicate(s) found! <---")
-            for i in range(diff):
+            for _ in range(diff):
                 chromosomes.append(
                     Chromosome(self.__generate_random_gene_sequence(),
                                self.environment))

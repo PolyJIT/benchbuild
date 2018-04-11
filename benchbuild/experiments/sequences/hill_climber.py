@@ -136,7 +136,7 @@ def climb(sequence, program, pass_space, seq_to_fitness):
     base_sequence = sequence
     base_sequence_key = str(base_sequence)
     log.debug("Start climbing...")
-    log.debug("Initial base sequence: " + str(base_sequence))
+    log.debug("Initial base sequence: %s", str(base_sequence))
 
     # Take the base sequence and calculate all neighbours. Check if the best
     # performing neighbour is better than the base sequence. If this is the
@@ -162,15 +162,15 @@ def climb(sequence, program, pass_space, seq_to_fitness):
                 changed = True
 
         climbs += 1
-        log.debug("\n---> Climb number " + str(climbs) + " <---")
-        log.debug("---> Base sequence: " + str(base_sequence) + " <---")
+        log.debug("\n---> Climb number %s <---", str(climbs))
+        log.debug("---> Base sequence: %s <---", str(base_sequence))
         log.debug("---> Neighbours: <---")
 
         if print_debug:
             for neighbour in neighbours:
-                log.debug(
-                    'Neighbour: ' + str(neighbour) + "; Fitness value: " + str(
-                        seq_to_fitness[str(neighbour)]))
+                log.debug('Neighbour: %s; Fitness value: %s',
+                          str(neighbour),
+                          str(seq_to_fitness[str(neighbour)]))
 
 
     log.debug("Local optimum reached!\n")
@@ -208,7 +208,7 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
     log.debug("\n Start hill climbing algorithm...")
 
     for i in range(iterations):
-        log.debug("Iteration: " + str(i + 1))
+        log.debug("Iteration: %d", i + 1)
         base_sequence = create_random_sequence(pass_space, seq_length)
         base_sequence = climb(base_sequence, program, pass_space,
                               seq_to_fitness)
@@ -217,8 +217,8 @@ def generate_custom_sequence(program, pass_space=DEFAULT_PASS_SPACE,
                 seq_to_fitness[str(base_sequence)]:
             best_sequence = base_sequence
 
-    log.debug("Best sequence found in " + str(iterations) + "iterations:")
-    log.debug("Sequence: " + str(best_sequence) + "\nFitness value: "
-                         + str(seq_to_fitness[str(best_sequence)]))
+    log.debug("Best sequence found in %d iterations:")
+    log.debug("Sequence: %s", best_sequence)
+    log.debug("Fitness value: %s", str(seq_to_fitness[str(best_sequence)]))
 
     return best_sequence

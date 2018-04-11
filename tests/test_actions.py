@@ -29,7 +29,8 @@ class EmptyProject(Project):
 class EmptyExperiment(Experiment):
     NAME = "test_empty"
 
-    def actions_for_project(self):
+    def actions_for_project(self, project):
+        del project
         pass
 
 

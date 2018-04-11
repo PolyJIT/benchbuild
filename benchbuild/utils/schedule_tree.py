@@ -3,16 +3,22 @@
 import logging
 import textwrap as t
 
+import attr
 import pyparsing as p
 
 LOG = logging.getLogger(__name__)
 
 
+@attr.s
 class Node(object):
-    def __init__(self, tok):
-        self.name = tok[0]
-        self.value = tok[2]
-    
+    tok = attr.ib()
+
+    name = attr.ib(default=attr.Factory(
+        lambda self: self.tok[0], takes_self=True))
+
+    value = attr.ib(default=attr.Factory(
+        lambda self: self.tok[2], takes_self=True))
+
     def indent(self, level=0, idt=' '):
         val = self.value
         if not isinstance(self.value, str):
@@ -20,10 +26,15 @@ class Node(object):
         return t.indent('"{:s}": "{:s}"'.format(self.name, val), level*idt)
 
 
+@attr.s
 class CoincidenceNode(object):
-    def __init__(self, tok):
-        self.name = tok[0]
-        self.children = tok[3]
+    tok = attr.ib()
+
+    name = attr.ib(default=attr.Factory(
+        lambda self: self.tok[0], takes_self=True))
+
+    children = attr.ib(default=attr.Factory(
+        lambda self: self.tok[3], takes_self=True))
 
     def indent(self, level=0, idt=' '):
         ret = [str(child) for child in self.children]
@@ -31,10 +42,16 @@ class CoincidenceNode(object):
 
         return t.indent('"{:s}": [{:s}]'.format(self.name, ret), level*idt)
 
+
+@attr.s
 class RootNode(object):
-    def __init__(self, tok):
-        self.name = tok[0]
-        self.children = tok[1]
+    tok = attr.ib()
+
+    name = attr.ib(default=attr.Factory(
+        lambda self: self.tok[0], takes_self=True))
+
+    children = attr.ib(default=attr.Factory(
+        lambda self: self.tok[1], takes_self=True))
 
     def indent(self, level=0, idt=' '):
         ret = []
@@ -49,18 +66,24 @@ class RootNode(object):
         return self.indent(0)
 
 
+@attr.s
 class ChildNode(RootNode):
-    def __init__(self, tok):
-        self.elem = tok[0]
+    elem = attr.ib(default=attr.Factory(
+        lambda self: self.tok[0], takes_self=True))
 
     def indent(self, level=0, idt=' '):
         ret = self.elem.indent(level)
         return ret
 
+
 class SequenceNode(object):
-    def __init__(self, tok):
-        self.name = tok[0]
-        self.children = tok[3]
+    tok = attr.ib()
+
+    name = attr.ib(default=attr.Factory(
+        lambda self: self.tok[0], takes_self=True))
+
+    children = attr.ib(default=attr.Factory(
+        lambda self: self.tok[3], takes_self=True))
 
     def indent(self, level=0, idt=' '):
         ret = '"{:s}": [\n'.format(self.name)

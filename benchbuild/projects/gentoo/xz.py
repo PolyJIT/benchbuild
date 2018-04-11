@@ -2,14 +2,12 @@
 xz experiment within gentoo chroot.
 """
 from os import path
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils.cmd import tar
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uretry, uchroot
-from benchbuild.utils.cmd import tar  # pylint: disable=E0401
-
-
-run = uretry
+from benchbuild.utils.run import uchroot, uretry
+from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 
 
 class XZ(GentooGroup):
@@ -34,7 +32,7 @@ class XZ(GentooGroup):
 
     def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        run(emerge_in_chroot["app-arch/xz-utils"])
+        uretry(emerge_in_chroot["app-arch/xz-utils"])
 
     def run_tests(self, experiment, runner):
         wrap(
@@ -43,18 +41,18 @@ class XZ(GentooGroup):
         xz = uchroot()["/usr/bin/xz"]
 
         # Compress
-        run(xz["--compress", "-f", "-k", "-e", "-9", "compression/text.html"])
-        run(xz["--compress", "-f", "-k", "-e", "-9",
-               "compression/chicken.jpg"])
-        run(xz["--compress", "-f", "-k", "-e", "-9", "compression/control"])
-        run(xz["--compress", "-f", "-k", "-e", "-9",
-               "compression/input.source"])
-        run(xz["--compress", "-f", "-k", "-e", "-9",
+        runner(xz["--compress", "-f", "-k", "-e", "-9", "compression/text.html"])
+        runner(xz["--compress", "-f", "-k", "-e", "-9",
+                  "compression/chicken.jpg"])
+        runner(xz["--compress", "-f", "-k", "-e", "-9", "compression/control"])
+        runner(xz["--compress", "-f", "-k", "-e", "-9",
+                  "compression/input.source"])
+        runner(xz["--compress", "-f", "-k", "-e", "-9",
                "compression/liberty.jpg"])
 
         # Decompress
-        run(xz["--decompress", "-f", "-k", "compression/text.html.xz"])
-        run(xz["--decompress", "-f", "-k", "compression/chicken.jpg.xz"])
-        run(xz["--decompress", "-f", "-k", "compression/control.xz"])
-        run(xz["--decompress", "-f", "-k", "compression/input.source.xz"])
-        run(xz["--decompress", "-f", "-k", "compression/liberty.jpg.xz"])
+        runner(xz["--decompress", "-f", "-k", "compression/text.html.xz"])
+        runner(xz["--decompress", "-f", "-k", "compression/chicken.jpg.xz"])
+        runner(xz["--decompress", "-f", "-k", "compression/control.xz"])
+        runner(xz["--decompress", "-f", "-k", "compression/input.source.xz"])
+        runner(xz["--decompress", "-f", "-k", "compression/liberty.jpg.xz"])

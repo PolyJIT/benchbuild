@@ -52,14 +52,15 @@ def find_most_frequent_sequence():
         if sequence_to_programs[sequence] == frequency:
             best_sequences.append(sequence)
 
-    log.info("Number of best sequences: " + str(len(best_sequences)))
+    log.info("Number of best sequences: %s", str(len(best_sequences)))
     log.info("Most frequently occurring sequence:")
     log.info(best)
-    log.info("Occurrences: " + str(sequence_to_programs[best]) + " of " + str(
-        number_programs))
+    log.info("Occurrences: %s of %d",
+             str(sequence_to_programs[best]),
+             str(number_programs))
 
     for sequence in best_sequences:
-        log.info("Best: " + str(list(sequence)))
+        log.info("Best: %s", str(list(sequence)))
 
 
 if __name__ == '__main__':

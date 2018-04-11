@@ -6,12 +6,10 @@ import logging
 from benchbuild.extensions import Extension
 from benchbuild.utils.schema import Session
 
-'''
-The import of scipy and all of its usages are commented out, since its import
-takes too much time for the buildbot. To use the statistics uncomment the
-import and the line containing the stats.ttest function of scipy.
-'''
-#import scipy
+# The import of scipy and all of its usages are commented out, since its import
+# takes too much time for the buildbot. To use the statistics uncomment the
+# import and the line containing the stats.ttest function of scipy.
+# import scipy
 
 LOG = logging.getLogger(__name__)
 TIMEOUT = 1

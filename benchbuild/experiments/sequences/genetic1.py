@@ -137,7 +137,7 @@ class Population(object):
         self.chromosomes = []
         self.environment = environment
 
-        for i in range(self.size):
+        for _ in range(self.size):
             self.chromosomes.append(
                 Chromosome(self.__generate_random_gene_sequence(),
                            self.environment))
@@ -244,7 +244,7 @@ class Population(object):
     def __generate_random_gene_sequence(self):
         """Generates a random sequence of genes."""
         genes = []
-        for j in range(self.chromosome_size):
+        for _ in range(self.chromosome_size):
             genes.append(random.choice(self.gene_pool))
 
         return genes
@@ -271,7 +271,7 @@ class Population(object):
 
         if diff > 0:
             log.debug("---> Duplicate(s) found! <---")
-            for i in range(diff):
+            for _ in range(diff):
                 chromosomes.append(
                     Chromosome(self.__generate_random_gene_sequence(),
                                self.environment))

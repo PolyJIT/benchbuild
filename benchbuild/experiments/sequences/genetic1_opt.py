@@ -85,7 +85,7 @@ def simulate_generation(chromosomes, gene_pool, environment, seq_to_fitness):
     del lower_half[0]
     random.shuffle(lower_half)
 
-    for i in range(0, 3):
+    for _ in range(0, 3):
         lower_half.pop()
 
     # 5. crossover: fill the four vacancies in the population with new
@@ -118,7 +118,7 @@ def simulate_generation(chromosomes, gene_pool, environment, seq_to_fitness):
 def generate_random_gene_sequence(gene_pool):
     """Generates a random sequence of genes."""
     genes = []
-    for j in range(DEFAULT_CHROMOSOME_SIZE):
+    for _ in range(DEFAULT_CHROMOSOME_SIZE):
         genes.append(random.choice(gene_pool))
 
     return genes
@@ -152,7 +152,7 @@ def delete_duplicates(chromosomes, gene_pool):
     diff = DEFAULT_POPULATION_SIZE - len(new_chromosomes)
 
     if diff > 0:
-        for i in range(diff):
+        for _ in range(diff):
             chromosomes.append(generate_random_gene_sequence(gene_pool))
 
     for chromosome in new_chromosomes:

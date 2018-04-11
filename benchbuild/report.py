@@ -35,6 +35,8 @@ class BenchBuildReport(cli.Application):
         self._outfile = outfile
 
     def main(self, *args):
+        del args # Unused
+
         e.discover()
         r.discover()
         all_reports = r.ReportRegistry.reports

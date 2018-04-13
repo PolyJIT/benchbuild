@@ -14,9 +14,9 @@ from plumbum import cli
 import benchbuild.experiment as experiment
 import benchbuild.experiments as experiments
 import benchbuild.project as project
+import benchbuild.utils.actions as actions
 from benchbuild.settings import CFG
 from benchbuild.utils import path, progress
-from benchbuild.utils.actions import Experiment, Step, StepResult
 
 LOG = logging.getLogger(__name__)
 
@@ -24,183 +24,202 @@ LOG = logging.getLogger(__name__)
 class BenchBuildRun(cli.Application):
     """Frontend for running experiments in the benchbuild study framework."""
 
-    _experiment_names = []
-    _project_names = []
-    _list = False
-    _list_experiments = False
-    _group_name = None
-    _test_full = False
+    experiment_names = []
+    project_names = []
+    group_name = None
 
-    @cli.switch(["--full"], help="Test all experiments for the project")
-    def full(self):
-        self._test_full = True
+    test_full = cli.Flag(
+        ["-F", "--full"],
+        help="Test all experiments for the project",
+        default=False)
 
-    @cli.switch(["-E", "--experiment"],
-                str,
-                list=True,
-                help="Specify experiments to run")
-    def experiments(self, experiment_names):
-        self._experiment_names = experiment_names
+    @cli.switch(
+        ["-E", "--experiment"],
+        str,
+        list=True,
+        help="Specify experiments to run")
+    def set_experiments(self, names):
+        self.experiment_names = names
 
-    @cli.switch(["-D", "--description"],
-                str,
-                help="A description for this experiment run")
-    def experiment_tag(self, description):
+    @cli.switch(
+        ["-D", "--description"],
+        str,
+        help="A description for this experiment run")
+    def set_experiment_tag(self, description):
         CFG["experiment_description"] = description
 
-    @cli.switch(["-P", "--project"],
-                str,
-                list=True,
-                help="Specify projects to run")
-    def projects(self, projects):
-        self._project_names = projects
+    @cli.switch(
+        ["-P", "--project"], str, list=True, help="Specify projects to run")
+    def set_projects(self, names):
+        self.project_names = names
 
-    @cli.switch(["-L", "--list-experiments"],
-                help="List available experiments")
-    def list_experiments(self):
-        self._list_experiments = True
+    list_experiments = cli.Flag(
+        ["-L", "--list-experiments"],
+        help="List available experiments",
+        default=False)
 
-    @cli.switch(["-l", "--list"],
-                requires=["--experiment"],
-                help="List available projects for experiment")
-    def list_projects(self):
-        self._list = True
+    list_projects = cli.Flag(
+        ["-l", "--list"],
+        requires=["--experiment"],
+        help="List available projects for experiment",
+        default=False)
 
-    show_config = cli.Flag(["-d", "--dump-config"],
-                           help="Just dump benchbuild's config and exit.",
-                           default=False)
+    show_progress = cli.Flag(
+        ["--disable-progress"], help="Disable progress bar", default=True)
 
-    store_config = cli.Flag(["-s", "--save-config"],
-                            help="Save benchbuild's configuration.",
-                            default=False)
+    show_config = cli.Flag(
+        ["-d", "--dump-config"],
+        help="Just dump benchbuild's config and exit.",
+        default=False)
 
-    @cli.switch(["-G", "--group"],
-                str,
-                requires=["--experiment"],
-                help="Run a group of projects under the given experiments")
-    def group(self, group):
-        self._group_name = group
+    store_config = cli.Flag(
+        ["-s", "--save-config"],
+        help="Save benchbuild's configuration.",
+        default=False)
+
+    @cli.switch(
+        ["-G", "--group"],
+        str,
+        requires=["--experiment"],
+        help="Run a group of projects under the given experiments")
+    def set_group(self, group):
+        self.group_name = group
 
     pretend = cli.Flag(['p', 'pretend'], default=False)
 
-    def main(self):
-        """Main entry point of benchbuild run."""
-        project_names = self._project_names
-        group_name = self._group_name
+    def __maybe_list_experiments(self, exps):
+        if not self.list_experiments:
+            return
 
-        experiments.discover()
+        for exp_cls in exps.values():
+            print(exp_cls.NAME)
+            docstring = exp_cls.__doc__ or "-- no docstring --"
+            print(("    " + docstring))
+        exit(0)
 
-        registry = experiment.ExperimentRegistry
-        exps = registry.experiments
+    def __maybe_list_projects(self, exps, prjs):
+        if not self.list_projects:
+            return
 
-        if self._list_experiments:
-            for exp_name in registry.experiments:
-                exp_cls = exps[exp_name]
-                print(exp_cls.NAME)
-                docstring = exp_cls.__doc__ or "-- no docstring --"
-                print(("    " + docstring))
-            exit(0)
+        for exp_cls in exps.values():
+            exp = exp_cls(projects=prjs)
+            print_projects(exp)
+        exit(0)
 
-        if self._list:
-            for exp_name in self._experiment_names:
-                projects = project.populate(project_names, group_name)
-                exp_cls = exps[exp_name]
-                exp = exp_cls(projects=projects)
-                print_projects(exp)
-            exit(0)
+    def __maybe_show_config(self, cfg):
+        if not self.show_config:
+            return
 
-        if self.show_config:
-            print(repr(CFG))
-            exit(0)
+        print(repr(cfg))
+        exit(0)
 
-        if self.store_config:
+    def __maybe_store_config(self, cfg):
+        if not self.store_config:
             config_path = ".benchbuild.yml"
-            CFG.store(config_path)
+            cfg.store(config_path)
             print("Storing config in {0}".format(os.path.abspath(config_path)))
             exit(0)
 
-        if self._project_names:
-            path.mkdir_interactive(str(CFG["build_dir"]))
+    def __generate_plan(self, exps, prjs, cfg):
+        if prjs:
+            path.mkdir_interactive(cfg["build_dir"].value())
 
-        actns = []
-        exps_to_run = []
-        if self._test_full:
-            exps_to_run = exps.values()
-        else:
-            if len(self._experiment_names) == 0:
-                print("No experiment selected. Did you forget to use -E?")
-            for exp_name in self._experiment_names:
-                if exp_name in exps:
-                    exps_to_run.append(exps[exp_name])
-                else:
-                    LOG.error("Could not find %s in the experiment registry.",
-                              exp_name)
+        for exp_cls in exps.values():
+            exp = exp_cls(projects=prjs)
+            eactn = actions.Experiment(obj=exp, actions=exp.actions())
+            yield eactn
 
-        for exp_cls in exps_to_run:
-            projects = project.populate(project_names, group_name)
-            exp = exp_cls(projects=projects)
-            if not exp.projects:
-                print_projects(exp)
-            else:
-                eactn = Experiment(obj=exp, actions=exp.actions())
-                actns.append(eactn)
+    @staticmethod
+    def setup_progress(cfg, num_actions):
+        """Setup a progress bar.
 
-        num_actions = sum([len(x) for x in actns])
-        print("Number of actions to execute: {}".format(num_actions))
-        for a in actns:
-            print(a)
-        print()
+        Args:
+            cfg: Configuration dictionary.
+            num_actions (int): Number of actions in the plan.
 
-        failed = []
-        start = 0
-        end = 0
-        if self.pretend:
-            return 0
-
-        def has_failed(res):
-            fstatus = [StepResult.ERROR, StepResult.CAN_CONTINUE]
-            return len([x for x in res if x in fstatus]) > 0
-
+        Returns:
+            The configured progress bar.
+        """
         pg_bar = progress.ProgressBar(
             width=80,
             pg_char='|',
             length=num_actions,
-            has_output=CFG["verbosity"].value() > 0,
+            has_output=cfg["verbosity"].value() > 0,
             body=True,
             timer=False)
 
-        def on_step_end(step, f):
-            del step, f
+        def on_step_end(step, func):
+            del step, func
             pg_bar.increment()
 
-        Step.ON_STEP_END.append(on_step_end)
+        actions.Step.ON_STEP_END.append(on_step_end)
+        return pg_bar
 
-        pg_bar.start()
+    def main(self):
+        """Main entry point of benchbuild run."""
+        experiment_names = self.experiment_names
+        project_names = self.project_names
+        group_name = self.group_name
+
+        experiments.discover()
+        all_exps = experiment.ExperimentRegistry.experiments
+
+        if self.test_full:
+            exps = all_exps
+        else:
+            exps = dict(
+                filter(lambda pair: pair[0] in set(experiment_names),
+                       all_exps.items()))
+
+        unknown_exps = list(
+            filter(lambda name: name not in all_exps.keys(),
+                   set(experiment_names)))
+        prjs = project.populate(project_names, group_name)
+
+        self.__maybe_list_experiments(all_exps)
+        self.__maybe_list_projects(exps, prjs)
+        self.__maybe_show_config(CFG)
+
+        if not experiment_names:
+            print("No experiment selected. Did you forget to use -E?")
+
+        if unknown_exps:
+            print('Could not find ', str(unknown_exps),
+                  ' in the experiment registry.')
+
+        plan = list(self.__generate_plan(exps, prjs, CFG))
+        num_actions = actions.num_steps(plan)
+        actions.print_steps(plan)
+
+        if self.pretend:
+            exit(0)
+
+        if self.show_progress:
+            pg_bar = type(self).setup_progress(CFG, num_actions)
+            pg_bar.start()
+
         start = time.perf_counter()
-        for action in actns:
-            res = action()
-
-            if has_failed(res):
-                failed.append(action)
-
+        failed = execute_plan(plan)
         end = time.perf_counter()
-        pg_bar.done()
 
-        print("""
-Summary:
-    {num_total} actions were in the queue.
-    {num_failed} actions failed to execute.
+        if self.show_progress:
+            pg_bar.done()
 
-    This run took: {elapsed_time:8.3f} seconds.
-        """.format(num_total=num_actions, num_failed=len(failed),
-                   elapsed_time=end-start))
-
-        if failed:
-            print("Failed:")
-            for fail in failed:
-                print(fail)
-
+        print_summary(num_actions, failed, end - start)
         return len(failed)
+
+
+def execute_plan(plan):
+    """"Execute the plan.
+
+    Args:
+        plan (:obj:`list` of :obj:`actions.Step`): The plan we want to execute.
+
+    Returns:
+        (:obj:`list` of :obj:`actions.Step`): A list of failed actions.
+    """
+    results = [action() for action in plan]
+    return [result for result in results if actions.step_has_failed(result)]
 
 
 def print_projects(exp):
@@ -214,7 +233,8 @@ def print_projects(exp):
     grouped_by = {}
     projects = exp.projects
     if not projects:
-        print("Your selection didn't include any projects for this experiment.")
+        print(
+            "Your selection didn't include any projects for this experiment.")
 
     for name in projects:
         prj = projects[name]
@@ -231,8 +251,35 @@ def print_projects(exp):
         project_paragraph = ""
         for prj in projects:
             project_paragraph += ", {0}".format(prj)
-        print("\n".join(wrap(project_paragraph[2:],
-                             80,
-                             break_on_hyphens=False,
-                             break_long_words=False)))
+        print("\n".join(
+            wrap(
+                project_paragraph[2:],
+                80,
+                break_on_hyphens=False,
+                break_long_words=False)))
         print()
+
+
+def print_summary(num_actions, failed, duration):
+    """
+    Print a small summary of the executed plan.
+
+    Args:
+        num_actions (int): Total size of the executed plan.
+        failed (:obj:`list` of :obj:`actions.Step`): List of failed actions.
+        duration: Time we spent executing the plan.
+    """
+    num_failed = len(failed)
+    print("""
+Summary:
+{num_total} actions were in the queue.
+{num_failed} actions failed to execute.
+
+This run took: {elapsed_time:8.3f} seconds.
+    """.format(
+        num_total=num_actions, num_failed=num_failed, elapsed_time=duration))
+
+    if failed:
+        print("Failed:")
+        for fail in failed:
+            print(fail)

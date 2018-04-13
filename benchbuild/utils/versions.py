@@ -22,6 +22,9 @@ def get_version_from_cache_dir(src_file):
         the entire hash as a string if the hash consists out of less
         than 7 digits or None if the path is incorrect.
     """
+    if src_file is None:
+        return None
+
     tmp_dir = CFG["tmp_dir"].value()
     if path.exists(tmp_dir):
         cache_file = path.join(tmp_dir, src_file)
@@ -32,8 +35,7 @@ def get_version_from_cache_dir(src_file):
             return str(dir_hash)
         else:
             return str(dir_hash)[:7]
-    else:
-        return None
+    return None
 
 
 def get_git_hash(from_url):

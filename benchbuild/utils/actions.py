@@ -45,6 +45,21 @@ class StepResult(enum.IntEnum):
     ERROR = 3
 
 
+def step_has_failed(*step_results, error_status=None):
+    if not error_status:
+        error_status = [StepResult.ERROR, StepResult.CAN_CONTINUE]
+    return len(list(filter(lambda res: res in error_status, step_results))) > 0
+
+
+def num_steps(steps):
+    return sum([len(step) for step in steps])
+
+
+def print_steps(steps):
+    print("Number of actions to execute: {}".format(num_steps(steps)))
+    print(*steps)
+
+
 def to_step_result(func):
     """Convert a function return to a list of StepResults.
 
@@ -59,6 +74,7 @@ def to_step_result(func):
     Args:
         func: The function to wrap.
     """
+
     @ft.wraps(func)
     def wrapper(*args, **kwargs):
         """Wrapper stub."""
@@ -72,8 +88,10 @@ def to_step_result(func):
 
     return wrapper
 
+
 def prepend_status(func):
     """Prepends the output of `func` with the status."""
+
     @ft.wraps(func)
     def wrapper(self, *args, **kwargs):
         """Wrapper stub."""
@@ -81,10 +99,13 @@ def prepend_status(func):
         if self.status is not StepResult.UNSET:
             res = "[{status}]".format(status=self.status.name) + res
         return res
+
     return wrapper
+
 
 def notify_step_begin_end(func):
     """Print the beginning and the end of a `func`."""
+
     @ft.wraps(func)
     def wrapper(self, *args, **kwargs):
         """Wrapper stub."""
@@ -100,13 +121,16 @@ def notify_step_begin_end(func):
         for end_listener in on_step_end:
             end_listener(self, func)
         return res
+
     return wrapper
 
 
 def log_before_after(name: str, desc: str):
     """Log customized stirng before & after running func."""
+
     def func_decorator(f):
         """Wrapper stub."""
+
         @ft.wraps(f)
         def wrapper(*args, **kwargs):
             """Wrapper stub."""
@@ -125,14 +149,16 @@ def log_before_after(name: str, desc: str):
 
 class StepClass(abc.ABCMeta):
     """Decorate `steps` with logging and result conversion."""
+
     def __new__(mcs, name, bases, namespace, **_):
         result = abc.ABCMeta.__new__(mcs, name, bases, dict(namespace))
 
         NAME = result.NAME
         DESCRIPTION = result.DESCRIPTION
         if NAME and DESCRIPTION:
-            result.__call__ = log_before_after(
-                NAME, DESCRIPTION)(to_step_result(result.__call__))
+            result.__call__ = log_before_after(NAME,
+                                               DESCRIPTION)(to_step_result(
+                                                   result.__call__))
         else:
             result.__call__ = to_step_result(result.__call__)
 
@@ -181,8 +207,8 @@ class Step(metaclass=StepClass):
 
     def __str__(self, indent=0):
         return textwrap.indent(
-            "* {name}: Execute configured action.".format(
-                name=self.obj.name), indent * " ")
+            "* {name}: Execute configured action.".format(name=self.obj.name),
+            indent * " ")
 
     def onerror(self):
         Clean(self.obj)()
@@ -252,9 +278,8 @@ class MakeBuildDir(Step):
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
-        return textwrap.indent(
-            "* {0}: Create the build directory".format(self.obj.name),
-            indent * " ")
+        return textwrap.indent("* {0}: Create the build directory".format(
+            self.obj.name), indent * " ")
 
 
 class Prepare(Step):
@@ -290,8 +315,8 @@ class Configure(Step):
             obj=project, action_fn=project.configure)
 
     def __str__(self, indent=0):
-        return textwrap.indent(
-            "* {0}: Configure".format(self.obj.name), indent * " ")
+        return textwrap.indent("* {0}: Configure".format(self.obj.name),
+                               indent * " ")
 
 
 class Build(Step):
@@ -325,9 +350,8 @@ class Run(Step):
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
-        return textwrap.indent(
-            "* {0}: Execute run-time tests.".format(self.obj.name),
-            indent * " ")
+        return textwrap.indent("* {0}: Execute run-time tests.".format(
+            self.obj.name), indent * " ")
 
 
 @attr.s
@@ -405,7 +429,8 @@ class Experiment(Any):
             LOG.error("Transaction isolation level caused a StaleDataError")
 
         # React to external signals
-        signals.handlers.register(Experiment.end_transaction, experiment, session)
+        signals.handlers.register(Experiment.end_transaction, experiment,
+                                  session)
 
         return experiment, session
 
@@ -439,8 +464,8 @@ class Experiment(Any):
                     LOG.error("Experiment terminates "
                               "because we got an exception:")
                     e_type, e_value, e_traceb = sys.exc_info()
-                    lines = traceback.format_exception(
-                        e_type, e_value, e_traceb)
+                    lines = traceback.format_exception(e_type, e_value,
+                                                       e_traceb)
                     results.append(StepResult.ERROR)
                     LOG.error("".join(lines))
                     break
@@ -476,8 +501,8 @@ class RequireAll(Step):
                 results.extend(action())
             except ProcessExecutionError as proc_ex:
                 LOG.error("\n==== ERROR ====")
-                LOG.error(
-                    "Execution of a binary failed in step: %s", str(action))
+                LOG.error("Execution of a binary failed in step: %s",
+                          str(action))
                 LOG.error(str(proc_ex))
                 LOG.error("==== ERROR ====\n")
                 results.append(StepResult.ERROR)
@@ -487,8 +512,11 @@ class RequireAll(Step):
                 results.append(StepResult.ERROR)
                 raise
             except OSError:
-                LOG.error("Exception in step #%d: %s", i, str(action),
-                          exc_info=sys.exc_info())
+                LOG.error(
+                    "Exception in step #%d: %s",
+                    i,
+                    str(action),
+                    exc_info=sys.exc_info())
                 results.append(StepResult.ERROR)
 
             if StepResult.ERROR in results:
@@ -527,8 +555,9 @@ class CleanExtra(Step):
         paths = CFG["cleanup_paths"].value()
         lines = []
         for p in paths:
-            lines.append(textwrap.indent("* Clean the directory: {0}".format(
-                p), indent * " "))
+            lines.append(
+                textwrap.indent("* Clean the directory: {0}".format(p),
+                                indent * " "))
         return "\n".join(lines)
 
 
@@ -550,8 +579,8 @@ class SaveProfile(Step):
         outfile = os.path.abspath(os.path.join(obj_builddir, self.filename))
         profiles = os.path.abspath(os.path.join(obj_builddir, "raw-profiles"))
         with local.cwd(profiles):
-            merge_profdata = llvm_profdata["merge",
-                                           "-output={}".format(outfile)]
+            merge_profdata = llvm_profdata["merge", "-output={}".format(
+                outfile)]
             merge_profdata = merge_profdata[glob.glob('default_*.profraw')]
             merge_profdata()
 

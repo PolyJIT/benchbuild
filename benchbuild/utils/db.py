@@ -16,6 +16,7 @@ def validate(func):
             return None
 
         return func(run, session, *args, **kwargs)
+
     return validate_run_func
 
 
@@ -41,12 +42,13 @@ def create_run(cmd, project, exp, grp):
     from benchbuild.utils import schema as s
 
     session = s.Session()
-    run = s.Run(command=str(cmd),
-                project_name=project.name,
-                project_group=project.group,
-                experiment_name=exp,
-                run_group=str(grp),
-                experiment_group=project.experiment.id)
+    run = s.Run(
+        command=str(cmd),
+        project_name=project.name,
+        project_group=project.group,
+        experiment_name=exp,
+        run_group=str(grp),
+        experiment_group=project.experiment.id)
     session.add(run)
     session.commit()
 
@@ -73,8 +75,7 @@ def create_run_group(prj):
 
     session = s.Session()
     experiment = prj.experiment
-    group = s.RunGroup(id=prj.run_uuid,
-                       experiment=experiment.id)
+    group = s.RunGroup(id=prj.run_uuid, experiment=experiment.id)
     session.add(group)
     session.commit()
 
@@ -96,7 +97,6 @@ def persist_project(project):
 
     name = project.name
     desc = project.__doc__
-    src_url = ''
     domain = project.domain
     group_name = project.group
     version = project.version() \
@@ -189,10 +189,12 @@ def persist_file(f, experiment_id, run_group):
     filename = os.path.basename(f)
     filepath = pathlib.Path(f)
     session = Session()
-    session.add(FileContent(experience_id=experiment_id,
-                            rungroup_id=run_group,
-                            filename=filename,
-                            content=filepath.read_bytes()))
+    session.add(
+        FileContent(
+            experience_id=experiment_id,
+            rungroup_id=run_group,
+            filename=filename,
+            content=filepath.read_bytes()))
     session.commit()
 
 
@@ -234,11 +236,8 @@ def persist_likwid(run, session, measurements):
     from benchbuild.utils import schema as s
 
     for (region, name, core, value) in measurements:
-        db_measurement = s.Likwid(metric=name,
-                                  region=region,
-                                  value=value,
-                                  core=core,
-                                  run_id=run.id)
+        db_measurement = s.Likwid(
+            metric=name, region=region, value=value, core=core, run_id=run.id)
         session.add(db_measurement)
 
 
@@ -255,15 +254,12 @@ def persist_time(run, session, timings):
     from benchbuild.utils import schema as s
 
     for timing in timings:
-        session.add(s.Metric(name="time.user_s",
-                             value=timing[0],
-                             run_id=run.id))
-        session.add(s.Metric(name="time.system_s",
-                             value=timing[1],
-                             run_id=run.id))
-        session.add(s.Metric(name="time.real_s",
-                             value=timing[2],
-                             run_id=run.id))
+        session.add(
+            s.Metric(name="time.user_s", value=timing[0], run_id=run.id))
+        session.add(
+            s.Metric(name="time.system_s", value=timing[1], run_id=run.id))
+        session.add(
+            s.Metric(name="time.real_s", value=timing[2], run_id=run.id))
 
 
 def persist_perf(run, session, svg_path):
@@ -282,9 +278,8 @@ def persist_perf(run, session, svg_path):
 
     with open(svg_path, 'r') as svg_file:
         svg_data = svg_file.read()
-        session.add(s.Metadata(name="perf.flamegraph",
-                               value=svg_data,
-                               run_id=run.id))
+        session.add(
+            s.Metadata(name="perf.flamegraph", value=svg_data, run_id=run.id))
 
 
 def persist_compilestats(run, session, stats):
@@ -313,6 +308,5 @@ def persist_config(run, session, cfg):
     from benchbuild.utils import schema as s
 
     for cfg_elem in cfg:
-        session.add(s.Config(name=cfg_elem,
-                             value=cfg[cfg_elem],
-                             run_id=run.id))
+        session.add(
+            s.Config(name=cfg_elem, value=cfg[cfg_elem], run_id=run.id))

@@ -12,6 +12,7 @@ from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@attr.s
 class RodiniaGroup(Project):
     """Generic handling of Rodinia benchmarks."""
     DOMAIN = 'rodinia'
@@ -30,7 +31,8 @@ class RodiniaGroup(Project):
         lambda self: type(self).CONFIG, takes_self=True))
 
     in_src_dir = attr.ib(default=attr.Factory(
-        lambda self: os.path.join(self.src_dir, self.config["dir"])))
+        lambda self: os.path.join(self.src_dir, self.config["dir"]),
+        takes_self=True))
 
     def download(self):
         Wget(self.src_uri, self.SRC_FILE)

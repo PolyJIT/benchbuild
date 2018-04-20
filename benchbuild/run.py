@@ -174,6 +174,9 @@ class BenchBuildRun(cli.Application):
         unknown_exps = list(
             filter(lambda name: name not in all_exps.keys(),
                    set(experiment_names)))
+        if unknown_exps:
+            print('Could not find ', str(unknown_exps),
+                  ' in the experiment registry.')
         prjs = project.populate(project_names, group_name)
 
         self.__maybe_list_experiments(all_exps)
@@ -182,10 +185,6 @@ class BenchBuildRun(cli.Application):
 
         if not experiment_names:
             print("No experiment selected. Did you forget to use -E?")
-
-        if unknown_exps:
-            print('Could not find ', str(unknown_exps),
-                  ' in the experiment registry.')
 
         plan = list(self.__generate_plan(exps, prjs, CFG))
         num_actions = actions.num_steps(plan)

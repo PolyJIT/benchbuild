@@ -37,6 +37,7 @@ class Extension(metaclass=ABCMeta):
         config (:obj:`dict`, optional): Dictionary of name value pairs to be
             stored for this extension.
     """
+
     def __init__(self, *extensions, config=None):
         """Initialize an extension with an arbitrary number of children."""
         self.next_extensions = extensions
@@ -67,8 +68,8 @@ class Extension(metaclass=ABCMeta):
             else:
                 result_list.append(results)
             status_list = [r.db_run.status for r in result_list]
-            LOG.debug("  -- %s - %s => %s", str(status_list),
-                      ext.__class__, results)
+            LOG.debug("  -- %s - %s => %s", str(status_list), ext.__class__,
+                      results)
 
             all_results.extend(result_list)
 
@@ -82,7 +83,7 @@ class Extension(metaclass=ABCMeta):
         """Print a structural view of the registered extensions."""
         LOG.info("%s:: %s", indent * " ", self.__class__)
         for ext in self.next_extensions:
-            ext.print(indent=indent+2)
+            ext.print(indent=indent + 2)
 
     def __call__(self, *args, **kwargs):
         return self.call_next(*args, **kwargs)
@@ -95,6 +96,7 @@ class RuntimeExtension(Extension):
     This can be used for runtime experiments to have a controlled,
     tracked execution of a wrapped binary.
     """
+
     def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
         self.experiment = experiment
@@ -105,16 +107,18 @@ class RuntimeExtension(Extension):
         self.project.name = kwargs.get("project_name", self.project.name)
 
         cmd = binary_command[args]
-        with track_execution(cmd, self.project,
-                             self.experiment, **kwargs) as run:
+        with track_execution(cmd, self.project, self.experiment,
+                             **kwargs) as run:
             run_info = run()
             if self.config:
                 LOG.info("")
                 LOG.info("==CONFIG==")
-                LOG.info(yaml.dump(self.config,
-                                   width=40,
-                                   indent=4,
-                                   default_flow_style=False))
+                LOG.info(
+                    yaml.dump(
+                        self.config,
+                        width=40,
+                        indent=4,
+                        default_flow_style=False))
                 LOG.info("==CONFIG==")
                 LOG.info("")
                 self.config['baseline'] = \
@@ -132,14 +136,15 @@ class RunWithTimeout(Extension):
     This wraps a any binary with a call to `timeout` and sets
     the limit to a given value on extension construction.
     """
+
     def __init__(self, *extensions, limit="10m", **kwargs):
         super(RunWithTimeout, self).__init__(*extensions, **kwargs)
         self.limit = limit
 
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.utils.cmd import timeout
-        return self.call_next(timeout[
-            self.limit, binary_command], *args, **kwargs)
+        return self.call_next(timeout[self.limit, binary_command], *args,
+                              **kwargs)
 
 
 class LogTrackingMixin(object):
@@ -163,6 +168,7 @@ class LogTrackingMixin(object):
 
 class LogAdditionals(Extension):
     """Log any additional log files that were registered."""
+
     def __call__(self, *args, **kwargs):
         from benchbuild.utils.cmd import cat
         from plumbum import FG
@@ -183,6 +189,7 @@ class LogAdditionals(Extension):
 
 class RunWithTime(Extension):
     """Wrap a command with time and store the timings in the database."""
+
     def __call__(self, binary_command, *args, may_wrap=True, **kwargs):
         from benchbuild.utils.cmd import time
         time_tag = "BENCHBUILD: "
@@ -196,10 +203,9 @@ class RunWithTime(Extension):
             session = s.Session()
             for run_info in run_infos:
                 if may_wrap:
-                    timings = fetch_time_output(
-                        time_tag,
-                        time_tag + "{:g}-{:g}-{:g}",
-                        run_info.stderr.split("\n"))
+                    timings = fetch_time_output(time_tag,
+                                                time_tag + "{:g}-{:g}-{:g}",
+                                                run_info.stderr.split("\n"))
                     if timings:
                         persist_time(run_info.db_run, session, timings)
                     else:
@@ -221,6 +227,7 @@ class ExtractCompileStats(Extension):
     Furthermore, this runs the compiler and tracks the state in the databse,
     similar to RunCompiler.
     """
+
     def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
         self.experiment = experiment
@@ -238,15 +245,18 @@ class ExtractCompileStats(Extension):
                 try:
                     res = stats_pattern.search(line + "\n")
                 except ValueError:
-                    LOG.warning(
-                        "Triggered a parser exception for: '%s'\n", line)
+                    LOG.warning("Triggered a parser exception for: '%s'\n",
+                                line)
                     res = None
                 if res is not None:
                     yield res
 
-    def __call__(self, cc, *args,
+    def __call__(self,
+                 cc,
+                 *args,
                  experiment_cflags=[],
-                 experiment_ldflags=[], **kwargs):
+                 experiment_ldflags=[],
+                 **kwargs):
         from benchbuild.utils.db import persist_compilestats
         from benchbuild.utils.schema import CompileStat, Session
         from benchbuild.settings import CFG
@@ -263,8 +273,7 @@ class ExtractCompileStats(Extension):
         with track_execution(clang, self.project, self.experiment) as run:
             run_info = run()
             if run_config is not None:
-                persist_config(
-                    run_info.db_run, session, run_config)
+                persist_config(run_info.db_run, session, run_config)
 
             if not run_info.has_failed:
                 stats = []
@@ -286,8 +295,8 @@ class ExtractCompileStats(Extension):
 
                 if stats:
                     for stat in stats:
-                        LOG.info(" [%s] %s = %s",
-                                 stat.component, stat.name, stat.value)
+                        LOG.info(" [%s] %s = %s", stat.component, stat.name,
+                                 stat.value)
                     persist_compilestats(run_info.db_run, run_info.session,
                                          stats)
                 else:
@@ -313,13 +322,16 @@ class RunCompiler(Extension):
     handles database tracking for compiler commands. It is used as the default
     action for compiler execution.
     """
+
     def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
         self.experiment = experiment
 
         super(RunCompiler, self).__init__(*extensions, config=config)
 
-    def __call__(self, command, *args,
+    def __call__(self,
+                 command,
+                 *args,
                  experiment_cflags=[],
                  experiment_ldflags=[],
                  rerun_on_error=True,
@@ -330,14 +342,16 @@ class RunCompiler(Extension):
         new_command = new_command[experiment_cflags]
         new_command = new_command[experiment_ldflags]
 
-        with track_execution(new_command, self.project,
-                             self.experiment, **kwargs) as run:
+        with track_execution(new_command, self.project, self.experiment,
+                             **kwargs) as run:
             run_info = run()
             if self.config:
-                LOG.info(yaml.dump(self.config,
-                                   width=40,
-                                   indent=4,
-                                   default_flow_style=False))
+                LOG.info(
+                    yaml.dump(
+                        self.config,
+                        width=40,
+                        indent=4,
+                        default_flow_style=False))
                 persist_config(run_info.db_run, run_info.session, self.config)
 
             if run_info.has_failed:
@@ -357,6 +371,7 @@ class SetThreadLimit(Extension):
     This extension uses the 'jobs' settings and controls the environment
     variable OMP_NUM_THREADS.
     """
+
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.settings import CFG
 
@@ -371,3 +386,7 @@ class SetThreadLimit(Extension):
         with local.env(OMP_NUM_THREADS=str(jobs)):
             ret = self.call_next(binary_command, *args, **kwargs)
         return ret
+
+
+class Rerun(Extension):
+    pass

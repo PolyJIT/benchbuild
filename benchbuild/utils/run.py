@@ -114,6 +114,7 @@ class RunInfo(object):
         db_run ():
         session ():
     """
+
     def __begin(self, command, project, ename, group):
         """
         Begin a run in the database log.
@@ -216,8 +217,8 @@ class RunInfo(object):
     session = attr.ib(init=False, default=None, repr=False)
 
     def __attrs_post_init__(self):
-        self.__begin(self.cmd, self.project,
-                     self.experiment.name, self.project.run_uuid)
+        self.__begin(self.cmd, self.project, self.experiment.name,
+                     self.project.run_uuid)
         signals.handlers.register(self.__fail, 15, "SIGTERM", "SIGTERM")
 
         run_id = self.db_run.id
@@ -227,13 +228,13 @@ class RunInfo(object):
         if rhs is None:
             return self
 
-        r = RunInfo(
+        new_run_info = RunInfo(
             retcode=self.retcode + rhs.retcode,
             stdout=self.stdout + rhs.stdout,
             stderr=self.stderr + rhs.stderr,
             db_run=[self.db_run, rhs.db_run],
             session=self.session)
-        return r
+        return new_run_info
 
     @property
     def has_failed(self):
@@ -360,20 +361,25 @@ def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
             raise
 
         if new_retcode in retry_retcodes:
-            retry(pb_cmd, retries=retries+1,
-                  max_retries=max_retries,
-                  retcode=retcode,
-                  retry_retcodes=retry_retcodes)
+            retry(
+                pb_cmd,
+                retries=retries + 1,
+                max_retries=max_retries,
+                retcode=retcode,
+                retry_retcodes=retry_retcodes)
         else:
             raise
 
+
 def uretry(cmd, retcode=0):
-    retry(cmd, retcode=retcode, retry_retcodes=[
-        UchrootEC.MNT_PROC_FAILED.value,
-        UchrootEC.MNT_DEV_FAILED.value,
-        UchrootEC.MNT_SYS_FAILED.value,
-        UchrootEC.MNT_PTS_FAILED.value
-    ])
+    retry(
+        cmd,
+        retcode=retcode,
+        retry_retcodes=[
+            UchrootEC.MNT_PROC_FAILED.value, UchrootEC.MNT_DEV_FAILED.value,
+            UchrootEC.MNT_SYS_FAILED.value, UchrootEC.MNT_PTS_FAILED.value
+        ])
+
 
 def uchroot_no_args():
     """Return the uchroot command without any customizations."""
@@ -442,7 +448,8 @@ def _uchroot_mounts(prefix, mounts, uchrt):
             tgt_mount = "{0}/{1}".format(prefix, str(i))
             i = i + 1
         mkdir("-p", tgt_mount)
-        new_uchroot = new_uchroot["-M", "{0}:/{1}".format(src_mount, tgt_mount)]
+        new_uchroot = new_uchroot["-M", "{0}:/{1}".format(
+            src_mount, tgt_mount)]
         mntpoints.append(tgt_mount)
     return new_uchroot, mntpoints
 
@@ -500,8 +507,8 @@ def uchroot_with_mounts(*args, **kwargs):
 
     uchroot_cmd = with_env_recursive(
         uchroot_cmd,
-        LD_LIBRARY_PATH=list_to_path(libs+p_libs),
-        PATH=list_to_path(paths+p_paths))
+        LD_LIBRARY_PATH=list_to_path(libs + p_libs),
+        PATH=list_to_path(paths + p_paths))
     return uchroot_cmd
 
 
@@ -539,6 +546,7 @@ def in_builddir(sub='.'):
 
     def wrap_in_builddir(func):
         """Wrap the function for the new build directory."""
+
         @wraps(func)
         def wrap_in_builddir_func(self, *args, **kwargs):
             """The actual function inside the wrapper for the new builddir."""
@@ -669,16 +677,16 @@ def unionfs(base_dir='./base',
                 image_prefix = os.path.abspath(image_prefix)
                 rel_prj_builddir = os.path.relpath(
                     project.builddir, settings.CFG["build_dir"].value())
-                abs_image_dir = os.path.abspath(os.path.join(
-                    image_prefix, rel_prj_builddir, image_dir))
+                abs_image_dir = os.path.abspath(
+                    os.path.join(image_prefix, rel_prj_builddir, image_dir))
 
                 if is_outside_of_builddir(project, abs_image_dir):
                     update_cleanup_paths(abs_image_dir)
             else:
-                abs_image_dir = os.path.abspath(os.path.join(project.builddir,
-                                                             image_dir))
-            abs_mount_dir = os.path.abspath(os.path.join(project.builddir,
-                                                         mountpoint))
+                abs_image_dir = os.path.abspath(
+                    os.path.join(project.builddir, image_dir))
+            abs_mount_dir = os.path.abspath(
+                os.path.join(project.builddir, mountpoint))
             if not os.path.exists(abs_base_dir):
                 mkdir("-p", abs_base_dir)
             if not os.path.exists(abs_image_dir):
@@ -686,8 +694,8 @@ def unionfs(base_dir='./base',
             if not os.path.exists(abs_mount_dir):
                 mkdir("-p", abs_mount_dir)
 
-            unionfs_cmd = unionfs_set_up(
-                abs_base_dir, abs_image_dir, abs_mount_dir)
+            unionfs_cmd = unionfs_set_up(abs_base_dir, abs_image_dir,
+                                         abs_mount_dir)
             project_builddir_bak = project.builddir
             project.builddir = abs_mount_dir
             project.setup_derived_filenames()

@@ -241,21 +241,18 @@ def print_projects(exp):
         if prj.GROUP not in grouped_by:
             grouped_by[prj.GROUP] = []
 
-        grouped_by[prj.GROUP].append(prj.NAME)
+        grouped_by[prj.GROUP].append("{name}/{group}".format(
+            name=prj.NAME, group=prj.GROUP))
 
     for name in grouped_by:
-        from textwrap import wrap
-        print(">> {0}".format(name))
-        projects = sorted(grouped_by[name])
-        project_paragraph = ""
-        for prj in projects:
-            project_paragraph += ", {0}".format(prj)
-        print("\n".join(
-            wrap(
-                project_paragraph[2:],
-                80,
-                break_on_hyphens=False,
-                break_long_words=False)))
+        print("group: {0}".format(name))
+        group_projects = sorted(grouped_by[name])
+        for prj in group_projects:
+            prj_cls = projects[prj]
+            print("  name: {id:<32} {version:<24} {src}".format(
+                id="{0}/{1}".format(prj_cls.NAME, prj_cls.GROUP),
+                version="version: {0}".format(prj_cls.VERSION),
+                src="source: {0}".format(prj_cls.SRC_FILE)))
         print()
 
 

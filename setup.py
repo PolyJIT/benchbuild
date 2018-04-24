@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+with open('README.md') as f:
+    long_description = f.read()
+
 extra_files = [
     "templates/run_compiler.py.inc",
     "templates/run_static.py.inc",
@@ -60,6 +63,8 @@ setup(
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",
     description="This is the experiment driver for the benchbuild study",
+    long_description=long_description,
+    long_description_type='text/markdown',
     license="MIT",
     entry_points={
         'console_scripts': ['benchbuild=benchbuild.driver:main',

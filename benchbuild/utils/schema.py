@@ -424,6 +424,14 @@ class FileContent(BASE):
     content = Column(LargeBinary)
 
 
+def needed_schema(connection, metadata):
+    try:
+        metadata.create_all(connection, checkfirst=False)
+    except sa.exc.ProgrammingError:
+        return False
+    return True
+
+
 class SessionManager(object):
     def __init__(self):
         self.__test_mode = settings.CFG['db']['rollback'].value()
@@ -441,7 +449,8 @@ class SessionManager(object):
                 "DB test mode active, all actions will be rolled back.")
             self.__transaction = self.connection.begin()
 
-        BASE.metadata.create_all(self.connection, checkfirst=True)
+        if needed_schema(self.connection, BASE.metadata):
+            print("Initialized new database schema.")
 
     def get(self):
         return sessionmaker(bind=self.connection)

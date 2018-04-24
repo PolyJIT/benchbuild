@@ -33,7 +33,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.types import (CHAR, BigInteger, Float, LargeBinary, Numeric,
                               SmallInteger, TypeDecorator)
 
-from benchbuild.settings import CFG
+import benchbuild.settings as settings
 from benchbuild.utils import path as bbpath
 
 BASE = declarative_base()
@@ -86,10 +86,9 @@ class Run(BASE):
     """Store a run for each executed test binary."""
 
     __tablename__ = 'run'
-    __table_args__ = (
-        ForeignKeyConstraint(['project_name', 'project_group'],
-                             ['project.name', 'project.group_name']),
-    )
+    __table_args__ = (ForeignKeyConstraint(
+        ['project_name', 'project_group'],
+        ['project.name', 'project.group_name']), )
 
     id = Column(Integer, primary_key=True)
     command = Column(String)
@@ -97,9 +96,8 @@ class Run(BASE):
     project_group = Column(String, index=True)
     experiment_name = Column(String, index=True)
     run_group = Column(GUID(as_uuid=True), index=True)
-    experiment_group = Column(GUID(as_uuid=True),
-                              ForeignKey("experiment.id"),
-                              index=True)
+    experiment_group = Column(
+        GUID(as_uuid=True), ForeignKey("experiment.id"), index=True)
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Enum('completed', 'running', 'failed', name="run_state"))
@@ -117,9 +115,7 @@ class RunGroup(BASE):
     id = Column(GUID(as_uuid=True), primary_key=True, index=True)
     experiment = Column(
         GUID(as_uuid=True),
-        ForeignKey("experiment.id",
-                   ondelete="CASCADE",
-                   onupdate="CASCADE"),
+        ForeignKey("experiment.id", ondelete="CASCADE", onupdate="CASCADE"),
         index=True)
 
     begin = Column(DateTime(timezone=False))
@@ -151,12 +147,11 @@ class Likwid(BASE):
     region = Column(String, primary_key=True, index=True)
     value = Column(Float)
     core = Column(String, primary_key=True)
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    nullable=False,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True)
 
 
 class Metric(BASE):
@@ -166,12 +161,11 @@ class Metric(BASE):
 
     name = Column(String, primary_key=True, index=True, nullable=False)
     value = Column(Float)
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True)
 
     def __repr__(self):
         return "{0} - {1}".format(self.name, self.value)
@@ -185,12 +179,11 @@ class Sequence(BASE):
     name = Column(String, primary_key=False, index=True, nullable=False)
     value = Column(Float)
 
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True)
 
 
 class Schedule(BASE):
@@ -200,12 +193,11 @@ class Schedule(BASE):
 
     function = Column(String, primary_key=True, index=True, nullable=False)
     schedule = Column(String, primary_key=True, index=True, nullable=False)
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True)
 
 
 class IslAst(BASE):
@@ -215,12 +207,11 @@ class IslAst(BASE):
 
     function = Column(String, primary_key=True, index=True, nullable=False)
     ast = Column(String, primary_key=True, index=True, nullable=False)
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True)
 
 
 class Event(BASE):
@@ -234,13 +225,12 @@ class Event(BASE):
     id = Column(Integer, primary_key=True)
     type = Column(SmallInteger)
     tid = Column(BigInteger)
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    nullable=False,
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        primary_key=True)
 
 
 class Project(BASE):
@@ -272,11 +262,10 @@ class CompileStat(BASE):
     name = Column(String, index=True)
     component = Column(String, index=True)
     value = Column(Numeric)
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True)
 
 
 class RunLog(BASE):
@@ -289,12 +278,11 @@ class RunLog(BASE):
 
     __tablename__ = 'log'
 
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True)
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Integer)
@@ -313,12 +301,11 @@ class Metadata(BASE):
 
     __tablename__ = "metadata"
 
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True)
     name = Column(String)
     value = Column(String)
 
@@ -329,15 +316,14 @@ class Regions(BASE):
     """
     __tablename__ = "regions"
 
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True)
 
     duration = Column(Numeric)
-    id  = Column(Numeric, primary_key=True)
+    id = Column(Numeric, primary_key=True)
     name = Column(String)
     events = Column(BigInteger)
 
@@ -352,12 +338,11 @@ class Config(BASE):
 
     __tablename__ = 'config'
 
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)
 
@@ -374,9 +359,7 @@ class GlobalConfig(BASE):
 
     experiment_group = Column(
         GUID(as_uuid=True),
-        ForeignKey("experiment.id",
-                   onupdate="CASCADE",
-                   ondelete="CASCADE"),
+        ForeignKey("experiment.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)
@@ -393,12 +376,11 @@ class RegressionTest(BASE):
     """
 
     __tablename__ = 'regressions'
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True)
     name = Column(String)
     module = Column(String)
     project_name = Column(String)
@@ -411,14 +393,12 @@ class ScopDetection(BASE):
 
     __tablename__ = 'profilescops'
 
-    run_id = Column(Integer,
-                    ForeignKey("run.id",
-                               onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    nullable=False,
-                    primary_key=True)
-    invalid_reason = Column(String,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True)
+    invalid_reason = Column(String, primary_key=True)
     count = Column(Integer)
 
 
@@ -430,27 +410,28 @@ class FileContent(BASE):
 
     __tablename__ = "filecontents"
 
-    experience_id = Column(GUID,
-                           ForeignKey("experiment.id",
-                                      onupdate="CASCADE", ondelete="CASCADE"),
-                           nullable=False, primary_key=True)
-    rungroup_id = Column(GUID,
-                         ForeignKey("rungroup.id",
-                                    onupdate="CASCADE", ondelete="CASCADE"),
-                         nullable=False, primary_key=True)
+    experience_id = Column(
+        GUID,
+        ForeignKey("experiment.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True)
+    rungroup_id = Column(
+        GUID,
+        ForeignKey("rungroup.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True)
     filename = Column(String, nullable=False, primary_key=True)
     content = Column(LargeBinary)
 
 
 class SessionManager(object):
     def __init__(self):
-        self.__test_mode = CFG['db']['rollback'].value()
-        self.engine = create_engine(CFG["db"]["connect_string"].value())
+        self.__test_mode = settings.CFG['db']['rollback'].value()
+        self.engine = create_engine(
+            settings.CFG["db"]["connect_string"].value())
         self.connection = self.engine.connect()
         try:
-            self.connection.execution_options(
-                isolation_level="READ COMMITTED"
-            )
+            self.connection.execution_options(isolation_level="READ COMMITTED")
         except sa.exc.ArgumentError:
             LOG.error("Unable to set isolation level to READ COMMITTED")
 
@@ -483,19 +464,19 @@ def __lazy_session__():
         if session is None:
             session = connection_manager.get()()
         return session
+
     return __lazy_session_wrapped
+
 
 Session = __lazy_session__()
 
 
 def init_functions(connection):
     """Initialize all SQL functions in the database."""
-    if CFG["db"]["create_functions"].value():
+    if settings.CFG["db"]["create_functions"].value():
         print("Refreshing SQL functions...")
         for file in bbpath.template_files("../sql/", exts=[".sql"]):
-            func = sa.DDL(
-                bbpath.template_str(file)
-            )
+            func = sa.DDL(bbpath.template_str(file))
             LOG.info("Loading: '%s' into database", file)
             connection.execute(func)
             connection.commit()

@@ -22,6 +22,7 @@ LOG = logging.getLogger(__name__)
 try:
     __version__ = get_distribution("benchbuild").version
 except DistributionNotFound:
+    __version__ = "unknown"
     LOG.error("could not find version information.")
 
 

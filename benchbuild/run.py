@@ -253,6 +253,9 @@ def print_projects(exp):
                 id="{0}/{1}".format(prj_cls.NAME, prj_cls.GROUP),
                 version="version: {0}".format(prj_cls.VERSION),
                 src="source: {0}".format(prj_cls.SRC_FILE)))
+            if prj_cls.__doc__:
+                print("    description: {desc}".format(
+                    desc=prj_cls.__doc__.strip("\n ")))
         print()
 
 

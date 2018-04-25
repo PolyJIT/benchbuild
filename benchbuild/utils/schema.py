@@ -22,8 +22,10 @@ paths for you.
 """
 
 import logging
+import sys
 import uuid
 
+import migrate.versioning.api as migrate
 import sqlalchemy as sa
 from sqlalchemy import (Column, DateTime, Enum, ForeignKey,
                         ForeignKeyConstraint, Integer, String, create_engine)
@@ -34,6 +36,7 @@ from sqlalchemy.types import (CHAR, BigInteger, Float, LargeBinary, Numeric,
                               SmallInteger, TypeDecorator)
 
 import benchbuild.settings as settings
+import benchbuild.utils.user_interface as ui
 from benchbuild.utils import path as bbpath
 
 BASE = declarative_base()
@@ -432,6 +435,52 @@ def needed_schema(connection, metadata):
     return True
 
 
+def setup_versioning():
+    connect_str = settings.CFG["db"]["connect_string"].value()
+    repo_url = bbpath.template_path("../db/")
+
+    repo_version = migrate.version(repo_url, url=connect_str)
+    db_version = None
+    requires_versioning = False
+    try:
+        db_version = migrate.db_version(connect_str, repo_url)
+    except migrate.exceptions.DatabaseNotControlledError:
+        requires_versioning = True
+
+    if requires_versioning:
+        print("Your database uses an unversioned benchbuild schema.")
+        if not ui.ask("Should I enforce version control on your schema?"):
+            print("Abort. User declined schema versioning.")
+            sys.exit(1)
+        migrate.version_control(connect_str, repo_url)
+        return setup_versioning()
+
+    return (repo_version, db_version)
+
+
+def maybe_update_db(repo_version, db_version):
+    if db_version is None:
+        db_version = -1
+    if db_version == repo_version:
+        return
+
+    print(
+        "Your database contains version '{0}' of benchbuild's schema.".format(
+            db_version))
+    print("Benchbuild currently requires version '{0}' to work correctly.".
+          format(repo_version))
+    if not ui.ask("Should I attempt to update your schema to version '{0}'?".
+                  format(repo_version)):
+        print("Abort. User declined database upgrade.")
+        sys.exit(1)
+
+    connect_str = settings.CFG["db"]["connect_string"].value()
+    repo_url = bbpath.template_path("../db/")
+    LOG.info("Upgrading to newest version...")
+    migrate.upgrade(connect_str, repo_url)
+    LOG.info("Complete.")
+
+
 class SessionManager(object):
     def __init__(self):
         self.__test_mode = settings.CFG['db']['rollback'].value()
@@ -450,7 +499,9 @@ class SessionManager(object):
             self.__transaction = self.connection.begin()
 
         if needed_schema(self.connection, BASE.metadata):
-            print("Initialized new database schema.")
+            LOG.debug("Initialized new db schema.")
+        repo_version, db_version = setup_versioning()
+        maybe_update_db(repo_version, db_version)
 
     def get(self):
         return sessionmaker(bind=self.connection)

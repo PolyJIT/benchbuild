@@ -321,7 +321,7 @@ def setup_versioning():
         requires_versioning = True
 
     if requires_versioning:
-        print("Your database uses an unversioned benchbuild schema.")
+        LOG.warning("Your database uses an unversioned benchbuild schema.")
         if not ui.ask("Should I enforce version control on your schema?"):
             LOG.error("User declined schema versioning.")
         migrate.version_control(connect_str, repo_url)
@@ -336,11 +336,11 @@ def maybe_update_db(repo_version, db_version):
     if db_version == repo_version:
         return
 
-    print(
-        "Your database contains version '{0}' of benchbuild's schema.".format(
-            db_version))
-    print("Benchbuild currently requires version '{0}' to work correctly.".
-          format(repo_version))
+    LOG.warning("Your database contains version '%s' of benchbuild's schema.",
+                db_version)
+    LOG.warning(
+        "Benchbuild currently requires version '%s' to work correctly.",
+        repo_version)
     if not ui.ask("Should I attempt to update your schema to version '{0}'?".
                   format(repo_version)):
         LOG.error("User declined schema upgrade.")

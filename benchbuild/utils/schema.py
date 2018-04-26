@@ -324,8 +324,7 @@ def setup_versioning():
     if requires_versioning:
         print("Your database uses an unversioned benchbuild schema.")
         if not ui.ask("Should I enforce version control on your schema?"):
-            print("Abort. User declined schema versioning.")
-            sys.exit(1)
+            LOG.error("User declined schema versioning.")
         migrate.version_control(connect_str, repo_url)
         return setup_versioning()
 
@@ -345,8 +344,7 @@ def maybe_update_db(repo_version, db_version):
           format(repo_version))
     if not ui.ask("Should I attempt to update your schema to version '{0}'?".
                   format(repo_version)):
-        print("Abort. User declined database upgrade.")
-        sys.exit(1)
+        LOG.error("User declined schema upgrade.")
 
     connect_str = settings.CFG["db"]["connect_string"].value()
     repo_url = bbpath.template_path("../db/")

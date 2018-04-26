@@ -138,7 +138,7 @@ class IJPP(pj.PolyJIT):
             << ext.RunWithTime()
 
         def ijpp_config(_project, name):
-            return actions.RequireAll([
+            return actions.RequireAll(actions=[
                 actions.Echo("Stage: JIT Configurations"),
                 actions.MakeBuildDir(_project),
                 actions.Prepare(_project),
@@ -151,7 +151,7 @@ class IJPP(pj.PolyJIT):
             ])
 
         return [
-            actions.Any([
+            actions.Any(actions=[
                 ijpp_config(project, "Stage: JIT Configurations"),
                 ijpp_config(naked_project, "Stage: O3"),
                 ijpp_config(naked_polly_project, "Stage: O3 Polly")

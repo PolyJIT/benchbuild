@@ -347,4 +347,4 @@ class PolyJITFull(PolyJIT):
                 << ext.LogAdditionals()
             actns.append(RequireAll(self.default_runtime_actions(cp)))
 
-        return [Any(actns)]
+        return [Any(actions=actns)]

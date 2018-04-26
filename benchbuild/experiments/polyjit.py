@@ -14,11 +14,27 @@ from abc import abstractmethod
 from plumbum import local
 
 import benchbuild.extensions as ext
+import benchbuild.utils.schema as schema
 from benchbuild.experiment import Experiment
 from benchbuild.utils.actions import Any, RequireAll
 from benchbuild.utils.dict import ExtensibleDict, extend_as_list
 
 LOG = logging.getLogger(__name__)
+
+__REGIONS__ = sa.Table('regions', schema.metadata(),
+                       sa.Column(
+                           'run_id',
+                           sa.Integer,
+                           sa.ForeignKey(
+                               "run.id",
+                               onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                           index=True,
+                           primary_key=True), sa.Column(
+                               'duration', sa.Numeric),
+                       sa.Column('id', sa.Numeric, primary_key=True),
+                       sa.Column('name', sa.String),
+                       sa.Column('events', sa.BigInteger))
 
 
 def verbosity_to_polyjit_log_level(verbosity: int):
@@ -213,6 +229,7 @@ class PolyJIT(Experiment):
 class PolyJITSimple(PolyJIT):
     """Simple runtime-testing with PolyJIT."""
     NAME = "pj-simple"
+    SCHEMA = [__REGIONS__]
 
     def actions_for_project(self, project):
         from benchbuild.settings import CFG
@@ -253,6 +270,7 @@ class PolyJITFull(PolyJIT):
     """
 
     NAME = "pj"
+    SCHEMA = [__REGIONS__]
 
     def actions_for_project(self, project):
         from benchbuild.settings import CFG

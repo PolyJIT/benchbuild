@@ -1,10 +1,31 @@
 import logging
 import benchbuild.utils.actions as actns
+
+import sqlalchemy as sa
+
 import benchbuild.experiment as exp
 import benchbuild.extensions as ext
 
+import benchbuild.utils.schema as schema
 
 LOG = logging.getLogger(__name__)
+
+__FILECONTENT__ = sa.Table(
+    'filecontents', schema.metadata(),
+    sa.Column(
+        'experience_id',
+        schema.GUID,
+        sa.ForeignKey("experiment.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True),
+    sa.Column(
+        'rungroup_id',
+        schema.GUID,
+        sa.ForeignKey("rungroup.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True),
+    sa.Column('filename', sa.String, nullable=False, primary_key=True),
+    sa.Column('content', sa.LargeBinary))
 
 
 class PGO(exp.Experiment):
@@ -24,6 +45,7 @@ class PGO(exp.Experiment):
                     from the database, INST).
     """
     NAME = "pgo"
+    SCHEMA = [__FILECONTENT__]
 
     def actions_for_project(self, project):
         import copy

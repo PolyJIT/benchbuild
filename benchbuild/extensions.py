@@ -38,8 +38,9 @@ class Extension(metaclass=ABCMeta):
             stored for this extension.
     """
 
-    def __init__(self, *extensions, config=None):
+    def __init__(self, *extensions, config=None, **kwargs):
         """Initialize an extension with an arbitrary number of children."""
+        del kwargs
         self.next_extensions = extensions
         self.config = config
 

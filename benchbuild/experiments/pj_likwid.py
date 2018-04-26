@@ -2,9 +2,11 @@ import copy
 import uuid
 
 import plumbum as pb
+import sqlalchemy as sa
 
 import benchbuild.experiments.polyjit as pj
 import benchbuild.extensions as ext
+import benchbuild.utils.schema as schema
 from benchbuild.utils.actions import RequireAll
 
 
@@ -61,6 +63,29 @@ class RunWithLikwid(ext.RuntimeExtension):
         return res
 
 
+__LIKWID__ = sa.schema.Table('likwid', schema.metadata(),
+                             sa.Column(
+                                 'metric',
+                                 sa.String,
+                                 primary_key=True,
+                                 index=True),
+                             sa.Column(
+                                 'region',
+                                 sa.String,
+                                 primary_key=True,
+                                 index=True), sa.Column('value', sa.Float),
+                             sa.Column('core', sa.String, primary_key=True),
+                             sa.Column(
+                                 'run_id',
+                                 sa.Integer,
+                                 sa.ForeignKey(
+                                     'run.id',
+                                     onupdate='CASCADE',
+                                     ondelete='CASCADE'),
+                                 nullable=False,
+                                 primary_key=True))
+
+
 class PJITlikwid(pj.PolyJIT):
     """
     An experiment that uses likwid's instrumentation API for profiling.
@@ -72,6 +97,7 @@ class PJITlikwid(pj.PolyJIT):
     """
 
     NAME = "pj-likwid"
+    SCHEMA = [__LIKWID__]
 
     def actions_for_project(self, project):
         from benchbuild.settings import CFG

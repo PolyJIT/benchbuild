@@ -20,6 +20,7 @@ import parse
 import sqlalchemy as sa
 
 import benchbuild.extensions as ext
+import benchbuild.utils.schema as schema
 from benchbuild.experiments.polyjit import PolyJIT
 from benchbuild.settings import CFG
 
@@ -48,6 +49,19 @@ DEFAULT_NUM_ITERATIONS = 1
 DEFAULT_CHROMOSOME_SIZE = 20
 DEFAULT_POPULATION_SIZE = 20
 DEFAULT_GENERATIONS = 50
+
+__SEQUENCE__ = sa.Table('sequences', schema.metadata(),
+                        sa.Column(
+                            'name',
+                            sa.String,
+                            primary_key=False,
+                            index=True,
+                            nullable=False), sa.Column('value', sa.Float),
+                        sa.Column('run_id', sa.Integer,
+                                  sa.ForeignKey(
+                                      'run.id',
+                                      onupdate='CASCADE',
+                                      ondelete='CASCADE')))
 
 
 def get_defaults():
@@ -444,6 +458,7 @@ class Genetic1Sequence(PolyJIT):
     """
 
     NAME = "pj-seq-genetic1-opt"
+    SCHEMA = [__SEQUENCE__]
 
     def actions_for_project(self, project):
         """Execute the actions for the test."""
@@ -633,6 +648,7 @@ class Genetic2Sequence(PolyJIT):
     """
 
     NAME = "pj-seq-genetic2-opt"
+    SCHEMA = [__SEQUENCE__]
 
     def actions_for_project(self, project):
         """Execute the actions for the test."""
@@ -763,6 +779,7 @@ class HillclimberSequences(PolyJIT):
     """
 
     NAME = "pj-seq-hillclimber"
+    SCHEMA = [__SEQUENCE__]
 
     def actions_for_project(self, project):
         """Execute the actions for the test."""
@@ -877,6 +894,7 @@ class GreedySequences(PolyJIT):
     """
 
     NAME = "pj-seq-greedy"
+    SCHEMA = [__SEQUENCE__]
 
     def actions_for_project(self, project):
         """Execute the actions for the test."""

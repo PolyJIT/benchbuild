@@ -21,6 +21,7 @@ import benchbuild.extensions as ext
 import benchbuild.reports as reports
 import benchbuild.settings as settings
 import benchbuild.utils.actions as actions
+import benchbuild.utils.schema as schema
 import benchbuild.utils.schedule_tree as st
 
 LOG = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ class IJPP(pj.PolyJIT):
     """Experiments and evaluation used for IJPP Journal."""
 
     NAME = "ijpp"
+    SCHEMA = [pj.__REGIONS__]
 
     def actions_for_project(self, project):
         jobs = int(settings.CFG["jobs"].value())
@@ -157,6 +159,53 @@ class IJPP(pj.PolyJIT):
         ]
 
 
+__SCHEDULE__ = sa.Table('schedules', schema.metadata(),
+                        sa.Column(
+                            'function',
+                            sa.String,
+                            primary_key=True,
+                            index=True,
+                            nullable=False),
+                        sa.Column(
+                            'schedule',
+                            sa.String,
+                            primary_key=True,
+                            index=True,
+                            nullable=False),
+                        sa.Column(
+                            'run_id',
+                            sa.Integer,
+                            sa.ForeignKey(
+                                'run.id',
+                                onupdate='CASCADE',
+                                ondelete='CASCADE'),
+                            index=True,
+                            primary_key=True))
+
+__ISL_AST__ = sa.Table('isl_asts', schema.metadata(),
+                       sa.Column(
+                           'function',
+                           sa.String,
+                           primary_key=True,
+                           index=True,
+                           nullable=False),
+                       sa.Column(
+                           'ast',
+                           sa.String,
+                           primary_key=True,
+                           index=True,
+                           nullable=False),
+                       sa.Column(
+                           'run_id',
+                           sa.Integer,
+                           sa.ForeignKey(
+                               'run.id',
+                               onupdate='CASCADE',
+                               ondelete='CASCADE'),
+                           index=True,
+                           primary_key=True))
+
+
 class EnableDBExport(pj.PolyJITConfig, ext.Extension):
     """Call the child extensions with an activated PolyJIT."""
     def __call__(self, binary_command, *args, **kwargs):
@@ -175,6 +224,7 @@ class JitExportGeneratedCode(pj.PolyJIT):
     """
 
     NAME = "pj-db-export"
+    SCHEMA = [__SCHEDULE__, __ISL_AST__]
 
     def actions_for_project(self, project):
         project = pj.PolyJIT.init_project(project)

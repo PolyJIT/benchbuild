@@ -14,12 +14,26 @@ import benchbuild.experiment as exp
 import benchbuild.experiments.polyjit as pj
 import benchbuild.extensions as ext
 import benchbuild.reports as reports
-from benchbuild.experiments.polyjit import (ClearPolyJITConfig,
-                                            EnableJITDatabase,
-                                            RegisterPolyJITLogs)
+import benchbuild.utils.schema as schema
+from benchbuild.experiments.polyjit import (
+    ClearPolyJITConfig, EnableJITDatabase, RegisterPolyJITLogs)
 from benchbuild.extensions import Extension
 
 LOG = logging.getLogger(__name__)
+
+__PROFILESCOPS__ = sa.Table('profilescops', schema.metadata(),
+                            sa.Column(
+                                'run_id',
+                                sa.Integer,
+                                sa.ForeignKey(
+                                    "run.id",
+                                    onupdate="CASCADE",
+                                    ondelete="CASCADE"),
+                                nullable=False,
+                                primary_key=True),
+                            sa.Column(
+                                'invalid_reason', sa.String, primary_key=True),
+                            sa.Column('count', sa.Integer))
 
 
 def persist_scopinfos(run, invalidReason, count):
@@ -140,6 +154,7 @@ class PProfExperiment(exp.Experiment):
     reason why the parent is not part of the SCoP."""
 
     NAME = "profileScopDetection"
+    SCHEMA = [__PROFILESCOPS__]
 
     def actions_for_project(self, project):
         project.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolly.so",

@@ -161,6 +161,7 @@ def persist_experiment(experiment):
         exps.update({'name': name, 'description': desc})
         LOG.debug("Update experiments: %s", exps)
         ret = exps.first()
+
     try:
         session.commit()
     except IntegrityError:

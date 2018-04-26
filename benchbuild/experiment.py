@@ -77,7 +77,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
-        del args, kwargs # Temporarily unused
+        del args, kwargs  # Temporarily unused
         new_self = super(Experiment, cls).__new__(cls)
         if cls.NAME is None:
             raise AttributeError(
@@ -85,13 +85,14 @@ class Experiment(object, metaclass=ExperimentRegistry):
                     cls.__name__, cls.__module__))
         return new_self
 
-    name = attr.ib(default=attr.Factory(
-        lambda self: type(self).NAME, takes_self=True))
+    name = attr.ib(
+        default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
     projects = \
         attr.ib(default=attr.Factory(list))
 
     id = attr.ib()
+
     @id.default
     def default_id(self):
         cfg_exps = CFG["experiments"].value()
@@ -134,8 +135,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
             p = self.projects[project](self)
             actions.append(Clean(p))
             actions.append(
-                RequireAll(obj=p,
-                           actions=self.actions_for_project(p)))
+                RequireAll(obj=p, actions=self.actions_for_project(p)))
 
         actions.append(CleanExtra(self))
         return actions

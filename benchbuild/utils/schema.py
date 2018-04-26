@@ -301,9 +301,9 @@ class RegressionTest(BASE):
     project_name = Column(String)
 
 
-def needed_schema(connection, metadata):
+def needed_schema(connection, meta):
     try:
-        metadata.create_all(connection, checkfirst=False)
+        meta.create_all(connection, checkfirst=False)
     except sa.exc.ProgrammingError:
         return False
     return True

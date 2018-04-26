@@ -40,18 +40,21 @@ def persist_scopinfos(run, invalidReason, count):
     """Persists the given information about SCoPs"""
     from benchbuild.utils import schema as s
     session = run.session
-    session.add(s.ScopDetection(
-        run_id=run.db_run.id, invalid_reason=invalidReason, count=count))
+    session.add(
+        s.ScopDetection(
+            run_id=run.db_run.id, invalid_reason=invalidReason, count=count))
 
 
 class RunWithPprofExperiment(Extension):
     """Write data of profileScopDetection into the database"""
+
     def __call__(self, *args, **kwargs):
         return self.call_next(*args, **kwargs)
 
 
 class EnableProfiling(pj.PolyJITConfig, ext.Extension):
     """Adds options for enabling profiling of SCoPs"""
+
     def __call__(self, *args, **kwargs):
         ret = None
         with self.argv(PJIT_ARGS="-polli-db-execute-atexit"):
@@ -95,8 +98,9 @@ class CaptureProfilingDebugOutput(ext.Extension):
             instrumentedParentCounter = 0
             nonInstrumentedParentCounter = 0
 
-            paths = glob.glob(os.path.join(
-                os.path.realpath(os.path.curdir), "profileScops.log"))
+            paths = glob.glob(
+                os.path.join(
+                    os.path.realpath(os.path.curdir), "profileScops.log"))
 
             def handle_data(line):
                 nonlocal instrumentedScopCounter
@@ -157,11 +161,11 @@ class PProfExperiment(exp.Experiment):
     SCHEMA = [__PROFILESCOPS__]
 
     def actions_for_project(self, project):
-        project.cflags = ["-Xclang", "-load", "-Xclang", "LLVMPolly.so",
-                          "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                          "-O3",
-                          "-mllvm", "-polli-profile-scops",
-                          "-mllvm", "-polly-process-unprofitable"]
+        project.cflags = [
+            "-Xclang", "-load", "-Xclang", "LLVMPolly.so", "-Xclang", "-load",
+            "-Xclang", "LLVMPolyJIT.so", "-O3", "-mllvm",
+            "-polli-profile-scops", "-mllvm", "-polly-process-unprofitable"
+        ]
         project.ldflags = ["-lpjit", "-lpapi"]
         project.compiler_extension = \
             ext.RunCompiler(project, self) \
@@ -227,22 +231,20 @@ class TestReport(reports.Report):
         queryRatiosScops = \
             TestReport.QUERY_RATIOS_SCOPS.unique_params(
                 exp_ids=self.experiment_ids, filter_str='%::SCoP')
-        yield ("ratiosScops",
-               ('project', 't_scop', 't_total', 'dyncov'),
+        yield ("ratiosScops", ('project', 't_scop', 't_total', 'dyncov'),
                self.session.execute(queryRatiosScops).fetchall())
 
         queryRatiosMaxRegions = \
             TestReport.QUERY_RATIOS_MAX_REGIONS.unique_params(
                 exp_ids=self.experiment_ids)
-        yield ("ratiosMaxRegions",
-               ('project', 't_parent', 't_total', 'dyncov'),
+        yield ("ratiosMaxRegions", ('project', 't_parent', 't_total',
+                                    'dyncov'),
                self.session.execute(queryRatiosMaxRegions).fetchall())
 
         queryInvalidReasons = \
             TestReport.QUERY_INVALID_REASONS.unique_params(
                 exp_ids=self.experiment_ids)
-        yield ("invalidReasons",
-               ('invalid_reason', 'occurrence'),
+        yield ("invalidReasons", ('invalid_reason', 'occurrence'),
                self.session.execute(queryInvalidReasons).fetchall())
 
     def generate(self):

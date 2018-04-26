@@ -22,7 +22,6 @@ paths for you.
 """
 
 import logging
-import sys
 import uuid
 
 import migrate.versioning.api as migrate
@@ -145,6 +144,26 @@ class Experiment(BASE):
         return "<Experiment {name}>".format(name=self.name)
 
 
+class Project(BASE):
+    """Store project metadata."""
+
+    __tablename__ = 'project'
+
+    name = Column(String, primary_key=True)
+    description = Column(String)
+    src_url = Column(String)
+    domain = Column(String)
+    group_name = Column(String, primary_key=True)
+    version = Column(String)
+
+    def __repr__(self):
+        return "<Project {group}@{domain}/{name} V:{version}>".format(
+            group=self.group_name,
+            domain=self.domain,
+            name=self.name,
+            version=self.version)
+
+
 class Metric(BASE):
     """Store default metrics, simple name value store."""
 
@@ -179,26 +198,6 @@ class Event(BASE):
         nullable=False,
         index=True,
         primary_key=True)
-
-
-class Project(BASE):
-    """Store project metadata."""
-
-    __tablename__ = 'project'
-
-    name = Column(String, primary_key=True)
-    description = Column(String)
-    src_url = Column(String)
-    domain = Column(String)
-    group_name = Column(String, primary_key=True)
-    version = Column(String)
-
-    def __repr__(self):
-        return "<Project {group}@{domain}/{name} V:{version}>".format(
-            group=self.group_name,
-            domain=self.domain,
-            name=self.name,
-            version=self.version)
 
 
 class RunLog(BASE):

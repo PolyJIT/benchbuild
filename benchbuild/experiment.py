@@ -73,6 +73,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
     """
 
     NAME = None
+    SCHEMA = None
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
@@ -101,6 +102,21 @@ class Experiment(object, metaclass=ExperimentRegistry):
             cfg_exps[self.name] = _id
             CFG["experiments"] = cfg_exps
         return _id
+
+    schema = attr.ib()
+
+    @schema.default
+    def default_schema(self):
+        return type(self).SCHEMA
+
+    @schema.validator
+    def validate_schema(self, _, new_schema):
+        from collections import Iterable
+        if new_schema is None:
+            return True
+        if isinstance(new_schema, Iterable):
+            return True
+        return False
 
     @abstractmethod
     def actions_for_project(self, project):

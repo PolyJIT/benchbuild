@@ -10,24 +10,24 @@ The used metric depends on the experiment, the fitness is being calculated for.
 The fittest generated sequences and the compilestats of the whole progress are
 then written into a persisted data base for further analysis.
 """
+import concurrent.futures as cf
 import csv
+import multiprocessing
 import os
 import random
-import concurrent.futures as cf
-import multiprocessing
 import sys
+
 import parse
 import sqlalchemy as sa
+from plumbum import local
 
 import benchbuild.extensions as ext
 import benchbuild.utils.schema as schema
 from benchbuild.experiments.polyjit import PolyJIT
-from benchbuild.settings import CFG
-
-from benchbuild.utils.cmd import (mktemp)
-from benchbuild.utils.run import track_execution
 from benchbuild.reports import Report
-from plumbum import local
+from benchbuild.settings import CFG
+from benchbuild.utils.cmd import mktemp
+from benchbuild.utils.run import track_execution
 
 DEFAULT_PASS_SPACE = [
     '-targetlibinfo', '-tti', '-tbaa', '-scoped-noalias', '-loop-simplify',
@@ -37,11 +37,12 @@ DEFAULT_PASS_SPACE = [
     '-pgo-icall-prom', '-basiccg', '-globals-aa', '-prune-eh', '-inline',
     '-functionattrs', '-argpromotion', '-sroa', '-licm', '-instsimplify',
     '-early-cse', '-speculative-execution', '-lazy-value-info',
-    '-jump-threading', '-correlated-propagation', '-simplifycfg',
-    '-basicaa', '-tailcallelim', '-reassociate', '-scalar-evolution',
-    '-loop-accesses', '-loop-vectorize', '-loop-load-elim',
-    '-demanded-bits', '-slp-vectorizer', '-loops', '-constmerge',
-    '-alignment-from-assumptions', '-strip-dead-prototypes', '-globaldce']
+    '-jump-threading', '-correlated-propagation', '-simplifycfg', '-basicaa',
+    '-tailcallelim', '-reassociate', '-scalar-evolution', '-loop-accesses',
+    '-loop-vectorize', '-loop-load-elim', '-demanded-bits', '-slp-vectorizer',
+    '-loops', '-constmerge', '-alignment-from-assumptions',
+    '-strip-dead-prototypes', '-globaldce'
+]
 DEFAULT_SEQ_LENGTH = 10
 DEFAULT_DEBUG = False
 DEFAULT_NUM_ITERATIONS = 1
@@ -200,9 +201,7 @@ def create_ir():
 
 def filter_invalid_flags(item):
     """Filter our all flags not needed for getting the compilestats."""
-    filter_list = [
-        "-O1", "-O2", "-O3", "-Os", "-O4"
-    ]
+    filter_list = ["-O1", "-O2", "-O3", "-Os", "-O4"]
 
     prefix_list = ['-o', '-l', '-L']
     result = item not in filter_list
@@ -221,9 +220,9 @@ def persist_sequence(run, sequence, fitness_val):
     """
     from benchbuild.utils import schema as s
     session = run.session
-    session.add(s.Sequence(name=str(sequence),
-                           value=fitness_val,
-                           run_id=run.db_run.id))
+    session.add(
+        s.Sequence(
+            name=str(sequence), value=fitness_val, run_id=run.db_run.id))
     session.commit()
 
 
@@ -231,8 +230,10 @@ class SequenceReport(Report):
     """Handles the view of the sequences in the database."""
 
     NAME = "sequences"
-    SUPPORTED_EXPERIMENTS = ["pj-seq-hillclimber", "pj-seq-genetic1-opt",
-                             "pj-seq-genetic2-opt", "pj-seq-greedy"]
+    SUPPORTED_EXPERIMENTS = [
+        "pj-seq-hillclimber", "pj-seq-genetic1-opt", "pj-seq-genetic2-opt",
+        "pj-seq-greedy"
+    ]
     QUERY_TOTAL = \
         sa.sql.select([
             sa.column('sequence'),
@@ -245,8 +246,7 @@ class SequenceReport(Report):
 
         qry = SequenceReport.QUERY_TOTAL.unique_params(
             exp_ids=self.experiment_ids)
-        yield ("complete",
-               ('sequence', 'fitness'),
+        yield ("complete", ('sequence', 'fitness'),
                self.session.execute(qry).fetchall())
 
     def generate(self):
@@ -270,14 +270,16 @@ class RunSequence(ext.ExtractCompileStats):
     Execute and compile a given sequence, to calculate its fitness value
     with a given function and metric.
     """
+
     def __call__(self, compiler, key, sequence, fitness_func, *args, **kwargs):
         local_compiler = compiler[sequence, "-polly-detect"]
         _, _, stderr = local_compiler.run(retcode=None)
-        stats = [s for s in self.get_compilestats(stderr)
-                 if s['desc'] in [
-                     "Number of regions that a valid part of Scop",
-                     "The # of regions"
-                 ]]
+        stats = [
+            s for s in self.get_compilestats(stderr) if s['desc'] in [
+                "Number of regions that a valid part of Scop",
+                "The # of regions"
+            ]
+        ]
         scops = [s for s in stats if s['component'].strip() == 'polly-detect']
         regns = [s for s in stats if s['component'].strip() == 'region']
         regns_not_in_scops = [
@@ -322,10 +324,12 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
             random2 = random.choice(upper_half)
             half_index = len(random1) // 2
 
-            new_chromosomes = [random1[:half_index] + random2[half_index:],
-                               random1[half_index:] + random2[:half_index],
-                               random2[:half_index] + random1[half_index:],
-                               random2[half_index:] + random1[:half_index]]
+            new_chromosomes = [
+                random1[:half_index] + random2[half_index:],
+                random1[half_index:] + random2[:half_index],
+                random2[:half_index] + random1[half_index:],
+                random2[half_index:] + random1[:half_index]
+            ]
 
             return new_chromosomes
 
@@ -341,8 +345,8 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
                     old_fitness = seq_to_fitness.get(key, sys.maxsize)
                     seq_to_fitness[key] = min(old_fitness, int(fitness))
             # sort the chromosomes by their fitness value
-            chromosomes.sort(key=lambda c: seq_to_fitness[str(c)],
-                             reverse=True)
+            chromosomes.sort(
+                key=lambda c: seq_to_fitness[str(c)], reverse=True)
 
             # divide the chromosome into two halves and delete the weakest one
             index_half = len(chromosomes) // 2
@@ -382,11 +386,10 @@ class FindFittestSequenceGenetic1(ext.RuntimeExtension):
                 """Defines the fitnesses metric."""
                 return (lhs - rhs) / rhs
 
-            future_to_fitness.extend(
-                [pool.submit(self.call_next, opt_cmd, str(chromosome),
-                             chromosome, fitness)
-                    for chromosome in chromosomes]
-            )
+            future_to_fitness.extend([
+                pool.submit(self.call_next, opt_cmd, str(chromosome),
+                            chromosome, fitness) for chromosome in chromosomes
+            ])
             return future_to_fitness
 
         def delete_duplicates(chromosomes, gene_pool):
@@ -509,15 +512,15 @@ class FindFittestSequenceGenetic2(ext.RuntimeExtension):
 
         def extend_gene_future(future_to_fitness, chromosomes, pool):
             """Extend with future values from the chromosomes."""
+
             def fitness(lhs, rhs):
                 """Defines the fitnesses metric."""
                 return (lhs - rhs) / rhs
 
-            future_to_fitness.extend(
-                [pool.submit(self.call_next, opt_cmd, str(chromosome),
-                             chromosome, fitness)
-                 for chromosome in chromosomes]
-            )
+            future_to_fitness.extend([
+                pool.submit(self.call_next, opt_cmd, str(chromosome),
+                            chromosome, fitness) for chromosome in chromosomes
+            ])
             return future_to_fitness
 
         def delete_duplicates(chromosomes, gene_pool):
@@ -593,8 +596,8 @@ class FindFittestSequenceGenetic2(ext.RuntimeExtension):
                     old_fitness = seq_to_fitness.get(key, sys.maxsize)
                     seq_to_fitness[key] = min(old_fitness, int(fitness))
             # sort the chromosomes by their fitness value
-            chromosomes.sort(key=lambda c: seq_to_fitness[str(c)],
-                             reverse=True)
+            chromosomes.sort(
+                key=lambda c: seq_to_fitness[str(c)], reverse=True)
 
             # best 10% of chromosomes survive without change
             num_best = len(chromosomes) // 10
@@ -693,15 +696,15 @@ class FindFittestSequenceHillclimber(ext.RuntimeExtension):
                     neighbour[i] = remaining_pass
                     neighbours.append(neighbour)
 
-                future_to_fitness.extend(
-                    [pool.submit(self.call_next, opt_cmd, str(sequence),
-                                 sequence, fitness)]
-                )
+                future_to_fitness.extend([
+                    pool.submit(self.call_next, opt_cmd, str(sequence),
+                                sequence, fitness)
+                ])
 
-            future_to_fitness.extend(
-                [pool.submit(self.call_next,
-                             opt_cmd, str(neighbour), neighbour, fitness)
-                 for neighbour in neighbours])
+            future_to_fitness.extend([
+                pool.submit(self.call_next, opt_cmd, str(neighbour), neighbour,
+                            fitness) for neighbour in neighbours
+            ])
 
             return future_to_fitness, neighbours
 
@@ -763,8 +766,7 @@ class FindFittestSequenceHillclimber(ext.RuntimeExtension):
                     > seq_to_fitness[str(base_sequence)]:
                 best_sequence = base_sequence
 
-        persist_sequence(run_info,
-                         best_sequence,
+        persist_sequence(run_info, best_sequence,
                          seq_to_fitness[str(best_sequence)])
 
 
@@ -805,6 +807,7 @@ class FindFittestSequenceGreedy(ext.RuntimeExtension):
 
         def extend_future(base_sequence, pool):
             """Generate the future of the fitness values from the sequences."""
+
             def fitness(lhs, rhs):
                 """Defines the fitnesses metric."""
                 return lhs - rhs
@@ -818,11 +821,10 @@ class FindFittestSequenceGreedy(ext.RuntimeExtension):
                     new_sequences.append([flag] + list(base_sequence))
 
                 sequences.extend(new_sequences)
-                future_to_fitness.extend(
-                    [pool.submit(
-                        self.call_next, opt_cmd, str(seq), seq, fitness)
-                     for seq in new_sequences]
-                )
+                future_to_fitness.extend([
+                    pool.submit(self.call_next, opt_cmd, str(seq), seq,
+                                fitness) for seq in new_sequences
+                ])
             return future_to_fitness, sequences
 
         def create_greedy_sequences():
@@ -846,8 +848,8 @@ class FindFittestSequenceGreedy(ext.RuntimeExtension):
                             old_fitness = seq_to_fitness.get(key, sys.maxsize)
                             seq_to_fitness[key] = min(old_fitness, fitness)
 
-                        sequences.sort(key=lambda s: seq_to_fitness[str(s)],
-                                       reverse=True)
+                        sequences.sort(
+                            key=lambda s: seq_to_fitness[str(s)], reverse=True)
 
                         fittest = sequences.pop()
                         fittest_fitness_value = seq_to_fitness[str(fittest)]

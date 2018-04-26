@@ -36,27 +36,19 @@ class IJPP(pj.PolyJIT):
     def actions_for_project(self, project):
         jobs = int(settings.CFG["jobs"].value())
         naked_project = project.clone()
-        naked_project.cflags += [
-            "-O3"
-        ]
+        naked_project.cflags += ["-O3"]
 
         naked_polly_project = project.clone()
         naked_polly_project.cflags += [
-            "-Xclang", "-load",
-            "-Xclang", "LLVMPolly.so",
-            "-O3",
-            "-mllvm", "-polly",
-            "-mllvm", "-polly-parallel",
-            "-fopenmp"
+            "-Xclang", "-load", "-Xclang", "LLVMPolly.so", "-O3", "-mllvm",
+            "-polly", "-mllvm", "-polly-parallel", "-fopenmp"
         ]
 
         project = pj.PolyJIT.init_project(project)
         project.cflags += [
             "-mllvm", "-polly-num-threads={0}".format(jobs), "-fopenmp"
         ]
-        project.ldflags += [
-            "-lgomp"
-        ]
+        project.ldflags += ["-lgomp"]
 
         ext_jit_opt = ext.RuntimeExtension(
             project, self, config={
@@ -114,12 +106,8 @@ class IJPP(pj.PolyJIT):
         #   PolyJIT, polly.inside,
         #   PolyJIT_Opt, polly.inside.no-delin
         project.runtime_extension = ext.Extension(
-            ext_jit_opt,
-            ext_jit,
-            ext_jit_polly,
-            ext_jit_no_delin,
-            ext_jit_polly_no_delin
-        ) << ext.RunWithTime()
+            ext_jit_opt, ext_jit, ext_jit_polly, ext_jit_no_delin,
+            ext_jit_polly_no_delin) << ext.RunWithTime()
 
         # O3
         naked_project.runtime_extension = ext.RuntimeExtension(
@@ -208,10 +196,12 @@ __ISL_AST__ = sa.Table('isl_asts', schema.metadata(),
 
 class EnableDBExport(pj.PolyJITConfig, ext.Extension):
     """Call the child extensions with an activated PolyJIT."""
+
     def __call__(self, binary_command, *args, **kwargs):
         ret = None
-        with self.argv(PJIT_ARGS=["-polli-optimizer=debug",
-                                  "-polli-database-export"]):
+        with self.argv(
+                PJIT_ARGS=["-polli-optimizer=debug", "-polli-database-export"
+                           ]):
             ret = self.call_next(binary_command, *args, **kwargs)
         return ret
 
@@ -231,12 +221,10 @@ class JitExportGeneratedCode(pj.PolyJIT):
         project.run_uuid = uuid.uuid4()
         jobs = int(settings.CFG["jobs"].value())
         project.cflags += [
-            "-mllvm", "-stats",
-            "-mllvm", "-polly-num-threads={0}".format(jobs)]
-
-        project.ldflags += [
-            "-lgomp"
+            "-mllvm", "-stats", "-mllvm", "-polly-num-threads={0}".format(jobs)
         ]
+
+        project.ldflags += ["-lgomp"]
 
         enable_jit = ext.RuntimeExtension(
             project, self, config={
@@ -262,13 +250,10 @@ class JitExportGeneratedCode(pj.PolyJIT):
             << ext.LogAdditionals() \
             << pj.ClearPolyJITConfig()
 
-
-        project.runtime_extension = ext.Extension(
-            enable_jit,
-            disable_jit
-        )
+        project.runtime_extension = ext.Extension(enable_jit, disable_jit)
 
         return JitExportGeneratedCode.default_runtime_actions(project)
+
 
 class DBReport(reports.Report):
     NAME = "pj-db-export"
@@ -286,12 +271,10 @@ class DBReport(reports.Report):
             sa.column('polly_stderr')
         ]).select_from(sa.func.ijpp_db_export(sa.sql.bindparam('exp_id')))
 
-
     def report(self):
         for exp_id in self.experiment_ids:
             qry = DBReport.QUERY_CODE.unique_params(exp_id=exp_id)
-            yield ("codes", exp_id,
-                   self.session.execute(qry).fetchall())
+            yield ("codes", exp_id, self.session.execute(qry).fetchall())
 
     def generate(self):
         from jinja2 import Environment, PackageLoader
@@ -299,8 +282,7 @@ class DBReport(reports.Report):
         env = Environment(
             trim_blocks=True,
             lstrip_blocks=True,
-            loader=PackageLoader('benchbuild', 'utils/templates')
-        )
+            loader=PackageLoader('benchbuild', 'utils/templates'))
         template = env.get_template('ijpp_code_report.html.inc')
         for name, exp_id, data in self.report():
             fname = os.path.basename(self.out_path)
@@ -315,11 +297,11 @@ class DBReport(reports.Report):
                      st.parse_schedule_tree(row[4]), row[5], row[6],
                      st.parse_schedule_tree(row[7]), row[8]) for row in data]
             fname = "pj-db-export_{prefix}_{name}_{exp_id}.html".format(
-                prefix=os.path.splitext(fname)[0],
-                name=name, exp_id=exp_id)
+                prefix=os.path.splitext(fname)[0], name=name, exp_id=exp_id)
             with open(fname, 'w') as outfile:
                 print("Writing '{0}'".format(outfile.name))
                 outfile.write(template.render(data=data))
+
 
 class IJPPReport(reports.Report):
     NAME = "ijpp"
@@ -406,34 +388,31 @@ class IJPPReport(reports.Report):
         for exp_id in self.experiment_ids:
             qry = IJPPReport.QUERY_TIME.unique_params(exp_id=exp_id)
             yield ("runtime", exp_id,
-                ('project', 'group', 'domain', 'config', 'time', 'variants',
+                   ('project', 'group', 'domain', 'config', 'time', 'variants',
                     'cachehits', 'requests', 'blocked'),
-                self.session.execute(qry).fetchall())
+                   self.session.execute(qry).fetchall())
 
             qry = IJPPReport.QUERY_REGION.unique_params(exp_id=exp_id)
-            yield ("regions", exp_id,
-                ('project', 'region', 'cores', 'runtime'),
-                self.session.execute(qry).fetchall())
+            yield ("regions", exp_id, ('project', 'region',
+                                       'cores', 'runtime'),
+                   self.session.execute(qry).fetchall())
 
             qry = IJPPReport.QUERY_IJPP_TOTAL.unique_params(exp_id=exp_id)
             yield ("complete", exp_id,
-                ('project', 'group', 'domain',
-                 'speedup_0', 'speedup_2',
-                 'ohcov_0', 'ohcov_1', 'ohcov_2',
-                 'dyncov_0', 'dyncov_1', 'dyncov_2',
-                 'cachehits_0', 'cachehits_1', 'cachehits_2',
-                 'variants_0', 'variants_1', 'variants_2',
-                 'blocked_0', 'blocked_1', 'blocked_2',
-                 'codegen_0', 'codegen_1', 'codegen_2',
-                 'scops_0', 'scops_1', 'scops_2',
-                 't_0', 'o_0', 't_1', 'o_1', 't_2', 'o_2'),
-                self.session.execute(qry).fetchall())
+                   ('project', 'group', 'domain', 'speedup_0', 'speedup_2',
+                    'ohcov_0', 'ohcov_1', 'ohcov_2', 'dyncov_0', 'dyncov_1',
+                    'dyncov_2', 'cachehits_0', 'cachehits_1', 'cachehits_2',
+                    'variants_0', 'variants_1', 'variants_2', 'blocked_0',
+                    'blocked_1', 'blocked_2', 'codegen_0', 'codegen_1',
+                    'codegen_2', 'scops_0', 'scops_1', 'scops_2', 't_0',
+                    'o_0', 't_1', 'o_1', 't_2', 'o_2'),
+                   self.session.execute(qry).fetchall())
 
             qry = IJPPReport.QUERY_IJPP_REGION.unique_params(exp_id=exp_id)
             yield ("region_compare", exp_id,
-                ('project', 'group', 'region', 'cores', 'T_Polly', 'T_PolyJIT',
-                 'speedup'),
-                self.session.execute(qry).fetchall())
+                   ('project', 'group', 'region', 'cores',
+                    'T_Polly', 'T_PolyJIT', 'speedup'),
+                   self.session.execute(qry).fetchall())
 
     def generate(self):
         for name, exp_id, header, data in self.report():

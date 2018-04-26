@@ -11,6 +11,7 @@ import os
 import uuid
 from abc import abstractmethod
 
+import sqlalchemy as sa
 from plumbum import local
 
 import benchbuild.extensions as ext
@@ -82,10 +83,11 @@ class ClearPolyJITConfig(PolyJITConfig, ext.Extension):
 
 class EnableJITDatabase(PolyJITConfig, ext.Extension):
     """The run and given extensions store polli's statistics to the database."""
+
     def __init__(self, *args, project=None, **kwargs):
         """Initialize the db object for the JIT."""
-        super(EnableJITDatabase, self).__init__(*args,
-                                                project=project, **kwargs)
+        super(EnableJITDatabase, self).__init__(
+            *args, project=project, **kwargs)
         self.project = project
 
     def __call__(self, binary_command, *args, **kwargs):
@@ -97,8 +99,8 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
             from parse import parse
             res = parse("{dialect}://{user}:{password}@{host}:{port}/{name}",
                         connect_str)
-            return (res['dialect'], res['user'], res['password'],
-                    res['host'], res['port'], res['name'])
+            return (res['dialect'], res['user'], res['password'], res['host'],
+                    res['port'], res['name'])
 
         _, user, password, host, port, name = \
             deconstruct(CFG["db"]["connect_string"].value())
@@ -132,6 +134,7 @@ class EnableJITDatabase(PolyJITConfig, ext.Extension):
 
 class EnablePolyJIT_Opt(PolyJITConfig, ext.Extension):
     """Call the child extensions with an activated PolyJIT."""
+
     def __call__(self, *args, **kwargs):
         ret = None
         with self.argv(PJIT_ARGS=["-polli-use-polly-options=false"]):
@@ -142,6 +145,7 @@ class EnablePolyJIT_Opt(PolyJITConfig, ext.Extension):
 
 class EnablePolyJIT(PolyJITConfig, ext.Extension):
     """Call the child extensions with an activated PolyJIT."""
+
     def __call__(self, *args, **kwargs):
         ret = None
         with local.env(PJIT_ARGS=self.value_to_str('PJIT_ARGS')):
@@ -151,6 +155,7 @@ class EnablePolyJIT(PolyJITConfig, ext.Extension):
 
 class DisableDelinearization(PolyJITConfig, ext.Extension):
     """Deactivate the JIT for the following extensions."""
+
     def __call__(self, *args, **kwargs):
         ret = None
         with self.argv(PJIT_ARGS=["-polli-no-delinearization"]):
@@ -161,6 +166,7 @@ class DisableDelinearization(PolyJITConfig, ext.Extension):
 
 class DisablePolyJIT(PolyJITConfig, ext.Extension):
     """Deactivate the JIT for the following extensions."""
+
     def __call__(self, *args, **kwargs):
         ret = None
         with self.argv(PJIT_ARGS=["-polli-no-specialization"]):
@@ -171,6 +177,7 @@ class DisablePolyJIT(PolyJITConfig, ext.Extension):
 
 class RegisterPolyJITLogs(PolyJITConfig, ext.LogTrackingMixin, ext.Extension):
     """Extends the following RunWithTime extensions with extra PolyJIT logs."""
+
     def __call__(self, *args, **kwargs):
         """Redirect to RunWithTime, but register additional logs."""
         from benchbuild.settings import CFG
@@ -180,12 +187,14 @@ class RegisterPolyJITLogs(PolyJITConfig, ext.LogTrackingMixin, ext.Extension):
         curdir = os.path.realpath(os.path.curdir)
         files_before = glob.glob(os.path.join(curdir, "polyjit.*.log"))
 
-        with self.argv(PJIT_ARGS=["-polli-enable-log",
-                                  "-polli-log-level={}".format(log_level)]):
+        with self.argv(PJIT_ARGS=[
+            "-polli-enable-log", "-polli-log-level={}".format(log_level)
+        ]):
             ret = self.call_next(*args, **kwargs)
         files = glob.glob(os.path.join(curdir, "polyjit.*.log"))
         files = [
-            new_file for new_file in files if new_file not in files_before]
+            new_file for new_file in files if new_file not in files_before
+        ]
 
         for file in files:
             self.add_log(file)
@@ -212,13 +221,12 @@ class PolyJIT(Experiment):
             The initialized project.
         """
         project.ldflags += ["-lpjit", "-lgomp"]
-        project.cflags = ["-fno-omit-frame-pointer",
-                          "-rdynamic",
-                          "-Xclang", "-load", "-Xclang", "LLVMPolly.so",
-                          "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-                          "-O3",
-                          "-mllvm", "-polli-enable-log",
-                          "-mllvm", "-polli"]
+        project.cflags = [
+            "-fno-omit-frame-pointer", "-rdynamic", "-Xclang", "-load",
+            "-Xclang", "LLVMPolly.so", "-Xclang", "-load", "-Xclang",
+            "LLVMPolyJIT.so", "-O3", "-mllvm", "-polli-enable-log", "-mllvm",
+            "-polli"
+        ]
         return project
 
     @abstractmethod
@@ -239,8 +247,8 @@ class PolyJITSimple(PolyJIT):
         log_level = verbosity_to_polyjit_log_level(CFG["verbosity"].value())
 
         project.cflags += [
-            "-mllvm", "-polli-log-level={}".format(log_level),
-            "-mllvm", "-stats"
+            "-mllvm", "-polli-log-level={}".format(log_level), "-mllvm",
+            "-stats"
         ]
 
         cfg = {
@@ -289,9 +297,10 @@ class PolyJITFull(PolyJIT):
 
         pollyp = copy.deepcopy(project)
         pollyp.run_uuid = uuid.uuid4()
-        pollyp.cflags = ["-Xclang", "-load",
-                         "-Xclang", "LLVMPolly.so",
-                         "-mllvm", "-polly", "-mllvm", "-polly-parallel"]
+        pollyp.cflags = [
+            "-Xclang", "-load", "-Xclang", "LLVMPolly.so", "-mllvm", "-polly",
+            "-mllvm", "-polly-parallel"
+        ]
         pollyp.runtime_extension = \
             ext.RuntimeExtension(
                 pollyp, self, config={"jobs": 1, "name": "Polly (Parallel)"}) \
@@ -309,7 +318,7 @@ class PolyJITFull(PolyJIT):
             cp.run_uuid = uuid.uuid4()
             cfg = {
                 "jobs": i,
-                "cores": str(i-1),
+                "cores": str(i - 1),
                 "cores-config": str(i),
                 "recompilation": "disabled",
                 "name": "PolyJIT (No Recompilation)"
@@ -331,7 +340,7 @@ class PolyJITFull(PolyJIT):
             cp.run_uuid = uuid.uuid4()
             cfg = {
                 "jobs": i,
-                "cores": str(i-1),
+                "cores": str(i - 1),
                 "cores-config": str(i),
                 "recompilation": "enabled",
                 "name": "PolyJIT (Recompilation)"

@@ -46,10 +46,10 @@ class PollyCompilestatsExperiment(Experiment):
     SCHEMA = [__COMPILESTATS__]
 
     def actions_for_project(self, project):
-        project.cflags = ["-O3",
-                          "-Xclang", "-load",
-                          "-Xclang", "LLVMPolly.so",
-                          "-mllvm", "-polly"]
+        project.cflags = [
+            "-O3", "-Xclang", "-load", "-Xclang", "LLVMPolly.so", "-mllvm",
+            "-polly"
+        ]
         project.compiler_extension = \
             ext.RunWithTimeout(ext.ExtractCompileStats(project, self))
         return CompilestatsExperiment.default_compiletime_actions(project)

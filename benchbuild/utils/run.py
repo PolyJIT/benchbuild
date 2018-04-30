@@ -698,7 +698,6 @@ def unionfs(base_dir='./base',
                                          abs_mount_dir)
             project_builddir_bak = project.builddir
             project.builddir = abs_mount_dir
-            project.setup_derived_filenames()
 
             proc = unionfs_cmd.popen()
             while (not unionfs_is_active(root=abs_mount_dir)) and \
@@ -712,7 +711,6 @@ def unionfs(base_dir='./base',
                         ret = func(project, *args, **kwargs)
                 finally:
                     project.builddir = project_builddir_bak
-                    project.setup_derived_filenames()
 
                     from signal import SIGINT
                     is_running = proc.poll() is None

@@ -75,7 +75,7 @@ For example, if we want to wrap the ``myproject`` binary from the previous examp
 as follows:
 
 ```python
-import benchbuild.utils.wrapping import wrap
+from benchbuild.utils.wrapping import wrap
 
 def run_tests(self, experiment, runner):
     wrapped = wrap("myproject", experiment)

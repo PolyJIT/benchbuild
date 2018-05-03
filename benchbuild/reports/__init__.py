@@ -53,9 +53,7 @@ def load_experiment_ids_from_names(session, names):
         select_from(
             func.experiments(bindparam('names'))
         )
-    r1 = session.execute(
-        exps.unique_params(names=names)
-    )
+    r1 = session.execute(exps.unique_params(names=names))
     return r1.fetchall()
 
 
@@ -73,9 +71,8 @@ class Report(object, metaclass=ReportRegistry):
                 .format(cls.__name__, cls.__module__))
 
         if cls.NAME is None:
-            raise AttributeError(
-                "{0} @ {1} does not define a NAME attribute"
-                .format(cls.__name__, cls.__module__))
+            raise AttributeError("{0} @ {1} does not define a NAME attribute"
+                                 .format(cls.__name__, cls.__module__))
         new_self.name = cls.NAME
         return new_self
 

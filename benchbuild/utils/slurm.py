@@ -46,8 +46,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
     env = Environment(
         trim_blocks=True,
         lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates')
-    )
+        loader=PackageLoader('benchbuild', 'utils/templates'))
     template = env.get_template('slurm.sh.inc')
 
     with open(script_name, 'w') as slurm2:
@@ -91,9 +90,8 @@ def prepare_slurm_script(experiment, projects):
 
     # Assume that we run the slurm subcommand of benchbuild.
     benchbuild_c = local[os.path.abspath(sys.argv[0])]
-    slurm_script = os.path.join(os.getcwd(),
-                                experiment.name + "-" +
-                                str(CFG['slurm']['script']))
+    slurm_script = os.path.join(
+        os.getcwd(), experiment.name + "-" + str(CFG['slurm']['script']))
 
     # We need to wrap the benchbuild run inside srun to avoid HyperThreading.
     srun = local["srun"]

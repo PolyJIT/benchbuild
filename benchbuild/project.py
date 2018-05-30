@@ -62,16 +62,17 @@ class ProjectDecorator(ProjectRegistry):
     sure to run every project method in the project's build directory.
     """
 
-    decorated_methods = ["build", "configure", "download", "prepare",
-                         "run_tests"]
+    decorated_methods = [
+        "build", "configure", "download", "prepare", "run_tests"
+    ]
 
     def __init__(cls, name, bases, attrs):
         unionfs_deco = None
         if CFG["unionfs"]["enable"].value():
             image_dir = CFG["unionfs"]["image"].value()
             prefix = CFG["unionfs"]["image_prefix"].value()
-            unionfs_deco = partial(unionfs, image_dir=image_dir,
-                                   image_prefix=prefix)
+            unionfs_deco = partial(
+                unionfs, image_dir=image_dir, image_prefix=prefix)
         config_deco = store_config
 
         methods = ProjectDecorator.decorated_methods
@@ -193,23 +194,25 @@ class Project(object, metaclass=ProjectDecorator):
 
     experiment = attr.ib()
 
-    name = attr.ib(default=attr.Factory(
-        lambda self: type(self).NAME, takes_self=True))
+    name = attr.ib(
+        default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
-    domain = attr.ib(default=attr.Factory(
-        lambda self: type(self).DOMAIN, takes_self=True))
+    domain = attr.ib(
+        default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True))
 
-    group = attr.ib(default=attr.Factory(
-        lambda self: type(self).GROUP, takes_self=True))
+    group = attr.ib(
+        default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
 
-    src_file = attr.ib(default=attr.Factory(
-        lambda self: type(self).SRC_FILE, takes_self=True))
+    src_file = attr.ib(
+        default=attr.Factory(
+            lambda self: type(self).SRC_FILE, takes_self=True))
 
     container = attr.ib(default=Gentoo())
 
-    version = attr.ib(default=attr.Factory(
-        lambda self: get_version_from_cache_dir(self.src_file),
-        takes_self=True))
+    version = attr.ib(
+        default=attr.Factory(
+            lambda self: get_version_from_cache_dir(self.src_file),
+            takes_self=True))
 
     builddir = attr.ib(default=attr.Factory(
         lambda self: path.join(
@@ -220,23 +223,25 @@ class Project(object, metaclass=ProjectDecorator):
         takes_self=True))
 
     testdir = attr.ib()
+
     @testdir.default
     def __default_testdir(self):
         if self.group:
-            return path.join(str(CFG["test_dir"]),
-                             self.domain, self.group, self.name)
+            return path.join(
+                str(CFG["test_dir"]), self.domain, self.group, self.name)
         else:
-            return path.join(str(CFG["test_dir"]),
-                             self.domain, self.name)
+            return path.join(str(CFG["test_dir"]), self.domain, self.name)
 
     cflags = attr.ib(default=attr.Factory(list))
 
     ldflags = attr.ib(default=attr.Factory(list))
 
-    run_f = attr.ib(default=attr.Factory(
-        lambda self: path.join(self.builddir, self.name), takes_self=True))
+    run_f = attr.ib(
+        default=attr.Factory(
+            lambda self: path.join(self.builddir, self.name), takes_self=True))
 
     run_uuid = attr.ib()
+
     @run_uuid.default
     def __default_run_uuid(self):
         return getenv("BB_DB_RUN_GROUP", uuid.uuid4())
@@ -251,7 +256,6 @@ class Project(object, metaclass=ProjectDecorator):
             ext.RunCompiler(self, self.experiment)), takes_self=True))
 
     runtime_extension = attr.ib(default=None)
-
 
     def __attrs_post_init__(self):
         persist_project(self)
@@ -331,6 +335,7 @@ class Project(object, metaclass=ProjectDecorator):
         new_p = copy.deepcopy(self)
         new_p.run_uuid = uuid.uuid4()
         return new_p
+
 
 def populate(projects_to_filter=None, group=None):
     """

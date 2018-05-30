@@ -26,7 +26,7 @@ class BenchBuildRun(cli.Application):
 
     experiment_names = []
     project_names = []
-    group_name = None
+    group_names = None
 
     test_full = cli.Flag(
         ["-F", "--full"],
@@ -80,10 +80,11 @@ class BenchBuildRun(cli.Application):
     @cli.switch(
         ["-G", "--group"],
         str,
+        list=True,
         requires=["--experiment"],
         help="Run a group of projects under the given experiments")
-    def set_group(self, group):
-        self.group_name = group
+    def set_group(self, groups):
+        self.group_names = groups
 
     pretend = cli.Flag(['p', 'pretend'], default=False)
 
@@ -159,7 +160,7 @@ class BenchBuildRun(cli.Application):
         """Main entry point of benchbuild run."""
         experiment_names = self.experiment_names
         project_names = self.project_names
-        group_name = self.group_name
+        group_names = self.group_names
 
         experiments.discover()
         all_exps = experiment.ExperimentRegistry.experiments
@@ -177,7 +178,7 @@ class BenchBuildRun(cli.Application):
         if unknown_exps:
             print('Could not find ', str(unknown_exps),
                   ' in the experiment registry.')
-        prjs = project.populate(project_names, group_name)
+        prjs = project.populate(project_names, group_names)
 
         self.__maybe_list_experiments(all_exps)
         self.__maybe_list_projects(exps, prjs)

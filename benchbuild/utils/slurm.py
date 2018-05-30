@@ -60,7 +60,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
                 cpus=CFG['slurm']['cpus_per_task'].value(),
                 exclusive=CFG['slurm']['exclusive'].value(),
                 lockfile=CFG['slurm']["node_dir"].value() + ".lock",
-                log=os.path.join(logs_dir, experiment.id),
+                log=os.path.join(logs_dir, str(experiment.id)),
                 max_running=CFG['slurm']['max_running'].value(),
                 name=experiment.name,
                 nice=CFG['slurm']['nice'].value(),

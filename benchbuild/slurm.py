@@ -7,6 +7,7 @@ dumps a slurm batch script that executes everything as an array job
 on a configurable SLURM cluster.
 """
 import os
+import sys
 
 from plumbum import cli
 
@@ -25,35 +26,39 @@ class Slurm(cli.Application):
         self._group_names = None
         self._description = None
 
-    @cli.switch(["-E", "--experiment"],
-                str,
-                mandatory=True,
-                help="Specify experiments to run")
+    @cli.switch(
+        ["-E", "--experiment"],
+        str,
+        mandatory=True,
+        help="Specify experiments to run")
     def experiment(self, cfg_experiment):
         """Specify experiments to run"""
         self._experiment = cfg_experiment
 
-    @cli.switch(["-P", "--project"],
-                str,
-                list=True,
-                requires=["--experiment"],
-                help="Specify projects to run")
+    @cli.switch(
+        ["-P", "--project"],
+        str,
+        list=True,
+        requires=["--experiment"],
+        help="Specify projects to run")
     def projects(self, project_names):
         """Specify projects to run"""
         self._project_names = project_names
 
-    @cli.switch(["-D", "--description"],
-                str,
-                help="A description for this experiment run")
+    @cli.switch(
+        ["-D", "--description"],
+        str,
+        help="A description for this experiment run")
     def experiment_tag(self, description):
         """A description for this experiment run"""
         self._description = description
 
-    @cli.switch(["-G", "--group"],
-                str,
-                list=True,
-                requires=["--experiment"],
-                help="Run a group of projects under the given experiments")
+    @cli.switch(
+        ["-G", "--group"],
+        str,
+        list=True,
+        requires=["--experiment"],
+        help="Run a group of projects under the given experiments")
     def group(self, groups):
         """Run a group of projects under the given experiments"""
         self._group_names = groups

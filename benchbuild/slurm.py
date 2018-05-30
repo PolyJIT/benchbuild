@@ -58,55 +58,42 @@ class Slurm(cli.Application):
         """Run a group of projects under the given experiments"""
         self._group_names = groups
 
-    def __go__(self, project_names, exp):
-        prj_registry = project.ProjectRegistry
-        prjs = prj_registry.projects
-        project_names = self._project_names
-        if project_names is not None:
-            allkeys = set(list(prjs.keys()))
-            usrkeys = set(project_names)
-            prjs = {x: prjs[x] for x in allkeys & usrkeys}
-
-        group_names = self._group_names
-        if group_names is not None:
-            groupkeys = set(group_names)
-            prjs = {
-                name: cls
-                for name, cls in prjs.items() if cls.GROUP in groupkeys
-            }
-
-        prjs = {x: prjs[x] for x in prjs if prjs[x].DOMAIN != "debug"}
-
+    def __go__(self, prjs, exp):
         prj_keys = sorted(prjs.keys())
         print("{0} Projects".format(len(prj_keys)))
-
         slurm.prepare_slurm_script(exp, prj_keys)
 
     def main(self):
         """Main entry point of benchbuild run."""
+        exp = [self._experiment]
+        project_names = self._project_names
+        group_names = self._group_names
+
         experiments.discover()
         projects.discover()
 
-        exp_registry = experiment.ExperimentRegistry
-        project_names = self._project_names
-        exp_name = self._experiment
+        all_exps = experiment.ExperimentRegistry.experiments
 
         if self._description:
             CFG["experiment_description"] = self._description
 
-        CFG["slurm"]["logs"] = os.path.abspath(os.path.join(CFG[
-            'build_dir'].value(), CFG['slurm']['logs'].value()))
+        CFG["slurm"]["logs"] = os.path.abspath(
+            os.path.join(CFG['build_dir'].value(),
+                         CFG['slurm']['logs'].value()))
         CFG["build_dir"] = CFG["slurm"]["node_dir"].value()
 
-        print("Experiment: " + exp_name)
-        if exp_name in exp_registry.experiments:
-            exp_cls = exp_registry.experiments[exp_name]
-            exp = exp_cls(project_names)
+        exps = dict(filter(lambda pair: pair[0] in set(exp), all_exps.items()))
+        unknown_exps = list(
+            filter(lambda name: name not in all_exps.keys(), set(exp)))
+        if unknown_exps:
+            print('Could not find ', str(unknown_exps),
+                  ' in the experiment registry.')
+            sys.exit(1)
 
+        prjs = project.populate(project_names, group_names)
+        for exp_cls in exps.values():
+            exp = exp_cls(projects=prjs)
+            print("Experiment: ", exp.name)
             CFG["slurm"]["node_dir"] = os.path.abspath(
-                os.path.join(CFG["slurm"]["node_dir"].value(),
-                             exp.id))
-            self.__go__(project_names, exp)
-        else:
-            from logging import error
-            error("Could not find {} in the experiment registry.", exp_name)
+                os.path.join(CFG["slurm"]["node_dir"].value(), str(exp.id)))
+            self.__go__(prjs, exp)

@@ -342,12 +342,12 @@ def populate(projects_to_filter=None, group=None):
     Populate the list of projects that belong to this experiment.
 
     Args:
-        projects_to_filter (list):
+        projects_to_filter (list(Project)):
             List of projects we want to assign to this experiment.
             We intersect the list of projects with the list of supported
             projects to get the list of projects that belong to this
             experiment.
-        group (str):
+        group (list(str)):
             In addition to the project filter, we provide a way to filter
             whole groups.
     """
@@ -368,11 +368,13 @@ def populate(projects_to_filter=None, group=None):
                 pass
 
     if group:
+        groupkeys = set(group)
         prjs = {
             name: cls
-            for name, cls in prjs.items() if cls.GROUP == group
+            for name, cls in prjs.items() if cls.GROUP in groupkeys
         }
 
     return {
-        x: prjs[x] for x in prjs
-        if prjs[x].DOMAIN != "debug" or x in projects_to_filter}
+        x: prjs[x]
+        for x in prjs if prjs[x].DOMAIN != "debug" or x in projects_to_filter
+    }

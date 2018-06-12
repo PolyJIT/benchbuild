@@ -258,8 +258,9 @@ class ExtractCompileStats(Extension):
                  experiment_cflags=[],
                  experiment_ldflags=[],
                  **kwargs):
+        from benchbuild.experiments.compilestats import CompileStat
         from benchbuild.utils.db import persist_compilestats
-        from benchbuild.utils.schema import CompileStat, Session
+        from benchbuild.utils.schema import Session
         from benchbuild.settings import CFG
 
         original_command = cc[args]

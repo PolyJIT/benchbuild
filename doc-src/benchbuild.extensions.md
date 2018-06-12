@@ -47,6 +47,7 @@ class RawTimeout(Experiment):
 
 If you compose many extensions, you can use the left shift operator to avoid cluttering your code with
 a high nesting depth. Note, that you need to reverse the chaining order compared to the nested one, from outermost first to innermost first.
+After composition, you have to assign the extension to the ``runtime_extension`` attribute of a ``project``.
 
 ```python
 import benchbuild.extensions as ext
@@ -57,6 +58,8 @@ class RawTimeout(Experiment):
         project.runtime_extension = \
                ext.RuntimeExtension(project, self) \
             << ext.RunWithTimeout(timeout="2m")
+
+        ...
 ```
 
 ## API reference

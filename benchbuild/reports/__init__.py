@@ -4,6 +4,11 @@ Register reports for an experiment
 import importlib
 import logging
 import typing as t
+import uuid
+
+import attr
+
+import benchbuild.utils.schema as schema
 from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
@@ -57,6 +62,7 @@ def load_experiment_ids_from_names(session, names):
     return r1.fetchall()
 
 
+@attr.s
 class Report(object, metaclass=ReportRegistry):
 
     SUPPORTED_EXPERIMENTS = []
@@ -76,17 +82,27 @@ class Report(object, metaclass=ReportRegistry):
         new_self.name = cls.NAME
         return new_self
 
-    def __init__(self, exp_name, exp_ids, out_path):
-        import benchbuild.utils.schema as schema
-        import uuid
-        self.out_path = out_path
-        self.session = schema.Session()
-        if not exp_ids:
-            exp_ids = load_experiment_ids_from_names(
-                self.session,
-                [exp for exp in self.SUPPORTED_EXPERIMENTS if exp == exp_name])
+    experiment_name = attr.ib()
+    exp_ids = attr.ib()
+    out_path = attr.ib()
+
+    name = attr.ib(
+        default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
+
+    supported_experiments = attr.ib(
+        default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
+
+    session = attr.ib(default=schema.Session())
+
+    experiment_ids = attr.ib(default=None)
+
+    def __attrs_post_init__(self):
+        if not self.exp_ids:
+            exp_ids = load_experiment_ids_from_names(self.session, [
+                exp for exp in self.SUPPORTED_EXPERIMENTS
+                if exp == self.experiment_name
+            ])
             exp_ids = [v[0] for v in exp_ids]
         else:
-            exp_ids = [uuid.UUID(v) for v in exp_ids]
-
+            exp_ids = [uuid.UUID(v) for v in self.exp_ids]
         self.experiment_ids = exp_ids

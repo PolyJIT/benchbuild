@@ -188,7 +188,7 @@ class RegisterPolyJITLogs(PolyJITConfig, ext.LogTrackingMixin, ext.Extension):
         files_before = glob.glob(os.path.join(curdir, "polyjit.*.log"))
 
         with self.argv(PJIT_ARGS=[
-            "-polli-enable-log", "-polli-log-level={}".format(log_level)
+                "-polli-enable-log", "-polli-log-level={}".format(log_level)
         ]):
             ret = self.call_next(*args, **kwargs)
         files = glob.glob(os.path.join(curdir, "polyjit.*.log"))

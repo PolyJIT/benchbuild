@@ -12,26 +12,26 @@ import benchbuild.extensions as ext
 import benchbuild.utils.schema as schema
 from benchbuild.experiment import Experiment
 
-__COMPILESTATS__ = sa.Table('compilestats', schema.metadata(),
-                            sa.Column('id', sa.BigInteger, primary_key=True),
-                            sa.Column('name', sa.String, index=True),
-                            sa.Column('component', sa.String, index=True),
-                            sa.Column('value', sa.Numeric),
-                            sa.Column(
-                                'run_id',
-                                sa.Integer,
-                                sa.ForeignKey(
-                                    "run.id",
-                                    onupdate="CASCADE",
-                                    ondelete="CASCADE"),
-                                index=True))
+
+class CompileStat(schema.BASE):
+    __tablename__ = 'compilestats'
+
+    run_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True)
+    id = sa.Column('id', sa.BigInteger, primary_key=True, autoincrement=True)
+    name = sa.Column('name', sa.String, index=True)
+    component = sa.Column('component', sa.String, index=True)
+    value = sa.Column('value', sa.Numeric)
 
 
 class CompilestatsExperiment(Experiment):
     """The compilestats experiment."""
 
     NAME = "cs"
-    SCHEMA = [__COMPILESTATS__]
+    SCHEMA = [CompileStat.__table__]
 
     def actions_for_project(self, project):
         project.compiler_extension = \
@@ -43,7 +43,7 @@ class PollyCompilestatsExperiment(Experiment):
     """The compilestats experiment with polly enabled."""
 
     NAME = "p-cs"
-    SCHEMA = [__COMPILESTATS__]
+    SCHEMA = [CompileStat.__table__]
 
     def actions_for_project(self, project):
         project.cflags = [

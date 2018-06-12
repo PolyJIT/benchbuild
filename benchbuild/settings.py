@@ -612,6 +612,7 @@ CFG["plugins"] = {
     },
     "reports": {
         "default": [
+            "benchbuild.reports.compilestats",
             "benchbuild.reports.raw",
             "benchbuild.reports.status"
         ],

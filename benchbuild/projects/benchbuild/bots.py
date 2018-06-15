@@ -87,9 +87,6 @@ class BOTSGroup(Project):
         ]
     }
 
-    def __init__(self, exp):
-        super(BOTSGroup, self).__init__(exp, "bots")
-
     SRC_FILE = "bots.git"
     src_uri = "https://github.com/bsc-pm/bots"
 

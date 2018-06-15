@@ -27,18 +27,28 @@ class LNTGroup(Project):
         r'(?P<name>.+)-(dbl|flt)',
     ]
 
+    SUBDIR = None
+
     src_dir = "lnt"
     src_uri = "http://llvm.org/git/lnt"
     test_suite_dir = "test-suite"
     test_suite_uri = "http://llvm.org/git/test-suite"
+
+    # Will be set by configure.
+    lnt = None
+    sandbox_dir = None
+    clang = None
+    clang_cxx = None
+    binary = None
 
     def download(self):
         Git(self.src_uri, self.src_dir)
         Git(self.test_suite_uri, self.test_suite_dir)
 
         virtualenv("local", "--python=python2", )
-        python = local[path.join("local", "bin", "python")]
-        python(path.join(self.src_dir, "setup.py"), "develop")
+        pip = local[path.join("local", "bin", "pip")]
+        with local.cwd(self.src_dir):
+            pip("install", "-e", ".")
 
     def configure(self):
         sandbox_dir = path.join(self.builddir, "run")
@@ -47,17 +57,11 @@ class LNTGroup(Project):
 
         mkdir(sandbox_dir)
 
-    def before_run_tests(self, experiment):
-        exp = wrap_dynamic(self, "lnt_runner", experiment,
-                           name_filters=LNTGroup.NAME_FILTERS)
-        lnt = local[path.join("local", "bin", "lnt")]
-        sandbox_dir = path.join(self.builddir, "run")
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
-
-        return (exp, lnt, sandbox_dir, clang, clang_cxx)
-
+        self.lnt = local[path.join("local", "bin", "lnt")]
+        self.sandbox_dir = path.join(self.builddir, "run")
+        self.clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        self.clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
+                                      self.compiler_extension)
     @staticmethod
     def after_run_tests(sandbox_dir):
         logfiles = glob(path.join(sandbox_dir, "./*/test.log"))
@@ -66,75 +70,57 @@ class LNTGroup(Project):
             (cat[log] & FG) # pylint: disable=pointless-statement
 
     def build(self):
-        pass
+        self.lnt("runtest", "test-suite", "-v", "-j1",
+                 "--sandbox", self.sandbox_dir,
+                 "--benchmarking-only",
+                 "--only-compile",
+                 "--cc", str(self.clang),
+                 "--cxx", str(self.clang_cxx),
+                 "--test-suite", path.join(self.builddir,
+                                             self.test_suite_dir),
+                 "--only-test=" + self.SUBDIR)
+
+    def run_tests(self, experiment, runner):
+        binary = wrap_dynamic(self, "lnt_runner", experiment,
+                              name_filters=LNTGroup.NAME_FILTERS)
+
+        runner(self.lnt["runtest", "nt", "-v", "-j1",
+                        "--sandbox", self.sandbox_dir,
+                        "--benchmarking-only",
+                        "--cc", str(self.clang),
+                        "--cxx", str(self.clang_cxx),
+                        "--test-suite", path.join(self.builddir,
+                                                  self.test_suite_dir),
+                        "--test-style", "simple",
+                        "--test-externals", self.builddir,
+                        "--make-param=RUNUNDER=" + str(binary),
+                        "--only-test=" + self.SUBDIR])
+
+        LNTGroup.after_run_tests(self.sandbox_dir)
 
 
 class SingleSourceBenchmarks(LNTGroup):
     NAME = 'SingleSourceBenchmarks'
     DOMAIN = 'LNT (SSB)'
-
-    def run_tests(self, experiment, runner):
-        exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment)
-
-        runner(lnt["runtest", "nt", "-v", "-j1",
-                   "--sandbox", sandbox_dir,
-                   "--cc", str(clang),
-                   "--cxx", str(clang_cxx),
-                   "--test-suite", path.join(self.builddir,
-                                             self.test_suite_dir),
-                   "--test-style", "simple",
-                   "--make-param=RUNUNDER=" + str(exp),
-                   "--only-test=" + path.join("SingleSource", "Benchmarks")])
-
-        type(self).after_run_tests(sandbox_dir)
+    SUBDIR = path.join("SingleSource", "Benchmarks")
 
 
 class MultiSourceBenchmarks(LNTGroup):
     NAME = 'MultiSourceBenchmarks'
     DOMAIN = 'LNT (MSB)'
-
-    def run_tests(self, experiment, runner):
-        exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment)
-
-        runner(lnt["runtest", "nt", "-v", "-j1",
-                   "--sandbox", sandbox_dir,
-                   "--cc", str(clang),
-                   "--cxx", str(clang_cxx),
-                   "--test-suite", path.join(self.builddir,
-                                             self.test_suite_dir),
-                   "--test-style", "simple",
-                   "--make-param=RUNUNDER=" + str(exp),
-                   "--only-test=" + path.join("MultiSource", "Benchmarks")])
-
-        type(self).after_run_tests(sandbox_dir)
+    SUBDIR = path.join("MultiSource", "Benchmarks")
 
 
 class MultiSourceApplications(LNTGroup):
     NAME = 'MultiSourceApplications'
     DOMAIN = 'LNT (MSA)'
-
-    def run_tests(self, experiment, runner):
-        exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment)
-
-        runner(lnt["runtest", "nt", "-v", "-j1",
-                   "--sandbox", sandbox_dir,
-                   "--cc", str(clang),
-                   "--cxx", str(clang_cxx),
-                   "--test-suite", path.join(self.builddir,
-                                             self.test_suite_dir),
-                   "--test-style", "simple",
-                   "--make-param=RUNUNDER=" + str(exp),
-                   "--only-test=" + path.join("MultiSource", "Applications")])
-
-        type(self).after_run_tests(sandbox_dir)
+    SUBDIR = path.join("MultiSource", "Applications")
 
 
 class SPEC2006(LNTGroup):
     NAME = 'SPEC2006'
     DOMAIN = 'LNT (Ext)'
+    SUBDIR = path.join("External", "SPEC")
 
     def download(self):
         if CopyNoFail('speccpu2006'):
@@ -145,27 +131,11 @@ class SPEC2006(LNTGroup):
                    CFG['tmp_dir']))
             print('======================================================')
 
-    def run_tests(self, experiment, runner):
-        exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment)
-
-        runner(lnt["runtest", "nt", "-v", "-j1",
-                   "--sandbox", sandbox_dir,
-                   "--cc", str(clang),
-                   "--cxx", str(clang_cxx),
-                   "--test-suite", path.join(self.builddir,
-                                             self.test_suite_dir),
-                   "--test-style", "simple",
-                   "--test-externals", self.builddir,
-                   "--make-param=RUNUNDER=" + str(exp),
-                   "--only-test=" + path.join("External", "SPEC")])
-
-        self.after_run_tests(sandbox_dir)
-
 
 class Povray(LNTGroup):
     NAME = 'Povray'
     DOMAIN = 'LNT (Ext)'
+    SUBDIR = path.join("External", "Povray")
 
     povray_url = "https://github.com/POV-Ray/povray"
     povray_src_dir = "Povray"
@@ -173,20 +143,3 @@ class Povray(LNTGroup):
     def download(self):
         super(Povray, self).download()
         Git(self.povray_url, self.povray_src_dir)
-
-    def run_tests(self, experiment, runner):
-        exp, lnt, sandbox_dir, clang, clang_cxx = \
-            self.before_run_tests(experiment)
-
-        runner(lnt["runtest", "nt", "-v", "-j1",
-                   "--sandbox", sandbox_dir,
-                   "--cc", str(clang),
-                   "--cxx", str(clang_cxx),
-                   "--test-suite", path.join(self.builddir,
-                                             self.test_suite_dir),
-                   "--test-style", "simple",
-                   "--test-externals", self.builddir,
-                   "--make-param=RUNUNDER=" + str(exp),
-                   "--only-test=" + path.join("External", "Povray")])
-
-        self.after_run_tests(sandbox_dir)

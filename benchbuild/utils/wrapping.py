@@ -204,7 +204,7 @@ def wrap_dynamic(self, name, runner,
 
 
 def wrap_cc(filepath, cflags, ldflags, compiler, extension,
-            compiler_ext_name=None, python=sys.executable):
+            compiler_ext_name=None, python=sys.executable, detect_project=False):
     """
     Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
 
@@ -223,6 +223,7 @@ def wrap_cc(filepath, cflags, ldflags, compiler, extension,
             code.
         compiler_ext_name: The name that we should give to the generated
             dill blob for :func:
+        detect_project: Should we enable project detection or not.
 
     Returns (benchbuild.utils.cmd):
         Command of the new compiler we can call.
@@ -260,7 +261,8 @@ def wrap_cc(filepath, cflags, ldflags, compiler, extension,
                 blob_f=blob_f,
                 cflags=cflags,
                 ldflags=ldflags,
-                python=python
+                python=python,
+                detect_project=detect_project
             )
         )
 

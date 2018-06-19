@@ -260,7 +260,7 @@ class Project(object, metaclass=ProjectDecorator):
     def __attrs_post_init__(self):
         persist_project(self)
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         """
         Run the tests of this project.
 
@@ -270,10 +270,10 @@ class Project(object, metaclass=ProjectDecorator):
             experiment: The experiment we run this project under
             run: A function that takes the run command.
         """
-        exp = wrap(self.run_f, experiment)
+        exp = wrap(self.run_f, self)
         runner(exp)
 
-    def run(self, experiment):
+    def run(self):
         """Run the tests of this project.
 
         This method initializes the default environment and takes care of
@@ -295,7 +295,7 @@ class Project(object, metaclass=ProjectDecorator):
             signals.handlers.register(fail_run_group, group, session)
 
             try:
-                self.run_tests(experiment, ur.run)
+                self.run_tests(ur.run)
                 end_run_group(group, session)
             except ProcessExecutionError:
                 fail_run_group(group, session)
@@ -336,6 +336,10 @@ class Project(object, metaclass=ProjectDecorator):
         new_p.run_uuid = uuid.uuid4()
         return new_p
 
+    @property
+    def id(self):
+        return "{name}-{group}-{id}".format(
+            name=self.name, group=self.group, id=self.run_uuid)
 
 def populate(projects_to_filter=None, group=None):
     """
@@ -362,8 +366,8 @@ def populate(projects_to_filter=None, group=None):
         prjs = {}
         for filter_project in set(projects_to_filter):
             try:
-                prjs.update({x : y for x, y in \
-                    ProjectRegistry.projects.items(prefix=filter_project)})
+                prjs.update({x: y for x, y in
+                             ProjectRegistry.projects.items(prefix=filter_project)})
             except KeyError:
                 pass
 

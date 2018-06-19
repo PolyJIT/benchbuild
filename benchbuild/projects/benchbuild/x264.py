@@ -5,7 +5,7 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import cp, make
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -35,7 +35,7 @@ class X264(Project):
         Git(self.src_uri, self.SRC_FILE)
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
 
         with local.cwd(self.SRC_FILE):
             configure = local["./configure"]
@@ -48,8 +48,8 @@ class X264(Project):
         with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
-    def run_tests(self, experiment, runner):
-        exp = wrap(path.join(self.SRC_FILE, "x264"), experiment)
+    def run_tests(self, runner):
+        exp = wrap(path.join(self.SRC_FILE, "x264"), self)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",

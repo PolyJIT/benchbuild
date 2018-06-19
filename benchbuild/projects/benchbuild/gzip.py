@@ -5,7 +5,7 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import cp, make, tar
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -30,8 +30,8 @@ class Gzip(Project):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp(testfiles, self.builddir)
 
-    def run_tests(self, experiment, runner):
-        exp = wrap(path.join(self.src_dir, "gzip"), experiment)
+    def run_tests(self, runner):
+        exp = wrap(path.join(self.src_dir, "gzip"), self)
 
         # Compress
         runner(exp["-f", "-k", "--best", "text.html"])
@@ -52,7 +52,7 @@ class Gzip(Project):
         tar("xfJ", self.SRC_FILE)
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         with local.cwd(self.src_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang)):

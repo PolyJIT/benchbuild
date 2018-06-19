@@ -31,12 +31,11 @@ int main(int argc, char **argv) {
         pass
 
     def build(self):
-        clang = compiler.lt_clang_cxx(self.cflags, self.ldflags,
-                                      self.compiler_extension)
+        clang = compiler.cxx(self)
         run.run(clang[self.src_file, "-o", self.src_file + ".out"])
 
-    def run_tests(self, experiment, runner):
-        exp = wrapping.wrap(self.src_file + ".out", experiment)
+    def run_tests(self, runner):
+        exp = wrapping.wrap(self.src_file + ".out", self)
         runner(exp)
 
 
@@ -68,10 +67,9 @@ int main(int argc, char **argv) {
         pass
 
     def build(self):
-        clang = compiler.lt_clang_cxx(self.cflags, self.ldflags,
-                                      self.compiler_extension)
+        clang = compiler.cxx(self)
         run.run(clang[self.src_file, "-o", self.src_file + ".out"])
 
-    def run_tests(self, experiment, runner):
-        exp = wrapping.wrap(self.src_file + ".out", experiment)
+    def run_tests(self, runner):
+        exp = wrapping.wrap(self.src_file + ".out", self)
         runner(exp)

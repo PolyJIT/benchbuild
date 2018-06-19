@@ -5,7 +5,7 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, ruby, tar
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -27,9 +27,8 @@ class Ruby(Project):
         tar("xfz", self.SRC_FILE)
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        clang = cc(self)
+        clang_cxx = cxx(self)
         with local.cwd(self.src_dir):
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure = local["./configure"]
@@ -39,8 +38,8 @@ class Ruby(Project):
         with local.cwd(self.src_dir):
             run(make["-j", CFG["jobs"]])
 
-    def run_tests(self, experiment, runner):
-        exp = wrap(path.join(self.src_dir, "ruby"), experiment)
+    def run_tests(self, runner):
+        exp = wrap(path.join(self.src_dir, "ruby"), self)
 
         with local.env(RUBYOPT=""):
             run(ruby[path.join(self.testdir, "benchmark", "run.rb"),

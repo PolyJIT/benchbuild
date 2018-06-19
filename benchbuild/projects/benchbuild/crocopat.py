@@ -5,7 +5,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import cat, make, unzip
-from benchbuild.utils.compiler import lt_clang_cxx
+from benchbuild.utils.compiler import cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.wrapping import wrap
 
@@ -18,8 +18,8 @@ class Crocopat(Project):
     GROUP = 'benchbuild'
     VERSION = '2.1.4'
 
-    def run_tests(self, experiment, runner):
-        exp = wrap(self.run_f, experiment)
+    def run_tests(self, runner):
+        exp = wrap(self.run_f, self)
 
         programs = glob(path.join(self.testdir, "programs", "*.rml"))
         projects = glob(path.join(self.testdir, "projects", "*.rsf"))
@@ -40,9 +40,9 @@ class Crocopat(Project):
 
     def build(self):
         crocopat_dir = path.join(self.src_dir, "src")
-        cflags = self.cflags + ["-I.", "-ansi"]
-        ldflags = self.ldflags + ["-L.", "-lrelbdd"]
-        clang_cxx = lt_clang_cxx(cflags, ldflags, self.compiler_extension)
+        self.cflags += ["-I.", "-ansi"]
+        self.ldflags += ["-L.", "-lrelbdd"]
+        clang_cxx = cxx(self)
 
         with local.cwd(crocopat_dir):
             make("CXX=" + str(clang_cxx))

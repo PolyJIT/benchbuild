@@ -21,9 +21,9 @@ class SevenZip(GentooGroup):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         run(emerge_in_chroot["app-arch/p7zip"])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         wrap(
-            path.join(self.builddir, "usr", "bin", "7z"), experiment,
+            path.join(self.builddir, "usr", "bin", "7z"), self,
             self.builddir)
         sevenz = uchroot()["/usr/bin/7z"]
         run(sevenz["b", "-mmt1"])

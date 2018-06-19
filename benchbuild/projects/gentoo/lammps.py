@@ -37,9 +37,9 @@ class Lammps(GentooGroup):
         with local.env(USE="-mpi -doc"):
             uretry(emerge_in_chroot["sci-physics/lammps"])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         wrap(
-            path.join(self.builddir, "usr/bin/lmp_serial"), experiment,
+            path.join(self.builddir, "usr/bin/lmp_serial"), self,
             self.builddir)
         lammps = uchroot()["/usr/bin/lmp_serial"]
         lammps_dir = path.join(self.builddir, "lammps")

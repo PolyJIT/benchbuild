@@ -1,5 +1,5 @@
 from benchbuild.project import Project
-from benchbuild.utils.compiler import lt_clang_cxx
+from benchbuild.utils.compiler import cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -13,8 +13,8 @@ class LuleshOMP(Project):
     GROUP = 'benchbuild'
     SRC_FILE = 'LULESH_OMP.cc'
 
-    def run_tests(self, experiment, runner):
-        exp = wrap(self.run_f, experiment)
+    def run_tests(self, runner):
+        exp = wrap(self.run_f, self)
         for i in range(1, 15):
             runner(exp[str(i)])
 
@@ -34,6 +34,5 @@ class LuleshOMP(Project):
         """
         self.cflags += ["-fopenmp"]
 
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        clang_cxx = cxx(self)
         run(clang_cxx["-o", self.run_f, self.SRC_FILE])

@@ -5,7 +5,7 @@ from plumbum import FG, local
 from benchbuild.project import Project
 from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, rm, sed,
                                   sh, tar)
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -32,9 +32,8 @@ class Povray(Project):
         tar("xfj", self.boost_src_file)
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        clang = cc(self)
+        clang_cxx = cxx(self)
         # First we have to prepare boost for lady povray...
         boost_prefix = "boost-install"
         with local.cwd(self.boost_src_dir):
@@ -71,14 +70,14 @@ class Povray(Project):
         cp("-ar", path.join(self.testdir, "share"), '.')
         cp("-ar", path.join(self.testdir, "test"), '.')
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         povray_binary = path.join(self.SRC_FILE, "unix", self.name)
         tmpdir = "tmp"
         povini = path.join("cfg", ".povray", "3.6", "povray.ini")
         scene_dir = path.join("share", "povray-3.6", "scenes")
         mkdir(tmpdir, retcode=None)
 
-        povray = wrap(povray_binary, experiment)
+        povray = wrap(povray_binary, self)
 
         pov_files = find(scene_dir, "-name", "*.pov").splitlines()
         for pov_f in pov_files:

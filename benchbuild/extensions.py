@@ -255,21 +255,21 @@ class ExtractCompileStats(Extension):
     def __call__(self,
                  cc,
                  *args,
-                 experiment_cflags=[],
-                 experiment_ldflags=[],
+                 project=None,
                  **kwargs):
         from benchbuild.experiments.compilestats import CompileStat
         from benchbuild.utils.db import persist_compilestats
         from benchbuild.utils.schema import Session
         from benchbuild.settings import CFG
 
-        self.project.name = kwargs.get("project_name", self.project.name)
+        if project:
+            self.project = project
 
         original_command = cc[args]
         clang = cc["-Qunused-arguments"]
         clang = clang[args]
-        clang = clang[experiment_cflags]
-        clang = clang[experiment_ldflags]
+        clang = clang[project.cflags]
+        clang = clang[project.ldflags]
         clang = clang["-mllvm", "-stats"]
 
         run_config = self.config
@@ -336,17 +336,17 @@ class RunCompiler(Extension):
     def __call__(self,
                  command,
                  *args,
-                 experiment_cflags=[],
-                 experiment_ldflags=[],
+                 project=None,
                  rerun_on_error=True,
                  **kwargs):
-        self.project.name = kwargs.get("project_name", self.project.name)
+        if project:
+            self.project = project
 
         original_command = command[args]
         new_command = command["-Qunused-arguments"]
         new_command = new_command[args]
-        new_command = new_command[experiment_cflags]
-        new_command = new_command[experiment_ldflags]
+        new_command = new_command[self.project.cflags]
+        new_command = new_command[self.project.ldflags]
 
         with track_execution(new_command, self.project, self.experiment,
                              **kwargs) as run:

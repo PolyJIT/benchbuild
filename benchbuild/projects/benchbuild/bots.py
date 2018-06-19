@@ -4,7 +4,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, mkdir
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -95,7 +95,7 @@ class BOTSGroup(Project):
 
     def configure(self):
         makefile_config = os.path.join(self.SRC_FILE, "config", "make.config")
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
 
         with open(makefile_config, 'w') as config:
             lines = [
@@ -125,9 +125,9 @@ class BOTSGroup(Project):
         with local.cwd(self.SRC_FILE):
             run(make["-C", self.path_dict[self.name]])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
-        exp = wrap(os.path.join(self.SRC_FILE, "bin", binary_name), experiment)
+        exp = wrap(os.path.join(self.SRC_FILE, "bin", binary_name), self)
 
         if self.name in self.input_dict:
             for test_input in self.input_dict[self.name]:

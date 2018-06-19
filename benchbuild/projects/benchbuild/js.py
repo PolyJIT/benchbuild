@@ -6,7 +6,7 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, mkdir, tar
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
 from benchbuild.utils.versions import get_git_hash
@@ -37,9 +37,8 @@ class SpiderMonkey(Project):
 
     def configure(self):
         js_dir = path.join(self.src_dir, "js", "src")
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        clang = cc(self)
+        clang_cxx = cxx(self)
         with local.cwd(js_dir):
             make_src_pkg = local["./make-source-package.sh"]
             with local.env(DIST=self.builddir,
@@ -66,10 +65,10 @@ class SpiderMonkey(Project):
         with local.cwd(mozjs_dir):
             run(make["-j", CFG["jobs"].value()])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         mozjs_dir = path.join("mozjs-0.0.0", "js", "src", "obj")
-        wrap(path.join(mozjs_dir, "js", "src", "shell", "js"),
-             partial(experiment, may_wrap=False))
+        self.runtime_extension = partial(self, may_wrap=False)
+        wrap(path.join(mozjs_dir, "js", "src", "shell", "js"), self)
 
         with local.cwd(mozjs_dir):
             run(make["check-jstests"])

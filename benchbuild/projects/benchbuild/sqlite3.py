@@ -4,7 +4,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, unzip
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -31,7 +31,7 @@ class SQLite3(Project):
         pass
 
     def build(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
 
         with local.cwd(self.src_dir):
             run(clang["-fPIC", "-I.", "-c", "sqlite3.c"])
@@ -51,18 +51,17 @@ class SQLite3(Project):
         # We need to place sqlite3 in front of all other flags.
         self.ldflags += ["-L{0}".format(path.abspath(sqlite_dir))]
         self.cflags += ["-I{0}".format(path.abspath(sqlite_dir))]
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang_cxx = cxx(self)
+        clang = cc(self)
 
         with local.cwd(leveldb_dir):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
                 run(make["clean", "out-static/db_bench_sqlite3"])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         leveldb_dir = "leveldb.src"
         with local.cwd(leveldb_dir):
             with local.env(LD_LIBRARY_PATH=path.abspath(self.src_dir)):
                 sqlite = wrap(path.join("out-static", "db_bench_sqlite3"),
-                              experiment)
+                              self)
                 run(sqlite)

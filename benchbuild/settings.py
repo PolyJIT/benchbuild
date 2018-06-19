@@ -85,7 +85,7 @@ class InvalidConfigKey(RuntimeWarning):
 class UUIDEncoder(json.JSONEncoder):
     """Encoder module for UUID objects."""
 
-    def default(self, o): # pylint: disable=E0202
+    def default(self, o):  # pylint: disable=E0202
         """Encode UUID objects as string."""
         if isinstance(o, uuid.UUID):
             return str(o)
@@ -469,7 +469,7 @@ CFG["env"] = {
 CFG['db'] = {
     "connect_string": {
         "desc": "sqlalchemy connect string",
-        "default": "postgresql+psycopg2://" \
+        "default": "postgresql+psycopg2://"
                    "benchbuild:benchbuild@localhost:5432/benchbuild"
     },
     "rollback": {
@@ -840,7 +840,7 @@ def update_env():
     lib_path = os.path.pathsep.join(lib_path)
     if "LD_LIBRARY_PATH" in os.environ:
         lib_path = os.path.pathsep.join([lib_path,
-                                        os.environ["LD_LIBRARY_PATH"]])
+                                         os.environ["LD_LIBRARY_PATH"]])
     os.environ["LD_LIBRARY_PATH"] = lib_path
 
     # Update local's env property because we changed the environment
@@ -862,12 +862,13 @@ def upgrade(cfg):
             "This will *not* be stored in the configuration automatically.")
         CFG["db"]["connect_string"] = \
             "{dialect}://{user}:{password}@{host}:{port}/{name}".format(
-                dialect = cfg["db"]["dialect"]["value"],
-                user = cfg["db"]["user"]["value"],
-                password = cfg["db"]["pass"]["value"],
-                host = cfg["db"]["host"]["value"],
-                port = cfg["db"]["port"]["value"],
-                name = cfg["db"]["name"]["value"])
+                dialect=cfg["db"]["dialect"]["value"],
+                user=cfg["db"]["user"]["value"],
+                password=cfg["db"]["pass"]["value"],
+                host=cfg["db"]["host"]["value"],
+                port=cfg["db"]["port"]["value"],
+                name=cfg["db"]["name"]["value"])
+
 
 __init_config(CFG)
 update_env()

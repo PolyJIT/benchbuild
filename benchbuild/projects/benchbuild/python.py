@@ -4,7 +4,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, tar
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -28,9 +28,8 @@ class Python(Project):
         tar("xfJ", self.SRC_FILE)
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        clang = cc(self)
+        clang_cxx = cxx(self)
 
         with local.cwd(self.src_dir):
             configure = local["./configure"]
@@ -41,8 +40,8 @@ class Python(Project):
         with local.cwd(self.src_dir):
             run(make)
 
-    def run_tests(self, experiment, runner):
-        wrap(path.join(self.src_dir, "python"), experiment)
+    def run_tests(self, runner):
+        wrap(path.join(self.src_dir, "python"), self)
 
         with local.cwd(self.src_dir):
             run(make["-i", "test"])

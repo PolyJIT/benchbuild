@@ -6,7 +6,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import sh, tar
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -46,12 +46,8 @@ class RodiniaGroup(Project):
         return c_compiler
 
     def build(self):
-        c_compiler = lt_clang(self.cflags,
-                              self.ldflags,
-                              self.compiler_extension)
-        cxx_compiler = lt_clang_cxx(self.cflags,
-                                    self.ldflags,
-                                    self.compiler_extension)
+        c_compiler = cc(self)
+        cxx_compiler = cxx(self)
 
         with local.cwd(self.in_src_dir):
             for outfile, srcfiles in self.config['src'].items():
@@ -63,9 +59,9 @@ class RodiniaGroup(Project):
                 compiler = compiler["-o", outfile]
                 run(compiler)
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         for outfile in self.config['src']:
-            wrap(os.path.join(self.in_src_dir, outfile), experiment)
+            wrap(os.path.join(self.in_src_dir, outfile), self)
 
         with local.cwd(self.in_src_dir):
             test_runner = sh["./run"]

@@ -4,8 +4,8 @@ Helper functions for dealing with compiler replacement.
 This provides a few key functions to deal with varying/measuring the compilers
 used inside the benchbuild study.
 From a high-level view, there are 2 interesting functions:
-    * lt_clang(cflags, ldflags, func)
-    * lt_clang_cxx(cflags, ldflags, func)
+    * cc(project, detect_project=True)
+    * cxx(project, detect_project=True)
 
 These generate a wrapped clang/clang++ in the current working directory and
 hide the given cflags/ldflags from the calling build system. Both will
@@ -24,39 +24,33 @@ from benchbuild.settings import CFG
 from benchbuild.utils.wrapping import wrap_cc
 
 
-def wrap_cc_in_uchroot(cflags, ldflags, func=None, cc_name='cc'):
+def wrap_cc_in_uchroot(project, cc_name='cc'):
     """
     Generate a clang wrapper that may be called from within a uchroot.
 
-    This basically does the same as lt_clang/lt_clang_cxx. However, we do not
+    This basically does the same as cc/cxx. However, we do not
     create a valid plumbum command. The generated script will only work
     inside a uchroot environment that has is root at the current working
     directory, when calling this function.
 
     Args:
-        cflags: The CFLAGS we want to hide
-        ldflags: The LDFLAGS we want to hide
-        func (optional): A function that will be pickled alongside the compiler.
-            It will be called before the actual compilation took place. This
-            way you can intercept the compilation process with arbitrary python
-            code.
-        uchroot_path: Prefix path of the compiler inside the uchroot.
+        project: The project we generate this compiler for.
         cc_name: Name of the generated script.
     """
     from os import path
 
     def gen_compiler_extension(ext):
         return path.join("/", cc_name + ext)
-    wrap_cc(cc_name, cflags, ldflags, compiler, func, gen_compiler_extension,
+    wrap_cc(cc_name, compiler, project, gen_compiler_extension,
             python="/usr/bin/env python3")
 
 
-def wrap_cxx_in_uchroot(cflags, ldflags, func=None):
+def wrap_cxx_in_uchroot(project):
     """Delegate to wrap_cc_in_uchroot)."""
-    wrap_cc_in_uchroot(cflags, ldflags, func, CFG["compiler"]["cxx"].value())
+    wrap_cc_in_uchroot(project, CFG["compiler"]["cxx"].value())
 
 
-def lt_clang(cflags, ldflags, func=None, detect_project=False):
+def cc(project, detect_project=False):
     """
     Return a clang that hides CFLAGS and LDFLAGS.
 
@@ -77,12 +71,11 @@ def lt_clang(cflags, ldflags, func=None, detect_project=False):
     from benchbuild.utils import cmd
 
     cc = CFG["compiler"]["c"].value()
-    wrap_cc(cc, cflags, ldflags, compiler(cc), func,
-            detect_project=detect_project)
+    wrap_cc(cc, compiler(cc), project, detect_project=detect_project)
     return cmd["./{name}".format(name=cc)]
 
 
-def lt_clang_cxx(cflags, ldflags, func=None, detect_project=False):
+def cxx(project, detect_project=False):
     """
     Return a clang++ that hides CFLAGS and LDFLAGS.
 
@@ -103,8 +96,7 @@ def lt_clang_cxx(cflags, ldflags, func=None, detect_project=False):
     from benchbuild.utils import cmd
 
     cxx = CFG["compiler"]["cxx"].value()
-    wrap_cc(cxx, cflags, ldflags, compiler(cxx), func,
-            detect_project=detect_project)
+    wrap_cc(cxx, compiler(cxx), project, detect_project=detect_project)
     return cmd["./{name}".format(name=cxx)]
 
 

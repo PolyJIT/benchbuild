@@ -4,7 +4,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, mkdir, tar
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -26,7 +26,7 @@ class TCC(Project):
         tar("xjf", self.SRC_FILE)
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
 
         with local.cwd(self.src_dir):
             mkdir("build")
@@ -39,9 +39,9 @@ class TCC(Project):
             with local.cwd("build"):
                 run(make)
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         with local.cwd(self.src_dir):
             with local.cwd("build"):
-                wrap("tcc", experiment)
+                wrap("tcc", self)
                 inc_path = path.abspath("..")
                 run(make["TCCFLAGS=-B{}".format(inc_path), "test", "-i"])

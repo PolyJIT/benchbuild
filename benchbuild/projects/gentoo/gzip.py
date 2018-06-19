@@ -34,9 +34,9 @@ class GZip(GentooGroup):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         uretry(emerge_in_chroot["app-arch/gzip"])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         wrap(
-            path.join(self.builddir, "bin", "gzip"), experiment, self.builddir)
+            path.join(self.builddir, "bin", "gzip"), self, self.builddir)
         gzip = uchroot()["/bin/gzip"]
 
         # Compress

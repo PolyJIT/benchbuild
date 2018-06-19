@@ -42,7 +42,7 @@ However, our project lacks any implementation details about wrapping a compiler 
 ### Wrapping the Compiler
 
 Historically, Benchbuild was focussed on interaction with the LLVM toolchain and namely the C/C++ frontend clang/clang++, hence the naming of the following wrapper functions.
-If you want to wrap the compiler at any stage of a project's phases you can use the methods ``lt_clang`` for a C compiler and ``lt_clang_cxx`` for a C++ compiler included in the module
+If you want to wrap the compiler at any stage of a project's phases you can use the methods ``cc`` for a C compiler and ``cxx`` for a C++ compiler included in the module
 ``benchbuild.utils.compiler``.
 
 The wrapper will provide you with a callable that runs the compiler (which is now substituted
@@ -51,7 +51,7 @@ Our project ``CFLAGS`` and ``LDFLAGS`` are hidden inside the wrapper and appende
 
 ```python
 from benchbuild.project import Project
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 
 class MyProject(Project):
     NAME = 'MyProject'
@@ -63,7 +63,7 @@ class MyProject(Project):
     ...
 
     def build(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         clang("-O3", "-o", "myproject", SRC_FILE)
 ```
 
@@ -77,8 +77,8 @@ as follows:
 ```python
 from benchbuild.utils.wrapping import wrap
 
-def run_tests(self, experiment, runner):
-    wrapped = wrap("myproject", experiment)
+def run_tests(self, runner):
+    wrapped = wrap("myproject", self)
     runner(wrapped['--verbose', '--myflag'])
 ```
 

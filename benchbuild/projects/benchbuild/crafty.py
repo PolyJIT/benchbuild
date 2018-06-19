@@ -4,7 +4,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -39,16 +39,16 @@ class Crafty(Project):
         pass
 
     def build(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         with local.cwd(self.src_dir):
             target_opts = ["-DCPUS=1", "-DSYZYGY", "-DTEST"]
             crafty_make = make["target=UNIX", "CC="+str(clang),
                                "opt="+" ".join(target_opts), "crafty-make"]
             run(crafty_make)
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         with local.cwd(self.src_dir):
-            exp = wrap("./crafty", experiment)
+            exp = wrap("./crafty", self)
             runner((cat[path.join(self.testdir, "test1.sh")] | exp),
                 retcode=[0, 120])
             runner((cat[path.join(self.testdir, "test2.sh")] | exp),

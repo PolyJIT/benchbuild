@@ -5,7 +5,7 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import autoreconf, make
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
 
@@ -30,9 +30,8 @@ class Rasdaman(Project):
     def configure(self):
         rasdaman_dir = path.join(self.SRC_FILE)
         gdal_dir = path.join(self.gdal_dir, self.gdal_dir)
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        clang = cc(self)
+        clang_cxx = cxx(self)
 
         with local.cwd(gdal_dir):
             configure = local["./configure"]
@@ -57,7 +56,7 @@ class Rasdaman(Project):
         with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         import logging
         log = logging.getLogger(__name__)
         log.warning('Not implemented')

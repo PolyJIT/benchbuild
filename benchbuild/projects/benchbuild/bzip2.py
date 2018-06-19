@@ -4,7 +4,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import cp, make, tar
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -32,7 +32,7 @@ class Bzip2(Project):
         pass
 
     def build(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         with local.cwd(self.src_dir):
             run(make["CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2"])
 
@@ -40,8 +40,8 @@ class Bzip2(Project):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp(testfiles, '.')
 
-    def run_tests(self, experiment, runner):
-        exp = wrap(path.join(self.src_dir, "bzip2"), experiment)
+    def run_tests(self, runner):
+        exp = wrap(path.join(self.src_dir, "bzip2"), self)
 
         # Compress
         runner(exp["-f", "-z", "-k", "--best", "text.html"])

@@ -2,7 +2,7 @@ import logging
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import cp, patch
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.path import template_path
 from benchbuild.utils.run import run
@@ -31,8 +31,6 @@ class Linpack(Project):
         pass
 
     def build(self):
-        cflags = self.cflags
-        ldflags = self.ldflags + ["-lm"]
-
-        clang = lt_clang(cflags, ldflags, self.compiler_extension)
+        self.ldflags += ["-lm"]
+        clang = cc(self)
         run(clang["-o", self.run_f, "linpack.c"])

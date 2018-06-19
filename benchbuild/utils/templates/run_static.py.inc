@@ -1,17 +1,15 @@
 #!{{ python|default("/usr/bin/env python3") }}
 #
-import logging
 import sys
 
+from plumbum import TEE, local
+
+from benchbuild import settings
 from benchbuild.utils import log
 from benchbuild.utils.run import exit_code_from_run_infos
-from benchbuild.utils.wrapping import unpickle
-from benchbuild import settings
-from plumbum import local, TEE
+from benchbuild.utils.wrapping import load
 
-
-LOG = logging.getLogger(__name__)
-
+PROJECT = load("{{ project_file }}")
 
 def main(argv):
     settings.update_env()
@@ -24,12 +22,11 @@ def main(argv):
     with local.env(PATH="{{ path }}",
                    LD_LIBRARY_PATH="{{ ld_library_path }}",
                    BB_CMD=str(real_command) + " ".join(real_command_args)):
-        blob_cmd = unpickle("{{ blobf }}")
-        if blob_cmd is None:
+        if PROJECT.runtime_extension is None:
             exitcode, _, _ = real_command[real_command_args] & TEE
             return exitcode
 
-        run_info = blob_cmd(real_command, real_command_args)
+        run_info = PROJECT.runtime_extension(real_command, real_command_args)
         return exit_code_from_run_infos(run_info)
 
 

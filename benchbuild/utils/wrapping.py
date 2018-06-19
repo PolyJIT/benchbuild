@@ -75,8 +75,8 @@ def unpickle(pickle_file):
     return pickle
 
 
-def wrap(name, runner, sprefix=None, python=sys.executable):
-    """ Wrap the binary :name: with the function :runner:.
+def wrap(name, project, sprefix=None, python=sys.executable):
+    """ Wrap the binary :name: with the runtime extension of the project.
 
     This module generates a python tool that replaces :name:
     The function in runner only accepts the replaced binaries
@@ -86,7 +86,8 @@ def wrap(name, runner, sprefix=None, python=sys.executable):
 
     Args:
         name: Binary we want to wrap
-        runner: Function that should run instead of :name:
+        project: The project that contains the runtime_extension we want
+                 to run instead of the binary.
 
     Returns:
         A plumbum command, ready to launch.
@@ -107,9 +108,7 @@ def wrap(name, runner, sprefix=None, python=sys.executable):
     else:
         run(mv[name_absolute, real_f])
 
-    blob_f = name_absolute + PROJECT_BLOB_F_EXT
-    with open(blob_f, 'wb') as blob:
-        dill.dump(runner, blob, protocol=-1, recurse=True)
+    project_file = persist(project, suffix=".project")
 
     bin_path = list_to_path(CFG["env"]["path"].value())
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
@@ -121,7 +120,7 @@ def wrap(name, runner, sprefix=None, python=sys.executable):
         wrapper.write(
             template.render(
                 runf=strip_path_prefix(real_f, sprefix),
-                blobf=strip_path_prefix(blob_f, sprefix),
+                project_file =strip_path_prefix(project_file, sprefix),
                 path=str(bin_path),
                 ld_library_path=str(bin_lib_path),
                 python=python,
@@ -132,7 +131,7 @@ def wrap(name, runner, sprefix=None, python=sys.executable):
     return local[name_absolute]
 
 
-def wrap_dynamic(self, name, runner,
+def wrap_dynamic(project, name,
                  sprefix=None,
                  python=sys.executable,
                  name_filters=None):
@@ -168,14 +167,10 @@ def wrap_dynamic(self, name, runner,
     )
     template = env.get_template('run_dynamic.py.inc')
 
-    base_class = self.__class__.__name__
-    base_module = self.__module__
-
     name_absolute = os.path.abspath(name)
-    blob_f = name_absolute + PROJECT_BLOB_F_EXT
     real_f = name_absolute + PROJECT_BIN_F_EXT
-    with open(blob_f, 'wb') as blob:
-        blob.write(dill.dumps(runner))
+
+    project_file = persist(project, suffix=".project")
 
     bin_path = list_to_path(CFG["env"]["path"].value())
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
@@ -189,10 +184,8 @@ def wrap_dynamic(self, name, runner,
         wrapper.write(
             template.render(
                 runf=strip_path_prefix(real_f, sprefix),
-                blobf=strip_path_prefix(blob_f, sprefix),
+                project_file=strip_path_prefix(project_file, sprefix),
                 path=str(bin_path),
-                base_class=base_class,
-                base_module=base_module,
                 ld_library_path=str(bin_lib_path),
                 python=python,
                 name_filters=name_filters
@@ -203,7 +196,7 @@ def wrap_dynamic(self, name, runner,
     return local[name_absolute]
 
 
-def wrap_cc(filepath, cflags, ldflags, compiler, extension,
+def wrap_cc(filepath, compiler, project,
             compiler_ext_name=None, python=sys.executable, detect_project=False):
     """
     Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
@@ -213,10 +206,10 @@ def wrap_cc(filepath, cflags, ldflags, compiler, extension,
 
     Args:
         filepath (str): Path to the wrapper script.
-        cflags (list(str)): The CFLAGS we want to hide.
-        ldflags (list(str)): The LDFLAGS we want to hide.
         compiler (benchbuild.utils.cmd): Real compiler command we should call in the
             script.
+        project (benchbuild.project.Project): The project this compiler will be for.
+        experiment (benchbuild.experiment.Experiment): The experiment this compiler will be for.
         extension: A function that will be pickled alongside the compiler.
             It will be called before the actual compilation took place. This
             way you can intercept the compilation process with arbitrary python
@@ -236,31 +229,28 @@ def wrap_cc(filepath, cflags, ldflags, compiler, extension,
     )
     template = env.get_template('run_compiler.py.inc')
 
-    cc_f = os.path.abspath(filepath + ".benchbuild.cc")
-    with open(cc_f, 'wb') as compiler_pickle:
-        compiler_pickle.write(dill.dumps(compiler()))
-        if compiler_ext_name is not None:
-            cc_f = compiler_ext_name(".benchbuild.cc")
+    cc_f = persist(compiler(), filename=os.path.abspath(filepath +
+                                                        ".benchbuild.cc"))
+    project_file = persist(project, suffix=".project")
+    #experiment_file = persist(experiment, suffix=".experiment")
 
-    blob_f = os.path.abspath(filepath + PROJECT_BLOB_F_EXT)
-    if extension is not None:
-        with open(blob_f, 'wb') as blob:
-            blob.write(dill.dumps(extension))
-        if compiler_ext_name is not None:
-            blob_f = compiler_ext_name(PROJECT_BLOB_F_EXT)
+    # Change name if necessary (UCHROOT support, host <-> guest).
+    if compiler_ext_name is not None:
+        project_file = compiler_ext_name(".project")
+        #experiment_file = compiler_ext_name(".experiment")
+        cc_f = compiler_ext_name(".benchbuild.cc")
 
     # Update LDFLAGS with configure ld_library_path. This way
     # the libraries found in LD_LIBRARY_PATH are available at link-time too.
-    lib_path_list = CFG["env"]["ld_library_path"].value()
-    ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
+    #lib_path_list = CFG["env"]["ld_library_path"].value()
+    #ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
 
     with open(filepath, 'w') as wrapper:
         wrapper.write(
             template.render(
                 cc_f=cc_f,
-                blob_f=blob_f,
-                cflags=cflags,
-                ldflags=ldflags,
+                project_file=project_file,
+                #experiment_file=experiment_file,
                 python=python,
                 detect_project=detect_project
             )
@@ -278,5 +268,54 @@ def wrap_in_uchroot(name, runner, sprefix=None):
     wrap(name, runner, sprefix, python="/usr/bin/env python3")
 
 
-def wrap_dynamic_in_uchroot(self, name, runner, sprefix=None):
-    wrap_dynamic(self, name, runner, sprefix, python="/usr/bin/env python3")
+def wrap_dynamic_in_uchroot(self, name, sprefix=None):
+    wrap_dynamic(self, name, sprefix, python="/usr/bin/env python3")
+
+
+def persist(id_obj, filename=None, suffix=None):
+    """Persist an object in the filesystem.
+
+    This will generate a pickled version of the given obj in the filename path.
+    Objects shall provide an id() method to be able to use this persistence API.
+    If not, we will use the id() builtin of python to generate an identifier for you.
+
+    The file will be created, if it does not exist.
+    If the file already exists, we will overwrite it.
+
+    Args:
+        id_obj (Any): An identifiable object you want to persist in the filesystem.
+    """
+    if suffix is None:
+        suffix = ".pickle"
+    if hasattr(id_obj, 'id'):
+        ident = id_obj.id
+    else:
+        ident = str(id(id_obj))
+
+    if filename is None:
+        filename = "{obj_id}{suffix}".format(obj_id=ident, suffix=suffix)
+
+    with open(filename, 'wb') as obj_file:
+        dill.dump(id_obj, obj_file)
+    return os.path.abspath(filename)
+
+
+def load(filename):
+    """Load a pickled obj from the filesystem.
+
+    You better know what you expect from the given pickle, because we don't check it.
+
+    Args:
+        filename (str): The filename we load the object from.
+
+    Returns:
+        The object we were able to unpickle, else None.
+    """
+    if not os.path.exists(filename):
+        LOG.error("load object - File '{}' does not exist.".format(filename))
+        return None
+
+    obj = None
+    with open(filename, 'rb') as obj_file:
+        obj = dill.load(obj_file)
+    return obj

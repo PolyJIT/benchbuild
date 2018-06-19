@@ -27,9 +27,9 @@ class Crafty(GentooGroup):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         uretry(emerge_in_chroot["games-board/crafty"])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         crafty_path = "/usr/games/bin/crafty"
-        wrap(crafty_path.lstrip("/"), experiment, self.builddir)
+        wrap(crafty_path.lstrip("/"), self, self.builddir)
         crafty = uchroot()[crafty_path]
 
         with open("test1.sh", 'w') as test1:

@@ -34,9 +34,9 @@ class XZ(GentooGroup):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         uretry(emerge_in_chroot["app-arch/xz-utils"])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         wrap(
-            path.join(self.builddir, "usr", "bin", "xz"), experiment,
+            path.join(self.builddir, "usr", "bin", "xz"), self,
             self.builddir)
         xz = uchroot()["/usr/bin/xz"]
 

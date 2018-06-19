@@ -29,9 +29,9 @@ class X264(GentooGroup):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         uretry(emerge_in_chroot["media-video/x264-encoder"])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         wrap(
-            path.join(self.builddir, "usr/bin/x264"), experiment,
+            path.join(self.builddir, "usr/bin/x264"), self,
             self.builddir)
         x264 = uchroot()["/usr/bin/x264"]
 

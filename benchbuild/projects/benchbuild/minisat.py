@@ -5,7 +5,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import git, make
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -19,13 +19,13 @@ class Minisat(Project):
     GROUP = 'benchbuild'
     SRC_FILE = 'minisat.git'
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         minisat_lib_path = path.abspath(path.join(
             self.SRC_FILE, "build", "dynamic", "lib"))
 
         exp = wrap(
             path.join(self.SRC_FILE, "build", "dynamic", "bin", "minisat"),
-            experiment)
+            self)
 
         testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
 
@@ -47,9 +47,7 @@ class Minisat(Project):
 
     def build(self):
         with local.cwd(self.SRC_FILE):
-            clang = lt_clang(self.cflags, self.ldflags,
-                             self.compiler_extension)
-            clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                     self.compiler_extension)
+            clang = cc(self)
+            clang_cxx = cxx(self)
             run(make["CC=" + str(clang), "CXX=" + str(clang_cxx), "clean",
                      "lsh", "sh"])

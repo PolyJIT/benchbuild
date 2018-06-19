@@ -4,7 +4,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, tar
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -41,7 +41,7 @@ class LibreSSL(Project):
 
     def configure(self):
         self.cflags += ["-fPIC"]
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         configure = local[path.join(self.src_dir, "configure")]
 
         with local.cwd(self.src_dir):
@@ -57,10 +57,10 @@ class LibreSSL(Project):
             make_tests = make["-Ctests", "-j8"]
             run(make_tests[LibreSSL.BINARIES])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         with local.cwd(path.join(self.src_dir, "tests")):
             for binary in LibreSSL.BINARIES:
-                wrap(path.abspath(binary), experiment)
+                wrap(path.abspath(binary), self)
 
         with local.cwd(self.src_dir):
             run(make["V=1", "check", "-i"])

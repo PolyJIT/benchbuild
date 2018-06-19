@@ -4,7 +4,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, tar
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -29,15 +29,14 @@ class Ccrypt(Project):
         tar('xfz', path.join(self.builddir, self.SRC_FILE))
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        clang = cc(self)
+        clang_cxx = cxx(self)
 
         ccrypt_dir = path.join('.', self.src_dir)
         with local.cwd(ccrypt_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang),
-                    CXX=str(clang_cxx)):
+                           CXX=str(clang_cxx)):
                 run(configure)
 
     def build(self):
@@ -45,10 +44,10 @@ class Ccrypt(Project):
         with local.cwd(ccrypt_dir):
             run(make["check"])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         ccrypt_dir = path.join(self.builddir, self.src_dir)
         with local.cwd(ccrypt_dir):
-            wrap(path.join(ccrypt_dir, "src", self.name), experiment)
-            wrap(path.join(ccrypt_dir, "check", "crypt3-check"), experiment)
-            wrap(path.join(ccrypt_dir, "check", "rijndael-check"), experiment)
+            wrap(path.join(ccrypt_dir, "src", self.name), self)
+            wrap(path.join(ccrypt_dir, "check", "crypt3-check"), self)
+            wrap(path.join(ccrypt_dir, "check", "rijndael-check"), self)
             run(make["check"])

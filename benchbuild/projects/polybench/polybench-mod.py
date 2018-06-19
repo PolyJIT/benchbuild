@@ -1,7 +1,7 @@
 from os import path
 
 from benchbuild.projects.polybench.polybench import PolyBenchGroup
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Git
 
 class PolybenchModGroup(PolyBenchGroup):
@@ -22,7 +22,16 @@ class PolybenchModGroup(PolyBenchGroup):
         src_file = path.join(self.name + ".dir", self.name + ".c")
         kernel_file = path.join("{name}.dir".format(name=self.name),
                                 "{name}_kernel.c".format(name=self.name))
-        clang_no_opts = lt_clang([], [], self.compiler_extension)
+        cflags = self.cflags
+        ldflags = self.ldflags
+        self.cflags = []
+        self.ldflags = []
+
+        clang_no_opts = cc(self)
+
+        self.cflags = cflags
+        self.ldflags = ldflags
+
         polybench_opts = [
             "-DEXTRALARGE_DATASET",
             "-DPOLYBENCH_USE_C99_PROTO",
@@ -33,7 +42,7 @@ class PolybenchModGroup(PolyBenchGroup):
             "-I", "utilities", "-I", self.name, polybench_opts,
             "utilities/polybench.c", kernel_file, src_file,
             "-lm", "-o", self.run_f + ".no-opts"])
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         run(clang[
             "-I", "utilities", "-I", self.name, polybench_opts,
             "utilities/polybench.c", kernel_file, src_file,

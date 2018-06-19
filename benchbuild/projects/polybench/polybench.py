@@ -5,7 +5,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import cp, diff, tar
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.wrapping import wrap
 
@@ -84,7 +84,15 @@ class PolyBenchGroup(Project):
     def build(self):
         from benchbuild.utils.run import run
         src_file = path.join(self.name + ".dir", self.name + ".c")
-        clang_no_opts = lt_clang([], [], self.compiler_extension)
+        cflags = self.cflags
+        ldflags = self.ldflags
+        self.cflags = []
+        self.ldflags = []
+
+        clang_no_opts = cc(self)
+
+        self.cflags = cflags
+        self.ldflags = ldflags
         polybench_opts = [
             "-DPOLYBENCH_USE_C99_PROTO",
             "-DEXTRALARGE_DATASET",
@@ -96,12 +104,12 @@ class PolyBenchGroup(Project):
             polybench_opts,
             "utilities/polybench.c", src_file, "-lm", "-o",
             self.run_f + ".no-opts"])
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         run(clang["-I", "utilities", "-I", self.name,
                   polybench_opts,
                   "utilities/polybench.c", src_file, "-lm", "-o", self.run_f])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         noopts_file = self.run_f + ".no-opts"
         noopts_file_stderr = noopts_file + ".stderr"
         noopts_file_stderr_2 = noopts_file_stderr + ".2"
@@ -110,9 +118,9 @@ class PolyBenchGroup(Project):
         opts_file_stderr = self.run_f + ".stderr"
         opts_file_stderr_2 = opts_file_stderr + ".2"
 
-        runner(wrap(opts_file, experiment))
+        runner(wrap(opts_file, self))
         with local.env(BB_IS_BASELINE=True):
-            runner(wrap(noopts_file, experiment))
+            runner(wrap(noopts_file, self))
 
         with open(noopts_file_stderr, 'r') as inf:
             stderr = inf.readlines()

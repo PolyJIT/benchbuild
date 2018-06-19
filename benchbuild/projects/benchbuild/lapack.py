@@ -6,7 +6,7 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, tar
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Git, Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -27,12 +27,12 @@ class OpenBlas(Project):
         pass
 
     def build(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         with local.cwd(self.SRC_FILE):
             run(make["CC=" + str(clang)])
 
-    def run_tests(self, experiment, runner):
-        del experiment, runner
+    def run_tests(self, runner):
+        del runner
         log = logging.getLogger(__name__)
         log.warning('Not implemented')
 
@@ -52,9 +52,8 @@ class Lapack(Project):
         tar("xfz", self.SRC_FILE)
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
+        clang = cc(self)
+        clang_cxx = cxx(self)
         with local.cwd(self.src_dir):
             with open("make.inc", 'w') as makefile:
                 content = [
@@ -84,18 +83,18 @@ class Lapack(Project):
                 run(make["-j", CFG["jobs"], "-f", "Makeblat2"])
                 run(make["-j", CFG["jobs"], "-f", "Makeblat3"])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         with local.cwd(self.src_dir):
             with local.cwd(path.join("BLAS")):
-                xblat2s = wrap("xblat2s", experiment)
-                xblat2d = wrap("xblat2d", experiment)
-                xblat2c = wrap("xblat2c", experiment)
-                xblat2z = wrap("xblat2z", experiment)
+                xblat2s = wrap("xblat2s", self)
+                xblat2d = wrap("xblat2d", self)
+                xblat2c = wrap("xblat2c", self)
+                xblat2z = wrap("xblat2z", self)
 
-                xblat3s = wrap("xblat3s", experiment)
-                xblat3d = wrap("xblat3d", experiment)
-                xblat3c = wrap("xblat3c", experiment)
-                xblat3z = wrap("xblat3z", experiment)
+                xblat3s = wrap("xblat3s", self)
+                xblat3d = wrap("xblat3d", self)
+                xblat3c = wrap("xblat3c", self)
+                xblat3z = wrap("xblat3z", self)
 
                 runner((xblat2s < "sblat2.in"))
                 runner((xblat2d < "dblat2.in"))

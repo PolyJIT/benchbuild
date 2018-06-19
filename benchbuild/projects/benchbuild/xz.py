@@ -4,7 +4,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import cp, make, tar
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -33,8 +33,8 @@ class XZ(Project):
         Wget(self.src_uri, self.SRC_FILE)
         tar('xfz', self.SRC_FILE)
 
-    def run_tests(self, experiment, runner):
-        exp = wrap(path.join(self.src_dir, "src", "xz", "xz"), experiment)
+    def run_tests(self, runner):
+        exp = wrap(path.join(self.src_dir, "src", "xz", "xz"), self)
 
         # Compress
         runner(exp["--compress", "-f", "-k", "-e", "-9", "text.html"])
@@ -51,7 +51,7 @@ class XZ(Project):
         runner(exp["--decompress", "-f", "-k", "liberty.jpg.xz"])
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         with local.cwd(self.src_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang)):
@@ -63,6 +63,6 @@ class XZ(Project):
                               "--disable-scripts", "--disable-doc"])
 
     def build(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         with local.cwd(self.src_dir):
             run(make["CC=" + str(clang), "clean", "all"])

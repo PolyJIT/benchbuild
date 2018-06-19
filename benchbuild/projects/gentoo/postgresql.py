@@ -42,10 +42,10 @@ class Postgresql(GentooGroup):
 
         return path.join(self.builddir, chroot_path.lstrip("/"))
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         pg_data = "/test-data/"
         pg_path = "/usr/lib64/postgresql-9.4/bin/postgres"
-        wrap(self.outside(pg_path), experiment, self.builddir)
+        wrap(self.outside(pg_path), self, self.builddir)
         cuchroot = uchroot(uid=250, gid=250)
 
         dropdb = cuchroot["/usr/bin/dropdb"]

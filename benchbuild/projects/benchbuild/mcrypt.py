@@ -5,7 +5,7 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, tar
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -53,31 +53,22 @@ class MCrypt(Project):
         # Build mhash dependency
         with local.cwd(mhash_dir):
             configure = local["./configure"]
-            with local.env(CC=lt_clang(self.cflags, self.ldflags,
-                                       self.compiler_extension),
-                           CXX=lt_clang_cxx(self.cflags, self.ldflags,
-                                            self.compiler_extension)):
+            with local.env(CC=cc(self), CXX=cxx(self)):
                 run(configure["--prefix=" + self.builddir])
                 run(make["-j", CFG["jobs"], "install"])
 
         # Builder libmcrypt dependency
         with local.cwd(libmcrypt_dir):
             configure = local["./configure"]
-            with local.env(CC=lt_clang(self.cflags, self.ldflags,
-                                       self.compiler_extension),
-                           CXX=lt_clang_cxx(self.cflags, self.ldflags,
-                                            self.compiler_extension)):
+            with local.env(CC=cc(self), CXX=cxx(self)):
                 run(configure["--prefix=" + self.builddir])
                 run(make["-j", CFG["jobs"], "install"])
 
         with local.cwd(mcrypt_dir):
             configure = local["./configure"]
-            with local.env(CC=lt_clang(self.cflags, self.ldflags,
-                                       self.compiler_extension),
-                           CXX=lt_clang_cxx(self.cflags, self.ldflags,
-                                            self.compiler_extension),
-                           LD_LIBRARY_PATH=path.join(self.builddir, "lib") +
-                           ":" + CFG["ld_library_path"].value(),
+            with local.env(CC=cc(self), CXX=cxx(self),
+                           LD_LIBRARY_PATH=path.join(
+                               self.builddir, "lib") + ":" + CFG["ld_library_path"].value(),
                            LDFLAGS="-L" + path.join(self.builddir, "lib"),
                            CFLAGS="-I" + path.join(self.builddir, "include")):
                 run(configure["--disable-dependency-tracking",
@@ -89,9 +80,9 @@ class MCrypt(Project):
         with local.cwd(self.src_dir):
             run(make["-j", CFG["jobs"]])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         mcrypt_dir = path.join(self.src_dir, "src", ".libs")
-        aestest = wrap(path.join(mcrypt_dir, "lt-aestest"), experiment)
+        aestest = wrap(path.join(mcrypt_dir, "lt-aestest"), self)
         run(aestest)
-        ciphertest = wrap(path.join(mcrypt_dir, "lt-ciphertest"), experiment)
+        ciphertest = wrap(path.join(mcrypt_dir, "lt-ciphertest"), self)
         run(ciphertest)

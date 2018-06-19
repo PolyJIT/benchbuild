@@ -278,8 +278,3 @@ Summary:
 This run took: {elapsed_time:8.3f} seconds.
     """.format(
         num_total=num_actions, num_failed=num_failed, elapsed_time=duration))
-
-    if failed:
-        print("Failed:")
-        for fail in failed:
-            print(fail)

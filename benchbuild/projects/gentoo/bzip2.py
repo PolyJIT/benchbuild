@@ -35,10 +35,9 @@ class BZip2(GentooGroup):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         uretry(emerge_in_chroot["app-arch/bzip2"])
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         wrap(
-            path.join(self.builddir, "bin", "bzip2"), experiment,
-            self.builddir)
+            path.join(self.builddir, "bin", "bzip2"), self, self.builddir)
         bzip2 = uchroot()["/bin/bzip2"]
 
         # Compress

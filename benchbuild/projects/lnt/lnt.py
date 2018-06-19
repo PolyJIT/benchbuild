@@ -8,7 +8,7 @@ from plumbum import FG, local
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv
-from benchbuild.utils.compiler import lt_clang, lt_clang_cxx
+from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import CopyNoFail, Git
 from benchbuild.utils.wrapping import wrap_dynamic
 
@@ -59,11 +59,9 @@ class LNTGroup(Project):
 
         self.lnt = local[path.join("local", "bin", "lnt")]
         self.sandbox_dir = path.join(self.builddir, "run")
-        self.clang = lt_clang(self.cflags, self.ldflags,
-                              self.compiler_extension,
-                              detect_project=True)
-        self.clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                      self.compiler_extension)
+        self.clang = cc(self, detect_project=True)
+        self.clang_cxx = cxx(self, detect_project=True)
+
     @staticmethod
     def after_run_tests(sandbox_dir):
         logfiles = glob(path.join(sandbox_dir, "./*/test.log"))
@@ -82,8 +80,8 @@ class LNTGroup(Project):
                                              self.test_suite_dir),
                  "--only-test=" + self.SUBDIR)
 
-    def run_tests(self, experiment, runner):
-        binary = wrap_dynamic(self, "lnt_runner", experiment,
+    def run_tests(self, runner):
+        binary = wrap_dynamic(self, "lnt_runner",
                               name_filters=LNTGroup.NAME_FILTERS)
 
         runner(self.lnt["runtest", "nt", "-v", "-j1",

@@ -5,7 +5,7 @@ from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make
-from benchbuild.utils.compiler import lt_clang_cxx
+from benchbuild.utils.compiler import cxx
 from benchbuild.utils.downloader import Git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -19,9 +19,9 @@ class Lammps(Project):
     GROUP = 'benchbuild'
     SRC_FILE = 'lammps.git'
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         lammps_dir = os.path.join(self.builddir, self.src_dir, "src")
-        exp = wrap(os.path.join(lammps_dir, "lmp_serial"), experiment)
+        exp = wrap(os.path.join(lammps_dir, "lmp_serial"), self)
 
         examples_dir = os.path.join(self.builddir, self.src_dir, "examples")
         tests = glob(os.path.join(examples_dir, "./*/in.*"))
@@ -44,9 +44,7 @@ class Lammps(Project):
     def build(self):
         self.ldflags += ["-lgomp"]
 
-        clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
-                                 self.compiler_extension)
-
+        clang_cxx = cxx(self)
         with local.cwd(os.path.join(self.src_dir, "src")):
             run(make["CC=" + str(clang_cxx),
                      "LINK=" + str(clang_cxx),

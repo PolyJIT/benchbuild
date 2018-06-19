@@ -3,7 +3,7 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, tar
-from benchbuild.utils.compiler import lt_clang
+from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import Rsync, Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
@@ -22,9 +22,9 @@ class LibAV(Project):
     fate_dir = "fate-samples"
     fate_uri = "rsync://fate-suite.libav.org/fate-suite/"
 
-    def run_tests(self, experiment, runner):
+    def run_tests(self, runner):
         with local.cwd(self.src_dir):
-            wrap(self.name, experiment)
+            wrap(self.name, self)
             run(make["V=1", "-i", "fate"])
 
     def download(self):
@@ -34,7 +34,7 @@ class LibAV(Project):
             Rsync(self.fate_uri, self.fate_dir)
 
     def configure(self):
-        clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        clang = cc(self)
         with local.cwd(self.src_dir):
             configure = local["./configure"]
             run(configure["--disable-shared", "--cc=" + str(

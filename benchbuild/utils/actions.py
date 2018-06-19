@@ -337,8 +337,7 @@ class Run(Step):
     DESCRIPTION = "Execute the run action"
 
     def __init__(self, project):
-        action_fn = ft.partial(project.run, project.runtime_extension)
-        super(Run, self).__init__(obj=project, action_fn=action_fn)
+        super(Run, self).__init__(obj=project, action_fn=project.run)
 
     @notify_step_begin_end
     def __call__(self):

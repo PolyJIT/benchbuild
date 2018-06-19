@@ -45,9 +45,10 @@ class StepResult(enum.IntEnum):
     ERROR = 3
 
 
-def step_has_failed(*step_results, error_status=None):
+def step_has_failed(step_results, error_status=None):
     if not error_status:
         error_status = [StepResult.ERROR, StepResult.CAN_CONTINUE]
+
     return len(list(filter(lambda res: res in error_status, step_results))) > 0
 
 

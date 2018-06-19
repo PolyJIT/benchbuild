@@ -59,7 +59,9 @@ class LNTGroup(Project):
 
         self.lnt = local[path.join("local", "bin", "lnt")]
         self.sandbox_dir = path.join(self.builddir, "run")
-        self.clang = lt_clang(self.cflags, self.ldflags, self.compiler_extension)
+        self.clang = lt_clang(self.cflags, self.ldflags,
+                              self.compiler_extension,
+                              detect_project=True)
         self.clang_cxx = lt_clang_cxx(self.cflags, self.ldflags,
                                       self.compiler_extension)
     @staticmethod

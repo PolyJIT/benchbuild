@@ -263,6 +263,8 @@ class ExtractCompileStats(Extension):
         from benchbuild.utils.schema import Session
         from benchbuild.settings import CFG
 
+        self.project.name = kwargs.get("project_name", self.project.name)
+
         original_command = cc[args]
         clang = cc["-Qunused-arguments"]
         clang = clang[args]
@@ -338,6 +340,8 @@ class RunCompiler(Extension):
                  experiment_ldflags=[],
                  rerun_on_error=True,
                  **kwargs):
+        self.project.name = kwargs.get("project_name", self.project.name)
+
         original_command = command[args]
         new_command = command["-Qunused-arguments"]
         new_command = new_command[args]

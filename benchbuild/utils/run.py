@@ -242,7 +242,7 @@ class RunInfo(object):
         return self.failed
 
     def __call__(self, *args, expected_retcode=0, ri=None, **kwargs):
-        cmd_env = settings.to_env_dict(settings.CFG)
+        cmd_env = settings.CFG.to_env_dict()
 
         with local.env(**cmd_env):
             try:

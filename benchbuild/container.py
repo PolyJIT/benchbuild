@@ -12,7 +12,7 @@ from abc import abstractmethod
 
 from plumbum import FG, TF, ProcessExecutionError, cli, local
 
-from benchbuild.settings import CFG, update_env
+from benchbuild.settings import CFG
 from benchbuild.utils import log
 from benchbuild.utils.bootstrap import find_package, install_uchroot
 from benchbuild.utils.cmd import bash, cp, mkdir, mv, rm, tar
@@ -30,12 +30,12 @@ def clean_directories(builddir, in_dir=True, out_dir=True):
     """Remove the in and out of the container if confirmed by the user."""
     with local.cwd(builddir):
         if in_dir and os.path.exists("container-in") and ask(
-                "Should I delete '{0}'?".format(os.path.abspath(
-                    "container-in"))):
+                "Should I delete '{0}'?".format(
+                    os.path.abspath("container-in"))):
             rm("-rf", "container-in")
         if out_dir and os.path.exists("container-out") and ask(
-                "Should I delete '{0}'?".format(os.path.abspath(
-                    "container-out"))):
+                "Should I delete '{0}'?".format(
+                    os.path.abspath("container-out"))):
             rm("-rf", "container-out")
 
 
@@ -57,8 +57,9 @@ def setup_container(builddir, container):
         uchrt = uchroot_no_args()
 
         with local.cwd("container-in"):
-            uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-r",
-                          "/", "-w", os.path.abspath("."), "--"]
+            uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-r", "/",
+                          "-w",
+                          os.path.abspath("."), "--"]
 
         # Check, if we need erlent support for this archive.
         has_erlent = bash[
@@ -89,15 +90,14 @@ def run_in_container(command, container_dir):
     """
     with local.cwd(container_dir):
         uchrt = uchroot_with_mounts()
-        uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-w",
-                      "/", "-r", os.path.abspath(container_dir)]
+        uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-w", "/", "-r",
+                      os.path.abspath(container_dir)]
         uchrt = uchrt["--"]
 
         cmd_path = os.path.join(container_dir, command[0].lstrip('/'))
         if not os.path.exists(cmd_path):
-            LOG.error(
-                "The command does not exist inside the container! %s",
-                cmd_path)
+            LOG.error("The command does not exist inside the container! %s",
+                      cmd_path)
             return
 
         cmd = uchrt[command]
@@ -129,7 +129,7 @@ def pack_container(in_container, out_file):
     mv(out_container + ".hash", out_file + ".hash")
 
     new_container = {"path": out_file, "hash": str(c_hash)}
-    CFG["container"]["known"].value().append(new_container)
+    settings.CFG["container"]["known"].value().append(new_container)
 
 
 def setup_bash_in_container(builddir, container, outfile, shell):
@@ -181,6 +181,7 @@ class MockObj(object):
 
     This object's attributes are initialized on construction.
     """
+
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -338,8 +339,10 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
 
             packages = \
                 CFG["container"]["strategy"]["polyjit"]["packages"].value()
-            with local.env(CC="gcc", CXX="g++",
-                           MAKEOPTS="-j{0}".format(CFG["jobs"].value())):
+            with local.env(
+                    CC="gcc",
+                    CXX="g++",
+                    MAKEOPTS="-j{0}".format(CFG["jobs"].value())):
                 if CFG["container"]["strategy"]["polyjit"]["sync"].value():
                     run(emerge_in_chroot["--sync"])
                 if CFG["container"]["strategy"]["polyjit"]["upgrade"].value():
@@ -385,16 +388,16 @@ class Container(cli.Application):
                 sys.exit(0)
         CFG["container"]["output"] = p
 
-    @cli.switch(["-s", "--shell"],
-                str,
-                help="The shell command we invoke inside the container.")
+    @cli.switch(
+        ["-s", "--shell"],
+        str,
+        help="The shell command we invoke inside the container.")
     def shell(self, custom_shell):
         """The command to run inside the container."""
         CFG["container"]["shell"] = custom_shell
 
-    @cli.switch(["-t", "-tmp-dir"],
-                cli.ExistingDirectory,
-                help="Temporary directory")
+    @cli.switch(
+        ["-t", "-tmp-dir"], cli.ExistingDirectory, help="Temporary directory")
     def builddir(self, tmpdir):
         """Set the current builddir of the container."""
         CFG["build_dir"] = tmpdir
@@ -420,7 +423,6 @@ class Container(cli.Application):
             0: logging.ERROR
         }[self.verbosity])
 
-        update_env()
         builddir = os.path.abspath(str(CFG["build_dir"].value()))
         if not os.path.exists(builddir):
             response = ask("The build directory {dirname} does not exist yet. "
@@ -468,10 +470,11 @@ class ContainerCreate(cli.Application):
 
     _strategy = BashStrategy()
 
-    @cli.switch(["-S", "--strategy"],
-                cli.Set("bash", "polyjit", case_sensitive=False),
-                help="Defines the strategy used to create a new container.",
-                mandatory=False)
+    @cli.switch(
+        ["-S", "--strategy"],
+        cli.Set("bash", "polyjit", case_sensitive=False),
+        help="Defines the strategy used to create a new container.",
+        mandatory=False)
     def strategy(self, strategy):
         """Select strategy based on key.
 
@@ -500,11 +503,13 @@ class ContainerCreate(cli.Application):
         if in_is_file:
             in_container = setup_container(builddir, in_container)
 
-        self._strategy.run(MockObj(builddir=builddir,
-                                   in_container=in_container,
-                                   out_container=out_container,
-                                   mounts=mounts,
-                                   shell=shell))
+        self._strategy.run(
+            MockObj(
+                builddir=builddir,
+                in_container=in_container,
+                out_container=out_container,
+                mounts=mounts,
+                shell=shell))
         clean_directories(builddir, in_is_file, True)
 
 

@@ -5,7 +5,6 @@ import sys
 
 from plumbum import TEE
 
-from benchbuild import settings
 from benchbuild.utils import log
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.run import exit_code_from_run_infos
@@ -14,6 +13,7 @@ from benchbuild.utils.wrapping import load
 PROJECT = load("{{ project_file }}")
 #EXPERIMENT = load("{{ experiment_file }}")
 COMPILER = load("{{ cc_f }}")
+
 
 def update_project(argv):
     if {{detect_project}}:
@@ -25,8 +25,8 @@ def update_project(argv):
         PROJECT.name = name
         persist_project(PROJECT)
 
+
 def main(argv):
-    settings.update_env()
     log.configure()
     log.set_defaults()
 
@@ -43,10 +43,10 @@ def main(argv):
 
     update_project(command_args)
     run_info = PROJECT.compiler_extension(
-        COMPILER, *command_args,
-        project=PROJECT)
+        COMPILER, *command_args, project=PROJECT)
 
     return exit_code_from_run_infos(run_info)
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

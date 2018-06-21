@@ -6,17 +6,16 @@ import sys
 
 from plumbum import TEE, local
 
-from benchbuild import settings
 from benchbuild.utils import log
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.run import exit_code_from_run_infos
 from benchbuild.utils.wrapping import load
 
 PROJECT = load("{{ project_file }}")
-FILTER_EXPRESSIONS = {{ name_filters }}
+FILTER_EXPRESSIONS = {{name_filters}}
+
 
 def main(argv):
-    settings.update_env()
     log.configure()
     log.set_defaults()
 
@@ -34,17 +33,16 @@ def main(argv):
                 PROJECT.name = match.group('name')
     persist_project(PROJECT)
 
-    with local.env(PATH="{{ path }}",
-                   LD_LIBRARY_PATH="{{ ld_lib_path }}",
-                   BB_CMD=str(real_command) + " ".join(real_command_args)):
+    with local.env(
+            PATH="{{ path }}",
+            LD_LIBRARY_PATH="{{ ld_lib_path }}",
+            BB_CMD=str(real_command) + " ".join(real_command_args)):
         if PROJECT.runtime_extension is None:
             exitcode, _, _ = real_command[real_command_args] & TEE
             return exitcode
 
         run_info = PROJECT.runtime_extension(
-            real_command,
-            real_command_args,
-            project=PROJECT)
+            real_command, real_command_args, project=PROJECT)
         return exit_code_from_run_infos(run_info)
 
 

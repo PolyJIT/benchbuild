@@ -37,7 +37,6 @@ class PollyProfiling(cli.Application):
 
 def main(*args):
     """Main function."""
-    settings.update_env()
     PollyProfiling.subcommand("bootstrap",
                               "benchbuild.bootstrap.BenchBuildBootstrap")
     PollyProfiling.subcommand("run", "benchbuild.run.BenchBuildRun")

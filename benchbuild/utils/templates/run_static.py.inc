@@ -4,24 +4,24 @@ import sys
 
 from plumbum import TEE, local
 
-from benchbuild import settings
 from benchbuild.utils import log
 from benchbuild.utils.run import exit_code_from_run_infos
 from benchbuild.utils.wrapping import load
 
 PROJECT = load("{{ project_file }}")
 
+
 def main(argv):
-    settings.update_env()
     log.configure()
     log.set_defaults()
 
     real_command = local["{{ runf }}"]
     real_command_args = argv[1:]
 
-    with local.env(PATH="{{ path }}",
-                   LD_LIBRARY_PATH="{{ ld_library_path }}",
-                   BB_CMD=str(real_command) + " ".join(real_command_args)):
+    with local.env(
+            PATH="{{ path }}",
+            LD_LIBRARY_PATH="{{ ld_library_path }}",
+            BB_CMD=str(real_command) + " ".join(real_command_args)):
         if PROJECT.runtime_extension is None:
             exitcode, _, _ = real_command[real_command_args] & TEE
             return exitcode

@@ -32,11 +32,18 @@ class WrapperTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp_dir = tempfile.mkdtemp()
+        print(cls.tmp_dir)
 
     @classmethod
     def tearDownClass(cls):
-        if os.path.exists(cls.tmp_dir):
-            rm("-r", cls.tmp_dir)
+        pass
+        #if os.path.exists(cls.tmp_dir):
+        #    rm("-r", cls.tmp_dir)
+
+    def setUp(self):
+        self.tmp_script_fd, self.tmp_script = tempfile.mkstemp(
+            dir=self.tmp_dir)
+        self.assertTrue(os.path.exists(self.tmp_script))
 
 
 class RunCompiler(WrapperTests):
@@ -47,25 +54,15 @@ class RunCompiler(WrapperTests):
 
 
 class RunStatic(WrapperTests):
-    def setUp(self):
-        self.tmp_script_fd, self.tmp_script = tempfile.mkstemp(
-            dir=self.tmp_dir)
-        self.assertTrue(os.path.exists(self.tmp_script))
-
     def test_create(self):
         with local.cwd(self.tmp_dir):
             self.cmd = wrappers.wrap(self.tmp_script,
                                      EmptyProject(empty.Empty()))
+            self.assertTrue(os.path.exists("{}.bin".format(self.tmp_script)))
         self.assertTrue(os.path.exists(str(self.cmd)))
-        self.assertTrue(os.path.exists("{}.bin".format(self.tmp_script)))
 
 
 class RunDynamic(WrapperTests):
-    def setUp(self):
-        self.tmp_script_fd, self.tmp_script = tempfile.mkstemp(
-            dir=self.tmp_dir)
-        self.assertTrue(os.path.exists(self.tmp_script))
-
     def test_create(self):
         with local.cwd(self.tmp_dir):
             cmd = wrappers.wrap_dynamic(

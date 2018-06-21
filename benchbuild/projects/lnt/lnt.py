@@ -48,7 +48,8 @@ class LNTGroup(Project):
         virtualenv("local", "--python=python2", )
         pip = local[path.join("local", "bin", "pip")]
         with local.cwd(self.src_dir):
-            pip("install", "-e", ".")
+            pip("install", "--no-cache-dir",
+                "--disable-pip-version-check",  "-e", ".")
 
     def configure(self):
         sandbox_dir = path.join(self.builddir, "run")

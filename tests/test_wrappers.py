@@ -36,9 +36,8 @@ class WrapperTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        pass
-        #if os.path.exists(cls.tmp_dir):
-        #    rm("-r", cls.tmp_dir)
+        if os.path.exists(cls.tmp_dir):
+            rm("-r", cls.tmp_dir)
 
     def setUp(self):
         self.tmp_script_fd, self.tmp_script = tempfile.mkstemp(

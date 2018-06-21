@@ -41,7 +41,7 @@ def main(argv):
         exitcode, _, _ = COMPILER[command_args] & TEE
         return exitcode
 
-    update_project(argv)
+    update_project(command_args)
     run_info = PROJECT.compiler_extension(
         COMPILER, *command_args,
         project=PROJECT)

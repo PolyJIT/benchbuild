@@ -1,5 +1,6 @@
 from plumbum import cli
 
+import benchbuild.utils.schema as schema
 import benchbuild.experiments as e
 import benchbuild.reports as r
 
@@ -35,7 +36,7 @@ class BenchBuildReport(cli.Application):
         self._outfile = outfile
 
     def main(self, *args):
-        del args # Unused
+        del args  # Unused
 
         e.discover()
         r.discover()
@@ -48,20 +49,22 @@ class BenchBuildReport(cli.Application):
             for rcls in reports:
                 if experiments:
                     for exp in experiments:
-                        report = rcls(exp, self._experiment_ids, self._outfile)
+                        report = rcls(exp, self._experiment_ids, self._outfile,
+                                      schema.Session())
                 else:
-                    report = rcls(None, self._experiment_ids, self._outfile)
+                    report = rcls(None, self._experiment_ids, self._outfile,
+                                  schema.Session())
                 report.generate()
 
         if self.report_names:
-            reports = [all_reports[name] for name in all_reports \
-                        if name in self.report_names]
+            reports = [all_reports[name] for name in all_reports
+                       if name in self.report_names]
             generate_reports(reports, self.experiment_names)
             exit(0)
 
         if self.experiment_names:
-            reports = [all_reports[name] for name in all_reports \
-                        if set(all_reports[name].SUPPORTED_EXPERIMENTS) & \
-                           set(self.experiment_names)]
+            reports = [all_reports[name] for name in all_reports
+                       if set(all_reports[name].SUPPORTED_EXPERIMENTS) &
+                       set(self.experiment_names)]
             generate_reports(reports, self.experiment_names)
             exit(0)

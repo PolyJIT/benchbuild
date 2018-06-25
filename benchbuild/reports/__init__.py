@@ -85,14 +85,13 @@ class Report(object, metaclass=ReportRegistry):
     experiment_name = attr.ib()
     exp_ids = attr.ib()
     out_path = attr.ib()
+    session = attr.ib()
 
     name = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
     supported_experiments = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
-
-    session = attr.ib(default=schema.Session())
 
     experiment_ids = attr.ib(default=None)
 

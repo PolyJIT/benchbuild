@@ -3,7 +3,7 @@ import os
 import platform
 import sys
 
-from plumbum import FG, local, ProcessExecutionError
+from plumbum import TF, FG, local, ProcessExecutionError
 
 import benchbuild.utils.user_interface as ui
 from benchbuild import settings

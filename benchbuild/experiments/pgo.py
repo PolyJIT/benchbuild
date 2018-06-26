@@ -96,7 +96,7 @@ class PGO(exp.Experiment):
                 actns.Clean(project),
             ]),
             actns.RequireAll(actions=[
-                aactns.MakeBuildDir(no_pgo_project),
+                actns.MakeBuildDir(no_pgo_project),
                 actns.Prepare(no_pgo_project),
                 actns.Download(no_pgo_project),
                 actns.Configure(no_pgo_project),

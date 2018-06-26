@@ -127,9 +127,9 @@ class BenchBuildRun(cli.Application):
                   ' in the experiment registry.')
         prjs = project.populate(project_names, group_names)
 
-        if not experiment_names:
-            print("No experiment selected. Did you forget to use -E?")
-            return -1
+        if not exps:
+            print("Could not find any experiment. Exiting.")
+            return -2
 
         plan = list(self.__generate_plan(exps, prjs, CFG))
         num_actions = actions.num_steps(plan)

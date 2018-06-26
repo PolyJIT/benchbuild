@@ -129,6 +129,7 @@ class BenchBuildRun(cli.Application):
 
         if not experiment_names:
             print("No experiment selected. Did you forget to use -E?")
+            return -1
 
         plan = list(self.__generate_plan(exps, prjs, CFG))
         num_actions = actions.num_steps(plan)

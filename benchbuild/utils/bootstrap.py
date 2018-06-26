@@ -3,7 +3,7 @@ import os
 import platform
 import sys
 
-from plumbum import TF, local
+from plumbum import FG, local, ProcessExecutionError
 
 import benchbuild.utils.user_interface as ui
 from benchbuild import settings
@@ -81,8 +81,8 @@ def install_uchroot():
             cmake("../")
             make()
     erlent_path = os.path.abspath(os.path.join(builddir, "erlent", "build"))
-    os.environ["PATH"] = os.path.pathsep.join([erlent_path, os.environ[
-        "PATH"]])
+    os.environ["PATH"] = os.path.pathsep.join(
+        [erlent_path, os.environ["PATH"]])
     local.env.update(PATH=os.environ["PATH"])
     if not find_package("uchroot"):
         sys.exit(-1)
@@ -124,19 +124,20 @@ def install_package(pkg_name):
     for pkg_name_on_host in packages:
         print("You are missing the package: '{0}'".format(pkg_name_on_host))
         cmd = local["sudo"]
-        cmd = cmd[package_manager["cmd"],
-                  package_manager["args"],
+        cmd = cmd[package_manager["cmd"], package_manager["args"],
                   pkg_name_on_host]
         cmd_str = str(cmd)
 
         ret = False
         if ask("Run '{cmd}' to install it?".format(cmd=cmd_str)):
             print("Running: '{cmd}'".format(cmd=cmd_str))
-            ret = (cmd & TF(retcode=0))
-        if ret:
-            print("OK")
-        else:
+
+        try:
+            (cmd & FG(retcode=0))
+        except ProcessExecutionError:
             print("NOT INSTALLED")
+        else:
+            print("OK")
     return ret
 
 

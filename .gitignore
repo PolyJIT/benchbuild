@@ -9,3 +9,6 @@ __pycache__/
 .vscode/
 .coverage
 .benchbuild*.yml
+.ipynb_checkpoints/
+.mypy_cache/
+.pytest_cache/

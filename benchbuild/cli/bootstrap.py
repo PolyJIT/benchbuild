@@ -4,6 +4,7 @@ from plumbum import cli
 
 import benchbuild.utils.bootstrap as bs
 import benchbuild.utils.path as p
+from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
 
 provide_package = bs.provide_package
@@ -14,15 +15,17 @@ install_uchroot = bs.install_uchroot
 check_uchroot_config = bs.check_uchroot_config
 
 
+@BenchBuild.subcommand("bootstrap")
 class BenchBuildBootstrap(cli.Application):
     """Bootstrap benchbuild external dependencies, if possible."""
 
-    store_config = cli.Flag(["-s", "--save-config"],
-                            help="Save benchbuild's configuration.",
-                            default=False)
+    store_config = cli.Flag(
+        ["-s", "--save-config"],
+        help="Save benchbuild's configuration.",
+        default=False)
 
     def main(self, *args):
-        del args # Unused
+        del args  # Unused
 
         p.mkdir_interactive(str(CFG["build_dir"]))
         print("Checking benchbuild binary dependencies...")

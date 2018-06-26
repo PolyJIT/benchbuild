@@ -14,8 +14,10 @@ from plumbum import cli
 from benchbuild import experiment, experiments, project, projects
 from benchbuild.settings import CFG
 from benchbuild.utils import slurm
+from benchbuild.cli.main import BenchBuild
 
 
+@BenchBuild.subcommand("slurm")
 class Slurm(cli.Application):
     """ Generate a SLURM script. """
 

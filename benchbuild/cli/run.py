@@ -6,7 +6,6 @@ This subcommand executes experiments on a set of user-controlled projects.
 See the output of benchbuild run --help for more information.
 """
 import logging
-import os
 import time
 
 from plumbum import cli
@@ -17,10 +16,12 @@ import benchbuild.project as project
 import benchbuild.utils.actions as actions
 from benchbuild.settings import CFG
 from benchbuild.utils import path, progress
+from benchbuild.cli.main import BenchBuild
 
 LOG = logging.getLogger(__name__)
 
 
+@BenchBuild.subcommand("run")
 class BenchBuildRun(cli.Application):
     """Frontend for running experiments in the benchbuild study framework."""
 
@@ -53,29 +54,8 @@ class BenchBuildRun(cli.Application):
     def set_projects(self, names):
         self.project_names = names
 
-    list_experiments = cli.Flag(
-        ["-L", "--list-experiments"],
-        help="List available experiments",
-        default=False)
-
-    list_projects = cli.Flag(
-        ["-l", "--list"],
-        requires=["--experiment"],
-        help="List available projects for experiment",
-        default=False)
-
     show_progress = cli.Flag(
         ["--disable-progress"], help="Disable progress bar", default=True)
-
-    show_config = cli.Flag(
-        ["-d", "--dump-config"],
-        help="Just dump benchbuild's config and exit.",
-        default=False)
-
-    store_config = cli.Flag(
-        ["-s", "--save-config"],
-        help="Save benchbuild's configuration.",
-        default=False)
 
     @cli.switch(
         ["-G", "--group"],
@@ -87,39 +67,6 @@ class BenchBuildRun(cli.Application):
         self.group_names = groups
 
     pretend = cli.Flag(['p', 'pretend'], default=False)
-
-    def __maybe_list_experiments(self, exps):
-        if not self.list_experiments:
-            return
-
-        for exp_cls in exps.values():
-            print(exp_cls.NAME)
-            docstring = exp_cls.__doc__ or "-- no docstring --"
-            print(("    " + docstring))
-        exit(0)
-
-    def __maybe_list_projects(self, exps, prjs):
-        if not self.list_projects:
-            return
-
-        for exp_cls in exps.values():
-            exp = exp_cls(projects=prjs)
-            print_projects(exp)
-        exit(0)
-
-    def __maybe_show_config(self, cfg):
-        if not self.show_config:
-            return
-
-        print(repr(cfg))
-        exit(0)
-
-    def __maybe_store_config(self, cfg):
-        if not self.store_config:
-            config_path = ".benchbuild.yml"
-            cfg.store(config_path)
-            print("Storing config in {0}".format(os.path.abspath(config_path)))
-            exit(0)
 
     def __generate_plan(self, exps, prjs, cfg):
         if prjs:
@@ -180,10 +127,6 @@ class BenchBuildRun(cli.Application):
                   ' in the experiment registry.')
         prjs = project.populate(project_names, group_names)
 
-        self.__maybe_list_experiments(all_exps)
-        self.__maybe_list_projects(exps, prjs)
-        self.__maybe_show_config(CFG)
-
         if not experiment_names:
             print("No experiment selected. Did you forget to use -E?")
 
@@ -220,44 +163,6 @@ def execute_plan(plan):
     """
     results = [action() for action in plan]
     return [result for result in results if actions.step_has_failed(result)]
-
-
-def print_projects(exp):
-    """
-    Print a list of projects registered for that experiment.
-
-    Args:
-        exp: The experiment to print all projects for.
-
-    """
-    grouped_by = {}
-    projects = exp.projects
-    if not projects:
-        print(
-            "Your selection didn't include any projects for this experiment.")
-
-    for name in projects:
-        prj = projects[name]
-
-        if prj.GROUP not in grouped_by:
-            grouped_by[prj.GROUP] = []
-
-        grouped_by[prj.GROUP].append("{name}/{group}".format(
-            name=prj.NAME, group=prj.GROUP))
-
-    for name in grouped_by:
-        print("group: {0}".format(name))
-        group_projects = sorted(grouped_by[name])
-        for prj in group_projects:
-            prj_cls = projects[prj]
-            print("  name: {id:<32} {version:<24} {src}".format(
-                id="{0}/{1}".format(prj_cls.NAME, prj_cls.GROUP),
-                version="version: {0}".format(prj_cls.VERSION),
-                src="source: {0}".format(prj_cls.SRC_FILE)))
-            if prj_cls.__doc__:
-                print("    description: {desc}".format(
-                    desc=prj_cls.__doc__.strip("\n ")))
-        print()
 
 
 def print_summary(num_actions, failed, duration):

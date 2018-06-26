@@ -3,27 +3,28 @@ import os
 
 from plumbum import cli
 
-from benchbuild.driver import PollyProfiling
+from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
 
 
-@PollyProfiling.subcommand("test")
+@BenchBuild.subcommand("test")
 class BenchBuildTest(cli.Application):
     """
         Create regression tests for polyjit from the measurements database.
     """
 
-    @cli.switch(["-P", "--prefix"],
-                str,
-                help="Prefix for our regression-test image.")
+    @cli.switch(
+        ["-P", "--prefix"], str, help="Prefix for our regression-test image.")
     def prefix(self, prefix):
         CFG["regression_prefix"] = os.path.abspath(prefix)
 
     def opt_flags(self):
-        return ["-load", "LLVMPolyJIT.so", "-O3", "-jitable", "-polli",
-                "-polly-only-scop-detection", "-polly-delinearize=false",
-                "-polly-detect-keep-going", "-no-recompilation",
-                "-polli-analyze", "-disable-output", "-stats"]
+        return [
+            "-load", "LLVMPolyJIT.so", "-O3", "-jitable", "-polli",
+            "-polly-only-scop-detection", "-polly-delinearize=false",
+            "-polly-detect-keep-going", "-no-recompilation", "-polli-analyze",
+            "-disable-output", "-stats"
+        ]
 
     def get_check_line(self, name, module):
         from benchbuild.utils.cmd import sed, opt

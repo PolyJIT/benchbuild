@@ -3,6 +3,8 @@
 
 from plumbum import cli
 
+from benchbuild.cli.main import BenchBuild
+
 
 def print_runs(query):
     """ Print all rows in this result query. """
@@ -35,45 +37,51 @@ def print_logs(query, types=None):
         print()
 
 
+@BenchBuild.subcommand("log")
 class BenchBuildLog(cli.Application):
     """ Frontend command to the benchbuild database. """
 
-    @cli.switch(["-E", "--experiment"],
-                str,
-                list=True,
-                help="Experiments to fetch the log for.")
+    @cli.switch(
+        ["-E", "--experiment"],
+        str,
+        list=True,
+        help="Experiments to fetch the log for.")
     def experiment(self, experiments):
         """ Set the experiments to fetch the log for. """
         self._experiments = experiments
 
-    @cli.switch(["-e", "--experiment-id"],
-                str,
-                list=True,
-                help="Experiment IDs to fetch the log for.")
+    @cli.switch(
+        ["-e", "--experiment-id"],
+        str,
+        list=True,
+        help="Experiment IDs to fetch the log for.")
     def experiment_ids(self, experiment_ids):
         """ Set the experiment ids to fetch the log for. """
         self._experiment_ids = experiment_ids
 
-    @cli.switch(["-P", "--project"],
-                str,
-                list=True,
-                help="Projects to fetch the log for.")
+    @cli.switch(
+        ["-P", "--project"],
+        str,
+        list=True,
+        help="Projects to fetch the log for.")
     def project(self, projects):
         """ Set the projects to fetch the log for. """
         self._projects = projects
 
-    @cli.switch(["-p", "--project-id"],
-                str,
-                list=True,
-                help="Project IDs to fetch the log for.")
+    @cli.switch(
+        ["-p", "--project-id"],
+        str,
+        list=True,
+        help="Project IDs to fetch the log for.")
     def project_ids(self, project_ids):
         """ Set the project ids to fetch the log for. """
         self._project_ids = project_ids
 
-    @cli.switch(["-t", "--type"],
-                cli.Set("stdout", "stderr"),
-                list=True,
-                help="Set the output types to print.")
+    @cli.switch(
+        ["-t", "--type"],
+        cli.Set("stdout", "stderr"),
+        list=True,
+        help="Set the output types to print.")
     def log_type(self, types):
         """ Set the output types to print. """
         self._types = types

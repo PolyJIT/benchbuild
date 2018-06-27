@@ -60,7 +60,7 @@ CFG = s.Configuration(
         },
         "experiments": {
             "default": {
-                "empty": str(uuid.uuid4())
+                "empty": uuid.uuid4()
             },
             "desc": "Dictionary of all experiments we want a defined uuid for."
         },

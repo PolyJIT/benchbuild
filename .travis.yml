@@ -32,7 +32,7 @@ before_script:
 
 script:
   - pytest --cov=./ benchbuild
-  - coverage run `which benchbuild` run --full -P test
+  - coverage run `which benchbuild` run -vvvvv --full -P test
   - codecov
 
 branches:

@@ -13,81 +13,47 @@ LOG = logging.getLogger(__name__)
 class Node(object):
     tok = attr.ib()
 
-    name = attr.ib(default=attr.Factory(
-        lambda self: self.tok[0], takes_self=True))
-
-    value = attr.ib(default=attr.Factory(
-        lambda self: self.tok[2], takes_self=True))
-
     def indent(self, level=0, idt=' '):
-        val = self.value
-        if not isinstance(self.value, str):
-            val = self.value.indent(1)
-        return t.indent('"{:s}": "{:s}"'.format(self.name, val), level*idt)
+        val = self.tok[2]
+        if not isinstance(self.tok[2], str):
+            val = self.tok[2].indent(1)
+        return t.indent('"{:s}": "{:s}"'.format(self.tok[0], val), level * idt)
 
 
 @attr.s
-class CoincidenceNode(object):
-    tok = attr.ib()
-
-    name = attr.ib(default=attr.Factory(
-        lambda self: self.tok[0], takes_self=True))
-
-    children = attr.ib(default=attr.Factory(
-        lambda self: self.tok[3], takes_self=True))
-
+class CoincidenceNode(Node):
     def indent(self, level=0, idt=' '):
-        ret = [str(child) for child in self.children]
+        ret = [str(child) for child in self.tok[3]]
         ret = ",".join(ret)
 
-        return t.indent('"{:s}": [{:s}]'.format(self.name, ret), level*idt)
+        return t.indent('"{:s}": [{:s}]'.format(self.tok[0], ret), level * idt)
 
 
 @attr.s
-class RootNode(object):
-    tok = attr.ib()
-
-    name = attr.ib(default=attr.Factory(
-        lambda self: self.tok[0], takes_self=True))
-
-    children = attr.ib(default=attr.Factory(
-        lambda self: self.tok[1], takes_self=True))
-
+class RootNode(Node):
     def indent(self, level=0, idt=' '):
         ret = []
-        for r in self.children:
-            ret += r.indent(level+2)
-        ret = [child.indent(level+2) for child in self.children]
+        ret = [child.indent(level + 2) for child in self.tok[1]]
         ret = ",\n".join(ret)
 
-        return t.indent('{{\n{:s}\n}}'.format(ret), level*idt)
+        return t.indent('{{\n{:s}\n}}'.format(ret), level * idt)
 
     def __str__(self):
         return self.indent(0)
 
 
 @attr.s
-class ChildNode(RootNode):
-    elem = attr.ib(default=attr.Factory(
-        lambda self: self.tok[0], takes_self=True))
-
+class ChildNode(Node):
     def indent(self, level=0, idt=' '):
-        ret = self.elem.indent(level)
+        ret = self.tok[0].indent(level)
         return ret
 
 
-class SequenceNode(object):
-    tok = attr.ib()
-
-    name = attr.ib(default=attr.Factory(
-        lambda self: self.tok[0], takes_self=True))
-
-    children = attr.ib(default=attr.Factory(
-        lambda self: self.tok[3], takes_self=True))
-
+@attr.s
+class SequenceNode(Node):
     def indent(self, level=0, idt=' '):
-        ret = '"{:s}": [\n'.format(self.name)
-        for child in self.children:
+        ret = '"{:s}": [\n'.format(self.tok[0])
+        for child in self.tok[3]:
             ret += child.indent(0) + ',\n'
         ret += '\n]'
         return t.indent(ret, level * idt)
@@ -112,30 +78,20 @@ KW_SEQUENCE = p.Keyword("sequence")
 CHILD_NODE = p.Forward()
 ROOT = p.Forward()
 
-DOMAIN      = KW_DOMAIN     + ":" + STR
-SCHEDULE    = KW_SCHEDULE   + ":" + STR
-FILTER      = KW_FILTER     + ":" + STR
-MARK        = KW_MARK       + ":" + STR
-PERMUTABLE  = KW_PERMUTABLE + ":" + NUM
-COINCIDENT  = KW_COINCIDENT + ":" + "[" + NUM_LIST + "]"
-OPTIONS     = KW_OPTIONS    + ":" + STR
-EXTENSION   = KW_EXTENSION  + ":" + STR
+DOMAIN = KW_DOMAIN + ":" + STR
+SCHEDULE = KW_SCHEDULE + ":" + STR
+FILTER = KW_FILTER + ":" + STR
+MARK = KW_MARK + ":" + STR
+PERMUTABLE = KW_PERMUTABLE + ":" + NUM
+COINCIDENT = KW_COINCIDENT + ":" + "[" + NUM_LIST + "]"
+OPTIONS = KW_OPTIONS + ":" + STR
+EXTENSION = KW_EXTENSION + ":" + STR
 
 SEQ_ELEM_LIST = p.delimitedList(ROOT)
-SEQUENCE    = KW_SEQUENCE + ":" + "[" + p.Group(p.delimitedList(ROOT)) + "]"
+SEQUENCE = KW_SEQUENCE + ":" + "[" + p.Group(p.delimitedList(ROOT)) + "]"
 CHILD = KW_CHILD + ":" + ROOT
-CHILD_NODE  << (
-    CHILD      |
-    COINCIDENT |
-    DOMAIN     |
-    EXTENSION  |
-    FILTER     |
-    MARK       |
-    OPTIONS    |
-    PERMUTABLE |
-    SCHEDULE   |
-    SEQUENCE
-)
+CHILD_NODE << (CHILD | COINCIDENT | DOMAIN | EXTENSION | FILTER | MARK
+               | OPTIONS | PERMUTABLE | SCHEDULE | SEQUENCE)
 ROOT << ("{" + p.Group(p.delimitedList(CHILD_NODE)) + "}")
 
 CHILD.addParseAction(Node)
@@ -150,6 +106,7 @@ ROOT.addParseAction(RootNode)
 EXTENSION.addParseAction(Node)
 SCHEDULE.addParseAction(Node)
 SEQUENCE.addParseAction(SequenceNode)
+
 
 def parse_schedule_tree(tree_str):
     if tree_str is None:

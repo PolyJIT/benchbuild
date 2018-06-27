@@ -17,6 +17,7 @@ import uuid
 import warnings
 
 import yaml
+
 from pkg_resources import DistributionNotFound, get_distribution
 from plumbum import local
 
@@ -442,3 +443,24 @@ def upgrade(cfg):
                 host=cfg["db"]["host"]["value"],
                 port=cfg["db"]["port"]["value"],
                 name=cfg["db"]["name"]["value"])
+
+
+def uuid_representer(dumper, data):
+    return dumper.represent_scalar('!uuid', '%s' % data)
+
+
+def uuid_constructor(loader, node):
+    value = loader.construct_scalar(node)
+    return uuid.UUID(value)
+
+
+def __init_module__():
+    yaml.add_representer(uuid.UUID, uuid_representer)
+    yaml.add_constructor('!uuid', uuid_constructor)
+    pattern = re.compile(
+        r'^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$'
+    )
+    yaml.add_implicit_resolver('!uuid', pattern)
+
+
+__init_module__()

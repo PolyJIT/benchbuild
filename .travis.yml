@@ -35,7 +35,7 @@ script:
   - coverage run `which benchbuild` project view
   - coverage run `which benchbuild` experiment view
   - coverage run `which benchbuild` bootstrap -s
-  - coverage run `which benchbuild` run -vvvvv --full -P test
+  - coverage run `which benchbuild` -vvvvv run --full -P test
   - codecov
 
 branches:

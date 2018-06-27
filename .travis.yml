@@ -30,7 +30,7 @@ before_script:
   - psql -c 'create database pprof;' -U postgres
 
 script:
-  - pytest --cov=./ benchbuild
+  - pytest --cov=./ benchbuild tests
   - coverage run `which benchbuild` config view
   - coverage run `which benchbuild` project view
   - coverage run `which benchbuild` experiment view

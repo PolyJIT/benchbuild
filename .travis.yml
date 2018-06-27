@@ -28,10 +28,13 @@ env:
 
 before_script:
   - psql -c 'create database pprof;' -U postgres
-  - benchbuild bootstrap -s
 
 script:
   - pytest --cov=./ benchbuild
+  - coverage run `which benchbuild` config view
+  - coverage run `which benchbuild` project view
+  - coverage run `which benchbuild` experiment view
+  - coverage run `which benchbuild` bootstrap -s
   - coverage run `which benchbuild` run -vvvvv --full -P test
   - codecov
 

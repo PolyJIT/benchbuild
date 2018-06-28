@@ -23,15 +23,13 @@ def configure():
         details_hdl.setFormatter(details_format)
         root_logger.addHandler(details_hdl)
     else:
-        brief_format = logging.Formatter(
-            '%(message)s')
+        brief_format = logging.Formatter('%(message)s')
         console_hdl = logging.StreamHandler()
         console_hdl.setFormatter(brief_format)
         root_logger.addHandler(console_hdl)
     root_logger.setLevel(log_levels[settings.CFG["verbosity"].value()])
 
-    plumbum_format = logging.Formatter(
-        '$> %(message)s')
+    plumbum_format = logging.Formatter('$> %(message)s')
     plumbum_hdl = logging.StreamHandler()
     plumbum_hdl.setFormatter(plumbum_format)
     plumbum_local = logging.getLogger("plumbum.local")

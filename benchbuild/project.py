@@ -341,6 +341,7 @@ class Project(object, metaclass=ProjectDecorator):
         return "{name}-{group}-{id}".format(
             name=self.name, group=self.group, id=self.run_uuid)
 
+
 def populate(projects_to_filter=None, group=None):
     """
     Populate the list of projects that belong to this experiment.
@@ -366,8 +367,11 @@ def populate(projects_to_filter=None, group=None):
         prjs = {}
         for filter_project in set(projects_to_filter):
             try:
-                prjs.update({x: y for x, y in
-                             ProjectRegistry.projects.items(prefix=filter_project)})
+                prjs.update({
+                    x: y
+                    for x, y in ProjectRegistry.projects.items(
+                        prefix=filter_project)
+                })
             except KeyError:
                 pass
 

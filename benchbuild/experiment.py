@@ -104,6 +104,12 @@ class Experiment(object, metaclass=ExperimentRegistry):
             CFG["experiments"] = cfg_exps
         return _id
 
+    @id.validator
+    def validate_id(self, _, new_id):
+        if not isinstance(new_id, uuid.UUID):
+            raise TypeError("%s expected to be '%s' but got '%s'" %
+                            (str(new_id), str(uuid.UUID), str(type(new_id))))
+
     schema = attr.ib()
 
     @schema.default

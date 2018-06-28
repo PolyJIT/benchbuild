@@ -8,12 +8,13 @@ import logging
 import os
 import sys
 
-from plumbum import local
+from plumbum import local, TF
 
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import bash, chmod, mkdir
 
 INFO = logging.info
+ERROR = logging.error
 
 
 def __get_slurm_path():
@@ -75,8 +76,17 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
             )
         )
 
-    bash("-n", script_name)
     chmod("+x", script_name)
+
+
+def verify_slurm_script(script_name):
+    """
+    Verify a generated script.
+
+    Args:
+        script_name: Path to the generated script.
+    """
+    return (bash["-n", script_name] & TF)
 
 
 def prepare_slurm_script(experiment, projects):
@@ -101,6 +111,8 @@ def prepare_slurm_script(experiment, projects):
         srun = srun["--pstate-turbo=off"]
     srun = srun[benchbuild_c["-v", "run"]]
     dump_slurm_script(slurm_script, srun, experiment, projects)
+    if not verify_slurm_script(slurm_script):
+        ERROR("SLURM script failed verification.")
     print("SLURM script written to {0}".format(slurm_script))
     return slurm_script
 

@@ -18,6 +18,9 @@ class EmptyProject(project.Project):
     GROUP = "debug"
     SRC_FILE = "none"
 
+    def __attrs_post_init__(self):
+        pass
+
     def build(self):
         pass
 

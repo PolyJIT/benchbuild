@@ -435,19 +435,19 @@ class ConfigPath(object):
         def create_dir():
             mkdir("-p", path_str)
 
-        if is_tty:
-            if not path_exists:
-                print("The path '%s' is required by your configuration." %
-                      path_str)
-                yes = ui.query_yes_no(
-                    "Should I create '%s' for you?" % path_str)
-                if yes:
-                    create_dir()
-                else:
-                    LOG.error("User denied path creation of '%s'.", path_str)
-        else:
-            create_dir()
-
+        #if is_tty:
+        #    if not path_exists:
+        #        print("The path '%s' is required by your configuration." %
+        #              path_str)
+        #        yes = ui.query_yes_no(
+        #            "Should I create '%s' for you?" % path_str)
+        #        if yes:
+        #            create_dir()
+        #        else:
+        #            LOG.error("User denied path creation of '%s'.", path_str)
+        #else:
+        #    create_dir()
+        create_dir()
         path_exists = os.path.exists(path_str)
         if not path_exists:
             LOG.error("The path '%s' needs to exist.", path_str)

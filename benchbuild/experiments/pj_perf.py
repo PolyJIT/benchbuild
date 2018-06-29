@@ -1,3 +1,4 @@
+"""DEPRECATED."""
 import copy
 import functools as ft
 import os
@@ -42,7 +43,7 @@ def run_with_perf(project, experiment, config, jobs, run_f, args, **kwargs):
         with track_execution(run_cmd, project, experiment) as run:
             ri = run(retcode=None)
 
-        fg_path = os.path.join(CFG["src_dir"], "extern/FlameGraph")
+        #fg_path = os.path.join(CFG["src_dir"], "extern/FlameGraph")
         if os.path.exists(fg_path):
             sc_perf = local[os.path.join(fg_path, "stackcollapse-perf.pl")]
             flamegraph = local[os.path.join(fg_path, "flamegraph.pl")]

@@ -9,17 +9,21 @@ Inner nodes in the dictionary tree can be any dictionary.
 A leaf node in the dictionary tree is represented by an inner node that contains a value key.
 """
 import copy
-import json
 import logging
 import os
 import re
 import uuid
 import warnings
+import sys
 
+import attr
+import six
 import yaml
-
 from pkg_resources import DistributionNotFound, get_distribution
 from plumbum import local
+from plumbum.cmd import mkdir
+
+import benchbuild.utils.user_interface as ui
 
 LOG = logging.getLogger(__name__)
 
@@ -86,26 +90,15 @@ class InvalidConfigKey(RuntimeWarning):
     """Warn, if you access a non-existing key benchbuild's configuration."""
 
 
-class UUIDEncoder(json.JSONEncoder):
-    """Encoder module for UUID objects."""
-
-    def default(self, o):  # pylint: disable=E0202
-        """Encode UUID objects as string."""
-        if isinstance(o, uuid.UUID):
-            return str(o)
-        return json.JSONEncoder.default(self, o)
-
-
-def escape_json(raw_str):
+def escape_yaml(raw_str):
     """
-    Shell-Escape a json input string.
+    Shell-Escape a yaml input string.
 
     Args:
         raw_str: The unescaped string.
     """
-    json_list = '['
-    json_set = '{'
-    if json_list not in raw_str and json_set not in raw_str:
+    escape_list = [char for char in raw_str if char in ['!', '{', '[']]
+    if len(escape_list) == 0:
         return raw_str
 
     str_quotes = '"'
@@ -134,6 +127,27 @@ class ConfigDumper(yaml.Dumper):
     pass
 
 
+def to_yaml(value):
+    stream = yaml.io.StringIO()
+    dumper = ConfigDumper(stream, default_flow_style=True, width=sys.maxsize)
+    val = None
+    try:
+        dumper.open()
+        dumper.represent(value)
+        val = stream.getvalue().strip()
+        dumper.close()
+    finally:
+        dumper.dispose()
+
+    return val
+
+
+def to_env_var(env_var, value):
+    val = to_yaml(value)
+    ret_val = "%s=%s" % (env_var, escape_yaml(val))
+    return ret_val
+
+
 class Configuration():
     """
     Dictionary-like data structure to contain all configuration variables.
@@ -147,7 +161,7 @@ class Configuration():
         CFG["build_dir"] becomes BB_BUILD_DIR
         CFG["llvm"]["dir"] becomes BB_LLVM_DIR
 
-    The configuration can be stored/loaded as JSON.
+    The configuration can be stored/loaded as YAML.
 
     Examples:
         >>> from benchbuild.utils import settings as s
@@ -190,16 +204,13 @@ class Configuration():
         selfcopy.filter_exports()
 
         with open(config_file, 'w') as outf:
-            if is_yaml(config_file):
-                yaml.dump(
-                    selfcopy.node,
-                    outf,
-                    width=80,
-                    indent=4,
-                    default_flow_style=False,
-                    Dumper=ConfigDumper)
-            else:
-                json.dump(selfcopy.node, outf, cls=UUIDEncoder, indent=True)
+            yaml.dump(
+                selfcopy.node,
+                outf,
+                width=80,
+                indent=4,
+                default_flow_style=False,
+                Dumper=ConfigDumper)
 
     def load(self, _from):
         """Load the configuration dictionary from file."""
@@ -217,9 +228,7 @@ class Configuration():
                     inode[k] = config[k]
 
         with open(_from, 'r') as infile:
-            obj = yaml.load(
-                infile,
-                Loader=ConfigLoader) if is_yaml(_from) else json.load(infile)
+            obj = yaml.load(infile, Loader=ConfigLoader)
             upgrade(obj)
             load_rec(self.node, obj)
             self['config_file'] = os.path.abspath(_from)
@@ -249,11 +258,13 @@ class Configuration():
         if 'default' in self.node:
             env_var = self.__to_env_var__().upper()
             if self.has_value():
-                env_val = os.getenv(env_var, self.node['value'])
+                env_val = self.node['value']
             else:
-                env_val = os.getenv(env_var, self.node['default'])
+                env_val = self.node['default']
+            env_val = os.getenv(env_var, to_yaml(env_val))
             try:
-                self.node['value'] = json.loads(str(env_val))
+                self.node['value'] = yaml.load(
+                    str(env_val), Loader=ConfigLoader)
             except ValueError:
                 self.node['value'] = env_val
         else:
@@ -279,8 +290,7 @@ class Configuration():
         Return the node value, if we're a leaf node.
 
         Examples:
-            >>> from benchbuild.utils import settings as s
-            >>> c = s.Configuration("test")
+            >>> c = Configuration("test")
             >>> c['x'] = { "y" : { "value" : None }, "z" : { "value" : 2 }}
             >>> c['x']['y'].value() == None
             True
@@ -321,18 +331,45 @@ class Configuration():
         if 'value' in self.node:
             return str(self.node['value'])
         else:
-            warnings.warn(
-                "Tried to get the str() value of an inner node.", stacklevel=2)
             return str(self.node)
 
     def __repr__(self):
+        """
+        Represents the configuration as a list of environment variables.
+
+        Tests:
+            What happens when we represent an int?
+            >>> CFG = Configuration('test')
+            >>> CFG['int'] = {'default': 3}; CFG['int']
+            TEST_INT=3
+
+            What happens when we represent a str?
+            >>> CFG['str'] = {'default': 'test'}; CFG['str']
+            TEST_STR=test
+
+            What happens when we represent a bool?
+            >>> CFG['bool'] = {'default': True}; CFG['bool']
+            TEST_BOOL=true
+
+            What happens when we represent a dict?
+            >>> CFG['dict'] = {'default': {'test': True}}; CFG['dict']
+            TEST_DICT="{test: true}"
+
+            What happens when we represent an uuid?
+            >>> CFG['uuid'] = {'default': uuid.UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')}; CFG['uuid']
+            TEST_UUID=cc3702ca-699a-4aa6-8226-4c938f294d9b
+
+            What happens when we nest an uuid in a dict?
+            >>> CFG['nested_uuid'] = {'A': {'default': {'a': uuid.UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')}}}
+            >>> CFG['nested_uuid']['A'].value()
+            TEST_NESTED_UUID_A="{a: cc3702ca-699a-4aa6-8226-4c938f294d9b}"
+        """
         _repr = []
+
         if self.has_value():
-            return self.__to_env_var__() + "=" + escape_json(
-                json.dumps(self.node['value'], cls=UUIDEncoder))
+            return to_env_var(self.__to_env_var__(), self.node['value'])
         if self.has_default():
-            return self.__to_env_var__() + "=" + escape_json(
-                json.dumps(self.node['default'], cls=UUIDEncoder))
+            return to_env_var(self.__to_env_var__(), self.node['default'])
 
         for k in self.node:
             _repr.append(repr(self[k]))
@@ -359,6 +396,97 @@ class Configuration():
         return entries
 
 
+def convert_components(value):
+    is_str = isinstance(value, six.string_types)
+    new_value = value
+    if is_str:
+        if os.path.sep in new_value:
+            new_value = new_value.split(os.path.sep)
+        else:
+            new_value = [new_value]
+    new_value = [c for c in new_value if c != '']
+    return new_value
+
+
+@attr.s(str=False, frozen=True)
+class ConfigPath(object):
+    """
+    Wrapper around paths represented as list of strings.
+
+    Tests:
+    >>> p = ConfigPath(['tmp']); str(p)
+    '/tmp'
+    >>> p = ConfigPath(['tmp', 'test', 'foo']); str(p)
+    '/tmp/test/foo'
+    >>> p = ConfigPath([]); str(p)
+    '/'
+    >>> p = ConfigPath('/tmp/test/foo'); str(p)
+    '/tmp/test/foo'
+    """
+    components = attr.ib(converter=convert_components)
+
+    @components.validator
+    def validate_path(self, attribute, value):
+        del attribute
+        path_str = ConfigPath.path_to_str(value)
+        path_exists = os.path.exists(path_str)
+        is_tty = sys.stdin.isatty()
+
+        def create_dir():
+            mkdir("-p", path_str)
+
+        if is_tty:
+            if not path_exists:
+                print("The path '%s' is required by your configuration." %
+                      path_str)
+                yes = ui.query_yes_no(
+                    "Should I create '%s' for you?" % path_str)
+                if yes:
+                    create_dir()
+                else:
+                    LOG.error("User denied path creation of '%s'.", path_str)
+        else:
+            create_dir()
+
+        path_exists = os.path.exists(path_str)
+        if not path_exists:
+            LOG.error("The path '%s' needs to exist.", path_str)
+
+    @staticmethod
+    def path_to_str(components):
+        if components:
+            return os.path.sep + os.path.sep.join(components)
+        return os.path.sep
+
+    def __str__(self):
+        return ConfigPath.path_to_str(self.components)
+
+
+def path_representer(dumper, data):
+    """
+    Represent a ConfigPath object as a scalar YAML node.
+
+    Tests:
+        >>> yaml.add_representer(ConfigPath, path_representer)
+        >>> yaml.dump({'test': ConfigPath('/tmp/test/foo')})
+        "{test: !create-if-needed '/tmp/test/foo'}\\n"
+    """
+    return dumper.represent_scalar('!create-if-needed', '%s' % data)
+
+
+def path_constructor(loader, node):
+    """"
+    Construct a ConfigPath object form a scalar YAML node.
+
+    Tests:
+        >>> yaml.add_constructor("!create-if-needed", path_constructor)
+        >>> yaml.load("{'test': !create-if-needed '/tmp/test/foo'}")
+        {'test': ConfigPath(components=['tmp', 'test', 'foo'])}
+    """
+    value = loader.construct_scalar(node)
+    return ConfigPath(value)
+
+
 def __find_config__(test_file=None, defaults=None, root=os.curdir):
     """
     Find the path to the default config file.
@@ -376,7 +504,7 @@ def __find_config__(test_file=None, defaults=None, root=os.curdir):
         Path to the default config file, None if we can't find anything.
     """
     if defaults is None:
-        defaults = [".benchbuild.yml", ".benchbuild.yaml", ".benchbuild.json"]
+        defaults = [".benchbuild.yml", ".benchbuild.yaml"]
 
     def walk_rec(cur_path, root):
         cur_path = os.path.join(root, test_file)
@@ -511,7 +639,10 @@ def uuid_add_implicit_resolver(Loader=ConfigLoader, Dumper=ConfigDumper):
 
 def __init_module__():
     yaml.add_representer(uuid.UUID, uuid_representer, Dumper=ConfigDumper)
+    yaml.add_representer(ConfigPath, path_representer, Dumper=ConfigDumper)
     yaml.add_constructor('!uuid', uuid_constructor, Loader=ConfigLoader)
+    yaml.add_constructor(
+        '!create-if-needed', path_constructor, Loader=ConfigLoader)
     uuid_add_implicit_resolver()
 
 

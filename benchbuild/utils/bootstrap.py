@@ -67,7 +67,7 @@ PACKAGE_MANAGER = {
 
 def install_uchroot():
     from benchbuild.utils.cmd import git, mkdir
-    builddir = settings.CFG["build_dir"].value()
+    builddir = str(settings.CFG["build_dir"])
     with local.cwd(builddir):
         if not os.path.exists("erlent/.git"):
             git("clone", settings.CFG["uchroot"]["repo"].value())

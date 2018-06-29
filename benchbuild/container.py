@@ -423,7 +423,7 @@ class Container(cli.Application):
             0: logging.ERROR
         }[self.verbosity])
 
-        builddir = os.path.abspath(str(CFG["build_dir"].value()))
+        builddir = os.path.abspath(str(CFG["build_dir"])))
         if not os.path.exists(builddir):
             response = ask("The build directory {dirname} does not exist yet. "
                            "Should I create it?".format(dirname=builddir))
@@ -440,7 +440,7 @@ class ContainerRun(cli.Application):
     """Execute commannds inside a prebuilt container."""
 
     def main(self, *args):
-        builddir = CFG["build_dir"].value()
+        builddir = str(CFG["build_dir"])
         in_container = CFG["container"]["input"].value()
 
         if (in_container is None) or not os.path.exists(in_container):
@@ -490,7 +490,7 @@ class ContainerCreate(cli.Application):
         }[strategy]
 
     def main(self, *args):
-        builddir = CFG["build_dir"].value()
+        builddir = str(CFG["build_dir"])
         in_container = CFG["container"]["input"].value()
         out_container = CFG["container"]["output"].value()
         mounts = CFG["container"]["mounts"].value()

@@ -676,7 +676,7 @@ def unionfs(base_dir='./base',
             if image_prefix is not None:
                 image_prefix = os.path.abspath(image_prefix)
                 rel_prj_builddir = os.path.relpath(
-                    project.builddir, settings.CFG["build_dir"].value())
+                    project.builddir, str(settings.CFG["build_dir"]))
                 abs_image_dir = os.path.abspath(
                     os.path.join(image_prefix, rel_prj_builddir, image_dir))
 

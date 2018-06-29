@@ -116,7 +116,7 @@ def CopyNoFail(src, root=None):
     """
     from os import path
     if root is None:
-        root = CFG["tmp_dir"].value()
+        root = str(CFG["tmp_dir"])
     src_url = path.join(root, src)
 
     if path.exists(src_url):
@@ -136,7 +136,7 @@ def Wget(src_url, tgt_name, tgt_root=None):
             Defaults to ``CFG["tmpdir"]``.
     """
     if tgt_root is None:
-        tgt_root = CFG["tmp_dir"].value()
+        tgt_root = str(CFG["tmp_dir"])
 
     from os import path
     from benchbuild.utils.cmd import wget
@@ -162,7 +162,7 @@ def Git(src_url, tgt_name, tgt_root=None):
             Defaults to ``CFG["tmpdir"]``
     """
     if tgt_root is None:
-        tgt_root = CFG["tmp_dir"].value()
+        tgt_root = str(CFG["tmp_dir"])
 
     from os import path
     from benchbuild.utils.cmd import git

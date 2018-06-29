@@ -70,7 +70,7 @@ class BenchBuildRun(cli.Application):
 
     def __generate_plan(self, exps, prjs, cfg):
         if prjs:
-            path.mkdir_interactive(cfg["build_dir"].value())
+            path.mkdir_interactive(str(cfg["build_dir"]))
 
         for exp_cls in exps.values():
             exp = exp_cls(projects=prjs)

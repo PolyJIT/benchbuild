@@ -96,14 +96,14 @@ def wrap(name, project, sprefix=None, python=sys.executable):
     env = Environment(
         trim_blocks=True,
         lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates')
-    )
+        loader=PackageLoader('benchbuild', 'utils/templates'))
     template = env.get_template('run_static.py.inc')
 
     name_absolute = os.path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
     if sprefix:
-        run(uchroot()["/bin/mv", strip_path_prefix(name_absolute, sprefix),
+        run(uchroot()["/bin/mv",
+                      strip_path_prefix(name_absolute, sprefix),
                       strip_path_prefix(real_f, sprefix)])
     else:
         run(mv[name_absolute, real_f])
@@ -120,18 +120,18 @@ def wrap(name, project, sprefix=None, python=sys.executable):
         wrapper.write(
             template.render(
                 runf=strip_path_prefix(real_f, sprefix),
-                project_file =strip_path_prefix(project_file, sprefix),
+                project_file=strip_path_prefix(project_file, sprefix),
                 path=str(bin_path),
                 ld_library_path=str(bin_lib_path),
                 python=python,
-            )
-        )
+            ))
 
     run(chmod["+x", name_absolute])
     return local[name_absolute]
 
 
-def wrap_dynamic(project, name,
+def wrap_dynamic(project,
+                 name,
                  sprefix=None,
                  python=sys.executable,
                  name_filters=None):
@@ -163,8 +163,7 @@ def wrap_dynamic(project, name,
     env = Environment(
         trim_blocks=True,
         lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates')
-    )
+        loader=PackageLoader('benchbuild', 'utils/templates'))
     template = env.get_template('run_dynamic.py.inc')
 
     name_absolute = os.path.abspath(name)
@@ -188,16 +187,18 @@ def wrap_dynamic(project, name,
                 path=str(bin_path),
                 ld_library_path=str(bin_lib_path),
                 python=python,
-                name_filters=name_filters
-            )
-        )
+                name_filters=name_filters))
 
     chmod("+x", name_absolute)
     return local[name_absolute]
 
 
-def wrap_cc(filepath, compiler, project,
-            compiler_ext_name=None, python=sys.executable, detect_project=False):
+def wrap_cc(filepath,
+            compiler,
+            project,
+            compiler_ext_name=None,
+            python=sys.executable,
+            detect_project=False):
     """
     Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
 
@@ -225,12 +226,11 @@ def wrap_cc(filepath, compiler, project,
     env = Environment(
         trim_blocks=True,
         lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates')
-    )
+        loader=PackageLoader('benchbuild', 'utils/templates'))
     template = env.get_template('run_compiler.py.inc')
 
-    cc_f = persist(compiler(), filename=os.path.abspath(filepath +
-                                                        ".benchbuild.cc"))
+    cc_f = persist(
+        compiler(), filename=os.path.abspath(filepath + ".benchbuild.cc"))
     project_file = persist(project, suffix=".project")
     #experiment_file = persist(experiment, suffix=".experiment")
 
@@ -252,15 +252,11 @@ def wrap_cc(filepath, compiler, project,
                 project_file=project_file,
                 #experiment_file=experiment_file,
                 python=python,
-                detect_project=detect_project
-            )
-        )
+                detect_project=detect_project))
 
     chmod("+x", filepath)
     LOG.debug("Placed wrapper in: {wrapper} for compiler {compiler}".format(
-        wrapper=os.path.abspath(filepath),
-        compiler=compiler()
-    ))
+        wrapper=os.path.abspath(filepath), compiler=compiler()))
     return local[filepath]
 
 

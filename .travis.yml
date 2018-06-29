@@ -31,11 +31,11 @@ before_script:
 
 script:
   - pytest --cov=./ benchbuild tests
-  - coverage run `which benchbuild` config view
-  - coverage run `which benchbuild` project view
-  - coverage run `which benchbuild` experiment view
-  - coverage run `which benchbuild` bootstrap -s
-  - coverage run `which benchbuild` -vvvvv run --full -P test
+  - coverage run -a `which benchbuild` config view
+  - coverage run -a `which benchbuild` project view
+  - coverage run -a `which benchbuild` experiment view
+  - coverage run -a `which benchbuild` bootstrap -s
+  - coverage run -a `which benchbuild` -vvvvv run --full -P test
   - codecov
 
 branches:

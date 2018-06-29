@@ -423,7 +423,7 @@ class Container(cli.Application):
             0: logging.ERROR
         }[self.verbosity])
 
-        builddir = os.path.abspath(str(CFG["build_dir"])))
+        builddir = os.path.abspath(str(CFG["build_dir"]))
         if not os.path.exists(builddir):
             response = ask("The build directory {dirname} does not exist yet. "
                            "Should I create it?".format(dirname=builddir))

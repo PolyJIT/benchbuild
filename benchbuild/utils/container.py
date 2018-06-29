@@ -41,8 +41,8 @@ def is_valid_container(container, path):
     except IOError:
         LOG.info("No .hash-file in the tmp-directory.")
 
-    container_hash_path = os.path.abspath(os.path.join(path,
-                                                       "gentoo.tar.bz2.hash"))
+    container_hash_path = os.path.abspath(
+        os.path.join(path, "gentoo.tar.bz2.hash"))
     if not os.path.exists(container_hash_path):
         return False
     else:
@@ -93,8 +93,8 @@ def unpack_container(container, path):
         if not os.path.samefile(name, container.filename):
             rm(name)
         else:
-            LOG.warning("File contents do not match: %s != %s",
-                        name, container.filename)
+            LOG.warning("File contents do not match: %s != %s", name,
+                        container.filename)
         cp(container.filename + ".hash", path)
 
 
@@ -112,7 +112,7 @@ class Container(object):
         if os.path.isabs(image_cfg):
             return image_cfg
         else:
-            return os.path.join(CFG["tmp_dir"].value(), image_cfg)
+            return os.path.join(str(CFG["tmp_dir"]), image_cfg)
 
     @property
     def local(self):
@@ -124,7 +124,7 @@ class Container(object):
             target: The path, where the container lies in the end.
         """
         assert self.name in CFG["container"]["images"].value()
-        target = os.path.join(CFG["tmp_dir"].value(), self.name)
+        target = os.path.join(str(CFG["tmp_dir"]), self.name)
 
         if not os.path.exists(target) or not is_valid_container(self, target):
             unpack_container(self, target)
@@ -148,13 +148,12 @@ class Gentoo(Container):
         latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
                      "latest-stage3-amd64.txt"
         try:
-            src_uri = (curl[latest_txt] |
-                       tail["-n", "+3"] |
-                       cut["-f1", "-d "])().strip()
+            src_uri = (curl[latest_txt] | tail["-n", "+3"]
+                       | cut["-f1", "-d "])().strip()
         except ProcessExecutionError as proc_ex:
             src_uri = "NOT-FOUND"
-            LOG.error(
-                "Could not determine latest stage3 src uri: %s", str(proc_ex))
+            LOG.error("Could not determine latest stage3 src uri: %s",
+                      str(proc_ex))
         return src_uri
 
     @property

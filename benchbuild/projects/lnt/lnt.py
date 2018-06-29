@@ -45,11 +45,14 @@ class LNTGroup(Project):
         Git(self.src_uri, self.src_dir)
         Git(self.test_suite_uri, self.test_suite_dir)
 
-        virtualenv("local", "--python=python2", )
+        virtualenv(
+            "local",
+            "--python=python2",
+        )
         pip = local[path.join("local", "bin", "pip")]
         with local.cwd(self.src_dir):
-            pip("install", "--no-cache-dir",
-                "--disable-pip-version-check",  "-e", ".")
+            pip("install", "--no-cache-dir", "--disable-pip-version-check",
+                "-e", ".")
 
     def configure(self):
         sandbox_dir = path.join(self.builddir, "run")
@@ -68,33 +71,27 @@ class LNTGroup(Project):
         logfiles = glob(path.join(sandbox_dir, "./*/test.log"))
         for log in logfiles:
             LOG.info("Dumping contents of: %s", log)
-            (cat[log] & FG) # pylint: disable=pointless-statement
+            (cat[log] & FG)  # pylint: disable=pointless-statement
 
     def build(self):
-        self.lnt("runtest", "test-suite", "-v", "-j1",
-                 "--sandbox", self.sandbox_dir,
-                 "--benchmarking-only",
-                 "--only-compile",
-                 "--cc", str(self.clang),
-                 "--cxx", str(self.clang_cxx),
-                 "--test-suite", path.join(self.builddir,
-                                             self.test_suite_dir),
-                 "--only-test=" + self.SUBDIR)
+        self.lnt("runtest", "test-suite", "-v", "-j1", "--sandbox",
+                 self.sandbox_dir, "--benchmarking-only",
+                 "--only-compile", "--cc", str(self.clang), "--cxx",
+                 str(self.clang_cxx), "--test-suite",
+                 path.join(self.builddir,
+                           self.test_suite_dir), "--only-test=" + self.SUBDIR)
 
     def run_tests(self, runner):
-        binary = wrap_dynamic(self, "lnt_runner",
-                              name_filters=LNTGroup.NAME_FILTERS)
+        binary = wrap_dynamic(
+            self, "lnt_runner", name_filters=LNTGroup.NAME_FILTERS)
 
-        runner(self.lnt["runtest", "nt", "-v", "-j1",
-                        "--sandbox", self.sandbox_dir,
-                        "--benchmarking-only",
-                        "--cc", str(self.clang),
-                        "--cxx", str(self.clang_cxx),
-                        "--test-suite", path.join(self.builddir,
-                                                  self.test_suite_dir),
-                        "--test-style", "simple",
-                        "--test-externals", self.builddir,
-                        "--make-param=RUNUNDER=" + str(binary),
+        runner(self.lnt["runtest", "nt", "-v", "-j1", "--sandbox",
+                        self.sandbox_dir, "--benchmarking-only", "--cc",
+                        str(self.clang), "--cxx",
+                        str(self.clang_cxx), "--test-suite",
+                        path.join(self.builddir, self.test_suite_dir),
+                        "--test-style", "simple", "--test-externals",
+                        self.builddir, "--make-param=RUNUNDER=" + str(binary),
                         "--only-test=" + self.SUBDIR])
 
         LNTGroup.after_run_tests(self.sandbox_dir)

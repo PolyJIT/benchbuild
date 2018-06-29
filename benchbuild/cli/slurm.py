@@ -85,9 +85,8 @@ class Slurm(cli.Application):
             CFG["experiment_description"] = self._description
 
         CFG["slurm"]["logs"] = os.path.abspath(
-            os.path.join(CFG['build_dir'].value(),
-                         CFG['slurm']['logs'].value()))
-        CFG["build_dir"] = CFG["slurm"]["node_dir"].value()
+            os.path.join(str(CFG['build_dir']), str(CFG['slurm']['logs'])))
+        CFG["build_dir"] = str(CFG["slurm"]["node_dir"])
 
         exps = dict(filter(lambda pair: pair[0] in set(exp), all_exps.items()))
         unknown_exps = list(
@@ -102,5 +101,5 @@ class Slurm(cli.Application):
             exp = exp_cls(projects=prjs)
             print("Experiment: ", exp.name)
             CFG["slurm"]["node_dir"] = os.path.abspath(
-                os.path.join(CFG["slurm"]["node_dir"].value(), str(exp.id)))
+                os.path.join(str(CFG["slurm"]["node_dir"]), str(exp.id)))
             self.__go__(prjs, exp)

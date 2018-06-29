@@ -49,7 +49,7 @@ class TestUnionFsMount(unittest.TestCase):
 
     def test_build_dir(self):
         """ Check if the needed build_dir exists. """
-        self.assertTrue(os.path.exists(CFG["build_dir"].value()))
+        self.assertTrue(os.path.exists(str(CFG["build_dir"])))
 
 
 if __name__ == 'main':

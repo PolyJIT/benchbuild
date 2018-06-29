@@ -25,7 +25,7 @@ def get_version_from_cache_dir(src_file):
     if src_file is None:
         return None
 
-    tmp_dir = CFG["tmp_dir"].value()
+    tmp_dir = str(CFG["tmp_dir"])
     if path.exists(tmp_dir):
         cache_file = path.join(tmp_dir, src_file)
         dir_hash = get_hash_of_dirs(cache_file)

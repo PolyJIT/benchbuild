@@ -31,27 +31,24 @@ CFG = s.Configuration(
             "desc": "Config file path of benchbuild. Not guaranteed to exist.",
             "default": None,
         },
-        "src_dir": {
-            "desc":
-            "source directory of benchbuild. Usually the git repo root dir.",
-            "default": os.getcwd()
-        },
         "build_dir": {
             "desc":
             "build directory of benchbuild. All intermediate projects will "
             "be placed here",
-            "default": os.path.join(os.getcwd(), "results")
+            "default":
+            s.ConfigPath(os.path.join(os.getcwd(), "results"))
         },
         "test_dir": {
             "desc":
             "Additional test inputs, required for (some) run-time tests."
             "These can be obtained from the a different repo. Most "
             "projects don't need it",
-            "default": os.path.join(os.getcwd(), "testinputs")
+            "default":
+            os.path.join(os.getcwd(), "testinputs")
         },
         "tmp_dir": {
             "desc": "Temporary dir. This will be used for caching downloads.",
-            "default": os.path.join(os.getcwd(), "tmp")
+            "default": s.ConfigPath(os.path.join(os.getcwd(), "tmp"))
         },
         "jobs": {
             "desc":
@@ -86,12 +83,15 @@ CFG = s.Configuration(
             "desc":
             "List of existing paths that benchbuild should delete in addition "
             "to the default cleanup steps.",
-            "export": False
+            "export":
+            False
         },
         "sequence": {
-            "desc": "The name of the sequence that should be used for "
-                    "preoptimization.",
-            "default": "no_preperation"
+            "desc":
+            "The name of the sequence that should be used for "
+            "preoptimization.",
+            "default":
+            "no_preperation"
         }
     })
 
@@ -108,7 +108,7 @@ CFG["compiler"] = {
 
 CFG["unionfs"] = {
     "enable": {
-        "default": True,
+        "default": False,
         "desc": "Wrap all project operations in a unionfs filesystem."
     },
     "base_dir": {
@@ -138,9 +138,11 @@ CFG["env"] = {
 
 CFG['db'] = {
     "connect_string": {
-        "desc": "sqlalchemy connect string",
-        "default": "postgresql+psycopg2://"
-                   "benchbuild:benchbuild@localhost:5432/benchbuild"
+        "desc":
+        "sqlalchemy connect string",
+        "default":
+        "postgresql+psycopg2://"
+        "benchbuild:benchbuild@localhost:5432/benchbuild"
     },
     "rollback": {
         "desc": "Rollback all operations after benchbuild completes.",
@@ -158,7 +160,8 @@ CFG['gentoo'] = {
         "desc": "Language filter for ebuilds, like C or C++."
     },
     "autotest_use": {
-        "default": "",
+        "default":
+        "",
         "desc":
         "USE filter for ebuilds. Filters packages without the given use flags."
     },
@@ -193,19 +196,22 @@ CFG["slurm"] = {
         "desc":
         "Name of the script that can be passed to SLURM. Used by external "
         "tools.",
-        "default": "slurm.sh"
+        "default":
+        "slurm.sh"
     },
     "cpus_per_task": {
         "desc":
         "Number of CPUs that should be requested from SLURM. Used by external "
         "tools.",
-        "default": 10
+        "default":
+        10
     },
     "node_dir": {
         "desc":
         "Node directory, when executing on a cluster node. This is not "
         "used by benchbuild directly, but by external scripts.",
-        "default": os.path.join(os.getcwd(), "results")
+        "default":
+        os.path.join(os.getcwd(), "results")
     },
     "timelimit": {
         "desc": "The timelimit we want to give to a job",
@@ -282,38 +288,33 @@ CFG["plugins"] = {
     },
     "reports": {
         "default": [
-            "benchbuild.reports.compilestats",
-            "benchbuild.reports.raw",
+            "benchbuild.reports.compilestats", "benchbuild.reports.raw",
             "benchbuild.reports.status"
         ],
-        "desc": "Report plugins."
+        "desc":
+        "Report plugins."
     },
     "experiments": {
         "default": [
             "benchbuild.experiments.raw",
             "benchbuild.experiments.compilestats",
-            "benchbuild.experiments.polyjit",
-            "benchbuild.experiments.empty",
-            "benchbuild.experiments.papi",
-            "benchbuild.experiments.pjtest",
+            "benchbuild.experiments.polyjit", "benchbuild.experiments.empty",
+            "benchbuild.experiments.papi", "benchbuild.experiments.pjtest",
             "benchbuild.experiments.pj_raw",
             "benchbuild.experiments.pj_likwid",
             "benchbuild.experiments.pj_collect",
-            "benchbuild.experiments.pj_cs",
-            "benchbuild.experiments.pj_papi",
-            "benchbuild.experiments.pj_sequence",
-            "benchbuild.experiments.pgo",
+            "benchbuild.experiments.pj_cs", "benchbuild.experiments.pj_papi",
+            "benchbuild.experiments.pj_sequence", "benchbuild.experiments.pgo",
             "benchbuild.experiments.pollytest",
             "benchbuild.experiments.profileScopDetection",
-            "benchbuild.experiments.mse",
-            "benchbuild.experiments.ijpp"
+            "benchbuild.experiments.mse", "benchbuild.experiments.ijpp"
         ],
-        "desc": "The experiment plugins we know about."
+        "desc":
+        "The experiment plugins we know about."
     },
     "projects": {
         "default": [
-            "benchbuild.projects.gentoo",
-            "benchbuild.projects.lnt.lnt",
+            "benchbuild.projects.gentoo", "benchbuild.projects.lnt.lnt",
             "benchbuild.projects.polybench.polybench",
             "benchbuild.projects.polybench.polybench-mod",
             "benchbuild.projects.benchbuild.bots",
@@ -347,7 +348,8 @@ CFG["plugins"] = {
             "benchbuild.projects.apollo.rodinia",
             "benchbuild.projects.test.test"
         ],
-        "desc": "The project plugins we know about."
+        "desc":
+        "The project plugins we know about."
     }
 }
 
@@ -366,8 +368,9 @@ CFG["container"] = {
     },
     "prefixes": {
         "default": [],
-        "desc": "List of paths that will be treated as an "
-                "existing prefix inside a container."
+        "desc":
+        "List of paths that will be treated as an "
+        "existing prefix inside a container."
     },
     "shell": {
         "default": "/bin/bash",
@@ -375,9 +378,10 @@ CFG["container"] = {
     },
     "known": {
         "default": [],
-        "desc": "List of known containers. Format: "
-                "[{ 'path': <path>,"
-                "   'hash': <hash> }]"
+        "desc":
+        "List of known containers. Format: "
+        "[{ 'path': <path>,"
+        "   'hash': <hash> }]"
     },
     "images": {
         "default": {
@@ -387,47 +391,78 @@ CFG["container"] = {
     },
     "prefered": {
         "default": [],
-        "desc": "List of containers of which the project can chose from."
-                "Format:"
-                "[{ 'path': <path> }]"
+        "desc":
+        "List of containers of which the project can chose from."
+        "Format:"
+        "[{ 'path': <path> }]"
     },
     "strategy": {
         "polyjit": {
-            "sync": {"default": True, "desc": "Update portage tree?"},
-            "upgrade": {"default": True, "desc": "Upgrade all packages?"},
+            "sync": {
+                "default": True,
+                "desc": "Update portage tree?"
+            },
+            "upgrade": {
+                "default": True,
+                "desc": "Upgrade all packages?"
+            },
             "packages": {
-                "default": [
-                    {"name": "sys-devel/gcc:5.4.0", "env": {
+                "default": [{
+                    "name": "sys-devel/gcc:5.4.0",
+                    "env": {
                         "ACCEPT_KEYWORDS": "~amd64",
                         "USE": "-filecaps"
-                    }},
-                    {"name": "dev-db/postgresql:9.5", "env": {}},
-                    {"name": "dev-python/pip", "env": {}},
-                    {"name": "net-misc/curl", "env": {}},
-                    {"name": "sys-apps/likwid", "env": {
+                    }
+                }, {
+                    "name": "dev-db/postgresql:9.5",
+                    "env": {}
+                }, {
+                    "name": "dev-python/pip",
+                    "env": {}
+                }, {
+                    "name": "net-misc/curl",
+                    "env": {}
+                }, {
+                    "name": "sys-apps/likwid",
+                    "env": {
                         "USE": "-filecaps",
                         "ACCEPT_KEYWORDS": "~amd64"
-                    }},
-                    {"name": "dev-libs/libpfm", "env": {
+                    }
+                }, {
+                    "name": "dev-libs/libpfm",
+                    "env": {
                         "USE": "static-libs",
                         "ACCEPT_KEYWORDS": "~amd64"
-                    }},
-                    {"name": "sys-process/time", "env": {}},
-                    {"name": "=dev-util/boost-build-1.58.0", "env": {
+                    }
+                }, {
+                    "name": "sys-process/time",
+                    "env": {}
+                }, {
+                    "name": "=dev-util/boost-build-1.58.0",
+                    "env": {
                         "ACCEPT_KEYWORDS": "~amd64"
-                    }},
-                    {"name": "=dev-libs/boost-1.62-r1", "env": {
+                    }
+                }, {
+                    "name": "=dev-libs/boost-1.62-r1",
+                    "env": {
                         "ACCEPT_KEYWORDS": "~amd64"
-                    }},
-                    {"name": "dev-libs/libpqxx", "env": {}},
-                    {"name": "dev-lang/python-3.5.3", "env": {
+                    }
+                }, {
+                    "name": "dev-libs/libpqxx",
+                    "env": {}
+                }, {
+                    "name": "dev-lang/python-3.5.3",
+                    "env": {
                         "ACCEPT_KEYWORDS": "~amd64"
-                    }},
-                    {"name": "dev-python/dill", "env": {
+                    }
+                }, {
+                    "name": "dev-python/dill",
+                    "env": {
                         "ACCEPT_KEYWORDS": "~amd64"
-                    }}
-                ],
-                "desc": "A list of gentoo package atoms that should be merged."
+                    }
+                }],
+                "desc":
+                "A list of gentoo package atoms that should be merged."
             }
         }
     }

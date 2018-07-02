@@ -430,24 +430,21 @@ class ConfigPath(object):
         del attribute
         path_str = ConfigPath.path_to_str(value)
         path_exists = os.path.exists(path_str)
-        is_tty = sys.stdin.isatty()
 
         def create_dir():
             mkdir("-p", path_str)
 
-        #if is_tty:
-        #    if not path_exists:
-        #        print("The path '%s' is required by your configuration." %
-        #              path_str)
-        #        yes = ui.query_yes_no(
-        #            "Should I create '%s' for you?" % path_str)
-        #        if yes:
-        #            create_dir()
-        #        else:
-        #            LOG.error("User denied path creation of '%s'.", path_str)
-        #else:
-        #    create_dir()
-        create_dir()
+        if not path_exists:
+            print(
+                "The path '%s' is required by your configuration." % path_str)
+            yes = ui.ask(
+                "Should I create '%s' for you?" % path_str,
+                default_answer=True,
+                default_answer_str="yes")
+            if yes:
+                create_dir()
+            else:
+                LOG.error("User denied path creation of '%s'.", path_str)
         path_exists = os.path.exists(path_str)
         if not path_exists:
             LOG.error("The path '%s' needs to exist.", path_str)

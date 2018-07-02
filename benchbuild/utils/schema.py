@@ -325,6 +325,7 @@ def setup_versioning():
         LOG.warning("Your database uses an unversioned benchbuild schema.")
         if not ui.ask("Should I enforce version control on your schema?"):
             LOG.error("User declined schema versioning.")
+            return (-1, -1)
         migrate.version_control(connect_str, repo_url)
         return setup_versioning()
 

@@ -22,6 +22,7 @@ paths for you.
 """
 
 import logging
+import sys
 import uuid
 
 import migrate.versioning.api as migrate
@@ -353,15 +354,29 @@ def maybe_update_db(repo_version, db_version):
 
 
 class SessionManager(object):
-    def __init__(self):
-        self.__test_mode = settings.CFG['db']['rollback'].value()
-        self.engine = create_engine(
-            settings.CFG["db"]["connect_string"].value())
-        self.connection = self.engine.connect()
+    def connect_engine(self):
+        try:
+            self.connection = self.engine.connect()
+            return True
+        except sa.exc.OperationalError as opex:
+            LOG.fatal("Could not connect to the database. The error was: '%s'",
+                      str(opex))
+        return False
+
+    def configure_engine(self):
         try:
             self.connection.execution_options(isolation_level="READ COMMITTED")
         except sa.exc.ArgumentError:
             LOG.error("Unable to set isolation level to READ COMMITTED")
+        return True
+
+    def __init__(self):
+        self.__test_mode = settings.CFG['db']['rollback'].value()
+        self.engine = create_engine(
+            settings.CFG["db"]["connect_string"].value())
+
+        if not (self.connect_engine() and self.configure_engine()):
+            sys.exit(-3)
 
         self.__transaction = None
         if self.__test_mode:

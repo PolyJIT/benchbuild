@@ -304,6 +304,9 @@ class RegressionTest(BASE):
 def needed_schema(connection, meta):
     try:
         meta.create_all(connection, checkfirst=False)
+    except sa.exc.CompileError as cerr:
+        LOG.fatal("Schema could not be created! Details: %s", str(cerr))
+        sys.exit(-4)
     except sa.exc.ProgrammingError:
         return False
     return True

@@ -355,6 +355,14 @@ def maybe_update_db(repo_version, db_version):
 
 class SessionManager(object):
     def connect_engine(self):
+        """
+        Establish a connection to the database.
+
+        Provides simple error handling for fatal errors.
+
+        Returns:
+            True, if we could establish a connection, else False.
+        """
         try:
             self.connection = self.engine.connect()
             return True
@@ -364,6 +372,14 @@ class SessionManager(object):
         return False
 
     def configure_engine(self):
+        """
+        Configure the databse connection.
+
+        Sets appropriate transaction isolation levels and handle errors.
+
+        Returns:
+            True, if we did not encounter any unrecoverable errors, else False.
+        """
         try:
             self.connection.execution_options(isolation_level="READ COMMITTED")
         except sa.exc.ArgumentError:

@@ -2,6 +2,7 @@
 User interface helpers for benchbuild.
 """
 import sys
+import os
 
 
 # Taken from the following recipe: http://code.activestate.com/recipes/577058/
@@ -42,6 +43,16 @@ def query_yes_no(question, default="yes"):
 
 def ask(question, default_answer=False, default_answer_str="no"):
     response = default_answer
-    if sys.stdin.isatty():
+
+    def should_ignore_tty():
+        ret_to_bool = {"yes": True, "no": False}
+        env = os.getenv("CI", default="no")
+        if env in ret_to_bool:
+            return ret_to_bool[env]
+        return False
+
+    ignore_stdin_istty = should_ignore_tty()
+    has_tty = sys.stdin.isatty() and not ignore_stdin_istty
+    if has_tty:
         response = query_yes_no(question, default_answer_str)
     return response

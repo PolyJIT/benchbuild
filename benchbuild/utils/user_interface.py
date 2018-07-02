@@ -45,6 +45,9 @@ def ask(question, default_answer=False, default_answer_str="no"):
     response = default_answer
 
     def should_ignore_tty():
+        """
+        Check, if we want to ignore an opened tty result.
+        """
         ret_to_bool = {"yes": True, "no": False}
         env = os.getenv("CI", default="no")
         if env in ret_to_bool:

@@ -67,7 +67,7 @@ def ask(question, default_answer=False, default_answer_str="no"):
         """
         Check, if we want to ignore an opened tty result.
         """
-        ret_to_bool = {"yes": True, "no": False}
+        ret_to_bool = {"yes": True, "no": False, "true": True, "false": False}
         envs = [os.getenv("CI", default="no"), os.getenv("TEST", default="no")]
         vals = [ret_to_bool[val] for val in envs if val in ret_to_bool]
         return any(vals)

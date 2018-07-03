@@ -22,6 +22,12 @@
     benchbuild.projects
 ```
 
+## Settings
+```eval_rst
+.. toctree::
+    benchbuild.utils.settings
+```
+
 ## Full API
 ```eval_rst
 .. toctree::

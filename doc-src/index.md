@@ -8,6 +8,7 @@
     benchbuild.experiment
     benchbuild.project
     benchbuild.extensions
+    benchbuild.utils.settings
 ```
 
 ## Experiments

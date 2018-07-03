@@ -22,6 +22,7 @@ paths for you.
 """
 
 import logging
+import sys
 import uuid
 
 import migrate.versioning.api as migrate
@@ -303,6 +304,9 @@ class RegressionTest(BASE):
 def needed_schema(connection, meta):
     try:
         meta.create_all(connection, checkfirst=False)
+    except sa.exc.CompileError as cerr:
+        LOG.fatal("Schema could not be created! Details: %s", str(cerr))
+        sys.exit(-4)
     except sa.exc.ProgrammingError:
         return False
     return True
@@ -324,6 +328,7 @@ def setup_versioning():
         LOG.warning("Your database uses an unversioned benchbuild schema.")
         if not ui.ask("Should I enforce version control on your schema?"):
             LOG.error("User declined schema versioning.")
+            return (-1, -1)
         migrate.version_control(connect_str, repo_url)
         return setup_versioning()
 
@@ -353,15 +358,45 @@ def maybe_update_db(repo_version, db_version):
 
 
 class SessionManager(object):
-    def __init__(self):
-        self.__test_mode = settings.CFG['db']['rollback'].value()
-        self.engine = create_engine(
-            settings.CFG["db"]["connect_string"].value())
-        self.connection = self.engine.connect()
+    def connect_engine(self):
+        """
+        Establish a connection to the database.
+
+        Provides simple error handling for fatal errors.
+
+        Returns:
+            True, if we could establish a connection, else False.
+        """
+        try:
+            self.connection = self.engine.connect()
+            return True
+        except sa.exc.OperationalError as opex:
+            LOG.fatal("Could not connect to the database. The error was: '%s'",
+                      str(opex))
+        return False
+
+    def configure_engine(self):
+        """
+        Configure the databse connection.
+
+        Sets appropriate transaction isolation levels and handle errors.
+
+        Returns:
+            True, if we did not encounter any unrecoverable errors, else False.
+        """
         try:
             self.connection.execution_options(isolation_level="READ COMMITTED")
         except sa.exc.ArgumentError:
             LOG.error("Unable to set isolation level to READ COMMITTED")
+        return True
+
+    def __init__(self):
+        self.__test_mode = settings.CFG['db']['rollback'].value()
+        self.engine = create_engine(
+            settings.CFG["db"]["connect_string"].value())
+
+        if not (self.connect_engine() and self.configure_engine()):
+            sys.exit(-3)
 
         self.__transaction = None
         if self.__test_mode:

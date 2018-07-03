@@ -22,6 +22,7 @@ def determine_path():
         root = os.path.realpath(root)
     return os.path.dirname(os.path.abspath(root))
 
+
 def template_files(path, exts=None):
     """
     Return a list of filenames found at @path.
@@ -46,9 +47,11 @@ def template_files(path, exts=None):
     files = [os.path.join(path, f) for f in files]
     return files
 
+
 def template_path(template):
     """Return path to template file."""
     return os.path.join(determine_path(), template)
+
 
 def template_str(template):
     """Read a template file from the resources and return it as str."""
@@ -73,7 +76,6 @@ def mkfile_uchroot(filepath, root="."):
             the container.
     """
     from benchbuild.utils.run import uchroot_no_args, uretry
-
 
     uchroot = uchroot_no_args()
     uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
@@ -117,12 +119,11 @@ def mkdir_interactive(dirpath):
     if os.path.exists(dirpath):
         return
 
-    response = True
-    if sys.stdin.isatty():
-        response = ui.query_yes_no(
-            "The build directory {dirname} does not exist yet. "
-            "Should I create it?".format(dirname=dirpath),
-            "no")
+    response = ui.ask(
+        "The build directory {dirname} does not exist yet. "
+        "Should I create it?".format(dirname=dirpath),
+        default_answer=True,
+        default_answer_str="yes")
 
     if response:
         mkdir("-p", dirpath)

@@ -421,6 +421,7 @@ class ConfigPath(object):
     >>> p = ConfigPath([]); str(p)
     '/'
     >>> p = ConfigPath('/tmp/test/foo'); str(p)
+    The path '/tmp/test/foo' is required by your configuration.
     '/tmp/test/foo'
     """
     components = attr.ib(converter=convert_components)

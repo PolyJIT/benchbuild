@@ -280,27 +280,6 @@ class GlobalConfig(BASE):
     value = Column(String)
 
 
-class RegressionTest(BASE):
-    """
-    Store regression tests for all projects.
-
-    This relation is filled from the PolyJIT side, not from benchbuild-study.
-    We collect all JIT SCoPs found by PolyJIT in this relation for
-    regression-test generation.
-
-    """
-
-    __tablename__ = 'regressions'
-    run_id = Column(
-        Integer,
-        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
-        index=True,
-        primary_key=True)
-    name = Column(String)
-    module = Column(String)
-    project_name = Column(String)
-
-
 def needed_schema(connection, meta):
     try:
         meta.create_all(connection, checkfirst=False)

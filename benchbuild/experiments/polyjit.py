@@ -19,6 +19,7 @@ import benchbuild.utils.schema as schema
 from benchbuild.experiment import Experiment
 from benchbuild.utils.actions import Any, RequireAll
 from benchbuild.utils.dict import ExtensibleDict, extend_as_list
+from benchbuild.experiments.papi import Event
 
 LOG = logging.getLogger(__name__)
 
@@ -237,7 +238,7 @@ class PolyJIT(Experiment):
 class PolyJITSimple(PolyJIT):
     """Simple runtime-testing with PolyJIT."""
     NAME = "pj-simple"
-    SCHEMA = [__REGIONS__]
+    SCHEMA = [__REGIONS__, Event.__table__]
 
     def actions_for_project(self, project):
         from benchbuild.settings import CFG
@@ -278,7 +279,7 @@ class PolyJITFull(PolyJIT):
     """
 
     NAME = "pj"
-    SCHEMA = [__REGIONS__]
+    SCHEMA = [__REGIONS__, Event.__table__]
 
     def actions_for_project(self, project):
         from benchbuild.settings import CFG

@@ -16,6 +16,7 @@ import benchbuild.experiments.polyjit as pj
 import benchbuild.extensions as ext
 import benchbuild.reports as reports
 import benchbuild.settings as settings
+from benchbuild.experiments.papi import Event
 
 LOG = logging.getLogger(__name__)
 
@@ -34,8 +35,8 @@ class Test(pj.PolyJIT):
         project.run_uuid = uuid.uuid4()
         jobs = int(settings.CFG["jobs"].value())
         project.cflags += [
-            "-mllvm", "-stats",
-            "-mllvm", "-polly-num-threads={0}".format(jobs)]
+            "-mllvm", "-stats", "-mllvm", "-polly-num-threads={0}".format(jobs)
+        ]
 
         cfg_with_jit = {
             'jobs': jobs,
@@ -76,10 +77,12 @@ class Test(pj.PolyJIT):
 
 class EnableDBExport(pj.PolyJITConfig, ext.Extension):
     """Call the child extensions with an activated PolyJIT."""
+
     def __call__(self, binary_command, *args, **kwargs):
         ret = None
-        with self.argv(PJIT_ARGS=["-polli-optimizer=debug",
-                                  "-polli-database-export"]):
+        with self.argv(
+                PJIT_ARGS=["-polli-optimizer=debug", "-polli-database-export"
+                           ]):
             ret = self.call_next(binary_command, *args, **kwargs)
         return ret
 
@@ -92,15 +95,16 @@ class JitExportGeneratedCode(pj.PolyJIT):
     """
 
     NAME = "pj-db-export"
+    SCHEMA = [Event.__table__]
 
     def actions_for_project(self, project):
         project = pj.PolyJIT.init_project(project)
         project.run_uuid = uuid.uuid4()
         jobs = int(settings.CFG["jobs"].value())
         project.cflags += [
-            "-Rpass-missed=polli*",
-            "-mllvm", "-stats",
-            "-mllvm", "-polly-num-threads={0}".format(jobs)]
+            "-Rpass-missed=polli*", "-mllvm", "-stats", "-mllvm",
+            "-polly-num-threads={0}".format(jobs)
+        ]
 
         cfg_with_jit = {
             'jobs': jobs,
@@ -131,15 +135,12 @@ class JitExportGeneratedCode(pj.PolyJIT):
                 ext.LogAdditionals(
                     pj.RegisterPolyJITLogs(
                         pj.EnableJITDatabase(
-                            EnableDBExport(enable_jit),
-                            project=project)))),
+                            EnableDBExport(enable_jit), project=project)))),
             pj.ClearPolyJITConfig(
                 ext.LogAdditionals(
                     pj.RegisterPolyJITLogs(
                         pj.EnableJITDatabase(
-                            EnableDBExport(disable_jit),
-                            project=project))))
-        )
+                            EnableDBExport(disable_jit), project=project)))))
 
         project.runtime_extension = ext.RunWithTime(pjit_extension)
         return JitExportGeneratedCode.default_runtime_actions(project)
@@ -151,6 +152,7 @@ class TestReport(reports.Report):
     """
     import sqlalchemy as sa
     SUPPORTED_EXPERIMENTS = ['pj-test']
+    SCHEMA = [Event.__table__]
 
     QUERY_TOTAL = \
         sa.sql.select([
@@ -197,21 +199,15 @@ class TestReport(reports.Report):
 
         qry = TestReport.QUERY_TOTAL.unique_params(exp_ids=self.experiment_ids)
         yield ("complete",
-               ('project', 'domain',
-                'speedup',
-                'ohcov_0', 'ocov_1',
-                'dyncov_0', 'dyncov_1',
-                'cachehits_0', 'cachehits_1',
-                'variants_0', 'variants_1',
-                'codegen_0', 'codegen_1',
-                'scops_0', 'scops_1',
-                't_0', 'o_0', 't_1', 'o_1'),
+               ('project', 'domain', 'speedup', 'ohcov_0', 'ocov_1',
+                'dyncov_0', 'dyncov_1', 'cachehits_0', 'cachehits_1',
+                'variants_0', 'variants_1', 'codegen_0', 'codegen_1',
+                'scops_0', 'scops_1', 't_0', 'o_0', 't_1', 'o_1'),
                self.session.execute(qry).fetchall())
         qry = TestReport.QUERY_REGION.unique_params(
             exp_ids=self.experiment_ids)
-        yield ("regions",
-               ('project', 'region', 'cores', 'T_Polly', 'T_PolyJIT',
-                'speedup'),
+        yield ("regions", ('project', 'region', 'cores',
+                           'T_Polly', 'T_PolyJIT', 'speedup'),
                self.session.execute(qry).fetchall())
 
     def generate(self):

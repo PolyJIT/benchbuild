@@ -139,11 +139,6 @@ class Run(BASE):
         cascade="all, delete-orphan",
         passive_deletes=True,
         passive_updates=True)
-    tests = sa.orm.relationship(
-        "RegressionTest",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True)
 
     def __repr__(self):
         return ("<Run: {0} status={1} run={2}>").format(

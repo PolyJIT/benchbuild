@@ -95,7 +95,9 @@ class Run(BASE):
     __tablename__ = 'run'
     __table_args__ = (ForeignKeyConstraint(
         ['project_name', 'project_group'],
-        ['project.name', 'project.group_name']), )
+        ['project.name', 'project.group_name'],
+        onupdate="CASCADE",
+        ondelete="CASCADE"), )
 
     id = Column(Integer, primary_key=True)
     command = Column(String)
@@ -104,7 +106,10 @@ class Run(BASE):
     experiment_name = Column(String, index=True)
     run_group = Column(GUID(as_uuid=True), index=True)
     experiment_group = Column(
-        GUID(as_uuid=True), ForeignKey("experiment.id"), index=True)
+        GUID(as_uuid=True),
+        ForeignKey("experiment.id", ondelete="CASCADE", onupdate="CASCADE"),
+        index=True)
+
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Enum('completed', 'running', 'failed', name="run_state"))

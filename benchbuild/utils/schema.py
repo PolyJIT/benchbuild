@@ -119,11 +119,6 @@ class Run(BASE):
         cascade="all, delete-orphan",
         passive_deletes=True,
         passive_updates=True)
-    events = sa.orm.relationship(
-        "Event",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True)
     logs = sa.orm.relationship(
         "RunLog",
         cascade="all, delete-orphan",

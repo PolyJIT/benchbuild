@@ -12,11 +12,11 @@ import logging
 import os
 import uuid
 
+import benchbuild.experiments.papi as papi
 import benchbuild.experiments.polyjit as pj
 import benchbuild.extensions as ext
 import benchbuild.reports as reports
 import benchbuild.settings as settings
-from benchbuild.experiments.papi import Event
 
 LOG = logging.getLogger(__name__)
 
@@ -95,7 +95,7 @@ class JitExportGeneratedCode(pj.PolyJIT):
     """
 
     NAME = "pj-db-export"
-    SCHEMA = [Event.__table__]
+    SCHEMA = [papi.Event.__table__]
 
     def actions_for_project(self, project):
         project = pj.PolyJIT.init_project(project)
@@ -152,7 +152,7 @@ class TestReport(reports.Report):
     """
     import sqlalchemy as sa
     SUPPORTED_EXPERIMENTS = ['pj-test']
-    SCHEMA = [Event.__table__]
+    SCHEMA = [papi.Event.__table__]
 
     QUERY_TOTAL = \
         sa.sql.select([

@@ -16,6 +16,7 @@ import uuid
 
 import sqlalchemy as sa
 
+import benchbuild.experiments.papi as papi
 import benchbuild.experiments.polyjit as pj
 import benchbuild.extensions as ext
 import benchbuild.reports as reports
@@ -23,7 +24,6 @@ import benchbuild.settings as settings
 import benchbuild.utils.actions as actions
 import benchbuild.utils.schedule_tree as st
 import benchbuild.utils.schema as schema
-from benchbuild.experiments.papi import Event
 
 LOG = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class IJPP(pj.PolyJIT):
     """Experiments and evaluation used for IJPP Journal."""
 
     NAME = "ijpp"
-    SCHEMA = [pj.__REGIONS__, Event.__table__]
+    SCHEMA = [pj.__REGIONS__, papi.Event.__table__]
 
     def actions_for_project(self, project):
         jobs = int(settings.CFG["jobs"].value())
@@ -215,7 +215,7 @@ class JitExportGeneratedCode(pj.PolyJIT):
     """
 
     NAME = "pj-db-export"
-    SCHEMA = [__SCHEDULE__, __ISL_AST__, Event.__table__]
+    SCHEMA = [__SCHEDULE__, __ISL_AST__, papi.Event.__table__]
 
     def actions_for_project(self, project):
         project = pj.PolyJIT.init_project(project)

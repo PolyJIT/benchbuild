@@ -21,7 +21,8 @@ EVENTS = Table('benchbuild_events', META,
                Column('tid', BigInteger),
                Column('run_id', Integer,
                       ForeignKey('run.id', onupdate='CASCADE', ondelete='CASCADE'),
-                      nullable=False, index=True, primary_key=True))
+                      nullable=False, index=True, primary_key=True),
+               extend_existing=True)
 # yapf: enable
 
 

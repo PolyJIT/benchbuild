@@ -15,7 +15,7 @@ initialize the functions first using the following command:
   > BB_DB_CREATE_FUNCTIONS=true benchbuild run -E empty -l
 ```
 
-After that you (normally) do not need to do this agains, unless we supply
+After that you (normally)  do not need to do this agains, unless we supply
 a new version that you are interested in.
 As soon as we have alembic running, we can provide automatic up/downgrade
 paths for you.
@@ -32,8 +32,7 @@ from sqlalchemy import (Column, DateTime, Enum, ForeignKey,
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.types import (CHAR, BigInteger, Float, Numeric, SmallInteger,
-                              TypeDecorator)
+from sqlalchemy.types import (CHAR, Float, TypeDecorator)
 
 import benchbuild.settings as settings
 import benchbuild.utils.user_interface as ui

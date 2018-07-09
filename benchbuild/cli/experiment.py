@@ -118,7 +118,6 @@ class BBExperimentShow(cli.Application):
         def maybe_exit(key):
             if key in ('q', 'Q'):
                 raise urwid.ExitMainLoop()
-            txt.set_text(repr(key))
 
         # yapf: disable
         palette = [(None, 'light gray', 'black'),

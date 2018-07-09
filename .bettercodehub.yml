@@ -1,0 +1,10 @@
+exclude:
+    - /doc-src/.*
+    - /docs/.*
+    - /extern/.*
+    - /filters/.*
+
+languages:
+    - python
+
+component_depth: 2

@@ -27,6 +27,7 @@ class Event(schema.BASE):
     """Store PAPI profiling based events."""
 
     __tablename__ = 'benchbuild_events'
+    __table__args__ = {'extend_existing': True}
 
     name = sa.Column(sa.String, index=True)
     start = sa.Column(sa.Numeric, primary_key=True)

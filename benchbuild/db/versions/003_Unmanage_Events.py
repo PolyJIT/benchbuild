@@ -6,11 +6,12 @@ because we do not want to wipe measurement data.
 
 During downgrade we will make sure to create the table as needed.
 """
-from sqlalchemy import (SmallInteger, BigInteger, Numeric, Table, Column,
-                        ForeignKey, Integer, String)
-from benchbuild.utils.schema import metadata
+from sqlalchemy import (MetaData, SmallInteger, BigInteger, Numeric, Table,
+                        Column, ForeignKey, Integer, String)
+from benchbuild.utils.schema import Run, RunGroup, Project, Experiment
 
-META = metadata()
+META = MetaData()
+
 # yapf: disable
 EVENTS = Table('benchbuild_events', META,
                Column('name', String, index=True),

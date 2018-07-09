@@ -1,0 +1,11 @@
+codecov:
+    notify:
+        require_ci_to_pass: yes
+
+ignore:
+    - "extern/"
+    - "doc-src/"
+    - "docs/"
+    - "results/"
+    - "tmp/"
+    - "tests/"

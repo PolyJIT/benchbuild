@@ -40,7 +40,8 @@ setup(
         "dill>=0.2", "SQLAlchemy>=1.0", "plumbum>=1.5", "parse>=1.6",
         "virtualenv>=13.1", "psycopg2-binary>=2.7", "pandas>=0.20.3",
         "psutil>=4.0.0", "sqlalchemy-migrate", "pygtrie>=2.2",
-        "pyparsing>=2.2", "PyYAML>=3.12", "Jinja2>=2.2", "attrs>=17.4.0"
+        "pyparsing>=2.2", "PyYAML>=3.12", "Jinja2>=2.2", "attrs>=17.4.0",
+        "urwid>=2.0.1",
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

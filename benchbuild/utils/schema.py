@@ -15,7 +15,7 @@ initialize the functions first using the following command:
   > BB_DB_CREATE_FUNCTIONS=true benchbuild run -E empty -l
 ```
 
-After that you (normally) do not need to do this agains, unless we supply
+After that you (normally)  do not need to do this agains, unless we supply
 a new version that you are interested in.
 As soon as we have alembic running, we can provide automatic up/downgrade
 paths for you.
@@ -32,8 +32,7 @@ from sqlalchemy import (Column, DateTime, Enum, ForeignKey,
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.types import (CHAR, BigInteger, Float, Numeric, SmallInteger,
-                              TypeDecorator)
+from sqlalchemy.types import (CHAR, Float, TypeDecorator)
 
 import benchbuild.settings as settings
 import benchbuild.utils.user_interface as ui
@@ -95,7 +94,9 @@ class Run(BASE):
     __tablename__ = 'run'
     __table_args__ = (ForeignKeyConstraint(
         ['project_name', 'project_group'],
-        ['project.name', 'project.group_name']), )
+        ['project.name', 'project.group_name'],
+        onupdate="CASCADE",
+        ondelete="CASCADE"), )
 
     id = Column(Integer, primary_key=True)
     command = Column(String)
@@ -104,10 +105,34 @@ class Run(BASE):
     experiment_name = Column(String, index=True)
     run_group = Column(GUID(as_uuid=True), index=True)
     experiment_group = Column(
-        GUID(as_uuid=True), ForeignKey("experiment.id"), index=True)
+        GUID(as_uuid=True),
+        ForeignKey("experiment.id", ondelete="CASCADE", onupdate="CASCADE"),
+        index=True)
+
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Enum('completed', 'running', 'failed', name="run_state"))
+
+    metrics = sa.orm.relationship(
+        "Metric",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True)
+    logs = sa.orm.relationship(
+        "RunLog",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True)
+    stored_data = sa.orm.relationship(
+        "Metadata",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True)
+    configurations = sa.orm.relationship(
+        "Config",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True)
 
     def __repr__(self):
         return ("<Run: {0} status={1} run={2}>").format(
@@ -141,6 +166,17 @@ class Experiment(BASE):
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
 
+    runs = sa.orm.relationship(
+        "Run",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True)
+    run_groups = sa.orm.relationship(
+        "RunGroup",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True)
+
     def __repr__(self):
         return "<Experiment {name}>".format(name=self.name)
 
@@ -156,6 +192,12 @@ class Project(BASE):
     domain = Column(String)
     group_name = Column(String, primary_key=True)
     version = Column(String)
+
+    runs = sa.orm.relationship(
+        "Run",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True)
 
     def __repr__(self):
         return "<Project {group}@{domain}/{name} V:{version}>".format(
@@ -180,25 +222,6 @@ class Metric(BASE):
 
     def __repr__(self):
         return "{0} - {1}".format(self.name, self.value)
-
-
-class Event(BASE):
-    """Store PAPI profiling based events."""
-
-    __tablename__ = 'benchbuild_events'
-
-    name = Column(String, index=True)
-    start = Column(Numeric, primary_key=True)
-    duration = Column(Numeric)
-    id = Column(Integer, primary_key=True)
-    type = Column(SmallInteger)
-    tid = Column(BigInteger)
-    run_id = Column(
-        Integer,
-        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-        primary_key=True)
 
 
 class RunLog(BASE):
@@ -260,45 +283,6 @@ class Config(BASE):
         primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)
-
-
-class GlobalConfig(BASE):
-    """
-    Store customized information about a run.
-
-    You can store arbitrary configuration information about a run here.
-    Use it for extended filtering against the run table.
-    """
-
-    __tablename__ = 'globalconfig'
-
-    experiment_group = Column(
-        GUID(as_uuid=True),
-        ForeignKey("experiment.id", onupdate="CASCADE", ondelete="CASCADE"),
-        primary_key=True)
-    name = Column(String, primary_key=True)
-    value = Column(String)
-
-
-class RegressionTest(BASE):
-    """
-    Store regression tests for all projects.
-
-    This relation is filled from the PolyJIT side, not from benchbuild-study.
-    We collect all JIT SCoPs found by PolyJIT in this relation for
-    regression-test generation.
-
-    """
-
-    __tablename__ = 'regressions'
-    run_id = Column(
-        Integer,
-        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
-        index=True,
-        primary_key=True)
-    name = Column(String)
-    module = Column(String)
-    project_name = Column(String)
 
 
 def needed_schema(connection, meta):

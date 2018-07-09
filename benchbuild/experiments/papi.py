@@ -5,8 +5,11 @@ These types of experiments (papi & papi-std) need to instrument the
 project with libbenchbuild support to work.
 
 """
-from benchbuild.experiment import Experiment
+import sqlalchemy as sa
+
 import benchbuild.extensions as ext
+import benchbuild.utils.schema as schema
+from benchbuild.experiment import Experiment
 from benchbuild.utils.actions import Step
 
 
@@ -20,10 +23,31 @@ class Analyze(Step):
     DESCRIPTION = "Analyze the experiment after completion."
 
 
+class Event(schema.BASE):
+    """Store PAPI profiling based events."""
+
+    __tablename__ = 'benchbuild_events'
+    __table__args__ = {'extend_existing': True}
+
+    name = sa.Column(sa.String, index=True)
+    start = sa.Column(sa.Numeric, primary_key=True)
+    duration = sa.Column(sa.Numeric)
+    id = sa.Column(sa.Integer, primary_key=True)
+    type = sa.Column(sa.SmallInteger)
+    tid = sa.Column(sa.BigInteger)
+    run_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        primary_key=True)
+
+
 class PapiScopCoverage(Experiment):
     """PAPI-based dynamic SCoP coverage measurement."""
 
     NAME = "papi"
+    SCHEMA = [Event.__table__]
 
     def actions(self):
         """Do the postprocessing, after all projects are done."""
@@ -40,11 +64,10 @@ class PapiScopCoverage(Experiment):
         """
         project.ldflags = project.ldflags + ["-lpjit", "-lpprof", "-lpapi"]
         project.cflags = [
-            "-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-            "-mllvm", "-polli",
-            "-mllvm", "-polli-instrument",
-            "-mllvm", "-polli-no-recompilation",
-            "-mllvm", "-polly-detect-keep-going"]
+            "-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so", "-mllvm",
+            "-polli", "-mllvm", "-polli-instrument", "-mllvm",
+            "-polli-no-recompilation", "-mllvm", "-polly-detect-keep-going"
+        ]
         project.compiler_extension = \
             ext.RunWithTimeout(ext.ExtractCompileStats(project, self))
         project.runtime_extension = \
@@ -65,6 +88,7 @@ class PapiStandardScopCoverage(PapiScopCoverage):
     """PAPI Scop Coverage, without JIT."""
 
     NAME = "papi-std"
+    SCHEMA = [Event.__table__]
 
     def actions_for_project(self, project):
         """
@@ -75,11 +99,10 @@ class PapiStandardScopCoverage(PapiScopCoverage):
         """
         project.ldflags = project.ldflags + ["-lpjit", "-lpprof", "-lpapi"]
         project.cflags = [
-            "-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so",
-            "-mllvm", "-polli",
-            "-mllvm", "-polli-instrument",
-            "-mllvm", "-polli-no-recompilation",
-            "-mllvm", "-polly-detect-keep-going"]
+            "-O3", "-Xclang", "-load", "-Xclang", "LLVMPolyJIT.so", "-mllvm",
+            "-polli", "-mllvm", "-polli-instrument", "-mllvm",
+            "-polli-no-recompilation", "-mllvm", "-polly-detect-keep-going"
+        ]
         project.compiler_extension = \
             ext.RunWithTimeout(ext.ExtractCompileStats(project, self))
         project.runtime_extension = \

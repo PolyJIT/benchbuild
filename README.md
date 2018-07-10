@@ -19,21 +19,44 @@ BenchBuild tracks the execution status of all its managed projects inside an own
 - Parallel benchmarking using the SLURM cluster manager.
 - Compile-time support for the gentoo portage tree using the `uchroot` command.
 
-## Requirements
+## Database
 
-You need a working PostgreSQL installation (There is no special reason for PostgreSQL, but the backend is not configurable at the moment).
-In addition to the PostgreSQL server, you need libpqxx available for the psycopg2 package that benchbuild uses to connect.
+BenchBuild stores results/maintenance data about your experiments inside a database.
+While a sqlite3 in-memory database is used by default, you might want to provide a more permanent solution to keep your experiment data persistent.
 
-`benchbuild` requires a database and a database user.
-The default setup of PostgreSQL can be created by executing these two queries:
+### PostgreSQL
 
-```psql
-postgres=# CREATE USER benchbuild;
-postgres=# CREATE DATABASE benchbuild;
+The preferred way is using a more sophisticated DBMS such as PostgreSQL.
+If you are using features like SLURM, make sure that your DBMS is reachable from all nodes that might run benchbuild.
+
+Setup your postgres cluster with a user and a database for benchbuild to use.
+
+```sql
+CREATE USER benchbuild;
+CREATE DATABASE benchbuild;
 ```
 
-In case you want to adapt the database settings, checkout the db section in the config file.
+In the configuration you supply the complete connect-string in sqlalchemy's format, e.g.: `postgresql+psycopg2://benchbuild:benchbuild@localhost:5432/benchbuild`
 
+```yaml
+# .benchbuild.yml
+db:
+  connect_string:
+    default: sqlite://
+    value:  postgresql+psycopg2://benchbuild:benchbuild@localhost:5432/benchbuild
+```
+
+### SQLite
+
+As mentioned, by default we use an in-memory sqlite database. You can persist this one for your local usage, by supplying a filename in the database configuration.
+
+```yaml
+# .benchbuild.yml
+db:
+  connect_string:
+    default: sqlite://
+    value:  sqlite:////absolute/path/to/sqlite.db
+```
 Advanced features of benchbuild require header of libfuse to be available on the system.
 
 ## Installation

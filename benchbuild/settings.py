@@ -141,8 +141,7 @@ CFG['db'] = {
         "desc":
         "sqlalchemy connect string",
         "default":
-        "postgresql+psycopg2://"
-        "benchbuild:benchbuild@localhost:5432/benchbuild"
+        "sqlite://"
     },
     "rollback": {
         "desc": "Rollback all operations after benchbuild completes.",

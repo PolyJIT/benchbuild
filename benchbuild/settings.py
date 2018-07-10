@@ -297,7 +297,17 @@ CFG["plugins"] = {
     "experiments": {
         "default": [
             "benchbuild.experiments.raw",
-            "benchbuild.experiments.empty",
+            "benchbuild.experiments.compilestats",
+            "benchbuild.experiments.polyjit", "benchbuild.experiments.empty",
+            "benchbuild.experiments.papi", "benchbuild.experiments.pjtest",
+            "benchbuild.experiments.pj_raw",
+            "benchbuild.experiments.pj_likwid",
+            "benchbuild.experiments.pj_collect",
+            "benchbuild.experiments.pj_cs", "benchbuild.experiments.pj_papi",
+            "benchbuild.experiments.pj_sequence", "benchbuild.experiments.pgo",
+            "benchbuild.experiments.pollytest",
+            "benchbuild.experiments.profileScopDetection",
+            "benchbuild.experiments.mse", "benchbuild.experiments.ijpp"
         ],
         "desc":
         "The experiment plugins we know about."

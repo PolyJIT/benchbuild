@@ -1,0 +1,279 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Experiments &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Projects" href="benchbuild.project.html" />
+    <link rel="prev" title="Welcome to benchbuild’s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.project.html" title="Projects"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to benchbuild’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="experiments">
+<span id="experiments"></span><h1>Experiments<a class="headerlink" href="#experiments" title="Permalink to this headline">¶</a></h1>
+<p>An experiment in benchbuild is a simple list of actions that need to be
+executed on every project that is part of the experiment.
+Every <code class="docutils literal notranslate"><span class="pre">callable</span></code> can serve as an action.</p>
+<p>However, benchbuild provides many predefined actions that can
+be reused by implementations in the <code class="docutils literal notranslate"><span class="pre">benchbuild.utils.actions</span></code> module.
+Furthermore, if you do not need to control the default order of
+actions for a run-time or a compile-time experiment you can reuse the
+<code class="docutils literal notranslate"><span class="pre">Experiment.default_runtime_actions</span></code> or
+<code class="docutils literal notranslate"><span class="pre">Experiment.default_compiletime_actions</span></code>.</p>
+<p>Besides the list of actions, it is also the responsibility of an experiment
+to configure each single project that should take part in an experiment.
+This includes setting appropriate <code class="docutils literal notranslate"><span class="pre">CFLAGS</span></code>, <code class="docutils literal notranslate"><span class="pre">LDFLAGS</span></code> and any additional
+metadata that has to be added to binary runs for later evaluation.</p>
+<div class="section" id="the-basic-experiment">
+<span id="the-basic-experiment"></span><h2>The basic experiment<a class="headerlink" href="#the-basic-experiment" title="Permalink to this headline">¶</a></h2>
+<p>A basic experiment provides an override for the <code class="docutils literal notranslate"><span class="pre">actions_for_project</span></code> method and
+a <code class="docutils literal notranslate"><span class="pre">NAME</span></code> attribute. If you want your experiment to perform actions on a project
+you should return a list of actions from <code class="docutils literal notranslate"><span class="pre">actions_for_project</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">benchbuild.experiment</span> <span class="kn">as</span> <span class="nn">exp</span>
+
+<span class="k">class</span> <span class="nc">HelloExperiment</span><span class="p">(</span><span class="n">exp</span><span class="o">.</span><span class="n">Experiment</span><span class="p">):</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s2">&quot;hello-word&quot;</span>
+
+    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="default-actions">
+<span id="default-actions"></span><h2>Default actions<a class="headerlink" href="#default-actions" title="Permalink to this headline">¶</a></h2>
+<p>As a shortcut, you can use the default implementations for run-time or compile-time experiments.
+Consult <code class="docutils literal notranslate"><span class="pre">benchbuild.utils.actions</span></code> for all available actions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">benchbuild.experiment</span> <span class="kn">import</span> <span class="n">Experiment</span>
+
+<span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Experiment</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="additional-database-schema">
+<span id="additional-database-schema"></span><h2>Additional database schema<a class="headerlink" href="#additional-database-schema" title="Permalink to this headline">¶</a></h2>
+<p>If your experiment requires additional tables in the database schema to store measurements, you can
+add them to benchbuild’s metadata and it will be created for you automatically. However, schema changes
+are not versioned for your personal tables.</p>
+<p>Full example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">benchbuild.utils.schema</span> <span class="kn">as</span> <span class="nn">schema</span>
+<span class="kn">import</span> <span class="nn">benchbuild.experiment</span> <span class="kn">as</span> <span class="nn">exp</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="kn">as</span> <span class="nn">sa</span>
+
+<span class="n">MYTABLE</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s1">&#39;mytable&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">.</span><span class="n">metadata</span><span class="p">(),</span> <span class="o">...</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">MyExperiment</span><span class="p">(</span><span class="n">exp</span><span class="o">.</span><span class="n">Experiment</span><span class="p">)</span>
+    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;my-experiment&#39;</span>
+    <span class="n">SCHEMA</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">MYTABLE</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">exp</span><span class="o">.</span><span class="n">Experiment</span><span class="o">.</span><span class="n">default_runtime_actions</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">SCHEMA</span></code> attribute is not required for the tables to be created autoamtically. However, future
+versions will use this to create a more targetted data dump.</p>
+</div>
+<div class="section" id="api-reference">
+<span id="api-reference"></span><h2>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="benchbuild.experiment.Experiment">
+<em class="property">class </em><code class="descclassname">benchbuild.experiment.</code><code class="descname">Experiment</code><span class="sig-paren">(</span><em>name=NOTHING</em>, <em>projects=NOTHING</em>, <em>id=NOTHING</em>, <em>schema=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A series of commands executed on a project that form an experiment.</p>
+<p>The default implementation should provide a sane environment for all
+derivates.</p>
+<p>One important task executed by the basic implementation is setting up
+the default set of projects that belong to this project.
+As every project gets registered in the ProjectFactory, the experiment
+gets a list of experiment names that work as a filter.</p>
+<dl class="attribute">
+<dt id="benchbuild.experiment.Experiment.name">
+<code class="descname">name</code><a class="headerlink" href="#benchbuild.experiment.Experiment.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – The name of the experiment, defaults to NAME</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.experiment.Experiment.projects">
+<code class="descname">projects</code><a class="headerlink" href="#benchbuild.experiment.Experiment.projects" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <cite>benchbuild.project.Project</cite> – A list of projects that is assigned to this experiment.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.experiment.Experiment.id">
+<code class="descname">id</code><a class="headerlink" href="#benchbuild.experiment.Experiment.id" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – A uuid encoded as <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code> used to identify this
+instance of experiment. Equivalent to the <cite>experiment_group</cite>
+in the database scheme.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.experiment.Experiment.NAME">
+<code class="descname">NAME</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.experiment.Experiment.NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.experiment.Experiment.SCHEMA">
+<code class="descname">SCHEMA</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.experiment.Experiment.SCHEMA" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiment.Experiment.actions">
+<code class="descname">actions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.actions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiment.Experiment.actions_for_project">
+<code class="descname">actions_for_project</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.actions_for_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.actions_for_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the actions a project wants to run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>project</strong> (<em>benchbuild.Project</em>) – the project we want to run.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="benchbuild.experiment.Experiment.default_compiletime_actions">
+<em class="property">static </em><code class="descname">default_compiletime_actions</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.default_compiletime_actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.default_compiletime_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a series of actions for a compile time experiment.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiment.Experiment.default_id">
+<code class="descname">default_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.default_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.default_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="benchbuild.experiment.Experiment.default_runtime_actions">
+<em class="property">static </em><code class="descname">default_runtime_actions</code><span class="sig-paren">(</span><em>project</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.default_runtime_actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.default_runtime_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a series of actions for a run time experiment.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiment.Experiment.default_schema">
+<code class="descname">default_schema</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.default_schema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.default_schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiment.Experiment.validate_id">
+<code class="descname">validate_id</code><span class="sig-paren">(</span><em>_</em>, <em>new_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.validate_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.validate_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.experiment.Experiment.validate_schema">
+<code class="descname">validate_schema</code><span class="sig-paren">(</span><em>_</em>, <em>new_schema</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/experiment.html#Experiment.validate_schema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.experiment.Experiment.validate_schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Experiments</a><ul>
+<li><a class="reference internal" href="#the-basic-experiment">The basic experiment</a></li>
+<li><a class="reference internal" href="#default-actions">Default actions</a></li>
+<li><a class="reference internal" href="#additional-database-schema">Additional database schema</a></li>
+<li><a class="reference internal" href="#api-reference">API reference</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to benchbuild’s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="benchbuild.project.html"
+                        title="next chapter">Projects</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.experiment.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.project.html" title="Projects"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to benchbuild’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,229 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Dictionary-like configuration objects. &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Available experiments" href="benchbuild.experiments.html" />
+    <link rel="prev" title="Extensions" href="benchbuild.extensions.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.experiments.html" title="Available experiments"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.extensions.html" title="Extensions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="dictionary-like-configuration-objects">
+<span id="dictionary-like-configuration-objects"></span><h1>Dictionary-like configuration objects.<a class="headerlink" href="#dictionary-like-configuration-objects" title="Permalink to this headline">¶</a></h1>
+<p>We provide a simple reusable configuration mechanism for benchbuild that supports
+default values, override through environment variables, and configuration files.</p>
+<div class="section" id="the-class-configuration">
+<span id="the-class-configuration"></span><h2>The class <code class="docutils literal notranslate"><span class="pre">Configuration</span></code><a class="headerlink" href="#the-class-configuration" title="Permalink to this headline">¶</a></h2>
+<p>At the heart of benchbuild’s configuration system you can find the class ‘Configuration’.</p>
+<div class="section" id="basic-usage">
+<span id="basic-usage"></span><h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h3>
+<p>You can store settings for your project inside the class <code class="docutils literal notranslate"><span class="pre">Configuration</span></code>.
+Upon construction you need to provide a namespace to house all configuration variables
+in, such as “BB” for BenchBuild.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CFG</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">(</span><span class="s2">&quot;bb&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can extend the configuration by inner nodes and leaf nodes, forming a tree-like data structure.
+Inner nodes are simple dictionaries and can span arbitrary nesting structures.
+Leaf nodes are dictionaries that contain the following keys:
+- default: Stores the default value for the configuration option.
+- desc: A description for this configuration option.
+The current value a leaf node holds will be stored in the ‘value’ key of a leaf node.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;option_1&#39;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s1">&#39;desc&#39;</span><span class="p">:</span> <span class="s1">&#39;Toggle option 1&#39;</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;option_2&#39;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s1">&#39;desc&#39;</span><span class="p">:</span> <span class="s1">&#39;Toggle option 2&#39;</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can access the current values inside your application code using the <code class="docutils literal notranslate"><span class="pre">value()</span></code> method
+on a leaf node, after the configuration is set for the first time.
+This will return the stored value in its current representation/type.
+You can access the string representation using an explicit conversion by applying the <code class="docutils literal notranslate"><span class="pre">str</span></code> method on a leaf node.
+The initial value can either be set manually with an assignment to the leaf node (see example below), or with default initialization through <code class="docutils literal notranslate"><span class="pre">setup_config</span></code> and <code class="docutils literal notranslate"><span class="pre">update_env</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="o">&gt;</span> <span class="nb">type</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+<span class="nb">bool</span>
+<span class="o">&gt;</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+<span class="bp">True</span>
+<span class="o">&gt;</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_1&#39;</span><span class="p">])</span>
+<span class="s1">&#39;True&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="automatic-generation-of-environment-variables">
+<span id="automatic-generation-of-environment-variables"></span><h3>Automatic Generation of Environment Variables.<a class="headerlink" href="#automatic-generation-of-environment-variables" title="Permalink to this headline">¶</a></h3>
+<p>The configuration is able to provide a neat serialized representation that can be used in shell scripts.
+Any configuration node can be represented as a document of environment variables.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="o">&gt;</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_1&#39;</span><span class="p">]</span>
+<span class="n">BB_MY_CONFIG_OPTION_1</span><span class="o">=</span><span class="n">true</span>
+<span class="o">&gt;</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">]</span>
+<span class="n">BB_MY_CONFIG_OPTION_1</span><span class="o">=</span><span class="n">true</span>
+<span class="n">BB_MY_CONFIG_OPTION_2</span><span class="o">=</span><span class="n">false</span>
+</pre></div>
+</div>
+<p>The environment variable names can be used to control the setting of a configuration
+option via the environment of benchbuild.
+The values stored in the environment variable are YAML representations of the objects stored in the <code class="docutils literal notranslate"><span class="pre">value</span></code> property of the leaf node.</p>
+</div>
+<div class="section" id="automatic-initialization">
+<span id="automatic-initialization"></span><h3>Automatic Initialization<a class="headerlink" href="#automatic-initialization" title="Permalink to this headline">¶</a></h3>
+<p>The configuration can be initialized using the functions <code class="docutils literal notranslate"><span class="pre">setup_config</span></code> and <code class="docutils literal notranslate"><span class="pre">update_env</span></code>.
+Both are meant to be called from the user code during program setup/module load of the user-specific configuration.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">benchbuild.utils.settings</span> <span class="kn">as</span> <span class="nn">s</span>
+<span class="n">CFG</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Configuration</span><span class="p">(</span><span class="s1">&#39;bb&#39;</span><span class="p">)</span>
+<span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;option_1&#39;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s1">&#39;desc&#39;</span><span class="p">:</span> <span class="s1">&#39;Toggle option 1&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">s</span><span class="o">.</span><span class="n">setup_config</span><span class="p">(</span><span class="n">CFG</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">update_env</span><span class="p">(</span><span class="n">CFG</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="setup-config">
+<span id="setup-config"></span><h4>Setup Config<a class="headerlink" href="#setup-config" title="Permalink to this headline">¶</a></h4>
+<p>The function <code class="docutils literal notranslate"><span class="pre">setup_config</span></code> triggers configuration initialization from default values and
+config file. It follows the ruleset:
+1. Check for a filepath in environment variable: <code class="docutils literal notranslate"><span class="pre">BB_CONFIG_FILE</span></code>, or
+2. Recursively lookup the default config file, starting from the current working
+directory upwards to the root of the filesystem.
+3. Load configuration from file, if found in (1) or (2), and
+4. Initialize all configuration options from the environment.</p>
+</div>
+<div class="section" id="update-environment">
+<span id="update-environment"></span><h4>Update Environment<a class="headerlink" href="#update-environment" title="Permalink to this headline">¶</a></h4>
+<p>The function <code class="docutils literal notranslate"><span class="pre">update_env</span></code> is benchbuild-specific and updates the environment of the
+running process. We update the variables:
+- <code class="docutils literal notranslate"><span class="pre">PATH</span></code> from <code class="docutils literal notranslate"><span class="pre">*_ENV_PATH</span></code>
+- <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> from <code class="docutils literal notranslate"><span class="pre">*_ENV_LD_LIBRARY_PATH</span></code>
+This updates the plumbum local-machine environment as well and enables program lookup in user-defined paths.</p>
+</div>
+</div>
+</div>
+<div class="section" id="module-benchbuild.settings">
+<span id="api-reference"></span><span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-benchbuild.settings" title="Permalink to this headline">¶</a></h2>
+<p>Settings module for benchbuild.</p>
+<p>All settings are stored in a simple dictionary. Each
+setting should be modifiable via environment variable.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Dictionary-like configuration objects.</a><ul>
+<li><a class="reference internal" href="#the-class-configuration">The class <code class="docutils literal notranslate"><span class="pre">Configuration</span></code></a><ul>
+<li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li><a class="reference internal" href="#automatic-generation-of-environment-variables">Automatic Generation of Environment Variables.</a></li>
+<li><a class="reference internal" href="#automatic-initialization">Automatic Initialization</a><ul>
+<li><a class="reference internal" href="#setup-config">Setup Config</a></li>
+<li><a class="reference internal" href="#update-environment">Update Environment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-benchbuild.settings">API reference</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="benchbuild.extensions.html"
+                        title="previous chapter">Extensions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="benchbuild.experiments.html"
+                        title="next chapter">Available experiments</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/benchbuild.utils.settings.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.experiments.html" title="Available experiments"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="benchbuild.extensions.html" title="Extensions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Andreas Simbürger.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

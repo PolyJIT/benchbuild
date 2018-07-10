@@ -96,7 +96,7 @@ benchbuild run -d
 # Documentation
 
 For detailed API information please refer to the full
-[documentation](https://simbuerg.github.io/benchbuild):
+[documentation](https://polyjit.github.io/benchbuild):
 
 You can dump this information in YAML format using the command:
 ```bash

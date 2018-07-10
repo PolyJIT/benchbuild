@@ -57,7 +57,21 @@ db:
     default: sqlite://
     value:  sqlite:////absolute/path/to/sqlite.db
 ```
-Advanced features of benchbuild require header of libfuse to be available on the system.
+
+## Advanced Features
+
+Advanced features require additional packages on your system.
+
+### UnionFS
+
+We can maintain UnionFS mounts for uchroot-based projects, such as all Gentoo derived projects.
+This avoids continuous unpacking of the container-filesystem and keeps one unpacked version as
+a read-only layer at the bottom of the filesystem-stack.
+
+You need to configure subuid/subgid ranges in `/etc/subuid` `/etc/subgid` for the user that
+runs `benchbuild` in this mode. In addition, you need a working fuse installation. This involves
+an installation of `libfuse` with its headers.
+The `benchbuild bootstrap` command may help you with the installation and setup.
 
 ## Installation
 

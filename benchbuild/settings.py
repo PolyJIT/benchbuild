@@ -255,24 +255,6 @@ CFG["slurm"] = {
     }
 }
 
-CFG["perf"] = {
-    "config": {
-        "default": None,
-        "desc": "A configuration for the pollyperformance experiment."
-    }
-}
-
-CFG["cs"] = {
-    "components": {
-        "default": None,
-        "desc": "List of filters for compilestats components."
-    },
-    "names": {
-        "default": None,
-        "desc": "List of filters for compilestats names."
-    }
-}
-
 CFG["uchroot"] = {
     "repo": {
         "default": "https://github.com/PolyJIT/erlent.git/",

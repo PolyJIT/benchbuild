@@ -272,19 +272,6 @@ class Configuration():
                 for k in self.node:
                     self[k].init_from_env()
 
-    def update(self, cfg_dict):
-        """
-        Update the configuration dictionary with new content.
-
-        This just delegates the update down to the internal data structure.
-        No validation is done on the format, be sure you know what you do.
-
-        Args:
-            cfg_dict: A configuration dictionary.
-
-        """
-        self.node.update(cfg_dict.node)
-
     def value(self):
         """
         Return the node value, if we're a leaf node.

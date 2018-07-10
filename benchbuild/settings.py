@@ -288,7 +288,7 @@ CFG["plugins"] = {
     },
     "reports": {
         "default": [
-            "benchbuild.reports.compilestats", "benchbuild.reports.raw",
+            "benchbuild.reports.raw",
             "benchbuild.reports.status"
         ],
         "desc":
@@ -297,17 +297,7 @@ CFG["plugins"] = {
     "experiments": {
         "default": [
             "benchbuild.experiments.raw",
-            "benchbuild.experiments.compilestats",
-            "benchbuild.experiments.polyjit", "benchbuild.experiments.empty",
-            "benchbuild.experiments.papi", "benchbuild.experiments.pjtest",
-            "benchbuild.experiments.pj_raw",
-            "benchbuild.experiments.pj_likwid",
-            "benchbuild.experiments.pj_collect",
-            "benchbuild.experiments.pj_cs", "benchbuild.experiments.pj_papi",
-            "benchbuild.experiments.pj_sequence", "benchbuild.experiments.pgo",
-            "benchbuild.experiments.pollytest",
-            "benchbuild.experiments.profileScopDetection",
-            "benchbuild.experiments.mse", "benchbuild.experiments.ijpp"
+            "benchbuild.experiments.empty",
         ],
         "desc":
         "The experiment plugins we know about."

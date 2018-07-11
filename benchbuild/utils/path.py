@@ -120,7 +120,7 @@ def mkdir_interactive(dirpath):
         return
 
     response = ui.ask(
-        "The build directory {dirname} does not exist yet. "
+        "The directory {dirname} does not exist yet. "
         "Should I create it?".format(dirname=dirpath),
         default_answer=True,
         default_answer_str="yes")

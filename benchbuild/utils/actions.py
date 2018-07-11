@@ -16,7 +16,6 @@ TODO
 import abc
 import enum
 import functools as ft
-import glob
 import logging
 import os
 import sys
@@ -25,12 +24,12 @@ import traceback
 from datetime import datetime
 
 import sqlalchemy as sa
-from plumbum import ProcessExecutionError, local
+from plumbum import ProcessExecutionError
 
 import attr
 import benchbuild.signals as signals
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import llvm_profdata, mkdir, rm, rmdir
+from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.db import persist_experiment
 
 LOG = logging.getLogger(__name__)
@@ -559,57 +558,3 @@ class CleanExtra(Step):
                 textwrap.indent("* Clean the directory: {0}".format(p),
                                 indent * " "))
         return "\n".join(lines)
-
-
-@attr.s
-class SaveProfile(Step):
-    NAME = "SAVEPROFILE"
-    DESCRIPTION = "Save a profile in llvm format in the DB"
-
-    filename = attr.ib(default=None)
-
-    @notify_step_begin_end
-    def __call__(self):
-        from benchbuild.utils.db import persist_file
-        from benchbuild.project import Project
-        if not isinstance(self.obj, Project):
-            raise AttributeError
-
-        obj_builddir = self.obj.builddir
-        outfile = os.path.abspath(os.path.join(obj_builddir, self.filename))
-        profiles = os.path.abspath(os.path.join(obj_builddir, "raw-profiles"))
-        with local.cwd(profiles):
-            merge_profdata = llvm_profdata["merge", "-output={}".format(
-                outfile)]
-            merge_profdata = merge_profdata[glob.glob('default_*.profraw')]
-            merge_profdata()
-
-        exp_id = self.obj.experiment.id
-        run_group = self.obj.run_uuid
-
-        persist_file(outfile, exp_id, run_group)
-        self.status = StepResult.OK
-
-
-@attr.s
-class RetrieveFile(Step):
-    NAME = "RETRIEVEFILE"
-    DESCRIPTION = "Retrieve a file from the database"
-
-    filename = attr.ib(default=None)
-    run_group = attr.ib(default=None)
-
-    @notify_step_begin_end
-    def __call__(self):
-        from benchbuild.project import Project
-        from benchbuild.utils.db import extract_file
-
-        if not isinstance(self.obj, Project):
-            raise AttributeError
-
-        obj_builddir = self.obj.builddir
-        outfile = os.path.abspath(os.path.join(obj_builddir, self.filename))
-        exp_id = self.obj.experiment.id
-        extract_file(self.filename, outfile, exp_id, self.run_group)
-
-        self.status = StepResult.OK

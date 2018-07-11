@@ -1,8 +1,11 @@
 """
 User interface helpers for benchbuild.
 """
-import sys
+import logging
 import os
+import sys
+
+LOG = logging.getLogger(__name__)
 
 
 # Taken from the following recipe: http://code.activestate.com/recipes/577058/
@@ -76,4 +79,7 @@ def ask(question, default_answer=False, default_answer_str="no"):
     has_tty = sys.stdin.isatty() and not ignore_stdin_istty
     if has_tty:
         response = query_yes_no(question, default_answer_str)
+    else:
+        LOG.debug("NoTTY: %s -> %s" % (question, response))
+
     return response

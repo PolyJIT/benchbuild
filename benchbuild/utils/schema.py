@@ -84,7 +84,6 @@ class GUID(TypeDecorator):
         if isinstance(value, uuid.UUID):
             return value
         else:
-            LOG.error(str(value))
             return uuid.UUID(str(value))
 
 

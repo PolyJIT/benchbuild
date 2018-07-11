@@ -300,10 +300,26 @@ def needed_schema(connection, meta):
     return True
 
 
-def setup_versioning():
+def get_version_data():
+    """Retreive migration information."""
     connect_str = settings.CFG["db"]["connect_string"].value()
     repo_url = bbpath.template_path("../db/")
+    return (connect_str, repo_url)
 
+
+def enforce_versioning():
+    """Install versioning on the db."""
+    connect_str, repo_url = get_version_data()
+    LOG.warning("Your database uses an unversioned benchbuild schema.")
+    if not ui.ask("Should I enforce version control on your schema?"):
+        LOG.error("User declined schema versioning.")
+        return (-1, -1)
+    repo_version = migrate.version(repo_url, url=connect_str)
+    migrate.version_control(connect_str, repo_url, version=repo_version)
+
+
+def setup_versioning():
+    connect_str, repo_url = get_version_data()
     repo_version = migrate.version(repo_url, url=connect_str)
     db_version = None
     requires_versioning = False
@@ -313,11 +329,7 @@ def setup_versioning():
         requires_versioning = True
 
     if requires_versioning:
-        LOG.warning("Your database uses an unversioned benchbuild schema.")
-        if not ui.ask("Should I enforce version control on your schema?"):
-            LOG.error("User declined schema versioning.")
-            return (-1, -1)
-        migrate.version_control(connect_str, repo_url)
+        enforce_versioning()
         return setup_versioning()
 
     return (repo_version, db_version)
@@ -394,6 +406,7 @@ class SessionManager(object):
 
         if needed_schema(self.connection, BASE.metadata):
             LOG.debug("Initialized new db schema.")
+            enforce_versioning()
         repo_version, db_version = setup_versioning()
         maybe_update_db(repo_version, db_version)
 

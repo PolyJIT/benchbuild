@@ -80,6 +80,6 @@ def ask(question, default_answer=False, default_answer_str="no"):
     if has_tty:
         response = query_yes_no(question, default_answer_str)
     else:
-        LOG.debug("NoTTY: %s -> %s" % (question, response))
+        LOG.debug("NoTTY: %s -> %s", question, response)
 
     return response

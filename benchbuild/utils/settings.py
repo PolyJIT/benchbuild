@@ -288,8 +288,14 @@ class Configuration():
             TEST_X_Z=2
 
         """
+
+        def validate(node_value):
+            if hasattr(node_value, 'validate'):
+                node_value.validate()
+            return node_value
+
         if 'value' in self.node:
-            return self.node['value']
+            return validate(self.node['value'])
         else:
             return self
 
@@ -404,17 +410,19 @@ class ConfigPath(object):
     >>> p = ConfigPath(['tmp']); str(p)
     '/tmp'
     >>> p = ConfigPath('/tmp/test/foo'); str(p)
-    The path '/tmp/test/foo' is required by your configuration.
     '/tmp/test/foo'
+    >>> p.validate()
+    The path '/tmp/test/foo' is required by your configuration.
+    >>> p.validate()
+
     >>> p = ConfigPath([]); str(p)
     '/'
     """
     components = attr.ib(converter=convert_components)
 
-    @components.validator
-    def validate_path(self, attribute, value):
-        del attribute
-        path_str = ConfigPath.path_to_str(value)
+    def validate(self):
+        """Make sure this configuration path exists."""
+        path_str = ConfigPath.path_to_str(self.components)
         path_exists = os.path.exists(path_str)
 
         def create_dir():

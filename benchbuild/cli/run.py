@@ -69,9 +69,6 @@ class BenchBuildRun(cli.Application):
     pretend = cli.Flag(['p', 'pretend'], default=False)
 
     def __generate_plan(self, exps, prjs, cfg):
-        if prjs:
-            path.mkdir_interactive(str(cfg["build_dir"]))
-
         for exp_cls in exps.values():
             exp = exp_cls(projects=prjs)
             eactn = actions.Experiment(obj=exp, actions=exp.actions())

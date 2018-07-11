@@ -84,7 +84,6 @@ class GUID(TypeDecorator):
         if isinstance(value, uuid.UUID):
             return value
         else:
-            LOG.error(str(value))
             return uuid.UUID(str(value))
 
 
@@ -291,15 +290,37 @@ def needed_schema(connection, meta):
     except sa.exc.CompileError as cerr:
         LOG.fatal("Schema could not be created! Details: %s", str(cerr))
         sys.exit(-4)
+    except sa.exc.OperationalError:
+        # SQLite throws an OperationalError
+        return False
     except sa.exc.ProgrammingError:
+        # PostgreSQL throws a ProgrammingError
         return False
     return True
 
 
-def setup_versioning():
+def get_version_data():
+    """Retreive migration information."""
     connect_str = settings.CFG["db"]["connect_string"].value()
     repo_url = bbpath.template_path("../db/")
+    return (connect_str, repo_url)
 
+
+def enforce_versioning(force=False):
+    """Install versioning on the db."""
+    connect_str, repo_url = get_version_data()
+    LOG.warning("Your database uses an unversioned benchbuild schema.")
+    if not force and not ui.ask(
+            "Should I enforce version control on your schema?"):
+        LOG.error("User declined schema versioning.")
+        return None
+    repo_version = migrate.version(repo_url, url=connect_str)
+    migrate.version_control(connect_str, repo_url, version=repo_version)
+    return repo_version
+
+
+def setup_versioning():
+    connect_str, repo_url = get_version_data()
     repo_version = migrate.version(repo_url, url=connect_str)
     db_version = None
     requires_versioning = False
@@ -309,19 +330,14 @@ def setup_versioning():
         requires_versioning = True
 
     if requires_versioning:
-        LOG.warning("Your database uses an unversioned benchbuild schema.")
-        if not ui.ask("Should I enforce version control on your schema?"):
-            LOG.error("User declined schema versioning.")
-            return (-1, -1)
-        migrate.version_control(connect_str, repo_url)
-        return setup_versioning()
+        db_version = enforce_versioning()
 
     return (repo_version, db_version)
 
 
 def maybe_update_db(repo_version, db_version):
     if db_version is None:
-        db_version = -1
+        return
     if db_version == repo_version:
         return
 
@@ -371,7 +387,7 @@ class SessionManager(object):
         try:
             self.connection.execution_options(isolation_level="READ COMMITTED")
         except sa.exc.ArgumentError:
-            LOG.error("Unable to set isolation level to READ COMMITTED")
+            LOG.warning("Unable to set isolation level to READ COMMITTED")
         return True
 
     def __init__(self):
@@ -390,6 +406,7 @@ class SessionManager(object):
 
         if needed_schema(self.connection, BASE.metadata):
             LOG.debug("Initialized new db schema.")
+            enforce_versioning(force=True)
         repo_version, db_version = setup_versioning()
         maybe_update_db(repo_version, db_version)
 

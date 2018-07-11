@@ -40,7 +40,7 @@ def configure():
         details_hdl.setFormatter(details_format)
         root_logger.addHandler(details_hdl)
     else:
-        brief_format = logging.Formatter('%(name)s %(message)s')
+        brief_format = logging.Formatter('%(message)s')
         console_hdl = logging.StreamHandler()
         console_hdl.setFormatter(brief_format)
         root_logger.addHandler(console_hdl)

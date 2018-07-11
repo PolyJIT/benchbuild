@@ -291,7 +291,11 @@ def needed_schema(connection, meta):
     except sa.exc.CompileError as cerr:
         LOG.fatal("Schema could not be created! Details: %s", str(cerr))
         sys.exit(-4)
+    except sa.exc.OperationalError:
+        # SQLite throws an OperationalError
+        return False
     except sa.exc.ProgrammingError:
+        # PostgreSQL throws a ProgrammingError
         return False
     return True
 

@@ -349,6 +349,7 @@ def maybe_update_db(repo_version, db_version):
     if not ui.ask("Should I attempt to update your schema to version '{0}'?".
                   format(repo_version)):
         LOG.error("User declined schema upgrade.")
+        return
 
     connect_str = settings.CFG["db"]["connect_string"].value()
     repo_url = bbpath.template_path("../db/")

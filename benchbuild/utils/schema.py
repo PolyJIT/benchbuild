@@ -343,6 +343,11 @@ def get_version_data():
     return (connect_str, repo_url)
 
 
+@exceptions(
+    error_messages={
+        sa.exc.ProgrammingError:
+        "Could not enforce versioning. Are you allowed to modify the database?"
+    })
 def enforce_versioning(force=False):
     """Install versioning on the db."""
     connect_str, repo_url = get_version_data()
@@ -376,7 +381,7 @@ def setup_versioning():
     error_messages={
         sa.exc.ProgrammingError:
         "Update failed."
-        " Base schema version diverged from the expected structure.",
+        " Base schema version diverged from the expected structure."
     })
 def maybe_update_db(repo_version, db_version):
     if db_version is None:
@@ -434,6 +439,10 @@ class SessionManager(object):
             LOG.warning("Unable to set isolation level to READ COMMITTED")
         return True
 
+    @exceptions(error_messages={
+        sa.exc.NoSuchModuleError:
+        "Connect string contained an invalid backend."
+    })
     def __init__(self):
         self.__test_mode = settings.CFG['db']['rollback'].value()
         self.engine = create_engine(

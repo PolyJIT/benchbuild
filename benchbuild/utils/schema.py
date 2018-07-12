@@ -73,7 +73,7 @@ def exceptions(error_is_fatal=True, error_messages=None):
                     details = error_messages[err_type]
                 if details:
                     LOG.error(details)
-                LOG.error("For developers: %s", str(err))
+                LOG.error("For developers: (%s) %s", err.__class__, str(err))
                 if error_is_fatal:
                     sys.exit("Abort, SQL operation failed.")
             return result

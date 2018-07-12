@@ -17,7 +17,103 @@ BenchBuild tracks the execution status of all its managed projects inside an own
 - Wrap compilation commands with arbitrary measurement functions written in python.
 - Wrap binary commands with arbitrary measurement functions written in python.
 - Parallel benchmarking using the SLURM cluster manager.
-- Compile-time support for the gentoo portage tree using the `uchroot` command.
+
+## Installation
+
+BenchBuild is available via PyPI. You can install the latest release with pip.
+```bash
+# Global install
+$ pip install benchbuild
+# Lokal install
+$ pip install --user benchbuild
+# Recommended: Install into a virutalenv.
+$ virtualenv benchbuild
+...
+$ source benchbuild/bin/activate
+...
+$ pip install benchbuild
+```
+
+After installation you can start using benchbuild with the frontend `benchbuild`.
+Without arguments, you will be greeted with the following help output:
+```bash
+benchbuild 3.3.1.dev1+gf43b2d0
+
+Frontend for running/building the benchbuild study framework.
+
+Usage:
+    benchbuild [SWITCHES] [SUBCOMMAND [SWITCHES]] args...
+
+Meta-switches:
+    -h, --help      Prints this help message and quits
+    --help-all      Print help messages of all subcommands and quit
+    --version       Prints the program's version and quits
+
+Switches:
+    -d              Enable debugging output
+    -v              Enable verbose output; may be given multiple times
+
+Subcommands:
+    bootstrap       Bootstrap benchbuild external dependencies, if possible.; see 'benchbuild bootstrap --help' for more info
+    config          Manage BenchBuild's configuration.; see 'benchbuild config --help' for more info
+    experiment      Manage BenchBuild's known experiments.; see 'benchbuild experiment --help' for more info
+    log             Frontend command to the benchbuild database. ; see 'benchbuild log --help' for more info
+    project         Manage BenchBuild's known projects.; see 'benchbuild project --help' for more info
+    report          Generate Reports from the benchbuild db.; see 'benchbuild report --help' for more info
+    run             Frontend for running experiments in the benchbuild study framework.; see 'benchbuild run --help' for more info
+    slurm           Generate a SLURM script. ; see 'benchbuild slurm --help' for more info
+```
+
+You can now start using benchbuild. However, you might want to configure benchbuild to your needs. Therefore, it is recommended to generate a default configuration first.
+```bash
+$ benchbuild config write
+```
+
+This will place a .benchbuild.yml in the current directory, containing all default values for
+your system. You can modify the configuration as you wish, most of the configuration options
+are explained with a description in the config file.
+
+### Important configuration options
+
+The following configuration options are considered to be very important for benchbuild's behavior.
+```
+build_dir (BB_BUILD_DIR):
+  All generated artifacts will be placed in this directory. By default, it will be cleaned
+  at the end of an experiment.
+
+db (BB_DB_*):
+  connect_str (BB_DB_CONNECT_STR):
+    You need to place a valid sqlalchemy connect string here. It will be used to establish a
+    database connection.
+    By default an in-memory SQLite database is used (sqlite:///).
+
+env (BB_ENV_*):
+  ld_library_path (BB_LD_LIBRARY_PATH):
+    Modify benchbuild's LD_LIBRARY_PATH variable. You can use this to provide access to
+    libraries outside of the system's default library search path.
+  path (BB_PATH):
+    Modify benchbuild's PATH variable. You can use this to provide access to
+    binaries outside of the system's default binary search path.
+
+test_dir (BB_TEST_DIR):
+  Some distributed projects require additional test-inputs that are too big for
+  distribution with benchbuild. Therefore, there exists an additional repository (private)
+  that contains the input files for these projects. Please contact the authors for access
+  to this repository, if you need run-time tests with these projects.
+
+tmp_dir (BB_TMP_DIR):
+  BenchBuild will download the source code for all projects into this directory. We avoid
+  repeated downloads by caching them here. This directory won't be cleaned and all downloads
+  are hashed. If you want to re-download the source, just delete the hash file (or the source file).
+
+unionfs (BB_UNIONFS_*):
+  unionfs_enable: (BB_UNIONFS_ENABLE):
+    Enable/Disable unionfs features. By default unionfs is switched off. If you enable unionfs,
+    all projects will be wrapped in two layers: One read-only layer containing the prepared
+    source files and one writeable layer. This way you can easily run different configurations
+    without wiping the build-directory completely. As this requires additional setup, it is
+    not recommended to be switched on by default.
+```
 
 ## Database
 
@@ -73,20 +169,9 @@ runs `benchbuild` in this mode. In addition, you need a working fuse installatio
 an installation of `libfuse` with its headers.
 The `benchbuild bootstrap` command may help you with the installation and setup.
 
-## Installation
-
-After you have installed all necessary libraries, you can just clone this repo and install via pip.
-
-```bash
-$ pip install benchbuild
-```
-
-This will pull in all necessary python libraries into your local python installation.
-The installed program to control the study is called `benchbuild`.
-
 ## Configuration
 
-`benchbuild` can be configured in various ways: (1) command-line arguments, (2) configuration file in .json format, (3) environment variables. 
+`benchbuild` can be configured in various ways: (1) command-line arguments, (2) configuration file in .json format, (3) environment variables.
 You can dump the current active configuration with the command:
 
 ```bash

@@ -8,6 +8,7 @@ During downgrade we will make sure to create the table as needed.
 """
 from sqlalchemy import (MetaData, SmallInteger, BigInteger, Numeric, Table,
                         Column, ForeignKey, Integer, String)
+import sqlalchemy as sa
 from benchbuild.utils.schema import exceptions
 
 META = MetaData()

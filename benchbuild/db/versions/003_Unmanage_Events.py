@@ -8,7 +8,8 @@ During downgrade we will make sure to create the table as needed.
 """
 from sqlalchemy import (MetaData, SmallInteger, BigInteger, Numeric, Table,
                         Column, ForeignKey, Integer, String)
-from benchbuild.utils.schema import Run, RunGroup, Project, Experiment
+import sqlalchemy as sa
+from benchbuild.utils.schema import exceptions
 
 META = MetaData()
 
@@ -33,5 +34,10 @@ def upgrade(migrate_engine):
 
 
 def downgrade(migrate_engine):
-    META.bind = migrate_engine
-    EVENTS.create(checkfirst=True)
+    @exceptions(error_messages={
+        sa.exc.ProgrammingError:
+        "Adding table 'benchbuild_events' failed."
+    })
+    def do_downgrade():
+        META.bind = migrate_engine
+        EVENTS.create()

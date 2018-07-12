@@ -21,6 +21,7 @@ As soon as we have alembic running, we can provide automatic up/downgrade
 paths for you.
 """
 
+import functools
 import logging
 import sys
 import uuid
@@ -32,7 +33,7 @@ from sqlalchemy import (Column, DateTime, Enum, ForeignKey,
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.types import (CHAR, Float, TypeDecorator)
+from sqlalchemy.types import CHAR, Float, TypeDecorator
 
 import benchbuild.settings as settings
 import benchbuild.utils.user_interface as ui
@@ -44,6 +45,48 @@ LOG = logging.getLogger(__name__)
 
 def metadata():
     return BASE.metadata
+
+
+def exceptions(error_is_fatal=True, error_messages=None):
+    """
+    Handle SQLAlchemy exceptions in a sane way.
+
+    Args:
+        func: An arbitrary function to wrap.
+        error_is_fatal: Should we exit the program on exception?
+        reraise: Should we reraise the exception, after logging? Only makes sense
+            if error_is_fatal is False.
+        error_messages: A dictionary that assigns an exception class to a
+            customized error message.
+    """
+
+    def exception_decorator(func):
+        nonlocal error_messages
+
+        @functools.wraps(func)
+        def exc_wrapper(*args, **kwargs):
+            nonlocal error_messages
+            try:
+                result = func(*args, **kwargs)
+            except sa.exc.SQLAlchemyError as err:
+                result = None
+                details = None
+                err_type = err.__class__
+                if error_messages and err_type in error_messages:
+                    details = error_messages[err_type]
+                if details:
+                    LOG.error(details)
+                LOG.error("For developers: (%s) %s", err.__class__, str(err))
+                if error_is_fatal:
+                    sys.exit("Abort, SQL operation failed.")
+                if not ui.ask(
+                        "I can continue at your own risk, do you want that?"):
+                    raise err
+            return result
+
+        return exc_wrapper
+
+    return exception_decorator
 
 
 class GUID(TypeDecorator):
@@ -306,6 +349,11 @@ def get_version_data():
     return (connect_str, repo_url)
 
 
+@exceptions(
+    error_messages={
+        sa.exc.ProgrammingError:
+        "Could not enforce versioning. Are you allowed to modify the database?"
+    })
 def enforce_versioning(force=False):
     """Install versioning on the db."""
     connect_str, repo_url = get_version_data()
@@ -335,6 +383,12 @@ def setup_versioning():
     return (repo_version, db_version)
 
 
+@exceptions(
+    error_messages={
+        sa.exc.ProgrammingError:
+        "Update failed."
+        " Base schema version diverged from the expected structure."
+    })
 def maybe_update_db(repo_version, db_version):
     if db_version is None:
         return
@@ -349,6 +403,7 @@ def maybe_update_db(repo_version, db_version):
     if not ui.ask("Should I attempt to update your schema to version '{0}'?".
                   format(repo_version)):
         LOG.error("User declined schema upgrade.")
+        return
 
     connect_str = settings.CFG["db"]["connect_string"].value()
     repo_url = bbpath.template_path("../db/")
@@ -390,6 +445,10 @@ class SessionManager(object):
             LOG.warning("Unable to set isolation level to READ COMMITTED")
         return True
 
+    @exceptions(error_messages={
+        sa.exc.NoSuchModuleError:
+        "Connect string contained an invalid backend."
+    })
     def __init__(self):
         self.__test_mode = settings.CFG['db']['rollback'].value()
         self.engine = create_engine(

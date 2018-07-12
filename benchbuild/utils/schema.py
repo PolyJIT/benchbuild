@@ -54,6 +54,8 @@ def exceptions(error_is_fatal=True, error_messages=None):
     Args:
         func: An arbitrary function to wrap.
         error_is_fatal: Should we exit the program on exception?
+        reraise: Should we reraise the exception, after logging? Only makes sense
+            if error_is_fatal is False.
         error_messages: A dictionary that assigns an exception class to a
             customized error message.
     """
@@ -67,6 +69,7 @@ def exceptions(error_is_fatal=True, error_messages=None):
             try:
                 result = func(*args, **kwargs)
             except sa.exc.SQLAlchemyError as err:
+                result = None
                 details = None
                 err_type = err.__class__
                 if error_messages and err_type in error_messages:
@@ -76,6 +79,9 @@ def exceptions(error_is_fatal=True, error_messages=None):
                 LOG.error("For developers: (%s) %s", err.__class__, str(err))
                 if error_is_fatal:
                     sys.exit("Abort, SQL operation failed.")
+                if not ui.ask(
+                        "I can continue at your own risk, do you want that?"):
+                    raise err
             return result
 
         return exc_wrapper

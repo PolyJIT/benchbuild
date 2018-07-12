@@ -21,6 +21,7 @@ As soon as we have alembic running, we can provide automatic up/downgrade
 paths for you.
 """
 
+import functools
 import logging
 import sys
 import uuid
@@ -32,7 +33,7 @@ from sqlalchemy import (Column, DateTime, Enum, ForeignKey,
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.types import (CHAR, Float, TypeDecorator)
+from sqlalchemy.types import CHAR, Float, TypeDecorator
 
 import benchbuild.settings as settings
 import benchbuild.utils.user_interface as ui
@@ -44,6 +45,42 @@ LOG = logging.getLogger(__name__)
 
 def metadata():
     return BASE.metadata
+
+
+def exceptions(error_is_fatal=True, error_messages=None):
+    """
+    Handle SQLAlchemy exceptions in a sane way.
+
+    Args:
+        func: An arbitrary function to wrap.
+        error_is_fatal: Should we exit the program on exception?
+        error_messages: A dictionary that assigns an exception class to a
+            customized error message.
+    """
+
+    def exception_decorator(func):
+        nonlocal error_messages
+
+        @functools.wraps(func)
+        def exc_wrapper(*args, **kwargs):
+            nonlocal error_messages
+            try:
+                result = func(*args, **kwargs)
+            except sa.exc.SQLAlchemyError as err:
+                details = None
+                err_type = err.__class__
+                if error_messages and err_type in error_messages:
+                    details = error_messages[err_type]
+                if details:
+                    LOG.error(details)
+                LOG.error("For developers: %s", str(err))
+                if error_is_fatal:
+                    sys.exit("Abort, SQL operation failed.")
+            return result
+
+        return exc_wrapper
+
+    return exception_decorator
 
 
 class GUID(TypeDecorator):
@@ -335,6 +372,12 @@ def setup_versioning():
     return (repo_version, db_version)
 
 
+@exceptions(
+    error_messages={
+        sa.exc.ProgrammingError:
+        "Update failed."
+        " Base schema version diverged from the expected structure.",
+    })
 def maybe_update_db(repo_version, db_version):
     if db_version is None:
         return

@@ -3,8 +3,10 @@ Remove unneeded Regressions table.
 
 This table can and should be reintroduced by an experiment that requires it.
 """
-from sqlalchemy import Table, Column, ForeignKey, Integer, String
-from benchbuild.utils.schema import metadata
+import sqlalchemy as sa
+from sqlalchemy import Column, ForeignKey, Integer, String, Table
+
+from benchbuild.utils.schema import exceptions, metadata
 
 META = metadata()
 REGRESSION = Table('regressions', META,
@@ -19,10 +21,25 @@ REGRESSION = Table('regressions', META,
 
 
 def upgrade(migrate_engine):
-    META.bind = migrate_engine
-    REGRESSION.drop()
+    @exceptions(
+        error_is_fatal=False,
+        error_messages={
+            sa.exc.ProgrammingError:
+            "Removing table 'Regressions' failed. Please delete the table manually"
+        })
+    def do_upgrade():
+        META.bind = migrate_engine
+        REGRESSION.drop()
+
+    do_upgrade()
 
 
 def downgrade(migrate_engine):
-    META.bind = migrate_engine
-    REGRESSION.create()
+    @exceptions(error_messages={
+        sa.exc.ProgrammingError: "Adding table 'Regressions' failed."
+    })
+    def do_downgrade():
+        META.bind = migrate_engine
+        REGRESSION.create()
+
+    do_downgrade()

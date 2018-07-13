@@ -1,7 +1,8 @@
 """Subcommand for project handling."""
 from plumbum import cli
-import benchbuild.project as project
+
 import benchbuild.experiments.empty as empty
+import benchbuild.project as project
 from benchbuild.cli.main import BenchBuild
 
 
@@ -73,11 +74,22 @@ def print_projects(projects=None):
         group_projects = sorted(grouped_by[name])
         for prj in group_projects:
             prj_cls = projects[prj]
-            print("  name: {id:<32} {version:<24} {src}".format(
-                id="{0}/{1}".format(prj_cls.NAME, prj_cls.GROUP),
-                version="version: {0}".format(prj_cls.VERSION),
-                src="source: {0}".format(prj_cls.SRC_FILE)))
+
+            version_str = None
+            if hasattr(prj_cls, 'versions'):
+                version_str = ", ".join(prj_cls.versions())
+
+            project_id = "{0}/{1}".format(prj_cls.NAME, prj_cls.GROUP)
+
+            project_str = \
+                "  name: {id:<32} version: {version:<24} source: {src}".format(
+                    id=str(project_id),
+                    version=str(prj_cls.VERSION),
+                    src=str(prj_cls.SRC_FILE))
+            print(project_str)
             if prj_cls.__doc__:
-                print("    description: {desc}".format(
-                    desc=prj_cls.__doc__.strip("\n ")))
+                docstr = prj_cls.__doc__.strip("\n ")
+                print("    description: {desc}".format(desc=docstr))
+            if version_str:
+                print("    versions: {versions}".format(versions=version_str))
         print()

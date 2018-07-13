@@ -26,7 +26,6 @@ class BenchBuildRun(cli.Application):
     """Frontend for running experiments in the benchbuild study framework."""
 
     experiment_names = []
-    project_names = []
     group_names = None
 
     test_full = cli.Flag(
@@ -48,11 +47,6 @@ class BenchBuildRun(cli.Application):
         help="A description for this experiment run")
     def set_experiment_tag(self, description):
         CFG["experiment_description"] = description
-
-    @cli.switch(
-        ["-P", "--project"], str, list=True, help="Specify projects to run")
-    def set_projects(self, names):
-        self.project_names = names
 
     show_progress = cli.Flag(
         ["--disable-progress"], help="Disable progress bar", default=True)
@@ -100,10 +94,9 @@ class BenchBuildRun(cli.Application):
         actions.Step.ON_STEP_END.append(on_step_end)
         return pg_bar
 
-    def main(self):
+    def main(self, *projects):
         """Main entry point of benchbuild run."""
         experiment_names = self.experiment_names
-        project_names = self.project_names
         group_names = self.group_names
 
         experiments.discover()
@@ -122,7 +115,7 @@ class BenchBuildRun(cli.Application):
         if unknown_exps:
             print('Could not find ', str(unknown_exps),
                   ' in the experiment registry.')
-        prjs = project.populate(project_names, group_names)
+        prjs = project.populate(projects, group_names)
 
         if not exps:
             print("Could not find any experiment. Exiting.")

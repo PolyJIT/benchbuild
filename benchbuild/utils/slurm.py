@@ -43,7 +43,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
     from jinja2 import Environment, PackageLoader
 
     logs_dir = os.path.dirname(CFG['slurm']['logs'].value())
-    node_command = str(benchbuild["-P", "$_project", "-E", experiment.name])
+    node_command = str(benchbuild["-E", experiment.name, "$_project"])
     env = Environment(
         trim_blocks=True,
         lstrip_blocks=True,

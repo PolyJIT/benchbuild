@@ -46,6 +46,5 @@ class Lammps(Project):
 
         clang_cxx = cxx(self)
         with local.cwd(os.path.join(self.src_dir, "src")):
-            run(make["CC=" + str(clang_cxx),
-                     "LINK=" + str(clang_cxx),
-                     "clean", "serial"])
+            run(make["CC=" + str(clang_cxx), "LINK=" + str(clang_cxx), "clean",
+                     "serial"])

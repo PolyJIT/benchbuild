@@ -48,42 +48,18 @@ class BOTSGroup(Project):
     }
 
     input_dict = {
-        "alignment": [
-            "prot.100.aa",
-            "prot.20.aa"
-        ],
-        "floorplan": [
-            "input.15",
-            "input.20",
-            "input.5"
-        ],
-        "health": [
-            "large.input",
-            "medium.input",
-            "small.input",
-            "test.input"
-        ],
+        "alignment": ["prot.100.aa", "prot.20.aa"],
+        "floorplan": ["input.15", "input.20", "input.5"],
+        "health": ["large.input", "medium.input", "small.input", "test.input"],
         "knapsack": [
-            "knapsack-012.input",
-            "knapsack-016.input",
-            "knapsack-020.input",
-            "knapsack-024.input",
-            "knapsack-032.input",
-            "knapsack-036.input",
-            "knapsack-040.input",
-            "knapsack-044.input",
-            "knapsack-048.input",
-            "knapsack-064.input",
-            "knapsack-096.input",
-            "knapsack-128.input"
+            "knapsack-012.input", "knapsack-016.input", "knapsack-020.input",
+            "knapsack-024.input", "knapsack-032.input", "knapsack-036.input",
+            "knapsack-040.input", "knapsack-044.input", "knapsack-048.input",
+            "knapsack-064.input", "knapsack-096.input", "knapsack-128.input"
         ],
         "uts": [
-            "huge.input",
-            "large.input",
-            "medium.input",
-            "small.input",
-            "test.input",
-            "tiny.input"
+            "huge.input", "large.input", "medium.input", "small.input",
+            "test.input", "tiny.input"
         ]
     }
 
@@ -131,8 +107,8 @@ class BOTSGroup(Project):
 
         if self.name in self.input_dict:
             for test_input in self.input_dict[self.name]:
-                input_file = os.path.join(
-                    self.SRC_FILE, "inputs", self.name, test_input)
+                input_file = os.path.join(self.SRC_FILE, "inputs", self.name,
+                                          test_input)
 
                 runner(exp["-f", input_file])
         else:

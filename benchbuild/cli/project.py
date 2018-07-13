@@ -18,12 +18,7 @@ class BBProject(cli.Application):
 class BBProjectView(cli.Application):
     """View available projects."""
 
-    project_names = []
-    group_names = None
-
-    @cli.switch(["-P", "--project"], str, list=True, help="Include project.")
-    def set_projects(self, names):
-        self.project_names = names
+    groups = None
 
     @cli.switch(
         ["-G", "--group"],
@@ -31,15 +26,26 @@ class BBProjectView(cli.Application):
         list=True,
         help="Include projects of this group.")
     def set_group(self, groups):
-        self.group_names = groups
+        self.groups = groups
 
-    def main(self):
-        prjs = project.populate(self.project_names, self.group_names)
-        ee = empty.Empty(projects=prjs)
-        print_projects(ee)
+    def main(self, *projects):
+        print_projects(project.populate(projects, self.groups))
 
 
-def print_projects(exp):
+
+    @cli.switch(
+        ["-G", "--group"],
+        str,
+        list=True,
+        help="Include projects of this group.")
+    def set_group(self, groups):
+        self.groups = groups
+
+    def main(self, *projects):
+        _projects = project.populate(projects, self.groups)
+
+
+def print_projects(projects=None):
     """
     Print a list of projects registered for that experiment.
 
@@ -48,10 +54,10 @@ def print_projects(exp):
 
     """
     grouped_by = {}
-    projects = exp.projects
     if not projects:
         print(
             "Your selection didn't include any projects for this experiment.")
+        return
 
     for name in projects:
         prj = projects[name]

@@ -60,15 +60,6 @@ class BenchBuildLog(cli.Application):
         self._experiment_ids = experiment_ids
 
     @cli.switch(
-        ["-P", "--project"],
-        str,
-        list=True,
-        help="Projects to fetch the log for.")
-    def project(self, projects):
-        """ Set the projects to fetch the log for. """
-        self._projects = projects
-
-    @cli.switch(
         ["-p", "--project-id"],
         str,
         list=True,
@@ -88,11 +79,10 @@ class BenchBuildLog(cli.Application):
 
     _experiments = None
     _experiment_ids = None
-    _projects = None
     _project_ids = None
     _types = None
 
-    def main(self):
+    def main(self, *projects):
         """ Run the log command. """
         from benchbuild.utils.schema import Session, Run, RunLog
 
@@ -100,7 +90,6 @@ class BenchBuildLog(cli.Application):
 
         exps = self._experiments
         exp_ids = self._experiment_ids
-        projects = self._projects
         project_ids = self._project_ids
         types = self._types
 

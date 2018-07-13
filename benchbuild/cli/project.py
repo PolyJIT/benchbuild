@@ -33,19 +33,6 @@ class BBProjectView(cli.Application):
         print_projects(project.populate(projects, self.groups))
 
 
-
-    @cli.switch(
-        ["-G", "--group"],
-        str,
-        list=True,
-        help="Include projects of this group.")
-    def set_group(self, groups):
-        self.groups = groups
-
-    def main(self, *projects):
-        _projects = project.populate(projects, self.groups)
-
-
 def print_projects(projects=None):
     """
     Print a list of projects registered for that experiment.

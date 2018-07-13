@@ -41,10 +41,11 @@ class SpiderMonkey(Project):
         clang_cxx = cxx(self)
         with local.cwd(js_dir):
             make_src_pkg = local["./make-source-package.sh"]
-            with local.env(DIST=self.builddir,
-                           MOZJS_MAJOR_VERSION=0,
-                           MOZJS_MINOR_VERSION=0,
-                           MOZJS_PATCH_VERSION=0):
+            with local.env(
+                    DIST=self.builddir,
+                    MOZJS_MAJOR_VERSION=0,
+                    MOZJS_MINOR_VERSION=0,
+                    MOZJS_PATCH_VERSION=0):
                 make_src_pkg()
 
         mozjs_dir = "mozjs-0.0.0"
@@ -54,8 +55,7 @@ class SpiderMonkey(Project):
             autoconf = local["autoconf-2.13"]
             autoconf()
             with local.cwd("obj"):
-                with local.env(CC=str(clang),
-                               CXX=str(clang_cxx)):
+                with local.env(CC=str(clang), CXX=str(clang_cxx)):
                     configure = local["../configure"]
                     configure = configure["--without-system-zlib"]
                     run(configure)

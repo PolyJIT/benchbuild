@@ -19,8 +19,10 @@ class X264(Project):
     GROUP = 'benchbuild'
     SRC_FILE = 'x264.git'
 
-    inputfiles = {"tbbt-small.y4m": [],
-                  "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}
+    inputfiles = {
+        "tbbt-small.y4m": [],
+        "Sintel.2010.720p.raw": ["--input-res", "1280x720"]
+    }
 
     def prepare(self):
         super(X264, self).prepare()
@@ -66,4 +68,5 @@ class X264(Project):
             testfile = path.join(self.testdir, ifile)
             for _, test in enumerate(tests):
                 runner(exp[testfile, self.inputfiles[ifile], "--threads", "1",
-                        "-o", "/dev/null", test.split(" ")])
+                           "-o", "/dev/null",
+                           test.split(" ")])

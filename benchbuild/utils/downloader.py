@@ -10,7 +10,12 @@ found in BB_TMP_DIR, nothing will be downloaded at all.
 Supported methods:
         Copy, CopyNoFail, Wget, Git, Svn, Rsync
 """
+import logging
+import os
+
 from benchbuild.settings import CFG
+
+LOG = logging.getLogger(__name__)
 
 
 def get_hash_of_dirs(directory):
@@ -24,7 +29,6 @@ def get_hash_of_dirs(directory):
         A hash of all the contents in the directory.
     """
     import hashlib
-    import os
     sha = hashlib.sha512()
     if not os.path.exists(directory):
         return -1
@@ -50,14 +54,14 @@ def source_required(src_file, src_root):
     Returns:
         True, if we need to download something, False otherwise.
     """
-    from os import path
-
     # Check if we need to do something
-    src_dir = path.join(src_root, src_file)
-    hash_file = path.join(src_root, src_file + ".hash")
+    src_dir = os.path.join(src_root, src_file)
+    hash_file = os.path.join(src_root, src_file + ".hash")
 
     required = True
-    if path.exists(src_dir) and path.exists(hash_file):
+    src_exists = os.path.exists(src_dir)
+    hash_exists = os.path.exists(hash_file)
+    if src_exists and hash_exists:
         new_hash = get_hash_of_dirs(src_dir)
         with open(hash_file, 'r') as h_file:
             old_hash = h_file.readline()
@@ -66,6 +70,10 @@ def source_required(src_file, src_root):
             from benchbuild.utils.cmd import rm
             rm("-r", src_dir)
             rm(hash_file)
+    if required:
+        LOG.info("Source required for: %s in %s", src_file, src_dir)
+        LOG.info("Reason: src-exists: %s hash-exists: %s", src_exists,
+                 hash_exists)
     return required
 
 
@@ -77,12 +85,10 @@ def update_hash(src, root):
         src: The file name.
         root: The path of the given file.
     """
-    from os import path
-
-    hash_file = path.join(root, src + ".hash")
+    hash_file = os.path.join(root, src + ".hash")
     new_hash = 0
     with open(hash_file, 'w') as h_file:
-        src_path = path.join(root, src)
+        src_path = os.path.join(root, src)
         new_hash = get_hash_of_dirs(src_path)
         h_file.write(str(new_hash))
     return new_hash
@@ -114,12 +120,11 @@ def CopyNoFail(src, root=None):
     Returns:
         True, if we copied something.
     """
-    from os import path
     if root is None:
         root = str(CFG["tmp_dir"])
-    src_url = path.join(root, src)
+    src_url = os.path.join(root, src)
 
-    if path.exists(src_url):
+    if os.path.exists(src_url):
         Copy(src_url, '.')
         return True
     return False
@@ -138,10 +143,9 @@ def Wget(src_url, tgt_name, tgt_root=None):
     if tgt_root is None:
         tgt_root = str(CFG["tmp_dir"])
 
-    from os import path
     from benchbuild.utils.cmd import wget
 
-    src_path = path.join(tgt_root, tgt_name)
+    src_path = os.path.join(tgt_root, tgt_name)
     if not source_required(tgt_name, tgt_root):
         Copy(src_path, ".")
         return
@@ -151,26 +155,26 @@ def Wget(src_url, tgt_name, tgt_root=None):
     Copy(src_path, ".")
 
 
-def Git(src_url, tgt_name, tgt_root=None, shallow_clone=True):
+def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     """
     Get a clone of the given repo
 
     Args:
-        src_url (str): Git URL of the SOURCE repo.
-        tgt_name (str): Name of the repo folder on disk.
+        repository (str): Git URL of the SOURCE repo.
+        directory (str): Name of the repo folder on disk.
         tgt_root (str): TARGET folder for the git repo.
             Defaults to ``CFG["tmpdir"]``
         shallow_clone (bool): Only clone the repository shallow
             Defaults to true
     """
-    if tgt_root is None:
-        tgt_root = str(CFG["tmp_dir"])
+    repository_loc = str(prefix)
+    if prefix is None:
+        repository_loc = str(CFG["tmp_dir"])
 
-    from os import path
     from benchbuild.utils.cmd import git
 
-    src_dir = path.join(tgt_root, tgt_name)
-    if not source_required(tgt_name, tgt_root):
+    src_dir = os.path.join(repository_loc, directory)
+    if not source_required(directory, repository_loc):
         Copy(src_dir, ".")
         return
 
@@ -179,9 +183,13 @@ def Git(src_url, tgt_name, tgt_root=None, shallow_clone=True):
         extra_param.append("--depth")
         extra_param.append("1")
 
-    git("clone", extra_param, src_url, src_dir)
-    update_hash(tgt_name, tgt_root)
+    git("clone", extra_param, repository, src_dir)    if not rev:
+    if rev:
+        git("checkout", rev)
+
+    update_hash(directory, repository_loc)
     Copy(src_dir, ".")
+    return repository_loc
 
 
 def Svn(url, fname, to=None):
@@ -197,9 +205,7 @@ def Svn(url, fname, to=None):
     if to is None:
         to = CFG["tmp_dir"].value()
 
-    from os import path
-
-    src_dir = path.join(to, fname)
+    src_dir = os.path.join(to, fname)
     if not source_required(fname, to):
         Copy(src_dir, ".")
         return
@@ -223,10 +229,9 @@ def Rsync(url, tgt_name, tgt_root=None):
     if tgt_root is None:
         tgt_root = CFG["tmp_dir"].value()
 
-    from os import path
     from benchbuild.utils.cmd import rsync
 
-    src_dir = path.join(tgt_root, tgt_name)
+    src_dir = os.path.join(tgt_root, tgt_name)
     if not source_required(tgt_name, tgt_root):
         Copy(src_dir, ".")
         return

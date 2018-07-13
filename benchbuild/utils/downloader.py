@@ -192,6 +192,43 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     return repository_loc
 
 
+def with_git(repo,
+             target_dir=None,
+             limit=None,
+             refspec="HEAD",
+             clone=True,
+             rev_list_args=[]):
+    def git_decorator(cls):
+        from benchbuild.utils.cmd import git
+
+        @staticmethod
+        def versions_impl():
+            from plumbum import local
+
+            directory = cls.SRC_FILE if target_dir is None else target_dir
+            repo_prefix = os.path.join(str(CFG["tmp_dir"]))
+            repo_loc = os.path.join(repo_prefix, directory)
+            if source_required(directory, repo_prefix):
+                if not clone:
+                    return []
+                git("clone", repo, repo_loc)
+                update_hash(directory, repo_prefix)
+
+            with local.cwd(repo_loc):
+                rev_list = git("rev-list", "--abbrev-commit", refspec,
+                               *rev_list_args).strip().split('\n')
+                latest = git("rev-parse", "--short=8",
+                             refspec).strip().split('\n')
+                cls.VERSION = latest[0]
+                return rev_list[:limit] if limit else rev_list
+
+        cls.versions = versions_impl
+        cls.repository = repo
+        return cls
+
+    return git_decorator
+
+
 def Svn(url, fname, to=None):
     """
     Checkout the SVN repo.

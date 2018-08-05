@@ -151,15 +151,17 @@ def Wget(src_url, tgt_name, tgt_root=None):
     Copy(src_path, ".")
 
 
-def Git(src_url, tgt_name, tgt_root=None):
+def Git(src_url, tgt_name, tgt_root=None, shallow_clone=True):
     """
-    Get a shallow clone of the given repo
+    Get a clone of the given repo
 
     Args:
         src_url (str): Git URL of the SOURCE repo.
         tgt_name (str): Name of the repo folder on disk.
         tgt_root (str): TARGET folder for the git repo.
             Defaults to ``CFG["tmpdir"]``
+        shallow_clone (bool): Only clone the repository shallow
+            Defaults to true
     """
     if tgt_root is None:
         tgt_root = str(CFG["tmp_dir"])
@@ -172,7 +174,12 @@ def Git(src_url, tgt_name, tgt_root=None):
         Copy(src_dir, ".")
         return
 
-    git("clone", "--depth", "1", src_url, src_dir)
+    extra_param = []
+    if shallow_clone:
+        extra_param.append("--depth")
+        extra_param.append("1")
+
+    git("clone", extra_param, src_url, src_dir)
     update_hash(tgt_name, tgt_root)
     Copy(src_dir, ".")
 

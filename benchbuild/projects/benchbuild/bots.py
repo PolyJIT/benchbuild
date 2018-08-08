@@ -5,11 +5,12 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, mkdir
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Git
+from benchbuild.utils.downloader import Git, with_git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_git("https://github.com/bsc-pm/bots", limit=5)
 class BOTSGroup(Project):
     """
     Barcelona OpenMP Task Suite.

@@ -7,12 +7,17 @@ from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, mkdir, tar
 from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import Git
+from benchbuild.utils.downloader import Git, with_git
 from benchbuild.utils.run import run
 from benchbuild.utils.versions import get_git_hash
 from benchbuild.utils.wrapping import wrap
 
 
+@with_git(
+    "https://github.com/mozilla/gecko-dev.git",
+    target_dir="gecko-dev.git",
+    clone=False,
+    limit=5)
 class SpiderMonkey(Project):
     """
     SpiderMonkey requires a legacy version of autoconf: autoconf-2.13

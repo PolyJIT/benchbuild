@@ -6,11 +6,12 @@ from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import cp, make
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Git
+from benchbuild.utils.downloader import Git, with_git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_git("git://git.videolan.org/x264.git", refspec="HEAD", limit=5)
 class X264(Project):
     """ x264 """
 

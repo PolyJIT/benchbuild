@@ -6,11 +6,12 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make
 from benchbuild.utils.compiler import cxx
-from benchbuild.utils.downloader import Git
+from benchbuild.utils.downloader import Git, with_git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_git("https://github.com/lammps/lammps", limit=5)
 class Lammps(Project):
     """ LAMMPS benchmark """
 
@@ -36,7 +37,7 @@ class Lammps(Project):
     src_uri = "https://github.com/lammps/lammps"
 
     def download(self):
-        Git(self.src_uri, self.src_dir)
+        Git(Lammps.repository, self.src_dir)
 
     def configure(self):
         pass

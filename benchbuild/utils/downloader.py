@@ -198,6 +198,34 @@ def with_git(repo,
              refspec="HEAD",
              clone=True,
              rev_list_args=[]):
+    """
+    Decorate a project class with git-based version information.
+
+    This adds two attributes to a project class:
+        - A `versions` method that returns a list of available versions
+          for this project.
+        - A `repository` attribute that provides a repository string to
+          download from later.
+    We use the `git rev-list` subcommand to list available versions.
+
+    Args:
+        repo (str): Repository to download from, this will be stored
+            in the `repository` attribute of the decorated class.
+        target_dir (str): An optional path where we should put the clone.
+            If unspecified, we will use the `SRC_FILE` attribute of
+            the decorated class.
+        limit (int): Limit the number of commits to consider for available
+            versions. Versions are 'ordered' from latest to oldest.
+        refspec (str): A git refspec string to start listing the versions from.
+        clone (bool): Should we clone the repo if it isn't already available
+            in our tmp dir? Defaults to `True`. You can set this to False to
+            avoid time consuming clones, when the project has not been accessed
+            at least once in your installation.
+        ref_list_args (list of str): Additional arguments you want to pass to 
+            `git rev-list`.
+
+    """
+
     def git_decorator(cls):
         from benchbuild.utils.cmd import git
 

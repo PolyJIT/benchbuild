@@ -112,6 +112,7 @@ class RuntimeExtension(Extension):
                              **kwargs) as run:
             run_info = run()
             if self.config:
+                run_info.add_payload("config", self.config)
                 LOG.info(
                     yaml.dump(
                         self.config,

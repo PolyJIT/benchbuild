@@ -215,6 +215,7 @@ class RunInfo(object):
 
     db_run = attr.ib(init=False, default=None)
     session = attr.ib(init=False, default=None, repr=False)
+    payload = attr.ib(init=False, default=None, repr=False)
 
     def __attrs_post_init__(self):
         self.__begin(self.cmd, self.project, self.experiment.name,
@@ -224,17 +225,13 @@ class RunInfo(object):
         run_id = self.db_run.id
         settings.CFG["db"]["run_id"] = run_id
 
-    def __add__(self, rhs):
-        if rhs is None:
-            return self
-
-        new_run_info = RunInfo(
-            retcode=self.retcode + rhs.retcode,
-            stdout=self.stdout + rhs.stdout,
-            stderr=self.stderr + rhs.stderr,
-            db_run=[self.db_run, rhs.db_run],
-            session=self.session)
-        return new_run_info
+    def add_payload(self, name, payload):
+        if self == payload:
+            return
+        if not self.payload:
+            self.payload = {name: payload}
+        else:
+            self.payload.update({name: payload})
 
     @property
     def has_failed(self):

@@ -584,8 +584,8 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
     ro_base = os.path.abspath(ro_base)
     rw_image = os.path.abspath(rw_image)
     mountpoint = os.path.abspath(mountpoint)
-    return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow",
-                       rw_image + "=RW:" + ro_base + "=RO", mountpoint]
+    return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow", rw_image +
+                       "=RW:" + ro_base + "=RO", mountpoint]
 
 
 def unionfs_is_active(root):

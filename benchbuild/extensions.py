@@ -112,16 +112,13 @@ class RuntimeExtension(Extension):
                              **kwargs) as run:
             run_info = run()
             if self.config:
-                LOG.info("")
-                LOG.info("==CONFIG==")
+                run_info.add_payload("config", self.config)
                 LOG.info(
                     yaml.dump(
                         self.config,
                         width=40,
                         indent=4,
                         default_flow_style=False))
-                LOG.info("==CONFIG==")
-                LOG.info("")
                 self.config['baseline'] = \
                     os.getenv("BB_IS_BASELINE", "False")
                 persist_config(run_info.db_run, run_info.session, self.config)
@@ -252,11 +249,7 @@ class ExtractCompileStats(Extension):
                 if res is not None:
                     yield res
 
-    def __call__(self,
-                 cc,
-                 *args,
-                 project=None,
-                 **kwargs):
+    def __call__(self, cc, *args, project=None, **kwargs):
         from benchbuild.experiments.compilestats import CompileStat
         from benchbuild.utils.db import persist_compilestats
         from benchbuild.utils.schema import Session

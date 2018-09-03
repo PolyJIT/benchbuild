@@ -335,9 +335,15 @@ def needed_schema(connection, meta):
         sys.exit(-4)
     except sa.exc.OperationalError:
         # SQLite throws an OperationalError
+
+        # Now try again to add user-defined tables unconditionally.
+        meta.create_all(connection, checkfirst=True)
         return False
     except sa.exc.ProgrammingError:
         # PostgreSQL throws a ProgrammingError
+
+        # Now try again to add user-defined tables unconditionally.
+        meta.create_all(connection, checkfirst=True)
         return False
     return True
 

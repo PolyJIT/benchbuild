@@ -183,7 +183,7 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
         extra_param.append("--depth")
         extra_param.append("1")
 
-    git("clone", extra_param, repository, src_dir)    if not rev:
+    git("clone", extra_param, repository, src_dir)
     if rev:
         git("checkout", rev)
 

@@ -14,6 +14,7 @@ import logging
 import os
 
 from benchbuild.settings import CFG
+from plumbum import local
 
 LOG = logging.getLogger(__name__)
 
@@ -155,6 +156,42 @@ def Wget(src_url, tgt_name, tgt_root=None):
     Copy(src_path, ".")
 
 
+def with_wget(url_dict=None, target_file=None):
+    """
+    Decorate a project class with wget-based version information.
+
+    This adds two attributes to a project class:
+        - A `versions` method that returns a list of available versions
+          for this project.
+        - A `repository` attribute that provides a repository string to
+          download from later.
+    We use the `git rev-list` subcommand to list available versions.
+
+    Args:
+        url_dict (dict): A dictionary that assigns a version to a download URL.
+        target_file (str): An optional path where we should put the clone.
+            If unspecified, we will use the `SRC_FILE` attribute of
+            the decorated class.
+    """
+
+    def wget_decorator(cls):
+        def download_impl(self):
+            nonlocal url_dict, target_file
+            target_file = target_file if target_file else self.SRC_FILE
+            target_version = url_dict[self.version]
+            Wget(target_version, target_file)
+
+        @staticmethod
+        def versions_impl():
+            return list(url_dict.keys())
+
+        cls.versions = versions_impl
+        cls.download = download_impl
+        return cls
+
+    return wget_decorator
+
+
 def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     """
     Get a clone of the given repo
@@ -185,7 +222,8 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
 
     git("clone", extra_param, repository, src_dir)
     if rev:
-        git("checkout", rev)
+        with local.cwd(src_dir):
+            git("checkout", rev)
 
     update_hash(directory, repository_loc)
     Copy(src_dir, ".")
@@ -231,8 +269,6 @@ def with_git(repo,
 
         @staticmethod
         def versions_impl():
-            from plumbum import local
-
             directory = cls.SRC_FILE if target_dir is None else target_dir
             repo_prefix = os.path.join(str(CFG["tmp_dir"]))
             repo_loc = os.path.join(repo_prefix, directory)
@@ -250,7 +286,15 @@ def with_git(repo,
                 cls.VERSION = latest[0]
                 return rev_list[:limit] if limit else rev_list
 
+        def download_impl(self):
+            nonlocal target_dir, git
+            directory = cls.SRC_FILE if target_dir is None else target_dir
+            Git(self.repository, directory)
+            with local.cwd(directory):
+                git("checkout", self.version)
+
         cls.versions = versions_impl
+        cls.download = download_impl
         cls.repository = repo
         return cls
 

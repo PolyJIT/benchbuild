@@ -31,9 +31,9 @@ from abc import abstractmethod
 import attr
 
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import (Build, Clean, CleanExtra, Configure,
-                                      Download, MakeBuildDir, Prepare,
-                                      RequireAll, Run)
+from benchbuild.utils.actions import (Build, Clean, CleanExtra, Compile,
+                                      Configure, Download, MakeBuildDir,
+                                      Prepare, RequireAll, Run)
 
 
 class ExperimentRegistry(type):
@@ -151,10 +151,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
         """Return a series of actions for a run time experiment."""
         return [
             MakeBuildDir(project),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
+            Compile(project),
             Run(project),
             Clean(project)
         ]
@@ -162,14 +159,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
     @staticmethod
     def default_compiletime_actions(project):
         """Return a series of actions for a compile time experiment."""
-        return [
-            MakeBuildDir(project),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
-            Clean(project)
-        ]
+        return [MakeBuildDir(project), Compile(project), Clean(project)]
 
 
 class Configuration(object):

@@ -22,15 +22,11 @@ class SQLite3(Project):
 
     src_uri = "http://www.sqlite.org/2015/" + SRC_FILE
 
-    def download(self):
+    def compile(self):
         Wget(self.src_uri, self.SRC_FILE)
         unzip(self.SRC_FILE)
         type(self).fetch_leveldb()
 
-    def configure(self):
-        pass
-
-    def build(self):
         clang = cc(self)
 
         with local.cwd(self.src_dir):
@@ -62,6 +58,6 @@ class SQLite3(Project):
         leveldb_dir = "leveldb.src"
         with local.cwd(leveldb_dir):
             with local.env(LD_LIBRARY_PATH=path.abspath(self.src_dir)):
-                sqlite = wrap(path.join("out-static", "db_bench_sqlite3"),
-                              self)
+                sqlite = wrap(
+                    path.join("out-static", "db_bench_sqlite3"), self)
                 run(sqlite)

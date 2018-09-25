@@ -16,14 +16,12 @@ class Crafty(GentooGroup):
     NAME = "gentoo-crafty"
     DOMAIN = "games-board"
 
-    def download(self):
-        super(Crafty, self).download()
-
+    def compile(self):
+        super(Crafty, self).compile()
         book_file = "book.bin"
         book_bin = "http://www.craftychess.com/" + book_file
         Wget(book_bin, book_file)
 
-    def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         uretry(emerge_in_chroot["games-board/crafty"])
 

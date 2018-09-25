@@ -6,7 +6,7 @@ from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import cp, make
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Git, with_git
+from benchbuild.utils.downloader import with_git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
@@ -25,19 +25,14 @@ class X264(Project):
         "Sintel.2010.720p.raw": ["--input-res", "1280x720"]
     }
 
-    def prepare(self):
-        super(X264, self).prepare()
+    src_uri = "git://git.videolan.org/x264.git"
 
+    def compile(self):
+        self.download()
         testfiles = [path.join(self.testdir, x) for x in self.inputfiles]
         for testfile in testfiles:
             cp(testfile, self.builddir)
 
-    src_uri = "git://git.videolan.org/x264.git"
-
-    def download(self):
-        Git(self.src_uri, self.SRC_FILE)
-
-    def configure(self):
         clang = cc(self)
 
         with local.cwd(self.SRC_FILE):
@@ -47,8 +42,6 @@ class X264(Project):
                 run(configure["--disable-thread", "--disable-opencl",
                               "--enable-pic"])
 
-    def build(self):
-        with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, runner):

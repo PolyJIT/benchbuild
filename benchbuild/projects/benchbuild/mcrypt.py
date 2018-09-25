@@ -35,7 +35,7 @@ class MCrypt(Project):
     mhash_uri = "http://sourceforge.net/projects/mhash/files/mhash/0.9.9.9/" + \
         mhash_file
 
-    def download(self):
+    def compile(self):
         Wget(self.src_uri, self.SRC_FILE)
         tar('xfz', self.SRC_FILE)
 
@@ -45,7 +45,6 @@ class MCrypt(Project):
         Wget(self.mhash_uri, self.mhash_file)
         tar('xfz', self.mhash_file)
 
-    def configure(self):
         mcrypt_dir = self.src_dir
         mhash_dir = self.mhash_dir
         libmcrypt_dir = self.libmcrypt_dir
@@ -66,17 +65,18 @@ class MCrypt(Project):
 
         with local.cwd(mcrypt_dir):
             configure = local["./configure"]
-            with local.env(CC=cc(self), CXX=cxx(self),
-                           LD_LIBRARY_PATH=path.join(
-                               self.builddir, "lib") + ":" + CFG["ld_library_path"].value(),
-                           LDFLAGS="-L" + path.join(self.builddir, "lib"),
-                           CFLAGS="-I" + path.join(self.builddir, "include")):
-                run(configure["--disable-dependency-tracking",
-                              "--enable-static", "--disable-shared",
-                              "--with-libmcrypt=" + self.builddir,
-                              "--with-libmhash=" + self.builddir])
+            with local.env(
+                    CC=cc(self),
+                    CXX=cxx(self),
+                    LD_LIBRARY_PATH=path.join(self.builddir, "lib") + ":" +
+                    CFG["ld_library_path"].value(),
+                    LDFLAGS="-L" + path.join(self.builddir, "lib"),
+                    CFLAGS="-I" + path.join(self.builddir, "include")):
+                run(configure[
+                    "--disable-dependency-tracking", "--enable-static",
+                    "--disable-shared", "--with-libmcrypt=" +
+                    self.builddir, "--with-libmhash=" + self.builddir])
 
-    def build(self):
         with local.cwd(self.src_dir):
             run(make["-j", CFG["jobs"]])
 

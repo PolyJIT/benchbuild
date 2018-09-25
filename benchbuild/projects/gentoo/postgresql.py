@@ -20,7 +20,9 @@ class Postgresql(GentooGroup):
     NAME = "gentoo-postgresql"
     DOMAIN = "dev-db/postgresql"
 
-    def build(self):
+    def compile(self):
+        super(Postgresql, self).compile()
+
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         with local.env(USE="server"):
             uretry(emerge_in_chroot["dev-db/postgresql:9.4"])
@@ -70,10 +72,11 @@ class Postgresql(GentooGroup):
                 #switch process names after forking.
                 sleep(3)
                 postgres_root = Process(pid=postgres.pid)
-                real_postgres = [c.pid
-                                 for c in postgres_root.children(True)
-                                 if c.name() == 'postgres.bin' and c.parent(
-                                 ).name() != 'postgres.bin']
+                real_postgres = [
+                    c.pid for c in postgres_root.children(True)
+                    if c.name() == 'postgres.bin'
+                    and c.parent().name() != 'postgres.bin'
+                ]
                 try:
                     runner(createdb)
                     runner(pgbench["-i", "portage"])

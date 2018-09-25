@@ -17,7 +17,7 @@ class Info(ap.AutoPortage):
     NAME = "gentoo-info"
     DOMAIN = "debug"
 
-    def build(self):
+    def compile(self):
         with local.env(CC="gcc", CXX="g++"):
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
             run(emerge_in_chroot["app-portage/portage-utils"])

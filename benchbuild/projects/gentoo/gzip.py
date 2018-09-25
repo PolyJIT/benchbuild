@@ -19,24 +19,23 @@ class GZip(GentooGroup):
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "compression.tar.gz"
-    testfiles = ["text.html", "chicken.jpg", "control", "input.source",
-                 "liberty.jpg"]
+    testfiles = [
+        "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
+    ]
 
-    def prepare(self):
-        super(GZip, self).prepare()
+    def download(self):
+        super(GZip, self).compile()
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
         Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
-    def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         uretry(emerge_in_chroot["app-arch/gzip"])
 
     def run_tests(self, runner):
-        wrap(
-            path.join(self.builddir, "bin", "gzip"), self, self.builddir)
+        wrap(path.join(self.builddir, "bin", "gzip"), self, self.builddir)
         gzip = uchroot()["/bin/gzip"]
 
         # Compress

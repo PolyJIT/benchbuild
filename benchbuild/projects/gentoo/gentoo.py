@@ -140,12 +140,10 @@ class GentooGroup(project.Project):
     def build(self):
         pass
 
-    def download(self):
+    def compile(self):
         if not CFG["unionfs"]["enable"].value():
-            container.unpack_container(
-                self.container, self.builddir)
+            container.unpack_container(self.container, self.builddir)
 
-    def configure(self):
         write_bashrc("etc/portage/bashrc")
         write_makeconfig("etc/portage/make.conf")
         write_wgetrc("etc/wgetrc")

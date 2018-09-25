@@ -6,11 +6,12 @@ from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import cp, make, tar
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Wget
+from benchbuild.utils.downloader import with_wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_wget({"1.6": "http://ftpmirror.gnu.org/gzip/gzip-1.6.tar.xz"})
 class Gzip(Project):
     """ Gzip """
 
@@ -18,20 +19,15 @@ class Gzip(Project):
     DOMAIN = 'compression'
     GROUP = 'benchbuild'
     VERSION = '1.6'
+    SRC_FILE = "gzip.tar.xz"
 
-    testfiles = ["text.html", "chicken.jpg", "control", "input.source",
-                 "liberty.jpg"]
-    src_dir = "gzip-{0}".format(VERSION)
-    SRC_FILE = src_dir + ".tar.xz"
-    src_uri = "http://ftpmirror.gnu.org/gzip/" + SRC_FILE
-
-    def prepare(self):
-        super(Gzip, self).prepare()
-        testfiles = [path.join(self.testdir, x) for x in self.testfiles]
-        cp(testfiles, self.builddir)
+    testfiles = [
+        "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
+    ]
 
     def run_tests(self, runner):
-        exp = wrap(path.join(self.src_dir, "gzip"), self)
+        unpack_dir = "gzip-{0}.tar.xz".format(self.version)
+        exp = wrap(path.join(unpack_dir, "gzip"), self)
 
         # Compress
         runner(exp["-f", "-k", "--best", "text.html"])
@@ -47,18 +43,18 @@ class Gzip(Project):
         runner(exp["-f", "-k", "--decompress", "input.source.gz"])
         runner(exp["-f", "-k", "--decompress", "liberty.jpg.gz"])
 
-    def download(self):
-        Wget(self.src_uri, self.SRC_FILE)
-        tar("xfJ", self.SRC_FILE)
+    def compile(self):
+        self.download()
+        tar("xfJ", self.src_file)
+        unpack_dir = "gzip-{0}.tar.xz".format(self.version)
 
-    def configure(self):
+        testfiles = [path.join(self.testdir, x) for x in self.testfiles]
+        cp(testfiles, '.')
+
         clang = cc(self)
-        with local.cwd(self.src_dir):
+        with local.cwd(unpack_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang)):
                 run(configure["--disable-dependency-tracking",
                               "--disable-silent-rules", "--with-gnu-ld"])
-
-    def build(self):
-        with local.cwd(self.src_dir):
             run(make["-j" + str(CFG["jobs"].value()), "clean", "all"])

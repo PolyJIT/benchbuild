@@ -21,21 +21,18 @@ class TCC(Project):
     src_uri = "http://download-mirror.savannah.gnu.org/releases/tinycc/" + \
         SRC_FILE
 
-    def download(self):
+    def compile(self):
         Wget(self.src_uri, self.SRC_FILE)
         tar("xjf", self.SRC_FILE)
 
-    def configure(self):
         clang = cc(self)
 
         with local.cwd(self.src_dir):
             mkdir("build")
             with local.cwd("build"):
                 configure = local["../configure"]
-                run(configure["--cc="+str(clang), "--with-libgcc"])
+                run(configure["--cc=" + str(clang), "--with-libgcc"])
 
-    def build(self):
-        with local.cwd(self.src_dir):
             with local.cwd("build"):
                 run(make)
 

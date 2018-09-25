@@ -13,7 +13,7 @@ class Eix(GentooGroup):
     NAME = 'eix'
     DOMAIN = 'app-portage'
 
-    def build(self):
+    def compile(self):
         """Compiles and installes eix within gentoo chroot"""
 
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]

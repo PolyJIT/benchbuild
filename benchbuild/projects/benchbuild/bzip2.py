@@ -5,43 +5,37 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.utils.cmd import cp, make, tar
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Wget
+from benchbuild.utils.downloader import with_git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_git("https://gitlab.com/bzip/bzip2", limit=1, refspec="HEAD")
 class Bzip2(Project):
     """ Bzip2 """
 
     NAME = 'bzip2'
     DOMAIN = 'compression'
     GROUP = 'benchbuild'
-    VERSION = '1.0.6'
+    VERSION = 'HEAD'
 
-    testfiles = ["text.html", "chicken.jpg", "control", "input.source",
-                 "liberty.jpg"]
-    src_dir = "bzip2-{0}".format(VERSION)
-    SRC_FILE = src_dir + ".tar.gz"
-    src_uri = "http://www.bzip.org/{0}/".format(VERSION) + SRC_FILE
+    testfiles = [
+        "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
+    ]
+    SRC_FILE = "bzip2.git"
 
-    def download(self):
-        Wget(self.src_uri, self.SRC_FILE)
-        tar('xfz', path.join('.', self.SRC_FILE))
+    def compile(self):
+        self.download()
 
-    def configure(self):
-        pass
-
-    def build(self):
-        clang = cc(self)
-        with local.cwd(self.src_dir):
-            run(make["CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2"])
-
-    def prepare(self):
         testfiles = [path.join(self.testdir, x) for x in self.testfiles]
         cp(testfiles, '.')
 
+        clang = cc(self)
+        with local.cwd(self.src_file):
+            run(make["CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2"])
+
     def run_tests(self, runner):
-        exp = wrap(path.join(self.src_dir, "bzip2"), self)
+        exp = wrap(path.join(self.src_file, "bzip2"), self)
 
         # Compress
         runner(exp["-f", "-z", "-k", "--best", "text.html"])

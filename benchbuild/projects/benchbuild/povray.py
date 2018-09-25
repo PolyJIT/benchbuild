@@ -26,12 +26,17 @@ class Povray(Project):
         "http://sourceforge.net/projects/boost/files/boost/1.59.0/" + \
         boost_src_file
 
-    def download(self):
+    def compile(self):
         Wget(self.boost_src_uri, self.boost_src_file)
         Git(self.src_uri, self.SRC_FILE)
         tar("xfj", self.boost_src_file)
 
-    def configure(self):
+        cp("-ar", path.join(self.testdir, "cfg"), '.')
+        cp("-ar", path.join(self.testdir, "etc"), '.')
+        cp("-ar", path.join(self.testdir, "scenes"), '.')
+        cp("-ar", path.join(self.testdir, "share"), '.')
+        cp("-ar", path.join(self.testdir, "test"), '.')
+
         clang = cc(self)
         clang_cxx = cxx(self)
         # First we have to prepare boost for lady povray...
@@ -50,25 +55,17 @@ class Povray(Project):
 
         with local.cwd(self.SRC_FILE):
             configure = local["./configure"]
-            with local.env(COMPILED_BY="BB <no@mail.nono>",
-                           CC=str(clang),
-                           CXX=str(clang_cxx)):
+            with local.env(
+                    COMPILED_BY="BB <no@mail.nono>",
+                    CC=str(clang),
+                    CXX=str(clang_cxx)):
                 run(configure["--with-boost=" + boost_prefix])
 
-    def build(self):
         povray_binary = path.join(self.SRC_FILE, "unix", self.name)
 
         with local.cwd(self.SRC_FILE):
             rm("-f", povray_binary)
             run(make["clean", "all"])
-
-    def prepare(self):
-        super(Povray, self).prepare()
-        cp("-ar", path.join(self.testdir, "cfg"), '.')
-        cp("-ar", path.join(self.testdir, "etc"), '.')
-        cp("-ar", path.join(self.testdir, "scenes"), '.')
-        cp("-ar", path.join(self.testdir, "share"), '.')
-        cp("-ar", path.join(self.testdir, "test"), '.')
 
     def run_tests(self, runner):
         povray_binary = path.join(self.SRC_FILE, "unix", self.name)
@@ -81,13 +78,14 @@ class Povray(Project):
 
         pov_files = find(scene_dir, "-name", "*.pov").splitlines()
         for pov_f in pov_files:
-            with local.env(POVRAY=povray_binary,
-                           INSTALL_DIR='.',
-                           OUTPUT_DIR=tmpdir,
-                           POVINI=povini):
-                options = ((((head["-n", "50", "\"" + pov_f + "\""] |
-                              grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]) |
-                             head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
-                run(povray["+L" + scene_dir, "+L" + tmpdir, "-i" + pov_f,
-                           "-o" + tmpdir, options, "-p"],
+            with local.env(
+                    POVRAY=povray_binary,
+                    INSTALL_DIR='.',
+                    OUTPUT_DIR=tmpdir,
+                    POVINI=povini):
+                options = ((((head["-n", "50", "\"" + pov_f + "\""]
+                              | grep["-E", "'^//[ ]+[-+]{1}[^ -]'"])
+                             | head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
+                run(povray["+L" + scene_dir, "+L" + tmpdir, "-i" +
+                           pov_f, "-o" + tmpdir, options, "-p"],
                     retcode=None)

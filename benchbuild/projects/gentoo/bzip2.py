@@ -20,24 +20,22 @@ class BZip2(GentooGroup):
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "compression.tar.gz"
-    testfiles = ["text.html", "chicken.jpg", "control", "input.source",
-                 "liberty.jpg"]
+    testfiles = [
+        "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
+    ]
 
-    def prepare(self):
-        super(BZip2, self).prepare()
-
+    def compile(self):
+        super(BZip2, self).compile()
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
         Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
-    def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         uretry(emerge_in_chroot["app-arch/bzip2"])
 
     def run_tests(self, runner):
-        wrap(
-            path.join(self.builddir, "bin", "bzip2"), self, self.builddir)
+        wrap(path.join(self.builddir, "bin", "bzip2"), self, self.builddir)
         bzip2 = uchroot()["/bin/bzip2"]
 
         # Compress
@@ -49,7 +47,10 @@ class BZip2(GentooGroup):
 
         # Decompress
         runner(bzip2["-f", "-k", "--decompress", "compression/text.html.bz2"])
-        runner(bzip2["-f", "-k", "--decompress", "compression/chicken.jpg.bz2"])
+        runner(
+            bzip2["-f", "-k", "--decompress", "compression/chicken.jpg.bz2"])
         runner(bzip2["-f", "-k", "--decompress", "compression/control.bz2"])
-        runner(bzip2["-f", "-k", "--decompress", "compression/input.source.bz2"])
-        runner(bzip2["-f", "-k", "--decompress", "compression/liberty.jpg.bz2"])
+        runner(
+            bzip2["-f", "-k", "--decompress", "compression/input.source.bz2"])
+        runner(
+            bzip2["-f", "-k", "--decompress", "compression/liberty.jpg.bz2"])

@@ -20,6 +20,11 @@ def configure_plumbum_log():
     plumbum_local.propagate = False
 
 
+def configure_parse_log():
+    log = logging.getLogger("parse")
+    log.setLevel(logging.CRITICAL)
+
+
 def configure():
     """Load logging configuration from our own defaults."""
     log_levels = {
@@ -48,6 +53,7 @@ def configure():
 
     configure_plumbum_log()
     configure_migrate_log()
+    configure_parse_log()
 
 
 def set_defaults():

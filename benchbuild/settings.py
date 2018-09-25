@@ -301,7 +301,6 @@ CFG["plugins"] = {
             "benchbuild.projects.benchbuild.leveldb",
             "benchbuild.projects.benchbuild.linpack",
             "benchbuild.projects.benchbuild.lulesh",
-            "benchbuild.projects.benchbuild.luleshomp",
             "benchbuild.projects.benchbuild.mcrypt",
             "benchbuild.projects.benchbuild.minisat",
             "benchbuild.projects.benchbuild.openssl",

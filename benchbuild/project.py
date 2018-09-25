@@ -23,7 +23,7 @@ from functools import partial
 from os import getenv, listdir, path
 
 import attr
-from plumbum import ProcessExecutionError, local
+from plumbum import ProcessExecutionError
 from pygtrie import StringTrie
 
 import benchbuild.extensions as ext
@@ -34,7 +34,6 @@ from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.run import in_builddir, store_config, unionfs
-from benchbuild.utils.versions import get_version_from_cache_dir
 from benchbuild.utils.wrapping import wrap
 
 LOG = logging.getLogger(__name__)
@@ -202,9 +201,7 @@ class Project(object, metaclass=ProjectDecorator):
     container = attr.ib(default=Gentoo())
 
     version = attr.ib(
-        default=attr.Factory(
-            lambda self: get_version_from_cache_dir(self.src_file),
-            takes_self=True))
+        default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
 
     builddir = attr.ib(default=attr.Factory(
         lambda self: path.join(

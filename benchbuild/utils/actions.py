@@ -156,9 +156,8 @@ class StepClass(abc.ABCMeta):
         NAME = result.NAME
         DESCRIPTION = result.DESCRIPTION
         if NAME and DESCRIPTION:
-            result.__call__ = log_before_after(NAME,
-                                               DESCRIPTION)(to_step_result(
-                                                   result.__call__))
+            result.__call__ = log_before_after(NAME, DESCRIPTION)(
+                to_step_result(result.__call__))
         else:
             result.__call__ = to_step_result(result.__call__)
 
@@ -261,8 +260,9 @@ class Clean(Step):
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Clean the directory: {1}".format(
-            self.obj.name, self.obj.builddir), indent * " ")
+        return textwrap.indent(
+            "* {0}: Clean the directory: {1}".format(
+                self.obj.name, self.obj.builddir), indent * " ")
 
 
 class MakeBuildDir(Step):
@@ -278,8 +278,9 @@ class MakeBuildDir(Step):
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Create the build directory".format(
-            self.obj.name), indent * " ")
+        return textwrap.indent(
+            "* {0}: Create the build directory".format(self.obj.name),
+            indent * " ")
 
 
 class Prepare(Step):
@@ -349,8 +350,9 @@ class Run(Step):
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Execute run-time tests.".format(
-            self.obj.name), indent * " ")
+        return textwrap.indent(
+            "* {0}: Execute run-time tests.".format(self.obj.name),
+            indent * " ")
 
 
 @attr.s

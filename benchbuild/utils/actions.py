@@ -332,6 +332,18 @@ class Build(Step):
                                indent * " ")
 
 
+class Compile(Step):
+    NAME = "COMPILE"
+    DESCRIPTION = "Compile the project"
+
+    def __init__(self, project):
+        super(Compile, self).__init__(obj=project, action_fn=project.compile)
+
+    def __str__(self, indent=0):
+        return textwrap.indent("* {0}: Compile".format(self.obj.name),
+                               indent * " ")
+
+
 class Run(Step):
     NAME = "RUN"
     DESCRIPTION = "Execute the run action"

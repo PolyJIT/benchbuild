@@ -109,25 +109,13 @@ class GUID(TypeDecorator):
             return dialect.type_descriptor(CHAR(32))
 
     def process_bind_param(self, value, dialect):
-        if value is None:
-            return value
-        elif dialect.name == 'postgresql':
-            return str(value)
-        else:
-            if not isinstance(value, uuid.UUID):
-                return "%s" % uuid.UUID(value)
-            else:
-                # hexstring
-                return "%x" % value.int
+        return str(value)
 
     def process_result_value(self, value, dialect):
-        if value is None:
-            return value
-
         if isinstance(value, uuid.UUID):
             return value
-        else:
-            return uuid.UUID(str(value))
+
+        return uuid.UUID(str(value))
 
 
 class Run(BASE):
@@ -446,9 +434,11 @@ class SessionManager(object):
             True, if we did not encounter any unrecoverable errors, else False.
         """
         try:
-            self.connection.execution_options(isolation_level="READ COMMITTED")
+            self.connection.dialect
+
+            self.connection.execution_options(isolation_level="SERIALIZABLE")
         except sa.exc.ArgumentError:
-            LOG.warning("Unable to set isolation level to READ COMMITTED")
+            LOG.debug("Unable to set isolation level to SERIALIZABLE")
         return True
 
     @exceptions(error_messages={
@@ -471,7 +461,7 @@ class SessionManager(object):
 
         if needed_schema(self.connection, BASE.metadata):
             LOG.debug("Initialized new db schema.")
-            enforce_versioning(force=True)
+            repo_version = enforce_versioning(force=True)
         repo_version, db_version = setup_versioning()
         maybe_update_db(repo_version, db_version)
 

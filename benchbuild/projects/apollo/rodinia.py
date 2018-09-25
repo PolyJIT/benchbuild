@@ -34,18 +34,9 @@ class RodiniaGroup(Project):
         lambda self: os.path.join(self.src_dir, self.config["dir"]),
         takes_self=True))
 
-    def download(self):
+    def compile(self):
         Wget(self.src_uri, self.SRC_FILE)
         tar("xf", os.path.join('.', self.SRC_FILE))
-
-    def configure(self):
-        pass
-
-    @staticmethod
-    def select_compiler(c_compiler, _):
-        return c_compiler
-
-    def build(self):
         c_compiler = cc(self)
         cxx_compiler = cxx(self)
 
@@ -58,6 +49,10 @@ class RodiniaGroup(Project):
                 compiler = compiler[srcfiles]
                 compiler = compiler["-o", outfile]
                 run(compiler)
+
+    @staticmethod
+    def select_compiler(c_compiler, _):
+        return c_compiler
 
     def run_tests(self, runner):
         for outfile in self.config['src']:

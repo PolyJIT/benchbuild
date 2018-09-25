@@ -32,7 +32,7 @@ class BOTSGroup(Project):
 
     DOMAIN = 'bots'
     GROUP = 'bots'
-    VERSION = '1.1.2'
+    VERSION = 'HEAD'
 
     path_dict = {
         "alignment": "serial/alignment",
@@ -65,13 +65,10 @@ class BOTSGroup(Project):
     }
 
     SRC_FILE = "bots.git"
-    src_uri = "https://github.com/bsc-pm/bots"
 
-    def download(self):
-        Git(self.src_uri, self.SRC_FILE)
-
-    def configure(self):
-        makefile_config = os.path.join(self.SRC_FILE, "config", "make.config")
+    def compile(self):
+        self.download()
+        makefile_config = os.path.join(self.src_file, "config", "make.config")
         clang = cc(self)
 
         with open(makefile_config, 'w') as config:
@@ -96,19 +93,17 @@ class BOTSGroup(Project):
             ]
             lines = [l.format(cc=clang) + "\n" for l in lines]
             config.writelines(lines)
-
-    def build(self):
-        mkdir(os.path.join(self.SRC_FILE, "bin"))
-        with local.cwd(self.SRC_FILE):
+        mkdir(os.path.join(self.src_file, "bin"))
+        with local.cwd(self.src_file):
             run(make["-C", self.path_dict[self.name]])
 
     def run_tests(self, runner):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
-        exp = wrap(os.path.join(self.SRC_FILE, "bin", binary_name), self)
+        exp = wrap(os.path.join(self.src_file, "bin", binary_name), self)
 
         if self.name in self.input_dict:
             for test_input in self.input_dict[self.name]:
-                input_file = os.path.join(self.SRC_FILE, "inputs", self.name,
+                input_file = os.path.join(self.src_file, "inputs", self.name,
                                           test_input)
 
                 runner(exp["-f", input_file])

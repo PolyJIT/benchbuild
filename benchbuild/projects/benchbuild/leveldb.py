@@ -5,29 +5,25 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make
 from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import Git
+from benchbuild.utils.downloader import with_git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_git("https://github.com/google/leveldb", limit=5)
 class LevelDB(Project):
     NAME = 'leveldb'
     DOMAIN = 'database'
     GROUP = 'benchbuild'
     SRC_FILE = 'leveldb.src'
+    VERSION = 'HEAD'
 
-    src_uri = "https://github.com/google/leveldb"
+    def compile(self):
+        self.download()
 
-    def download(self):
-        Git(self.src_uri, self.SRC_FILE)
-
-    def configure(self):
-        pass
-
-    def build(self):
         clang = cc(self)
         clang_cxx = cxx(self)
-        with local.cwd(self.SRC_FILE):
+        with local.cwd(self.src_file):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
                 make("clean")
                 run(make["all", "-i"])
@@ -39,9 +35,8 @@ class LevelDB(Project):
         Args:
             experiment: The experiment's run function.
         """
-        exp = wrap(
-            path.join(self.SRC_FILE, "out-static", "db_bench"), self)
+        exp = wrap(path.join(self.src_file, "out-static", "db_bench"), self)
         with local.env(LD_LIBRARY_PATH="{}:{}".format(
-                path.join(self.SRC_FILE, "out-shared"),
+                path.join(self.src_file, "out-shared"),
                 getenv("LD_LIBRARY_PATH", ""))):
             runner(exp)

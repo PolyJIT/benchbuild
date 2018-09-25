@@ -16,23 +16,20 @@ class X264(GentooGroup):
     DOMAIN = "media-libs"
 
     test_url = "http://lairosiel.de/dist/"
-    inputfiles = {"tbbt-small.y4m": [],
-                  "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}
+    inputfiles = {
+        "tbbt-small.y4m": [],
+        "Sintel.2010.720p.raw": ["--input-res", "1280x720"]
+    }
 
-    def prepare(self):
-        super(X264, self).prepare()
-
+    def compile(self):
+        super(X264, self).compile()
         for testfile in self.inputfiles:
             Wget(self.test_url + testfile, testfile)
-
-    def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         uretry(emerge_in_chroot["media-video/x264-encoder"])
 
     def run_tests(self, runner):
-        wrap(
-            path.join(self.builddir, "usr/bin/x264"), self,
-            self.builddir)
+        wrap(path.join(self.builddir, "usr/bin/x264"), self, self.builddir)
         x264 = uchroot()["/usr/bin/x264"]
 
         tests = [
@@ -48,5 +45,6 @@ class X264(GentooGroup):
 
         for ifile in self.inputfiles:
             for _, test in enumerate(tests):
-                uretry(x264[ifile, self.inputfiles[ifile], "--threads", "1", "-o",
-                            "/dev/null", test.split(" ")])
+                uretry(x264[ifile, self.inputfiles[ifile], "--threads", "1",
+                            "-o", "/dev/null",
+                            test.split(" ")])

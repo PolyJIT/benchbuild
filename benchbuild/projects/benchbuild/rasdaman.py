@@ -23,11 +23,10 @@ class Rasdaman(Project):
     gdal_dir = "gdal"
     gdal_uri = "https://github.com/OSGeo/gdal"
 
-    def download(self):
+    def compile(self):
         Git(self.gdal_uri, self.gdal_dir)
         Git(self.src_uri, self.SRC_FILE)
 
-    def configure(self):
         rasdaman_dir = path.join(self.SRC_FILE)
         gdal_dir = path.join(self.gdal_dir, self.gdal_dir)
         clang = cc(self)
@@ -52,7 +51,6 @@ class Rasdaman(Project):
                               "--with-pic", "--disable-debug",
                               "--without-docs"])
 
-    def build(self):
         with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 

@@ -24,15 +24,14 @@ class Lammps(GentooGroup):
     test_url = "http://lairosiel.de/dist/"
     test_archive = "lammps.tar.gz"
 
-    def prepare(self):
-        super(Lammps, self).prepare()
+    def compile(self):
+        super(Lammps, self).compile()
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
         Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
-    def build(self):
         emerge_in_chroot = uchroot()["/usr/bin/emerge"]
         with local.env(USE="-mpi -doc"):
             uretry(emerge_in_chroot["sci-physics/lammps"])

@@ -20,8 +20,8 @@ class Minisat(Project):
     SRC_FILE = 'minisat.git'
 
     def run_tests(self, runner):
-        minisat_lib_path = path.abspath(path.join(
-            self.SRC_FILE, "build", "dynamic", "lib"))
+        minisat_lib_path = path.abspath(
+            path.join(self.SRC_FILE, "build", "dynamic", "lib"))
 
         exp = wrap(
             path.join(self.SRC_FILE, "build", "dynamic", "bin", "minisat"),
@@ -35,19 +35,15 @@ class Minisat(Project):
 
     src_uri = "https://github.com/niklasso/minisat"
 
-    def download(self):
+    def compile(self):
         Git(self.src_uri, self.SRC_FILE)
         with local.cwd(self.SRC_FILE):
             git("fetch", "origin", "pull/17/head:clang")
             git("checkout", "clang")
 
-    def configure(self):
-        with local.cwd(self.SRC_FILE):
             run(make["config"])
 
-    def build(self):
-        with local.cwd(self.SRC_FILE):
             clang = cc(self)
             clang_cxx = cxx(self)
-            run(make["CC=" + str(clang), "CXX=" + str(clang_cxx), "clean",
-                     "lsh", "sh"])
+            run(make["CC=" + str(clang), "CXX=" +
+                     str(clang_cxx), "clean", "lsh", "sh"])

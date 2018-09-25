@@ -28,20 +28,16 @@ class SevenZip(Project):
               "project/p7zip/p7zip/{0}/".format(VERSION) + \
               SRC_FILE
 
-    def download(self):
+    def compile(self):
         Wget(self.src_uri, self.SRC_FILE)
         tar('xfj', self.SRC_FILE)
         cp(
             path.join(self.src_dir, "makefile.linux_clang_amd64_asm"),
             path.join(self.src_dir, "makefile.machine"))
 
-    def configure(self):
-        pass
-
-    def build(self):
         clang = cc(self)
         clang_cxx = cxx(self)
 
         with local.cwd(self.src_dir):
-            run(make["CC=" + str(clang), "CXX=" + str(clang_cxx), "clean",
-                     "all"])
+            run(make["CC=" + str(clang), "CXX=" +
+                     str(clang_cxx), "clean", "all"])

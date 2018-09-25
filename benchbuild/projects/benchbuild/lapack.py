@@ -7,28 +7,24 @@ from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import Git, Wget
+from benchbuild.utils.downloader import with_git, with_wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_git("https://github.com/xianyi/OpenBLAS", limit=5)
 class OpenBlas(Project):
     NAME = 'openblas'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     SRC_FILE = 'OpenBLAS'
+    VERSION = 'HEAD'
 
-    src_uri = "https://github.com/xianyi/" + SRC_FILE
+    def compile(self):
+        self.download()
 
-    def download(self):
-        Git(self.src_uri, self.SRC_FILE)
-
-    def configure(self):
-        pass
-
-    def build(self):
         clang = cc(self)
-        with local.cwd(self.SRC_FILE):
+        with local.cwd(self.src_file):
             run(make["CC=" + str(clang)])
 
     def run_tests(self, runner):
@@ -37,6 +33,7 @@ class OpenBlas(Project):
         log.warning('Not implemented')
 
 
+@with_wget({"3.2.1": "http://www.netlib.org/clapack/clapack.tgz"})
 class Lapack(Project):
     NAME = 'lapack'
     DOMAIN = 'scientific'
@@ -44,17 +41,14 @@ class Lapack(Project):
     VERSION = '3.2.1'
     SRC_FILE = "clapack.tgz"
 
-    src_dir = "CLAPACK-{0}".format(VERSION)
-    src_uri = "http://www.netlib.org/clapack/clapack.tgz"
+    def compile(self):
+        self.download()
+        tar("xfz", self.src_file)
+        unpack_dir = "CLAPACK-{0}".format(self.version)
 
-    def download(self):
-        Wget(self.src_uri, self.SRC_FILE)
-        tar("xfz", self.SRC_FILE)
-
-    def configure(self):
         clang = cc(self)
         clang_cxx = cxx(self)
-        with local.cwd(self.src_dir):
+        with local.cwd(unpack_dir):
             with open("make.inc", 'w') as makefile:
                 content = [
                     "SHELL     = /bin/sh\n", "PLAT      = _LINUX\n",
@@ -76,15 +70,14 @@ class Lapack(Project):
                 ]
                 makefile.writelines(content)
 
-    def build(self):
-        with local.cwd(self.src_dir):
             run(make["-j", CFG["jobs"], "f2clib", "blaslib"])
             with local.cwd(path.join("BLAS", "TESTING")):
                 run(make["-j", CFG["jobs"], "-f", "Makeblat2"])
                 run(make["-j", CFG["jobs"], "-f", "Makeblat3"])
 
     def run_tests(self, runner):
-        with local.cwd(self.src_dir):
+        unpack_dir = "CLAPACK-{0}".format(self.version)
+        with local.cwd(unpack_dir):
             with local.cwd(path.join("BLAS")):
                 xblat2s = wrap("xblat2s", self)
                 xblat2d = wrap("xblat2d", self)

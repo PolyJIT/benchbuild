@@ -23,11 +23,10 @@ class Python(Project):
     src_uri = "https://www.python.org/ftp/python/{0}/".format(VERSION) \
         + SRC_FILE
 
-    def download(self):
+    def compile(self):
         Wget(self.src_uri, self.SRC_FILE)
         tar("xfJ", self.SRC_FILE)
 
-    def configure(self):
         clang = cc(self)
         clang_cxx = cxx(self)
 
@@ -36,8 +35,6 @@ class Python(Project):
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 run(configure["--disable-shared", "--without-gcc"])
 
-    def build(self):
-        with local.cwd(self.src_dir):
             run(make)
 
     def run_tests(self, runner):

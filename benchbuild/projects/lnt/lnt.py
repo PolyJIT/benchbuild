@@ -41,7 +41,7 @@ class LNTGroup(Project):
     clang_cxx = None
     binary = None
 
-    def download(self):
+    def compile(self):
         Git(self.src_uri, self.src_dir)
         Git(self.test_suite_uri, self.test_suite_dir)
 
@@ -54,7 +54,6 @@ class LNTGroup(Project):
             pip("install", "--no-cache-dir", "--disable-pip-version-check",
                 "-e", ".")
 
-    def configure(self):
         sandbox_dir = path.join(self.builddir, "run")
         if path.exists(sandbox_dir):
             rm("-rf", sandbox_dir)
@@ -66,20 +65,19 @@ class LNTGroup(Project):
         self.clang = cc(self, detect_project=True)
         self.clang_cxx = cxx(self, detect_project=True)
 
-    @staticmethod
-    def after_run_tests(sandbox_dir):
-        logfiles = glob(path.join(sandbox_dir, "./*/test.log"))
-        for log in logfiles:
-            LOG.info("Dumping contents of: %s", log)
-            (cat[log] & FG)  # pylint: disable=pointless-statement
-
-    def build(self):
         self.lnt("runtest", "test-suite", "-v", "-j1", "--sandbox",
                  self.sandbox_dir, "--benchmarking-only",
                  "--only-compile", "--cc", str(self.clang), "--cxx",
                  str(self.clang_cxx), "--test-suite",
                  path.join(self.builddir,
                            self.test_suite_dir), "--only-test=" + self.SUBDIR)
+
+    @staticmethod
+    def after_run_tests(sandbox_dir):
+        logfiles = glob(path.join(sandbox_dir, "./*/test.log"))
+        for log in logfiles:
+            LOG.info("Dumping contents of: %s", log)
+            (cat[log] & FG)  # pylint: disable=pointless-statement
 
     def run_tests(self, runner):
         binary = wrap_dynamic(
@@ -91,8 +89,8 @@ class LNTGroup(Project):
                         str(self.clang_cxx), "--test-suite",
                         path.join(self.builddir, self.test_suite_dir),
                         "--test-style", "simple", "--test-externals",
-                        self.builddir, "--make-param=RUNUNDER=" + str(binary),
-                        "--only-test=" + self.SUBDIR])
+                        self.builddir, "--make-param=RUNUNDER=" +
+                        str(binary), "--only-test=" + self.SUBDIR])
 
         LNTGroup.after_run_tests(self.sandbox_dir)
 
@@ -120,9 +118,9 @@ class SPEC2006(LNTGroup):
     DOMAIN = 'LNT (Ext)'
     SUBDIR = path.join("External", "SPEC")
 
-    def download(self):
+    def compile(self):
         if CopyNoFail('speccpu2006'):
-            super(SPEC2006, self).download()
+            super(SPEC2006, self).compile()
         else:
             print('======================================================')
             print(('SPECCPU2006 not found in %s. This project will fail.',
@@ -138,6 +136,6 @@ class Povray(LNTGroup):
     povray_url = "https://github.com/POV-Ray/povray"
     povray_src_dir = "Povray"
 
-    def download(self):
-        super(Povray, self).download()
+    def compile(self):
         Git(self.povray_url, self.povray_src_dir)
+        super(Povray, self).compile()

@@ -17,10 +17,9 @@ class SDCC(Project):
 
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + SRC_FILE
 
-    def download(self):
+    def compile(self):
         Svn(self.src_uri, self.SRC_FILE)
 
-    def configure(self):
         clang = cc(self)
         clang_cxx = cxx(self)
 
@@ -30,8 +29,6 @@ class SDCC(Project):
                 run(configure["--without-ccache", "--disable-pic14-port",
                               "--disable-pic16-port"])
 
-    def build(self):
-        with local.cwd(self.SRC_FILE):
             run(make["-j", CFG["jobs"]])
 
     def run_tests(self, runner):

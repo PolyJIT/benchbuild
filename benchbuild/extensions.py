@@ -57,21 +57,17 @@ class Extension(metaclass=ABCMeta):
         """
         all_results = []
         for ext in self.next_extensions:
-            LOG.debug("  ++ - %s ", ext.__class__)
+            LOG.debug("  %s ", ext)
             results = ext(*args, **kwargs)
-            LOG.debug("  -- - %s => %s", ext.__class__, results)
+            LOG.debug("  %s => %s", ext, results)
             if results is None:
-                LOG.warning("No result from: %s", ext.__class__)
+                LOG.warning("No result from: %s", ext)
                 continue
             result_list = []
             if isinstance(results, Iterable):
                 result_list.extend(results)
             else:
                 result_list.append(results)
-            status_list = [r.db_run.status for r in result_list]
-            LOG.debug("  -- %s - %s => %s", str(status_list), ext.__class__,
-                      results)
-
             all_results.extend(result_list)
 
         return all_results
@@ -88,6 +84,9 @@ class Extension(metaclass=ABCMeta):
 
     def __call__(self, *args, **kwargs):
         return self.call_next(*args, **kwargs)
+
+    def __str__(self):
+        return "Extension"
 
 
 class RuntimeExtension(Extension):
@@ -125,6 +124,9 @@ class RuntimeExtension(Extension):
         res = self.call_next(binary_command, *args, **kwargs)
         res.append(run_info)
         return res
+
+    def __str__(self):
+        return "Run wrapped binary"
 
 
 class RunWithTimeout(Extension):
@@ -184,6 +186,9 @@ class LogAdditionals(Extension):
 
         return res
 
+    def __str__(self):
+        return "Dump additional log files"
+
 
 class RunWithTime(Extension):
     """Wrap a command with time and store the timings in the database."""
@@ -213,6 +218,9 @@ class RunWithTime(Extension):
 
         res = self.call_next(run_cmd, *args, **kwargs)
         return handle_timing(res)
+
+    def __str__(self):
+        return "Time execution of wrapped binary"
 
 
 class ExtractCompileStats(Extension):
@@ -311,6 +319,9 @@ class ExtractCompileStats(Extension):
         session.commit()
         return ret
 
+    def __str__(self):
+        return "Track compilation statistics"
+
 
 class RunCompiler(Extension):
     """Default extension for compiler execution.
@@ -363,6 +374,9 @@ class RunCompiler(Extension):
         res.append(run_info)
         return res
 
+    def __str__(self):
+        return "Compile /w fallback"
+
 
 class SetThreadLimit(Extension):
     """Sets the OpenMP thread limit, based on your settings.
@@ -385,6 +399,9 @@ class SetThreadLimit(Extension):
         with local.env(OMP_NUM_THREADS=str(jobs)):
             ret = self.call_next(binary_command, *args, **kwargs)
         return ret
+
+    def __str__(self):
+        return "Limit number of OpenMP threads"
 
 
 class Rerun(Extension):

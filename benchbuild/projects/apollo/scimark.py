@@ -1,4 +1,4 @@
-from os import path
+from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, unzip
@@ -21,10 +21,10 @@ class SciMark(Project):
 
     def compile(self):
         Wget(self.src_uri, self.SRC_FILE)
-        unzip(path.join('.', self.SRC_FILE))
+        unzip(local.cwd / self.SRC_FILE)
         clang = cc(self)
         run(make["CC=" + str(clang), "scimark2"])
 
     def run_tests(self, runner):
-        exp = wrap(path.join(self.builddir, "scimark2"), self)
+        exp = wrap(local.path(self.builddir) / "scimark2", self)
         runner(exp)

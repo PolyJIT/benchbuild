@@ -1,5 +1,4 @@
 import logging
-from os import path
 
 from plumbum import local
 
@@ -71,29 +70,28 @@ class Lapack(Project):
                 makefile.writelines(content)
 
             run(make["-j", CFG["jobs"], "f2clib", "blaslib"])
-            with local.cwd(path.join("BLAS", "TESTING")):
+            with local.cwd(local.path("BLAS") / "TESTING"):
                 run(make["-j", CFG["jobs"], "-f", "Makeblat2"])
                 run(make["-j", CFG["jobs"], "-f", "Makeblat3"])
 
     def run_tests(self, runner):
-        unpack_dir = "CLAPACK-{0}".format(self.version)
-        with local.cwd(unpack_dir):
-            with local.cwd(path.join("BLAS")):
-                xblat2s = wrap("xblat2s", self)
-                xblat2d = wrap("xblat2d", self)
-                xblat2c = wrap("xblat2c", self)
-                xblat2z = wrap("xblat2z", self)
+        unpack_dir = local.path("CLAPACK-{0}".format(self.version))
+        with local.cwd(unpack_dir / "BLAS"):
+            xblat2s = wrap("xblat2s", self)
+            xblat2d = wrap("xblat2d", self)
+            xblat2c = wrap("xblat2c", self)
+            xblat2z = wrap("xblat2z", self)
 
-                xblat3s = wrap("xblat3s", self)
-                xblat3d = wrap("xblat3d", self)
-                xblat3c = wrap("xblat3c", self)
-                xblat3z = wrap("xblat3z", self)
+            xblat3s = wrap("xblat3s", self)
+            xblat3d = wrap("xblat3d", self)
+            xblat3c = wrap("xblat3c", self)
+            xblat3z = wrap("xblat3z", self)
 
-                runner((xblat2s < "sblat2.in"))
-                runner((xblat2d < "dblat2.in"))
-                runner((xblat2c < "cblat2.in"))
-                runner((xblat2z < "zblat2.in"))
-                runner((xblat3s < "sblat3.in"))
-                runner((xblat3d < "dblat3.in"))
-                runner((xblat3c < "cblat3.in"))
-                runner((xblat3z < "zblat3.in"))
+            runner((xblat2s < "sblat2.in"))
+            runner((xblat2d < "dblat2.in"))
+            runner((xblat2c < "cblat2.in"))
+            runner((xblat2z < "zblat2.in"))
+            runner((xblat3s < "sblat3.in"))
+            runner((xblat3d < "dblat3.in"))
+            runner((xblat3c < "cblat3.in"))
+            runner((xblat3z < "zblat3.in"))

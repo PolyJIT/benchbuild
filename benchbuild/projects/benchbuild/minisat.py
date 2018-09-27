@@ -1,16 +1,14 @@
-from glob import glob
-from os import path
-
 from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import git, make
 from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import Git
+from benchbuild.utils.downloader import with_git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_git("https://github.com/niklasso/minisat", limit=5)
 class Minisat(Project):
     """ minisat benchmark """
 
@@ -18,26 +16,21 @@ class Minisat(Project):
     DOMAIN = 'verification'
     GROUP = 'benchbuild'
     SRC_FILE = 'minisat.git'
+    VERSION = 'HEAD'
 
     def run_tests(self, runner):
-        minisat_lib_path = path.abspath(
-            path.join(self.SRC_FILE, "build", "dynamic", "lib"))
+        src_path = local.path(self.src_file)
+        minisat_lib_path = src_path / "build" / "dynamic" / "lib"
+        testfiles = local.path(self.testdir) // "*.cnf.gz"
 
-        exp = wrap(
-            path.join(self.SRC_FILE, "build", "dynamic", "bin", "minisat"),
-            self)
-
-        testfiles = glob(path.join(self.testdir, "*.cnf.gz"))
-
+        exp = wrap(src_path / "build" / "dynamic" / "bin" / "minisat", self)
         for test_f in testfiles:
             cmd = (exp.with_env(LD_LIBRARY_PATH=minisat_lib_path) < test_f)
             runner(cmd, None)
 
-    src_uri = "https://github.com/niklasso/minisat"
-
     def compile(self):
-        Git(self.src_uri, self.SRC_FILE)
-        with local.cwd(self.SRC_FILE):
+        self.download()
+        with local.cwd(self.src_file):
             git("fetch", "origin", "pull/17/head:clang")
             git("checkout", "clang")
 

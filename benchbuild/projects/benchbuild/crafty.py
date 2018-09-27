@@ -1,5 +1,3 @@
-from os import path
-
 from plumbum import local
 
 from benchbuild.project import Project
@@ -33,7 +31,7 @@ class Crafty(Project):
         mkdir(unpack_dir)
 
         with local.cwd(unpack_dir):
-            unzip(path.join("..", self.src_file))
+            unzip(local.path("..") / self.src_file)
         mv(book_file, unpack_dir)
 
         clang = cc(self)
@@ -47,9 +45,6 @@ class Crafty(Project):
         unpack_dir = "crafty.src"
         with local.cwd(unpack_dir):
             exp = wrap("./crafty", self)
-            runner(
-                (cat[path.join(self.testdir, "test1.sh")] | exp),
-                retcode=[0, 120])
-            runner(
-                (cat[path.join(self.testdir, "test2.sh")] | exp),
-                retcode=[0, 120])
+            testdir = local.path(self.testdir)
+            runner((cat[testdir / "test1.sh"] | exp), retcode=[0, 120])
+            runner((cat[testdir / "test2.sh"] | exp), retcode=[0, 120])

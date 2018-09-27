@@ -1,5 +1,3 @@
-from os import path
-
 from plumbum import local
 
 from benchbuild.project import Project
@@ -39,7 +37,7 @@ class Ccrypt(Project):
     def run_tests(self, runner):
         unpack_dir = 'ccrypt-{0}'.format(self.version)
         with local.cwd(unpack_dir):
-            wrap(path.join("src", self.name), self)
-            wrap(path.join("check", "crypt3-check"), self)
-            wrap(path.join("check", "rijndael-check"), self)
+            wrap(local.path("src") / self.name, self)
+            wrap(local.path("check") / "crypt3-check", self)
+            wrap(local.path("check") / "rijndael-check", self)
             run(make["check"])

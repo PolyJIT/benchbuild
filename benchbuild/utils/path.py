@@ -1,6 +1,5 @@
 """ Path utilities for benchbuild. """
 import os
-import sys
 
 import benchbuild.utils.user_interface as ui
 

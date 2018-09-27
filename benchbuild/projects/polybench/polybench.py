@@ -1,11 +1,10 @@
 import logging
-from os import path
 
 from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import cp, diff, tar
+from benchbuild.utils.cmd import diff, tar
 from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import with_wget
 from benchbuild.utils.run import run

@@ -1,5 +1,4 @@
 #pylint: disable=E1135,E1136
-import os
 import attr
 
 from plumbum import local
@@ -31,12 +30,12 @@ class RodiniaGroup(Project):
         lambda self: type(self).CONFIG, takes_self=True))
 
     in_src_dir = attr.ib(default=attr.Factory(
-        lambda self: os.path.join(self.src_dir, self.config["dir"]),
+        lambda self: local.path(self.src_dir) / self.config["dir"],
         takes_self=True))
 
     def compile(self):
         Wget(self.src_uri, self.SRC_FILE)
-        tar("xf", os.path.join('.', self.SRC_FILE))
+        tar("xf", local.cwd / self.SRC_FILE)
         c_compiler = cc(self)
         cxx_compiler = cxx(self)
 
@@ -56,7 +55,7 @@ class RodiniaGroup(Project):
 
     def run_tests(self, runner):
         for outfile in self.config['src']:
-            wrap(os.path.join(self.in_src_dir, outfile), self)
+            wrap(local.path(self.in_src_dir) /  outfile, self)
 
         with local.cwd(self.in_src_dir):
             test_runner = sh["./run"]

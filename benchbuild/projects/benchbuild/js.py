@@ -1,5 +1,4 @@
 from functools import partial
-from os import path
 
 from plumbum import local
 
@@ -33,7 +32,7 @@ class SpiderMonkey(Project):
     def compile(self):
         self.download()
 
-        js_dir = path.join(self.src_file, "js", "src")
+        js_dir = local.path(self.src_file) / "js" / "src"
         clang = cc(self)
         clang_cxx = cxx(self)
         with local.cwd(js_dir):
@@ -45,9 +44,10 @@ class SpiderMonkey(Project):
                     MOZJS_PATCH_VERSION=0):
                 make_src_pkg()
 
-        mozjs_dir = "mozjs-0.0.0"
+        mozjs_dir = local.path("mozjs-0.0.0")
+        mozjs_src_dir = mozjs_dir / "js" / "src"
         tar("xfj", mozjs_dir + ".tar.bz2")
-        with local.cwd(path.join(mozjs_dir, "js", "src")):
+        with local.cwd(mozjs_src_dir):
             mkdir("obj")
             autoconf = local["autoconf-2.13"]
             autoconf()
@@ -57,14 +57,14 @@ class SpiderMonkey(Project):
                     configure = configure["--without-system-zlib"]
                     run(configure)
 
-        mozjs_dir = path.join("mozjs-0.0.0", "js", "src", "obj")
-        with local.cwd(mozjs_dir):
+        mozjs_obj_dir = mozjs_src_dir / "obj"
+        with local.cwd(mozjs_obj_dir):
             run(make["-j", CFG["jobs"].value()])
 
     def run_tests(self, runner):
-        mozjs_dir = path.join("mozjs-0.0.0", "js", "src", "obj")
+        mozjs_obj_dir = local.path("mozjs-0.0.0") / "js" / "src" / "obj"
         self.runtime_extension = partial(self, may_wrap=False)
-        wrap(path.join(mozjs_dir, "js", "src", "shell", "js"), self)
+        wrap(mozjs_obj_dir / "js" / "src" / "shell" / "js", self)
 
-        with local.cwd(mozjs_dir):
+        with local.cwd(mozjs_obj_dir):
             run(make["check-jstests"])

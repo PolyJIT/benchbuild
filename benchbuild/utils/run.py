@@ -539,7 +539,6 @@ def in_builddir(sub='.'):
         sub: An optional subdirectory to change into.
     """
     from functools import wraps
-    from os import path
 
     def wrap_in_builddir(func):
         """Wrap the function for the new build directory."""
@@ -547,7 +546,7 @@ def in_builddir(sub='.'):
         @wraps(func)
         def wrap_in_builddir_func(self, *args, **kwargs):
             """The actual function inside the wrapper for the new builddir."""
-            p = path.abspath(path.join(self.builddir, sub))
+            p = local.path(self.builddir) / sub
             try:
                 with local.cwd(p):
                     return func(self, *args, **kwargs)
@@ -568,21 +567,22 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
         rw_image: virtual image of actual file system
         mountpoint: location where ro_base and rw_image merge
     """
-    if not os.path.exists(mountpoint):
+    ro_base_p = local.path(ro_base)
+    mountpoint_p = local.path(mountpoint)
+    rw_image_p = local.path(rw_image)
+
+    if not mountpoint_p.exists():
         mkdir("-p", mountpoint)
-    if not os.path.exists(ro_base):
-        LOG.error("Base dir does not exist: '%s'", ro_base)
+    if not ro_base_p.exists():
+        LOG.error("Base dir does not exist: '%s'", ro_base_p)
         raise ValueError("Base directory does not exist")
-    if not os.path.exists(rw_image):
-        LOG.error("Image dir does not exist: '%s'", ro_base)
+    if not rw_image_p.exists():
+        LOG.error("Image dir does not exist: '%s'", rw_image_p)
         raise ValueError("Image directory does not exist")
 
     from benchbuild.utils.cmd import unionfs as unionfs_cmd
-    ro_base = os.path.abspath(ro_base)
-    rw_image = os.path.abspath(rw_image)
-    mountpoint = os.path.abspath(mountpoint)
-    return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow", rw_image +
-                       "=RW:" + ro_base + "=RO", mountpoint]
+    return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow", rw_image_p +
+                       "=RW:" + ro_base_p + "=RO", mountpoint_p]
 
 
 def unionfs_is_active(root):
@@ -737,8 +737,7 @@ def store_config(func):
     @wraps(func)
     def wrap_store_config(self, *args, **kwargs):
         """Wrapper that contains the actual storage call for the config."""
-        p = os.path.abspath(os.path.join(self.builddir))
-        CFG.store(os.path.join(p, ".benchbuild.yml"))
+        CFG.store(local.path(self.builddir) / ".benchbuild.yml")
         return func(self, *args, **kwargs)
 
     return wrap_store_config

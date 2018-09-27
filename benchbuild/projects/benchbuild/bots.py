@@ -1,11 +1,9 @@
-import os
-
 from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, mkdir
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Git, with_git
+from benchbuild.utils.downloader import with_git
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
@@ -68,7 +66,7 @@ class BOTSGroup(Project):
 
     def compile(self):
         self.download()
-        makefile_config = os.path.join(self.src_file, "config", "make.config")
+        makefile_config = local.path(self.src_file) / "config" / "make.config"
         clang = cc(self)
 
         with open(makefile_config, 'w') as config:
@@ -93,19 +91,19 @@ class BOTSGroup(Project):
             ]
             lines = [l.format(cc=clang) + "\n" for l in lines]
             config.writelines(lines)
-        mkdir(os.path.join(self.src_file, "bin"))
+        mkdir(local.path(self.src_file) / "bin")
         with local.cwd(self.src_file):
             run(make["-C", self.path_dict[self.name]])
 
     def run_tests(self, runner):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
-        exp = wrap(os.path.join(self.src_file, "bin", binary_name), self)
+        binary_path = local.path(self.src_file) / "bin" / binary_name
+        exp = wrap(binary_path, self)
 
         if self.name in self.input_dict:
             for test_input in self.input_dict[self.name]:
-                input_file = os.path.join(self.src_file, "inputs", self.name,
-                                          test_input)
-
+                input_file = local.path(
+                    self.src_file) / "inputs" / self.name / test_input
                 runner(exp["-f", input_file])
         else:
             runner(exp)

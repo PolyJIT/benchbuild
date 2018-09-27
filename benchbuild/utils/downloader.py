@@ -35,9 +35,9 @@ def get_hash_of_dirs(directory):
         return -1
 
     for root, _, files in os.walk(directory):
-        for names in files:
-            filepath = os.path.join(root, names)
-            if os.path.exists(filepath):
+        for name in files:
+            filepath = local.path(root) / name
+            if filepath.exists():
                 with open(filepath, 'rb') as next_file:
                     for line in next_file:
                         sha.update(line)
@@ -56,25 +56,23 @@ def source_required(src_file, src_root):
         True, if we need to download something, False otherwise.
     """
     # Check if we need to do something
-    src_dir = os.path.join(src_root, src_file)
-    hash_file = os.path.join(src_root, src_file + ".hash")
+    src_path = local.path(src_root) / src_file
+    hash_file = local.path(src_root) / (src_file + ".hash")
 
     required = True
-    src_exists = os.path.exists(src_dir)
-    hash_exists = os.path.exists(hash_file)
-    if src_exists and hash_exists:
-        new_hash = get_hash_of_dirs(src_dir)
+    if src_path.exists() and hash_file.exists():
+        new_hash = get_hash_of_dirs(src_path)
         with open(hash_file, 'r') as h_file:
             old_hash = h_file.readline()
         required = not new_hash == old_hash
         if required:
             from benchbuild.utils.cmd import rm
-            rm("-r", src_dir)
+            rm("-r", src_path)
             rm(hash_file)
     if required:
-        LOG.info("Source required for: %s in %s", src_file, src_dir)
-        LOG.info("Reason: src-exists: %s hash-exists: %s", src_exists,
-                 hash_exists)
+        LOG.info("Source required for: %s in %s", src_file, src_path)
+        LOG.info("Reason: src-exists: %s hash-exists: %s", src_path.exists(),
+                 hash_file.exists())
     return required
 
 
@@ -86,10 +84,10 @@ def update_hash(src, root):
         src: The file name.
         root: The path of the given file.
     """
-    hash_file = os.path.join(root, src + ".hash")
+    hash_file = local.path(root) / (src + ".hash")
+    src_path = local.path(root) / "src"
     new_hash = 0
     with open(hash_file, 'w') as h_file:
-        src_path = os.path.join(root, src)
         new_hash = get_hash_of_dirs(src_path)
         h_file.write(str(new_hash))
     return new_hash
@@ -123,10 +121,10 @@ def CopyNoFail(src, root=None):
     """
     if root is None:
         root = str(CFG["tmp_dir"])
-    src_url = os.path.join(root, src)
+    src_path = local.path(root) / src
 
-    if os.path.exists(src_url):
-        Copy(src_url, '.')
+    if src_path.exists():
+        Copy(src_path, '.')
         return True
     return False
 
@@ -146,7 +144,7 @@ def Wget(src_url, tgt_name, tgt_root=None):
 
     from benchbuild.utils.cmd import wget
 
-    src_path = os.path.join(tgt_root, tgt_name)
+    src_path = local.path(tgt_root) / tgt_name
     if not source_required(tgt_name, tgt_root):
         Copy(src_path, ".")
         return
@@ -210,7 +208,7 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
 
     from benchbuild.utils.cmd import git
 
-    src_dir = os.path.join(repository_loc, directory)
+    src_dir = local.path(repository_loc) / directory
     if not source_required(directory, repository_loc):
         Copy(src_dir, ".")
         return
@@ -270,8 +268,8 @@ def with_git(repo,
         @staticmethod
         def versions_impl():
             directory = cls.SRC_FILE if target_dir is None else target_dir
-            repo_prefix = os.path.join(str(CFG["tmp_dir"]))
-            repo_loc = os.path.join(repo_prefix, directory)
+            repo_prefix = local.path(str(CFG["tmp_dir"]))
+            repo_loc = local.path(repo_prefix) / directory
             if source_required(directory, repo_prefix):
                 if not clone:
                     return []
@@ -314,7 +312,7 @@ def Svn(url, fname, to=None):
     if to is None:
         to = CFG["tmp_dir"].value()
 
-    src_dir = os.path.join(to, fname)
+    src_dir = local.path(to) / fname
     if not source_required(fname, to):
         Copy(src_dir, ".")
         return
@@ -340,7 +338,7 @@ def Rsync(url, tgt_name, tgt_root=None):
 
     from benchbuild.utils.cmd import rsync
 
-    src_dir = os.path.join(tgt_root, tgt_name)
+    src_dir = local.path(tgt_root) / tgt_name
     if not source_required(tgt_name, tgt_root):
         Copy(src_dir, ".")
         return

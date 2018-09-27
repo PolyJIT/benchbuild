@@ -11,7 +11,6 @@ from benchbuild.utils.run import run, uchroot_no_args
 
 
 class FuncClass(object):
-
     """
     Finds out the current version number of a gentoo package.
 
@@ -43,16 +42,12 @@ class FuncClass(object):
             uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
             uchroot = uchroot[container.local]
             with local.env(CONFIG_PROTECT="-*"):
-                fake_emerge = uchroot["emerge",
-                                      "--autounmask-only=y",
-                                      "--autounmask-write=y",
-                                      "--nodeps"]
+                fake_emerge = uchroot["emerge", "--autounmask-only=y",
+                                      "--autounmask-write=y", "--nodeps"]
                 run(fake_emerge[package])
 
-            emerge_in_chroot = uchroot["emerge",
-                                       "-p",
-                                       "--nodeps",
-                                       package]
+            emerge_in_chroot = \
+                uchroot["emerge", "-p", "--nodeps", package]
             _, stdout, _ = emerge_in_chroot.run()
 
             for line in stdout.split('\n'):
@@ -64,7 +59,7 @@ class FuncClass(object):
         except ProcessExecutionError:
             logger = logging.getLogger(__name__)
             logger.info("This older package might not exist any more.")
-        return "Default"
+        return ""
 
 
 def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
@@ -103,7 +98,7 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
 
     def run_not_supported(self, *args, **kwargs):
         """Dynamic projects don't support a run() test."""
-        del args, kwargs # Unused
+        del args, kwargs  # Unused
 
         from benchbuild.settings import CFG
         logger = logging.getLogger(__name__)
@@ -112,13 +107,14 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
             self.clean()
         return
 
-    newclass = type(name, (BaseClass,), {
-        "NAME": NAME,
-        "DOMAIN": DOMAIN,
-        "SRC_FILE": "none",
-        "VERSION": FuncClass(NAME, DOMAIN, Gentoo),
-        "GROUP": "auto-gentoo",
-        "run": run_not_supported,
-        "__module__": "__main__"
-    })
+    newclass = type(
+        name, (BaseClass, ), {
+            "NAME": NAME,
+            "DOMAIN": DOMAIN,
+            "SRC_FILE": "none",
+            "VERSION": str(FuncClass(NAME, DOMAIN, Gentoo)),
+            "GROUP": "auto-gentoo",
+            "run": run_not_supported,
+            "__module__": "__main__"
+        })
     return newclass

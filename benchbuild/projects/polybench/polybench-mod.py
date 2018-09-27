@@ -1,5 +1,3 @@
-from os import path
-
 from plumbum import local
 
 from benchbuild.settings import CFG
@@ -43,9 +41,9 @@ class PolybenchModGroup(PolyBenchGroup):
             ], polybench_opts)
 
         clang = cc(self)
-        run(clang["-I", utils_dir, "-I", src_sub, polybench_opts,
-              utils_dir / "polybench.c", kernel_file, src_file, "-lm", "-o",
-              self.name])
+        run(clang["-I", utils_dir, "-I", src_sub, polybench_opts, utils_dir /
+                  "polybench.c", kernel_file, src_file, "-lm", "-o",
+                  self.name])
 
 
 class Correlation(PolybenchModGroup):

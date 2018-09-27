@@ -1,7 +1,7 @@
 """
 xz experiment within gentoo chroot.
 """
-from os import path
+from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.cmd import tar
@@ -35,7 +35,8 @@ class XZ(GentooGroup):
         uretry(emerge_in_chroot["app-arch/xz-utils"])
 
     def run_tests(self, runner):
-        wrap(path.join(self.builddir, "usr", "bin", "xz"), self, self.builddir)
+        xz_bin = local.cwd / "usr" / "bin" / "xz"
+        wrap(xz_bin, self, self.builddir)
         xz = uchroot()["/usr/bin/xz"]
 
         # Compress

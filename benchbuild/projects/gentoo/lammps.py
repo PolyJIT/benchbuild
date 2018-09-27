@@ -1,9 +1,6 @@
 """
 LAMMPS (sci-physics/lammps) project within gentoo chroot.
 """
-from glob import glob
-from os import path
-
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
@@ -37,13 +34,12 @@ class Lammps(GentooGroup):
             uretry(emerge_in_chroot["sci-physics/lammps"])
 
     def run_tests(self, runner):
-        wrap(
-            path.join(self.builddir, "usr/bin/lmp_serial"), self,
-            self.builddir)
+        builddir = local.path(self.builddir)
+        wrap(builddir / "usr" / "bin" / "lmp_serial", self, self.builddir)
         lammps = uchroot()["/usr/bin/lmp_serial"]
-        lammps_dir = path.join(self.builddir, "lammps")
+        lammps_dir = builddir / "lammps"
 
         with local.cwd("lammps"):
-            tests = glob(path.join(lammps_dir, "in.*"))
+            tests = lammps_dir // "in.*"
             for test in tests:
                 runner((lammps < strip_path_prefix(test, self.builddir)))

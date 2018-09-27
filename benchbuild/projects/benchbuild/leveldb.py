@@ -1,4 +1,4 @@
-from os import getenv, path
+from os import getenv
 
 from plumbum import local
 
@@ -35,8 +35,8 @@ class LevelDB(Project):
         Args:
             experiment: The experiment's run function.
         """
-        exp = wrap(path.join(self.src_file, "out-static", "db_bench"), self)
+        exp = wrap(local.path(self.src_file) / "out-static" / "db_bench", self)
         with local.env(LD_LIBRARY_PATH="{}:{}".format(
-                path.join(self.src_file, "out-shared"),
-                getenv("LD_LIBRARY_PATH", ""))):
+                local.path(self.src_file) /
+                "out-shared", getenv("LD_LIBRARY_PATH", ""))):
             runner(exp)

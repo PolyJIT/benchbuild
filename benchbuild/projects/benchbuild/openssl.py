@@ -1,15 +1,17 @@
-from os import path
-
 from plumbum import local
 
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Wget
+from benchbuild.utils.downloader import with_wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_wget({
+    "2.1.6":
+    "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz"
+})
 class LibreSSL(Project):
     """ OpenSSL """
 
@@ -17,11 +19,7 @@ class LibreSSL(Project):
     DOMAIN = 'encryption'
     GROUP = 'benchbuild'
     VERSION = '2.1.6'
-
-    src_dir = "libressl-{0}".format(VERSION)
-    SRC_FILE = src_dir + ".tar.gz"
-    src_uri = "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/" + SRC_FILE
-
+    SRC_FILE = "libressl.tar.gz"
     BINARIES = [
         "aeadtest", "aes_wrap", "asn1test", "base64test", "bftest", "bntest",
         "bytestringtest", "casttest", "chachatest", "cipherstest",
@@ -35,14 +33,16 @@ class LibreSSL(Project):
     ]
 
     def compile(self):
-        Wget(self.src_uri, self.SRC_FILE)
-        tar("xfz", self.SRC_FILE)
-
+        self.download()
         self.cflags += ["-fPIC"]
-        clang = cc(self)
-        configure = local[path.join(self.src_dir, "configure")]
 
-        with local.cwd(self.src_dir):
+        clang = cc(self)
+
+        tar("xfz", self.src_file)
+        unpack_dir = local.path("libressl-{0}".format(self.version))
+        configure = local[unpack_dir / "configure"]
+
+        with local.cwd(unpack_dir):
             with local.env(CC=str(clang)):
                 run(configure[
                     "--disable-asm", "--disable-shared", "--enable-static",
@@ -53,9 +53,10 @@ class LibreSSL(Project):
             run(make_tests[LibreSSL.BINARIES])
 
     def run_tests(self, runner):
-        with local.cwd(path.join(self.src_dir, "tests")):
+        unpack_dir = local.path("libressl-{0}".format(self.version))
+        with local.cwd(unpack_dir / "tests"):
             for binary in LibreSSL.BINARIES:
-                wrap(path.abspath(binary), self)
+                wrap(local.cwd / binary, self)
 
-        with local.cwd(self.src_dir):
+        with local.cwd(unpack_dir):
             run(make["V=1", "check", "-i"])

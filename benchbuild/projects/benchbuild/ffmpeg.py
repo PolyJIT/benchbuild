@@ -4,7 +4,7 @@ from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Rsync, Wget, with_wget
+from benchbuild.utils.downloader import Rsync, with_wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 

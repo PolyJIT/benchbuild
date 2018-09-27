@@ -21,7 +21,6 @@ import six
 import yaml
 from pkg_resources import DistributionNotFound, get_distribution
 from plumbum import local
-from plumbum.cmd import mkdir
 
 import benchbuild.utils.user_interface as ui
 
@@ -422,26 +421,20 @@ class ConfigPath(object):
 
     def validate(self):
         """Make sure this configuration path exists."""
-        path_str = ConfigPath.path_to_str(self.components)
-        path_exists = os.path.exists(path_str)
+        path = local.path(ConfigPath.path_to_str(self.components))
 
-        def create_dir():
-            mkdir("-p", path_str)
-
-        if not path_exists:
-            print(
-                "The path '%s' is required by your configuration." % path_str)
+        if not path.exists():
+            print("The path '%s' is required by your configuration." % path)
             yes = ui.ask(
-                "Should I create '%s' for you?" % path_str,
+                "Should I create '%s' for you?" % path,
                 default_answer=True,
                 default_answer_str="yes")
             if yes:
-                create_dir()
+                path.mkdir()
             else:
-                LOG.error("User denied path creation of '%s'.", path_str)
-        path_exists = os.path.exists(path_str)
-        if not path_exists:
-            LOG.error("The path '%s' needs to exist.", path_str)
+                LOG.error("User denied path creation of '%s'.", path)
+        if not path.exists():
+            LOG.error("The path '%s' needs to exist.", path)
 
     @staticmethod
     def path_to_str(components):
@@ -498,11 +491,11 @@ def __find_config__(test_file=None, defaults=None, root=os.curdir):
         defaults = [".benchbuild.yml", ".benchbuild.yaml"]
 
     def walk_rec(cur_path, root):
-        cur_path = os.path.join(root, test_file)
-        if os.path.exists(cur_path):
+        cur_path = local.path(root) / test_file
+        if cur_path.exists():
             return cur_path
         else:
-            new_root = os.path.abspath(os.path.join(root, os.pardir))
+            new_root = local.path(root) / os.pardir
             return walk_rec(cur_path, new_root) if new_root != root else None
 
     if test_file is not None:

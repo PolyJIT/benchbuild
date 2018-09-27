@@ -1,5 +1,3 @@
-from os import path
-
 from plumbum import local
 
 from benchbuild.project import Project
@@ -29,7 +27,7 @@ class X264(Project):
 
     def compile(self):
         self.download()
-        testfiles = [path.join(self.testdir, x) for x in self.inputfiles]
+        testfiles = [local.path(self.testdir) / x for x in self.inputfiles]
         for testfile in testfiles:
             cp(testfile, self.builddir)
 
@@ -45,7 +43,7 @@ class X264(Project):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, runner):
-        exp = wrap(path.join(self.SRC_FILE, "x264"), self)
+        exp = wrap(local.path(self.src_file) / "x264", self)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",
@@ -59,7 +57,7 @@ class X264(Project):
         ]
 
         for ifile in self.inputfiles:
-            testfile = path.join(self.testdir, ifile)
+            testfile = local.path(self.testdir) / ifile
             for _, test in enumerate(tests):
                 runner(exp[testfile, self.inputfiles[ifile], "--threads", "1",
                            "-o", "/dev/null",

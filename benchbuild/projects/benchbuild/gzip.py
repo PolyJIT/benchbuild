@@ -1,5 +1,3 @@
-from os import path
-
 from plumbum import local
 
 from benchbuild.project import Project
@@ -26,8 +24,8 @@ class Gzip(Project):
     ]
 
     def run_tests(self, runner):
-        unpack_dir = "gzip-{0}.tar.xz".format(self.version)
-        exp = wrap(path.join(unpack_dir, "gzip"), self)
+        unpack_dir = local.path("gzip-{0}.tar.xz".format(self.version))
+        exp = wrap(unpack_dir / "gzip", self)
 
         # Compress
         runner(exp["-f", "-k", "--best", "text.html"])
@@ -48,7 +46,7 @@ class Gzip(Project):
         tar("xfJ", self.src_file)
         unpack_dir = "gzip-{0}.tar.xz".format(self.version)
 
-        testfiles = [path.join(self.testdir, x) for x in self.testfiles]
+        testfiles = [local.path(self.testdir) / x for x in self.testfiles]
         cp(testfiles, '.')
 
         clang = cc(self)

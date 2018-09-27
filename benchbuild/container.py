@@ -41,18 +41,24 @@ def clean_directories(builddir, in_dir=True, out_dir=True):
 
 def setup_directories(builddir):
     """Create the in and out directories of the container."""
-    with local.cwd(builddir):
-        if not os.path.exists("container-in"):
-            mkdir("-p", "container-in")
-        if not os.path.exists("container-out"):
-            mkdir("-p", "container-out")
+    build_dir = local.path(builddir)
+    in_dir = build_dir / "container-in"
+    out_dir = build_dir / "container-out"
+
+    if not in_dir.exists():
+        mkdir("-p", in_dir)
+    if not out_dir.exists():
+        mkdir("-p", out_dir)
 
 
 def setup_container(builddir, container):
     """Prepare the container and returns the path where it can be found."""
+    build_dir = local.path(builddir)
+    in_dir = build_dir / "container-in"
+    container_path = local.path(container)
     with local.cwd(builddir):
-        container_filename = str(container).split(os.path.sep)[-1]
-        container_in = os.path.join("container-in", container_filename)
+        container_bin = container_path.basename
+        container_in = in_dir / container_bin
         Copy(container, container_in)
         uchrt = uchroot_no_args()
 
@@ -70,15 +76,15 @@ def setup_container(builddir, container):
         # Unpack input container to: container-in
         if not has_erlent:
             cmd = local["/bin/tar"]["xf"]
-            cmd = uchrt[cmd[container_filename]]
+            cmd = uchrt[cmd[container_bin]]
         else:
             cmd = tar["xf"]
-            cmd = cmd[os.path.abspath(container_in)]
+            cmd = cmd[container_in]
 
         with local.cwd("container-in"):
             cmd("--exclude=dev/*")
         rm(container_in)
-    return os.path.join(builddir, "container-in")
+    return in_dir
 
 
 def run_in_container(command, container_dir):
@@ -88,14 +94,15 @@ def run_in_container(command, container_dir):
     Mounts a directory as a container at the given mountpoint and tries to run
     the given command inside the new container.
     """
-    with local.cwd(container_dir):
+    container_p = local.path(container_dir)
+    with local.cwd(container_p):
         uchrt = uchroot_with_mounts()
         uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-w", "/", "-r",
-                      os.path.abspath(container_dir)]
+                      container_p]
         uchrt = uchrt["--"]
 
-        cmd_path = os.path.join(container_dir, command[0].lstrip('/'))
-        if not os.path.exists(cmd_path):
+        cmd_path = container_p / command[0].lstrip('/')
+        if not cmd_path.exists():
             LOG.error("The command does not exist inside the container! %s",
                       cmd_path)
             return
@@ -112,24 +119,23 @@ def pack_container(in_container, out_file):
         in_container (str): Path string to the container image.
         out_file (str): Output file name.
     """
-    container_filename = os.path.split(out_file)[-1]
-    out_container = os.path.join("container-out", container_filename)
-    out_container = os.path.abspath(out_container)
+    container_filename = local.path(out_file).basename
+    out_container = local.cwd / "container-out" / container_filename
 
-    out_tmp_filename = os.path.basename(out_container)
-    out_dir = os.path.dirname(out_container)
+    out_tmp_filename = out_container.basename
+    out_dir = out_container.dirname
 
     # Pack the results to: container-out
     with local.cwd(in_container):
         tar("cjf", out_container, ".")
     c_hash = update_hash(out_tmp_filename, out_dir)
-    if not os.path.exists(out_dir):
+    if out_dir.exists():
         mkdir("-p", out_dir)
     mv(out_container, out_file)
     mv(out_container + ".hash", out_file + ".hash")
 
     new_container = {"path": out_file, "hash": str(c_hash)}
-    settings.CFG["container"]["known"].value().append(new_container)
+    CFG["container"]["known"].value().append(new_container)
 
 
 def setup_bash_in_container(builddir, container, outfile, shell):

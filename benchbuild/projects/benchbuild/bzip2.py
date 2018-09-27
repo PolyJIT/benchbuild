@@ -1,9 +1,7 @@
-from os import path
-
 from plumbum import local
 
 from benchbuild.project import Project
-from benchbuild.utils.cmd import cp, make, tar
+from benchbuild.utils.cmd import cp, make
 from benchbuild.utils.compiler import cc
 from benchbuild.utils.downloader import with_git
 from benchbuild.utils.run import run
@@ -27,7 +25,7 @@ class Bzip2(Project):
     def compile(self):
         self.download()
 
-        testfiles = [path.join(self.testdir, x) for x in self.testfiles]
+        testfiles = [local.path(self.testdir) / x for x in self.testfiles]
         cp(testfiles, '.')
 
         clang = cc(self)
@@ -35,7 +33,7 @@ class Bzip2(Project):
             run(make["CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2"])
 
     def run_tests(self, runner):
-        exp = wrap(path.join(self.src_file, "bzip2"), self)
+        exp = wrap(local.path(self.src_file) / "bzip2", self)
 
         # Compress
         runner(exp["-f", "-z", "-k", "--best", "text.html"])

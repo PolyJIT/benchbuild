@@ -6,45 +6,44 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.utils.cmd import sh, tar
 from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import Wget
+from benchbuild.utils.downloader import with_wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
 @attr.s
+@with_wget({
+    '3.1':
+    'http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/3.1/rodinia_3.1.tar.bz2'})
 class RodiniaGroup(Project):
     """Generic handling of Rodinia benchmarks."""
     DOMAIN = 'rodinia'
     GROUP = 'rodinia'
     VERSION = '3.1'
-    SRC_FILE = "rodinia_{0}.tar.bz2".format(VERSION)
+    SRC_FILE = 'rodinia.tar.bz2'
     CONFIG = {}
-
-    src_dir = attr.ib(default="rodinia_{0}".format(VERSION))
-
-    src_uri = attr.ib(
-        default="http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/"
-                "Current/{0}".format(SRC_FILE))
 
     config = attr.ib(default=attr.Factory(
         lambda self: type(self).CONFIG, takes_self=True))
 
-    in_src_dir = attr.ib(default=attr.Factory(
-        lambda self: local.path(self.src_dir) / self.config["dir"],
-        takes_self=True))
-
     def compile(self):
-        Wget(self.src_uri, self.SRC_FILE)
-        tar("xf", local.cwd / self.SRC_FILE)
+        self.download()
+        tar("xf", self.src_file)
+        unpack_dir = local.path('rodinia_{0}'.format(self.version))
+
         c_compiler = cc(self)
         cxx_compiler = cxx(self)
 
-        with local.cwd(self.in_src_dir):
-            for outfile, srcfiles in self.config['src'].items():
+        config_dir = self.config['dir']
+        config_src = self.config['src']
+        config_flags = self.config['flags']
+
+        with local.cwd(unpack_dir / config_dir):
+            for outfile, srcfiles in config_src.items():
                 cls = type(self)
                 compiler = cls.select_compiler(c_compiler, cxx_compiler)
                 if "flags" in self.config:
-                    compiler = compiler[self.config["flags"]]
+                    compiler = compiler[config_flags]
                 compiler = compiler[srcfiles]
                 compiler = compiler["-o", outfile]
                 run(compiler)
@@ -54,12 +53,14 @@ class RodiniaGroup(Project):
         return c_compiler
 
     def run_tests(self, runner):
-        for outfile in self.config['src']:
-            wrap(local.path(self.in_src_dir) /  outfile, self)
+        unpack_dir = local.path('rodinia_{0}'.format(self.version))
+        in_src_dir = unpack_dir / self.config['dir']
 
-        with local.cwd(self.in_src_dir):
-            test_runner = sh["./run"]
-            runner(test_runner)
+        for outfile in self.config['src']:
+            wrap(in_src_dir / outfile, self)
+
+        with local.cwd(in_src_dir):
+            runner(sh['./run'])
 
 
 class Backprop(RodiniaGroup):

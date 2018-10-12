@@ -1,7 +1,7 @@
 """
 bzip2 experiment within gentoo chroot.
 """
-from os import path
+from plumbum import local
 
 from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
@@ -26,6 +26,7 @@ class BZip2(GentooGroup):
 
     def compile(self):
         super(BZip2, self).compile()
+
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
         Wget(test_url, test_archive)
@@ -35,7 +36,8 @@ class BZip2(GentooGroup):
         uretry(emerge_in_chroot["app-arch/bzip2"])
 
     def run_tests(self, runner):
-        wrap(path.join(self.builddir, "bin", "bzip2"), self, self.builddir)
+        builddir = local.path(self.builddir)
+        wrap(builddir / "bin" / "bzip2", self, builddir)
         bzip2 = uchroot()["/bin/bzip2"]
 
         # Compress

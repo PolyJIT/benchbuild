@@ -6,10 +6,11 @@ from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import autoreconf, make
 from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import Git
+from benchbuild.utils.downloader import with_git, Git
 from benchbuild.utils.run import run
 
 
+@with_git('git://rasdaman.org/rasdaman.git', limit=5)
 class Rasdaman(Project):
     """ Rasdaman """
 
@@ -17,18 +18,17 @@ class Rasdaman(Project):
     DOMAIN = 'database'
     GROUP = 'benchbuild'
     SRC_FILE = 'rasdaman.git'
-
-    src_uri = "git://rasdaman.org/rasdaman.git"
+    VERSION = 'HEAD'
 
     gdal_dir = "gdal"
     gdal_uri = "https://github.com/OSGeo/gdal"
 
     def compile(self):
+        self.download()
         Git(self.gdal_uri, self.gdal_dir)
-        Git(self.src_uri, self.SRC_FILE)
+        rasdaman_dir = local.path(self.src_file)
+        gdal_dir = local.path(self.gdal_dir) / self.gdal_dir
 
-        rasdaman_dir = path.join(self.SRC_FILE)
-        gdal_dir = path.join(self.gdal_dir, self.gdal_dir)
         clang = cc(self)
         clang_cxx = cxx(self)
 
@@ -50,8 +50,6 @@ class Rasdaman(Project):
                               "--with-static-libs", "--disable-java",
                               "--with-pic", "--disable-debug",
                               "--without-docs"])
-
-        with local.cwd(self.SRC_FILE):
             run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, runner):

@@ -5,34 +5,36 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.utils.cmd import cp, make, tar
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Wget
+from benchbuild.utils.downloader import with_wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_wget({'5.2.1': 'http://tukaani.org/xz/xz-5.2.1.tar.gz'})
 class XZ(Project):
     """ XZ """
     NAME = 'xz'
     DOMAIN = 'compression'
     GROUP = 'benchbuild'
     VERSION = '5.2.1'
+    SRC_FILE = 'xz.tar.gz'
 
     testfiles = [
         "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
     ]
 
-    src_dir = "xz-{0}".format(VERSION)
-    SRC_FILE = src_dir + ".tar.gz"
-    src_uri = "http://tukaani.org/xz/" + SRC_FILE
-
     def compile(self):
-        Wget(self.src_uri, self.SRC_FILE)
-        tar('xfz', self.SRC_FILE)
-        testfiles = [path.join(self.testdir, x) for x in self.testfiles]
+        self.download()
+
+        tar('xfz', self.src_file)
+
+        test_dir = local.path(self.testdir)
+        testfiles = [test_dir / x for x in self.testfiles]
         cp(testfiles, self.builddir)
 
+        unpack_dir = local.path('xz-{0}'.format(self.version))
         clang = cc(self)
-        with local.cwd(self.src_dir):
+        with local.cwd(unpack_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang)):
                 run(configure["--enable-threads=no", "--with-gnu-ld=yes",
@@ -45,18 +47,19 @@ class XZ(Project):
             run(make["CC=" + str(clang), "clean", "all"])
 
     def run_tests(self, runner):
-        exp = wrap(path.join(self.src_dir, "src", "xz", "xz"), self)
+        unpack_dir = local.path('xz-{0}'.format(self.version))
+        xz = wrap(unpack_dir / "src" / "xz" / "xz", self)
 
         # Compress
-        runner(exp["--compress", "-f", "-k", "-e", "-9", "text.html"])
-        runner(exp["--compress", "-f", "-k", "-e", "-9", "chicken.jpg"])
-        runner(exp["--compress", "-f", "-k", "-e", "-9", "control"])
-        runner(exp["--compress", "-f", "-k", "-e", "-9", "input.source"])
-        runner(exp["--compress", "-f", "-k", "-e", "-9", "liberty.jpg"])
+        runner(xz["--compress", "-f", "-k", "-e", "-9", "text.html"])
+        runner(xz["--compress", "-f", "-k", "-e", "-9", "chicken.jpg"])
+        runner(xz["--compress", "-f", "-k", "-e", "-9", "control"])
+        runner(xz["--compress", "-f", "-k", "-e", "-9", "input.source"])
+        runner(xz["--compress", "-f", "-k", "-e", "-9", "liberty.jpg"])
 
         # Decompress
-        runner(exp["--decompress", "-f", "-k", "text.html.xz"])
-        runner(exp["--decompress", "-f", "-k", "chicken.jpg.xz"])
-        runner(exp["--decompress", "-f", "-k", "control.xz"])
-        runner(exp["--decompress", "-f", "-k", "input.source.xz"])
-        runner(exp["--decompress", "-f", "-k", "liberty.jpg.xz"])
+        runner(xz["--decompress", "-f", "-k", "text.html.xz"])
+        runner(xz["--decompress", "-f", "-k", "chicken.jpg.xz"])
+        runner(xz["--decompress", "-f", "-k", "control.xz"])
+        runner(xz["--decompress", "-f", "-k", "input.source.xz"])
+        runner(xz["--decompress", "-f", "-k", "liberty.jpg.xz"])

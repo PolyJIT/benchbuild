@@ -6,11 +6,12 @@ from benchbuild.project import Project
 from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, rm, sed,
                                   sh, tar)
 from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import Git, Wget
+from benchbuild.utils.downloader import with_git, Wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_git('https://github.com/POV-Ray/povray', limit=5)
 class Povray(Project):
     """ povray benchmark """
 
@@ -18,8 +19,8 @@ class Povray(Project):
     DOMAIN = 'multimedia'
     GROUP = 'benchbuild'
     SRC_FILE = 'povray.git'
+    VERSION = 'HEAD'
 
-    src_uri = "https://github.com/POV-Ray/povray"
     boost_src_dir = "boost_1_59_0"
     boost_src_file = boost_src_dir + ".tar.bz2"
     boost_src_uri = \
@@ -27,15 +28,15 @@ class Povray(Project):
         boost_src_file
 
     def compile(self):
+        self.download()
         Wget(self.boost_src_uri, self.boost_src_file)
-        Git(self.src_uri, self.SRC_FILE)
         tar("xfj", self.boost_src_file)
 
-        cp("-ar", path.join(self.testdir, "cfg"), '.')
-        cp("-ar", path.join(self.testdir, "etc"), '.')
-        cp("-ar", path.join(self.testdir, "scenes"), '.')
-        cp("-ar", path.join(self.testdir, "share"), '.')
-        cp("-ar", path.join(self.testdir, "test"), '.')
+        cp("-ar", local.path(self.testdir) / "cfg", '.')
+        cp("-ar", local.path(self.testdir) / "etc", '.')
+        cp("-ar", local.path(self.testdir) / "scenes", '.')
+        cp("-ar", local.path(self.testdir) / "share", '.')
+        cp("-ar", local.path(self.testdir) / "test", '.')
 
         clang = cc(self)
         clang_cxx = cxx(self)
@@ -50,32 +51,28 @@ class Povray(Project):
             run(b2["--ignore-site-config", "variant=release", "link=static",
                    "threading=multi", "optimization=speed", "install"])
 
-        with local.cwd(path.join(self.SRC_FILE, "unix")):
-            sh("prebuild.sh")
+        src_file = local.path(self.src_file)
+        with local.cwd(src_file):
+            with local.cwd("unix"):
+                sh("prebuild.sh")
 
-        with local.cwd(self.SRC_FILE):
             configure = local["./configure"]
             with local.env(
                     COMPILED_BY="BB <no@mail.nono>",
                     CC=str(clang),
                     CXX=str(clang_cxx)):
                 run(configure["--with-boost=" + boost_prefix])
-
-        povray_binary = path.join(self.SRC_FILE, "unix", self.name)
-
-        with local.cwd(self.SRC_FILE):
-            rm("-f", povray_binary)
-            run(make["clean", "all"])
+            run(make["all"])
 
     def run_tests(self, runner):
-        povray_binary = path.join(self.SRC_FILE, "unix", self.name)
-        tmpdir = "tmp"
-        povini = path.join("cfg", ".povray", "3.6", "povray.ini")
-        scene_dir = path.join("share", "povray-3.6", "scenes")
-        mkdir(tmpdir, retcode=None)
+        povray_binary = local.path(self.src_file) / "unix" / self.name
+        tmpdir = local.path("tmp")
+        tmpdir.mkdir()
+
+        povini = local.path("cfg") / ".povray" / "3.6" / "povray.ini"
+        scene_dir = local.path("share") / "povray-3.6" / "scenes"
 
         povray = wrap(povray_binary, self)
-
         pov_files = find(scene_dir, "-name", "*.pov").splitlines()
         for pov_f in pov_files:
             with local.env(

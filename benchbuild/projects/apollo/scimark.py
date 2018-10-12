@@ -3,11 +3,12 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, unzip
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Wget
+from benchbuild.utils.downloader import with_wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
+@with_wget({'2.1c': 'http://math.nist.gov/scimark2/scimark2_1c.zip'})
 class SciMark(Project):
     """SciMark"""
 
@@ -15,16 +16,14 @@ class SciMark(Project):
     DOMAIN = 'scientific'
     GROUP = 'apollo'
     VERSION = "2.1c"
-
-    SRC_FILE = "scimark2_1c.zip"
-    src_uri = "http://math.nist.gov/scimark2/{0}".format(SRC_FILE)
+    SRC_FILE = "scimark.zip"
 
     def compile(self):
-        Wget(self.src_uri, self.SRC_FILE)
-        unzip(local.cwd / self.SRC_FILE)
+        self.download()
+        unzip(local.cwd / self.src_file)
         clang = cc(self)
         run(make["CC=" + str(clang), "scimark2"])
 
     def run_tests(self, runner):
-        exp = wrap(local.path(self.builddir) / "scimark2", self)
-        runner(exp)
+        scimark2 = wrap(local.path('scimark2'), self)
+        runner(scimark2)

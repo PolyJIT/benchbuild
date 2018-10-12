@@ -11,7 +11,9 @@ dependencies for your experiments. Make sure you update the hash alongside
 the gentoo image in benchbuild's source directory.
 
 """
-import os
+import logging
+
+from plumbum import ProcessExecutionError, local
 
 from benchbuild import project
 from benchbuild.settings import CFG
@@ -20,7 +22,9 @@ from benchbuild.utils.cmd import cp
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.path import list_to_path, mkdir_uchroot, mkfile_uchroot
-from benchbuild.utils.run import uchroot_env, uchroot_mounts
+from benchbuild.utils.run import uretry, uchroot, uchroot_env, uchroot_mounts
+
+LOG = logging.getLogger(__name__)
 
 
 def write_makeconfig(path):
@@ -140,6 +144,35 @@ class GentooGroup(project.Project):
     def build(self):
         pass
 
+    def __setup_benchbuild(self):
+        benchbuild = uchroot()["/usr/bin/benchbuild"]
+
+        def requires_update():
+            try:
+                bb_version = benchbuild("--version")
+                LOG.debug("bb version: %s", bb_version)
+            except ProcessExecutionError as err:
+                LOG.error("Querying Benchbuild inside container failed")
+                LOG.debug("Reason: %s", str(err))
+            return True
+
+        if not requires_update():
+            return
+
+        LOG.debug("Upgrading BenchBuild.")
+        src_dir = CFG["source_dir"].value()
+        have_src = src_dir is not None
+        if have_src:
+            src_dir = local.path(str(src_dir))
+            mount = {"src": src_dir, "tgt": "benchbuild"}
+            mounts = CFG["container"]["mounts"].value()
+            CFG["container"]["mounts"] = [mount]
+            uretry(uchroot()["/usr/bin/pip", "install", "/mnt/benchbuild"])
+            CFG["container"]["mounts"] = mounts
+        else:
+            uretry(uchroot()["/usr/bin/pip", "install", "--upgrade",
+                             "benchbuild"])
+
     def compile(self):
         if not CFG["unionfs"]["enable"].value():
             container.unpack_container(self.container, self.builddir)
@@ -152,9 +185,9 @@ class GentooGroup(project.Project):
         mkfile_uchroot("/etc/resolv.conf")
         cp("/etc/resolv.conf", "etc/resolv.conf")
 
-        config_file = CFG["config_file"].value()
+        config_file = local.path(str(CFG["config_file"]))
 
-        if os.path.exists(str(config_file)):
+        if config_file.exists():
             paths, libs = \
                     uchroot_env(
                         uchroot_mounts(
@@ -169,5 +202,7 @@ class GentooGroup(project.Project):
             mkfile_uchroot("/.benchbuild.yml")
             uchroot_cfg.store(".benchbuild.yml")
 
-        wrap_cc_in_uchroot(self.cflags, self.ldflags, self.compiler_extension)
-        wrap_cxx_in_uchroot(self.cflags, self.ldflags, self.compiler_extension)
+        wrap_cc_in_uchroot(self)
+        wrap_cxx_in_uchroot(self)
+
+        self.__setup_benchbuild()

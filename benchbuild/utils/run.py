@@ -11,8 +11,8 @@ from plumbum import TEE, local
 from plumbum.commands import ProcessExecutionError
 
 import attr
-import benchbuild.signals as signals
 from benchbuild import settings
+from benchbuild import signals
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir
 from benchbuild.utils.path import list_to_path
@@ -492,20 +492,20 @@ def with_env_recursive(cmd, **envvars):
     return cmd
 
 
-def uchroot_with_mounts(*args, **kwargs):
+def uchroot_with_mounts(*args, uchroot_cmd_fn=uchroot_no_args, **kwargs):
     """Return a uchroot command with all mounts enabled."""
-    uchroot_cmd = uchroot_no_args(*args, **kwargs)
-    uchroot_cmd, mounts = \
-        _uchroot_mounts("mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
-    paths, libs = uchroot_env(mounts)
-
+    mounts = CFG["container"]["mounts"].value()
     prefixes = CFG["container"]["prefixes"].value()
-    p_paths, p_libs = uchroot_env(prefixes)
+
+    uchroot_cmd = uchroot_cmd_fn(*args, **kwargs)
+    uchroot_cmd, mounts = _uchroot_mounts("mnt", mounts, uchroot_cmd)
+    paths, libs = uchroot_env(mounts)
+    prefix_paths, prefix_libs = uchroot_env(prefixes)
 
     uchroot_cmd = with_env_recursive(
         uchroot_cmd,
-        LD_LIBRARY_PATH=list_to_path(libs + p_libs),
-        PATH=list_to_path(paths + p_paths))
+        LD_LIBRARY_PATH=list_to_path(libs + prefix_libs),
+        PATH=list_to_path(paths + prefix_paths))
     return uchroot_cmd
 
 
@@ -519,15 +519,8 @@ def uchroot(*args, **kwargs):
         chroot_cmd
     """
     mkdir("-p", "llvm")
-    uchroot_cmd = uchroot_no_llvm(*args, **kwargs)
-    uchroot_cmd, mounts = _uchroot_mounts(
-        "mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
-    paths, libs = uchroot_env(mounts)
-    p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
-
-    uchroot_cmd = uchroot_cmd.with_env(
-        LD_LIBRARY_PATH=list_to_path(libs + p_libs),
-        PATH=list_to_path(paths + p_paths))
+    uchroot_cmd = uchroot_with_mounts(
+        *args, uchroot_cmd_fn=uchroot_no_llvm, **kwargs)
     return uchroot_cmd["--"]
 
 
@@ -547,15 +540,29 @@ def in_builddir(sub='.'):
         def wrap_in_builddir_func(self, *args, **kwargs):
             """The actual function inside the wrapper for the new builddir."""
             p = local.path(self.builddir) / sub
-            try:
-                with local.cwd(p):
-                    return func(self, *args, **kwargs)
-            except FileNotFoundError:
-                LOG.debug("Chdir to %s failed. Directory does not exist.", p)
+            if not p.exists():
+                LOG.error("%s does not exist.", p)
+
+            if p == local.cwd:
+                LOG.debug("CWD already is %s", p)
+                return func(self, *args, *kwargs)
+            with local.cwd(p):
+                return func(self, *args, **kwargs)
 
         return wrap_in_builddir_func
 
     return wrap_in_builddir
+
+
+def unionfs_is_active(root):
+    import psutil
+
+    real_root = os.path.realpath(root)
+    for part in psutil.disk_partitions(all=True):
+        if os.path.commonpath([part.mountpoint, real_root]) == real_root:
+            if part.fstype in ["fuse.unionfs", "fuse.unionfs-fuse"]:
+                return True
+    return False
 
 
 def unionfs_set_up(ro_base, rw_image, mountpoint):
@@ -572,7 +579,7 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
     rw_image_p = local.path(rw_image)
 
     if not mountpoint_p.exists():
-        mkdir("-p", mountpoint)
+        mountpoint_p.mkdir()
     if not ro_base_p.exists():
         LOG.error("Base dir does not exist: '%s'", ro_base_p)
         raise ValueError("Base directory does not exist")
@@ -581,19 +588,10 @@ def unionfs_set_up(ro_base, rw_image, mountpoint):
         raise ValueError("Image directory does not exist")
 
     from benchbuild.utils.cmd import unionfs as unionfs_cmd
+    LOG.debug("Mounting UnionFS on %s with RO:%s RW:%s", mountpoint_p,
+              ro_base_p, rw_image_p)
     return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow", rw_image_p +
                        "=RW:" + ro_base_p + "=RO", mountpoint_p]
-
-
-def unionfs_is_active(root):
-    import psutil
-
-    real_root = os.path.realpath(root)
-    for part in psutil.disk_partitions(all=True):
-        if os.path.commonpath([part.mountpoint, real_root]) == real_root:
-            if part.fstype in ["fuse.unionfs", "fuse.unionfs-fuse"]:
-                return True
-    return False
 
 
 class UnmountError(BaseException):
@@ -667,29 +665,33 @@ def unionfs(base_dir='./base',
             directories for the unionfs. All directories outside of the default
             build environment are tracked for deletion.
             """
-            container = project.container
-            abs_base_dir = os.path.abspath(container.local)
             nonlocal image_prefix
+            container = project.container
+
+            build_dir = local.path(project.builddir)
+            if unionfs_is_active(root=build_dir):
+                LOG.debug("UnionFS already active in %s", build_dir)
+                return func(project, *args, **kwargs)
+
+            image_prefix = local.path(image_prefix)
+            abs_base_dir = local.path(container.local)
+            abs_image_dir = build_dir / image_dir
+            abs_mount_dir = build_dir / mountpoint
+
             if image_prefix is not None:
-                image_prefix = os.path.abspath(image_prefix)
                 rel_prj_builddir = os.path.relpath(
                     project.builddir, str(settings.CFG["build_dir"]))
-                abs_image_dir = os.path.abspath(
-                    os.path.join(image_prefix, rel_prj_builddir, image_dir))
+                abs_image_dir = image_prefix / rel_prj_builddir / image_dir
 
                 if is_outside_of_builddir(project, abs_image_dir):
                     update_cleanup_paths(abs_image_dir)
-            else:
-                abs_image_dir = os.path.abspath(
-                    os.path.join(project.builddir, image_dir))
-            abs_mount_dir = os.path.abspath(
-                os.path.join(project.builddir, mountpoint))
-            if not os.path.exists(abs_base_dir):
-                mkdir("-p", abs_base_dir)
-            if not os.path.exists(abs_image_dir):
-                mkdir("-p", abs_image_dir)
-            if not os.path.exists(abs_mount_dir):
-                mkdir("-p", abs_mount_dir)
+
+            if not abs_base_dir.exists():
+                abs_base_dir.mkdir()
+            if not abs_image_dir.exists():
+                abs_image_dir.mkdir()
+            if not abs_mount_dir.exists():
+                abs_mount_dir.mkdir()
 
             unionfs_cmd = unionfs_set_up(abs_base_dir, abs_image_dir,
                                          abs_mount_dir)

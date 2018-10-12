@@ -72,8 +72,9 @@ CFG = s.Configuration(
         "regression_prefix": {
             "default": os.path.join("/", "tmp", "benchbuild-regressions")
         },
-        "benchbuild_prefix": {
-            "default": os.getcwd()
+        "source_dir": {
+            "default": None,
+            "desc": "Path to a benchbuild source directory. For developers only."
         },
         "benchbuild_ebuild": {
             "default": ""

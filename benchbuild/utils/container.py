@@ -5,7 +5,7 @@ import os
 from plumbum import TF, local
 
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import bash, cp, curl, cut, mkdir, rm, tail
+from benchbuild.utils.cmd import bash, cp, curl, cut, rm, tail
 from benchbuild.utils.downloader import Wget
 
 LOG = logging.getLogger(__name__)
@@ -41,14 +41,12 @@ def is_valid_container(container, path):
     except IOError:
         LOG.info("No .hash-file in the tmp-directory.")
 
-    container_hash_path = os.path.abspath(
-        os.path.join(path, "gentoo.tar.bz2.hash"))
-    if not os.path.exists(container_hash_path):
-        return False
-    else:
+    container_hash_path = local.path(path) / "gentoo.tar.bz2.hash"
+    if container_hash_path.exists():
         with open(container_hash_path, 'r') as hash_file:
             container_hash = hash_file.readline()
             return container_hash == tmp_hash
+    return False
 
 
 def unpack_container(container, path):
@@ -65,10 +63,12 @@ def unpack_container(container, path):
     """
     from benchbuild.utils.run import run, uchroot_no_args
 
-    path = os.path.abspath(path)
-    name = os.path.basename(os.path.abspath(container.filename))
-    if not os.path.exists(path):
-        mkdir("-p", path)
+    path = local.path(path)
+    c_filename = local.path(container.filename)
+    name = c_filename.basename
+
+    if not path.exists():
+        path.mkdir()
 
     with local.cwd(path):
         Wget(container.remote, name)
@@ -109,10 +109,12 @@ class Container(object):
     def filename(self):
         image_cfg = CFG["container"]["images"].value()
         image_cfg = image_cfg[self.name]
+        tmp_dir = local.path(str(CFG["tmp_dir"]))
+
         if os.path.isabs(image_cfg):
             return image_cfg
         else:
-            return os.path.join(str(CFG["tmp_dir"]), image_cfg)
+            return tmp_dir / image_cfg
 
     @property
     def local(self):
@@ -124,9 +126,11 @@ class Container(object):
             target: The path, where the container lies in the end.
         """
         assert self.name in CFG["container"]["images"].value()
-        target = os.path.join(str(CFG["tmp_dir"]), self.name)
+        tmp_dir = local.path(str(CFG["tmp_dir"]))
 
-        if not os.path.exists(target) or not is_valid_container(self, target):
+        target = tmp_dir / self.name
+
+        if not target.exists() or not is_valid_container(self, target):
             unpack_container(self, target)
 
         return target

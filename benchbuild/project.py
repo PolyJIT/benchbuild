@@ -27,8 +27,8 @@ from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
 import benchbuild.extensions as ext
-import benchbuild.signals as signals
-import benchbuild.utils.run as ur
+from benchbuild import signals
+from benchbuild.utils import run as ur
 from benchbuild.settings import CFG
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.db import persist_project
@@ -65,8 +65,8 @@ class ProjectDecorator(ProjectRegistry):
     def __init__(cls, name, bases, attrs):
         unionfs_deco = None
         if CFG["unionfs"]["enable"].value():
-            image_dir = CFG["unionfs"]["image"].value()
-            prefix = CFG["unionfs"]["image_prefix"].value()
+            image_dir = str(CFG["unionfs"]["image"])
+            prefix = str(CFG["unionfs"]["image_prefix"])
             unionfs_deco = partial(
                 unionfs, image_dir=image_dir, image_prefix=prefix)
         config_deco = store_config
@@ -87,7 +87,7 @@ class ProjectDecorator(ProjectRegistry):
 
 
 @attr.s
-class Project(object, metaclass=ProjectDecorator):
+class Project(metaclass=ProjectDecorator):
     """Abstract class for benchbuild projects.
 
     A project is an arbitrary software system usable by benchbuild in
@@ -204,9 +204,8 @@ class Project(object, metaclass=ProjectDecorator):
 
     builddir = attr.ib(default=attr.Factory(
         lambda self: local.path(str(CFG["build_dir"])) /
-            "{0}-{1}-{2}-{3}".format(self.experiment.name,
-                                     self.name, self.group,
-                                     self.experiment.id),
+        "{}-{}-{}-{}".format(
+            self.experiment.name, self.name, self.group, self.experiment.id),
         takes_self=True))
 
     testdir = attr.ib()
@@ -216,8 +215,7 @@ class Project(object, metaclass=ProjectDecorator):
         if self.group:
             return local.path(str(
                 CFG["test_dir"])) / self.domain / self.group / self.name
-        else:
-            return local.path(str(CFG["test_dir"])) / self.domain / self.name
+        return local.path(str(CFG["test_dir"])) / self.domain / self.name
 
     cflags = attr.ib(default=attr.Factory(list))
 
@@ -232,7 +230,10 @@ class Project(object, metaclass=ProjectDecorator):
 
     @run_uuid.default
     def __default_run_uuid(self):
-        return getenv("BB_DB_RUN_GROUP", uuid.uuid4())
+        run_group = getenv("BB_DB_RUN_GROUP", None)
+        if run_group:
+            return uuid.UUID(run_group)
+        return uuid.uuid4()
 
     @run_uuid.validator
     def __check_if_uuid(self, _, value):

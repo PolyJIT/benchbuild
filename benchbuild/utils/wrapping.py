@@ -75,6 +75,14 @@ def unpickle(pickle_file):
     return pickle
 
 
+def __create_jinja_env():
+    from jinja2 import Environment, PackageLoader
+    return Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=PackageLoader('benchbuild', 'utils/templates'))
+
+
 def wrap(name, project, sprefix=None, python=sys.executable):
     """ Wrap the binary :name: with the runtime extension of the project.
 
@@ -92,11 +100,7 @@ def wrap(name, project, sprefix=None, python=sys.executable):
     Returns:
         A plumbum command, ready to launch.
     """
-    from jinja2 import Environment, PackageLoader
-    env = Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    env = __create_jinja_env()
     template = env.get_template('run_static.py.inc')
 
     name_absolute = os.path.abspath(name)
@@ -159,11 +163,7 @@ def wrap_dynamic(project,
     Returns: plumbum command, readty to launch.
 
     """
-    from jinja2 import Environment, PackageLoader
-    env = Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    env = __create_jinja_env()
     template = env.get_template('run_dynamic.py.inc')
 
     name_absolute = os.path.abspath(name)
@@ -207,10 +207,12 @@ def wrap_cc(filepath,
 
     Args:
         filepath (str): Path to the wrapper script.
-        compiler (benchbuild.utils.cmd): Real compiler command we should call in the
-            script.
-        project (benchbuild.project.Project): The project this compiler will be for.
-        experiment (benchbuild.experiment.Experiment): The experiment this compiler will be for.
+        compiler (benchbuild.utils.cmd):
+            Real compiler command we should call in the script.
+        project (benchbuild.project.Project):
+            The project this compiler will be for.
+        experiment (benchbuild.experiment.Experiment):
+            The experiment this compiler will be for.
         extension: A function that will be pickled alongside the compiler.
             It will be called before the actual compilation took place. This
             way you can intercept the compilation process with arbitrary python
@@ -222,35 +224,23 @@ def wrap_cc(filepath,
     Returns (benchbuild.utils.cmd):
         Command of the new compiler we can call.
     """
-    from jinja2 import Environment, PackageLoader
-    env = Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    env = __create_jinja_env()
     template = env.get_template('run_compiler.py.inc')
 
     cc_f = persist(
         compiler(), filename=os.path.abspath(filepath + ".benchbuild.cc"))
     project_file = persist(project, suffix=".project")
-    #experiment_file = persist(experiment, suffix=".experiment")
 
     # Change name if necessary (UCHROOT support, host <-> guest).
     if compiler_ext_name is not None:
         project_file = compiler_ext_name(".project")
-        #experiment_file = compiler_ext_name(".experiment")
         cc_f = compiler_ext_name(".benchbuild.cc")
-
-    # Update LDFLAGS with configure ld_library_path. This way
-    # the libraries found in LD_LIBRARY_PATH are available at link-time too.
-    #lib_path_list = CFG["env"]["ld_library_path"].value()
-    #ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
 
     with open(filepath, 'w') as wrapper:
         wrapper.write(
             template.render(
                 cc_f=cc_f,
                 project_file=project_file,
-                #experiment_file=experiment_file,
                 python=python,
                 detect_project=detect_project))
 

@@ -174,6 +174,7 @@ def with_wget(url_dict=None, target_file=None):
 
     def wget_decorator(cls):
         def download_impl(self):
+            """Download the selected version from the url_dict value."""
             nonlocal url_dict, target_file
             target_file = target_file if target_file else self.SRC_FILE
             target_version = url_dict[self.version]
@@ -181,6 +182,7 @@ def with_wget(url_dict=None, target_file=None):
 
         @staticmethod
         def versions_impl():
+            """Return a list of versions from the url_dict keys."""
             return list(url_dict.keys())
 
         cls.versions = versions_impl

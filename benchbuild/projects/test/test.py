@@ -12,7 +12,7 @@ class TestProject(prj.Project):
     VERSION = "1.0"
     SRC_FILE = "test.cpp"
 
-    def prepare(self):
+    def compile(self):
         with open(self.src_file, 'w') as test_source:
             lines = """
 #include <iostream>
@@ -24,13 +24,6 @@ int main(int argc, char **argv) {
             """
             test_source.write(lines)
 
-    def download(self):
-        pass
-
-    def configure(self):
-        pass
-
-    def build(self):
         clang = compiler.cxx(self)
         run.run(clang[self.src_file, "-o", self.src_file + ".out"])
 
@@ -48,7 +41,7 @@ class TestProjectRuntimeFail(prj.Project):
     VERSION = "1.0"
     SRC_FILE = "test.cpp"
 
-    def prepare(self):
+    def compile(self):
         with open(self.src_file, 'w') as test_source:
             lines = """
 #include <iostream>
@@ -60,13 +53,6 @@ int main(int argc, char **argv) {
             """
             test_source.write(lines)
 
-    def configure(self):
-        pass
-
-    def download(self):
-        pass
-
-    def build(self):
         clang = compiler.cxx(self)
         run.run(clang[self.src_file, "-o", self.src_file + ".out"])
 

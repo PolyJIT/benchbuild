@@ -83,13 +83,11 @@ def unpack_container(container, path):
                 name)]
         has_erlent = (has_erlent & TF)
 
-        cmd = local["/bin/tar"]["xf"]
+        untar = local["/bin/tar"]["xf", "./" + name, "--exclude=dev/*"]
         if not has_erlent:
-            cmd = uchroot[cmd["./" + name]]
-        else:
-            cmd = cmd[name]
+            untar = uchroot[untar]
 
-        run(cmd["--exclude=dev/*"])
+        run(untar)
         if not os.path.samefile(name, container.filename):
             rm(name)
         else:

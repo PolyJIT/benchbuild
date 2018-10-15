@@ -434,8 +434,6 @@ class SessionManager(object):
             True, if we did not encounter any unrecoverable errors, else False.
         """
         try:
-            self.connection.dialect
-
             self.connection.execution_options(isolation_level="SERIALIZABLE")
         except sa.exc.ArgumentError:
             LOG.debug("Unable to set isolation level to SERIALIZABLE")

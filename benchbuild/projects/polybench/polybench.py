@@ -136,6 +136,7 @@ class PolyBenchGroup(Project):
 
     def run_tests(self, runner):
         def filter_stderr(stderr_raw, stderr_filtered):
+            """Extract dump_arrays_output from stderr."""
             with open(stderr_raw, 'r') as stderr:
                 with open(stderr_filtered, 'w') as stderr_filt:
                     stderr_filt.writelines(

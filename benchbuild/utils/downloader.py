@@ -267,6 +267,7 @@ def with_git(repo,
 
         @staticmethod
         def versions_impl():
+            """Return a list of versions from the git hashes up to :limit:."""
             directory = cls.SRC_FILE if target_dir is None else target_dir
             repo_prefix = local.path(str(CFG["tmp_dir"]))
             repo_loc = local.path(repo_prefix) / directory
@@ -285,6 +286,7 @@ def with_git(repo,
                 return rev_list[:limit] if limit else rev_list
 
         def download_impl(self):
+            """Download the selected version."""
             nonlocal target_dir, git
             directory = cls.SRC_FILE if target_dir is None else target_dir
             Git(self.repository, directory)

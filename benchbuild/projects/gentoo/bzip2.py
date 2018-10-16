@@ -6,7 +6,7 @@ from plumbum import local
 from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uretry, uchroot
+from benchbuild.utils.uchroot import uretry, uchroot
 from benchbuild.utils.cmd import tar
 
 
@@ -14,7 +14,7 @@ class BZip2(GentooGroup):
     """
         app-arch/bzip2
     """
-    NAME = "gentoo-bzip2"
+    NAME = "bzip2"
     DOMAIN = "app-arch"
     VERSION = "1.0.6"
 

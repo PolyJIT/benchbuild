@@ -9,7 +9,7 @@ from psutil import Process
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.cmd import kill, mkdir
-from benchbuild.utils.run import uchroot, uretry
+from benchbuild.utils.uchroot import uchroot, uretry
 from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 
 
@@ -17,7 +17,7 @@ class Postgresql(GentooGroup):
     """
     dev-db/postgresql
     """
-    NAME = "gentoo-postgresql"
+    NAME = "postgresql"
     DOMAIN = "dev-db/postgresql"
 
     def compile(self):

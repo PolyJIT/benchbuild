@@ -4,7 +4,7 @@ p7zip experiment within gentoo chroot.
 from os import path
 from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.run import uretry, uchroot
+from benchbuild.utils.uchroot import uretry, uchroot
 
 run = uretry
 
@@ -13,7 +13,7 @@ class SevenZip(GentooGroup):
     """
         app-arch/p7zip
     """
-    NAME = "gentoo-p7zip"
+    NAME = "p7zip"
     DOMAIN = "app-arch"
 
     def compile(self):

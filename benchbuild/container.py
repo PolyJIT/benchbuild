@@ -19,8 +19,9 @@ from benchbuild.utils.cmd import bash, cp, mkdir, mv, rm, tar
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.downloader import Copy, update_hash
 from benchbuild.utils.path import list_to_path, mkdir_uchroot, mkfile_uchroot
-from benchbuild.utils.run import (run, uchroot, uchroot_env, uchroot_mounts,
-                                  uchroot_no_args, uchroot_with_mounts)
+from benchbuild.utils.run import run
+from benchbuild.utils.uchroot import (uchroot, uchroot_env, uchroot_mounts,
+                                      uchroot_with_mounts, uchroot_no_args)
 from benchbuild.utils.user_interface import ask
 
 LOG = logging.getLogger(__name__)

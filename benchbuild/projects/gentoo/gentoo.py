@@ -22,7 +22,8 @@ from benchbuild.utils.cmd import cp
 from benchbuild.utils.compiler import wrap_cc_in_uchroot, wrap_cxx_in_uchroot
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.path import list_to_path, mkdir_uchroot, mkfile_uchroot
-from benchbuild.utils.run import uretry, uchroot, uchroot_env, uchroot_mounts
+from benchbuild.utils.uchroot import (uretry, uchroot, uchroot_env,
+                                      uchroot_mounts)
 
 LOG = logging.getLogger(__name__)
 

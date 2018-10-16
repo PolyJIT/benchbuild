@@ -13,7 +13,7 @@ class ProjectMock(Project):
     Class to get a self pointer for the project that is tested.
     The project also gets wrapped inside the unionfs.
     """
-    from benchbuild.utils.run import unionfs
+    from benchbuild.utils.unionfs import unionfs
 
     @unionfs('./base', './image', None, './union')
     def mount_test_helper(self):

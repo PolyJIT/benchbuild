@@ -5,7 +5,7 @@ crafty experiment within gentoo chroot.
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.cmd import cat
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uchroot, uretry
+from benchbuild.utils.uchroot import uchroot, uretry
 from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 
 
@@ -13,7 +13,7 @@ class Crafty(GentooGroup):
     """
         games-board/crafty
     """
-    NAME = "gentoo-crafty"
+    NAME = "crafty"
     DOMAIN = "games-board"
 
     def compile(self):

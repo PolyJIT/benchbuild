@@ -7,7 +7,8 @@ from plumbum import ProcessExecutionError, local
 
 from benchbuild.projects.gentoo import autoportage
 from benchbuild.utils.container import Gentoo
-from benchbuild.utils.run import run, uchroot_no_args
+from benchbuild.utils.run import run
+from benchbuild.utils.uchroot import uchroot_no_args
 
 
 class FuncClass(object):

@@ -13,8 +13,9 @@ Supported methods:
 import logging
 import os
 
-from benchbuild.settings import CFG
 from plumbum import local
+
+from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
 
@@ -175,10 +176,9 @@ def with_wget(url_dict=None, target_file=None):
     def wget_decorator(cls):
         def download_impl(self):
             """Download the selected version from the url_dict value."""
-            nonlocal url_dict, target_file
-            target_file = target_file if target_file else self.SRC_FILE
-            target_version = url_dict[self.version]
-            Wget(target_version, target_file)
+            t_file = target_file if target_file else self.SRC_FILE
+            t_version = url_dict[self.version]
+            Wget(t_version, t_file)
 
         @staticmethod
         def versions_impl():
@@ -235,7 +235,7 @@ def with_git(repo,
              limit=None,
              refspec="HEAD",
              clone=True,
-             rev_list_args=[]):
+             rev_list_args=None):
     """
     Decorate a project class with git-based version information.
 
@@ -263,6 +263,8 @@ def with_git(repo,
             `git rev-list`.
 
     """
+    if not rev_list_args:
+        rev_list_args = []
 
     def git_decorator(cls):
         from benchbuild.utils.cmd import git

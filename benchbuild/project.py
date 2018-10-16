@@ -28,11 +28,12 @@ from pygtrie import StringTrie
 
 import benchbuild.extensions as ext
 from benchbuild import signals
-from benchbuild.utils import run as ur
 from benchbuild.settings import CFG
+from benchbuild.utils import run as ur
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.db import persist_project
-from benchbuild.utils.run import in_builddir, store_config, unionfs
+from benchbuild.utils.run import in_builddir, store_config
+from benchbuild.utils.unionfs import unionfs
 from benchbuild.utils.wrapping import wrap
 
 LOG = logging.getLogger(__name__)

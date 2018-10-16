@@ -6,16 +6,15 @@ from plumbum import local
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.cmd import tar
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uchroot, uretry
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
-from benchbuild.utils.wrapping import strip_path_prefix
+from benchbuild.utils.uchroot import uchroot, uretry
+from benchbuild.utils.wrapping import wrap_in_uchroot as wrap, strip_path_prefix
 
 
 class Lammps(GentooGroup):
     """
         sci-physics/lammps
     """
-    NAME = "gentoo-lammps"
+    NAME = "lammps"
     DOMAIN = "sci-physics"
 
     test_url = "http://lairosiel.de/dist/"

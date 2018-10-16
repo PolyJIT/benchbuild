@@ -3,7 +3,7 @@ import logging
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.run import uchroot, uretry
+from benchbuild.utils.uchroot import uchroot, uretry
 
 
 class AutoPortage(GentooGroup):

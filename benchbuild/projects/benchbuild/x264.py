@@ -16,6 +16,7 @@ class X264(Project):
     NAME = "x264"
     DOMAIN = "multimedia"
     GROUP = 'benchbuild'
+    VERSION = 'HEAD'
     SRC_FILE = 'x264.git'
 
     inputfiles = {

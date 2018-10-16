@@ -19,12 +19,15 @@ class ErrorCommand(BoundCommand):
     without the entire study to crash.
     The experiment will fail anyway, but without the entire programm crashing.
     """
+
     def run(self, *args, **kwargs):
         """Simply raises the AttributeError for a missing command."""
         LOG.error("Unable to import a needed module.")
         raise AttributeError(__name__ + ".cmd")
 
+
 ERROR = ErrorCommand(__name__ + ".cmd", ErrorCommand.__doc__)
+
 
 class CommandAlias(ModuleType):
     """Module-hack, adapted from plumbum."""

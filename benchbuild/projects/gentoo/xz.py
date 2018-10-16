@@ -6,7 +6,7 @@ from plumbum import local
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.cmd import tar
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uchroot, uretry
+from benchbuild.utils.uchroot import uchroot, uretry
 from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 
 
@@ -14,7 +14,7 @@ class XZ(GentooGroup):
     """
         app-arch/xz
     """
-    NAME = "gentoo-xz"
+    NAME = "xz"
     DOMAIN = "app-arch"
 
     test_url = "http://lairosiel.de/dist/"

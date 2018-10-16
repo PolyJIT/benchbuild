@@ -61,7 +61,8 @@ def unpack_container(container, path):
         path: The location where the container is, that needs to be unpacked.
 
     """
-    from benchbuild.utils.run import run, uchroot_no_args
+    from benchbuild.utils.run import run
+    from benchbuild.utils.uchroot import uchroot_no_args
 
     path = local.path(path)
     c_filename = local.path(container.filename)

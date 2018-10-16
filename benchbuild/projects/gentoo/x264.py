@@ -5,14 +5,14 @@ from os import path
 from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uretry, uchroot
+from benchbuild.utils.uchroot import uretry, uchroot
 
 
 class X264(GentooGroup):
     """
         media-video/x264-encoder
     """
-    NAME = "gentoo-x264"
+    NAME = "x264"
     DOMAIN = "media-libs"
 
     test_url = "http://lairosiel.de/dist/"

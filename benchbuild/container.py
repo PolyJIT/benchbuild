@@ -15,13 +15,12 @@ from plumbum import FG, TF, ProcessExecutionError, cli, local
 from benchbuild.settings import CFG
 from benchbuild.utils import log
 from benchbuild.utils.bootstrap import find_package, install_uchroot
-from benchbuild.utils.cmd import bash, cp, mkdir, mv, rm, tar
+from benchbuild.utils.cmd import bash, mkdir, mv, rm, tar
 from benchbuild.utils.container import Gentoo
 from benchbuild.utils.downloader import Copy, update_hash
-from benchbuild.utils.path import list_to_path, mkdir_uchroot, mkfile_uchroot
 from benchbuild.utils.run import run
-from benchbuild.utils.uchroot import (uchroot, uchroot_env, uchroot_mounts,
-                                      uchroot_with_mounts, uchroot_no_args)
+from benchbuild.utils.uchroot import (uchroot, uchroot_with_mounts,
+                                      uchroot_clean_env, uchroot_no_args)
 from benchbuild.utils.user_interface import ask
 
 LOG = logging.getLogger(__name__)
@@ -122,14 +121,12 @@ def pack_container(in_container, out_file):
     """
     container_filename = local.path(out_file).basename
     out_container = local.cwd / "container-out" / container_filename
-
-    out_tmp_filename = out_container.basename
     out_dir = out_container.dirname
 
     # Pack the results to: container-out
     with local.cwd(in_container):
         tar("cjf", out_container, ".")
-    c_hash = update_hash(out_tmp_filename, out_dir)
+    c_hash = update_hash(out_container)
     if out_dir.exists():
         mkdir("-p", out_dir)
     mv(out_container, out_file)
@@ -183,7 +180,7 @@ def set_input_container(container, cfg):
     return False
 
 
-class MockObj(object):
+class MockObj:
     """Context object to be used in strategies.
 
     This object's attributes are initialized on construction.
@@ -193,7 +190,7 @@ class MockObj(object):
         self.__dict__.update(kwargs)
 
 
-class ContainerStrategy(object):
+class ContainerStrategy:
     """Interfaces for the different containers chosen by the experiment."""
 
     @abstractmethod
@@ -344,18 +341,21 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
             run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
             run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
 
+            want_sync = bool(
+                CFG["container"]["strategy"]["polyjit"]["sync"].value())
+            want_upgrade = bool(
+                CFG["container"]["strategy"]["polyjit"]["upgrade"].value())
+
             packages = \
                 CFG["container"]["strategy"]["polyjit"]["packages"].value()
-            with local.env(
-                    CC="gcc",
-                    CXX="g++",
-                    MAKEOPTS="-j{0}".format(CFG["jobs"].value())):
-                if CFG["container"]["strategy"]["polyjit"]["sync"].value():
+            with local.env(MAKEOPTS="-j{0}".format(CFG["jobs"].value())):
+                if want_sync:
+                    LOG.debug("Synchronizing portage.")
                     run(emerge_in_chroot["--sync"])
-                if CFG["container"]["strategy"]["polyjit"]["upgrade"].value():
+                if want_upgrade:
+                    LOG.debug("Upgrading world.")
                     run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
                                          "--with-bdeps=y", "@world"])
-                run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
                 for pkg in packages:
                     if has_pkg[pkg["name"]] & TF:
                         continue
@@ -422,14 +422,6 @@ class Container(cli.Application):
 
     def main(self, *args):
         log.configure()
-        _log = logging.getLogger()
-        _log.setLevel({
-            3: logging.DEBUG,
-            2: logging.INFO,
-            1: logging.WARNING,
-            0: logging.ERROR
-        }[self.verbosity])
-
         builddir = os.path.abspath(str(CFG["build_dir"]))
         if not os.path.exists(builddir):
             response = ask("The build directory {dirname} does not exist yet. "

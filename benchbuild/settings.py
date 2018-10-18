@@ -112,17 +112,9 @@ CFG["unionfs"] = {
         "default": False,
         "desc": "Wrap all project operations in a unionfs filesystem."
     },
-    "base_dir": {
-        "default": './base',
-        "desc": 'Path of the unpacked container.'
-    },
-    "image": {
-        "default": './image',
+    "rw": {
+        "default": 'rw',
         "desc": 'Name of the image directory'
-    },
-    "image_prefix": {
-        "default": None,
-        "desc": "Prefix for the unionfs image directory."
     }
 }
 

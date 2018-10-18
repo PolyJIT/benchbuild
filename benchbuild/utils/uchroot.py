@@ -1,12 +1,11 @@
 import enum
 import logging
-import os
 
 from plumbum.commands import ProcessExecutionError
+from plumbum import local
 
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import mkdir
-from benchbuild.utils.path import list_to_path
+from benchbuild.utils.path import list_to_path, mkdir_uchroot
 from benchbuild.utils.run import run, with_env_recursive
 
 LOG = logging.getLogger(__name__)
@@ -21,10 +20,64 @@ def uchroot(*args, **kwargs):
     Return:
         chroot_cmd
     """
-    mkdir("-p", "llvm")
     uchroot_cmd = uchroot_with_mounts(
         *args, uchroot_cmd_fn=uchroot_no_llvm, **kwargs)
     return uchroot_cmd["--"]
+
+
+def __uchroot_default_opts(uid=0, gid=0):
+    return [
+        "-C", "-w", "/", "-r", local.cwd, "-u",
+        str(uid), "-g",
+        str(gid), "-E", "-A"
+    ]
+
+
+def uchroot_no_llvm(*args, uid=0, gid=0, **kwargs):
+    """
+    Return a customizable uchroot command.
+
+    The command will be executed inside a uchroot environment.
+
+    Args:
+        args: List of additional arguments for uchroot (typical: mounts)
+    Return:
+        chroot_cmd
+    """
+    uchroot_cmd = uchroot_no_args()
+    uchroot_cmd = uchroot_cmd[__uchroot_default_opts(uid, gid)]
+    return uchroot_cmd[args]
+
+
+def uchroot_no_args():
+    """Return the uchroot command without any customizations."""
+    from benchbuild.utils.cmd import uchroot as uchrt
+
+    prefixes = CFG["container"]["prefixes"].value()
+    p_paths, p_libs = uchroot_env(prefixes)
+    uchrt = with_env_recursive(
+        uchrt,
+        LD_LIBRARY_PATH=list_to_path(p_libs),
+        PATH=list_to_path(p_paths))
+
+    return uchrt
+
+
+def uchroot_with_mounts(*args, uchroot_cmd_fn=uchroot_no_args, **kwargs):
+    """Return a uchroot command with all mounts enabled."""
+    mounts = CFG["container"]["mounts"].value()
+    prefixes = CFG["container"]["prefixes"].value()
+
+    uchroot_opts, mounts = _uchroot_mounts("mnt", mounts)
+    uchroot_cmd = uchroot_cmd_fn(*uchroot_opts, *args, **kwargs)
+    paths, libs = uchroot_env(mounts)
+    prefix_paths, prefix_libs = uchroot_env(prefixes)
+
+    uchroot_cmd = with_env_recursive(
+        uchroot_cmd,
+        LD_LIBRARY_PATH=list_to_path(libs + prefix_libs),
+        PATH=list_to_path(paths + prefix_paths))
+    return uchroot_cmd
 
 
 class UchrootEC(enum.Enum):
@@ -65,38 +118,11 @@ def uretry(cmd, retcode=0):
         ])
 
 
-def uchroot_no_args():
-    """Return the uchroot command without any customizations."""
-    from benchbuild.utils.cmd import uchroot as uchrt
-
-    prefixes = CFG["container"]["prefixes"].value()
-    p_paths, p_libs = uchroot_env(prefixes)
-    uchrt = with_env_recursive(
-        uchrt,
-        LD_LIBRARY_PATH=list_to_path(p_libs),
-        PATH=list_to_path(p_paths))
-
-    return uchrt
-
-
-def uchroot_no_llvm(*args, **kwargs):
-    """
-    Return a customizable uchroot command.
-
-    The command will be executed inside a uchroot environment.
-
-    Args:
-        args: List of additional arguments for uchroot (typical: mounts)
-    Return:
-        chroot_cmd
-    """
-    uid = kwargs.pop('uid', 0)
-    gid = kwargs.pop('gid', 0)
-
-    uchroot_cmd = uchroot_no_args()
-    uchroot_cmd = uchroot_cmd["-C", "-w", "/", "-r", os.path.abspath(".")]
-    uchroot_cmd = uchroot_cmd["-u", str(uid), "-g", str(gid), "-E", "-A"]
-    return uchroot_cmd[args]
+def uchroot_clean_env(uchroot_cmd, varnames):
+    """Returns a uchroot cmd that runs inside a filtered environment."""
+    env = uchroot_cmd["/usr/bin/env"]
+    clean_env = env["-u", ",".join(varnames)]
+    return clean_env
 
 
 def uchroot_mounts(prefix, mounts):
@@ -119,23 +145,22 @@ def uchroot_mounts(prefix, mounts):
     return mntpoints
 
 
-def _uchroot_mounts(prefix, mounts, uchrt):
+def _uchroot_mounts(prefix, mounts):
     i = 0
-    new_uchroot = uchrt
     mntpoints = []
+    uchroot_opts = []
     for mount in mounts:
-        src_mount = mount
         if isinstance(mount, dict):
             src_mount = mount["src"]
             tgt_mount = mount["tgt"]
         else:
+            src_mount = mount
             tgt_mount = "{0}/{1}".format(prefix, str(i))
             i = i + 1
-        mkdir("-p", tgt_mount)
-        new_uchroot = new_uchroot["-M", "{0}:/{1}".format(
-            src_mount, tgt_mount)]
+        mkdir_uchroot(tgt_mount)
+        uchroot_opts.extend(["-M", "{0}:{1}".format(src_mount, tgt_mount)])
         mntpoints.append(tgt_mount)
-    return new_uchroot, mntpoints
+    return uchroot_opts, mntpoints
 
 
 def uchroot_env(mounts):
@@ -150,27 +175,12 @@ def uchroot_env(mounts):
     """
     f_mounts = [m.strip("/") for m in mounts]
 
-    ld_libs = ["/{0}/lib".format(m) for m in f_mounts]
-    ld_libs.extend(["/{0}/lib64".format(m) for m in f_mounts])
+    root = local.path("/")
 
-    paths = ["/{0}/bin".format(m) for m in f_mounts]
-    paths.extend(["/{0}/sbin".format(m) for m in f_mounts])
-    paths.extend(["/{0}".format(m) for m in f_mounts])
+    ld_libs = [root / m / "lib" for m in f_mounts]
+    ld_libs.extend([root / m / "lib64" for m in f_mounts])
+
+    paths = [root / m / "bin" for m in f_mounts]
+    paths.extend([root / m / "sbin" for m in f_mounts])
+    paths.extend([root / m for m in f_mounts])
     return paths, ld_libs
-
-
-def uchroot_with_mounts(*args, uchroot_cmd_fn=uchroot_no_args, **kwargs):
-    """Return a uchroot command with all mounts enabled."""
-    mounts = CFG["container"]["mounts"].value()
-    prefixes = CFG["container"]["prefixes"].value()
-
-    uchroot_cmd = uchroot_cmd_fn(*args, **kwargs)
-    uchroot_cmd, mounts = _uchroot_mounts("mnt", mounts, uchroot_cmd)
-    paths, libs = uchroot_env(mounts)
-    prefix_paths, prefix_libs = uchroot_env(prefixes)
-
-    uchroot_cmd = with_env_recursive(
-        uchroot_cmd,
-        LD_LIBRARY_PATH=list_to_path(libs + prefix_libs),
-        PATH=list_to_path(paths + prefix_paths))
-    return uchroot_cmd

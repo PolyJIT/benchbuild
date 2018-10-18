@@ -45,7 +45,7 @@ def get_hash_of_dirs(directory):
     return sha.hexdigest()
 
 
-def source_required(src_file, src_root):
+def source_required(src_file):
     """
     Check, if a download is required.
 
@@ -56,28 +56,29 @@ def source_required(src_file, src_root):
     Returns:
         True, if we need to download something, False otherwise.
     """
-    # Check if we need to do something
-    src_path = local.path(src_root) / src_file
-    hash_file = local.path(src_root) / (src_file + ".hash")
+    if not src_file.exists():
+        return True
 
     required = True
-    if src_path.exists() and hash_file.exists():
-        new_hash = get_hash_of_dirs(src_path)
+    hash_file = src_file.with_suffix(".hash", depth=0)
+    LOG.debug("Hash file location: %s", hash_file)
+    if hash_file.exists():
+        new_hash = get_hash_of_dirs(src_file)
         with open(hash_file, 'r') as h_file:
             old_hash = h_file.readline()
         required = not new_hash == old_hash
         if required:
             from benchbuild.utils.cmd import rm
-            rm("-r", src_path)
+            rm("-r", src_file)
             rm(hash_file)
     if required:
-        LOG.info("Source required for: %s in %s", src_file, src_path)
-        LOG.info("Reason: src-exists: %s hash-exists: %s", src_path.exists(),
-                 hash_file.exists())
+        LOG.info("Source required for: %s", src_file)
+        LOG.debug("Reason: src-exists: %s hash-exists: %s", src_file.exists(),
+                  hash_file.exists())
     return required
 
 
-def update_hash(src, root):
+def update_hash(src_file):
     """
     Update the hash for the given file.
 
@@ -85,11 +86,10 @@ def update_hash(src, root):
         src: The file name.
         root: The path of the given file.
     """
-    hash_file = local.path(root) / (src + ".hash")
-    src_path = local.path(root) / "src"
+    hash_file = local.path(src_file) + ".hash"
     new_hash = 0
     with open(hash_file, 'w') as h_file:
-        new_hash = get_hash_of_dirs(src_path)
+        new_hash = get_hash_of_dirs(src_file)
         h_file.write(str(new_hash))
     return new_hash
 
@@ -145,14 +145,14 @@ def Wget(src_url, tgt_name, tgt_root=None):
 
     from benchbuild.utils.cmd import wget
 
-    src_path = local.path(tgt_root) / tgt_name
-    if not source_required(tgt_name, tgt_root):
-        Copy(src_path, ".")
+    tgt_file = local.path(tgt_root) / tgt_name
+    if not source_required(tgt_file):
+        Copy(tgt_file, ".")
         return
 
-    wget(src_url, "-O", src_path)
-    update_hash(tgt_name, tgt_root)
-    Copy(src_path, ".")
+    wget(src_url, "-O", tgt_file)
+    update_hash(tgt_file)
+    Copy(tgt_file, ".")
 
 
 def with_wget(url_dict=None, target_file=None):
@@ -211,7 +211,7 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     from benchbuild.utils.cmd import git
 
     src_dir = local.path(repository_loc) / directory
-    if not source_required(directory, repository_loc):
+    if not source_required(src_dir):
         Copy(src_dir, ".")
         return
 
@@ -225,7 +225,7 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
         with local.cwd(src_dir):
             git("checkout", rev)
 
-    update_hash(directory, repository_loc)
+    update_hash(src_dir)
     Copy(src_dir, ".")
     return repository_loc
 
@@ -275,11 +275,11 @@ def with_git(repo,
             directory = cls.SRC_FILE if target_dir is None else target_dir
             repo_prefix = local.path(str(CFG["tmp_dir"]))
             repo_loc = local.path(repo_prefix) / directory
-            if source_required(directory, repo_prefix):
+            if source_required(repo_loc):
                 if not clone:
                     return []
                 git("clone", repo, repo_loc)
-                update_hash(directory, repo_prefix)
+                update_hash(repo_loc)
 
             with local.cwd(repo_loc):
                 rev_list = git("rev-list", "--abbrev-commit", refspec,
@@ -319,13 +319,13 @@ def Svn(url, fname, to=None):
         to = CFG["tmp_dir"].value()
 
     src_dir = local.path(to) / fname
-    if not source_required(fname, to):
+    if not source_required(src_dir):
         Copy(src_dir, ".")
         return
 
     from benchbuild.utils.cmd import svn
     svn("co", url, src_dir)
-    update_hash(fname, to)
+    update_hash(src_dir)
     Copy(src_dir, ".")
 
 
@@ -344,11 +344,11 @@ def Rsync(url, tgt_name, tgt_root=None):
 
     from benchbuild.utils.cmd import rsync
 
-    src_dir = local.path(tgt_root) / tgt_name
-    if not source_required(tgt_name, tgt_root):
-        Copy(src_dir, ".")
+    tgt_dir = local.path(tgt_root) / tgt_name
+    if not source_required(tgt_dir):
+        Copy(tgt_dir, ".")
         return
 
-    rsync("-a", url, src_dir)
-    update_hash(tgt_name, tgt_root)
-    Copy(src_dir, ".")
+    rsync("-a", url, tgt_dir)
+    update_hash(tgt_dir)
+    Copy(tgt_dir, ".")

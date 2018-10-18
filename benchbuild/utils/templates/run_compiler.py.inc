@@ -11,7 +11,6 @@ from benchbuild.utils.run import exit_code_from_run_infos
 from benchbuild.utils.wrapping import load
 
 PROJECT = load("{{ project_file }}")
-#EXPERIMENT = load("{{ experiment_file }}")
 COMPILER = load("{{ cc_f }}")
 
 

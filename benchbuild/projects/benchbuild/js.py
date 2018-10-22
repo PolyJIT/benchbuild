@@ -2,21 +2,18 @@ from functools import partial
 
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
 from benchbuild.settings import CFG
+from benchbuild.utils import compiler, downloader, run, wrapping
 from benchbuild.utils.cmd import make, mkdir, tar
-from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import with_git
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-@with_git(
+@downloader.with_git(
     "https://github.com/mozilla/gecko-dev.git",
     target_dir="gecko-dev.git",
     clone=False,
     limit=5)
-class SpiderMonkey(Project):
+class SpiderMonkey(project.Project):
     """
     SpiderMonkey requires a legacy version of autoconf: autoconf-2.13
     """
@@ -33,8 +30,8 @@ class SpiderMonkey(Project):
         self.download()
 
         js_dir = local.path(self.src_file) / "js" / "src"
-        clang = cc(self)
-        clang_cxx = cxx(self)
+        clang = compiler.cc(self)
+        clang_cxx = compiler.cxx(self)
         with local.cwd(js_dir):
             make_src_pkg = local["./make-source-package.sh"]
             with local.env(
@@ -55,16 +52,16 @@ class SpiderMonkey(Project):
                 with local.env(CC=str(clang), CXX=str(clang_cxx)):
                     configure = local["../configure"]
                     configure = configure["--without-system-zlib"]
-                    run(configure)
+                    run.run(configure)
 
         mozjs_obj_dir = mozjs_src_dir / "obj"
         with local.cwd(mozjs_obj_dir):
-            run(make["-j", CFG["jobs"].value()])
+            run.run(make["-j", CFG["jobs"].value()])
 
     def run_tests(self, runner):
         mozjs_obj_dir = local.path("mozjs-0.0.0") / "js" / "src" / "obj"
         self.runtime_extension = partial(self, may_wrap=False)
-        wrap(mozjs_obj_dir / "js" / "src" / "shell" / "js", self)
+        wrapping.wrap(mozjs_obj_dir / "js" / "src" / "shell" / "js", self)
 
         with local.cwd(mozjs_obj_dir):
-            run(make["check-jstests"])
+            runner(make["check-jstests"])

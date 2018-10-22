@@ -1,5 +1,4 @@
 """ Parsing utilities for Polly's ScheduleTree representation. """
-# pylint: disable=C0326
 import logging
 import textwrap as t
 

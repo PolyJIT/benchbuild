@@ -2,10 +2,10 @@
 gzip experiment within gentoo chroot.
 """
 from plumbum import local
+
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils import downloader, wrapping
 from benchbuild.utils.cmd import tar
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.wrapping import wrap
 
 
 class GZip(GentooGroup):
@@ -21,16 +21,16 @@ class GZip(GentooGroup):
         "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
     ]
 
-    def download(self):
+    def compile(self):
         super(GZip, self).compile()
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
-        Wget(test_url, test_archive)
+        downloader.Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
     def run_tests(self, runner):
-        gzip = wrap(local.path('/') / 'bin' / 'gzip', self)
+        gzip = wrapping.wrap(local.path('/bin/gzip'), self)
 
         # Compress
         runner(gzip["-f", "-k", "--best", "compression/text.html"])

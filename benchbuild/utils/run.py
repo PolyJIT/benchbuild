@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 
 
 @attr.s(cmp=False)
-class RunInfo(object):
+class RunInfo:
     """
     Execution context of wrapped binaries.
 

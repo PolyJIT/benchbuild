@@ -1,8 +1,7 @@
 """Subcommand for project handling."""
 from plumbum import cli
 
-import benchbuild.experiments.empty as empty
-import benchbuild.project as project
+from benchbuild import project
 from benchbuild.cli.main import BenchBuild
 
 

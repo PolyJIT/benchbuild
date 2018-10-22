@@ -1,21 +1,17 @@
-#pylint: disable=E1135,E1136
 import attr
-
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
+from benchbuild.utils import compiler, downloader, run, wrapping
 from benchbuild.utils.cmd import sh, tar
-from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import with_wget
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
 @attr.s
-@with_wget({
+@downloader.with_wget({
     '3.1':
-    'http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/3.1/rodinia_3.1.tar.bz2'})
-class RodiniaGroup(Project):
+    'http://www.cs.virginia.edu/'
+    '~kw5na/lava/Rodinia/Packages/Current/3.1/rodinia_3.1.tar.bz2'})
+class RodiniaGroup(project.Project):
     """Generic handling of Rodinia benchmarks."""
     DOMAIN = 'rodinia'
     GROUP = 'rodinia'
@@ -31,8 +27,8 @@ class RodiniaGroup(Project):
         tar("xf", self.src_file)
         unpack_dir = local.path('rodinia_{0}'.format(self.version))
 
-        c_compiler = cc(self)
-        cxx_compiler = cxx(self)
+        c_compiler = compiler.cc(self)
+        cxx_compiler = compiler.cxx(self)
 
         config_dir = self.config['dir']
         config_src = self.config['src']
@@ -41,12 +37,12 @@ class RodiniaGroup(Project):
         with local.cwd(unpack_dir / config_dir):
             for outfile, srcfiles in config_src.items():
                 cls = type(self)
-                compiler = cls.select_compiler(c_compiler, cxx_compiler)
+                _cc = cls.select_compiler(c_compiler, cxx_compiler)
                 if "flags" in self.config:
-                    compiler = compiler[config_flags]
-                compiler = compiler[srcfiles]
-                compiler = compiler["-o", outfile]
-                run(compiler)
+                    _cc = _cc[config_flags]
+                _cc = _cc[srcfiles]
+                _cc = _cc["-o", outfile]
+                run.run(_cc)
 
     @staticmethod
     def select_compiler(c_compiler, _):
@@ -57,7 +53,7 @@ class RodiniaGroup(Project):
         in_src_dir = unpack_dir / self.config['dir']
 
         for outfile in self.config['src']:
-            wrap(in_src_dir / outfile, self)
+            wrapping.wrap(in_src_dir / outfile, self)
 
         with local.cwd(in_src_dir):
             runner(sh['./run'])
@@ -98,8 +94,8 @@ class BFS(RodiniaGroup):
     }
 
     @staticmethod
-    def select_compiler(_, compiler):
-        return compiler
+    def select_compiler(_, cc):
+        return cc
 
 
 class BPlusTree(RodiniaGroup):
@@ -134,8 +130,8 @@ class CFD(RodiniaGroup):
     }
 
     @staticmethod
-    def select_compiler(_, compiler):
-        return compiler
+    def select_compiler(_, cc):
+        return cc
 
 
 class HeartWall(RodiniaGroup):
@@ -172,8 +168,8 @@ class Hotspot(RodiniaGroup):
     }
 
     @staticmethod
-    def select_compiler(_, compiler):
-        return compiler
+    def select_compiler(_, cc):
+        return cc
 
 
 class Hotspot3D(RodiniaGroup):
@@ -383,8 +379,8 @@ class NW(RodiniaGroup):
     }
 
     @staticmethod
-    def select_compiler(_, compiler):
-        return compiler
+    def select_compiler(_, cc):
+        return cc
 
 
 class ParticleFilter(RodiniaGroup):
@@ -417,8 +413,8 @@ class PathFinder(RodiniaGroup):
     }
 
     @staticmethod
-    def select_compiler(_, compiler):
-        return compiler
+    def select_compiler(_, cc):
+        return cc
 
 class SRAD1(RodiniaGroup):
     NAME = 'srad-1'
@@ -452,8 +448,8 @@ class SRAD2(RodiniaGroup):
     }
 
     @staticmethod
-    def select_compiler(_, compiler):
-        return compiler
+    def select_compiler(_, cc):
+        return cc
 
 class StreamCluster(RodiniaGroup):
     NAME = 'streamcluster'
@@ -471,5 +467,5 @@ class StreamCluster(RodiniaGroup):
     }
 
     @staticmethod
-    def select_compiler(_, compiler):
-        return compiler
+    def select_compiler(_, cc):
+        return cc

@@ -20,7 +20,7 @@ from benchbuild.utils.container import Gentoo
 from benchbuild.utils.downloader import Copy, update_hash
 from benchbuild.utils.run import run
 from benchbuild.utils.uchroot import (uchroot, uchroot_with_mounts,
-                                      uchroot_clean_env, uchroot_no_args)
+                                      uchroot_no_args)
 from benchbuild.utils.user_interface import ask
 
 LOG = logging.getLogger(__name__)

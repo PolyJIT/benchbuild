@@ -10,13 +10,10 @@ import time
 
 from plumbum import cli
 
-import benchbuild.experiment as experiment
-import benchbuild.experiments as experiments
-import benchbuild.project as project
-import benchbuild.utils.actions as actions
-from benchbuild.settings import CFG
-from benchbuild.utils import path, progress
+from benchbuild import experiment, experiments, project
 from benchbuild.cli.main import BenchBuild
+from benchbuild.settings import CFG
+from benchbuild.utils import actions, progress
 
 LOG = logging.getLogger(__name__)
 
@@ -62,7 +59,7 @@ class BenchBuildRun(cli.Application):
 
     pretend = cli.Flag(['p', 'pretend'], default=False)
 
-    def __generate_plan(self, exps, prjs, cfg):
+    def __generate_plan(self, exps, prjs):
         for exp_cls in exps.values():
             exp = exp_cls(projects=prjs)
             eactn = actions.Experiment(obj=exp, actions=exp.actions())
@@ -121,7 +118,7 @@ class BenchBuildRun(cli.Application):
             print("Could not find any experiment. Exiting.")
             return -2
 
-        plan = list(self.__generate_plan(exps, prjs, CFG))
+        plan = list(self.__generate_plan(exps, prjs))
         num_actions = actions.num_steps(plan)
         actions.print_steps(plan)
 

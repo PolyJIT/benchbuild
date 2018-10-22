@@ -1,15 +1,12 @@
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
+from benchbuild.utils import compiler, downloader, run, wrapping
 from benchbuild.utils.cmd import git, make
-from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import with_git
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-@with_git("https://github.com/niklasso/minisat", limit=5)
-class Minisat(Project):
+@downloader.with_git("https://github.com/niklasso/minisat", limit=5)
+class Minisat(project.Project):
     """ minisat benchmark """
 
     NAME = 'minisat'
@@ -23,9 +20,10 @@ class Minisat(Project):
         minisat_lib_path = src_path / "build" / "dynamic" / "lib"
         testfiles = local.path(self.testdir) // "*.cnf.gz"
 
-        exp = wrap(src_path / "build" / "dynamic" / "bin" / "minisat", self)
+        minisat = wrapping.wrap(
+            src_path / "build" / "dynamic" / "bin" / "minisat", self)
         for test_f in testfiles:
-            cmd = (exp.with_env(LD_LIBRARY_PATH=minisat_lib_path) < test_f)
+            cmd = (minisat.with_env(LD_LIBRARY_PATH=minisat_lib_path) < test_f)
             runner(cmd, None)
 
     def compile(self):
@@ -34,9 +32,9 @@ class Minisat(Project):
             git("fetch", "origin", "pull/17/head:clang")
             git("checkout", "clang")
 
-            run(make["config"])
+            run.run(make["config"])
 
-            clang = cc(self)
-            clang_cxx = cxx(self)
-            run(make["CC=" + str(clang), "CXX=" +
-                     str(clang_cxx), "clean", "lsh", "sh"])
+            clang = compiler.cc(self)
+            clang_cxx = compiler.cxx(self)
+            run.run(make["CC=" + str(clang), "CXX=" +
+                         str(clang_cxx), "clean", "lsh", "sh"])

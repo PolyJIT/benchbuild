@@ -1,4 +1,3 @@
-# pylint: disable=E1101,E1102,E1133
 """
 # Actions
 
@@ -23,15 +22,14 @@ import textwrap
 import traceback
 from datetime import datetime
 
+import attr
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 
-import attr
-import benchbuild.signals as signals
-from benchbuild.utils.container import in_container
+from benchbuild import signals
 from benchbuild.settings import CFG
+from benchbuild.utils import container, db
 from benchbuild.utils.cmd import mkdir, rm, rmdir
-from benchbuild.utils.db import persist_experiment
 
 LOG = logging.getLogger(__name__)
 
@@ -431,7 +429,7 @@ class Experiment(Any):
             [Echo(message="Completed experiment: {0}".format(self.obj.name))]
 
     def begin_transaction(self):
-        experiment, session = persist_experiment(self.obj)
+        experiment, session = db.persist_experiment(self.obj)
         if experiment.begin is None:
             experiment.begin = datetime.now()
         else:
@@ -557,7 +555,7 @@ class Containerize(RequireAll):
 
     def requires_redirect(self):
         project = self.obj
-        return not in_container() and (project.container is not None)
+        return not container.in_container() and (project.container is not None)
 
     @notify_step_begin_end
     def __call__(self):
@@ -572,7 +570,7 @@ class Containerize(RequireAll):
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
         sub_actns = "\n".join(sub_actns)
 
-        if in_container():
+        if container.in_container():
             return textwrap.indent("* Running inside container:\n" + sub_actns,
                                    indent * " ")
 

@@ -1,21 +1,18 @@
 """LNT based measurements."""
 import logging
-from os import path
 
 from plumbum import FG, local
 
-from benchbuild.project import Project
+from benchbuild import project
 from benchbuild.settings import CFG
+from benchbuild.utils import compiler, downloader, wrapping
 from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv
-from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import CopyNoFail, with_git, Git
-from benchbuild.utils.wrapping import wrap_dynamic
 
 LOG = logging.getLogger(__name__)
 
 
-@with_git("http://llvm.org/git/lnt", limit=5)
-class LNTGroup(Project):
+@downloader.with_git("http://llvm.org/git/lnt", limit=5)
+class LNTGroup(project.Project):
     """LNT ProjectGroup for running the lnt test suite."""
 
     DOMAIN = 'lnt'
@@ -41,7 +38,7 @@ class LNTGroup(Project):
 
     def compile(self):
         self.download()
-        Git(self.test_suite_uri, self.test_suite_dir)
+        downloader.Git(self.test_suite_uri, self.test_suite_dir)
 
         venv_path = local.cwd / "local"
         virtualenv(venv_path, "--python=python2")
@@ -57,8 +54,8 @@ class LNTGroup(Project):
         mkdir(self.sandbox_dir)
 
         self.lnt = local[local.path("./local/bin/lnt")]
-        self.clang = cc(self, detect_project=True)
-        self.clang_cxx = cxx(self, detect_project=True)
+        self.clang = compiler.cc(self, detect_project=True)
+        self.clang_cxx = compiler.cxx(self, detect_project=True)
 
         self.lnt("runtest", "test-suite", "-v", "-j1", "--sandbox",
                  self.sandbox_dir, "--benchmarking-only",
@@ -74,7 +71,7 @@ class LNTGroup(Project):
             (cat[log] & FG)  # pylint: disable=pointless-statement
 
     def run_tests(self, runner):
-        binary = wrap_dynamic(
+        binary = wrapping.wrap_dynamic(
             self, "lnt_runner", name_filters=LNTGroup.NAME_FILTERS)
 
         runner(
@@ -92,28 +89,28 @@ class LNTGroup(Project):
 class SingleSourceBenchmarks(LNTGroup):
     NAME = 'SingleSourceBenchmarks'
     DOMAIN = 'LNT (SSB)'
-    SUBDIR = path.join("SingleSource", "Benchmarks")
+    SUBDIR = "SingleSource/Benchmarks"
 
 
 class MultiSourceBenchmarks(LNTGroup):
     NAME = 'MultiSourceBenchmarks'
     DOMAIN = 'LNT (MSB)'
-    SUBDIR = path.join("MultiSource", "Benchmarks")
+    SUBDIR = "MultiSource/Benchmarks"
 
 
 class MultiSourceApplications(LNTGroup):
     NAME = 'MultiSourceApplications'
     DOMAIN = 'LNT (MSA)'
-    SUBDIR = path.join("MultiSource", "Applications")
+    SUBDIR = "MultiSource/Applications"
 
 
 class SPEC2006(LNTGroup):
     NAME = 'SPEC2006'
     DOMAIN = 'LNT (Ext)'
-    SUBDIR = path.join("External", "SPEC")
+    SUBDIR = "External/SPEC"
 
     def compile(self):
-        if CopyNoFail('speccpu2006'):
+        if downloader.CopyNoFail('speccpu2006'):
             super(SPEC2006, self).compile()
         else:
             print('======================================================')
@@ -125,11 +122,11 @@ class SPEC2006(LNTGroup):
 class Povray(LNTGroup):
     NAME = 'Povray'
     DOMAIN = 'LNT (Ext)'
-    SUBDIR = path.join("External", "Povray")
+    SUBDIR = "External/Povray"
 
     povray_url = "https://github.com/POV-Ray/povray"
     povray_src_dir = "Povray"
 
     def compile(self):
-        Git(self.povray_url, self.povray_src_dir)
+        downloader.Git(self.povray_url, self.povray_src_dir)
         super(Povray, self).compile()

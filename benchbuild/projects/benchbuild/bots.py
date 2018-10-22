@@ -1,18 +1,15 @@
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
+from benchbuild.utils import compiler, downloader, run, wrapping
 from benchbuild.utils.cmd import make, mkdir
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import with_git
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-@with_git("https://github.com/bsc-pm/bots", limit=5)
-class BOTSGroup(Project):
+@downloader.with_git("https://github.com/bsc-pm/bots", limit=5)
+class BOTSGroup(project.Project):
     """
     Barcelona OpenMP Task Suite.
-    
+
     Barcelona OpenMP Task Suite is a collection of applications that allow
     to test OpenMP tasking implementations and compare its behaviour under
     certain circumstances: task tiedness, throttle and cut-offs mechanisms,
@@ -67,7 +64,7 @@ class BOTSGroup(Project):
     def compile(self):
         self.download()
         makefile_config = local.path(self.src_file) / "config" / "make.config"
-        clang = cc(self)
+        clang = compiler.cc(self)
 
         with open(makefile_config, 'w') as config:
             lines = [
@@ -93,12 +90,12 @@ class BOTSGroup(Project):
             config.writelines(lines)
         mkdir(local.path(self.src_file) / "bin")
         with local.cwd(self.src_file):
-            run(make["-C", self.path_dict[self.name]])
+            run.run(make["-C", self.path_dict[self.name]])
 
     def run_tests(self, runner):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
         binary_path = local.path(self.src_file) / "bin" / binary_name
-        exp = wrap(binary_path, self)
+        exp = wrapping.wrap(binary_path, self)
 
         if self.name in self.input_dict:
             for test_input in self.input_dict[self.name]:

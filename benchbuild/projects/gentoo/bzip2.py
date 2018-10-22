@@ -3,9 +3,8 @@ bzip2 experiment within gentoo chroot.
 """
 from plumbum import local
 
-from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.downloader import Wget
+from benchbuild.utils import downloader, wrapping
 from benchbuild.utils.cmd import tar
 
 
@@ -27,13 +26,11 @@ class BZip2(GentooGroup):
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
-        Wget(test_url, test_archive)
+        downloader.Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
     def run_tests(self, runner):
-        root = local.path("/")
-        wrap(root / "bin" / "bzip2", self)
-        bzip2 = local["/bin/bzip2"]
+        bzip2 = wrapping.wrap(local.path('/root/bin/bzip2'), self)
 
         # Compress
         runner(bzip2["-f", "-z", "-k", "--best", "compression/text.html"])

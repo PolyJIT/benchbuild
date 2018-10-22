@@ -1,8 +1,8 @@
 import csv
 import os
-from benchbuild.reports import Report
-import benchbuild.utils.schema as schema
 
+from benchbuild.reports import Report
+from benchbuild.utils import schema
 
 Experiment = schema.Experiment
 Project = schema.Project
@@ -36,9 +36,11 @@ class RawReport(Report):
     def generate(self):
         results_f = os.path.abspath(self.out_path)
         with open(results_f, 'w') as csv_f:
-            fieldnames = ["exp_name", "exp_begin", "exp_end", "exp_desc",
-                          "exp_id", "project", "status", "run_group", "metric",
-                          "value", "config", "config_value"]
+            fieldnames = [
+                "exp_name", "exp_begin", "exp_end", "exp_desc", "exp_id",
+                "project", "status", "run_group", "metric", "value", "config",
+                "config_value"
+            ]
             csv_w = csv.writer(csv_f)
             csv_w.writerow(fieldnames)
             for rep in self.report():

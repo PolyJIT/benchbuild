@@ -3,7 +3,7 @@ import logging
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.uchroot import uchroot, uretry
+from benchbuild.utils import uchroot
 
 
 class AutoPortage(GentooGroup):
@@ -12,7 +12,7 @@ class AutoPortage(GentooGroup):
     """
 
     def compile(self):
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
+        emerge_in_chroot = uchroot.uchroot()["/usr/bin/emerge"]
         prog = self.DOMAIN + "/" + str(self.NAME)[len(self.DOMAIN) + 1:]
         with local.env(CONFIG_PROTECT="-*"):
             emerge_in_chroot(
@@ -20,7 +20,7 @@ class AutoPortage(GentooGroup):
                 "--autounmask-write=y",
                 prog,
                 retcode=None)
-        uretry(emerge_in_chroot[prog])
+        uchroot.uretry(emerge_in_chroot[prog])
 
     def run_tests(self, runner):
         del runner  # Unused

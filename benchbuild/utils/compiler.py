@@ -19,39 +19,9 @@ Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
 from plumbum import local
-from plumbum.commands.base import BoundCommand
 
 from benchbuild.settings import CFG
 from benchbuild.utils.wrapping import wrap_cc
-
-
-def wrap_cc_in_uchroot(project, cc_name=None):
-    """
-    Generate a clang wrapper that may be called from within a uchroot.
-
-    This basically does the same as cc/cxx. However, we do not
-    create a valid plumbum command. The generated script will only work
-    inside a uchroot environment that has is root at the current working
-    directory, when calling this function.
-
-    Args:
-        project: The project we generate this compiler for.
-        cc_name: Name of the generated script.
-    """
-    if not cc_name:
-        cc_name = str(CFG["compiler"]["c"])
-
-    wrap_cc(
-        cc_name,
-        compiler(cc_name),
-        project,
-        lambda ext: local.path("/") / ext,
-        python="/usr/bin/env python3")
-
-
-def wrap_cxx_in_uchroot(project):
-    """Delegate to wrap_cc_in_uchroot)."""
-    wrap_cc_in_uchroot(project, str(CFG["compiler"]["cxx"]))
 
 
 def cc(project, detect_project=False):
@@ -99,9 +69,10 @@ def cxx(project, detect_project=False):
     """
     from benchbuild.utils import cmd
 
-    cxx = CFG["compiler"]["cxx"].value()
-    wrap_cc(cxx, compiler(cxx), project, detect_project=detect_project)
-    return cmd["./{name}".format(name=cxx)]
+    cxx_name = CFG["compiler"]["cxx"].value()
+    wrap_cc(
+        cxx_name, compiler(cxx_name), project, detect_project=detect_project)
+    return cmd["./{name}".format(name=cxx_name)]
 
 
 def __get_paths():
@@ -137,4 +108,4 @@ def compiler(name):
     _compiler = local[name]
     _compiler = _compiler.setenv(
         PATH=pinfo["path"], LD_LIBRARY_PATH=pinfo["ld_library_path"])
-    return lambda: _compiler
+    return _compiler

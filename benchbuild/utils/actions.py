@@ -28,6 +28,7 @@ from plumbum import ProcessExecutionError
 
 import attr
 import benchbuild.signals as signals
+from benchbuild.utils.container import in_container
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 from benchbuild.utils.db import persist_experiment
@@ -547,6 +548,40 @@ class RequireAll(Step):
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
         sub_actns = "\n".join(sub_actns)
         return textwrap.indent("* All required:\n" + sub_actns, indent * " ")
+
+
+@attr.s
+class Containerize(RequireAll):
+    NAME = "CONTAINERIZE"
+    DESCRITPION = "Redirect into container"
+
+    def requires_redirect(self):
+        project = self.obj
+        return not in_container() and (project.container is not None)
+
+    @notify_step_begin_end
+    def __call__(self):
+        project = self.obj
+        if self.requires_redirect():
+            project.redirect()
+            self.status = StepResult.OK
+        else:
+            super(Containerize, self).__call__()
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
+        sub_actns = "\n".join(sub_actns)
+
+        if in_container():
+            return textwrap.indent("* Running inside container:\n" + sub_actns,
+                                   indent * " ")
+
+        if self.requires_redirect():
+            return textwrap.indent(
+                "* Continue inside container:\n" + sub_actns, indent * " ")
+
+        return textwrap.indent("* Running without container:\n" + sub_actns,
+                               indent * " ")
 
 
 class CleanExtra(Step):

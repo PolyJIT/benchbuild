@@ -1,11 +1,10 @@
 """
 eix experiment within gentoo chroot
 """
-from os import path
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+from plumbum import local
+
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.run import run
-from benchbuild.utils.uchroot import uchroot
+from benchbuild.utils.wrapping import wrap
 
 
 class Eix(GentooGroup):
@@ -14,16 +13,8 @@ class Eix(GentooGroup):
     NAME = 'eix'
     DOMAIN = 'app-portage'
 
-    def compile(self):
-        """Compiles and installes eix within gentoo chroot"""
-
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        run(emerge_in_chroot["eix"])
-
     def run_tests(self, runner):
         """Runs runtime tests for eix"""
 
-        wrap(path.join("usr", "bin", "eix"), self, self.builddir)
-        eix = uchroot()["/usr/bin/eix"]
-
-        run(eix["clang"])
+        eix = wrap(local.path('/') / 'usr' / 'bin' / 'eix', self)
+        runner(eix["clang"])

@@ -6,6 +6,7 @@ import psutil
 from plumbum import local
 
 from benchbuild import settings
+from benchbuild.utils.container import in_container
 
 LOG = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ def unionfs(rw='rw', ro=None, union='union'):
             build environment are tracked for deletion.
             """
             container = project.container
-            if container is None:
+            if container is None or in_container():
                 return func(project, *args, **kwargs)
 
             build_dir = local.path(project.builddir)

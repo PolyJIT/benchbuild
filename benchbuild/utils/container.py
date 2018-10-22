@@ -84,11 +84,11 @@ def unpack_container(container, path):
                 name)]
         has_erlent = (has_erlent & TF)
 
-        untar = local["/bin/tar"]["xf", "./" + name, "--exclude=dev/*"]
+        untar = local["/bin/tar"]["xf", "./" + name]
         if not has_erlent:
             untar = uchroot[untar]
 
-        run(untar)
+        run(untar["--exclude=dev/*"])
         if not os.path.samefile(name, container.filename):
             rm(name)
         else:
@@ -112,8 +112,7 @@ class Container(object):
 
         if os.path.isabs(image_cfg):
             return image_cfg
-        else:
-            return tmp_dir / image_cfg
+        return tmp_dir / image_cfg
 
     @property
     def local(self):
@@ -173,3 +172,9 @@ class Ubuntu(Container):
     def remote(self):
         """Get a remote URL of the requested container."""
         pass
+
+
+def in_container():
+    """Check, whether we are running inside a container."""
+    p = local.path("/.benchbuild-container")
+    return p.exists()

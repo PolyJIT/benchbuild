@@ -9,8 +9,7 @@ from psutil import Process
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.cmd import kill, mkdir
-from benchbuild.utils.uchroot import uchroot, uretry
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+from benchbuild.utils.wrapping import wrap
 
 
 class Postgresql(GentooGroup):
@@ -21,43 +20,31 @@ class Postgresql(GentooGroup):
     DOMAIN = "dev-db/postgresql"
 
     def compile(self):
+        self.emerge_env = dict(USE="server")
         super(Postgresql, self).compile()
 
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        with local.env(USE="server"):
-            uretry(emerge_in_chroot["dev-db/postgresql:9.4"])
-
-        pg_socketdir = "/run/postgresql"
-        if not path.exists(self.outside(pg_socketdir)):
-            uretry(mkdir["-p", self.outside(pg_socketdir)])
-
-    def outside(self, chroot_path):
-        """
-        Return the path with the outside prefix.
-
-        Args:
-            chroot_path: the path inside the chroot.
-
-        Returns:
-            Absolute path outside this chroot.
-        """
-
-        return path.join(self.builddir, chroot_path.lstrip("/"))
+        pg_socketdir = local.path("/run/postgresql")
+        if not pg_socketdir.exists():
+            pg_socketdir.mkdir()
 
     def run_tests(self, runner):
-        pg_data = "/test-data/"
-        pg_path = "/usr/lib64/postgresql-9.4/bin/postgres"
-        wrap(self.outside(pg_path), self, self.builddir)
-        cuchroot = uchroot(uid=250, gid=250)
+        from benchbuild.utils.cmd import su
+        pg_data = local.path("/test-data/")
+        pg_path = local.path("/usr/bin/postgres")
 
-        dropdb = cuchroot["/usr/bin/dropdb"]
-        createdb = cuchroot["/usr/bin/createdb"]
-        pgbench = cuchroot["/usr/bin/pgbench"]
-        initdb = cuchroot["/usr/bin/initdb"]
-        pg_server = cuchroot[pg_path]
+        postgres = wrap(pg_path, self)
+
+        def pg_su(command):
+            return su['-c', command, '-g', 'postgres', 'postgres']
+
+        dropdb = pg_su('/usr/bin/dropdb')
+        createdb = pg_su("/usr/bin/createdb")
+        pgbench = pg_su("/usr/bin/pgbench")
+        initdb = pg_su("/usr/bin/initdb")
+        pg_server = pg_su(pg_path)
 
         with local.env(PGPORT="54329", PGDATA=pg_data):
-            if not path.exists(self.outside(pg_data)):
+            if not pg_data.exists():
                 runner(initdb)
 
             with pg_server.bgrun() as postgres:

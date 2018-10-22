@@ -61,7 +61,7 @@ class ProjectDecorator(ProjectRegistry):
         unionfs_deco = None
         if CFG["unionfs"]["enable"].value():
             rw_dir = str(CFG["unionfs"]["rw"])
-            unionfs_deco = partial(unionfs, rw=rw_dir)
+            unionfs_deco = partial(unionfs.unionfs, rw=rw_dir)
         config_deco = run.store_config
 
         methods = ProjectDecorator.decorated_methods

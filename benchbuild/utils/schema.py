@@ -460,8 +460,9 @@ class SessionManager(object):
         if needed_schema(self.connection, BASE.metadata):
             LOG.debug("Initialized new db schema.")
             repo_version = enforce_versioning(force=True)
-        repo_version, db_version = setup_versioning()
-        maybe_update_db(repo_version, db_version)
+        else:
+            repo_version, db_version = setup_versioning()
+            maybe_update_db(repo_version, db_version)
 
     def get(self):
         return sessionmaker(bind=self.connection)

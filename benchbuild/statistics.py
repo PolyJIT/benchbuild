@@ -14,6 +14,7 @@ from benchbuild.utils.schema import Session
 LOG = logging.getLogger(__name__)
 TIMEOUT = 1
 
+
 class Statistics(Extension):
     """
     Extend a run to be repeated until it reaches a statistically significance
@@ -22,13 +23,13 @@ class Statistics(Extension):
     An example on how to use this extension can be found in the Pollytest
     Experiment.
     """
+
     def __init__(self, project, experiment, *extensions, config=None):
         self.project = project
         self.experiment = experiment
 
         super(Statistics, self).__init__(*extensions, config=config)
 
-    
     def t_test(self, *results, significance=0.95):
         """
         Runs a t-test on a given set of results.
@@ -38,7 +39,7 @@ class Statistics(Extension):
             was rejected, False otherwise.
         """
         for result in results:
-            del result # Unused temporarily
+            del result  # Unused temporarily
             t_statistic = 0
             p_value = 0
             #t_statistic, p_value = scipy.stats.ttest_1samp(result, TRUE_MU)
@@ -66,14 +67,14 @@ class Statistics(Extension):
             ri_object = self.call_next(*args, **kwargs)
 
             #check if the experiment defines the result function
-            if(hasattr(self.experiment, 'res_func')):
+            if hasattr(self.experiment, 'res_func'):
                 results = self.experiment.res_func(ri_object)
-                if(self.t_test(results)):
+                if self.t_test(results):
                     LOG.info("The run was significant.")
                     break
 
                 #check if this was the last iteration
-                if(iterator == (timeout - 1)):
+                if iterator == (timeout - 1):
                     LOG.warning(
                         "No significant run happened before the timeout!")
                 iterator += 1
@@ -81,10 +82,9 @@ class Statistics(Extension):
             # no need to repeat the run without a result function
             else:
                 break
-        
+
         #Commit the database session containing all runs
         session.commit()
 
-        LOG.info("Overall one command was executed %s, " +
-                 "times.", iterator)
+        LOG.info("Overall one command was executed %s times.", iterator)
         return ri_object

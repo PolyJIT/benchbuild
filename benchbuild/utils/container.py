@@ -97,7 +97,7 @@ def unpack_container(container, path):
         cp(container.filename + ".hash", path)
 
 
-class Container(object):
+class Container:
     name = "container"
 
     @property

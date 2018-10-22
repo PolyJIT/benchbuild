@@ -63,7 +63,7 @@ def load_experiment_ids_from_names(session, names):
 
 
 @attr.s
-class Report(object, metaclass=ReportRegistry):
+class Report(metaclass=ReportRegistry):
 
     SUPPORTED_EXPERIMENTS = []
     NAME = None

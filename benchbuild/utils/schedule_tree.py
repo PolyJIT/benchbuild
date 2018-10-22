@@ -9,7 +9,7 @@ LOG = logging.getLogger(__name__)
 
 
 @attr.s
-class Node(object):
+class Node:
     tok = attr.ib()
 
     def indent(self, level=0, idt=' '):

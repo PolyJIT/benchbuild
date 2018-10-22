@@ -3,7 +3,7 @@
 import os
 import sys
 
-from plumbum import TEE
+from plumbum import TEE, local
 
 from benchbuild.utils import log
 from benchbuild.utils.db import persist_project
@@ -18,8 +18,9 @@ def update_project(argv):
     if {{detect_project}}:
         name = PROJECT.name
         for arg in argv:
-            if os.path.exists(arg):
-                name = os.path.basename(os.path.normpath(os.path.dirname(arg)))
+            project_p = local.path(arg)
+            if project_p.exists():
+                name = project_p.basename
                 break
         PROJECT.name = name
         persist_project(PROJECT)

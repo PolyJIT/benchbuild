@@ -1,13 +1,11 @@
 """
 gzip experiment within gentoo chroot.
 """
-from os import path
-
+from plumbum import local
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.cmd import tar
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.uchroot import uchroot, uretry
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+from benchbuild.utils.wrapping import wrap
 
 
 class GZip(GentooGroup):
@@ -31,12 +29,8 @@ class GZip(GentooGroup):
         Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        uretry(emerge_in_chroot["app-arch/gzip"])
-
     def run_tests(self, runner):
-        wrap(path.join(self.builddir, "bin", "gzip"), self, self.builddir)
-        gzip = uchroot()["/bin/gzip"]
+        gzip = wrap(local.path('/') / 'bin' / 'gzip', self)
 
         # Compress
         runner(gzip["-f", "-k", "--best", "compression/text.html"])

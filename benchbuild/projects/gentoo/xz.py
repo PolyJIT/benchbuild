@@ -6,8 +6,7 @@ from plumbum import local
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.cmd import tar
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.uchroot import uchroot, uretry
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+from benchbuild.utils.wrapping import wrap
 
 
 class XZ(GentooGroup):
@@ -31,13 +30,8 @@ class XZ(GentooGroup):
         Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        uretry(emerge_in_chroot["app-arch/xz-utils"])
-
     def run_tests(self, runner):
-        xz_bin = local.cwd / "usr" / "bin" / "xz"
-        wrap(xz_bin, self, self.builddir)
-        xz = uchroot()["/usr/bin/xz"]
+        xz = wrap(local.path("/usr/bin/xz"), self)
 
         # Compress
         runner(

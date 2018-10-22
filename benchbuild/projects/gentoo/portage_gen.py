@@ -10,6 +10,8 @@ from benchbuild.utils.container import Gentoo
 from benchbuild.utils.run import run
 from benchbuild.utils.uchroot import uchroot_no_args
 
+LOG = logging.getLogger(__name__)
+
 
 class FuncClass(object):
     """
@@ -101,11 +103,8 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         """Dynamic projects don't support a run() test."""
         del args, kwargs  # Unused
 
-        from benchbuild.settings import CFG
-        logger = logging.getLogger(__name__)
-        logger.info("run() not supported.")
-        if CFG["clean"].value():
-            self.clean()
+        LOG.warning(
+            "Runtime testing not supported on auto-generated projects.")
         return
 
     newclass = type(

@@ -33,7 +33,7 @@ import attr
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Build, Clean, CleanExtra, Compile,
                                       Configure, Download, MakeBuildDir,
-                                      Prepare, RequireAll, Run)
+                                      Prepare, Containerize, Run)
 
 
 class ExperimentRegistry(type):
@@ -140,8 +140,9 @@ class Experiment(object, metaclass=ExperimentRegistry):
         for project in self.projects:
             p = self.projects[project](self)
             actions.append(Clean(p))
-            actions.append(
-                RequireAll(obj=p, actions=self.actions_for_project(p)))
+            actions.append(MakeBuildDir(p))
+            project_actions = self.actions_for_project(p)
+            actions.append(Containerize(obj=p, actions=project_actions))
 
         actions.append(CleanExtra(self))
         return actions
@@ -149,17 +150,12 @@ class Experiment(object, metaclass=ExperimentRegistry):
     @staticmethod
     def default_runtime_actions(project):
         """Return a series of actions for a run time experiment."""
-        return [
-            MakeBuildDir(project),
-            Compile(project),
-            Run(project),
-            Clean(project)
-        ]
+        return [Compile(project), Run(project), Clean(project)]
 
     @staticmethod
     def default_compiletime_actions(project):
         """Return a series of actions for a compile time experiment."""
-        return [MakeBuildDir(project), Compile(project), Clean(project)]
+        return [Compile(project), Clean(project)]
 
 
 class Configuration(object):

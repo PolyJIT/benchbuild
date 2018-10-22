@@ -2,7 +2,7 @@ import enum
 import logging
 
 from plumbum.commands import ProcessExecutionError
-from plumbum import local
+from plumbum import local, FG
 
 from benchbuild.settings import CFG
 from benchbuild.utils.path import list_to_path, mkdir_uchroot
@@ -49,7 +49,7 @@ def uchroot_no_llvm(*args, uid=0, gid=0, **kwargs):
     return uchroot_cmd[args]
 
 
-def uchroot_no_args():
+def uchroot_no_args(**kwargs):
     """Return the uchroot command without any customizations."""
     from benchbuild.utils.cmd import uchroot as uchrt
 
@@ -69,7 +69,9 @@ def uchroot_with_mounts(*args, uchroot_cmd_fn=uchroot_no_args, **kwargs):
     prefixes = CFG["container"]["prefixes"].value()
 
     uchroot_opts, mounts = _uchroot_mounts("mnt", mounts)
-    uchroot_cmd = uchroot_cmd_fn(*uchroot_opts, *args, **kwargs)
+    uchroot_cmd = uchroot_cmd_fn(**kwargs)
+    uchroot_cmd = uchroot_cmd[uchroot_opts]
+    uchroot_cmd = uchroot_cmd[args]
     paths, libs = uchroot_env(mounts)
     prefix_paths, prefix_libs = uchroot_env(prefixes)
 
@@ -90,7 +92,7 @@ class UchrootEC(enum.Enum):
 
 def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
     try:
-        run(pb_cmd, retcode)
+        pb_cmd & FG(retcode=retcode)
     except ProcessExecutionError as proc_ex:
         new_retcode = proc_ex.retcode
         if retries > max_retries:

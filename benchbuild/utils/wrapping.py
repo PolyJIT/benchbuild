@@ -200,7 +200,6 @@ def wrap_dynamic(project,
 def wrap_cc(filepath,
             compiler,
             project,
-            compiler_ext_name=None,
             python=sys.executable,
             detect_project=False):
     """
@@ -215,14 +214,7 @@ def wrap_cc(filepath,
             Real compiler command we should call in the script.
         project (benchbuild.project.Project):
             The project this compiler will be for.
-        experiment (benchbuild.experiment.Experiment):
-            The experiment this compiler will be for.
-        extension: A function that will be pickled alongside the compiler.
-            It will be called before the actual compilation took place. This
-            way you can intercept the compilation process with arbitrary python
-            code.
-        compiler_ext_name: The name that we should give to the generated
-            dill blob for :func:
+        python (str): Path to the python interpreter we should use.
         detect_project: Should we enable project detection or not.
 
     Returns (benchbuild.utils.cmd):
@@ -231,14 +223,10 @@ def wrap_cc(filepath,
     env = __create_jinja_env()
     template = env.get_template('run_compiler.py.inc')
 
-    cc_f = persist(
-        compiler(), filename=os.path.abspath(filepath + ".benchbuild.cc"))
-    project_file = persist(project, suffix=".project")
+    cc_fname = local.path(filepath).with_suffix(".benchbuild.cc", depth=0)
+    cc_f = persist(compiler, filename=cc_fname)
 
-    # Change name if necessary (UCHROOT support, host <-> guest).
-    if compiler_ext_name is not None:
-        project_file = compiler_ext_name(".project")
-        cc_f = compiler_ext_name(".benchbuild.cc")
+    project_file = persist(project, suffix=".project")
 
     with open(filepath, 'w') as wrapper:
         wrapper.write(
@@ -249,17 +237,11 @@ def wrap_cc(filepath,
                 detect_project=detect_project))
 
     chmod("+x", filepath)
-    LOG.debug("Placed wrapper in: {wrapper} for compiler {compiler}".format(
-        wrapper=os.path.abspath(filepath), compiler=compiler()))
+    LOG.debug("Placed wrapper in: %s for compiler %s", local.path(filepath),
+              str(compiler))
+    LOG.debug("Placed project in: %s", local.path(project_file))
+    LOG.debug("Placed compiler command in: %s", local.path(cc_f))
     return local[filepath]
-
-
-def wrap_in_uchroot(name, runner, sprefix=None):
-    wrap(name, runner, sprefix, python="/usr/bin/env python3")
-
-
-def wrap_dynamic_in_uchroot(self, name, sprefix=None):
-    wrap_dynamic(self, name, sprefix, python="/usr/bin/env python3")
 
 
 def persist(id_obj, filename=None, suffix=None):

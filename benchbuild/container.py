@@ -216,116 +216,6 @@ class BashStrategy(ContainerStrategy):
 class SetupPolyJITGentooStrategy(ContainerStrategy):
     """Interface of using gentoo as a container for an experiment."""
 
-    @staticmethod
-    def write_wgetrc(path):
-        """Wget the project from a specified link."""
-        mkfile_uchroot("/etc/wgetrc")
-
-        with open(path, 'w') as wgetrc:
-            http_proxy = CFG["gentoo"]["http_proxy"].value()
-            ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
-            if http_proxy is not None:
-                http_proxy_s = "http_proxy = {0}".format(str(http_proxy))
-                https_proxy_s = "https_proxy = {0}".format(str(http_proxy))
-                wgetrc.write("use_proxy = on\n")
-                wgetrc.write(http_proxy_s + "\n")
-                wgetrc.write(https_proxy_s + "\n")
-
-            if ftp_proxy is not None:
-                ftp_proxy_s = "ftp_proxy={0}".format(str(ftp_proxy))
-                wgetrc.write(ftp_proxy_s + "\n")
-
-    @staticmethod
-    def write_makeconfig(path):
-        """Create the stringed to be written in the settings."""
-        mkfile_uchroot("/etc/portage/make.conf")
-        with open(path, 'w') as makeconf:
-            lines = '''
-PORTAGE_USERNAME=root
-PORTAGE_GROUPNAME=root
-CFLAGS="-O2 -pipe"
-CXXFLAGS="${CFLAGS}"
-FEATURES="-xattr"
-
-CHOST="x86_64-pc-linux-gnu"
-USE="bindist mmx sse sse2"
-PORTDIR="/usr/portage"
-DISTDIR="${PORTDIR}/distfiles"
-PKGDIR="${PORTDIR}/packages"
-'''
-
-            makeconf.write(lines)
-            http_proxy = CFG["gentoo"]["http_proxy"].value()
-            if http_proxy is not None:
-                http_proxy_s = "http_proxy={0}".format(str(http_proxy))
-                https_proxy_s = "https_proxy={0}".format(str(http_proxy))
-                makeconf.write(http_proxy_s + "\n")
-                makeconf.write(https_proxy_s + "\n")
-
-            ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
-            if ftp_proxy is not None:
-                ftp_proxy_s = "ftp_proxy={0}".format(str(ftp_proxy))
-                makeconf.write(ftp_proxy_s + "\n")
-
-            rsync_proxy = CFG["gentoo"]["rsync_proxy"].value()
-            if rsync_proxy is not None:
-                rsync_proxy_s = "RSYNC_PROXY={0}".format(str(rsync_proxy))
-                makeconf.write(rsync_proxy_s + "\n")
-
-    @staticmethod
-    def write_bashrc(path):
-        """Write inside a bash and update the shell if necessary."""
-        mkfile_uchroot("/etc/portage/bashrc")
-        paths, libs = uchroot_env(
-            uchroot_mounts("mnt", CFG["container"]["mounts"].value()))
-
-        with open(path, 'w') as bashrc:
-            lines = '''
-export PATH="{0}:${{PATH}}"
-export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
-'''.format(list_to_path(paths), list_to_path(libs))
-            bashrc.write(lines)
-
-    @staticmethod
-    def write_layout(path):
-        """Create a layout from the given path."""
-        mkdir_uchroot("/etc/portage/metadata")
-        mkfile_uchroot("/etc/portage/metadata/layout.conf")
-        with open(path, 'w') as layoutconf:
-            lines = '''masters = gentoo'''
-            layoutconf.write(lines)
-
-    def configure(self):
-        """Configure the gentoo container for a PolyJIT experiment."""
-        cls = SetupPolyJITGentooStrategy
-        cls.write_bashrc("etc/portage/bashrc")
-        cls.write_makeconfig("etc/portage/make.conf")
-        cls.write_wgetrc("etc/wgetrc")
-        cls.write_layout("etc/portage/metadata/layout.conf")
-
-        mkfile_uchroot("/etc/resolv.conf")
-        cp("/etc/resolv.conf", "etc/resolv.conf")
-
-        config_file = CFG["config_file"].value()
-
-        if os.path.exists(str(config_file)):
-            paths, libs = \
-                    uchroot_env(
-                        uchroot_mounts("mnt",
-                                       CFG["container"]["mounts"].value()))
-            uchroot_cfg = CFG
-            uchroot_cfg["env"]["path"] = paths
-            uchroot_cfg["env"]["ld_library_path"] = libs
-
-            uchroot_cfg["env"]["path"] = paths
-            uchroot_cfg["env"]["ld_library_path"] = libs
-
-            uchroot_cfg["env"]["path"] = paths
-            uchroot_cfg["env"]["ld_library_path"] = libs
-
-            mkfile_uchroot("/.benchbuild.json")
-            uchroot_cfg.store(".benchbuild.json")
-
     def run(self, context):
         """Setup a gentoo container suitable for PolyJIT."""
         # Don't do something when running non-interactive.
@@ -333,7 +223,10 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
             return
 
         with local.cwd(context.in_container):
-            self.configure()
+            from benchbuild.projects.gentoo import gentoo
+            gentoo.setup_networking()
+            gentoo.configure_portage()
+
             sed_in_chroot = uchroot()["/bin/sed"]
             emerge_in_chroot = uchroot()["/usr/bin/emerge"]
             has_pkg = uchroot()["/usr/bin/qlist", "-I"]
@@ -362,6 +255,8 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
                     env = pkg["env"]
                     with local.env(**env):
                         run(emerge_in_chroot[pkg["name"]])
+
+            gentoo.setup_benchbuild()
 
         print("Packing new container image.")
         with local.cwd(context.builddir):

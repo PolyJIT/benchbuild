@@ -3,10 +3,9 @@ bzip2 experiment within gentoo chroot.
 """
 from plumbum import local
 
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.uchroot import uretry, uchroot
 from benchbuild.utils.cmd import tar
 
 
@@ -16,7 +15,6 @@ class BZip2(GentooGroup):
     """
     NAME = "bzip2"
     DOMAIN = "app-arch"
-    VERSION = "1.0.6"
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "compression.tar.gz"
@@ -32,13 +30,10 @@ class BZip2(GentooGroup):
         Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        uretry(emerge_in_chroot["app-arch/bzip2"])
-
     def run_tests(self, runner):
-        builddir = local.path(self.builddir)
-        wrap(builddir / "bin" / "bzip2", self, builddir)
-        bzip2 = uchroot()["/bin/bzip2"]
+        root = local.path("/")
+        wrap(root / "bin" / "bzip2", self)
+        bzip2 = local["/bin/bzip2"]
 
         # Compress
         runner(bzip2["-f", "-z", "-k", "--best", "compression/text.html"])

@@ -1,11 +1,11 @@
 """
 media-video/x264-encoder within gentoo chroot.
 """
-from os import path
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+from plumbum import local
+
+from benchbuild.utils.wrapping import wrap
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.downloader import Wget
-from benchbuild.utils.uchroot import uretry, uchroot
 
 
 class X264(GentooGroup):
@@ -23,14 +23,12 @@ class X264(GentooGroup):
 
     def compile(self):
         super(X264, self).compile()
+
         for testfile in self.inputfiles:
             Wget(self.test_url + testfile, testfile)
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        uretry(emerge_in_chroot["media-video/x264-encoder"])
 
     def run_tests(self, runner):
-        wrap(path.join(self.builddir, "usr/bin/x264"), self, self.builddir)
-        x264 = uchroot()["/usr/bin/x264"]
+        x264 = wrap(local.path('/usr/bin/x264'), self)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",
@@ -45,6 +43,6 @@ class X264(GentooGroup):
 
         for ifile in self.inputfiles:
             for _, test in enumerate(tests):
-                uretry(x264[ifile, self.inputfiles[ifile], "--threads", "1",
+                runner(x264[ifile, self.inputfiles[ifile], "--threads", "1",
                             "-o", "/dev/null",
                             test.split(" ")])

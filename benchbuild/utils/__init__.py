@@ -53,11 +53,12 @@ class CommandAlias(ModuleType):
         if command in __ALIASES__:
             check = __ALIASES__[command]
 
-        path = path_to_list(getenv("PATH", default=""))
-        path = CFG["env"]["path"].value() + path
+        env = CFG["env"].value()
+        path = path_to_list(getenv("PATH", ""))
+        path.extend(env.get("PATH", []))
 
-        libs_path = path_to_list(getenv("LD_LIBRARY_PATH", default=""))
-        libs_path = CFG["env"]["ld_library_path"].value() + libs_path
+        libs_path = path_to_list(getenv("LD_LIBRARY_PATH", ""))
+        libs_path.extend(env.get("LD_LIBRARY_PATH", []))
 
         if self.__override_all__ is not None:
             check = [self.__override_all__]

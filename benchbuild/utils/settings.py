@@ -531,13 +531,15 @@ def setup_config(cfg):
 
 
 def update_env(cfg):
-    path = cfg["env"]["path"].value()
+    env = cfg["env"].value()
+
+    path = env.get("PATH", "")
     path = os.path.pathsep.join(path)
     if "PATH" in os.environ:
         path = os.path.pathsep.join([path, os.environ["PATH"]])
     os.environ["PATH"] = path
 
-    lib_path = cfg["env"]["ld_library_path"].value()
+    lib_path = env.get("LD_LIBRARY_PATH", "")
     lib_path = os.path.pathsep.join(lib_path)
     if "LD_LIBRARY_PATH" in os.environ:
         lib_path = os.path.pathsep.join(

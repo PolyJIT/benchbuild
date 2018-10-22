@@ -12,6 +12,7 @@ from plumbum import local, TF
 
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import bash, chmod, mkdir
+from benchbuild.utils.path import list_to_path
 
 INFO = logging.info
 ERROR = logging.error
@@ -19,13 +20,15 @@ ERROR = logging.error
 
 def __get_slurm_path():
     host_path = os.getenv('PATH', default='')
-    benchbuild_path = CFG['path'].value()
+    env = CFG['env'].value()
+    benchbuild_path = list_to_path(env.get('PATH', []))
     return benchbuild_path + ':' + host_path
 
 
 def __get_slurm_ld_library_path():
     host_path = os.getenv('LD_LIBRARY_PATH', default='')
-    benchbuild_path = CFG['ld_library_path'].value()
+    env = CFG['env'].value()
+    benchbuild_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
     return benchbuild_path + ':' + host_path
 
 

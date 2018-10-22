@@ -119,14 +119,8 @@ CFG["unionfs"] = {
 }
 
 CFG["env"] = {
-    "ld_library_path": {
-        "desc": "LD_LIBRARY_PATH for benchbuild.",
-        "default": []
-    },
-    "path": {
-        "desc": "PATH for benchbuild.",
-        "default": []
-    }
+    "default": {},
+    "desc": "The environment benchbuild's commands should operate in."
 }
 
 CFG['db'] = {

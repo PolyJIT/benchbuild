@@ -110,8 +110,11 @@ def __get_paths():
 
     path = getenv("PATH", "")
     lib_path = getenv("LD_LIBRARY_PATH", "")
-    _lib_path = CFG["env"]["ld_library_path"].value()
-    _path = CFG["env"]["path"].value()
+    env = CFG["env"].value()
+
+    _lib_path = env.get("LD_LIBRARY_PATH", "")
+    _path = env.get("PATH", "")
+
     _lib_path = list_to_path(_lib_path)
     _path = list_to_path(_path)
 

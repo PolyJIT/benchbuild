@@ -114,10 +114,12 @@ def wrap(name, project, sprefix=None, python=sys.executable):
 
     project_file = persist(project, suffix=".project")
 
-    bin_path = list_to_path(CFG["env"]["path"].value())
+    env = CFG['env'].value()
+
+    bin_path = list_to_path(env.get('PATH', []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
-    bin_lib_path = list_to_path(CFG["env"]["ld_library_path"].value())
+    bin_lib_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 
     with open(name_absolute, 'w') as wrapper:
@@ -171,11 +173,13 @@ def wrap_dynamic(project,
 
     project_file = persist(project, suffix=".project")
 
-    bin_path = list_to_path(CFG["env"]["path"].value())
+    env = CFG['env'].value()
+
+    bin_path = list_to_path(env.get('PATH', []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
     bin_lib_path = \
-        list_to_path(CFG["env"]["ld_library_path"].value())
+        list_to_path(env.get('LD_LIBRARY_PATH', []))
     bin_lib_path = \
         list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 

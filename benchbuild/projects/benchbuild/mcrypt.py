@@ -6,6 +6,7 @@ from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.compiler import cc, cxx
 from benchbuild.utils.downloader import with_wget, Wget
 from benchbuild.utils.run import run
+from benchbuild.utils.path import list_to_path
 from benchbuild.utils.wrapping import wrap
 
 
@@ -69,13 +70,16 @@ class MCrypt(Project):
             configure = local["./configure"]
             lib_dir = builddir / "lib"
             inc_dir = builddir / "include"
-            with local.env(
-                    CC=cc,
-                    CXX=cxx,
-                    LD_LIBRARY_PATH=str(lib_dir) + ":" +
-                    CFG["ld_library_path"].value(),
-                    LDFLAGS="-L" + str(lib_dir),
-                    CFLAGS="-I" + str(inc_dir)):
+            env = CFG["env"].value()
+            mod_env = dict(
+                CC=cc,
+                CXX=cxx,
+                LD_LIBRARY_PATH=list_to_path([str(lib_dir)] +
+                                             env.get("LD_LIBRARY_PATH", [])),
+                LDFLAGS="-L" + str(lib_dir),
+                CFLAGS="-I" + str(inc_dir))
+            env.update(mod_env)
+            with local.env(**env):
                 run(configure["--disable-dependency-tracking",
                               "--enable-static", "--disable-shared",
                               "--with-libmcrypt=" +

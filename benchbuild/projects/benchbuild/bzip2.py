@@ -1,15 +1,12 @@
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
 from benchbuild.utils.cmd import cp, make
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import with_git
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
+from benchbuild.utils import compiler, downloader, run, wrapping
 
 
-@with_git("https://gitlab.com/bzip/bzip2", limit=1, refspec="HEAD")
-class Bzip2(Project):
+@downloader.with_git("https://gitlab.com/bzip/bzip2", limit=1, refspec="HEAD")
+class Bzip2(project.Project):
     """ Bzip2 """
 
     NAME = 'bzip2'
@@ -28,23 +25,23 @@ class Bzip2(Project):
         testfiles = [local.path(self.testdir) / x for x in self.testfiles]
         cp(testfiles, '.')
 
-        clang = cc(self)
+        clang = compiler.cc(self)
         with local.cwd(self.src_file):
-            run(make["CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2"])
+            run.run(make["CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2"])
 
     def run_tests(self, runner):
-        exp = wrap(local.path(self.src_file) / "bzip2", self)
+        bzip2 = wrapping.wrap(local.path(self.src_file) / "bzip2", self)
 
         # Compress
-        runner(exp["-f", "-z", "-k", "--best", "text.html"])
-        runner(exp["-f", "-z", "-k", "--best", "chicken.jpg"])
-        runner(exp["-f", "-z", "-k", "--best", "control"])
-        runner(exp["-f", "-z", "-k", "--best", "input.source"])
-        runner(exp["-f", "-z", "-k", "--best", "liberty.jpg"])
+        runner(bzip2["-f", "-z", "-k", "--best", "text.html"])
+        runner(bzip2["-f", "-z", "-k", "--best", "chicken.jpg"])
+        runner(bzip2["-f", "-z", "-k", "--best", "control"])
+        runner(bzip2["-f", "-z", "-k", "--best", "input.source"])
+        runner(bzip2["-f", "-z", "-k", "--best", "liberty.jpg"])
 
         # Decompress
-        runner(exp["-f", "-k", "--decompress", "text.html.bz2"])
-        runner(exp["-f", "-k", "--decompress", "chicken.jpg.bz2"])
-        runner(exp["-f", "-k", "--decompress", "control.bz2"])
-        runner(exp["-f", "-k", "--decompress", "input.source.bz2"])
-        runner(exp["-f", "-k", "--decompress", "liberty.jpg.bz2"])
+        runner(bzip2["-f", "-k", "--decompress", "text.html.bz2"])
+        runner(bzip2["-f", "-k", "--decompress", "chicken.jpg.bz2"])
+        runner(bzip2["-f", "-k", "--decompress", "control.bz2"])
+        runner(bzip2["-f", "-k", "--decompress", "input.source.bz2"])
+        runner(bzip2["-f", "-k", "--decompress", "liberty.jpg.bz2"])

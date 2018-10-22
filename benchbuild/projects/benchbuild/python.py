@@ -1,20 +1,15 @@
-from os import path
-
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
+from benchbuild.utils import compiler, downloader, run, wrapping
 from benchbuild.utils.cmd import make, tar
-from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import with_wget, Wget
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-@with_wget({
+@downloader.with_wget({
     '3.4.3':
     'https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz'
 })
-class Python(Project):
+class Python(project.Project):
     """ python benchmarks """
 
     NAME = 'python'
@@ -28,19 +23,19 @@ class Python(Project):
         tar("xfJ", self.src_file)
         unpack_dir = local.path('Python-{0}'.format(self.version))
 
-        clang = cc(self)
-        clang_cxx = cxx(self)
+        clang = compiler.cc(self)
+        clang_cxx = compiler.cxx(self)
 
         with local.cwd(unpack_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                run(configure["--disable-shared", "--without-gcc"])
+                run.run(configure["--disable-shared", "--without-gcc"])
 
-            run(make)
+            run.run(make)
 
     def run_tests(self, runner):
         unpack_dir = local.path('Python-{0}'.format(self.version))
-        wrap(unpack_dir / "python", self)
+        wrapping.wrap(unpack_dir / "python", self)
 
         with local.cwd(unpack_dir):
-            run(make["-i", "test"])
+            runner(make["-i", "test"])

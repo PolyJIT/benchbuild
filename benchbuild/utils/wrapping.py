@@ -249,13 +249,15 @@ def persist(id_obj, filename=None, suffix=None):
 
     This will generate a pickled version of the given obj in the filename path.
     Objects shall provide an id() method to be able to use this persistence API.
-    If not, we will use the id() builtin of python to generate an identifier for you.
+    If not, we will use the id() builtin of python to generate an identifier
+    for you.
 
     The file will be created, if it does not exist.
     If the file already exists, we will overwrite it.
 
     Args:
-        id_obj (Any): An identifiable object you want to persist in the filesystem.
+        id_obj (Any): An identifiable object you want to persist in the
+                      filesystem.
     """
     if suffix is None:
         suffix = ".pickle"
@@ -284,7 +286,7 @@ def load(filename):
         The object we were able to unpickle, else None.
     """
     if not os.path.exists(filename):
-        LOG.error("load object - File '{}' does not exist.".format(filename))
+        LOG.error("load object - File '%s' does not exist.", filename)
         return None
 
     obj = None

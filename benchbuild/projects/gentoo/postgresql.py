@@ -1,15 +1,14 @@
 """
 postgresql experiment within gentoo chroot.
 """
-from os import path
 from time import sleep
 
 from plumbum import local
 from psutil import Process
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.cmd import kill, mkdir
-from benchbuild.utils.wrapping import wrap
+from benchbuild.utils import wrapping
+from benchbuild.utils.cmd import kill, su
 
 
 class Postgresql(GentooGroup):
@@ -28,11 +27,10 @@ class Postgresql(GentooGroup):
             pg_socketdir.mkdir()
 
     def run_tests(self, runner):
-        from benchbuild.utils.cmd import su
         pg_data = local.path("/test-data/")
         pg_path = local.path("/usr/bin/postgres")
 
-        postgres = wrap(pg_path, self)
+        postgres = wrapping.wrap(pg_path, self)
 
         def pg_su(command):
             return su['-c', command, '-g', 'postgres', 'postgres']

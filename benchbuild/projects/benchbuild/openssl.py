@@ -1,18 +1,15 @@
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
+from benchbuild.utils import compiler, downloader, run, wrapping
 from benchbuild.utils.cmd import make, tar
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import with_wget
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-@with_wget({
+@downloader.with_wget({
     "2.1.6":
     "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz"
 })
-class LibreSSL(Project):
+class LibreSSL(project.Project):
     """ OpenSSL """
 
     NAME = 'libressl'
@@ -36,7 +33,7 @@ class LibreSSL(Project):
         self.download()
         self.cflags += ["-fPIC"]
 
-        clang = cc(self)
+        clang = compiler.cc(self)
 
         tar("xfz", self.src_file)
         unpack_dir = local.path("libressl-{0}".format(self.version))
@@ -44,19 +41,19 @@ class LibreSSL(Project):
 
         with local.cwd(unpack_dir):
             with local.env(CC=str(clang)):
-                run(configure[
+                run.run(configure[
                     "--disable-asm", "--disable-shared", "--enable-static",
                     "--disable-dependency-tracking", "--with-pic=yes"])
 
-            run(make["-j8"])
+            run.run(make["-j8"])
             make_tests = make["-Ctests", "-j8"]
-            run(make_tests[LibreSSL.BINARIES])
+            run.run(make_tests[LibreSSL.BINARIES])
 
     def run_tests(self, runner):
         unpack_dir = local.path("libressl-{0}".format(self.version))
         with local.cwd(unpack_dir / "tests"):
             for binary in LibreSSL.BINARIES:
-                wrap(local.cwd / binary, self)
+                wrapping.wrap(local.cwd / binary, self)
 
         with local.cwd(unpack_dir):
-            run(make["V=1", "check", "-i"])
+            runner(make["V=1", "check", "-i"])

@@ -1,18 +1,15 @@
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
+from benchbuild.utils import compiler, downloader, run, wrapping
 from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Wget, with_wget
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-@with_wget({
+@downloader.with_wget({
     "25.2":
     "http://www.craftychess.com/downloads/source/crafty-25.2.zip"
 })
-class Crafty(Project):
+class Crafty(project.Project):
     """ crafty benchmark """
 
     NAME = 'crafty'
@@ -25,7 +22,7 @@ class Crafty(Project):
         self.download()
         book_file = "book.bin"
         book_bin = "http://www.craftychess.com/downloads/book/" + book_file
-        Wget(book_bin, book_file)
+        downloader.Wget(book_bin, book_file)
 
         unpack_dir = "crafty.src"
         mkdir(unpack_dir)
@@ -34,17 +31,17 @@ class Crafty(Project):
             unzip(local.path("..") / self.src_file)
         mv(book_file, unpack_dir)
 
-        clang = cc(self)
+        clang = compiler.cc(self)
         with local.cwd(unpack_dir):
             target_opts = ["-DCPUS=1", "-DSYZYGY", "-DTEST"]
             crafty_make = make["target=UNIX", "CC=" + str(clang), "opt=" +
                                " ".join(target_opts), "crafty-make"]
-            run(crafty_make)
+            run.run(crafty_make)
 
     def run_tests(self, runner):
         unpack_dir = "crafty.src"
         with local.cwd(unpack_dir):
-            exp = wrap("./crafty", self)
+            crafty = wrapping.wrap("./crafty", self)
             testdir = local.path(self.testdir)
-            runner((cat[testdir / "test1.sh"] | exp), retcode=[0, 120])
-            runner((cat[testdir / "test2.sh"] | exp), retcode=[0, 120])
+            runner((cat[testdir / "test1.sh"] | crafty), retcode=[0, 120])
+            runner((cat[testdir / "test2.sh"] | crafty), retcode=[0, 120])

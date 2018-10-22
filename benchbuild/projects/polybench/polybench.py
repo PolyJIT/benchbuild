@@ -2,13 +2,10 @@ import logging
 
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
 from benchbuild.settings import CFG
+from benchbuild.utils import compiler, downloader, run, wrapping
 from benchbuild.utils.cmd import diff, tar
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import with_wget
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 LOG = logging.getLogger(__name__)
 CFG['projects'] = {
@@ -44,11 +41,11 @@ def get_dump_arrays_output(data):
     return out
 
 
-@with_wget({
+@downloader.with_wget({
     "4.2":
     "http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz"
 })
-class PolyBenchGroup(Project):
+class PolyBenchGroup(project.Project):
     DOMAIN = 'polybench'
     GROUP = 'polybench'
     VERSION = '4.2'
@@ -96,12 +93,12 @@ class PolyBenchGroup(Project):
         self.cflags = []
         self.ldflags = []
 
-        clang_no_opts = cc(self)
+        clang_no_opts = compiler.cc(self)
 
         self.cflags = cflags
         self.ldflags = ldflags
-        run(clang_no_opts[polybench_opts, compiler_args, "-o", self.name +
-                          ".no-opts", "-lm"])
+        run.run(clang_no_opts[polybench_opts, compiler_args, "-o", self.name +
+                              ".no-opts", "-lm"])
         return polybench_opts
 
     def compile(self):
@@ -130,8 +127,9 @@ class PolyBenchGroup(Project):
                 "-I", utils_dir, "-I", src_sub, utils_dir / "polybench.c",
                 src_file, "-lm"
             ], polybench_opts)
-        clang = cc(self)
-        run(clang["-I", utils_dir, "-I", src_sub, polybench_opts, utils_dir /
+        clang = compiler.cc(self)
+        run.run(
+            clang["-I", utils_dir, "-I", src_sub, polybench_opts, utils_dir /
                   "polybench.c", src_file, "-lm", "-o", self.name])
 
     def run_tests(self, runner):
@@ -149,7 +147,7 @@ class PolyBenchGroup(Project):
         opt_stderr_raw = binary + ".stderr"
         opt_stderr_filtered = opt_stderr_raw + ".filtered"
 
-        runner(wrap(binary, self))
+        runner(wrapping.wrap(binary, self))
         filter_stderr(opt_stderr_raw, opt_stderr_filtered)
 
         if verify:
@@ -158,7 +156,7 @@ class PolyBenchGroup(Project):
             noopt_stderr_filtered = noopt_stderr_raw + ".filtered"
 
             with local.env(BB_IS_BASELINE=True):
-                runner(wrap(binary, self))
+                runner(wrapping.wrap(binary, self))
             filter_stderr(noopt_stderr_raw, noopt_stderr_filtered)
 
             diff_cmd = diff[noopt_stderr_filtered, opt_stderr_filtered]

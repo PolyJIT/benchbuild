@@ -1,16 +1,14 @@
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
 from benchbuild.settings import CFG
+from benchbuild.utils import compiler, downloader, run, wrapping
 from benchbuild.utils.cmd import cp, make
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import with_git
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-@with_git("git://git.videolan.org/x264.git", refspec="HEAD", limit=5)
-class X264(Project):
+@downloader.with_git(
+    "git://git.videolan.org/x264.git", refspec="HEAD", limit=5)
+class X264(project.Project):
     """ x264 """
 
     NAME = "x264"
@@ -32,19 +30,19 @@ class X264(Project):
         for testfile in testfiles:
             cp(testfile, self.builddir)
 
-        clang = cc(self)
+        clang = compiler.cc(self)
 
         with local.cwd(self.SRC_FILE):
             configure = local["./configure"]
 
             with local.env(CC=str(clang)):
-                run(configure["--disable-thread", "--disable-opencl",
-                              "--enable-pic"])
+                run.run(configure["--disable-thread", "--disable-opencl",
+                                  "--enable-pic"])
 
-            run(make["clean", "all", "-j", CFG["jobs"]])
+            run.run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, runner):
-        exp = wrap(local.path(self.src_file) / "x264", self)
+        x264 = wrapping.wrap(local.path(self.src_file) / "x264", self)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",
@@ -60,6 +58,6 @@ class X264(Project):
         for ifile in self.inputfiles:
             testfile = local.path(self.testdir) / ifile
             for _, test in enumerate(tests):
-                runner(exp[testfile, self.inputfiles[ifile], "--threads", "1",
-                           "-o", "/dev/null",
-                           test.split(" ")])
+                runner(x264[testfile, self.inputfiles[ifile], "--threads", "1",
+                            "-o", "/dev/null",
+                            test.split(" ")])

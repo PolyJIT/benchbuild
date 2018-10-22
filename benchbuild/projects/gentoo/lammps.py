@@ -4,9 +4,8 @@ LAMMPS (sci-physics/lammps) project within gentoo chroot.
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils import downloader, wrapping
 from benchbuild.utils.cmd import tar
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.wrapping import wrap, strip_path_prefix
 
 
 class Lammps(GentooGroup):
@@ -26,15 +25,15 @@ class Lammps(GentooGroup):
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
-        Wget(test_url, test_archive)
+        downloader.Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
     def run_tests(self, runner):
         builddir = self.builddir
-        lammps = wrap(local.path('/') / 'usr' / 'bin' / 'lmp_serial', self)
+        lammps = wrapping.wrap(local.path('/usr/bin/lmp'), self)
         lammps_dir = builddir / "lammps"
 
         with local.cwd(lammps_dir):
             tests = lammps_dir // "in.*"
             for test in tests:
-                runner((lammps < strip_path_prefix(test, builddir)))
+                runner((lammps < wrapping.strip_path_prefix(test, builddir)))

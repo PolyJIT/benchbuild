@@ -1,15 +1,12 @@
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
+from benchbuild.utils import compiler, downloader, run, wrapping
 from benchbuild.utils.cmd import make
-from benchbuild.utils.compiler import cxx
-from benchbuild.utils.downloader import with_git
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-@with_git("https://github.com/lammps/lammps", limit=5)
-class Lammps(Project):
+@downloader.with_git("https://github.com/lammps/lammps", limit=5)
+class Lammps(project.Project):
     """ LAMMPS benchmark """
 
     NAME = 'lammps'
@@ -21,7 +18,7 @@ class Lammps(Project):
     def run_tests(self, runner):
         src_path = local.path(self.src_file)
         lammps_dir = src_path / "src"
-        exp = wrap(lammps_dir / "lmp_serial", self)
+        exp = wrapping.wrap(lammps_dir / "lmp_serial", self)
 
         examples_dir = src_path / "examples"
         tests = examples_dir // "*" // "in.*"
@@ -36,7 +33,7 @@ class Lammps(Project):
         self.download()
         self.ldflags += ["-lgomp"]
 
-        clang_cxx = cxx(self)
+        clang_cxx = compiler.cxx(self)
         with local.cwd(local.path(self.src_file) / "src"):
-            run(make["CC=" + str(clang_cxx), "LINK=" +
-                     str(clang_cxx), "clean", "serial"])
+            run.run(make["CC=" + str(clang_cxx), "LINK=" +
+                         str(clang_cxx), "clean", "serial"])

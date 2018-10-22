@@ -1,18 +1,17 @@
 """
 Extension base-classes for compile-time and run-time experiments.
 """
+import collections as c
 import logging
 import os
 import typing as t
 from abc import ABCMeta
-from collections import Iterable
 
 import parse
+import yaml
 from plumbum import local
 
-import yaml
-from benchbuild.utils.db import persist_config, persist_time
-from benchbuild.utils.run import RunInfo, fetch_time_output, track_execution
+from benchbuild.utils import db, run
 
 LOG = logging.getLogger(__name__)
 
@@ -44,7 +43,7 @@ class Extension(metaclass=ABCMeta):
         self.next_extensions = extensions
         self.config = config
 
-    def call_next(self, *args, **kwargs) -> t.List[RunInfo]:
+    def call_next(self, *args, **kwargs) -> t.List[run.RunInfo]:
         """Call all child extensions with the given arguments.
 
         This calls all child extensions and collects the results for
@@ -64,7 +63,7 @@ class Extension(metaclass=ABCMeta):
                 LOG.warning("No result from: %s", ext)
                 continue
             result_list = []
-            if isinstance(results, Iterable):
+            if isinstance(results, c.Iterable):
                 result_list.extend(results)
             else:
                 result_list.append(results)
@@ -107,9 +106,9 @@ class RuntimeExtension(Extension):
         self.project.name = kwargs.get("project_name", self.project.name)
 
         cmd = binary_command[args]
-        with track_execution(cmd, self.project, self.experiment,
-                             **kwargs) as run:
-            run_info = run()
+        with run.track_execution(cmd, self.project, self.experiment,
+                                 **kwargs) as _run:
+            run_info = _run()
             if self.config:
                 run_info.add_payload("config", self.config)
                 LOG.info(
@@ -120,7 +119,8 @@ class RuntimeExtension(Extension):
                         default_flow_style=False))
                 self.config['baseline'] = \
                     os.getenv("BB_IS_BASELINE", "False")
-                persist_config(run_info.db_run, run_info.session, self.config)
+                db.persist_config(run_info.db_run, run_info.session,
+                                  self.config)
         res = self.call_next(binary_command, *args, **kwargs)
         res.append(run_info)
         return res
@@ -147,7 +147,7 @@ class RunWithTimeout(Extension):
                               **kwargs)
 
 
-class LogTrackingMixin(object):
+class LogTrackingMixin:
     """Add log-registering capabilities to extensions."""
     _logs = []
 
@@ -171,7 +171,6 @@ class LogAdditionals(Extension):
 
     def __call__(self, *args, **kwargs):
         from benchbuild.utils.cmd import cat
-        from plumbum import FG
         if not self.next_extensions:
             return None
 
@@ -181,7 +180,7 @@ class LogAdditionals(Extension):
             if issubclass(ext.__class__, (LogTrackingMixin)):
                 for log in ext.logs:
                     LOG.debug("Dumping content of '%s'.", log)
-                    (cat[log] & FG)
+                    run.run(cat[log])
                     LOG.debug("Dumping content of '%s' complete.", log)
 
         return res
@@ -206,11 +205,11 @@ class RunWithTime(Extension):
             session = s.Session()
             for run_info in run_infos:
                 if may_wrap:
-                    timings = fetch_time_output(time_tag,
-                                                time_tag + "{:g}-{:g}-{:g}",
-                                                run_info.stderr.split("\n"))
+                    timings = run.fetch_time_output(
+                        time_tag, time_tag + "{:g}-{:g}-{:g}",
+                        run_info.stderr.split("\n"))
                     if timings:
-                        persist_time(run_info.db_run, session, timings)
+                        db.persist_time(run_info.db_run, session, timings)
                     else:
                         LOG.warning("No timing information found.")
             session.commit()
@@ -275,10 +274,10 @@ class ExtractCompileStats(Extension):
 
         run_config = self.config
         session = Session()
-        with track_execution(clang, self.project, self.experiment) as run:
-            run_info = run()
+        with run.track_execution(clang, self.project, self.experiment) as _run:
+            run_info = _run()
             if run_config is not None:
-                persist_config(run_info.db_run, session, run_config)
+                db.persist_config(run_info.db_run, session, run_config)
 
             if not run_info.has_failed:
                 stats = []
@@ -309,10 +308,10 @@ class ExtractCompileStats(Extension):
                     LOG.warning("  Components: %s", components)
                     LOG.warning("  Names:      %s", names)
             else:
-                with track_execution(original_command, self.project,
-                                     self.experiment, **kwargs) as run:
+                with run.track_execution(original_command, self.project,
+                                         self.experiment, **kwargs) as _run:
                     LOG.warning("Fallback to: %s", str(original_command))
-                    run_info = run()
+                    run_info = _run()
 
         ret = self.call_next(cc, *args, **kwargs)
         ret.append(run_info)
@@ -352,9 +351,9 @@ class RunCompiler(Extension):
         new_command = new_command[self.project.cflags]
         new_command = new_command[self.project.ldflags]
 
-        with track_execution(new_command, self.project, self.experiment,
-                             **kwargs) as run:
-            run_info = run()
+        with run.track_execution(new_command, self.project, self.experiment,
+                                 **kwargs) as _run:
+            run_info = _run()
             if self.config:
                 LOG.info(
                     yaml.dump(
@@ -362,13 +361,14 @@ class RunCompiler(Extension):
                         width=40,
                         indent=4,
                         default_flow_style=False))
-                persist_config(run_info.db_run, run_info.session, self.config)
+                db.persist_config(run_info.db_run, run_info.session,
+                                  self.config)
 
             if run_info.has_failed:
-                with track_execution(original_command, self.project,
-                                     self.experiment, **kwargs) as run:
+                with run.track_execution(original_command, self.project,
+                                         self.experiment, **kwargs) as _run:
                     LOG.warning("Fallback to: %s", str(original_command))
-                    run_info = run()
+                    run_info = _run()
 
         res = self.call_next(new_command, *args, **kwargs)
         res.append(run_info)

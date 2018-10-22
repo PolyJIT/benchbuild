@@ -1,10 +1,10 @@
-import benchbuild.project as prj
-import benchbuild.utils.compiler as compiler
-import benchbuild.utils.run as run
-import benchbuild.utils.wrapping as wrapping
+from benchbuild import project
+from benchbuild.utils import compiler
+from benchbuild.utils import run
+from benchbuild.utils import wrapping
 
 
-class TestProject(prj.Project):
+class TestProject(project.Project):
     """Test project that does nothing."""
     NAME = "test"
     DOMAIN = "test"
@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
         runner(exp)
 
 
-class TestProjectRuntimeFail(prj.Project):
+class TestProjectRuntimeFail(project.Project):
     """Test project that _always_ fails at runtime."""
 
     NAME = "test-fail"

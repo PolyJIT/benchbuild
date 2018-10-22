@@ -4,9 +4,8 @@ xz experiment within gentoo chroot.
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils import downloader, wrapping
 from benchbuild.utils.cmd import tar
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.wrapping import wrap
 
 
 class XZ(GentooGroup):
@@ -27,11 +26,11 @@ class XZ(GentooGroup):
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
-        Wget(test_url, test_archive)
+        downloader.Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
     def run_tests(self, runner):
-        xz = wrap(local.path("/usr/bin/xz"), self)
+        xz = wrapping.wrap(local.path("/usr/bin/xz"), self)
 
         # Compress
         runner(

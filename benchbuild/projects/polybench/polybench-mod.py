@@ -2,12 +2,10 @@ from plumbum import local
 
 from benchbuild.settings import CFG
 from benchbuild.projects.polybench.polybench import PolyBenchGroup
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import with_git
-from benchbuild.utils.run import run
+from benchbuild.utils import compiler, downloader, run
 
 
-@with_git("https://github.com/simbuerg/polybench-c-4.2-1.git")
+@downloader.with_git("https://github.com/simbuerg/polybench-c-4.2-1.git")
 class PolybenchModGroup(PolyBenchGroup):
     DOMAIN = 'polybench'
     GROUP = 'polybench-mod'
@@ -40,10 +38,10 @@ class PolybenchModGroup(PolyBenchGroup):
                 kernel_file, src_file, "-lm"
             ], polybench_opts)
 
-        clang = cc(self)
-        run(clang["-I", utils_dir, "-I", src_sub, polybench_opts, utils_dir /
-                  "polybench.c", kernel_file, src_file, "-lm", "-o",
-                  self.name])
+        clang = compiler.cc(self)
+        run.run(clang[
+            "-I", utils_dir, "-I", src_sub, polybench_opts, utils_dir /
+            "polybench.c", kernel_file, src_file, "-lm", "-o", self.name])
 
 
 class Correlation(PolybenchModGroup):

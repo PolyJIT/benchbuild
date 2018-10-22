@@ -6,7 +6,7 @@ from plumbum import local, FG
 
 from benchbuild.settings import CFG
 from benchbuild.utils.path import list_to_path, mkdir_uchroot
-from benchbuild.utils.run import run, with_env_recursive
+from benchbuild.utils.run import with_env_recursive
 
 LOG = logging.getLogger(__name__)
 

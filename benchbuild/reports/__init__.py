@@ -8,8 +8,8 @@ import uuid
 
 import attr
 
-import benchbuild.utils.schema as schema
 from benchbuild.settings import CFG
+from benchbuild.utils import schema
 
 LOG = logging.getLogger(__name__)
 
@@ -33,19 +33,19 @@ def discover():
     """
     if CFG["plugins"]["autoload"].value():
         report_plugins = CFG["plugins"]["reports"].value()
-        for ep in report_plugins:
+        for plugin in report_plugins:
             try:
-                importlib.import_module(ep)
-                LOG.debug("Found report: %s", ep)
+                importlib.import_module(plugin)
+                LOG.debug("Found report: %s", plugin)
             except ImportError:
-                LOG.error("Could not find '%s'", ep)
+                LOG.error("Could not find '%s'", plugin)
 
 
 class ReportRegistry(type):
     reports = {}
 
-    def __init__(cls, name, bases, dict):
-        super(ReportRegistry, cls).__init__(name, bases, dict)
+    def __init__(cls, name, bases, _dict):
+        super(ReportRegistry, cls).__init__(name, bases, _dict)
         if cls.NAME is not None:
             ReportRegistry.reports[cls.NAME] = cls
 

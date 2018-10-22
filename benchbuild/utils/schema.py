@@ -35,9 +35,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.types import CHAR, Float, TypeDecorator
 
-import benchbuild.settings as settings
-import benchbuild.utils.user_interface as ui
-from benchbuild.utils import path as bbpath
+from benchbuild import settings
+from benchbuild.utils import path
+from benchbuild.utils import user_interface as ui
 
 BASE = declarative_base()
 LOG = logging.getLogger(__name__)
@@ -339,7 +339,7 @@ def needed_schema(connection, meta):
 def get_version_data():
     """Retreive migration information."""
     connect_str = settings.CFG["db"]["connect_string"].value()
-    repo_url = bbpath.template_path("../db/")
+    repo_url = path.template_path("../db/")
     return (connect_str, repo_url)
 
 
@@ -400,13 +400,13 @@ def maybe_update_db(repo_version, db_version):
         return
 
     connect_str = settings.CFG["db"]["connect_string"].value()
-    repo_url = bbpath.template_path("../db/")
+    repo_url = path.template_path("../db/")
     LOG.info("Upgrading to newest version...")
     migrate.upgrade(connect_str, repo_url)
     LOG.info("Complete.")
 
 
-class SessionManager(object):
+class SessionManager:
     def connect_engine(self):
         """
         Establish a connection to the database.
@@ -496,8 +496,8 @@ def init_functions(connection):
     """Initialize all SQL functions in the database."""
     if settings.CFG["db"]["create_functions"].value():
         print("Refreshing SQL functions...")
-        for file in bbpath.template_files("../sql/", exts=[".sql"]):
-            func = sa.DDL(bbpath.template_str(file))
+        for file in path.template_files("../sql/", exts=[".sql"]):
+            func = sa.DDL(path.template_str(file))
             LOG.info("Loading: '%s' into database", file)
             connection.execute(func)
             connection.commit()

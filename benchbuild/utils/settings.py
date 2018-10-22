@@ -295,8 +295,7 @@ class Configuration():
 
         if 'value' in self.node:
             return validate(self.node['value'])
-        else:
-            return self
+        return self
 
     def __getitem__(self, key):
         if key not in self.node:
@@ -322,8 +321,7 @@ class Configuration():
     def __str__(self):
         if 'value' in self.node:
             return str(self.node['value'])
-        else:
-            return str(self.node)
+        return str(self.node)
 
     def __repr__(self):
         """
@@ -401,7 +399,7 @@ def convert_components(value):
 
 
 @attr.s(str=False, frozen=True)
-class ConfigPath(object):
+class ConfigPath:
     """
     Wrapper around paths represented as list of strings.
 
@@ -494,17 +492,17 @@ def __find_config__(test_file=None, defaults=None, root=os.curdir):
         cur_path = local.path(root) / test_file
         if cur_path.exists():
             return cur_path
-        else:
-            new_root = local.path(root) / os.pardir
-            return walk_rec(cur_path, new_root) if new_root != root else None
+
+        new_root = local.path(root) / os.pardir
+        return walk_rec(cur_path, new_root) if new_root != root else None
 
     if test_file is not None:
         return walk_rec(test_file, root)
-    else:
-        for test_file in defaults:
-            ret = walk_rec(test_file, root)
-            if ret is not None:
-                return ret
+
+    for test_file in defaults:
+        ret = walk_rec(test_file, root)
+        if ret is not None:
+            return ret
 
 
 def setup_config(cfg):

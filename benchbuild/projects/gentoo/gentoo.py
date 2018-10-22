@@ -236,7 +236,7 @@ def write_wgetrc(_path):
     ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
 
     path.mkfile_uchroot("/etc/wgetrc")
-    with open(path, 'w') as wgetrc:
+    with open(_path, 'w') as wgetrc:
         if http_proxy is not None:
             http_s = "http_proxy = {0}".format(str(http_proxy))
             https_s = "https_proxy = {0}".format(str(http_proxy))

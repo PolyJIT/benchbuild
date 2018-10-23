@@ -240,7 +240,7 @@ class Clean(Step):
 
     @notify_step_begin_end
     def __call__(self):
-        if not CFG['clean'].value():
+        if not CFG['clean']:
             LOG.warning("Clean disabled by config.")
             return
         if not self.obj:
@@ -588,17 +588,17 @@ class CleanExtra(Step):
 
     @notify_step_begin_end
     def __call__(self):
-        if not CFG['clean'].value():
+        if not CFG['clean']:
             return StepResult.OK
 
-        paths = CFG["cleanup_paths"].value()
+        paths = CFG["cleanup_paths"].value
         for p in paths:
             if os.path.exists(p):
                 rm("-r", p)
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
-        paths = CFG["cleanup_paths"].value()
+        paths = CFG["cleanup_paths"].value
         lines = []
         for p in paths:
             lines.append(

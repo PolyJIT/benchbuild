@@ -112,7 +112,7 @@ def __update_cleanup_paths(new_path):
     Args:
         new_path: Path to the directory that need to be cleaned up.
     """
-    cleanup_dirs = settings.CFG["cleanup_paths"].value()
+    cleanup_dirs = settings.CFG["cleanup_paths"].value
     cleanup_dirs = set(cleanup_dirs)
     cleanup_dirs.add(new_path)
     cleanup_dirs = list(cleanup_dirs)

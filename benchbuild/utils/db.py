@@ -144,7 +144,7 @@ def persist_experiment(experiment):
     cfg_exp = experiment.id
     LOG.debug("Using experiment ID stored in config: %s", cfg_exp)
     exps = session.query(Experiment).filter(Experiment.id == cfg_exp)
-    desc = CFG["experiment_description"].value()
+    desc = str(CFG["experiment_description"])
     name = experiment.name
 
     if exps.count() == 0:

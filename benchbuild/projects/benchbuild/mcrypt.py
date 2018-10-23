@@ -67,7 +67,7 @@ class MCrypt(project.Project):
             configure = local["./configure"]
             lib_dir = builddir / "lib"
             inc_dir = builddir / "include"
-            env = CFG["env"].value()
+            env = CFG["env"].value
             mod_env = dict(
                 CC=_cc,
                 CXX=_cxx,

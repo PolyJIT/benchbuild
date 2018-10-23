@@ -12,9 +12,9 @@ import copy
 import logging
 import os
 import re
+import sys
 import uuid
 import warnings
-import sys
 
 import attr
 import six
@@ -271,6 +271,7 @@ class Configuration():
                 for k in self.node:
                     self[k].init_from_env()
 
+    @property
     def value(self):
         """
         Return the node value, if we're a leaf node.
@@ -278,11 +279,11 @@ class Configuration():
         Examples:
             >>> c = Configuration("test")
             >>> c['x'] = { "y" : { "value" : None }, "z" : { "value" : 2 }}
-            >>> c['x']['y'].value() == None
+            >>> c['x']['y'].value == None
             True
-            >>> c['x']['z'].value()
+            >>> c['x']['z'].value
             2
-            >>> c['x'].value()
+            >>> c['x'].value
             TEST_X_Y=null
             TEST_X_Z=2
 
@@ -314,6 +315,67 @@ class Configuration():
                 self.node[key] = val
             else:
                 self.node[key] = {'value': val}
+
+    def __iadd__(self, rhs):
+        """
+        Append a value to a list value.
+
+        Tests:
+            >>> CFG = Configuration('test', node={'t': {'default': []}})
+            >>> CFG['t']
+            TEST_T="[]"
+
+            Append a value to a list.
+            >>> CFG['t'] += 'a'; CFG['t']
+            TEST_T="[a]"
+
+            Append a value to a scalar.
+            >>> CFG = Configuration('test', node={'t': {'default': 0}})
+            >>> CFG['t'] += 2
+            Traceback (most recent call last):
+            TypeError: Configuration node value does not support +=.
+        """
+        if not self.has_value():
+            raise TypeError("Inner configuration node does not support +=.")
+
+        value = self.node['value']
+        if not hasattr(value, '__iadd__'):
+            raise TypeError("Configuration node value does not support +=.")
+
+        value += rhs
+        return value
+
+    def __int__(self):
+        """
+        Convert the node's value to bool, if available.
+
+        Tests:
+            >>> CFG = Configuration('test', node={'i': {'default': 1}})
+            >>> int(CFG['i'])
+            1
+            >>> CFG['d'] = []; int(CFG['d'])
+            Traceback (most recent call last):
+            TypeError: int() argument must be a string, a bytes-like object or a number, not 'list'
+        """
+        if not self.has_value():
+            raise ValueError(
+                'Inner configuration nodes cannot be converted to int.')
+        return int(self.value)
+
+    def __bool__(self):
+        """
+        Convert the node's value to bool, if available.
+
+        Tests:
+            >>> CFG = Configuration('test', node={'b': {'default': True}})
+            >>> bool(CFG['b'])
+            True
+            >>> CFG['b'] = []; bool(CFG['b'])
+            False
+        """
+        if not self.has_value():
+            return True
+        return bool(self.value)
 
     def __contains__(self, key):
         return key in self.node
@@ -351,7 +413,7 @@ class Configuration():
 
             What happens when we nest an uuid in a dict?
             >>> CFG['nested_uuid'] = {'A': {'default': {'a': uuid.UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')}}}
-            >>> CFG['nested_uuid']['A'].value()
+            >>> CFG['nested_uuid']['A'].value
             TEST_NESTED_UUID_A="{a: cc3702ca-699a-4aa6-8226-4c938f294d9b}"
         """
         _repr = []
@@ -529,7 +591,7 @@ def setup_config(cfg):
 
 
 def update_env(cfg):
-    env = cfg["env"].value()
+    env = cfg["env"].value
 
     path = env.get("PATH", "")
     path = os.path.pathsep.join(path)

@@ -289,8 +289,8 @@ class ExtractCompileStats(Extension):
                     compile_s.value = stat["value"]
                     stats.append(compile_s)
 
-                components = CFG["cs"]["components"].value()
-                names = CFG["cs"]["names"].value()
+                components = CFG["cs"]["components"].value
+                names = CFG["cs"]["names"].value
 
                 stats = [s for s in stats if str(s.component) in components] \
                     if components is not None else stats
@@ -393,7 +393,7 @@ class SetThreadLimit(Extension):
             jobs = config['jobs']
         else:
             LOG.warning("Parameter 'config' was unusable, using defaults")
-            jobs = CFG["jobs"].value()
+            jobs = int(CFG["jobs"])
 
         ret = None
         with local.env(OMP_NUM_THREADS=str(jobs)):

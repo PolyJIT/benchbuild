@@ -105,8 +105,8 @@ class PolyBenchGroup(project.Project):
         self.download()
 
         polybench_opts = CFG["projects"]["polybench"]
-        verify = polybench_opts["verify"].value()
-        workload = polybench_opts["workload"].value()
+        verify = bool(polybench_opts["verify"])
+        workload = str(polybench_opts["workload"])
 
         tar('xfz', self.src_file)
         src_dir_name = "polybench-c-{0}".format(self.version)
@@ -141,7 +141,7 @@ class PolyBenchGroup(project.Project):
                         get_dump_arrays_output(stderr.readlines()))
 
         polybench_opts = CFG["projects"]["polybench"]
-        verify = polybench_opts["verify"].value()
+        verify = bool(polybench_opts["verify"])
 
         binary = local.cwd / self.name
         opt_stderr_raw = binary + ".stderr"

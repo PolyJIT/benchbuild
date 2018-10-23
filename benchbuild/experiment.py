@@ -95,7 +95,7 @@ class Experiment(metaclass=ExperimentRegistry):
 
     @id.default
     def default_id(self):
-        cfg_exps = CFG["experiments"].value()
+        cfg_exps = CFG["experiments"].value
         if self.name in cfg_exps:
             _id = cfg_exps[self.name]
         else:

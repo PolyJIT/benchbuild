@@ -53,7 +53,7 @@ def uchroot_no_args(**kwargs):
     """Return the uchroot command without any customizations."""
     from benchbuild.utils.cmd import uchroot as uchrt
 
-    prefixes = CFG["container"]["prefixes"].value()
+    prefixes = CFG["container"]["prefixes"].value
     p_paths, p_libs = uchroot_env(prefixes)
     uchrt = with_env_recursive(
         uchrt,
@@ -65,8 +65,8 @@ def uchroot_no_args(**kwargs):
 
 def uchroot_with_mounts(*args, uchroot_cmd_fn=uchroot_no_args, **kwargs):
     """Return a uchroot command with all mounts enabled."""
-    mounts = CFG["container"]["mounts"].value()
-    prefixes = CFG["container"]["prefixes"].value()
+    mounts = CFG["container"]["mounts"].value
+    prefixes = CFG["container"]["prefixes"].value
 
     uchroot_opts, mounts = _uchroot_mounts("mnt", mounts)
     uchroot_cmd = uchroot_cmd_fn(**kwargs)

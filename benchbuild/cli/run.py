@@ -80,7 +80,7 @@ class BenchBuildRun(cli.Application):
             width=80,
             pg_char='|',
             length=num_actions,
-            has_output=cfg["verbosity"].value() > 0,
+            has_output=int(cfg["verbosity"]) > 0,
             body=True,
             timer=False)
 

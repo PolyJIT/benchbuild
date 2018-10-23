@@ -69,7 +69,7 @@ def cxx(project, detect_project=False):
     """
     from benchbuild.utils import cmd
 
-    cxx_name = CFG["compiler"]["cxx"].value()
+    cxx_name = str(CFG["compiler"]["cxx"])
     wrap_cc(
         cxx_name, compiler(cxx_name), project, detect_project=detect_project)
     return cmd["./{name}".format(name=cxx_name)]
@@ -81,7 +81,7 @@ def __get_paths():
 
     path = getenv("PATH", "")
     lib_path = getenv("LD_LIBRARY_PATH", "")
-    env = CFG["env"].value()
+    env = CFG["env"].value
 
     _lib_path = env.get("LD_LIBRARY_PATH", "")
     _path = env.get("PATH", "")

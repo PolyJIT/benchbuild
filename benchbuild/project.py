@@ -59,7 +59,7 @@ class ProjectDecorator(ProjectRegistry):
 
     def __init__(cls, name, bases, attrs):
         unionfs_deco = None
-        if CFG["unionfs"]["enable"].value():
+        if CFG["unionfs"]["enable"]:
             rw_dir = str(CFG["unionfs"]["rw"])
             unionfs_deco = partial(unionfs.unionfs, rw=rw_dir)
         config_deco = run.store_config

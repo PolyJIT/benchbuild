@@ -114,7 +114,7 @@ def wrap(name, project, sprefix=None, python=sys.executable):
 
     project_file = persist(project, suffix=".project")
 
-    env = CFG['env'].value()
+    env = CFG['env'].value
 
     bin_path = list_to_path(env.get('PATH', []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
@@ -173,7 +173,7 @@ def wrap_dynamic(project,
 
     project_file = persist(project, suffix=".project")
 
-    env = CFG['env'].value()
+    env = CFG['env'].value
 
     bin_path = list_to_path(env.get('PATH', []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])

@@ -106,7 +106,7 @@ class Container:
 
     @property
     def filename(self):
-        image_cfg = CFG["container"]["images"].value()
+        image_cfg = CFG["container"]["images"].value
         image_cfg = image_cfg[self.name]
         tmp_dir = local.path(str(CFG["tmp_dir"]))
 
@@ -123,7 +123,7 @@ class Container:
         Returns:
             target: The path, where the container lies in the end.
         """
-        assert self.name in CFG["container"]["images"].value()
+        assert self.name in CFG["container"]["images"].value
         tmp_dir = local.path(str(CFG["tmp_dir"]))
 
         target = tmp_dir / self.name

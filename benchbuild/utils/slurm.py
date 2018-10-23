@@ -20,14 +20,14 @@ ERROR = logging.error
 
 def __get_slurm_path():
     host_path = os.getenv('PATH', default='')
-    env = CFG['env'].value()
+    env = CFG['env'].value
     benchbuild_path = list_to_path(env.get('PATH', []))
     return benchbuild_path + ':' + host_path
 
 
 def __get_slurm_ld_library_path():
     host_path = os.getenv('LD_LIBRARY_PATH', default='')
-    env = CFG['env'].value()
+    env = CFG['env'].value
     benchbuild_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
     return benchbuild_path + ':' + host_path
 
@@ -45,7 +45,7 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
     """
     from jinja2 import Environment, PackageLoader
 
-    logs_dir = os.path.dirname(CFG['slurm']['logs'].value())
+    logs_dir = os.path.dirname(CFG['slurm']['logs'].value)
     node_command = str(benchbuild["-E", experiment.name, "$_project"])
     env = Environment(
         trim_blocks=True,
@@ -57,25 +57,25 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm2.write(
             template.render(
                 config=["export " + x for x in repr(CFG).split('\n')],
-                clean_lockdir=CFG["slurm"]["node_dir"].value(),
-                clean_lockfile=CFG["slurm"]["node_dir"].value() + \
+                clean_lockdir=str(CFG["slurm"]["node_dir"]),
+                clean_lockfile=str(CFG["slurm"]["node_dir"]) + \
                     ".clean-in-progress.lock",
-                cpus=CFG['slurm']['cpus_per_task'].value(),
-                exclusive=CFG['slurm']['exclusive'].value(),
-                lockfile=CFG['slurm']["node_dir"].value() + ".lock",
+                cpus=int(CFG['slurm']['cpus_per_task']),
+                exclusive=bool(CFG['slurm']['exclusive']),
+                lockfile=str(CFG['slurm']["node_dir"]) + ".lock",
                 log=local.path(logs_dir) / str(experiment.id),
-                max_running=CFG['slurm']['max_running'].value(),
+                max_running=int(CFG['slurm']['max_running']),
                 name=experiment.name,
-                nice=CFG['slurm']['nice'].value(),
-                nice_clean=CFG["slurm"]["nice_clean"].value(),
+                nice=int(CFG['slurm']['nice']),
+                nice_clean=int(CFG["slurm"]["nice_clean"]),
                 node_command=node_command,
-                no_multithreading=not CFG['slurm']['multithread'].value(),
+                no_multithreading=not CFG['slurm']['multithread'],
                 ntasks=1,
-                prefix=CFG["slurm"]["node_dir"].value(),
+                prefix=str(CFG["slurm"]["node_dir"]),
                 projects=projects,
-                slurm_account=CFG["slurm"]["account"].value(),
-                slurm_partition=CFG["slurm"]["partition"].value(),
-                timelimit=CFG['slurm']['timelimit'].value(),
+                slurm_account=str(CFG["slurm"]["account"]),
+                slurm_partition=str(CFG["slurm"]["partition"]),
+                timelimit=str(CFG['slurm']['timelimit']),
             )
         )
 
@@ -108,9 +108,9 @@ def prepare_slurm_script(experiment, projects):
 
     # We need to wrap the benchbuild run inside srun to avoid HyperThreading.
     srun = local["srun"]
-    if not CFG["slurm"]["multithread"].value():
+    if not CFG["slurm"]["multithread"]:
         srun = srun["--hint=nomultithread"]
-    if not CFG["slurm"]["turbo"].value():
+    if not CFG["slurm"]["turbo"]:
         srun = srun["--pstate-turbo=off"]
     srun = srun[benchbuild_c["-v", "run"]]
     dump_slurm_script(slurm_script, srun, experiment, projects)

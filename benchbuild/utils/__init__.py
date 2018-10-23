@@ -53,7 +53,7 @@ class CommandAlias(ModuleType):
         if command in __ALIASES__:
             check = __ALIASES__[command]
 
-        env = CFG["env"].value()
+        env = CFG["env"].value
         path = path_to_list(getenv("PATH", ""))
         path.extend(env.get("PATH", []))
 

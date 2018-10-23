@@ -16,8 +16,8 @@ LOG = logging.getLogger(__name__)
 
 
 def discover():
-    if CFG["plugins"]["autoload"].value():
-        project_plugins = CFG["plugins"]["projects"].value()
+    if CFG["plugins"]["autoload"]:
+        project_plugins = CFG["plugins"]["projects"].value
         for project_plugin in project_plugins:
             try:
                 importlib.import_module(project_plugin)

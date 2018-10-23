@@ -17,8 +17,8 @@ class PolybenchModGroup(PolyBenchGroup):
         self.download()
 
         polybench_opts = CFG["projects"]["polybench"]
-        verify = polybench_opts["verify"].value()
-        workload = polybench_opts["workload"].value()
+        verify = bool(polybench_opts["verify"])
+        workload = str(polybench_opts["workload"])
 
         src_dir = local.cwd / self.src_file
         src_sub = src_dir / self.path_dict[self.name] / self.name

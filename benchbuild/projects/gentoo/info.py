@@ -30,9 +30,9 @@ class Info(ap.AutoPortage):
 
         ebuilds = set()
 
-        languages = CFG["gentoo"]["autotest_lang"].value()
-        use_flags = CFG["gentoo"]["autotest_use"].value()
-        file_location = CFG["gentoo"]["autotest_loc"].value()
+        languages = CFG["gentoo"]["autotest_lang"].value
+        use_flags = CFG["gentoo"]["autotest_use"].value
+        file_location = str(CFG["gentoo"]["autotest_loc"])
 
         for language in languages:
             output = qgrep_in_chroot("-l", get_string_for_language(language))

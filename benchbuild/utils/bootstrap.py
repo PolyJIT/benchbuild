@@ -70,7 +70,7 @@ def install_uchroot():
     builddir = str(settings.CFG["build_dir"])
     with local.cwd(builddir):
         if not os.path.exists("erlent/.git"):
-            git("clone", settings.CFG["uchroot"]["repo"].value())
+            git("clone", str(settings.CFG["uchroot"]["repo"]))
         else:
             with local.cwd("erlent"):
                 git("pull", "--rebase")
@@ -86,7 +86,7 @@ def install_uchroot():
     local.env.update(PATH=os.environ["PATH"])
     if not find_package("uchroot"):
         sys.exit(-1)
-    settings.CFG["env"]["path"].value().append(erlent_path)
+    settings.CFG["env"]["path"] += erlent_path
 
 
 def check_uchroot_config():

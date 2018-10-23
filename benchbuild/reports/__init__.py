@@ -31,8 +31,8 @@ def discover():
         Could not find 'benchbuild.non.existing'
         Found report: benchbuild.reports.raw
     """
-    if CFG["plugins"]["autoload"].value():
-        report_plugins = CFG["plugins"]["reports"].value()
+    if CFG["plugins"]["autoload"]:
+        report_plugins = CFG["plugins"]["reports"].value
         for plugin in report_plugins:
             try:
                 importlib.import_module(plugin)

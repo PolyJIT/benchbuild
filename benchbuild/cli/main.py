@@ -9,7 +9,7 @@ from benchbuild.utils import log
 class BenchBuild(cli.Application):
     """Frontend for running/building the benchbuild study framework."""
 
-    VERSION = settings.CFG["version"].value()
+    VERSION = str(settings.CFG["version"])
     _list_env = False
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
@@ -27,7 +27,7 @@ class BenchBuild(cli.Application):
         log.configure()
         log.set_defaults()
 
-        if settings.CFG["db"]["create_functions"].value():
+        if settings.CFG["db"]["create_functions"]:
             from benchbuild.utils.schema import init_functions, Session
             init_functions(Session())
 

@@ -56,7 +56,7 @@ class SpiderMonkey(project.Project):
 
         mozjs_obj_dir = mozjs_src_dir / "obj"
         with local.cwd(mozjs_obj_dir):
-            run.run(make["-j", CFG["jobs"].value()])
+            run.run(make["-j", str(CFG["jobs"])])
 
     def run_tests(self, runner):
         mozjs_obj_dir = local.path("mozjs-0.0.0") / "js" / "src" / "obj"

@@ -338,7 +338,7 @@ def needed_schema(connection, meta):
 
 def get_version_data():
     """Retreive migration information."""
-    connect_str = settings.CFG["db"]["connect_string"].value()
+    connect_str = str(settings.CFG["db"]["connect_string"])
     repo_url = path.template_path("../db/")
     return (connect_str, repo_url)
 
@@ -399,7 +399,7 @@ def maybe_update_db(repo_version, db_version):
         LOG.error("User declined schema upgrade.")
         return
 
-    connect_str = settings.CFG["db"]["connect_string"].value()
+    connect_str = str(settings.CFG["db"]["connect_string"])
     repo_url = path.template_path("../db/")
     LOG.info("Upgrading to newest version...")
     migrate.upgrade(connect_str, repo_url)
@@ -444,9 +444,8 @@ class SessionManager:
         "Connect string contained an invalid backend."
     })
     def __init__(self):
-        self.__test_mode = settings.CFG['db']['rollback'].value()
-        self.engine = create_engine(
-            settings.CFG["db"]["connect_string"].value())
+        self.__test_mode = bool(settings.CFG['db']['rollback'])
+        self.engine = create_engine(str(settings.CFG["db"]["connect_string"]))
 
         if not (self.connect_engine() and self.configure_engine()):
             sys.exit(-3)
@@ -494,7 +493,7 @@ Session = __lazy_session__()
 
 def init_functions(connection):
     """Initialize all SQL functions in the database."""
-    if settings.CFG["db"]["create_functions"].value():
+    if settings.CFG["db"]["create_functions"]:
         print("Refreshing SQL functions...")
         for file in path.template_files("../sql/", exts=[".sql"]):
             func = sa.DDL(path.template_str(file))

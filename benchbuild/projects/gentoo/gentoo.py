@@ -35,7 +35,7 @@ class GentooGroup(project.Project):
     emerge_env = attr.ib(default={}, repr=False, cmp=False)
 
     def redirect(self):
-        if not CFG["unionfs"]["enable"].value():
+        if not CFG["unionfs"]["enable"]:
             container.unpack_container(self.container, self.builddir)
 
         setup_networking()
@@ -45,7 +45,7 @@ class GentooGroup(project.Project):
         self.configure_benchbuild(CFG)
         path.mkfile_uchroot("/.benchbuild-container")
         benchbuild = find_benchbuild()
-        with local.env(BB_VERBOSITY=CFG['verbosity'].value()):
+        with local.env(BB_VERBOSITY=str(CFG['verbosity'])):
             project_id = "{0}/{1}".format(self.name, self.group)
             run.run(benchbuild["run", "-E", self.experiment.name, project_id])
 
@@ -71,10 +71,10 @@ class GentooGroup(project.Project):
                 uchroot.uchroot_env(
                     uchroot.uchroot_mounts(
                         "mnt",
-                        cfg["container"]["mounts"].value()))
+                        cfg["container"]["mounts"].value))
 
         uchroot_cfg = cfg
-        env = uchroot_cfg["env"].value()
+        env = uchroot_cfg["env"].value
         env["PATH"] = paths
         env["LD_LIBRARY_PATH"] = libs
 
@@ -142,9 +142,9 @@ def write_makeconfig(_path):
     Args:
         path - The output path of the make.conf
     """
-    http_proxy = CFG["gentoo"]["http_proxy"].value()
-    ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
-    rsync_proxy = CFG["gentoo"]["rsync_proxy"].value()
+    http_proxy = str(CFG["gentoo"]["http_proxy"])
+    ftp_proxy = str(CFG["gentoo"]["ftp_proxy"])
+    rsync_proxy = str(CFG["gentoo"]["rsync_proxy"])
 
     path.mkfile_uchroot(local.path('/') / _path)
     with open(_path, 'w') as makeconf:
@@ -163,23 +163,23 @@ PKGDIR="${PORTDIR}/packages"
 
         makeconf.write(lines)
 
-        mounts = CFG["container"]["mounts"].value()
-        tmp_dir = CFG["tmp_dir"].value()
+        mounts = CFG["container"]["mounts"].value
+        tmp_dir = str(CFG["tmp_dir"])
         mounts.append({"src": tmp_dir, "tgt": "/mnt/distfiles"})
         CFG["container"]["mounts"] = mounts
 
         if http_proxy is not None:
-            http_s = "http_proxy={0}".format(str(http_proxy))
-            https_s = "https_proxy={0}".format(str(http_proxy))
+            http_s = "http_proxy={0}".format(http_proxy)
+            https_s = "https_proxy={0}".format(http_proxy)
             makeconf.write(http_s + "\n")
             makeconf.write(https_s + "\n")
 
         if ftp_proxy is not None:
-            fp_s = "ftp_proxy={0}".format(str(ftp_proxy))
+            fp_s = "ftp_proxy={0}".format(ftp_proxy)
             makeconf.write(fp_s + "\n")
 
         if rsync_proxy is not None:
-            rp_s = "RSYNC_PROXY={0}".format(str(rsync_proxy))
+            rp_s = "RSYNC_PROXY={0}".format(rsync_proxy)
             makeconf.write(rp_s + "\n")
 
 
@@ -190,8 +190,8 @@ def write_bashrc(_path):
     Args:
         path - The output path of the make.conf
     """
-    cfg_mounts = CFG["container"]["mounts"].value()
-    cfg_prefix = CFG["container"]["prefixes"].value()
+    cfg_mounts = CFG["container"]["mounts"].value
+    cfg_prefix = CFG["container"]["prefixes"].value
 
     path.mkfile_uchroot("/etc/portage/bashrc")
     mounts = uchroot.uchroot_mounts("mnt", cfg_mounts)
@@ -232,20 +232,20 @@ def write_wgetrc(_path):
     Args:
         path - The output path of the wgetrc
     """
-    http_proxy = CFG["gentoo"]["http_proxy"].value()
-    ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
+    http_proxy = str(CFG["gentoo"]["http_proxy"])
+    ftp_proxy = str(CFG["gentoo"]["ftp_proxy"])
 
     path.mkfile_uchroot("/etc/wgetrc")
     with open(_path, 'w') as wgetrc:
         if http_proxy is not None:
-            http_s = "http_proxy = {0}".format(str(http_proxy))
-            https_s = "https_proxy = {0}".format(str(http_proxy))
+            http_s = "http_proxy = {0}".format(http_proxy)
+            https_s = "https_proxy = {0}".format(http_proxy)
             wgetrc.write("use_proxy = on\n")
             wgetrc.write(http_s + "\n")
             wgetrc.write(https_s + "\n")
 
         if ftp_proxy is not None:
-            fp_s = "ftp_proxy={0}".format(str(ftp_proxy))
+            fp_s = "ftp_proxy={0}".format(ftp_proxy)
             wgetrc.write(fp_s + "\n")
 
 
@@ -294,11 +294,11 @@ def setup_benchbuild():
     LOG.debug("Setting up Benchbuild...")
 
     venv_dir = local.path("/benchbuild")
-    prefixes = CFG["container"]["prefixes"].value()
+    prefixes = CFG["container"]["prefixes"].value
     prefixes.append(venv_dir)
     CFG["container"]["prefixes"] = prefixes
 
-    src_dir = CFG["source_dir"].value()
+    src_dir = str(CFG["source_dir"])
     have_src = src_dir is not None
     if have_src:
         __mount_source(src_dir)
@@ -325,7 +325,7 @@ def __upgrade_from_pip(venv_dir):
 
 def __mount_source(src_dir):
     src_dir = local.path(str(src_dir))
-    mounts = CFG["container"]["mounts"].value()
+    mounts = CFG["container"]["mounts"].value
     mount = {"src": src_dir, "tgt": "/mnt/benchbuild"}
     mounts.append(mount)
     CFG["container"]["mounts"] = mounts

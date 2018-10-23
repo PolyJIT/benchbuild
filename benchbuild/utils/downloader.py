@@ -316,7 +316,7 @@ def Svn(url, fname, to=None):
             Defaults to ``CFG["tmpdir"]``
     """
     if to is None:
-        to = CFG["tmp_dir"].value()
+        to = str(CFG["tmp_dir"])
 
     src_dir = local.path(to) / fname
     if not source_required(src_dir):
@@ -340,7 +340,7 @@ def Rsync(url, tgt_name, tgt_root=None):
             Defaults to ``CFG["tmpdir"]``.
     """
     if tgt_root is None:
-        tgt_root = CFG["tmp_dir"].value()
+        tgt_root = str(CFG["tmp_dir"])
 
     from benchbuild.utils.cmd import rsync
 

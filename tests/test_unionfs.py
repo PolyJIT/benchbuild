@@ -7,7 +7,7 @@ from plumbum import local
 
 from benchbuild.settings import CFG
 
-__UNIONFS_ENABLED__ = bool(CFG['unionfs']['enable'].value())
+__UNIONFS_ENABLED__ = bool(CFG['unionfs']['enable'])
 
 
 @unittest.skipIf(not __UNIONFS_ENABLED__, "Requires UnionFS to be enabled.")

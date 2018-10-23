@@ -52,4 +52,4 @@ class Gzip(project.Project):
             with local.env(CC=str(clang)):
                 run.run(configure["--disable-dependency-tracking",
                                   "--disable-silent-rules", "--with-gnu-ld"])
-            run.run(make["-j" + str(CFG["jobs"].value()), "clean", "all"])
+            run.run(make["-j" + str(CFG["jobs"]), "clean", "all"])

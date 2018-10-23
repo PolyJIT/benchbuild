@@ -133,7 +133,7 @@ def pack_container(in_container, out_file):
     mv(out_container + ".hash", out_file + ".hash")
 
     new_container = {"path": out_file, "hash": str(c_hash)}
-    CFG["container"]["known"].value().append(new_container)
+    CFG["container"]["known"] += new_container
 
 
 def setup_bash_in_container(builddir, container, outfile, shell):
@@ -157,7 +157,7 @@ def setup_bash_in_container(builddir, container, outfile, shell):
         if store_new_container:
             print("Packing new container image.")
             pack_container(container, outfile)
-            config_path = CFG["config_file"].value()
+            config_path = str(CFG["config_file"])
             CFG.store(config_path)
             print("Storing config in {0}".format(os.path.abspath(config_path)))
 
@@ -234,14 +234,13 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
             run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
             run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
 
-            want_sync = bool(
-                CFG["container"]["strategy"]["polyjit"]["sync"].value())
+            want_sync = bool(CFG["container"]["strategy"]["polyjit"]["sync"])
             want_upgrade = bool(
-                CFG["container"]["strategy"]["polyjit"]["upgrade"].value())
+                CFG["container"]["strategy"]["polyjit"]["upgrade"])
 
             packages = \
-                CFG["container"]["strategy"]["polyjit"]["packages"].value()
-            with local.env(MAKEOPTS="-j{0}".format(CFG["jobs"].value())):
+                CFG["container"]["strategy"]["polyjit"]["packages"].value
+            with local.env(MAKEOPTS="-j{0}".format(int(CFG["jobs"]))):
                 if want_sync:
                     LOG.debug("Synchronizing portage.")
                     run(emerge_in_chroot["--sync"])
@@ -266,7 +265,7 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
 class Container(cli.Application):
     """Manage uchroot containers."""
 
-    VERSION = CFG["version"].value()
+    VERSION = str(CFG["version"])
 
     @cli.switch(["-i", "--input-file"], str, help="Input container path")
     def input_file(self, container):
@@ -275,7 +274,7 @@ class Container(cli.Application):
         if set_input_container(p, CFG):
             return
 
-        p = find_hash(CFG["container"]["known"].value(), container)
+        p = find_hash(CFG["container"]["known"].value, container)
         if set_input_container(p, CFG):
             return
 
@@ -335,7 +334,7 @@ class ContainerRun(cli.Application):
 
     def main(self, *args):
         builddir = str(CFG["build_dir"])
-        in_container = CFG["container"]["input"].value()
+        in_container = str(CFG["container"]["input"])
 
         if (in_container is None) or not os.path.exists(in_container):
             in_is_file = False
@@ -385,10 +384,10 @@ class ContainerCreate(cli.Application):
 
     def main(self, *args):
         builddir = str(CFG["build_dir"])
-        in_container = CFG["container"]["input"].value()
-        out_container = CFG["container"]["output"].value()
-        mounts = CFG["container"]["mounts"].value()
-        shell = CFG["container"]["shell"].value()
+        in_container = str(CFG["container"]["input"])
+        out_container = str(CFG["container"]["output"])
+        mounts = CFG["container"]["mounts"].value
+        shell = str(CFG["container"]["shell"])
 
         if (in_container is None) or not os.path.exists(in_container):
             in_container = Gentoo().local
@@ -424,7 +423,7 @@ class ContainerBootstrap(cli.Application):
                 self.install_cmake_and_exit()
             install_uchroot()
         print("...OK")
-        config_file = CFG["config_file"].value()
+        config_file = str(CFG["config_file"])
         if not (config_file and os.path.exists(config_file)):
             config_file = ".benchbuild.json"
         CFG.store(config_file)
@@ -439,7 +438,7 @@ class ContainerList(cli.Application):
     """Prints a list of the known containers."""
 
     def main(self, *args):
-        containers = CFG["container"]["known"].value()
+        containers = CFG["container"]["known"].value
         for c in containers:
             print("[{1:.8s}] {0}".format(c["path"], str(c["hash"])))
 

@@ -41,4 +41,4 @@ def __initialize_dynamic_projects__(autotest_path):
                                domain + "_" + name, domain)
 
 
-__initialize_dynamic_projects__(CFG['gentoo']['autotest_loc'].value())
+__initialize_dynamic_projects__(str(CFG['gentoo']['autotest_loc']))

@@ -32,8 +32,8 @@ def discover():
         Could not find 'benchbuild.non.existing'
         ImportError: No module named 'benchbuild.non'
     """
-    if CFG["plugins"]["autoload"].value():
-        experiment_plugins = CFG["plugins"]["experiments"].value()
+    if CFG["plugins"]["autoload"]:
+        experiment_plugins = CFG["plugins"]["experiments"].value
         for exp_plugin in experiment_plugins:
             try:
                 importlib.import_module(exp_plugin)

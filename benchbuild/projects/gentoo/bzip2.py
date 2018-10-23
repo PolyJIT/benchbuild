@@ -30,7 +30,7 @@ class BZip2(GentooGroup):
         tar("fxz", test_archive)
 
     def run_tests(self, runner):
-        bzip2 = wrapping.wrap(local.path('/root/bin/bzip2'), self)
+        bzip2 = wrapping.wrap(local.path('/bin/bzip2'), self)
 
         # Compress
         runner(bzip2["-f", "-z", "-k", "--best", "compression/text.html"])

@@ -5,8 +5,7 @@ from plumbum.commands import ProcessExecutionError
 from plumbum import local, FG
 
 from benchbuild.settings import CFG
-from benchbuild.utils.path import list_to_path, mkdir_uchroot
-from benchbuild.utils.run import with_env_recursive
+from benchbuild.utils import path, run
 
 LOG = logging.getLogger(__name__)
 
@@ -20,12 +19,11 @@ def uchroot(*args, **kwargs):
     Return:
         chroot_cmd
     """
-    uchroot_cmd = uchroot_with_mounts(
-        *args, uchroot_cmd_fn=uchroot_no_llvm, **kwargs)
+    uchroot_cmd = with_mounts(*args, uchroot_cmd_fn=no_llvm, **kwargs)
     return uchroot_cmd["--"]
 
 
-def __uchroot_default_opts(uid=0, gid=0):
+def __default_opts__(uid=0, gid=0):
     return [
         "-C", "-w", "/", "-r", local.cwd, "-u",
         str(uid), "-g",
@@ -33,7 +31,7 @@ def __uchroot_default_opts(uid=0, gid=0):
     ]
 
 
-def uchroot_no_llvm(*args, uid=0, gid=0, **kwargs):
+def no_llvm(*args, uid=0, gid=0, **kwargs):
     """
     Return a customizable uchroot command.
 
@@ -44,41 +42,41 @@ def uchroot_no_llvm(*args, uid=0, gid=0, **kwargs):
     Return:
         chroot_cmd
     """
-    uchroot_cmd = uchroot_no_args()
-    uchroot_cmd = uchroot_cmd[__uchroot_default_opts(uid, gid)]
+    uchroot_cmd = no_args()
+    uchroot_cmd = uchroot_cmd[__default_opts__(uid, gid)]
     return uchroot_cmd[args]
 
 
-def uchroot_no_args(**kwargs):
+def no_args(**kwargs):
     """Return the uchroot command without any customizations."""
     from benchbuild.utils.cmd import uchroot as uchrt
 
     prefixes = CFG["container"]["prefixes"].value
-    p_paths, p_libs = uchroot_env(prefixes)
-    uchrt = with_env_recursive(
+    p_paths, p_libs = env(prefixes)
+    uchrt = run.with_env_recursive(
         uchrt,
-        LD_LIBRARY_PATH=list_to_path(p_libs),
-        PATH=list_to_path(p_paths))
+        LD_LIBRARY_PATH=path.list_to_path(p_libs),
+        PATH=path.list_to_path(p_paths))
 
     return uchrt
 
 
-def uchroot_with_mounts(*args, uchroot_cmd_fn=uchroot_no_args, **kwargs):
+def with_mounts(*args, uchroot_cmd_fn=no_args, **kwargs):
     """Return a uchroot command with all mounts enabled."""
     mounts = CFG["container"]["mounts"].value
     prefixes = CFG["container"]["prefixes"].value
 
-    uchroot_opts, mounts = _uchroot_mounts("mnt", mounts)
+    uchroot_opts, mounts = __mounts__("mnt", mounts)
     uchroot_cmd = uchroot_cmd_fn(**kwargs)
     uchroot_cmd = uchroot_cmd[uchroot_opts]
     uchroot_cmd = uchroot_cmd[args]
-    paths, libs = uchroot_env(mounts)
-    prefix_paths, prefix_libs = uchroot_env(prefixes)
+    paths, libs = env(mounts)
+    prefix_paths, prefix_libs = env(prefixes)
 
-    uchroot_cmd = with_env_recursive(
+    uchroot_cmd = run.with_env_recursive(
         uchroot_cmd,
-        LD_LIBRARY_PATH=list_to_path(libs + prefix_libs),
-        PATH=list_to_path(paths + prefix_paths))
+        LD_LIBRARY_PATH=path.list_to_path(libs + prefix_libs),
+        PATH=path.list_to_path(paths + prefix_paths))
     return uchroot_cmd
 
 
@@ -120,14 +118,14 @@ def uretry(cmd, retcode=0):
         ])
 
 
-def uchroot_clean_env(uchroot_cmd, varnames):
+def clean_env(uchroot_cmd, varnames):
     """Returns a uchroot cmd that runs inside a filtered environment."""
     env = uchroot_cmd["/usr/bin/env"]
-    clean_env = env["-u", ",".join(varnames)]
-    return clean_env
+    __clean_env = env["-u", ",".join(varnames)]
+    return __clean_env
 
 
-def uchroot_mounts(prefix, mounts):
+def mounts(prefix, __mounts):
     """
     Compute the mountpoints of the current user.
 
@@ -139,7 +137,7 @@ def uchroot_mounts(prefix, mounts):
     """
     i = 0
     mntpoints = []
-    for mount in mounts:
+    for mount in __mounts:
         if not isinstance(mount, dict):
             mntpoint = "{0}/{1}".format(prefix, str(i))
             mntpoints.append(mntpoint)
@@ -147,11 +145,11 @@ def uchroot_mounts(prefix, mounts):
     return mntpoints
 
 
-def _uchroot_mounts(prefix, mounts):
+def __mounts__(prefix, _mounts):
     i = 0
     mntpoints = []
     uchroot_opts = []
-    for mount in mounts:
+    for mount in _mounts:
         if isinstance(mount, dict):
             src_mount = mount["src"]
             tgt_mount = mount["tgt"]
@@ -159,13 +157,13 @@ def _uchroot_mounts(prefix, mounts):
             src_mount = mount
             tgt_mount = "{0}/{1}".format(prefix, str(i))
             i = i + 1
-        mkdir_uchroot(tgt_mount)
+        path.mkdir_uchroot(tgt_mount)
         uchroot_opts.extend(["-M", "{0}:{1}".format(src_mount, tgt_mount)])
         mntpoints.append(tgt_mount)
     return uchroot_opts, mntpoints
 
 
-def uchroot_env(mounts):
+def env(mounts):
     """
     Compute the environment of the change root for the user.
 

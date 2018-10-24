@@ -62,7 +62,7 @@ def unpack_container(container, path):
 
     """
     from benchbuild.utils.run import run
-    from benchbuild.utils.uchroot import uchroot_no_args
+    from benchbuild.utils.uchroot import no_args
 
     path = local.path(path)
     c_filename = local.path(container.filename)
@@ -74,7 +74,7 @@ def unpack_container(container, path):
     with local.cwd(path):
         Wget(container.remote, name)
 
-        uchroot = uchroot_no_args()
+        uchroot = no_args()
         uchroot = uchroot["-E", "-A", "-C", "-r", "/", "-w",
                           os.path.abspath("."), "--"]
 

@@ -68,8 +68,8 @@ class GentooGroup(project.Project):
     def configure_benchbuild(self, cfg):
         config_file = local.path("/.benchbuild.yml")
         paths, libs = \
-                uchroot.uchroot_env(
-                    uchroot.uchroot_mounts(
+                uchroot.env(
+                    uchroot.mounts(
                         "mnt",
                         cfg["container"]["mounts"].value))
 
@@ -194,9 +194,9 @@ def write_bashrc(_path):
     cfg_prefix = CFG["container"]["prefixes"].value
 
     path.mkfile_uchroot("/etc/portage/bashrc")
-    mounts = uchroot.uchroot_mounts("mnt", cfg_mounts)
-    p_paths, p_libs = uchroot.uchroot_env(cfg_prefix)
-    paths, libs = uchroot.uchroot_env(mounts)
+    mounts = uchroot.mounts("mnt", cfg_mounts)
+    p_paths, p_libs = uchroot.env(cfg_prefix)
+    paths, libs = uchroot.env(mounts)
 
     paths = paths + p_paths
     libs = libs + p_libs
@@ -259,7 +259,7 @@ def setup_virtualenv(_path="/benchbuild"):
 
 def find_benchbuild():
     try:
-        uchrt = uchroot.uchroot_clean_env(uchroot.uchroot(), ['HOME'])
+        uchrt = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
         benchbuild_loc = uchrt("which", "benchbuild").strip()
         benchbuild = uchrt[benchbuild_loc]
         return benchbuild
@@ -318,7 +318,7 @@ def setup_benchbuild():
 
 def __upgrade_from_pip(venv_dir):
     LOG.debug("Upgrading from pip")
-    uchrt_cmd = uchroot.uchroot_clean_env(uchroot.uchroot(), ['HOME'])
+    uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
     uchroot.uretry(uchrt_cmd[venv_dir / "bin" /
                              "pip3", "install", "--upgrade", "benchbuild"])
 
@@ -333,7 +333,7 @@ def __mount_source(src_dir):
 
 def __upgrade_from_source(venv_dir, with_deps=True):
     LOG.debug("Upgrading from source")
-    uchrt_cmd = uchroot.uchroot_clean_env(uchroot.uchroot(), ['HOME'])
+    uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
     opts = ["--upgrade"]
     if not with_deps:
         opts.append("--no-deps")

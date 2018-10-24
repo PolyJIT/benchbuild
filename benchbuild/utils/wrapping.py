@@ -33,7 +33,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.cmd import chmod, mv
 from benchbuild.utils.path import list_to_path
 from benchbuild.utils.run import run
-from benchbuild.utils.uchroot import uchroot_no_llvm as uchroot
+from benchbuild.utils.uchroot import no_llvm as uchroot
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"

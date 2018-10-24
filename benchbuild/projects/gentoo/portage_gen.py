@@ -39,7 +39,7 @@ class FuncClass:
             package = domain + '/' + name
             _container = self.container()
 
-            _uchroot = uchroot.uchroot_no_args()
+            _uchroot = uchroot.no_args()
             _uchroot = _uchroot["-E", "-A", "-C", "-w", "/", "-r"]
             _uchroot = _uchroot[_container.local]
             with local.env(CONFIG_PROTECT="-*"):

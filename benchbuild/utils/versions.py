@@ -5,7 +5,7 @@ from os import path
 from plumbum import local
 
 from benchbuild.settings import CFG
-from benchbuild.utils.downloader import get_hash_of_dirs
+from benchbuild.utils.download import get_hash_of_dirs
 
 
 def get_version_from_cache_dir(src_file):

@@ -2,11 +2,11 @@ from plumbum import local
 
 from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, downloader, run
+from benchbuild.utils import compiler, download, run
 from benchbuild.utils.cmd import autoreconf, make
 
 
-@downloader.with_git('git://rasdaman.org/rasdaman.git', limit=5)
+@download.with_git('git://rasdaman.org/rasdaman.git', limit=5)
 class Rasdaman(project.Project):
     """ Rasdaman """
 
@@ -21,7 +21,7 @@ class Rasdaman(project.Project):
 
     def compile(self):
         self.download()
-        downloader.Git(self.gdal_uri, self.gdal_dir)
+        download.Git(self.gdal_uri, self.gdal_dir)
         rasdaman_dir = local.path(self.src_file)
         gdal_dir = local.path(self.gdal_dir) / self.gdal_dir
 

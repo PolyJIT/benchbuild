@@ -1,11 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, unzip
 
 
-@downloader.with_wget({
+@download.with_wget({
     '3080900':
     'http://www.sqlite.org/2015/sqlite-amalgamation-3080900.zip'
 })
@@ -37,7 +37,7 @@ class SQLite3(project.Project):
     @staticmethod
     def fetch_leveldb():
         src_uri = "https://github.com/google/leveldb"
-        downloader.Git(src_uri, "leveldb.src")
+        download.Git(src_uri, "leveldb.src")
 
     def build_leveldb(self):
         sqlite_dir = local.path('sqlite-amalgamation-{0}'.format(self.version))

@@ -4,11 +4,11 @@ from plumbum import local
 
 from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, mkdir, tar
 
 
-@downloader.with_git(
+@download.with_git(
     "https://github.com/mozilla/gecko-dev.git",
     target_dir="gecko-dev.git",
     clone=False,

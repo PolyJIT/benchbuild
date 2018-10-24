@@ -2,12 +2,12 @@ import attr
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import sh, tar
 
 
 @attr.s
-@downloader.with_wget({
+@download.with_wget({
     '3.1':
     'http://www.cs.virginia.edu/'
     '~kw5na/lava/Rodinia/Packages/Current/3.1/rodinia_3.1.tar.bz2'})

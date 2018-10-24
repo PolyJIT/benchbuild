@@ -1,11 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import git, make
 
 
-@downloader.with_git("https://github.com/niklasso/minisat", limit=5)
+@download.with_git("https://github.com/niklasso/minisat", limit=5)
 class Minisat(project.Project):
     """ minisat benchmark """
 

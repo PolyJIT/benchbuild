@@ -17,7 +17,7 @@ from benchbuild.utils import log
 from benchbuild.utils.bootstrap import find_package, install_uchroot
 from benchbuild.utils.cmd import bash, mkdir, mv, rm, tar
 from benchbuild.utils.container import Gentoo
-from benchbuild.utils.downloader import Copy, update_hash
+from benchbuild.utils.download import Copy, update_hash
 from benchbuild.utils.run import run
 from benchbuild.utils.uchroot import (uchroot, uchroot_with_mounts,
                                       uchroot_no_args)

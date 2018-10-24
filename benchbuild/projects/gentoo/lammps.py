@@ -4,7 +4,7 @@ LAMMPS (sci-physics/lammps) project within gentoo chroot.
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils import downloader, wrapping
+from benchbuild.utils import download, wrapping
 from benchbuild.utils.cmd import tar
 
 
@@ -25,7 +25,7 @@ class Lammps(GentooGroup):
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
-        downloader.Wget(test_url, test_archive)
+        download.Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
     def run_tests(self, runner):

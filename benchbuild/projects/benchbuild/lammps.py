@@ -1,11 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make
 
 
-@downloader.with_git("https://github.com/lammps/lammps", limit=5)
+@download.with_git("https://github.com/lammps/lammps", limit=5)
 class Lammps(project.Project):
     """ LAMMPS benchmark """
 

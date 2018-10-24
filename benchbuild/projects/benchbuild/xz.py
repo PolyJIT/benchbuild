@@ -1,11 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cp, make, tar
 
 
-@downloader.with_wget({'5.2.1': 'http://tukaani.org/xz/xz-5.2.1.tar.gz'})
+@download.with_wget({'5.2.1': 'http://tukaani.org/xz/xz-5.2.1.tar.gz'})
 class XZ(project.Project):
     """ XZ """
     NAME = 'xz'

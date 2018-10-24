@@ -1,11 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@downloader.with_wget({
+@download.with_wget({
     "1.10":
     "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
 })

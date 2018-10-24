@@ -1,12 +1,12 @@
 from plumbum import FG, local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, sed, sh,
                                   tar)
 
 
-@downloader.with_git('https://github.com/POV-Ray/povray', limit=5)
+@download.with_git('https://github.com/POV-Ray/povray', limit=5)
 class Povray(project.Project):
     """ povray benchmark """
 
@@ -24,7 +24,7 @@ class Povray(project.Project):
 
     def compile(self):
         self.download()
-        downloader.Wget(self.boost_src_uri, self.boost_src_file)
+        download.Wget(self.boost_src_uri, self.boost_src_file)
         tar("xfj", self.boost_src_file)
 
         cp("-ar", local.path(self.testdir) / "cfg", '.')

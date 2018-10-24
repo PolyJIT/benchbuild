@@ -3,11 +3,11 @@ from os import path
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, mkdir, tar
 
 
-@downloader.with_wget({
+@download.with_wget({
     '0.9.26':
     'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'
 })

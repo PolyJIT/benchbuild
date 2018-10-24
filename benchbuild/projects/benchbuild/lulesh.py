@@ -1,10 +1,10 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, wrapping
+from benchbuild.utils import compiler, download, wrapping
 
 
-@downloader.with_git("https://github.com/LLNL/LULESH/", limit=5)
+@download.with_git("https://github.com/LLNL/LULESH/", limit=5)
 class Lulesh(project.Project):
     """ LULESH, Serial """
 
@@ -34,7 +34,7 @@ class Lulesh(project.Project):
             runner(lulesh["-i", i])
 
 
-@downloader.with_git("https://github.com/LLNL/LULESH/", limit=5)
+@download.with_git("https://github.com/LLNL/LULESH/", limit=5)
 class LuleshOMP(project.Project):
     """ LULESH, OpenMP """
 

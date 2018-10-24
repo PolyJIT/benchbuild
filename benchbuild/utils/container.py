@@ -6,7 +6,7 @@ from plumbum import TF, local
 
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import bash, cp, curl, cut, rm, tail
-from benchbuild.utils.downloader import Wget
+from benchbuild.utils.download import Wget
 
 LOG = logging.getLogger(__name__)
 

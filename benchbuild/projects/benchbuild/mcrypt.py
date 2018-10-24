@@ -2,11 +2,11 @@ from plumbum import local
 
 from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, downloader, path, run, wrapping
+from benchbuild.utils import compiler, download, path, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@downloader.with_wget({
+@download.with_wget({
     "2.6.8":
     'http://sourceforge.net/'
     'projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz'
@@ -34,8 +34,8 @@ class MCrypt(project.Project):
     def compile(self):
         self.download()
 
-        downloader.Wget(self.libmcrypt_uri, self.libmcrypt_file)
-        downloader.Wget(self.mhash_uri, self.mhash_file)
+        download.Wget(self.libmcrypt_uri, self.libmcrypt_file)
+        download.Wget(self.mhash_uri, self.mhash_file)
 
         tar('xfz', self.src_file)
         tar('xfz', self.libmcrypt_file)

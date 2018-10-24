@@ -4,7 +4,7 @@ media-video/x264-encoder within gentoo chroot.
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils import downloader, wrapping
+from benchbuild.utils import download, wrapping
 
 
 class X264(GentooGroup):
@@ -24,7 +24,7 @@ class X264(GentooGroup):
         super(X264, self).compile()
 
         for testfile in self.inputfiles:
-            downloader.Wget(self.test_url + testfile, testfile)
+            download.Wget(self.test_url + testfile, testfile)
 
     def run_tests(self, runner):
         x264 = wrapping.wrap(local.path('/usr/bin/x264'), self)

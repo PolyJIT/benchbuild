@@ -3,7 +3,7 @@ from plumbum import local
 from benchbuild.project import Project
 from benchbuild.utils.cmd import make, unzip
 from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import with_wget
+from benchbuild.utils.download import with_wget
 from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 

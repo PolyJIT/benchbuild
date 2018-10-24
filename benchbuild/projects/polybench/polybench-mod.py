@@ -2,10 +2,10 @@ from plumbum import local
 
 from benchbuild.settings import CFG
 from benchbuild.projects.polybench.polybench import PolyBenchGroup
-from benchbuild.utils import compiler, downloader, run
+from benchbuild.utils import compiler, download, run
 
 
-@downloader.with_git("https://github.com/simbuerg/polybench-c-4.2-1.git")
+@download.with_git("https://github.com/simbuerg/polybench-c-4.2-1.git")
 class PolybenchModGroup(PolyBenchGroup):
     DOMAIN = 'polybench'
     GROUP = 'polybench-mod'

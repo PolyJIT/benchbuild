@@ -5,13 +5,13 @@ from plumbum import FG, local
 
 from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, downloader, wrapping
+from benchbuild.utils import compiler, download, wrapping
 from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv
 
 LOG = logging.getLogger(__name__)
 
 
-@downloader.with_git("http://llvm.org/git/lnt", limit=5)
+@download.with_git("http://llvm.org/git/lnt", limit=5)
 class LNTGroup(project.Project):
     """LNT ProjectGroup for running the lnt test suite."""
 
@@ -38,7 +38,7 @@ class LNTGroup(project.Project):
 
     def compile(self):
         self.download()
-        downloader.Git(self.test_suite_uri, self.test_suite_dir)
+        download.Git(self.test_suite_uri, self.test_suite_dir)
 
         venv_path = local.cwd / "local"
         virtualenv(venv_path, "--python=python2")
@@ -110,7 +110,7 @@ class SPEC2006(LNTGroup):
     SUBDIR = "External/SPEC"
 
     def compile(self):
-        if downloader.CopyNoFail('speccpu2006'):
+        if download.CopyNoFail('speccpu2006'):
             super(SPEC2006, self).compile()
         else:
             print('======================================================')
@@ -128,5 +128,5 @@ class Povray(LNTGroup):
     povray_src_dir = "Povray"
 
     def compile(self):
-        downloader.Git(self.povray_url, self.povray_src_dir)
+        download.Git(self.povray_url, self.povray_src_dir)
         super(Povray, self).compile()

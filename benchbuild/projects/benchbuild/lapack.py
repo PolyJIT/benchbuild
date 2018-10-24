@@ -4,11 +4,11 @@ from plumbum import local
 
 from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@downloader.with_git("https://github.com/xianyi/OpenBLAS", limit=5)
+@download.with_git("https://github.com/xianyi/OpenBLAS", limit=5)
 class OpenBlas(project.Project):
     NAME = 'openblas'
     DOMAIN = 'scientific'
@@ -29,7 +29,7 @@ class OpenBlas(project.Project):
         log.warning('Not implemented')
 
 
-@downloader.with_wget({"3.2.1": "http://www.netlib.org/clapack/clapack.tgz"})
+@download.with_wget({"3.2.1": "http://www.netlib.org/clapack/clapack.tgz"})
 class Lapack(project.Project):
     NAME = 'lapack'
     DOMAIN = 'scientific'

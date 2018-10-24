@@ -1,11 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@downloader.with_wget({
+@download.with_wget({
     "2.1.6":
     "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz"
 })

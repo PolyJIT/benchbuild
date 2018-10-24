@@ -1,11 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, mkdir
 
 
-@downloader.with_git("https://github.com/bsc-pm/bots", limit=5)
+@download.with_git("https://github.com/bsc-pm/bots", limit=5)
 class BOTSGroup(project.Project):
     """
     Barcelona OpenMP Task Suite.

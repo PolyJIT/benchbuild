@@ -2,11 +2,11 @@ from plumbum import local
 
 from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cp, make
 
 
-@downloader.with_git(
+@download.with_git(
     "git://git.videolan.org/x264.git", refspec="HEAD", limit=5)
 class X264(project.Project):
     """ x264 """

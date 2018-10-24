@@ -3,11 +3,11 @@ from os import getenv
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make
 
 
-@downloader.with_git("https://github.com/google/leveldb", limit=5)
+@download.with_git("https://github.com/google/leveldb", limit=5)
 class LevelDB(project.Project):
     NAME = 'leveldb'
     DOMAIN = 'database'

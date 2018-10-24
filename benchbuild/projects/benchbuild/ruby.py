@@ -2,11 +2,11 @@ from plumbum import local
 
 from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, ruby, tar
 
 
-@downloader.with_wget({
+@download.with_wget({
     '2.2.2':
     'http://cache.ruby-lang.org/pub/ruby/2.2.2/ruby-2.2.2.tar.gz'
 })

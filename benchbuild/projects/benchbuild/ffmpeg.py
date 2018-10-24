@@ -2,11 +2,11 @@ from plumbum import local
 
 from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@downloader.with_wget({
+@download.with_wget({
     "3.1.3":
     "http://ffmpeg.org/releases/ffmpeg-3.1.3.tar.bz2"
 })
@@ -34,7 +34,7 @@ class LibAV(project.Project):
         clang = compiler.cc(self)
 
         with local.cwd(unpack_dir):
-            downloader.Rsync(self.fate_uri, self.fate_dir)
+            download.Rsync(self.fate_uri, self.fate_dir)
             configure = local["./configure"]
             run.run(configure[
                 "--disable-shared", "--cc=" + str(clang), "--extra-ldflags=" +

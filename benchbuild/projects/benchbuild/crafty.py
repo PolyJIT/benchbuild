@@ -1,11 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
 
 
-@downloader.with_wget({
+@download.with_wget({
     "25.2":
     "http://www.craftychess.com/downloads/source/crafty-25.2.zip"
 })
@@ -22,7 +22,7 @@ class Crafty(project.Project):
         self.download()
         book_file = "book.bin"
         book_bin = "http://www.craftychess.com/downloads/book/" + book_file
-        downloader.Wget(book_bin, book_file)
+        download.Wget(book_bin, book_file)
 
         unpack_dir = "crafty.src"
         mkdir(unpack_dir)

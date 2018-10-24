@@ -2,10 +2,10 @@ from plumbum import local
 
 from benchbuild import project
 from benchbuild.utils.cmd import cp, make
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 
 
-@downloader.with_git("https://gitlab.com/bzip/bzip2", limit=1, refspec="HEAD")
+@download.with_git("https://gitlab.com/bzip/bzip2", limit=1, refspec="HEAD")
 class Bzip2(project.Project):
     """ Bzip2 """
 

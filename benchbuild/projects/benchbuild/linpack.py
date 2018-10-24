@@ -1,13 +1,13 @@
 import logging
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, path, run
+from benchbuild.utils import compiler, download, path, run
 from benchbuild.utils.cmd import patch
 
 LOG = logging.getLogger(__name__)
 
 
-@downloader.with_wget({"5/88": "http://www.netlib.org/benchmark/linpackc.new"})
+@download.with_wget({"5/88": "http://www.netlib.org/benchmark/linpackc.new"})
 class Linpack(project.Project):
     """ Linpack (C-Version) """
 

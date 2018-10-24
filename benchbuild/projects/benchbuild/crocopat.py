@@ -1,11 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, downloader, wrapping
+from benchbuild.utils import compiler, download, wrapping
 from benchbuild.utils.cmd import cat, make, unzip
 
 
-@downloader.with_wget({
+@download.with_wget({
     "2.1.4":
     "http://crocopat.googlecode.com/files/crocopat-2.1.4.zip"
 })

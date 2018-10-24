@@ -4,7 +4,7 @@ from plumbum import local
 
 from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, downloader, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import diff, tar
 
 LOG = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ def get_dump_arrays_output(data):
     return out
 
 
-@downloader.with_wget({
+@download.with_wget({
     "4.2":
     "http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz"
 })

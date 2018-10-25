@@ -466,13 +466,14 @@ class ConfigPath:
     Wrapper around paths represented as list of strings.
 
     Tests:
+    >>> path = local.path('/tmp/test/foo')
     >>> p = ConfigPath(['tmp']); str(p)
     '/tmp'
-    >>> p = ConfigPath('/tmp/test/foo'); str(p)
+    >>> p = ConfigPath(str(path)); str(p)
     '/tmp/test/foo'
     >>> p.validate()
     The path '/tmp/test/foo' is required by your configuration.
-    >>> p.validate()
+    >>> p.validate(); path.delete()
 
     >>> p = ConfigPath([]); str(p)
     '/'

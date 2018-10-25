@@ -1,7 +1,7 @@
-benchbuild.log module
+benchbuild.cli.log module
 =====================
 
-.. automodule:: benchbuild.log
+.. automodule:: benchbuild.cli.log
     :members:
     :undoc-members:
     :show-inheritance:

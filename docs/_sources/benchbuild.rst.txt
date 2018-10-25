@@ -21,19 +21,18 @@ Submodules
 
 .. toctree::
 
-   benchbuild.bootstrap
    benchbuild.container
-   benchbuild.driver
    benchbuild.experiment
    benchbuild.extensions
    benchbuild.likwid
    benchbuild.log
    benchbuild.project
-   benchbuild.report
-   benchbuild.run
    benchbuild.settings
    benchbuild.signals
-   benchbuild.slurm
    benchbuild.statistics
-   benchbuild.test
+   benchbuild.cli.bootstrap
+   benchbuild.cli.main
+   benchbuild.cli.report
+   benchbuild.cli.run
+   benchbuild.cli.slurm
 

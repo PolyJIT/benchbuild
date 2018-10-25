@@ -282,55 +282,6 @@ class MakeBuildDir(Step):
             indent * " ")
 
 
-class Prepare(Step):
-    NAME = "PREPARE"
-    DESCRIPTION = "Prepare project build folder"
-
-    def __init__(self, project):
-        super(Prepare, self).__init__(obj=project, action_fn=project.prepare)
-
-    def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Prepare".format(self.obj.name),
-                               indent * " ")
-
-
-class Download(Step):
-    NAME = "DOWNLOAD"
-    DESCRIPTION = "Download project source files"
-
-    def __init__(self, project):
-        super(Download, self).__init__(obj=project, action_fn=project.download)
-
-    def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Download".format(self.obj.name),
-                               indent * " ")
-
-
-class Configure(Step):
-    NAME = "CONFIGURE"
-    DESCRIPTION = "Configure project source files"
-
-    def __init__(self, project):
-        super(Configure, self).__init__(
-            obj=project, action_fn=project.configure)
-
-    def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Configure".format(self.obj.name),
-                               indent * " ")
-
-
-class Build(Step):
-    NAME = "BUILD"
-    DESCRIPTION = "Build the project"
-
-    def __init__(self, project):
-        super(Build, self).__init__(obj=project, action_fn=project.build)
-
-    def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Compile".format(self.obj.name),
-                               indent * " ")
-
-
 class Compile(Step):
     NAME = "COMPILE"
     DESCRIPTION = "Compile the project"

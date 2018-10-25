@@ -8,10 +8,9 @@ from plumbum import TEE, local
 from plumbum.commands import ProcessExecutionError
 
 import attr
-from benchbuild import settings
-from benchbuild import signals
-from benchbuild.settings import CFG
+from benchbuild import settings, signals
 
+CFG = settings.CFG
 LOG = logging.getLogger(__name__)
 
 
@@ -201,25 +200,6 @@ class RunInfo:
 
     def commit(self):
         self.session.commit()
-
-
-def fetch_time_output(marker, format_s, ins):
-    """
-    Fetch the output /usr/bin/time from a.
-
-    Args:
-        marker: The marker that limits the time output
-        format_s: The format string used to parse the timings
-        ins: A list of lines we look for the output.
-
-    Returns:
-        A list of timing tuples
-    """
-    from parse import parse
-
-    timings = [x for x in ins if marker in x]
-    res = [parse(format_s, t) for t in timings]
-    return [_f for _f in res if _f]
 
 
 def begin_run_group(project):

@@ -23,7 +23,7 @@ def cached(func):
     return call_or_cache
 
 
-def is_valid_container(container, path):
+def is_valid(container, path):
     """
     Checks if a container exists and is unpacked.
 
@@ -128,7 +128,7 @@ class Container:
 
         target = tmp_dir / self.name
 
-        if not target.exists() or not is_valid_container(self, target):
+        if not target.exists() or not is_valid(self, target):
             unpack_container(self, target)
 
         return target

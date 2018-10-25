@@ -16,7 +16,7 @@ Measurements
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
 from benchbuild.experiment import Experiment
-from benchbuild.extensions import RunWithTime, RuntimeExtension
+from benchbuild.extensions import run, time
 
 
 class RawRuntime(Experiment):
@@ -27,6 +27,6 @@ class RawRuntime(Experiment):
     def actions_for_project(self, project):
         """Compile & Run the experiment with -O3 enabled."""
         project.cflags = ["-O3", "-fno-omit-frame-pointer"]
-        project.runtime_extension = RunWithTime(
-            RuntimeExtension(project, self))
+        project.runtime_extension = time.RunWithTime(
+            run.RuntimeExtension(project, self))
         return self.default_runtime_actions(project)

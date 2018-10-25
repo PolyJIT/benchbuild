@@ -11,6 +11,19 @@ from benchbuild.utils.download import Wget
 LOG = logging.getLogger(__name__)
 
 
+def cached(func):
+    """Memoize a function result."""
+    ret = None
+
+    def call_or_cache(*args, **kwargs):
+        nonlocal ret
+        if ret is None:
+            ret = func(*args, **kwargs)
+        return ret
+
+    return call_or_cache
+
+
 class Container:
     name = "container"
 
@@ -74,19 +87,6 @@ class Gentoo(Container):
         """Get a remote URL of the requested container."""
         return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
             .format(self.src_file())
-
-
-def cached(func):
-    """Memoize a function result."""
-    ret = None
-
-    def call_or_cache(*args, **kwargs):
-        nonlocal ret
-        if ret is None:
-            ret = func(*args, **kwargs)
-        return ret
-
-    return call_or_cache
 
 
 def is_valid(container, path):

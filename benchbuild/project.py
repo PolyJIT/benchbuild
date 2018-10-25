@@ -26,7 +26,9 @@ import attr
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
-from benchbuild import extensions, signals
+from benchbuild import signals
+from benchbuild.extensions import compiler
+from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
 from benchbuild.utils import db, run, unionfs, wrapping
 
@@ -237,8 +239,8 @@ class Project(metaclass=ProjectDecorator):
             raise TypeError("{attribute} must be a valid UUID object")
 
     compiler_extension = attr.ib(default=attr.Factory(
-        lambda self: extensions.RunWithTimeout(
-            extensions.RunCompiler(self, self.experiment)), takes_self=True))
+        lambda self: ext_run.WithTimeout(
+            compiler.RunCompiler(self, self.experiment)), takes_self=True))
 
     runtime_extension = attr.ib(default=None)
 

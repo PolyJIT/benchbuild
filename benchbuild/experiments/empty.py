@@ -6,8 +6,8 @@ directories for benchbuild. No compilation & no run can be done with it.
 """
 
 from benchbuild.experiment import Experiment
-from benchbuild.utils.actions import Compile, MakeBuildDir, Clean
-from benchbuild.extensions import RuntimeExtension
+from benchbuild.extensions import run
+from benchbuild.utils.actions import Clean, Compile, MakeBuildDir
 
 
 class Empty(Experiment):
@@ -27,5 +27,5 @@ class NoMeasurement(Experiment):
 
     def actions_for_project(self, project):
         """Execute all actions but don't do anything as extension."""
-        project.runtime_extension = RuntimeExtension(project, self)
+        project.runtime_extension = run.RuntimeExtension(project, self)
         return self.default_runtime_actions(project)

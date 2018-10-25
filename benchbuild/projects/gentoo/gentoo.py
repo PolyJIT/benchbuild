@@ -36,7 +36,7 @@ class GentooGroup(project.Project):
 
     def redirect(self):
         if not CFG["unionfs"]["enable"]:
-            container.unpack_container(self.container, self.builddir)
+            container.unpack(self.container, self.builddir)
 
         setup_networking()
         setup_benchbuild()

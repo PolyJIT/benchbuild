@@ -2,7 +2,7 @@
 import logging
 import os
 
-from plumbum import TF, local
+from plumbum import TF, ProcessExecutionError, local
 
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import bash, cp, curl, cut, rm, tail
@@ -11,7 +11,73 @@ from benchbuild.utils.download import Wget
 LOG = logging.getLogger(__name__)
 
 
+class Container:
+    name = "container"
+
+    @property
+    def remote(self):
+        pass
+
+    @property
+    def filename(self):
+        image_cfg = CFG["container"]["images"].value
+        image_cfg = image_cfg[self.name]
+        tmp_dir = local.path(str(CFG["tmp_dir"]))
+
+        if os.path.isabs(image_cfg):
+            return image_cfg
+        return tmp_dir / image_cfg
+
+    @property
+    def local(self):
+        """
+        Finds the current location of a container.
+        Also unpacks the project if necessary.
+
+        Returns:
+            target: The path, where the container lies in the end.
+        """
+        assert self.name in CFG["container"]["images"].value
+        tmp_dir = local.path(str(CFG["tmp_dir"]))
+        target_dir = tmp_dir / self.name
+
+        if not target_dir.exists() or not is_valid(self, target_dir):
+            unpack(self, target_dir)
+
+        return target_dir
+
+
+class Gentoo(Container):
+    name = "gentoo"
+
+    @cached
+    def src_file(self):
+        """
+        Get the latest src_uri for a stage 3 tarball.
+
+        Returns (str):
+            Latest src_uri from gentoo's distfiles mirror.
+        """
+        latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
+                     "latest-stage3-amd64.txt"
+        try:
+            src_uri = (curl[latest_txt] | tail["-n", "+3"]
+                       | cut["-f1", "-d "])().strip()
+        except ProcessExecutionError as proc_ex:
+            src_uri = "NOT-FOUND"
+            LOG.error("Could not determine latest stage3 src uri: %s",
+                      str(proc_ex))
+        return src_uri
+
+    @property
+    def remote(self):
+        """Get a remote URL of the requested container."""
+        return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
+            .format(self.src_file())
+
+
 def cached(func):
+    """Memoize a function result."""
     ret = None
 
     def call_or_cache(*args, **kwargs):
@@ -49,7 +115,7 @@ def is_valid(container, path):
     return False
 
 
-def unpack_container(container, path):
+def unpack(container, path):
     """
     Unpack a container usable by uchroot.
 
@@ -95,83 +161,6 @@ def unpack_container(container, path):
             LOG.warning("File contents do not match: %s != %s", name,
                         container.filename)
         cp(container.filename + ".hash", path)
-
-
-class Container:
-    name = "container"
-
-    @property
-    def remote(self):
-        pass
-
-    @property
-    def filename(self):
-        image_cfg = CFG["container"]["images"].value
-        image_cfg = image_cfg[self.name]
-        tmp_dir = local.path(str(CFG["tmp_dir"]))
-
-        if os.path.isabs(image_cfg):
-            return image_cfg
-        return tmp_dir / image_cfg
-
-    @property
-    def local(self):
-        """
-        Finds the current location of a container.
-        Also unpacks the project if necessary.
-
-        Returns:
-            target: The path, where the container lies in the end.
-        """
-        assert self.name in CFG["container"]["images"].value
-        tmp_dir = local.path(str(CFG["tmp_dir"]))
-
-        target = tmp_dir / self.name
-
-        if not target.exists() or not is_valid(self, target):
-            unpack_container(self, target)
-
-        return target
-
-
-class Gentoo(Container):
-    name = "gentoo"
-
-    @cached
-    def latest_src_uri(self):
-        """
-        Get the latest src_uri for a stage 3 tarball.
-
-        Returns (str):
-            Latest src_uri from gentoo's distfiles mirror.
-        """
-        from plumbum import ProcessExecutionError
-
-        latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
-                     "latest-stage3-amd64.txt"
-        try:
-            src_uri = (curl[latest_txt] | tail["-n", "+3"]
-                       | cut["-f1", "-d "])().strip()
-        except ProcessExecutionError as proc_ex:
-            src_uri = "NOT-FOUND"
-            LOG.error("Could not determine latest stage3 src uri: %s",
-                      str(proc_ex))
-        return src_uri
-
-    @property
-    def remote(self):
-        """Get a remote URL of the requested container."""
-        return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
-            .format(self.latest_src_uri())
-
-
-class Ubuntu(Container):
-    name = "ubuntu"
-
-    @property
-    def remote(self):
-        """Get a remote URL of the requested container."""
-        pass
 
 
 def in_container():

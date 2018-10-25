@@ -92,5 +92,5 @@ class Slurm(cli.Application):
             exp = exp_cls(projects=prjs)
             print("Experiment: ", exp.name)
             CFG["slurm"]["node_dir"] = local.path(
-                str(CFG["slurm"]["node_dir"]) / str(exp.id))
+                str(CFG["slurm"]["node_dir"])) / str(exp.id)
             self.__go__(prjs, exp)

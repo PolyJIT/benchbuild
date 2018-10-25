@@ -24,7 +24,10 @@ Submodules
    benchbuild.utils.run
    benchbuild.utils.schedule_tree
    benchbuild.utils.schema
+   benchbuild.utils.settings
    benchbuild.utils.slurm
+   benchbuild.utils.uchroot
+   benchbuild.utils.unionfs
    benchbuild.utils.user_interface
    benchbuild.utils.versions
    benchbuild.utils.wrapping

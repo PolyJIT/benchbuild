@@ -1,5 +1,5 @@
 benchbuild.cli.log module
-=====================
+=========================
 
 .. automodule:: benchbuild.cli.log
     :members:

@@ -17,7 +17,7 @@ Submodules
    benchbuild.utils.container
    benchbuild.utils.db
    benchbuild.utils.dict
-   benchbuild.utils.downloader
+   benchbuild.utils.download
    benchbuild.utils.log
    benchbuild.utils.path
    benchbuild.utils.progress

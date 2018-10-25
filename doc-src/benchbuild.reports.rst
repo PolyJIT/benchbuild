@@ -11,7 +11,6 @@ Submodules
 
 .. toctree::
 
-   benchbuild.reports.compilestats
    benchbuild.reports.raw
    benchbuild.reports.status
 

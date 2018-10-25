@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>benchbuild.projects.lnt.lnt module &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.projects.lnt.lnt module &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="benchbuild.projects.polybench package" href="benchbuild.projects.polybench.html" />
@@ -33,7 +34,7 @@
         <li class="right" >
           <a href="benchbuild.projects.lnt.html" title="benchbuild.projects.lnt package"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.projects.lnt.html" accesskey="U">benchbuild.projects.lnt package</a> &#187;</li> 
       </ul>
@@ -49,7 +50,7 @@
 <p>LNT based measurements.</p>
 <dl class="class">
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">LNTGroup</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#LNTGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">LNTGroup</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#LNTGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="benchbuild.project.html#benchbuild.project.Project" title="benchbuild.project.Project"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.project.Project</span></code></a></p>
 <p>LNT ProjectGroup for running the lnt test suite.</p>
 <dl class="attribute">
@@ -68,13 +69,18 @@
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.SRC_FILE">
+<code class="descname">SRC_FILE</code><em class="property"> = 'lnt.git'</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.SRC_FILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.SUBDIR">
 <code class="descname">SUBDIR</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.SUBDIR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.VERSION">
-<code class="descname">VERSION</code><em class="property"> = '9.0.1.13'</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.VERSION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">VERSION</code><em class="property"> = 'HEAD'</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.VERSION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
@@ -87,12 +93,6 @@
 <code class="descname">binary</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.binary" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="benchbuild.projects.lnt.lnt.LNTGroup.build">
-<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#LNTGroup.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the project.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.clang">
 <code class="descname">clang</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.clang" title="Permalink to this definition">¶</a></dt>
@@ -104,20 +104,25 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="benchbuild.projects.lnt.lnt.LNTGroup.configure">
-<code class="descname">configure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#LNTGroup.configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.configure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Configure the project.</p>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#LNTGroup.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile the project.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.download">
-<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#LNTGroup.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.download" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download the input source for this project.</p>
+<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the selected version.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.lnt">
 <code class="descname">lnt</code><em class="property"> = None</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.lnt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.repository">
+<code class="descname">repository</code><em class="property"> = 'http://llvm.org/git/lnt'</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.repository" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -150,11 +155,6 @@
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="benchbuild.projects.lnt.lnt.LNTGroup.src_uri">
-<code class="descname">src_uri</code><em class="property"> = 'http://llvm.org/git/lnt'</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.src_uri" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.test_suite_dir">
 <code class="descname">test_suite_dir</code><em class="property"> = 'test-suite'</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.test_suite_dir" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -164,11 +164,17 @@
 <code class="descname">test_suite_uri</code><em class="property"> = 'http://llvm.org/git/test-suite'</em><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.test_suite_uri" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="staticmethod">
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.versions">
+<em class="property">static </em><code class="descname">versions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#benchbuild.projects.lnt.lnt.LNTGroup.versions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of versions from the git hashes up to :limit:.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.projects.lnt.lnt.MultiSourceApplications">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">MultiSourceApplications</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#MultiSourceApplications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.MultiSourceApplications" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">MultiSourceApplications</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#MultiSourceApplications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.MultiSourceApplications" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.lnt.lnt.LNTGroup" title="benchbuild.projects.lnt.lnt.LNTGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.lnt.lnt.LNTGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.lnt.lnt.MultiSourceApplications.DOMAIN">
@@ -189,7 +195,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.lnt.lnt.MultiSourceBenchmarks">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">MultiSourceBenchmarks</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#MultiSourceBenchmarks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.MultiSourceBenchmarks" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">MultiSourceBenchmarks</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#MultiSourceBenchmarks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.MultiSourceBenchmarks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.lnt.lnt.LNTGroup" title="benchbuild.projects.lnt.lnt.LNTGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.lnt.lnt.LNTGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.DOMAIN">
@@ -210,7 +216,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.lnt.lnt.Povray">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">Povray</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#Povray"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.Povray" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">Povray</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#Povray"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.Povray" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.lnt.lnt.LNTGroup" title="benchbuild.projects.lnt.lnt.LNTGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.lnt.lnt.LNTGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.lnt.lnt.Povray.DOMAIN">
@@ -228,9 +234,9 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="benchbuild.projects.lnt.lnt.Povray.download">
-<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#Povray.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.Povray.download" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download the input source for this project.</p>
+<dt id="benchbuild.projects.lnt.lnt.Povray.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#Povray.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.Povray.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile the project.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -247,7 +253,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.lnt.lnt.SPEC2006">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">SPEC2006</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#SPEC2006"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.SPEC2006" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">SPEC2006</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#SPEC2006"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.SPEC2006" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.lnt.lnt.LNTGroup" title="benchbuild.projects.lnt.lnt.LNTGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.lnt.lnt.LNTGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.lnt.lnt.SPEC2006.DOMAIN">
@@ -265,16 +271,16 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="benchbuild.projects.lnt.lnt.SPEC2006.download">
-<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#SPEC2006.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.SPEC2006.download" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download the input source for this project.</p>
+<dt id="benchbuild.projects.lnt.lnt.SPEC2006.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#SPEC2006.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.SPEC2006.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile the project.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.projects.lnt.lnt.SingleSourceBenchmarks">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">SingleSourceBenchmarks</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#SingleSourceBenchmarks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.SingleSourceBenchmarks" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.lnt.lnt.</code><code class="descname">SingleSourceBenchmarks</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/lnt/lnt.html#SingleSourceBenchmarks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.lnt.lnt.SingleSourceBenchmarks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.lnt.lnt.LNTGroup" title="benchbuild.projects.lnt.lnt.LNTGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.lnt.lnt.LNTGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.DOMAIN">
@@ -345,14 +351,14 @@
         <li class="right" >
           <a href="benchbuild.projects.lnt.html" title="benchbuild.projects.lnt package"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.projects.lnt.html" >benchbuild.projects.lnt package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

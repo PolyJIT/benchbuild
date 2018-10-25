@@ -17,6 +17,12 @@
     benchbuild.experiments
 ```
 
+## Extensions
+```eval_rst
+.. toctree::
+    benchbuild.extensions
+```
+
 ## Projects
 ```eval_rst
 .. toctree::

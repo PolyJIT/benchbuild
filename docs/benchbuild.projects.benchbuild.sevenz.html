@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>benchbuild.projects.benchbuild.sevenz module &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.projects.benchbuild.sevenz module &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="benchbuild.projects.benchbuild.sqlite3 module" href="benchbuild.projects.benchbuild.sqlite3.html" />
@@ -33,7 +34,7 @@
         <li class="right" >
           <a href="benchbuild.projects.benchbuild.sdcc.html" title="benchbuild.projects.benchbuild.sdcc module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.projects.benchbuild.html" accesskey="U">benchbuild.projects.benchbuild package</a> &#187;</li> 
       </ul>
@@ -48,7 +49,7 @@
 <span id="benchbuild-projects-benchbuild-sevenz-module"></span><h1>benchbuild.projects.benchbuild.sevenz module<a class="headerlink" href="#module-benchbuild.projects.benchbuild.sevenz" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="benchbuild.projects.benchbuild.sevenz.SevenZip">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.benchbuild.sevenz.</code><code class="descname">SevenZip</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/benchbuild/sevenz.html#SevenZip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.benchbuild.sevenz.</code><code class="descname">SevenZip</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/benchbuild/sevenz.html#SevenZip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="benchbuild.project.html#benchbuild.project.Project" title="benchbuild.project.Project"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.project.Project</span></code></a></p>
 <p>7Zip</p>
 <dl class="attribute">
@@ -68,7 +69,7 @@
 
 <dl class="attribute">
 <dt id="benchbuild.projects.benchbuild.sevenz.SevenZip.SRC_FILE">
-<code class="descname">SRC_FILE</code><em class="property"> = 'p7zip_16.02_src_all.tar.bz2'</em><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip.SRC_FILE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SRC_FILE</code><em class="property"> = 'p7zip.tar.bz2'</em><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip.SRC_FILE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -77,21 +78,15 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="benchbuild.projects.benchbuild.sevenz.SevenZip.build">
-<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/benchbuild/sevenz.html#SevenZip.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the project.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.projects.benchbuild.sevenz.SevenZip.configure">
-<code class="descname">configure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/benchbuild/sevenz.html#SevenZip.configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip.configure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Configure the project.</p>
+<dt id="benchbuild.projects.benchbuild.sevenz.SevenZip.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/benchbuild/sevenz.html#SevenZip.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile the project.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="benchbuild.projects.benchbuild.sevenz.SevenZip.download">
-<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/benchbuild/sevenz.html#SevenZip.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip.download" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download the input source for this project.</p>
+<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the selected version from the url_dict value.</p>
 </dd></dl>
 
 <dl class="method">
@@ -113,15 +108,11 @@
 </table>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="benchbuild.projects.benchbuild.sevenz.SevenZip.src_dir">
-<code class="descname">src_dir</code><em class="property"> = 'p7zip_16.02'</em><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip.src_dir" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="benchbuild.projects.benchbuild.sevenz.SevenZip.src_uri">
-<code class="descname">src_uri</code><em class="property"> = 'http://downloads.sourceforge.net/project/p7zip/p7zip/16.02/p7zip_16.02_src_all.tar.bz2'</em><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip.src_uri" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="staticmethod">
+<dt id="benchbuild.projects.benchbuild.sevenz.SevenZip.versions">
+<em class="property">static </em><code class="descname">versions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#benchbuild.projects.benchbuild.sevenz.SevenZip.versions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of versions from the url_dict keys.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -177,14 +168,14 @@
         <li class="right" >
           <a href="benchbuild.projects.benchbuild.sdcc.html" title="benchbuild.projects.benchbuild.sdcc module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.projects.benchbuild.html" >benchbuild.projects.benchbuild package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

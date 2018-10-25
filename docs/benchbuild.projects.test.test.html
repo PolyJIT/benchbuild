@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>benchbuild.projects.test.test module &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.projects.test.test module &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="benchbuild package" href="benchbuild.html" />
@@ -33,7 +34,7 @@
         <li class="right" >
           <a href="benchbuild.projects.test.html" title="benchbuild.projects.test package"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.projects.test.html" accesskey="U">benchbuild.projects.test package</a> &#187;</li> 
       </ul>
@@ -48,7 +49,7 @@
 <span id="benchbuild-projects-test-test-module"></span><h1>benchbuild.projects.test.test module<a class="headerlink" href="#module-benchbuild.projects.test.test" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="benchbuild.projects.test.test.TestProject">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.test.test.</code><code class="descname">TestProject</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProject" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.test.test.</code><code class="descname">TestProject</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProject" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="benchbuild.project.html#benchbuild.project.Project" title="benchbuild.project.Project"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.project.Project</span></code></a></p>
 <p>Test project that does nothing.</p>
 <dl class="attribute">
@@ -77,27 +78,9 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="benchbuild.projects.test.test.TestProject.build">
-<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProject.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProject.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the project.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.projects.test.test.TestProject.configure">
-<code class="descname">configure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProject.configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProject.configure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Configure the project.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.projects.test.test.TestProject.download">
-<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProject.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProject.download" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download the input source for this project.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.projects.test.test.TestProject.prepare">
-<code class="descname">prepare</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProject.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProject.prepare" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare the build diretory.</p>
+<dt id="benchbuild.projects.test.test.TestProject.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProject.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProject.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile the project.</p>
 </dd></dl>
 
 <dl class="method">
@@ -123,7 +106,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.test.test.TestProjectRuntimeFail">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.test.test.</code><code class="descname">TestProjectRuntimeFail</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProjectRuntimeFail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProjectRuntimeFail" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.test.test.</code><code class="descname">TestProjectRuntimeFail</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProjectRuntimeFail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProjectRuntimeFail" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="benchbuild.project.html#benchbuild.project.Project" title="benchbuild.project.Project"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.project.Project</span></code></a></p>
 <p>Test project that _always_ fails at runtime.</p>
 <dl class="attribute">
@@ -152,27 +135,9 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="benchbuild.projects.test.test.TestProjectRuntimeFail.build">
-<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProjectRuntimeFail.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProjectRuntimeFail.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the project.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.projects.test.test.TestProjectRuntimeFail.configure">
-<code class="descname">configure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProjectRuntimeFail.configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProjectRuntimeFail.configure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Configure the project.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.projects.test.test.TestProjectRuntimeFail.download">
-<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProjectRuntimeFail.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProjectRuntimeFail.download" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download the input source for this project.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.projects.test.test.TestProjectRuntimeFail.prepare">
-<code class="descname">prepare</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProjectRuntimeFail.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProjectRuntimeFail.prepare" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare the build diretory.</p>
+<dt id="benchbuild.projects.test.test.TestProjectRuntimeFail.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/test/test.html#TestProjectRuntimeFail.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.test.test.TestProjectRuntimeFail.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile the project.</p>
 </dd></dl>
 
 <dl class="method">
@@ -248,14 +213,14 @@
         <li class="right" >
           <a href="benchbuild.projects.test.html" title="benchbuild.projects.test package"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.projects.test.html" >benchbuild.projects.test package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

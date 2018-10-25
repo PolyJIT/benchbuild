@@ -16,7 +16,7 @@
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Experiments" href="benchbuild.experiment.html" /> 
+    <link rel="next" title="benchbuild.experiment module" href="benchbuild.experiment.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -28,7 +28,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="benchbuild.experiment.html" title="Experiments"
+          <a href="benchbuild.experiment.html" title="benchbuild.experiment module"
              accesskey="N">next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li> 
       </ul>
@@ -45,42 +45,20 @@
 <span id="core-packages"></span><h2>Core packages<a class="headerlink" href="#core-packages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="benchbuild.experiment.html">Experiments</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.experiment.html#the-basic-experiment">The basic experiment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.experiment.html#default-actions">Default actions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.experiment.html#additional-database-schema">Additional database schema</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.experiment.html#api-reference">API reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="benchbuild.project.html">Projects</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.project.html#phases">Phases</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.project.html#minimal-example">Minimal Example</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.project.html#wrapping-the-compiler">Wrapping the Compiler</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.project.html#wrapping-a-binary">Wrapping a Binary</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.project.html#api-reference">API Reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="benchbuild.extensions.html">Extensions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.extensions.html#wrap-a-binary-with-a-timeout-command">Wrap a binary with a timeout command</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.extensions.html#module-benchbuild.extensions">API reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="benchbuild.utils.settings.html">Dictionary-like configuration objects.</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.utils.settings.html#the-class-configuration">The class <code class="docutils literal notranslate"><span class="pre">Configuration</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.utils.settings.html#basic-usage">Basic Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.utils.settings.html#automatic-generation-of-environment-variables">Automatic Generation of Environment Variables.</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.utils.settings.html#automatic-initialization">Automatic Initialization</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.utils.settings.html#setup-config">Setup Config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.utils.settings.html#update-environment">Update Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.experiment.html">benchbuild.experiment module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.project.html">benchbuild.project module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.extensions.html">benchbuild.extensions package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchbuild.extensions.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.base.html">benchbuild.extensions.base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.compiler.html">benchbuild.extensions.compiler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.log.html">benchbuild.extensions.log module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.run.html">benchbuild.extensions.run module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.time.html">benchbuild.extensions.time module</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.utils.settings.html#module-benchbuild.settings">API reference</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.utils.settings.html">benchbuild.utils.settings module</a></li>
 </ul>
 </div>
 </div>
@@ -88,19 +66,11 @@
 <span id="experiments"></span><h2>Experiments<a class="headerlink" href="#experiments" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="benchbuild.experiments.html">Available experiments</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.experiments.empty.html">benchbuild.experiments.empty module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.experiments.raw.html">benchbuild.experiments.raw module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.experiments.raw.html#measurements">Measurements</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.experiments.html#module-benchbuild.experiments">API reference</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.experiments.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiments.empty.html">benchbuild.experiments.empty module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiments.raw.html">benchbuild.experiments.raw module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="benchbuild.experiments.raw.html#measurements">Measurements</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.experiments.html">benchbuild.experiments package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchbuild.experiments.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.experiments.empty.html">benchbuild.experiments.empty module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.experiments.raw.html">benchbuild.experiments.raw module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiments.raw.html#measurements">Measurements</a></li>
 </ul>
 </li>
 </ul>
@@ -114,9 +84,15 @@
 <span id="extensions"></span><h2>Extensions<a class="headerlink" href="#extensions" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="benchbuild.extensions.html">Extensions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.extensions.html#wrap-a-binary-with-a-timeout-command">Wrap a binary with a timeout command</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.extensions.html#module-benchbuild.extensions">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.extensions.html">benchbuild.extensions package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchbuild.extensions.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.base.html">benchbuild.extensions.base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.compiler.html">benchbuild.extensions.compiler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.log.html">benchbuild.extensions.log module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.run.html">benchbuild.extensions.run module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.time.html">benchbuild.extensions.time module</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -220,20 +196,7 @@
 <span id="settings"></span><h2>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="benchbuild.utils.settings.html">Dictionary-like configuration objects.</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.utils.settings.html#the-class-configuration">The class <code class="docutils literal notranslate"><span class="pre">Configuration</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.utils.settings.html#basic-usage">Basic Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.utils.settings.html#automatic-generation-of-environment-variables">Automatic Generation of Environment Variables.</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.utils.settings.html#automatic-initialization">Automatic Initialization</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.utils.settings.html#setup-config">Setup Config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.utils.settings.html#update-environment">Update Environment</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="benchbuild.utils.settings.html#module-benchbuild.settings">API reference</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.utils.settings.html">benchbuild.utils.settings module</a></li>
 </ul>
 </div>
 </div>
@@ -243,21 +206,58 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="benchbuild.html">benchbuild package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="benchbuild.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.experiments.html">Available experiments</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiments.empty.html">benchbuild.experiments.empty module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiments.raw.html">benchbuild.experiments.raw module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="benchbuild.experiments.raw.html#measurements">Measurements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.cli.html">benchbuild.cli package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="benchbuild.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.cli.bootstrap.html">benchbuild.cli.bootstrap module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.cli.config.html">benchbuild.cli.config module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.cli.experiment.html">benchbuild.cli.experiment module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.cli.log.html">benchbuild.cli.log module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.cli.main.html">benchbuild.cli.main module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.cli.project.html">benchbuild.cli.project module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.cli.report.html">benchbuild.cli.report module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.cli.run.html">benchbuild.cli.run module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.cli.slurm.html">benchbuild.cli.slurm module</a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiments.html#module-benchbuild.experiments">API reference</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="benchbuild.experiments.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="benchbuild.experiments.empty.html">benchbuild.experiments.empty module</a></li>
-<li class="toctree-l6"><a class="reference internal" href="benchbuild.experiments.raw.html">benchbuild.experiments.raw module</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="benchbuild.experiments.raw.html#measurements">Measurements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.db.html">benchbuild.db package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="benchbuild.db.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.db.versions.html">benchbuild.db.versions package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="benchbuild.db.versions.html#submodules">Submodules</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="benchbuild.db.versions.001_Remove_RegressionTest_table.html">benchbuild.db.versions.001_Remove_RegressionTest_table module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="benchbuild.db.versions.002_Remove_GlobalConfig_table.html">benchbuild.db.versions.002_Remove_GlobalConfig_table module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="benchbuild.db.versions.003_Unmanage_Events.html">benchbuild.db.versions.003_Unmanage_Events module</a></li>
 </ul>
 </li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="benchbuild.db.html#submodules">Submodules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.db.manage.html">benchbuild.db.manage module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.experiments.html">benchbuild.experiments package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiments.html#submodules">Submodules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.experiments.empty.html">benchbuild.experiments.empty module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.experiments.raw.html">benchbuild.experiments.raw module</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="benchbuild.experiments.raw.html#measurements">Measurements</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.html">benchbuild.extensions package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="benchbuild.extensions.html#submodules">Submodules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.extensions.base.html">benchbuild.extensions.base module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.extensions.compiler.html">benchbuild.extensions.compiler module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.extensions.log.html">benchbuild.extensions.log module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.extensions.run.html">benchbuild.extensions.run module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.extensions.time.html">benchbuild.extensions.time module</a></li>
 </ul>
 </li>
 </ul>
@@ -372,7 +372,10 @@
 <li class="toctree-l5"><a class="reference internal" href="benchbuild.utils.run.html">benchbuild.utils.run module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="benchbuild.utils.schedule_tree.html">benchbuild.utils.schedule_tree module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="benchbuild.utils.schema.html">benchbuild.utils.schema module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.utils.settings.html">benchbuild.utils.settings module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="benchbuild.utils.slurm.html">benchbuild.utils.slurm module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.utils.uchroot.html">benchbuild.utils.uchroot module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="benchbuild.utils.unionfs.html">benchbuild.utils.unionfs module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="benchbuild.utils.user_interface.html">benchbuild.utils.user_interface module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="benchbuild.utils.versions.html">benchbuild.utils.versions module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="benchbuild.utils.wrapping.html">benchbuild.utils.wrapping module</a></li>
@@ -384,41 +387,13 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="benchbuild.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="benchbuild.container.html">benchbuild.container module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.experiment.html">Experiments</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiment.html#the-basic-experiment">The basic experiment</a></li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiment.html#default-actions">Default actions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiment.html#additional-database-schema">Additional database schema</a></li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.experiment.html#api-reference">API reference</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.extensions.html">Extensions</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.extensions.html#wrap-a-binary-with-a-timeout-command">Wrap a binary with a timeout command</a></li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.extensions.html#module-benchbuild.extensions">API reference</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.driver.html">benchbuild.driver module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.experiment.html">benchbuild.experiment module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="benchbuild.likwid.html">benchbuild.likwid module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.log.html">benchbuild.cli.log module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.project.html">Projects</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.project.html#phases">Phases</a></li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.project.html#minimal-example">Minimal Example</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="benchbuild.project.html#wrapping-the-compiler">Wrapping the Compiler</a></li>
-<li class="toctree-l5"><a class="reference internal" href="benchbuild.project.html#wrapping-a-binary">Wrapping a Binary</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.project.html#api-reference">API Reference</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.settings.html">Settings</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="benchbuild.settings.html#module-benchbuild.settings">API reference</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.project.html">benchbuild.project module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="benchbuild.settings.html">benchbuild.settings module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="benchbuild.signals.html">benchbuild.signals module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="benchbuild.statistics.html">benchbuild.statistics module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.cli.bootstrap.html">benchbuild.cli.bootstrap module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.cli.main.html">benchbuild.driver module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.cli.report.html">benchbuild.cli.report module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.cli.run.html">benchbuild.cli.run module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="benchbuild.cli.slurm.html">benchbuild.cli.slurm module</a></li>
 </ul>
 </li>
 </ul>
@@ -458,7 +433,7 @@
 
   <h4>Next topic</h4>
   <p class="topless"><a href="benchbuild.experiment.html"
-                        title="next chapter">Experiments</a></p>
+                        title="next chapter">benchbuild.experiment module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -492,7 +467,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="benchbuild.experiment.html" title="Experiments"
+          <a href="benchbuild.experiment.html" title="benchbuild.experiment module"
              >next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li> 
       </ul>

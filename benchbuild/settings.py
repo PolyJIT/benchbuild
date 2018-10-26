@@ -96,6 +96,22 @@ CFG = s.Configuration(
         }
     })
 
+CFG['bootstrap'] = {
+    'packages': {
+        'default': [
+            "mkdir", "git", "tar", "mv", "rm", "bash", "rmdir", "time",
+            "chmod", "cp", "ln", "make", "unzip", "cat", "patch", "find",
+            "echo", "grep", "sed", "sh", "autoreconf", "ruby", "curl", "tail",
+            "kill", "virtualenv", "timeout"
+        ],
+        'desc': 'List of packages that we require to be installed on the system.'
+    },
+    'install': {
+        'default': True,
+        'desc': 'Should we try to install packages automatically?'
+    }
+}
+
 CFG["compiler"] = {
     "c": {
         "desc": "The C compiler we should use.",

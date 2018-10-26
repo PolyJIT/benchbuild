@@ -2,16 +2,11 @@ import os
 
 from plumbum import cli
 
-import benchbuild.utils.bootstrap as bs
+from benchbuild.utils import bootstrap
 from benchbuild.cli.main import BenchBuild
-from benchbuild.settings import CFG
+from benchbuild import settings
 
-provide_package = bs.provide_package
-provide_packages = bs.provide_packages
-find_package = bs.find_package
-install_package = bs.find_package
-install_uchroot = bs.install_uchroot
-check_uchroot_config = bs.check_uchroot_config
+CFG = settings.CFG
 
 
 @BenchBuild.subcommand("bootstrap")
@@ -27,26 +22,12 @@ class BenchBuildBootstrap(cli.Application):
         del args  # Unused
 
         print("Checking benchbuild binary dependencies...")
-        provide_package("cmake")
-        provide_package("fusermount")
-        provide_package("unionfs")
-        provide_package("postgres")
-
-        has_uchroot = find_package("uchroot")
-        if not has_uchroot:
-            install_uchroot()
-            has_uchroot = find_package("uchroot")
-            if not has_uchroot:
-                print("NOT INSTALLED")
-        if has_uchroot:
-            check_uchroot_config()
-
-        provide_packages([
-            "mkdir", "git", "tar", "mv", "rm", "bash", "rmdir", "time",
-            "chmod", "cp", "ln", "make", "unzip", "cat", "patch", "find",
-            "echo", "grep", "sed", "sh", "autoreconf", "ruby", "curl", "tail",
-            "kill", "virtualenv", "timeout"
-        ])
+        bootstrap.provide_package("cmake")
+        bootstrap.provide_package("fusermount")
+        bootstrap.provide_package("unionfs")
+        bootstrap.provide_package(
+            'uchroot', installer=bootstrap.install_uchroot)
+        bootstrap.provide_packages(CFG['bootstrap']['packages'].value)
 
         if self.store_config:
             config_path = ".benchbuild.yml"

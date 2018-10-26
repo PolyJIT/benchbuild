@@ -11,28 +11,52 @@ import sys
 from plumbum import local, TF
 
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import bash, chmod, mkdir
+from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
 
-INFO = logging.info
-ERROR = logging.error
+LOG = logging.getLogger(__name__)
 
 
-def __get_slurm_path():
+def script(experiment, projects):
+    """
+    Prepare a slurm script that executes the experiment for a given project.
+
+    Args:
+        experiment: The experiment we want to execute
+        projects: All projects we generate an array job for.
+    """
+    benchbuild_c = local[local.path(sys.argv[0])]
+    slurm_script = local.cwd / experiment.name + "-" + str(
+        CFG['slurm']['script'])
+
+    srun = local["srun"]
+    srun_args = []
+    if not CFG["slurm"]["multithread"]:
+        srun_args.append("--hint=nomultithread")
+    if not CFG["slurm"]["turbo"]:
+        srun_args.append("--pstate-turbo=off")
+
+    srun = srun[srun_args]
+    srun = srun[benchbuild_c["run"]]
+
+    return __save__(slurm_script, srun, experiment, projects)
+
+
+def __path():
     host_path = os.getenv('PATH', default='')
     env = CFG['env'].value
     benchbuild_path = list_to_path(env.get('PATH', []))
-    return benchbuild_path + ':' + host_path
+    return os.path.pathsep.join([benchbuild_path, host_path])
 
 
-def __get_slurm_ld_library_path():
+def __ld_library_path():
     host_path = os.getenv('LD_LIBRARY_PATH', default='')
     env = CFG['env'].value
     benchbuild_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
-    return benchbuild_path + ':' + host_path
+    return os.path.pathsep.join([benchbuild_path, host_path])
 
 
-def dump_slurm_script(script_name, benchbuild, experiment, projects):
+def __save__(script_name, benchbuild, experiment, projects):
     """
     Dump a bash script that can be given to SLURM.
 
@@ -80,9 +104,13 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         )
 
     chmod("+x", script_name)
+    if not __verify__(script_name):
+        LOG.error("SLURM script failed verification.")
+    print("SLURM script written to {0}".format(script_name))
+    return script_name
 
 
-def verify_slurm_script(script_name):
+def __verify__(script_name):
     """
     Verify a generated script.
 
@@ -90,43 +118,3 @@ def verify_slurm_script(script_name):
         script_name: Path to the generated script.
     """
     return (bash["-n", script_name] & TF)
-
-
-def prepare_slurm_script(experiment, projects):
-    """
-    Prepare a slurm script that executes the experiment for a given project.
-
-    Args:
-        experiment: The experiment we want to execute
-        projects: All projects we generate an array job for.
-    """
-
-    # Assume that we run the slurm subcommand of benchbuild.
-    benchbuild_c = local[local.path(sys.argv[0])]
-    slurm_script = local.cwd / experiment.name + "-" + str(
-        CFG['slurm']['script'])
-
-    # We need to wrap the benchbuild run inside srun to avoid HyperThreading.
-    srun = local["srun"]
-    if not CFG["slurm"]["multithread"]:
-        srun = srun["--hint=nomultithread"]
-    if not CFG["slurm"]["turbo"]:
-        srun = srun["--pstate-turbo=off"]
-    srun = srun[benchbuild_c["-v", "run"]]
-    dump_slurm_script(slurm_script, srun, experiment, projects)
-    if not verify_slurm_script(slurm_script):
-        ERROR("SLURM script failed verification.")
-    print("SLURM script written to {0}".format(slurm_script))
-    return slurm_script
-
-
-def prepare_directories(dirs):
-    """
-    Make sure that the required directories exist.
-
-    Args:
-        dirs - the directories we want.
-    """
-
-    for directory in dirs:
-        mkdir("-p", directory, retcode=None)

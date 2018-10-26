@@ -3,12 +3,13 @@ import os
 import platform
 import sys
 
-from plumbum import TF, FG, local, ProcessExecutionError
+from plumbum import FG, TF, ProcessExecutionError, local
 
-import benchbuild.utils.user_interface as ui
 from benchbuild import settings
+from benchbuild.utils import user_interface as ui
 
 ask = ui.ask
+CFG = settings.CFG
 
 
 def find_package(binary):
@@ -67,10 +68,10 @@ PACKAGE_MANAGER = {
 
 def install_uchroot():
     from benchbuild.utils.cmd import git, mkdir
-    builddir = str(settings.CFG["build_dir"])
+    builddir = str(CFG["build_dir"])
     with local.cwd(builddir):
         if not os.path.exists("erlent/.git"):
-            git("clone", str(settings.CFG["uchroot"]["repo"]))
+            git("clone", str(CFG["uchroot"]["repo"]))
         else:
             with local.cwd("erlent"):
                 git("pull", "--rebase")
@@ -86,7 +87,10 @@ def install_uchroot():
     local.env.update(PATH=os.environ["PATH"])
     if not find_package("uchroot"):
         sys.exit(-1)
-    settings.CFG["env"]["path"] += erlent_path
+    env = CFG['env'].value
+    if not 'path' in env:
+        env['path'] = []
+    env['path'] += erlent_path
 
 
 def check_uchroot_config():

@@ -1,15 +1,18 @@
 """ Helper functions for bootstrapping external dependencies. """
+import logging
 import os
 import platform
 import sys
+from getpass import getuser
 
 from plumbum import FG, TF, ProcessExecutionError, local
 
 from benchbuild import settings
 from benchbuild.utils import user_interface as ui
+from benchbuild.utils.cmd import cmake, git, grep, make
 
-ask = ui.ask
 CFG = settings.CFG
+LOG = logging.getLogger(__name__)
 
 
 def find_package(binary):
@@ -66,36 +69,41 @@ PACKAGE_MANAGER = {
 }
 
 
-def install_uchroot():
-    from benchbuild.utils.cmd import git, mkdir
-    builddir = str(CFG["build_dir"])
+def install_uchroot(_):
+    """Installer for erlent (contains uchroot)."""
+    builddir = local.path(str(CFG["build_dir"]))
     with local.cwd(builddir):
-        if not os.path.exists("erlent/.git"):
-            git("clone", str(CFG["uchroot"]["repo"]))
+        erlent_src = local.path('erlent')
+        erlent_git = erlent_src / '.git'
+        erlent_repo = str(CFG['uchroot']['repo'])
+        erlent_build = erlent_src / 'build'
+        if not erlent_git.exists():
+            git("clone", erlent_repo)
         else:
-            with local.cwd("erlent"):
+            with local.cwd(erlent_src):
                 git("pull", "--rebase")
-        mkdir("-p", "erlent/build")
-        with local.cwd("erlent/build"):
-            from benchbuild.utils.cmd import cmake
-            from benchbuild.utils.cmd import make
+
+        erlent_build.mkdir()
+        with local.cwd(erlent_build):
             cmake("../")
             make()
-    erlent_path = os.path.abspath(os.path.join(builddir, "erlent", "build"))
+
     os.environ["PATH"] = os.path.pathsep.join(
-        [erlent_path, os.environ["PATH"]])
+        [erlent_build, os.environ["PATH"]])
     local.env.update(PATH=os.environ["PATH"])
+
     if not find_package("uchroot"):
+        LOG.error('uchroot not found, after updating PATH to %s',
+                  os.environ['PATH'])
         sys.exit(-1)
+
     env = CFG['env'].value
-    if not 'path' in env:
-        env['path'] = []
-    env['path'] += erlent_path
+    if 'PATH' not in env:
+        env['PATH'] = []
+    env['PATH'].append(str(erlent_build))
 
 
 def check_uchroot_config():
-    from benchbuild.utils.cmd import grep
-    from getpass import getuser
     print("Checking configuration of 'uchroot'")
 
     fuse_grep = grep['-q', '-e']
@@ -119,6 +127,9 @@ def linux_distribution_major():
 
 
 def install_package(pkg_name):
+    if not bool(CFG['bootstrap']['install']):
+        return False
+
     if pkg_name not in PACKAGES:
         print("No bootstrap support for package '{0}'".format(pkg_name))
     linux, _, _ = linux_distribution_major()
@@ -133,7 +144,7 @@ def install_package(pkg_name):
         cmd_str = str(cmd)
 
         ret = False
-        if ask("Run '{cmd}' to install it?".format(cmd=cmd_str)):
+        if ui.ask("Run '{cmd}' to install it?".format(cmd=cmd_str)):
             print("Running: '{cmd}'".format(cmd=cmd_str))
 
         try:
@@ -145,9 +156,9 @@ def install_package(pkg_name):
     return ret
 
 
-def provide_package(pkg_name):
+def provide_package(pkg_name, installer=install_package):
     if not find_package(pkg_name):
-        install_package(pkg_name)
+        installer(pkg_name)
 
 
 def provide_packages(pkg_names):

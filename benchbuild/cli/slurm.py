@@ -60,7 +60,7 @@ class Slurm(cli.Application):
     def __go__(self, prjs, exp):
         prj_keys = sorted(prjs.keys())
         print("{0} Projects".format(len(prj_keys)))
-        slurm.prepare_slurm_script(exp, prj_keys)
+        slurm.script(exp, prj_keys)
 
     def main(self, *projects):
         """Main entry point of benchbuild run."""

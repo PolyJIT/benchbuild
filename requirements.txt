@@ -12,5 +12,5 @@ pyparsing>=2.2
 PyYAML>=3.12
 Jinja2>=2.2
 attrs>=17.4.0
-docutils==0.12.0
 urwid>=2.0.1
+docutils>=0.12

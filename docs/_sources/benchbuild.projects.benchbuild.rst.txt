@@ -17,7 +17,6 @@ Submodules
    benchbuild.projects.benchbuild.crafty
    benchbuild.projects.benchbuild.crocopat
    benchbuild.projects.benchbuild.ffmpeg
-   benchbuild.projects.benchbuild.group
    benchbuild.projects.benchbuild.gzip
    benchbuild.projects.benchbuild.js
    benchbuild.projects.benchbuild.lammps
@@ -25,7 +24,6 @@ Submodules
    benchbuild.projects.benchbuild.leveldb
    benchbuild.projects.benchbuild.linpack
    benchbuild.projects.benchbuild.lulesh
-   benchbuild.projects.benchbuild.luleshomp
    benchbuild.projects.benchbuild.mcrypt
    benchbuild.projects.benchbuild.minisat
    benchbuild.projects.benchbuild.openssl

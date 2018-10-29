@@ -2,12 +2,10 @@
 import sqlalchemy as sa
 import urwid
 from plumbum import cli
-import functools
 
-import benchbuild.experiment as exp
-import benchbuild.experiments as experiments
-import benchbuild.utils.schema as schema
+from benchbuild import experiment, experiments
 from benchbuild.cli.main import BenchBuild
+from benchbuild.utils import schema
 
 
 @BenchBuild.subcommand("experiment")
@@ -25,7 +23,7 @@ class BBExperimentView(cli.Application):
 
     def main(self):
         experiments.discover()
-        all_exps = exp.ExperimentRegistry.experiments
+        all_exps = experiment.ExperimentRegistry.experiments
         for exp_cls in all_exps.values():
             print(exp_cls.NAME)
             docstring = exp_cls.__doc__ or "-- no docstring --"
@@ -121,13 +119,13 @@ class BBExperimentShow(cli.Application):
 
         # yapf: disable
         palette = [(None, 'light gray', 'black'),
-                    ('heading', 'black', 'light gray'),
-                    ('line', 'black', 'light gray'),
-                    ('options', 'dark gray', 'black'),
-                    ('focus heading', 'white', 'dark red'),
-                    ('focus line', 'black', 'dark red'),
-                    ('focus options', 'black', 'light gray'),
-                    ('selected', 'white', 'dark blue')]
+                   ('heading', 'black', 'light gray'),
+                   ('line', 'black', 'light gray'),
+                   ('options', 'dark gray', 'black'),
+                   ('focus heading', 'white', 'dark red'),
+                   ('focus line', 'black', 'dark red'),
+                   ('focus options', 'black', 'light gray'),
+                   ('selected', 'white', 'dark blue')]
 
         # yapf: enable
         top = HorizontalBoxes()
@@ -148,18 +146,18 @@ def get_template():
     return env.get_template('experiment_show.txt.inc')
 
 
-def render_experiment(experiment):
+def render_experiment(_experiment):
     template = get_template()
     sess = schema.Session()
 
     return template.render(
-        name=experiment.name,
-        description=experiment.description,
-        start_date=experiment.begin,
-        end_date=experiment.end,
-        id=experiment.id,
-        num_completed_runs=get_completed_runs(sess, experiment),
-        num_failed_runs=get_failed_runs(sess, experiment))
+        name=_experiment.name,
+        description=_experiment.description,
+        start_date=_experiment.begin,
+        end_date=_experiment.end,
+        id=_experiment.id,
+        num_completed_runs=get_completed_runs(sess, _experiment),
+        num_failed_runs=get_failed_runs(sess, _experiment))
 
 
 def refresh_root_window(root):

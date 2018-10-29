@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>benchbuild.projects.apollo.rodinia &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.projects.apollo.rodinia &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="../../../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
   </head><body>
@@ -25,7 +26,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../projects.html" accesskey="U">benchbuild.projects</a> &#187;</li> 
       </ul>
@@ -37,74 +38,65 @@
           <div class="body" role="main">
             
   <h1>Source code for benchbuild.projects.apollo.rodinia</h1><div class="highlight"><pre>
-<span></span><span class="c1">#pylint: disable=E1135,E1136</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">attr</span>
-
+<span></span><span class="kn">import</span> <span class="nn">attr</span>
 <span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 
-<span class="kn">from</span> <span class="nn">benchbuild.project</span> <span class="k">import</span> <span class="n">Project</span>
+<span class="kn">from</span> <span class="nn">benchbuild</span> <span class="k">import</span> <span class="n">project</span>
+<span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">download</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">wrapping</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="k">import</span> <span class="n">sh</span><span class="p">,</span> <span class="n">tar</span>
-<span class="kn">from</span> <span class="nn">benchbuild.utils.compiler</span> <span class="k">import</span> <span class="n">cc</span><span class="p">,</span> <span class="n">cxx</span>
-<span class="kn">from</span> <span class="nn">benchbuild.utils.downloader</span> <span class="k">import</span> <span class="n">Wget</span>
-<span class="kn">from</span> <span class="nn">benchbuild.utils.run</span> <span class="k">import</span> <span class="n">run</span>
-<span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap</span>
 
 
 <div class="viewcode-block" id="RodiniaGroup"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.RodiniaGroup">[docs]</a><span class="nd">@attr</span><span class="o">.</span><span class="n">s</span>
-<span class="k">class</span> <span class="nc">RodiniaGroup</span><span class="p">(</span><span class="n">Project</span><span class="p">):</span>
+<span class="nd">@download</span><span class="o">.</span><span class="n">with_wget</span><span class="p">({</span>
+    <span class="s1">&#39;3.1&#39;</span><span class="p">:</span>
+    <span class="s1">&#39;http://www.cs.virginia.edu/&#39;</span>
+    <span class="s1">&#39;~kw5na/lava/Rodinia/Packages/Current/3.1/rodinia_3.1.tar.bz2&#39;</span><span class="p">})</span>
+<span class="k">class</span> <span class="nc">RodiniaGroup</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">Project</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Generic handling of Rodinia benchmarks.&quot;&quot;&quot;</span>
     <span class="n">DOMAIN</span> <span class="o">=</span> <span class="s1">&#39;rodinia&#39;</span>
     <span class="n">GROUP</span> <span class="o">=</span> <span class="s1">&#39;rodinia&#39;</span>
     <span class="n">VERSION</span> <span class="o">=</span> <span class="s1">&#39;3.1&#39;</span>
-    <span class="n">SRC_FILE</span> <span class="o">=</span> <span class="s2">&quot;rodinia_</span><span class="si">{0}</span><span class="s2">.tar.bz2&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">VERSION</span><span class="p">)</span>
+    <span class="n">SRC_FILE</span> <span class="o">=</span> <span class="s1">&#39;rodinia.tar.bz2&#39;</span>
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="n">src_dir</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;rodinia_</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">VERSION</span><span class="p">))</span>
-
-    <span class="n">src_uri</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/&quot;</span>
-                <span class="s2">&quot;Current/</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">SRC_FILE</span><span class="p">))</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">Factory</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">,</span> <span class="n">takes_self</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
-    <span class="n">in_src_dir</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">Factory</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;dir&quot;</span><span class="p">]),</span>
-        <span class="n">takes_self</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<div class="viewcode-block" id="RodiniaGroup.compile"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.RodiniaGroup.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+        <span class="n">tar</span><span class="p">(</span><span class="s2">&quot;xf&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_file</span><span class="p">)</span>
+        <span class="n">unpack_dir</span> <span class="o">=</span> <span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="s1">&#39;rodinia_</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
 
-<div class="viewcode-block" id="RodiniaGroup.download"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">Wget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_uri</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SRC_FILE</span><span class="p">)</span>
-        <span class="n">tar</span><span class="p">(</span><span class="s2">&quot;xf&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SRC_FILE</span><span class="p">))</span></div>
+        <span class="n">c_compiler</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">.</span><span class="n">cc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">cxx_compiler</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">.</span><span class="n">cxx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-<div class="viewcode-block" id="RodiniaGroup.configure"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.RodiniaGroup.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span></div>
+        <span class="n">config_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;dir&#39;</span><span class="p">]</span>
+        <span class="n">config_src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span>
+        <span class="n">config_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;flags&#39;</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="n">unpack_dir</span> <span class="o">/</span> <span class="n">config_dir</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">srcfiles</span> <span class="ow">in</span> <span class="n">config_src</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="n">_cc</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">select_compiler</span><span class="p">(</span><span class="n">c_compiler</span><span class="p">,</span> <span class="n">cxx_compiler</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;flags&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+                    <span class="n">_cc</span> <span class="o">=</span> <span class="n">_cc</span><span class="p">[</span><span class="n">config_flags</span><span class="p">]</span>
+                <span class="n">_cc</span> <span class="o">=</span> <span class="n">_cc</span><span class="p">[</span><span class="n">srcfiles</span><span class="p">]</span>
+                <span class="n">_cc</span> <span class="o">=</span> <span class="n">_cc</span><span class="p">[</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">]</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">_cc</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RodiniaGroup.select_compiler"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.RodiniaGroup.select_compiler">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">c_compiler</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">c_compiler</span></div>
 
-<div class="viewcode-block" id="RodiniaGroup.build"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.RodiniaGroup.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">c_compiler</span> <span class="o">=</span> <span class="n">cc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">cxx_compiler</span> <span class="o">=</span> <span class="n">cxx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-        <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_src_dir</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">srcfiles</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-                <span class="n">compiler</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">select_compiler</span><span class="p">(</span><span class="n">c_compiler</span><span class="p">,</span> <span class="n">cxx_compiler</span><span class="p">)</span>
-                <span class="k">if</span> <span class="s2">&quot;flags&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
-                    <span class="n">compiler</span> <span class="o">=</span> <span class="n">compiler</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;flags&quot;</span><span class="p">]]</span>
-                <span class="n">compiler</span> <span class="o">=</span> <span class="n">compiler</span><span class="p">[</span><span class="n">srcfiles</span><span class="p">]</span>
-                <span class="n">compiler</span> <span class="o">=</span> <span class="n">compiler</span><span class="p">[</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">]</span>
-                <span class="n">run</span><span class="p">(</span><span class="n">compiler</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="RodiniaGroup.run_tests"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.RodiniaGroup.run_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">outfile</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]:</span>
-            <span class="n">wrap</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_src_dir</span><span class="p">,</span> <span class="n">outfile</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">unpack_dir</span> <span class="o">=</span> <span class="n">local</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="s1">&#39;rodinia_</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+        <span class="n">in_src_dir</span> <span class="o">=</span> <span class="n">unpack_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;dir&#39;</span><span class="p">]</span>
 
-        <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_src_dir</span><span class="p">):</span>
-            <span class="n">test_runner</span> <span class="o">=</span> <span class="n">sh</span><span class="p">[</span><span class="s2">&quot;./run&quot;</span><span class="p">]</span>
-            <span class="n">runner</span><span class="p">(</span><span class="n">test_runner</span><span class="p">)</span></div></div>
+        <span class="k">for</span> <span class="n">outfile</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;src&#39;</span><span class="p">]:</span>
+            <span class="n">wrapping</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_src_dir</span> <span class="o">/</span> <span class="n">outfile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">local</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="n">in_src_dir</span><span class="p">):</span>
+            <span class="n">runner</span><span class="p">(</span><span class="n">sh</span><span class="p">[</span><span class="s1">&#39;./run&#39;</span><span class="p">])</span></div></div>
 
 
 <div class="viewcode-block" id="Backprop"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.Backprop">[docs]</a><span class="k">class</span> <span class="nc">Backprop</span><span class="p">(</span><span class="n">RodiniaGroup</span><span class="p">):</span>
@@ -142,8 +134,8 @@
     <span class="p">}</span>
 
 <div class="viewcode-block" id="BFS.select_compiler"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.BFS.select_compiler">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">compiler</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">compiler</span></div></div>
+    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">cc</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cc</span></div></div>
 
 
 <div class="viewcode-block" id="BPlusTree"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.BPlusTree">[docs]</a><span class="k">class</span> <span class="nc">BPlusTree</span><span class="p">(</span><span class="n">RodiniaGroup</span><span class="p">):</span>
@@ -178,8 +170,8 @@
     <span class="p">}</span>
 
 <div class="viewcode-block" id="CFD.select_compiler"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.CFD.select_compiler">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">compiler</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">compiler</span></div></div>
+    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">cc</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cc</span></div></div>
 
 
 <div class="viewcode-block" id="HeartWall"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.HeartWall">[docs]</a><span class="k">class</span> <span class="nc">HeartWall</span><span class="p">(</span><span class="n">RodiniaGroup</span><span class="p">):</span>
@@ -216,8 +208,8 @@
     <span class="p">}</span>
 
 <div class="viewcode-block" id="Hotspot.select_compiler"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.Hotspot.select_compiler">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">compiler</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">compiler</span></div></div>
+    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">cc</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cc</span></div></div>
 
 
 <div class="viewcode-block" id="Hotspot3D"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.Hotspot3D">[docs]</a><span class="k">class</span> <span class="nc">Hotspot3D</span><span class="p">(</span><span class="n">RodiniaGroup</span><span class="p">):</span>
@@ -427,8 +419,8 @@
     <span class="p">}</span>
 
 <div class="viewcode-block" id="NW.select_compiler"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.NW.select_compiler">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">compiler</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">compiler</span></div></div>
+    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">cc</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cc</span></div></div>
 
 
 <div class="viewcode-block" id="ParticleFilter"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.ParticleFilter">[docs]</a><span class="k">class</span> <span class="nc">ParticleFilter</span><span class="p">(</span><span class="n">RodiniaGroup</span><span class="p">):</span>
@@ -461,8 +453,8 @@
     <span class="p">}</span>
 
 <div class="viewcode-block" id="PathFinder.select_compiler"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.PathFinder.select_compiler">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">compiler</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">compiler</span></div></div>
+    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">cc</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cc</span></div></div>
 
 <div class="viewcode-block" id="SRAD1"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.SRAD1">[docs]</a><span class="k">class</span> <span class="nc">SRAD1</span><span class="p">(</span><span class="n">RodiniaGroup</span><span class="p">):</span>
     <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;srad-1&#39;</span>
@@ -496,8 +488,8 @@
     <span class="p">}</span>
 
 <div class="viewcode-block" id="SRAD2.select_compiler"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.SRAD2.select_compiler">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">compiler</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">compiler</span></div></div>
+    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">cc</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cc</span></div></div>
 
 <div class="viewcode-block" id="StreamCluster"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.StreamCluster">[docs]</a><span class="k">class</span> <span class="nc">StreamCluster</span><span class="p">(</span><span class="n">RodiniaGroup</span><span class="p">):</span>
     <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;streamcluster&#39;</span>
@@ -515,8 +507,8 @@
     <span class="p">}</span>
 
 <div class="viewcode-block" id="StreamCluster.select_compiler"><a class="viewcode-back" href="../../../../benchbuild.projects.apollo.rodinia.html#benchbuild.projects.apollo.rodinia.StreamCluster.select_compiler">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">compiler</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">compiler</span></div></div>
+    <span class="k">def</span> <span class="nf">select_compiler</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">cc</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cc</span></div></div>
 </pre></div>
 
           </div>
@@ -549,14 +541,14 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../projects.html" >benchbuild.projects</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

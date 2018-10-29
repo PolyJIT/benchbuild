@@ -1,55 +1,48 @@
-from os import path
-
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
 from benchbuild.settings import CFG
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cp, make
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Git
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-class X264(Project):
+@download.with_git(
+    "git://git.videolan.org/x264.git", refspec="HEAD", limit=5)
+class X264(project.Project):
     """ x264 """
 
     NAME = "x264"
     DOMAIN = "multimedia"
     GROUP = 'benchbuild'
+    VERSION = 'HEAD'
     SRC_FILE = 'x264.git'
 
-    inputfiles = {"tbbt-small.y4m": [],
-                  "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}
-
-    def prepare(self):
-        super(X264, self).prepare()
-
-        testfiles = [path.join(self.testdir, x) for x in self.inputfiles]
-        for testfile in testfiles:
-            cp(testfile, self.builddir)
+    inputfiles = {
+        "tbbt-small.y4m": [],
+        "Sintel.2010.720p.raw": ["--input-res", "1280x720"]
+    }
 
     src_uri = "git://git.videolan.org/x264.git"
 
-    def download(self):
-        Git(self.src_uri, self.SRC_FILE)
+    def compile(self):
+        self.download()
+        testfiles = [local.path(self.testdir) / x for x in self.inputfiles]
+        for testfile in testfiles:
+            cp(testfile, self.builddir)
 
-    def configure(self):
-        clang = cc(self)
+        clang = compiler.cc(self)
 
         with local.cwd(self.SRC_FILE):
             configure = local["./configure"]
 
             with local.env(CC=str(clang)):
-                run(configure["--disable-thread", "--disable-opencl",
-                              "--enable-pic"])
+                run.run(configure["--disable-thread", "--disable-opencl",
+                                  "--enable-pic"])
 
-    def build(self):
-        with local.cwd(self.SRC_FILE):
-            run(make["clean", "all", "-j", CFG["jobs"]])
+            run.run(make["clean", "all", "-j", CFG["jobs"]])
 
     def run_tests(self, runner):
-        exp = wrap(path.join(self.SRC_FILE, "x264"), self)
+        x264 = wrapping.wrap(local.path(self.src_file) / "x264", self)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",
@@ -63,7 +56,8 @@ class X264(Project):
         ]
 
         for ifile in self.inputfiles:
-            testfile = path.join(self.testdir, ifile)
+            testfile = local.path(self.testdir) / ifile
             for _, test in enumerate(tests):
-                runner(exp[testfile, self.inputfiles[ifile], "--threads", "1",
-                        "-o", "/dev/null", test.split(" ")])
+                runner(x264[testfile, self.inputfiles[ifile], "--threads", "1",
+                            "-o", "/dev/null",
+                            test.split(" ")])

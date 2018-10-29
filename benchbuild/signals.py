@@ -6,7 +6,7 @@ import sys
 LOG = logging.getLogger(__name__)
 
 
-class CleanupOnSignal(object):
+class CleanupOnSignal:
     __stored_procedures = {}
 
     @property
@@ -25,12 +25,15 @@ class CleanupOnSignal(object):
             LOG.debug("Running stored cleanup procedure: %r", k)
             self.stored_procedures[k]()
 
+
 handlers = CleanupOnSignal()
+
 
 def __handle_sigterm(signum, frame):
     del frame
     LOG.debug("Got SIGTERM, running cleanup handlers")
     handlers()
     sys.exit(signum)
+
 
 signal.signal(signal.SIGTERM, __handle_sigterm)

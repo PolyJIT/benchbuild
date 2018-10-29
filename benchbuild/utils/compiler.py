@@ -18,36 +18,10 @@ The wrapper-script generated for both functions can be found inside:
 Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
-from plumbum.commands.base import BoundCommand
+from plumbum import local
 
 from benchbuild.settings import CFG
 from benchbuild.utils.wrapping import wrap_cc
-
-
-def wrap_cc_in_uchroot(project, cc_name='cc'):
-    """
-    Generate a clang wrapper that may be called from within a uchroot.
-
-    This basically does the same as cc/cxx. However, we do not
-    create a valid plumbum command. The generated script will only work
-    inside a uchroot environment that has is root at the current working
-    directory, when calling this function.
-
-    Args:
-        project: The project we generate this compiler for.
-        cc_name: Name of the generated script.
-    """
-    from os import path
-
-    def gen_compiler_extension(ext):
-        return path.join("/", cc_name + ext)
-    wrap_cc(cc_name, compiler, project, gen_compiler_extension,
-            python="/usr/bin/env python3")
-
-
-def wrap_cxx_in_uchroot(project):
-    """Delegate to wrap_cc_in_uchroot)."""
-    wrap_cc_in_uchroot(project, CFG["compiler"]["cxx"].value())
 
 
 def cc(project, detect_project=False):
@@ -70,9 +44,9 @@ def cc(project, detect_project=False):
     """
     from benchbuild.utils import cmd
 
-    cc = CFG["compiler"]["c"].value()
-    wrap_cc(cc, compiler(cc), project, detect_project=detect_project)
-    return cmd["./{name}".format(name=cc)]
+    cc_name = str(CFG["compiler"]["c"])
+    wrap_cc(cc_name, compiler(cc_name), project, detect_project=detect_project)
+    return cmd["./{}".format(cc_name)]
 
 
 def cxx(project, detect_project=False):
@@ -95,9 +69,10 @@ def cxx(project, detect_project=False):
     """
     from benchbuild.utils import cmd
 
-    cxx = CFG["compiler"]["cxx"].value()
-    wrap_cc(cxx, compiler(cxx), project, detect_project=detect_project)
-    return cmd["./{name}".format(name=cxx)]
+    cxx_name = str(CFG["compiler"]["cxx"])
+    wrap_cc(
+        cxx_name, compiler(cxx_name), project, detect_project=detect_project)
+    return cmd["./{name}".format(name=cxx_name)]
 
 
 def __get_paths():
@@ -106,8 +81,11 @@ def __get_paths():
 
     path = getenv("PATH", "")
     lib_path = getenv("LD_LIBRARY_PATH", "")
-    _lib_path = CFG["env"]["ld_library_path"].value()
-    _path = CFG["env"]["path"].value()
+    env = CFG["env"].value
+
+    _lib_path = env.get("LD_LIBRARY_PATH", "")
+    _path = env.get("PATH", "")
+
     _lib_path = list_to_path(_lib_path)
     _path = list_to_path(_path)
 
@@ -126,19 +104,8 @@ def compiler(name):
     Returns:
         plumbum Command that executes clang++
     """
-    from plumbum import local
     pinfo = __get_paths()
     _compiler = local[name]
-    _compiler = _compiler.setenv(PATH=pinfo["path"],
-                                 LD_LIBRARY_PATH=pinfo["ld_library_path"])
-    return lambda : _compiler
-
-
-class ExperimentCommand(BoundCommand):
-    __slots__ = ["cmd", "args"]
-
-    def __init__(self, cmd, args, exp_args):
-        self.cmd = cmd
-        self.args = args if args is not None else []
-        for inner_list in list(exp_args):
-            self.args.extend(inner_list)
+    _compiler = _compiler.setenv(
+        PATH=pinfo["path"], LD_LIBRARY_PATH=pinfo["ld_library_path"])
+    return _compiler

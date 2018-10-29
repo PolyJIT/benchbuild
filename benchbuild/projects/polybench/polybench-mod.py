@@ -1,52 +1,48 @@
-from os import path
+from plumbum import local
 
+from benchbuild.settings import CFG
 from benchbuild.projects.polybench.polybench import PolyBenchGroup
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Git
+from benchbuild.utils import compiler, download, run
 
+
+@download.with_git("https://github.com/simbuerg/polybench-c-4.2-1.git")
 class PolybenchModGroup(PolyBenchGroup):
     DOMAIN = 'polybench'
-    GROUP  = 'polybench-mod'
+    GROUP = 'polybench-mod'
     DOMAIN = 'polybench'
-    VERSION = '4.2-1'
+    VERSION = 'HEAD'
+    SRC_FILE = 'polybench.git'
 
-    src_dir = "polybench-c-{0}-mod".format(VERSION)
-    SRC_FILE = 'polybench-c-{0}.git'.format(VERSION)
-    SRC_URI = "https://github.com/simbuerg/{0}".format(SRC_FILE)
+    def compile(self):
+        self.download()
 
-    def download(self):
-        Git(self.SRC_URI, self.src_dir)
+        polybench_opts = CFG["projects"]["polybench"]
+        verify = bool(polybench_opts["verify"])
+        workload = str(polybench_opts["workload"])
 
-    def build(self):
-        from benchbuild.utils.run import run
-        src_file = path.join(self.name + ".dir", self.name + ".c")
-        kernel_file = path.join("{name}.dir".format(name=self.name),
-                                "{name}_kernel.c".format(name=self.name))
-        cflags = self.cflags
-        ldflags = self.ldflags
-        self.cflags = []
-        self.ldflags = []
+        src_dir = local.cwd / self.src_file
+        src_sub = src_dir / self.path_dict[self.name] / self.name
 
-        clang_no_opts = cc(self)
-
-        self.cflags = cflags
-        self.ldflags = ldflags
+        src_file = src_sub / (self.name + ".c")
+        kernel_file = src_sub / (self.name + "_kernel.c")
+        utils_dir = src_dir / "utilities"
 
         polybench_opts = [
-            "-DEXTRALARGE_DATASET",
-            "-DPOLYBENCH_USE_C99_PROTO",
-            "-DPOLYBENCH_DUMP_ARRAYS",
+            "-D" + str(workload), "-DPOLYBENCH_USE_C99_PROTO",
             "-DPOLYBENCH_USE_RESTRICT"
         ]
-        run(clang_no_opts[
-            "-I", "utilities", "-I", self.name, polybench_opts,
-            "utilities/polybench.c", kernel_file, src_file,
-            "-lm", "-o", self.run_f + ".no-opts"])
-        clang = cc(self)
-        run(clang[
-            "-I", "utilities", "-I", self.name, polybench_opts,
-            "utilities/polybench.c", kernel_file, src_file,
-            "-lm", "-o", self.run_f])
+
+        if verify:
+            polybench_opts = self.compile_verify([
+                "-I", utils_dir, "-I", src_sub, utils_dir / "polybench.c",
+                kernel_file, src_file, "-lm"
+            ], polybench_opts)
+
+        clang = compiler.cc(self)
+        run.run(clang[
+            "-I", utils_dir, "-I", src_sub, polybench_opts, utils_dir /
+            "polybench.c", kernel_file, src_file, "-lm", "-o", self.name])
+
 
 class Correlation(PolybenchModGroup):
     NAME = 'correlation'

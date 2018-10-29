@@ -1,11 +1,13 @@
 """
 Experiments module.
 
-By default, only experiments that are listed in the configuration are
-loaded automatically. See configuration variables:
- *_PLUGINS_AUTOLOAD
- *_PLUGINS_EXPERIMENTS
+Experiments are discovered automatically by benchbuild.
+You can configure the modules we search for experiments with the settings:
+    BB_PLUGINS_AUTOLOAD=True
+    BB_PLUGINS_EXPERIMENTS=[...]
 
+Any subclass of benchbuild.experiments.Experiment will be automatically registered and
+made available on the command line.
 """
 import logging
 import importlib
@@ -32,8 +34,8 @@ def discover():
         Could not find 'benchbuild.non.existing'
         ImportError: No module named 'benchbuild.non'
     """
-    if CFG["plugins"]["autoload"].value():
-        experiment_plugins = CFG["plugins"]["experiments"].value()
+    if CFG["plugins"]["autoload"]:
+        experiment_plugins = CFG["plugins"]["experiments"].value
         for exp_plugin in experiment_plugins:
             try:
                 importlib.import_module(exp_plugin)

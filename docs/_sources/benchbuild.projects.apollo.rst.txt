@@ -11,7 +11,6 @@ Submodules
 
 .. toctree::
 
-   benchbuild.projects.apollo.group
    benchbuild.projects.apollo.rodinia
    benchbuild.projects.apollo.scimark
 

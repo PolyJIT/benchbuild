@@ -7,6 +7,7 @@ import sys
 import attr
 from plumbum import cli
 
+
 @attr.s
 class ProgressBar(cli.progress.ProgressBase):
     """Class that modifies the progress bar."""
@@ -38,24 +39,20 @@ class ProgressBar(cli.progress.ProgressBase):
         if self.length == 0:
             percent = 1
         else:
-            percent = max(self.value, 0)/self.length
+            percent = max(self.value, 0) / self.length
         pg_char = self.pg_char
         ending = ' ' + (self.str_time_remaining()
-                        if self.timer
-                        else '{0} of {1} complete'.format(self.value,
-                                                          self.length))
+                        if self.timer else '{0} of {1} complete'.format(
+                            self.value, self.length))
         if width - len(ending) < 10 or self.has_output:
             self.width = 0
             if self.timer:
-                return "{0:.0%} complete: {1}".format(percent,
-                                                      self.str_time_remaining())
-            else:
-                return "{0:.0%} complete".format(percent)
-
-        else:
-            num_of_chars = int(percent*self.width)
-            pbar = '[' + pg_char*num_of_chars + \
-                   ' '*(self.width-num_of_chars) + ']' + ending
+                return "{0:.0%} complete: {1}".format(
+                    percent, self.str_time_remaining())
+            return "{0:.0%} complete".format(percent)
+        num_of_chars = int(percent * self.width)
+        pbar = '[' + pg_char*num_of_chars + \
+                ' '*(self.width-num_of_chars) + ']' + ending
 
         str_percent = ' {0:.0%} '.format(percent)
 

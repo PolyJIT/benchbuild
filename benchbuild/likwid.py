@@ -152,7 +152,7 @@ def get_measurements(region, core_info, data, extra_offset=0):
     return measurements
 
 
-def get_likwid_perfctr(infile):
+def perfcounters(infile):
     """
     Get a complete list of all measurements.
 

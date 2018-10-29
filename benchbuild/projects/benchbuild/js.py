@@ -1,19 +1,19 @@
 from functools import partial
-from os import path
 
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
 from benchbuild.settings import CFG
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, mkdir, tar
-from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import Git
-from benchbuild.utils.run import run
-from benchbuild.utils.versions import get_git_hash
-from benchbuild.utils.wrapping import wrap
 
 
-class SpiderMonkey(Project):
+@download.with_git(
+    "https://github.com/mozilla/gecko-dev.git",
+    target_dir="gecko-dev.git",
+    clone=False,
+    limit=5)
+class SpiderMonkey(project.Project):
     """
     SpiderMonkey requires a legacy version of autoconf: autoconf-2.13
     """
@@ -21,54 +21,47 @@ class SpiderMonkey(Project):
     NAME = 'js'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
+    VERSION = 'HEAD'
+    SRC_FILE = "gecko-dev.git"
 
     src_uri = "https://github.com/mozilla/gecko-dev.git"
-    src_dir = "gecko-dev.git"
-    version = get_git_hash(src_uri)
-    if version is None:
-        VERSION = None
-    elif len(version) <= 7:
-        VERSION = str(version)
-    else:
-        VERSION = str(version)[:7]
 
-    def download(self):
-        Git(self.SRC_FILE, self.src_dir)
+    def compile(self):
+        self.download()
 
-    def configure(self):
-        js_dir = path.join(self.src_dir, "js", "src")
-        clang = cc(self)
-        clang_cxx = cxx(self)
+        js_dir = local.path(self.src_file) / "js" / "src"
+        clang = compiler.cc(self)
+        clang_cxx = compiler.cxx(self)
         with local.cwd(js_dir):
             make_src_pkg = local["./make-source-package.sh"]
-            with local.env(DIST=self.builddir,
-                           MOZJS_MAJOR_VERSION=0,
-                           MOZJS_MINOR_VERSION=0,
-                           MOZJS_PATCH_VERSION=0):
+            with local.env(
+                    DIST=self.builddir,
+                    MOZJS_MAJOR_VERSION=0,
+                    MOZJS_MINOR_VERSION=0,
+                    MOZJS_PATCH_VERSION=0):
                 make_src_pkg()
 
-        mozjs_dir = "mozjs-0.0.0"
+        mozjs_dir = local.path("mozjs-0.0.0")
+        mozjs_src_dir = mozjs_dir / "js" / "src"
         tar("xfj", mozjs_dir + ".tar.bz2")
-        with local.cwd(path.join(mozjs_dir, "js", "src")):
+        with local.cwd(mozjs_src_dir):
             mkdir("obj")
             autoconf = local["autoconf-2.13"]
             autoconf()
             with local.cwd("obj"):
-                with local.env(CC=str(clang),
-                               CXX=str(clang_cxx)):
+                with local.env(CC=str(clang), CXX=str(clang_cxx)):
                     configure = local["../configure"]
                     configure = configure["--without-system-zlib"]
-                    run(configure)
+                    run.run(configure)
 
-    def build(self):
-        mozjs_dir = path.join("mozjs-0.0.0", "js", "src", "obj")
-        with local.cwd(mozjs_dir):
-            run(make["-j", CFG["jobs"].value()])
+        mozjs_obj_dir = mozjs_src_dir / "obj"
+        with local.cwd(mozjs_obj_dir):
+            run.run(make["-j", str(CFG["jobs"])])
 
     def run_tests(self, runner):
-        mozjs_dir = path.join("mozjs-0.0.0", "js", "src", "obj")
+        mozjs_obj_dir = local.path("mozjs-0.0.0") / "js" / "src" / "obj"
         self.runtime_extension = partial(self, may_wrap=False)
-        wrap(path.join(mozjs_dir, "js", "src", "shell", "js"), self)
+        wrapping.wrap(mozjs_obj_dir / "js" / "src" / "shell" / "js", self)
 
-        with local.cwd(mozjs_dir):
-            run(make["check-jstests"])
+        with local.cwd(mozjs_obj_dir):
+            runner(make["check-jstests"])

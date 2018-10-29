@@ -13,48 +13,48 @@ from abc import abstractmethod
 from plumbum import FG, TF, ProcessExecutionError, cli, local
 
 from benchbuild.settings import CFG
-from benchbuild.utils import log
-from benchbuild.utils.bootstrap import find_package, install_uchroot
-from benchbuild.utils.cmd import bash, cp, mkdir, mv, rm, tar
-from benchbuild.utils.container import Gentoo
-from benchbuild.utils.downloader import Copy, update_hash
-from benchbuild.utils.path import list_to_path, mkdir_uchroot, mkfile_uchroot
-from benchbuild.utils.run import (run, uchroot, uchroot_env, uchroot_mounts,
-                                  uchroot_no_args, uchroot_with_mounts)
-from benchbuild.utils.user_interface import ask
+from benchbuild.utils import bootstrap, container, download, log, run, uchroot
+from benchbuild.utils import user_interface as ui
+from benchbuild.utils.cmd import bash, mkdir, mv, rm, tar
 
 LOG = logging.getLogger(__name__)
 
 
 def clean_directories(builddir, in_dir=True, out_dir=True):
     """Remove the in and out of the container if confirmed by the user."""
-    with local.cwd(builddir):
-        if in_dir and os.path.exists("container-in") and ask(
-                "Should I delete '{0}'?".format(
-                    os.path.abspath("container-in"))):
-            rm("-rf", "container-in")
-        if out_dir and os.path.exists("container-out") and ask(
-                "Should I delete '{0}'?".format(
-                    os.path.abspath("container-out"))):
-            rm("-rf", "container-out")
+    container_in = local.path(builddir) / "container-in"
+    container_out = local.path(builddir) / "container-out"
+
+    if in_dir and container_in.exists():
+        if ui.ask("Should I delete '{0}'?".format(container_in)):
+            container_in.delete()
+    if out_dir and container_out.exists():
+        if ui.ask("Should I delete '{0}'?".format(container_out)):
+            container_out.delete()
 
 
 def setup_directories(builddir):
     """Create the in and out directories of the container."""
-    with local.cwd(builddir):
-        if not os.path.exists("container-in"):
-            mkdir("-p", "container-in")
-        if not os.path.exists("container-out"):
-            mkdir("-p", "container-out")
+    build_dir = local.path(builddir)
+    in_dir = build_dir / "container-in"
+    out_dir = build_dir / "container-out"
+
+    if not in_dir.exists():
+        in_dir.mkdir()
+    if not out_dir.exists():
+        out_dir.mkdir()
 
 
-def setup_container(builddir, container):
+def setup_container(builddir, _container):
     """Prepare the container and returns the path where it can be found."""
+    build_dir = local.path(builddir)
+    in_dir = build_dir / "container-in"
+    container_path = local.path(_container)
     with local.cwd(builddir):
-        container_filename = str(container).split(os.path.sep)[-1]
-        container_in = os.path.join("container-in", container_filename)
-        Copy(container, container_in)
-        uchrt = uchroot_no_args()
+        container_bin = container_path.basename
+        container_in = in_dir / container_bin
+        download.Copy(_container, container_in)
+        uchrt = uchroot.no_args()
 
         with local.cwd("container-in"):
             uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-r", "/",
@@ -70,15 +70,15 @@ def setup_container(builddir, container):
         # Unpack input container to: container-in
         if not has_erlent:
             cmd = local["/bin/tar"]["xf"]
-            cmd = uchrt[cmd[container_filename]]
+            cmd = uchrt[cmd[container_bin]]
         else:
             cmd = tar["xf"]
-            cmd = cmd[os.path.abspath(container_in)]
+            cmd = cmd[container_in]
 
         with local.cwd("container-in"):
             cmd("--exclude=dev/*")
         rm(container_in)
-    return os.path.join(builddir, "container-in")
+    return in_dir
 
 
 def run_in_container(command, container_dir):
@@ -88,14 +88,15 @@ def run_in_container(command, container_dir):
     Mounts a directory as a container at the given mountpoint and tries to run
     the given command inside the new container.
     """
-    with local.cwd(container_dir):
-        uchrt = uchroot_with_mounts()
+    container_p = local.path(container_dir)
+    with local.cwd(container_p):
+        uchrt = uchroot.with_mounts()
         uchrt = uchrt["-E", "-A", "-u", "0", "-g", "0", "-C", "-w", "/", "-r",
-                      os.path.abspath(container_dir)]
+                      container_p]
         uchrt = uchrt["--"]
 
-        cmd_path = os.path.join(container_dir, command[0].lstrip('/'))
-        if not os.path.exists(cmd_path):
+        cmd_path = container_p / command[0].lstrip('/')
+        if not cmd_path.exists():
             LOG.error("The command does not exist inside the container! %s",
                       cmd_path)
             return
@@ -112,27 +113,24 @@ def pack_container(in_container, out_file):
         in_container (str): Path string to the container image.
         out_file (str): Output file name.
     """
-    container_filename = os.path.split(out_file)[-1]
-    out_container = os.path.join("container-out", container_filename)
-    out_container = os.path.abspath(out_container)
-
-    out_tmp_filename = os.path.basename(out_container)
-    out_dir = os.path.dirname(out_container)
+    container_filename = local.path(out_file).basename
+    out_container = local.cwd / "container-out" / container_filename
+    out_dir = out_container.dirname
 
     # Pack the results to: container-out
     with local.cwd(in_container):
         tar("cjf", out_container, ".")
-    c_hash = update_hash(out_tmp_filename, out_dir)
-    if not os.path.exists(out_dir):
+    c_hash = download.update_hash(out_container)
+    if out_dir.exists():
         mkdir("-p", out_dir)
     mv(out_container, out_file)
     mv(out_container + ".hash", out_file + ".hash")
 
     new_container = {"path": out_file, "hash": str(c_hash)}
-    settings.CFG["container"]["known"].value().append(new_container)
+    CFG["container"]["known"] += new_container
 
 
-def setup_bash_in_container(builddir, container, outfile, shell):
+def setup_bash_in_container(builddir, _container, outfile, shell):
     """
     Setup a bash environment inside a container.
 
@@ -146,14 +144,14 @@ def setup_bash_in_container(builddir, container, outfile, shell):
               "exit code, no new container will be stored.")
         store_new_container = True
         try:
-            run_in_container(shell, container)
+            run_in_container(shell, _container)
         except ProcessExecutionError:
             store_new_container = False
 
         if store_new_container:
             print("Packing new container image.")
-            pack_container(container, outfile)
-            config_path = CFG["config_file"].value()
+            pack_container(_container, outfile)
+            config_path = str(CFG["config_file"])
             CFG.store(config_path)
             print("Storing config in {0}".format(os.path.abspath(config_path)))
 
@@ -166,17 +164,17 @@ def find_hash(container_db, key):
     return None
 
 
-def set_input_container(container, cfg):
+def set_input_container(_container, cfg):
     """Save the input for the container in the configurations."""
-    if not container:
+    if not _container:
         return False
-    if os.path.exists(container):
-        cfg["container"]["input"] = container
+    if _container.exists():
+        cfg["container"]["input"] = str(_container)
         return True
     return False
 
 
-class MockObj(object):
+class MockObj:
     """Context object to be used in strategies.
 
     This object's attributes are initialized on construction.
@@ -186,7 +184,7 @@ class MockObj(object):
         self.__dict__.update(kwargs)
 
 
-class ContainerStrategy(object):
+class ContainerStrategy:
     """Interfaces for the different containers chosen by the experiment."""
 
     @abstractmethod
@@ -212,116 +210,6 @@ class BashStrategy(ContainerStrategy):
 class SetupPolyJITGentooStrategy(ContainerStrategy):
     """Interface of using gentoo as a container for an experiment."""
 
-    @staticmethod
-    def write_wgetrc(path):
-        """Wget the project from a specified link."""
-        mkfile_uchroot("/etc/wgetrc")
-
-        with open(path, 'w') as wgetrc:
-            http_proxy = CFG["gentoo"]["http_proxy"].value()
-            ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
-            if http_proxy is not None:
-                http_proxy_s = "http_proxy = {0}".format(str(http_proxy))
-                https_proxy_s = "https_proxy = {0}".format(str(http_proxy))
-                wgetrc.write("use_proxy = on\n")
-                wgetrc.write(http_proxy_s + "\n")
-                wgetrc.write(https_proxy_s + "\n")
-
-            if ftp_proxy is not None:
-                ftp_proxy_s = "ftp_proxy={0}".format(str(ftp_proxy))
-                wgetrc.write(ftp_proxy_s + "\n")
-
-    @staticmethod
-    def write_makeconfig(path):
-        """Create the stringed to be written in the settings."""
-        mkfile_uchroot("/etc/portage/make.conf")
-        with open(path, 'w') as makeconf:
-            lines = '''
-PORTAGE_USERNAME=root
-PORTAGE_GROUPNAME=root
-CFLAGS="-O2 -pipe"
-CXXFLAGS="${CFLAGS}"
-FEATURES="-xattr"
-
-CHOST="x86_64-pc-linux-gnu"
-USE="bindist mmx sse sse2"
-PORTDIR="/usr/portage"
-DISTDIR="${PORTDIR}/distfiles"
-PKGDIR="${PORTDIR}/packages"
-'''
-
-            makeconf.write(lines)
-            http_proxy = CFG["gentoo"]["http_proxy"].value()
-            if http_proxy is not None:
-                http_proxy_s = "http_proxy={0}".format(str(http_proxy))
-                https_proxy_s = "https_proxy={0}".format(str(http_proxy))
-                makeconf.write(http_proxy_s + "\n")
-                makeconf.write(https_proxy_s + "\n")
-
-            ftp_proxy = CFG["gentoo"]["ftp_proxy"].value()
-            if ftp_proxy is not None:
-                ftp_proxy_s = "ftp_proxy={0}".format(str(ftp_proxy))
-                makeconf.write(ftp_proxy_s + "\n")
-
-            rsync_proxy = CFG["gentoo"]["rsync_proxy"].value()
-            if rsync_proxy is not None:
-                rsync_proxy_s = "RSYNC_PROXY={0}".format(str(rsync_proxy))
-                makeconf.write(rsync_proxy_s + "\n")
-
-    @staticmethod
-    def write_bashrc(path):
-        """Write inside a bash and update the shell if necessary."""
-        mkfile_uchroot("/etc/portage/bashrc")
-        paths, libs = uchroot_env(
-            uchroot_mounts("mnt", CFG["container"]["mounts"].value()))
-
-        with open(path, 'w') as bashrc:
-            lines = '''
-export PATH="{0}:${{PATH}}"
-export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
-'''.format(list_to_path(paths), list_to_path(libs))
-            bashrc.write(lines)
-
-    @staticmethod
-    def write_layout(path):
-        """Create a layout from the given path."""
-        mkdir_uchroot("/etc/portage/metadata")
-        mkfile_uchroot("/etc/portage/metadata/layout.conf")
-        with open(path, 'w') as layoutconf:
-            lines = '''masters = gentoo'''
-            layoutconf.write(lines)
-
-    def configure(self):
-        """Configure the gentoo container for a PolyJIT experiment."""
-        cls = SetupPolyJITGentooStrategy
-        cls.write_bashrc("etc/portage/bashrc")
-        cls.write_makeconfig("etc/portage/make.conf")
-        cls.write_wgetrc("etc/wgetrc")
-        cls.write_layout("etc/portage/metadata/layout.conf")
-
-        mkfile_uchroot("/etc/resolv.conf")
-        cp("/etc/resolv.conf", "etc/resolv.conf")
-
-        config_file = CFG["config_file"].value()
-
-        if os.path.exists(str(config_file)):
-            paths, libs = \
-                    uchroot_env(
-                        uchroot_mounts("mnt",
-                                       CFG["container"]["mounts"].value()))
-            uchroot_cfg = CFG
-            uchroot_cfg["env"]["path"] = paths
-            uchroot_cfg["env"]["ld_library_path"] = libs
-
-            uchroot_cfg["env"]["path"] = paths
-            uchroot_cfg["env"]["ld_library_path"] = libs
-
-            uchroot_cfg["env"]["path"] = paths
-            uchroot_cfg["env"]["ld_library_path"] = libs
-
-            mkfile_uchroot("/.benchbuild.json")
-            uchroot_cfg.store(".benchbuild.json")
-
     def run(self, context):
         """Setup a gentoo container suitable for PolyJIT."""
         # Don't do something when running non-interactive.
@@ -329,32 +217,39 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
             return
 
         with local.cwd(context.in_container):
-            self.configure()
-            sed_in_chroot = uchroot()["/bin/sed"]
-            emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-            has_pkg = uchroot()["/usr/bin/qlist", "-I"]
+            from benchbuild.projects.gentoo import gentoo
+            gentoo.setup_networking()
+            gentoo.configure_portage()
 
-            run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
-            run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
+            sed_in_chroot = uchroot.uchroot()["/bin/sed"]
+            emerge_in_chroot = uchroot.uchroot()["/usr/bin/emerge"]
+            has_pkg = uchroot.uchroot()["/usr/bin/qlist", "-I"]
+
+            run.run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
+            run.run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
+
+            want_sync = bool(CFG["container"]["strategy"]["polyjit"]["sync"])
+            want_upgrade = bool(
+                CFG["container"]["strategy"]["polyjit"]["upgrade"])
 
             packages = \
-                CFG["container"]["strategy"]["polyjit"]["packages"].value()
-            with local.env(
-                    CC="gcc",
-                    CXX="g++",
-                    MAKEOPTS="-j{0}".format(CFG["jobs"].value())):
-                if CFG["container"]["strategy"]["polyjit"]["sync"].value():
-                    run(emerge_in_chroot["--sync"])
-                if CFG["container"]["strategy"]["polyjit"]["upgrade"].value():
-                    run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
-                                         "--with-bdeps=y", "@world"])
-                run(emerge_in_chroot["-uUDN", "--with-bdeps=y", "@world"])
+                CFG["container"]["strategy"]["polyjit"]["packages"].value
+            with local.env(MAKEOPTS="-j{0}".format(int(CFG["jobs"]))):
+                if want_sync:
+                    LOG.debug("Synchronizing portage.")
+                    run.run(emerge_in_chroot["--sync"])
+                if want_upgrade:
+                    LOG.debug("Upgrading world.")
+                    run.run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
+                                             "--with-bdeps=y", "@world"])
                 for pkg in packages:
                     if has_pkg[pkg["name"]] & TF:
                         continue
                     env = pkg["env"]
                     with local.env(**env):
-                        run(emerge_in_chroot[pkg["name"]])
+                        run.run(emerge_in_chroot[pkg["name"]])
+
+            gentoo.setup_benchbuild()
 
         print("Packing new container image.")
         with local.cwd(context.builddir):
@@ -364,29 +259,30 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
 class Container(cli.Application):
     """Manage uchroot containers."""
 
-    VERSION = CFG["version"].value()
+    VERSION = str(CFG["version"])
 
     @cli.switch(["-i", "--input-file"], str, help="Input container path")
-    def input_file(self, container):
+    def input_file(self, _container):
         """Find the input path of a uchroot container."""
-        p = os.path.abspath(container)
+        p = local.path(_container)
         if set_input_container(p, CFG):
             return
 
-        p = find_hash(CFG["container"]["known"].value(), container)
+        p = find_hash(CFG["container"]["known"].value, container)
         if set_input_container(p, CFG):
             return
 
         raise ValueError("The path '{0}' does not exist.".format(p))
 
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
-    def output_file(self, container):
+    def output_file(self, _container):
         """Find and writes the output path of a chroot container."""
-        p = os.path.abspath(container)
-        if os.path.exists(p):
-            if not ask("Path '{0}' already exists." " Overwrite?".format(p)):
+        p = local.path(_container)
+        if p.exists():
+            if not ui.ask("Path '{0}' already exists."
+                          " Overwrite?".format(p)):
                 sys.exit(0)
-        CFG["container"]["output"] = p
+        CFG["container"]["output"] = str(p)
 
     @cli.switch(
         ["-s", "--shell"],
@@ -415,18 +311,11 @@ class Container(cli.Application):
 
     def main(self, *args):
         log.configure()
-        _log = logging.getLogger()
-        _log.setLevel({
-            3: logging.DEBUG,
-            2: logging.INFO,
-            1: logging.WARNING,
-            0: logging.ERROR
-        }[self.verbosity])
-
-        builddir = os.path.abspath(str(CFG["build_dir"]))
-        if not os.path.exists(builddir):
-            response = ask("The build directory {dirname} does not exist yet. "
-                           "Should I create it?".format(dirname=builddir))
+        builddir = local.path(str(CFG["build_dir"]))
+        if not builddir.exists():
+            response = ui.ask(
+                "The build directory {dirname} does not exist yet. "
+                "Should I create it?".format(dirname=builddir))
 
             if response:
                 mkdir("-p", builddir)
@@ -441,11 +330,11 @@ class ContainerRun(cli.Application):
 
     def main(self, *args):
         builddir = str(CFG["build_dir"])
-        in_container = CFG["container"]["input"].value()
+        in_container = str(CFG["container"]["input"])
 
         if (in_container is None) or not os.path.exists(in_container):
             in_is_file = False
-            in_container = Gentoo().local
+            in_container = container.Gentoo().local
         else:
             in_is_file = os.path.isfile(in_container)
             if in_is_file:
@@ -491,13 +380,13 @@ class ContainerCreate(cli.Application):
 
     def main(self, *args):
         builddir = str(CFG["build_dir"])
-        in_container = CFG["container"]["input"].value()
-        out_container = CFG["container"]["output"].value()
-        mounts = CFG["container"]["mounts"].value()
-        shell = CFG["container"]["shell"].value()
+        in_container = str(CFG["container"]["input"])
+        out_container = str(CFG["container"]["output"])
+        mounts = CFG["container"]["mounts"].value
+        shell = str(CFG["container"]["shell"])
 
         if (in_container is None) or not os.path.exists(in_container):
-            in_container = Gentoo().local
+            in_container = container.Gentoo().local
 
         in_is_file = os.path.isfile(in_container)
         if in_is_file:
@@ -525,12 +414,12 @@ class ContainerBootstrap(cli.Application):
 
     def main(self, *args):
         print("Checking container binary dependencies...")
-        if not find_package("uchroot"):
-            if not find_package("cmake"):
+        if not bootstrap.find_package("uchroot"):
+            if not bootstrap.find_package("cmake"):
                 self.install_cmake_and_exit()
-            install_uchroot()
+            bootstrap.install_uchroot()
         print("...OK")
-        config_file = CFG["config_file"].value()
+        config_file = str(CFG["config_file"])
         if not (config_file and os.path.exists(config_file)):
             config_file = ".benchbuild.json"
         CFG.store(config_file)
@@ -545,7 +434,7 @@ class ContainerList(cli.Application):
     """Prints a list of the known containers."""
 
     def main(self, *args):
-        containers = CFG["container"]["known"].value()
+        containers = CFG["container"]["known"].value
         for c in containers:
             print("[{1:.8s}] {0}".format(c["path"], str(c["hash"])))
 

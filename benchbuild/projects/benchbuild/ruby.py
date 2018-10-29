@@ -1,49 +1,43 @@
-from os import path
-
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
 from benchbuild.settings import CFG
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, ruby, tar
-from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-class Ruby(Project):
+@download.with_wget({
+    '2.2.2':
+    'http://cache.ruby-lang.org/pub/ruby/2.2.2/ruby-2.2.2.tar.gz'
+})
+class Ruby(project.Project):
     NAME = 'ruby'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     VERSION = '2.2.2'
+    SRC_FILE = 'ruby.tar.gz'
 
-    src_dir = "ruby-{0}".format(VERSION)
-    SRC_FILE = src_dir + ".tar.gz"
-    src_uri = "http://cache.ruby-lang.org/pub/ruby/{0}/".format(VERSION) \
-        + SRC_FILE
+    def compile(self):
+        self.download()
+        tar("xfz", self.src_file)
+        unpack_dir = local.path('ruby-{0}'.format(self.version))
 
-    def download(self):
-        Wget(self.src_uri, self.SRC_FILE)
-        tar("xfz", self.SRC_FILE)
-
-    def configure(self):
-        clang = cc(self)
-        clang_cxx = cxx(self)
-        with local.cwd(self.src_dir):
+        clang = compiler.cc(self)
+        clang_cxx = compiler.cxx(self)
+        with local.cwd(unpack_dir):
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure = local["./configure"]
-                run(configure["--with-static-linked-ext", "--disable-shared"])
-
-    def build(self):
-        with local.cwd(self.src_dir):
-            run(make["-j", CFG["jobs"]])
+                run.run(
+                    configure["--with-static-linked-ext", "--disable-shared"])
+            run.run(make["-j", CFG["jobs"]])
 
     def run_tests(self, runner):
-        exp = wrap(path.join(self.src_dir, "ruby"), self)
+        unpack_dir = local.path('ruby-{0}'.format(self.version))
+        ruby_n = wrapping.wrap(unpack_dir / "ruby", self)
+        testdir = local.path(self.testdir)
 
         with local.env(RUBYOPT=""):
-            run(ruby[path.join(self.testdir, "benchmark", "run.rb"),
-                     "--ruby=\"" + str(exp) + "\"", "--opts=\"-I" + path.join(
-                         self.testdir, "lib") + " -I" + path.join(
-                             self.testdir, ".") + " -I" + path.join(
-                                 self.testdir, ".ext", "common") + "\"", "-r"])
+            run.run(ruby[testdir / "benchmark" / "run.rb", "--ruby=\"" +
+                         str(ruby_n) + "\"", "--opts=\"-I" + testdir / "lib" +
+                         " -I" + testdir / "." + " -I" +
+                         testdir / ".ext" / "common" + "\"", "-r"])

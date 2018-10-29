@@ -10,13 +10,10 @@ import time
 
 from plumbum import cli
 
-import benchbuild.experiment as experiment
-import benchbuild.experiments as experiments
-import benchbuild.project as project
-import benchbuild.utils.actions as actions
-from benchbuild.settings import CFG
-from benchbuild.utils import path, progress
+from benchbuild import experiment, experiments, project
 from benchbuild.cli.main import BenchBuild
+from benchbuild.settings import CFG
+from benchbuild.utils import actions, progress
 
 LOG = logging.getLogger(__name__)
 
@@ -26,7 +23,6 @@ class BenchBuildRun(cli.Application):
     """Frontend for running experiments in the benchbuild study framework."""
 
     experiment_names = []
-    project_names = []
     group_names = None
 
     test_full = cli.Flag(
@@ -49,11 +45,6 @@ class BenchBuildRun(cli.Application):
     def set_experiment_tag(self, description):
         CFG["experiment_description"] = description
 
-    @cli.switch(
-        ["-P", "--project"], str, list=True, help="Specify projects to run")
-    def set_projects(self, names):
-        self.project_names = names
-
     show_progress = cli.Flag(
         ["--disable-progress"], help="Disable progress bar", default=True)
 
@@ -68,7 +59,7 @@ class BenchBuildRun(cli.Application):
 
     pretend = cli.Flag(['p', 'pretend'], default=False)
 
-    def __generate_plan(self, exps, prjs, cfg):
+    def __generate_plan(self, exps, prjs):
         for exp_cls in exps.values():
             exp = exp_cls(projects=prjs)
             eactn = actions.Experiment(obj=exp, actions=exp.actions())
@@ -89,7 +80,7 @@ class BenchBuildRun(cli.Application):
             width=80,
             pg_char='|',
             length=num_actions,
-            has_output=cfg["verbosity"].value() > 0,
+            has_output=int(cfg["verbosity"]) > 0,
             body=True,
             timer=False)
 
@@ -100,10 +91,9 @@ class BenchBuildRun(cli.Application):
         actions.Step.ON_STEP_END.append(on_step_end)
         return pg_bar
 
-    def main(self):
+    def main(self, *projects):
         """Main entry point of benchbuild run."""
         experiment_names = self.experiment_names
-        project_names = self.project_names
         group_names = self.group_names
 
         experiments.discover()
@@ -122,13 +112,13 @@ class BenchBuildRun(cli.Application):
         if unknown_exps:
             print('Could not find ', str(unknown_exps),
                   ' in the experiment registry.')
-        prjs = project.populate(project_names, group_names)
+        prjs = project.populate(projects, group_names)
 
         if not exps:
             print("Could not find any experiment. Exiting.")
             return -2
 
-        plan = list(self.__generate_plan(exps, prjs, CFG))
+        plan = list(self.__generate_plan(exps, prjs))
         num_actions = actions.num_steps(plan)
         actions.print_steps(plan)
 

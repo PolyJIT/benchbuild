@@ -1,29 +1,19 @@
 """
 p7zip experiment within gentoo chroot.
 """
-from os import path
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+from plumbum import local
+
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.run import uretry, uchroot
-
-
-run = uretry
+from benchbuild.utils import wrapping
 
 
 class SevenZip(GentooGroup):
     """
         app-arch/p7zip
     """
-    NAME = "gentoo-p7zip"
+    NAME = "p7zip"
     DOMAIN = "app-arch"
 
-    def build(self):
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        run(emerge_in_chroot["app-arch/p7zip"])
-
     def run_tests(self, runner):
-        wrap(
-            path.join(self.builddir, "usr", "bin", "7z"), self,
-            self.builddir)
-        sevenz = uchroot()["/usr/bin/7z"]
-        run(sevenz["b", "-mmt1"])
+        _7z = wrapping.wrap(local.path('/usr/bin/7z'), self)
+        runner(_7z["b", "-mmt1"])

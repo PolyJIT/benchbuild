@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>benchbuild.utils.container module &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.utils.container module &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="benchbuild.utils.db module" href="benchbuild.utils.db.html" />
@@ -33,7 +34,7 @@
         <li class="right" >
           <a href="benchbuild.utils.compiler.html" title="benchbuild.utils.compiler module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.html" >benchbuild package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.utils.html" accesskey="U">benchbuild.utils package</a> &#187;</li> 
       </ul>
@@ -89,11 +90,6 @@ Also unpacks the project if necessary.</p>
 <dt id="benchbuild.utils.container.Gentoo">
 <em class="property">class </em><code class="descclassname">benchbuild.utils.container.</code><code class="descname">Gentoo</code><a class="reference internal" href="_modules/benchbuild/utils/container.html#Gentoo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.Gentoo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.container.Container" title="benchbuild.utils.container.Container"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.utils.container.Container</span></code></a></p>
-<dl class="method">
-<dt id="benchbuild.utils.container.Gentoo.latest_src_uri">
-<code class="descname">latest_src_uri</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#Gentoo.latest_src_uri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.Gentoo.latest_src_uri" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="attribute">
 <dt id="benchbuild.utils.container.Gentoo.name">
 <code class="descname">name</code><em class="property"> = 'gentoo'</em><a class="headerlink" href="#benchbuild.utils.container.Gentoo.name" title="Permalink to this definition">¶</a></dt>
@@ -105,33 +101,28 @@ Also unpacks the project if necessary.</p>
 <dd><p>Get a remote URL of the requested container.</p>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.utils.container.Ubuntu">
-<em class="property">class </em><code class="descclassname">benchbuild.utils.container.</code><code class="descname">Ubuntu</code><a class="reference internal" href="_modules/benchbuild/utils/container.html#Ubuntu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.Ubuntu" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.utils.container.Container" title="benchbuild.utils.container.Container"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.utils.container.Container</span></code></a></p>
-<dl class="attribute">
-<dt id="benchbuild.utils.container.Ubuntu.name">
-<code class="descname">name</code><em class="property"> = 'ubuntu'</em><a class="headerlink" href="#benchbuild.utils.container.Ubuntu.name" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="benchbuild.utils.container.Gentoo.src_file">
+<code class="descname">src_file</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#Gentoo.src_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.Gentoo.src_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="benchbuild.utils.container.Ubuntu.remote">
-<code class="descname">remote</code><a class="headerlink" href="#benchbuild.utils.container.Ubuntu.remote" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a remote URL of the requested container.</p>
-</dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="benchbuild.utils.container.cached">
 <code class="descclassname">benchbuild.utils.container.</code><code class="descname">cached</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#cached"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.cached" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Memoize a function result.</p>
+</dd></dl>
 
 <dl class="function">
-<dt id="benchbuild.utils.container.is_valid_container">
-<code class="descclassname">benchbuild.utils.container.</code><code class="descname">is_valid_container</code><span class="sig-paren">(</span><em>container</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#is_valid_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.is_valid_container" title="Permalink to this definition">¶</a></dt>
+<dt id="benchbuild.utils.container.in_container">
+<code class="descclassname">benchbuild.utils.container.</code><code class="descname">in_container</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#in_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.in_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check, whether we are running inside a container.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.container.is_valid">
+<code class="descclassname">benchbuild.utils.container.</code><code class="descname">is_valid</code><span class="sig-paren">(</span><em>container</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.is_valid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a container exists and is unpacked.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -147,8 +138,8 @@ unpacked or if the path does not exist yet.</td>
 </dd></dl>
 
 <dl class="function">
-<dt id="benchbuild.utils.container.unpack_container">
-<code class="descclassname">benchbuild.utils.container.</code><code class="descname">unpack_container</code><span class="sig-paren">(</span><em>container</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#unpack_container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.unpack_container" title="Permalink to this definition">¶</a></dt>
+<dt id="benchbuild.utils.container.unpack">
+<code class="descclassname">benchbuild.utils.container.</code><code class="descname">unpack</code><span class="sig-paren">(</span><em>container</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/container.html#unpack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.container.unpack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unpack a container usable by uchroot.</p>
 <p>Method that checks if a directory for the container exists,
 checks if erlent support is needed and then unpacks the
@@ -215,14 +206,14 @@ container accordingly.</p>
         <li class="right" >
           <a href="benchbuild.utils.compiler.html" title="benchbuild.utils.compiler module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.html" >benchbuild package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.utils.html" >benchbuild.utils package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

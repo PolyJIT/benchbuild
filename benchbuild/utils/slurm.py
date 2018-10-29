@@ -11,25 +11,52 @@ import sys
 from plumbum import local, TF
 
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import bash, chmod, mkdir
+from benchbuild.utils.cmd import bash, chmod
+from benchbuild.utils.path import list_to_path
 
-INFO = logging.info
-ERROR = logging.error
+LOG = logging.getLogger(__name__)
 
 
-def __get_slurm_path():
+def script(experiment, projects):
+    """
+    Prepare a slurm script that executes the experiment for a given project.
+
+    Args:
+        experiment: The experiment we want to execute
+        projects: All projects we generate an array job for.
+    """
+    benchbuild_c = local[local.path(sys.argv[0])]
+    slurm_script = local.cwd / experiment.name + "-" + str(
+        CFG['slurm']['script'])
+
+    srun = local["srun"]
+    srun_args = []
+    if not CFG["slurm"]["multithread"]:
+        srun_args.append("--hint=nomultithread")
+    if not CFG["slurm"]["turbo"]:
+        srun_args.append("--pstate-turbo=off")
+
+    srun = srun[srun_args]
+    srun = srun[benchbuild_c["run"]]
+
+    return __save__(slurm_script, srun, experiment, projects)
+
+
+def __path():
     host_path = os.getenv('PATH', default='')
-    benchbuild_path = CFG['path'].value()
-    return benchbuild_path + ':' + host_path
+    env = CFG['env'].value
+    benchbuild_path = list_to_path(env.get('PATH', []))
+    return os.path.pathsep.join([benchbuild_path, host_path])
 
 
-def __get_slurm_ld_library_path():
+def __ld_library_path():
     host_path = os.getenv('LD_LIBRARY_PATH', default='')
-    benchbuild_path = CFG['ld_library_path'].value()
-    return benchbuild_path + ':' + host_path
+    env = CFG['env'].value
+    benchbuild_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
+    return os.path.pathsep.join([benchbuild_path, host_path])
 
 
-def dump_slurm_script(script_name, benchbuild, experiment, projects):
+def __save__(script_name, benchbuild, experiment, projects):
     """
     Dump a bash script that can be given to SLURM.
 
@@ -42,8 +69,8 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
     """
     from jinja2 import Environment, PackageLoader
 
-    logs_dir = os.path.dirname(CFG['slurm']['logs'].value())
-    node_command = str(benchbuild["-P", "$_project", "-E", experiment.name])
+    logs_dir = os.path.dirname(CFG['slurm']['logs'].value)
+    node_command = str(benchbuild["-E", experiment.name, "$_project"])
     env = Environment(
         trim_blocks=True,
         lstrip_blocks=True,
@@ -54,32 +81,36 @@ def dump_slurm_script(script_name, benchbuild, experiment, projects):
         slurm2.write(
             template.render(
                 config=["export " + x for x in repr(CFG).split('\n')],
-                clean_lockdir=CFG["slurm"]["node_dir"].value(),
-                clean_lockfile=CFG["slurm"]["node_dir"].value() + \
+                clean_lockdir=str(CFG["slurm"]["node_dir"]),
+                clean_lockfile=str(CFG["slurm"]["node_dir"]) + \
                     ".clean-in-progress.lock",
-                cpus=CFG['slurm']['cpus_per_task'].value(),
-                exclusive=CFG['slurm']['exclusive'].value(),
-                lockfile=CFG['slurm']["node_dir"].value() + ".lock",
-                log=os.path.join(logs_dir, str(experiment.id)),
-                max_running=CFG['slurm']['max_running'].value(),
+                cpus=int(CFG['slurm']['cpus_per_task']),
+                exclusive=bool(CFG['slurm']['exclusive']),
+                lockfile=str(CFG['slurm']["node_dir"]) + ".lock",
+                log=local.path(logs_dir) / str(experiment.id),
+                max_running=int(CFG['slurm']['max_running']),
                 name=experiment.name,
-                nice=CFG['slurm']['nice'].value(),
-                nice_clean=CFG["slurm"]["nice_clean"].value(),
+                nice=int(CFG['slurm']['nice']),
+                nice_clean=int(CFG["slurm"]["nice_clean"]),
                 node_command=node_command,
-                no_multithreading=not CFG['slurm']['multithread'].value(),
+                no_multithreading=not CFG['slurm']['multithread'],
                 ntasks=1,
-                prefix=CFG["slurm"]["node_dir"].value(),
+                prefix=str(CFG["slurm"]["node_dir"]),
                 projects=projects,
-                slurm_account=CFG["slurm"]["account"].value(),
-                slurm_partition=CFG["slurm"]["partition"].value(),
-                timelimit=CFG['slurm']['timelimit'].value(),
+                slurm_account=str(CFG["slurm"]["account"]),
+                slurm_partition=str(CFG["slurm"]["partition"]),
+                timelimit=str(CFG['slurm']['timelimit']),
             )
         )
 
     chmod("+x", script_name)
+    if not __verify__(script_name):
+        LOG.error("SLURM script failed verification.")
+    print("SLURM script written to {0}".format(script_name))
+    return script_name
 
 
-def verify_slurm_script(script_name):
+def __verify__(script_name):
     """
     Verify a generated script.
 
@@ -87,43 +118,3 @@ def verify_slurm_script(script_name):
         script_name: Path to the generated script.
     """
     return (bash["-n", script_name] & TF)
-
-
-def prepare_slurm_script(experiment, projects):
-    """
-    Prepare a slurm script that executes the experiment for a given project.
-
-    Args:
-        experiment: The experiment we want to execute
-        projects: All projects we generate an array job for.
-    """
-
-    # Assume that we run the slurm subcommand of benchbuild.
-    benchbuild_c = local[os.path.abspath(sys.argv[0])]
-    slurm_script = os.path.join(
-        os.getcwd(), experiment.name + "-" + str(CFG['slurm']['script']))
-
-    # We need to wrap the benchbuild run inside srun to avoid HyperThreading.
-    srun = local["srun"]
-    if not CFG["slurm"]["multithread"].value():
-        srun = srun["--hint=nomultithread"]
-    if not CFG["slurm"]["turbo"].value():
-        srun = srun["--pstate-turbo=off"]
-    srun = srun[benchbuild_c["-v", "run"]]
-    dump_slurm_script(slurm_script, srun, experiment, projects)
-    if not verify_slurm_script(slurm_script):
-        ERROR("SLURM script failed verification.")
-    print("SLURM script written to {0}".format(slurm_script))
-    return slurm_script
-
-
-def prepare_directories(dirs):
-    """
-    Make sure that the required directories exist.
-
-    Args:
-        dirs - the directories we want.
-    """
-
-    for directory in dirs:
-        mkdir("-p", directory, retcode=None)

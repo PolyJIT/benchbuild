@@ -1,9 +1,8 @@
 from plumbum import cli
 
-import benchbuild.utils.schema as schema
-import benchbuild.experiments as e
-import benchbuild.reports as r
+from benchbuild import experiments, reports
 from benchbuild.cli.main import BenchBuild
+from benchbuild.utils import schema
 
 
 @BenchBuild.subcommand("report")
@@ -22,16 +21,16 @@ class BenchBuildReport(cli.Application):
         str,
         list=True,
         help="Specify the reports to generate")
-    def reports(self, reports):
-        self.report_names = reports
+    def reports(self, _reports):
+        self.report_names = _reports
 
     @cli.switch(
         ["-E", "--experiment"],
         str,
         list=True,
         help="Specify experiments to run")
-    def experiments(self, experiments):
-        self.experiment_names = experiments
+    def experiments(self, _experiments):
+        self.experiment_names = _experiments
 
     @cli.switch(
         ["-e", "--experiment-id"],
@@ -48,17 +47,17 @@ class BenchBuildReport(cli.Application):
     def main(self, *args):
         del args  # Unused
 
-        e.discover()
-        r.discover()
-        all_reports = r.ReportRegistry.reports
+        experiments.discover()
+        reports.discover()
+        all_reports = reports.ReportRegistry.reports
 
-        def generate_reports(reports, experiments=None):
+        def generate_reports(_reports, _experiments=None):
             if not reports:
                 print("No reports found. Sorry.")
 
-            for rcls in reports:
-                if experiments:
-                    for exp in experiments:
+            for rcls in _reports:
+                if _experiments:
+                    for exp in _experiments:
                         report = rcls(exp, self._experiment_ids, self._outfile,
                                       schema.Session())
                 else:
@@ -67,18 +66,18 @@ class BenchBuildReport(cli.Application):
                 report.generate()
 
         if self.report_names:
-            reports = [
+            _reports = [
                 all_reports[name] for name in all_reports
                 if name in self.report_names
             ]
-            generate_reports(reports, self.experiment_names)
+            generate_reports(_reports, self.experiment_names)
             exit(0)
 
         if self.experiment_names:
-            reports = [
+            _reports = [
                 all_reports[name] for name in all_reports
                 if set(all_reports[name].SUPPORTED_EXPERIMENTS) & set(
                     self.experiment_names)
             ]
-            generate_reports(reports, self.experiment_names)
+            generate_reports(_reports, self.experiment_names)
             exit(0)

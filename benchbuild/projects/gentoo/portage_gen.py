@@ -6,12 +6,12 @@ import logging
 from plumbum import ProcessExecutionError, local
 
 from benchbuild.projects.gentoo import autoportage
-from benchbuild.utils.container import Gentoo
-from benchbuild.utils.run import run, uchroot_no_args
+from benchbuild.utils import container, run, uchroot
+
+LOG = logging.getLogger(__name__)
 
 
-class FuncClass(object):
-
+class FuncClass:
     """
     Finds out the current version number of a gentoo package.
 
@@ -25,10 +25,10 @@ class FuncClass(object):
         Domain: Categorie of the package.
     """
 
-    def __init__(self, name, domain, container):
+    def __init__(self, name, domain, _container):
         self.name = name
         self.domain = domain
-        self.container = container
+        self.container = _container
 
     def __repr__(self):
         return self.__str__()
@@ -37,22 +37,18 @@ class FuncClass(object):
         try:
             domain, _, name = self.name.partition("_")
             package = domain + '/' + name
-            container = self.container()
+            _container = self.container()
 
-            uchroot = uchroot_no_args()
-            uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
-            uchroot = uchroot[container.local]
+            _uchroot = uchroot.no_args()
+            _uchroot = _uchroot["-E", "-A", "-C", "-w", "/", "-r"]
+            _uchroot = _uchroot[_container.local]
             with local.env(CONFIG_PROTECT="-*"):
-                fake_emerge = uchroot["emerge",
-                                      "--autounmask-only=y",
-                                      "--autounmask-write=y",
-                                      "--nodeps"]
-                run(fake_emerge[package])
+                fake_emerge = _uchroot["emerge", "--autounmask-only=y",
+                                       "--autounmask-write=y", "--nodeps"]
+                run.run(fake_emerge[package])
 
-            emerge_in_chroot = uchroot["emerge",
-                                       "-p",
-                                       "--nodeps",
-                                       package]
+            emerge_in_chroot = \
+                _uchroot["emerge", "-p", "--nodeps", package]
             _, stdout, _ = emerge_in_chroot.run()
 
             for line in stdout.split('\n'):
@@ -64,7 +60,7 @@ class FuncClass(object):
         except ProcessExecutionError:
             logger = logging.getLogger(__name__)
             logger.info("This older package might not exist any more.")
-        return "Default"
+        return ""
 
 
 def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
@@ -103,22 +99,20 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
 
     def run_not_supported(self, *args, **kwargs):
         """Dynamic projects don't support a run() test."""
-        del args, kwargs # Unused
+        del args, kwargs  # Unused
 
-        from benchbuild.settings import CFG
-        logger = logging.getLogger(__name__)
-        logger.info("run() not supported.")
-        if CFG["clean"].value():
-            self.clean()
+        LOG.warning(
+            "Runtime testing not supported on auto-generated projects.")
         return
 
-    newclass = type(name, (BaseClass,), {
-        "NAME": NAME,
-        "DOMAIN": DOMAIN,
-        "SRC_FILE": "none",
-        "VERSION": FuncClass(NAME, DOMAIN, Gentoo),
-        "GROUP": "auto-gentoo",
-        "run": run_not_supported,
-        "__module__": "__main__"
-    })
+    newclass = type(
+        name, (BaseClass, ), {
+            "NAME": NAME,
+            "DOMAIN": DOMAIN,
+            "SRC_FILE": "none",
+            "VERSION": str(FuncClass(NAME, DOMAIN, container.Gentoo)),
+            "GROUP": "auto-gentoo",
+            "run": run_not_supported,
+            "__module__": "__main__"
+        })
     return newclass

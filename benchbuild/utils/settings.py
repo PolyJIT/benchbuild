@@ -12,16 +12,15 @@ import copy
 import logging
 import os
 import re
+import sys
 import uuid
 import warnings
-import sys
 
 import attr
 import six
 import yaml
 from pkg_resources import DistributionNotFound, get_distribution
 from plumbum import local
-from plumbum.cmd import mkdir
 
 import benchbuild.utils.user_interface as ui
 
@@ -272,6 +271,7 @@ class Configuration():
                 for k in self.node:
                     self[k].init_from_env()
 
+    @property
     def value(self):
         """
         Return the node value, if we're a leaf node.
@@ -279,11 +279,11 @@ class Configuration():
         Examples:
             >>> c = Configuration("test")
             >>> c['x'] = { "y" : { "value" : None }, "z" : { "value" : 2 }}
-            >>> c['x']['y'].value() == None
+            >>> c['x']['y'].value == None
             True
-            >>> c['x']['z'].value()
+            >>> c['x']['z'].value
             2
-            >>> c['x'].value()
+            >>> c['x'].value
             TEST_X_Y=null
             TEST_X_Z=2
 
@@ -296,8 +296,7 @@ class Configuration():
 
         if 'value' in self.node:
             return validate(self.node['value'])
-        else:
-            return self
+        return self
 
     def __getitem__(self, key):
         if key not in self.node:
@@ -317,14 +316,74 @@ class Configuration():
             else:
                 self.node[key] = {'value': val}
 
+    def __iadd__(self, rhs):
+        """
+        Append a value to a list value.
+
+        Tests:
+            >>> CFG = Configuration('test', node={'t': {'default': []}})
+            >>> CFG['t']
+            TEST_T="[]"
+
+            Append a value to a list.
+            >>> CFG['t'] += 'a'; CFG['t']
+            TEST_T="[a]"
+
+            Append a value to a scalar.
+            >>> CFG = Configuration('test', node={'t': {'default': 0}})
+            >>> CFG['t'] += 2
+            Traceback (most recent call last):
+            TypeError: Configuration node value does not support +=.
+        """
+        if not self.has_value():
+            raise TypeError("Inner configuration node does not support +=.")
+
+        value = self.node['value']
+        if not hasattr(value, '__iadd__'):
+            raise TypeError("Configuration node value does not support +=.")
+
+        value += rhs
+        return value
+
+    def __int__(self):
+        """
+        Convert the node's value to bool, if available.
+
+        Tests:
+            >>> CFG = Configuration('test', node={'i': {'default': 1}})
+            >>> int(CFG['i'])
+            1
+            >>> CFG['d'] = []; int(CFG['d'])
+            Traceback (most recent call last):
+            TypeError: int() argument must be a string, a bytes-like object or a number, not 'list'
+        """
+        if not self.has_value():
+            raise ValueError(
+                'Inner configuration nodes cannot be converted to int.')
+        return int(self.value)
+
+    def __bool__(self):
+        """
+        Convert the node's value to bool, if available.
+
+        Tests:
+            >>> CFG = Configuration('test', node={'b': {'default': True}})
+            >>> bool(CFG['b'])
+            True
+            >>> CFG['b'] = []; bool(CFG['b'])
+            False
+        """
+        if not self.has_value():
+            return True
+        return bool(self.value)
+
     def __contains__(self, key):
         return key in self.node
 
     def __str__(self):
         if 'value' in self.node:
             return str(self.node['value'])
-        else:
-            return str(self.node)
+        return str(self.node)
 
     def __repr__(self):
         """
@@ -354,7 +413,7 @@ class Configuration():
 
             What happens when we nest an uuid in a dict?
             >>> CFG['nested_uuid'] = {'A': {'default': {'a': uuid.UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')}}}
-            >>> CFG['nested_uuid']['A'].value()
+            >>> CFG['nested_uuid']['A'].value
             TEST_NESTED_UUID_A="{a: cc3702ca-699a-4aa6-8226-4c938f294d9b}"
         """
         _repr = []
@@ -402,18 +461,19 @@ def convert_components(value):
 
 
 @attr.s(str=False, frozen=True)
-class ConfigPath(object):
+class ConfigPath:
     """
     Wrapper around paths represented as list of strings.
 
     Tests:
+    >>> path = local.path('/tmp/test/foo')
     >>> p = ConfigPath(['tmp']); str(p)
     '/tmp'
-    >>> p = ConfigPath('/tmp/test/foo'); str(p)
+    >>> p = ConfigPath(str(path)); str(p)
     '/tmp/test/foo'
     >>> p.validate()
     The path '/tmp/test/foo' is required by your configuration.
-    >>> p.validate()
+    >>> p.validate(); path.delete()
 
     >>> p = ConfigPath([]); str(p)
     '/'
@@ -422,26 +482,20 @@ class ConfigPath(object):
 
     def validate(self):
         """Make sure this configuration path exists."""
-        path_str = ConfigPath.path_to_str(self.components)
-        path_exists = os.path.exists(path_str)
+        path = local.path(ConfigPath.path_to_str(self.components))
 
-        def create_dir():
-            mkdir("-p", path_str)
-
-        if not path_exists:
-            print(
-                "The path '%s' is required by your configuration." % path_str)
+        if not path.exists():
+            print("The path '%s' is required by your configuration." % path)
             yes = ui.ask(
-                "Should I create '%s' for you?" % path_str,
+                "Should I create '%s' for you?" % path,
                 default_answer=True,
                 default_answer_str="yes")
             if yes:
-                create_dir()
+                path.mkdir()
             else:
-                LOG.error("User denied path creation of '%s'.", path_str)
-        path_exists = os.path.exists(path_str)
-        if not path_exists:
-            LOG.error("The path '%s' needs to exist.", path_str)
+                LOG.error("User denied path creation of '%s'.", path)
+        if not path.exists():
+            LOG.error("The path '%s' needs to exist.", path)
 
     @staticmethod
     def path_to_str(components):
@@ -498,20 +552,20 @@ def __find_config__(test_file=None, defaults=None, root=os.curdir):
         defaults = [".benchbuild.yml", ".benchbuild.yaml"]
 
     def walk_rec(cur_path, root):
-        cur_path = os.path.join(root, test_file)
-        if os.path.exists(cur_path):
+        cur_path = local.path(root) / test_file
+        if cur_path.exists():
             return cur_path
-        else:
-            new_root = os.path.abspath(os.path.join(root, os.pardir))
-            return walk_rec(cur_path, new_root) if new_root != root else None
+
+        new_root = local.path(root) / os.pardir
+        return walk_rec(cur_path, new_root) if new_root != root else None
 
     if test_file is not None:
         return walk_rec(test_file, root)
-    else:
-        for test_file in defaults:
-            ret = walk_rec(test_file, root)
-            if ret is not None:
-                return ret
+
+    for test_file in defaults:
+        ret = walk_rec(test_file, root)
+        if ret is not None:
+            return ret
 
 
 def setup_config(cfg):
@@ -538,13 +592,15 @@ def setup_config(cfg):
 
 
 def update_env(cfg):
-    path = cfg["env"]["path"].value()
+    env = cfg["env"].value
+
+    path = env.get("PATH", "")
     path = os.path.pathsep.join(path)
     if "PATH" in os.environ:
         path = os.path.pathsep.join([path, os.environ["PATH"]])
     os.environ["PATH"] = path
 
-    lib_path = cfg["env"]["ld_library_path"].value()
+    lib_path = env.get("LD_LIBRARY_PATH", "")
     lib_path = os.path.pathsep.join(lib_path)
     if "LD_LIBRARY_PATH" in os.environ:
         lib_path = os.path.pathsep.join(

@@ -20,22 +20,17 @@ import logging
 import uuid
 from abc import abstractmethod
 from functools import partial
-from os import getenv, listdir, path
+from os import getenv
 
 import attr
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
-import benchbuild.extensions as ext
-import benchbuild.signals as signals
-import benchbuild.utils.run as ur
+from benchbuild import signals
+from benchbuild.extensions import compiler
+from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import mkdir, rm, rmdir
-from benchbuild.utils.container import Gentoo
-from benchbuild.utils.db import persist_project
-from benchbuild.utils.run import in_builddir, store_config, unionfs
-from benchbuild.utils.versions import get_version_from_cache_dir
-from benchbuild.utils.wrapping import wrap
+from benchbuild.utils import db, run, unionfs, wrapping
 
 LOG = logging.getLogger(__name__)
 
@@ -62,37 +57,32 @@ class ProjectDecorator(ProjectRegistry):
     sure to run every project method in the project's build directory.
     """
 
-    decorated_methods = [
-        "build", "configure", "download", "prepare", "run_tests"
-    ]
+    decorated_methods = ["redirect", "compile", "run_tests"]
 
     def __init__(cls, name, bases, attrs):
         unionfs_deco = None
-        if CFG["unionfs"]["enable"].value():
-            image_dir = CFG["unionfs"]["image"].value()
-            prefix = CFG["unionfs"]["image_prefix"].value()
-            unionfs_deco = partial(
-                unionfs, image_dir=image_dir, image_prefix=prefix)
-        config_deco = store_config
+        if CFG["unionfs"]["enable"]:
+            rw_dir = str(CFG["unionfs"]["rw"])
+            unionfs_deco = partial(unionfs.unionfs, rw=rw_dir)
+        config_deco = run.store_config
 
         methods = ProjectDecorator.decorated_methods
         for key, value in attrs.items():
             if (key in methods) and hasattr(cls, key):
                 wrapped_fun = value
-                if key == 'configure':
-                    wrapped_fun = config_deco(wrapped_fun)
+                wrapped_fun = config_deco(wrapped_fun)
 
                 if unionfs_deco is not None:
                     wrapped_fun = unionfs_deco()(wrapped_fun)
 
-                wrapped_fun = in_builddir('.')(wrapped_fun)
+                wrapped_fun = run.in_builddir('.')(wrapped_fun)
                 setattr(cls, key, wrapped_fun)
 
         super(ProjectDecorator, cls).__init__(name, bases, attrs)
 
 
 @attr.s
-class Project(object, metaclass=ProjectDecorator):
+class Project(metaclass=ProjectDecorator):
     """Abstract class for benchbuild projects.
 
     A project is an arbitrary software system usable by benchbuild in
@@ -101,11 +91,8 @@ class Project(object, metaclass=ProjectDecorator):
     imported in the same interpreter session. For this to happen, you must list
     the in the settings under plugins -> projects.
 
-    A project implementation *must* provide the following methods:
-        download: Download the sources into the build directory.
-        configure: Configure the sources, replace the compiler with our wrapper,
-            if possible.
-        build: Build the sources, with the wrapper compiler.
+    A project implementation *must* provide the following method:
+        compile: Downloads & Compiles the source.
 
     A project implementation *may* provide the following functions:
         run_tests: Wrap any binary that has to be run under the
@@ -113,8 +100,6 @@ class Project(object, metaclass=ProjectDecorator):
             set of run-time tests.
             Defaults to a call of a binary with the name `run_f` in the
             build directory without arguments.
-        prepare: Prepare the project's build directory. Defaults to a
-            simple call to 'mkdir'.
         clean: Clean the project's build directory. Defaults to
             recursive 'rm' on the build directory and can be disabled
             by setting the environment variable ``BB_CLEAN=false``.
@@ -174,6 +159,7 @@ class Project(object, metaclass=ProjectDecorator):
     GROUP = None
     VERSION = None
     SRC_FILE = None
+    CONTAINER = None
 
     def __new__(cls, *_):
         """Create a new project instance and set some defaults."""
@@ -207,19 +193,17 @@ class Project(object, metaclass=ProjectDecorator):
         default=attr.Factory(
             lambda self: type(self).SRC_FILE, takes_self=True))
 
-    container = attr.ib(default=Gentoo())
+    container = attr.ib(
+        default=attr.Factory(
+            lambda self: type(self).CONTAINER, takes_self=True))
 
     version = attr.ib(
-        default=attr.Factory(
-            lambda self: get_version_from_cache_dir(self.src_file),
-            takes_self=True))
+        default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
 
     builddir = attr.ib(default=attr.Factory(
-        lambda self: path.join(
-            str(CFG["build_dir"]),
-            "{0}-{1}-{2}-{3}".format(self.experiment.name,
-                                     self.name, self.group,
-                                     self.experiment.id)),
+        lambda self: local.path(str(CFG["build_dir"])) /
+        "{}-{}-{}-{}".format(
+            self.experiment.name, self.name, self.group, self.experiment.id),
         takes_self=True))
 
     testdir = attr.ib()
@@ -227,10 +211,9 @@ class Project(object, metaclass=ProjectDecorator):
     @testdir.default
     def __default_testdir(self):
         if self.group:
-            return path.join(
-                str(CFG["test_dir"]), self.domain, self.group, self.name)
-        else:
-            return path.join(str(CFG["test_dir"]), self.domain, self.name)
+            return local.path(str(
+                CFG["test_dir"])) / self.domain / self.group / self.name
+        return local.path(str(CFG["test_dir"])) / self.domain / self.name
 
     cflags = attr.ib(default=attr.Factory(list))
 
@@ -238,13 +221,17 @@ class Project(object, metaclass=ProjectDecorator):
 
     run_f = attr.ib(
         default=attr.Factory(
-            lambda self: path.join(self.builddir, self.name), takes_self=True))
+            lambda self: local.path(self.builddir) / self.name,
+            takes_self=True))
 
     run_uuid = attr.ib()
 
     @run_uuid.default
     def __default_run_uuid(self):
-        return getenv("BB_DB_RUN_GROUP", uuid.uuid4())
+        run_group = getenv("BB_DB_RUN_GROUP", None)
+        if run_group:
+            return uuid.UUID(run_group)
+        return uuid.uuid4()
 
     @run_uuid.validator
     def __check_if_uuid(self, _, value):
@@ -252,13 +239,13 @@ class Project(object, metaclass=ProjectDecorator):
             raise TypeError("{attribute} must be a valid UUID object")
 
     compiler_extension = attr.ib(default=attr.Factory(
-        lambda self: ext.RunWithTimeout(
-            ext.RunCompiler(self, self.experiment)), takes_self=True))
+        lambda self: ext_run.WithTimeout(
+            compiler.RunCompiler(self, self.experiment)), takes_self=True))
 
     runtime_extension = attr.ib(default=None)
 
     def __attrs_post_init__(self):
-        persist_project(self)
+        db.persist_project(self)
 
     def run_tests(self, runner):
         """
@@ -270,7 +257,7 @@ class Project(object, metaclass=ProjectDecorator):
             experiment: The experiment we run this project under
             run: A function that takes the run command.
         """
-        exp = wrap(self.run_f, self)
+        exp = wrapping.wrap(self.run_f, self)
         runner(exp)
 
     def run(self):
@@ -290,45 +277,45 @@ class Project(object, metaclass=ProjectDecorator):
         CFG["group"] = self.GROUP
         CFG["version"] = self.VERSION
         CFG["db"]["run_group"] = str(self.run_uuid)
-        with local.cwd(self.builddir):
-            group, session = begin_run_group(self)
-            signals.handlers.register(fail_run_group, group, session)
 
-            try:
-                self.run_tests(ur.run)
-                end_run_group(group, session)
-            except ProcessExecutionError:
-                fail_run_group(group, session)
-                raise
-            except KeyboardInterrupt:
-                fail_run_group(group, session)
-                raise
-            finally:
-                signals.handlers.deregister(fail_run_group)
+        group, session = begin_run_group(self)
+        signals.handlers.register(fail_run_group, group, session)
+
+        try:
+            self.run_tests(run.run)
+            end_run_group(group, session)
+        except ProcessExecutionError:
+            fail_run_group(group, session)
+            raise
+        except KeyboardInterrupt:
+            fail_run_group(group, session)
+            raise
+        finally:
+            signals.handlers.deregister(fail_run_group)
 
     def clean(self):
         """Clean the project build directory."""
-        if path.exists(self.builddir) and listdir(self.builddir) == []:
-            rmdir(self.builddir)
-        elif path.exists(self.builddir) and listdir(self.builddir) != []:
-            rm("-rf", self.builddir)
+        builddir_p = local.path(self.builddir)
+        builddir_p.delete()
 
     def prepare(self):
         """Prepare the build diretory."""
-        if not path.exists(self.builddir):
-            mkdir(self.builddir)
+        builddir_p = local.path(self.builddir)
+        if not builddir_p.exists():
+            builddir_p.mkdir()
 
     @abstractmethod
-    def download(self):
-        """Download the input source for this project."""
+    def compile(self):
+        """Compile the project."""
 
-    @abstractmethod
-    def configure(self):
-        """Configure the project."""
+    def download(self, version=None):
+        """Auto-generated by with_* decorators."""
+        del version
+        LOG.error("Not implemented.")
 
-    @abstractmethod
-    def build(self):
-        """Build the project."""
+    def redirect(self):
+        """Redirect execution to a containerized benchbuild instance."""
+        LOG.error("Redirection not supported by project.")
 
     def clone(self):
         """Create a deepcopy of ourself."""

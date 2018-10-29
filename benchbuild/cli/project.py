@@ -1,7 +1,7 @@
 """Subcommand for project handling."""
 from plumbum import cli
-import benchbuild.project as project
-import benchbuild.experiments.empty as empty
+
+from benchbuild import project
 from benchbuild.cli.main import BenchBuild
 
 
@@ -18,12 +18,7 @@ class BBProject(cli.Application):
 class BBProjectView(cli.Application):
     """View available projects."""
 
-    project_names = []
-    group_names = None
-
-    @cli.switch(["-P", "--project"], str, list=True, help="Include project.")
-    def set_projects(self, names):
-        self.project_names = names
+    groups = None
 
     @cli.switch(
         ["-G", "--group"],
@@ -31,15 +26,13 @@ class BBProjectView(cli.Application):
         list=True,
         help="Include projects of this group.")
     def set_group(self, groups):
-        self.group_names = groups
+        self.groups = groups
 
-    def main(self):
-        prjs = project.populate(self.project_names, self.group_names)
-        ee = empty.Empty(projects=prjs)
-        print_projects(ee)
+    def main(self, *projects):
+        print_projects(project.populate(projects, self.groups))
 
 
-def print_projects(exp):
+def print_projects(projects=None):
     """
     Print a list of projects registered for that experiment.
 
@@ -48,10 +41,10 @@ def print_projects(exp):
 
     """
     grouped_by = {}
-    projects = exp.projects
     if not projects:
         print(
             "Your selection didn't include any projects for this experiment.")
+        return
 
     for name in projects:
         prj = projects[name]
@@ -67,11 +60,22 @@ def print_projects(exp):
         group_projects = sorted(grouped_by[name])
         for prj in group_projects:
             prj_cls = projects[prj]
-            print("  name: {id:<32} {version:<24} {src}".format(
-                id="{0}/{1}".format(prj_cls.NAME, prj_cls.GROUP),
-                version="version: {0}".format(prj_cls.VERSION),
-                src="source: {0}".format(prj_cls.SRC_FILE)))
+
+            version_str = None
+            if hasattr(prj_cls, 'versions'):
+                version_str = ", ".join(prj_cls.versions())
+
+            project_id = "{0}/{1}".format(prj_cls.NAME, prj_cls.GROUP)
+
+            project_str = \
+                "  name: {id:<32} version: {version:<24} source: {src}".format(
+                    id=str(project_id),
+                    version=str(prj_cls.VERSION),
+                    src=str(prj_cls.SRC_FILE))
+            print(project_str)
             if prj_cls.__doc__:
-                print("    description: {desc}".format(
-                    desc=prj_cls.__doc__.strip("\n ")))
+                docstr = prj_cls.__doc__.strip("\n ")
+                print("    description: {desc}".format(desc=docstr))
+            if version_str:
+                print("    versions: {versions}".format(versions=version_str))
         print()

@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>benchbuild.utils.downloader module &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.utils.downloader module &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="benchbuild.utils.log module" href="benchbuild.utils.log.html" />
@@ -33,7 +34,7 @@
         <li class="right" >
           <a href="benchbuild.utils.dict.html" title="benchbuild.utils.dict module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.html" >benchbuild package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.utils.html" accesskey="U">benchbuild.utils package</a> &#187;</li> 
       </ul>
@@ -44,194 +45,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-benchbuild.utils.downloader">
-<span id="benchbuild-utils-downloader-module"></span><h1>benchbuild.utils.downloader module<a class="headerlink" href="#module-benchbuild.utils.downloader" title="Permalink to this headline">¶</a></h1>
-<p># Downloading helper functions for benchbuild.</p>
-<p>The helpers defined in this module provide access to some common Downloading
-methods for the source code of benchbuild projects.
-All downloads will be cached in BB_TMP_DIR and locked down with a hash that
-is generated after the first download. If the hash matches the file/folder
-found in BB_TMP_DIR, nothing will be downloaded at all.</p>
-<dl class="docutils">
-<dt>Supported methods:</dt>
-<dd>Copy, CopyNoFail, Wget, Git, Svn, Rsync</dd>
-</dl>
-<dl class="function">
-<dt id="benchbuild.utils.downloader.Copy">
-<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">Copy</code><span class="sig-paren">(</span><em>From</em>, <em>To</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#Copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.Copy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Small copy wrapper.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>From</strong> (<em>str</em>) – Path to the SOURCE.</li>
-<li><strong>To</strong> (<em>str</em>) – Path to the TARGET.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="benchbuild.utils.downloader.CopyNoFail">
-<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">CopyNoFail</code><span class="sig-paren">(</span><em>src</em>, <em>root=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#CopyNoFail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.CopyNoFail" title="Permalink to this definition">¶</a></dt>
-<dd><p>Just copy fName into the current working directory, if it exists.</p>
-<p>No action is executed, if fName does not exist. No Hash is checked.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>src</strong> – The filename we want to copy to ‘.’.</li>
-<li><strong>root</strong> – The optional source dir we should pull fName from. Defaults
-to benchbuild.settings.CFG[“tmpdir”].</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True, if we copied something.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="benchbuild.utils.downloader.Git">
-<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">Git</code><span class="sig-paren">(</span><em>src_url</em>, <em>tgt_name</em>, <em>tgt_root=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#Git"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.Git" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a shallow clone of the given repo</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>src_url</strong> (<em>str</em>) – Git URL of the SOURCE repo.</li>
-<li><strong>tgt_name</strong> (<em>str</em>) – Name of the repo folder on disk.</li>
-<li><strong>tgt_root</strong> (<em>str</em>) – TARGET folder for the git repo.
-Defaults to <code class="docutils literal notranslate"><span class="pre">CFG[&quot;tmpdir&quot;]</span></code></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="benchbuild.utils.downloader.Rsync">
-<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">Rsync</code><span class="sig-paren">(</span><em>url</em>, <em>tgt_name</em>, <em>tgt_root=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#Rsync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.Rsync" title="Permalink to this definition">¶</a></dt>
-<dd><p>RSync a folder.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>url</strong> (<em>str</em>) – The url of the SOURCE location.</li>
-<li><strong>fname</strong> (<em>str</em>) – The name of the TARGET.</li>
-<li><strong>to</strong> (<em>str</em>) – Path of the target location.
-Defaults to <code class="docutils literal notranslate"><span class="pre">CFG[&quot;tmpdir&quot;]</span></code>.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="benchbuild.utils.downloader.Svn">
-<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">Svn</code><span class="sig-paren">(</span><em>url</em>, <em>fname</em>, <em>to=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#Svn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.Svn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checkout the SVN repo.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>url</strong> (<em>str</em>) – The SVN SOURCE repo.</li>
-<li><strong>fname</strong> (<em>str</em>) – The name of the repo on disk.</li>
-<li><strong>to</strong> (<em>str</em>) – The name of the TARGET folder on disk.
-Defaults to <code class="docutils literal notranslate"><span class="pre">CFG[&quot;tmpdir&quot;]</span></code></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="benchbuild.utils.downloader.Wget">
-<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">Wget</code><span class="sig-paren">(</span><em>src_url</em>, <em>tgt_name</em>, <em>tgt_root=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#Wget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.Wget" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download url, if required.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>src_url</strong> (<em>str</em>) – Our SOURCE url.</li>
-<li><strong>tgt_name</strong> (<em>str</em>) – The filename we want to have on disk.</li>
-<li><strong>tgt_root</strong> (<em>str</em>) – The TARGET directory for the download.
-Defaults to <code class="docutils literal notranslate"><span class="pre">CFG[&quot;tmpdir&quot;]</span></code>.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="benchbuild.utils.downloader.get_hash_of_dirs">
-<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">get_hash_of_dirs</code><span class="sig-paren">(</span><em>directory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#get_hash_of_dirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.get_hash_of_dirs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Recursively hash the contents of the given directory.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>directory</strong> (<em>str</em>) – The root directory we want to hash.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A hash of all the contents in the directory.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="benchbuild.utils.downloader.source_required">
-<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">source_required</code><span class="sig-paren">(</span><em>src_file</em>, <em>src_root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#source_required"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.source_required" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check, if a download is required.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>src_file</strong> – The filename to check for.</li>
-<li><strong>src_root</strong> – The path we find the file in.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True, if we need to download something, False otherwise.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="benchbuild.utils.downloader.update_hash">
-<code class="descclassname">benchbuild.utils.downloader.</code><code class="descname">update_hash</code><span class="sig-paren">(</span><em>src</em>, <em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/downloader.html#update_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.downloader.update_hash" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update the hash for the given file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>src</strong> – The file name.</li>
-<li><strong>root</strong> – The path of the given file.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+  <div class="section" id="benchbuild-utils-downloader-module">
+<h1>benchbuild.utils.downloader module<a class="headerlink" href="#benchbuild-utils-downloader-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -284,14 +99,14 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">CFG[&qu
         <li class="right" >
           <a href="benchbuild.utils.dict.html" title="benchbuild.utils.dict module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.html" >benchbuild package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.utils.html" >benchbuild.utils package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

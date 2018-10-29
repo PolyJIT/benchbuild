@@ -1,19 +1,15 @@
-import os
-
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, mkdir
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Git
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-class BOTSGroup(Project):
+@download.with_git("https://github.com/bsc-pm/bots", limit=5)
+class BOTSGroup(project.Project):
     """
     Barcelona OpenMP Task Suite.
-    
+
     Barcelona OpenMP Task Suite is a collection of applications that allow
     to test OpenMP tasking implementations and compare its behaviour under
     certain circumstances: task tiedness, throttle and cut-offs mechanisms,
@@ -31,7 +27,7 @@ class BOTSGroup(Project):
 
     DOMAIN = 'bots'
     GROUP = 'bots'
-    VERSION = '1.1.2'
+    VERSION = 'HEAD'
 
     path_dict = {
         "alignment": "serial/alignment",
@@ -48,54 +44,27 @@ class BOTSGroup(Project):
     }
 
     input_dict = {
-        "alignment": [
-            "prot.100.aa",
-            "prot.20.aa"
-        ],
-        "floorplan": [
-            "input.15",
-            "input.20",
-            "input.5"
-        ],
-        "health": [
-            "large.input",
-            "medium.input",
-            "small.input",
-            "test.input"
-        ],
+        "alignment": ["prot.100.aa", "prot.20.aa"],
+        "floorplan": ["input.15", "input.20", "input.5"],
+        "health": ["large.input", "medium.input", "small.input", "test.input"],
         "knapsack": [
-            "knapsack-012.input",
-            "knapsack-016.input",
-            "knapsack-020.input",
-            "knapsack-024.input",
-            "knapsack-032.input",
-            "knapsack-036.input",
-            "knapsack-040.input",
-            "knapsack-044.input",
-            "knapsack-048.input",
-            "knapsack-064.input",
-            "knapsack-096.input",
-            "knapsack-128.input"
+            "knapsack-012.input", "knapsack-016.input", "knapsack-020.input",
+            "knapsack-024.input", "knapsack-032.input", "knapsack-036.input",
+            "knapsack-040.input", "knapsack-044.input", "knapsack-048.input",
+            "knapsack-064.input", "knapsack-096.input", "knapsack-128.input"
         ],
         "uts": [
-            "huge.input",
-            "large.input",
-            "medium.input",
-            "small.input",
-            "test.input",
-            "tiny.input"
+            "huge.input", "large.input", "medium.input", "small.input",
+            "test.input", "tiny.input"
         ]
     }
 
     SRC_FILE = "bots.git"
-    src_uri = "https://github.com/bsc-pm/bots"
 
-    def download(self):
-        Git(self.src_uri, self.SRC_FILE)
-
-    def configure(self):
-        makefile_config = os.path.join(self.SRC_FILE, "config", "make.config")
-        clang = cc(self)
+    def compile(self):
+        self.download()
+        makefile_config = local.path(self.src_file) / "config" / "make.config"
+        clang = compiler.cc(self)
 
         with open(makefile_config, 'w') as config:
             lines = [
@@ -119,21 +88,19 @@ class BOTSGroup(Project):
             ]
             lines = [l.format(cc=clang) + "\n" for l in lines]
             config.writelines(lines)
-
-    def build(self):
-        mkdir(os.path.join(self.SRC_FILE, "bin"))
-        with local.cwd(self.SRC_FILE):
-            run(make["-C", self.path_dict[self.name]])
+        mkdir(local.path(self.src_file) / "bin")
+        with local.cwd(self.src_file):
+            run.run(make["-C", self.path_dict[self.name]])
 
     def run_tests(self, runner):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
-        exp = wrap(os.path.join(self.SRC_FILE, "bin", binary_name), self)
+        binary_path = local.path(self.src_file) / "bin" / binary_name
+        exp = wrapping.wrap(binary_path, self)
 
         if self.name in self.input_dict:
             for test_input in self.input_dict[self.name]:
-                input_file = os.path.join(
-                    self.SRC_FILE, "inputs", self.name, test_input)
-
+                input_file = local.path(
+                    self.src_file) / "inputs" / self.name / test_input
                 runner(exp["-f", input_file])
         else:
             runner(exp)

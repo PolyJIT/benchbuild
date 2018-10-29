@@ -6,17 +6,18 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Dictionary-like configuration objects. &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.utils.settings module &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Available experiments" href="benchbuild.experiments.html" />
-    <link rel="prev" title="Extensions" href="benchbuild.extensions.html" /> 
+    <link rel="next" title="benchbuild.experiments package" href="benchbuild.experiments.html" />
+    <link rel="prev" title="benchbuild.extensions.time module" href="benchbuild.extensions.time.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -28,12 +29,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="benchbuild.experiments.html" title="Available experiments"
+          <a href="benchbuild.experiments.html" title="benchbuild.experiments package"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="benchbuild.extensions.html" title="Extensions"
+          <a href="benchbuild.extensions.time.html" title="benchbuild.extensions.time module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -42,112 +43,355 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="dictionary-like-configuration-objects">
-<span id="dictionary-like-configuration-objects"></span><h1>Dictionary-like configuration objects.<a class="headerlink" href="#dictionary-like-configuration-objects" title="Permalink to this headline">¶</a></h1>
-<p>We provide a simple reusable configuration mechanism for benchbuild that supports
-default values, override through environment variables, and configuration files.</p>
-<div class="section" id="the-class-configuration">
-<span id="the-class-configuration"></span><h2>The class <code class="docutils literal notranslate"><span class="pre">Configuration</span></code><a class="headerlink" href="#the-class-configuration" title="Permalink to this headline">¶</a></h2>
-<p>At the heart of benchbuild’s configuration system you can find the class ‘Configuration’.</p>
-<div class="section" id="basic-usage">
-<span id="basic-usage"></span><h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h3>
-<p>You can store settings for your project inside the class <code class="docutils literal notranslate"><span class="pre">Configuration</span></code>.
-Upon construction you need to provide a namespace to house all configuration variables
-in, such as “BB” for BenchBuild.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CFG</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">(</span><span class="s2">&quot;bb&quot;</span><span class="p">)</span>
+  <div class="section" id="module-benchbuild.utils.settings">
+<span id="benchbuild-utils-settings-module"></span><h1>benchbuild.utils.settings module<a class="headerlink" href="#module-benchbuild.utils.settings" title="Permalink to this headline">¶</a></h1>
+<p>Configuration utilities.</p>
+<p>Settings are stored in a dictionary-like configuration object.
+All settings are modifiable by environment variables that encode
+the path in the dictionary tree.</p>
+<p>Inner nodes in the dictionary tree can be any dictionary.
+A leaf node in the dictionary tree is represented by an inner node that contains a value key.</p>
+<dl class="class">
+<dt id="benchbuild.utils.settings.ConfigDumper">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.settings.</code><code class="descname">ConfigDumper</code><span class="sig-paren">(</span><em>stream</em>, <em>default_style=None</em>, <em>default_flow_style=None</em>, <em>canonical=None</em>, <em>indent=None</em>, <em>width=None</em>, <em>allow_unicode=None</em>, <em>line_break=None</em>, <em>encoding=None</em>, <em>explicit_start=None</em>, <em>explicit_end=None</em>, <em>version=None</em>, <em>tags=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#ConfigDumper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.ConfigDumper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">yaml.dumper.Dumper</span></code></p>
+<p>Avoid polluting yaml’s namespace with our modifications.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.settings.ConfigDumper.yaml_implicit_resolvers">
+<code class="descname">yaml_implicit_resolvers</code><em class="property"> = {'y': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], 'Y': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], 'n': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE)), ('tag:yaml.org,2002:null', re.compile('^(?: ~\n                    |null|Null|NULL\n                    | )$', re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], 'N': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE)), ('tag:yaml.org,2002:null', re.compile('^(?: ~\n                    |null|Null|NULL\n                    | )$', re.VERBOSE))], 't': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], 'T': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], 'f': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], 'F': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], 'o': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], 'O': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], '-': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE))], '+': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE))], '0': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '1': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '2': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '3': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '4': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE))], '5': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE))], '6': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE))], '7': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE))], '8': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '9': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '.': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '&lt;': [('tag:yaml.org,2002:merge', re.compile('^(?:&lt;&lt;)$'))], '~': [('tag:yaml.org,2002:null', re.compile('^(?: ~\n                    |null|Null|NULL\n                    | )$', re.VERBOSE))], '': [('tag:yaml.org,2002:null', re.compile('^(?: ~\n                    |null|Null|NULL\n                    | )$', re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '=': [('tag:yaml.org,2002:value', re.compile('^(?:=)$'))], '!': [('tag:yaml.org,2002:yaml', re.compile('^(?:!|&amp;|\\*)$'))], '&amp;': [('tag:yaml.org,2002:yaml', re.compile('^(?:!|&amp;|\\*)$'))], '*': [('tag:yaml.org,2002:yaml', re.compile('^(?:!|&amp;|\\*)$'))], None: [('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))]}</em><a class="headerlink" href="#benchbuild.utils.settings.ConfigDumper.yaml_implicit_resolvers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.settings.ConfigDumper.yaml_representers">
+<code class="descname">yaml_representers</code><em class="property"> = {&lt;class 'NoneType'&gt;: &lt;function SafeRepresenter.represent_none&gt;, &lt;class 'str'&gt;: &lt;function SafeRepresenter.represent_str&gt;, &lt;class 'bytes'&gt;: &lt;function SafeRepresenter.represent_binary&gt;, &lt;class 'bool'&gt;: &lt;function SafeRepresenter.represent_bool&gt;, &lt;class 'int'&gt;: &lt;function SafeRepresenter.represent_int&gt;, &lt;class 'float'&gt;: &lt;function SafeRepresenter.represent_float&gt;, &lt;class 'list'&gt;: &lt;function SafeRepresenter.represent_list&gt;, &lt;class 'tuple'&gt;: &lt;function Representer.represent_tuple&gt;, &lt;class 'dict'&gt;: &lt;function SafeRepresenter.represent_dict&gt;, &lt;class 'set'&gt;: &lt;function SafeRepresenter.represent_set&gt;, &lt;class 'datetime.date'&gt;: &lt;function SafeRepresenter.represent_date&gt;, &lt;class 'datetime.datetime'&gt;: &lt;function SafeRepresenter.represent_datetime&gt;, None: &lt;function SafeRepresenter.represent_undefined&gt;, &lt;class 'complex'&gt;: &lt;function Representer.represent_complex&gt;, &lt;class 'type'&gt;: &lt;function Representer.represent_name&gt;, &lt;class 'collections.OrderedDict'&gt;: &lt;function Representer.represent_ordered_dict&gt;, &lt;class 'function'&gt;: &lt;function Representer.represent_name&gt;, &lt;class 'builtin_function_or_method'&gt;: &lt;function Representer.represent_name&gt;, &lt;class 'module'&gt;: &lt;function Representer.represent_module&gt;, &lt;class 'uuid.UUID'&gt;: &lt;function uuid_representer&gt;, &lt;class 'benchbuild.utils.settings.ConfigPath'&gt;: &lt;function path_representer&gt;}</em><a class="headerlink" href="#benchbuild.utils.settings.ConfigDumper.yaml_representers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.settings.ConfigLoader">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.settings.</code><code class="descname">ConfigLoader</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#ConfigLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.ConfigLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">yaml.loader.Loader</span></code></p>
+<p>Avoid polluting yaml’s namespace with our modifications.</p>
+<dl class="attribute">
+<dt id="benchbuild.utils.settings.ConfigLoader.yaml_constructors">
+<code class="descname">yaml_constructors</code><em class="property"> = {'tag:yaml.org,2002:null': &lt;function SafeConstructor.construct_yaml_null&gt;, 'tag:yaml.org,2002:bool': &lt;function SafeConstructor.construct_yaml_bool&gt;, 'tag:yaml.org,2002:int': &lt;function SafeConstructor.construct_yaml_int&gt;, 'tag:yaml.org,2002:float': &lt;function SafeConstructor.construct_yaml_float&gt;, 'tag:yaml.org,2002:binary': &lt;function SafeConstructor.construct_yaml_binary&gt;, 'tag:yaml.org,2002:timestamp': &lt;function SafeConstructor.construct_yaml_timestamp&gt;, 'tag:yaml.org,2002:omap': &lt;function SafeConstructor.construct_yaml_omap&gt;, 'tag:yaml.org,2002:pairs': &lt;function SafeConstructor.construct_yaml_pairs&gt;, 'tag:yaml.org,2002:set': &lt;function SafeConstructor.construct_yaml_set&gt;, 'tag:yaml.org,2002:str': &lt;function SafeConstructor.construct_yaml_str&gt;, 'tag:yaml.org,2002:seq': &lt;function SafeConstructor.construct_yaml_seq&gt;, 'tag:yaml.org,2002:map': &lt;function SafeConstructor.construct_yaml_map&gt;, None: &lt;function SafeConstructor.construct_undefined&gt;, 'tag:yaml.org,2002:python/none': &lt;function SafeConstructor.construct_yaml_null&gt;, 'tag:yaml.org,2002:python/bool': &lt;function SafeConstructor.construct_yaml_bool&gt;, 'tag:yaml.org,2002:python/str': &lt;function Constructor.construct_python_str&gt;, 'tag:yaml.org,2002:python/unicode': &lt;function Constructor.construct_python_unicode&gt;, 'tag:yaml.org,2002:python/bytes': &lt;function Constructor.construct_python_bytes&gt;, 'tag:yaml.org,2002:python/int': &lt;function SafeConstructor.construct_yaml_int&gt;, 'tag:yaml.org,2002:python/long': &lt;function Constructor.construct_python_long&gt;, 'tag:yaml.org,2002:python/float': &lt;function SafeConstructor.construct_yaml_float&gt;, 'tag:yaml.org,2002:python/complex': &lt;function Constructor.construct_python_complex&gt;, 'tag:yaml.org,2002:python/list': &lt;function SafeConstructor.construct_yaml_seq&gt;, 'tag:yaml.org,2002:python/tuple': &lt;function Constructor.construct_python_tuple&gt;, 'tag:yaml.org,2002:python/dict': &lt;function SafeConstructor.construct_yaml_map&gt;, '!uuid': &lt;function uuid_constructor&gt;, '!create-if-needed': &lt;function path_constructor&gt;}</em><a class="headerlink" href="#benchbuild.utils.settings.ConfigLoader.yaml_constructors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.settings.ConfigLoader.yaml_implicit_resolvers">
+<code class="descname">yaml_implicit_resolvers</code><em class="property"> = {'y': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], 'Y': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], 'n': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE)), ('tag:yaml.org,2002:null', re.compile('^(?: ~\n                    |null|Null|NULL\n                    | )$', re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], 'N': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE)), ('tag:yaml.org,2002:null', re.compile('^(?: ~\n                    |null|Null|NULL\n                    | )$', re.VERBOSE))], 't': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], 'T': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], 'f': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], 'F': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], 'o': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], 'O': [('tag:yaml.org,2002:bool', re.compile('^(?:yes|Yes|YES|no|No|NO\n                    |true|True|TRUE|false|False|FALSE\n                    |on|On|ON|off|Off|OFF)$', re.VERBOSE))], '-': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '+': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE))], '0': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '1': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '2': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '3': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '4': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE))], '5': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE))], '6': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE))], '7': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE))], '8': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE))], '9': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('tag:yaml.org,2002:int', re.compile('^(?:[-+]?0b[0-1_]+\n                    |[-+]?0[0-7_]+\n                    |[-+]?(?:0|[1-9][0-9_]*)\n                    |[-+]?0x[0-9a-fA-F_]+\n                    |[-+]?[1-9][0-9_]*(?::[0-5]?[0-9]), re.VERBOSE)), ('tag:yaml.org,2002:timestamp', re.compile('^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\n                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?\n                     (?:[Tt]|[ \\t]+)[0-9][0-9]?\n                     :[0-9][0-9], re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '.': [('tag:yaml.org,2002:float', re.compile('^(?:[-+]?(?:[0-9][0-9_]*)\\.[0-9_]*(?:[eE][-+][0-9]+)?\n                    |\\.[0-9_]+(?:[eE][-+][0-9]+)?\n                    |[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*\n                    |[-+, re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '&lt;': [('tag:yaml.org,2002:merge', re.compile('^(?:&lt;&lt;)$'))], '~': [('tag:yaml.org,2002:null', re.compile('^(?: ~\n                    |null|Null|NULL\n                    | )$', re.VERBOSE)), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '': [('tag:yaml.org,2002:null', re.compile('^(?: ~\n                    |null|Null|NULL\n                    | )$', re.VERBOSE))], '=': [('tag:yaml.org,2002:value', re.compile('^(?:=)$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$')), ('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))], '!': [('tag:yaml.org,2002:yaml', re.compile('^(?:!|&amp;|\\*)$'))], '&amp;': [('tag:yaml.org,2002:yaml', re.compile('^(?:!|&amp;|\\*)$'))], '*': [('tag:yaml.org,2002:yaml', re.compile('^(?:!|&amp;|\\*)$'))], None: [('!uuid', re.compile('^\\b[a-f0-9]{8}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{4}-\\b[a-f0-9]{12}$'))]}</em><a class="headerlink" href="#benchbuild.utils.settings.ConfigLoader.yaml_implicit_resolvers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.settings.ConfigPath">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.settings.</code><code class="descname">ConfigPath</code><span class="sig-paren">(</span><em>components</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#ConfigPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.ConfigPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper around paths represented as list of strings.</p>
+<p>Tests:
+&gt;&gt;&gt; path = local.path(‘/tmp/test/foo’)
+&gt;&gt;&gt; p = ConfigPath([‘tmp’]); str(p)
+‘/tmp’
+&gt;&gt;&gt; p = ConfigPath(str(path)); str(p)
+‘/tmp/test/foo’
+&gt;&gt;&gt; p.validate()
+The path ‘/tmp/test/foo’ is required by your configuration.
+&gt;&gt;&gt; p.validate(); path.delete()</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">ConfigPath</span><span class="p">([]);</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="go">&#39;/&#39;</span>
 </pre></div>
 </div>
-<p>You can extend the configuration by inner nodes and leaf nodes, forming a tree-like data structure.
-Inner nodes are simple dictionaries and can span arbitrary nesting structures.
-Leaf nodes are dictionaries that contain the following keys:
-- default: Stores the default value for the configuration option.
-- desc: A description for this configuration option.
-The current value a leaf node holds will be stored in the ‘value’ key of a leaf node.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;option_1&#39;</span> <span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="s1">&#39;desc&#39;</span><span class="p">:</span> <span class="s1">&#39;Toggle option 1&#39;</span>
-    <span class="p">},</span>
-    <span class="s1">&#39;option_2&#39;</span> <span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="s1">&#39;desc&#39;</span><span class="p">:</span> <span class="s1">&#39;Toggle option 2&#39;</span>
-    <span class="p">},</span>
-<span class="p">}</span>
+<dl class="staticmethod">
+<dt id="benchbuild.utils.settings.ConfigPath.path_to_str">
+<em class="property">static </em><code class="descname">path_to_str</code><span class="sig-paren">(</span><em>components</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#ConfigPath.path_to_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.ConfigPath.path_to_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.settings.ConfigPath.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#ConfigPath.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.ConfigPath.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make sure this configuration path exists.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="benchbuild.utils.settings.Configuration">
+<em class="property">class </em><code class="descclassname">benchbuild.utils.settings.</code><code class="descname">Configuration</code><span class="sig-paren">(</span><em>parent_key</em>, <em>node=None</em>, <em>parent=None</em>, <em>init=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#Configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dictionary-like data structure to contain all configuration variables.</p>
+<p>This serves as a configuration dictionary throughout benchbuild. You can
+use it to access all configuration options that are available. Whenever the
+structure is updated with a new subtree, all variables defined in the new
+subtree are updated from the environment.</p>
+<dl class="docutils">
+<dt>Environment variables are generated from the tree paths automatically.</dt>
+<dd>CFG[“build_dir”] becomes BB_BUILD_DIR
+CFG[“llvm”][“dir”] becomes BB_LLVM_DIR</dd>
+</dl>
+<p>The configuration can be stored/loaded as YAML.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">settings</span> <span class="k">as</span> <span class="n">s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Configuration</span><span class="p">(</span><span class="s1">&#39;bb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]</span>
+<span class="go">BB_TEST=42</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">])</span>
+<span class="go">&#39;42&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">])</span>
+<span class="go">&lt;class &#39;benchbuild.utils.settings.Configuration&#39;&gt;</span>
 </pre></div>
 </div>
-<p>You can access the current values inside your application code using the <code class="docutils literal notranslate"><span class="pre">value()</span></code> method
-on a leaf node, after the configuration is set for the first time.
-This will return the stored value in its current representation/type.
-You can access the string representation using an explicit conversion by applying the <code class="docutils literal notranslate"><span class="pre">str</span></code> method on a leaf node.
-The initial value can either be set manually with an assignment to the leaf node (see example below), or with default initialization through <code class="docutils literal notranslate"><span class="pre">setup_config</span></code> and <code class="docutils literal notranslate"><span class="pre">update_env</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="o">&gt;</span> <span class="nb">type</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
-<span class="nb">bool</span>
-<span class="o">&gt;</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
-<span class="bp">True</span>
-<span class="o">&gt;</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_1&#39;</span><span class="p">])</span>
-<span class="s1">&#39;True&#39;</span>
+<dl class="method">
+<dt id="benchbuild.utils.settings.Configuration.filter_exports">
+<code class="descname">filter_exports</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#Configuration.filter_exports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.filter_exports" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.settings.Configuration.has_default">
+<code class="descname">has_default</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#Configuration.has_default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.has_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check, if the node contains a ‘default’ value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.settings.Configuration.has_value">
+<code class="descname">has_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#Configuration.has_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.has_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check, if the node contains a ‘value’.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.settings.Configuration.init_from_env">
+<code class="descname">init_from_env</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#Configuration.init_from_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.init_from_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize this node from environment.</p>
+<p>If we’re a leaf node, i.e., a node containing a dictionary that
+consist of a ‘default’ key, compute our env variable and initialize
+our value from the environment.
+Otherwise, init our children.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.settings.Configuration.is_leaf">
+<code class="descname">is_leaf</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#Configuration.is_leaf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.is_leaf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check, if the node is a ‘leaf’ node.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.settings.Configuration.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>_from</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#Configuration.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the configuration dictionary from file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.settings.Configuration.store">
+<code class="descname">store</code><span class="sig-paren">(</span><em>config_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#Configuration.store"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store the configuration dictionary to a file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="benchbuild.utils.settings.Configuration.to_env_dict">
+<code class="descname">to_env_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#Configuration.to_env_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.Configuration.to_env_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert configuration object to a flat dictionary.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="benchbuild.utils.settings.Configuration.value">
+<code class="descname">value</code><a class="headerlink" href="#benchbuild.utils.settings.Configuration.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the node value, if we’re a leaf node.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;y&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;value&quot;</span> <span class="p">:</span> <span class="kc">None</span> <span class="p">},</span> <span class="s2">&quot;z&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;value&quot;</span> <span class="p">:</span> <span class="mi">2</span> <span class="p">}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="kc">None</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+<span class="go">TEST_X_Y=null</span>
+<span class="go">TEST_X_Z=2</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="automatic-generation-of-environment-variables">
-<span id="automatic-generation-of-environment-variables"></span><h3>Automatic Generation of Environment Variables.<a class="headerlink" href="#automatic-generation-of-environment-variables" title="Permalink to this headline">¶</a></h3>
-<p>The configuration is able to provide a neat serialized representation that can be used in shell scripts.
-Any configuration node can be represented as a document of environment variables.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
-<span class="o">&gt;</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">][</span><span class="s1">&#39;option_1&#39;</span><span class="p">]</span>
-<span class="n">BB_MY_CONFIG_OPTION_1</span><span class="o">=</span><span class="n">true</span>
-<span class="o">&gt;</span> <span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">]</span>
-<span class="n">BB_MY_CONFIG_OPTION_1</span><span class="o">=</span><span class="n">true</span>
-<span class="n">BB_MY_CONFIG_OPTION_2</span><span class="o">=</span><span class="n">false</span>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="benchbuild.utils.settings.InvalidConfigKey">
+<em class="property">exception </em><code class="descclassname">benchbuild.utils.settings.</code><code class="descname">InvalidConfigKey</code><a class="reference internal" href="_modules/benchbuild/utils/settings.html#InvalidConfigKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.InvalidConfigKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeWarning</span></code></p>
+<p>Warn, if you access a non-existing key benchbuild’s configuration.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.available_cpu_count">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">available_cpu_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#available_cpu_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.available_cpu_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of available CPUs.</p>
+<p>Number of available virtual or physical CPUs on this system, i.e.
+user/real as output by time(1) when called with an optimally scaling
+userspace-only program.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of avaialable CPUs.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.convert_components">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">convert_components</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#convert_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.convert_components" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.escape_yaml">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">escape_yaml</code><span class="sig-paren">(</span><em>raw_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#escape_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.escape_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shell-Escape a yaml input string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>raw_str</strong> – The unescaped string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.is_yaml">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">is_yaml</code><span class="sig-paren">(</span><em>cfg_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#is_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.is_yaml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.path_constructor">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">path_constructor</code><span class="sig-paren">(</span><em>loader</em>, <em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#path_constructor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.path_constructor" title="Permalink to this definition">¶</a></dt>
+<dd><p>”
+Construct a ConfigPath object form a scalar YAML node.</p>
+<dl class="docutils">
+<dt>Tests:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="s2">&quot;!create-if-needed&quot;</span><span class="p">,</span> <span class="n">path_constructor</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;{&#39;test&#39;: !create-if-needed &#39;/tmp/test/foo&#39;}&quot;</span><span class="p">)</span>
+<span class="go">{&#39;test&#39;: ConfigPath(components=[&#39;tmp&#39;, &#39;test&#39;, &#39;foo&#39;])}</span>
 </pre></div>
 </div>
-<p>The environment variable names can be used to control the setting of a configuration
-option via the environment of benchbuild.
-The values stored in the environment variable are YAML representations of the objects stored in the <code class="docutils literal notranslate"><span class="pre">value</span></code> property of the leaf node.</p>
-</div>
-<div class="section" id="automatic-initialization">
-<span id="automatic-initialization"></span><h3>Automatic Initialization<a class="headerlink" href="#automatic-initialization" title="Permalink to this headline">¶</a></h3>
-<p>The configuration can be initialized using the functions <code class="docutils literal notranslate"><span class="pre">setup_config</span></code> and <code class="docutils literal notranslate"><span class="pre">update_env</span></code>.
-Both are meant to be called from the user code during program setup/module load of the user-specific configuration.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">benchbuild.utils.settings</span> <span class="kn">as</span> <span class="nn">s</span>
-<span class="n">CFG</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Configuration</span><span class="p">(</span><span class="s1">&#39;bb&#39;</span><span class="p">)</span>
-<span class="n">CFG</span><span class="p">[</span><span class="s1">&#39;my_config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;option_1&#39;</span> <span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="s1">&#39;desc&#39;</span><span class="p">:</span> <span class="s1">&#39;Toggle option 1&#39;</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="n">s</span><span class="o">.</span><span class="n">setup_config</span><span class="p">(</span><span class="n">CFG</span><span class="p">)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">update_env</span><span class="p">(</span><span class="n">CFG</span><span class="p">)</span>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.path_representer">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">path_representer</code><span class="sig-paren">(</span><em>dumper</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#path_representer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.path_representer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represent a ConfigPath object as a scalar YAML node.</p>
+<dl class="docutils">
+<dt>Tests:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="n">ConfigPath</span><span class="p">,</span> <span class="n">path_representer</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">ConfigPath</span><span class="p">(</span><span class="s1">&#39;/tmp/test/foo&#39;</span><span class="p">)})</span>
+<span class="go">&quot;{test: !create-if-needed &#39;/tmp/test/foo&#39;}\n&quot;</span>
 </pre></div>
 </div>
-<div class="section" id="setup-config">
-<span id="setup-config"></span><h4>Setup Config<a class="headerlink" href="#setup-config" title="Permalink to this headline">¶</a></h4>
-<p>The function <code class="docutils literal notranslate"><span class="pre">setup_config</span></code> triggers configuration initialization from default values and
-config file. It follows the ruleset:
-1. Check for a filepath in environment variable: <code class="docutils literal notranslate"><span class="pre">BB_CONFIG_FILE</span></code>, or
-2. Recursively lookup the default config file, starting from the current working
-directory upwards to the root of the filesystem.
-3. Load configuration from file, if found in (1) or (2), and
-4. Initialize all configuration options from the environment.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.setup_config">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">setup_config</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#setup_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.setup_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>This will initialize the given configuration object.</p>
+<dl class="docutils">
+<dt>The following resources are available in the same order:</dt>
+<dd><ol class="first last arabic simple">
+<li>Default settings.</li>
+<li>Config file.</li>
+<li>Environment variables.</li>
+</ol>
+</dd>
+<dt>WARNING: Environment variables do _not_ take precedence over the config</dt>
+<dd>file right now. (init_from_env will refuse to update the
+value, if there is already one.)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.to_env_var">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">to_env_var</code><span class="sig-paren">(</span><em>env_var</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#to_env_var"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.to_env_var" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.to_yaml">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">to_yaml</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.to_yaml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.update_env">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">update_env</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#update_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.update_env" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.upgrade">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">upgrade</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#upgrade"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.upgrade" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide forward migration for configuration files.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.uuid_add_implicit_resolver">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">uuid_add_implicit_resolver</code><span class="sig-paren">(</span><em>Loader=&lt;class 'benchbuild.utils.settings.ConfigLoader'&gt;</em>, <em>Dumper=&lt;class 'benchbuild.utils.settings.ConfigDumper'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#uuid_add_implicit_resolver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.uuid_add_implicit_resolver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attach an implicit pattern resolver for UUID objects.</p>
+<dl class="docutils">
+<dt>Tests:</dt>
+<dd><div class="first highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">TestDumper</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">Dumper</span><span class="p">):</span> <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">TestLoader</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">Loader</span><span class="p">):</span> <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TUUID</span> <span class="o">=</span> <span class="s1">&#39;cc3702ca-699a-4aa6-8226-4c938f294d9b&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">IN</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="n">TUUID</span><span class="p">)}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">OUT</span> <span class="o">=</span> <span class="s1">&#39;{test: cc3702ca-699a-4aa6-8226-4c938f294d9b}&#39;</span>
+</pre></div>
 </div>
-<div class="section" id="update-environment">
-<span id="update-environment"></span><h4>Update Environment<a class="headerlink" href="#update-environment" title="Permalink to this headline">¶</a></h4>
-<p>The function <code class="docutils literal notranslate"><span class="pre">update_env</span></code> is benchbuild-specific and updates the environment of the
-running process. We update the variables:
-- <code class="docutils literal notranslate"><span class="pre">PATH</span></code> from <code class="docutils literal notranslate"><span class="pre">*_ENV_PATH</span></code>
-- <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> from <code class="docutils literal notranslate"><span class="pre">*_ENV_LD_LIBRARY_PATH</span></code>
-This updates the plumbum local-machine environment as well and enables program lookup in user-defined paths.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">,</span> <span class="n">uuid_representer</span><span class="p">,</span> <span class="n">Dumper</span><span class="o">=</span><span class="n">TestDumper</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="s1">&#39;!uuid&#39;</span><span class="p">,</span> <span class="n">uuid_constructor</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">TestLoader</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">uuid_add_implicit_resolver</span><span class="p">(</span><span class="n">Loader</span><span class="o">=</span><span class="n">TestLoader</span><span class="p">,</span> <span class="n">Dumper</span><span class="o">=</span><span class="n">TestDumper</span><span class="p">)</span>
+</pre></div>
 </div>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">IN</span><span class="p">,</span> <span class="n">Dumper</span><span class="o">=</span><span class="n">TestDumper</span><span class="p">)</span>
+<span class="go">&#39;{test: cc3702ca-699a-4aa6-8226-4c938f294d9b}\n&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">OUT</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">TestLoader</span><span class="p">)</span>
+<span class="go">{&#39;test&#39;: UUID(&#39;cc3702ca-699a-4aa6-8226-4c938f294d9b&#39;)}</span>
+</pre></div>
 </div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.uuid_constructor">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">uuid_constructor</code><span class="sig-paren">(</span><em>loader</em>, <em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#uuid_constructor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.uuid_constructor" title="Permalink to this definition">¶</a></dt>
+<dd><p>”
+Construct a uuid.UUID object form a scalar YAML node.</p>
+<dl class="docutils">
+<dt>Tests:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="s2">&quot;!uuid&quot;</span><span class="p">,</span> <span class="n">uuid_constructor</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;{&#39;test&#39;: !uuid &#39;cc3702ca-699a-4aa6-8226-4c938f294d9b&#39;}&quot;</span><span class="p">)</span>
+<span class="go">{&#39;test&#39;: UUID(&#39;cc3702ca-699a-4aa6-8226-4c938f294d9b&#39;)}</span>
+</pre></div>
 </div>
-<div class="section" id="module-benchbuild.settings">
-<span id="api-reference"></span><span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-benchbuild.settings" title="Permalink to this headline">¶</a></h2>
-<p>Settings module for benchbuild.</p>
-<p>All settings are stored in a simple dictionary. Each
-setting should be modifiable via environment variable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.utils.settings.uuid_representer">
+<code class="descclassname">benchbuild.utils.settings.</code><code class="descname">uuid_representer</code><span class="sig-paren">(</span><em>dumper</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/utils/settings.html#uuid_representer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.utils.settings.uuid_representer" title="Permalink to this definition">¶</a></dt>
+<dd><p>”
+Represent a uuid.UUID object as a scalar YAML node.</p>
+<dl class="docutils">
+<dt>Tests:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">,</span> <span class="n">uuid_representer</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="s1">&#39;cc3702ca-699a-4aa6-8226-4c938f294d9b&#39;</span><span class="p">)})</span>
+<span class="go">&quot;{test: !uuid &#39;cc3702ca-699a-4aa6-8226-4c938f294d9b&#39;}\n&quot;</span>
+</pre></div>
 </div>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -156,34 +400,16 @@ setting should be modifiable via environment variable.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Dictionary-like configuration objects.</a><ul>
-<li><a class="reference internal" href="#the-class-configuration">The class <code class="docutils literal notranslate"><span class="pre">Configuration</span></code></a><ul>
-<li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
-<li><a class="reference internal" href="#automatic-generation-of-environment-variables">Automatic Generation of Environment Variables.</a></li>
-<li><a class="reference internal" href="#automatic-initialization">Automatic Initialization</a><ul>
-<li><a class="reference internal" href="#setup-config">Setup Config</a></li>
-<li><a class="reference internal" href="#update-environment">Update Environment</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-benchbuild.settings">API reference</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
-  <p class="topless"><a href="benchbuild.extensions.html"
-                        title="previous chapter">Extensions</a></p>
+  <p class="topless"><a href="benchbuild.extensions.time.html"
+                        title="previous chapter">benchbuild.extensions.time module</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="benchbuild.experiments.html"
-                        title="next chapter">Available experiments</a></p>
+                        title="next chapter">benchbuild.experiments package</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/benchbuild.utils.settings.md.txt"
+      <li><a href="_sources/benchbuild.utils.settings.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -213,17 +439,17 @@ setting should be modifiable via environment variable.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="benchbuild.experiments.html" title="Available experiments"
+          <a href="benchbuild.experiments.html" title="benchbuild.experiments package"
              >next</a> |</li>
         <li class="right" >
-          <a href="benchbuild.extensions.html" title="Extensions"
+          <a href="benchbuild.extensions.time.html" title="benchbuild.extensions.time module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

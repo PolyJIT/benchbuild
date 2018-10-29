@@ -32,8 +32,8 @@ from plumbum import local
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import chmod, mv
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.run import uchroot_no_llvm as uchroot
 from benchbuild.utils.run import run
+from benchbuild.utils.uchroot import no_llvm as uchroot
 
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
@@ -75,6 +75,14 @@ def unpickle(pickle_file):
     return pickle
 
 
+def __create_jinja_env():
+    from jinja2 import Environment, PackageLoader
+    return Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=PackageLoader('benchbuild', 'utils/templates'))
+
+
 def wrap(name, project, sprefix=None, python=sys.executable):
     """ Wrap the binary :name: with the runtime extension of the project.
 
@@ -92,11 +100,7 @@ def wrap(name, project, sprefix=None, python=sys.executable):
     Returns:
         A plumbum command, ready to launch.
     """
-    from jinja2 import Environment, PackageLoader
-    env = Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    env = __create_jinja_env()
     template = env.get_template('run_static.py.inc')
 
     name_absolute = os.path.abspath(name)
@@ -110,10 +114,12 @@ def wrap(name, project, sprefix=None, python=sys.executable):
 
     project_file = persist(project, suffix=".project")
 
-    bin_path = list_to_path(CFG["env"]["path"].value())
+    env = CFG['env'].value
+
+    bin_path = list_to_path(env.get('PATH', []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
-    bin_lib_path = list_to_path(CFG["env"]["ld_library_path"].value())
+    bin_lib_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 
     with open(name_absolute, 'w') as wrapper:
@@ -159,11 +165,7 @@ def wrap_dynamic(project,
     Returns: plumbum command, readty to launch.
 
     """
-    from jinja2 import Environment, PackageLoader
-    env = Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    env = __create_jinja_env()
     template = env.get_template('run_dynamic.py.inc')
 
     name_absolute = os.path.abspath(name)
@@ -171,11 +173,13 @@ def wrap_dynamic(project,
 
     project_file = persist(project, suffix=".project")
 
-    bin_path = list_to_path(CFG["env"]["path"].value())
+    env = CFG['env'].value
+
+    bin_path = list_to_path(env.get('PATH', []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
     bin_lib_path = \
-        list_to_path(CFG["env"]["ld_library_path"].value())
+        list_to_path(env.get('LD_LIBRARY_PATH', []))
     bin_lib_path = \
         list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
 
@@ -196,7 +200,6 @@ def wrap_dynamic(project,
 def wrap_cc(filepath,
             compiler,
             project,
-            compiler_ext_name=None,
             python=sys.executable,
             detect_project=False):
     """
@@ -207,65 +210,38 @@ def wrap_cc(filepath,
 
     Args:
         filepath (str): Path to the wrapper script.
-        compiler (benchbuild.utils.cmd): Real compiler command we should call in the
-            script.
-        project (benchbuild.project.Project): The project this compiler will be for.
-        experiment (benchbuild.experiment.Experiment): The experiment this compiler will be for.
-        extension: A function that will be pickled alongside the compiler.
-            It will be called before the actual compilation took place. This
-            way you can intercept the compilation process with arbitrary python
-            code.
-        compiler_ext_name: The name that we should give to the generated
-            dill blob for :func:
+        compiler (benchbuild.utils.cmd):
+            Real compiler command we should call in the script.
+        project (benchbuild.project.Project):
+            The project this compiler will be for.
+        python (str): Path to the python interpreter we should use.
         detect_project: Should we enable project detection or not.
 
     Returns (benchbuild.utils.cmd):
         Command of the new compiler we can call.
     """
-    from jinja2 import Environment, PackageLoader
-    env = Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    env = __create_jinja_env()
     template = env.get_template('run_compiler.py.inc')
 
-    cc_f = persist(
-        compiler(), filename=os.path.abspath(filepath + ".benchbuild.cc"))
+    cc_fname = local.path(filepath).with_suffix(".benchbuild.cc", depth=0)
+    cc_f = persist(compiler, filename=cc_fname)
+
     project_file = persist(project, suffix=".project")
-    #experiment_file = persist(experiment, suffix=".experiment")
-
-    # Change name if necessary (UCHROOT support, host <-> guest).
-    if compiler_ext_name is not None:
-        project_file = compiler_ext_name(".project")
-        #experiment_file = compiler_ext_name(".experiment")
-        cc_f = compiler_ext_name(".benchbuild.cc")
-
-    # Update LDFLAGS with configure ld_library_path. This way
-    # the libraries found in LD_LIBRARY_PATH are available at link-time too.
-    #lib_path_list = CFG["env"]["ld_library_path"].value()
-    #ldflags = ldflags + ["-L" + pelem for pelem in lib_path_list if pelem]
 
     with open(filepath, 'w') as wrapper:
         wrapper.write(
             template.render(
                 cc_f=cc_f,
                 project_file=project_file,
-                #experiment_file=experiment_file,
                 python=python,
                 detect_project=detect_project))
 
     chmod("+x", filepath)
-    LOG.debug("Placed wrapper in: {wrapper} for compiler {compiler}".format(
-        wrapper=os.path.abspath(filepath), compiler=compiler()))
+    LOG.debug("Placed wrapper in: %s for compiler %s", local.path(filepath),
+              str(compiler))
+    LOG.debug("Placed project in: %s", local.path(project_file))
+    LOG.debug("Placed compiler command in: %s", local.path(cc_f))
     return local[filepath]
-
-
-def wrap_in_uchroot(name, runner, sprefix=None):
-    wrap(name, runner, sprefix, python="/usr/bin/env python3")
-
-
-def wrap_dynamic_in_uchroot(self, name, sprefix=None):
-    wrap_dynamic(self, name, sprefix, python="/usr/bin/env python3")
 
 
 def persist(id_obj, filename=None, suffix=None):
@@ -273,13 +249,15 @@ def persist(id_obj, filename=None, suffix=None):
 
     This will generate a pickled version of the given obj in the filename path.
     Objects shall provide an id() method to be able to use this persistence API.
-    If not, we will use the id() builtin of python to generate an identifier for you.
+    If not, we will use the id() builtin of python to generate an identifier
+    for you.
 
     The file will be created, if it does not exist.
     If the file already exists, we will overwrite it.
 
     Args:
-        id_obj (Any): An identifiable object you want to persist in the filesystem.
+        id_obj (Any): An identifiable object you want to persist in the
+                      filesystem.
     """
     if suffix is None:
         suffix = ".pickle"
@@ -308,7 +286,7 @@ def load(filename):
         The object we were able to unpickle, else None.
     """
     if not os.path.exists(filename):
-        LOG.error("load object - File '{}' does not exist.".format(filename))
+        LOG.error("load object - File '%s' does not exist.", filename)
         return None
 
     obj = None

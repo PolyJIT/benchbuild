@@ -1,4 +1,3 @@
-# pylint: disable=E1101,E1102,E1133
 """
 # Actions
 
@@ -23,14 +22,14 @@ import textwrap
 import traceback
 from datetime import datetime
 
+import attr
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 
-import attr
-import benchbuild.signals as signals
+from benchbuild import signals
 from benchbuild.settings import CFG
+from benchbuild.utils import container, db
 from benchbuild.utils.cmd import mkdir, rm, rmdir
-from benchbuild.utils.db import persist_experiment
 
 LOG = logging.getLogger(__name__)
 
@@ -156,9 +155,8 @@ class StepClass(abc.ABCMeta):
         NAME = result.NAME
         DESCRIPTION = result.DESCRIPTION
         if NAME and DESCRIPTION:
-            result.__call__ = log_before_after(NAME,
-                                               DESCRIPTION)(to_step_result(
-                                                   result.__call__))
+            result.__call__ = log_before_after(NAME, DESCRIPTION)(
+                to_step_result(result.__call__))
         else:
             result.__call__ = to_step_result(result.__call__)
 
@@ -242,7 +240,7 @@ class Clean(Step):
 
     @notify_step_begin_end
     def __call__(self):
-        if not CFG['clean'].value():
+        if not CFG['clean']:
             LOG.warning("Clean disabled by config.")
             return
         if not self.obj:
@@ -261,8 +259,9 @@ class Clean(Step):
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Clean the directory: {1}".format(
-            self.obj.name, self.obj.builddir), indent * " ")
+        return textwrap.indent(
+            "* {0}: Clean the directory: {1}".format(
+                self.obj.name, self.obj.builddir), indent * " ")
 
 
 class MakeBuildDir(Step):
@@ -278,53 +277,17 @@ class MakeBuildDir(Step):
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Create the build directory".format(
-            self.obj.name), indent * " ")
+        return textwrap.indent(
+            "* {0}: Create the build directory".format(self.obj.name),
+            indent * " ")
 
 
-class Prepare(Step):
-    NAME = "PREPARE"
-    DESCRIPTION = "Prepare project build folder"
-
-    def __init__(self, project):
-        super(Prepare, self).__init__(obj=project, action_fn=project.prepare)
-
-    def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Prepare".format(self.obj.name),
-                               indent * " ")
-
-
-class Download(Step):
-    NAME = "DOWNLOAD"
-    DESCRIPTION = "Download project source files"
+class Compile(Step):
+    NAME = "COMPILE"
+    DESCRIPTION = "Compile the project"
 
     def __init__(self, project):
-        super(Download, self).__init__(obj=project, action_fn=project.download)
-
-    def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Download".format(self.obj.name),
-                               indent * " ")
-
-
-class Configure(Step):
-    NAME = "CONFIGURE"
-    DESCRIPTION = "Configure project source files"
-
-    def __init__(self, project):
-        super(Configure, self).__init__(
-            obj=project, action_fn=project.configure)
-
-    def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Configure".format(self.obj.name),
-                               indent * " ")
-
-
-class Build(Step):
-    NAME = "BUILD"
-    DESCRIPTION = "Build the project"
-
-    def __init__(self, project):
-        super(Build, self).__init__(obj=project, action_fn=project.build)
+        super(Compile, self).__init__(obj=project, action_fn=project.compile)
 
     def __str__(self, indent=0):
         return textwrap.indent("* {0}: Compile".format(self.obj.name),
@@ -349,8 +312,9 @@ class Run(Step):
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
-        return textwrap.indent("* {0}: Execute run-time tests.".format(
-            self.obj.name), indent * " ")
+        return textwrap.indent(
+            "* {0}: Execute run-time tests.".format(self.obj.name),
+            indent * " ")
 
 
 @attr.s
@@ -416,7 +380,7 @@ class Experiment(Any):
             [Echo(message="Completed experiment: {0}".format(self.obj.name))]
 
     def begin_transaction(self):
-        experiment, session = persist_experiment(self.obj)
+        experiment, session = db.persist_experiment(self.obj)
         if experiment.begin is None:
             experiment.begin = datetime.now()
         else:
@@ -535,23 +499,57 @@ class RequireAll(Step):
         return textwrap.indent("* All required:\n" + sub_actns, indent * " ")
 
 
+@attr.s
+class Containerize(RequireAll):
+    NAME = "CONTAINERIZE"
+    DESCRITPION = "Redirect into container"
+
+    def requires_redirect(self):
+        project = self.obj
+        return not container.in_container() and (project.container is not None)
+
+    @notify_step_begin_end
+    def __call__(self):
+        project = self.obj
+        if self.requires_redirect():
+            project.redirect()
+            self.status = StepResult.OK
+        else:
+            super(Containerize, self).__call__()
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
+        sub_actns = "\n".join(sub_actns)
+
+        if container.in_container():
+            return textwrap.indent("* Running inside container:\n" + sub_actns,
+                                   indent * " ")
+
+        if self.requires_redirect():
+            return textwrap.indent(
+                "* Continue inside container:\n" + sub_actns, indent * " ")
+
+        return textwrap.indent("* Running without container:\n" + sub_actns,
+                               indent * " ")
+
+
 class CleanExtra(Step):
     NAME = "CLEAN EXTRA"
     DESCRIPTION = "Cleans the extra directories."
 
     @notify_step_begin_end
     def __call__(self):
-        if not CFG['clean'].value():
+        if not CFG['clean']:
             return StepResult.OK
 
-        paths = CFG["cleanup_paths"].value()
+        paths = CFG["cleanup_paths"].value
         for p in paths:
             if os.path.exists(p):
                 rm("-r", p)
         self.status = StepResult.OK
 
     def __str__(self, indent=0):
-        paths = CFG["cleanup_paths"].value()
+        paths = CFG["cleanup_paths"].value
         lines = []
         for p in paths:
             lines.append(

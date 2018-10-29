@@ -1,36 +1,30 @@
 """
 crafty experiment within gentoo chroot.
 """
+from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils import download, wrapping
 from benchbuild.utils.cmd import cat
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uchroot, uretry
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 
 
 class Crafty(GentooGroup):
     """
         games-board/crafty
     """
-    NAME = "gentoo-crafty"
+    NAME = "crafty"
     DOMAIN = "games-board"
 
-    def download(self):
-        super(Crafty, self).download()
+    def compile(self):
+        super(Crafty, self).compile()
 
         book_file = "book.bin"
         book_bin = "http://www.craftychess.com/" + book_file
-        Wget(book_bin, book_file)
-
-    def build(self):
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        uretry(emerge_in_chroot["games-board/crafty"])
+        download.Wget(book_bin, book_file)
 
     def run_tests(self, runner):
-        crafty_path = "/usr/games/bin/crafty"
-        wrap(crafty_path.lstrip("/"), self, self.builddir)
-        crafty = uchroot()[crafty_path]
+        crafty_path = local.path("/usr/bin/crafty")
+        crafty = wrapping.wrap(crafty_path, self)
 
         with open("test1.sh", 'w') as test1:
             lines = '''

@@ -1,10 +1,10 @@
-import benchbuild.project as prj
-import benchbuild.utils.compiler as compiler
-import benchbuild.utils.run as run
-import benchbuild.utils.wrapping as wrapping
+from benchbuild import project
+from benchbuild.utils import compiler
+from benchbuild.utils import run
+from benchbuild.utils import wrapping
 
 
-class TestProject(prj.Project):
+class TestProject(project.Project):
     """Test project that does nothing."""
     NAME = "test"
     DOMAIN = "test"
@@ -12,7 +12,7 @@ class TestProject(prj.Project):
     VERSION = "1.0"
     SRC_FILE = "test.cpp"
 
-    def prepare(self):
+    def compile(self):
         with open(self.src_file, 'w') as test_source:
             lines = """
 #include <iostream>
@@ -24,13 +24,6 @@ int main(int argc, char **argv) {
             """
             test_source.write(lines)
 
-    def download(self):
-        pass
-
-    def configure(self):
-        pass
-
-    def build(self):
         clang = compiler.cxx(self)
         run.run(clang[self.src_file, "-o", self.src_file + ".out"])
 
@@ -39,7 +32,7 @@ int main(int argc, char **argv) {
         runner(exp)
 
 
-class TestProjectRuntimeFail(prj.Project):
+class TestProjectRuntimeFail(project.Project):
     """Test project that _always_ fails at runtime."""
 
     NAME = "test-fail"
@@ -48,7 +41,7 @@ class TestProjectRuntimeFail(prj.Project):
     VERSION = "1.0"
     SRC_FILE = "test.cpp"
 
-    def prepare(self):
+    def compile(self):
         with open(self.src_file, 'w') as test_source:
             lines = """
 #include <iostream>
@@ -60,13 +53,6 @@ int main(int argc, char **argv) {
             """
             test_source.write(lines)
 
-    def configure(self):
-        pass
-
-    def download(self):
-        pass
-
-    def build(self):
         clang = compiler.cxx(self)
         run.run(clang[self.src_file, "-o", self.src_file + ".out"])
 

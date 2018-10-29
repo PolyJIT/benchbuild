@@ -1,43 +1,36 @@
 """
 gzip experiment within gentoo chroot.
 """
-from os import path
+from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils import download, wrapping
 from benchbuild.utils.cmd import tar
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uchroot, uretry
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
 
 
 class GZip(GentooGroup):
     """
         app-arch/gzip
     """
-    NAME = "gentoo-gzip"
+    NAME = "gzip"
     DOMAIN = "app-arch"
 
     test_url = "http://lairosiel.de/dist/"
     test_archive = "compression.tar.gz"
-    testfiles = ["text.html", "chicken.jpg", "control", "input.source",
-                 "liberty.jpg"]
+    testfiles = [
+        "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
+    ]
 
-    def prepare(self):
-        super(GZip, self).prepare()
+    def compile(self):
+        super(GZip, self).compile()
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
-        Wget(test_url, test_archive)
+        download.Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
-    def build(self):
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        uretry(emerge_in_chroot["app-arch/gzip"])
-
     def run_tests(self, runner):
-        wrap(
-            path.join(self.builddir, "bin", "gzip"), self, self.builddir)
-        gzip = uchroot()["/bin/gzip"]
+        gzip = wrapping.wrap(local.path('/bin/gzip'), self)
 
         # Compress
         runner(gzip["-f", "-k", "--best", "compression/text.html"])

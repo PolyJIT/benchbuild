@@ -1,36 +1,27 @@
 import logging
 
-from benchbuild.project import Project
-from benchbuild.utils.cmd import cp, patch
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.path import template_path
-from benchbuild.utils.run import run
+from benchbuild import project
+from benchbuild.utils import compiler, download, path, run
+from benchbuild.utils.cmd import patch
 
 LOG = logging.getLogger(__name__)
 
 
-class Linpack(Project):
+@download.with_wget({"5/88": "http://www.netlib.org/benchmark/linpackc.new"})
+class Linpack(project.Project):
     """ Linpack (C-Version) """
 
     NAME = 'linpack'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
-    SRC_FILE = 'linpackc.new'
+    SRC_FILE = 'linpack.c'
+    VERSION = '5/88'
 
-    src_uri = "http://www.netlib.org/benchmark/linpackc.new"
-
-    def download(self):
-        lp_patch = template_path("../projects/patches/linpack.patch")
-        Wget(self.src_uri, "linpackc.new")
-        cp("-a", "linpackc.new", "linpack.c")
-
+    def compile(self):
+        self.download()
+        lp_patch = path.template_path("../projects/patches/linpack.patch")
         (patch["-p0"] < lp_patch)()
 
-    def configure(self):
-        pass
-
-    def build(self):
         self.ldflags += ["-lm"]
-        clang = cc(self)
-        run(clang["-o", self.run_f, "linpack.c"])
+        clang = compiler.cc(self)
+        run.run(clang["-o", self.run_f, "linpack.c"])

@@ -1,5 +1,4 @@
 """ Parsing utilities for Polly's ScheduleTree representation. """
-# pylint: disable=C0326
 import logging
 import textwrap as t
 
@@ -10,7 +9,7 @@ LOG = logging.getLogger(__name__)
 
 
 @attr.s
-class Node(object):
+class Node:
     tok = attr.ib()
 
     def indent(self, level=0, idt=' '):

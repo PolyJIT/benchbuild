@@ -114,7 +114,6 @@ def persist_project(project):
         newp.domain = domain
         newp.group_name = group_name
         newp.version = version
-        LOG.debug("Poject INSERT: %s", newp)
         session.add(newp)
     else:
         newp_value = {
@@ -125,7 +124,6 @@ def persist_project(project):
             "group_name": group_name,
             "version": version
         }
-        LOG.debug("Project UPDATE: %s", newp_value)
         projects.update(newp_value)
 
     session.commit()
@@ -146,7 +144,7 @@ def persist_experiment(experiment):
     cfg_exp = experiment.id
     LOG.debug("Using experiment ID stored in config: %s", cfg_exp)
     exps = session.query(Experiment).filter(Experiment.id == cfg_exp)
-    desc = CFG["experiment_description"].value()
+    desc = str(CFG["experiment_description"])
     name = experiment.name
 
     if exps.count() == 0:
@@ -156,10 +154,8 @@ def persist_experiment(experiment):
         newe.description = desc
         session.add(newe)
         ret = newe
-        LOG.debug("New experiment: %s", newe)
     else:
         exps.update({'name': name, 'description': desc})
-        LOG.debug("Update experiments: %s", exps)
         ret = exps.first()
 
     try:

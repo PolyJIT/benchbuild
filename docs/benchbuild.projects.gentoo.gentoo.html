@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>benchbuild.projects.gentoo.gentoo module &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.projects.gentoo.gentoo module &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="benchbuild.projects.gentoo.gzip module" href="benchbuild.projects.gentoo.gzip.html" />
@@ -33,7 +34,7 @@
         <li class="right" >
           <a href="benchbuild.projects.gentoo.eix.html" title="benchbuild.projects.gentoo.eix module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.projects.gentoo.html" accesskey="U">benchbuild.projects.gentoo package</a> &#187;</li> 
       </ul>
@@ -57,7 +58,7 @@ dependencies for your experiments. Make sure you update the hash alongside
 the gentoo image in benchbuild’s source directory.</p>
 <dl class="class">
 <dt id="benchbuild.projects.gentoo.gentoo.GentooGroup">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">GentooGroup</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#GentooGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.GentooGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">GentooGroup</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>emerge_env={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#GentooGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.GentooGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="benchbuild.project.html#benchbuild.project.Project" title="benchbuild.project.Project"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.project.Project</span></code></a></p>
 <p>Gentoo ProjectGroup is the base class for every portage build.</p>
 <dl class="attribute">
@@ -76,28 +77,70 @@ the gentoo image in benchbuild’s source directory.</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.build">
-<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#GentooGroup.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the project.</p>
+<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#GentooGroup.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile the project.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.configure">
-<code class="descname">configure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#GentooGroup.configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.configure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Configure the project.</p>
-</dd></dl>
+<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.configure_benchbuild">
+<code class="descname">configure_benchbuild</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#GentooGroup.configure_benchbuild"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.configure_benchbuild" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
-<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.download">
-<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#GentooGroup.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.download" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download the input source for this project.</p>
+<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.redirect">
+<code class="descname">redirect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#GentooGroup.redirect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.redirect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redirect execution to a containerized benchbuild instance.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="function">
+<dt id="benchbuild.projects.gentoo.gentoo.configure_portage">
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">configure_portage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#configure_portage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.configure_portage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.projects.gentoo.gentoo.emerge">
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">emerge</code><span class="sig-paren">(</span><em>package</em>, <em>*args</em>, <em>env=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#emerge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.emerge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.projects.gentoo.gentoo.find_benchbuild">
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">find_benchbuild</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#find_benchbuild"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.find_benchbuild" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.projects.gentoo.gentoo.requires_update">
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">requires_update</code><span class="sig-paren">(</span><em>benchbuild</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#requires_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.requires_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.projects.gentoo.gentoo.setup_benchbuild">
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">setup_benchbuild</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#setup_benchbuild"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.setup_benchbuild" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup benchbuild inside a container.</p>
+<p>This will query a for an existing installation of benchbuild and
+try to upgrade it to the latest version, if possible.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.projects.gentoo.gentoo.setup_compilers">
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">setup_compilers</code><span class="sig-paren">(</span><em>_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#setup_compilers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.setup_compilers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.projects.gentoo.gentoo.setup_networking">
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">setup_networking</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#setup_networking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.setup_networking" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="benchbuild.projects.gentoo.gentoo.setup_virtualenv">
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">setup_virtualenv</code><span class="sig-paren">(</span><em>_path='/benchbuild'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#setup_virtualenv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.setup_virtualenv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="benchbuild.projects.gentoo.gentoo.write_bashrc">
-<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">write_bashrc</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#write_bashrc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.write_bashrc" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">write_bashrc</code><span class="sig-paren">(</span><em>_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#write_bashrc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.write_bashrc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a valid gentoo bashrc file to :path:.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -111,7 +154,7 @@ the gentoo image in benchbuild’s source directory.</p>
 
 <dl class="function">
 <dt id="benchbuild.projects.gentoo.gentoo.write_layout">
-<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">write_layout</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#write_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.write_layout" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">write_layout</code><span class="sig-paren">(</span><em>_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#write_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.write_layout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a valid gentoo layout file to :path:.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -125,7 +168,7 @@ the gentoo image in benchbuild’s source directory.</p>
 
 <dl class="function">
 <dt id="benchbuild.projects.gentoo.gentoo.write_makeconfig">
-<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">write_makeconfig</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#write_makeconfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.write_makeconfig" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">write_makeconfig</code><span class="sig-paren">(</span><em>_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#write_makeconfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.write_makeconfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a valid gentoo make.conf file to :path:.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -138,8 +181,13 @@ the gentoo image in benchbuild’s source directory.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="benchbuild.projects.gentoo.gentoo.write_sandbox_d">
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">write_sandbox_d</code><span class="sig-paren">(</span><em>_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#write_sandbox_d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.write_sandbox_d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="benchbuild.projects.gentoo.gentoo.write_wgetrc">
-<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">write_wgetrc</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#write_wgetrc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.write_wgetrc" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">benchbuild.projects.gentoo.gentoo.</code><code class="descname">write_wgetrc</code><span class="sig-paren">(</span><em>_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/gentoo/gentoo.html#write_wgetrc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.gentoo.gentoo.write_wgetrc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a valid gentoo wgetrc file to :path:.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -203,14 +251,14 @@ the gentoo image in benchbuild’s source directory.</p>
         <li class="right" >
           <a href="benchbuild.projects.gentoo.eix.html" title="benchbuild.projects.gentoo.eix module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.projects.gentoo.html" >benchbuild.projects.gentoo package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

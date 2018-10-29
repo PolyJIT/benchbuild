@@ -5,7 +5,7 @@ from os import path
 from plumbum import local
 
 from benchbuild.settings import CFG
-from benchbuild.utils.downloader import get_hash_of_dirs
+from benchbuild.utils.download import get_hash_of_dirs
 
 
 def get_version_from_cache_dir(src_file):
@@ -25,16 +25,15 @@ def get_version_from_cache_dir(src_file):
     if src_file is None:
         return None
 
-    tmp_dir = str(CFG["tmp_dir"])
-    if path.exists(tmp_dir):
-        cache_file = path.join(tmp_dir, src_file)
+    tmp_dir = local.path(str(CFG["tmp_dir"]))
+    if tmp_dir.exists():
+        cache_file = tmp_dir / src_file
         dir_hash = get_hash_of_dirs(cache_file)
         if dir_hash is None:
             return None
-        elif len(str(dir_hash)) <= 7:
+        if len(str(dir_hash)) <= 7:
             return str(dir_hash)
-        else:
-            return str(dir_hash)[:7]
+        return str(dir_hash)[:7]
     return None
 
 

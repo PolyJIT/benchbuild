@@ -14,9 +14,6 @@ addons:
       - libfuse-dev
       - clang
 
-services:
-  - postgresql
-
 install:
   - pip install .
   - pip install -r requirements.txt
@@ -24,18 +21,15 @@ install:
   - pip install pytest-cov
 
 env:
-  - BB_UNIONFS_ENABLE=false BB_PLUGINS_EXPERIMENTS='["benchbuild.experiments.raw", "benchbuild.experiments.empty"]';
-
-before_script:
-  - psql -c 'create database pprof;' -U postgres
+  - BB_UNIONFS_ENABLE=false BB_PLUGINS_EXPERIMENTS='["benchbuild.experiments.raw", "benchbuild.experiments.empty"]'
 
 script:
+  - coverage run -a `which benchbuild` bootstrap -s
   - pytest --cov=./ benchbuild tests
   - coverage run -a `which benchbuild` config view
   - coverage run -a `which benchbuild` project view
   - coverage run -a `which benchbuild` experiment view
-  - coverage run -a `which benchbuild` bootstrap -s
-  - coverage run -a `which benchbuild` -vvvvv run --full -P test
+  - coverage run -a `which benchbuild` -vvvvv run --full test
   - codecov
 
 branches:

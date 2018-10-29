@@ -22,7 +22,7 @@ def extend_as_list(original_dict, **kwargs):
     return new_dict
 
 
-class ExtensibleDict(object):
+class ExtensibleDict:
     """A dictionary that provides temporary modification."""
 
     _current = dict()
@@ -100,8 +100,7 @@ class ExtensibleDict(object):
 
     def update(self, extender_fn, *args, **kwargs):
         if extender_fn is not None:
-            self._current.update(*args,
-                                 **extender_fn(self._current, **kwargs))
+            self._current.update(*args, **extender_fn(self._current, **kwargs))
         else:
             self._current.update(*args, **kwargs)
 

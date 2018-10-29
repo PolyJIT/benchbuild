@@ -1,8 +1,5 @@
 """Experiment helpers."""
-import enum
 import logging
-import os
-import subprocess
 import sys
 import typing as t
 from contextlib import contextmanager
@@ -11,91 +8,14 @@ from plumbum import TEE, local
 from plumbum.commands import ProcessExecutionError
 
 import attr
-import benchbuild.signals as signals
-from benchbuild import settings
-from benchbuild.settings import CFG
-from benchbuild.utils.cmd import mkdir
-from benchbuild.utils.path import list_to_path
+from benchbuild import settings, signals
 
+CFG = settings.CFG
 LOG = logging.getLogger(__name__)
 
 
-def fetch_time_output(marker, format_s, ins):
-    """
-    Fetch the output /usr/bin/time from a.
-
-    Args:
-        marker: The marker that limits the time output
-        format_s: The format string used to parse the timings
-        ins: A list of lines we look for the output.
-
-    Returns:
-        A list of timing tuples
-    """
-    from parse import parse
-
-    timings = [x for x in ins if marker in x]
-    res = [parse(format_s, t) for t in timings]
-    return [_f for _f in res if _f]
-
-
-def begin_run_group(project):
-    """
-    Begin a run_group in the database.
-
-    A run_group groups a set of runs for a given project. This models a series
-    of runs that form a complete binary runtime test.
-
-    Args:
-        project: The project we begin a new run_group for.
-
-    Returns:
-        ``(group, session)`` where group is the created group in the
-        database and session is the database session this group lives in.
-    """
-    from benchbuild.utils.db import create_run_group
-    from datetime import datetime
-
-    group, session = create_run_group(project)
-    group.begin = datetime.now()
-    group.status = 'running'
-
-    session.commit()
-    return group, session
-
-
-def end_run_group(group, session):
-    """
-    End the run_group successfully.
-
-    Args:
-        group: The run_group we want to complete.
-        session: The database transaction we will finish.
-    """
-    from datetime import datetime
-
-    group.end = datetime.now()
-    group.status = 'completed'
-    session.commit()
-
-
-def fail_run_group(group, session):
-    """
-    End the run_group unsuccessfully.
-
-    Args:
-        group: The run_group we want to complete.
-        session: The database transaction we will finish.
-    """
-    from datetime import datetime
-
-    group.end = datetime.now()
-    group.status = 'failed'
-    session.commit()
-
-
 @attr.s(cmp=False)
-class RunInfo(object):
+class RunInfo:
     """
     Execution context of wrapped binaries.
 
@@ -282,6 +202,61 @@ class RunInfo(object):
         self.session.commit()
 
 
+def begin_run_group(project):
+    """
+    Begin a run_group in the database.
+
+    A run_group groups a set of runs for a given project. This models a series
+    of runs that form a complete binary runtime test.
+
+    Args:
+        project: The project we begin a new run_group for.
+
+    Returns:
+        ``(group, session)`` where group is the created group in the
+        database and session is the database session this group lives in.
+    """
+    from benchbuild.utils.db import create_run_group
+    from datetime import datetime
+
+    group, session = create_run_group(project)
+    group.begin = datetime.now()
+    group.status = 'running'
+
+    session.commit()
+    return group, session
+
+
+def end_run_group(group, session):
+    """
+    End the run_group successfully.
+
+    Args:
+        group: The run_group we want to complete.
+        session: The database transaction we will finish.
+    """
+    from datetime import datetime
+
+    group.end = datetime.now()
+    group.status = 'completed'
+    session.commit()
+
+
+def fail_run_group(group, session):
+    """
+    End the run_group unsuccessfully.
+
+    Args:
+        group: The run_group we want to complete.
+        session: The database transaction we will finish.
+    """
+    from datetime import datetime
+
+    group.end = datetime.now()
+    group.status = 'failed'
+    session.commit()
+
+
 def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
     """Generate a single exit code from a list of RunInfo objects.
 
@@ -340,138 +315,6 @@ def run(command, retcode=0):
     return command & TEE(retcode=retcode)
 
 
-class UchrootEC(enum.Enum):
-    MNT_FAILED = 255
-    MNT_PROC_FAILED = 254
-    MNT_DEV_FAILED = 253
-    MNT_SYS_FAILED = 252
-    MNT_PTS_FAILED = 251
-
-
-def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
-    try:
-        run(pb_cmd, retcode)
-    except ProcessExecutionError as proc_ex:
-        new_retcode = proc_ex.retcode
-        if retries > max_retries:
-            LOG.error("Retried %d times. No change. Abort", retries)
-            raise
-
-        if new_retcode in retry_retcodes:
-            retry(
-                pb_cmd,
-                retries=retries + 1,
-                max_retries=max_retries,
-                retcode=retcode,
-                retry_retcodes=retry_retcodes)
-        else:
-            raise
-
-
-def uretry(cmd, retcode=0):
-    retry(
-        cmd,
-        retcode=retcode,
-        retry_retcodes=[
-            UchrootEC.MNT_PROC_FAILED.value, UchrootEC.MNT_DEV_FAILED.value,
-            UchrootEC.MNT_SYS_FAILED.value, UchrootEC.MNT_PTS_FAILED.value
-        ])
-
-
-def uchroot_no_args():
-    """Return the uchroot command without any customizations."""
-    from benchbuild.utils.cmd import uchroot as uchrt
-
-    prefixes = CFG["container"]["prefixes"].value()
-    p_paths, p_libs = uchroot_env(prefixes)
-    uchrt = with_env_recursive(
-        uchrt,
-        LD_LIBRARY_PATH=list_to_path(p_libs),
-        PATH=list_to_path(p_paths))
-
-    return uchrt
-
-
-def uchroot_no_llvm(*args, **kwargs):
-    """
-    Return a customizable uchroot command.
-
-    The command will be executed inside a uchroot environment.
-
-    Args:
-        args: List of additional arguments for uchroot (typical: mounts)
-    Return:
-        chroot_cmd
-    """
-    uid = kwargs.pop('uid', 0)
-    gid = kwargs.pop('gid', 0)
-
-    uchroot_cmd = uchroot_no_args()
-    uchroot_cmd = uchroot_cmd["-C", "-w", "/", "-r", os.path.abspath(".")]
-    uchroot_cmd = uchroot_cmd["-u", str(uid), "-g", str(gid), "-E", "-A"]
-    return uchroot_cmd[args]
-
-
-def uchroot_mounts(prefix, mounts):
-    """
-    Compute the mountpoints of the current user.
-
-    Args:
-        prefix: Define where the job was running if it ran on a cluster.
-        mounts: All mounts the user currently uses in his file system.
-    Return:
-        mntpoints
-    """
-    i = 0
-    mntpoints = []
-    for mount in mounts:
-        if not isinstance(mount, dict):
-            mntpoint = "{0}/{1}".format(prefix, str(i))
-            mntpoints.append(mntpoint)
-            i = i + 1
-    return mntpoints
-
-
-def _uchroot_mounts(prefix, mounts, uchrt):
-    i = 0
-    new_uchroot = uchrt
-    mntpoints = []
-    for mount in mounts:
-        src_mount = mount
-        if isinstance(mount, dict):
-            src_mount = mount["src"]
-            tgt_mount = mount["tgt"]
-        else:
-            tgt_mount = "{0}/{1}".format(prefix, str(i))
-            i = i + 1
-        mkdir("-p", tgt_mount)
-        new_uchroot = new_uchroot["-M", "{0}:/{1}".format(
-            src_mount, tgt_mount)]
-        mntpoints.append(tgt_mount)
-    return new_uchroot, mntpoints
-
-
-def uchroot_env(mounts):
-    """
-    Compute the environment of the change root for the user.
-
-    Args:
-        mounts: The mountpoints of the current user.
-    Return:
-        paths
-        ld_libs
-    """
-    f_mounts = [m.strip("/") for m in mounts]
-
-    ld_libs = ["/{0}/lib".format(m) for m in f_mounts]
-    ld_libs.extend(["/{0}/lib64".format(m) for m in f_mounts])
-
-    paths = ["/{0}/bin".format(m) for m in f_mounts]
-    paths.extend(["/{0}/sbin".format(m) for m in f_mounts])
-    paths.extend(["/{0}".format(m) for m in f_mounts])
-    return paths, ld_libs
-
-
 def with_env_recursive(cmd, **envvars):
     """
     Recursively updates the environment of cmd and all its subcommands.
@@ -492,45 +335,6 @@ def with_env_recursive(cmd, **envvars):
     return cmd
 
 
-def uchroot_with_mounts(*args, **kwargs):
-    """Return a uchroot command with all mounts enabled."""
-    uchroot_cmd = uchroot_no_args(*args, **kwargs)
-    uchroot_cmd, mounts = \
-        _uchroot_mounts("mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
-    paths, libs = uchroot_env(mounts)
-
-    prefixes = CFG["container"]["prefixes"].value()
-    p_paths, p_libs = uchroot_env(prefixes)
-
-    uchroot_cmd = with_env_recursive(
-        uchroot_cmd,
-        LD_LIBRARY_PATH=list_to_path(libs + p_libs),
-        PATH=list_to_path(paths + p_paths))
-    return uchroot_cmd
-
-
-def uchroot(*args, **kwargs):
-    """
-    Return a customizable uchroot command.
-
-    Args:
-        args: List of additional arguments for uchroot (typical: mounts)
-    Return:
-        chroot_cmd
-    """
-    mkdir("-p", "llvm")
-    uchroot_cmd = uchroot_no_llvm(*args, **kwargs)
-    uchroot_cmd, mounts = _uchroot_mounts(
-        "mnt", CFG["container"]["mounts"].value(), uchroot_cmd)
-    paths, libs = uchroot_env(mounts)
-    p_paths, p_libs = uchroot_env(CFG["container"]["prefixes"].value())
-
-    uchroot_cmd = uchroot_cmd.with_env(
-        LD_LIBRARY_PATH=list_to_path(libs + p_libs),
-        PATH=list_to_path(paths + p_paths))
-    return uchroot_cmd["--"]
-
-
 def in_builddir(sub='.'):
     """
     Decorate a project phase with a local working directory change.
@@ -539,7 +343,6 @@ def in_builddir(sub='.'):
         sub: An optional subdirectory to change into.
     """
     from functools import wraps
-    from os import path
 
     def wrap_in_builddir(func):
         """Wrap the function for the new build directory."""
@@ -547,187 +350,19 @@ def in_builddir(sub='.'):
         @wraps(func)
         def wrap_in_builddir_func(self, *args, **kwargs):
             """The actual function inside the wrapper for the new builddir."""
-            p = path.abspath(path.join(self.builddir, sub))
-            try:
-                with local.cwd(p):
-                    return func(self, *args, **kwargs)
-            except FileNotFoundError:
-                LOG.debug("Chdir to %s failed. Directory does not exist.", p)
+            p = local.path(self.builddir) / sub
+            if not p.exists():
+                LOG.error("%s does not exist.", p)
+
+            if p == local.cwd:
+                LOG.debug("CWD already is %s", p)
+                return func(self, *args, *kwargs)
+            with local.cwd(p):
+                return func(self, *args, **kwargs)
 
         return wrap_in_builddir_func
 
     return wrap_in_builddir
-
-
-def unionfs_set_up(ro_base, rw_image, mountpoint):
-    """
-    Setup a unionfs via unionfs-fuse.
-
-    Args:
-        ro_base: base_directory of the project
-        rw_image: virtual image of actual file system
-        mountpoint: location where ro_base and rw_image merge
-    """
-    if not os.path.exists(mountpoint):
-        mkdir("-p", mountpoint)
-    if not os.path.exists(ro_base):
-        LOG.error("Base dir does not exist: '%s'", ro_base)
-        raise ValueError("Base directory does not exist")
-    if not os.path.exists(rw_image):
-        LOG.error("Image dir does not exist: '%s'", ro_base)
-        raise ValueError("Image directory does not exist")
-
-    from benchbuild.utils.cmd import unionfs as unionfs_cmd
-    ro_base = os.path.abspath(ro_base)
-    rw_image = os.path.abspath(rw_image)
-    mountpoint = os.path.abspath(mountpoint)
-    return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow", rw_image +
-                       "=RW:" + ro_base + "=RO", mountpoint]
-
-
-def unionfs_is_active(root):
-    import psutil
-
-    real_root = os.path.realpath(root)
-    for part in psutil.disk_partitions(all=True):
-        if os.path.commonpath([part.mountpoint, real_root]) == real_root:
-            if part.fstype in ["fuse.unionfs", "fuse.unionfs-fuse"]:
-                return True
-    return False
-
-
-class UnmountError(BaseException):
-    pass
-
-
-def unionfs(base_dir='./base',
-            image_dir='./image',
-            image_prefix=None,
-            mountpoint='./union'):
-    """
-    Decorator for the UnionFS feature.
-
-    This configures a unionfs for projects. The given base_dir and/or image_dir
-    are layered as follows:
-     image_dir=RW:base_dir=RO
-    All writes go to the image_dir, while base_dir delivers the (read-only)
-    versions of the rest of the filesystem.
-
-    The unified version will be provided in the project's builddir. Unmouting
-    is done as soon as the function completes.
-
-    Args:
-        base_dir:The unpacked container of a project delievered by a method
-                 out of the container utils.
-        image_dir: Virtual image of the actual file system represented by the
-                   build_dir of a project.
-        image_prefix: Useful prefix if the projects run on a cluster,
-                      to identify where the job came from and where it runs.
-        mountpoint: Location where the filesystems merge, currently per default
-                    as './union'.
-    """
-    from functools import wraps
-
-    def update_cleanup_paths(new_path):
-        """
-        Add the new path to the list of paths to clean up afterwards.
-
-        Args:
-            new_path: Path to the directory that need to be cleaned up.
-        """
-        cleanup_dirs = settings.CFG["cleanup_paths"].value()
-        cleanup_dirs = set(cleanup_dirs)
-        cleanup_dirs.add(new_path)
-        cleanup_dirs = list(cleanup_dirs)
-        settings.CFG["cleanup_paths"] = cleanup_dirs
-
-    def is_outside_of_builddir(project, path_to_check):
-        """Check if a project lies outside of its expected directory."""
-        bdir = project.builddir
-        cprefix = os.path.commonprefix([path_to_check, bdir])
-        return cprefix != bdir
-
-    def wrap_in_union_fs(func):
-        """
-        Function that wraps a given function inside the file system.
-
-        Args:
-            func: The function that needs to be wrapped inside the unions fs.
-        Return:
-            The file system with the function wrapped inside.
-        """
-        nonlocal image_prefix
-
-        @wraps(func)
-        def wrap_in_union_fs_func(project, *args, **kwargs):
-            """
-            Wrap the func in the UnionFS mount stack.
-
-            We make sure that the mount points all exist and stack up the
-            directories for the unionfs. All directories outside of the default
-            build environment are tracked for deletion.
-            """
-            container = project.container
-            abs_base_dir = os.path.abspath(container.local)
-            nonlocal image_prefix
-            if image_prefix is not None:
-                image_prefix = os.path.abspath(image_prefix)
-                rel_prj_builddir = os.path.relpath(
-                    project.builddir, str(settings.CFG["build_dir"]))
-                abs_image_dir = os.path.abspath(
-                    os.path.join(image_prefix, rel_prj_builddir, image_dir))
-
-                if is_outside_of_builddir(project, abs_image_dir):
-                    update_cleanup_paths(abs_image_dir)
-            else:
-                abs_image_dir = os.path.abspath(
-                    os.path.join(project.builddir, image_dir))
-            abs_mount_dir = os.path.abspath(
-                os.path.join(project.builddir, mountpoint))
-            if not os.path.exists(abs_base_dir):
-                mkdir("-p", abs_base_dir)
-            if not os.path.exists(abs_image_dir):
-                mkdir("-p", abs_image_dir)
-            if not os.path.exists(abs_mount_dir):
-                mkdir("-p", abs_mount_dir)
-
-            unionfs_cmd = unionfs_set_up(abs_base_dir, abs_image_dir,
-                                         abs_mount_dir)
-            project_builddir_bak = project.builddir
-            project.builddir = abs_mount_dir
-
-            proc = unionfs_cmd.popen()
-            while (not unionfs_is_active(root=abs_mount_dir)) and \
-                  (proc.poll() is None):
-                pass
-
-            ret = None
-            if proc.poll() is None:
-                try:
-                    with local.cwd(abs_mount_dir):
-                        ret = func(project, *args, **kwargs)
-                finally:
-                    project.builddir = project_builddir_bak
-
-                    from signal import SIGINT
-                    is_running = proc.poll() is None
-                    while unionfs_is_active(root=abs_mount_dir) and is_running:
-                        try:
-                            proc.send_signal(SIGINT)
-                            proc.wait(timeout=3)
-                        except subprocess.TimeoutExpired:
-                            proc.kill()
-                            is_running = False
-                    LOG.debug("Unionfs shut down.")
-
-            if unionfs_is_active(root=abs_mount_dir):
-                raise UnmountError()
-
-            return ret
-
-        return wrap_in_union_fs_func
-
-    return wrap_in_union_fs
 
 
 def store_config(func):
@@ -737,8 +372,7 @@ def store_config(func):
     @wraps(func)
     def wrap_store_config(self, *args, **kwargs):
         """Wrapper that contains the actual storage call for the config."""
-        p = os.path.abspath(os.path.join(self.builddir))
-        CFG.store(os.path.join(p, ".benchbuild.yml"))
+        CFG.store(local.path(self.builddir) / ".benchbuild.yml")
         return func(self, *args, **kwargs)
 
     return wrap_store_config

@@ -1,39 +1,33 @@
 """
 media-video/x264-encoder within gentoo chroot.
 """
-from os import path
-from benchbuild.utils.wrapping import wrap_in_uchroot as wrap
+from plumbum import local
+
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import uretry, uchroot
+from benchbuild.utils import download, wrapping
 
 
 class X264(GentooGroup):
     """
         media-video/x264-encoder
     """
-    NAME = "gentoo-x264"
+    NAME = "x264"
     DOMAIN = "media-libs"
 
     test_url = "http://lairosiel.de/dist/"
-    inputfiles = {"tbbt-small.y4m": [],
-                  "Sintel.2010.720p.raw": ["--input-res", "1280x720"]}
+    inputfiles = {
+        "tbbt-small.y4m": [],
+        "Sintel.2010.720p.raw": ["--input-res", "1280x720"]
+    }
 
-    def prepare(self):
-        super(X264, self).prepare()
+    def compile(self):
+        super(X264, self).compile()
 
         for testfile in self.inputfiles:
-            Wget(self.test_url + testfile, testfile)
-
-    def build(self):
-        emerge_in_chroot = uchroot()["/usr/bin/emerge"]
-        uretry(emerge_in_chroot["media-video/x264-encoder"])
+            download.Wget(self.test_url + testfile, testfile)
 
     def run_tests(self, runner):
-        wrap(
-            path.join(self.builddir, "usr/bin/x264"), self,
-            self.builddir)
-        x264 = uchroot()["/usr/bin/x264"]
+        x264 = wrapping.wrap(local.path('/usr/bin/x264'), self)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",
@@ -48,5 +42,6 @@ class X264(GentooGroup):
 
         for ifile in self.inputfiles:
             for _, test in enumerate(tests):
-                uretry(x264[ifile, self.inputfiles[ifile], "--threads", "1", "-o",
-                            "/dev/null", test.split(" ")])
+                runner(x264[ifile, self.inputfiles[ifile], "--threads", "1",
+                            "-o", "/dev/null",
+                            test.split(" ")])

@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>benchbuild.projects.apollo.rodinia module &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.projects.apollo.rodinia module &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="benchbuild.projects.apollo.scimark module" href="benchbuild.projects.apollo.scimark.html" />
@@ -33,7 +34,7 @@
         <li class="right" >
           <a href="benchbuild.projects.apollo.group.html" title="benchbuild.projects.apollo.group module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.projects.apollo.html" accesskey="U">benchbuild.projects.apollo package</a> &#187;</li> 
       </ul>
@@ -48,7 +49,7 @@
 <span id="benchbuild-projects-apollo-rodinia-module"></span><h1>benchbuild.projects.apollo.rodinia module<a class="headerlink" href="#module-benchbuild.projects.apollo.rodinia" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.BFS">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">BFS</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#BFS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.BFS" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">BFS</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#BFS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.BFS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.BFS.CONFIG">
@@ -62,14 +63,14 @@
 
 <dl class="staticmethod">
 <dt id="benchbuild.projects.apollo.rodinia.BFS.select_compiler">
-<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>compiler</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#BFS.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.BFS.select_compiler" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>cc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#BFS.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.BFS.select_compiler" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.BPlusTree">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">BPlusTree</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#BPlusTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.BPlusTree" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">BPlusTree</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#BPlusTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.BPlusTree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.BPlusTree.CONFIG">
@@ -85,7 +86,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.Backprop">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">Backprop</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Backprop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Backprop" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">Backprop</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Backprop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Backprop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.Backprop.CONFIG">
@@ -101,7 +102,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.CFD">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">CFD</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#CFD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.CFD" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">CFD</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#CFD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.CFD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.CFD.CONFIG">
@@ -115,14 +116,14 @@
 
 <dl class="staticmethod">
 <dt id="benchbuild.projects.apollo.rodinia.CFD.select_compiler">
-<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>compiler</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#CFD.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.CFD.select_compiler" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>cc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#CFD.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.CFD.select_compiler" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.HeartWall">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">HeartWall</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#HeartWall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.HeartWall" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">HeartWall</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#HeartWall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.HeartWall" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.HeartWall.CONFIG">
@@ -138,7 +139,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.Hotspot">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">Hotspot</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Hotspot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Hotspot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">Hotspot</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Hotspot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Hotspot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.Hotspot.CONFIG">
@@ -152,14 +153,14 @@
 
 <dl class="staticmethod">
 <dt id="benchbuild.projects.apollo.rodinia.Hotspot.select_compiler">
-<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>compiler</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Hotspot.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Hotspot.select_compiler" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>cc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Hotspot.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Hotspot.select_compiler" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.Hotspot3D">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">Hotspot3D</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Hotspot3D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Hotspot3D" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">Hotspot3D</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Hotspot3D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Hotspot3D" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.Hotspot3D.CONFIG">
@@ -175,11 +176,11 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.KMeans">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">KMeans</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#KMeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.KMeans" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">KMeans</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#KMeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.KMeans" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.KMeans.CONFIG">
-<code class="descname">CONFIG</code><em class="property"> = {'dir': 'openmp/kmeans', 'flags': ['-lm', '-fopenmp'], 'src': {'./kmeans_serial/kmeans': ['./kmeans_serial/kmeans_clustering.c', './kmeans_serial/kmeans.c', './kmeans_serial/getopt.c', './kmeans_serial/cluster.c'], './kmeans_openmp/kmeans': ['./kmeans_openmp/kmeans_clustering.c', './kmeans_openmp/kmeans.c', './kmeans_openmp/getopt.c', './kmeans_openmp/cluster.c']}}</em><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.KMeans.CONFIG" title="Permalink to this definition">¶</a></dt>
+<code class="descname">CONFIG</code><em class="property"> = {'dir': 'openmp/kmeans', 'flags': ['-lm', '-fopenmp'], 'src': {'./kmeans_openmp/kmeans': ['./kmeans_openmp/kmeans_clustering.c', './kmeans_openmp/kmeans.c', './kmeans_openmp/getopt.c', './kmeans_openmp/cluster.c'], './kmeans_serial/kmeans': ['./kmeans_serial/kmeans_clustering.c', './kmeans_serial/kmeans.c', './kmeans_serial/getopt.c', './kmeans_serial/cluster.c']}}</em><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.KMeans.CONFIG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -191,7 +192,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.LUD">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">LUD</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#LUD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.LUD" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">LUD</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#LUD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.LUD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.LUD.CONFIG">
@@ -207,7 +208,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.LavaMD">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">LavaMD</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#LavaMD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.LavaMD" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">LavaMD</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#LavaMD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.LavaMD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.LavaMD.CONFIG">
@@ -223,7 +224,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.Leukocyte">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">Leukocyte</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Leukocyte"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Leukocyte" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">Leukocyte</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Leukocyte"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Leukocyte" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.Leukocyte.CONFIG">
@@ -239,7 +240,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.Myocyte">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">Myocyte</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Myocyte"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Myocyte" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">Myocyte</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#Myocyte"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.Myocyte" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.Myocyte.CONFIG">
@@ -255,7 +256,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.NN">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">NN</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#NN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.NN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">NN</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#NN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.NN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.NN.CONFIG">
@@ -271,7 +272,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.NW">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">NW</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#NW"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.NW" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">NW</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#NW"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.NW" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.NW.CONFIG">
@@ -285,14 +286,14 @@
 
 <dl class="staticmethod">
 <dt id="benchbuild.projects.apollo.rodinia.NW.select_compiler">
-<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>compiler</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#NW.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.NW.select_compiler" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>cc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#NW.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.NW.select_compiler" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.ParticleFilter">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">ParticleFilter</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#ParticleFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.ParticleFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">ParticleFilter</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#ParticleFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.ParticleFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.ParticleFilter.CONFIG">
@@ -308,7 +309,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.PathFinder">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">PathFinder</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#PathFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.PathFinder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">PathFinder</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#PathFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.PathFinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.PathFinder.CONFIG">
@@ -322,14 +323,14 @@
 
 <dl class="staticmethod">
 <dt id="benchbuild.projects.apollo.rodinia.PathFinder.select_compiler">
-<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>compiler</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#PathFinder.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.PathFinder.select_compiler" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>cc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#PathFinder.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.PathFinder.select_compiler" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">RodiniaGroup</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#RodiniaGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">RodiniaGroup</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#RodiniaGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="benchbuild.project.html#benchbuild.project.Project" title="benchbuild.project.Project"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.project.Project</span></code></a></p>
 <p>Generic handling of Rodinia benchmarks.</p>
 <dl class="attribute">
@@ -349,7 +350,7 @@
 
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.SRC_FILE">
-<code class="descname">SRC_FILE</code><em class="property"> = 'rodinia_3.1.tar.bz2'</em><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.SRC_FILE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SRC_FILE</code><em class="property"> = 'rodinia.tar.bz2'</em><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.SRC_FILE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -358,21 +359,15 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.build">
-<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#RodiniaGroup.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the project.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.configure">
-<code class="descname">configure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#RodiniaGroup.configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.configure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Configure the project.</p>
+<dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#RodiniaGroup.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile the project.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.download">
-<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#RodiniaGroup.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download the input source for this project.</p>
+<code class="descname">download</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the selected version from the url_dict value.</p>
 </dd></dl>
 
 <dl class="method">
@@ -399,11 +394,17 @@
 <em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>c_compiler</em>, <em>_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#RodiniaGroup.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.select_compiler" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="staticmethod">
+<dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">
+<em class="property">static </em><code class="descname">versions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of versions from the url_dict keys.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.SRAD1">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">SRAD1</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#SRAD1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.SRAD1" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">SRAD1</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#SRAD1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.SRAD1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.SRAD1.CONFIG">
@@ -419,7 +420,7 @@
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.SRAD2">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">SRAD2</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#SRAD2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.SRAD2" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">SRAD2</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#SRAD2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.SRAD2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.SRAD2.CONFIG">
@@ -433,14 +434,14 @@
 
 <dl class="staticmethod">
 <dt id="benchbuild.projects.apollo.rodinia.SRAD2.select_compiler">
-<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>compiler</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#SRAD2.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.SRAD2.select_compiler" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>cc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#SRAD2.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.SRAD2.select_compiler" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="benchbuild.projects.apollo.rodinia.StreamCluster">
-<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">StreamCluster</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=&lt;benchbuild.utils.container.Gentoo object&gt;</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>src_dir='rodinia_3.1'</em>, <em>src_uri='http://www.cs.virginia.edu/~kw5na/lava/Rodinia/Packages/Current/rodinia_3.1.tar.bz2'</em>, <em>config=NOTHING</em>, <em>in_src_dir=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#StreamCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.StreamCluster" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">benchbuild.projects.apollo.rodinia.</code><code class="descname">StreamCluster</code><span class="sig-paren">(</span><em>experiment</em>, <em>name=NOTHING</em>, <em>domain=NOTHING</em>, <em>group=NOTHING</em>, <em>src_file=NOTHING</em>, <em>container=NOTHING</em>, <em>version=NOTHING</em>, <em>builddir=NOTHING</em>, <em>testdir=NOTHING</em>, <em>cflags=NOTHING</em>, <em>ldflags=NOTHING</em>, <em>run_f=NOTHING</em>, <em>run_uuid=NOTHING</em>, <em>compiler_extension=NOTHING</em>, <em>runtime_extension=None</em>, <em>config=NOTHING</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#StreamCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.StreamCluster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup" title="benchbuild.projects.apollo.rodinia.RodiniaGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.projects.apollo.rodinia.RodiniaGroup</span></code></a></p>
 <dl class="attribute">
 <dt id="benchbuild.projects.apollo.rodinia.StreamCluster.CONFIG">
@@ -454,7 +455,7 @@
 
 <dl class="staticmethod">
 <dt id="benchbuild.projects.apollo.rodinia.StreamCluster.select_compiler">
-<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>compiler</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#StreamCluster.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.StreamCluster.select_compiler" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">select_compiler</code><span class="sig-paren">(</span><em>_</em>, <em>cc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/projects/apollo/rodinia.html#StreamCluster.select_compiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.projects.apollo.rodinia.StreamCluster.select_compiler" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -511,14 +512,14 @@
         <li class="right" >
           <a href="benchbuild.projects.apollo.group.html" title="benchbuild.projects.apollo.group module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="benchbuild.projects.html" >benchbuild.projects package</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="benchbuild.projects.apollo.html" >benchbuild.projects.apollo package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

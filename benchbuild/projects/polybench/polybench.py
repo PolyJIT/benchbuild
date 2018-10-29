@@ -1,15 +1,25 @@
 import logging
-from os import path
 
 from plumbum import local
 
-from benchbuild.project import Project
-from benchbuild.utils.cmd import cp, diff, tar
-from benchbuild.utils.compiler import cc
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.wrapping import wrap
+from benchbuild import project
+from benchbuild.settings import CFG
+from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils.cmd import diff, tar
 
 LOG = logging.getLogger(__name__)
+CFG['projects'] = {
+    "polybench": {
+        "verify": {
+            "default": True,
+            "desc": "Verify results with POLYBENCH_DUMP_ARRAYS."
+        },
+        "workload": {
+            "default": "EXTRALARGE_DATASET",
+            "desc": "Control the dataset variable for polybench."
+        }
+    }
+}
 
 
 def get_dump_arrays_output(data):
@@ -31,7 +41,11 @@ def get_dump_arrays_output(data):
     return out
 
 
-class PolyBenchGroup(Project):
+@download.with_wget({
+    "4.2":
+    "http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz"
+})
+class PolyBenchGroup(project.Project):
     DOMAIN = 'polybench'
     GROUP = 'polybench'
     VERSION = '4.2'
@@ -68,72 +82,85 @@ class PolyBenchGroup(Project):
         "floyd-warshall": "medley",
     }
 
-    src_dir = "polybench-c-{0}".format(VERSION)
-    SRC_FILE = src_dir + ".tar.gz"
-    src_uri = "http://downloads.sourceforge.net/project/polybench/" + SRC_FILE
+    SRC_FILE = "polybench.tar.gz"
 
-    def download(self):
-        Wget(self.src_uri, self.src_file)
-        tar('xfz', path.join(self.builddir, self.src_file))
+    def compile_verify(self, compiler_args, polybench_opts):
+        polybench_opts.append("-DPOLYBENCH_DUMP_ARRAYS")
 
-    def configure(self):
-        cp("-ar", path.join(self.src_dir, self.path_dict[self.name],
-                            self.name), self.name + ".dir")
-        cp("-ar", path.join(self.src_dir, "utilities"), ".")
-
-    def build(self):
-        from benchbuild.utils.run import run
-        src_file = path.join(self.name + ".dir", self.name + ".c")
         cflags = self.cflags
         ldflags = self.ldflags
+
         self.cflags = []
         self.ldflags = []
 
-        clang_no_opts = cc(self)
+        clang_no_opts = compiler.cc(self)
 
         self.cflags = cflags
         self.ldflags = ldflags
+        run.run(clang_no_opts[polybench_opts, compiler_args, "-o", self.name +
+                              ".no-opts", "-lm"])
+        return polybench_opts
+
+    def compile(self):
+        self.download()
+
+        polybench_opts = CFG["projects"]["polybench"]
+        verify = bool(polybench_opts["verify"])
+        workload = str(polybench_opts["workload"])
+
+        tar('xfz', self.src_file)
+        src_dir_name = "polybench-c-{0}".format(self.version)
+
+        src_dir = local.cwd / src_dir_name
+        src_sub = src_dir / self.path_dict[self.name] / self.name
+
+        src_file = src_sub / (self.name + ".c")
+        utils_dir = src_dir / "utilities"
+
         polybench_opts = [
-            "-DPOLYBENCH_USE_C99_PROTO",
-            "-DEXTRALARGE_DATASET",
-            "-DPOLYBENCH_DUMP_ARRAYS",
+            "-DPOLYBENCH_USE_C99_PROTO", "-D" + str(workload),
             "-DPOLYBENCH_USE_RESTRICT"
         ]
-        run(clang_no_opts[
-            "-I", "utilities", "-I", self.name,
-            polybench_opts,
-            "utilities/polybench.c", src_file, "-lm", "-o",
-            self.run_f + ".no-opts"])
-        clang = cc(self)
-        run(clang["-I", "utilities", "-I", self.name,
-                  polybench_opts,
-                  "utilities/polybench.c", src_file, "-lm", "-o", self.run_f])
+
+        if verify:
+            polybench_opts = self.compile_verify([
+                "-I", utils_dir, "-I", src_sub, utils_dir / "polybench.c",
+                src_file, "-lm"
+            ], polybench_opts)
+        clang = compiler.cc(self)
+        run.run(
+            clang["-I", utils_dir, "-I", src_sub, polybench_opts, utils_dir /
+                  "polybench.c", src_file, "-lm", "-o", self.name])
 
     def run_tests(self, runner):
-        noopts_file = self.run_f + ".no-opts"
-        noopts_file_stderr = noopts_file + ".stderr"
-        noopts_file_stderr_2 = noopts_file_stderr + ".2"
+        def filter_stderr(stderr_raw, stderr_filtered):
+            """Extract dump_arrays_output from stderr."""
+            with open(stderr_raw, 'r') as stderr:
+                with open(stderr_filtered, 'w') as stderr_filt:
+                    stderr_filt.writelines(
+                        get_dump_arrays_output(stderr.readlines()))
 
-        opts_file = self.run_f
-        opts_file_stderr = self.run_f + ".stderr"
-        opts_file_stderr_2 = opts_file_stderr + ".2"
+        polybench_opts = CFG["projects"]["polybench"]
+        verify = bool(polybench_opts["verify"])
 
-        runner(wrap(opts_file, self))
-        with local.env(BB_IS_BASELINE=True):
-            runner(wrap(noopts_file, self))
+        binary = local.cwd / self.name
+        opt_stderr_raw = binary + ".stderr"
+        opt_stderr_filtered = opt_stderr_raw + ".filtered"
 
-        with open(noopts_file_stderr, 'r') as inf:
-            stderr = inf.readlines()
-            with open(noopts_file_stderr_2, 'w') as fd_stderr:
-                fd_stderr.writelines(get_dump_arrays_output(stderr))
+        runner(wrapping.wrap(binary, self))
+        filter_stderr(opt_stderr_raw, opt_stderr_filtered)
 
-        with open(opts_file_stderr, 'r') as inf:
-            stderr = inf.readlines()
-            with open(opts_file_stderr_2, 'w') as fd_stderr:
-                fd_stderr.writelines(get_dump_arrays_output(stderr))
+        if verify:
+            binary = local.cwd / (self.name + ".no-opts")
+            noopt_stderr_raw = binary + ".stderr"
+            noopt_stderr_filtered = noopt_stderr_raw + ".filtered"
 
-        diff_cmd = diff[noopts_file_stderr_2, opts_file_stderr_2]
-        runner(diff_cmd, retcode=0)
+            with local.env(BB_IS_BASELINE=True):
+                runner(wrapping.wrap(binary, self))
+            filter_stderr(noopt_stderr_raw, noopt_stderr_filtered)
+
+            diff_cmd = diff[noopt_stderr_filtered, opt_stderr_filtered]
+            runner(diff_cmd, retcode=0)
 
 
 class Correlation(PolyBenchGroup):

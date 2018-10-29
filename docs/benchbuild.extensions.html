@@ -6,17 +6,18 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Extensions &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.extensions package &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Dictionary-like configuration objects." href="benchbuild.utils.settings.html" />
-    <link rel="prev" title="Projects" href="benchbuild.project.html" /> 
+    <link rel="next" title="benchbuild.extensions.base module" href="benchbuild.extensions.base.html" />
+    <link rel="prev" title="benchbuild.project module" href="benchbuild.project.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -28,12 +29,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="benchbuild.utils.settings.html" title="Dictionary-like configuration objects."
+          <a href="benchbuild.extensions.base.html" title="benchbuild.extensions.base module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="benchbuild.project.html" title="Projects"
+          <a href="benchbuild.project.html" title="benchbuild.project module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -42,237 +43,19 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="extensions">
-<span id="extensions"></span><h1>Extensions<a class="headerlink" href="#extensions" title="Permalink to this headline">¶</a></h1>
-<p>Extensions are Benchbuild’s way to encode composable experiments.
-In essence, an extension is just a callable (or Functor) with (optional) additional attributes.
-Composability is achieved by storing an arbitrary number of child extensions that can be triggered at any point in the call method.
-You can define your own extension by subclassing from <code class="docutils literal notranslate"><span class="pre">benchbuild.extensions.Extension</span></code>.
-Your constructor should handle <code class="docutils literal notranslate"><span class="pre">*args</span></code> as child extensions and use <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> for additional
-attributes required by the extension.
-The <code class="docutils literal notranslate"><span class="pre">__call__</span></code> operator of your extension has to deal with arbitrary <code class="docutils literal notranslate"><span class="pre">*args</span></code> which are the binary and binary arguments for the experiment. Any additional dynamic parameters used by the extension can
-be passed in via <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> again.</p>
-<div class="section" id="wrap-a-binary-with-a-timeout-command">
-<span id="wrap-a-binary-with-a-timeout-command"></span><h2>Wrap a binary with a timeout command<a class="headerlink" href="#wrap-a-binary-with-a-timeout-command" title="Permalink to this headline">¶</a></h2>
-<p>As an example, let us wrap an arbitrary binary with a timeout command. For that we need
-the <code class="docutils literal notranslate"><span class="pre">RunWithTimeout</span></code> extension as shown below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RunWithTimeout</span><span class="p">(</span><span class="n">Extension</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">extensions</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="s2">&quot;10m&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">RunWithTimeout</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">extensions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="o">=</span> <span class="n">limit</span>
-
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary_command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">benchbuild.utils.cmd</span> <span class="kn">import</span> <span class="n">timeout</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_next</span><span class="p">(</span>
-            <span class="n">timeout</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span> <span class="n">binary_command</span><span class="p">],</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>On initialization, we set the time limit to “10m” by default.
-As soon as this extension is run, we get the binary_command as part of the <code class="docutils literal notranslate"><span class="pre">*args</span></code> and wrap
-it with the command <code class="docutils literal notranslate"><span class="pre">timeout</span></code> with the given time limit.
-The wrapped command then serves as the new <code class="docutils literal notranslate"><span class="pre">binary_command</span></code> for our child extensions.</p>
-<p>Now, when you want to use this extension, you need to compose it with an extension that actually runs
-the command afterwards. Benchbuild provides one that controls database tracking at the same time <code class="docutils literal notranslate"><span class="pre">benchbuild.extensions.RuntimeExtension</span></code>. You should use this one by default as at takes care of
-tracking the binary call properly..</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">benchbuild.extensions</span> <span class="kn">as</span> <span class="nn">ext</span>
-
-<span class="k">class</span> <span class="nc">RawTimeout</span><span class="p">(</span><span class="n">Experiment</span><span class="p">):</span>
-    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;raw-timeout&#39;</span>
-    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
-        <span class="n">project</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">RunWithTimeout</span><span class="p">(</span>
-            <span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="s2">&quot;2m&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>If you compose many extensions, you can use the left shift operator to avoid cluttering your code with
-a high nesting depth. Note, that you need to reverse the chaining order compared to the nested one, from outermost first to innermost first.
-After composition, you have to assign the extension to the <code class="docutils literal notranslate"><span class="pre">runtime_extension</span></code> attribute of a <code class="docutils literal notranslate"><span class="pre">project</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">benchbuild.extensions</span> <span class="kn">as</span> <span class="nn">ext</span>
-
-<span class="k">class</span> <span class="nc">RawTimeout</span><span class="p">(</span><span class="n">Experiment</span><span class="p">):</span>
-    <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;raw-timeout&#39;</span>
-    <span class="k">def</span> <span class="nf">actions_for_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
-        <span class="n">project</span><span class="o">.</span><span class="n">runtime_extension</span> <span class="o">=</span> \
-               <span class="n">ext</span><span class="o">.</span><span class="n">RuntimeExtension</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> \
-            <span class="o">&lt;&lt;</span> <span class="n">ext</span><span class="o">.</span><span class="n">RunWithTimeout</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="s2">&quot;2m&quot;</span><span class="p">)</span>
-
-        <span class="o">...</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="module-benchbuild.extensions">
-<span id="api-reference"></span><span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-benchbuild.extensions" title="Permalink to this headline">¶</a></h2>
-<p>Extension base-classes for compile-time and run-time experiments.</p>
-<dl class="class">
-<dt id="benchbuild.extensions.Extension">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">Extension</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#Extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.Extension" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>An experiment functor to implement composable experiments.</p>
-<p>An experiment extension is always callable with an arbitrary amount of
-arguments. The varargs component of an extension’s <cite>__call__</cite> operator
-is fed the binary command that we currently execute and all arguments
-to the binary.
-Any customization necessary for the extension (e.g, dynamic configuration
-options) has to be passed by keyword argument.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>*extensions</strong> – Variable length list of child extensions we manage.</li>
-<li><strong>config</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>, optional) – Dictionary of name value pairs to be
-stored for this extension.</li>
+  <div class="section" id="module-benchbuild.extensions">
+<span id="benchbuild-extensions-package"></span><h1>benchbuild.extensions package<a class="headerlink" href="#module-benchbuild.extensions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.extensions.base.html">benchbuild.extensions.base module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.extensions.compiler.html">benchbuild.extensions.compiler module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.extensions.log.html">benchbuild.extensions.log module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.extensions.run.html">benchbuild.extensions.run module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchbuild.extensions.time.html">benchbuild.extensions.time module</a></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="attribute">
-<dt id="benchbuild.extensions.Extension.next_extensions">
-<code class="descname">next_extensions</code><a class="headerlink" href="#benchbuild.extensions.Extension.next_extensions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Variable length list of child extensions we manage.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="benchbuild.extensions.Extension.config">
-<code class="descname">config</code><a class="headerlink" href="#benchbuild.extensions.Extension.config" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>, optional – Dictionary of name value pairs to be
-stored for this extension.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.extensions.Extension.call_next">
-<code class="descname">call_next</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; List[benchbuild.utils.run.RunInfo]<a class="reference internal" href="_modules/benchbuild/extensions.html#Extension.call_next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.Extension.call_next" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call all child extensions with the given arguments.</p>
-<p>This calls all child extensions and collects the results for
-our own parent. Use this to control the execution of your
-nested extensions from your own extension.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>A list of collected</dt>
-<dd>results of our child extensions.</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">RunInfo</span></code></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="benchbuild.extensions.Extension.print">
-<code class="descname">print</code><span class="sig-paren">(</span><em>indent=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#Extension.print"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.Extension.print" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print a structural view of the registered extensions.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.ExtractCompileStats">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">ExtractCompileStats</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#ExtractCompileStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.ExtractCompileStats" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
-<p>Extract LLVM’s compilation stats.</p>
-<p>This extension extracts the output of LLVM’s ‘-stats’ option.
-You can control the tracked statistics by using the sections
-<cite>cs.components</cite> and <cite>cs.names</cite> in the configuration.</p>
-<p>Furthermore, this runs the compiler and tracks the state in the databse,
-similar to RunCompiler.</p>
-<dl class="staticmethod">
-<dt id="benchbuild.extensions.ExtractCompileStats.get_compilestats">
-<em class="property">static </em><code class="descname">get_compilestats</code><span class="sig-paren">(</span><em>prog_out</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#ExtractCompileStats.get_compilestats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.ExtractCompileStats.get_compilestats" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the LLVM compilation stats from :prog_out:.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.LogAdditionals">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">LogAdditionals</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#LogAdditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.LogAdditionals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
-<p>Log any additional log files that were registered.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.LogTrackingMixin">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">LogTrackingMixin</code><a class="reference internal" href="_modules/benchbuild/extensions.html#LogTrackingMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.LogTrackingMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Add log-registering capabilities to extensions.</p>
-<dl class="method">
-<dt id="benchbuild.extensions.LogTrackingMixin.add_log">
-<code class="descname">add_log</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#LogTrackingMixin.add_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.LogTrackingMixin.add_log" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a log to the tracked list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – Filename of a new log we want to track.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="benchbuild.extensions.LogTrackingMixin.logs">
-<code class="descname">logs</code><a class="headerlink" href="#benchbuild.extensions.LogTrackingMixin.logs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return list of tracked logs.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.Rerun">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">Rerun</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#Rerun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.Rerun" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.RunCompiler">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RunCompiler</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RunCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RunCompiler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
-<p>Default extension for compiler execution.</p>
-<p>This extension silences a few warnings, e.g., unused-arguments and
-handles database tracking for compiler commands. It is used as the default
-action for compiler execution.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.RunWithTime">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RunWithTime</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RunWithTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RunWithTime" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
-<p>Wrap a command with time and store the timings in the database.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.RunWithTimeout">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RunWithTimeout</code><span class="sig-paren">(</span><em>*extensions</em>, <em>limit='10m'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RunWithTimeout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RunWithTimeout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
-<p>Guard a binary with a timeout.</p>
-<p>This wraps a any binary with a call to <cite>timeout</cite> and sets
-the limit to a given value on extension construction.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.RuntimeExtension">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">RuntimeExtension</code><span class="sig-paren">(</span><em>project</em>, <em>experiment</em>, <em>*extensions</em>, <em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#RuntimeExtension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.RuntimeExtension" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
-<p>Default extension to execute and track a binary.</p>
-<p>This can be used for runtime experiments to have a controlled,
-tracked execution of a wrapped binary.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="benchbuild.extensions.SetThreadLimit">
-<em class="property">class </em><code class="descclassname">benchbuild.extensions.</code><code class="descname">SetThreadLimit</code><span class="sig-paren">(</span><em>*extensions</em>, <em>config=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/benchbuild/extensions.html#SetThreadLimit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#benchbuild.extensions.SetThreadLimit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#benchbuild.extensions.Extension" title="benchbuild.extensions.Extension"><code class="xref py py-class docutils literal notranslate"><span class="pre">benchbuild.extensions.Extension</span></code></a></p>
-<p>Sets the OpenMP thread limit, based on your settings.</p>
-<p>This extension uses the ‘jobs’ settings and controls the environment
-variable OMP_NUM_THREADS.</p>
-</dd></dl>
-
+</div>
 </div>
 </div>
 
@@ -282,25 +65,24 @@ variable OMP_NUM_THREADS.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Extensions</a><ul>
-<li><a class="reference internal" href="#wrap-a-binary-with-a-timeout-command">Wrap a binary with a timeout command</a></li>
-<li><a class="reference internal" href="#module-benchbuild.extensions">API reference</a></li>
+<li><a class="reference internal" href="#">benchbuild.extensions package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="benchbuild.project.html"
-                        title="previous chapter">Projects</a></p>
+                        title="previous chapter">benchbuild.project module</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="benchbuild.utils.settings.html"
-                        title="next chapter">Dictionary-like configuration objects.</a></p>
+  <p class="topless"><a href="benchbuild.extensions.base.html"
+                        title="next chapter">benchbuild.extensions.base module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/benchbuild.extensions.md.txt"
+      <li><a href="_sources/benchbuild.extensions.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -330,17 +112,17 @@ variable OMP_NUM_THREADS.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="benchbuild.utils.settings.html" title="Dictionary-like configuration objects."
+          <a href="benchbuild.extensions.base.html" title="benchbuild.extensions.base module"
              >next</a> |</li>
         <li class="right" >
-          <a href="benchbuild.project.html" title="Projects"
+          <a href="benchbuild.project.html" title="benchbuild.project module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

@@ -1,51 +1,39 @@
-import os
-from glob import glob
-
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make
-from benchbuild.utils.compiler import cxx
-from benchbuild.utils.downloader import Git
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-class Lammps(Project):
+@download.with_git("https://github.com/lammps/lammps", limit=5)
+class Lammps(project.Project):
     """ LAMMPS benchmark """
 
     NAME = 'lammps'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     SRC_FILE = 'lammps.git'
+    VERSION = 'HEAD'
 
     def run_tests(self, runner):
-        lammps_dir = os.path.join(self.builddir, self.src_dir, "src")
-        exp = wrap(os.path.join(lammps_dir, "lmp_serial"), self)
+        src_path = local.path(self.src_file)
+        lammps_dir = src_path / "src"
+        exp = wrapping.wrap(lammps_dir / "lmp_serial", self)
 
-        examples_dir = os.path.join(self.builddir, self.src_dir, "examples")
-        tests = glob(os.path.join(examples_dir, "./*/in.*"))
+        examples_dir = src_path / "examples"
+        tests = examples_dir // "*" // "in.*"
 
         for test in tests:
-            dirname = os.path.dirname(test)
+            dirname = test.dirname
             with local.cwd(dirname):
                 cmd = (exp < test)
                 runner(cmd, None)
 
-    src_dir = SRC_FILE
-    src_uri = "https://github.com/lammps/lammps"
-
-    def download(self):
-        Git(self.src_uri, self.src_dir)
-
-    def configure(self):
-        pass
-
-    def build(self):
+    def compile(self):
+        self.download()
         self.ldflags += ["-lgomp"]
 
-        clang_cxx = cxx(self)
-        with local.cwd(os.path.join(self.src_dir, "src")):
-            run(make["CC=" + str(clang_cxx),
-                     "LINK=" + str(clang_cxx),
-                     "clean", "serial"])
+        clang_cxx = compiler.cxx(self)
+        with local.cwd(local.path(self.src_file) / "src"):
+            run.run(make["CC=" + str(clang_cxx), "LINK=" +
+                         str(clang_cxx), "clean", "serial"])

@@ -14,10 +14,15 @@ def configure_plumbum_log():
     plumbum_hdl = logging.StreamHandler()
     plumbum_hdl.setFormatter(plumbum_format)
     plumbum_local = logging.getLogger("plumbum.local")
-    if settings.CFG["debug"].value():
+    if settings.CFG["debug"]:
         plumbum_local.setLevel(logging.DEBUG)
     plumbum_local.addHandler(plumbum_hdl)
     plumbum_local.propagate = False
+
+
+def configure_parse_log():
+    log = logging.getLogger("parse")
+    log.setLevel(logging.CRITICAL)
 
 
 def configure():
@@ -33,7 +38,7 @@ def configure():
 
     logging.captureWarnings(True)
     root_logger = logging.getLogger()
-    if settings.CFG["debug"].value():
+    if settings.CFG["debug"]:
         details_format = logging.Formatter(
             '%(name)s (%(filename)s:%(lineno)s) [%(levelname)s] %(message)s')
         details_hdl = logging.StreamHandler()
@@ -44,10 +49,11 @@ def configure():
         console_hdl = logging.StreamHandler()
         console_hdl.setFormatter(brief_format)
         root_logger.addHandler(console_hdl)
-    root_logger.setLevel(log_levels[settings.CFG["verbosity"].value()])
+    root_logger.setLevel(log_levels[int(settings.CFG["verbosity"])])
 
     configure_plumbum_log()
     configure_migrate_log()
+    configure_parse_log()
 
 
 def set_defaults():

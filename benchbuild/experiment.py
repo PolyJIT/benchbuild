@@ -24,6 +24,7 @@ class HelloExperiment(Experiment):
 ```
 
 """
+import collections
 import copy
 import uuid
 from abc import abstractmethod
@@ -31,9 +32,8 @@ from abc import abstractmethod
 import attr
 
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import (Build, Clean, CleanExtra, Configure,
-                                      Download, MakeBuildDir, Prepare,
-                                      RequireAll, Run)
+from benchbuild.utils.actions import (Clean, CleanExtra, Compile, Containerize,
+                                      MakeBuildDir, Run)
 
 
 class ExperimentRegistry(type):
@@ -41,16 +41,16 @@ class ExperimentRegistry(type):
 
     experiments = {}
 
-    def __init__(cls, name, bases, dict):
+    def __init__(cls, name, bases, _dict):
         """Register a project in the registry."""
-        super(ExperimentRegistry, cls).__init__(name, bases, dict)
+        super(ExperimentRegistry, cls).__init__(name, bases, _dict)
 
         if cls.NAME is not None:
             ExperimentRegistry.experiments[cls.NAME] = cls
 
 
 @attr.s(cmp=False)
-class Experiment(object, metaclass=ExperimentRegistry):
+class Experiment(metaclass=ExperimentRegistry):
     """
     A series of commands executed on a project that form an experiment.
 
@@ -95,7 +95,7 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
     @id.default
     def default_id(self):
-        cfg_exps = CFG["experiments"].value()
+        cfg_exps = CFG["experiments"].value
         if self.name in cfg_exps:
             _id = cfg_exps[self.name]
         else:
@@ -118,10 +118,9 @@ class Experiment(object, metaclass=ExperimentRegistry):
 
     @schema.validator
     def validate_schema(self, _, new_schema):
-        from collections import Iterable
         if new_schema is None:
             return True
-        if isinstance(new_schema, Iterable):
+        if isinstance(new_schema, collections.abc.Iterable):
             return True
         return False
 
@@ -140,8 +139,9 @@ class Experiment(object, metaclass=ExperimentRegistry):
         for project in self.projects:
             p = self.projects[project](self)
             actions.append(Clean(p))
-            actions.append(
-                RequireAll(obj=p, actions=self.actions_for_project(p)))
+            actions.append(MakeBuildDir(p))
+            project_actions = self.actions_for_project(p)
+            actions.append(Containerize(obj=p, actions=project_actions))
 
         actions.append(CleanExtra(self))
         return actions
@@ -149,30 +149,15 @@ class Experiment(object, metaclass=ExperimentRegistry):
     @staticmethod
     def default_runtime_actions(project):
         """Return a series of actions for a run time experiment."""
-        return [
-            MakeBuildDir(project),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
-            Run(project),
-            Clean(project)
-        ]
+        return [Compile(project), Run(project), Clean(project)]
 
     @staticmethod
     def default_compiletime_actions(project):
         """Return a series of actions for a compile time experiment."""
-        return [
-            MakeBuildDir(project),
-            Prepare(project),
-            Download(project),
-            Configure(project),
-            Build(project),
-            Clean(project)
-        ]
+        return [Compile(project), Clean(project)]
 
 
-class Configuration(object):
+class Configuration:
     """Build a set of experiment actions out of a list of configurations."""
 
     def __init__(self, project=None, config=None):

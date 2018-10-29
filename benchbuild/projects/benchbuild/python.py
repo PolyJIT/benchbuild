@@ -1,47 +1,41 @@
-from os import path
-
 from plumbum import local
 
-from benchbuild.project import Project
+from benchbuild import project
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
-from benchbuild.utils.compiler import cc, cxx
-from benchbuild.utils.downloader import Wget
-from benchbuild.utils.run import run
-from benchbuild.utils.wrapping import wrap
 
 
-class Python(Project):
+@download.with_wget({
+    '3.4.3':
+    'https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz'
+})
+class Python(project.Project):
     """ python benchmarks """
 
     NAME = 'python'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     VERSION = '3.4.3'
+    SRC_FILE = 'python.tar.xz'
 
-    src_dir = "Python-{0}".format(VERSION)
-    SRC_FILE = src_dir + ".tar.xz"
-    src_uri = "https://www.python.org/ftp/python/{0}/".format(VERSION) \
-        + SRC_FILE
+    def compile(self):
+        self.download()
+        tar("xfJ", self.src_file)
+        unpack_dir = local.path('Python-{0}'.format(self.version))
 
-    def download(self):
-        Wget(self.src_uri, self.SRC_FILE)
-        tar("xfJ", self.SRC_FILE)
+        clang = compiler.cc(self)
+        clang_cxx = compiler.cxx(self)
 
-    def configure(self):
-        clang = cc(self)
-        clang_cxx = cxx(self)
-
-        with local.cwd(self.src_dir):
+        with local.cwd(unpack_dir):
             configure = local["./configure"]
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                run(configure["--disable-shared", "--without-gcc"])
+                run.run(configure["--disable-shared", "--without-gcc"])
 
-    def build(self):
-        with local.cwd(self.src_dir):
-            run(make)
+            run.run(make)
 
     def run_tests(self, runner):
-        wrap(path.join(self.src_dir, "python"), self)
+        unpack_dir = local.path('Python-{0}'.format(self.version))
+        wrapping.wrap(unpack_dir / "python", self)
 
-        with local.cwd(self.src_dir):
-            run(make["-i", "test"])
+        with local.cwd(unpack_dir):
+            runner(make["-i", "test"])

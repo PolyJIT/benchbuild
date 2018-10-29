@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>benchbuild.utils.compiler &#8212; benchbuild 3.3.1.dev1+gf43b2d0 documentation</title>
+    <title>benchbuild.utils.compiler &#8212; benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</title>
     <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
   </head><body>
@@ -25,7 +26,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../utils.html" accesskey="U">benchbuild.utils</a> &#187;</li> 
       </ul>
@@ -57,36 +58,10 @@
 <span class="sd">Are just convencience methods that can be used when interacting with the</span>
 <span class="sd">configured llvm/clang source directories.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">plumbum.commands.base</span> <span class="k">import</span> <span class="n">BoundCommand</span>
+<span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
 
 <span class="kn">from</span> <span class="nn">benchbuild.settings</span> <span class="k">import</span> <span class="n">CFG</span>
 <span class="kn">from</span> <span class="nn">benchbuild.utils.wrapping</span> <span class="k">import</span> <span class="n">wrap_cc</span>
-
-
-<div class="viewcode-block" id="wrap_cc_in_uchroot"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.wrap_cc_in_uchroot">[docs]</a><span class="k">def</span> <span class="nf">wrap_cc_in_uchroot</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">cc_name</span><span class="o">=</span><span class="s1">&#39;cc&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate a clang wrapper that may be called from within a uchroot.</span>
-
-<span class="sd">    This basically does the same as cc/cxx. However, we do not</span>
-<span class="sd">    create a valid plumbum command. The generated script will only work</span>
-<span class="sd">    inside a uchroot environment that has is root at the current working</span>
-<span class="sd">    directory, when calling this function.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        project: The project we generate this compiler for.</span>
-<span class="sd">        cc_name: Name of the generated script.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
-
-    <span class="k">def</span> <span class="nf">gen_compiler_extension</span><span class="p">(</span><span class="n">ext</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">cc_name</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
-    <span class="n">wrap_cc</span><span class="p">(</span><span class="n">cc_name</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">gen_compiler_extension</span><span class="p">,</span>
-            <span class="n">python</span><span class="o">=</span><span class="s2">&quot;/usr/bin/env python3&quot;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="wrap_cxx_in_uchroot"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.wrap_cxx_in_uchroot">[docs]</a><span class="k">def</span> <span class="nf">wrap_cxx_in_uchroot</span><span class="p">(</span><span class="n">project</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Delegate to wrap_cc_in_uchroot).&quot;&quot;&quot;</span>
-    <span class="n">wrap_cc_in_uchroot</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;compiler&quot;</span><span class="p">][</span><span class="s2">&quot;cxx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="cc"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.cc">[docs]</a><span class="k">def</span> <span class="nf">cc</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">detect_project</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -109,9 +84,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">cmd</span>
 
-    <span class="n">cc</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;compiler&quot;</span><span class="p">][</span><span class="s2">&quot;c&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
-    <span class="n">wrap_cc</span><span class="p">(</span><span class="n">cc</span><span class="p">,</span> <span class="n">compiler</span><span class="p">(</span><span class="n">cc</span><span class="p">),</span> <span class="n">project</span><span class="p">,</span> <span class="n">detect_project</span><span class="o">=</span><span class="n">detect_project</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">cmd</span><span class="p">[</span><span class="s2">&quot;./</span><span class="si">{name}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cc</span><span class="p">)]</span></div>
+    <span class="n">cc_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;compiler&quot;</span><span class="p">][</span><span class="s2">&quot;c&quot;</span><span class="p">])</span>
+    <span class="n">wrap_cc</span><span class="p">(</span><span class="n">cc_name</span><span class="p">,</span> <span class="n">compiler</span><span class="p">(</span><span class="n">cc_name</span><span class="p">),</span> <span class="n">project</span><span class="p">,</span> <span class="n">detect_project</span><span class="o">=</span><span class="n">detect_project</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmd</span><span class="p">[</span><span class="s2">&quot;./</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cc_name</span><span class="p">)]</span></div>
 
 
 <div class="viewcode-block" id="cxx"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.cxx">[docs]</a><span class="k">def</span> <span class="nf">cxx</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">detect_project</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -134,9 +109,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">benchbuild.utils</span> <span class="k">import</span> <span class="n">cmd</span>
 
-    <span class="n">cxx</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;compiler&quot;</span><span class="p">][</span><span class="s2">&quot;cxx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
-    <span class="n">wrap_cc</span><span class="p">(</span><span class="n">cxx</span><span class="p">,</span> <span class="n">compiler</span><span class="p">(</span><span class="n">cxx</span><span class="p">),</span> <span class="n">project</span><span class="p">,</span> <span class="n">detect_project</span><span class="o">=</span><span class="n">detect_project</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">cmd</span><span class="p">[</span><span class="s2">&quot;./</span><span class="si">{name}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cxx</span><span class="p">)]</span></div>
+    <span class="n">cxx_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;compiler&quot;</span><span class="p">][</span><span class="s2">&quot;cxx&quot;</span><span class="p">])</span>
+    <span class="n">wrap_cc</span><span class="p">(</span>
+        <span class="n">cxx_name</span><span class="p">,</span> <span class="n">compiler</span><span class="p">(</span><span class="n">cxx_name</span><span class="p">),</span> <span class="n">project</span><span class="p">,</span> <span class="n">detect_project</span><span class="o">=</span><span class="n">detect_project</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmd</span><span class="p">[</span><span class="s2">&quot;./</span><span class="si">{name}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cxx_name</span><span class="p">)]</span></div>
 
 
 <span class="k">def</span> <span class="nf">__get_paths</span><span class="p">():</span>
@@ -145,8 +121,11 @@
 
     <span class="n">path</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
     <span class="n">lib_path</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">_lib_path</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;ld_library_path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
-    <span class="n">_path</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">][</span><span class="s2">&quot;path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">CFG</span><span class="p">[</span><span class="s2">&quot;env&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="n">_lib_path</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">_path</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
     <span class="n">_lib_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">(</span><span class="n">_lib_path</span><span class="p">)</span>
     <span class="n">_path</span> <span class="o">=</span> <span class="n">list_to_path</span><span class="p">(</span><span class="n">_path</span><span class="p">)</span>
 
@@ -165,22 +144,11 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        plumbum Command that executes clang++</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">plumbum</span> <span class="k">import</span> <span class="n">local</span>
     <span class="n">pinfo</span> <span class="o">=</span> <span class="n">__get_paths</span><span class="p">()</span>
     <span class="n">_compiler</span> <span class="o">=</span> <span class="n">local</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-    <span class="n">_compiler</span> <span class="o">=</span> <span class="n">_compiler</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="n">PATH</span><span class="o">=</span><span class="n">pinfo</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span>
-                                 <span class="n">LD_LIBRARY_PATH</span><span class="o">=</span><span class="n">pinfo</span><span class="p">[</span><span class="s2">&quot;ld_library_path&quot;</span><span class="p">])</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">_compiler</span></div>
-
-
-<div class="viewcode-block" id="ExperimentCommand"><a class="viewcode-back" href="../../../benchbuild.utils.compiler.html#benchbuild.utils.compiler.ExperimentCommand">[docs]</a><span class="k">class</span> <span class="nc">ExperimentCommand</span><span class="p">(</span><span class="n">BoundCommand</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cmd&quot;</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">exp_args</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">inner_list</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">exp_args</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">inner_list</span><span class="p">)</span></div>
+    <span class="n">_compiler</span> <span class="o">=</span> <span class="n">_compiler</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span>
+        <span class="n">PATH</span><span class="o">=</span><span class="n">pinfo</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="n">LD_LIBRARY_PATH</span><span class="o">=</span><span class="n">pinfo</span><span class="p">[</span><span class="s2">&quot;ld_library_path&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">_compiler</span></div>
 </pre></div>
 
           </div>
@@ -213,14 +181,14 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 3.3.1.dev1+gf43b2d0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">benchbuild 3.3.5.dev36+g9240d098.d20181019 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../utils.html" >benchbuild.utils</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Andreas Simbürger.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
   </body>
 </html>

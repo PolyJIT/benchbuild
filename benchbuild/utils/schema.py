@@ -35,9 +35,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.types import CHAR, Float, TypeDecorator
 
-import benchbuild.settings as settings
-import benchbuild.utils.user_interface as ui
-from benchbuild.utils import path as bbpath
+from benchbuild import settings
+from benchbuild.utils import path
+from benchbuild.utils import user_interface as ui
 
 BASE = declarative_base()
 LOG = logging.getLogger(__name__)
@@ -109,25 +109,13 @@ class GUID(TypeDecorator):
             return dialect.type_descriptor(CHAR(32))
 
     def process_bind_param(self, value, dialect):
-        if value is None:
-            return value
-        elif dialect.name == 'postgresql':
-            return str(value)
-        else:
-            if not isinstance(value, uuid.UUID):
-                return "%s" % uuid.UUID(value)
-            else:
-                # hexstring
-                return "%x" % value.int
+        return str(value)
 
     def process_result_value(self, value, dialect):
-        if value is None:
-            return value
-
         if isinstance(value, uuid.UUID):
             return value
-        else:
-            return uuid.UUID(str(value))
+
+        return uuid.UUID(str(value))
 
 
 class Run(BASE):
@@ -350,8 +338,8 @@ def needed_schema(connection, meta):
 
 def get_version_data():
     """Retreive migration information."""
-    connect_str = settings.CFG["db"]["connect_string"].value()
-    repo_url = bbpath.template_path("../db/")
+    connect_str = str(settings.CFG["db"]["connect_string"])
+    repo_url = path.template_path("../db/")
     return (connect_str, repo_url)
 
 
@@ -411,14 +399,14 @@ def maybe_update_db(repo_version, db_version):
         LOG.error("User declined schema upgrade.")
         return
 
-    connect_str = settings.CFG["db"]["connect_string"].value()
-    repo_url = bbpath.template_path("../db/")
+    connect_str = str(settings.CFG["db"]["connect_string"])
+    repo_url = path.template_path("../db/")
     LOG.info("Upgrading to newest version...")
     migrate.upgrade(connect_str, repo_url)
     LOG.info("Complete.")
 
 
-class SessionManager(object):
+class SessionManager:
     def connect_engine(self):
         """
         Establish a connection to the database.
@@ -446,9 +434,9 @@ class SessionManager(object):
             True, if we did not encounter any unrecoverable errors, else False.
         """
         try:
-            self.connection.execution_options(isolation_level="READ COMMITTED")
+            self.connection.execution_options(isolation_level="SERIALIZABLE")
         except sa.exc.ArgumentError:
-            LOG.warning("Unable to set isolation level to READ COMMITTED")
+            LOG.debug("Unable to set isolation level to SERIALIZABLE")
         return True
 
     @exceptions(error_messages={
@@ -456,9 +444,8 @@ class SessionManager(object):
         "Connect string contained an invalid backend."
     })
     def __init__(self):
-        self.__test_mode = settings.CFG['db']['rollback'].value()
-        self.engine = create_engine(
-            settings.CFG["db"]["connect_string"].value())
+        self.__test_mode = bool(settings.CFG['db']['rollback'])
+        self.engine = create_engine(str(settings.CFG["db"]["connect_string"]))
 
         if not (self.connect_engine() and self.configure_engine()):
             sys.exit(-3)
@@ -471,9 +458,10 @@ class SessionManager(object):
 
         if needed_schema(self.connection, BASE.metadata):
             LOG.debug("Initialized new db schema.")
-            enforce_versioning(force=True)
-        repo_version, db_version = setup_versioning()
-        maybe_update_db(repo_version, db_version)
+            repo_version = enforce_versioning(force=True)
+        else:
+            repo_version, db_version = setup_versioning()
+            maybe_update_db(repo_version, db_version)
 
     def get(self):
         return sessionmaker(bind=self.connection)
@@ -505,10 +493,10 @@ Session = __lazy_session__()
 
 def init_functions(connection):
     """Initialize all SQL functions in the database."""
-    if settings.CFG["db"]["create_functions"].value():
+    if settings.CFG["db"]["create_functions"]:
         print("Refreshing SQL functions...")
-        for file in bbpath.template_files("../sql/", exts=[".sql"]):
-            func = sa.DDL(bbpath.template_str(file))
+        for file in path.template_files("../sql/", exts=[".sql"]):
+            func = sa.DDL(path.template_str(file))
             LOG.info("Loading: '%s' into database", file)
             connection.execute(func)
             connection.commit()

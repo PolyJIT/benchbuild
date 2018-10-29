@@ -72,8 +72,9 @@ CFG = s.Configuration(
         "regression_prefix": {
             "default": os.path.join("/", "tmp", "benchbuild-regressions")
         },
-        "benchbuild_prefix": {
-            "default": os.getcwd()
+        "source_dir": {
+            "default": None,
+            "desc": "Path to a benchbuild source directory. For developers only."
         },
         "benchbuild_ebuild": {
             "default": ""
@@ -95,6 +96,22 @@ CFG = s.Configuration(
         }
     })
 
+CFG['bootstrap'] = {
+    'packages': {
+        'default': [
+            "mkdir", "git", "tar", "mv", "rm", "bash", "rmdir", "time",
+            "chmod", "cp", "ln", "make", "unzip", "cat", "patch", "find",
+            "echo", "grep", "sed", "sh", "autoreconf", "ruby", "curl", "tail",
+            "kill", "virtualenv", "timeout"
+        ],
+        'desc': 'List of packages that we require to be installed on the system.'
+    },
+    'install': {
+        'default': True,
+        'desc': 'Should we try to install packages automatically?'
+    }
+}
+
 CFG["compiler"] = {
     "c": {
         "desc": "The C compiler we should use.",
@@ -111,29 +128,15 @@ CFG["unionfs"] = {
         "default": False,
         "desc": "Wrap all project operations in a unionfs filesystem."
     },
-    "base_dir": {
-        "default": './base',
-        "desc": 'Path of the unpacked container.'
-    },
-    "image": {
-        "default": './image',
+    "rw": {
+        "default": 'rw',
         "desc": 'Name of the image directory'
-    },
-    "image_prefix": {
-        "default": None,
-        "desc": "Prefix for the unionfs image directory."
     }
 }
 
 CFG["env"] = {
-    "ld_library_path": {
-        "desc": "LD_LIBRARY_PATH for benchbuild.",
-        "default": []
-    },
-    "path": {
-        "desc": "PATH for benchbuild.",
-        "default": []
-    }
+    "default": {},
+    "desc": "The environment benchbuild's commands should operate in."
 }
 
 CFG['db'] = {
@@ -155,12 +158,11 @@ CFG['db'] = {
 
 CFG['gentoo'] = {
     "autotest_lang": {
-        "default": "",
+        "default": [],
         "desc": "Language filter for ebuilds, like C or C++."
     },
     "autotest_use": {
-        "default":
-        "",
+        "default": [],
         "desc":
         "USE filter for ebuilds. Filters packages without the given use flags."
     },
@@ -301,7 +303,6 @@ CFG["plugins"] = {
             "benchbuild.projects.benchbuild.leveldb",
             "benchbuild.projects.benchbuild.linpack",
             "benchbuild.projects.benchbuild.lulesh",
-            "benchbuild.projects.benchbuild.luleshomp",
             "benchbuild.projects.benchbuild.mcrypt",
             "benchbuild.projects.benchbuild.minisat",
             "benchbuild.projects.benchbuild.openssl",

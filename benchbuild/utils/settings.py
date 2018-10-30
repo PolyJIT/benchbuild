@@ -568,7 +568,7 @@ def find_config(test_file=None, defaults=None, root=os.curdir):
             return ret
 
 
-def setup_config(cfg, env_var_name=None):
+def setup_config(cfg, config_filenames=None, env_var_name=None):
     """
     This will initialize the given configuration object.
 
@@ -580,13 +580,17 @@ def setup_config(cfg, env_var_name=None):
     WARNING: Environment variables do _not_ take precedence over the config
              file right now. (init_from_env will refuse to update the
              value, if there is already one.)
+
+    Args:
+        config_filenames: list of possible config filenames
+        env_var_name: name of the environment variable holding the config path
     """
     if env_var_name is None:
         env_var_name = "BB_CONFIG_FILE"
 
     config_path = os.getenv(env_var_name, None)
     if not config_path:
-        config_path = find_config()
+        config_path = find_config(defaults=config_filenames)
 
     if config_path:
         cfg.load(config_path)

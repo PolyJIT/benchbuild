@@ -33,7 +33,7 @@ import attr
 
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Clean, CleanExtra, Compile, Containerize,
-                                      MakeBuildDir, Run)
+                                      Echo, MakeBuildDir, Run)
 
 
 class ExperimentRegistry(type):
@@ -137,14 +137,26 @@ class Experiment(metaclass=ExperimentRegistry):
         actions = []
 
         for project in self.projects:
-            p = self.projects[project](self)
-            actions.append(Clean(p))
-            actions.append(MakeBuildDir(p))
-            project_actions = self.actions_for_project(p)
-            actions.append(Containerize(obj=p, actions=project_actions))
+            prj_cls = self.projects[project]
+            for p in self.sample(prj_cls):
+                actions.append(Clean(p))
+                actions.append(MakeBuildDir(p))
+                actions.append(
+                    Echo(message="Selected {0} with version {1}".format(
+                        p.name, p.version)))
+                project_actions = self.actions_for_project(p)
+                actions.append(Containerize(obj=p, actions=project_actions))
 
         actions.append(CleanExtra(self))
         return actions
+
+    def sample(self, prj_cls, predicate=lambda version: True):
+        versions = prj_cls.versions()
+        for version in versions:
+            if predicate(version):
+                p = prj_cls(self)
+                p.version = version
+                yield p
 
     @staticmethod
     def default_runtime_actions(project):

@@ -32,8 +32,9 @@ from abc import abstractmethod
 import attr
 
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import (Clean, CleanExtra, Compile, Containerize,
-                                      Echo, MakeBuildDir, Run)
+from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
+                                      Containerize, Echo, MakeBuildDir,
+                                      RequireAll, Run)
 
 
 class ExperimentRegistry(type):
@@ -134,29 +135,62 @@ class Experiment(metaclass=ExperimentRegistry):
         """
 
     def actions(self):
+        """
+        Common setup required to run this experiment on all projects.
+        """
         actions = []
 
         for project in self.projects:
             prj_cls = self.projects[project]
-            for p in self.sample(prj_cls):
-                actions.append(Clean(p))
-                actions.append(MakeBuildDir(p))
-                actions.append(
+
+            prj_actions = []
+            for version in self.sample(prj_cls, prj_cls.versions()):
+                p = prj_cls(self)
+                p.version = version
+
+                atomic_actions = [
+                    Clean(p),
+                    MakeBuildDir(p),
                     Echo(message="Selected {0} with version {1}".format(
-                        p.name, p.version)))
-                project_actions = self.actions_for_project(p)
-                actions.append(Containerize(obj=p, actions=project_actions))
+                        p.name, p.version)),
+                    Containerize(obj=p, actions=self.actions_for_project(p))
+                ]
+                prj_actions.append(RequireAll(actions=atomic_actions))
+            actions.append(Any(actions=prj_actions))
 
         actions.append(CleanExtra(self))
         return actions
 
-    def sample(self, prj_cls, predicate=lambda version: True):
+    def sample(self, prj_cls, versions):
+        """
+        Sample all avilable versions.
+
+        The default sampling returns the latest version only.
+        You can override this behavior in custom experiments.
+
+        Args:
+            prj_cls (class of benchbuild.project.Project):
+                The project class we sample versions for.
+            versions (list of str):
+                An ordered list of versions for the given prj_cls.
+                You can assume that the versions in this list are
+                valid version numbers for prj_cls.
+
+        Returns:
+            A list of version strings.
+
+        Assumptions:
+            versions:
+                * semantically ordered, descending.
+                * for version in versions:
+                    version in prj_cls.versions()
+        """
         versions = prj_cls.versions()
-        for version in versions:
-            if predicate(version):
-                p = prj_cls(self)
-                p.version = version
-                yield p
+        head, *tail = versions
+        yield head
+        if bool(CFG["versions"]["full"]):
+            for v in tail:
+                yield v
 
     @staticmethod
     def default_runtime_actions(project):

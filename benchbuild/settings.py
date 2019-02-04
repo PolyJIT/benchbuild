@@ -440,5 +440,12 @@ CFG["container"] = {
     }
 }
 
+CFG["versions"] = {
+    "full": {
+        "default": False,
+        "desc": "Ignore default sampling and provide full version exploration."
+    }
+}
+
 s.setup_config(CFG)
 s.update_env(CFG)

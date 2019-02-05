@@ -235,7 +235,8 @@ def with_git(repo,
              limit=None,
              refspec="HEAD",
              clone=True,
-             rev_list_args=None):
+             rev_list_args=None,
+             version_filter=lambda version: True):
     """
     Decorate a project class with git-based version information.
 
@@ -261,6 +262,8 @@ def with_git(repo,
             at least once in your installation.
         ref_list_args (list of str): Additional arguments you want to pass to 
             `git rev-list`.
+        version_filter (class filter): Filter function to remove unwanted
+            project versions.
 
     """
     if not rev_list_args:
@@ -287,7 +290,11 @@ def with_git(repo,
                 latest = git("rev-parse", "--short=8",
                              refspec).strip().split('\n')
                 cls.VERSION = latest[0]
-                return rev_list[:limit] if limit else rev_list
+
+            if limit:
+                return list(filter(version_filter, rev_list))[:limit]
+
+            return list(filter(version_filter, rev_list))
 
         def download_impl(self):
             """Download the selected version."""

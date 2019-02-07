@@ -328,6 +328,13 @@ class Project(metaclass=ProjectDecorator):
         return "{name}-{group}-{id}".format(
             name=self.name, group=self.group, id=self.run_uuid)
 
+    @classmethod
+    def versions(cls):
+        """Return all available versions."""
+        if cls.VERSION:
+            return [cls.VERSION]
+        return ["unknown"]
+
 
 def populate(projects_to_filter=None, group=None):
     """

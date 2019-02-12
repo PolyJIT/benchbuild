@@ -13,7 +13,7 @@ from plumbum import cli
 from benchbuild import experiment, experiments, project
 from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
-from benchbuild.utils import actions, progress
+from benchbuild.utils import actions, progress, tasks
 
 LOG = logging.getLogger(__name__)
 
@@ -130,7 +130,7 @@ class BenchBuildRun(cli.Application):
             pg_bar.start()
 
         start = time.perf_counter()
-        failed = execute_plan(plan)
+        failed = tasks.execute_plan(plan)
         end = time.perf_counter()
 
         if self.show_progress:
@@ -138,19 +138,6 @@ class BenchBuildRun(cli.Application):
 
         print_summary(num_actions, failed, end - start)
         return len(failed)
-
-
-def execute_plan(plan):
-    """"Execute the plan.
-
-    Args:
-        plan (:obj:`list` of :obj:`actions.Step`): The plan we want to execute.
-
-    Returns:
-        (:obj:`list` of :obj:`actions.Step`): A list of failed actions.
-    """
-    results = [action() for action in plan]
-    return [result for result in results if actions.step_has_failed(result)]
 
 
 def print_summary(num_actions, failed, duration):

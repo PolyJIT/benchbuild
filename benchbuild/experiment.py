@@ -156,7 +156,7 @@ class Experiment(metaclass=ExperimentRegistry):
                     Containerize(obj=p, actions=self.actions_for_project(p))
                 ]
                 prj_actions.append(RequireAll(actions=atomic_actions))
-            actions.append(Any(actions=prj_actions))
+            actions.extend(prj_actions)
 
         actions.append(CleanExtra(self))
         return actions

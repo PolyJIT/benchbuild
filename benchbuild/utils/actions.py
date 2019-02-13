@@ -528,7 +528,7 @@ class Containerize(RequireAll):
             project.redirect()
             self.status = StepResult.OK
         else:
-            super(Containerize, self).__call__()
+            return super(Containerize, self).__call__()
 
     def __str__(self, indent=0):
         sub_actns = [a.__str__(indent + 1) for a in self.actions]

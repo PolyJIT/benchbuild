@@ -325,8 +325,11 @@ class Project(metaclass=ProjectDecorator):
 
     @property
     def id(self):
-        return "{name}-{group}-{id}".format(
-            name=self.name, group=self.group, id=self.run_uuid)
+        return "{name}-{group}-{version}-{id}".format(
+            name=self.name,
+            group=self.group,
+            version=self.version,
+            id=self.run_uuid)
 
     @classmethod
     def versions(cls):

@@ -16,6 +16,7 @@ import abc
 import enum
 import functools as ft
 import logging
+import multiprocessing as mp
 import os
 import sys
 import textwrap
@@ -333,6 +334,10 @@ class Echo(Step):
         LOG.info(self.message)
 
 
+def run_any_child(child: Step):
+    return child()
+
+
 @attr.s(cmp=False)
 class Any(Step):
     NAME = "ANY"
@@ -409,29 +414,35 @@ class Experiment(Any):
         except sa.exc.InvalidRequestError as inv_req:
             LOG.error(inv_req)
 
+    def __run_children(self, serialize: bool):
+        results = []
+        actions = self.actions
+
+        try:
+            if serialize:
+                for action in actions:
+                    results.extend(run_any_child(action))
+            else:
+                with mp.Pool(int(CFG["jobs"])) as pool:
+                    results = zip(pool.map(run_any_child, actions))
+        except KeyboardInterrupt:
+            LOG.info("Experiment aborting by user request")
+            results.append(StepResult.ERROR)
+        except Exception:
+            LOG.error("Experiment terminates " "because we got an exception:")
+            e_type, e_value, e_traceb = sys.exc_info()
+            lines = traceback.format_exception(e_type, e_value, e_traceb)
+            LOG.error("".join(lines))
+            results.append(StepResult.ERROR)
+        return results
+
     @notify_step_begin_end
     def __call__(self):
         results = []
         session = None
         experiment, session = self.begin_transaction()
         try:
-            for a in self.actions:
-                try:
-                    result = a()
-                    results.extend(result)
-                except KeyboardInterrupt:
-                    LOG.info("Experiment aborting by user request")
-                    results.append(StepResult.ERROR)
-                    break
-                except Exception:
-                    LOG.error("Experiment terminates "
-                              "because we got an exception:")
-                    e_type, e_value, e_traceb = sys.exc_info()
-                    lines = traceback.format_exception(e_type, e_value,
-                                                       e_traceb)
-                    results.append(StepResult.ERROR)
-                    LOG.error("".join(lines))
-                    break
+            results = self.__run_children(bool(CFG['serialize']))
         finally:
             self.end_transaction(experiment, session)
             signals.handlers.deregister(self.end_transaction)

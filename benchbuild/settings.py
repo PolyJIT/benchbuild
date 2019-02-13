@@ -55,6 +55,10 @@ CFG = s.Configuration(
             "Number of jobs that can be used for building and running.",
             "default": str(s.available_cpu_count())
         },
+        "serialize": {
+            "desc": "Do not parallelize execution plans.",
+            "default": True
+        },
         "experiments": {
             "default": {
                 "empty": uuid.uuid4()

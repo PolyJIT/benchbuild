@@ -15,6 +15,7 @@ TODO
 import abc
 import enum
 import functools as ft
+import itertools
 import logging
 import multiprocessing as mp
 import os
@@ -424,7 +425,8 @@ class Experiment(Any):
                     results.extend(run_any_child(action))
             else:
                 with mp.Pool(int(CFG["jobs"])) as pool:
-                    results = zip(pool.map(run_any_child, actions))
+                    results = itertools.chain.from_iterable(
+                        pool.map(run_any_child, actions))
         except KeyboardInterrupt:
             LOG.info("Experiment aborting by user request")
             results.append(StepResult.ERROR)

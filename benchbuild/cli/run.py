@@ -6,9 +6,11 @@ This subcommand executes experiments on a set of user-controlled projects.
 See the output of benchbuild run --help for more information.
 """
 import logging
+import sys
 import time
 
-from plumbum import cli
+from plumbum import cli, local
+from concurrent.futures import ProcessPoolExecutor
 
 from benchbuild import experiment, experiments, project
 from benchbuild.cli.main import BenchBuild
@@ -24,11 +26,20 @@ class BenchBuildRun(cli.Application):
 
     experiment_names = []
     group_names = None
+    nmbr_of_processes = 1
 
     test_full = cli.Flag(
         ["-F", "--full"],
         help="Test all experiments for the project",
         default=False)
+
+    @cli.switch(
+        ["-P", "--parallel"],
+        int,
+        requires=["--experiment"],
+        help="Run all projects with the given number of processes in parallel")
+    def set_parallel(self, nmbr_of_processes):
+        self.nmbr_of_processes = nmbr_of_processes
 
     @cli.switch(
         ["-E", "--experiment"],
@@ -130,7 +141,10 @@ class BenchBuildRun(cli.Application):
             pg_bar.start()
 
         start = time.perf_counter()
-        failed = execute_plan(plan)
+        if self.nmbr_of_processes is 1:
+            failed = execute_plan(plan)
+        else:
+            failed = execute_plan_parallel(exps, prjs, self.nmbr_of_processes)
         end = time.perf_counter()
 
         if self.show_progress:
@@ -151,6 +165,25 @@ def execute_plan(plan):
     """
     results = [action() for action in plan]
     return [result for result in results if actions.step_has_failed(result)]
+
+
+def execute_plan_parallel(exps, prjs, nmbr_of_processes):
+    pool = ProcessPoolExecutor(nmbr_of_processes)
+    bench = local["benchbuild"]
+    cmds = []
+    for exp in exps.values():
+        for prj in prjs.values():
+            project_id = "{0}/{1}".format(prj.NAME, prj.GROUP)
+            cmds.append(bench["run", "-E", exp.NAME, project_id])
+
+    procs = [pool.submit(cmd) for cmd in cmds]
+
+    while len(pool._pending_work_items) > 0:
+        print(sys.stdout, "\r" + "Processes {} of {} are finished.".format(
+            len(procs) - len(pool._pending_work_items), len(procs)), end='')
+        time.sleep(1)
+
+    return [p.result() for p in procs]
 
 
 def print_summary(num_actions, failed, duration):

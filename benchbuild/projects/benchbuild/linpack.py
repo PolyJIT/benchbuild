@@ -7,7 +7,7 @@ from benchbuild.utils.cmd import patch
 LOG = logging.getLogger(__name__)
 
 
-@download.with_wget({"5/88": "http://www.netlib.org/benchmark/linpackc.new"})
+@download.with_wget({"5_88": "http://www.netlib.org/benchmark/linpackc.new"})
 class Linpack(project.Project):
     """ Linpack (C-Version) """
 
@@ -15,7 +15,7 @@ class Linpack(project.Project):
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     SRC_FILE = 'linpack.c'
-    VERSION = '5/88'
+    VERSION = '5_88'
 
     def compile(self):
         self.download()

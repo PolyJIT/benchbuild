@@ -161,7 +161,7 @@ class Project(metaclass=ProjectDecorator):
     SRC_FILE = None
     CONTAINER = None
 
-    def __new__(cls, *_):
+    def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
         new_self = super(Project, cls).__new__(cls)
         if cls.NAME is None:

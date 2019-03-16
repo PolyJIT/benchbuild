@@ -145,8 +145,7 @@ class Experiment(metaclass=ExperimentRegistry):
 
             prj_actions = []
             for version in self.sample(prj_cls, prj_cls.versions()):
-                p = prj_cls(self)
-                p.version = version
+                p = prj_cls(self, version=version)
 
                 atomic_actions = [
                     Clean(p),

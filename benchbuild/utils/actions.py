@@ -415,18 +415,14 @@ class Experiment(Any):
         except sa.exc.InvalidRequestError as inv_req:
             LOG.error(inv_req)
 
-    def __run_children(self, serialize: bool):
+    def __run_children(self, num_processes: int):
         results = []
         actions = self.actions
 
         try:
-            if serialize:
-                for action in actions:
-                    results.extend(run_any_child(action))
-            else:
-                with mp.Pool(int(CFG["jobs"])) as pool:
-                    results = itertools.chain.from_iterable(
-                        pool.map(run_any_child, actions))
+            with mp.Pool(num_processes) as pool:
+                results = itertools.chain.from_iterable(
+                    pool.map(run_any_child, actions))
         except KeyboardInterrupt:
             LOG.info("Experiment aborting by user request")
             results.append(StepResult.ERROR)
@@ -444,7 +440,7 @@ class Experiment(Any):
         session = None
         experiment, session = self.begin_transaction()
         try:
-            results = self.__run_children(bool(CFG['serialize']))
+            results = self.__run_children(int(CFG["parallel_processes"]))
         finally:
             self.end_transaction(experiment, session)
             signals.handlers.deregister(self.end_transaction)

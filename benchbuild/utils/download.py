@@ -287,7 +287,7 @@ def with_git(repo,
             with local.cwd(repo_loc):
                 rev_list = git("rev-list", "--abbrev-commit", refspec,
                                *rev_list_args).strip().split('\n')
-                latest = git("rev-parse", "--short=8",
+                latest = git("rev-parse", "--short=10",
                              refspec).strip().split('\n')
                 cls.VERSION = latest[0]
 

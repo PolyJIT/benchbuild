@@ -336,6 +336,12 @@ class Echo(Step):
 
 
 def run_any_child(child: Step):
+    """
+    Execute child step.
+
+    Args:
+        child: The child step.
+    """
     return child()
 
 

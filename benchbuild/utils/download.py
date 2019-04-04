@@ -260,7 +260,7 @@ def with_git(repo,
             in our tmp dir? Defaults to `True`. You can set this to False to
             avoid time consuming clones, when the project has not been accessed
             at least once in your installation.
-        ref_list_args (list of str): Additional arguments you want to pass to 
+        ref_list_args (list of str): Additional arguments you want to pass to
             `git rev-list`.
         version_filter (class filter): Filter function to remove unwanted
             project versions.
@@ -285,8 +285,8 @@ def with_git(repo,
                 update_hash(repo_loc)
 
             with local.cwd(repo_loc):
-                rev_list = git("rev-list", "--abbrev-commit", refspec,
-                               *rev_list_args).strip().split('\n')
+                rev_list = git("rev-list", "--abbrev-commit", "--abbrev=10",
+                               refspec, *rev_list_args).strip().split('\n')
                 latest = git("rev-parse", "--short=10",
                              refspec).strip().split('\n')
                 cls.VERSION = latest[0]

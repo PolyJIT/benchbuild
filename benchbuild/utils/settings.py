@@ -33,7 +33,7 @@ except DistributionNotFound:
     LOG.error("could not find version information.")
 
 
-def available_cpu_count():
+def available_cpu_count() -> int:
     """
     Get the number of available CPUs.
 
@@ -89,7 +89,7 @@ class InvalidConfigKey(RuntimeWarning):
     """Warn, if you access a non-existing key benchbuild's configuration."""
 
 
-def escape_yaml(raw_str):
+def escape_yaml(raw_str: str) -> str:
     """
     Shell-Escape a yaml input string.
 
@@ -112,7 +112,8 @@ def escape_yaml(raw_str):
     return raw_str
 
 
-def is_yaml(cfg_file):
+def is_yaml(cfg_file: str) -> bool:
+    """Is the given cfg_file a YAML file."""
     return os.path.splitext(cfg_file)[1] in [".yml", ".yaml"]
 
 
@@ -126,7 +127,8 @@ class ConfigDumper(yaml.SafeDumper):
     pass
 
 
-def to_yaml(value):
+def to_yaml(value) -> str:
+    """Convert a given value to a YAML string."""
     stream = yaml.io.StringIO()
     dumper = ConfigDumper(stream, default_flow_style=True, width=sys.maxsize)
     val = None
@@ -141,10 +143,25 @@ def to_yaml(value):
     return val
 
 
-def to_env_var(env_var, value):
+def to_env_var(env_var: str, value) -> str:
+    """
+    Create an environment variable from a name and a value.
+
+    This generates a shell-compatible representation of an
+    environment variable that is assigned a YAML representation of
+    a value.
+
+    Args:
+        env_var (str): Name of the environment variable.
+        value (Any): A value we convert from.
+    """
     val = to_yaml(value)
     ret_val = "%s=%s" % (env_var, escape_yaml(val))
     return ret_val
+
+
+class Configuration:
+    """Forward declaration."""
 
 
 class Configuration():
@@ -174,7 +191,7 @@ class Configuration():
         <class 'benchbuild.utils.settings.Configuration'>
     """
 
-    def __init__(self, parent_key, node=None, parent=None, init=True):
+    def __init__(self, parent_key: str, node=None, parent=None, init=True):
         self.parent = parent
         self.parent_key = parent_key
         self.node = node if node is not None else {}
@@ -232,15 +249,15 @@ class Configuration():
             load_rec(self.node, obj)
             self['config_file'] = os.path.abspath(_from)
 
-    def has_value(self):
+    def has_value(self) -> bool:
         """Check, if the node contains a 'value'."""
         return isinstance(self.node, dict) and 'value' in self.node
 
-    def has_default(self):
+    def has_default(self) -> bool:
         """Check, if the node contains a 'default' value."""
         return isinstance(self.node, dict) and 'default' in self.node
 
-    def is_leaf(self):
+    def is_leaf(self) -> bool:
         """Check, if the node is a 'leaf' node."""
         return self.has_value() or self.has_default()
 
@@ -298,7 +315,7 @@ class Configuration():
             return validate(self.node['value'])
         return self
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> Configuration:
         if key not in self.node:
             warnings.warn(
                 "Access to non-existing config element: {0}".format(key),
@@ -316,7 +333,7 @@ class Configuration():
             else:
                 self.node[key] = {'value': val}
 
-    def __iadd__(self, rhs):
+    def __iadd__(self, rhs) -> Configuration:
         """
         Append a value to a list value.
 
@@ -345,9 +362,9 @@ class Configuration():
         value += rhs
         return value
 
-    def __int__(self):
+    def __int__(self) -> int:
         """
-        Convert the node's value to bool, if available.
+        Convert the node's value to int, if available.
 
         Tests:
             >>> CFG = Configuration('test', node={'i': {'default': 1}})
@@ -362,7 +379,7 @@ class Configuration():
                 'Inner configuration nodes cannot be converted to int.')
         return int(self.value)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """
         Convert the node's value to bool, if available.
 
@@ -380,12 +397,12 @@ class Configuration():
     def __contains__(self, key):
         return key in self.node
 
-    def __str__(self):
+    def __str__(self) -> str:
         if 'value' in self.node:
             return str(self.node['value'])
         return str(self.node)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Represents the configuration as a list of environment variables.
 
@@ -428,7 +445,7 @@ class Configuration():
 
         return "\n".join(sorted(_repr))
 
-    def __to_env_var__(self):
+    def __to_env_var__(self) -> str:
         parent_key = self.parent_key
         if self.parent:
             return (self.parent.__to_env_var__() + "_" + parent_key).upper()
@@ -498,12 +515,12 @@ class ConfigPath:
             LOG.error("The path '%s' needs to exist.", path)
 
     @staticmethod
-    def path_to_str(components):
+    def path_to_str(components) -> str:
         if components:
             return os.path.sep + os.path.sep.join(components)
         return os.path.sep
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ConfigPath.path_to_str(self.components)
 
 

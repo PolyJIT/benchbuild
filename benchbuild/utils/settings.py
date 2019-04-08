@@ -116,12 +116,12 @@ def is_yaml(cfg_file):
     return os.path.splitext(cfg_file)[1] in [".yml", ".yaml"]
 
 
-class ConfigLoader(yaml.Loader):
+class ConfigLoader(yaml.SafeLoader):
     """Avoid polluting yaml's namespace with our modifications."""
     pass
 
 
-class ConfigDumper(yaml.Dumper):
+class ConfigDumper(yaml.SafeDumper):
     """Avoid polluting yaml's namespace with our modifications."""
     pass
 
@@ -512,9 +512,9 @@ def path_representer(dumper, data):
     Represent a ConfigPath object as a scalar YAML node.
 
     Tests:
-        >>> yaml.add_representer(ConfigPath, path_representer)
-        >>> yaml.dump({'test': ConfigPath('/tmp/test/foo')})
-        "{test: !create-if-needed '/tmp/test/foo'}\\n"
+        >>> yaml.add_representer(ConfigPath, path_representer, Dumper=yaml.SafeDumper)
+        >>> yaml.safe_dump({'test': ConfigPath('/tmp/test/foo')})
+        "test: !create-if-needed '/tmp/test/foo'\\n"
     """
     return dumper.represent_scalar('!create-if-needed', '%s' % data)
 
@@ -524,8 +524,8 @@ def path_constructor(loader, node):
     Construct a ConfigPath object form a scalar YAML node.
 
     Tests:
-        >>> yaml.add_constructor("!create-if-needed", path_constructor)
-        >>> yaml.load("{'test': !create-if-needed '/tmp/test/foo'}")
+        >>> yaml.add_constructor("!create-if-needed", path_constructor, Loader=yaml.SafeLoader)
+        >>> yaml.safe_load("{'test': !create-if-needed '/tmp/test/foo'}")
         {'test': ConfigPath(components=['tmp', 'test', 'foo'])}
     """
     value = loader.construct_scalar(node)
@@ -645,9 +645,9 @@ def uuid_representer(dumper, data):
     Represent a uuid.UUID object as a scalar YAML node.
 
     Tests:
-        >>> yaml.add_representer(uuid.UUID, uuid_representer)
-        >>> yaml.dump({'test': uuid.UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')})
-        "{test: !uuid 'cc3702ca-699a-4aa6-8226-4c938f294d9b'}\\n"
+        >>> yaml.add_representer(uuid.UUID, uuid_representer, Dumper=yaml.SafeDumper)
+        >>> yaml.safe_dump({'test': uuid.UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')})
+        "test: !uuid 'cc3702ca-699a-4aa6-8226-4c938f294d9b'\\n"
     """
     return dumper.represent_scalar('!uuid', '%s' % data)
 
@@ -657,8 +657,8 @@ def uuid_constructor(loader, node):
     Construct a uuid.UUID object form a scalar YAML node.
 
     Tests:
-        >>> yaml.add_constructor("!uuid", uuid_constructor)
-        >>> yaml.load("{'test': !uuid 'cc3702ca-699a-4aa6-8226-4c938f294d9b'}")
+        >>> yaml.add_constructor("!uuid", uuid_constructor, Loader=yaml.SafeLoader)
+        >>> yaml.safe_load("{'test': !uuid 'cc3702ca-699a-4aa6-8226-4c938f294d9b'}")
         {'test': UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')}
     """
 
@@ -671,8 +671,8 @@ def uuid_add_implicit_resolver(Loader=ConfigLoader, Dumper=ConfigDumper):
     Attach an implicit pattern resolver for UUID objects.
 
     Tests:
-        >>> class TestDumper(yaml.Dumper): pass
-        >>> class TestLoader(yaml.Loader): pass
+        >>> class TestDumper(yaml.SafeDumper): pass
+        >>> class TestLoader(yaml.SafeLoader): pass
         >>> TUUID = 'cc3702ca-699a-4aa6-8226-4c938f294d9b'
         >>> IN = {'test': uuid.UUID(TUUID)}
         >>> OUT = '{test: cc3702ca-699a-4aa6-8226-4c938f294d9b}'
@@ -682,7 +682,7 @@ def uuid_add_implicit_resolver(Loader=ConfigLoader, Dumper=ConfigDumper):
         >>> uuid_add_implicit_resolver(Loader=TestLoader, Dumper=TestDumper)
 
         >>> yaml.dump(IN, Dumper=TestDumper)
-        '{test: cc3702ca-699a-4aa6-8226-4c938f294d9b}\\n'
+        'test: cc3702ca-699a-4aa6-8226-4c938f294d9b\\n'
         >>> yaml.load(OUT, Loader=TestLoader)
         {'test': UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')}
     """

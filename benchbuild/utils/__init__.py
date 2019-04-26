@@ -95,4 +95,3 @@ del logging
 del ModuleType
 del CommandAlias
 del LocalCommand
-del ErrorCommand

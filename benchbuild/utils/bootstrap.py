@@ -7,7 +7,7 @@ from getpass import getuser
 
 from plumbum import FG, TF, ProcessExecutionError, local
 
-from benchbuild import settings
+from benchbuild import settings, utils
 from benchbuild.utils import user_interface as ui
 from benchbuild.utils.cmd import cmake, git, grep, make
 
@@ -16,14 +16,16 @@ LOG = logging.getLogger(__name__)
 
 
 def find_package(binary):
-    try:
-        from benchbuild.utils import cmd
-        c = cmd.__getattr__(binary)
+    from benchbuild.utils import cmd
+    c = cmd.__getattr__(binary)
+
+    found = not isinstance(c, utils.ErrorCommand)
+    if found:
         print("Checking for {} - Yes [{}]".format(binary, str(c)))
-    except AttributeError:
+    else:
         print("Checking for {}  - No".format(binary))
-        return False
-    return True
+
+    return found
 
 
 PACKAGES = {

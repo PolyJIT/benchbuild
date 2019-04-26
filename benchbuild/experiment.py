@@ -160,7 +160,7 @@ class Experiment(metaclass=ExperimentRegistry):
         actions.append(CleanExtra(self))
         return actions
 
-    def sample(self, prj_cls, versions):
+    def sample(self, prj_cls, versions=None):
         """
         Sample all avilable versions.
 
@@ -184,8 +184,8 @@ class Experiment(metaclass=ExperimentRegistry):
                 * for version in versions:
                     version in prj_cls.versions()
         """
-        versions = prj_cls.versions()
-        head, *tail = versions
+        head, *tail = versions if versions else prj_cls.versions()
+
         yield head
         if bool(CFG["versions"]["full"]):
             for v in tail:

@@ -73,7 +73,7 @@ PACKAGE_MANAGER = {
 
 def install_uchroot(_):
     """Installer for erlent (contains uchroot)."""
-    builddir = local.path(str(CFG["build_dir"]))
+    builddir = local.path(str(CFG["build_dir"].value))
     with local.cwd(builddir):
         erlent_src = local.path('erlent')
         erlent_git = erlent_src / '.git'

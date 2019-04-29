@@ -5,7 +5,7 @@ from benchbuild.utils.cmd import cp, make
 from benchbuild.utils import compiler, download, run, wrapping
 
 
-@download.with_git("https://gitlab.com/bzip/bzip2", limit=1, refspec="HEAD")
+@download.with_git("https://github.com/PolyJIT/bzip2", limit=1, refspec="HEAD")
 class Bzip2(project.Project):
     """ Bzip2 """
 

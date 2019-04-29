@@ -15,7 +15,9 @@ TODO
 import abc
 import enum
 import functools as ft
+import itertools
 import logging
+import multiprocessing as mp
 import os
 import sys
 import textwrap
@@ -333,6 +335,16 @@ class Echo(Step):
         LOG.info(self.message)
 
 
+def run_any_child(child: Step):
+    """
+    Execute child step.
+
+    Args:
+        child: The child step.
+    """
+    return child()
+
+
 @attr.s(cmp=False)
 class Any(Step):
     NAME = "ANY"
@@ -409,29 +421,32 @@ class Experiment(Any):
         except sa.exc.InvalidRequestError as inv_req:
             LOG.error(inv_req)
 
+    def __run_children(self, num_processes: int):
+        results = []
+        actions = self.actions
+
+        try:
+            with mp.Pool(num_processes) as pool:
+                results = itertools.chain.from_iterable(
+                    pool.map(run_any_child, actions))
+        except KeyboardInterrupt:
+            LOG.info("Experiment aborting by user request")
+            results.append(StepResult.ERROR)
+        except Exception:
+            LOG.error("Experiment terminates " "because we got an exception:")
+            e_type, e_value, e_traceb = sys.exc_info()
+            lines = traceback.format_exception(e_type, e_value, e_traceb)
+            LOG.error("".join(lines))
+            results.append(StepResult.ERROR)
+        return results
+
     @notify_step_begin_end
     def __call__(self):
         results = []
         session = None
         experiment, session = self.begin_transaction()
         try:
-            for a in self.actions:
-                try:
-                    result = a()
-                    results.extend(result)
-                except KeyboardInterrupt:
-                    LOG.info("Experiment aborting by user request")
-                    results.append(StepResult.ERROR)
-                    break
-                except Exception:
-                    LOG.error("Experiment terminates "
-                              "because we got an exception:")
-                    e_type, e_value, e_traceb = sys.exc_info()
-                    lines = traceback.format_exception(e_type, e_value,
-                                                       e_traceb)
-                    results.append(StepResult.ERROR)
-                    LOG.error("".join(lines))
-                    break
+            results = self.__run_children(int(CFG["parallel_processes"]))
         finally:
             self.end_transaction(experiment, session)
             signals.handlers.deregister(self.end_transaction)
@@ -515,7 +530,7 @@ class Containerize(RequireAll):
             project.redirect()
             self.status = StepResult.OK
         else:
-            super(Containerize, self).__call__()
+            return super(Containerize, self).__call__()
 
     def __str__(self, indent=0):
         sub_actns = [a.__str__(indent + 1) for a in self.actions]

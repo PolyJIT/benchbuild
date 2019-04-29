@@ -55,6 +55,10 @@ CFG = s.Configuration(
             "Number of jobs that can be used for building and running.",
             "default": str(s.available_cpu_count())
         },
+        "parallel_processes": {
+            "desc": "Proccesses use to work on execution plans.",
+            "default": 1
+        },
         "experiments": {
             "default": {
                 "empty": uuid.uuid4()
@@ -437,6 +441,13 @@ CFG["container"] = {
                 "A list of gentoo package atoms that should be merged."
             }
         }
+    }
+}
+
+CFG["versions"] = {
+    "full": {
+        "default": False,
+        "desc": "Ignore default sampling and provide full version exploration."
     }
 }
 

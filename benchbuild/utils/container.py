@@ -2,10 +2,11 @@
 import logging
 import os
 
+from datetime import datetime
 from plumbum import TF, ProcessExecutionError, local
 
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import bash, cp, curl, cut, rm, tail
+from benchbuild.utils.cmd import awk, bash, cp, curl, cut, rm, tail
 from benchbuild.utils.download import Wget
 
 LOG = logging.getLogger(__name__)
@@ -62,7 +63,11 @@ class Container:
 
 class Gentoo(Container):
     name = "gentoo"
+    _LATEST_TXT = \
+        "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
+        "latest-stage3-amd64.txt"
 
+    @property
     @cached
     def src_file(self):
         """
@@ -71,10 +76,8 @@ class Gentoo(Container):
         Returns (str):
             Latest src_uri from gentoo's distfiles mirror.
         """
-        latest_txt = "http://distfiles.gentoo.org/releases/amd64/autobuilds/"\
-                     "latest-stage3-amd64.txt"
         try:
-            src_uri = (curl[latest_txt] | tail["-n", "+3"]
+            src_uri = (curl[Gentoo._LATEST_TXT] | tail["-n", "+3"]
                        | cut["-f1", "-d "])().strip()
         except ProcessExecutionError as proc_ex:
             src_uri = "NOT-FOUND"
@@ -83,10 +86,26 @@ class Gentoo(Container):
         return src_uri
 
     @property
+    @cached
+    def version(self):
+        """Return the build date of the gentoo container."""
+        try:
+            _version = (curl[Gentoo._LATEST_TXT] | \
+                    awk['NR==2{print}'] | \
+                    cut["-f2", "-d="])().strip()
+            _version = datetime.utcfromtimestamp(int(_version))\
+                .strftime("%Y-%m-%d")
+        except ProcessExecutionError as proc_ex:
+            _version = "unknown"
+            LOG.error("Could not determine timestamp: %s",
+                      str(proc_ex))
+        return _version
+
+    @property
     def remote(self):
         """Get a remote URL of the requested container."""
         return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
-            .format(self.src_file())
+            .format(self.src_file)
 
 
 def is_valid(container, path):

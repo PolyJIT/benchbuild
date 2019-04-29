@@ -6,13 +6,13 @@ get deleted afterwards.
 import sys
 import logging
 from types import ModuleType
-from plumbum.commands.base import BoundCommand
+from plumbum.machines.local import LocalCommand
 
 __ALIASES__ = {"unionfs": ["unionfs_fuse", "unionfs"]}
 LOG = logging.getLogger(__name__)
 
 
-class ErrorCommand(BoundCommand):
+class ErrorCommand(LocalCommand):
     """
     A command that raises an exception when it gets called.
     This allows us to call the study with experiments who use incorrect imports,
@@ -21,6 +21,11 @@ class ErrorCommand(BoundCommand):
     """
 
     def run(self, *args, **kwargs):
+        """Simply raises the AttributeError for a missing command."""
+        LOG.error("Unable to import a needed module.")
+        raise AttributeError(__name__ + ".cmd")
+
+    def popen(self, *args, **kwargs):
         """Simply raises the AttributeError for a missing command."""
         LOG.error("Unable to import a needed module.")
         raise AttributeError(__name__ + ".cmd")
@@ -89,5 +94,4 @@ del sys
 del logging
 del ModuleType
 del CommandAlias
-del BoundCommand
-del ErrorCommand
+del LocalCommand

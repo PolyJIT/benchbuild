@@ -161,7 +161,7 @@ class Project(metaclass=ProjectDecorator):
     SRC_FILE = None
     CONTAINER = None
 
-    def __new__(cls, *_):
+    def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
         new_self = super(Project, cls).__new__(cls)
         if cls.NAME is None:
@@ -200,12 +200,6 @@ class Project(metaclass=ProjectDecorator):
     version = attr.ib(
         default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
 
-    builddir = attr.ib(default=attr.Factory(
-        lambda self: local.path(str(CFG["build_dir"])) /
-        "{}-{}-{}-{}".format(
-            self.experiment.name, self.name, self.group, self.experiment.id),
-        takes_self=True))
-
     testdir = attr.ib()
 
     @testdir.default
@@ -218,11 +212,6 @@ class Project(metaclass=ProjectDecorator):
     cflags = attr.ib(default=attr.Factory(list))
 
     ldflags = attr.ib(default=attr.Factory(list))
-
-    run_f = attr.ib(
-        default=attr.Factory(
-            lambda self: local.path(self.builddir) / self.name,
-            takes_self=True))
 
     run_uuid = attr.ib()
 
@@ -237,6 +226,17 @@ class Project(metaclass=ProjectDecorator):
     def __check_if_uuid(self, _, value):
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
+
+    builddir = attr.ib(default=attr.Factory(
+        lambda self: local.path(str(CFG["build_dir"])) /
+        "{}-{}".format(
+            self.experiment.name, self.id),
+        takes_self=True))
+
+    run_f = attr.ib(
+        default=attr.Factory(
+            lambda self: local.path(self.builddir) / self.name,
+            takes_self=True))
 
     compiler_extension = attr.ib(default=attr.Factory(
         lambda self: ext_run.WithTimeout(
@@ -325,8 +325,18 @@ class Project(metaclass=ProjectDecorator):
 
     @property
     def id(self):
-        return "{name}-{group}-{id}".format(
-            name=self.name, group=self.group, id=self.run_uuid)
+        return "{name}-{group}@{version}_uuid_{id}".format(
+            name=self.name,
+            group=self.group,
+            version=self.version,
+            id=self.run_uuid)
+
+    @classmethod
+    def versions(cls):
+        """Return all available versions."""
+        if cls.VERSION:
+            return [cls.VERSION]
+        return ["unknown"]
 
 
 def populate(projects_to_filter=None, group=None):

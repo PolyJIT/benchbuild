@@ -15,12 +15,15 @@ The project definition ensures that all experiments run through the same
 series of commands in both phases and that all experiments run inside
 a separate build directory in isolation of one another.
 """
+from __future__ import annotations
+
 import copy
 import logging
 import uuid
 from abc import abstractmethod
 from functools import partial
 from os import getenv
+from typing import TYPE_CHECKING
 
 import attr
 from plumbum import ProcessExecutionError, local
@@ -30,7 +33,15 @@ from benchbuild import signals
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
-from benchbuild.utils import db, run, unionfs, wrapping
+from benchbuild.utils import db, run, unionfs, validators, wrapping
+
+if TYPE_CHECKING:
+    from benchbuild.experiment import Experiment
+    from benchbuild.extensions import Extension
+    from benchbuild.utils.container import Container
+    from plumbum.path.local import LocalPath
+    from plumbum.commands import BaseCommand
+    from typing import Callable, List
 
 LOG = logging.getLogger(__name__)
 
@@ -81,7 +92,7 @@ class ProjectDecorator(ProjectRegistry):
         super(ProjectDecorator, cls).__init__(name, bases, attrs)
 
 
-@attr.s
+@attr.s()
 class Project(metaclass=ProjectDecorator):
     """Abstract class for benchbuild projects.
 
@@ -154,69 +165,54 @@ class Project(metaclass=ProjectDecorator):
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
-    NAME = None
-    DOMAIN = None
-    GROUP = None
-    VERSION = None
-    SRC_FILE = None
-    CONTAINER = None
+    NAME: str = ''
+    DOMAIN: str = ''
+    GROUP: str = ''
+    VERSION: str = ''
+    SRC_FILE: str = ''
+    CONTAINER: str = ''
 
-    def __new__(cls, *args, **kwargs):
-        """Create a new project instance and set some defaults."""
-        new_self = super(Project, cls).__new__(cls)
-        if cls.NAME is None:
-            raise AttributeError(
-                "{0} @ {1} does not define a NAME class attribute.".format(
-                    cls.__name__, cls.__module__))
-        if cls.DOMAIN is None:
-            raise AttributeError(
-                "{0} @ {1} does not define a DOMAIN class attribute.".format(
-                    cls.__name__, cls.__module__))
-        if cls.GROUP is None:
-            raise AttributeError(
-                "{0} @ {1} does not define a GROUP class attribute.".format(
-                    cls.__name__, cls.__module__))
-        return new_self
+    experiment: Experiment = attr.ib()
+    name: str = attr.ib(
+        default=attr.Factory(lambda self: type(self).NAME, takes_self=True),
+        validator=validators.attribute_not_empty('NAME'))
 
-    experiment = attr.ib()
+    domain: str = attr.ib(
+        default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True),
+        validator=validators.attribute_not_empty('DOMAIN'))
 
-    name = attr.ib(
-        default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
+    group: str = attr.ib(
+        default=attr.Factory(lambda self: type(self).GROUP, takes_self=True),
+        validator=validators.attribute_not_empty('GROUP'))
 
-    domain = attr.ib(
-        default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True))
-
-    group = attr.ib(
-        default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
-
-    src_file = attr.ib(
+    src_file: str = attr.ib(
         default=attr.Factory(
             lambda self: type(self).SRC_FILE, takes_self=True))
 
-    container = attr.ib(
+    container: Container = attr.ib(
         default=attr.Factory(
             lambda self: type(self).CONTAINER, takes_self=True))
 
-    version = attr.ib(
+    version: str = attr.ib(
         default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
 
-    testdir = attr.ib()
+    testdir: LocalPath = attr.ib()
 
     @testdir.default
-    def __default_testdir(self):
+    def __default_testdir(self) -> LocalPath:
         if self.group:
             return local.path(str(
                 CFG["test_dir"])) / self.domain / self.group / self.name
         return local.path(str(CFG["test_dir"])) / self.domain / self.name
 
-    cflags = attr.ib(default=attr.Factory(list))
+    cflags: List[str] = attr.ib(default=attr.Factory(list))
 
-    ldflags = attr.ib(default=attr.Factory(list))
+    ldflags: List[str] = attr.ib(default=attr.Factory(list))
 
-    run_uuid = attr.ib()
+    run_uuid: uuid.UUID = attr.ib()
 
     @run_uuid.default
-    def __default_run_uuid(self):
+    def __default_run_uuid(self) -> uuid.UUID:
         run_group = getenv("BB_DB_RUN_GROUP", None)
         if run_group:
             return uuid.UUID(run_group)
@@ -227,27 +223,27 @@ class Project(metaclass=ProjectDecorator):
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
-    builddir = attr.ib(default=attr.Factory(
+    builddir: LocalPath = attr.ib(default=attr.Factory(
         lambda self: local.path(str(CFG["build_dir"])) /
         "{}-{}".format(
             self.experiment.name, self.id),
         takes_self=True))
 
-    run_f = attr.ib(
+    run_f: LocalPath = attr.ib(
         default=attr.Factory(
             lambda self: local.path(self.builddir) / self.name,
             takes_self=True))
 
-    compiler_extension = attr.ib(default=attr.Factory(
+    compiler_extension: Extension = attr.ib(default=attr.Factory(
         lambda self: ext_run.WithTimeout(
             compiler.RunCompiler(self, self.experiment)), takes_self=True))
 
-    runtime_extension = attr.ib(default=None)
+    runtime_extension: Extension = attr.ib(default=None)
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         db.persist_project(self)
 
-    def run_tests(self, runner):
+    def run_tests(self, runner: Callable[[BaseCommand], None]) -> None:
         """
         Run the tests of this project.
 
@@ -260,7 +256,7 @@ class Project(metaclass=ProjectDecorator):
         exp = wrapping.wrap(self.run_f, self)
         runner(exp)
 
-    def run(self):
+    def run(self) -> None:
         """Run the tests of this project.
 
         This method initializes the default environment and takes care of
@@ -293,12 +289,12 @@ class Project(metaclass=ProjectDecorator):
         finally:
             signals.handlers.deregister(fail_run_group)
 
-    def clean(self):
+    def clean(self) -> None:
         """Clean the project build directory."""
         builddir_p = local.path(self.builddir)
         builddir_p.delete()
 
-    def prepare(self):
+    def prepare(self) -> None:
         """Prepare the build diretory."""
         builddir_p = local.path(self.builddir)
         if not builddir_p.exists():
@@ -308,7 +304,7 @@ class Project(metaclass=ProjectDecorator):
     def compile(self):
         """Compile the project."""
 
-    def download(self, version=None):
+    def download(self, version: str = None):
         """Auto-generated by with_* decorators."""
         del version
         LOG.error("Not implemented.")
@@ -339,7 +335,8 @@ class Project(metaclass=ProjectDecorator):
         return ["unknown"]
 
 
-def populate(projects_to_filter=None, group=None):
+def populate(projects_to_filter: List[Project] = None,
+             group: List[str] = None):
     """
     Populate the list of projects that belong to this experiment.
 

@@ -24,23 +24,36 @@ class HelloExperiment(Experiment):
 ```
 
 """
+from __future__ import annotations
+
 import collections
 import copy
 import uuid
 from abc import abstractmethod
+from typing import TYPE_CHECKING
 
 import attr
 
 from benchbuild.settings import CFG
+from benchbuild.utils import validators
 from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
                                       Containerize, Echo, MakeBuildDir,
                                       RequireAll, Run)
+
+if TYPE_CHECKING:
+    from benchbuild.project import Project
+    from benchbuild.utils.actions import Step
+
+    from typing import Dict, Iterable, List, Type, TypeVar
+
+    Step_co = TypeVar('Step_co', bound=Step)
+    ProjectClass = Type[Project]
 
 
 class ExperimentRegistry(type):
     """Registry for benchbuild experiments."""
 
-    experiments = {}
+    experiments: Dict[str, Experiment] = {}
 
     def __init__(cls, name, bases, _dict):
         """Register a project in the registry."""
@@ -73,26 +86,16 @@ class Experiment(metaclass=ExperimentRegistry):
             in the database scheme.
     """
 
-    NAME = None
-    SCHEMA = None
+    NAME: str = ''
+    SCHEMA: str = ''
 
-    def __new__(cls, *args, **kwargs):
-        """Create a new experiment instance and set some defaults."""
-        del args, kwargs  # Temporarily unused
-        new_self = super(Experiment, cls).__new__(cls)
-        if cls.NAME is None:
-            raise AttributeError(
-                "{0} @ {1} does not define a NAME class attribute.".format(
-                    cls.__name__, cls.__module__))
-        return new_self
+    name: str = attr.ib(
+        default=attr.Factory(lambda self: type(self).NAME, takes_self=True),
+        validator=validators.attribute_not_empty('NAME'))
 
-    name = attr.ib(
-        default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
+    projects: Dict[str, ProjectClass] = attr.ib(default=attr.Factory(list))
 
-    projects = \
-        attr.ib(default=attr.Factory(list))
-
-    id = attr.ib()
+    id: uuid.UUID = attr.ib(validator=attr.validators.instance_of(uuid.UUID))
 
     @id.default
     def default_id(self):
@@ -105,40 +108,29 @@ class Experiment(metaclass=ExperimentRegistry):
             CFG["experiments"] = cfg_exps
         return _id
 
-    @id.validator
-    def validate_id(self, _, new_id):
-        if not isinstance(new_id, uuid.UUID):
-            raise TypeError("%s expected to be '%s' but got '%s'" %
-                            (str(new_id), str(uuid.UUID), str(type(new_id))))
-
-    schema = attr.ib()
-
-    @schema.default
-    def default_schema(self):
-        return type(self).SCHEMA
-
-    @schema.validator
-    def validate_schema(self, _, new_schema):
-        if new_schema is None:
-            return True
-        if isinstance(new_schema, collections.abc.Iterable):
-            return True
-        return False
+    schema = attr.ib(
+        default=attr.Factory(lambda self: type(self.SCHEMA), takes_self=True),
+        validator=validators.usable_schema)
 
     @abstractmethod
-    def actions_for_project(self, project):
+    def actions_for_project(self, project: Project) -> List[Step]:
         """
         Get the actions a project wants to run.
 
         Args:
             project (benchbuild.Project): the project we want to run.
+        Returns:
+            A list of steps to run for a given project.
         """
 
-    def actions(self):
+    def actions(self) -> List[Step]:
         """
         Common setup required to run this experiment on all projects.
+
+        Returns:
+            A list of steps to run for this experiment.
         """
-        actions = []
+        actions: List[Step] = []
 
         for project in self.projects:
             prj_cls = self.projects[project]
@@ -160,7 +152,7 @@ class Experiment(metaclass=ExperimentRegistry):
         actions.append(CleanExtra(self))
         return actions
 
-    def sample(self, prj_cls, versions=None):
+    def sample(self, prj_cls: ProjectClass, versions: List[str] = None) -> Iterable[str]:
         """
         Sample all avilable versions.
 
@@ -192,12 +184,12 @@ class Experiment(metaclass=ExperimentRegistry):
                 yield v
 
     @staticmethod
-    def default_runtime_actions(project):
+    def default_runtime_actions(project: Project) -> List[Step]:
         """Return a series of actions for a run time experiment."""
         return [Compile(project), Run(project), Clean(project)]
 
     @staticmethod
-    def default_compiletime_actions(project):
+    def default_compiletime_actions(project: Project) -> List[Step]:
         """Return a series of actions for a compile time experiment."""
         return [Compile(project), Clean(project)]
 

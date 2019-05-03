@@ -50,7 +50,7 @@ setup(
         "pyparsing>=2.2",
         "PyYAML~=5.1",
         "Jinja2>=2.2",
-        "attrs>=17.4.0",
+        "attrs>=19.1.0",
         "urwid>=2.0.1",
     ],
     author="Andreas Simbuerger",

@@ -40,6 +40,15 @@ script:
   - coverage run -a `which benchbuild` -vvvvv run --full test
   - codecov
 
+jobs:
+  include:
+    - stage: lint
+      install: pip install lintly
+      script: pylint | lintly --format=pylint
+
+stages:
+  - lint
+
 branches:
   only:
     - master

@@ -30,15 +30,22 @@ install:
 env:
   - SKIP_INTERPRETER=true BB_UNIONFS_ENABLE=false BB_PLUGINS_EXPERIMENTS='["benchbuild.experiments.raw", "benchbuild.experiments.empty"]'
 
-script:
-  - ./pycodestyle-travis/scan.sh
-  - coverage run -a `which benchbuild` bootstrap -s
-  - pytest --cov=./ benchbuild tests
-  - coverage run -a `which benchbuild` config view
-  - coverage run -a `which benchbuild` project view
-  - coverage run -a `which benchbuild` experiment view
-  - coverage run -a `which benchbuild` -vvvvv run --full test
-  - codecov
+jobs:
+  include:
+    - stage: "Linting"
+      script:
+        - ./pycodestyle-travis/scan.sh
+    - stage: "Unit Tests"
+      script:
+        - pytest --cov=./ benchbuild tests
+    - stage: "Integration Tests"
+      script:
+        - coverage run -a `which benchbuild` bootstrap -s
+        - coverage run -a `which benchbuild` config view
+        - coverage run -a `which benchbuild` project view
+        - coverage run -a `which benchbuild` experiment view
+        - coverage run -a `which benchbuild` -vvvvv run --full test
+        - codecov
 
 branches:
   only:

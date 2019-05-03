@@ -23,14 +23,14 @@ before_install:
   - git clone https://github.com/TravisToolbox/pycodestyle-travis.git
 
 install:
-  - ./pycodestyle-travis/install.sh
+  # - ./pycodestyle-travis/install.sh
   - pip install .
   - pip install -r requirements.txt
   - pip install codecov
   - pip install pytest-cov
 
 script:
-  - ./pycodestyle-travis/scan.sh
+  # - ./pycodestyle-travis/scan.sh
 
   - coverage run -a `which benchbuild` bootstrap -s
   - pytest --cov=./ benchbuild tests

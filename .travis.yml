@@ -16,16 +16,6 @@ addons:
       - libfuse-dev
       - clang
 
-before_install:
-  - git clone https://github.com/TravisToolbox/pycodestyle-travis.git
-
-install:
-  - ./pycodestyle-travis/install.sh
-
-  - pip install .
-  - pip install -r requirements.txt
-  - pip install codecov
-  - pip install pytest-cov
 
 env:
   - SKIP_INTERPRETER=true BB_UNIONFS_ENABLE=false BB_PLUGINS_EXPERIMENTS='["benchbuild.experiments.raw", "benchbuild.experiments.empty"]'
@@ -33,12 +23,25 @@ env:
 jobs:
   include:
     - stage: "Linting"
-      script:
-        - ./pycodestyle-travis/scan.sh
+      before_install: git clone https://github.com/TravisToolbox/pycodestyle-travis.git
+      install: ./pycodestyle-travis/install.sh
+      script: ./pycodestyle-travis/scan.sh
+
     - stage: "Unit Tests"
+      install:
+        - pip install .
+        - pip install -r requirements.txt
+        - pip install codecov
+        - pip install pytest-cov
       script:
         - pytest --cov=./ benchbuild tests
+
     - stage: "Integration Tests"
+      install:
+        - pip install .
+        - pip install -r requirements.txt
+        - pip install codecov
+        - pip install pytest-cov
       script:
         - coverage run -a `which benchbuild` bootstrap -s
         - coverage run -a `which benchbuild` config view

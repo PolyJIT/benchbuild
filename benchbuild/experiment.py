@@ -36,7 +36,7 @@ import attr
 
 from benchbuild.settings import CFG
 from benchbuild.utils import validators
-from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
+from benchbuild.utils.actions import (Clean, CleanExtra, Compile,
                                       Containerize, Echo, MakeBuildDir,
                                       RequireAll, Run)
 
@@ -44,16 +44,15 @@ if TYPE_CHECKING:
     from benchbuild.project import Project
     from benchbuild.utils.actions import Step
 
-    from typing import Dict, Iterable, List, Type, TypeVar
+    from typing import Dict, Iterable, List, Type
 
-    Step_co = TypeVar('Step_co', bound=Step)
     ProjectClass = Type[Project]
 
 
 class ExperimentRegistry(type):
     """Registry for benchbuild experiments."""
 
-    experiments: Dict[str, Experiment] = {}
+    experiments: Dict[str, 'Experiment'] = {}
 
     def __init__(cls, name, bases, _dict):
         """Register a project in the registry."""

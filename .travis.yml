@@ -23,15 +23,15 @@ before_install:
   - git clone https://github.com/TravisToolbox/pycodestyle-travis.git
 
 install:
-  # - ./pycodestyle-travis/install.sh
   - pip install .
   - pip install -r requirements.txt
   - pip install codecov
   - pip install pytest-cov
+  - pip install pylint
+  - pip install lintly
 
 script:
-  # - ./pycodestyle-travis/scan.sh
-
+  - pylint --rcfile=./.pylintrc benchbuild --output-format=json | lintly --format=pylint-json
   - coverage run -a `which benchbuild` bootstrap -s
   - pytest --cov=./ benchbuild tests
   - coverage run -a `which benchbuild` config view
@@ -39,18 +39,6 @@ script:
   - coverage run -a `which benchbuild` experiment view
   - coverage run -a `which benchbuild` -vvvvv run --full test
   - codecov
-
-jobs:
-  include:
-    - stage: lint
-      install:
-        - pip install pylint
-        - pip install lintly
-      script: pylint --rcfile=./.pylintrc benchbuild --output-format=json | lintly --format=pylint-json
-
-stages:
-  - lint
-  - test
 
 branches:
   only:

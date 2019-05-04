@@ -44,7 +44,7 @@ jobs:
   include:
     - stage: lint
       install: pip install lintly
-      script: pylint | lintly --format=pylint
+      script: pylint benchbuild --output-format=json | lintly --format=pylint-json
 
 stages:
   - lint

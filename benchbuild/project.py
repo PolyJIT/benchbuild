@@ -165,12 +165,12 @@ class Project(metaclass=ProjectDecorator):
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
-    NAME: str = ''
-    DOMAIN: str = ''
-    GROUP: str = ''
-    VERSION: str = ''
-    SRC_FILE: str = ''
-    CONTAINER: str = ''
+    NAME: str = None
+    DOMAIN: str = None
+    GROUP: str = None
+    VERSION: str = None
+    SRC_FILE: str = None
+    CONTAINER: Container = None
 
     experiment: Experiment = attr.ib()
     name: str = attr.ib(

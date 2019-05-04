@@ -51,6 +51,7 @@ jobs:
 
 stages:
   - lint
+  - test
 
 branches:
   only:

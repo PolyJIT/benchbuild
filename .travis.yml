@@ -46,7 +46,7 @@ jobs:
       install:
         - pip install pylint
         - pip install lintly
-      script: pylint benchbuild --output-format=json | lintly --format=pylint-json
+      script: pylint --rcfile=./.pylintrc benchbuild --output-format=json | lintly --format=pylint-json
 
 stages:
   - lint

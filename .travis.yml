@@ -43,7 +43,10 @@ script:
 jobs:
   include:
     - stage: lint
-      install: pip install lintly
+      install:
+        - pip install .
+        - pip install -r requirements.txt
+        - pip install lintly
       script: pylint benchbuild --output-format=json | lintly --format=pylint-json
 
 stages:

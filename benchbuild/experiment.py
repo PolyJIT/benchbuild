@@ -85,8 +85,8 @@ class Experiment(metaclass=ExperimentRegistry):
             in the database scheme.
     """
 
-    NAME: str = ''
-    SCHEMA: str = ''
+    NAME: str = None
+    SCHEMA = None
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True),

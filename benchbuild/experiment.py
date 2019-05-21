@@ -184,7 +184,14 @@ class Experiment(metaclass=ExperimentRegistry):
                 * for version in versions:
                     version in prj_cls.versions()
         """
-        head, *tail = versions if versions else prj_cls.versions()
+        if versions is None:
+            versions = prj_cls.versions()
+
+        if not versions:
+            # early return if version list is empty
+            return
+
+        head, *tail = versions
 
         yield head
         if bool(CFG["versions"]["full"]):

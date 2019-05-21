@@ -10,11 +10,13 @@ if TYPE_CHECKING:
     from typing import Callable
 
 
-def attribute_not_empty(ATTR: str) -> Callable[..., None]:
+def attribute_not_empty(attribute: str) -> Callable[..., None]:
     def check_attr(self, _, new_attr_val) -> None:
         if not new_attr_val:
-            raise ValueError(ATTR + ' attribute must not be empty.')
+            raise ValueError(attribute + ' attribute must not be empty.')
+
     return check_attr
+
 
 def usable_schema(self, _, new_schema) -> bool:
     if new_schema is None:

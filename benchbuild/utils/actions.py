@@ -12,6 +12,8 @@ TODO
 ```python
 ```
 """
+from __future__ import annotations
+
 import abc
 import enum
 import functools as ft
@@ -23,6 +25,7 @@ import sys
 import textwrap
 import traceback
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 import attr
 import sqlalchemy as sa
@@ -32,6 +35,12 @@ from benchbuild import signals
 from benchbuild.settings import CFG
 from benchbuild.utils import container, db
 from benchbuild.utils.cmd import mkdir, rm, rmdir
+
+if TYPE_CHECKING:
+    from typing import Callable, List, Iterable, Optional, Tuple, Union
+    from benchbuild.utils.schema import Session, Experiment as Experiment_ORM
+    from benchbuild.experiment import Experiment as Experiment_T
+    from benchbuild.project import Project
 
 LOG = logging.getLogger(__name__)
 
@@ -45,23 +54,21 @@ class StepResult(enum.IntEnum):
     ERROR = 3
 
 
-def step_has_failed(step_results, error_status=None):
-    if not error_status:
-        error_status = [StepResult.ERROR, StepResult.CAN_CONTINUE]
-
-    return len(list(filter(lambda res: res in error_status, step_results))) > 0
+def step_has_failed(step_results: List[StepResult], error_status: Optional[List[StepResult]] = None) -> bool:
+    errors: List[StepResult] = error_status if error_status else [StepResult.ERROR, StepResult.CAN_CONTINUE]
+    return len(list(filter(lambda res: res in errors, step_results))) > 0
 
 
-def num_steps(steps):
+def num_steps(steps: Iterable[Step]):
     return sum([len(step) for step in steps])
 
 
-def print_steps(steps):
+def print_steps(steps: Iterable[Step]):
     print("Number of actions to execute: {}".format(num_steps(steps)))
     print(*steps)
 
 
-def to_step_result(func):
+def to_step_result(func: Callable) -> Callable[..., Iterable[StepResult]]:
     """Convert a function return to a list of StepResults.
 
     All Step subclasses automatically wrap the result of their
@@ -77,7 +84,7 @@ def to_step_result(func):
     """
 
     @ft.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Iterable[StepResult]:
         """Wrapper stub."""
         res = func(*args, **kwargs)
         if not res:
@@ -90,7 +97,7 @@ def to_step_result(func):
     return wrapper
 
 
-def prepend_status(func):
+def prepend_status(func: Callable) -> Callable:
     """Prepends the output of `func` with the status."""
 
     @ft.wraps(func)
@@ -104,7 +111,7 @@ def prepend_status(func):
     return wrapper
 
 
-def notify_step_begin_end(func):
+def notify_step_begin_end(func: Callable) -> Callable:
     """Print the beginning and the end of a `func`."""
 
     @ft.wraps(func)
@@ -126,10 +133,10 @@ def notify_step_begin_end(func):
     return wrapper
 
 
-def log_before_after(name: str, desc: str):
+def log_before_after(name: str, desc: str) -> Callable:
     """Log customized stirng before & after running func."""
 
-    def func_decorator(f):
+    def func_decorator(f) -> Callable:
         """Wrapper stub."""
 
         @ft.wraps(f)
@@ -178,17 +185,19 @@ class Step(metaclass=StepClass):
         StopIteration: If we do not encapsulate more substeps.
     """
 
-    NAME = None
-    DESCRIPTION = None
+    NAME: str = ''
+    DESCRIPTION: str = ''
 
-    ON_STEP_BEGIN = []
-    ON_STEP_END = []
+    ON_STEP_BEGIN: List[Callable] = []
+    ON_STEP_END: List[Callable] = []
 
-    obj = attr.ib(default=None, repr=False)
-    action_fn = attr.ib(default=None, repr=False)
-    status = attr.ib(default=StepResult.UNSET)
+    obj: Union[Experiment_T, Project] = attr.ib(default=None, repr=False)
 
-    def __len__(self):
+    action_fn: Callable[[], None] = attr.ib(default=None, repr=False)
+
+    status: StepResult = attr.ib(default=StepResult.UNSET)
+
+    def __len__(self) -> int:
         return 1
 
     def __iter__(self):
@@ -198,28 +207,28 @@ class Step(metaclass=StepClass):
         raise StopIteration
 
     @notify_step_begin_end
-    def __call__(self):
+    def __call__(self) -> StepResult:
         if not self.action_fn:
             return StepResult.ERROR
         self.action_fn()
         self.status = StepResult.OK
         return StepResult.OK
 
-    def __str__(self, indent=0):
+    def __str__(self, indent=0) -> str:
         return textwrap.indent(
             "* {name}: Execute configured action.".format(name=self.obj.name),
             indent * " ")
 
-    def onerror(self):
+    def onerror(self) -> None:
         Clean(self.obj)()
 
 
 @attr.s
 class Clean(Step):
-    NAME = "CLEAN"
-    DESCRIPTION = "Cleans the build directory"
+    NAME: str = "CLEAN"
+    DESCRIPTION: str = "Cleans the build directory"
 
-    check_empty = attr.ib(default=False)
+    check_empty: bool = attr.ib(default=False)
 
     @staticmethod
     def clean_mountpoints(root: str):
@@ -241,7 +250,7 @@ class Clean(Step):
                     umount_paths.append(part.mountpoint)
 
     @notify_step_begin_end
-    def __call__(self):
+    def __call__(self) -> None:
         if not CFG['clean']:
             LOG.warning("Clean disabled by config.")
             return
@@ -260,51 +269,51 @@ class Clean(Step):
             LOG.debug("Path %s did not exist anymore", obj_builddir)
         self.status = StepResult.OK
 
-    def __str__(self, indent=0):
+    def __str__(self, indent=0) -> str:
         return textwrap.indent(
             "* {0}: Clean the directory: {1}".format(
                 self.obj.name, self.obj.builddir), indent * " ")
 
 
 class MakeBuildDir(Step):
-    NAME = "MKDIR"
-    DESCRIPTION = "Create the build directory"
+    NAME: str = "MKDIR"
+    DESCRIPTION: str = "Create the build directory"
 
     @notify_step_begin_end
-    def __call__(self):
+    def __call__(self) -> None:
         if not self.obj:
             return
         if not os.path.exists(self.obj.builddir):
             mkdir("-p", self.obj.builddir)
         self.status = StepResult.OK
 
-    def __str__(self, indent=0):
+    def __str__(self, indent=0) -> str:
         return textwrap.indent(
             "* {0}: Create the build directory".format(self.obj.name),
             indent * " ")
 
 
 class Compile(Step):
-    NAME = "COMPILE"
-    DESCRIPTION = "Compile the project"
+    NAME: str = "COMPILE"
+    DESCRIPTION: str = "Compile the project"
 
     def __init__(self, project):
         super(Compile, self).__init__(obj=project, action_fn=project.compile)
 
-    def __str__(self, indent=0):
+    def __str__(self, indent=0) -> str:
         return textwrap.indent("* {0}: Compile".format(self.obj.name),
                                indent * " ")
 
 
 class Run(Step):
-    NAME = "RUN"
-    DESCRIPTION = "Execute the run action"
+    NAME: str = "RUN"
+    DESCRIPTION: str = "Execute the run action"
 
     def __init__(self, project):
         super(Run, self).__init__(obj=project, action_fn=project.run)
 
     @notify_step_begin_end
-    def __call__(self):
+    def __call__(self) -> None:
         if not self.obj:
             return
         if not self.action_fn:
@@ -313,7 +322,7 @@ class Run(Step):
         self.action_fn()
         self.status = StepResult.OK
 
-    def __str__(self, indent=0):
+    def __str__(self, indent=0) -> str:
         return textwrap.indent(
             "* {0}: Execute run-time tests.".format(self.obj.name),
             indent * " ")
@@ -321,21 +330,21 @@ class Run(Step):
 
 @attr.s
 class Echo(Step):
-    NAME = 'ECHO'
-    DESCRIPTION = 'Print a message.'
+    NAME: str = 'ECHO'
+    DESCRIPTION: str = 'Print a message.'
 
-    message = attr.ib(default="")
+    message: str = attr.ib(default="")
 
-    def __str__(self, indent=0):
+    def __str__(self, indent=0) -> str:
         return textwrap.indent("* echo: {0}".format(self.message),
                                indent * " ")
 
     @notify_step_begin_end
-    def __call__(self):
+    def __call__(self) -> None:
         LOG.info(self.message)
 
 
-def run_any_child(child: Step):
+def run_any_child(child: Step) -> StepResult:
     """
     Execute child step.
 
@@ -347,19 +356,19 @@ def run_any_child(child: Step):
 
 @attr.s(cmp=False)
 class Any(Step):
-    NAME = "ANY"
-    DESCRIPTION = "Just run all actions, no questions asked."
+    NAME: str = "ANY"
+    DESCRIPTION: str = "Just run all actions, no questions asked."
 
-    actions = attr.ib(default=attr.Factory(list), repr=False, cmp=False)
+    actions: List[Step] = attr.ib(default=attr.Factory(list), repr=False, cmp=False)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
 
     def __iter__(self):
         return self.actions.__iter__()
 
     @notify_step_begin_end
-    def __call__(self):
+    def __call__(self) -> None:
         length = len(self.actions)
         cnt = 0
         results = [StepResult.OK]
@@ -374,24 +383,23 @@ class Any(Step):
         if StepResult.ERROR in results:
             self.status = StepResult.CAN_CONTINUE
 
-    def __str__(self, indent=0):
-        sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
+    def __str__(self, indent: int = 0) -> str:
+        sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
         return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
 
 
 @attr.s(cmp=False, hash=True)
 class Experiment(Any):
-    NAME = "EXPERIMENT"
-    DESCRIPTION = "Run a experiment, wrapped in a db transaction"
+    NAME: str = "EXPERIMENT"
+    DESCRIPTION: str = "Run a experiment, wrapped in a db transaction"
 
-    def __attrs_post_init__(self):
-        self.actions = \
+    def __attrs_post_init__(self) -> None:
+        self.actions: List[Step] = \
             [Echo(message="Start experiment: {0}".format(self.obj.name))] + \
             self.actions + \
             [Echo(message="Completed experiment: {0}".format(self.obj.name))]
 
-    def begin_transaction(self):
+    def begin_transaction(self) -> Tuple[Experiment_ORM, Session]:
         experiment, session = db.persist_experiment(self.obj)
         if experiment.begin is None:
             experiment.begin = datetime.now()
@@ -410,7 +418,7 @@ class Experiment(Any):
         return experiment, session
 
     @staticmethod
-    def end_transaction(experiment, session):
+    def end_transaction(experiment: Experiment_ORM, session: Session) -> None:
         try:
             if experiment.end is None:
                 experiment.end = datetime.now()
@@ -421,8 +429,8 @@ class Experiment(Any):
         except sa.exc.InvalidRequestError as inv_req:
             LOG.error(inv_req)
 
-    def __run_children(self, num_processes: int):
-        results = []
+    def __run_children(self, num_processes: int) -> List[StepResult]:
+        results: List[StepResult] = []
         actions = self.actions
 
         try:
@@ -441,9 +449,8 @@ class Experiment(Any):
         return results
 
     @notify_step_begin_end
-    def __call__(self):
-        results = []
-        session = None
+    def __call__(self) -> List[StepResult]:
+        results: List[StepResult] = []
         experiment, session = self.begin_transaction()
         try:
             results = self.__run_children(int(CFG["parallel_processes"]))
@@ -453,9 +460,8 @@ class Experiment(Any):
         self.status = max(results)
         return results
 
-    def __str__(self, indent=0):
-        sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
+    def __str__(self, indent: int = 0) -> str:
+        sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
         return textwrap.indent(
             "\nExperiment: {0}\n".format(self.obj.name) + sub_actns,
             indent * " ")
@@ -463,17 +469,17 @@ class Experiment(Any):
 
 @attr.s
 class RequireAll(Step):
-    actions = attr.ib(default=attr.Factory(list))
+    actions: List[Step] = attr.ib(default=attr.Factory(list))
 
-    def __len__(self):
+    def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
 
     def __iter__(self):
         return self.actions.__iter__()
 
     @notify_step_begin_end
-    def __call__(self):
-        results = []
+    def __call__(self) -> List[StepResult]:
+        results: List[StepResult] = []
         for i, action in enumerate(self.actions):
             try:
                 results.extend(action())
@@ -508,23 +514,22 @@ class RequireAll(Step):
         self.status = StepResult.OK
         return results
 
-    def __str__(self, indent=0):
-        sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
+    def __str__(self, indent: int = 0) -> str:
+        sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
         return textwrap.indent("* All required:\n" + sub_actns, indent * " ")
 
 
 @attr.s
 class Containerize(RequireAll):
-    NAME = "CONTAINERIZE"
-    DESCRITPION = "Redirect into container"
+    NAME: str = "CONTAINERIZE"
+    DESCRITPION: str = "Redirect into container"
 
-    def requires_redirect(self):
+    def requires_redirect(self) -> bool:
         project = self.obj
         return not container.in_container() and (project.container is not None)
 
     @notify_step_begin_end
-    def __call__(self):
+    def __call__(self) -> None:
         project = self.obj
         if self.requires_redirect():
             project.redirect()
@@ -532,9 +537,8 @@ class Containerize(RequireAll):
         else:
             return super(Containerize, self).__call__()
 
-    def __str__(self, indent=0):
-        sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
+    def __str__(self, indent: int = 0) -> str:
+        sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
 
         if container.in_container():
             return textwrap.indent("* Running inside container:\n" + sub_actns,
@@ -549,11 +553,11 @@ class Containerize(RequireAll):
 
 
 class CleanExtra(Step):
-    NAME = "CLEAN EXTRA"
-    DESCRIPTION = "Cleans the extra directories."
+    NAME: str = "CLEAN EXTRA"
+    DESCRIPTION: str = "Cleans the extra directories."
 
     @notify_step_begin_end
-    def __call__(self):
+    def __call__(self) -> StepResult:
         if not CFG['clean']:
             return StepResult.OK
 
@@ -563,7 +567,7 @@ class CleanExtra(Step):
                 rm("-r", p)
         self.status = StepResult.OK
 
-    def __str__(self, indent=0):
+    def __str__(self, indent: int = 0) -> str:
         paths = CFG["cleanup_paths"].value
         lines = []
         for p in paths:

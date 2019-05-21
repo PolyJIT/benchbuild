@@ -8,6 +8,8 @@ the path in the dictionary tree.
 Inner nodes in the dictionary tree can be any dictionary.
 A leaf node in the dictionary tree is represented by an inner node that contains a value key.
 """
+from __future__ import annotations
+
 import copy
 import logging
 import os
@@ -16,6 +18,8 @@ import sys
 import uuid
 import warnings
 
+from typing import TYPE_CHECKING
+
 import attr
 import six
 import yaml
@@ -23,6 +27,9 @@ from pkg_resources import DistributionNotFound, get_distribution
 from plumbum import local
 
 import benchbuild.utils.user_interface as ui
+
+if TYPE_CHECKING:
+    pass
 
 LOG = logging.getLogger(__name__)
 
@@ -161,10 +168,6 @@ def to_env_var(env_var: str, value) -> str:
 
 
 class Configuration:
-    """Forward declaration."""
-
-
-class Configuration():
     """
     Dictionary-like data structure to contain all configuration variables.
 
@@ -191,7 +194,11 @@ class Configuration():
         <class 'benchbuild.utils.settings.Configuration'>
     """
 
-    def __init__(self, parent_key: str, node=None, parent=None, init=True):
+    def __init__(self,
+                 parent_key: str,
+                 node=None,
+                 parent=None,
+                 init: bool = True) -> None:
         self.parent = parent
         self.parent_key = parent_key
         self.node = node if node is not None else {}
@@ -213,7 +220,7 @@ class Configuration():
                     selfcopy[k].filter_exports()
             self.__dict__ = selfcopy.__dict__
 
-    def store(self, config_file):
+    def store(self, config_file: str):
         """ Store the configuration dictionary to a file."""
 
         selfcopy = copy.deepcopy(self)
@@ -228,7 +235,7 @@ class Configuration():
                 default_flow_style=False,
                 Dumper=ConfigDumper)
 
-    def load(self, _from):
+    def load(self, _from: str):
         """Load the configuration dictionary from file."""
 
         def load_rec(inode, config):

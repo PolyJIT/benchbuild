@@ -427,8 +427,9 @@ class Experiment(Any):
 
         try:
             with mp.Pool(num_processes) as pool:
-                results = itertools.chain.from_iterable(
-                    pool.map(run_any_child, actions))
+                results = list(
+                    itertools.chain.from_iterable(
+                        pool.map(run_any_child, actions)))
         except KeyboardInterrupt:
             LOG.info("Experiment aborting by user request")
             results.append(StepResult.ERROR)

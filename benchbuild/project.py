@@ -352,6 +352,8 @@ def populate(projects_to_filter=None, group=None):
         group (list(str)):
             In addition to the project filter, we provide a way to filter
             whole groups.
+    Returns:
+        a dictionary of (project name, project class) pairs.
     """
     if projects_to_filter is None:
         projects_to_filter = []

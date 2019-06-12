@@ -59,12 +59,6 @@ class BenchBuildRun(cli.Application):
 
     pretend = cli.Flag(['p', 'pretend'], default=False)
 
-    def __generate_plan(self, exps, prjs):
-        for exp_cls in exps.values():
-            exp = exp_cls(projects=prjs)
-            eactn = actions.Experiment(obj=exp, actions=exp.actions())
-            yield eactn
-
     @staticmethod
     def setup_progress(cfg, num_actions):
         """Setup a progress bar.
@@ -118,7 +112,7 @@ class BenchBuildRun(cli.Application):
             print("Could not find any experiment. Exiting.")
             return -2
 
-        plan = list(self.__generate_plan(exps, prjs))
+        plan = list(tasks.generate_plan(exps, prjs))
         num_actions = actions.num_steps(plan)
         actions.print_steps(plan)
 

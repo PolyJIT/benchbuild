@@ -1,13 +1,12 @@
 """
 Test issue 213: Wrong error tracking for failed commands
 """
-import attr
 import unittest
-import logging
+import attr
 
 from plumbum import ProcessExecutionError
 
-from benchbuild import project
+from benchbuild import project as prj
 from benchbuild import experiment
 from benchbuild.utils import actions as a
 from benchbuild.utils import tasks
@@ -27,7 +26,9 @@ class Issue213b(a.Step):
         return a.StepResult.ERROR
 
 
-class EmptyProject(project.Project):
+class EmptyProject(prj.Project):
+    """An empty project that serves as an empty shell for testing."""
+
     NAME = "test_empty"
     DOMAIN = "debug"
     GROUP = "debug"
@@ -56,9 +57,9 @@ class ErrorStateExp(experiment.Experiment):
         return [Issue213b(obj=project)]
 
 
-LOG = logging.getLogger(__name__)
-
 class TrackErrorsTestCase(unittest.TestCase):
+    """Test issue #213."""
+
     def test_exception(self):
         plan = list(
             tasks.generate_plan({"test_exception": ExceptionExp},

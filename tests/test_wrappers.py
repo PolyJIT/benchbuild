@@ -58,10 +58,10 @@ class RunCompiler(WrapperTests):
 class RunStatic(WrapperTests):
     def test_create(self):
         with local.cwd(self.tmp_dir):
-            self.cmd = wrappers.wrap(self.tmp_script,
+            cmd = wrappers.wrap(self.tmp_script,
                                      EmptyProject(empty.Empty()))
             self.assertTrue(os.path.exists("{}.bin".format(self.tmp_script)))
-        self.assertTrue(os.path.exists(str(self.cmd)))
+        self.assertTrue(os.path.exists(str(cmd)))
 
 
 class RunDynamic(WrapperTests):

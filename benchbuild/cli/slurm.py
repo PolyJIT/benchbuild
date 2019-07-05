@@ -6,9 +6,10 @@ This basically provides the same as benchbuild run, except that it just
 dumps a slurm batch script that executes everything as an array job
 on a configurable SLURM cluster.
 """
+import os
 import sys
 
-from plumbum import cli, local
+from plumbum import cli
 
 import benchbuild.projects
 import benchbuild.experiment
@@ -75,8 +76,9 @@ class Slurm(cli.Application):
         if self._description:
             CFG["experiment_description"] = self._description
 
-        CFG["slurm"]["logs"] = local.path(str(CFG['build_dir'])) / str(
-            CFG["slurm"]["logs"])
+        CFG["slurm"]["logs"] = os.path.abspath(
+            os.path.join(str(CFG['build_dir']), str(CFG['slurm']['logs'])))
+
         CFG["build_dir"] = str(CFG["slurm"]["node_dir"])
 
         exps = dict(filter(lambda pair: pair[0] in set(exp), all_exps.items()))
@@ -91,6 +93,6 @@ class Slurm(cli.Application):
         for exp_cls in exps.values():
             exp = exp_cls(projects=prjs)
             print("Experiment: ", exp.name)
-            CFG["slurm"]["node_dir"] = local.path(
-                str(CFG["slurm"]["node_dir"])) / str(exp.id)
+            CFG["slurm"]["node_dir"] = os.path.abspath(
+                os.path.join(str(CFG["slurm"]["node_dir"]), str(exp.id)))
             self.__go__(prjs, exp)

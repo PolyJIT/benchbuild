@@ -71,6 +71,11 @@ class TaskGroup:
     children: ChildTasks
     policy: TaskPolicy
 
+    def __attrs_post_init__(self):
+        for child in self.children:
+            if isinstance(child, Task):
+                child.owner = self
+
     def on_error(self, task_result: StepResult, exception=None):
         """What do we do with an error."""
         return self.policy.on_error(task_result, exception)

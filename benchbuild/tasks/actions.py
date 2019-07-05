@@ -6,7 +6,7 @@ import textwrap
 from abc import abstractmethod
 from contextlib import ExitStack, contextmanager
 from datetime import datetime
-from typing import Iterable, List, Callable, Union
+from typing import Iterable, List, Callable, Union, Any, Optional
 
 import attr
 import sqlalchemy as sa
@@ -15,6 +15,7 @@ from plumbum import ProcessExecutionError
 from benchbuild import signals
 from benchbuild.project import Project
 from benchbuild.experiment import Experiment
+from benchbuild.utils.schema import Experiment as db_exp_t
 from benchbuild.settings import CFG
 from benchbuild.utils import db
 from benchbuild.utils.actions import StepResult
@@ -23,11 +24,12 @@ from benchbuild.utils.cmd import mkdir, rm, rmdir
 LOG = logging.getLogger(__name__)
 
 RunnableTask = Union['Task', 'TaskGroup', 'TaskManager']
-ChildTasks = List[RunnableTask]
+ChildTasks = Iterable[RunnableTask]
 
 
+@attr.s(auto_attribs=True)
 class TaskPolicy:
-    state: StepResult = attr.ib(default=StepResult.OK)
+    state: StepResult = StepResult.OK
 
     def on_error(self, task_result: StepResult, exception=None):
         """What do we do with an error."""
@@ -40,12 +42,12 @@ class TaskPolicy:
         """Can execution of multiple child steps continue?"""
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class TaskGroup:
-    name: str = attr.ib()
-    description: str = attr.ib()
-    children: ChildTasks = attr.ib()
-    policy: TaskPolicy = attr.ib()
+    name: str
+    description: str
+    children: ChildTasks
+    policy: TaskPolicy
 
     def on_error(self, task_result: StepResult, exception=None):
         """What do we do with an error."""
@@ -74,12 +76,12 @@ class TaskGroup:
         return ret_str
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class Task:
-    name: str = attr.ib()
-    description: str = attr.ib()
-    call: Callable[[], StepResult] = attr.ib()
-    owner: TaskGroup = attr.ib(default=None)
+    name: str
+    description: str
+    call: Callable[[], StepResult]
+    owner: Optional[TaskGroup] = None
 
     def __call__(self) -> StepResult:
         """Perform actions that define this step implementation."""
@@ -123,7 +125,8 @@ def catch_exceptions(task: 'Task'):
     try:
         result = task()
     except (ProcessExecutionError, KeyboardInterrupt, OSError) as ex:
-        task.owner.on_error(result, ex)
+        if task.owner:
+            task.owner.on_error(result, ex)
         result = StepResult.ERROR
 
     return result
@@ -157,14 +160,14 @@ def __merge_results__(results: List[StepResult],
     return new_results
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class TaskManager:
-    name: str = attr.ib()
-    description: str = attr.ib()
+    name: str
+    description: str
 
-    plan: TaskGroup = attr.ib()
-    task_context = attr.ib(default=attr.Factory(list))
-    global_context = attr.ib(default=attr.Factory(list))
+    plan: TaskGroup
+    task_context: Iterable[Any] = attr.Factory(list)
+    global_context: Iterable[Any] = attr.Factory(list)
 
     def run(self):
         res = StepResult.OK
@@ -321,7 +324,7 @@ def end_experiment(db_exp, session):
 def manage_experiment(experiment: Experiment, tasks: TaskGroup) -> TaskManager:
     """Run an experiment, wrapped in a db transaction."""
     name: str = experiment.name
-    exp_tasks = [
+    exp_tasks: ChildTasks = [
         echo("Start experiment: {}".format(name)), tasks,
         echo("Completed experiment: {}".format(name))
     ]
@@ -337,12 +340,12 @@ def manage_experiment(experiment: Experiment, tasks: TaskGroup) -> TaskManager:
     return task_manager
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class ExperimentTransaction:
-    experiment: Experiment = attr.ib()
+    experiment: Experiment
 
-    db_exp = attr.ib(default=None)
-    db_session = attr.ib(default=None)
+    db_exp: db_exp_t = attr.ib(default=None)
+    db_session: sa.orm.session.Session = attr.ib(default=None)
 
     def __enter__(self):
         self.db_exp, self.db_session = begin_experiment(self.experiment)
@@ -352,9 +355,9 @@ class ExperimentTransaction:
         return False
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class LogTasks:
-    task: Task = attr.ib()
+    task: Task
 
     def __enter__(self):
         LOG.warning("\n%s - %s", self.task.name, self.task.description)

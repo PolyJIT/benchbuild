@@ -1,6 +1,9 @@
+"""
+Test the revised tasks API.
+"""
 import unittest
+import benchbuild.tasks as a
 
-from benchbuild.tasks import actions as a
 from benchbuild.experiments.empty import Empty
 from benchbuild.utils.actions import StepResult
 
@@ -17,7 +20,6 @@ class TestTaskGroups(unittest.TestCase):
         grp = a.fail_group(task)
 
         self.assertEqual(task.owner, grp)
-
 
     def test_plan(self):
         plan = a.continue_group(
@@ -50,9 +52,9 @@ class TestTaskGroups(unittest.TestCase):
         mgr = a.TaskManager("test fail on first", "", plan=plan)
         results = mgr.run()
 
-        self.assertEqual(len(results), 2,
-                         "Both actions executed")
-        self.assertEqual(results, [StepResult.ERROR, StepResult.ERROR], "no action executed succesfully")
+        self.assertEqual(len(results), 2, "Both actions executed")
+        self.assertEqual(results, [StepResult.ERROR, StepResult.ERROR],
+                         "no action executed succesfully")
 
     def test_continue_on_fail_2(self):
         fail_t = a.Task("fail", "", lambda: StepResult.ERROR)
@@ -74,4 +76,5 @@ class TestTaskGroups(unittest.TestCase):
 
         self.assertEqual(len(results), 3,
                          "2 out of 3 actions executed, but 3 returns")
-        self.assertEqual(results, [StepResult.OK, StepResult.ERROR, StepResult.ERROR])
+        self.assertEqual(results,
+                         [StepResult.OK, StepResult.ERROR, StepResult.ERROR])

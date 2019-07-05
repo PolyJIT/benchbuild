@@ -160,7 +160,7 @@ def __print_ident__(name: str, description: str, indent: int = 0) -> str:
         "* {name}: {desc}".format(name=name, desc=description), indent * ' ')
 
 
-def catch_exceptions(task: 'Task'):
+def __catch_exceptions__(task: 'Task'):
     try:
         result = task()
     except (ProcessExecutionError, KeyboardInterrupt, OSError) as ex:
@@ -172,7 +172,7 @@ def catch_exceptions(task: 'Task'):
 
 
 @contextmanager
-def per_task_context(context, task: Task):
+def __per_task_context__(context, task: Task):
     with ExitStack() as stack:
         for mgr in context:
             stack.enter_context(mgr(task))
@@ -180,7 +180,7 @@ def per_task_context(context, task: Task):
 
 
 @contextmanager
-def global_context(context):
+def __global_context__(context):
     with ExitStack() as stack:
         for mgr in context:
             stack.enter_context(mgr)
@@ -212,11 +212,11 @@ class TaskManager:
         res = StepResult.OK
         results = []
 
-        with global_context(self.global_context):
+        with __global_context__(self.global_context):
             for task in self.plan.tasks():
                 if task.can_continue(res):
-                    with per_task_context(self.task_context,
-                                          task) as task_context:
+                    with __per_task_context__(self.task_context,
+                                              task) as task_context:
                         res = task_context()
                 results = __merge_results__(results, res)
         return results

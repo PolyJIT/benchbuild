@@ -29,6 +29,18 @@ ChildTasks = Iterable[RunnableTask]
 
 @attr.s(auto_attribs=True)
 class TaskPolicy:
+    """
+    Event class interface for task policies.
+
+    This implements two event types and a continuation condition for tasks.
+    Policies control the behavior of a task group when there is an error
+    or a new result. Furthermore, we control the execution process by
+    providing the result for the can_continue predicate.
+
+    Concrete implementations provided include the Fail and Continue policy.
+
+    Subclasses _must_ implement at least the can_continue method.
+    """
     state: StepResult = StepResult.OK
 
     def on_error(self, task_result: StepResult, exception=None):
@@ -44,6 +56,16 @@ class TaskPolicy:
 
 @attr.s(auto_attribs=True)
 class TaskGroup:
+    """
+    A warpper class with metadata for a group of Tasks.
+
+    Attributes:
+        name: the name of the task.
+        description: a description for this task.
+        children: the tasks that are grouped together.
+        policy: the policy we implement for the task group,
+                in case of errors during execution.
+    """
     name: str
     description: str
     children: ChildTasks
@@ -78,6 +100,15 @@ class TaskGroup:
 
 @attr.s(auto_attribs=True)
 class Task:
+    """
+    A wrapper class with metadata for callables.
+
+    Attributes:
+        name: the name of the task.
+        description: a description for this task.
+        call: the function that we delegate a __call__ to.
+        owner: the optional owner of this task, used for policies.
+    """
     name: str
     description: str
     call: Callable[[], StepResult]
@@ -101,6 +132,7 @@ class Task:
 
 @attr.s
 class Fail(TaskPolicy):
+    """Task policy that always fails on first error."""
     def can_continue(self, task_result: StepResult) -> bool:
         res = task_result in [StepResult.OK, StepResult.CAN_CONTINUE]
         if not res:
@@ -111,6 +143,8 @@ class Fail(TaskPolicy):
 
 @attr.s
 class Continue(TaskPolicy):
+    """Task policy that always continues."""
+
     def can_continue(self, task_result: StepResult) -> bool:
         self.state = task_result
         return True
@@ -196,10 +230,28 @@ class TaskManager:
 
 
 def fail_group(*tasks: RunnableTask) -> TaskGroup:
+    """
+    Create a group of tasks that fails on first error.
+
+    Args:
+        *tasks: Any number of runnable tasks.
+
+    Returns:
+        a task group.
+    """
     return TaskGroup("fail", "Fail on first error", tasks, Fail())
 
 
 def continue_group(*tasks: RunnableTask) -> TaskGroup:
+    """
+    Create a group of tasks that always continues.
+
+    Args:
+        *tasks: Any number of runnable tasks.
+
+    Returns:
+        a task group.
+    """
     return TaskGroup("continue", "Continue on any error", tasks, Continue())
 
 
@@ -250,7 +302,7 @@ def clean_extra() -> Task:
     return Task("clean extra", "clean all external directories", call_impl)
 
 
-def clean_mountpoints(root: str):
+def __clean_mountpoints__(root: str):
     """
     Unmount any remaining mountpoints under :root.
 
@@ -279,7 +331,7 @@ def clean(project: Project, check_empty: bool = False) -> Task:
         obj_builddir = os.path.abspath(project.builddir)
         if os.path.exists(obj_builddir):
             LOG.debug("Path %s exists", obj_builddir)
-            clean_mountpoints(obj_builddir)
+            __clean_mountpoints__(obj_builddir)
             if check_empty:
                 rmdir(obj_builddir, retcode=None)
             else:
@@ -291,7 +343,7 @@ def clean(project: Project, check_empty: bool = False) -> Task:
     return Task("clean", "clean the build directory.", call_impl)
 
 
-def begin_experiment(exp: Experiment):
+def __begin_experiment__(exp: Experiment):
     db_exp, session = db.persist_experiment(exp)
     if db_exp.begin is None:
         db_exp.begin = datetime.now()
@@ -304,12 +356,12 @@ def begin_experiment(exp: Experiment):
         LOG.error("Transaction isolation level caused a StaleDataError")
 
     # React to external signals
-    signals.handlers.register(end_experiment, db_exp, session)
+    signals.handlers.register(__end_experiment__, db_exp, session)
 
     return db_exp, session
 
 
-def end_experiment(db_exp, session):
+def __end_experiment__(db_exp: db_exp_t, session: sa.orm.session.Session):
     try:
         if db_exp.end is None:
             db_exp.end = datetime.now()
@@ -348,10 +400,10 @@ class ExperimentTransaction:
     db_session: sa.orm.session.Session = attr.ib(default=None)
 
     def __enter__(self):
-        self.db_exp, self.db_session = begin_experiment(self.experiment)
+        self.db_exp, self.db_session = __begin_experiment__(self.experiment)
 
     def __exit__(self, type, value, traceback):
-        end_experiment(self.db_exp, self.db_session)
+        __end_experiment__(self.db_exp, self.db_session)
         return False
 
 

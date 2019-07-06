@@ -92,7 +92,9 @@ def __get_paths():
     path = list_to_path([_path, path])
     lib_path = list_to_path([_lib_path, lib_path])
 
-    return {"ld_library_path": lib_path, "path": path}
+    home = env.get("HOME", getenv("HOME", ""))
+
+    return {"ld_library_path": lib_path, "path": path, "home": home}
 
 
 def compiler(name):
@@ -107,5 +109,6 @@ def compiler(name):
     pinfo = __get_paths()
     _compiler = local[name]
     _compiler = _compiler.setenv(
-        PATH=pinfo["path"], LD_LIBRARY_PATH=pinfo["ld_library_path"])
+        PATH=pinfo["path"], LD_LIBRARY_PATH=pinfo["ld_library_path"],
+        HOME=pinfo["home"])
     return _compiler

@@ -94,6 +94,9 @@ env (BB_ENV_*):
   path (BB_PATH):
     Modify benchbuild's PATH variable. You can use this to provide access to
     binaries outside of the system's default binary search path.
+  home (BB_HOME):
+    Modify benchbuild's HOME variable. You can use this to set a custom home
+    directory, if the default home is not available to benchbuild.
 
 test_dir (BB_TEST_DIR):
   Some distributed projects require additional test-inputs that are too big for

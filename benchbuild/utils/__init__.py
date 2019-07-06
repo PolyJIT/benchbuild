@@ -65,6 +65,8 @@ class CommandAlias(ModuleType):
         libs_path = path_to_list(getenv("LD_LIBRARY_PATH", ""))
         libs_path.extend(env.get("LD_LIBRARY_PATH", []))
 
+        home = env.get("HOME", getenv("HOME", ""))
+
         if self.__override_all__ is not None:
             check = [self.__override_all__]
 
@@ -73,7 +75,8 @@ class CommandAlias(ModuleType):
                 alias_cmd = local[alias_command]
                 alias_cmd = alias_cmd.with_env(
                     PATH=list_to_path(path),
-                    LD_LIBRARY_PATH=list_to_path(libs_path))
+                    LD_LIBRARY_PATH=list_to_path(libs_path),
+                    HOME=home)
                 return alias_cmd
             except AttributeError:
                 pass

@@ -162,7 +162,7 @@ class Experiment(metaclass=ExperimentRegistry):
 
     def sample(self, prj_cls, versions=None):
         """
-        Sample all avilable versions.
+        Sample all available versions.
 
         The default sampling returns the latest version only.
         You can override this behavior in custom experiments.

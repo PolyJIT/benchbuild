@@ -135,6 +135,41 @@ class Task:
         return __print_ident__(self.name, self.description, indent)
 
 
+@attr.s(auto_attribs=True)
+class TaskManager:
+    name: str
+    description: str
+
+    plan: TaskGroup
+    task_context: Iterable[Any] = attr.Factory(list)
+    global_context: Iterable[Any] = attr.Factory(list)
+
+    def run(self):
+        res = StepResult.OK
+        results = []
+
+        with __global_context__(self.global_context):
+            for task in self.plan.tasks():
+                if task.can_continue(res):
+                    with __per_task_context__(self.task_context,
+                                              task) as task_context:
+                        res = task_context()
+                results = __merge_results__(results, res)
+        return results
+
+    def tasks(self):
+        all_tasks = [
+            child.tasks() for child in self.plan if hasattr(child, 'tasks')
+        ]
+        return list(itertools.chain(*all_tasks))
+
+    def __call__(self) -> Iterable[StepResult]:
+        return self.run()
+
+    def __str__(self, indent=0):
+        return self.plan.__str__(indent=indent)
+
+
 @attr.s
 class Fail(TaskPolicy):
     """Task policy that always fails on first error."""
@@ -197,41 +232,6 @@ def __merge_results__(results: List[StepResult],
     new_results.append(merge_results)
 
     return new_results
-
-
-@attr.s(auto_attribs=True)
-class TaskManager:
-    name: str
-    description: str
-
-    plan: TaskGroup
-    task_context: Iterable[Any] = attr.Factory(list)
-    global_context: Iterable[Any] = attr.Factory(list)
-
-    def run(self):
-        res = StepResult.OK
-        results = []
-
-        with __global_context__(self.global_context):
-            for task in self.plan.tasks():
-                if task.can_continue(res):
-                    with __per_task_context__(self.task_context,
-                                              task) as task_context:
-                        res = task_context()
-                results = __merge_results__(results, res)
-        return results
-
-    def tasks(self):
-        all_tasks = [
-            child.tasks() for child in self.plan if hasattr(child, 'tasks')
-        ]
-        return list(itertools.chain(*all_tasks))
-
-    def __call__(self) -> Iterable[StepResult]:
-        return self.run()
-
-    def __str__(self, indent=0):
-        return self.plan.__str__(indent=indent)
 
 
 def fail_group(*tasks: RunnableTask) -> TaskGroup:

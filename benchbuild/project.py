@@ -17,6 +17,7 @@ a separate build directory in isolation of one another.
 """
 import copy
 import logging
+from typing import Tuple, Optional, Mapping, Type
 import uuid
 from abc import abstractmethod
 from functools import partial
@@ -338,8 +339,16 @@ class Project(metaclass=ProjectDecorator):
             return [cls.VERSION]
         return ["unknown"]
 
+def __split_project_input__(project_input: str) -> Tuple[str, Optional[str]]:
+    split_input = project_input.rsplit('@', maxsplit=1)
+    first = split_input[0]
+    second = split_input[1] if len(split_input) > 1 else None
 
-def populate(projects_to_filter=None, group=None):
+    return (first, second)
+
+
+def populate(projects_to_filter=None,
+             group=None) -> Mapping[str, Tuple[Type[Project], Optional[str]]]:
     """
     Populate the list of projects that belong to this experiment.
 
@@ -364,13 +373,17 @@ def populate(projects_to_filter=None, group=None):
     prjs = ProjectRegistry.projects
     if projects_to_filter:
         prjs = {}
+        def single_version_impl(version):
+            return lambda: [version]
+
         for filter_project in set(projects_to_filter):
+            project_str, version = __split_project_input__(filter_project)
             try:
-                prjs.update({
-                    x: y
-                    for x, y in ProjectRegistry.projects.items(
-                        prefix=filter_project)
-                })
+                for name, project_type in ProjectRegistry.projects.items(
+                    prefix=project_str):
+                    if version:
+                        project_type.versions = single_version_impl(version)
+                    prjs.update({name: project_type})
             except KeyError:
                 pass
 

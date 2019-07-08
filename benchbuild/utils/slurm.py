@@ -7,17 +7,19 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 import sys
+from typing import Iterable
 
 from plumbum import local, TF
 
 from benchbuild.settings import CFG
+from benchbuild.experiment import Experiment
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
 
 LOG = logging.getLogger(__name__)
 
 
-def script(experiment, projects):
+def script(experiment):
     """
     Prepare a slurm script that executes the experiment for a given project.
 
@@ -25,6 +27,7 @@ def script(experiment, projects):
         experiment: The experiment we want to execute
         projects: All projects we generate an array job for.
     """
+    projects = __expand_project_versions__(experiment)
     benchbuild_c = local[local.path(sys.argv[0])]
     slurm_script = local.cwd / experiment.name + "-" + str(
         CFG['slurm']['script'])
@@ -40,6 +43,20 @@ def script(experiment, projects):
     srun = srun[benchbuild_c["run"]]
 
     return __save__(slurm_script, srun, experiment, projects)
+
+
+def __expand_project_versions__(experiment: Experiment) -> Iterable[str]:
+    project_types = experiment.projects
+    expanded = []
+
+    for _, project_type in project_types.items():
+        for version in project_type.versions():
+            project = project_type(experiment, version=version)
+            expanded.append("{name}/{group}@{version}".format(
+                name=project.name,
+                group=project.group,
+                version=project.version))
+    return expanded
 
 
 def __path():

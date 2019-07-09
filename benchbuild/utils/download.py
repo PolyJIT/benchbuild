@@ -199,7 +199,8 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     Args:
         repository (str): Git URL of the SOURCE repo.
         directory (str): Name of the repo folder on disk.
-        tgt_root (str): TARGET folder for the git repo.
+        rev (str): A revision to check out.
+        prefix (str): TARGET folder for the git repo.
             Defaults to ``CFG["tmpdir"]``
         shallow_clone (bool): Only clone the repository shallow
             Defaults to true

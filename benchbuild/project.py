@@ -380,7 +380,7 @@ def populate(projects_to_filter=None,
             project_str, version = __split_project_input__(filter_project)
             try:
                 for name, project_type in ProjectRegistry.projects.items(
-                    prefix=project_str):
+                        prefix=project_str):
                     if version:
                         project_type.versions = single_version_impl(version)
                     prjs.update({name: project_type})

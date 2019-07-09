@@ -209,25 +209,23 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     if prefix is None:
         repository_loc = str(CFG["tmp_dir"])
 
-    from benchbuild.utils.cmd import git
-
     src_dir = local.path(repository_loc) / directory
-    if not source_required(src_dir):
-        Copy(src_dir, ".")
-        return
+    tgt_dir = local.path(local.cwd) / directory
 
     extra_param = []
     if shallow_clone:
         extra_param.append("--depth")
         extra_param.append("1")
 
-    git("clone", extra_param, repository, src_dir)
-    if rev:
+    from benchbuild.utils.cmd import git
+    if source_required(src_dir):
+        git("clone", extra_param, repository, src_dir)
+        update_hash(src_dir)
+    else:
+        worktree_rev = rev if rev else 'HEAD'
         with local.cwd(src_dir):
-            git("checkout", rev)
+            git('worktree', 'add', '--detach', tgt_dir, worktree_rev)
 
-    update_hash(src_dir)
-    Copy(src_dir, ".")
     return repository_loc
 
 
@@ -301,9 +299,7 @@ def with_git(repo,
             """Download the selected version."""
             nonlocal target_dir, git
             directory = cls.SRC_FILE if target_dir is None else target_dir
-            Git(self.repository, directory)
-            with local.cwd(directory):
-                git("checkout", self.version)
+            Git(self.repository, directory, self.version)
 
         cls.versions = versions_impl
         cls.download = download_impl

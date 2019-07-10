@@ -192,6 +192,33 @@ def with_wget(url_dict=None, target_file=None):
     return wget_decorator
 
 
+def __clone_needed__(repository: str, directory: str) -> bool:
+    """
+    Do we need to create a fresh clone of the given repository.
+
+    Args:
+        repository: the repository we want to clone.
+        directory: the directory we expect the clone to live.
+
+    Returns:
+        True, if the clone is required.
+        False, if the directory is a valid clone.
+    """
+    from benchbuild.utils.cmd import git, rm
+
+    git_dir = local.path(directory) / '.git'
+    if not git_dir.exists():
+        return True
+
+    requires_clone = True
+    with local.cwd(directory):
+        repo_origin_url = git('config', '--get', 'remote.origin.url')
+        requires_clone = repo_origin_url.strip('\n') != repository
+
+    if requires_clone:
+        rm('-r', directory)
+
+
 def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     """
     Get a clone of the given repo
@@ -217,13 +244,14 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
         extra_param.append("--depth")
         extra_param.append("1")
 
-    from benchbuild.utils.cmd import git
-    if source_required(src_dir):
+    from benchbuild.utils.cmd import git, mkdir
+    if __clone_needed__(repository, src_dir):
         git("clone", extra_param, repository, src_dir)
-        update_hash(src_dir)
     else:
         worktree_rev = rev if rev else 'HEAD'
         with local.cwd(src_dir):
+            mkdir('-p', tgt_dir)
+            git('worktree', 'prune')
             git('worktree', 'add', '--detach', tgt_dir, worktree_rev)
 
     return repository_loc
@@ -277,11 +305,10 @@ def with_git(repo,
             directory = cls.SRC_FILE if target_dir is None else target_dir
             repo_prefix = local.path(str(CFG["tmp_dir"]))
             repo_loc = local.path(repo_prefix) / directory
-            if source_required(repo_loc):
+            if __clone_needed__(repo, repo_loc):
                 if not clone:
                     return []
                 git("clone", repo, repo_loc)
-                update_hash(repo_loc)
 
             with local.cwd(repo_loc):
                 rev_list = git("rev-list", "--abbrev-commit", "--abbrev=10",

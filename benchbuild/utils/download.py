@@ -266,6 +266,7 @@ def with_git(repo,
              refspec="HEAD",
              clone=True,
              rev_list_args=None,
+             shallow_clone=True,
              version_filter=lambda version: True):
     """
     Decorate a project class with git-based version information.
@@ -292,6 +293,8 @@ def with_git(repo,
             at least once in your installation.
         ref_list_args (list of str): Additional arguments you want to pass to
             `git rev-list`.
+        shallow_clone (bool): Only clone the repository shallow
+            Defaults to true
         version_filter (class filter): Filter function to remove unwanted
             project versions.
 
@@ -329,7 +332,7 @@ def with_git(repo,
             """Download the selected version."""
             nonlocal target_dir, git
             directory = cls.SRC_FILE if target_dir is None else target_dir
-            Git(self.repository, directory, self.version)
+            Git(self.repository, directory, shallow_clone=shallow_clone)
 
         cls.versions = versions_impl
         cls.download = download_impl

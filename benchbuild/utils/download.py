@@ -16,6 +16,7 @@ import os
 from plumbum import local
 
 from benchbuild.settings import CFG
+from benchbuild.utils.path import flocked
 
 LOG = logging.getLogger(__name__)
 
@@ -238,6 +239,7 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
 
     src_dir = local.path(repository_loc) / directory
     tgt_dir = local.path(local.cwd) / directory
+    lock_f = local.path(local.cwd / directory + '.lock')
 
     extra_param = []
     if shallow_clone:
@@ -251,8 +253,9 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
         worktree_rev = rev if rev else 'HEAD'
         with local.cwd(src_dir):
             mkdir('-p', tgt_dir)
-            git('worktree', 'prune')
-            git('worktree', 'add', '--detach', tgt_dir, worktree_rev)
+            with flocked(lock_f):
+                git('worktree', 'prune')
+                git('worktree', 'add', '--detach', tgt_dir, worktree_rev)
 
     return repository_loc
 

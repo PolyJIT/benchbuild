@@ -1,5 +1,7 @@
 """ Path utilities for benchbuild. """
+import fcntl
 import os
+from contextlib import contextmanager
 
 import benchbuild.utils.user_interface as ui
 
@@ -127,3 +129,24 @@ def mkdir_interactive(dirpath):
     if response:
         mkdir("-p", dirpath)
         print("Created directory {0}.".format(dirpath))
+
+@contextmanager
+def flocked(filename: str, lock_type: int = fcntl.LOCK_EX):
+    """
+    Lock a section using fcntl.
+
+    Args:
+        filename: the file to lock against.
+                  A file descriptor is opened in
+                  append mode to this path.
+        lock_type: one of fcntl's lock operations
+
+    Returns:
+        the opened file descriptor we hold the lock for.
+    """
+    with open(filename, 'a') as fd:
+        try:
+            fcntl.flock(fd, lock_type)
+            yield fd
+        finally:
+            fcntl.flock(fd, fcntl.LOCK_UN)

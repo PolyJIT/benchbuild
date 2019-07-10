@@ -121,6 +121,7 @@ def wrap(name, project, sprefix=None, python=sys.executable):
 
     bin_lib_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
+    home = env.get("HOME", os.getenv("HOME", ""))
 
     with open(name_absolute, 'w') as wrapper:
         wrapper.write(
@@ -129,6 +130,7 @@ def wrap(name, project, sprefix=None, python=sys.executable):
                 project_file=strip_path_prefix(project_file, sprefix),
                 path=str(bin_path),
                 ld_library_path=str(bin_lib_path),
+                home=str(home),
                 python=python,
             ))
 
@@ -182,6 +184,7 @@ def wrap_dynamic(project,
         list_to_path(env.get('LD_LIBRARY_PATH', []))
     bin_lib_path = \
         list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
+    home = env.get("HOME", os.getenv("HOME", ""))
 
     with open(name_absolute, 'w') as wrapper:
         wrapper.write(
@@ -190,6 +193,7 @@ def wrap_dynamic(project,
                 project_file=strip_path_prefix(project_file, sprefix),
                 path=str(bin_path),
                 ld_library_path=str(bin_lib_path),
+                home=str(home),
                 python=python,
                 name_filters=name_filters))
 

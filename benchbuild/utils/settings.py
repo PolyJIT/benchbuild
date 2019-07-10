@@ -631,10 +631,16 @@ def update_env(cfg):
             [lib_path, os.environ["LD_LIBRARY_PATH"]])
     os.environ["LD_LIBRARY_PATH"] = lib_path
 
+    home = env.get("HOME", None)
+    if home is not None and "HOME" in os.environ:
+        os.environ["HOME"] = home
+
     # Update local's env property because we changed the environment
     # of the running python process.
     local.env.update(PATH=os.environ["PATH"])
     local.env.update(LD_LIBRARY_PATH=os.environ["LD_LIBRARY_PATH"])
+    if home is not None:
+        local.env.update(HOME=os.environ["HOME"])
 
 
 def upgrade(cfg):

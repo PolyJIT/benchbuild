@@ -15,22 +15,7 @@ LOG = logging.getLogger(__name__)
 
 
 def discover():
-    """
-    Import all experiments listed in *_PLUGINS_REPORTS.
-
-    Tests:
-        >>> from benchbuild.settings import CFG
-        >>> from benchbuild.reports import discover
-        >>> import logging as lg
-        >>> import sys
-        >>> l = lg.getLogger('benchbuild')
-        >>> l.setLevel(lg.DEBUG)
-        >>> l.handlers = [lg.StreamHandler(stream=sys.stdout)]
-        >>> CFG["plugins"]["reports"] = ["benchbuild.non.existing", "benchbuild.reports.raw"]
-        >>> discover()
-        Could not find 'benchbuild.non.existing'
-        Found report: benchbuild.reports.raw
-    """
+    """Import all experiments listed in *_PLUGINS_REPORTS."""
     if CFG["plugins"]["autoload"]:
         report_plugins = CFG["plugins"]["reports"].value
         for plugin in report_plugins:

@@ -56,12 +56,6 @@ def ask(question, default_answer=False, default_answer_str="no"):
         default_answer: The default value to return.
         default_answer_str:
             The default answer string that we present to the user.
-
-    Tests:
-        >>> os.putenv("TEST", "yes"); ask("Test?", default_answer=True)
-        True
-        >>> os.putenv("TEST", "yes"); ask("Test?", default_answer=False)
-        False
     """
     response = default_answer
 

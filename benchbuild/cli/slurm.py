@@ -58,11 +58,6 @@ class Slurm(cli.Application):
         """Run a group of projects under the given experiments"""
         self._group_names = groups
 
-    def __go__(self, prjs, exp):
-        prj_keys = sorted(prjs.keys())
-        print("{0} Projects".format(len(prj_keys)))
-        slurm.script(exp, prj_keys)
-
     def main(self, *projects):
         """Main entry point of benchbuild run."""
         exp = [self._experiment]
@@ -95,4 +90,4 @@ class Slurm(cli.Application):
             print("Experiment: ", exp.name)
             CFG["slurm"]["node_dir"] = os.path.abspath(
                 os.path.join(str(CFG["slurm"]["node_dir"]), str(exp.id)))
-            self.__go__(prjs, exp)
+            slurm.script(exp)

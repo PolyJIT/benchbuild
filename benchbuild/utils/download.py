@@ -16,6 +16,7 @@ import os
 from plumbum import local
 
 from benchbuild.settings import CFG
+from benchbuild.utils.path import flocked
 
 LOG = logging.getLogger(__name__)
 
@@ -192,6 +193,33 @@ def with_wget(url_dict=None, target_file=None):
     return wget_decorator
 
 
+def __clone_needed__(repository: str, directory: str) -> bool:
+    """
+    Do we need to create a fresh clone of the given repository.
+
+    Args:
+        repository: the repository we want to clone.
+        directory: the directory we expect the clone to live.
+
+    Returns:
+        True, if the clone is required.
+        False, if the directory is a valid clone.
+    """
+    from benchbuild.utils.cmd import git, rm
+
+    git_dir = local.path(directory) / '.git'
+    if not git_dir.exists():
+        return True
+
+    requires_clone = True
+    with local.cwd(directory):
+        repo_origin_url = git('config', '--get', 'remote.origin.url')
+        requires_clone = repo_origin_url.strip('\n') != repository
+
+    if requires_clone:
+        rm('-r', directory)
+
+
 def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     """
     Get a clone of the given repo
@@ -199,7 +227,8 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     Args:
         repository (str): Git URL of the SOURCE repo.
         directory (str): Name of the repo folder on disk.
-        tgt_root (str): TARGET folder for the git repo.
+        rev (str): A revision to check out.
+        prefix (str): TARGET folder for the git repo.
             Defaults to ``CFG["tmpdir"]``
         shallow_clone (bool): Only clone the repository shallow
             Defaults to true
@@ -208,25 +237,26 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     if prefix is None:
         repository_loc = str(CFG["tmp_dir"])
 
-    from benchbuild.utils.cmd import git
-
     src_dir = local.path(repository_loc) / directory
-    if not source_required(src_dir):
-        Copy(src_dir, ".")
-        return
+    tgt_dir = local.path(local.cwd) / directory
+    lock_f = local.path(local.cwd / directory + '.lock')
 
     extra_param = []
     if shallow_clone:
         extra_param.append("--depth")
         extra_param.append("1")
 
-    git("clone", extra_param, repository, src_dir)
-    if rev:
+    from benchbuild.utils.cmd import git, mkdir
+    if __clone_needed__(repository, src_dir):
+        git("clone", extra_param, repository, src_dir)
+    else:
+        worktree_rev = rev if rev else 'HEAD'
         with local.cwd(src_dir):
-            git("checkout", rev)
+            mkdir('-p', tgt_dir)
+            with flocked(lock_f):
+                git('worktree', 'prune')
+                git('worktree', 'add', '--detach', tgt_dir, worktree_rev)
 
-    update_hash(src_dir)
-    Copy(src_dir, ".")
     return repository_loc
 
 
@@ -281,11 +311,10 @@ def with_git(repo,
             directory = cls.SRC_FILE if target_dir is None else target_dir
             repo_prefix = local.path(str(CFG["tmp_dir"]))
             repo_loc = local.path(repo_prefix) / directory
-            if source_required(repo_loc):
+            if __clone_needed__(repo, repo_loc):
                 if not clone:
                     return []
                 git("clone", repo, repo_loc)
-                update_hash(repo_loc)
 
             with local.cwd(repo_loc):
                 rev_list = git("rev-list", "--abbrev-commit", "--abbrev=10",
@@ -304,8 +333,6 @@ def with_git(repo,
             nonlocal target_dir, git
             directory = cls.SRC_FILE if target_dir is None else target_dir
             Git(self.repository, directory, shallow_clone=shallow_clone)
-            with local.cwd(directory):
-                git("checkout", self.version)
 
         cls.versions = versions_impl
         cls.download = download_impl

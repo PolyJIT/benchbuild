@@ -178,17 +178,6 @@ class Configuration():
         CFG["llvm"]["dir"] becomes BB_LLVM_DIR
 
     The configuration can be stored/loaded as YAML.
-
-    Examples:
-        >>> from benchbuild.utils import settings as s
-        >>> c = s.Configuration('bb')
-        >>> c['test'] = 42
-        >>> c['test']
-        BB_TEST=42
-        >>> str(c['test'])
-        '42'
-        >>> type(c['test'])
-        <class 'benchbuild.utils.settings.Configuration'>
     """
 
     def __init__(self, parent_key: str, node=None, parent=None, init=True):
@@ -290,21 +279,7 @@ class Configuration():
 
     @property
     def value(self):
-        """
-        Return the node value, if we're a leaf node.
-
-        Examples:
-            >>> c = Configuration("test")
-            >>> c['x'] = { "y" : { "value" : None }, "z" : { "value" : 2 }}
-            >>> c['x']['y'].value == None
-            True
-            >>> c['x']['z'].value
-            2
-            >>> c['x'].value
-            TEST_X_Y=null
-            TEST_X_Z=2
-
-        """
+        """Return the node value, if we're a leaf node."""
 
         def validate(node_value):
             if hasattr(node_value, 'validate'):
@@ -334,24 +309,7 @@ class Configuration():
                 self.node[key] = {'value': val}
 
     def __iadd__(self, rhs) -> Configuration:
-        """
-        Append a value to a list value.
-
-        Tests:
-            >>> CFG = Configuration('test', node={'t': {'default': []}})
-            >>> CFG['t']
-            TEST_T="[]"
-
-            Append a value to a list.
-            >>> CFG['t'] += 'a'; CFG['t']
-            TEST_T="[a]"
-
-            Append a value to a scalar.
-            >>> CFG = Configuration('test', node={'t': {'default': 0}})
-            >>> CFG['t'] += 2
-            Traceback (most recent call last):
-            TypeError: Configuration node value does not support +=.
-        """
+        """Append a value to a list value."""
         if not self.has_value():
             raise TypeError("Inner configuration node does not support +=.")
 
@@ -363,33 +321,14 @@ class Configuration():
         return value
 
     def __int__(self) -> int:
-        """
-        Convert the node's value to int, if available.
-
-        Tests:
-            >>> CFG = Configuration('test', node={'i': {'default': 1}})
-            >>> int(CFG['i'])
-            1
-            >>> CFG['d'] = []; int(CFG['d'])
-            Traceback (most recent call last):
-            TypeError: int() argument must be a string, a bytes-like object or a number, not 'list'
-        """
+        """Convert the node's value to int, if available."""
         if not self.has_value():
             raise ValueError(
                 'Inner configuration nodes cannot be converted to int.')
         return int(self.value)
 
     def __bool__(self) -> bool:
-        """
-        Convert the node's value to bool, if available.
-
-        Tests:
-            >>> CFG = Configuration('test', node={'b': {'default': True}})
-            >>> bool(CFG['b'])
-            True
-            >>> CFG['b'] = []; bool(CFG['b'])
-            False
-        """
+        """Convert the node's value to bool, if available."""
         if not self.has_value():
             return True
         return bool(self.value)
@@ -405,33 +344,6 @@ class Configuration():
     def __repr__(self) -> str:
         """
         Represents the configuration as a list of environment variables.
-
-        Tests:
-            What happens when we represent an int?
-            >>> CFG = Configuration('test')
-            >>> CFG['int'] = {'default': 3}; CFG['int']
-            TEST_INT=3
-
-            What happens when we represent a str?
-            >>> CFG['str'] = {'default': 'test'}; CFG['str']
-            TEST_STR=test
-
-            What happens when we represent a bool?
-            >>> CFG['bool'] = {'default': True}; CFG['bool']
-            TEST_BOOL=true
-
-            What happens when we represent a dict?
-            >>> CFG['dict'] = {'default': {'test': True}}; CFG['dict']
-            TEST_DICT="{test: true}"
-
-            What happens when we represent an uuid?
-            >>> CFG['uuid'] = {'default': uuid.UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')}; CFG['uuid']
-            TEST_UUID=cc3702ca-699a-4aa6-8226-4c938f294d9b
-
-            What happens when we nest an uuid in a dict?
-            >>> CFG['nested_uuid'] = {'A': {'default': {'a': uuid.UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')}}}
-            >>> CFG['nested_uuid']['A'].value
-            TEST_NESTED_UUID_A="{a: cc3702ca-699a-4aa6-8226-4c938f294d9b}"
         """
         _repr = []
 
@@ -479,22 +391,7 @@ def convert_components(value):
 
 @attr.s(str=False, frozen=True)
 class ConfigPath:
-    """
-    Wrapper around paths represented as list of strings.
-
-    Tests:
-    >>> path = local.path('/tmp/test/foo')
-    >>> p = ConfigPath(['tmp']); str(p)
-    '/tmp'
-    >>> p = ConfigPath(str(path)); str(p)
-    '/tmp/test/foo'
-    >>> p.validate()
-    The path '/tmp/test/foo' is required by your configuration.
-    >>> p.validate(); path.delete()
-
-    >>> p = ConfigPath([]); str(p)
-    '/'
-    """
+    """Wrapper around paths represented as list of strings."""
     components = attr.ib(converter=convert_components)
 
     def validate(self):
@@ -527,11 +424,6 @@ class ConfigPath:
 def path_representer(dumper, data):
     """
     Represent a ConfigPath object as a scalar YAML node.
-
-    Tests:
-        >>> yaml.add_representer(ConfigPath, path_representer, Dumper=yaml.SafeDumper)
-        >>> yaml.safe_dump({'test': ConfigPath('/tmp/test/foo')})
-        "test: !create-if-needed '/tmp/test/foo'\\n"
     """
     return dumper.represent_scalar('!create-if-needed', '%s' % data)
 
@@ -539,11 +431,6 @@ def path_representer(dumper, data):
 def path_constructor(loader, node):
     """"
     Construct a ConfigPath object form a scalar YAML node.
-
-    Tests:
-        >>> yaml.add_constructor("!create-if-needed", path_constructor, Loader=yaml.SafeLoader)
-        >>> yaml.safe_load("{'test': !create-if-needed '/tmp/test/foo'}")
-        {'test': ConfigPath(components=['tmp', 'test', 'foo'])}
     """
     value = loader.construct_scalar(node)
     return ConfigPath(value)
@@ -664,54 +551,23 @@ def upgrade(cfg):
 
 
 def uuid_representer(dumper, data):
-    """"
-    Represent a uuid.UUID object as a scalar YAML node.
+    """Represent a uuid.UUID object as a scalar YAML node."""
 
-    Tests:
-        >>> yaml.add_representer(uuid.UUID, uuid_representer, Dumper=yaml.SafeDumper)
-        >>> yaml.safe_dump({'test': uuid.UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')})
-        "test: !uuid 'cc3702ca-699a-4aa6-8226-4c938f294d9b'\\n"
-    """
     return dumper.represent_scalar('!uuid', '%s' % data)
 
 
 def uuid_constructor(loader, node):
-    """"
-    Construct a uuid.UUID object form a scalar YAML node.
-
-    Tests:
-        >>> yaml.add_constructor("!uuid", uuid_constructor, Loader=yaml.SafeLoader)
-        >>> yaml.safe_load("{'test': !uuid 'cc3702ca-699a-4aa6-8226-4c938f294d9b'}")
-        {'test': UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')}
-    """
+    """"Construct a uuid.UUID object form a scalar YAML node."""
 
     value = loader.construct_scalar(node)
     return uuid.UUID(value)
 
 
-def uuid_add_implicit_resolver(Loader=ConfigLoader, Dumper=ConfigDumper):
-    """
-    Attach an implicit pattern resolver for UUID objects.
-
-    Tests:
-        >>> class TestDumper(yaml.SafeDumper): pass
-        >>> class TestLoader(yaml.SafeLoader): pass
-        >>> TUUID = 'cc3702ca-699a-4aa6-8226-4c938f294d9b'
-        >>> IN = {'test': uuid.UUID(TUUID)}
-        >>> OUT = '{test: cc3702ca-699a-4aa6-8226-4c938f294d9b}'
-
-        >>> yaml.add_representer(uuid.UUID, uuid_representer, Dumper=TestDumper)
-        >>> yaml.add_constructor('!uuid', uuid_constructor, Loader=TestLoader)
-        >>> uuid_add_implicit_resolver(Loader=TestLoader, Dumper=TestDumper)
-
-        >>> yaml.dump(IN, Dumper=TestDumper)
-        'test: cc3702ca-699a-4aa6-8226-4c938f294d9b\\n'
-        >>> yaml.load(OUT, Loader=TestLoader)
-        {'test': UUID('cc3702ca-699a-4aa6-8226-4c938f294d9b')}
-    """
+def uuid_add_implicit_resolver(loader=ConfigLoader, dumper=ConfigDumper):
+    """Attach an implicit pattern resolver for UUID objects."""
     uuid_regex = r'^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$'
     pattern = re.compile(uuid_regex)
-    yaml.add_implicit_resolver('!uuid', pattern, Loader=Loader, Dumper=Dumper)
+    yaml.add_implicit_resolver('!uuid', pattern, Loader=loader, Dumper=dumper)
 
 
 def __init_module__():

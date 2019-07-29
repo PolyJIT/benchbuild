@@ -97,6 +97,10 @@ CFG = s.Configuration(
             "preoptimization.",
             "default":
             "no_preperation"
+        },
+        "environment": {
+            "desc": "Environment prefix directory for downloading modules.",
+            "default": s.ConfigPath(os.path.join(os.getcwd(), "env"))
         }
     })
 
@@ -288,6 +292,12 @@ CFG["plugins"] = {
         ],
         "desc":
         "The experiment plugins we know about."
+    },
+    "modules": {
+        "desc": "List of modules to fetch and autoload.",
+        "default": {
+            "bzip2": "https://gitlab.lairosiel.de/benchbuild/bzip2.git"
+        }
     },
     "projects": {
         "default": [

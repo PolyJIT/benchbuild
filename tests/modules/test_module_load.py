@@ -1,6 +1,7 @@
+import importlib
 import pytest
+import sys
 import benchbuild.module as mods
-from benchbuild.settings import CFG
 
 @pytest.fixture
 def modules():
@@ -8,4 +9,11 @@ def modules():
 
 def test_module_discovery(modules):
     loaded = mods.create_modules(modules)
-    assert len(loaded) == 1
+    assert len(loaded) == len(modules)
+
+def test_init_environment(modules):
+    discovered = mods.create_modules(modules)
+    loaded = mods.init_environment(discovered)
+    assert len(loaded) == len(modules)
+    for m in loaded:
+        assert m.__class__ == importlib.types.ModuleType

@@ -1,9 +1,11 @@
 """
 Module support for benchbuild.
 
-We provide a new module API for benchbuild. This allows for projects/experiments and extensions to live in a completly separate repository, reducing benchbuild's test surface.
-A module is essentially a folder containing a single file: .benchbuild-module.yml
-The format of the .yml is as follows:
+We provide a new module API for benchbuild. This allows for projects/experiments
+and extensions to live in a completly separate repository, reducing benchbuild's
+test surface. A module is essentially a folder containing a single file:
+    .benchbuild-module.yml
+The format is as follows:
 
 Example .benchbuild-module.yml
 ```yaml
@@ -32,8 +34,10 @@ configuration at:
 Each entry has to suffice the following format ``"<name>": "<path>"``
 Where <path> is a git repository, or an absolute path to a directory.
 """
+import importlib.util
 import logging
-from typing import Dict, List, Tuple
+import sys
+from typing import Dict, List
 
 import attr
 import yaml
@@ -52,15 +56,15 @@ class Module:
     name: str = attr.ib()
     main: str = attr.ib()
     settings: Configuration = attr.ib()
+    prefix: LocalPath = attr.ib()
 
 
-def __create_modules__(module_config: str) -> List[Module]:
-    config = local.path(module_config)
-    if not (config.exists() or config.is_dir()):
+def __create_modules__(module_config: LocalPath) -> List[Module]:
+    if not (module_config.exists() or module_config.is_dir()):
         LOG.error('Path "%s" does not exist', module_config)
         return []
 
-    with open(config, 'r') as hdl:
+    with open(module_config, 'r') as hdl:
         loaded = yaml.safe_load(hdl)
 
     LOG.debug("YAML in config: %s", repr(loaded))
@@ -72,7 +76,9 @@ def __create_modules__(module_config: str) -> List[Module]:
         _name = mod['name']
         _main = mod['main']
         _settings = mod['settings'] if 'settings' in mod else {}
-        mods.append(Module(_name, _main, Configuration('bb', node=_settings)))
+        mods.append(
+            Module(_name, _main, Configuration('bb', node=_settings),
+                   module_config.dirname))
     return mods
 
 def __download__(name: str, source: str) -> str:
@@ -113,5 +119,13 @@ def create_modules(modules: Dict[str, str]) -> List[Module]:
         modules_to_load.extend(mods)
     return modules_to_load
 
-def load_modules(modules: List[Module]):
-    ...
+def init_environment(modules: List[Module]):
+    loaded = []
+    for module in modules:
+        mod_spec = importlib.util.spec_from_file_location(
+            "benchbuild.module." + module.name, module.prefix / module.main)
+        loaded_mod = importlib.util.module_from_spec(mod_spec)
+        sys.modules["benchbuild.module" + module.name] = loaded_mod
+        loaded.append(loaded_mod)
+        LOG.debug("Loaded module: %s", loaded_mod.__name__)
+    return loaded

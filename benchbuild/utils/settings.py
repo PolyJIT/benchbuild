@@ -160,10 +160,6 @@ def to_env_var(env_var: str, value) -> str:
     return ret_val
 
 
-class Configuration:
-    """Forward declaration."""
-
-
 class Configuration():
     """
     Dictionary-like data structure to contain all configuration variables.
@@ -180,7 +176,11 @@ class Configuration():
     The configuration can be stored/loaded as YAML.
     """
 
-    def __init__(self, parent_key: str, node=None, parent=None, init=True):
+    def __init__(self,
+                 parent_key: str,
+                 node=None,
+                 parent: 'Configuration' = None,
+                 init: bool = True):
         self.parent = parent
         self.parent_key = parent_key
         self.node = node if node is not None else {}
@@ -290,7 +290,7 @@ class Configuration():
             return validate(self.node['value'])
         return self
 
-    def __getitem__(self, key) -> Configuration:
+    def __getitem__(self, key) -> 'Configuration':
         if key not in self.node:
             warnings.warn(
                 "Access to non-existing config element: {0}".format(key),
@@ -308,7 +308,7 @@ class Configuration():
             else:
                 self.node[key] = {'value': val}
 
-    def __iadd__(self, rhs) -> Configuration:
+    def __iadd__(self, rhs) -> 'Configuration':
         """Append a value to a list value."""
         if not self.has_value():
             raise TypeError("Inner configuration node does not support +=.")

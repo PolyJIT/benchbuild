@@ -274,7 +274,7 @@ def persist(id_obj, filename=None, suffix=None):
         filename = "{obj_id}{suffix}".format(obj_id=ident, suffix=suffix)
 
     with open(filename, 'wb') as obj_file:
-        dill.dump(id_obj, obj_file)
+        dill.dump(id_obj, obj_file, recurse=True)
     return os.path.abspath(filename)
 
 

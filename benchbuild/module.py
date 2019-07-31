@@ -46,7 +46,6 @@ from plumbum import local
 from plumbum.path.local import LocalPath
 
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import git
 from benchbuild.utils.settings import Configuration
 
 LOG = logging.getLogger(__name__)
@@ -84,10 +83,11 @@ def init_environment(modules: List[Module]):
             str(__MODULE_PREFIX__ + module.name), str(module.prefix / module.main))
         mod = importlib.util.module_from_spec(mod_spec)
         if mod:
-            mod_spec.loader.exec_module(mod)
-            loaded.append(mod)
-            sys.modules[__MODULE_PREFIX__ + module.name] = mod
-            LOG.debug("Loaded module: %s", mod.__name__)
+            if mod_spec.loader:
+                mod_spec.loader.exec_module(mod)
+                loaded.append(mod)
+                sys.modules[__MODULE_PREFIX__ + module.name] = mod
+                LOG.debug("Loaded module: %s", mod.__name__)
     return loaded
 
 
@@ -118,7 +118,7 @@ def __create_modules__(module_config: LocalPath) -> List[Module]:
     return mods
 
 
-def __git_pull__(mod_path: LocalPath):
+def __git_pull__(mod_path: LocalPath) -> bool:
     repo_path: str = pygit2.discover_repository(mod_path, 0, mod_path)
     if repo_path:
         LOG.debug("Repository found at: %s", repo_path)
@@ -132,7 +132,7 @@ def __git_pull__(mod_path: LocalPath):
         merge_result, _ = repo.merge_analysis(remote_master_id)
         # Up to date, do nothing
         if merge_result & pygit2.GIT_MERGE_ANALYSIS_UP_TO_DATE:
-            return
+            return False
         # We can just fastforward
         elif merge_result & pygit2.GIT_MERGE_ANALYSIS_FASTFORWARD:
             repo.checkout_tree(repo.get(remote_master_id))
@@ -146,11 +146,13 @@ def __git_pull__(mod_path: LocalPath):
             assert repo.index.conflicts is None, 'Conflicts, ahhhh!'
             user = repo.default_signature
             tree = repo.index.write_tree()
-            commit = repo.create_commit('HEAD', user, user, 'Merge!', tree,
-                                        [repo.head.target, remote_master_id])
+            repo.create_commit('HEAD', user, user, 'Merge!', tree,
+                               [repo.head.target, remote_master_id])
             repo.state_cleanup()
         else:
             raise AssertionError('Unknown merge analysis result')
+        return True
+    return False
 
 
 def __download__(name: str, source: str) -> str:
@@ -164,6 +166,7 @@ def __download__(name: str, source: str) -> str:
 
     def __updated__(mod_path: LocalPath) -> bool:
         __git_pull__(mod_path)
+        return True
 
     path = prefix / source
     for path in [prefix / source, prefix / name]:

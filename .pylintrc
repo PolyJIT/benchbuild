@@ -1,15 +1,10 @@
 [MASTER]
 
-# Specify a configuration file.
-#rcfile=
-
-# Python code to execute, usually for sys.path manipulation such as
-# pygtk.require().
-#init-hook=
+init-hook="import imp, os; from pylint.config import find_pylintrc; imp.load_source('pylint_init_hook', os.path.join(os.path.dirname(find_pylintrc()), '.pylint_init-hook.py'))"
 
 # Add files or directories to the blacklist. They should be base names, not
-# paths.
-ignore=CVS,.git
+# paths
+ignore=CVS,.git,tmp,results,sql,.pylint_init-hook.py
 
 # Pickle collected data for later comparisons.
 persistent=no
@@ -28,7 +23,7 @@ unsafe-load-any-extension=no
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code
-extension-pkg-whitelist=
+extension-pkg-whitelist=_pygit2
 optimize-ast=no
 
 

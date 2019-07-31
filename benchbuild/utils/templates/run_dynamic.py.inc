@@ -6,10 +6,14 @@ import sys
 
 from plumbum import TEE, local
 
+from benchbuild import module
 from benchbuild.utils import log
 from benchbuild.utils.db import persist_project
 from benchbuild.utils.run import exit_code_from_run_infos
 from benchbuild.utils.wrapping import load
+
+# FIXME: Find a way to specifically load the requested module, instead of all.
+module.init()
 
 PROJECT = load("{{ project_file }}")
 FILTER_EXPRESSIONS = {{name_filters}}

@@ -40,6 +40,7 @@ import sys
 from typing import Dict, List
 
 import attr
+import pygit2
 import yaml
 from plumbum import local
 from plumbum.path.local import LocalPath
@@ -49,7 +50,9 @@ from benchbuild.utils.cmd import git
 from benchbuild.utils.settings import Configuration
 
 LOG = logging.getLogger(__name__)
+__MODULE_PREFIX__: str = 'benchbuild.module.'
 __MODULE_CONFIG__: str = '.benchbuild-module.yml'
+
 
 @attr.s()
 class Module:
@@ -57,6 +60,40 @@ class Module:
     main: str = attr.ib()
     settings: Configuration = attr.ib()
     prefix: LocalPath = attr.ib()
+
+
+def create_modules(modules: Dict[str, str]) -> List[Module]:
+    modules_to_load = []
+    for name, source in modules.items():
+        mod_location = __download__(name, source)
+        mods = __create_modules__(mod_location)
+        modules_to_load.extend(mods)
+    return modules_to_load
+
+
+def init_environment(modules: List[Module]):
+    """
+    Initialize the environment.
+
+    Args:
+        modules: List of module wrappers.
+    """
+    loaded = []
+    for module in modules:
+        mod_spec = importlib.util.spec_from_file_location(
+            str(__MODULE_PREFIX__ + module.name), str(module.prefix / module.main))
+        mod = importlib.util.module_from_spec(mod_spec)
+        if mod:
+            mod_spec.loader.exec_module(mod)
+            loaded.append(mod)
+            sys.modules[__MODULE_PREFIX__ + module.name] = mod
+            LOG.debug("Loaded module: %s", mod.__name__)
+    return loaded
+
+
+def init():
+    """Discover and load all modules into an environment."""
+    init_environment(create_modules(CFG['plugins']['modules'].value))
 
 
 def __create_modules__(module_config: LocalPath) -> List[Module]:
@@ -67,7 +104,6 @@ def __create_modules__(module_config: LocalPath) -> List[Module]:
     with open(module_config, 'r') as hdl:
         loaded = yaml.safe_load(hdl)
 
-    LOG.debug("YAML in config: %s", repr(loaded))
     assert 'modules' in loaded
     mods = []
     for mod in loaded['modules']:
@@ -81,22 +117,53 @@ def __create_modules__(module_config: LocalPath) -> List[Module]:
                    module_config.dirname))
     return mods
 
+
+def __git_pull__(mod_path: LocalPath):
+    repo_path: str = pygit2.discover_repository(mod_path, 0, mod_path)
+    if repo_path:
+        LOG.debug("Repository found at: %s", repo_path)
+        repo = pygit2.Repository(repo_path)
+        repo.reset(repo.head.target, pygit2.GIT_RESET_HARD)
+        remote: pygit2.Remote = repo.remotes['origin']
+        remote.fetch()
+
+        remote_master_id = repo.lookup_reference(
+            'refs/remotes/origin/master').target
+        merge_result, _ = repo.merge_analysis(remote_master_id)
+        # Up to date, do nothing
+        if merge_result & pygit2.GIT_MERGE_ANALYSIS_UP_TO_DATE:
+            return
+        # We can just fastforward
+        elif merge_result & pygit2.GIT_MERGE_ANALYSIS_FASTFORWARD:
+            repo.checkout_tree(repo.get(remote_master_id))
+            master_ref = repo.lookup_reference('refs/heads/master')
+            master_ref.set_target(remote_master_id)
+            repo.head.set_target(remote_master_id)
+        elif merge_result & pygit2.GIT_MERGE_ANALYSIS_NORMAL:
+            repo.merge(remote_master_id)
+            LOG.error(repo.index.conflicts)
+
+            assert repo.index.conflicts is None, 'Conflicts, ahhhh!'
+            user = repo.default_signature
+            tree = repo.index.write_tree()
+            commit = repo.create_commit('HEAD', user, user, 'Merge!', tree,
+                                        [repo.head.target, remote_master_id])
+            repo.state_cleanup()
+        else:
+            raise AssertionError('Unknown merge analysis result')
+
+
 def __download__(name: str, source: str) -> str:
     LOG.debug('Check, if we need to download: "%s"', name)
     prefix = local.path(str(CFG['environment']))
+
     def __exists__(mod_path: LocalPath) -> bool:
         if mod_path.exists() and mod_path.is_dir():
-            LOG.debug('Module "%s" found in environment "%s"', name, mod_path)
             return True
-        LOG.debug('Module "%s" not found in environment "%s"', name, mod_path)
         return False
 
     def __updated__(mod_path: LocalPath) -> bool:
-        git_dir = mod_path / ".git"
-        if __exists__(git_dir):
-            with local.cwd(mod_path):
-                git("reset", "--hard", "HEAD")
-                git("pull")
+        __git_pull__(mod_path)
 
     path = prefix / source
     for path in [prefix / source, prefix / name]:
@@ -106,26 +173,5 @@ def __download__(name: str, source: str) -> str:
             return path / __MODULE_CONFIG__
 
     LOG.debug('Downloading "%s" from: "%s"', name, source)
-    git("clone", source, path)
+    pygit2.clone_repository(source, path)
     return path / __MODULE_CONFIG__
-
-
-def create_modules(modules: Dict[str, str]) -> List[Module]:
-    modules_to_load = []
-    for name, source in modules.items():
-        mod_location = __download__(name, source)
-        mods = __create_modules__(mod_location)
-        LOG.debug("Loaded module: %s", str(mods))
-        modules_to_load.extend(mods)
-    return modules_to_load
-
-def init_environment(modules: List[Module]):
-    loaded = []
-    for module in modules:
-        mod_spec = importlib.util.spec_from_file_location(
-            "benchbuild.module." + module.name, module.prefix / module.main)
-        loaded_mod = importlib.util.module_from_spec(mod_spec)
-        sys.modules["benchbuild.module" + module.name] = loaded_mod
-        loaded.append(loaded_mod)
-        LOG.debug("Loaded module: %s", loaded_mod.__name__)
-    return loaded

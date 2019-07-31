@@ -10,7 +10,7 @@ import time
 
 from plumbum import cli
 
-from benchbuild import experiment, experiments, project
+from benchbuild import experiment, experiments, module, project
 from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
 from benchbuild.utils import actions, progress, tasks
@@ -90,6 +90,7 @@ class BenchBuildRun(cli.Application):
         experiment_names = self.experiment_names
         group_names = self.group_names
 
+        module.init()
         experiments.discover()
         all_exps = experiment.ExperimentRegistry.experiments
 

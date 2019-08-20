@@ -332,7 +332,10 @@ def with_git(repo,
             """Download the selected version."""
             nonlocal target_dir, git
             directory = cls.SRC_FILE if target_dir is None else target_dir
-            Git(self.repository, directory, shallow_clone=shallow_clone)
+            Git(self.repository,
+                directory,
+                self.version,
+                shallow_clone=shallow_clone)
 
         cls.versions = versions_impl
         cls.download = download_impl

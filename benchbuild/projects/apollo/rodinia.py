@@ -42,13 +42,14 @@ class RodiniaGroup(project.Project):
                     _cc = _cc[config_flags]
                 _cc = _cc[srcfiles]
                 _cc = _cc["-o", outfile]
-                run.run(_cc)
+                _cc = run.watch(_cc)
+                _cc()
 
     @staticmethod
     def select_compiler(c_compiler, _):
         return c_compiler
 
-    def run_tests(self, runner):
+    def run_tests(self):
         unpack_dir = local.path('rodinia_{0}'.format(self.version))
         in_src_dir = unpack_dir / self.config['dir']
 
@@ -56,7 +57,8 @@ class RodiniaGroup(project.Project):
             wrapping.wrap(in_src_dir / outfile, self)
 
         with local.cwd(in_src_dir):
-            runner(sh['./run'])
+            sh_ = run.watch(sh)
+            sh_('./run')
 
 
 class Backprop(RodiniaGroup):

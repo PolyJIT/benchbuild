@@ -75,19 +75,19 @@ For example, if we want to wrap the ``myproject`` binary from the previous examp
 as follows:
 
 ```python
-from benchbuild.utils.wrapping import wrap
+from benchbuild.utils import run, wrapping
 
-def run_tests(self, runner):
-    wrapped = wrap("myproject", self)
-    runner(wrapped['--verbose', '--myflag'])
+def run_tests(self):
+    wrapped = wrapping.wrap('myproject', self)
+    wrapped = run.watch(wrapped)
+    wrapped('--verbose', '--myflag')
 ```
 
 Note, that you can add arbitrary flags to the wrapped binary, e.g., ``--verbose`` and ``--myflag``.
 The ``run_tests`` method of ``project`` provides 2 parameters.
-First, the composed run-time extension ``experiment``, which was configured by the experiment.
-Second, a ``runner``, which provides a unified way for benchbuild to control the output and execution
-of the wrapped binary.
-You should use it for all executions performed in ``run_tests``, but nothing will break horribly if you don't.
+The composed run-time extension of your experiment will be used for the wrapper (it is stored in the *_extension attribute of the project).
+By default, all shell commands will be run in the background. You can selectively watch the output of a command by wrapping it
+inside the ``runnable`` function.
 
 
 ## API Reference

@@ -30,9 +30,9 @@ import dill
 from plumbum import local
 
 from benchbuild.settings import CFG
+from benchbuild.utils import run
 from benchbuild.utils.cmd import chmod, mv
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.run import run
 from benchbuild.utils.uchroot import no_llvm as uchroot
 
 PROJECT_BIN_F_EXT = ".bin"
@@ -106,11 +106,12 @@ def wrap(name, project, sprefix=None, python=sys.executable):
     name_absolute = os.path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
     if sprefix:
-        run(uchroot()["/bin/mv",
-                      strip_path_prefix(name_absolute, sprefix),
-                      strip_path_prefix(real_f, sprefix)])
+        mv_ = run.watch(uchroot()["/bin/mv"])
+        mv_(strip_path_prefix(name_absolute, sprefix),
+            strip_path_prefix(real_f, sprefix))
     else:
-        run(mv[name_absolute, real_f])
+        mv_ = run.watch(mv)
+        mv(name_absolute, real_f)
 
     project_file = persist(project, suffix=".project")
 
@@ -134,7 +135,8 @@ def wrap(name, project, sprefix=None, python=sys.executable):
                 python=python,
             ))
 
-    run(chmod["+x", name_absolute])
+    chmod_ = run.watch(chmod)
+    chmod_("+x", name_absolute)
     return local[name_absolute]
 
 

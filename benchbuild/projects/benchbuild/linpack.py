@@ -24,4 +24,5 @@ class Linpack(project.Project):
 
         self.ldflags += ["-lm"]
         clang = compiler.cc(self)
-        run.run(clang["-o", self.run_f, "linpack.c"])
+        clang = run.watch(clang)
+        clang("-o", self.run_f, "linpack.c")

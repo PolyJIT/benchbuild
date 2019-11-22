@@ -222,11 +222,13 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
             gentoo.configure_portage()
 
             sed_in_chroot = uchroot.uchroot()["/bin/sed"]
+            sed_in_chroot = run.watch(sed_in_chroot)
             emerge_in_chroot = uchroot.uchroot()["/usr/bin/emerge"]
+            emerge_in_chroot = run.watch(emerge_in_chroot)
             has_pkg = uchroot.uchroot()["/usr/bin/qlist", "-I"]
 
-            run.run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
-            run.run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
+            sed_in_chroot("-i", '/CC=/d', "/etc/portage/make.conf")
+            sed_in_chroot("-i", '/CXX=/d', "/etc/portage/make.conf")
 
             want_sync = bool(CFG["container"]["strategy"]["polyjit"]["sync"])
             want_upgrade = bool(
@@ -237,17 +239,17 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
             with local.env(MAKEOPTS="-j{0}".format(int(CFG["jobs"]))):
                 if want_sync:
                     LOG.debug("Synchronizing portage.")
-                    run.run(emerge_in_chroot["--sync"])
+                    emerge_in_chroot("--sync")
                 if want_upgrade:
                     LOG.debug("Upgrading world.")
-                    run.run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
-                                             "--with-bdeps=y", "@world"])
+                    emerge_in_chroot("--autounmask-only=y", "-uUDN",
+                                     "--with-bdeps=y", "@world")
                 for pkg in packages:
                     if has_pkg[pkg["name"]] & TF:
                         continue
                     env = pkg["env"]
                     with local.env(**env):
-                        run.run(emerge_in_chroot[pkg["name"]])
+                        emerge_in_chroot(pkg["name"])
 
             gentoo.setup_benchbuild()
 

@@ -264,7 +264,7 @@ class BZip(AutoPortage):
   NAME = "app-arch"
   DOMAIN = "bzip2"
 
-  def run_tests(self, run):
+  def run_tests(self):
     """Add your custom test routines here."""
 ```
 

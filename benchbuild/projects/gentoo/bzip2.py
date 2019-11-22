@@ -4,7 +4,7 @@ bzip2 experiment within gentoo chroot.
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils import download, wrapping
+from benchbuild.utils import download, run, wrapping
 from benchbuild.utils.cmd import tar
 
 
@@ -29,22 +29,20 @@ class BZip2(GentooGroup):
         download.Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
-    def run_tests(self, runner):
+    def run_tests(self):
         bzip2 = wrapping.wrap(local.path('/bin/bzip2'), self)
+        bzip2 = run.watch(bzip2)
 
         # Compress
-        runner(bzip2["-f", "-z", "-k", "--best", "compression/text.html"])
-        runner(bzip2["-f", "-z", "-k", "--best", "compression/chicken.jpg"])
-        runner(bzip2["-f", "-z", "-k", "--best", "compression/control"])
-        runner(bzip2["-f", "-z", "-k", "--best", "compression/input.source"])
-        runner(bzip2["-f", "-z", "-k", "--best", "compression/liberty.jpg"])
+        bzip2("-f", "-z", "-k", "--best", "compression/text.html")
+        bzip2("-f", "-z", "-k", "--best", "compression/chicken.jpg")
+        bzip2("-f", "-z", "-k", "--best", "compression/control")
+        bzip2("-f", "-z", "-k", "--best", "compression/input.source")
+        bzip2("-f", "-z", "-k", "--best", "compression/liberty.jpg")
 
         # Decompress
-        runner(bzip2["-f", "-k", "--decompress", "compression/text.html.bz2"])
-        runner(
-            bzip2["-f", "-k", "--decompress", "compression/chicken.jpg.bz2"])
-        runner(bzip2["-f", "-k", "--decompress", "compression/control.bz2"])
-        runner(
-            bzip2["-f", "-k", "--decompress", "compression/input.source.bz2"])
-        runner(
-            bzip2["-f", "-k", "--decompress", "compression/liberty.jpg.bz2"])
+        bzip2("-f", "-k", "--decompress", "compression/text.html.bz2")
+        bzip2("-f", "-k", "--decompress", "compression/chicken.jpg.bz2")
+        bzip2("-f", "-k", "--decompress", "compression/control.bz2")
+        bzip2("-f", "-k", "--decompress", "compression/input.source.bz2")
+        bzip2("-f", "-k", "--decompress", "compression/liberty.jpg.bz2")

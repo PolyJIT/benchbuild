@@ -34,12 +34,13 @@ class LogAdditionals(base.Extension):
             return None
 
         res = self.call_next(*args, **kwargs)
+        cat_ = run.watch(cat)
 
         for ext in self.next_extensions:
             if issubclass(ext.__class__, (LogTrackingMixin)):
                 for log in ext.logs:
                     LOG.debug("Dumping content of '%s'.", log)
-                    run.run(cat[log])
+                    cat_(log)
                     LOG.debug("Dumping content of '%s' complete.", log)
 
         return res

@@ -146,7 +146,7 @@ def unpack(container, path):
         path: The location where the container is, that needs to be unpacked.
 
     """
-    from benchbuild.utils.run import run
+    from benchbuild.utils import run
     from benchbuild.utils.uchroot import no_args
 
     path = local.path(path)
@@ -173,7 +173,8 @@ def unpack(container, path):
         if not has_erlent:
             untar = uchroot[untar]
 
-        run(untar["--exclude=dev/*"])
+        untar = run.watch(untar)
+        untar("--exclude=dev/*")
         if not os.path.samefile(name, container.filename):
             rm(name)
         else:

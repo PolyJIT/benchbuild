@@ -71,7 +71,7 @@ PACKAGE_MANAGER = {
 }
 
 
-def install_uchroot(_):
+def install_uchroot():
     """Installer for erlent (contains uchroot)."""
     builddir = local.path(str(CFG["build_dir"].value))
     with local.cwd(builddir):

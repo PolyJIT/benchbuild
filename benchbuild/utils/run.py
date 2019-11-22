@@ -306,13 +306,17 @@ def track_execution(cmd, project, experiment, **kwargs):
     runner.commit()
 
 
-def run(command, retcode=0):
+def watch(command):
     """Execute a plumbum command, depending on the user's settings.
 
     Args:
         command: The plumbumb command to execute.
     """
-    return command & TEE(retcode=retcode)
+    def f(*args, retcode=0):
+        final_command = command[args]
+        return final_command & TEE(retcode=retcode)
+
+    return f
 
 
 def with_env_recursive(cmd, **envvars):

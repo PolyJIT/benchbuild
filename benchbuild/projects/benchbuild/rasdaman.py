@@ -31,25 +31,29 @@ class Rasdaman(project.Project):
 
         with local.cwd(gdal_dir):
             configure = local["./configure"]
+            configure = run.watch(configure)
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                run.run(configure["--with-pic", "--enable-static",
+                configure("--with-pic", "--enable-static",
                                   "--disable-debug", "--with-gnu-ld",
-                                  "--without-ld-shared", "--without-libtool"])
-                run.run(make["-j", get_number_of_jobs(CFG)])
+                                  "--without-ld-shared", "--without-libtool")
+                make_ = run.watch(make)
+                make_("-j", get_number_of_jobs(CFG))
 
         with local.cwd(rasdaman_dir):
             autoreconf("-i")
             configure = local["./configure"]
+            configure = run.watch(configure)
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                run.run(configure["--without-debug-symbols",
+                configure("--without-debug-symbols",
                                   "--enable-benchmark", "--with-static-libs",
                                   "--disable-java", "--with-pic",
-                                  "--disable-debug", "--without-docs"])
-            run.run(make["clean", "all", "-j", get_number_of_jobs(CFG)])
+                                  "--disable-debug", "--without-docs")
+            make_ = run.watch(make)
+            make_("clean", "all", "-j", get_number_of_jobs(CFG))
 
-    def run_tests(self, runner):
+    def run_tests(self):
         import logging
         log = logging.getLogger(__name__)
         log.warning('Not implemented')

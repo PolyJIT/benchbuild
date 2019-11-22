@@ -15,7 +15,7 @@ class Minisat(project.Project):
     SRC_FILE = 'minisat.git'
     VERSION = 'HEAD'
 
-    def run_tests(self, runner):
+    def run_tests(self):
         src_path = local.path(self.src_file)
         minisat_lib_path = src_path / "build" / "dynamic" / "lib"
         testfiles = local.path(self.testdir) // "*.cnf.gz"
@@ -23,8 +23,9 @@ class Minisat(project.Project):
         minisat = wrapping.wrap(
             src_path / "build" / "dynamic" / "bin" / "minisat", self)
         for test_f in testfiles:
-            cmd = (minisat.with_env(LD_LIBRARY_PATH=minisat_lib_path) < test_f)
-            runner(cmd, None)
+            minisat_test = run.watch(
+                (minisat.with_env(LD_LIBRARY_PATH=minisat_lib_path) < test_f))
+            minisat_test()
 
     def compile(self):
         self.download()
@@ -32,9 +33,11 @@ class Minisat(project.Project):
             git("fetch", "origin", "pull/17/head:clang")
             git("checkout", "clang")
 
-            run.run(make["config"])
+            make_ = run.watch(make)
+            make_("config")
 
             clang = compiler.cc(self)
             clang_cxx = compiler.cxx(self)
-            run.run(make["CC=" + str(clang), "CXX=" +
-                         str(clang_cxx), "clean", "lsh", "sh"])
+
+            make_("CC=" + str(clang), "CXX=" + str(clang_cxx), "clean", "lsh",
+                  "sh")

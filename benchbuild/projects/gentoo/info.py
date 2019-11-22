@@ -22,8 +22,9 @@ class Info(ap.AutoPortage):
     def compile(self):
         with local.env(CC="gcc", CXX="g++"):
             emerge_in_chroot = uchroot.uchroot()["/usr/bin/emerge"]
-            run.run(emerge_in_chroot["app-portage/portage-utils"])
-            run.run(emerge_in_chroot["app-portage/gentoolkit"])
+            emerge_in_chroot = run.watch(emerge_in_chroot)
+            emerge_in_chroot("app-portage/portage-utils")
+            emerge_in_chroot("app-portage/gentoolkit")
 
         qgrep_in_chroot = uchroot.uchroot()["/usr/bin/qgrep"]
         equery_in_chroot = uchroot.uchroot()["/usr/bin/equery"]

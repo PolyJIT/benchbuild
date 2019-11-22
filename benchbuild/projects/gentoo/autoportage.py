@@ -22,7 +22,6 @@ class AutoPortage(GentooGroup):
                 retcode=None)
         uchroot.uretry(emerge_in_chroot[prog])
 
-    def run_tests(self, runner):
-        del runner  # Unused
+    def run_tests(self):
         log = logging.getLogger(__name__)
         log.warning('Not implemented')

@@ -27,21 +27,23 @@ class Bzip2(project.Project):
 
         clang = compiler.cc(self)
         with local.cwd(self.src_file):
-            run.run(make["CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2"])
+            make_ = run.watch(make)
+            make_("CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         bzip2 = wrapping.wrap(local.path(self.src_file) / "bzip2", self)
+        bzip2 = run.watch(bzip2)
 
         # Compress
-        runner(bzip2["-f", "-z", "-k", "--best", "text.html"])
-        runner(bzip2["-f", "-z", "-k", "--best", "chicken.jpg"])
-        runner(bzip2["-f", "-z", "-k", "--best", "control"])
-        runner(bzip2["-f", "-z", "-k", "--best", "input.source"])
-        runner(bzip2["-f", "-z", "-k", "--best", "liberty.jpg"])
+        bzip2("-f", "-z", "-k", "--best", "text.html")
+        bzip2("-f", "-z", "-k", "--best", "chicken.jpg")
+        bzip2("-f", "-z", "-k", "--best", "control")
+        bzip2("-f", "-z", "-k", "--best", "input.source")
+        bzip2("-f", "-z", "-k", "--best", "liberty.jpg")
 
         # Decompress
-        runner(bzip2["-f", "-k", "--decompress", "text.html.bz2"])
-        runner(bzip2["-f", "-k", "--decompress", "chicken.jpg.bz2"])
-        runner(bzip2["-f", "-k", "--decompress", "control.bz2"])
-        runner(bzip2["-f", "-k", "--decompress", "input.source.bz2"])
-        runner(bzip2["-f", "-k", "--decompress", "liberty.jpg.bz2"])
+        bzip2("-f", "-k", "--decompress", "text.html.bz2")
+        bzip2("-f", "-k", "--decompress", "chicken.jpg.bz2")
+        bzip2("-f", "-k", "--decompress", "control.bz2")
+        bzip2("-f", "-k", "--decompress", "input.source.bz2")
+        bzip2("-f", "-k", "--decompress", "liberty.jpg.bz2")

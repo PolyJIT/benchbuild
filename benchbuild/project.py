@@ -248,7 +248,7 @@ class Project(metaclass=ProjectDecorator):
     def __attrs_post_init__(self):
         db.persist_project(self)
 
-    def run_tests(self, runner):
+    def run_tests(self):
         """
         Run the tests of this project.
 
@@ -259,7 +259,8 @@ class Project(metaclass=ProjectDecorator):
             run: A function that takes the run command.
         """
         exp = wrapping.wrap(self.run_f, self)
-        runner(exp)
+        exp = run.watch(exp)
+        exp()
 
     def run(self):
         """Run the tests of this project.
@@ -283,7 +284,7 @@ class Project(metaclass=ProjectDecorator):
         signals.handlers.register(fail_run_group, group, session)
 
         try:
-            self.run_tests(run.run)
+            self.run_tests()
             end_run_group(group, session)
         except ProcessExecutionError:
             fail_run_group(group, session)

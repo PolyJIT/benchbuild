@@ -5,10 +5,8 @@ from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
 
 
-@download.with_wget({
-    "25.2":
-    "http://www.craftychess.com/downloads/source/crafty-25.2.zip"
-})
+@download.with_wget(
+    {"25.2": "http://www.craftychess.com/downloads/source/crafty-25.2.zip"})
 class Crafty(project.Project):
     """ crafty benchmark """
 
@@ -34,14 +32,17 @@ class Crafty(project.Project):
         clang = compiler.cc(self)
         with local.cwd(unpack_dir):
             target_opts = ["-DCPUS=1", "-DSYZYGY", "-DTEST"]
-            crafty_make = make["target=UNIX", "CC=" + str(clang), "opt=" +
-                               " ".join(target_opts), "crafty-make"]
-            run.run(crafty_make)
+            make_ = run.watch(make)
+            make_("target=UNIX", "CC=" + str(clang),
+                  "opt=" + " ".join(target_opts), "crafty-make")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         unpack_dir = "crafty.src"
         with local.cwd(unpack_dir):
             crafty = wrapping.wrap("./crafty", self)
             testdir = local.path(self.testdir)
-            runner((cat[testdir / "test1.sh"] | crafty), retcode=[0, 120])
-            runner((cat[testdir / "test2.sh"] | crafty), retcode=[0, 120])
+            test1 = run.watch((cat[testdir / "test1.sh"] | crafty))
+            test2 = run.watch((cat[testdir / "test2.sh"] | crafty))
+
+            test1(retcode=[0, 120])
+            test2(retcode=[0, 120])

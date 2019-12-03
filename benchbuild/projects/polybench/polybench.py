@@ -3,8 +3,9 @@ import logging
 from plumbum import local
 
 from benchbuild import project
+from benchbuild.downloads import HTTP
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import diff, tar
 
 LOG = logging.getLogger(__name__)
@@ -41,10 +42,6 @@ def get_dump_arrays_output(data):
     return out
 
 
-@download.with_wget({
-    "4.2":
-    "http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz"
-})
 class PolyBenchGroup(project.Project):
     DOMAIN = 'polybench'
     GROUP = 'polybench'
@@ -82,7 +79,13 @@ class PolyBenchGroup(project.Project):
         "floyd-warshall": "medley",
     }
 
-    SRC_FILE = "polybench.tar.gz"
+    SOURCE = [
+        HTTP(remote={
+            '4.2':
+            'http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz'
+        },
+             local='polybench.tar.gz')
+    ]
 
     def compile_verify(self, compiler_args, polybench_opts):
         polybench_opts.append("-DPOLYBENCH_DUMP_ARRAYS")
@@ -103,13 +106,13 @@ class PolyBenchGroup(project.Project):
         return polybench_opts
 
     def compile(self):
-        self.download()
+        polybench_source = local.path(self.source[0])
 
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
         workload = str(polybench_opts["workload"])
 
-        tar('xfz', self.src_file)
+        tar('xfz', polybench_source)
         src_dir_name = "polybench-c-{0}".format(self.version)
 
         src_dir = local.cwd / src_dir_name

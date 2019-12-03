@@ -1,14 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@download.with_wget({
-    '3.4.3':
-    'https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz'
-})
 class Python(project.Project):
     """ python benchmarks """
 
@@ -16,11 +13,18 @@ class Python(project.Project):
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     VERSION = '3.4.3'
-    SRC_FILE = 'python.tar.xz'
+    SOURCE = [
+        HTTP(remote={
+            '3.4.3':
+            'https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz'
+        },
+             local='python.tar.xz')
+    ]
 
     def compile(self):
-        self.download()
-        tar("xfJ", self.src_file)
+        python_source = local.path(self.source[0].local)
+
+        tar("xfJ", python_source)
         unpack_dir = local.path('Python-{0}'.format(self.version))
 
         clang = compiler.cc(self)

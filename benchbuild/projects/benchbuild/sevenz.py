@@ -1,15 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
+from benchbuild.downloads import HTTP
 from benchbuild.utils.cmd import cp, make, tar
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils import compiler, run, wrapping
 
 
-@download.with_wget({
-    '16.02':
-    'http://downloads.sourceforge.net/'
-    'project/p7zip/p7zip/16.02/p7zip_16.02_src_all.tar.bz2'
-})
 class SevenZip(project.Project):
     """ 7Zip """
 
@@ -17,12 +13,19 @@ class SevenZip(project.Project):
     DOMAIN = 'compression'
     GROUP = 'benchbuild'
     VERSION = '16.02'
-    SRC_FILE = 'p7zip.tar.bz2'
+    SOURCE = [
+        HTTP(remote={
+            '16.02':
+            'http://downloads.sourceforge.net/'
+            'project/p7zip/p7zip/16.02/p7zip_16.02_src_all.tar.bz2'
+        },
+             local='p7zip.tar.bz2')
+    ]
 
     def compile(self):
-        self.download()
+        sevenzip_source = local.path(self.source[0].local)
         unpack_dir = local.path('p7zip_{0}'.format(self.version))
-        tar('xfj', self.src_file)
+        tar('xfj', sevenzip_source)
 
         cp(unpack_dir / "makefile.linux_clang_amd64_asm",
            unpack_dir / "makefile.machine")

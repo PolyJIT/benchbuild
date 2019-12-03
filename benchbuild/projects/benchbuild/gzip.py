@@ -1,12 +1,13 @@
 from plumbum import local
 
 from benchbuild import project
+from benchbuild.downloads import HTTP
+from benchbuild.downloads.versions import product
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import cp, make, tar
 
 
-@download.with_wget({"1.6": "http://ftpmirror.gnu.org/gzip/gzip-1.6.tar.xz"})
 class Gzip(project.Project):
     """ Gzip """
 
@@ -14,11 +15,13 @@ class Gzip(project.Project):
     DOMAIN = 'compression'
     GROUP = 'benchbuild'
     VERSION = '1.6'
-    SRC_FILE = "gzip.tar.xz"
-
-    testfiles = [
-        "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
+    SOURCE = [
+        HTTP(remote={'1.6': 'http://ftpmirror.gnu.org/gzip/gzip-1.6.tar.xz'},
+             local='gzip.tar.xz'),
+        HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
+             local='compression.tar.gz')
     ]
+    VARIANTS = product(*SOURCE)
 
     def run_tests(self):
         unpack_dir = local.path("gzip-{0}.tar.xz".format(self.version))
@@ -26,26 +29,26 @@ class Gzip(project.Project):
         gzip = run.watch(gzip)
 
         # Compress
-        gzip("-f", "-k", "--best", "text.html")
-        gzip("-f", "-k", "--best", "chicken.jpg")
-        gzip("-f", "-k", "--best", "control")
-        gzip("-f", "-k", "--best", "input.source")
-        gzip("-f", "-k", "--best", "liberty.jpg")
+        gzip("-f", "-k", "--best", "compression/text.html")
+        gzip("-f", "-k", "--best", "compression/chicken.jpg")
+        gzip("-f", "-k", "--best", "compression/control")
+        gzip("-f", "-k", "--best", "compression/input.source")
+        gzip("-f", "-k", "--best", "compression/liberty.jpg")
 
         # Decompress
-        gzip("-f", "-k", "--decompress", "text.html.gz")
-        gzip("-f", "-k", "--decompress", "chicken.jpg.gz")
-        gzip("-f", "-k", "--decompress", "control.gz")
-        gzip("-f", "-k", "--decompress", "input.source.gz")
-        gzip("-f", "-k", "--decompress", "liberty.jpg.gz")
+        gzip("-f", "-k", "--decompress", "compression/text.html.gz")
+        gzip("-f", "-k", "--decompress", "compression/chicken.jpg.gz")
+        gzip("-f", "-k", "--decompress", "compression/control.gz")
+        gzip("-f", "-k", "--decompress", "compression/input.source.gz")
+        gzip("-f", "-k", "--decompress", "compression/liberty.jpg.gz")
 
     def compile(self):
-        self.download()
-        tar("xfJ", self.src_file)
-        unpack_dir = "gzip-{0}.tar.xz".format(self.version)
+        gzip_source = local.path(self.source[0].local)
+        compression_source = local.path(self.source[1].local)
+        tar('xfJ', gzip_source)
+        tar('xf', compression_source)
 
-        testfiles = [local.path(self.testdir) / x for x in self.testfiles]
-        cp(testfiles, '.')
+        unpack_dir = "gzip-{0}.tar.xz".format(self.version)
 
         clang = compiler.cc(self)
         with local.cwd(unpack_dir):

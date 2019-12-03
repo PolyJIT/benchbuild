@@ -1,12 +1,12 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import HTTP
+from benchbuild.downloads.versions import product
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
 
 
-@download.with_wget(
-    {"25.2": "http://www.craftychess.com/downloads/source/crafty-25.2.zip"})
 class Crafty(project.Project):
     """ crafty benchmark """
 
@@ -14,20 +14,29 @@ class Crafty(project.Project):
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     VERSION = '25.2'
-    SRC_FILE = "crafty.zip"
+    SOURCE = [
+        HTTP(remote={
+            '25.2':
+            'http://www.craftychess.com/downloads/source/crafty-25.2.zip'
+        },
+             local='crafty.zip'),
+        HTTP(remote={
+            '1.0': 'http://www.craftychess.com/downloads/book/book.bin'
+        },
+             local='book.bin')
+    ]
+    VARIANTS = product(*SOURCE)
 
     def compile(self):
-        self.download()
-        book_file = "book.bin"
-        book_bin = "http://www.craftychess.com/downloads/book/" + book_file
-        download.Wget(book_bin, book_file)
+        crafty_source = local.path(self.source[0].local)
+        book_source = local.path(self.source[1].local)
 
         unpack_dir = "crafty.src"
         mkdir(unpack_dir)
 
         with local.cwd(unpack_dir):
-            unzip(local.path("..") / self.src_file)
-        mv(book_file, unpack_dir)
+            unzip(crafty_source)
+        mv(book_source, unpack_dir)
 
         clang = compiler.cc(self)
         with local.cwd(unpack_dir):

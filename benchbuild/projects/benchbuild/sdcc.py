@@ -31,6 +31,6 @@ class SDCC(project.Project):
             make_("-j", CFG["jobs"])
 
     def run_tests(self):
-        sdcc = wrapping.wrap(self.run_f, self)
+        sdcc = wrapping.wrap('sdcc', self)
         sdcc = run.watch(sdcc)
         sdcc()

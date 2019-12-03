@@ -1,31 +1,33 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import HTTP
+from benchbuild.downloads.versions import product
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import cp, make, tar
 
 
-@download.with_wget({'5.2.1': 'http://tukaani.org/xz/xz-5.2.1.tar.gz'})
 class XZ(project.Project):
     """ XZ """
     NAME = 'xz'
     DOMAIN = 'compression'
     GROUP = 'benchbuild'
     VERSION = '5.2.1'
-    SRC_FILE = 'xz.tar.gz'
 
-    testfiles = [
-        "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
+    SOURCE = [
+        HTTP(remote={'5.2.1', 'http://tukaani.org/xz/xz-5.2.1.tar.gz'},
+             local='xz.tar.gz'),
+        HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
+             local='compression.tar.gz')
     ]
+    VARIANTS = product(*SOURCE)
 
     def compile(self):
-        self.download()
+        xz_source = local.path(self.source[0].local)
+        compression_source = local.path(self.source[1].local)
 
-        tar('xfz', self.src_file)
-
-        test_dir = local.path(self.testdir)
-        testfiles = [test_dir / x for x in self.testfiles]
-        cp(testfiles, self.builddir)
+        tar('xf', xz_source)
+        tar('xf', compression_source)
 
         unpack_dir = local.path('xz-{0}'.format(self.version))
         clang = compiler.cc(self)
@@ -48,15 +50,15 @@ class XZ(project.Project):
         _xz = run.watch(_xz)
 
         # Compress
-        _xz("--compress", "-f", "-k", "-e", "-9", "text.html")
-        _xz("--compress", "-f", "-k", "-e", "-9", "chicken.jpg")
-        _xz("--compress", "-f", "-k", "-e", "-9", "control")
-        _xz("--compress", "-f", "-k", "-e", "-9", "input.source")
-        _xz("--compress", "-f", "-k", "-e", "-9", "liberty.jpg")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/text.html")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/chicken.jpg")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/control")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/input.source")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/liberty.jpg")
 
         # Decompress
-        _xz("--decompress", "-f", "-k", "text.html.xz")
-        _xz("--decompress", "-f", "-k", "chicken.jpg.xz")
-        _xz("--decompress", "-f", "-k", "control.xz")
-        _xz("--decompress", "-f", "-k", "input.source.xz")
-        _xz("--decompress", "-f", "-k", "liberty.jpg.xz")
+        _xz("--decompress", "-f", "-k", "compression/text.html.xz")
+        _xz("--decompress", "-f", "-k", "compression/chicken.jpg.xz")
+        _xz("--decompress", "-f", "-k", "compression/control.xz")
+        _xz("--decompress", "-f", "-k", "compression/input.source.xz")
+        _xz("--decompress", "-f", "-k", "compression/liberty.jpg.xz")

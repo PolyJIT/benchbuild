@@ -351,7 +351,7 @@ def get_version_data():
 def enforce_versioning(force=False):
     """Install versioning on the db."""
     connect_str, repo_url = get_version_data()
-    LOG.warning("Your database uses an unversioned benchbuild schema.")
+    #LOG.warning("Your database uses an unversioned benchbuild schema.")
     if not force and not ui.ask(
             "Should I enforce version control on your schema?"):
         LOG.error("User declined schema versioning.")
@@ -457,7 +457,7 @@ class SessionManager:
             self.__transaction = self.connection.begin()
 
         if needed_schema(self.connection, BASE.metadata):
-            LOG.debug("Initialized new db schema.")
+            #LOG.debug("Initialized new db schema.")
             repo_version = enforce_versioning(force=True)
         else:
             repo_version, db_version = setup_versioning()

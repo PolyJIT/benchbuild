@@ -1,12 +1,12 @@
 from plumbum import local
 
-from benchbuild import project
+from benchbuild import project, variants
+from benchbuild.downloads import Git, HTTP
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cp, make
 
 
-@download.with_git("git://git.videolan.org/x264.git", refspec="HEAD", limit=5)
 class X264(project.Project):
     """ x264 """
 
@@ -14,24 +14,28 @@ class X264(project.Project):
     DOMAIN = "multimedia"
     GROUP = 'benchbuild'
     VERSION = 'HEAD'
-    SRC_FILE = 'x264.git'
+    SOURCE = [
+        Git(remote='git://git.videolan.org/x264.git',
+            local='x264.git',
+            refspec='HEAD',
+            limit=5),
+        HTTP(remote={'tbbt-small': 'http://lairosiel.de/dist/tbbt-small.y4m'},
+             local='tbbt-small.y4m'),
+        HTTP(
+            remote={'sintel': 'http://lairosiel.de/dist/Sintel.2010.720p.raw'},
+            local='sintel.raw'),
+    ]
 
     inputfiles = {
         "tbbt-small.y4m": [],
         "Sintel.2010.720p.raw": ["--input-res", "1280x720"]
     }
 
-    src_uri = "git://git.videolan.org/x264.git"
-
     def compile(self):
-        self.download()
-        testfiles = [local.path(self.testdir) / x for x in self.inputfiles]
-        for testfile in testfiles:
-            cp(testfile, self.builddir)
-
+        x264_repo = variants.to_source('x264.git', self.variant).local
         clang = compiler.cc(self)
 
-        with local.cwd(self.SRC_FILE):
+        with local.cwd(x264_repo):
             configure = local["./configure"]
             configure = run.watch(configure)
 
@@ -43,7 +47,13 @@ class X264(project.Project):
             make_("clean", "all", "-j", CFG["jobs"])
 
     def run_tests(self):
-        x264 = wrapping.wrap(local.path(self.src_file) / "x264", self)
+        x264_repo = variants.to_source('x264.git', self.variant).local
+        inputfiles = [
+            variants.to_source('tbbt-small', self.variant).local,
+            variants.to_source('sintel', self.variant).local
+        ]
+
+        x264 = wrapping.wrap(x264_repo / "x264", self)
         x264 = run.watch(x264)
 
         tests = [
@@ -57,8 +67,7 @@ class X264(project.Project):
             "--frames 50 -q0 -m2 -r1 --me hex --no-cabac",
         ]
 
-        for ifile in self.inputfiles:
-            testfile = local.path(self.testdir) / ifile
+        for testfile in inputfiles:
             for _, test in enumerate(tests):
-                x264(testfile, self.inputfiles[ifile], "--threads", "1", "-o",
-                     "/dev/null", test.split(" "))
+                x264(testfile, "--threads", "1", "-o", "/dev/null",
+                    test.split(" "))

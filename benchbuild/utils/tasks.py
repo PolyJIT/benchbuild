@@ -1,8 +1,11 @@
 """
 The task module distributes benchbuild's excution plans over processes.
 """
+from typing import List, Type
 import benchbuild.utils.actions as actns
 
+ExperimentT = Type['Experiment']
+ProjectT = Type['Project']
 
 def execute_plan(plan):
     """"Execute the plan.
@@ -17,7 +20,7 @@ def execute_plan(plan):
     return [result for result in results if actns.step_has_failed(result)]
 
 
-def generate_plan(exps, prjs):
+def generate_plan(exps: List[ExperimentT], prjs: List[ProjectT]):
     """
     Generate an execution plan for the given experimetns and projects.
 
@@ -29,7 +32,8 @@ def generate_plan(exps, prjs):
     Returns:
         a list of experiment actions suitable for execution.
     """
-    for exp_cls in exps.values():
+    actions = []
+    for exp_cls in exps:
         exp = exp_cls(projects=prjs)
-        eactn = actns.Experiment(obj=exp, actions=exp.actions())
-        yield eactn
+        actions.append(actns.Experiment(obj=exp, actions=exp.actions()))
+    return actions

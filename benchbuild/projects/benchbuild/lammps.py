@@ -1,27 +1,32 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import Git
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make
 
 
-@download.with_git("https://github.com/lammps/lammps", limit=5)
 class Lammps(project.Project):
     """ LAMMPS benchmark """
 
     NAME = 'lammps'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
-    SRC_FILE = 'lammps.git'
     VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/lammps/lammps',
+            local='lammps.git',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     def run_tests(self):
-        src_path = local.path(self.src_file)
-        lammps_dir = src_path / "src"
-        lmp_serial = wrapping.wrap(lammps_dir / "lmp_serial", self)
+        lammps_repo = local.path(self.source[0].local)
+        src = lammps_repo / 'src'
+        examples = lammps_repo / "examples"
 
-        examples_dir = src_path / "examples"
-        tests = examples_dir // "*" // "in.*"
+        lmp_serial = wrapping.wrap(src / "lmp_serial", self)
+        tests = examples // "*" // "in.*"
 
         for test in tests:
             dirname = test.dirname
@@ -30,11 +35,12 @@ class Lammps(project.Project):
                 lmp_serial(retcode=None)
 
     def compile(self):
-        self.download()
-        self.ldflags += ["-lgomp"]
+        lammps_repo = local.path(self.source[0].local)
+        src = lammps_repo / 'src'
 
+        self.ldflags += ["-lgomp"]
         clang_cxx = compiler.cxx(self)
-        with local.cwd(local.path(self.src_file) / "src"):
+        with local.cwd(src):
             make_ = run.watch(make)
             make_("CC=" + str(clang_cxx), "LINK=" + str(clang_cxx), "clean",
                   "serial")

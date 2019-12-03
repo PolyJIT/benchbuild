@@ -1,23 +1,28 @@
 from plumbum import local
 
 from benchbuild import project
+from benchbuild.downloads import HTTP
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, ruby, tar
 
 
-@download.with_wget(
-    {'2.2.2': 'http://cache.ruby-lang.org/pub/ruby/2.2.2/ruby-2.2.2.tar.gz'})
 class Ruby(project.Project):
     NAME = 'ruby'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     VERSION = '2.2.2'
-    SRC_FILE = 'ruby.tar.gz'
+    SOURCE = [
+        HTTP(remote={
+            '2.2.2':
+            'http://cache.ruby-lang.org/pub/ruby/2.2.2/ruby-2.2.2.tar.gz'
+        },
+             local='ruby.tar.gz')
+    ]
 
     def compile(self):
-        self.download()
-        tar("xfz", self.src_file)
+        ruby_source = local.path(self.source[0].local)
+        tar("xfz", ruby_source)
         unpack_dir = local.path('ruby-{0}'.format(self.version))
 
         clang = compiler.cc(self)

@@ -1,20 +1,28 @@
 from plumbum import FG, local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import Git, HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, sed, sh,
                                   tar)
 
 
-@download.with_git('https://github.com/POV-Ray/povray', limit=5)
 class Povray(project.Project):
     """ povray benchmark """
 
     NAME = 'povray'
     DOMAIN = 'multimedia'
     GROUP = 'benchbuild'
-    SRC_FILE = 'povray.git'
     VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/POV-Ray/povray', local='povray.git'),
+        HTTP(remote={
+            '1.59.0':
+            'http://sourceforge.net/projects/boost/files/boost/1.59.0/'
+            'boost_1_59_0.tar.bz2'
+        },
+             local='boost_1_59_0.tar.bz2')
+    ]
 
     boost_src_dir = "boost_1_59_0"
     boost_src_file = boost_src_dir + ".tar.bz2"
@@ -23,9 +31,10 @@ class Povray(project.Project):
         boost_src_file
 
     def compile(self):
-        self.download()
-        download.Wget(self.boost_src_uri, self.boost_src_file)
-        tar("xfj", self.boost_src_file)
+        povray_repo = local.path(self.source[0].local)
+        boost_source = local.path(self.source[1].local)
+
+        tar("xfj", boost_source)
 
         cp("-ar", local.path(self.testdir) / "cfg", '.')
         cp("-ar", local.path(self.testdir) / "etc", '.')
@@ -48,8 +57,7 @@ class Povray(project.Project):
             _b2("--ignore-site-config", "variant=release", "link=static",
                 "threading=multi", "optimization=speed", "install")
 
-        src_file = local.path(self.src_file)
-        with local.cwd(src_file):
+        with local.cwd(povray_repo):
             with local.cwd("unix"):
                 sh("prebuild.sh")
 
@@ -63,7 +71,8 @@ class Povray(project.Project):
             make_("all")
 
     def run_tests(self):
-        povray_binary = local.path(self.src_file) / "unix" / self.name
+        povray_repo = local.path(self.source[0].local)
+        povray_binary = povray_repo / 'unix' / self.name
         tmpdir = local.path("tmp")
         tmpdir.mkdir()
 

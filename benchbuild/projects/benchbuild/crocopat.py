@@ -1,12 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import cat, make, unzip
 
 
-@download.with_wget(
-    {"2.1.4": "http://crocopat.googlecode.com/files/crocopat-2.1.4.zip"})
 class Crocopat(project.Project):
     """ crocopat benchmark """
 
@@ -14,10 +13,15 @@ class Crocopat(project.Project):
     DOMAIN = 'verification'
     GROUP = 'benchbuild'
     VERSION = '2.1.4'
-    SRC_FILE = "crocopat.zip"
+    SOURCE = [
+        HTTP(remote={
+            '2.1.4': 'http://crocopat.googlecode.com/files/crocopat-2.1.4.zip'
+        },
+             local='crocopat.zip')
+    ]
 
     def run_tests(self):
-        crocopat = wrapping.wrap(self.run_f, self)
+        crocopat = wrapping.wrap('crocopat', self)
 
         programs = local.path(self.testdir) / "programs" // "*.rml"
         projects = local.path(self.testdir) / "projects" // "*.rsf"
@@ -28,8 +32,8 @@ class Crocopat(project.Project):
                 crocopat_project(retcode=None)
 
     def compile(self):
-        self.download()
-        unzip(self.src_file)
+        crocopat_source = local.path(self.source[0].local)
+        unzip(crocopat_source)
         unpack_dir = "crocopat-{0}".format(self.version)
 
         crocopat_dir = local.path(unpack_dir) / "src"

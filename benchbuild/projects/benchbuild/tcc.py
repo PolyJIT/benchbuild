@@ -3,25 +3,27 @@ from os import path
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, mkdir, tar
 
 
-@download.with_wget({
-    '0.9.26':
-    'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'
-})
 class TCC(project.Project):
     NAME = 'tcc'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     VERSION = '0.9.26'
-    SRC_FILE = 'tcc.tar.bz2'
+    SOURCE = [
+        HTTP(remote={
+            '0.9.26':
+            'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'
+        },
+             local='tcc.tar.bz2')
+    ]
 
     def compile(self):
-        self.download()
-
-        tar("xf", self.src_file)
+        tcc_source = local.path(self.source[0].local)
+        tar("xf", tcc_source)
         unpack_dir = local.path('tcc-{0}.tar.bz2'.format(self.version))
 
         clang = compiler.cc(self)

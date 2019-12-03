@@ -1,14 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@download.with_wget({
-    "1.10":
-    "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
-})
 class Ccrypt(project.Project):
     """ ccrypt benchmark """
 
@@ -16,11 +13,17 @@ class Ccrypt(project.Project):
     DOMAIN = 'encryption'
     GROUP = 'benchbuild'
     VERSION = '1.10'
-    SRC_FILE = 'ccrypt.tar.gz'
+    SOURCE = [
+        HTTP(remote={
+            '1.10':
+            "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
+        },
+             local='ccrypt.tar.gz')
+    ]
 
     def compile(self):
-        self.download()
-        tar('xfz', self.src_file)
+        ccrypt_source = local.path(self.source[0].local)
+        tar('xfz', ccrypt_source)
         unpack_dir = 'ccrypt-{0}'.format(self.version)
 
         clang = compiler.cc(self)

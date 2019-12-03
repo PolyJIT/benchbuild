@@ -1,54 +1,60 @@
 from plumbum import local
 
 from benchbuild import project
+from benchbuild.downloads import Git
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run
+from benchbuild.utils import compiler, run
 from benchbuild.utils.cmd import autoreconf, make
 
 
-@download.with_git('git://rasdaman.org/rasdaman.git', limit=5)
 class Rasdaman(project.Project):
     """ Rasdaman """
 
     NAME = 'Rasdaman'
     DOMAIN = 'database'
     GROUP = 'benchbuild'
-    SRC_FILE = 'rasdaman.git'
     VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='git://rasdaman.org/rasdaman.git',
+            local='rasdaman.git',
+            limit=5,
+            refspec='HEAD'),
+        Git(remote='https://github.com/OSGeo/gdal',
+            local='gdal.git',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     gdal_dir = "gdal"
     gdal_uri = "https://github.com/OSGeo/gdal"
 
     def compile(self):
-        self.download()
-        download.Git(self.gdal_uri, self.gdal_dir)
-        rasdaman_dir = local.path(self.src_file)
-        gdal_dir = local.path(self.gdal_dir) / self.gdal_dir
+        rasdaman_repo = local.path(self.source[0].local)
+        gdal_repo = local.path(self.source[1].local)
 
         clang = compiler.cc(self)
         clang_cxx = compiler.cxx(self)
 
-        with local.cwd(gdal_dir):
+        with local.cwd(gdal_repo):
             configure = local["./configure"]
             configure = run.watch(configure)
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                configure("--with-pic", "--enable-static",
-                                  "--disable-debug", "--with-gnu-ld",
-                                  "--without-ld-shared", "--without-libtool")
+                configure("--with-pic", "--enable-static", "--disable-debug",
+                          "--with-gnu-ld", "--without-ld-shared",
+                          "--without-libtool")
                 make_ = run.watch(make)
                 make_("-j", CFG["jobs"])
 
-        with local.cwd(rasdaman_dir):
+        with local.cwd(rasdaman_repo):
             autoreconf("-i")
             configure = local["./configure"]
             configure = run.watch(configure)
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                configure("--without-debug-symbols",
-                                  "--enable-benchmark", "--with-static-libs",
-                                  "--disable-java", "--with-pic",
-                                  "--disable-debug", "--without-docs")
+                configure("--without-debug-symbols", "--enable-benchmark",
+                          "--with-static-libs", "--disable-java", "--with-pic",
+                          "--disable-debug", "--without-docs")
             make_ = run.watch(make)
             make_("clean", "all", "-j", CFG["jobs"])
 

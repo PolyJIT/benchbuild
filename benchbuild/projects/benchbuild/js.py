@@ -3,16 +3,12 @@ from functools import partial
 from plumbum import local
 
 from benchbuild import project
+from benchbuild.downloads import Git
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, mkdir, tar
 
 
-@download.with_git(
-    "https://github.com/mozilla/gecko-dev.git",
-    target_dir="gecko-dev.git",
-    clone=False,
-    limit=5)
 class SpiderMonkey(project.Project):
     """
     SpiderMonkey requires a legacy version of autoconf: autoconf-2.13
@@ -22,23 +18,25 @@ class SpiderMonkey(project.Project):
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     VERSION = 'HEAD'
-    SRC_FILE = "gecko-dev.git"
-
-    src_uri = "https://github.com/mozilla/gecko-dev.git"
+    SOURCE = [
+        Git(remote='https://gitub.com/mozilla/gecko-dev.git',
+            local='gecko-dev.git',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     def compile(self):
-        self.download()
+        gecko_repo = local.path(self.source[0].local)
 
-        js_dir = local.path(self.src_file) / "js" / "src"
+        js_dir = gecko_repo / "js" / "src"
         clang = compiler.cc(self)
         clang_cxx = compiler.cxx(self)
         with local.cwd(js_dir):
             make_src_pkg = local["./make-source-package.sh"]
-            with local.env(
-                    DIST=self.builddir,
-                    MOZJS_MAJOR_VERSION=0,
-                    MOZJS_MINOR_VERSION=0,
-                    MOZJS_PATCH_VERSION=0):
+            with local.env(DIST=self.builddir,
+                           MOZJS_MAJOR_VERSION=0,
+                           MOZJS_MINOR_VERSION=0,
+                           MOZJS_PATCH_VERSION=0):
                 make_src_pkg()
 
         mozjs_dir = local.path("mozjs-0.0.0")

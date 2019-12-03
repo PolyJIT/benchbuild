@@ -3,24 +3,28 @@ import logging
 from plumbum import local
 
 from benchbuild import project
+from benchbuild.downloads import Git, HTTP
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@download.with_git("https://github.com/xianyi/OpenBLAS", limit=5)
 class OpenBlas(project.Project):
     NAME = 'openblas'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
-    SRC_FILE = 'OpenBLAS'
     VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/xianyi/OpenBLAS',
+            local='OpenBLAS',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     def compile(self):
-        self.download()
-
+        openblas_repo = local.path(self.source[0].local)
         clang = compiler.cc(self)
-        with local.cwd(self.src_file):
+        with local.cwd(openblas_repo):
             make_ = run.watch(make)
             make_("CC=" + str(clang))
 
@@ -29,17 +33,20 @@ class OpenBlas(project.Project):
         log.warning('Not implemented')
 
 
-@download.with_wget({"3.2.1": "http://www.netlib.org/clapack/clapack.tgz"})
 class Lapack(project.Project):
     NAME = 'lapack'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     VERSION = '3.2.1'
-    SRC_FILE = "clapack.tgz"
+    SOURCE = [
+        HTTP(remote={'3.2.1': 'http://www.netlib.org/clapack/clapack.tgz'},
+             local='clapack.tgz')
+    ]
 
     def compile(self):
-        self.download()
-        tar("xfz", self.src_file)
+        clapack_source = local.path(self.source[0].local)
+
+        tar("xfz", clapack_source)
         unpack_dir = "CLAPACK-{0}".format(self.version)
 
         clang = compiler.cc(self)
@@ -48,9 +55,8 @@ class Lapack(project.Project):
             with open("make.inc", 'w') as makefile:
                 content = [
                     "SHELL     = /bin/sh\n", "PLAT      = _LINUX\n",
-                    "CC        = " + str(clang) + "\n",
-                    "CXX       = " + str(clang_cxx) + "\n",
-                    "CFLAGS    = -I$(TOPDIR)/INCLUDE\n",
+                    "CC        = " + str(clang) + "\n", "CXX       = " +
+                    str(clang_cxx) + "\n", "CFLAGS    = -I$(TOPDIR)/INCLUDE\n",
                     "LOADER    = " + str(clang) + "\n", "LOADOPTS  = \n",
                     "NOOPT     = -O0 -I$(TOPDIR)/INCLUDE\n",
                     "DRVCFLAGS = $(CFLAGS)\n", "F2CCFLAGS = $(CFLAGS)\n",

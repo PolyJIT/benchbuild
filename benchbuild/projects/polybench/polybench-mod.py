@@ -1,5 +1,6 @@
 from plumbum import local
 
+from benchbuild.downloads import Git
 from benchbuild.settings import CFG
 from benchbuild.projects.polybench.polybench import PolyBenchGroup
 from benchbuild.utils import compiler, download, run
@@ -11,16 +12,21 @@ class PolybenchModGroup(PolyBenchGroup):
     GROUP = 'polybench-mod'
     DOMAIN = 'polybench'
     VERSION = 'HEAD'
-    SRC_FILE = 'polybench.git'
+    SOURCE = [
+        Git(remote='https://github.com/simbuerg/polybench-c-4.2-1.git',
+            local='polybench.git',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     def compile(self):
-        self.download()
+        polybench_repo = local.path(self.source[0].local)
 
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
         workload = str(polybench_opts["workload"])
 
-        src_dir = local.cwd / self.src_file
+        src_dir = polybench_repo
         src_sub = src_dir / self.path_dict[self.name] / self.name
 
         src_file = src_sub / (self.name + ".c")

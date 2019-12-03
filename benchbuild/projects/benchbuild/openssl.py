@@ -1,14 +1,11 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@download.with_wget({
-    "2.1.6":
-    "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz"
-})
 class LibreSSL(project.Project):
     """ OpenSSL """
 
@@ -16,7 +13,6 @@ class LibreSSL(project.Project):
     DOMAIN = 'encryption'
     GROUP = 'benchbuild'
     VERSION = '2.1.6'
-    SRC_FILE = "libressl.tar.gz"
     BINARIES = [
         "aeadtest", "aes_wrap", "asn1test", "base64test", "bftest", "bntest",
         "bytestringtest", "casttest", "chachatest", "cipherstest",
@@ -28,14 +24,22 @@ class LibreSSL(project.Project):
         "sha256test", "sha512test", "shatest", "ssltest", "timingsafe",
         "utf8test"
     ]
+    SOURCE = [
+        HTTP(remote={
+            '2.1.6.':
+            'http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz'
+        },
+             local='libressl.tar.gz')
+    ]
 
     def compile(self):
-        self.download()
+        libressl_source = local.path(self.source[0].local)
+
         self.cflags += ["-fPIC"]
 
         clang = compiler.cc(self)
 
-        tar("xfz", self.src_file)
+        tar("xfz", libressl_source)
         unpack_dir = local.path("libressl-{0}".format(self.version))
         configure = local[unpack_dir / "configure"]
         configure = run.watch(configure)
@@ -43,9 +47,9 @@ class LibreSSL(project.Project):
 
         with local.cwd(unpack_dir):
             with local.env(CC=str(clang)):
-                configure( 
-                    "--disable-asm", "--disable-shared", "--enable-static",
-                    "--disable-dependency-tracking", "--with-pic=yes")
+                configure("--disable-asm", "--disable-shared",
+                          "--enable-static", "--disable-dependency-tracking",
+                          "--with-pic=yes")
 
             make_("-j8")
             make_tests = make["-Ctests", "-j8"]

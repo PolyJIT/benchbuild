@@ -28,7 +28,7 @@ import attr
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 
-from benchbuild import signals
+from benchbuild import signals, variants
 from benchbuild.settings import CFG
 from benchbuild.utils import container, db
 from benchbuild.utils.cmd import mkdir, rm, rmdir
@@ -52,15 +52,6 @@ def step_has_failed(step_results, error_status=None):
     return len(list(filter(lambda res: res in error_status, step_results))) > 0
 
 
-def num_steps(steps):
-    return sum([len(step) for step in steps])
-
-
-def print_steps(steps):
-    print("Number of actions to execute: {}".format(num_steps(steps)))
-    print(*steps)
-
-
 def to_step_result(func):
     """Convert a function return to a list of StepResults.
 
@@ -75,7 +66,6 @@ def to_step_result(func):
     Args:
         func: The function to wrap.
     """
-
     @ft.wraps(func)
     def wrapper(*args, **kwargs):
         """Wrapper stub."""
@@ -92,7 +82,6 @@ def to_step_result(func):
 
 def prepend_status(func):
     """Prepends the output of `func` with the status."""
-
     @ft.wraps(func)
     def wrapper(self, *args, **kwargs):
         """Wrapper stub."""
@@ -106,7 +95,6 @@ def prepend_status(func):
 
 def notify_step_begin_end(func):
     """Print the beginning and the end of a `func`."""
-
     @ft.wraps(func)
     def wrapper(self, *args, **kwargs):
         """Wrapper stub."""
@@ -128,14 +116,12 @@ def notify_step_begin_end(func):
 
 def log_before_after(name: str, desc: str):
     """Log customized stirng before & after running func."""
-
     def func_decorator(f):
         """Wrapper stub."""
-
         @ft.wraps(f)
         def wrapper(*args, **kwargs):
             """Wrapper stub."""
-            LOG.info("\n%s - %s", name, desc)
+            LOG.info("%s - %s", name, desc)
             res = f(*args, **kwargs)
             if StepResult.ERROR not in res:
                 LOG.info("%s - OK\n", name)
@@ -150,7 +136,6 @@ def log_before_after(name: str, desc: str):
 
 class StepClass(abc.ABCMeta):
     """Decorate `steps` with logging and result conversion."""
-
     def __new__(mcs, name, bases, namespace, **_):
         result = abc.ABCMeta.__new__(mcs, name, bases, dict(namespace))
 
@@ -262,8 +247,9 @@ class Clean(Step):
 
     def __str__(self, indent=0):
         return textwrap.indent(
-            "* {0}: Clean the directory: {1}".format(
-                self.obj.name, self.obj.builddir), indent * " ")
+            "* {0}: Clean the directory: {1}".format(self.obj.name,
+                                                     self.obj.builddir),
+            indent * " ")
 
 
 class MakeBuildDir(Step):
@@ -491,11 +477,10 @@ class RequireAll(Step):
                 results.append(StepResult.ERROR)
                 raise
             except OSError:
-                LOG.error(
-                    "Exception in step #%d: %s",
-                    i,
-                    str(action),
-                    exc_info=sys.exc_info())
+                LOG.error("Exception in step #%d: %s",
+                          i,
+                          str(action),
+                          exc_info=sys.exc_info())
                 results.append(StepResult.ERROR)
 
             if StepResult.ERROR in results:
@@ -572,3 +557,28 @@ class CleanExtra(Step):
                 textwrap.indent("* Clean the directory: {0}".format(p),
                                 indent * " "))
         return "\n".join(lines)
+
+
+class ProjectEnvironment(Step):
+    NAME = 'ENV'
+    DESCRIPTION = 'Prepare the project environment.'
+
+    @notify_step_begin_end
+    def __call__(self):
+        project = self.obj
+        prj_vars = project.variant
+
+        for name, variant in prj_vars.items():
+            LOG.info(f"Fetching {str(name)} @ {variant.version}")
+            src = variant.owner
+            src.version(project.builddir, variant.version)
+
+
+    def __str__(self, indent=0):
+        project = self.obj
+        variant = project.variant
+        version_str = variants.to_str(tuple(variant.values()))
+
+        return textwrap.indent(
+            "* Project environment for: {} @ {}".format(
+                project.name, version_str), indent * " ")

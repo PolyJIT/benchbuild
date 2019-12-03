@@ -8,10 +8,9 @@ class TestProject(project.Project):
     DOMAIN = "test"
     GROUP = "test"
     VERSION = "1.0"
-    SRC_FILE = "test.cpp"
 
     def compile(self):
-        with open(self.src_file, 'w') as test_source:
+        with open('test.cpp', 'w') as test_source:
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {
@@ -24,10 +23,10 @@ int main(int argc, char **argv) {
 
         clang = compiler.cxx(self)
         clang = run.watch(clang)
-        clang(self.src_file, "-o", self.src_file + ".out")
+        clang('test.cpp', "-o", 'test.cpp.out')
 
     def run_tests(self):
-        exp = wrapping.wrap(self.src_file + ".out", self)
+        exp = wrapping.wrap('test.cpp.out', self)
         exp = run.watch(exp)
         exp()
 
@@ -42,7 +41,7 @@ class TestProjectRuntimeFail(project.Project):
     SRC_FILE = "test.cpp"
 
     def compile(self):
-        with open(self.src_file, 'w') as test_source:
+        with open('test.cpp', 'w') as test_source:
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {
@@ -55,9 +54,9 @@ int main(int argc, char **argv) {
 
         clang = compiler.cxx(self)
         clang = run.watch(clang)
-        clang(self.src_file, "-o", self.src_file + ".out")
+        clang('test.cpp', "-o", 'test.cpp.out')
 
     def run_tests(self):
-        exp = wrapping.wrap(self.src_file + ".out", self)
+        exp = wrapping.wrap('test.cpp.ou', self)
         exp = run.watch(exp)
         exp()

@@ -1,14 +1,12 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import Git, HTTP
+from benchbuild.downloads.versions import product
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, unzip
 
 
-@download.with_wget({
-    '3080900':
-    'http://www.sqlite.org/2015/sqlite-amalgamation-3080900.zip'
-})
 class SQLite3(project.Project):
     """ SQLite3 """
 
@@ -16,14 +14,23 @@ class SQLite3(project.Project):
     DOMAIN = 'database'
     GROUP = 'benchbuild'
     VERSION = '3080900'
-    SRC_FILE = 'sqlite.zip'
+    SOURCE = [
+        HTTP(remote={
+            '3080900':
+            'http://www.sqlite.org/2015/sqlite-amalgamation-3080900.zip'
+        },
+             local='sqlite.zip'),
+        Git(remote='https://github.com/google/leveldb',
+            local='leveldb.src',
+            refspec='HEAD',
+            limit=5)
+    ]
+    VARIANTS = product(*SOURCE)
 
     def compile(self):
-        self.download()
-        unzip(self.src_file)
+        sqlite_source = local.path(self.source[0].local)
+        unzip(sqlite_source)
         unpack_dir = local.path('sqlite-amalgamation-{0}'.format(self.version))
-
-        SQLite3.fetch_leveldb()
 
         clang = compiler.cc(self)
         clang = run.watch(clang)
@@ -34,14 +41,9 @@ class SQLite3(project.Project):
 
         self.build_leveldb()
 
-    @staticmethod
-    def fetch_leveldb():
-        src_uri = "https://github.com/google/leveldb"
-        download.Git(src_uri, "leveldb.src")
-
     def build_leveldb(self):
         sqlite_dir = local.path('sqlite-amalgamation-{0}'.format(self.version))
-        leveldb_dir = "leveldb.src"
+        leveldb_repo = local.path(self.source[1].local)
 
         # We need to place sqlite3 in front of all other flags.
         self.ldflags += ["-L{0}".format(sqlite_dir)]
@@ -49,16 +51,16 @@ class SQLite3(project.Project):
         clang_cxx = compiler.cxx(self)
         clang = compiler.cc(self)
 
-        with local.cwd(leveldb_dir):
+        with local.cwd(leveldb_repo):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
                 make_ = run.watch(make)
                 make_("clean", "out-static/db_bench_sqlite3")
 
     def run_tests(self):
-        leveldb_dir = local.path("leveldb.src")
-        with local.cwd(leveldb_dir):
-            with local.env(LD_LIBRARY_PATH=leveldb_dir):
+        leveldb_repo = local.path(self.source[1].local)
+        with local.cwd(leveldb_repo):
+            with local.env(LD_LIBRARY_PATH=leveldb_repo):
                 sqlite = wrapping.wrap(
-                    leveldb_dir / 'out-static' / 'db_bench_sqlite3', self)
+                    leveldb_repo / 'out-static' / 'db_bench_sqlite3', self)
                 sqlite = run.watch(sqlite)
                 sqlite()

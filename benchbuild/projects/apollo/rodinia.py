@@ -2,29 +2,29 @@ import attr
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.downloads import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import sh, tar
 
 
 @attr.s
-@download.with_wget({
-    '3.1':
-    'http://www.cs.virginia.edu/'
-    '~kw5na/lava/Rodinia/Packages/Current/3.1/rodinia_3.1.tar.bz2'})
 class RodiniaGroup(project.Project):
     """Generic handling of Rodinia benchmarks."""
     DOMAIN = 'rodinia'
     GROUP = 'rodinia'
     VERSION = '3.1'
-    SRC_FILE = 'rodinia.tar.bz2'
+    SOURCE = [HTTP(
+        remote={'3.1': 'http://www.cs.virginia.edu/'
+                       '~kw5na/lava/Rodinia/Packages/Current/3.1/'
+                       'rodinia_3.1.tar.bz2'},
+        local='rodinia.tar.bz2')]
     CONFIG = {}
 
     config = attr.ib(default=attr.Factory(
         lambda self: type(self).CONFIG, takes_self=True))
 
     def compile(self):
-        self.download()
-        tar("xf", self.src_file)
+        tar('xf', 'rodinia.tar.bz2')
         unpack_dir = local.path('rodinia_{0}'.format(self.version))
 
         c_compiler = compiler.cc(self)

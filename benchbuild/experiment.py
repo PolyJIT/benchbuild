@@ -31,10 +31,11 @@ from abc import abstractmethod
 
 import attr
 
+from benchbuild import variants
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
                                       Containerize, Echo, MakeBuildDir,
-                                      RequireAll, Run)
+                                      ProjectEnvironment, RequireAll, Run)
 
 
 class ExperimentRegistry(type):
@@ -73,9 +74,6 @@ class Experiment(metaclass=ExperimentRegistry):
             in the database scheme.
     """
 
-    NAME = None
-    SCHEMA = None
-
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
         del args, kwargs  # Temporarily unused
@@ -86,6 +84,7 @@ class Experiment(metaclass=ExperimentRegistry):
                     cls.__name__, cls.__module__))
         return new_self
 
+    NAME = None
     name = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
@@ -111,6 +110,7 @@ class Experiment(metaclass=ExperimentRegistry):
             raise TypeError("%s expected to be '%s' but got '%s'" %
                             (str(new_id), str(uuid.UUID), str(type(new_id))))
 
+    SCHEMA = None
     schema = attr.ib()
 
     @schema.default
@@ -140,20 +140,24 @@ class Experiment(metaclass=ExperimentRegistry):
         """
         actions = []
 
-        for project in self.projects:
-            prj_cls = self.projects[project]
-
+        for prj_cls in self.projects:
             prj_actions = []
-            for version in self.sample(prj_cls, prj_cls.versions()):
-                p = prj_cls(self, version=version)
 
+            project_variants = variants.product(prj_cls.SOURCE)
+            for variant in project_variants:
+                var_context = variants.context(variant)
+                version_str = variants.to_str(variant)
+
+                p = prj_cls(self, variant=var_context)
                 atomic_actions = [
                     Clean(p),
                     MakeBuildDir(p),
                     Echo(message="Selected {0} with version {1}".format(
-                        p.name, p.version)),
+                        p.name, version_str)),
+                    ProjectEnvironment(p),
                     Containerize(obj=p, actions=self.actions_for_project(p))
                 ]
+
                 prj_actions.append(RequireAll(actions=atomic_actions))
             actions.extend(prj_actions)
 

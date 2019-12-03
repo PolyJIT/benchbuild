@@ -1,16 +1,12 @@
 from plumbum import local
 
 from benchbuild import project
+from benchbuild.downloads import HTTP
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, path, run, wrapping
+from benchbuild.utils import compiler, path, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@download.with_wget({
-    "2.6.8":
-    'http://sourceforge.net/'
-    'projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz'
-})
 class MCrypt(project.Project):
     """ MCrypt benchmark """
 
@@ -18,28 +14,38 @@ class MCrypt(project.Project):
     DOMAIN = 'encryption'
     GROUP = 'benchbuild'
     VERSION = '2.6.8'
-    SRC_FILE = "mcrypt.tar.gz"
+    SOURCE = [
+        HTTP(remote={
+            '2.6.8':
+            'http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz'
+        },
+             local='mcrypt.tar.gz'),
+        HTTP(remote={
+            '2.5.8':
+            'http://sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz'
+        },
+             local='libmcrypt.tar.gz'),
+        HTTP(remote={
+            '0.9.9.9':
+            'http://sourceforge.net/projects/mhash/files/mhash/0.9.9.9/mhash-0.9.9.9.tar.gz'
+        },
+             local='mhash.tar.gz')
+    ]
 
     libmcrypt_dir = "libmcrypt-2.5.8"
     libmcrypt_file = libmcrypt_dir + ".tar.gz"
-    libmcrypt_uri = \
-        "http://sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/" + \
-        libmcrypt_file
 
     mhash_dir = "mhash-0.9.9.9"
     mhash_file = mhash_dir + ".tar.gz"
-    mhash_uri = "http://sourceforge.net/projects/mhash/files/mhash/0.9.9.9/" + \
-        mhash_file
 
     def compile(self):
-        self.download()
+        mcrypt_source = local.path(self.source[0].local)
+        libmcrypt_source = local.path(self.source[1].local)
+        mhash_source = local.path(self.source[2].local)
 
-        download.Wget(self.libmcrypt_uri, self.libmcrypt_file)
-        download.Wget(self.mhash_uri, self.mhash_file)
-
-        tar('xfz', self.src_file)
-        tar('xfz', self.libmcrypt_file)
-        tar('xfz', self.mhash_file)
+        tar('xfz', mcrypt_source)
+        tar('xfz', libmcrypt_source)
+        tar('xfz', mhash_source)
 
         builddir = local.path(self.builddir)
         mcrypt_dir = builddir / "mcrypt-2.6.8"
@@ -82,10 +88,9 @@ class MCrypt(project.Project):
                 CFLAGS="-I" + str(inc_dir))
             env.update(mod_env)
             with local.env(**env):
-                configure("--disable-dependency-tracking",
-                                  "--enable-static", "--disable-shared",
-                                  "--with-libmcrypt=" +
-                                  builddir, "--with-libmhash=" + builddir)
+                configure("--disable-dependency-tracking", "--enable-static",
+                          "--disable-shared", "--with-libmcrypt=" + builddir,
+                          "--with-libmhash=" + builddir)
             make_("-j", CFG["jobs"])
 
     def run_tests(self):
@@ -99,4 +104,3 @@ class MCrypt(project.Project):
         ciphertest = wrapping.wrap(mcrypt_libs / "lt-ciphertest", self)
         ciphertest = run.watch(ciphertest)
         ciphertest()
-

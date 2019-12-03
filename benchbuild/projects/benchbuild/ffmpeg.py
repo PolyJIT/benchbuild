@@ -1,20 +1,24 @@
 from plumbum import local
 
 from benchbuild import project
+from benchbuild.downloads import HTTP
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@download.with_wget(
-    {"3.1.3": "http://ffmpeg.org/releases/ffmpeg-3.1.3.tar.bz2"})
 class LibAV(project.Project):
     """ LibAV benchmark """
     NAME = 'ffmpeg'
     DOMAIN = 'multimedia'
     GROUP = 'benchbuild'
     VERSION = '3.1.3'
-    SRC_FILE = "ffmpeg.tar.bz2"
+    SOURCE = [
+        HTTP(remote={
+            '3.1.3': 'http://ffmpeg.org/releases/ffmpeg-3.1.3.tar.bz2'
+        },
+             local='ffmpeg.tar.bz2')
+    ]
 
     fate_dir = "fate-samples"
     fate_uri = "rsync://fate-suite.libav.org/fate-suite/"
@@ -27,8 +31,8 @@ class LibAV(project.Project):
             make_("V=1", "-i", "fate")
 
     def compile(self):
-        self.download()
-        tar('xfj', self.src_file)
+        ffmpeg_source = local.path(self.source[0].local)
+        tar('xfj', ffmpeg_source)
         unpack_dir = "ffmpeg-{0}".format(self.version)
         clang = compiler.cc(self)
 

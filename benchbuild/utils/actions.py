@@ -163,8 +163,8 @@ class Step(metaclass=StepClass):
         StopIteration: If we do not encapsulate more substeps.
     """
 
-    NAME = None
-    DESCRIPTION = None
+    NAME: str = ""
+    DESCRIPTION: str = ""
 
     ON_STEP_BEGIN = []
     ON_STEP_END = []
@@ -201,8 +201,8 @@ class Step(metaclass=StepClass):
 
 @attr.s
 class Clean(Step):
-    NAME = "CLEAN"
-    DESCRIPTION = "Cleans the build directory"
+    NAME: str = "CLEAN"
+    DESCRIPTION: str = "Cleans the build directory"
 
     check_empty = attr.ib(default=False)
 
@@ -253,8 +253,8 @@ class Clean(Step):
 
 
 class MakeBuildDir(Step):
-    NAME = "MKDIR"
-    DESCRIPTION = "Create the build directory"
+    NAME: str = "MKDIR"
+    DESCRIPTION: str = "Create the build directory"
 
     @notify_step_begin_end
     def __call__(self):
@@ -271,8 +271,8 @@ class MakeBuildDir(Step):
 
 
 class Compile(Step):
-    NAME = "COMPILE"
-    DESCRIPTION = "Compile the project"
+    NAME: str = "COMPILE"
+    DESCRIPTION: str = "Compile the project"
 
     def __init__(self, project):
         super(Compile, self).__init__(obj=project, action_fn=project.compile)
@@ -283,8 +283,8 @@ class Compile(Step):
 
 
 class Run(Step):
-    NAME = "RUN"
-    DESCRIPTION = "Execute the run action"
+    NAME: str = "RUN"
+    DESCRIPTION: str = "Execute the run action"
 
     def __init__(self, project):
         super(Run, self).__init__(obj=project, action_fn=project.run)
@@ -307,8 +307,8 @@ class Run(Step):
 
 @attr.s
 class Echo(Step):
-    NAME = 'ECHO'
-    DESCRIPTION = 'Print a message.'
+    NAME: str = 'ECHO'
+    DESCRIPTION: str = 'Print a message.'
 
     message = attr.ib(default="")
 
@@ -333,8 +333,8 @@ def run_any_child(child: Step):
 
 @attr.s(cmp=False)
 class Any(Step):
-    NAME = "ANY"
-    DESCRIPTION = "Just run all actions, no questions asked."
+    NAME: str = "ANY"
+    DESCRIPTION: str = "Just run all actions, no questions asked."
 
     actions = attr.ib(default=attr.Factory(list), repr=False, cmp=False)
 
@@ -368,8 +368,8 @@ class Any(Step):
 
 @attr.s(cmp=False, hash=True)
 class Experiment(Any):
-    NAME = "EXPERIMENT"
-    DESCRIPTION = "Run a experiment, wrapped in a db transaction"
+    NAME: str = "EXPERIMENT"
+    DESCRIPTION: str = "Run a experiment, wrapped in a db transaction"
 
     def __attrs_post_init__(self):
         self.actions = \
@@ -502,8 +502,8 @@ class RequireAll(Step):
 
 @attr.s
 class Containerize(RequireAll):
-    NAME = "CONTAINERIZE"
-    DESCRITPION = "Redirect into container"
+    NAME: str = "CONTAINERIZE"
+    DESCRITPION: str = "Redirect into container"
 
     def requires_redirect(self):
         project = self.obj
@@ -535,8 +535,8 @@ class Containerize(RequireAll):
 
 
 class CleanExtra(Step):
-    NAME = "CLEAN EXTRA"
-    DESCRIPTION = "Cleans the extra directories."
+    NAME: str = "CLEAN EXTRA"
+    DESCRIPTION: str = "Cleans the extra directories."
 
     @notify_step_begin_end
     def __call__(self):
@@ -560,8 +560,8 @@ class CleanExtra(Step):
 
 
 class ProjectEnvironment(Step):
-    NAME = 'ENV'
-    DESCRIPTION = 'Prepare the project environment.'
+    NAME: str = 'ENV'
+    DESCRIPTION: str = 'Prepare the project environment.'
 
     @notify_step_begin_end
     def __call__(self):

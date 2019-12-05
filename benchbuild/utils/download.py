@@ -218,6 +218,7 @@ def __clone_needed__(repository: str, directory: str) -> bool:
 
     if requires_clone:
         rm('-r', directory)
+    return requires_clone
 
 
 def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):

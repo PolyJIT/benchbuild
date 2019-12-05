@@ -83,6 +83,21 @@ class BaseSource(ISource):
 
 Sources = Iterable['BaseSource']
 
+@attr.s
+class NoSource(BaseSource):
+    @property
+    def default(self):
+        return variants.Variant(owner=self, version='None')
+
+    def version(self, target_dir: str, version: str) -> str:
+        return 'None'
+
+    def versions(self) -> Iterable['Variant']:
+        return ['None']
+
+def nosource():
+    return NoSource(local='NoSource', remote='NoSource')
+
 def target_prefix() -> str:
     """
     Return the prefix directory for all downloads.

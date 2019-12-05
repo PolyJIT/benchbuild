@@ -3,8 +3,11 @@ import tempfile
 import unittest
 import os
 
+
 from plumbum import local
 from plumbum.cmd import rm
+
+from benchbuild.downloads.base import nosource
 
 import benchbuild.experiments.empty as empty
 import benchbuild.project as project
@@ -13,10 +16,10 @@ import benchbuild.utils.wrapping as wrappers
 
 
 class EmptyProject(project.Project):
-    SRC_FILE = "none"
     NAME: str = "test_empty"
     DOMAIN: str = "debug"
     GROUP: str = "debug"
+    SOURCE = [nosource()]
 
     def __attrs_post_init__(self):
         pass

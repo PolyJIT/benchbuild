@@ -1,13 +1,14 @@
 from plumbum import FG, local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.downloads import Git, HTTP
 from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, sed, sh,
                                   tar)
 
 
-class Povray(project.Project):
+class Povray(bb.Project):
     """ povray benchmark """
 
     NAME = 'povray'
@@ -21,7 +22,10 @@ class Povray(project.Project):
             'http://sourceforge.net/projects/boost/files/boost/1.59.0/'
             'boost_1_59_0.tar.bz2'
         },
-             local='boost_1_59_0.tar.bz2')
+             local='boost.tar.bz2'),
+        HTTP(remote={
+            '2016-05-povray': 'http://lairosiel.de/dist/2016-05-povray.tar.gz'
+        }, local='inputs.tar.gz')
     ]
 
     boost_src_dir = "boost_1_59_0"
@@ -31,16 +35,20 @@ class Povray(project.Project):
         boost_src_file
 
     def compile(self):
-        povray_repo = local.path(self.source[0].local)
-        boost_source = local.path(self.source[1].local)
+        povray_repo = local.path(self.source_of('povray.git'))
+        boost_source = local.path(self.source_of('boost.tar.bz2'))
+        inputs_source = local.path(self.source_of('inputs.tar.gz'))
 
-        tar("xfj", boost_source)
+        tar('xf', boost_source)
+        tar('xf', inputs_source)
 
-        cp("-ar", local.path(self.testdir) / "cfg", '.')
-        cp("-ar", local.path(self.testdir) / "etc", '.')
-        cp("-ar", local.path(self.testdir) / "scenes", '.')
-        cp("-ar", local.path(self.testdir) / "share", '.')
-        cp("-ar", local.path(self.testdir) / "test", '.')
+        inputs_dir = local.path('./povray/')
+
+        cp("-ar", inputs_dir / "cfg", '.')
+        cp("-ar", inputs_dir / "etc", '.')
+        cp("-ar", inputs_dir / "scenes", '.')
+        cp("-ar", inputs_dir / "share", '.')
+        cp("-ar", inputs_dir / "test", '.')
 
         clang = compiler.cc(self)
         clang_cxx = compiler.cxx(self)

@@ -2,17 +2,17 @@ from os import getenv
 
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.downloads import Git
-from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make
 
 
-class LevelDB(project.Project):
-    VERSION = 'HEAD'
+class LevelDB(bb.Project):
     NAME: str = 'leveldb'
     DOMAIN: str = 'database'
     GROUP: str = 'benchbuild'
+    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/google/leveldb',
             local='leveldb.src',
@@ -21,14 +21,14 @@ class LevelDB(project.Project):
     ]
 
     def compile(self):
-        leveldb_repo = local.path(self.source[0].local)
+        leveldb_repo = bb.path(self.source_of('leveldb.src'))
 
-        clang = compiler.cc(self)
-        clang_cxx = compiler.cxx(self)
+        clang = bb.compiler.cc(self)
+        clang_cxx = bb.compiler.cxx(self)
 
-        with local.cwd(leveldb_repo):
-            with local.env(CXX=str(clang_cxx), CC=str(clang)):
-                make_ = run.watch(make)
+        with bb.cwd(leveldb_repo):
+            with bb.env(CXX=str(clang_cxx), CC=str(clang)):
+                make_ = bb.watch(make)
                 make_("clean")
                 make_("all", "-i")
 
@@ -39,10 +39,10 @@ class LevelDB(project.Project):
         Args:
             experiment: The experiment's run function.
         """
-        leveldb_repo = local.path(self.source[0].local)
+        leveldb_repo = bb.path(self.source_of('leveldb.src'))
 
-        leveldb = wrapping.wrap(leveldb_repo / "out-static" / "db_bench", self)
-        leveldb = run.watch(leveldb)
-        with local.env(LD_LIBRARY_PATH="{}:{}".format(
+        leveldb = bb.wrap(leveldb_repo / "out-static" / "db_bench", self)
+        leveldb = bb.watch(leveldb)
+        with bb.env(LD_LIBRARY_PATH="{}:{}".format(
                 leveldb_repo / "out-shared", getenv("LD_LIBRARY_PATH", ""))):
             leveldb()

@@ -2,10 +2,10 @@ import logging
 
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.downloads import HTTP
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import diff, tar
 
 LOG = logging.getLogger(__name__)
@@ -42,10 +42,10 @@ def get_dump_arrays_output(data):
     return out
 
 
-class PolyBenchGroup(project.Project):
-    VERSION = '4.2'
+class PolyBenchGroup(bb.Project):
     DOMAIN: str = 'polybench'
     GROUP: str = 'polybench'
+    VERSION: str = '4.2'
     path_dict = {
         "correlation": "datamining",
         "covariance": "datamining",
@@ -96,8 +96,8 @@ class PolyBenchGroup(project.Project):
         self.cflags = []
         self.ldflags = []
 
-        clang_no_opts = compiler.cc(self)
-        clang_no_opts = run.watch(clang_no_opts)
+        clang_no_opts = bb.compiler.cc(self)
+        clang_no_opts = bb.watch(clang_no_opts)
 
         self.cflags = cflags
         self.ldflags = ldflags
@@ -106,7 +106,7 @@ class PolyBenchGroup(project.Project):
         return polybench_opts
 
     def compile(self):
-        polybench_source = local.path(self.source[0])
+        polybench_source = bb.path(self.source_of('polybench.tar.gz'))
 
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
@@ -115,7 +115,7 @@ class PolyBenchGroup(project.Project):
         tar('xfz', polybench_source)
         src_dir_name = "polybench-c-{0}".format(self.version)
 
-        src_dir = local.cwd / src_dir_name
+        src_dir = bb.cwd / src_dir_name
         src_sub = src_dir / self.path_dict[self.name] / self.name
 
         src_file = src_sub / (self.name + ".c")
@@ -131,8 +131,8 @@ class PolyBenchGroup(project.Project):
                 "-I", utils_dir, "-I", src_sub, utils_dir / "polybench.c",
                 src_file, "-lm"
             ], polybench_opts)
-        clang = compiler.cc(self)
-        clang = run.watch(clang)
+        clang = bb.compiler.cc(self)
+        clang = bb.watch(clang)
         clang("-I", utils_dir, "-I", src_sub, polybench_opts,
               utils_dir / "polybench.c", src_file, "-lm", "-o", self.name)
 
@@ -147,29 +147,29 @@ class PolyBenchGroup(project.Project):
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
 
-        binary = local.cwd / self.name
+        binary = bb.cwd / self.name
         opt_stderr_raw = binary + ".stderr"
         opt_stderr_filtered = opt_stderr_raw + ".filtered"
 
-        polybench_bin = wrapping.wrap(binary, self)
-        polybench_bin = run.watch(polybench_bin)
+        polybench_bin = bb.wrap(binary, self)
+        polybench_bin = bb.watch(polybench_bin)
         polybench_bin()
 
         filter_stderr(opt_stderr_raw, opt_stderr_filtered)
 
         if verify:
-            binary = local.cwd / (self.name + ".no-opts")
+            binary = bb.cwd / (self.name + ".no-opts")
             noopt_stderr_raw = binary + ".stderr"
             noopt_stderr_filtered = noopt_stderr_raw + ".filtered"
 
-            with local.env(BB_IS_BASELINE=True):
-                polybench_bin = wrapping.wrap(binary, self)
-                polybench_bin = run.watch(polybench_bin)
+            with bb.env(BB_IS_BASELINE=True):
+                polybench_bin = bb.wrap(binary, self)
+                polybench_bin = bb.watch(polybench_bin)
                 polybench_bin()
             filter_stderr(noopt_stderr_raw, noopt_stderr_filtered)
 
             diff_ = diff[noopt_stderr_filtered, opt_stderr_filtered]
-            diff_ = run.watch(diff_)
+            diff_ = bb.watch(diff_)
             diff_(retcode=0)
 
 

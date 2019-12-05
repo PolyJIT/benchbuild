@@ -2,6 +2,8 @@ import logging
 
 from plumbum import local
 
+import benchbuild as bb
+
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils import uchroot
 
@@ -14,7 +16,7 @@ class AutoPortage(GentooGroup):
     def compile(self):
         emerge_in_chroot = uchroot.uchroot()["/usr/bin/emerge"]
         prog = self.DOMAIN + "/" + str(self.NAME)[len(self.DOMAIN) + 1:]
-        with local.env(CONFIG_PROTECT="-*"):
+        with bb.env(CONFIG_PROTECT="-*"):
             emerge_in_chroot(
                 "--autounmask-only=y",
                 "--autounmask-write=y",

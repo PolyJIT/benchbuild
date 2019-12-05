@@ -1,33 +1,39 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.downloads import HTTP
-from benchbuild.utils import compiler, run, wrapping
-from benchbuild.utils.cmd import cat, make, unzip
+from benchbuild.utils.cmd import cat, make, unzip, tar
 
 
-class Crocopat(project.Project):
+class Crocopat(bb.Project):
     """ crocopat benchmark """
 
-    VERSION = '2.1.4'
     NAME: str = 'crocopat'
     DOMAIN: str = 'verification'
     GROUP: str = 'benchbuild'
+    VERSION: str = '2.1.4'
     SOURCE = [
         HTTP(remote={
             '2.1.4': 'http://crocopat.googlecode.com/files/crocopat-2.1.4.zip'
         },
-             local='crocopat.zip')
+             local='crocopat.zip'),
+        HTTP(remote={
+            '2014-10': 'http://lairosiel.de/dist/2014-10-crocopat.tar.gz'
+        }, local='inputs.tar.gz')
     ]
 
     def run_tests(self):
-        crocopat = wrapping.wrap('crocopat', self)
+        crocopat = bb.wrap('crocopat', self)
+        test_source = self.source_of('inputs.tar.gz')
+        tar('xf', test_source)
 
-        programs = local.path(self.testdir) / "programs" // "*.rml"
-        projects = local.path(self.testdir) / "projects" // "*.rsf"
+        test_dir = local.path('./crocopat/')
+        programs = test_dir / "programs" // "*.rml"
+        projects = test_dir / "projects" // "*.rsf"
         for program in programs:
             for _project in projects:
-                crocopat_project = run.watch(
+                crocopat_project = bb.watch(
                     (cat[_project] | crocopat[program]))
                 crocopat_project(retcode=None)
 
@@ -39,8 +45,8 @@ class Crocopat(project.Project):
         crocopat_dir = local.path(unpack_dir) / "src"
         self.cflags += ["-I.", "-ansi"]
         self.ldflags += ["-L.", "-lrelbdd"]
-        clang_cxx = compiler.cxx(self)
+        clang_cxx = bb.compiler.cxx(self)
 
         with local.cwd(crocopat_dir):
-            make_ = run.watch(make)
+            make_ = bb.watch(make)
             make_("CXX=" + str(clang_cxx))

@@ -3,8 +3,9 @@ eix experiment within gentoo chroot
 """
 from plumbum import local
 
+import benchbuild as bb
+
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils import run, wrapping
 
 
 class Eix(GentooGroup):
@@ -16,6 +17,6 @@ class Eix(GentooGroup):
     def run_tests(self):
         """Runs runtime tests for eix"""
 
-        eix = wrapping.wrap(local.path('/usr/bin/eix'), self)
-        eix = run.watch(eix)
+        eix = bb.wrap(local.path('/usr/bin/eix'), self)
+        eix = bb.watch(eix)
         eix("clang")

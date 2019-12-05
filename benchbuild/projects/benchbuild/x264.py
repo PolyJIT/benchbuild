@@ -26,35 +26,35 @@ class X264(bb.Project):
             local='sintel.raw'),
     ]
 
-    inputfiles = {
-        "tbbt-small.y4m": [],
-        "Sintel.2010.720p.raw": ["--input-res", "1280x720"]
+    CONFIG = {
+        "tbbt-small": [],
+        "sintel": ["--input-res", "1280x720"]
     }
 
     def compile(self):
-        x264_repo = variants.to_source('x264.git', self.variant).local
-        clang = compiler.cc(self)
+        x264_repo = bb.path(self.source_of('x264.git'))
+        clang = bb.compiler.cc(self)
 
-        with local.cwd(x264_repo):
+        with bb.cwd(x264_repo):
             configure = local["./configure"]
-            configure = run.watch(configure)
+            configure = bb.watch(configure)
 
-            with local.env(CC=str(clang)):
+            with bb.env(CC=str(clang)):
                 configure("--disable-thread", "--disable-opencl",
                           "--enable-pic")
 
-            make_ = run.watch(make)
+            make_ = bb.watch(make)
             make_("clean", "all", "-j", CFG["jobs"])
 
     def run_tests(self):
-        x264_repo = variants.to_source('x264.git', self.variant).local
+        x264_repo = self.source_of('x264.git')
         inputfiles = [
-            variants.to_source('tbbt-small', self.variant).local,
-            variants.to_source('sintel', self.variant).local
+            self.source_of('tbbt-small'),
+            self.source_of('sintel')
         ]
 
-        x264 = wrapping.wrap(x264_repo / "x264", self)
-        x264 = run.watch(x264)
+        x264 = bb.wrap(x264_repo / "x264", self)
+        x264 = bb.watch(x264)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",
@@ -69,5 +69,5 @@ class X264(bb.Project):
 
         for testfile in inputfiles:
             for _, test in enumerate(tests):
-                x264(testfile, "--threads", "1", "-o", "/dev/null",
+                x264(testfile, self.CONFIG[testfile], "--threads", "1", "-o", "/dev/null",
                     test.split(" "))

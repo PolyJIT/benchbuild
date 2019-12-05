@@ -16,7 +16,8 @@ import logging
 import attr
 from plumbum import ProcessExecutionError, local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, container, path, run, uchroot
 from benchbuild.utils.cmd import cp, ln
@@ -25,7 +26,7 @@ LOG = logging.getLogger(__name__)
 
 
 @attr.s
-class GentooGroup(project.Project):
+class GentooGroup(bb.Project):
     """Gentoo ProjectGroup is the base class for every portage build."""
 
     GROUP = 'gentoo'

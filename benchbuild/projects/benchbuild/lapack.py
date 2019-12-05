@@ -2,18 +2,18 @@ import logging
 
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.downloads import Git, HTTP
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-class OpenBlas(project.Project):
-    VERSION = 'HEAD'
+class OpenBlas(bb.Project):
     NAME: str = 'openblas'
     DOMAIN: str = 'scientific'
     GROUP: str = 'benchbuild'
+    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/xianyi/OpenBLAS',
             local='OpenBLAS',
@@ -23,9 +23,9 @@ class OpenBlas(project.Project):
 
     def compile(self):
         openblas_repo = local.path(self.source[0].local)
-        clang = compiler.cc(self)
-        with local.cwd(openblas_repo):
-            make_ = run.watch(make)
+        clang = bb.compiler.cc(self)
+        with bb.cwd(openblas_repo):
+            make_ = bb.watch(make)
             make_("CC=" + str(clang))
 
     def run_tests(self):
@@ -33,25 +33,25 @@ class OpenBlas(project.Project):
         log.warning('Not implemented')
 
 
-class Lapack(project.Project):
-    NAME = 'lapack'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
-    VERSION = '3.2.1'
+class Lapack(bb.Project):
+    NAME: str = 'lapack'
+    DOMAIN: str = 'scientific'
+    GROUP: str = 'benchbuild'
+    VERSION: str = '3.2.1'
     SOURCE = [
         HTTP(remote={'3.2.1': 'http://www.netlib.org/clapack/clapack.tgz'},
              local='clapack.tgz')
     ]
 
     def compile(self):
-        clapack_source = local.path(self.source[0].local)
+        clapack_source = bb.path(self.source_of('clapack.tgz'))
 
         tar("xfz", clapack_source)
         unpack_dir = "CLAPACK-{0}".format(self.version)
 
-        clang = compiler.cc(self)
-        clang_cxx = compiler.cxx(self)
-        with local.cwd(unpack_dir):
+        clang = bb.compiler.cc(self)
+        clang_cxx = bb.compiler.cxx(self)
+        with bb.cwd(unpack_dir):
             with open("make.inc", 'w') as makefile:
                 content = [
                     "SHELL     = /bin/sh\n", "PLAT      = _LINUX\n",
@@ -72,43 +72,43 @@ class Lapack(project.Project):
                 ]
                 makefile.writelines(content)
 
-            make_ = run.watch(make)
+            make_ = bb.watch(make)
             make_("-j", CFG["jobs"], "f2clib", "blaslib")
-            with local.cwd(local.path("BLAS") / "TESTING"):
+            with bb.cwd(local.path("BLAS") / "TESTING"):
                 make_("-j", CFG["jobs"], "-f", "Makeblat2")
                 make_("-j", CFG["jobs"], "-f", "Makeblat3")
 
     def run_tests(self):
-        unpack_dir = local.path("CLAPACK-{0}".format(self.version))
+        unpack_dir = bb.path("CLAPACK-{0}".format(self.version))
         with local.cwd(unpack_dir / "BLAS"):
-            xblat2s = wrapping.wrap("xblat2s", self)
-            xblat2s = run.watch((xblat2s < "sblat2.in"))
+            xblat2s = bb.wrap("xblat2s", self)
+            xblat2s = bb.watch((xblat2s < "sblat2.in"))
             xblat2s()
 
-            xblat2d = wrapping.wrap("xblat2d", self)
-            xblat2d = run.watch((xblat2d < "dblat2.in"))
+            xblat2d = bb.wrap("xblat2d", self)
+            xblat2d = bb.watch((xblat2d < "dblat2.in"))
             xblat2d()
 
-            xblat2c = wrapping.wrap("xblat2c", self)
-            xblat2c = run.watch((xblat2c < "cblat2.in"))
+            xblat2c = bb.wrap("xblat2c", self)
+            xblat2c = bb.watch((xblat2c < "cblat2.in"))
             xblat2c()
 
-            xblat2z = wrapping.wrap("xblat2z", self)
-            xblat2z = run.watch((xblat2z < "zblat2.in"))
+            xblat2z = bb.wrap("xblat2z", self)
+            xblat2z = bb.watch((xblat2z < "zblat2.in"))
             xblat2z()
 
-            xblat3s = wrapping.wrap("xblat3s", self)
-            xblat3s = run.watch((xblat3s < "sblat3.in"))
+            xblat3s = bb.wrap("xblat3s", self)
+            xblat3s = bb.watch((xblat3s < "sblat3.in"))
             xblat3s()
 
-            xblat3d = wrapping.wrap("xblat3d", self)
-            xblat3d = run.watch((xblat3d < "dblat3.in"))
+            xblat3d = bb.wrap("xblat3d", self)
+            xblat3d = bb.watch((xblat3d < "dblat3.in"))
             xblat3d()
 
-            xblat3c = wrapping.wrap("xblat3c", self)
-            xblat3c = run.watch((xblat3c < "cblat3.in"))
+            xblat3c = bb.wrap("xblat3c", self)
+            xblat3c = bb.watch((xblat3c < "cblat3.in"))
             xblat3c()
 
-            xblat3z = wrapping.wrap("xblat3z", self)
-            xblat3z = run.watch((xblat3z < "zblat3.in"))
+            xblat3z = bb.wrap("xblat3z", self)
+            xblat3z = bb.watch((xblat3z < "zblat3.in"))
             xblat3z()

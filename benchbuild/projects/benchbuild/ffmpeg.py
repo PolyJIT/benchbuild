@@ -1,18 +1,18 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.downloads import HTTP
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-class LibAV(project.Project):
+class LibAV(bb.Project):
     """ LibAV benchmark """
-    VERSION = '3.1.3'
     NAME: str = 'ffmpeg'
     DOMAIN: str = 'multimedia'
     GROUP: str = 'benchbuild'
+    VERSION: str = '3.1.3'
     SOURCE = [
         HTTP(remote={
             '3.1.3': 'http://ffmpeg.org/releases/ffmpeg-3.1.3.tar.bz2'
@@ -25,22 +25,22 @@ class LibAV(project.Project):
 
     def run_tests(self):
         unpack_dir = "ffmpeg-{0}".format(self.version)
-        with local.cwd(unpack_dir):
-            wrapping.wrap(self.name, self)
-            make_ = run.watch(make)
+        with bb.cwd(unpack_dir):
+            bb.wrap(self.name, self)
+            make_ = bb.watch(make)
             make_("V=1", "-i", "fate")
 
     def compile(self):
         ffmpeg_source = local.path(self.source[0].local)
         tar('xfj', ffmpeg_source)
         unpack_dir = "ffmpeg-{0}".format(self.version)
-        clang = compiler.cc(self)
+        clang = bb.compiler.cc(self)
 
         with local.cwd(unpack_dir):
-            download.Rsync(self.fate_uri, self.fate_dir)
+            bb.download.Rsync(self.fate_uri, self.fate_dir)
             configure = local["./configure"]
-            configure = run.watch(configure)
-            make_ = run.watch(make)
+            configure = bb.watch(configure)
+            make_ = bb.watch(make)
 
             configure("--disable-shared", "--cc=" + str(clang),
                       "--extra-ldflags=" + " ".join(self.ldflags),

@@ -1,17 +1,16 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
 from benchbuild.downloads import Git
-from benchbuild.utils import compiler, run, wrapping
 
 
-class Lulesh(project.Project):
+class Lulesh(bb.Project):
     """ LULESH, Serial """
 
-    VERSION = 'HEAD'
     NAME: str = 'lulesh'
     DOMAIN: str = 'scientific'
     GROUP: str = 'benchbuild'
+    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/LLNL/LULESH/',
             local='lulesh.git',
@@ -20,34 +19,34 @@ class Lulesh(project.Project):
     ]
 
     def compile(self):
-        lulesh_repo = local.path(self.source[0].local)
+        lulesh_repo = bb.path(self.source_of('lulesh.git'))
         self.cflags += ["-DUSE_MPI=0"]
 
         cxx_files = local.cwd / lulesh_repo// "*.cc"
-        clang = compiler.cxx(self)
-        with local.cwd(lulesh_repo):
+        clang = bb.compiler.cxx(self)
+        with bb.cwd(lulesh_repo):
             for src_file in cxx_files:
                 clang("-c", "-o", src_file + '.o', src_file)
 
         obj_files = local.cwd / lulesh_repo // "*.cc.o"
-        with local.cwd(lulesh_repo):
+        with bb.cwd(lulesh_repo):
             clang(obj_files, "-lm", "-o", "../lulesh")
 
     def run_tests(self):
-        lulesh = wrapping.wrap("lulesh", self)
-        lulesh = run.watch(lulesh)
+        lulesh = bb.wrap("lulesh", self)
+        lulesh = bb.watch(lulesh)
 
         for i in range(1, 15):
             lulesh("-i", i)
 
 
-class LuleshOMP(project.Project):
+class LuleshOMP(bb.Project):
     """ LULESH, OpenMP """
 
-    NAME = 'lulesh-omp'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
-    VERSION = 'HEAD'
+    NAME: str = 'lulesh-omp'
+    DOMAIN: str = 'scientific'
+    GROUP: str = 'benchbuild'
+    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/LLNL/LULESH/',
             local='lulesh.git',
@@ -56,21 +55,21 @@ class LuleshOMP(project.Project):
     ]
 
     def compile(self):
-        lulesh_repo = local.path(self.source[0].local)
+        lulesh_repo = bb.path(self.source_of('lulesh.git'))
         self.cflags = ['-DUSE_MPI=0', '-fopenmp']
 
-        cxx_files = local.cwd / lulesh_repo // "*.cc"
-        clang = compiler.cxx(self)
-        with local.cwd(lulesh_repo):
+        cxx_files = bb.cwd / lulesh_repo // "*.cc"
+        clang = bb.compiler.cxx(self)
+        with bb.cwd(lulesh_repo):
             for src_file in cxx_files:
                 clang("-c", "-o", src_file + '.o', src_file)
 
-        obj_files = local.cwd / lulesh_repo // "*.cc.o"
-        with local.cwd(lulesh_repo):
+        obj_files = bb.cwd / lulesh_repo // "*.cc.o"
+        with bb.cwd(lulesh_repo):
             clang(obj_files, "-lm", "-o", "../lulesh")
 
     def run_tests(self):
-        lulesh = wrapping.wrap("lulesh", self)
-        lulesh = run.watch(lulesh)
+        lulesh = bb.wrap("lulesh", self)
+        lulesh = bb.watch(lulesh)
         for i in range(1, 15):
             lulesh("-i", i)

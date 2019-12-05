@@ -1,19 +1,19 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.downloads import Git
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, run
 from benchbuild.utils.cmd import autoreconf, make
 
 
-class Rasdaman(project.Project):
+class Rasdaman(bb.Project):
     """ Rasdaman """
 
-    VERSION = 'HEAD'
     NAME: str = 'Rasdaman'
     DOMAIN: str = 'database'
     GROUP: str = 'benchbuild'
+    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='git://rasdaman.org/rasdaman.git',
             local='rasdaman.git',
@@ -29,33 +29,33 @@ class Rasdaman(project.Project):
     gdal_uri = "https://github.com/OSGeo/gdal"
 
     def compile(self):
-        rasdaman_repo = local.path(self.source[0].local)
-        gdal_repo = local.path(self.source[1].local)
+        rasdaman_repo = bb.path(self.source_of('rasdaman.git'))
+        gdal_repo = bb.path(self.source_of('gdal.git'))
 
-        clang = compiler.cc(self)
-        clang_cxx = compiler.cxx(self)
+        clang = bb.compiler.cc(self)
+        clang_cxx = bb.compiler.cxx(self)
 
-        with local.cwd(gdal_repo):
+        with bb.cwd(gdal_repo):
             configure = local["./configure"]
-            configure = run.watch(configure)
+            configure = bb.watch(configure)
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure("--with-pic", "--enable-static", "--disable-debug",
                           "--with-gnu-ld", "--without-ld-shared",
                           "--without-libtool")
-                make_ = run.watch(make)
+                make_ = bb.watch(make)
                 make_("-j", CFG["jobs"])
 
-        with local.cwd(rasdaman_repo):
+        with bb.cwd(rasdaman_repo):
             autoreconf("-i")
             configure = local["./configure"]
-            configure = run.watch(configure)
+            configure = bb.watch(configure)
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure("--without-debug-symbols", "--enable-benchmark",
                           "--with-static-libs", "--disable-java", "--with-pic",
                           "--disable-debug", "--without-docs")
-            make_ = run.watch(make)
+            make_ = bb.watch(make)
             make_("clean", "all", "-j", CFG["jobs"])
 
     def run_tests(self):

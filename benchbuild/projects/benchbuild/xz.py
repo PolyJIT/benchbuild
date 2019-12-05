@@ -1,18 +1,18 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.downloads import HTTP
-from benchbuild.downloads.versions import product
-from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import cp, make, tar
 
 
-class XZ(project.Project):
+class XZ(bb.Project):
     """ XZ """
-    VERSION = '5.2.1'
+
     NAME: str = 'xz'
     DOMAIN: str = 'compression'
     GROUP: str = 'benchbuild'
+    VERSION: str = '5.2.1'
 
     SOURCE = [
         HTTP(remote={'5.2.1', 'http://tukaani.org/xz/xz-5.2.1.tar.gz'},
@@ -20,34 +20,33 @@ class XZ(project.Project):
         HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
              local='compression.tar.gz')
     ]
-    VARIANTS = product(*SOURCE)
 
     def compile(self):
-        xz_source = local.path(self.source[0].local)
-        compression_source = local.path(self.source[1].local)
+        xz_source = bb.path(self.source_of('xz.tar.gz'))
+        compression_source = bb.path(self.source_of('compression.tar.gz'))
 
         tar('xf', xz_source)
         tar('xf', compression_source)
 
-        unpack_dir = local.path('xz-{0}'.format(self.version))
-        clang = compiler.cc(self)
-        with local.cwd(unpack_dir):
+        unpack_dir = bb.path('xz-{0}'.format(self.version))
+        clang = bb.compiler.cc(self)
+        with bb.cwd(unpack_dir):
             configure = local["./configure"]
-            configure = run.watch(configure)
-            with local.env(CC=str(clang)):
+            configure = bb.watch(configure)
+            with bb.env(CC=str(clang)):
                 configure("--enable-threads=no", "--with-gnu-ld=yes",
                           "--disable-shared", "--disable-dependency-tracking",
                           "--disable-xzdec", "--disable-lzmadec",
                           "--disable-lzmainfo", "--disable-lzma-links",
                           "--disable-scripts", "--disable-doc")
 
-            make_ = run.watch(make)
+            make_ = bb.watch(make)
             make_("CC=" + str(clang), "clean", "all")
 
     def run_tests(self):
         unpack_dir = local.path('xz-{0}'.format(self.version))
-        _xz = wrapping.wrap(unpack_dir / "src" / "xz" / "xz", self)
-        _xz = run.watch(_xz)
+        _xz = bb.wrap(unpack_dir / "src" / "xz" / "xz", self)
+        _xz = bb.watch(_xz)
 
         # Compress
         _xz("--compress", "-f", "-k", "-e", "-9", "compression/text.html")

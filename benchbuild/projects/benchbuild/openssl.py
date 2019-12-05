@@ -1,18 +1,18 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.downloads import HTTP
-from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-class LibreSSL(project.Project):
+class LibreSSL(bb.Project):
     """ OpenSSL """
 
-    VERSION = '2.1.6'
     NAME: str = 'libressl'
     DOMAIN: str = 'encryption'
     GROUP: str = 'benchbuild'
+    VERSION: str = '2.1.6'
     BINARIES = [
         "aeadtest", "aes_wrap", "asn1test", "base64test", "bftest", "bntest",
         "bytestringtest", "casttest", "chachatest", "cipherstest",
@@ -33,35 +33,35 @@ class LibreSSL(project.Project):
     ]
 
     def compile(self):
-        libressl_source = local.path(self.source[0].local)
+        libressl_source = bb.path(self.source[0].local)
 
         self.cflags += ["-fPIC"]
 
-        clang = compiler.cc(self)
+        clang = bb.compiler.cc(self)
 
         tar("xfz", libressl_source)
-        unpack_dir = local.path("libressl-{0}".format(self.version))
+        unpack_dir = bb.path("libressl-{0}".format(self.version))
         configure = local[unpack_dir / "configure"]
-        configure = run.watch(configure)
-        make_ = run.watch(make)
+        configure = bb.watch(configure)
+        make_ = bb.watch(make)
 
-        with local.cwd(unpack_dir):
-            with local.env(CC=str(clang)):
+        with bb.cwd(unpack_dir):
+            with bb.env(CC=str(clang)):
                 configure("--disable-asm", "--disable-shared",
                           "--enable-static", "--disable-dependency-tracking",
                           "--with-pic=yes")
 
             make_("-j8")
             make_tests = make["-Ctests", "-j8"]
-            make_tests = run.watch(make_tests)
+            make_tests = bb.watch(make_tests)
             make_tests(LibreSSL.BINARIES)
 
     def run_tests(self):
-        unpack_dir = local.path("libressl-{0}".format(self.version))
-        with local.cwd(unpack_dir / "tests"):
+        unpack_dir = bb.path("libressl-{0}".format(self.version))
+        with bb.cwd(unpack_dir / "tests"):
             for binary in LibreSSL.BINARIES:
-                wrapping.wrap(local.cwd / binary, self)
+                bb.wrap(local.cwd / binary, self)
 
-        with local.cwd(unpack_dir):
-            make_ = run.watch(make)
+        with bb.cwd(unpack_dir):
+            make_ = bb.watch(make)
             make_("V=1", "check", "-i")

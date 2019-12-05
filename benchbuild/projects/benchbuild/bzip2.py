@@ -1,20 +1,16 @@
-from plumbum import local
+import benchbuild as bb
 
-from benchbuild import project
 from benchbuild.downloads import Git, HTTP
-from benchbuild.downloads.versions import product
 from benchbuild.utils.cmd import cp, make, tar
-from benchbuild.utils import compiler, run, wrapping
 
 
-
-class Bzip2(project.Project):
+class Bzip2(bb.Project):
     """ Bzip2 """
 
-    VERSION = 'HEAD'
     NAME: str = 'bzip2'
     DOMAIN: str = 'compression'
     GROUP: str = 'benchbuild'
+    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/PolyJIT/bzip2',
             local='bzip2.git',
@@ -23,22 +19,21 @@ class Bzip2(project.Project):
         HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
              local='compression.tar.gz')
     ]
-    VARIANTS = product(*SOURCE)
 
     def compile(self):
-        bzip2_repo = self.variant['bzip2.git'].owner.local
-        compression_source = local.path(self.source[1].local)
+        bzip2_repo = bb.path(self.source_of('bzip2.git'))
+        compression_source = bb.path(self.source[1].local)
         tar('xf', compression_source)
 
-        clang = compiler.cc(self)
-        with local.cwd(bzip2_repo):
-            make_ = run.watch(make)
+        clang = bb.compiler.cc(self)
+        with bb.cwd(bzip2_repo):
+            make_ = bb.watch(make)
             make_("CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2")
 
     def run_tests(self):
-        bzip2_repo = local.path(self.source[0].local)
-        bzip2 = wrapping.wrap(bzip2_repo / "bzip2", self)
-        bzip2 = run.watch(bzip2)
+        bzip2_repo = bb.path(self.source_of('bzip2.git'))
+        bzip2 = bb.wrap(bzip2_repo / "bzip2", self)
+        bzip2 = bb.watch(bzip2)
 
         # Compress
         bzip2("-f", "-z", "-k", "--best", "compression/text.html")

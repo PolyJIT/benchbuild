@@ -1,13 +1,12 @@
 from plumbum import local
 
-from benchbuild import project
-from benchbuild.utils import compiler, run, wrapping
-from benchbuild.utils.cmd import make, mkdir
+import benchbuild as bb
 
 from benchbuild.downloads import Git
+from benchbuild.utils.cmd import make, mkdir
 
 
-class BOTSGroup(project.Project):
+class BOTSGroup(bb.Project):
     """
     Barcelona OpenMP Task Suite.
 
@@ -67,9 +66,9 @@ class BOTSGroup(project.Project):
     }
 
     def compile(self):
-        bots_repo = local.path(self.source[0].local)
+        bots_repo = bb.path(self.source_of('bots.git'))
         makefile_config = bots_repo / "config" / "make.config"
-        clang = compiler.cc(self)
+        clang = bb.compiler.cc(self)
 
         with open(makefile_config, 'w') as config:
             lines = [
@@ -94,16 +93,16 @@ class BOTSGroup(project.Project):
             lines = [l.format(cc=clang) + "\n" for l in lines]
             config.writelines(lines)
         mkdir(bots_repo / "bin")
-        with local.cwd(bots_repo):
-            make_ = run.watch(make)
+        with bb.cwd(bots_repo):
+            make_ = bb.watch(make)
             make_("-C", self.path_dict[self.name])
 
     def run_tests(self):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
-        bots_repo = local.path(self.source[0].local)
+        bots_repo = bb.path(self.source_of('bots.git'))
         binary_path = bots_repo / "bin" / binary_name
-        exp = wrapping.wrap(binary_path, self)
-        exp = run.watch(exp)
+        exp = bb.wrap(binary_path, self)
+        exp = bb.watch(exp)
 
         if self.name in self.input_dict:
             for test_input in self.input_dict[self.name]:

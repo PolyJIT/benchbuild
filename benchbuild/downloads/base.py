@@ -2,13 +2,22 @@
 Provide a base interface for downloadable sources.
 """
 import abc
-from typing import List, Mapping, Union
+import itertools
+from typing import Iterable, Mapping, Union
 
 import attr
 
+from benchbuild import variants
 from benchbuild.settings import CFG
 
 class ISource(abc.ABC):
+
+    @abc.abstractproperty
+    def default(self) -> 'benchbuild.variants.Variant':
+        """
+        The default version for this source.
+        """
+
     @abc.abstractmethod
     def version(self, target_dir: str, version: str) -> str:
         """
@@ -25,7 +34,7 @@ class ISource(abc.ABC):
         """
 
     @abc.abstractmethod
-    def versions(self) -> List['Variant']:
+    def versions(self) -> Iterable['Variant']:
         """
         List all available versions of this source.
 
@@ -39,8 +48,14 @@ class BaseSource(ISource):
     Base class for downloadable sources.
     """
 
-    local: str = attr.ib(kw_only=True)
-    remote: Union[str, Mapping[str, str]] = attr.ib(kw_only=True)
+    local: str = attr.ib()
+    remote: Union[str, Mapping[str, str]] = attr.ib()
+
+    @abc.abstractproperty
+    def default(self) -> 'benchbuild.variants.Variant':
+        """
+        The default version for this source.
+        """
 
     @abc.abstractmethod
     def version(self, target_dir: str, version: str) -> str:
@@ -58,13 +73,15 @@ class BaseSource(ISource):
         """
 
     @abc.abstractmethod
-    def versions(self) -> List['Variant']:
+    def versions(self) -> Iterable['Variant']:
         """
         List all available versions of this source.
 
         Returns:
             List[str]: The list of all available versions.
         """
+
+Sources = Iterable['BaseSource']
 
 def target_prefix() -> str:
     """
@@ -74,3 +91,12 @@ def target_prefix() -> str:
         str: the prefix where we download everything to.
     """
     return str(CFG['tmp_dir'])
+
+def default(sources: Sources) -> variants.VariantContext:
+    first = [src.default for src in sources]
+    print(first)
+    return variants.context(first)
+
+def product(sources: Sources):
+    siblings = [source.versions() for source in sources]
+    return itertools.product(*siblings)

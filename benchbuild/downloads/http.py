@@ -16,6 +16,10 @@ class HTTP(base.BaseSource):
     """
     Fetch the downloadable source via http.
     """
+    @property
+    def default(self) -> variants.Variant:
+        return self.versions()[0]
+
     def version(self, target_dir: str, version: str) -> str:
         prefix = base.target_prefix()
         remotes = normalize_remotes(self.remote)

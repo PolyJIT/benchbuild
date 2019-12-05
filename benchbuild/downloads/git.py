@@ -1,7 +1,7 @@
 """
 Declare a git source.
 """
-from typing import Any, List
+from typing import Any, Iterable
 
 import attr
 from plumbum import local
@@ -24,6 +24,13 @@ class Git(base.BaseSource):
     refspec: str = attr.ib(default='HEAD')
     shallow: bool = attr.ib(default=True)
 
+    @property
+    def default(self) -> variants.Variant:
+        """
+        Return current HEAD as default version for this Git project.
+        """
+        return self.versions()[0]
+
     def fetch(self) -> str:
         """
         Clone the repository, if needed.
@@ -44,7 +51,7 @@ class Git(base.BaseSource):
             clone(self.remote, cache_path)
         return cache_path
 
-    def version(self, target_dir: str, version: str = 'HEAD') -> List[str]:
+    def version(self, target_dir: str, version: str = 'HEAD') -> str:
         """
         Create a new git worktree pointing to the requested version.
 
@@ -70,17 +77,17 @@ class Git(base.BaseSource):
                 worktree('add', '--detach', tgt_loc, version)
         return tgt_loc
 
-    def versions(self) -> List[variants.Variant]:
+    def versions(self) -> Iterable[variants.Variant]:
         cache_path = self.fetch()
         git_rev_list = git['rev-list', '--abbrev-commit', '--abbrev=10']
 
-        rev_list = []
+        rev_list: Iterable[str] = []
         with local.cwd(cache_path):
             rev_list = list(git_rev_list(self.refspec).strip().split('\n'))
 
         rev_list = rev_list[:self.limit] if self.limit else rev_list
-        for rev in rev_list:
-            yield variants.Variant(version=rev, owner=self)
+        revs = [variants.Variant(version=rev, owner=self) for rev in rev_list]
+        return revs
 
 
 def maybe_shallow(cmd: Any, enable: bool) -> Any:

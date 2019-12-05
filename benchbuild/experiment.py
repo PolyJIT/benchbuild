@@ -31,7 +31,8 @@ from abc import abstractmethod
 
 import attr
 
-from benchbuild import variants
+import benchbuild.downloads as bb_dl
+import benchbuild.variants as variants
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
                                       Containerize, Echo, MakeBuildDir,
@@ -143,7 +144,7 @@ class Experiment(metaclass=ExperimentRegistry):
         for prj_cls in self.projects:
             prj_actions = []
 
-            project_variants = variants.product(prj_cls.SOURCE)
+            project_variants = bb_dl.product(prj_cls.SOURCE)
             for variant in project_variants:
                 var_context = variants.context(variant)
                 version_str = variants.to_str(variant)

@@ -160,6 +160,7 @@ class Project(metaclass=ProjectDecorator):
     DOMAIN: str = ""
     GROUP: str = ""
     NAME: str = ""
+    SOURCE: List[bb_dl.BaseSource] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -178,7 +179,8 @@ class Project(metaclass=ProjectDecorator):
 
     experiment = attr.ib()
 
-    variant: Dict[str, 'Variant'] = attr.ib(kw_only=True)
+    variant: variants.VariantContext = attr.ib()
+
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
@@ -328,6 +330,23 @@ class Project(metaclass=ProjectDecorator):
         if cls.VERSION:
             return [cls.VERSION]
         return ["unknown"]
+
+    def source_of(self, name: str) -> Optional[str]:
+        """
+        Retrieve source for given index name.
+
+        Args:
+            project (Project): The project to access.
+            name (str): Local name of the source .
+
+        Returns:
+            (Optional[BaseSource]): A source representing this variant.
+        """
+        variant = self.variant
+        LOG.debug(variant)
+        if name in variant:
+            return variant[name].owner.local
+        return None
 
 
 def __split_project_input__(project_input: str) -> Tuple[str, Optional[str]]:

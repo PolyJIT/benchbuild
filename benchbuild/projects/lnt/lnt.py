@@ -15,9 +15,9 @@ LOG = logging.getLogger(__name__)
 class LNTGroup(project.Project):
     """LNT ProjectGroup for running the lnt test suite."""
 
-    DOMAIN = 'lnt'
-    GROUP = 'lnt'
     VERSION = 'HEAD'
+    DOMAIN: str = 'lnt'
+    GROUP: str = 'lnt'
     NAME_FILTERS = [
         r'(?P<name>.+)\.simple',
         r'(?P<name>.+)-(dbl|flt)',
@@ -121,9 +121,6 @@ class SPEC2006(LNTGroup):
 
 
 class Povray(LNTGroup):
-    NAME = 'Povray'
-    DOMAIN = 'LNT (Ext)'
-    SUBDIR = "External/Povray"
 
     povray_url = "https://github.com/POV-Ray/povray"
     povray_src_dir = "Povray"
@@ -131,3 +128,6 @@ class Povray(LNTGroup):
     def compile(self):
         download.Git(self.povray_url, self.povray_src_dir)
         super(Povray, self).compile()
+    NAME: str = 'Povray'
+    DOMAIN: str = 'LNT (Ext)'
+    SUBDIR: str = "External/Povray"

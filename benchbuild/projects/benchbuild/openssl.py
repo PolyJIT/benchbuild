@@ -9,10 +9,10 @@ from benchbuild.utils.cmd import make, tar
 class LibreSSL(project.Project):
     """ OpenSSL """
 
-    NAME = 'libressl'
-    DOMAIN = 'encryption'
-    GROUP = 'benchbuild'
     VERSION = '2.1.6'
+    NAME: str = 'libressl'
+    DOMAIN: str = 'encryption'
+    GROUP: str = 'benchbuild'
     BINARIES = [
         "aeadtest", "aes_wrap", "asn1test", "base64test", "bftest", "bntest",
         "bytestringtest", "casttest", "chachatest", "cipherstest",

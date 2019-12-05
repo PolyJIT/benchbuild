@@ -11,10 +11,10 @@ from benchbuild.utils.cmd import cp, make, tar
 class Gzip(project.Project):
     """ Gzip """
 
-    NAME = 'gzip'
-    DOMAIN = 'compression'
-    GROUP = 'benchbuild'
     VERSION = '1.6'
+    NAME: str = 'gzip'
+    DOMAIN: str = 'compression'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         HTTP(remote={'1.6': 'http://ftpmirror.gnu.org/gzip/gzip-1.6.tar.xz'},
              local='gzip.tar.xz'),

@@ -10,10 +10,10 @@ from benchbuild.utils.cmd import make, tar
 class MCrypt(project.Project):
     """ MCrypt benchmark """
 
-    NAME = 'mcrypt'
-    DOMAIN = 'encryption'
-    GROUP = 'benchbuild'
     VERSION = '2.6.8'
+    NAME: str = 'mcrypt'
+    DOMAIN: str = 'encryption'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         HTTP(remote={
             '2.6.8':

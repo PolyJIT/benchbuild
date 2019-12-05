@@ -9,10 +9,10 @@ from benchbuild.utils.cmd import make, tar
 
 class LibAV(project.Project):
     """ LibAV benchmark """
-    NAME = 'ffmpeg'
-    DOMAIN = 'multimedia'
-    GROUP = 'benchbuild'
     VERSION = '3.1.3'
+    NAME: str = 'ffmpeg'
+    DOMAIN: str = 'multimedia'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         HTTP(remote={
             '3.1.3': 'http://ffmpeg.org/releases/ffmpeg-3.1.3.tar.bz2'

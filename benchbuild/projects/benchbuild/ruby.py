@@ -8,10 +8,10 @@ from benchbuild.utils.cmd import make, ruby, tar
 
 
 class Ruby(project.Project):
-    NAME = 'ruby'
-    DOMAIN = 'compilation'
-    GROUP = 'benchbuild'
     VERSION = '2.2.2'
+    NAME: str = 'ruby'
+    DOMAIN: str = 'compilation'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         HTTP(remote={
             '2.2.2':

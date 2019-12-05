@@ -9,10 +9,10 @@ from benchbuild.utils.cmd import git, make
 class Minisat(project.Project):
     """ minisat benchmark """
 
-    NAME = 'minisat'
-    DOMAIN = 'verification'
-    GROUP = 'benchbuild'
     VERSION = 'HEAD'
+    NAME: str = 'minisat'
+    DOMAIN: str = 'verification'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         Git(remote='https://github.com/niklasso/minisat',
             local='minisat.git',

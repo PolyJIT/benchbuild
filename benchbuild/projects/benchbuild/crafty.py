@@ -10,10 +10,10 @@ from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
 class Crafty(project.Project):
     """ crafty benchmark """
 
-    NAME = 'crafty'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
     VERSION = '25.2'
+    NAME: str = 'crafty'
+    DOMAIN: str = 'scientific'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         HTTP(remote={
             '25.2':

@@ -9,11 +9,11 @@ from benchbuild.utils.cmd import make, mkdir, tar
 
 
 class TCC(project.Project):
-    NAME = 'tcc'
-    DOMAIN = 'compilation'
-    GROUP = 'benchbuild'
     VERSION = '0.9.26'
     SOURCE = [
+    NAME: str = 'tcc'
+    DOMAIN: str = 'compilation'
+    GROUP: str = 'benchbuild'
         HTTP(remote={
             '0.9.26':
             'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'

@@ -9,10 +9,10 @@ from benchbuild.utils.cmd import make, tar
 class Python(project.Project):
     """ python benchmarks """
 
-    NAME = 'python'
-    DOMAIN = 'compilation'
-    GROUP = 'benchbuild'
     VERSION = '3.4.3'
+    NAME: str = 'python'
+    DOMAIN: str = 'compilation'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         HTTP(remote={
             '3.4.3':

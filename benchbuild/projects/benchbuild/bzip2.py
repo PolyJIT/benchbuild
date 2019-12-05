@@ -11,10 +11,10 @@ from benchbuild.utils import compiler, run, wrapping
 class Bzip2(project.Project):
     """ Bzip2 """
 
-    NAME = 'bzip2'
-    DOMAIN = 'compression'
-    GROUP = 'benchbuild'
     VERSION = 'HEAD'
+    NAME: str = 'bzip2'
+    DOMAIN: str = 'compression'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         Git(remote='https://github.com/PolyJIT/bzip2',
             local='bzip2.git',

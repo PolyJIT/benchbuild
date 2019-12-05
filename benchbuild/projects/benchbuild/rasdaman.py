@@ -10,10 +10,10 @@ from benchbuild.utils.cmd import autoreconf, make
 class Rasdaman(project.Project):
     """ Rasdaman """
 
-    NAME = 'Rasdaman'
-    DOMAIN = 'database'
-    GROUP = 'benchbuild'
     VERSION = 'HEAD'
+    NAME: str = 'Rasdaman'
+    DOMAIN: str = 'database'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         Git(remote='git://rasdaman.org/rasdaman.git',
             local='rasdaman.git',

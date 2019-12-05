@@ -1,19 +1,19 @@
 from plumbum import local
 
-from benchbuild import project, variants
+import benchbuild as bb
+from benchbuild import CFG
+
 from benchbuild.downloads import Git, HTTP
-from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cp, make
 
 
-class X264(project.Project):
+class X264(bb.Project):
     """ x264 """
 
-    NAME = "x264"
-    DOMAIN = "multimedia"
-    GROUP = 'benchbuild'
-    VERSION = 'HEAD'
+    NAME: str = "x264"
+    DOMAIN: str = "multimedia"
+    GROUP: str = 'benchbuild'
+    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='git://git.videolan.org/x264.git',
             local='x264.git',

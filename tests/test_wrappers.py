@@ -13,10 +13,10 @@ import benchbuild.utils.wrapping as wrappers
 
 
 class EmptyProject(project.Project):
-    NAME = "test_empty"
-    DOMAIN = "debug"
-    GROUP = "debug"
     SRC_FILE = "none"
+    NAME: str = "test_empty"
+    DOMAIN: str = "debug"
+    GROUP: str = "debug"
 
     def __attrs_post_init__(self):
         pass

@@ -10,10 +10,10 @@ from benchbuild.utils.cmd import make, unzip
 class SQLite3(project.Project):
     """ SQLite3 """
 
-    NAME = 'sqlite3'
-    DOMAIN = 'database'
-    GROUP = 'benchbuild'
     VERSION = '3080900'
+    NAME: str = 'sqlite3'
+    DOMAIN: str = 'database'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         HTTP(remote={
             '3080900':

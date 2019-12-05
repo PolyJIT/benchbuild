@@ -43,9 +43,9 @@ def get_dump_arrays_output(data):
 
 
 class PolyBenchGroup(project.Project):
-    DOMAIN = 'polybench'
-    GROUP = 'polybench'
     VERSION = '4.2'
+    DOMAIN: str = 'polybench'
+    GROUP: str = 'polybench'
     path_dict = {
         "correlation": "datamining",
         "covariance": "datamining",
@@ -174,120 +174,120 @@ class PolyBenchGroup(project.Project):
 
 
 class Correlation(PolyBenchGroup):
-    NAME = 'correlation'
+    NAME: str = 'correlation'
 
 
 class Covariance(PolyBenchGroup):
-    NAME = 'covariance'
+    NAME: str = 'covariance'
 
 
 class TwoMM(PolyBenchGroup):
-    NAME = '2mm'
+    NAME: str = '2mm'
 
 
 class ThreeMM(PolyBenchGroup):
-    NAME = '3mm'
+    NAME: str = '3mm'
 
 
 class Atax(PolyBenchGroup):
-    NAME = 'atax'
+    NAME: str = 'atax'
 
 
 class BicG(PolyBenchGroup):
-    NAME = 'bicg'
+    NAME: str = 'bicg'
 
 
 class Doitgen(PolyBenchGroup):
-    NAME = 'doitgen'
+    NAME: str = 'doitgen'
 
 
 class Mvt(PolyBenchGroup):
-    NAME = 'mvt'
+    NAME: str = 'mvt'
 
 
 class Gemm(PolyBenchGroup):
-    NAME = 'gemm'
+    NAME: str = 'gemm'
 
 
 class Gemver(PolyBenchGroup):
-    NAME = 'gemver'
+    NAME: str = 'gemver'
 
 
 class Gesummv(PolyBenchGroup):
-    NAME = 'gesummv'
+    NAME: str = 'gesummv'
 
 
 class Symm(PolyBenchGroup):
-    NAME = 'symm'
+    NAME: str = 'symm'
 
 
 class Syr2k(PolyBenchGroup):
-    NAME = 'syr2k'
+    NAME: str = 'syr2k'
 
 
 class Syrk(PolyBenchGroup):
-    NAME = 'syrk'
+    NAME: str = 'syrk'
 
 
 class Trmm(PolyBenchGroup):
-    NAME = 'trmm'
+    NAME: str = 'trmm'
 
 
 class Cholesky(PolyBenchGroup):
-    NAME = 'cholesky'
+    NAME: str = 'cholesky'
 
 
 class Durbin(PolyBenchGroup):
-    NAME = 'durbin'
+    NAME: str = 'durbin'
 
 
 class Gramschmidt(PolyBenchGroup):
-    NAME = 'gramschmidt'
+    NAME: str = 'gramschmidt'
 
 
 class Lu(PolyBenchGroup):
-    NAME = 'lu'
+    NAME: str = 'lu'
 
 
 class LuDCMP(PolyBenchGroup):
-    NAME = 'ludcmp'
+    NAME: str = 'ludcmp'
 
 
 class Trisolv(PolyBenchGroup):
-    NAME = 'trisolv'
+    NAME: str = 'trisolv'
 
 
 class Deriche(PolyBenchGroup):
-    NAME = 'deriche'
+    NAME: str = 'deriche'
 
 
 class FloydWarshall(PolyBenchGroup):
-    NAME = 'floyd-warshall'
+    NAME: str = 'floyd-warshall'
 
 
 class Nussinov(PolyBenchGroup):
-    NAME = 'nussinov'
+    NAME: str = 'nussinov'
 
 
 class Adi(PolyBenchGroup):
-    NAME = 'adi'
+    NAME: str = 'adi'
 
 
 class FDTD2D(PolyBenchGroup):
-    NAME = 'fdtd-2d'
+    NAME: str = 'fdtd-2d'
 
 
 class Jacobi1D(PolyBenchGroup):
-    NAME = 'jacobi-1d'
+    NAME: str = 'jacobi-1d'
 
 
 class Jacobi2Dimper(PolyBenchGroup):
-    NAME = 'jacobi-2d'
+    NAME: str = 'jacobi-2d'
 
 
 class Seidel2D(PolyBenchGroup):
-    NAME = 'seidel-2d'
+    NAME: str = 'seidel-2d'
 
 
 class Heat3D(PolyBenchGroup):
-    NAME = 'heat-3d'
+    NAME: str = 'heat-3d'

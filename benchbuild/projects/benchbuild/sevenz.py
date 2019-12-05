@@ -9,11 +9,11 @@ from benchbuild.utils import compiler, run, wrapping
 class SevenZip(project.Project):
     """ 7Zip """
 
-    NAME = '7z'
-    DOMAIN = 'compression'
-    GROUP = 'benchbuild'
     VERSION = '16.02'
     SOURCE = [
+    NAME: str = '7z'
+    DOMAIN: str = 'compression'
+    GROUP: str = 'benchbuild'
         HTTP(remote={
             '16.02':
             'http://downloads.sourceforge.net/'

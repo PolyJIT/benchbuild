@@ -156,44 +156,42 @@ class Project(metaclass=ProjectDecorator):
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
+    CONTAINER = None
+    DOMAIN: str = ""
+    GROUP: str = ""
+    NAME: str = ""
+
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
         new_self = super(Project, cls).__new__(cls)
-        if cls.NAME is None:
+        mod_ident = f'{cls.__name__} @ {cls.__module__}'
+        if not cls.NAME:
             raise AttributeError(
-                "{0} @ {1} does not define a NAME class attribute.".format(
-                    cls.__name__, cls.__module__))
-        if cls.DOMAIN is None:
+                f'{mod_ident} does not define a NAME class attribute.')
+        if not cls.DOMAIN:
             raise AttributeError(
-                "{0} @ {1} does not define a DOMAIN class attribute.".format(
-                    cls.__name__, cls.__module__))
-        if cls.GROUP is None:
+                f'{mod_ident} does not define a DOMAIN class attribute.')
+        if not cls.GROUP:
             raise AttributeError(
-                "{0} @ {1} does not define a GROUP class attribute.".format(
-                    cls.__name__, cls.__module__))
+                f'{mod_ident} does not define a GROUP class attribute.')
         return new_self
 
     experiment = attr.ib()
 
     variant: Dict[str, 'Variant'] = attr.ib(kw_only=True)
 
-    NAME = None
-    name = attr.ib(
+    name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
-    DOMAIN = None
-    domain = attr.ib(
+    domain: str = attr.ib(
         default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True))
 
-    GROUP = None
     group = attr.ib(
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
 
-    CONTAINER = None
     container = attr.ib(default=attr.Factory(lambda self: type(self).CONTAINER,
                                              takes_self=True))
 
-    VERSION = None
     version = attr.ib(
         default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
 

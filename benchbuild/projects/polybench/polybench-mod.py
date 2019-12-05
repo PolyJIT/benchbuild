@@ -52,31 +52,31 @@ class PolybenchModGroup(PolyBenchGroup):
 
 
 class Correlation(PolybenchModGroup):
-    NAME = 'correlation'
+    NAME: str = 'correlation'
 
 
 class Covariance(PolybenchModGroup):
-    NAME = 'covariance'
+    NAME: str = 'covariance'
 
 
 class TwoMM(PolybenchModGroup):
-    NAME = '2mm'
+    NAME: str = '2mm'
 
 
 class ThreeMM(PolybenchModGroup):
-    NAME = '3mm'
+    NAME: str = '3mm'
 
 
 class Atax(PolybenchModGroup):
-    NAME = 'atax'
+    NAME: str = 'atax'
 
 
 class BicG(PolybenchModGroup):
-    NAME = 'bicg'
+    NAME: str = 'bicg'
 
 
 class Doitgen(PolybenchModGroup):
-    NAME = 'doitgen'
+    NAME: str = 'doitgen'
 
 
 class Mvt(PolybenchModGroup):

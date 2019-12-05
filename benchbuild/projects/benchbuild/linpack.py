@@ -11,10 +11,10 @@ LOG = logging.getLogger(__name__)
 class Linpack(project.Project):
     """ Linpack (C-Version) """
 
-    NAME = 'linpack'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
     VERSION = '5_88'
+    NAME: str = 'linpack'
+    DOMAIN: str = 'scientific'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         HTTP(remote={'5_88': 'http://www.netlib.org/benchmark/linpackc.new'},
              local='linpack.c')

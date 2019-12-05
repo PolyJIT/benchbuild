@@ -9,10 +9,10 @@ from benchbuild.utils.cmd import cat, make, unzip
 class Crocopat(project.Project):
     """ crocopat benchmark """
 
-    NAME = 'crocopat'
-    DOMAIN = 'verification'
-    GROUP = 'benchbuild'
     VERSION = '2.1.4'
+    NAME: str = 'crocopat'
+    DOMAIN: str = 'verification'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         HTTP(remote={
             '2.1.4': 'http://crocopat.googlecode.com/files/crocopat-2.1.4.zip'

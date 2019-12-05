@@ -9,10 +9,10 @@ from benchbuild.utils.cmd import make, tar
 class Ccrypt(project.Project):
     """ ccrypt benchmark """
 
-    NAME = 'ccrypt'
-    DOMAIN = 'encryption'
-    GROUP = 'benchbuild'
     VERSION = '1.10'
+    NAME: str = 'ccrypt'
+    DOMAIN: str = 'encryption'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         HTTP(remote={
             '1.10':

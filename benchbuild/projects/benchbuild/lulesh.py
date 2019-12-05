@@ -8,10 +8,10 @@ from benchbuild.utils import compiler, run, wrapping
 class Lulesh(project.Project):
     """ LULESH, Serial """
 
-    NAME = 'lulesh'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
     VERSION = 'HEAD'
+    NAME: str = 'lulesh'
+    DOMAIN: str = 'scientific'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         Git(remote='https://github.com/LLNL/LULESH/',
             local='lulesh.git',

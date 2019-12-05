@@ -10,10 +10,10 @@ from benchbuild.utils.cmd import make, tar
 
 
 class OpenBlas(project.Project):
-    NAME = 'openblas'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
     VERSION = 'HEAD'
+    NAME: str = 'openblas'
+    DOMAIN: str = 'scientific'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         Git(remote='https://github.com/xianyi/OpenBLAS',
             local='OpenBLAS',

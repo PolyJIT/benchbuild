@@ -12,8 +12,8 @@ class Crafty(GentooGroup):
     """
         games-board/crafty
     """
-    NAME = "crafty"
-    DOMAIN = "games-board"
+    NAME: str = "crafty"
+    DOMAIN: str = "games-board"
 
     def compile(self):
         super(Crafty, self).compile()

@@ -26,9 +26,9 @@ class BOTSGroup(project.Project):
     Strassen: Computes a matrix multiply with Strassen's method.
     """
 
-    DOMAIN = 'bots'
-    GROUP = 'bots'
-    VERSION = 'HEAD'
+    DOMAIN: str = 'bots'
+    GROUP: str = 'bots'
+    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/bsc-pm/bots',
             local='bots.git',
@@ -114,44 +114,44 @@ class BOTSGroup(project.Project):
 
 
 class Alignment(BOTSGroup):
-    NAME = 'alignment'
+    NAME: str = 'alignment'
 
 
 class FFT(BOTSGroup):
-    NAME = 'fft'
+    NAME: str = 'fft'
 
 
 class Fib(BOTSGroup):
-    NAME = 'fib'
+    NAME: str = 'fib'
 
 
 class FloorPlan(BOTSGroup):
-    NAME = 'floorplan'
+    NAME: str = 'floorplan'
 
 
 class Health(BOTSGroup):
-    NAME = 'health'
+    NAME: str = 'health'
 
 
 class Knapsack(BOTSGroup):
-    NAME = 'knapsack'
+    NAME: str = 'knapsack'
 
 
 class NQueens(BOTSGroup):
-    NAME = 'nqueens'
+    NAME: str = 'nqueens'
 
 
 class Sort(BOTSGroup):
-    NAME = 'sort'
+    NAME: str = 'sort'
 
 
 class SparseLU(BOTSGroup):
-    NAME = 'sparselu'
+    NAME: str = 'sparselu'
 
 
 class Strassen(BOTSGroup):
-    NAME = 'strassen'
+    NAME: str = 'strassen'
 
 
 class UTS(BOTSGroup):
-    NAME = 'uts'
+    NAME: str = 'uts'

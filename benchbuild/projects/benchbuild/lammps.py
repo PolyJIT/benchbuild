@@ -9,10 +9,10 @@ from benchbuild.utils.cmd import make
 class Lammps(project.Project):
     """ LAMMPS benchmark """
 
-    NAME = 'lammps'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
     VERSION = 'HEAD'
+    NAME: str = 'lammps'
+    DOMAIN: str = 'scientific'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         Git(remote='https://github.com/lammps/lammps',
             local='lammps.git',

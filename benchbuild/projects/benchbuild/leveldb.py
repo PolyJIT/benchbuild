@@ -9,10 +9,10 @@ from benchbuild.utils.cmd import make
 
 
 class LevelDB(project.Project):
-    NAME = 'leveldb'
-    DOMAIN = 'database'
-    GROUP = 'benchbuild'
     VERSION = 'HEAD'
+    NAME: str = 'leveldb'
+    DOMAIN: str = 'database'
+    GROUP: str = 'benchbuild'
     SOURCE = [
         Git(remote='https://github.com/google/leveldb',
             local='leveldb.src',

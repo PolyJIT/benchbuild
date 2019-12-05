@@ -9,10 +9,10 @@ from benchbuild.utils.cmd import cp, make, tar
 
 class XZ(project.Project):
     """ XZ """
-    NAME = 'xz'
-    DOMAIN = 'compression'
-    GROUP = 'benchbuild'
     VERSION = '5.2.1'
+    NAME: str = 'xz'
+    DOMAIN: str = 'compression'
+    GROUP: str = 'benchbuild'
 
     SOURCE = [
         HTTP(remote={'5.2.1', 'http://tukaani.org/xz/xz-5.2.1.tar.gz'},

@@ -121,12 +121,11 @@ def log_before_after(name: str, desc: str):
         @ft.wraps(f)
         def wrapper(*args, **kwargs):
             """Wrapper stub."""
-            LOG.info("%s - %s", name, desc)
+            LOG.info(f':: {name} -> {desc}\n')
             res = f(*args, **kwargs)
-            if StepResult.ERROR not in res:
-                LOG.info("%s - OK\n", name)
-            else:
-                LOG.error("%s - ERROR\n", name)
+
+            if StepResult.ERROR in res:
+                LOG.error(f':: {name} ERROR\n')
             return res
 
         return wrapper
@@ -192,8 +191,7 @@ class Step(metaclass=StepClass):
 
     def __str__(self, indent=0):
         return textwrap.indent(
-            "* {name}: Execute configured action.".format(name=self.obj.name),
-            indent * " ")
+            f'* {self.obj.name}: Execute configured action.', indent * " ")
 
     def onerror(self):
         Clean(self.obj)()

@@ -17,7 +17,7 @@ a separate build directory in isolation of one another.
 """
 import copy
 import logging
-from typing import Dict, Tuple, Optional, Mapping, Type
+from typing import Dict, List, Tuple, Optional, Mapping, Type
 import uuid
 from abc import abstractmethod
 from functools import partial
@@ -27,6 +27,8 @@ import attr
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
+import benchbuild as bb
+import benchbuild.downloads as bb_dl
 
 from benchbuild import signals, variants
 from benchbuild.extensions import compiler
@@ -169,6 +171,9 @@ class Project(metaclass=ProjectDecorator):
 
     variant: variants.VariantContext = attr.ib()
 
+    @variant.default
+    def __default_variant(self) -> variants.VariantContext:
+        return bb_dl.default(type(self).SOURCE)
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
@@ -231,6 +236,7 @@ class Project(metaclass=ProjectDecorator):
             experiment: The experiment we run this project under
             run: A function that takes the run command.
         """
+
     def run(self):
         """Run the tests of this project.
 

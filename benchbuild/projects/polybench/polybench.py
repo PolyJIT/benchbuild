@@ -1,7 +1,5 @@
 import logging
 
-from plumbum import local
-
 import benchbuild as bb
 
 from benchbuild.downloads import HTTP

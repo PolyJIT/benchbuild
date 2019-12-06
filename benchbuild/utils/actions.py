@@ -121,11 +121,11 @@ def log_before_after(name: str, desc: str):
         @ft.wraps(f)
         def wrapper(*args, **kwargs):
             """Wrapper stub."""
-            LOG.info(f':: {name} -> {desc}\n')
+            LOG.info(f'{name} -> {desc}\n')
             res = f(*args, **kwargs)
 
             if StepResult.ERROR in res:
-                LOG.error(f':: {name} ERROR\n')
+                LOG.error(f'{name} ERROR\n')
             return res
 
         return wrapper

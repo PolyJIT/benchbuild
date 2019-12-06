@@ -24,16 +24,19 @@ class LibAV(bb.Project):
     fate_uri = "rsync://fate-suite.libav.org/fate-suite/"
 
     def run_tests(self):
-        unpack_dir = "ffmpeg-{0}".format(self.version)
+        ffmpeg_version = self.version_of('ffmpeg.tar.bz2')
+        unpack_dir = bb.path(f'ffmpeg-{ffmpeg_version}')
+
         with bb.cwd(unpack_dir):
             bb.wrap(self.name, self)
             make_ = bb.watch(make)
             make_("V=1", "-i", "fate")
 
     def compile(self):
-        ffmpeg_source = local.path(self.source[0].local)
+        ffmpeg_source = bb.path(self.source_of('ffmpeg.tar.bz2'))
+        ffmpeg_version = self.version_of('ffmpeg.tar.bz2')
         tar('xfj', ffmpeg_source)
-        unpack_dir = "ffmpeg-{0}".format(self.version)
+        unpack_dir = bb.path(f'ffmpeg-{ffmpeg_version}')
         clang = bb.compiler.cc(self)
 
         with local.cwd(unpack_dir):

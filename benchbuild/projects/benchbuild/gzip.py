@@ -22,7 +22,9 @@ class Gzip(bb.Project):
     ]
 
     def run_tests(self):
-        unpack_dir = bb.path("gzip-{0}.tar.xz".format(self.version))
+        gzip_version = self.version_of('gzip.tar.xz')
+        unpack_dir = bb.path(f'gzip-{gzip_version}.tar.xz')
+
         gzip = bb.wrap(unpack_dir / "gzip", self)
         gzip = bb.watch(gzip)
 
@@ -47,7 +49,8 @@ class Gzip(bb.Project):
         tar('xfJ', gzip_source)
         tar('xf', compression_source)
 
-        unpack_dir = "gzip-{0}.tar.xz".format(self.version)
+        gzip_version = self.version_of('gzip.tar.xz')
+        unpack_dir = "gzip-{0}.tar.xz".format(gzip_version)
 
         clang = bb.compiler.cc(self)
         with bb.cwd(unpack_dir):

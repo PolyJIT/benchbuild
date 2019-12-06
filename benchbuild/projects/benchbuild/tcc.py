@@ -22,16 +22,17 @@ class TCC(bb.Project):
     ]
 
     def compile(self):
-        tcc_source = bb.path(self.source[0].local)
         tcc_source = bb.path(self.source_of('tcc.tar.bz2'))
+        tcc_version = self.version_of('tcc.tar.bz2')
+
         tar("xf", tcc_source)
-        unpack_dir = bb.path('tcc-{0}.tar.bz2'.format(self.version))
+        unpack_dir = bb.path(f'tcc-{tcc_version}.tar.bz2')
 
         clang = bb.compiler.cc(self)
 
         with bb.cwd(unpack_dir):
             mkdir("build")
-            with local.cwd("build"):
+            with bb.cwd("build"):
                 configure = local["../configure"]
                 confiugre = bb.watch(configure)
                 configure("--cc=" + str(clang), "--with-libgcc")
@@ -40,9 +41,10 @@ class TCC(bb.Project):
                 make_()
 
     def run_tests(self, runner):
-        unpack_dir = local.path('tcc-{0}.tar.bz2'.format(self.version))
-        with local.cwd(unpack_dir):
-            with local.cwd("build"):
+        tcc_version = self.version_of('tcc.tar.bz2')
+        unpack_dir = bb.path(f'tcc-{tcc_version}.tar.bz2')
+        with bb.cwd(unpack_dir):
+            with bb.cwd("build"):
                 bb.wrap("tcc", self)
                 inc_path = path.abspath("..")
                 make_ = bb.watch(make)

@@ -22,7 +22,7 @@ class OpenBlas(bb.Project):
     ]
 
     def compile(self):
-        openblas_repo = local.path(self.source[0].local)
+        openblas_repo = bb.path(self.source_of('OpenBLAS'))
         clang = bb.compiler.cc(self)
         with bb.cwd(openblas_repo):
             make_ = bb.watch(make)
@@ -45,9 +45,10 @@ class Lapack(bb.Project):
 
     def compile(self):
         clapack_source = bb.path(self.source_of('clapack.tgz'))
+        clapack_version = self.version_of('clapack.tgz')
 
         tar("xfz", clapack_source)
-        unpack_dir = "CLAPACK-{0}".format(self.version)
+        unpack_dir = "CLAPACK-{0}".format(clapack_version)
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
@@ -79,7 +80,8 @@ class Lapack(bb.Project):
                 make_("-j", CFG["jobs"], "-f", "Makeblat3")
 
     def run_tests(self):
-        unpack_dir = bb.path("CLAPACK-{0}".format(self.version))
+        clapack_version = self.version_of('clapack.tgz')
+        unpack_dir = bb.path("CLAPACK-{0}".format(clapack_version))
         with local.cwd(unpack_dir / "BLAS"):
             xblat2s = bb.wrap("xblat2s", self)
             xblat2s = bb.watch((xblat2s < "sblat2.in"))

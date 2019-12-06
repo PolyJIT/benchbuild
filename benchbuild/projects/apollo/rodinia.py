@@ -1,14 +1,14 @@
 import attr
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
+
 from benchbuild.downloads import HTTP
-from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import sh, tar
 
 
 @attr.s
-class RodiniaGroup(project.Project):
+class RodiniaGroup(bb.Project):
     """Generic handling of Rodinia benchmarks."""
     DOMAIN = 'rodinia'
     GROUP = 'rodinia'
@@ -25,16 +25,17 @@ class RodiniaGroup(project.Project):
 
     def compile(self):
         tar('xf', 'rodinia.tar.bz2')
-        unpack_dir = local.path('rodinia_{0}'.format(self.version))
+        rodinia_version = self.version_of('rodinia.tar.bz2')
+        unpack_dir = bb.path(f'rodinia_{rodinia_version}')
 
-        c_compiler = compiler.cc(self)
-        cxx_compiler = compiler.cxx(self)
+        c_compiler = bb.compiler.cc(self)
+        cxx_compiler = bb.compiler.cxx(self)
 
         config_dir = self.config['dir']
         config_src = self.config['src']
         config_flags = self.config['flags']
 
-        with local.cwd(unpack_dir / config_dir):
+        with bb.cwd(unpack_dir / config_dir):
             for outfile, srcfiles in config_src.items():
                 cls = type(self)
                 _cc = cls.select_compiler(c_compiler, cxx_compiler)
@@ -42,7 +43,7 @@ class RodiniaGroup(project.Project):
                     _cc = _cc[config_flags]
                 _cc = _cc[srcfiles]
                 _cc = _cc["-o", outfile]
-                _cc = run.watch(_cc)
+                _cc = bb.watch(_cc)
                 _cc()
 
     @staticmethod
@@ -50,14 +51,15 @@ class RodiniaGroup(project.Project):
         return c_compiler
 
     def run_tests(self):
-        unpack_dir = local.path('rodinia_{0}'.format(self.version))
+        rodinia_version = self.version_of('rodinia.tar.bz2')
+        unpack_dir = bb.path(f'rodinia_{rodinia_version}')
         in_src_dir = unpack_dir / self.config['dir']
 
         for outfile in self.config['src']:
-            wrapping.wrap(in_src_dir / outfile, self)
+            bb.wrap(in_src_dir / outfile, self)
 
         with local.cwd(in_src_dir):
-            sh_ = run.watch(sh)
+            sh_ = bb.watch(sh)
             sh_('./run')
 
 

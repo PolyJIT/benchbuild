@@ -23,12 +23,13 @@ class XZ(bb.Project):
 
     def compile(self):
         xz_source = bb.path(self.source_of('xz.tar.gz'))
+        xz_version = self.version_of('xz.tar.gz')
         compression_source = bb.path(self.source_of('compression.tar.gz'))
 
         tar('xf', xz_source)
         tar('xf', compression_source)
 
-        unpack_dir = bb.path('xz-{0}'.format(self.version))
+        unpack_dir = bb.path(f'xz-{xz_version}')
         clang = bb.compiler.cc(self)
         with bb.cwd(unpack_dir):
             configure = local["./configure"]
@@ -44,7 +45,8 @@ class XZ(bb.Project):
             make_("CC=" + str(clang), "clean", "all")
 
     def run_tests(self):
-        unpack_dir = local.path('xz-{0}'.format(self.version))
+        xz_version = self.version_of('xz.tar.gz')
+        unpack_dir = bb.path(f'xz-{xz_version}')
         _xz = bb.wrap(unpack_dir / "src" / "xz" / "xz", self)
         _xz = bb.watch(_xz)
 

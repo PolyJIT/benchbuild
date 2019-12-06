@@ -22,7 +22,7 @@ class Bzip2(bb.Project):
 
     def compile(self):
         bzip2_repo = bb.path(self.source_of('bzip2.git'))
-        compression_source = bb.path(self.source[1].local)
+        compression_source = bb.path(self.source_of('compression.tar.gz'))
         tar('xf', compression_source)
 
         clang = bb.compiler.cc(self)

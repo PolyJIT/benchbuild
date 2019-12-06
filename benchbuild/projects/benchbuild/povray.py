@@ -79,7 +79,7 @@ class Povray(bb.Project):
             make_("all")
 
     def run_tests(self):
-        povray_repo = local.path(self.source[0].local)
+        povray_repo = bb.path(self.source_of('povray.git'))
         povray_binary = povray_repo / 'unix' / self.name
         tmpdir = local.path("tmp")
         tmpdir.mkdir()

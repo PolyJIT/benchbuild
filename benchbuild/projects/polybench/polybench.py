@@ -107,6 +107,7 @@ class PolyBenchGroup(bb.Project):
 
     def compile(self):
         polybench_source = bb.path(self.source_of('polybench.tar.gz'))
+        polybench_version = self.version_of('polybench.tar.gz')
 
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
@@ -114,7 +115,7 @@ class PolyBenchGroup(bb.Project):
 
         tar('xfz', polybench_source)
 
-        src_dir = bb.path(f'./polybench-c-{self.version}')
+        src_dir = bb.path(f'./polybench-c-{polybench_version}')
         src_sub = src_dir / self.path_dict[self.name] / self.name
 
         src_file = src_sub / (self.name + ".c")

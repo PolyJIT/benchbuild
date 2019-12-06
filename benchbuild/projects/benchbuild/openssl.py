@@ -33,14 +33,15 @@ class LibreSSL(bb.Project):
     ]
 
     def compile(self):
-        libressl_source = bb.path(self.source[0].local)
+        libressl_source = bb.path(self.source_of('libressl.tar.gz'))
+        libressl_version = self.version_of('libressl.tar.gz')
 
         self.cflags += ["-fPIC"]
 
         clang = bb.compiler.cc(self)
 
         tar("xfz", libressl_source)
-        unpack_dir = bb.path("libressl-{0}".format(self.version))
+        unpack_dir = bb.path(f'libressl-{libressl_version}')
         configure = local[unpack_dir / "configure"]
         configure = bb.watch(configure)
         make_ = bb.watch(make)
@@ -57,7 +58,8 @@ class LibreSSL(bb.Project):
             make_tests(LibreSSL.BINARIES)
 
     def run_tests(self):
-        unpack_dir = bb.path("libressl-{0}".format(self.version))
+        libressl_version = self.version_of('libressl.tar.gz')
+        unpack_dir = bb.path(f'libressl-{libressl_version}')
         with bb.cwd(unpack_dir / "tests"):
             for binary in LibreSSL.BINARIES:
                 bb.wrap(local.cwd / binary, self)

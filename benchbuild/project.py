@@ -329,6 +329,21 @@ class Project(metaclass=ProjectDecorator):
             return variant[name].owner.local
         return None
 
+    def version_of(self, name: str) -> Optional[str]:
+        """
+        Retrieve source for given index name.
+
+        Args:
+            project (Project): The project to access.
+            name (str): Local name of the source .
+
+        Returns:
+            (Optional[BaseSource]): A source representing this variant.
+        """
+        variant = self.variant
+        if name in variant:
+            return str(variant[name])
+        return None
 
 def __split_project_input__(project_input: str) -> Tuple[str, Optional[str]]:
     split_input = project_input.rsplit('@', maxsplit=1)

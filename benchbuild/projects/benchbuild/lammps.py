@@ -21,7 +21,6 @@ class Lammps(bb.Project):
     ]
 
     def run_tests(self):
-        lammps_repo = bb.path(self.source[0].local)
         lammps_repo = bb.path(self.source_of('lammps.git'))
         src = lammps_repo / 'src'
         examples = lammps_repo / "examples"

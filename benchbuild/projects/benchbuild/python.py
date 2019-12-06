@@ -22,25 +22,27 @@ class Python(bb.Project):
     ]
 
     def compile(self):
-        python_source = bb.path(bb.to_source('python.tar.xz'))
+        python_source = bb.path(self.source_of('python.tar.xz'))
+        python_version = self.version_of('python.tar.xz')
 
         tar("xfJ", python_source)
-        unpack_dir = bb.path('Python-{0}'.format(self.version))
+        unpack_dir = bb.path(f'Python-{python_version}')
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
 
-        with local.cwd(unpack_dir):
+        with bb.cwd(unpack_dir):
             configure = local["./configure"]
             configure = bb.watch(configure)
-            with local.env(CC=str(clang), CXX=str(clang_cxx)):
+            with bb.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure("--disable-shared", "--without-gcc")
 
             make_ = bb.watch(make)
             make_()
 
     def run_tests(self):
-        unpack_dir = bb.path('Python-{0}'.format(self.version))
+        python_version = self.version_of('python.tar.xz')
+        unpack_dir = bb.path(f'Python-{python_version}')
         bb.wrap(unpack_dir / "python", self)
 
         with bb.cwd(unpack_dir):

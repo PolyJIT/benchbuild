@@ -27,13 +27,14 @@ class Ruby(bb.Project):
 
     def compile(self):
         ruby_source = bb.path(self.source_of('ruby.tar.gz')) 
+        ruby_version = self.version_of('ruby.tar.gz')
         tar("xfz", ruby_source)
-        unpack_dir = bb.path('ruby-{0}'.format(self.version))
+        unpack_dir = bb.path(f'ruby-{ruby_version}')
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
-        with local.cwd(unpack_dir):
-            with local.env(CC=str(clang), CXX=str(clang_cxx)):
+        with bb.cwd(unpack_dir):
+            with bb.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure = local["./configure"]
                 configure = bb.watch(configure)
                 configure("--with-static-linked-ext", "--disable-shared")
@@ -41,7 +42,8 @@ class Ruby(bb.Project):
             make_("-j", CFG["jobs"])
 
     def run_tests(self):
-        unpack_dir = bb.path('ruby-{0}'.format(self.version))
+        ruby_version = self.version_of('ruby.tar.gz')
+        unpack_dir = bb.path(f'ruby-{ruby_version}')
         ruby_n = bb.wrap(unpack_dir / "ruby", self)
         test_dir = bb.path('./ruby/')
 

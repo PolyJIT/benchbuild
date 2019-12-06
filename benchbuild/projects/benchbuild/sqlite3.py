@@ -26,10 +26,10 @@ class SQLite3(bb.Project):
     ]
 
     def compile(self):
-        sqlite_source = bb.path(self.source[0].local)
         sqlite_source = bb.path(self.source_of('sqlite.zip'))
+        sqlite_version = self.version_of('sqlite.zip')
         unzip(sqlite_source)
-        unpack_dir = local.path('sqlite-amalgamation-{0}'.format(self.version))
+        unpack_dir = bb.path(f'sqlite-amalgamation-{sqlite_version}')
 
         clang = bb.compiler.cc(self)
         clang = bb.watch(clang)
@@ -41,7 +41,9 @@ class SQLite3(bb.Project):
         self.build_leveldb()
 
     def build_leveldb(self):
-        sqlite_dir = bb.path('sqlite-amalgamation-{0}'.format(self.version))
+        sqlite_version = self.version_of('sqlite.zip')
+
+        sqlite_dir = bb.path(f'sqlite-amalgamation-{sqlite_version}')
         leveldb_repo = bb.path(self.source_of('leveldb.src'))
 
         # We need to place sqlite3 in front of all other flags.
@@ -56,7 +58,7 @@ class SQLite3(bb.Project):
                 make_("clean", "out-static/db_bench_sqlite3")
 
     def run_tests(self):
-        leveldb_repo = bb.path(self.source[1].local)
+        leveldb_repo = bb.path(self.source_of('leveldb.src'))
         with bb.cwd(leveldb_repo):
             with bb.env(LD_LIBRARY_PATH=leveldb_repo):
                 sqlite = bb.wrap(

@@ -1,7 +1,7 @@
 """
 Declare a http source.
 """
-from typing import List, Mapping, Union
+from typing import Iterable, Mapping, Union
 
 import attr
 from plumbum import local
@@ -35,10 +35,12 @@ class HTTP(base.BaseSource):
         cp('-ar', cache_path, target_path)
         return target_path
 
-    def versions(self) -> List[variants.Variant]:
+    def versions(self) -> Iterable[variants.Variant]:
         remotes = normalize_remotes(self.remote)
-        for rev in list(remotes.keys()):
-            yield variants.Variant(version=rev, owner=self)
+        return [
+            variants.Variant(version=rev, owner=self)
+            for rev in remotes
+        ]
 
 
 def normalize_remotes(remote: Union[str, Mapping[str, str]]

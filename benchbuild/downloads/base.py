@@ -109,7 +109,6 @@ def target_prefix() -> str:
 
 def default(sources: Sources) -> variants.VariantContext:
     first = [src.default for src in sources]
-    print(first)
     return variants.context(first)
 
 def product(sources: Sources):

@@ -27,6 +27,10 @@ CFG = s.Configuration(
             "desc": "Should debug logging be enabled?",
             "default": False
         },
+        'colors': {
+            'desc': 'Should we log with color mode on?',
+            'default': True
+        },
         "config_file": {
             "desc": "Config file path of benchbuild. Not guaranteed to exist.",
             "default": None,

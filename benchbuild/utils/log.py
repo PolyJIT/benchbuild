@@ -1,4 +1,5 @@
 import logging
+import coloredlogs
 
 from benchbuild import settings
 
@@ -10,14 +11,22 @@ def configure_migrate_log():
 
 
 def configure_plumbum_log():
-    plumbum_format = logging.Formatter('$> %(message)s')
-    plumbum_hdl = logging.StreamHandler()
-    plumbum_hdl.setFormatter(plumbum_format)
     plumbum_local = logging.getLogger("plumbum.local")
     if settings.CFG["debug"]:
         plumbum_local.setLevel(logging.DEBUG)
-    plumbum_local.addHandler(plumbum_hdl)
+
     plumbum_local.propagate = False
+
+    plumbum_hdl = logging.StreamHandler()
+    plumbum_local.addHandler(plumbum_hdl)
+
+    if settings.CFG['colors']:
+        coloredlogs.install(fmt='$> %(message)s',
+                            logger=plumbum_local,
+                            level='DEBUG')
+    else:
+        plumbum_format = logging.Formatter('$> %(message)s')
+        plumbum_hdl.setFormatter(plumbum_format)
 
 
 def configure_parse_log():
@@ -38,6 +47,7 @@ def configure():
 
     logging.captureWarnings(True)
     root_logger = logging.getLogger()
+    coloredlogs.install(fmt=':: %(name)s %(message)s')
     if settings.CFG["debug"]:
         details_format = logging.Formatter(
             '%(name)s (%(filename)s:%(lineno)s) [%(levelname)s] %(message)s')

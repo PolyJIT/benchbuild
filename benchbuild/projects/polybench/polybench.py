@@ -113,9 +113,8 @@ class PolyBenchGroup(bb.Project):
         workload = str(polybench_opts["workload"])
 
         tar('xfz', polybench_source)
-        src_dir_name = "polybench-c-{0}".format(self.version)
 
-        src_dir = bb.cwd / src_dir_name
+        src_dir = bb.path(f'./polybench-c-{self.version}')
         src_sub = src_dir / self.path_dict[self.name] / self.name
 
         src_file = src_sub / (self.name + ".c")
@@ -147,7 +146,7 @@ class PolyBenchGroup(bb.Project):
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
 
-        binary = bb.cwd / self.name
+        binary = bb.path(self.name)
         opt_stderr_raw = binary + ".stderr"
         opt_stderr_filtered = opt_stderr_raw + ".filtered"
 
@@ -158,7 +157,7 @@ class PolyBenchGroup(bb.Project):
         filter_stderr(opt_stderr_raw, opt_stderr_filtered)
 
         if verify:
-            binary = bb.cwd / (self.name + ".no-opts")
+            binary = bb.path(self.name + ".no-opts")
             noopt_stderr_raw = binary + ".stderr"
             noopt_stderr_filtered = noopt_stderr_raw + ".filtered"
 

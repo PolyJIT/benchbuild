@@ -247,7 +247,6 @@ class Project(metaclass=ProjectDecorator):
         CFG["project"] = self.NAME
         CFG["domain"] = self.DOMAIN
         CFG["group"] = self.GROUP
-        CFG["version"] = self.VERSION
         CFG["db"]["run_group"] = str(self.run_uuid)
 
         group, session = begin_run_group(self)
@@ -300,12 +299,6 @@ class Project(metaclass=ProjectDecorator):
         """Redirect execution to a containerized benchbuild instance."""
         LOG.error("Redirection not supported by project.")
 
-    @classmethod
-    def versions(cls):
-        """Return all available versions."""
-        if cls.VERSION:
-            return [cls.VERSION]
-        return ["unknown"]
 
     def source_of(self, name: str) -> Optional[str]:
         """

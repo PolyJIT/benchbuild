@@ -322,7 +322,6 @@ def with_git(repo,
                                refspec, *rev_list_args).strip().split('\n')
                 latest = git("rev-parse", "--short=10",
                              refspec).strip().split('\n')
-                cls.VERSION = latest[0]
 
             if limit:
                 return list(filter(version_filter, rev_list))[:limit]

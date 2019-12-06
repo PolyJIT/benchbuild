@@ -138,8 +138,9 @@ class StepClass(abc.ABCMeta):
     def __new__(mcs, name, bases, namespace, **_):
         result = abc.ABCMeta.__new__(mcs, name, bases, dict(namespace))
 
-        NAME = result.NAME
-        DESCRIPTION = result.DESCRIPTION
+        NAME: str = result.NAME
+        DESCRIPTION: str = result.DESCRIPTION
+
         if NAME and DESCRIPTION:
             result.__call__ = log_before_after(NAME, DESCRIPTION)(
                 to_step_result(result.__call__))

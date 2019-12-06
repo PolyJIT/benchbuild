@@ -12,7 +12,6 @@ class Crocopat(bb.Project):
     NAME: str = 'crocopat'
     DOMAIN: str = 'verification'
     GROUP: str = 'benchbuild'
-    VERSION: str = '2.1.4'
     SOURCE = [
         HTTP(remote={
             '2.1.4': 'http://crocopat.googlecode.com/files/crocopat-2.1.4.zip'

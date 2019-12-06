@@ -12,7 +12,6 @@ class LibreSSL(bb.Project):
     NAME: str = 'libressl'
     DOMAIN: str = 'encryption'
     GROUP: str = 'benchbuild'
-    VERSION: str = '2.1.6'
     BINARIES = [
         "aeadtest", "aes_wrap", "asn1test", "base64test", "bftest", "bntest",
         "bytestringtest", "casttest", "chachatest", "cipherstest",

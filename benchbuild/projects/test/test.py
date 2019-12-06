@@ -7,7 +7,6 @@ class TestProject(project.Project):
     NAME = "test"
     DOMAIN = "test"
     GROUP = "test"
-    VERSION = "1.0"
 
     def compile(self):
         with open('test.cpp', 'w') as test_source:
@@ -37,7 +36,6 @@ class TestProjectRuntimeFail(project.Project):
     NAME = "test-fail"
     DOMAIN = "test"
     GROUP = "test"
-    VERSION = "1.0"
     SRC_FILE = "test.cpp"
 
     def compile(self):

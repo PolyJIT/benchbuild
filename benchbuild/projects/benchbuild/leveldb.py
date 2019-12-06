@@ -12,7 +12,6 @@ class LevelDB(bb.Project):
     NAME: str = 'leveldb'
     DOMAIN: str = 'database'
     GROUP: str = 'benchbuild'
-    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/google/leveldb',
             local='leveldb.src',

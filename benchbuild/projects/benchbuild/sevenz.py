@@ -12,7 +12,6 @@ class SevenZip(bb.Project):
     NAME: str = '7z'
     DOMAIN: str = 'compression'
     GROUP: str = 'benchbuild'
-    VERSION: str = '16.02'
     SOURCE: str = [
         HTTP(remote={
             '16.02':

@@ -10,7 +10,6 @@ class Crafty(bb.Project):
     NAME: str = 'crafty'
     DOMAIN: str = 'scientific'
     GROUP: str = 'benchbuild'
-    VERSION: str = '25.2'
     SOURCE = [
         HTTP(remote={
             '25.2':

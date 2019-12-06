@@ -12,7 +12,6 @@ class SciMark(bb.Project):
     NAME = 'scimark'
     DOMAIN = 'scientific'
     GROUP = 'apollo'
-    VERSION = "2.1c"
 
     SOURCE = [
         HTTP(remote={'2.1c': 'http://math.nist.gov/scimark2/scimark2_1c.zip'},

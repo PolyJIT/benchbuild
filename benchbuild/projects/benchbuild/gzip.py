@@ -13,7 +13,6 @@ class Gzip(bb.Project):
     NAME: str = 'gzip'
     DOMAIN: str = 'compression'
     GROUP: str = 'benchbuild'
-    VERSION: str = '1.6'
     SOURCE = [
         HTTP(remote={'1.6': 'http://ftpmirror.gnu.org/gzip/gzip-1.6.tar.xz'},
              local='gzip.tar.xz'),

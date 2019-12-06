@@ -17,7 +17,6 @@ class LNTGroup(bb.Project):
 
     DOMAIN: str = 'lnt'
     GROUP: str = 'lnt'
-    VERSION: str = 'HEAD'
     NAME_FILTERS = [
         r'(?P<name>.+)\.simple',
         r'(?P<name>.+)-(dbl|flt)',

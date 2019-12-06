@@ -11,7 +11,6 @@ class Ruby(bb.Project):
     NAME: str = 'ruby'
     DOMAIN: str = 'compilation'
     GROUP: str = 'benchbuild'
-    VERSION: str = '2.2.2'
     SOURCE = [
         HTTP(remote={
             '2.2.2':

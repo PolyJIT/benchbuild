@@ -12,7 +12,6 @@ class TCC(bb.Project):
     NAME: str = 'tcc'
     DOMAIN: str = 'compilation'
     GROUP: str = 'benchbuild'
-    VERSION: str = '0.9.26'
     SOURCE: str = [
         HTTP(remote={
             '0.9.26':

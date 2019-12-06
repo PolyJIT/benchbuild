@@ -13,7 +13,6 @@ class Rasdaman(bb.Project):
     NAME: str = 'Rasdaman'
     DOMAIN: str = 'database'
     GROUP: str = 'benchbuild'
-    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='git://rasdaman.org/rasdaman.git',
             local='rasdaman.git',

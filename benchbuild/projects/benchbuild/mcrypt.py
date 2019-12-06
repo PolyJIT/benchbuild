@@ -14,7 +14,6 @@ class MCrypt(bb.Project):
     NAME: str = 'mcrypt'
     DOMAIN: str = 'encryption'
     GROUP: str = 'benchbuild'
-    VERSION: str = '2.6.8'
     SOURCE = [
         HTTP(remote={
             '2.6.8':

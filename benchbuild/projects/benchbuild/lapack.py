@@ -13,7 +13,6 @@ class OpenBlas(bb.Project):
     NAME: str = 'openblas'
     DOMAIN: str = 'scientific'
     GROUP: str = 'benchbuild'
-    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/xianyi/OpenBLAS',
             local='OpenBLAS',
@@ -37,7 +36,6 @@ class Lapack(bb.Project):
     NAME: str = 'lapack'
     DOMAIN: str = 'scientific'
     GROUP: str = 'benchbuild'
-    VERSION: str = '3.2.1'
     SOURCE = [
         HTTP(remote={'3.2.1': 'http://www.netlib.org/clapack/clapack.tgz'},
              local='clapack.tgz')

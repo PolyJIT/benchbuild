@@ -10,7 +10,6 @@ class Minisat(bb.Project):
     NAME: str = 'minisat'
     DOMAIN: str = 'verification'
     GROUP: str = 'benchbuild'
-    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/niklasso/minisat',
             local='minisat.git',

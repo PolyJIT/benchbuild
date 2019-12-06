@@ -45,7 +45,6 @@ def get_dump_arrays_output(data):
 class PolyBenchGroup(bb.Project):
     DOMAIN: str = 'polybench'
     GROUP: str = 'polybench'
-    VERSION: str = '4.2'
     path_dict = {
         "correlation": "datamining",
         "covariance": "datamining",

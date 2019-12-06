@@ -12,7 +12,6 @@ class XZ(bb.Project):
     NAME: str = 'xz'
     DOMAIN: str = 'compression'
     GROUP: str = 'benchbuild'
-    VERSION: str = '5.2.1'
 
     SOURCE = [
         HTTP(remote={'5.2.1', 'http://tukaani.org/xz/xz-5.2.1.tar.gz'},

@@ -10,7 +10,6 @@ class Lulesh(bb.Project):
     NAME: str = 'lulesh'
     DOMAIN: str = 'scientific'
     GROUP: str = 'benchbuild'
-    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/LLNL/LULESH/',
             local='lulesh.git',
@@ -46,7 +45,6 @@ class LuleshOMP(bb.Project):
     NAME: str = 'lulesh-omp'
     DOMAIN: str = 'scientific'
     GROUP: str = 'benchbuild'
-    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/LLNL/LULESH/',
             local='lulesh.git',

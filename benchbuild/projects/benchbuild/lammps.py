@@ -12,7 +12,6 @@ class Lammps(bb.Project):
     NAME: str = 'lammps'
     DOMAIN: str = 'scientific'
     GROUP: str = 'benchbuild'
-    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/lammps/lammps',
             local='lammps.git',

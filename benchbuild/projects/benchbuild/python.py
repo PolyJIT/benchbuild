@@ -12,7 +12,6 @@ class Python(bb.Project):
     NAME: str = 'python'
     DOMAIN: str = 'compilation'
     GROUP: str = 'benchbuild'
-    VERSION: str = '3.4.3'
     SOURCE = [
         HTTP(remote={
             '3.4.3':

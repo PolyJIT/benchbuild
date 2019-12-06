@@ -12,7 +12,6 @@ class SQLite3(bb.Project):
     NAME: str = 'sqlite3'
     DOMAIN: str = 'database'
     GROUP: str = 'benchbuild'
-    VERSION: str = '3080900'
     SOURCE = [
         HTTP(remote={
             '3080900':

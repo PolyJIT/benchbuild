@@ -12,7 +12,6 @@ class RodiniaGroup(bb.Project):
     """Generic handling of Rodinia benchmarks."""
     DOMAIN = 'rodinia'
     GROUP = 'rodinia'
-    VERSION = '3.1'
     SOURCE = [HTTP(
         remote={'3.1': 'http://www.cs.virginia.edu/'
                        '~kw5na/lava/Rodinia/Packages/Current/3.1/'

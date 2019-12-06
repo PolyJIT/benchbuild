@@ -27,7 +27,6 @@ class BOTSGroup(bb.Project):
 
     DOMAIN: str = 'bots'
     GROUP: str = 'bots'
-    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/bsc-pm/bots',
             local='bots.git',

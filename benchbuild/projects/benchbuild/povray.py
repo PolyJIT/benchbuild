@@ -14,7 +14,6 @@ class Povray(bb.Project):
     NAME = 'povray'
     DOMAIN = 'multimedia'
     GROUP = 'benchbuild'
-    VERSION = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/POV-Ray/povray', local='povray.git'),
         HTTP(remote={

@@ -17,7 +17,6 @@ class SpiderMonkey(bb.Project):
     NAME = 'js'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
-    VERSION = 'HEAD'
     SOURCE = [
         Git(remote='https://gitub.com/mozilla/gecko-dev.git',
             local='gecko-dev.git',

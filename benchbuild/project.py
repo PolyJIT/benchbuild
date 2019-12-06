@@ -124,8 +124,6 @@ class Project(metaclass=ProjectDecorator):
         container (benchbuild.utils.container.Container, optional):
             A uchroot compatible container that we can use for this project.
             Defaults to `benchbuild.utils.container.Gentoo`.
-        version (str, optional):
-            A version information for this project. Defaults to `VERSION`.
         builddir (str, optional):
             The build directory for this project. Auto generated, if not set.
         cflags (:obj:`list` of :obj:`str`, optional)
@@ -186,9 +184,6 @@ class Project(metaclass=ProjectDecorator):
 
     container = attr.ib(default=attr.Factory(lambda self: type(self).CONTAINER,
                                              takes_self=True))
-
-    version = attr.ib(
-        default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
 
     cflags = attr.ib(default=attr.Factory(list))
 
@@ -324,7 +319,6 @@ class Project(metaclass=ProjectDecorator):
             (Optional[BaseSource]): A source representing this variant.
         """
         variant = self.variant
-        LOG.debug(variant)
         if name in variant:
             return variant[name].owner.local
         return None

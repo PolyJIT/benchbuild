@@ -13,7 +13,6 @@ class X264(bb.Project):
     NAME: str = "x264"
     DOMAIN: str = "multimedia"
     GROUP: str = 'benchbuild'
-    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='git://git.videolan.org/x264.git',
             local='x264.git',

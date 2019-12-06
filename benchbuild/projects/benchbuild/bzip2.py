@@ -10,7 +10,6 @@ class Bzip2(bb.Project):
     NAME: str = 'bzip2'
     DOMAIN: str = 'compression'
     GROUP: str = 'benchbuild'
-    VERSION: str = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/PolyJIT/bzip2',
             local='bzip2.git',

@@ -10,7 +10,6 @@ class PolybenchModGroup(PolyBenchGroup):
     DOMAIN = 'polybench'
     GROUP = 'polybench-mod'
     DOMAIN = 'polybench'
-    VERSION = 'HEAD'
     SOURCE = [
         Git(remote='https://github.com/simbuerg/polybench-c-4.2-1.git',
             local='polybench.git',

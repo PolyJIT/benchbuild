@@ -15,7 +15,6 @@ class Linpack(bb.Project):
     NAME: str = 'linpack'
     DOMAIN: str = 'scientific'
     GROUP: str = 'benchbuild'
-    VERSION: str = '5_88'
     SOURCE = [
         HTTP(remote={'5_88': 'http://www.netlib.org/benchmark/linpackc.new'},
              local='linpack.c')

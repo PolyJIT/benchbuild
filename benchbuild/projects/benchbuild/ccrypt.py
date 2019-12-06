@@ -11,7 +11,6 @@ class Ccrypt(bb.Project):
     NAME: str = 'ccrypt'
     DOMAIN: str = 'encryption'
     GROUP: str = 'benchbuild'
-    VERSION: str = '1.10'
     SOURCE = [
         HTTP(remote={
             '1.10':

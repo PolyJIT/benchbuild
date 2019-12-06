@@ -14,7 +14,7 @@ class XZ(bb.Project):
     GROUP: str = 'benchbuild'
 
     SOURCE = [
-        HTTP(remote={'5.2.1', 'http://tukaani.org/xz/xz-5.2.1.tar.gz'},
+        HTTP(remote={'5.2.1': 'http://tukaani.org/xz/xz-5.2.1.tar.gz'},
              local='xz.tar.gz'),
         HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
              local='compression.tar.gz')

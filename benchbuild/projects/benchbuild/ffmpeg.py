@@ -12,7 +12,6 @@ class LibAV(bb.Project):
     NAME: str = 'ffmpeg'
     DOMAIN: str = 'multimedia'
     GROUP: str = 'benchbuild'
-    VERSION: str = '3.1.3'
     SOURCE = [
         HTTP(remote={
             '3.1.3': 'http://ffmpeg.org/releases/ffmpeg-3.1.3.tar.bz2'

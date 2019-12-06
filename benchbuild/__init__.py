@@ -9,8 +9,9 @@ from plumbum import local, Path
 from . import experiments as __EXPERIMENTS__
 from . import projects as __PROJECTS__
 from . import reports as __REPORTS__
-from .downloads.base import BaseSource
-from .project import Project
+from . import downloads
+
+from .project import Project, populate
 from .settings import CFG
 from .utils import compiler, download, run
 from .utils import settings as __SETTINGS__
@@ -31,7 +32,6 @@ watch = run.watch
 del local
 del sys
 del BaseCommand
-del BaseSource
 del Path
 del __EXPERIMENTS__
 del __PROJECTS__

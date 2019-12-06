@@ -17,7 +17,7 @@ a separate build directory in isolation of one another.
 """
 import copy
 import logging
-from typing import Dict, List, Tuple, Optional, Mapping, Type
+from typing import List, Tuple, Optional, Mapping, Type
 import uuid
 from abc import abstractmethod
 from functools import partial
@@ -28,9 +28,8 @@ from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
 import benchbuild as bb
-import benchbuild.downloads as bb_dl
 
-from benchbuild import signals, variants
+from benchbuild import signals
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
@@ -148,7 +147,7 @@ class Project(metaclass=ProjectDecorator):
     DOMAIN: str = ""
     GROUP: str = ""
     NAME: str = ""
-    SOURCE: List[bb_dl.BaseSource] = []
+    SOURCE: List[bb.downloads.BaseSource] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -167,11 +166,11 @@ class Project(metaclass=ProjectDecorator):
 
     experiment = attr.ib()
 
-    variant: variants.VariantContext = attr.ib()
+    variant: bb.variants.VariantContext = attr.ib()
 
     @variant.default
-    def __default_variant(self) -> variants.VariantContext:
-        return bb_dl.default(type(self).SOURCE)
+    def __default_variant(self) -> bb.variants.VariantContext:
+        return bb.downloads.default(type(self).SOURCE)
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
@@ -286,7 +285,7 @@ class Project(metaclass=ProjectDecorator):
 
     @property
     def id(self):
-        version_str = variants.to_str(tuple(self.variant.values()))
+        version_str = bb.variants.to_str(tuple(self.variant.values()))
         return f"{self.name}/{self.group}/{version_str}/{self.run_uuid}"
 
     def prepare(self):

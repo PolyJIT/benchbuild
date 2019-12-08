@@ -47,7 +47,7 @@ class ProjectRegistry(type):
         """Register a project in the registry."""
         super(ProjectRegistry, cls).__init__(name, bases, attrs)
 
-        if None not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
+        if '' not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
             key = "{name}/{group}".format(name=cls.NAME, group=cls.GROUP)
             ProjectRegistry.projects[key] = cls
 

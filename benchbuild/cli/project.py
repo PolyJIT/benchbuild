@@ -68,11 +68,20 @@ def print_projects(projects=None):
             ]
             for src in prj_cls.SOURCE:
                 source_lines = [
-                    f'\n    source: {src.local}',
+                    f'\n    * source: {src.local}',
                 ]
-                source_lines.extend([
-                    f'\n      {str(version)}' for version in src.versions()
-                ])
+                if isinstance(src.remote, str):
+                    source_lines.append(f' remote: {src.remote}')
+                    source_lines.extend([
+                        f'\n      - {str(version)}'
+                        for version in src.versions()
+                    ])
+                else:
+                    source_lines.extend([
+                        f'\n      - {str(version)} '
+                        f'remote: {src.remote[str(version)]}'
+                        for version in src.versions()
+                    ])
                 project_lines.extend(source_lines)
 
             print(*project_lines)

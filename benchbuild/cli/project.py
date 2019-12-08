@@ -8,7 +8,6 @@ from benchbuild.cli.main import BenchBuild
 @BenchBuild.subcommand("project")
 class BBProject(cli.Application):
     """Manage BenchBuild's known projects."""
-
     def main(self):
         if not self.nested_command:
             self.help()
@@ -20,11 +19,10 @@ class BBProjectView(cli.Application):
 
     groups = None
 
-    @cli.switch(
-        ["-G", "--group"],
-        str,
-        list=True,
-        help="Include projects of this group.")
+    @cli.switch(["-G", "--group"],
+                str,
+                list=True,
+                help="Include projects of this group.")
     def set_group(self, groups):
         self.groups = groups
 
@@ -52,8 +50,8 @@ def print_projects(projects=None):
         if prj.GROUP not in grouped_by:
             grouped_by[prj.GROUP] = []
 
-        grouped_by[prj.GROUP].append("{name}/{group}".format(
-            name=prj.NAME, group=prj.GROUP))
+        grouped_by[prj.GROUP].append("{name}/{group}".format(name=prj.NAME,
+                                                             group=prj.GROUP))
 
     for name in grouped_by:
         print(f'::  group: {name}')

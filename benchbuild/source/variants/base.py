@@ -1,13 +1,11 @@
-import itertools
-from typing import Dict, Iterable
+from typing import Any, Iterable, Dict
 
 import attr
 
 
-
 @attr.s(repr=False)
 class Variant:
-    owner: 'BaseSource' = attr.ib(repr=False)
+    owner: Any = attr.ib(repr=False)
     version: str = attr.ib()
 
     def __repr__(self):
@@ -26,6 +24,5 @@ def context(variant: VariantTuple) -> VariantContext:
     return {var.owner.local: var for var in var_list}
 
 
-def to_str(variant):
+def to_str(variant: Iterable) -> str:
     return ",".join([str(i) for i in list(variant)])
-

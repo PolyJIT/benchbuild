@@ -2,8 +2,8 @@ from plumbum import local
 
 import benchbuild as bb
 
-from benchbuild.downloads import HTTP
-from benchbuild.utils.cmd import cp, make, tar
+from benchbuild.source import HTTP
+from benchbuild.utils.cmd import make, tar
 
 
 class XZ(bb.Project):

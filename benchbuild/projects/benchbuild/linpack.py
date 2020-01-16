@@ -2,7 +2,7 @@ import logging
 
 import benchbuild as bb
 
-from benchbuild.downloads import HTTP
+from benchbuild.source import HTTP
 from benchbuild.utils import path
 from benchbuild.utils.cmd import patch
 

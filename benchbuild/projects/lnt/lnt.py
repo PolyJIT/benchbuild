@@ -4,7 +4,7 @@ import logging
 from plumbum import FG, local
 
 import benchbuild as bb
-from benchbuild.downloads import Git
+from benchbuild.source import Git
 
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv

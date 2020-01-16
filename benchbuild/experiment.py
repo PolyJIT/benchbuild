@@ -31,8 +31,8 @@ from abc import abstractmethod
 
 import attr
 
-import benchbuild.downloads as bb_dl
-import benchbuild.variants as variants
+import benchbuild.source as bb_dl
+import benchbuild.source.variants as variants
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
                                       Containerize, Echo, MakeBuildDir,
@@ -74,7 +74,6 @@ class Experiment(metaclass=ExperimentRegistry):
             instance of experiment. Equivalent to the `experiment_group`
             in the database scheme.
     """
-
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
         del args, kwargs  # Temporarily unused
@@ -134,7 +133,6 @@ class Experiment(metaclass=ExperimentRegistry):
         Args:
             project (benchbuild.Project): the project we want to run.
         """
-
     def actions(self):
         """
         Common setup required to run this experiment on all projects.
@@ -216,7 +214,6 @@ class Experiment(metaclass=ExperimentRegistry):
 
 class Configuration:
     """Build a set of experiment actions out of a list of configurations."""
-
     def __init__(self, project=None, config=None):
         _project = copy.deepcopy(project)
         self.config = {}

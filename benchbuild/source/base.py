@@ -3,21 +3,21 @@ Provide a base interface for downloadable sources.
 """
 import abc
 import itertools
+
 from typing import Iterable, Mapping, Union
 
 import attr
 
-from benchbuild import variants
+from .variants import Variant, VariantContext, context
 from benchbuild.settings import CFG
 
-class ISource(abc.ABC):
 
+class ISource(abc.ABC):
     @abc.abstractproperty
-    def default(self) -> 'benchbuild.variants.Variant':
+    def default(self) -> Variant:
         """
         The default version for this source.
         """
-
     @abc.abstractmethod
     def version(self, target_dir: str, version: str) -> str:
         """
@@ -32,16 +32,14 @@ class ISource(abc.ABC):
         Returns:
             str: [description]
         """
-
     @abc.abstractmethod
-    def versions(self) -> Iterable['Variant']:
+    def versions(self) -> Iterable[Variant]:
         """
         List all available versions of this source.
 
         Returns:
             List[str]: The list of all available versions.
         """
-
 @attr.s
 class BaseSource(ISource):
     """
@@ -52,11 +50,10 @@ class BaseSource(ISource):
     remote: Union[str, Mapping[str, str]] = attr.ib()
 
     @abc.abstractproperty
-    def default(self) -> 'benchbuild.variants.Variant':
+    def default(self) -> Variant:
         """
         The default version for this source.
         """
-
     @abc.abstractmethod
     def version(self, target_dir: str, version: str) -> str:
         """
@@ -71,9 +68,8 @@ class BaseSource(ISource):
         Returns:
             str: [description]
         """
-
     @abc.abstractmethod
-    def versions(self) -> Iterable['Variant']:
+    def versions(self) -> Iterable[Variant]:
         """
         List all available versions of this source.
 
@@ -81,22 +77,26 @@ class BaseSource(ISource):
             List[str]: The list of all available versions.
         """
 
+
 Sources = Iterable['BaseSource']
+
 
 @attr.s
 class NoSource(BaseSource):
     @property
     def default(self):
-        return variants.Variant(owner=self, version='None')
+        return Variant(owner=self, version='None')
 
     def version(self, target_dir: str, version: str) -> str:
         return 'None'
 
-    def versions(self) -> Iterable['Variant']:
+    def versions(self) -> Iterable[Variant]:
         return ['None']
+
 
 def nosource():
     return NoSource(local='NoSource', remote='NoSource')
+
 
 def target_prefix() -> str:
     """
@@ -107,9 +107,11 @@ def target_prefix() -> str:
     """
     return str(CFG['tmp_dir'])
 
-def default(sources: Sources) -> variants.VariantContext:
+
+def default(sources: Sources) -> VariantContext:
     first = [src.default for src in sources]
-    return variants.context(first)
+    return context(first)
+
 
 def product(sources: Sources):
     siblings = [source.versions() for source in sources]

@@ -6,9 +6,10 @@ from typing import Iterable, Mapping, Union
 import attr
 from plumbum import local
 
-from benchbuild import variants
-from benchbuild.downloads import base
-from benchbuild.utils.cmd import wget, cp, tar
+from benchbuild.source import base
+from benchbuild.utils.cmd import cp, wget
+
+from . import variants
 
 
 @attr.s
@@ -18,7 +19,7 @@ class HTTP(base.BaseSource):
     """
     @property
     def default(self) -> variants.Variant:
-        return self.versions()[0]
+        return self.versions().next()
 
     def version(self, target_dir: str, version: str) -> str:
         prefix = base.target_prefix()
@@ -37,10 +38,7 @@ class HTTP(base.BaseSource):
 
     def versions(self) -> Iterable[variants.Variant]:
         remotes = normalize_remotes(self.remote)
-        return [
-            variants.Variant(version=rev, owner=self)
-            for rev in remotes
-        ]
+        return [variants.Variant(version=rev, owner=self) for rev in remotes]
 
 
 def normalize_remotes(remote: Union[str, Mapping[str, str]]

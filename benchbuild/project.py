@@ -34,6 +34,7 @@ from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
 from benchbuild.utils import db, run, unionfs
+from benchbuild.source import variants
 
 LOG = logging.getLogger(__name__)
 
@@ -147,7 +148,7 @@ class Project(metaclass=ProjectDecorator):
     DOMAIN: str = ""
     GROUP: str = ""
     NAME: str = ""
-    SOURCE: List[bb.downloads.BaseSource] = []
+    SOURCE: List[bb.source.BaseSource] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -166,11 +167,11 @@ class Project(metaclass=ProjectDecorator):
 
     experiment = attr.ib()
 
-    variant: bb.variants.VariantContext = attr.ib()
+    variant: variants.VariantContext = attr.ib()
 
     @variant.default
-    def __default_variant(self) -> bb.variants.VariantContext:
-        return bb.downloads.default(type(self).SOURCE)
+    def __default_variant(self) -> bb.source.variants.VariantContext:
+        return bb.source.default(type(self).SOURCE)
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
@@ -230,7 +231,6 @@ class Project(metaclass=ProjectDecorator):
             experiment: The experiment we run this project under
             run: A function that takes the run command.
         """
-
     def run(self):
         """Run the tests of this project.
 
@@ -277,10 +277,9 @@ class Project(metaclass=ProjectDecorator):
     @abstractmethod
     def compile(self):
         """Compile the project."""
-
     @property
     def id(self):
-        version_str = bb.variants.to_str(tuple(self.variant.values()))
+        version_str = bb.source.variants.to_str(tuple(self.variant.values()))
         return f"{self.name}/{self.group}/{version_str}/{self.run_uuid}"
 
     def prepare(self):
@@ -292,7 +291,6 @@ class Project(metaclass=ProjectDecorator):
     def redirect(self):
         """Redirect execution to a containerized benchbuild instance."""
         LOG.error("Redirection not supported by project.")
-
 
     def source_of(self, name: str) -> Optional[str]:
         """
@@ -325,6 +323,7 @@ class Project(metaclass=ProjectDecorator):
         if name in variant:
             return str(variant[name])
         return None
+
 
 def __split_project_input__(project_input: str) -> Tuple[str, Optional[str]]:
     split_input = project_input.rsplit('@', maxsplit=1)

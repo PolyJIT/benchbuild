@@ -9,7 +9,7 @@ from plumbum import local, Path
 from . import experiments as __EXPERIMENTS__
 from . import projects as __PROJECTS__
 from . import reports as __REPORTS__
-from . import downloads
+from . import source
 
 from .project import Project, populate
 from .settings import CFG

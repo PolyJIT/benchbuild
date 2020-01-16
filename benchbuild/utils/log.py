@@ -22,8 +22,7 @@ def configure_plumbum_log():
 
     if settings.CFG['colors']:
         coloredlogs.install(fmt='$> %(message)s',
-                            logger=plumbum_local,
-                            level='DEBUG')
+                            logger=plumbum_local, level='DEBUG')
     else:
         plumbum_format = logging.Formatter('$> %(message)s')
         plumbum_hdl.setFormatter(plumbum_format)

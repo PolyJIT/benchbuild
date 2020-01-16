@@ -4,7 +4,7 @@ from plumbum import local
 
 import benchbuild as bb
 
-from benchbuild.downloads import Git, HTTP
+from benchbuild.source import Git, HTTP
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, tar
 

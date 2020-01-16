@@ -1,6 +1,6 @@
 import benchbuild as bb
 
-from benchbuild.downloads import Git, HTTP
+from benchbuild.source import Git, HTTP
 from benchbuild.utils.cmd import git, make, tar
 
 

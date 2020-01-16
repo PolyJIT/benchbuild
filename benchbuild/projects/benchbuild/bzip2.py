@@ -1,7 +1,7 @@
 import benchbuild as bb
 
-from benchbuild.downloads import Git, HTTP
-from benchbuild.utils.cmd import cp, make, tar
+from benchbuild.source import Git, HTTP
+from benchbuild.utils.cmd import make, tar
 
 
 class Bzip2(bb.Project):

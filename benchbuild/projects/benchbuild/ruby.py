@@ -2,7 +2,7 @@ from plumbum import local
 
 import benchbuild as bb
 
-from benchbuild.downloads import HTTP
+from benchbuild.source import HTTP
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make, ruby, tar
 
@@ -25,7 +25,7 @@ class Ruby(bb.Project):
     ]
 
     def compile(self):
-        ruby_source = bb.path(self.source_of('ruby.tar.gz')) 
+        ruby_source = bb.path(self.source_of('ruby.tar.gz'))
         ruby_version = self.version_of('ruby.tar.gz')
         tar("xfz", ruby_source)
         unpack_dir = bb.path(f'ruby-{ruby_version}')
@@ -47,7 +47,7 @@ class Ruby(bb.Project):
         test_dir = bb.path('./ruby/')
 
         with bb.env(RUBYOPT=""):
-            ruby_ = bb.watch(ruby)
+            _ = bb.watch(ruby)
             ruby(
                 test_dir / "benchmark" / "run.rb",
                 "--ruby=\"" + str(ruby_n) + "\"",

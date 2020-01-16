@@ -1,6 +1,6 @@
 import benchbuild as bb
 
-from benchbuild.downloads import HTTP
+from benchbuild.source import HTTP
 from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
 
 
@@ -21,8 +21,10 @@ class Crafty(bb.Project):
         },
              local='book.bin'),
         HTTP(remote={
-            '2016-11-crafty.tar.gz': 'http://lairosiel.de/dist/2016-11-crafty.tar.gz'
-        }, local='inputs.tar.gz')
+            '2016-11-crafty.tar.gz':
+            'http://lairosiel.de/dist/2016-11-crafty.tar.gz'
+        },
+             local='inputs.tar.gz')
     ]
 
     def compile(self):

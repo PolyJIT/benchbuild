@@ -3,8 +3,8 @@ from plumbum import local
 import benchbuild as bb
 from benchbuild import CFG
 
-from benchbuild.downloads import Git, HTTP
-from benchbuild.utils.cmd import cp, make
+from benchbuild.source import Git, HTTP
+from benchbuild.utils.cmd import make
 
 
 class X264(bb.Project):
@@ -25,10 +25,7 @@ class X264(bb.Project):
             local='sintel.raw'),
     ]
 
-    CONFIG = {
-        "tbbt-small": [],
-        "sintel": ["--input-res", "1280x720"]
-    }
+    CONFIG = {"tbbt-small": [], "sintel": ["--input-res", "1280x720"]}
 
     def compile(self):
         x264_repo = bb.path(self.source_of('x264.git'))
@@ -47,10 +44,7 @@ class X264(bb.Project):
 
     def run_tests(self):
         x264_repo = self.source_of('x264.git')
-        inputfiles = [
-            self.source_of('tbbt-small'),
-            self.source_of('sintel')
-        ]
+        inputfiles = [self.source_of('tbbt-small'), self.source_of('sintel')]
 
         x264 = bb.wrap(x264_repo / "x264", self)
         x264 = bb.watch(x264)
@@ -68,5 +62,5 @@ class X264(bb.Project):
 
         for testfile in inputfiles:
             for _, test in enumerate(tests):
-                x264(testfile, self.CONFIG[testfile], "--threads", "1", "-o", "/dev/null",
-                    test.split(" "))
+                x264(testfile, self.CONFIG[testfile], "--threads", "1", "-o",
+                     "/dev/null", test.split(" "))

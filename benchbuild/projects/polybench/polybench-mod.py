@@ -1,7 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
-from benchbuild.downloads import Git
+from benchbuild.source import Git
 from benchbuild.settings import CFG
 from benchbuild.projects.polybench.polybench import PolyBenchGroup
 

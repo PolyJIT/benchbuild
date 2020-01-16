@@ -6,11 +6,11 @@ from typing import Any, Iterable
 import attr
 from plumbum import local
 
-from benchbuild import variants
 from benchbuild.utils.cmd import git, mkdir
 from benchbuild.utils.path import flocked
 
 from . import base
+from . import variants
 
 
 @attr.s

@@ -1,11 +1,12 @@
 import abc
 import itertools
 
-from typing import Any, List, Mapping, Union
+from typing import List, Union
 
 import attr
 
 from .base import ISource
+
 
 @attr.s
 class BaseVersionGroup(ISource):
@@ -25,7 +26,6 @@ class BaseVersionGroup(ISource):
         Returns:
             str: [description]
         """
-
     @abc.abstractmethod
     def versions(self) -> List['Variant']:
         """
@@ -34,8 +34,6 @@ class BaseVersionGroup(ISource):
         Returns:
             List[str]: The list of all available versions.
         """
-
-
 @attr.s
 class BaseVersionFilter(ISource):
     child: ISource = attr.ib()
@@ -73,8 +71,6 @@ class BaseVersionFilter(ISource):
         Returns:
             List[str]: The list of all available versions.
         """
-
-
 @attr.s
 class CartesianProduct(BaseVersionGroup):
     def version(self, target_dir: str, version: List[str]) -> str:
@@ -88,6 +84,7 @@ class CartesianProduct(BaseVersionGroup):
     def versions(self):
         child_versions = [child.versions() for child in self.children]
         return itertools.product(*child_versions)
+
 
 def product(*variants):
     """

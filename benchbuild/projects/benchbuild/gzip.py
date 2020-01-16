@@ -2,9 +2,9 @@ from plumbum import local
 
 import benchbuild as bb
 
-from benchbuild.downloads import HTTP
+from benchbuild.source import HTTP
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import cp, make, tar
+from benchbuild.utils.cmd import make, tar
 
 
 class Gzip(bb.Project):

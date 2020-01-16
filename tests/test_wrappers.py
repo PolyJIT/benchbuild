@@ -3,11 +3,10 @@ import tempfile
 import unittest
 import os
 
-
 from plumbum import local
 from plumbum.cmd import rm
 
-from benchbuild.downloads.base import nosource
+from benchbuild.source.base import nosource
 
 import benchbuild.experiments.empty as empty
 import benchbuild.project as project
@@ -70,6 +69,6 @@ class RunStatic(WrapperTests):
 class RunDynamic(WrapperTests):
     def test_create(self):
         with local.cwd(self.tmp_dir):
-            cmd = wrappers.wrap_dynamic(
-                EmptyProject(empty.Empty()), self.tmp_script)
+            cmd = wrappers.wrap_dynamic(EmptyProject(empty.Empty()),
+                                        self.tmp_script)
         self.assertTrue(os.path.exists(str(cmd)))

@@ -28,12 +28,12 @@ import attr
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 
-from benchbuild import signals, variants
+from benchbuild import signals, source
 from benchbuild.settings import CFG
 from benchbuild.utils import container, db
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('benchbuild.actions')
 
 
 @enum.unique
@@ -572,11 +572,10 @@ class ProjectEnvironment(Step):
             src = variant.owner
             src.version(project.builddir, variant.version)
 
-
     def __str__(self, indent=0):
         project = self.obj
         variant = project.variant
-        version_str = variants.to_str(tuple(variant.values()))
+        version_str = source.variants.to_str(tuple(variant.values()))
 
         return textwrap.indent(
             "* Project environment for: {} @ {}".format(

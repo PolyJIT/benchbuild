@@ -4,7 +4,7 @@ from plumbum import local
 
 import benchbuild as bb
 
-from benchbuild.downloads import HTTP
+from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, mkdir, tar
 
 
@@ -33,7 +33,7 @@ class TCC(bb.Project):
             mkdir("build")
             with bb.cwd("build"):
                 configure = local["../configure"]
-                confiugre = bb.watch(configure)
+                configure = bb.watch(configure)
                 configure("--cc=" + str(clang), "--with-libgcc")
 
                 make_ = bb.watch(make)

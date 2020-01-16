@@ -1,10 +1,8 @@
 from os import getenv
 
-from plumbum import local
-
 import benchbuild as bb
 
-from benchbuild.downloads import Git
+from benchbuild.source import Git
 from benchbuild.utils.cmd import make
 
 

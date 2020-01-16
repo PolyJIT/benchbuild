@@ -38,8 +38,9 @@ optimize-ast=no
 # all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED
 confidence=
 
-disable=all
+# disable=all
 enable=all
+disable=C0114,C0115
 
 [REPORTS]
 

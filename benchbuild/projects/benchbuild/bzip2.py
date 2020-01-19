@@ -3,6 +3,8 @@ import benchbuild as bb
 from benchbuild.source import Git, HTTP
 from benchbuild.utils.cmd import make, tar
 
+from benchbuild.environments import Buildah
+
 
 class Bzip2(bb.Project):
     """ Bzip2 """
@@ -19,11 +21,13 @@ class Bzip2(bb.Project):
              local='compression.tar.gz')
     ]
 
-    def compile(self):
-        bzip2_repo = bb.path(self.source_of('bzip2.git'))
-        compression_source = bb.path(self.source_of('compression.tar.gz'))
-        tar('xf', compression_source)
+    CONTAINER: Buildah = Buildah().from_('debian:buster-slim')
 
+    def compile(self):
+        bzip2_repo = self.source_of('bzip2.git')
+        compression_source = self.source_of('compression.tar.gz')
+
+        tar('xf', compression_source)
         clang = bb.compiler.cc(self)
         with bb.cwd(bzip2_repo):
             make_ = bb.watch(make)

@@ -28,6 +28,7 @@ import collections
 import copy
 import uuid
 from abc import abstractmethod
+from typing import Dict
 
 import attr
 
@@ -222,3 +223,8 @@ class Configuration:
 
     def __add__(self, rhs):
         self.config.update(rhs.config)
+
+
+def discovered() -> Dict[str, Experiment]:
+    """Return all discovered experiments."""
+    return ExperimentRegistry.experiments

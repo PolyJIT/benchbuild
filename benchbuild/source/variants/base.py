@@ -26,3 +26,7 @@ def context(variant: VariantTuple) -> VariantContext:
 
 def to_str(variant: Iterable) -> str:
     return ",".join([str(i) for i in list(variant)])
+
+
+def to_tag(variant: Iterable) -> str:
+    return "-".join([str(i) for i in list(variant)])

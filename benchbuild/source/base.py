@@ -61,6 +61,19 @@ def to_str(*variants: Variant) -> str:
     return ",".join([str(i) for i in variants])
 
 
+def to_tag(*variants: Variant) -> str:
+    """
+    Convert an arbitrary number of variants into their string representation.
+
+    This representation avoids using punctuations often causing problems in
+    tags for container images.
+
+    Returns:
+        string representation of all input variants joined by ','.
+    """
+    return "-".join([str(i) for i in variants])
+
+
 class ISource(abc.ABC):
 
     @abc.abstractproperty

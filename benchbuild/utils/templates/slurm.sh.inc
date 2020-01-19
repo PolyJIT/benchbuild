@@ -83,4 +83,5 @@ EOF
 # End of cleanup cluster node
 
 # SLURM Command
+_project=$(echo ${_project} | sed -e "s/-/\//")
 {{ node_command }}

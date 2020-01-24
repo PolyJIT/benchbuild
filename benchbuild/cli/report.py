@@ -16,27 +16,24 @@ class BenchBuildReport(cli.Application):
         self._experiment_ids = []
         self._outfile = "report.csv"
 
-    @cli.switch(
-        ["-R", "--report"],
-        str,
-        list=True,
-        help="Specify the reports to generate")
+    @cli.switch(["-R", "--report"],
+                str,
+                list=True,
+                help="Specify the reports to generate")
     def reports(self, _reports):
         self.report_names = _reports
 
-    @cli.switch(
-        ["-E", "--experiment"],
-        str,
-        list=True,
-        help="Specify experiments to run")
+    @cli.switch(["-E", "--experiment"],
+                str,
+                list=True,
+                help="Specify experiments to run")
     def experiments(self, _experiments):
         self.experiment_names = _experiments
 
-    @cli.switch(
-        ["-e", "--experiment-id"],
-        str,
-        list=True,
-        help="Specify an experiment id to run")
+    @cli.switch(["-e", "--experiment-id"],
+                str,
+                list=True,
+                help="Specify an experiment id to run")
     def experiment_ids(self, ids):
         self._experiment_ids = ids
 
@@ -76,8 +73,8 @@ class BenchBuildReport(cli.Application):
         if self.experiment_names:
             _reports = [
                 all_reports[name] for name in all_reports
-                if set(all_reports[name].SUPPORTED_EXPERIMENTS) & set(
-                    self.experiment_names)
+                if set(all_reports[name].SUPPORTED_EXPERIMENTS)
+                & set(self.experiment_names)
             ]
             generate_reports(_reports, self.experiment_names)
             exit(0)

@@ -35,9 +35,9 @@ import attr
 import benchbuild.source as bb_dl
 import benchbuild.source.variants as variants
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
-                                      Containerize, Echo, MakeBuildDir,
-                                      ProjectEnvironment, RequireAll, Run)
+from benchbuild.utils.actions import (Clean, CleanExtra, Compile, Containerize,
+                                      Echo, MakeBuildDir, ProjectEnvironment,
+                                      RequireAll, Run)
 
 
 class ExperimentRegistry(type):

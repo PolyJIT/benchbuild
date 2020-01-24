@@ -1,7 +1,6 @@
 """
 Orchestrate experiment execution.
 """
-import abc
 from typing import Callable, List, Tuple, Type
 
 import attr
@@ -14,11 +13,8 @@ Experiments = Type[List[ExperimentCls]]
 ProjectCls = Type[Project]
 Projects = Type[List[ProjectCls]]
 ExperimentProject = Tuple[ExperimentCls, ProjectCls]
-ExpStrategy: Type = Type[
-        Callable[
-            [List[Experiment], List[Project]],
-            List[Tuple[Experiment, Project]]]
-    ]
+ExpStrategy: Type = Type[Callable[[List[Experiment], List[Project]], List[
+    Tuple[Experiment, Project]]]]
 
 
 @attr.s

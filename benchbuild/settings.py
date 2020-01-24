@@ -270,56 +270,17 @@ CFG["plugins"] = {
         "desc": "Should automatic load of plugins be enabled?"
     },
     "reports": {
-        "default": [
-            "benchbuild.reports.raw",
-            "benchbuild.reports.status"
-        ],
+        "default": [],
         "desc":
         "Report plugins."
     },
     "experiments": {
-        "default": [
-            "benchbuild.experiments.raw",
-            "benchbuild.experiments.empty",
-        ],
+        "default": [],
         "desc":
         "The experiment plugins we know about."
     },
     "projects": {
-        "default": [
-            "benchbuild.projects.gentoo", "benchbuild.projects.lnt.lnt",
-            "benchbuild.projects.polybench.polybench",
-            "benchbuild.projects.polybench.polybench-mod",
-            "benchbuild.projects.benchbuild.bots",
-            "benchbuild.projects.benchbuild.bzip2",
-            "benchbuild.projects.benchbuild.ccrypt",
-            "benchbuild.projects.benchbuild.crafty",
-            "benchbuild.projects.benchbuild.crocopat",
-            "benchbuild.projects.benchbuild.ffmpeg",
-            "benchbuild.projects.benchbuild.gzip",
-            "benchbuild.projects.benchbuild.js",
-            "benchbuild.projects.benchbuild.lammps",
-            "benchbuild.projects.benchbuild.lapack",
-            "benchbuild.projects.benchbuild.leveldb",
-            "benchbuild.projects.benchbuild.linpack",
-            "benchbuild.projects.benchbuild.lulesh",
-            "benchbuild.projects.benchbuild.mcrypt",
-            "benchbuild.projects.benchbuild.minisat",
-            "benchbuild.projects.benchbuild.openssl",
-            "benchbuild.projects.benchbuild.povray",
-            "benchbuild.projects.benchbuild.python",
-            "benchbuild.projects.benchbuild.rasdaman",
-            "benchbuild.projects.benchbuild.ruby",
-            "benchbuild.projects.benchbuild.sdcc",
-            "benchbuild.projects.benchbuild.sevenz",
-            "benchbuild.projects.benchbuild.sqlite3",
-            "benchbuild.projects.benchbuild.tcc",
-            "benchbuild.projects.benchbuild.x264",
-            "benchbuild.projects.benchbuild.xz",
-            "benchbuild.projects.apollo.scimark",
-            "benchbuild.projects.apollo.rodinia",
-            "benchbuild.projects.test.test"
-        ],
+        "default": [],
         "desc":
         "The project plugins we know about."
     }

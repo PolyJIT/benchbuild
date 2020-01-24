@@ -1,7 +1,7 @@
 """
 Declare a http source.
 """
-from typing import Iterable, Mapping, Union
+from typing import List, Mapping, Union
 
 import attr
 from plumbum import local
@@ -19,7 +19,7 @@ class HTTP(base.BaseSource):
     """
     @property
     def default(self) -> variants.Variant:
-        return self.versions().next()
+        return self.versions()[0]
 
     def version(self, target_dir: str, version: str) -> str:
         prefix = base.target_prefix()
@@ -36,13 +36,13 @@ class HTTP(base.BaseSource):
         cp('-ar', cache_path, target_path)
         return target_path
 
-    def versions(self) -> Iterable[variants.Variant]:
+    def versions(self) -> List[variants.Variant]:
         remotes = normalize_remotes(self.remote)
         return [variants.Variant(version=rev, owner=self) for rev in remotes]
 
 
-def normalize_remotes(remote: Union[str, Mapping[str, str]]
-                      ) -> Mapping[str, str]:
+def normalize_remotes(
+        remote: Union[str, Mapping[str, str]]) -> Mapping[str, str]:
     if not isinstance(remote, Mapping):
         raise TypeError('\'remote\' needs to be a mapping type')
     _remotes = {}

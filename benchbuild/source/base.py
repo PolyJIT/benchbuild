@@ -4,7 +4,7 @@ Provide a base interface for downloadable sources.
 import abc
 import itertools
 
-from typing import Iterable, Mapping, Union
+from typing import List, Mapping, Union
 
 import attr
 
@@ -18,6 +18,7 @@ class ISource(abc.ABC):
         """
         The default version for this source.
         """
+
     @abc.abstractmethod
     def version(self, target_dir: str, version: str) -> str:
         """
@@ -32,14 +33,17 @@ class ISource(abc.ABC):
         Returns:
             str: [description]
         """
+
     @abc.abstractmethod
-    def versions(self) -> Iterable[Variant]:
+    def versions(self) -> List[Variant]:
         """
         List all available versions of this source.
 
         Returns:
             List[str]: The list of all available versions.
         """
+
+
 @attr.s
 class BaseSource(ISource):
     """
@@ -54,6 +58,7 @@ class BaseSource(ISource):
         """
         The default version for this source.
         """
+
     @abc.abstractmethod
     def version(self, target_dir: str, version: str) -> str:
         """
@@ -68,8 +73,9 @@ class BaseSource(ISource):
         Returns:
             str: [description]
         """
+
     @abc.abstractmethod
-    def versions(self) -> Iterable[Variant]:
+    def versions(self) -> List[Variant]:
         """
         List all available versions of this source.
 
@@ -78,7 +84,7 @@ class BaseSource(ISource):
         """
 
 
-Sources = Iterable['BaseSource']
+Sources = List['BaseSource']
 
 
 @attr.s
@@ -90,7 +96,7 @@ class NoSource(BaseSource):
     def version(self, target_dir: str, version: str) -> str:
         return 'None'
 
-    def versions(self) -> Iterable[Variant]:
+    def versions(self) -> List[Variant]:
         return ['None']
 
 

@@ -1,7 +1,7 @@
 """
 Declare a git source.
 """
-from typing import Any, Iterable
+from typing import Any, List
 
 import attr
 from plumbum import local
@@ -77,11 +77,11 @@ class Git(base.BaseSource):
                 worktree('add', '--detach', tgt_loc, version)
         return tgt_loc
 
-    def versions(self) -> Iterable[variants.Variant]:
+    def versions(self) -> List[variants.Variant]:
         cache_path = self.fetch()
         git_rev_list = git['rev-list', '--abbrev-commit', '--abbrev=10']
 
-        rev_list: Iterable[str] = []
+        rev_list: List[str] = []
         with local.cwd(cache_path):
             rev_list = list(git_rev_list(self.refspec).strip().split('\n'))
 

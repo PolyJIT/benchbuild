@@ -3,7 +3,7 @@ from typing import List
 
 from plumbum import cli
 
-from benchbuild import environments, experiment, experiments, project, source
+from benchbuild import plugins, environments, experiment, project, source
 from benchbuild.cli.main import BenchBuild
 
 
@@ -31,7 +31,7 @@ class BenchBuildContainer(cli.Application):
     """Frontend for running experiments inside a containerized environment."""
     def main(self, *projects):
         """Main entry point of benchbuild container."""
-        experiments.discover()
+        plugins.discover()
         cli_experiments = self.experiment_args
         cli_groups = self.group_args
 

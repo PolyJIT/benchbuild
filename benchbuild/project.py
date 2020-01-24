@@ -333,6 +333,11 @@ def __split_project_input__(project_input: str) -> Tuple[str, Optional[str]]:
     return (first, second)
 
 
+def discovered() -> Dict[str, Project]:
+    """Return all discovered projects."""
+    return ProjectRegistry.projects
+
+
 def populate(projects_to_filter=None,
              group=None) -> Mapping[str, Tuple[Type[Project], Optional[str]]]:
     """
@@ -353,10 +358,7 @@ def populate(projects_to_filter=None,
     if projects_to_filter is None:
         projects_to_filter = []
 
-    import benchbuild.projects as all_projects
-    all_projects.discover()
-
-    prjs = ProjectRegistry.projects
+    prjs = discovered()
     if projects_to_filter:
         prjs = {}
 

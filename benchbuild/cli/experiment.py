@@ -4,7 +4,7 @@ import urwid
 from jinja2 import Environment, PackageLoader
 from plumbum import cli
 
-from benchbuild import experiment, experiments
+from benchbuild import experiment, plugins
 from benchbuild.cli.main import BenchBuild
 from benchbuild.utils import schema
 
@@ -12,7 +12,6 @@ from benchbuild.utils import schema
 @BenchBuild.subcommand("experiment")
 class BBExperiment(cli.Application):
     """Manage BenchBuild's known experiments."""
-
     def main(self):
         if not self.nested_command:
             self.help()
@@ -21,10 +20,8 @@ class BBExperiment(cli.Application):
 @BBExperiment.subcommand("view")
 class BBExperimentView(cli.Application):
     """View available experiments."""
-
     def main(self):
-        experiments.discover()
-        all_exps = experiment.ExperimentRegistry.experiments
+        all_exps = experiment.discovered()
         for exp_cls in all_exps.values():
             print(exp_cls.NAME)
             docstring = exp_cls.__doc__ or "-- no docstring --"

@@ -1,6 +1,6 @@
 from plumbum import cli
 
-from benchbuild import experiments, reports
+from benchbuild import plugins, reports
 from benchbuild.cli.main import BenchBuild
 from benchbuild.utils import schema
 
@@ -44,9 +44,8 @@ class BenchBuildReport(cli.Application):
     def main(self, *args):
         del args  # Unused
 
-        experiments.discover()
-        reports.discover()
-        all_reports = reports.ReportRegistry.reports
+        plugins.discover()
+        all_reports = reports.discovered()
 
         def generate_reports(_reports, _experiments=None):
             if not reports:

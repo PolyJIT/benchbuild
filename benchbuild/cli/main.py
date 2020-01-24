@@ -41,3 +41,9 @@ class BenchBuild(cli.Application):
             return 1
         if not self.nested_command:
             self.help()
+
+
+def main(*args):
+    """Main function."""
+
+    return BenchBuild.run(*args)

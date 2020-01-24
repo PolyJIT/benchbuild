@@ -1,8 +1,9 @@
 """Subcommand for project handling."""
 from plumbum import cli
 
-import benchbuild as bb
 from benchbuild.cli.main import BenchBuild
+from benchbuild.project import populate
+from benchbuild import source
 
 
 @BenchBuild.subcommand("project")
@@ -27,7 +28,7 @@ class BBProjectView(cli.Application):
         self.groups = groups
 
     def main(self, *projects):
-        print_projects(bb.populate(projects, self.groups))
+        print_projects(populate(projects, self.groups))
 
 
 def print_projects(projects=None):
@@ -60,7 +61,7 @@ def print_projects(projects=None):
             prj_cls = projects[prj]
 
             project_id = f'{prj_cls.NAME}/{prj_cls.GROUP}'
-            project_version = str(bb.source.default(prj_cls.SOURCE))
+            project_version = str(source.default(prj_cls.SOURCE))
 
             project_lines = [
                 f'::  {project_id}'

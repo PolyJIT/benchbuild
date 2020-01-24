@@ -2,15 +2,15 @@
 import os
 from plumbum import cli
 
-from benchbuild import settings
-from benchbuild.utils import log
 from benchbuild import plugins
+from benchbuild.settings import CFG
+from benchbuild.utils import log, settings
 
 
 class BenchBuild(cli.Application):
     """Frontend for running/building the benchbuild study framework."""
 
-    VERSION = str(settings.CFG["version"])
+    VERSION = str(CFG["version"])
     _list_env = False
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
@@ -22,8 +22,10 @@ class BenchBuild(cli.Application):
             self.verbosity = 3
         verbosity = int(os.getenv('BB_VERBOSITY', self.verbosity))
 
-        settings.CFG["verbosity"] = verbosity
-        settings.CFG["debug"] = self.debug
+        settings.setup_config(CFG)
+
+        CFG["verbosity"] = verbosity
+        CFG["debug"] = self.debug
 
         log.configure()
         log.set_defaults()

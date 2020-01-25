@@ -151,7 +151,7 @@ class StepClass(abc.ABCMeta):
         return result
 
 
-@attr.s(cmp=False)
+@attr.s()
 class Step(metaclass=StepClass):
     """Base class of a step.
 
@@ -330,12 +330,12 @@ def run_any_child(child: Step):
     return child()
 
 
-@attr.s(cmp=False)
+@attr.s()
 class Any(Step):
     NAME: str = "ANY"
     DESCRIPTION: str = "Just run all actions, no questions asked."
 
-    actions = attr.ib(default=attr.Factory(list), repr=False, cmp=False)
+    actions = attr.ib(default=attr.Factory(list), repr=False)
 
     def __len__(self):
         return sum([len(x) for x in self.actions]) + 1
@@ -365,7 +365,7 @@ class Any(Step):
         return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
 
 
-@attr.s(cmp=False, hash=True)
+@attr.s(hash=True)
 class Experiment(Any):
     NAME: str = "EXPERIMENT"
     DESCRIPTION: str = "Run a experiment, wrapped in a db transaction"

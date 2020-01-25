@@ -53,7 +53,7 @@ class ExperimentRegistry(type):
             ExperimentRegistry.experiments[cls.NAME] = cls
 
 
-@attr.s(cmp=False)
+@attr.s()
 class Experiment(metaclass=ExperimentRegistry):
     """
     A series of commands executed on a project that form an experiment.
@@ -134,6 +134,7 @@ class Experiment(metaclass=ExperimentRegistry):
         Args:
             project (benchbuild.Project): the project we want to run.
         """
+
     def actions(self):
         """
         Common setup required to run this experiment on all projects.

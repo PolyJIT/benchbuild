@@ -14,7 +14,7 @@ CFG = settings.CFG
 LOG = logging.getLogger(__name__)
 
 
-@attr.s(cmp=False)
+@attr.s()
 class RunInfo:
     """
     Execution context of wrapped binaries.
@@ -34,7 +34,6 @@ class RunInfo:
         db_run ():
         session ():
     """
-
     def __begin(self, command, project, ename, group):
         """
         Begin a run in the database log.
@@ -350,7 +349,6 @@ def in_builddir(sub='.'):
 
     def wrap_in_builddir(func):
         """Wrap the function for the new build directory."""
-
         @wraps(func)
         def wrap_in_builddir_func(self, *args, **kwargs):
             """The actual function inside the wrapper for the new builddir."""

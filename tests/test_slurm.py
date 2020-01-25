@@ -30,8 +30,7 @@ class TestSLURM(unittest.TestCase):
         script_path = local.path(
             slurm.__save__(self.tmp_file, true, self.exp, [self.prj]))
 
-        self.assertTrue(
-            self.tmp_file == script_path,
-            msg="Generated file does not match temporary file.")
-        self.assertTrue(
-            slurm.__verify__(self.tmp_file), msg="Syntax check failed.")
+        self.assertTrue(self.tmp_file == script_path,
+                        msg="Generated file does not match temporary file.")
+        self.assertTrue(slurm.__verify__(self.tmp_file),
+                        msg="Syntax check failed.")

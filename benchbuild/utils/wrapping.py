@@ -77,10 +77,9 @@ def unpickle(pickle_file):
 
 def __create_jinja_env():
     from jinja2 import Environment, PackageLoader
-    return Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    return Environment(trim_blocks=True,
+                       lstrip_blocks=True,
+                       loader=PackageLoader('benchbuild.utils', 'templates'))
 
 
 def wrap(name, project, sprefix=None, python=sys.executable):

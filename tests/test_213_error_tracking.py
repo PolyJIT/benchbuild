@@ -59,11 +59,8 @@ class ErrorStateExp(experiment.Experiment):
 
 class TrackErrorsTestCase(unittest.TestCase):
     """Test issue #213."""
-
     def test_exception(self):
-        plan = list(
-            tasks.generate_plan({"test_exception": ExceptionExp},
-                                {"test_empty": EmptyProject}))
+        plan = list(tasks.generate_plan([ExceptionExp], [EmptyProject]))
         self.assertEqual(len(plan),
                          1,
                          msg="The test plan must have a length of 1.")
@@ -72,9 +69,7 @@ class TrackErrorsTestCase(unittest.TestCase):
         self.assertEqual(len(failed), 1, msg="One step must fail!")
 
     def test_error_state(self):
-        plan = list(
-            tasks.generate_plan({"test_error_state": ErrorStateExp},
-                                {"test_empty": EmptyProject}))
+        plan = list(tasks.generate_plan([ErrorStateExp], [EmptyProject]))
         self.assertEqual(len(plan),
                          1,
                          msg="The test plan must have a length of 1.")

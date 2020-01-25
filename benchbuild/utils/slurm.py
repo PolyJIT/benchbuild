@@ -88,10 +88,9 @@ def __save__(script_name, benchbuild, experiment, projects):
 
     logs_dir = os.path.dirname(CFG['slurm']['logs'].value)
     node_command = str(benchbuild["-E", experiment.name, "$_project"])
-    env = Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    env = Environment(trim_blocks=True,
+                      lstrip_blocks=True,
+                      loader=PackageLoader('benchbuild.utils', 'templates'))
     template = env.get_template('slurm.sh.inc')
 
     with open(script_name, 'w') as slurm2:

@@ -8,7 +8,6 @@ from benchbuild.utils import schema
 @BenchBuild.subcommand("report")
 class BenchBuildReport(cli.Application):
     """Generate Reports from the benchbuild db."""
-
     def __init__(self, executable):
         super(BenchBuildReport, self).__init__(executable=executable)
         self.experiment_names = []

@@ -189,14 +189,14 @@ def wrap_dynamic(project,
 
     with open(name_absolute, 'w') as wrapper:
         wrapper.write(
-            template.render(
-                runf=strip_path_prefix(real_f, sprefix),
-                project_file=strip_path_prefix(project_file, sprefix),
-                path=str(bin_path),
-                ld_library_path=str(bin_lib_path),
-                home=str(home),
-                python=python,
-                name_filters=name_filters))
+            template.render(runf=strip_path_prefix(real_f, sprefix),
+                            project_file=strip_path_prefix(
+                                project_file, sprefix),
+                            path=str(bin_path),
+                            ld_library_path=str(bin_lib_path),
+                            home=str(home),
+                            python=python,
+                            name_filters=name_filters))
 
     chmod("+x", name_absolute)
     return local[name_absolute]
@@ -235,11 +235,10 @@ def wrap_cc(filepath,
 
     with open(filepath, 'w') as wrapper:
         wrapper.write(
-            template.render(
-                cc_f=cc_f,
-                project_file=project_file,
-                python=python,
-                detect_project=detect_project))
+            template.render(cc_f=cc_f,
+                            project_file=project_file,
+                            python=python,
+                            detect_project=detect_project))
 
     chmod("+x", filepath)
     LOG.debug("Placed wrapper in: %s for compiler %s", local.path(filepath),

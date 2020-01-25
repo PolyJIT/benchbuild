@@ -58,7 +58,7 @@ class ExperimentRegistry(type):
         return cls
 
 
-@attr.s(eq=False)
+@attr.s()
 class Experiment(metaclass=ExperimentRegistry):
     """
     A series of commands executed on a project that form an experiment.

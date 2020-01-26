@@ -57,7 +57,7 @@ setup(name='benchbuild',
       long_description=long_description,
       long_description_content_type='text/markdown',
       license="MIT",
-      entry_points={'console_scripts': ['benchbuild=benchbuild.cli:main']},
+      entry_points={'console_scripts': ['benchbuild=benchbuild.cli:__main__']},
       classifiers=[
           'Development Status :: 4 - Beta', 'Intended Audience :: Developers',
           'Topic :: Software Development :: Testing',

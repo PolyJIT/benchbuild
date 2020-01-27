@@ -1,10 +1,13 @@
 """Subcommand for containerizing benchbuild experiments."""
-from typing import List
+import itertools
+from typing import List, Generator, Tuple
 
 from plumbum import cli
 
 from benchbuild import plugins, environments, experiment, project, source
 from benchbuild.cli.main import BenchBuild
+from benchbuild.environments import Buildah
+from benchbuild.utils.cmd import mkdir, rm
 
 
 @BenchBuild.subcommand("container")
@@ -27,8 +30,6 @@ class BenchBuildContainer(cli.Application):
     def set_group(self, groups):
         self.group_args = groups
 
-    pretend = cli.Flag(['p', 'pretend'], default=False)
-    """Frontend for running experiments inside a containerized environment."""
     def main(self, *projects):
         """Main entry point of benchbuild container."""
         plugins.discover()
@@ -56,42 +57,94 @@ class BenchBuildContainer(cli.Application):
             print("No projects selected.")
             return -2
 
-        build_images(wanted_experiments, wanted_projects)
         # For all project versions:
         # 2. Build project image.
-        # 3. Build experiment image from each project image.
-
-        # 4. Integrate bencbuild into the experiment image
+        final_images = []
+        for p_name, p_image in build_project_images(wanted_experiments,
+                                                    wanted_projects):
+            # 3. Build experiment image from each project image.
+            for e_image in build_experiment_images(p_name, p_image,
+                                                   wanted_experiments):
+                # 4. Integrate bencbuild into the experiment image
+                final_images.append(add_benchbuild(e_image))
 
         # 5. Prepare results directory
         # 6. Setup podman container.
         # 7. Call benchbuild run with the given experiment/project config.
 
 
-def build_images(wanted_experiments, wanted_projects) -> List[str]:
+def build_project_images(
+        wanted_experiments,
+        wanted_projects) -> Generator[Tuple[str, str], None, None]:
     """Build container images."""
-    images = []
-    for prj_key, prj_cls in wanted_projects.items():
-        prj_variants = source.product(prj_cls.SOURCE)
-        for variant in prj_variants:
+    combinations = itertools.product(wanted_projects.items(),
+                                     wanted_experiments.items())
+
+    def build_project_image(prj: project.Project) -> Buildah:
+        # Setup build context
+        builddir = prj.builddir
+
+        mkdir('-p', builddir)
+        container = prj.container
+
+        variant = prj.variant
+        for version in variant.values():
+            src = version.owner
+            loc = src.version(builddir, str(version))
+            container.add(loc, f"/.benchuild/{version}")
+
+        container = environments.finalize_project_container(prj, container)
+        rm('-r', builddir)
+        return container
+
+    for (prj_key, prj_cls), (_, exp_cls) in combinations:
+        # FIXME: Need customizable version filters
+        for variant in source.product(prj_cls.SOURCE):
             ctx = source.variants.context(variant)
             if not hasattr(prj_cls, 'CONTAINER'):
                 print(f"{prj_key} does not support container mode yet.")
                 continue
+            exp = exp_cls()
+            prj: project.Project = prj_cls(exp, variant=ctx)
 
-            for _, exp_cls in wanted_experiments.items():
-                exp = exp_cls()
-                prj = prj_cls(exp, variant=ctx)
+            for image_info in environments.by_project(prj):
+                yield (prj_key, image_info["id"])
+                break
+            else:
+                # FIXME: Support forced rebuild.
+                print(f"Building... {str(ctx)}")
+                yield (prj_key, build_project_image(prj))
 
-                for image_info in environments.by_project(prj):
-                    container = image_info["id"]
-                    images.append(container)
-                    break
-                else:
-                    # FIXME: Support container per version.
-                    # FIXME: Support forced rebuild.
-                    container = prj_cls.CONTAINER
-                    container = environments.finalize_project_container(
-                        prj, container)
 
-    print(images)
+def build_experiment_images(name: str, image: str,
+                            wanted_experiments) -> Generator[str, None, None]:
+    for exp, _ in wanted_experiments.items():
+        tag = f"{exp}/{name}:{image[:12]}"
+        for image_info in environments.by_tag(tag):
+            container = image_info["id"]
+            yield tag
+            break
+        else:
+            container = Buildah()
+            container.from_(image)
+            yield container.finalize(tag)
+
+
+def add_benchbuild(image: str) -> str:
+    def from_source():
+        pass
+
+    def from_pip():
+        pass
+
+    src_dir = '/home/simbuerg/src/polyjit/benchbuild'
+    tgt_dir = '/benchbuild'
+
+    container = Buildah().from_(image)
+    container.run('/bin/mkdir', '/benchbuild', runtime='/usr/bin/crun')
+    container.run('/usr/bin/pip',
+                  'install',
+                  '/benchbuild/',
+                  mount=f'type=bind,src={src_dir},target={tgt_dir}',
+                  runtime='/usr/bin/crun')
+    return container.finalize(tag=f'{image}-bb')

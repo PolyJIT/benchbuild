@@ -3,7 +3,7 @@
 import json
 import logging
 import textwrap
-from typing import Any
+from typing import Any, Callable, List, Union
 
 import attr
 import defer
@@ -22,72 +22,87 @@ __BUILDAH_DEFAULT_OPTS__ = [
 ]
 __BUILDAH__ = buildah[__BUILDAH_DEFAULT_OPTS__]
 
-
-def __buildah_cmd__(image_id: str, sub_command: str):
-    cmd = __BUILDAH__[sub_command, image_id]
-    return cmd
+CommandFunc = Callable[[str], Union[str, None]]
 
 
 @attr.s
-class Buildah:
-    commands: defer.Deferred = attr.ib(
-        default=attr.Factory(lambda: defer.Deferred()))
+class DeclarativeTool:
+    commands: List[CommandFunc] = attr.ib(default=attr.Factory(list))
+
+
+@attr.s
+class Podman(DeclarativeTool):
+    pass
+
+
+@attr.s
+class Buildah(DeclarativeTool):
     in_progress: str = attr.ib(default='')
     image: str = attr.ib(default='')
 
     def finalize(self, tag: str):
         self.commit(tag)
-        self.commands.callback()
+
+        chain = defer.Deferred()
+        for cmd in self.commands:
+            chain.add_callback(cmd)
+        chain.callback()
+
         self.clean()
         self.in_progress = ''
-        return self.commands.result
+        return chain.result
 
     def from_(self, base_img: str):
-        def from__(_, from_img: str):
-            self.in_progress = __BUILDAH__('from', from_img).strip()
+        def from__(_):
+            self.in_progress = __BUILDAH__('from', base_img).strip()
             return self.in_progress
 
-        self.commands.add_callback(from__, from_img=base_img)
+        self.commands.append(from__)
         return self
 
     def bud(self, dockerfile: str):
-        def bud_(_, dockerfile: str):
+        def bud_(_):
             return (
                 __BUILDAH__['bud'] << textwrap.dedent(dockerfile))().strip()
 
-        self.commands.add_callback(bud_, dockerfile=dockerfile)
+        self.commands.append(bud_)
         return self
 
     def add(self, src: str, dest: str):
-        def add_(build_id: str, src: str, dest: str):
+        def add_(build_id: str):
             __BUILDAH__('add', build_id, src, dest)
             return build_id
 
-        self.commands.add_callback(add_, src, dest)
+        self.commands.append(add_)
         return self
 
     def commit(self, tag: str):
-        def commit_(build_id: str, tag: str):
+        def commit_(build_id: str):
             image_id = __BUILDAH__('commit', build_id, tag).strip()
             return image_id
 
-        self.commands.add_callback(commit_, tag)
+        self.commands.append(commit_)
         return self
 
     def copy(self, src: str, dest: str):
-        def copy_(build_id: str, src: str, dest: str):
+        def copy_(build_id: str):
             __BUILDAH__('copy', build_id, src, dest)
             return build_id
 
-        self.commands.add_callback(copy_, src, dest)
+        self.commands.append(copy_)
         return self
 
-    def run(self, *args):
-        def run_(build_id: str, *args):
-            __BUILDAH__('run', build_id, '--', *args)
+    def run(self, *args, **kwargs):
+        def run_(build_id: str):
+            kws = []
+            for name, value in dict(kwargs).items():
+                kws.append(f'--{name}')
+                kws.append(f'{str(value)}')
+
+            __BUILDAH__('run', *kws, build_id, '--', *args)
             return build_id
 
-        self.commands.add_callback(run_, *args)
+        self.commands.append(run_)
         return self
 
     def clean(self):
@@ -107,7 +122,7 @@ def instanciate_project_container(project: Project,
 def tag(project: Project) -> str:
     """Generate a container tag."""
     version_str = "-".join([str(var) for var in project.variant.values()])
-    return f"{project.group}/{project.name}:{version_str}"
+    return f"{project.name}/{project.group}:{version_str}"
 
 
 def finalize_project_container(project: Project, env: Buildah):

@@ -307,6 +307,28 @@ CFG["plugins"] = {
 }
 
 CFG["container"] = {
+    "runroot": {
+        "default": s.ConfigPath(os.path.join(os.getcwd(), "containers", "run")),
+        "desc": "Storage state directory."
+    },
+    "root": {
+        "default": s.ConfigPath(os.path.join(os.getcwd(), "containers", "lib")),
+        "desc": "Storage root directory."
+    },
+    "from_source": {
+        "default":
+            False,
+        "desc":
+            "Use benchbuild's source to integrate benchbuild into containers."
+    },
+    "runtime": {
+        "default": "/usr/bin/crun",
+        "desc": "The default container runtime to use with podman."
+    },
+    "source": {
+        "default": s.ConfigPath(os.getcwd()),
+        "desc": "Path to benchbuild's source directory."
+    },
     "input": {
         "default": "container.tar.bz2",
         "desc": "Input container file/folder."

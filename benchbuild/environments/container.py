@@ -15,10 +15,10 @@ from benchbuild.utils.cmd import buildah
 # Image declaration.
 LOG = logging.getLogger(__name__)
 
+__CONTAINER_ROOT__ = str(CFG['container']['root'])
+__CONTAINER_RUNROOT__ = str(CFG['container']['runroot'])
 __BUILDAH_DEFAULT_OPTS__ = [
-    '--root',
-    str(CFG['tmp_dir']), '--runroot',
-    str(CFG['build_dir'])
+    '--root', __CONTAINER_ROOT__, '--runroot', __CONTAINER_RUNROOT__
 ]
 __BUILDAH__ = buildah[__BUILDAH_DEFAULT_OPTS__]
 

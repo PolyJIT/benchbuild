@@ -8,6 +8,7 @@ from benchbuild import plugins, environments, experiment, project, source
 from benchbuild.cli.main import BenchBuild
 from benchbuild.environments import Buildah
 from benchbuild.utils.cmd import mkdir, rm
+from benchbuild.settings import CFG
 
 
 @BenchBuild.subcommand("container")
@@ -131,20 +132,32 @@ def build_experiment_images(name: str, image: str,
 
 
 def add_benchbuild(image: str) -> str:
-    def from_source():
-        pass
-
-    def from_pip():
-        pass
-
-    src_dir = '/home/simbuerg/src/polyjit/benchbuild'
+    src_dir = str(CFG['container']['source'])
     tgt_dir = '/benchbuild'
+    crun = '/usr/bin/crun'
+
+    def from_source(container):
+        container.run('mkdir', '/benchbuild', runtime=crun)
+        container.run('apt-get', 'update', runtime=crun)
+        container.run('apt-get', 'install', '-y', 'python-pip', runtime=crun)
+        container.run('pip', 'install', '-U', 'setuptools', runtime=crun)
+        container.run('pip', 'list', runtime=crun)
+        container.run('pip',
+                      'install',
+                      '/benchbuild/',
+                      mount=f'type=bind,src={src_dir},target={tgt_dir}',
+                      runtime=crun)
+
+    def from_pip(container):
+        container.run('pip', 'install', 'benchbuild', runtime=crun)
+
+    tag = f'{image}-bb'
+    for image_info in environments.by_tag(tag):
+        return image_info['id']
 
     container = Buildah().from_(image)
-    container.run('/bin/mkdir', '/benchbuild', runtime='/usr/bin/crun')
-    container.run('/usr/bin/pip',
-                  'install',
-                  '/benchbuild/',
-                  mount=f'type=bind,src={src_dir},target={tgt_dir}',
-                  runtime='/usr/bin/crun')
-    return container.finalize(tag=f'{image}-bb')
+    if bool(CFG['container']['from_source']):
+        from_source(container)
+    else:
+        from_pip(container)
+    return container.finalize(tag=tag)

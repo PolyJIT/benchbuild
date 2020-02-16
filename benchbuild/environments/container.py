@@ -10,7 +10,6 @@ import defer
 
 from benchbuild.project import Project
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import buildah
 
 # Image declaration.
 LOG = logging.getLogger(__name__)
@@ -20,7 +19,12 @@ __CONTAINER_RUNROOT__ = str(CFG['container']['runroot'])
 __BUILDAH_DEFAULT_OPTS__ = [
     '--root', __CONTAINER_ROOT__, '--runroot', __CONTAINER_RUNROOT__
 ]
-__BUILDAH__ = buildah[__BUILDAH_DEFAULT_OPTS__]
+
+
+def __buildah__():
+    from benchbuild.utils.cmd import buildah
+    return buildah[__BUILDAH_DEFAULT_OPTS__]
+
 
 CommandFunc = Callable[[str], Union[str, None]]
 
@@ -54,7 +58,7 @@ class Buildah(DeclarativeTool):
 
     def from_(self, base_img: str):
         def from__(_):
-            self.in_progress = __BUILDAH__('from', base_img).strip()
+            self.in_progress = __buildah__()('from', base_img).strip()
             return self.in_progress
 
         self.commands.append(from__)
@@ -63,14 +67,14 @@ class Buildah(DeclarativeTool):
     def bud(self, dockerfile: str):
         def bud_(_):
             return (
-                __BUILDAH__['bud'] << textwrap.dedent(dockerfile))().strip()
+                __buildah__()['bud'] << textwrap.dedent(dockerfile))().strip()
 
         self.commands.append(bud_)
         return self
 
     def add(self, src: str, dest: str):
         def add_(build_id: str):
-            __BUILDAH__('add', build_id, src, dest)
+            __buildah__()('add', build_id, src, dest)
             return build_id
 
         self.commands.append(add_)
@@ -78,7 +82,7 @@ class Buildah(DeclarativeTool):
 
     def commit(self, tag: str):
         def commit_(build_id: str):
-            image_id = __BUILDAH__('commit', build_id, tag).strip()
+            image_id = __buildah__()('commit', build_id, tag).strip()
             return image_id
 
         self.commands.append(commit_)
@@ -86,7 +90,7 @@ class Buildah(DeclarativeTool):
 
     def copy(self, src: str, dest: str):
         def copy_(build_id: str):
-            __BUILDAH__('copy', build_id, src, dest)
+            __buildah__()('copy', build_id, src, dest)
             return build_id
 
         self.commands.append(copy_)
@@ -99,7 +103,7 @@ class Buildah(DeclarativeTool):
                 kws.append(f'--{name}')
                 kws.append(f'{str(value)}')
 
-            __BUILDAH__('run', *kws, build_id, '--', *args)
+            __buildah__()('run', *kws, build_id, '--', *args)
             return build_id
 
         self.commands.append(run_)
@@ -108,7 +112,7 @@ class Buildah(DeclarativeTool):
     def clean(self):
         """Remove the intermediate container."""
         if self.in_progress:
-            __BUILDAH__('rm', self.in_progress)
+            __buildah__()('rm', self.in_progress)
 
 
 def instanciate_project_container(project: Project,
@@ -138,7 +142,7 @@ def finalize_project_container(project: Project, env: Buildah):
 
 def by_tag(tag: str) -> Any:
     """Find a container image by tag."""
-    results = __BUILDAH__('images', '--json', tag, retcode=[0, 1])
+    results = __buildah__()('images', '--json', tag, retcode=[0, 1])
     if results:
         results = json.loads(results)
     for res in results:

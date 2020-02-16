@@ -74,7 +74,8 @@ CFG = s.Configuration(
         },
         "source_dir": {
             "default": None,
-            "desc": "Path to a benchbuild source directory. For developers only."
+            "desc":
+            "Path to a benchbuild source directory. For developers only."
         },
         "benchbuild_ebuild": {
             "default": ""
@@ -88,11 +89,9 @@ CFG = s.Configuration(
             False
         },
         "sequence": {
-            "desc":
-            "The name of the sequence that should be used for "
+            "desc": "The name of the sequence that should be used for "
             "preoptimization.",
-            "default":
-            "no_preperation"
+            "default": "no_preperation"
         }
     })
 
@@ -104,7 +103,8 @@ CFG['bootstrap'] = {
             "echo", "grep", "sed", "sh", "autoreconf", "ruby", "curl", "tail",
             "kill", "virtualenv", "timeout"
         ],
-        'desc': 'List of packages that we require to be installed on the system.'
+        'desc':
+        'List of packages that we require to be installed on the system.'
     },
     'install': {
         'default': True,
@@ -141,10 +141,8 @@ CFG["env"] = {
 
 CFG['db'] = {
     "connect_string": {
-        "desc":
-        "sqlalchemy connect string",
-        "default":
-        "sqlite://"
+        "desc": "sqlalchemy connect string",
+        "default": "sqlite://"
     },
     "rollback": {
         "desc": "Rollback all operations after benchbuild completes.",
@@ -211,8 +209,7 @@ CFG["slurm"] = {
         "desc":
         "Node directory, when executing on a cluster node. This is not "
         "used by benchbuild directly, but by external scripts.",
-        "default":
-        os.path.join(os.getcwd(), "results")
+        "default": os.path.join(os.getcwd(), "results")
     },
     "timelimit": {
         "desc": "The timelimit we want to give to a job",
@@ -271,18 +268,15 @@ CFG["plugins"] = {
     },
     "reports": {
         "default": [],
-        "desc":
-        "Report plugins."
+        "desc": "Report plugins."
     },
     "experiments": {
         "default": [],
-        "desc":
-        "The experiment plugins we know about."
+        "desc": "The experiment plugins we know about."
     },
     "projects": {
         "default": [],
-        "desc":
-        "The project plugins we know about."
+        "desc": "The project plugins we know about."
     }
 }
 

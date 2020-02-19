@@ -1,0 +1,1632 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>benchbuild.utils.settings API documentation</title>
+<meta name="description" content="Configuration utilities …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>benchbuild.utils.settings</code></h1>
+</header>
+<section id="section-intro">
+<p>Configuration utilities.</p>
+<p>Settings are stored in a dictionary-like configuration object.
+All settings are modifiable by environment variables that encode
+the path in the dictionary tree.</p>
+<p>Inner nodes in the dictionary tree can be any dictionary.
+A leaf node in the dictionary tree is represented by an inner node that contains a value key.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Configuration utilities.
+
+Settings are stored in a dictionary-like configuration object.
+All settings are modifiable by environment variables that encode
+the path in the dictionary tree.
+
+Inner nodes in the dictionary tree can be any dictionary.
+A leaf node in the dictionary tree is represented by an inner node that contains a value key.
+&#34;&#34;&#34;
+import copy
+import logging
+import os
+import re
+import sys
+import uuid
+import warnings
+
+import attr
+import six
+import yaml
+from pkg_resources import DistributionNotFound, get_distribution
+from plumbum import local
+
+import benchbuild.utils.user_interface as ui
+
+LOG = logging.getLogger(__name__)
+
+try:
+    __version__ = get_distribution(&#34;benchbuild&#34;).version
+except DistributionNotFound:
+    __version__ = &#34;unknown&#34;
+    LOG.error(&#34;could not find version information.&#34;)
+
+
+def available_cpu_count() -&gt; int:
+    &#34;&#34;&#34;
+    Get the number of available CPUs.
+
+    Number of available virtual or physical CPUs on this system, i.e.
+    user/real as output by time(1) when called with an optimally scaling
+    userspace-only program.
+
+    Returns:
+        Number of avaialable CPUs.
+    &#34;&#34;&#34;
+
+    # cpuset
+    # cpuset may restrict the number of *available* processors
+    try:
+        match = re.search(r&#39;(?m)^Cpus_allowed:\s*(.*)$&#39;,
+                          open(&#39;/proc/self/status&#39;).read())
+        if match:
+            res = bin(int(match.group(1).replace(&#39;,&#39;, &#39;&#39;), 16)).count(&#39;1&#39;)
+            if res &gt; 0:
+                return res
+    except IOError:
+        LOG.debug(&#34;Could not get the number of allowed CPUs&#34;)
+
+    # http://code.google.com/p/psutil/
+    try:
+        import psutil
+        return psutil.cpu_count()  # psutil.NUM_CPUS on old versions
+    except (ImportError, AttributeError):
+        LOG.debug(&#34;Could not get the number of allowed CPUs&#34;)
+
+    # POSIX
+    try:
+        res = int(os.sysconf(&#39;SC_NPROCESSORS_ONLN&#39;))
+
+        if res &gt; 0:
+            return res
+    except (AttributeError, ValueError):
+        LOG.debug(&#34;Could not get the number of allowed CPUs&#34;)
+
+    # Linux
+    try:
+        res = open(&#39;/proc/cpuinfo&#39;).read().count(&#39;processor\t:&#39;)
+
+        if res &gt; 0:
+            return res
+    except IOError:
+        LOG.debug(&#34;Could not get the number of allowed CPUs&#34;)
+
+    raise Exception(&#39;Can not determine number of CPUs on this system&#39;)
+
+
+class InvalidConfigKey(RuntimeWarning):
+    &#34;&#34;&#34;Warn, if you access a non-existing key benchbuild&#39;s configuration.&#34;&#34;&#34;
+
+
+def escape_yaml(raw_str: str) -&gt; str:
+    &#34;&#34;&#34;
+    Shell-Escape a yaml input string.
+
+    Args:
+        raw_str: The unescaped string.
+    &#34;&#34;&#34;
+    escape_list = [char for char in raw_str if char in [&#39;!&#39;, &#39;{&#39;, &#39;[&#39;]]
+    if len(escape_list) == 0:
+        return raw_str
+
+    str_quotes = &#39;&#34;&#39;
+    i_str_quotes = &#34;&#39;&#34;
+    if str_quotes in raw_str and str_quotes not in raw_str[1:-1]:
+        return raw_str
+
+    if str_quotes in raw_str[1:-1]:
+        raw_str = i_str_quotes + raw_str + i_str_quotes
+    else:
+        raw_str = str_quotes + raw_str + str_quotes
+    return raw_str
+
+
+def is_yaml(cfg_file: str) -&gt; bool:
+    &#34;&#34;&#34;Is the given cfg_file a YAML file.&#34;&#34;&#34;
+    return os.path.splitext(cfg_file)[1] in [&#34;.yml&#34;, &#34;.yaml&#34;]
+
+
+class ConfigLoader(yaml.SafeLoader):
+    &#34;&#34;&#34;Avoid polluting yaml&#39;s namespace with our modifications.&#34;&#34;&#34;
+    pass
+
+
+class ConfigDumper(yaml.SafeDumper):
+    &#34;&#34;&#34;Avoid polluting yaml&#39;s namespace with our modifications.&#34;&#34;&#34;
+    pass
+
+
+def to_yaml(value) -&gt; str:
+    &#34;&#34;&#34;Convert a given value to a YAML string.&#34;&#34;&#34;
+    stream = yaml.io.StringIO()
+    dumper = ConfigDumper(stream, default_flow_style=True, width=sys.maxsize)
+    val = None
+    try:
+        dumper.open()
+        dumper.represent(value)
+        val = stream.getvalue().strip()
+        dumper.close()
+    finally:
+        dumper.dispose()
+
+    return val
+
+
+def to_env_var(env_var: str, value) -&gt; str:
+    &#34;&#34;&#34;
+    Create an environment variable from a name and a value.
+
+    This generates a shell-compatible representation of an
+    environment variable that is assigned a YAML representation of
+    a value.
+
+    Args:
+        env_var (str): Name of the environment variable.
+        value (Any): A value we convert from.
+    &#34;&#34;&#34;
+    val = to_yaml(value)
+    ret_val = &#34;%s=%s&#34; % (env_var, escape_yaml(val))
+    return ret_val
+
+
+class Configuration:
+    &#34;&#34;&#34;Forward declaration.&#34;&#34;&#34;
+
+
+class Configuration():
+    &#34;&#34;&#34;
+    Dictionary-like data structure to contain all configuration variables.
+
+    This serves as a configuration dictionary throughout benchbuild. You can
+    use it to access all configuration options that are available. Whenever the
+    structure is updated with a new subtree, all variables defined in the new
+    subtree are updated from the environment.
+
+    Environment variables are generated from the tree paths automatically.
+        CFG[&#34;build_dir&#34;] becomes BB_BUILD_DIR
+        CFG[&#34;llvm&#34;][&#34;dir&#34;] becomes BB_LLVM_DIR
+
+    The configuration can be stored/loaded as YAML.
+    &#34;&#34;&#34;
+
+    def __init__(self, parent_key: str, node=None, parent=None, init=True):
+        self.parent = parent
+        self.parent_key = parent_key
+        self.node = node if node is not None else {}
+        if init:
+            self.init_from_env()
+
+    def filter_exports(self):
+        if self.has_default():
+            do_export = True
+            if &#34;export&#34; in self.node:
+                do_export = self.node[&#34;export&#34;]
+
+            if not do_export:
+                self.parent.node.pop(self.parent_key)
+        else:
+            selfcopy = copy.deepcopy(self)
+            for k in self.node:
+                if selfcopy[k].is_leaf():
+                    selfcopy[k].filter_exports()
+            self.__dict__ = selfcopy.__dict__
+
+    def store(self, config_file):
+        &#34;&#34;&#34; Store the configuration dictionary to a file.&#34;&#34;&#34;
+
+        selfcopy = copy.deepcopy(self)
+        selfcopy.filter_exports()
+
+        with open(config_file, &#39;w&#39;) as outf:
+            yaml.dump(
+                selfcopy.node,
+                outf,
+                width=80,
+                indent=4,
+                default_flow_style=False,
+                Dumper=ConfigDumper)
+
+    def load(self, _from):
+        &#34;&#34;&#34;Load the configuration dictionary from file.&#34;&#34;&#34;
+
+        def load_rec(inode, config):
+            &#34;&#34;&#34;Recursive part of loading.&#34;&#34;&#34;
+            for k in config:
+                if isinstance(config[k], dict) and \
+                   k not in [&#39;value&#39;, &#39;default&#39;]:
+                    if k in inode:
+                        load_rec(inode[k], config[k])
+                    else:
+                        LOG.debug(&#34;+ config element: &#39;%s&#39;&#34;, k)
+                else:
+                    inode[k] = config[k]
+
+        with open(_from, &#39;r&#39;) as infile:
+            obj = yaml.load(infile, Loader=ConfigLoader)
+            upgrade(obj)
+            load_rec(self.node, obj)
+            self[&#39;config_file&#39;] = os.path.abspath(_from)
+
+    def has_value(self) -&gt; bool:
+        &#34;&#34;&#34;Check, if the node contains a &#39;value&#39;.&#34;&#34;&#34;
+        return isinstance(self.node, dict) and &#39;value&#39; in self.node
+
+    def has_default(self) -&gt; bool:
+        &#34;&#34;&#34;Check, if the node contains a &#39;default&#39; value.&#34;&#34;&#34;
+        return isinstance(self.node, dict) and &#39;default&#39; in self.node
+
+    def is_leaf(self) -&gt; bool:
+        &#34;&#34;&#34;Check, if the node is a &#39;leaf&#39; node.&#34;&#34;&#34;
+        return self.has_value() or self.has_default()
+
+    def init_from_env(self):
+        &#34;&#34;&#34;
+        Initialize this node from environment.
+
+        If we&#39;re a leaf node, i.e., a node containing a dictionary that
+        consist of a &#39;default&#39; key, compute our env variable and initialize
+        our value from the environment.
+        Otherwise, init our children.
+        &#34;&#34;&#34;
+
+        if &#39;default&#39; in self.node:
+            env_var = self.__to_env_var__().upper()
+            if self.has_value():
+                env_val = self.node[&#39;value&#39;]
+            else:
+                env_val = self.node[&#39;default&#39;]
+            env_val = os.getenv(env_var, to_yaml(env_val))
+            try:
+                self.node[&#39;value&#39;] = yaml.load(
+                    str(env_val), Loader=ConfigLoader)
+            except ValueError:
+                self.node[&#39;value&#39;] = env_val
+        else:
+            if isinstance(self.node, dict):
+                for k in self.node:
+                    self[k].init_from_env()
+
+    @property
+    def value(self):
+        &#34;&#34;&#34;Return the node value, if we&#39;re a leaf node.&#34;&#34;&#34;
+
+        def validate(node_value):
+            if hasattr(node_value, &#39;validate&#39;):
+                node_value.validate()
+            return node_value
+
+        if &#39;value&#39; in self.node:
+            return validate(self.node[&#39;value&#39;])
+        return self
+
+    def __getitem__(self, key) -&gt; Configuration:
+        if key not in self.node:
+            warnings.warn(
+                &#34;Access to non-existing config element: {0}&#34;.format(key),
+                category=InvalidConfigKey,
+                stacklevel=2)
+            return Configuration(key, init=False)
+        return Configuration(key, parent=self, node=self.node[key], init=False)
+
+    def __setitem__(self, key, val):
+        if key in self.node:
+            self.node[key][&#39;value&#39;] = val
+        else:
+            if isinstance(val, dict):
+                self.node[key] = val
+            else:
+                self.node[key] = {&#39;value&#39;: val}
+
+    def __iadd__(self, rhs) -&gt; Configuration:
+        &#34;&#34;&#34;Append a value to a list value.&#34;&#34;&#34;
+        if not self.has_value():
+            raise TypeError(&#34;Inner configuration node does not support +=.&#34;)
+
+        value = self.node[&#39;value&#39;]
+        if not hasattr(value, &#39;__iadd__&#39;):
+            raise TypeError(&#34;Configuration node value does not support +=.&#34;)
+
+        value += rhs
+        return value
+
+    def __int__(self) -&gt; int:
+        &#34;&#34;&#34;Convert the node&#39;s value to int, if available.&#34;&#34;&#34;
+        if not self.has_value():
+            raise ValueError(
+                &#39;Inner configuration nodes cannot be converted to int.&#39;)
+        return int(self.value)
+
+    def __bool__(self) -&gt; bool:
+        &#34;&#34;&#34;Convert the node&#39;s value to bool, if available.&#34;&#34;&#34;
+        if not self.has_value():
+            return True
+        return bool(self.value)
+
+    def __contains__(self, key):
+        return key in self.node
+
+    def __str__(self) -&gt; str:
+        if &#39;value&#39; in self.node:
+            return str(self.node[&#39;value&#39;])
+        return str(self.node)
+
+    def __repr__(self) -&gt; str:
+        &#34;&#34;&#34;
+        Represents the configuration as a list of environment variables.
+        &#34;&#34;&#34;
+        _repr = []
+
+        if self.has_value():
+            return to_env_var(self.__to_env_var__(), self.node[&#39;value&#39;])
+        if self.has_default():
+            return to_env_var(self.__to_env_var__(), self.node[&#39;default&#39;])
+
+        for k in self.node:
+            _repr.append(repr(self[k]))
+
+        return &#34;\n&#34;.join(sorted(_repr))
+
+    def __to_env_var__(self) -&gt; str:
+        parent_key = self.parent_key
+        if self.parent:
+            return (self.parent.__to_env_var__() + &#34;_&#34; + parent_key).upper()
+        return parent_key.upper()
+
+    def to_env_dict(self):
+        &#34;&#34;&#34;Convert configuration object to a flat dictionary.&#34;&#34;&#34;
+        entries = {}
+        if self.has_value():
+            return {self.__to_env_var__(): self.node[&#39;value&#39;]}
+        if self.has_default():
+            return {self.__to_env_var__(): self.node[&#39;default&#39;]}
+
+        for k in self.node:
+            entries.update(self[k].to_env_dict())
+
+        return entries
+
+
+def convert_components(value):
+    is_str = isinstance(value, six.string_types)
+    new_value = value
+    if is_str:
+        if os.path.sep in new_value:
+            new_value = new_value.split(os.path.sep)
+        else:
+            new_value = [new_value]
+    new_value = [c for c in new_value if c != &#39;&#39;]
+    return new_value
+
+
+@attr.s(str=False, frozen=True)
+class ConfigPath:
+    &#34;&#34;&#34;Wrapper around paths represented as list of strings.&#34;&#34;&#34;
+    components = attr.ib(converter=convert_components)
+
+    def validate(self):
+        &#34;&#34;&#34;Make sure this configuration path exists.&#34;&#34;&#34;
+        path = local.path(ConfigPath.path_to_str(self.components))
+
+        if not path.exists():
+            print(&#34;The path &#39;%s&#39; is required by your configuration.&#34; % path)
+            yes = ui.ask(
+                &#34;Should I create &#39;%s&#39; for you?&#34; % path,
+                default_answer=True,
+                default_answer_str=&#34;yes&#34;)
+            if yes:
+                path.mkdir()
+            else:
+                LOG.error(&#34;User denied path creation of &#39;%s&#39;.&#34;, path)
+        if not path.exists():
+            LOG.error(&#34;The path &#39;%s&#39; needs to exist.&#34;, path)
+
+    @staticmethod
+    def path_to_str(components) -&gt; str:
+        if components:
+            return os.path.sep + os.path.sep.join(components)
+        return os.path.sep
+
+    def __str__(self) -&gt; str:
+        return ConfigPath.path_to_str(self.components)
+
+
+def path_representer(dumper, data):
+    &#34;&#34;&#34;
+    Represent a ConfigPath object as a scalar YAML node.
+    &#34;&#34;&#34;
+    return dumper.represent_scalar(&#39;!create-if-needed&#39;, &#39;%s&#39; % data)
+
+
+def path_constructor(loader, node):
+    &#34;&#34;&#34;&#34;
+    Construct a ConfigPath object form a scalar YAML node.
+    &#34;&#34;&#34;
+    value = loader.construct_scalar(node)
+    return ConfigPath(value)
+
+
+def find_config(test_file=None, defaults=None, root=os.curdir):
+    &#34;&#34;&#34;
+    Find the path to the default config file.
+
+    We look at :root: for the :default: config file. If we can&#39;t find it
+    there we start looking at the parent directory recursively until we
+    find a file named :default: and return the absolute path to it.
+    If we can&#39;t find anything, we return None.
+
+    Args:
+        default: The name of the config file we look for.
+        root: The directory to start looking for.
+
+    Returns:
+        Path to the default config file, None if we can&#39;t find anything.
+    &#34;&#34;&#34;
+    if defaults is None:
+        defaults = [&#34;.benchbuild.yml&#34;, &#34;.benchbuild.yaml&#34;]
+
+    def walk_rec(cur_path, root):
+        cur_path = local.path(root) / test_file
+        if cur_path.exists():
+            return cur_path
+
+        new_root = local.path(root) / os.pardir
+        return walk_rec(cur_path, new_root) if new_root != root else None
+
+    if test_file is not None:
+        return walk_rec(test_file, root)
+
+    for test_file in defaults:
+        ret = walk_rec(test_file, root)
+        if ret is not None:
+            return ret
+
+
+def setup_config(cfg, config_filenames=None, env_var_name=None):
+    &#34;&#34;&#34;
+    This will initialize the given configuration object.
+
+    The following resources are available in the same order:
+        1) Default settings.
+        2) Config file.
+        3) Environment variables.
+
+    WARNING: Environment variables do _not_ take precedence over the config
+             file right now. (init_from_env will refuse to update the
+             value, if there is already one.)
+
+    Args:
+        config_filenames: list of possible config filenames
+        env_var_name: name of the environment variable holding the config path
+    &#34;&#34;&#34;
+    if env_var_name is None:
+        env_var_name = &#34;BB_CONFIG_FILE&#34;
+
+    config_path = os.getenv(env_var_name, None)
+    if not config_path:
+        config_path = find_config(defaults=config_filenames)
+
+    if config_path:
+        cfg.load(config_path)
+        cfg[&#34;config_file&#34;] = os.path.abspath(config_path)
+    cfg.init_from_env()
+
+
+def update_env(cfg):
+    env = cfg[&#34;env&#34;].value
+
+    path = env.get(&#34;PATH&#34;, &#34;&#34;)
+    path = os.path.pathsep.join(path)
+    if &#34;PATH&#34; in os.environ:
+        path = os.path.pathsep.join([path, os.environ[&#34;PATH&#34;]])
+    os.environ[&#34;PATH&#34;] = path
+
+    lib_path = env.get(&#34;LD_LIBRARY_PATH&#34;, &#34;&#34;)
+    lib_path = os.path.pathsep.join(lib_path)
+    if &#34;LD_LIBRARY_PATH&#34; in os.environ:
+        lib_path = os.path.pathsep.join(
+            [lib_path, os.environ[&#34;LD_LIBRARY_PATH&#34;]])
+    os.environ[&#34;LD_LIBRARY_PATH&#34;] = lib_path
+
+    home = env.get(&#34;HOME&#34;, None)
+    if home is not None and &#34;HOME&#34; in os.environ:
+        os.environ[&#34;HOME&#34;] = home
+
+    # Update local&#39;s env property because we changed the environment
+    # of the running python process.
+    local.env.update(PATH=os.environ[&#34;PATH&#34;])
+    local.env.update(LD_LIBRARY_PATH=os.environ[&#34;LD_LIBRARY_PATH&#34;])
+    if home is not None:
+        local.env.update(HOME=os.environ[&#34;HOME&#34;])
+
+
+def upgrade(cfg):
+    &#34;&#34;&#34;Provide forward migration for configuration files.&#34;&#34;&#34;
+    db_node = cfg[&#34;db&#34;]
+    old_db_elems = [&#34;host&#34;, &#34;name&#34;, &#34;port&#34;, &#34;pass&#34;, &#34;user&#34;, &#34;dialect&#34;]
+    has_old_db_elems = [x in db_node for x in old_db_elems]
+
+    if any(has_old_db_elems):
+        print(&#34;Old database configuration found. &#34;
+              &#34;Converting to new connect_string. &#34;
+              &#34;This will *not* be stored in the configuration automatically.&#34;)
+        cfg[&#34;db&#34;][&#34;connect_string&#34;] = \
+            &#34;{dialect}://{user}:{password}@{host}:{port}/{name}&#34;.format(
+                dialect=cfg[&#34;db&#34;][&#34;dialect&#34;][&#34;value&#34;],
+                user=cfg[&#34;db&#34;][&#34;user&#34;][&#34;value&#34;],
+                password=cfg[&#34;db&#34;][&#34;pass&#34;][&#34;value&#34;],
+                host=cfg[&#34;db&#34;][&#34;host&#34;][&#34;value&#34;],
+                port=cfg[&#34;db&#34;][&#34;port&#34;][&#34;value&#34;],
+                name=cfg[&#34;db&#34;][&#34;name&#34;][&#34;value&#34;])
+
+
+def uuid_representer(dumper, data):
+    &#34;&#34;&#34;Represent a uuid.UUID object as a scalar YAML node.&#34;&#34;&#34;
+
+    return dumper.represent_scalar(&#39;!uuid&#39;, &#39;%s&#39; % data)
+
+
+def uuid_constructor(loader, node):
+    &#34;&#34;&#34;&#34;Construct a uuid.UUID object form a scalar YAML node.&#34;&#34;&#34;
+
+    value = loader.construct_scalar(node)
+    return uuid.UUID(value)
+
+
+def uuid_add_implicit_resolver(loader=ConfigLoader, dumper=ConfigDumper):
+    &#34;&#34;&#34;Attach an implicit pattern resolver for UUID objects.&#34;&#34;&#34;
+    uuid_regex = r&#39;^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$&#39;
+    pattern = re.compile(uuid_regex)
+    yaml.add_implicit_resolver(&#39;!uuid&#39;, pattern, Loader=loader, Dumper=dumper)
+
+
+def __init_module__():
+    yaml.add_representer(uuid.UUID, uuid_representer, Dumper=ConfigDumper)
+    yaml.add_representer(ConfigPath, path_representer, Dumper=ConfigDumper)
+    yaml.add_constructor(&#39;!uuid&#39;, uuid_constructor, Loader=ConfigLoader)
+    yaml.add_constructor(
+        &#39;!create-if-needed&#39;, path_constructor, Loader=ConfigLoader)
+    uuid_add_implicit_resolver()
+
+
+__init_module__()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="benchbuild.utils.settings.available_cpu_count"><code class="name flex">
+<span>def <span class="ident">available_cpu_count</span></span>(<span>) -> int</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get the number of available CPUs.</p>
+<p>Number of available virtual or physical CPUs on this system, i.e.
+user/real as output by time(1) when called with an optimally scaling
+userspace-only program.</p>
+<h2 id="returns">Returns</h2>
+<p>Number of avaialable CPUs.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def available_cpu_count() -&gt; int:
+    &#34;&#34;&#34;
+    Get the number of available CPUs.
+
+    Number of available virtual or physical CPUs on this system, i.e.
+    user/real as output by time(1) when called with an optimally scaling
+    userspace-only program.
+
+    Returns:
+        Number of avaialable CPUs.
+    &#34;&#34;&#34;
+
+    # cpuset
+    # cpuset may restrict the number of *available* processors
+    try:
+        match = re.search(r&#39;(?m)^Cpus_allowed:\s*(.*)$&#39;,
+                          open(&#39;/proc/self/status&#39;).read())
+        if match:
+            res = bin(int(match.group(1).replace(&#39;,&#39;, &#39;&#39;), 16)).count(&#39;1&#39;)
+            if res &gt; 0:
+                return res
+    except IOError:
+        LOG.debug(&#34;Could not get the number of allowed CPUs&#34;)
+
+    # http://code.google.com/p/psutil/
+    try:
+        import psutil
+        return psutil.cpu_count()  # psutil.NUM_CPUS on old versions
+    except (ImportError, AttributeError):
+        LOG.debug(&#34;Could not get the number of allowed CPUs&#34;)
+
+    # POSIX
+    try:
+        res = int(os.sysconf(&#39;SC_NPROCESSORS_ONLN&#39;))
+
+        if res &gt; 0:
+            return res
+    except (AttributeError, ValueError):
+        LOG.debug(&#34;Could not get the number of allowed CPUs&#34;)
+
+    # Linux
+    try:
+        res = open(&#39;/proc/cpuinfo&#39;).read().count(&#39;processor\t:&#39;)
+
+        if res &gt; 0:
+            return res
+    except IOError:
+        LOG.debug(&#34;Could not get the number of allowed CPUs&#34;)
+
+    raise Exception(&#39;Can not determine number of CPUs on this system&#39;)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.convert_components"><code class="name flex">
+<span>def <span class="ident">convert_components</span></span>(<span>value)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convert_components(value):
+    is_str = isinstance(value, six.string_types)
+    new_value = value
+    if is_str:
+        if os.path.sep in new_value:
+            new_value = new_value.split(os.path.sep)
+        else:
+            new_value = [new_value]
+    new_value = [c for c in new_value if c != &#39;&#39;]
+    return new_value</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.escape_yaml"><code class="name flex">
+<span>def <span class="ident">escape_yaml</span></span>(<span>raw_str: str) -> str</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Shell-Escape a yaml input string.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>raw_str</code></strong></dt>
+<dd>The unescaped string.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def escape_yaml(raw_str: str) -&gt; str:
+    &#34;&#34;&#34;
+    Shell-Escape a yaml input string.
+
+    Args:
+        raw_str: The unescaped string.
+    &#34;&#34;&#34;
+    escape_list = [char for char in raw_str if char in [&#39;!&#39;, &#39;{&#39;, &#39;[&#39;]]
+    if len(escape_list) == 0:
+        return raw_str
+
+    str_quotes = &#39;&#34;&#39;
+    i_str_quotes = &#34;&#39;&#34;
+    if str_quotes in raw_str and str_quotes not in raw_str[1:-1]:
+        return raw_str
+
+    if str_quotes in raw_str[1:-1]:
+        raw_str = i_str_quotes + raw_str + i_str_quotes
+    else:
+        raw_str = str_quotes + raw_str + str_quotes
+    return raw_str</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.find_config"><code class="name flex">
+<span>def <span class="ident">find_config</span></span>(<span>test_file=None, defaults=None, root='.')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Find the path to the default config file.</p>
+<p>We look at :root: for the :default: config file. If we can't find it
+there we start looking at the parent directory recursively until we
+find a file named :default: and return the absolute path to it.
+If we can't find anything, we return None.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>default</code></strong></dt>
+<dd>The name of the config file we look for.</dd>
+<dt><strong><code>root</code></strong></dt>
+<dd>The directory to start looking for.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Path to the default config file, None if we can't find anything.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_config(test_file=None, defaults=None, root=os.curdir):
+    &#34;&#34;&#34;
+    Find the path to the default config file.
+
+    We look at :root: for the :default: config file. If we can&#39;t find it
+    there we start looking at the parent directory recursively until we
+    find a file named :default: and return the absolute path to it.
+    If we can&#39;t find anything, we return None.
+
+    Args:
+        default: The name of the config file we look for.
+        root: The directory to start looking for.
+
+    Returns:
+        Path to the default config file, None if we can&#39;t find anything.
+    &#34;&#34;&#34;
+    if defaults is None:
+        defaults = [&#34;.benchbuild.yml&#34;, &#34;.benchbuild.yaml&#34;]
+
+    def walk_rec(cur_path, root):
+        cur_path = local.path(root) / test_file
+        if cur_path.exists():
+            return cur_path
+
+        new_root = local.path(root) / os.pardir
+        return walk_rec(cur_path, new_root) if new_root != root else None
+
+    if test_file is not None:
+        return walk_rec(test_file, root)
+
+    for test_file in defaults:
+        ret = walk_rec(test_file, root)
+        if ret is not None:
+            return ret</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.is_yaml"><code class="name flex">
+<span>def <span class="ident">is_yaml</span></span>(<span>cfg_file: str) -> bool</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Is the given cfg_file a YAML file.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_yaml(cfg_file: str) -&gt; bool:
+    &#34;&#34;&#34;Is the given cfg_file a YAML file.&#34;&#34;&#34;
+    return os.path.splitext(cfg_file)[1] in [&#34;.yml&#34;, &#34;.yaml&#34;]</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.path_constructor"><code class="name flex">
+<span>def <span class="ident">path_constructor</span></span>(<span>loader, node)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>"
+Construct a ConfigPath object form a scalar YAML node.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def path_constructor(loader, node):
+    &#34;&#34;&#34;&#34;
+    Construct a ConfigPath object form a scalar YAML node.
+    &#34;&#34;&#34;
+    value = loader.construct_scalar(node)
+    return ConfigPath(value)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.path_representer"><code class="name flex">
+<span>def <span class="ident">path_representer</span></span>(<span>dumper, data)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Represent a ConfigPath object as a scalar YAML node.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def path_representer(dumper, data):
+    &#34;&#34;&#34;
+    Represent a ConfigPath object as a scalar YAML node.
+    &#34;&#34;&#34;
+    return dumper.represent_scalar(&#39;!create-if-needed&#39;, &#39;%s&#39; % data)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.setup_config"><code class="name flex">
+<span>def <span class="ident">setup_config</span></span>(<span>cfg, config_filenames=None, env_var_name=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>This will initialize the given configuration object.</p>
+<p>The following resources are available in the same order:
+1) Default settings.
+2) Config file.
+3) Environment variables.</p>
+<p>WARNING: Environment variables do <em>not</em> take precedence over the config
+file right now. (init_from_env will refuse to update the
+value, if there is already one.)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config_filenames</code></strong></dt>
+<dd>list of possible config filenames</dd>
+<dt><strong><code>env_var_name</code></strong></dt>
+<dd>name of the environment variable holding the config path</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setup_config(cfg, config_filenames=None, env_var_name=None):
+    &#34;&#34;&#34;
+    This will initialize the given configuration object.
+
+    The following resources are available in the same order:
+        1) Default settings.
+        2) Config file.
+        3) Environment variables.
+
+    WARNING: Environment variables do _not_ take precedence over the config
+             file right now. (init_from_env will refuse to update the
+             value, if there is already one.)
+
+    Args:
+        config_filenames: list of possible config filenames
+        env_var_name: name of the environment variable holding the config path
+    &#34;&#34;&#34;
+    if env_var_name is None:
+        env_var_name = &#34;BB_CONFIG_FILE&#34;
+
+    config_path = os.getenv(env_var_name, None)
+    if not config_path:
+        config_path = find_config(defaults=config_filenames)
+
+    if config_path:
+        cfg.load(config_path)
+        cfg[&#34;config_file&#34;] = os.path.abspath(config_path)
+    cfg.init_from_env()</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.to_env_var"><code class="name flex">
+<span>def <span class="ident">to_env_var</span></span>(<span>env_var: str, value) -> str</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Create an environment variable from a name and a value.</p>
+<p>This generates a shell-compatible representation of an
+environment variable that is assigned a YAML representation of
+a value.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>env_var</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the environment variable.</dd>
+<dt><strong><code>value</code></strong> :&ensp;<code>Any</code></dt>
+<dd>A value we convert from.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_env_var(env_var: str, value) -&gt; str:
+    &#34;&#34;&#34;
+    Create an environment variable from a name and a value.
+
+    This generates a shell-compatible representation of an
+    environment variable that is assigned a YAML representation of
+    a value.
+
+    Args:
+        env_var (str): Name of the environment variable.
+        value (Any): A value we convert from.
+    &#34;&#34;&#34;
+    val = to_yaml(value)
+    ret_val = &#34;%s=%s&#34; % (env_var, escape_yaml(val))
+    return ret_val</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.to_yaml"><code class="name flex">
+<span>def <span class="ident">to_yaml</span></span>(<span>value) -> str</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Convert a given value to a YAML string.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_yaml(value) -&gt; str:
+    &#34;&#34;&#34;Convert a given value to a YAML string.&#34;&#34;&#34;
+    stream = yaml.io.StringIO()
+    dumper = ConfigDumper(stream, default_flow_style=True, width=sys.maxsize)
+    val = None
+    try:
+        dumper.open()
+        dumper.represent(value)
+        val = stream.getvalue().strip()
+        dumper.close()
+    finally:
+        dumper.dispose()
+
+    return val</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.update_env"><code class="name flex">
+<span>def <span class="ident">update_env</span></span>(<span>cfg)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_env(cfg):
+    env = cfg[&#34;env&#34;].value
+
+    path = env.get(&#34;PATH&#34;, &#34;&#34;)
+    path = os.path.pathsep.join(path)
+    if &#34;PATH&#34; in os.environ:
+        path = os.path.pathsep.join([path, os.environ[&#34;PATH&#34;]])
+    os.environ[&#34;PATH&#34;] = path
+
+    lib_path = env.get(&#34;LD_LIBRARY_PATH&#34;, &#34;&#34;)
+    lib_path = os.path.pathsep.join(lib_path)
+    if &#34;LD_LIBRARY_PATH&#34; in os.environ:
+        lib_path = os.path.pathsep.join(
+            [lib_path, os.environ[&#34;LD_LIBRARY_PATH&#34;]])
+    os.environ[&#34;LD_LIBRARY_PATH&#34;] = lib_path
+
+    home = env.get(&#34;HOME&#34;, None)
+    if home is not None and &#34;HOME&#34; in os.environ:
+        os.environ[&#34;HOME&#34;] = home
+
+    # Update local&#39;s env property because we changed the environment
+    # of the running python process.
+    local.env.update(PATH=os.environ[&#34;PATH&#34;])
+    local.env.update(LD_LIBRARY_PATH=os.environ[&#34;LD_LIBRARY_PATH&#34;])
+    if home is not None:
+        local.env.update(HOME=os.environ[&#34;HOME&#34;])</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.upgrade"><code class="name flex">
+<span>def <span class="ident">upgrade</span></span>(<span>cfg)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Provide forward migration for configuration files.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def upgrade(cfg):
+    &#34;&#34;&#34;Provide forward migration for configuration files.&#34;&#34;&#34;
+    db_node = cfg[&#34;db&#34;]
+    old_db_elems = [&#34;host&#34;, &#34;name&#34;, &#34;port&#34;, &#34;pass&#34;, &#34;user&#34;, &#34;dialect&#34;]
+    has_old_db_elems = [x in db_node for x in old_db_elems]
+
+    if any(has_old_db_elems):
+        print(&#34;Old database configuration found. &#34;
+              &#34;Converting to new connect_string. &#34;
+              &#34;This will *not* be stored in the configuration automatically.&#34;)
+        cfg[&#34;db&#34;][&#34;connect_string&#34;] = \
+            &#34;{dialect}://{user}:{password}@{host}:{port}/{name}&#34;.format(
+                dialect=cfg[&#34;db&#34;][&#34;dialect&#34;][&#34;value&#34;],
+                user=cfg[&#34;db&#34;][&#34;user&#34;][&#34;value&#34;],
+                password=cfg[&#34;db&#34;][&#34;pass&#34;][&#34;value&#34;],
+                host=cfg[&#34;db&#34;][&#34;host&#34;][&#34;value&#34;],
+                port=cfg[&#34;db&#34;][&#34;port&#34;][&#34;value&#34;],
+                name=cfg[&#34;db&#34;][&#34;name&#34;][&#34;value&#34;])</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.uuid_add_implicit_resolver"><code class="name flex">
+<span>def <span class="ident">uuid_add_implicit_resolver</span></span>(<span>loader=benchbuild.utils.settings.ConfigLoader, dumper=benchbuild.utils.settings.ConfigDumper)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Attach an implicit pattern resolver for UUID objects.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def uuid_add_implicit_resolver(loader=ConfigLoader, dumper=ConfigDumper):
+    &#34;&#34;&#34;Attach an implicit pattern resolver for UUID objects.&#34;&#34;&#34;
+    uuid_regex = r&#39;^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$&#39;
+    pattern = re.compile(uuid_regex)
+    yaml.add_implicit_resolver(&#39;!uuid&#39;, pattern, Loader=loader, Dumper=dumper)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.uuid_constructor"><code class="name flex">
+<span>def <span class="ident">uuid_constructor</span></span>(<span>loader, node)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>"Construct a uuid.UUID object form a scalar YAML node.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def uuid_constructor(loader, node):
+    &#34;&#34;&#34;&#34;Construct a uuid.UUID object form a scalar YAML node.&#34;&#34;&#34;
+
+    value = loader.construct_scalar(node)
+    return uuid.UUID(value)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.uuid_representer"><code class="name flex">
+<span>def <span class="ident">uuid_representer</span></span>(<span>dumper, data)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Represent a uuid.UUID object as a scalar YAML node.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def uuid_representer(dumper, data):
+    &#34;&#34;&#34;Represent a uuid.UUID object as a scalar YAML node.&#34;&#34;&#34;
+
+    return dumper.represent_scalar(&#39;!uuid&#39;, &#39;%s&#39; % data)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="benchbuild.utils.settings.ConfigDumper"><code class="flex name class">
+<span>class <span class="ident">ConfigDumper</span></span>
+<span>(</span><span>stream, default_style=None, default_flow_style=False, canonical=None, indent=None, width=None, allow_unicode=None, line_break=None, encoding=None, explicit_start=None, explicit_end=None, version=None, tags=None, sort_keys=True)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Avoid polluting yaml's namespace with our modifications.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConfigDumper(yaml.SafeDumper):
+    &#34;&#34;&#34;Avoid polluting yaml&#39;s namespace with our modifications.&#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>yaml.dumper.SafeDumper</li>
+<li>yaml.emitter.Emitter</li>
+<li>yaml.serializer.Serializer</li>
+<li>yaml.representer.SafeRepresenter</li>
+<li>yaml.representer.BaseRepresenter</li>
+<li>yaml.resolver.Resolver</li>
+<li>yaml.resolver.BaseResolver</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.utils.settings.ConfigDumper.yaml_implicit_resolvers"><code class="name">var <span class="ident">yaml_implicit_resolvers</span></code></dt>
+<dd>
+<section class="desc"><p>dict() -&gt; new empty dictionary
+dict(mapping) -&gt; new dictionary initialized from a mapping object's
+(key, value) pairs
+dict(iterable) -&gt; new dictionary initialized as if via:
+d = {}
+for k, v in iterable:
+d[k] = v
+dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
+in the keyword argument list.
+For example:
+dict(one=1, two=2)</p></section>
+</dd>
+<dt id="benchbuild.utils.settings.ConfigDumper.yaml_representers"><code class="name">var <span class="ident">yaml_representers</span></code></dt>
+<dd>
+<section class="desc"><p>dict() -&gt; new empty dictionary
+dict(mapping) -&gt; new dictionary initialized from a mapping object's
+(key, value) pairs
+dict(iterable) -&gt; new dictionary initialized as if via:
+d = {}
+for k, v in iterable:
+d[k] = v
+dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
+in the keyword argument list.
+For example:
+dict(one=1, two=2)</p></section>
+</dd>
+</dl>
+</dd>
+<dt id="benchbuild.utils.settings.ConfigLoader"><code class="flex name class">
+<span>class <span class="ident">ConfigLoader</span></span>
+<span>(</span><span>stream)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Avoid polluting yaml's namespace with our modifications.</p>
+<p>Initialize the scanner.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConfigLoader(yaml.SafeLoader):
+    &#34;&#34;&#34;Avoid polluting yaml&#39;s namespace with our modifications.&#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>yaml.loader.SafeLoader</li>
+<li>yaml.reader.Reader</li>
+<li>yaml.scanner.Scanner</li>
+<li>yaml.parser.Parser</li>
+<li>yaml.composer.Composer</li>
+<li>yaml.constructor.SafeConstructor</li>
+<li>yaml.constructor.BaseConstructor</li>
+<li>yaml.resolver.Resolver</li>
+<li>yaml.resolver.BaseResolver</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.utils.settings.ConfigLoader.yaml_constructors"><code class="name">var <span class="ident">yaml_constructors</span></code></dt>
+<dd>
+<section class="desc"><p>dict() -&gt; new empty dictionary
+dict(mapping) -&gt; new dictionary initialized from a mapping object's
+(key, value) pairs
+dict(iterable) -&gt; new dictionary initialized as if via:
+d = {}
+for k, v in iterable:
+d[k] = v
+dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
+in the keyword argument list.
+For example:
+dict(one=1, two=2)</p></section>
+</dd>
+<dt id="benchbuild.utils.settings.ConfigLoader.yaml_implicit_resolvers"><code class="name">var <span class="ident">yaml_implicit_resolvers</span></code></dt>
+<dd>
+<section class="desc"><p>dict() -&gt; new empty dictionary
+dict(mapping) -&gt; new dictionary initialized from a mapping object's
+(key, value) pairs
+dict(iterable) -&gt; new dictionary initialized as if via:
+d = {}
+for k, v in iterable:
+d[k] = v
+dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
+in the keyword argument list.
+For example:
+dict(one=1, two=2)</p></section>
+</dd>
+</dl>
+</dd>
+<dt id="benchbuild.utils.settings.ConfigPath"><code class="flex name class">
+<span>class <span class="ident">ConfigPath</span></span>
+<span>(</span><span>components)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Wrapper around paths represented as list of strings.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConfigPath:
+    &#34;&#34;&#34;Wrapper around paths represented as list of strings.&#34;&#34;&#34;
+    components = attr.ib(converter=convert_components)
+
+    def validate(self):
+        &#34;&#34;&#34;Make sure this configuration path exists.&#34;&#34;&#34;
+        path = local.path(ConfigPath.path_to_str(self.components))
+
+        if not path.exists():
+            print(&#34;The path &#39;%s&#39; is required by your configuration.&#34; % path)
+            yes = ui.ask(
+                &#34;Should I create &#39;%s&#39; for you?&#34; % path,
+                default_answer=True,
+                default_answer_str=&#34;yes&#34;)
+            if yes:
+                path.mkdir()
+            else:
+                LOG.error(&#34;User denied path creation of &#39;%s&#39;.&#34;, path)
+        if not path.exists():
+            LOG.error(&#34;The path &#39;%s&#39; needs to exist.&#34;, path)
+
+    @staticmethod
+    def path_to_str(components) -&gt; str:
+        if components:
+            return os.path.sep + os.path.sep.join(components)
+        return os.path.sep
+
+    def __str__(self) -&gt; str:
+        return ConfigPath.path_to_str(self.components)</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="benchbuild.utils.settings.ConfigPath.path_to_str"><code class="name flex">
+<span>def <span class="ident">path_to_str</span></span>(<span>components) -> str</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def path_to_str(components) -&gt; str:
+    if components:
+        return os.path.sep + os.path.sep.join(components)
+    return os.path.sep</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.utils.settings.ConfigPath.validate"><code class="name flex">
+<span>def <span class="ident">validate</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Make sure this configuration path exists.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate(self):
+    &#34;&#34;&#34;Make sure this configuration path exists.&#34;&#34;&#34;
+    path = local.path(ConfigPath.path_to_str(self.components))
+
+    if not path.exists():
+        print(&#34;The path &#39;%s&#39; is required by your configuration.&#34; % path)
+        yes = ui.ask(
+            &#34;Should I create &#39;%s&#39; for you?&#34; % path,
+            default_answer=True,
+            default_answer_str=&#34;yes&#34;)
+        if yes:
+            path.mkdir()
+        else:
+            LOG.error(&#34;User denied path creation of &#39;%s&#39;.&#34;, path)
+    if not path.exists():
+        LOG.error(&#34;The path &#39;%s&#39; needs to exist.&#34;, path)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="benchbuild.utils.settings.Configuration"><code class="flex name class">
+<span>class <span class="ident">Configuration</span></span>
+<span>(</span><span>parent_key: str, node=None, parent=None, init=True)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Dictionary-like data structure to contain all configuration variables.</p>
+<p>This serves as a configuration dictionary throughout benchbuild. You can
+use it to access all configuration options that are available. Whenever the
+structure is updated with a new subtree, all variables defined in the new
+subtree are updated from the environment.</p>
+<p>Environment variables are generated from the tree paths automatically.
+CFG["build_dir"] becomes BB_BUILD_DIR
+CFG["llvm"]["dir"] becomes BB_LLVM_DIR</p>
+<p>The configuration can be stored/loaded as YAML.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Configuration:
+    &#34;&#34;&#34;Forward declaration.&#34;&#34;&#34;</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="benchbuild.utils.settings.Configuration.value"><code class="name">var <span class="ident">value</span></code></dt>
+<dd>
+<section class="desc"><p>Return the node value, if we're a leaf node.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def value(self):
+    &#34;&#34;&#34;Return the node value, if we&#39;re a leaf node.&#34;&#34;&#34;
+
+    def validate(node_value):
+        if hasattr(node_value, &#39;validate&#39;):
+            node_value.validate()
+        return node_value
+
+    if &#39;value&#39; in self.node:
+        return validate(self.node[&#39;value&#39;])
+    return self</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.utils.settings.Configuration.filter_exports"><code class="name flex">
+<span>def <span class="ident">filter_exports</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def filter_exports(self):
+    if self.has_default():
+        do_export = True
+        if &#34;export&#34; in self.node:
+            do_export = self.node[&#34;export&#34;]
+
+        if not do_export:
+            self.parent.node.pop(self.parent_key)
+    else:
+        selfcopy = copy.deepcopy(self)
+        for k in self.node:
+            if selfcopy[k].is_leaf():
+                selfcopy[k].filter_exports()
+        self.__dict__ = selfcopy.__dict__</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.Configuration.has_default"><code class="name flex">
+<span>def <span class="ident">has_default</span></span>(<span>self) -> bool</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check, if the node contains a 'default' value.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def has_default(self) -&gt; bool:
+    &#34;&#34;&#34;Check, if the node contains a &#39;default&#39; value.&#34;&#34;&#34;
+    return isinstance(self.node, dict) and &#39;default&#39; in self.node</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.Configuration.has_value"><code class="name flex">
+<span>def <span class="ident">has_value</span></span>(<span>self) -> bool</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check, if the node contains a 'value'.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def has_value(self) -&gt; bool:
+    &#34;&#34;&#34;Check, if the node contains a &#39;value&#39;.&#34;&#34;&#34;
+    return isinstance(self.node, dict) and &#39;value&#39; in self.node</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.Configuration.init_from_env"><code class="name flex">
+<span>def <span class="ident">init_from_env</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize this node from environment.</p>
+<p>If we're a leaf node, i.e., a node containing a dictionary that
+consist of a 'default' key, compute our env variable and initialize
+our value from the environment.
+Otherwise, init our children.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init_from_env(self):
+    &#34;&#34;&#34;
+    Initialize this node from environment.
+
+    If we&#39;re a leaf node, i.e., a node containing a dictionary that
+    consist of a &#39;default&#39; key, compute our env variable and initialize
+    our value from the environment.
+    Otherwise, init our children.
+    &#34;&#34;&#34;
+
+    if &#39;default&#39; in self.node:
+        env_var = self.__to_env_var__().upper()
+        if self.has_value():
+            env_val = self.node[&#39;value&#39;]
+        else:
+            env_val = self.node[&#39;default&#39;]
+        env_val = os.getenv(env_var, to_yaml(env_val))
+        try:
+            self.node[&#39;value&#39;] = yaml.load(
+                str(env_val), Loader=ConfigLoader)
+        except ValueError:
+            self.node[&#39;value&#39;] = env_val
+    else:
+        if isinstance(self.node, dict):
+            for k in self.node:
+                self[k].init_from_env()</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.Configuration.is_leaf"><code class="name flex">
+<span>def <span class="ident">is_leaf</span></span>(<span>self) -> bool</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check, if the node is a 'leaf' node.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_leaf(self) -&gt; bool:
+    &#34;&#34;&#34;Check, if the node is a &#39;leaf&#39; node.&#34;&#34;&#34;
+    return self.has_value() or self.has_default()</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.Configuration.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>self, _from)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Load the configuration dictionary from file.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load(self, _from):
+    &#34;&#34;&#34;Load the configuration dictionary from file.&#34;&#34;&#34;
+
+    def load_rec(inode, config):
+        &#34;&#34;&#34;Recursive part of loading.&#34;&#34;&#34;
+        for k in config:
+            if isinstance(config[k], dict) and \
+               k not in [&#39;value&#39;, &#39;default&#39;]:
+                if k in inode:
+                    load_rec(inode[k], config[k])
+                else:
+                    LOG.debug(&#34;+ config element: &#39;%s&#39;&#34;, k)
+            else:
+                inode[k] = config[k]
+
+    with open(_from, &#39;r&#39;) as infile:
+        obj = yaml.load(infile, Loader=ConfigLoader)
+        upgrade(obj)
+        load_rec(self.node, obj)
+        self[&#39;config_file&#39;] = os.path.abspath(_from)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.Configuration.store"><code class="name flex">
+<span>def <span class="ident">store</span></span>(<span>self, config_file)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Store the configuration dictionary to a file.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def store(self, config_file):
+    &#34;&#34;&#34; Store the configuration dictionary to a file.&#34;&#34;&#34;
+
+    selfcopy = copy.deepcopy(self)
+    selfcopy.filter_exports()
+
+    with open(config_file, &#39;w&#39;) as outf:
+        yaml.dump(
+            selfcopy.node,
+            outf,
+            width=80,
+            indent=4,
+            default_flow_style=False,
+            Dumper=ConfigDumper)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.settings.Configuration.to_env_dict"><code class="name flex">
+<span>def <span class="ident">to_env_dict</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Convert configuration object to a flat dictionary.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_env_dict(self):
+    &#34;&#34;&#34;Convert configuration object to a flat dictionary.&#34;&#34;&#34;
+    entries = {}
+    if self.has_value():
+        return {self.__to_env_var__(): self.node[&#39;value&#39;]}
+    if self.has_default():
+        return {self.__to_env_var__(): self.node[&#39;default&#39;]}
+
+    for k in self.node:
+        entries.update(self[k].to_env_dict())
+
+    return entries</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="benchbuild.utils.settings.InvalidConfigKey"><code class="flex name class">
+<span>class <span class="ident">InvalidConfigKey</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Warn, if you access a non-existing key benchbuild's configuration.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class InvalidConfigKey(RuntimeWarning):
+    &#34;&#34;&#34;Warn, if you access a non-existing key benchbuild&#39;s configuration.&#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.RuntimeWarning</li>
+<li>builtins.Warning</li>
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="benchbuild.utils" href="index.html">benchbuild.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="benchbuild.utils.settings.available_cpu_count" href="#benchbuild.utils.settings.available_cpu_count">available_cpu_count</a></code></li>
+<li><code><a title="benchbuild.utils.settings.convert_components" href="#benchbuild.utils.settings.convert_components">convert_components</a></code></li>
+<li><code><a title="benchbuild.utils.settings.escape_yaml" href="#benchbuild.utils.settings.escape_yaml">escape_yaml</a></code></li>
+<li><code><a title="benchbuild.utils.settings.find_config" href="#benchbuild.utils.settings.find_config">find_config</a></code></li>
+<li><code><a title="benchbuild.utils.settings.is_yaml" href="#benchbuild.utils.settings.is_yaml">is_yaml</a></code></li>
+<li><code><a title="benchbuild.utils.settings.path_constructor" href="#benchbuild.utils.settings.path_constructor">path_constructor</a></code></li>
+<li><code><a title="benchbuild.utils.settings.path_representer" href="#benchbuild.utils.settings.path_representer">path_representer</a></code></li>
+<li><code><a title="benchbuild.utils.settings.setup_config" href="#benchbuild.utils.settings.setup_config">setup_config</a></code></li>
+<li><code><a title="benchbuild.utils.settings.to_env_var" href="#benchbuild.utils.settings.to_env_var">to_env_var</a></code></li>
+<li><code><a title="benchbuild.utils.settings.to_yaml" href="#benchbuild.utils.settings.to_yaml">to_yaml</a></code></li>
+<li><code><a title="benchbuild.utils.settings.update_env" href="#benchbuild.utils.settings.update_env">update_env</a></code></li>
+<li><code><a title="benchbuild.utils.settings.upgrade" href="#benchbuild.utils.settings.upgrade">upgrade</a></code></li>
+<li><code><a title="benchbuild.utils.settings.uuid_add_implicit_resolver" href="#benchbuild.utils.settings.uuid_add_implicit_resolver">uuid_add_implicit_resolver</a></code></li>
+<li><code><a title="benchbuild.utils.settings.uuid_constructor" href="#benchbuild.utils.settings.uuid_constructor">uuid_constructor</a></code></li>
+<li><code><a title="benchbuild.utils.settings.uuid_representer" href="#benchbuild.utils.settings.uuid_representer">uuid_representer</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="benchbuild.utils.settings.ConfigDumper" href="#benchbuild.utils.settings.ConfigDumper">ConfigDumper</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.settings.ConfigDumper.yaml_implicit_resolvers" href="#benchbuild.utils.settings.ConfigDumper.yaml_implicit_resolvers">yaml_implicit_resolvers</a></code></li>
+<li><code><a title="benchbuild.utils.settings.ConfigDumper.yaml_representers" href="#benchbuild.utils.settings.ConfigDumper.yaml_representers">yaml_representers</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.settings.ConfigLoader" href="#benchbuild.utils.settings.ConfigLoader">ConfigLoader</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.settings.ConfigLoader.yaml_constructors" href="#benchbuild.utils.settings.ConfigLoader.yaml_constructors">yaml_constructors</a></code></li>
+<li><code><a title="benchbuild.utils.settings.ConfigLoader.yaml_implicit_resolvers" href="#benchbuild.utils.settings.ConfigLoader.yaml_implicit_resolvers">yaml_implicit_resolvers</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.settings.ConfigPath" href="#benchbuild.utils.settings.ConfigPath">ConfigPath</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.settings.ConfigPath.path_to_str" href="#benchbuild.utils.settings.ConfigPath.path_to_str">path_to_str</a></code></li>
+<li><code><a title="benchbuild.utils.settings.ConfigPath.validate" href="#benchbuild.utils.settings.ConfigPath.validate">validate</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.settings.Configuration" href="#benchbuild.utils.settings.Configuration">Configuration</a></code></h4>
+<ul class="two-column">
+<li><code><a title="benchbuild.utils.settings.Configuration.filter_exports" href="#benchbuild.utils.settings.Configuration.filter_exports">filter_exports</a></code></li>
+<li><code><a title="benchbuild.utils.settings.Configuration.has_default" href="#benchbuild.utils.settings.Configuration.has_default">has_default</a></code></li>
+<li><code><a title="benchbuild.utils.settings.Configuration.has_value" href="#benchbuild.utils.settings.Configuration.has_value">has_value</a></code></li>
+<li><code><a title="benchbuild.utils.settings.Configuration.init_from_env" href="#benchbuild.utils.settings.Configuration.init_from_env">init_from_env</a></code></li>
+<li><code><a title="benchbuild.utils.settings.Configuration.is_leaf" href="#benchbuild.utils.settings.Configuration.is_leaf">is_leaf</a></code></li>
+<li><code><a title="benchbuild.utils.settings.Configuration.load" href="#benchbuild.utils.settings.Configuration.load">load</a></code></li>
+<li><code><a title="benchbuild.utils.settings.Configuration.store" href="#benchbuild.utils.settings.Configuration.store">store</a></code></li>
+<li><code><a title="benchbuild.utils.settings.Configuration.to_env_dict" href="#benchbuild.utils.settings.Configuration.to_env_dict">to_env_dict</a></code></li>
+<li><code><a title="benchbuild.utils.settings.Configuration.value" href="#benchbuild.utils.settings.Configuration.value">value</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.settings.InvalidConfigKey" href="#benchbuild.utils.settings.InvalidConfigKey">InvalidConfigKey</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

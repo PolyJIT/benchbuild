@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>benchbuild.utils.container API documentation</title>
+<meta name="description" content="Container utilites." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>benchbuild.utils.container</code></h1>
+</header>
+<section id="section-intro">
+<p>Container utilites.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Container utilites.&#34;&#34;&#34;
+import logging
+import os
+
+from datetime import datetime
+from plumbum import TF, ProcessExecutionError, local
+
+from benchbuild.settings import CFG
+from benchbuild.utils.cmd import awk, bash, cp, curl, cut, rm, tail
+from benchbuild.utils.download import Wget
+
+LOG = logging.getLogger(__name__)
+
+
+def cached(func):
+    &#34;&#34;&#34;Memoize a function result.&#34;&#34;&#34;
+    ret = None
+
+    def call_or_cache(*args, **kwargs):
+        nonlocal ret
+        if ret is None:
+            ret = func(*args, **kwargs)
+        return ret
+
+    return call_or_cache
+
+
+class Container:
+    name = &#34;container&#34;
+
+    @property
+    def remote(self):
+        pass
+
+    @property
+    def filename(self):
+        image_cfg = CFG[&#34;container&#34;][&#34;images&#34;].value
+        image_cfg = image_cfg[self.name]
+        tmp_dir = local.path(str(CFG[&#34;tmp_dir&#34;]))
+
+        if os.path.isabs(image_cfg):
+            return image_cfg
+        return tmp_dir / image_cfg
+
+    @property
+    def local(self):
+        &#34;&#34;&#34;
+        Finds the current location of a container.
+        Also unpacks the project if necessary.
+
+        Returns:
+            target: The path, where the container lies in the end.
+        &#34;&#34;&#34;
+        assert self.name in CFG[&#34;container&#34;][&#34;images&#34;].value
+        tmp_dir = local.path(str(CFG[&#34;tmp_dir&#34;]))
+        target_dir = tmp_dir / self.name
+
+        if not target_dir.exists() or not is_valid(self, target_dir):
+            unpack(self, target_dir)
+
+        return target_dir
+
+
+class Gentoo(Container):
+    name = &#34;gentoo&#34;
+    _LATEST_TXT = \
+        &#34;http://distfiles.gentoo.org/releases/amd64/autobuilds/&#34;\
+        &#34;latest-stage3-amd64.txt&#34;
+
+    @property
+    @cached
+    def src_file(self):
+        &#34;&#34;&#34;
+        Get the latest src_uri for a stage 3 tarball.
+
+        Returns (str):
+            Latest src_uri from gentoo&#39;s distfiles mirror.
+        &#34;&#34;&#34;
+        try:
+            src_uri = (curl[Gentoo._LATEST_TXT] | tail[&#34;-n&#34;, &#34;+3&#34;]
+                       | cut[&#34;-f1&#34;, &#34;-d &#34;])().strip()
+        except ProcessExecutionError as proc_ex:
+            src_uri = &#34;NOT-FOUND&#34;
+            LOG.error(&#34;Could not determine latest stage3 src uri: %s&#34;,
+                      str(proc_ex))
+        return src_uri
+
+    @property
+    @cached
+    def version(self):
+        &#34;&#34;&#34;Return the build date of the gentoo container.&#34;&#34;&#34;
+        try:
+            _version = (curl[Gentoo._LATEST_TXT] | \
+                    awk[&#39;NR==2{print}&#39;] | \
+                    cut[&#34;-f2&#34;, &#34;-d=&#34;])().strip()
+            _version = datetime.utcfromtimestamp(int(_version))\
+                .strftime(&#34;%Y-%m-%d&#34;)
+        except ProcessExecutionError as proc_ex:
+            _version = &#34;unknown&#34;
+            LOG.error(&#34;Could not determine timestamp: %s&#34;,
+                      str(proc_ex))
+        return _version
+
+    @property
+    def remote(self):
+        &#34;&#34;&#34;Get a remote URL of the requested container.&#34;&#34;&#34;
+        return &#34;http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}&#34; \
+            .format(self.src_file)
+
+
+def is_valid(container, path):
+    &#34;&#34;&#34;
+    Checks if a container exists and is unpacked.
+
+    Args:
+        path: The location where the container is expected.
+
+    Returns:
+        True if the container is valid, False if the container needs to
+        unpacked or if the path does not exist yet.
+    &#34;&#34;&#34;
+    try:
+        tmp_hash_path = container.filename + &#34;.hash&#34;
+        with open(tmp_hash_path, &#39;r&#39;) as tmp_file:
+            tmp_hash = tmp_file.readline()
+    except IOError:
+        LOG.info(&#34;No .hash-file in the tmp-directory.&#34;)
+
+    container_hash_path = local.path(path) / &#34;gentoo.tar.bz2.hash&#34;
+    if container_hash_path.exists():
+        with open(container_hash_path, &#39;r&#39;) as hash_file:
+            container_hash = hash_file.readline()
+            return container_hash == tmp_hash
+    return False
+
+
+def unpack(container, path):
+    &#34;&#34;&#34;
+    Unpack a container usable by uchroot.
+
+    Method that checks if a directory for the container exists,
+    checks if erlent support is needed and then unpacks the
+    container accordingly.
+
+    Args:
+        path: The location where the container is, that needs to be unpacked.
+
+    &#34;&#34;&#34;
+    from benchbuild.utils import run
+    from benchbuild.utils.uchroot import no_args
+
+    path = local.path(path)
+    c_filename = local.path(container.filename)
+    name = c_filename.basename
+
+    if not path.exists():
+        path.mkdir()
+
+    with local.cwd(path):
+        Wget(container.remote, name)
+
+        uchroot = no_args()
+        uchroot = uchroot[&#34;-E&#34;, &#34;-A&#34;, &#34;-C&#34;, &#34;-r&#34;, &#34;/&#34;, &#34;-w&#34;,
+                          os.path.abspath(&#34;.&#34;), &#34;--&#34;]
+
+        # Check, if we need erlent support for this archive.
+        has_erlent = bash[
+            &#34;-c&#34;, &#34;tar --list -f &#39;./{0}&#39; | grep --silent &#39;.erlent&#39;&#34;.format(
+                name)]
+        has_erlent = (has_erlent &amp; TF)
+
+        untar = local[&#34;/bin/tar&#34;][&#34;xf&#34;, &#34;./&#34; + name]
+        if not has_erlent:
+            untar = uchroot[untar]
+
+        untar = run.watch(untar)
+        untar(&#34;--exclude=dev/*&#34;)
+        if not os.path.samefile(name, container.filename):
+            rm(name)
+        else:
+            LOG.warning(&#34;File contents do not match: %s != %s&#34;, name,
+                        container.filename)
+        cp(container.filename + &#34;.hash&#34;, path)
+
+
+def in_container():
+    &#34;&#34;&#34;Check, whether we are running inside a container.&#34;&#34;&#34;
+    p = local.path(&#34;/.benchbuild-container&#34;)
+    return p.exists()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="benchbuild.utils.container.cached"><code class="name flex">
+<span>def <span class="ident">cached</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Memoize a function result.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cached(func):
+    &#34;&#34;&#34;Memoize a function result.&#34;&#34;&#34;
+    ret = None
+
+    def call_or_cache(*args, **kwargs):
+        nonlocal ret
+        if ret is None:
+            ret = func(*args, **kwargs)
+        return ret
+
+    return call_or_cache</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.container.in_container"><code class="name flex">
+<span>def <span class="ident">in_container</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check, whether we are running inside a container.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def in_container():
+    &#34;&#34;&#34;Check, whether we are running inside a container.&#34;&#34;&#34;
+    p = local.path(&#34;/.benchbuild-container&#34;)
+    return p.exists()</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.container.is_valid"><code class="name flex">
+<span>def <span class="ident">is_valid</span></span>(<span>container, path)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Checks if a container exists and is unpacked.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>The location where the container is expected.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>True</code> <code>if</code> <code>the</code> <code>container</code> <code>is</code> <code>valid</code>, <code>False</code> <code>if</code> <code>the</code> <code>container</code> <code>needs</code> <code>to</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<p>unpacked or if the path does not exist yet.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_valid(container, path):
+    &#34;&#34;&#34;
+    Checks if a container exists and is unpacked.
+
+    Args:
+        path: The location where the container is expected.
+
+    Returns:
+        True if the container is valid, False if the container needs to
+        unpacked or if the path does not exist yet.
+    &#34;&#34;&#34;
+    try:
+        tmp_hash_path = container.filename + &#34;.hash&#34;
+        with open(tmp_hash_path, &#39;r&#39;) as tmp_file:
+            tmp_hash = tmp_file.readline()
+    except IOError:
+        LOG.info(&#34;No .hash-file in the tmp-directory.&#34;)
+
+    container_hash_path = local.path(path) / &#34;gentoo.tar.bz2.hash&#34;
+    if container_hash_path.exists():
+        with open(container_hash_path, &#39;r&#39;) as hash_file:
+            container_hash = hash_file.readline()
+            return container_hash == tmp_hash
+    return False</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.container.unpack"><code class="name flex">
+<span>def <span class="ident">unpack</span></span>(<span>container, path)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Unpack a container usable by uchroot.</p>
+<p>Method that checks if a directory for the container exists,
+checks if erlent support is needed and then unpacks the
+container accordingly.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>The location where the container is, that needs to be unpacked.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def unpack(container, path):
+    &#34;&#34;&#34;
+    Unpack a container usable by uchroot.
+
+    Method that checks if a directory for the container exists,
+    checks if erlent support is needed and then unpacks the
+    container accordingly.
+
+    Args:
+        path: The location where the container is, that needs to be unpacked.
+
+    &#34;&#34;&#34;
+    from benchbuild.utils import run
+    from benchbuild.utils.uchroot import no_args
+
+    path = local.path(path)
+    c_filename = local.path(container.filename)
+    name = c_filename.basename
+
+    if not path.exists():
+        path.mkdir()
+
+    with local.cwd(path):
+        Wget(container.remote, name)
+
+        uchroot = no_args()
+        uchroot = uchroot[&#34;-E&#34;, &#34;-A&#34;, &#34;-C&#34;, &#34;-r&#34;, &#34;/&#34;, &#34;-w&#34;,
+                          os.path.abspath(&#34;.&#34;), &#34;--&#34;]
+
+        # Check, if we need erlent support for this archive.
+        has_erlent = bash[
+            &#34;-c&#34;, &#34;tar --list -f &#39;./{0}&#39; | grep --silent &#39;.erlent&#39;&#34;.format(
+                name)]
+        has_erlent = (has_erlent &amp; TF)
+
+        untar = local[&#34;/bin/tar&#34;][&#34;xf&#34;, &#34;./&#34; + name]
+        if not has_erlent:
+            untar = uchroot[untar]
+
+        untar = run.watch(untar)
+        untar(&#34;--exclude=dev/*&#34;)
+        if not os.path.samefile(name, container.filename):
+            rm(name)
+        else:
+            LOG.warning(&#34;File contents do not match: %s != %s&#34;, name,
+                        container.filename)
+        cp(container.filename + &#34;.hash&#34;, path)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="benchbuild.utils.container.Container"><code class="flex name class">
+<span>class <span class="ident">Container</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Container:
+    name = &#34;container&#34;
+
+    @property
+    def remote(self):
+        pass
+
+    @property
+    def filename(self):
+        image_cfg = CFG[&#34;container&#34;][&#34;images&#34;].value
+        image_cfg = image_cfg[self.name]
+        tmp_dir = local.path(str(CFG[&#34;tmp_dir&#34;]))
+
+        if os.path.isabs(image_cfg):
+            return image_cfg
+        return tmp_dir / image_cfg
+
+    @property
+    def local(self):
+        &#34;&#34;&#34;
+        Finds the current location of a container.
+        Also unpacks the project if necessary.
+
+        Returns:
+            target: The path, where the container lies in the end.
+        &#34;&#34;&#34;
+        assert self.name in CFG[&#34;container&#34;][&#34;images&#34;].value
+        tmp_dir = local.path(str(CFG[&#34;tmp_dir&#34;]))
+        target_dir = tmp_dir / self.name
+
+        if not target_dir.exists() or not is_valid(self, target_dir):
+            unpack(self, target_dir)
+
+        return target_dir</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.container.Gentoo" href="#benchbuild.utils.container.Gentoo">Gentoo</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.utils.container.Container.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<section class="desc"><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p></section>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="benchbuild.utils.container.Container.filename"><code class="name">var <span class="ident">filename</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def filename(self):
+    image_cfg = CFG[&#34;container&#34;][&#34;images&#34;].value
+    image_cfg = image_cfg[self.name]
+    tmp_dir = local.path(str(CFG[&#34;tmp_dir&#34;]))
+
+    if os.path.isabs(image_cfg):
+        return image_cfg
+    return tmp_dir / image_cfg</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.container.Container.local"><code class="name">var <span class="ident">local</span></code></dt>
+<dd>
+<section class="desc"><p>Finds the current location of a container.
+Also unpacks the project if necessary.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>target</code></strong></dt>
+<dd>The path, where the container lies in the end.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def local(self):
+    &#34;&#34;&#34;
+    Finds the current location of a container.
+    Also unpacks the project if necessary.
+
+    Returns:
+        target: The path, where the container lies in the end.
+    &#34;&#34;&#34;
+    assert self.name in CFG[&#34;container&#34;][&#34;images&#34;].value
+    tmp_dir = local.path(str(CFG[&#34;tmp_dir&#34;]))
+    target_dir = tmp_dir / self.name
+
+    if not target_dir.exists() or not is_valid(self, target_dir):
+        unpack(self, target_dir)
+
+    return target_dir</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.container.Container.remote"><code class="name">var <span class="ident">remote</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def remote(self):
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="benchbuild.utils.container.Gentoo"><code class="flex name class">
+<span>class <span class="ident">Gentoo</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Gentoo(Container):
+    name = &#34;gentoo&#34;
+    _LATEST_TXT = \
+        &#34;http://distfiles.gentoo.org/releases/amd64/autobuilds/&#34;\
+        &#34;latest-stage3-amd64.txt&#34;
+
+    @property
+    @cached
+    def src_file(self):
+        &#34;&#34;&#34;
+        Get the latest src_uri for a stage 3 tarball.
+
+        Returns (str):
+            Latest src_uri from gentoo&#39;s distfiles mirror.
+        &#34;&#34;&#34;
+        try:
+            src_uri = (curl[Gentoo._LATEST_TXT] | tail[&#34;-n&#34;, &#34;+3&#34;]
+                       | cut[&#34;-f1&#34;, &#34;-d &#34;])().strip()
+        except ProcessExecutionError as proc_ex:
+            src_uri = &#34;NOT-FOUND&#34;
+            LOG.error(&#34;Could not determine latest stage3 src uri: %s&#34;,
+                      str(proc_ex))
+        return src_uri
+
+    @property
+    @cached
+    def version(self):
+        &#34;&#34;&#34;Return the build date of the gentoo container.&#34;&#34;&#34;
+        try:
+            _version = (curl[Gentoo._LATEST_TXT] | \
+                    awk[&#39;NR==2{print}&#39;] | \
+                    cut[&#34;-f2&#34;, &#34;-d=&#34;])().strip()
+            _version = datetime.utcfromtimestamp(int(_version))\
+                .strftime(&#34;%Y-%m-%d&#34;)
+        except ProcessExecutionError as proc_ex:
+            _version = &#34;unknown&#34;
+            LOG.error(&#34;Could not determine timestamp: %s&#34;,
+                      str(proc_ex))
+        return _version
+
+    @property
+    def remote(self):
+        &#34;&#34;&#34;Get a remote URL of the requested container.&#34;&#34;&#34;
+        return &#34;http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}&#34; \
+            .format(self.src_file)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.container.Container" href="#benchbuild.utils.container.Container">Container</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="benchbuild.utils.container.Gentoo.remote"><code class="name">var <span class="ident">remote</span></code></dt>
+<dd>
+<section class="desc"><p>Get a remote URL of the requested container.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def remote(self):
+    &#34;&#34;&#34;Get a remote URL of the requested container.&#34;&#34;&#34;
+    return &#34;http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}&#34; \
+        .format(self.src_file)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.container.Gentoo.src_file"><code class="name">var <span class="ident">src_file</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call_or_cache(*args, **kwargs):
+    nonlocal ret
+    if ret is None:
+        ret = func(*args, **kwargs)
+    return ret</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.container.Gentoo.version"><code class="name">var <span class="ident">version</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call_or_cache(*args, **kwargs):
+    nonlocal ret
+    if ret is None:
+        ret = func(*args, **kwargs)
+    return ret</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.container.Container" href="#benchbuild.utils.container.Container">Container</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.container.Container.local" href="#benchbuild.utils.container.Container.local">local</a></code></li>
+<li><code><a title="benchbuild.utils.container.Container.name" href="#benchbuild.utils.container.Container.name">name</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="benchbuild.utils" href="index.html">benchbuild.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="benchbuild.utils.container.cached" href="#benchbuild.utils.container.cached">cached</a></code></li>
+<li><code><a title="benchbuild.utils.container.in_container" href="#benchbuild.utils.container.in_container">in_container</a></code></li>
+<li><code><a title="benchbuild.utils.container.is_valid" href="#benchbuild.utils.container.is_valid">is_valid</a></code></li>
+<li><code><a title="benchbuild.utils.container.unpack" href="#benchbuild.utils.container.unpack">unpack</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="benchbuild.utils.container.Container" href="#benchbuild.utils.container.Container">Container</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.container.Container.filename" href="#benchbuild.utils.container.Container.filename">filename</a></code></li>
+<li><code><a title="benchbuild.utils.container.Container.local" href="#benchbuild.utils.container.Container.local">local</a></code></li>
+<li><code><a title="benchbuild.utils.container.Container.name" href="#benchbuild.utils.container.Container.name">name</a></code></li>
+<li><code><a title="benchbuild.utils.container.Container.remote" href="#benchbuild.utils.container.Container.remote">remote</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.container.Gentoo" href="#benchbuild.utils.container.Gentoo">Gentoo</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.container.Gentoo.remote" href="#benchbuild.utils.container.Gentoo.remote">remote</a></code></li>
+<li><code><a title="benchbuild.utils.container.Gentoo.src_file" href="#benchbuild.utils.container.Gentoo.src_file">src_file</a></code></li>
+<li><code><a title="benchbuild.utils.container.Gentoo.version" href="#benchbuild.utils.container.Gentoo.version">version</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

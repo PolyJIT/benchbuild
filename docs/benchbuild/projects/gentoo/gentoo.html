@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>benchbuild.projects.gentoo.gentoo API documentation</title>
+<meta name="description" content="The Gentoo module for running tests on builds from the portage tree …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>benchbuild.projects.gentoo.gentoo</code></h1>
+</header>
+<section id="section-intro">
+<p>The Gentoo module for running tests on builds from the portage tree.</p>
+<p>This will install a stage3 image of gentoo together with a recent snapshot
+of the portage tree. For building / executing arbitrary projects successfully
+it is necessary to keep the installed image as close to the host system as
+possible.
+In order to speed up your experience, you can replace the stage3 image that we
+pull from the distfiles mirror with a new image that contains all necessary
+dependencies for your experiments. Make sure you update the hash alongside
+the gentoo image in benchbuild's source directory.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+The Gentoo module for running tests on builds from the portage tree.
+
+This will install a stage3 image of gentoo together with a recent snapshot
+of the portage tree. For building / executing arbitrary projects successfully
+it is necessary to keep the installed image as close to the host system as
+possible.
+In order to speed up your experience, you can replace the stage3 image that we
+pull from the distfiles mirror with a new image that contains all necessary
+dependencies for your experiments. Make sure you update the hash alongside
+the gentoo image in benchbuild&#39;s source directory.
+
+&#34;&#34;&#34;
+import logging
+
+import attr
+from plumbum import ProcessExecutionError, local
+
+from benchbuild.settings import CFG
+from benchbuild.project import Project
+from benchbuild.utils import compiler, container, path, run, uchroot
+from benchbuild.utils.cmd import cp, ln
+
+LOG = logging.getLogger(__name__)
+
+
+@attr.s
+class GentooGroup(Project):
+    &#34;&#34;&#34;Gentoo ProjectGroup is the base class for every portage build.&#34;&#34;&#34;
+
+    GROUP = &#39;gentoo&#39;
+    CONTAINER = container.Gentoo()
+    SRC_FILE = None
+
+    emerge_env = attr.ib(default={}, repr=False, cmp=False)
+
+    def redirect(self):
+        if not CFG[&#34;unionfs&#34;][&#34;enable&#34;]:
+            container.unpack(self.container, self.builddir)
+
+        setup_networking()
+        setup_benchbuild()
+        configure_portage()
+
+        self.configure_benchbuild(CFG)
+        path.mkfile_uchroot(&#34;/.benchbuild-container&#34;)
+        benchbuild = find_benchbuild()
+        benchbuild = run.watch(benchbuild)
+        with local.env(BB_VERBOSITY=str(CFG[&#39;verbosity&#39;])):
+            project_id = &#34;{0}/{1}&#34;.format(self.name, self.group)
+            benchbuild(&#34;run&#34;, &#34;-E&#34;, self.experiment.name, project_id)
+
+    def compile(self):
+        package_atom = &#34;{domain}/{name}&#34;.format(domain=self.domain,
+                                                name=self.name)
+
+        LOG.debug(&#39;Installing dependencies.&#39;)
+        emerge(package_atom, &#39;--onlydeps&#39;, env=self.emerge_env)
+        c_compiler = local.path(str(compiler.cc(self)))
+        cxx_compiler = local.path(str(compiler.cxx(self)))
+
+        setup_compilers(&#39;/etc/portage/make.conf&#39;)
+        ln(&#34;-sf&#34;, str(c_compiler), local.path(&#39;/&#39;) / c_compiler.basename)
+        ln(&#39;-sf&#39;, str(cxx_compiler), local.path(&#39;/&#39;) / cxx_compiler.basename)
+
+        LOG.debug(&#39;Installing %s.&#39;, package_atom)
+        emerge(package_atom, env=self.emerge_env)
+
+    def configure_benchbuild(self, cfg):
+        config_file = local.path(&#34;/.benchbuild.yml&#34;)
+        paths, libs = \
+                uchroot.env(
+                    uchroot.mounts(
+                        &#34;mnt&#34;,
+                        cfg[&#34;container&#34;][&#34;mounts&#34;].value))
+
+        uchroot_cfg = cfg
+        env = uchroot_cfg[&#34;env&#34;].value
+        env[&#34;PATH&#34;] = paths
+        env[&#34;LD_LIBRARY_PATH&#34;] = libs
+
+        uchroot_cfg[&#34;env&#34;] = env
+        uchroot_cfg[&#39;plugins&#39;][&#39;projects&#39;] = [str(self.__module__)]
+        uchroot_cfg[&#39;plugins&#39;][&#39;experiments&#39;] = [
+            str(self.experiment.__module__)
+        ]
+        uchroot_cfg[&#34;config_file&#34;] = str(config_file)
+        uchroot_cfg[&#34;unionfs&#34;][&#34;enable&#34;] = False
+        uchroot_cfg[&#34;build_dir&#34;] = &#34;/benchbuild/build&#34;
+        uchroot_cfg[&#34;tmp_dir&#34;] = &#34;/mnt/distfiles&#34;
+        uchroot_cfg[&#34;clean&#34;] = False
+
+        path.mkfile_uchroot(&#34;/.benchbuild.yml&#34;)
+        uchroot_cfg.store(&#34;.benchbuild.yml&#34;)
+
+        write_sandbox_d(&#34;etc/sandbox.conf&#34;)
+
+
+def emerge(package, *args, env=None):
+    from benchbuild.utils.cmd import emerge as _emerge
+
+    with local.env(env):
+        emerge_ = run.watch(_emerge)
+        emerge_(&#34;--autounmask-continue&#34;, args, package)
+
+
+def setup_networking():
+    LOG.debug(&#34;Setting up networking...&#34;)
+    path.mkfile_uchroot(&#34;/etc/resolv.conf&#34;)
+    cp(&#34;/etc/resolv.conf&#34;, &#34;etc/resolv.conf&#34;)
+    write_wgetrc(&#34;etc/wgetrc&#34;)
+
+
+def configure_portage():
+    LOG.debug(&#34;Setting up Gentoo Portage...&#34;)
+    write_makeconfig(&#34;etc/portage/make.conf&#34;)
+    write_layout(&#34;etc/portage/metadata/layout.conf&#34;)
+    write_bashrc(&#34;etc/portage/bashrc&#34;)
+
+
+def write_sandbox_d(_path):
+    path.mkfile_uchroot(local.path(&#39;/&#39;) / _path)
+    with open(_path, &#39;a&#39;) as sandbox_conf:
+        lines = &#39;&#39;&#39;
+SANDBOX_WRITE=&#34;/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout&#34;
+&#39;&#39;&#39;
+        sandbox_conf.write(lines)
+
+
+def setup_compilers(_path):
+    LOG.debug(&#34;Arming compiler symlinks.&#34;)
+    with open(_path, &#39;a&#39;) as makeconf:
+        lines = &#39;&#39;&#39;
+CC=&#34;/clang&#34;
+CXX=&#34;/clang++&#34;
+&#39;&#39;&#39;
+        makeconf.write(lines)
+
+
+def write_makeconfig(_path):
+    &#34;&#34;&#34;
+    Write a valid gentoo make.conf file to :path:.
+
+    Args:
+        path - The output path of the make.conf
+    &#34;&#34;&#34;
+    http_proxy = str(CFG[&#34;gentoo&#34;][&#34;http_proxy&#34;])
+    ftp_proxy = str(CFG[&#34;gentoo&#34;][&#34;ftp_proxy&#34;])
+    rsync_proxy = str(CFG[&#34;gentoo&#34;][&#34;rsync_proxy&#34;])
+
+    path.mkfile_uchroot(local.path(&#39;/&#39;) / _path)
+    with open(_path, &#39;w&#39;) as makeconf:
+        lines = &#39;&#39;&#39;
+PORTAGE_USERNAME=root
+PORTAGE_GROUPNAME=root
+CFLAGS=&#34;-O2 -pipe&#34;
+CXXFLAGS=&#34;${CFLAGS}&#34;
+FEATURES=&#34;nostrip -xattr&#34;
+CHOST=&#34;x86_64-pc-linux-gnu&#34;
+USE=&#34;bindist mmx sse sse2&#34;
+PORTDIR=&#34;/usr/portage&#34;
+DISTDIR=&#34;/mnt/distfiles&#34;
+PKGDIR=&#34;${PORTDIR}/packages&#34;
+&#39;&#39;&#39;
+
+        makeconf.write(lines)
+
+        mounts = CFG[&#34;container&#34;][&#34;mounts&#34;].value
+        tmp_dir = str(CFG[&#34;tmp_dir&#34;])
+        mounts.append({&#34;src&#34;: tmp_dir, &#34;tgt&#34;: &#34;/mnt/distfiles&#34;})
+        CFG[&#34;container&#34;][&#34;mounts&#34;] = mounts
+
+        if http_proxy is not None:
+            http_s = &#34;http_proxy={0}&#34;.format(http_proxy)
+            https_s = &#34;https_proxy={0}&#34;.format(http_proxy)
+            makeconf.write(http_s + &#34;\n&#34;)
+            makeconf.write(https_s + &#34;\n&#34;)
+
+        if ftp_proxy is not None:
+            fp_s = &#34;ftp_proxy={0}&#34;.format(ftp_proxy)
+            makeconf.write(fp_s + &#34;\n&#34;)
+
+        if rsync_proxy is not None:
+            rp_s = &#34;RSYNC_PROXY={0}&#34;.format(rsync_proxy)
+            makeconf.write(rp_s + &#34;\n&#34;)
+
+
+def write_bashrc(_path):
+    &#34;&#34;&#34;
+    Write a valid gentoo bashrc file to :path:.
+
+    Args:
+        path - The output path of the make.conf
+    &#34;&#34;&#34;
+    cfg_mounts = CFG[&#34;container&#34;][&#34;mounts&#34;].value
+    cfg_prefix = CFG[&#34;container&#34;][&#34;prefixes&#34;].value
+
+    path.mkfile_uchroot(&#34;/etc/portage/bashrc&#34;)
+    mounts = uchroot.mounts(&#34;mnt&#34;, cfg_mounts)
+    p_paths, p_libs = uchroot.env(cfg_prefix)
+    paths, libs = uchroot.env(mounts)
+
+    paths = paths + p_paths
+    libs = libs + p_libs
+
+    with open(_path, &#39;w&#39;) as bashrc:
+        lines = &#39;&#39;&#39;
+export PATH=&#34;{0}:${{PATH}}&#34;
+export LD_LIBRARY_PATH=&#34;{1}:${{LD_LIBRARY_PATH}}&#34;
+&#39;&#39;&#39;.format(path.list_to_path(paths), path.list_to_path(libs))
+
+        bashrc.write(lines)
+
+
+def write_layout(_path):
+    &#34;&#34;&#34;
+    Write a valid gentoo layout file to :path:.
+
+    Args:
+        path - The output path of the layout.conf
+    &#34;&#34;&#34;
+
+    path.mkdir_uchroot(&#34;/etc/portage/metadata&#34;)
+    path.mkfile_uchroot(&#34;/etc/portage/metadata/layout.conf&#34;)
+    with open(_path, &#39;w&#39;) as layoutconf:
+        lines = &#39;&#39;&#39;masters = gentoo&#39;&#39;&#39;
+        layoutconf.write(lines)
+
+
+def write_wgetrc(_path):
+    &#34;&#34;&#34;
+    Write a valid gentoo wgetrc file to :path:.
+
+    Args:
+        path - The output path of the wgetrc
+    &#34;&#34;&#34;
+    http_proxy = str(CFG[&#34;gentoo&#34;][&#34;http_proxy&#34;])
+    ftp_proxy = str(CFG[&#34;gentoo&#34;][&#34;ftp_proxy&#34;])
+
+    path.mkfile_uchroot(&#34;/etc/wgetrc&#34;)
+    with open(_path, &#39;w&#39;) as wgetrc:
+        if http_proxy is not None:
+            http_s = &#34;http_proxy = {0}&#34;.format(http_proxy)
+            https_s = &#34;https_proxy = {0}&#34;.format(http_proxy)
+            wgetrc.write(&#34;use_proxy = on\n&#34;)
+            wgetrc.write(http_s + &#34;\n&#34;)
+            wgetrc.write(https_s + &#34;\n&#34;)
+
+        if ftp_proxy is not None:
+            fp_s = &#34;ftp_proxy={0}&#34;.format(ftp_proxy)
+            wgetrc.write(fp_s + &#34;\n&#34;)
+
+
+def setup_virtualenv(_path=&#34;/benchbuild&#34;):
+    LOG.debug(&#34;Setting up Benchbuild virtualenv...&#34;)
+    env = uchroot.uchroot()[&#34;/usr/bin/env&#34;]
+    env = env[&#39;-i&#39;, &#39;--&#39;]
+    venv = env[&#34;/usr/bin/virtualenv&#34;]
+    venv = venv(&#34;-p&#34;, &#34;/usr/bin/python3&#34;, _path)
+
+
+def find_benchbuild():
+    try:
+        uchrt = uchroot.clean_env(uchroot.uchroot(), [&#39;HOME&#39;])
+        benchbuild_loc = uchrt(&#34;which&#34;, &#34;benchbuild&#34;).strip()
+        benchbuild = uchrt[benchbuild_loc]
+        return benchbuild
+    except ProcessExecutionError as err:
+        LOG.error(&#34;Could not find Benchbuild inside container&#34;)
+        LOG.debug(&#34;Reason: %s&#34;, str(err))
+    return None
+
+
+def requires_update(benchbuild):
+    try:
+        c_version = benchbuild(&#34;--version&#34;).strip().split()[-1]
+        h_version = str(CFG[&#34;version&#34;])
+
+        LOG.debug(&#34;container: %s&#34;, c_version)
+        LOG.debug(&#34;host: %s&#34;, h_version)
+        if c_version == h_version:
+            return False
+    except ProcessExecutionError as err:
+        LOG.error(&#34;Querying Benchbuild inside container failed&#34;)
+        LOG.debug(&#34;Reason: %s&#34;, str(err))
+    return True
+
+
+def setup_benchbuild():
+    &#34;&#34;&#34;
+    Setup benchbuild inside a container.
+
+    This will query a for an existing installation of benchbuild and
+    try to upgrade it to the latest version, if possible.
+    &#34;&#34;&#34;
+    LOG.debug(&#34;Setting up Benchbuild...&#34;)
+
+    venv_dir = local.path(&#34;/benchbuild&#34;)
+    prefixes = CFG[&#34;container&#34;][&#34;prefixes&#34;].value
+    prefixes.append(venv_dir)
+    CFG[&#34;container&#34;][&#34;prefixes&#34;] = prefixes
+
+    src_dir = str(CFG[&#34;source_dir&#34;])
+    have_src = src_dir is not None
+    if have_src:
+        __mount_source(src_dir)
+
+    benchbuild = find_benchbuild()
+    if benchbuild and not requires_update(benchbuild):
+        if have_src:
+            __upgrade_from_source(venv_dir, with_deps=False)
+        return
+
+    setup_virtualenv(venv_dir)
+    if have_src:
+        __upgrade_from_source(venv_dir)
+    else:
+        __upgrade_from_pip(venv_dir)
+
+
+def __upgrade_from_pip(venv_dir):
+    LOG.debug(&#34;Upgrading from pip&#34;)
+    uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), [&#39;HOME&#39;])
+    uchroot.uretry(uchrt_cmd[venv_dir / &#34;bin&#34; / &#34;pip3&#34;, &#34;install&#34;, &#34;--upgrade&#34;,
+                             &#34;benchbuild&#34;])
+
+
+def __mount_source(src_dir):
+    src_dir = local.path(str(src_dir))
+    mounts = CFG[&#34;container&#34;][&#34;mounts&#34;].value
+    mount = {&#34;src&#34;: src_dir, &#34;tgt&#34;: &#34;/mnt/benchbuild&#34;}
+    mounts.append(mount)
+    CFG[&#34;container&#34;][&#34;mounts&#34;] = mounts
+
+
+def __upgrade_from_source(venv_dir, with_deps=True):
+    LOG.debug(&#34;Upgrading from source&#34;)
+    uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), [&#39;HOME&#39;])
+    opts = [&#34;--upgrade&#34;]
+    if not with_deps:
+        opts.append(&#34;--no-deps&#34;)
+
+    uchrt_cmd = uchrt_cmd[venv_dir / &#34;bin&#34; / &#34;pip3&#34;, &#34;install&#34;]
+    uchrt_cmd = uchrt_cmd[opts]
+    uchrt_cmd = uchrt_cmd[&#34;/mnt/benchbuild&#34;]
+
+    uchroot.uretry(uchrt_cmd)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="benchbuild.projects.gentoo.gentoo.configure_portage"><code class="name flex">
+<span>def <span class="ident">configure_portage</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def configure_portage():
+    LOG.debug(&#34;Setting up Gentoo Portage...&#34;)
+    write_makeconfig(&#34;etc/portage/make.conf&#34;)
+    write_layout(&#34;etc/portage/metadata/layout.conf&#34;)
+    write_bashrc(&#34;etc/portage/bashrc&#34;)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.emerge"><code class="name flex">
+<span>def <span class="ident">emerge</span></span>(<span>package, *args, env=None)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def emerge(package, *args, env=None):
+    from benchbuild.utils.cmd import emerge as _emerge
+
+    with local.env(env):
+        emerge_ = run.watch(_emerge)
+        emerge_(&#34;--autounmask-continue&#34;, args, package)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.find_benchbuild"><code class="name flex">
+<span>def <span class="ident">find_benchbuild</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_benchbuild():
+    try:
+        uchrt = uchroot.clean_env(uchroot.uchroot(), [&#39;HOME&#39;])
+        benchbuild_loc = uchrt(&#34;which&#34;, &#34;benchbuild&#34;).strip()
+        benchbuild = uchrt[benchbuild_loc]
+        return benchbuild
+    except ProcessExecutionError as err:
+        LOG.error(&#34;Could not find Benchbuild inside container&#34;)
+        LOG.debug(&#34;Reason: %s&#34;, str(err))
+    return None</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.requires_update"><code class="name flex">
+<span>def <span class="ident">requires_update</span></span>(<span>benchbuild)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def requires_update(benchbuild):
+    try:
+        c_version = benchbuild(&#34;--version&#34;).strip().split()[-1]
+        h_version = str(CFG[&#34;version&#34;])
+
+        LOG.debug(&#34;container: %s&#34;, c_version)
+        LOG.debug(&#34;host: %s&#34;, h_version)
+        if c_version == h_version:
+            return False
+    except ProcessExecutionError as err:
+        LOG.error(&#34;Querying Benchbuild inside container failed&#34;)
+        LOG.debug(&#34;Reason: %s&#34;, str(err))
+    return True</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.setup_benchbuild"><code class="name flex">
+<span>def <span class="ident">setup_benchbuild</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Setup benchbuild inside a container.</p>
+<p>This will query a for an existing installation of benchbuild and
+try to upgrade it to the latest version, if possible.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setup_benchbuild():
+    &#34;&#34;&#34;
+    Setup benchbuild inside a container.
+
+    This will query a for an existing installation of benchbuild and
+    try to upgrade it to the latest version, if possible.
+    &#34;&#34;&#34;
+    LOG.debug(&#34;Setting up Benchbuild...&#34;)
+
+    venv_dir = local.path(&#34;/benchbuild&#34;)
+    prefixes = CFG[&#34;container&#34;][&#34;prefixes&#34;].value
+    prefixes.append(venv_dir)
+    CFG[&#34;container&#34;][&#34;prefixes&#34;] = prefixes
+
+    src_dir = str(CFG[&#34;source_dir&#34;])
+    have_src = src_dir is not None
+    if have_src:
+        __mount_source(src_dir)
+
+    benchbuild = find_benchbuild()
+    if benchbuild and not requires_update(benchbuild):
+        if have_src:
+            __upgrade_from_source(venv_dir, with_deps=False)
+        return
+
+    setup_virtualenv(venv_dir)
+    if have_src:
+        __upgrade_from_source(venv_dir)
+    else:
+        __upgrade_from_pip(venv_dir)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.setup_compilers"><code class="name flex">
+<span>def <span class="ident">setup_compilers</span></span>(<span>_path)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setup_compilers(_path):
+    LOG.debug(&#34;Arming compiler symlinks.&#34;)
+    with open(_path, &#39;a&#39;) as makeconf:
+        lines = &#39;&#39;&#39;
+CC=&#34;/clang&#34;
+CXX=&#34;/clang++&#34;
+&#39;&#39;&#39;
+        makeconf.write(lines)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.setup_networking"><code class="name flex">
+<span>def <span class="ident">setup_networking</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setup_networking():
+    LOG.debug(&#34;Setting up networking...&#34;)
+    path.mkfile_uchroot(&#34;/etc/resolv.conf&#34;)
+    cp(&#34;/etc/resolv.conf&#34;, &#34;etc/resolv.conf&#34;)
+    write_wgetrc(&#34;etc/wgetrc&#34;)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.setup_virtualenv"><code class="name flex">
+<span>def <span class="ident">setup_virtualenv</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setup_virtualenv(_path=&#34;/benchbuild&#34;):
+    LOG.debug(&#34;Setting up Benchbuild virtualenv...&#34;)
+    env = uchroot.uchroot()[&#34;/usr/bin/env&#34;]
+    env = env[&#39;-i&#39;, &#39;--&#39;]
+    venv = env[&#34;/usr/bin/virtualenv&#34;]
+    venv = venv(&#34;-p&#34;, &#34;/usr/bin/python3&#34;, _path)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.write_bashrc"><code class="name flex">
+<span>def <span class="ident">write_bashrc</span></span>(<span>_path)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Write a valid gentoo bashrc file to :path:.</p>
+<h2 id="args">Args</h2>
+<p>path - The output path of the make.conf</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_bashrc(_path):
+    &#34;&#34;&#34;
+    Write a valid gentoo bashrc file to :path:.
+
+    Args:
+        path - The output path of the make.conf
+    &#34;&#34;&#34;
+    cfg_mounts = CFG[&#34;container&#34;][&#34;mounts&#34;].value
+    cfg_prefix = CFG[&#34;container&#34;][&#34;prefixes&#34;].value
+
+    path.mkfile_uchroot(&#34;/etc/portage/bashrc&#34;)
+    mounts = uchroot.mounts(&#34;mnt&#34;, cfg_mounts)
+    p_paths, p_libs = uchroot.env(cfg_prefix)
+    paths, libs = uchroot.env(mounts)
+
+    paths = paths + p_paths
+    libs = libs + p_libs
+
+    with open(_path, &#39;w&#39;) as bashrc:
+        lines = &#39;&#39;&#39;
+export PATH=&#34;{0}:${{PATH}}&#34;
+export LD_LIBRARY_PATH=&#34;{1}:${{LD_LIBRARY_PATH}}&#34;
+&#39;&#39;&#39;.format(path.list_to_path(paths), path.list_to_path(libs))
+
+        bashrc.write(lines)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.write_layout"><code class="name flex">
+<span>def <span class="ident">write_layout</span></span>(<span>_path)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Write a valid gentoo layout file to :path:.</p>
+<h2 id="args">Args</h2>
+<p>path - The output path of the layout.conf</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_layout(_path):
+    &#34;&#34;&#34;
+    Write a valid gentoo layout file to :path:.
+
+    Args:
+        path - The output path of the layout.conf
+    &#34;&#34;&#34;
+
+    path.mkdir_uchroot(&#34;/etc/portage/metadata&#34;)
+    path.mkfile_uchroot(&#34;/etc/portage/metadata/layout.conf&#34;)
+    with open(_path, &#39;w&#39;) as layoutconf:
+        lines = &#39;&#39;&#39;masters = gentoo&#39;&#39;&#39;
+        layoutconf.write(lines)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.write_makeconfig"><code class="name flex">
+<span>def <span class="ident">write_makeconfig</span></span>(<span>_path)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Write a valid gentoo make.conf file to :path:.</p>
+<h2 id="args">Args</h2>
+<p>path - The output path of the make.conf</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_makeconfig(_path):
+    &#34;&#34;&#34;
+    Write a valid gentoo make.conf file to :path:.
+
+    Args:
+        path - The output path of the make.conf
+    &#34;&#34;&#34;
+    http_proxy = str(CFG[&#34;gentoo&#34;][&#34;http_proxy&#34;])
+    ftp_proxy = str(CFG[&#34;gentoo&#34;][&#34;ftp_proxy&#34;])
+    rsync_proxy = str(CFG[&#34;gentoo&#34;][&#34;rsync_proxy&#34;])
+
+    path.mkfile_uchroot(local.path(&#39;/&#39;) / _path)
+    with open(_path, &#39;w&#39;) as makeconf:
+        lines = &#39;&#39;&#39;
+PORTAGE_USERNAME=root
+PORTAGE_GROUPNAME=root
+CFLAGS=&#34;-O2 -pipe&#34;
+CXXFLAGS=&#34;${CFLAGS}&#34;
+FEATURES=&#34;nostrip -xattr&#34;
+CHOST=&#34;x86_64-pc-linux-gnu&#34;
+USE=&#34;bindist mmx sse sse2&#34;
+PORTDIR=&#34;/usr/portage&#34;
+DISTDIR=&#34;/mnt/distfiles&#34;
+PKGDIR=&#34;${PORTDIR}/packages&#34;
+&#39;&#39;&#39;
+
+        makeconf.write(lines)
+
+        mounts = CFG[&#34;container&#34;][&#34;mounts&#34;].value
+        tmp_dir = str(CFG[&#34;tmp_dir&#34;])
+        mounts.append({&#34;src&#34;: tmp_dir, &#34;tgt&#34;: &#34;/mnt/distfiles&#34;})
+        CFG[&#34;container&#34;][&#34;mounts&#34;] = mounts
+
+        if http_proxy is not None:
+            http_s = &#34;http_proxy={0}&#34;.format(http_proxy)
+            https_s = &#34;https_proxy={0}&#34;.format(http_proxy)
+            makeconf.write(http_s + &#34;\n&#34;)
+            makeconf.write(https_s + &#34;\n&#34;)
+
+        if ftp_proxy is not None:
+            fp_s = &#34;ftp_proxy={0}&#34;.format(ftp_proxy)
+            makeconf.write(fp_s + &#34;\n&#34;)
+
+        if rsync_proxy is not None:
+            rp_s = &#34;RSYNC_PROXY={0}&#34;.format(rsync_proxy)
+            makeconf.write(rp_s + &#34;\n&#34;)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.write_sandbox_d"><code class="name flex">
+<span>def <span class="ident">write_sandbox_d</span></span>(<span>_path)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_sandbox_d(_path):
+    path.mkfile_uchroot(local.path(&#39;/&#39;) / _path)
+    with open(_path, &#39;a&#39;) as sandbox_conf:
+        lines = &#39;&#39;&#39;
+SANDBOX_WRITE=&#34;/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout&#34;
+&#39;&#39;&#39;
+        sandbox_conf.write(lines)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.write_wgetrc"><code class="name flex">
+<span>def <span class="ident">write_wgetrc</span></span>(<span>_path)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Write a valid gentoo wgetrc file to :path:.</p>
+<h2 id="args">Args</h2>
+<p>path - The output path of the wgetrc</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_wgetrc(_path):
+    &#34;&#34;&#34;
+    Write a valid gentoo wgetrc file to :path:.
+
+    Args:
+        path - The output path of the wgetrc
+    &#34;&#34;&#34;
+    http_proxy = str(CFG[&#34;gentoo&#34;][&#34;http_proxy&#34;])
+    ftp_proxy = str(CFG[&#34;gentoo&#34;][&#34;ftp_proxy&#34;])
+
+    path.mkfile_uchroot(&#34;/etc/wgetrc&#34;)
+    with open(_path, &#39;w&#39;) as wgetrc:
+        if http_proxy is not None:
+            http_s = &#34;http_proxy = {0}&#34;.format(http_proxy)
+            https_s = &#34;https_proxy = {0}&#34;.format(http_proxy)
+            wgetrc.write(&#34;use_proxy = on\n&#34;)
+            wgetrc.write(http_s + &#34;\n&#34;)
+            wgetrc.write(https_s + &#34;\n&#34;)
+
+        if ftp_proxy is not None:
+            fp_s = &#34;ftp_proxy={0}&#34;.format(ftp_proxy)
+            wgetrc.write(fp_s + &#34;\n&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup"><code class="flex name class">
+<span>class <span class="ident">GentooGroup</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Gentoo ProjectGroup is the base class for every portage build.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GentooGroup(Project):
+    &#34;&#34;&#34;Gentoo ProjectGroup is the base class for every portage build.&#34;&#34;&#34;
+
+    GROUP = &#39;gentoo&#39;
+    CONTAINER = container.Gentoo()
+    SRC_FILE = None
+
+    emerge_env = attr.ib(default={}, repr=False, cmp=False)
+
+    def redirect(self):
+        if not CFG[&#34;unionfs&#34;][&#34;enable&#34;]:
+            container.unpack(self.container, self.builddir)
+
+        setup_networking()
+        setup_benchbuild()
+        configure_portage()
+
+        self.configure_benchbuild(CFG)
+        path.mkfile_uchroot(&#34;/.benchbuild-container&#34;)
+        benchbuild = find_benchbuild()
+        benchbuild = run.watch(benchbuild)
+        with local.env(BB_VERBOSITY=str(CFG[&#39;verbosity&#39;])):
+            project_id = &#34;{0}/{1}&#34;.format(self.name, self.group)
+            benchbuild(&#34;run&#34;, &#34;-E&#34;, self.experiment.name, project_id)
+
+    def compile(self):
+        package_atom = &#34;{domain}/{name}&#34;.format(domain=self.domain,
+                                                name=self.name)
+
+        LOG.debug(&#39;Installing dependencies.&#39;)
+        emerge(package_atom, &#39;--onlydeps&#39;, env=self.emerge_env)
+        c_compiler = local.path(str(compiler.cc(self)))
+        cxx_compiler = local.path(str(compiler.cxx(self)))
+
+        setup_compilers(&#39;/etc/portage/make.conf&#39;)
+        ln(&#34;-sf&#34;, str(c_compiler), local.path(&#39;/&#39;) / c_compiler.basename)
+        ln(&#39;-sf&#39;, str(cxx_compiler), local.path(&#39;/&#39;) / cxx_compiler.basename)
+
+        LOG.debug(&#39;Installing %s.&#39;, package_atom)
+        emerge(package_atom, env=self.emerge_env)
+
+    def configure_benchbuild(self, cfg):
+        config_file = local.path(&#34;/.benchbuild.yml&#34;)
+        paths, libs = \
+                uchroot.env(
+                    uchroot.mounts(
+                        &#34;mnt&#34;,
+                        cfg[&#34;container&#34;][&#34;mounts&#34;].value))
+
+        uchroot_cfg = cfg
+        env = uchroot_cfg[&#34;env&#34;].value
+        env[&#34;PATH&#34;] = paths
+        env[&#34;LD_LIBRARY_PATH&#34;] = libs
+
+        uchroot_cfg[&#34;env&#34;] = env
+        uchroot_cfg[&#39;plugins&#39;][&#39;projects&#39;] = [str(self.__module__)]
+        uchroot_cfg[&#39;plugins&#39;][&#39;experiments&#39;] = [
+            str(self.experiment.__module__)
+        ]
+        uchroot_cfg[&#34;config_file&#34;] = str(config_file)
+        uchroot_cfg[&#34;unionfs&#34;][&#34;enable&#34;] = False
+        uchroot_cfg[&#34;build_dir&#34;] = &#34;/benchbuild/build&#34;
+        uchroot_cfg[&#34;tmp_dir&#34;] = &#34;/mnt/distfiles&#34;
+        uchroot_cfg[&#34;clean&#34;] = False
+
+        path.mkfile_uchroot(&#34;/.benchbuild.yml&#34;)
+        uchroot_cfg.store(&#34;.benchbuild.yml&#34;)
+
+        write_sandbox_d(&#34;etc/sandbox.conf&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="benchbuild.projects.gentoo.autoportage.AutoPortage" href="autoportage.html#benchbuild.projects.gentoo.autoportage.AutoPortage">AutoPortage</a></li>
+<li><a title="benchbuild.projects.gentoo.bzip2.BZip2" href="bzip2.html#benchbuild.projects.gentoo.bzip2.BZip2">BZip2</a></li>
+<li><a title="benchbuild.projects.gentoo.crafty.Crafty" href="crafty.html#benchbuild.projects.gentoo.crafty.Crafty">Crafty</a></li>
+<li><a title="benchbuild.projects.gentoo.eix.Eix" href="eix.html#benchbuild.projects.gentoo.eix.Eix">Eix</a></li>
+<li><a title="benchbuild.projects.gentoo.gzip.GZip" href="gzip.html#benchbuild.projects.gentoo.gzip.GZip">GZip</a></li>
+<li><a title="benchbuild.projects.gentoo.lammps.Lammps" href="lammps.html#benchbuild.projects.gentoo.lammps.Lammps">Lammps</a></li>
+<li><a title="benchbuild.projects.gentoo.postgresql.Postgresql" href="postgresql.html#benchbuild.projects.gentoo.postgresql.Postgresql">Postgresql</a></li>
+<li><a title="benchbuild.projects.gentoo.sevenz.SevenZip" href="sevenz.html#benchbuild.projects.gentoo.sevenz.SevenZip">SevenZip</a></li>
+<li><a title="benchbuild.projects.gentoo.x264.X264" href="x264.html#benchbuild.projects.gentoo.x264.X264">X264</a></li>
+<li><a title="benchbuild.projects.gentoo.xz.XZ" href="xz.html#benchbuild.projects.gentoo.xz.XZ">XZ</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.CONTAINER"><code class="name">var <span class="ident">CONTAINER</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.SRC_FILE"><code class="name">var <span class="ident">SRC_FILE</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.configure_benchbuild"><code class="name flex">
+<span>def <span class="ident">configure_benchbuild</span></span>(<span>self, cfg)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def configure_benchbuild(self, cfg):
+    config_file = local.path(&#34;/.benchbuild.yml&#34;)
+    paths, libs = \
+            uchroot.env(
+                uchroot.mounts(
+                    &#34;mnt&#34;,
+                    cfg[&#34;container&#34;][&#34;mounts&#34;].value))
+
+    uchroot_cfg = cfg
+    env = uchroot_cfg[&#34;env&#34;].value
+    env[&#34;PATH&#34;] = paths
+    env[&#34;LD_LIBRARY_PATH&#34;] = libs
+
+    uchroot_cfg[&#34;env&#34;] = env
+    uchroot_cfg[&#39;plugins&#39;][&#39;projects&#39;] = [str(self.__module__)]
+    uchroot_cfg[&#39;plugins&#39;][&#39;experiments&#39;] = [
+        str(self.experiment.__module__)
+    ]
+    uchroot_cfg[&#34;config_file&#34;] = str(config_file)
+    uchroot_cfg[&#34;unionfs&#34;][&#34;enable&#34;] = False
+    uchroot_cfg[&#34;build_dir&#34;] = &#34;/benchbuild/build&#34;
+    uchroot_cfg[&#34;tmp_dir&#34;] = &#34;/mnt/distfiles&#34;
+    uchroot_cfg[&#34;clean&#34;] = False
+
+    path.mkfile_uchroot(&#34;/.benchbuild.yml&#34;)
+    uchroot_cfg.store(&#34;.benchbuild.yml&#34;)
+
+    write_sandbox_d(&#34;etc/sandbox.conf&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.project.Project.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.project.Project.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
+<li><code><a title="benchbuild.project.Project.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.project.Project.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
+<li><code><a title="benchbuild.project.Project.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
+<li><code><a title="benchbuild.project.Project.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.project.Project.compile" href="../../project.html#benchbuild.project.Project.compile">compile</a></code></li>
+<li><code><a title="benchbuild.project.Project.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
+<li><code><a title="benchbuild.project.Project.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
+<li><code><a title="benchbuild.project.Project.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
+<li><code><a title="benchbuild.project.Project.run_tests" href="../../project.html#benchbuild.project.Project.run_tests">run_tests</a></code></li>
+<li><code><a title="benchbuild.project.Project.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
+<li><code><a title="benchbuild.project.Project.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="benchbuild.projects.gentoo" href="index.html">benchbuild.projects.gentoo</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="benchbuild.projects.gentoo.gentoo.configure_portage" href="#benchbuild.projects.gentoo.gentoo.configure_portage">configure_portage</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.emerge" href="#benchbuild.projects.gentoo.gentoo.emerge">emerge</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.find_benchbuild" href="#benchbuild.projects.gentoo.gentoo.find_benchbuild">find_benchbuild</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.requires_update" href="#benchbuild.projects.gentoo.gentoo.requires_update">requires_update</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.setup_benchbuild" href="#benchbuild.projects.gentoo.gentoo.setup_benchbuild">setup_benchbuild</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.setup_compilers" href="#benchbuild.projects.gentoo.gentoo.setup_compilers">setup_compilers</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.setup_networking" href="#benchbuild.projects.gentoo.gentoo.setup_networking">setup_networking</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.setup_virtualenv" href="#benchbuild.projects.gentoo.gentoo.setup_virtualenv">setup_virtualenv</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.write_bashrc" href="#benchbuild.projects.gentoo.gentoo.write_bashrc">write_bashrc</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.write_layout" href="#benchbuild.projects.gentoo.gentoo.write_layout">write_layout</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.write_makeconfig" href="#benchbuild.projects.gentoo.gentoo.write_makeconfig">write_makeconfig</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.write_sandbox_d" href="#benchbuild.projects.gentoo.gentoo.write_sandbox_d">write_sandbox_d</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.write_wgetrc" href="#benchbuild.projects.gentoo.gentoo.write_wgetrc">write_wgetrc</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup" href="#benchbuild.projects.gentoo.gentoo.GentooGroup">GentooGroup</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.CONTAINER" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.CONTAINER">CONTAINER</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.SRC_FILE" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.SRC_FILE">SRC_FILE</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.configure_benchbuild" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.configure_benchbuild">configure_benchbuild</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

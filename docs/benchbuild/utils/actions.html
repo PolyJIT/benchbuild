@@ -1,0 +1,1980 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>benchbuild.utils.actions API documentation</title>
+<meta name="description" content="Actions …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>benchbuild.utils.actions</code></h1>
+</header>
+<section id="section-intro">
+<h1 id="actions">Actions</h1>
+<p>Actions are enhanced callables that are used by <code>Experiments</code> to define
+the order of operations a project is put through when the experiment
+executes.</p>
+<h2 id="example">Example</h2>
+<p>TODO</p>
+<pre><code class="python"></code></pre>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+# Actions
+
+Actions are enhanced callables that are used by `Experiments` to define
+the order of operations a project is put through when the experiment
+executes.
+
+
+## Example
+
+TODO
+```python
+```
+&#34;&#34;&#34;
+import abc
+import enum
+import functools as ft
+import itertools
+import logging
+import multiprocessing as mp
+import os
+import sys
+import textwrap
+import traceback
+from datetime import datetime
+
+import attr
+import sqlalchemy as sa
+from plumbum import ProcessExecutionError
+
+from benchbuild import signals, source
+from benchbuild.settings import CFG
+from benchbuild.utils import container, db
+from benchbuild.utils.cmd import mkdir, rm, rmdir
+
+LOG = logging.getLogger(&#39;benchbuild.actions&#39;)
+
+
+@enum.unique
+class StepResult(enum.IntEnum):
+    &#34;&#34;&#34;Result type for action results.&#34;&#34;&#34;
+    UNSET = 0
+    OK = 1
+    CAN_CONTINUE = 2
+    ERROR = 3
+
+
+def step_has_failed(step_results, error_status=None):
+    if not error_status:
+        error_status = [StepResult.ERROR, StepResult.CAN_CONTINUE]
+
+    return len(list(filter(lambda res: res in error_status, step_results))) &gt; 0
+
+
+def to_step_result(func):
+    &#34;&#34;&#34;Convert a function return to a list of StepResults.
+
+    All Step subclasses automatically wrap the result of their
+    __call__ method&#39;s result with this wrapper.
+    If the result is not a list of StepResult values, one will
+    be generated.
+
+    result of `[StepResult.OK]`, or convert the given result into
+    a list.
+
+    Args:
+        func: The function to wrap.
+    &#34;&#34;&#34;
+    @ft.wraps(func)
+    def wrapper(*args, **kwargs):
+        &#34;&#34;&#34;Wrapper stub.&#34;&#34;&#34;
+        res = func(*args, **kwargs)
+        if not res:
+            res = [StepResult.OK]
+
+        if not hasattr(res, &#34;__iter__&#34;):
+            res = [res]
+        return res
+
+    return wrapper
+
+
+def prepend_status(func):
+    &#34;&#34;&#34;Prepends the output of `func` with the status.&#34;&#34;&#34;
+    @ft.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        &#34;&#34;&#34;Wrapper stub.&#34;&#34;&#34;
+        res = func(self, *args, **kwargs)
+        if self.status is not StepResult.UNSET:
+            res = &#34;[{status}]&#34;.format(status=self.status.name) + res
+        return res
+
+    return wrapper
+
+
+def notify_step_begin_end(func):
+    &#34;&#34;&#34;Print the beginning and the end of a `func`.&#34;&#34;&#34;
+    @ft.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        &#34;&#34;&#34;Wrapper stub.&#34;&#34;&#34;
+        cls = self.__class__
+        on_step_begin = cls.ON_STEP_BEGIN
+        on_step_end = cls.ON_STEP_END
+
+        for begin_listener in on_step_begin:
+            begin_listener(self)
+
+        res = func(self, *args, **kwargs)
+
+        for end_listener in on_step_end:
+            end_listener(self, func)
+        return res
+
+    return wrapper
+
+
+def log_before_after(name: str, desc: str):
+    &#34;&#34;&#34;Log customized stirng before &amp; after running func.&#34;&#34;&#34;
+    def func_decorator(f):
+        &#34;&#34;&#34;Wrapper stub.&#34;&#34;&#34;
+        @ft.wraps(f)
+        def wrapper(*args, **kwargs):
+            &#34;&#34;&#34;Wrapper stub.&#34;&#34;&#34;
+            LOG.info(f&#39;{name} -&gt; {desc}\n&#39;)
+            res = f(*args, **kwargs)
+
+            if StepResult.ERROR in res:
+                LOG.error(f&#39;{name} ERROR\n&#39;)
+            return res
+
+        return wrapper
+
+    return func_decorator
+
+
+class StepClass(abc.ABCMeta):
+    &#34;&#34;&#34;Decorate `steps` with logging and result conversion.&#34;&#34;&#34;
+    def __new__(mcs, name, bases, namespace, **_):
+        result = abc.ABCMeta.__new__(mcs, name, bases, dict(namespace))
+
+        NAME: str = result.NAME
+        DESCRIPTION: str = result.DESCRIPTION
+
+        if NAME and DESCRIPTION:
+            result.__call__ = log_before_after(NAME, DESCRIPTION)(
+                to_step_result(result.__call__))
+        else:
+            result.__call__ = to_step_result(result.__call__)
+
+        result.__str__ = prepend_status(result.__str__)
+        return result
+
+
+@attr.s()
+class Step(metaclass=StepClass):
+    &#34;&#34;&#34;Base class of a step.
+
+    This stores all common attributes for step classes.
+        metaclass ([type], optional): Defaults to StepClass. Takes
+            care of wrapping Steps correctly.
+
+    Raises:
+        StopIteration: If we do not encapsulate more substeps.
+    &#34;&#34;&#34;
+
+    NAME: str = &#34;&#34;
+    DESCRIPTION: str = &#34;&#34;
+
+    ON_STEP_BEGIN = []
+    ON_STEP_END = []
+
+    obj = attr.ib(default=None, repr=False)
+    action_fn = attr.ib(default=None, repr=False)
+    status = attr.ib(default=StepResult.UNSET)
+
+    def __len__(self):
+        return 1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        raise StopIteration
+
+    @notify_step_begin_end
+    def __call__(self):
+        if not self.action_fn:
+            return StepResult.ERROR
+        self.action_fn()
+        self.status = StepResult.OK
+        return StepResult.OK
+
+    def __str__(self, indent=0):
+        return textwrap.indent(
+            f&#39;* {self.obj.name}: Execute configured action.&#39;, indent * &#34; &#34;)
+
+    def onerror(self):
+        Clean(self.obj)()
+
+
+@attr.s
+class Clean(Step):
+    NAME: str = &#34;CLEAN&#34;
+    DESCRIPTION: str = &#34;Cleans the build directory&#34;
+
+    check_empty = attr.ib(default=False)
+
+    @staticmethod
+    def clean_mountpoints(root: str):
+        &#34;&#34;&#34;
+        Unmount any remaining mountpoints under :root.
+
+        Args:
+            root: All UnionFS-mountpoints under this directory will be
+                  unmounted.
+        &#34;&#34;&#34;
+        import psutil
+        umount_paths = []
+        real_root = os.path.realpath(root)
+        for part in psutil.disk_partitions(all=True):
+            if os.path.commonpath([part.mountpoint, real_root]) == real_root:
+                if not part.fstype == &#34;fuse.unionfs&#34;:
+                    LOG.error(&#34;NON-UnionFS mountpoint found under %s&#34;, root)
+                else:
+                    umount_paths.append(part.mountpoint)
+
+    @notify_step_begin_end
+    def __call__(self):
+        if not CFG[&#39;clean&#39;]:
+            LOG.warning(&#34;Clean disabled by config.&#34;)
+            return
+        if not self.obj:
+            LOG.warning(&#34;No object assigned to this action.&#34;)
+            return
+        obj_builddir = os.path.abspath(self.obj.builddir)
+        if os.path.exists(obj_builddir):
+            LOG.debug(&#34;Path %s exists&#34;, obj_builddir)
+            Clean.clean_mountpoints(obj_builddir)
+            if self.check_empty:
+                rmdir(obj_builddir, retcode=None)
+            else:
+                rm(&#34;-rf&#34;, obj_builddir)
+        else:
+            LOG.debug(&#34;Path %s did not exist anymore&#34;, obj_builddir)
+        self.status = StepResult.OK
+
+    def __str__(self, indent=0):
+        return textwrap.indent(
+            &#34;* {0}: Clean the directory: {1}&#34;.format(self.obj.name,
+                                                     self.obj.builddir),
+            indent * &#34; &#34;)
+
+
+class MakeBuildDir(Step):
+    NAME: str = &#34;MKDIR&#34;
+    DESCRIPTION: str = &#34;Create the build directory&#34;
+
+    @notify_step_begin_end
+    def __call__(self):
+        if not self.obj:
+            return
+        if not os.path.exists(self.obj.builddir):
+            mkdir(&#34;-p&#34;, self.obj.builddir)
+        self.status = StepResult.OK
+
+    def __str__(self, indent=0):
+        return textwrap.indent(
+            &#34;* {0}: Create the build directory&#34;.format(self.obj.name),
+            indent * &#34; &#34;)
+
+
+class Compile(Step):
+    NAME: str = &#34;COMPILE&#34;
+    DESCRIPTION: str = &#34;Compile the project&#34;
+
+    def __init__(self, project):
+        super(Compile, self).__init__(obj=project, action_fn=project.compile)
+
+    def __str__(self, indent=0):
+        return textwrap.indent(&#34;* {0}: Compile&#34;.format(self.obj.name),
+                               indent * &#34; &#34;)
+
+
+class Run(Step):
+    NAME: str = &#34;RUN&#34;
+    DESCRIPTION: str = &#34;Execute the run action&#34;
+
+    def __init__(self, project):
+        super(Run, self).__init__(obj=project, action_fn=project.run)
+
+    @notify_step_begin_end
+    def __call__(self):
+        if not self.obj:
+            return
+        if not self.action_fn:
+            return
+
+        self.action_fn()
+        self.status = StepResult.OK
+
+    def __str__(self, indent=0):
+        return textwrap.indent(
+            &#34;* {0}: Execute run-time tests.&#34;.format(self.obj.name),
+            indent * &#34; &#34;)
+
+
+@attr.s
+class Echo(Step):
+    NAME: str = &#39;ECHO&#39;
+    DESCRIPTION: str = &#39;Print a message.&#39;
+
+    message = attr.ib(default=&#34;&#34;)
+
+    def __str__(self, indent=0):
+        return textwrap.indent(&#34;* echo: {0}&#34;.format(self.message),
+                               indent * &#34; &#34;)
+
+    @notify_step_begin_end
+    def __call__(self):
+        LOG.info(self.message)
+
+
+def run_any_child(child: Step):
+    &#34;&#34;&#34;
+    Execute child step.
+
+    Args:
+        child: The child step.
+    &#34;&#34;&#34;
+    return child()
+
+
+@attr.s()
+class Any(Step):
+    NAME: str = &#34;ANY&#34;
+    DESCRIPTION: str = &#34;Just run all actions, no questions asked.&#34;
+
+    actions = attr.ib(default=attr.Factory(list), repr=False)
+
+    def __len__(self):
+        return sum([len(x) for x in self.actions]) + 1
+
+    def __iter__(self):
+        return self.actions.__iter__()
+
+    @notify_step_begin_end
+    def __call__(self):
+        length = len(self.actions)
+        cnt = 0
+        results = [StepResult.OK]
+        for a in self.actions:
+            cnt = cnt + 1
+            result = a()
+            results.append(result)
+
+            if StepResult.ERROR in result:
+                LOG.warning(&#34;%d actions left in queue&#34;, length - cnt)
+        self.status = StepResult.OK
+        if StepResult.ERROR in results:
+            self.status = StepResult.CAN_CONTINUE
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
+        sub_actns = &#34;\n&#34;.join(sub_actns)
+        return textwrap.indent(&#34;* Execute all of:\n&#34; + sub_actns, indent * &#34; &#34;)
+
+
+@attr.s(hash=True)
+class Experiment(Any):
+    NAME: str = &#34;EXPERIMENT&#34;
+    DESCRIPTION: str = &#34;Run a experiment, wrapped in a db transaction&#34;
+
+    def __attrs_post_init__(self):
+        self.actions = \
+            [Echo(message=&#34;Start experiment: {0}&#34;.format(self.obj.name))] + \
+            self.actions + \
+            [Echo(message=&#34;Completed experiment: {0}&#34;.format(self.obj.name))]
+
+    def begin_transaction(self):
+        experiment, session = db.persist_experiment(self.obj)
+        if experiment.begin is None:
+            experiment.begin = datetime.now()
+        else:
+            experiment.begin = min(experiment.begin, datetime.now())
+        session.add(experiment)
+        try:
+            session.commit()
+        except sa.orm.exc.StaleDataError:
+            LOG.error(&#34;Transaction isolation level caused a StaleDataError&#34;)
+
+        # React to external signals
+        signals.handlers.register(Experiment.end_transaction, experiment,
+                                  session)
+
+        return experiment, session
+
+    @staticmethod
+    def end_transaction(experiment, session):
+        try:
+            if experiment.end is None:
+                experiment.end = datetime.now()
+            else:
+                experiment.end = max(experiment.end, datetime.now())
+            session.add(experiment)
+            session.commit()
+        except sa.exc.InvalidRequestError as inv_req:
+            LOG.error(inv_req)
+
+    def __run_children(self, num_processes: int):
+        results = []
+        actions = self.actions
+
+        try:
+            with mp.Pool(num_processes) as pool:
+                results = list(
+                    itertools.chain.from_iterable(
+                        pool.map(run_any_child, actions)))
+        except KeyboardInterrupt:
+            LOG.info(&#34;Experiment aborting by user request&#34;)
+            results.append(StepResult.ERROR)
+        except Exception:
+            LOG.error(&#34;Experiment terminates &#34; &#34;because we got an exception:&#34;)
+            e_type, e_value, e_traceb = sys.exc_info()
+            lines = traceback.format_exception(e_type, e_value, e_traceb)
+            LOG.error(&#34;&#34;.join(lines))
+            results.append(StepResult.ERROR)
+        return results
+
+    @notify_step_begin_end
+    def __call__(self):
+        results = []
+        session = None
+        experiment, session = self.begin_transaction()
+        try:
+            results = self.__run_children(int(CFG[&#34;parallel_processes&#34;]))
+        finally:
+            self.end_transaction(experiment, session)
+            signals.handlers.deregister(self.end_transaction)
+        self.status = max(results)
+        return results
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
+        sub_actns = &#34;\n&#34;.join(sub_actns)
+        return textwrap.indent(
+            &#34;\nExperiment: {0}\n&#34;.format(self.obj.name) + sub_actns,
+            indent * &#34; &#34;)
+
+
+@attr.s
+class RequireAll(Step):
+    actions = attr.ib(default=attr.Factory(list))
+
+    def __len__(self):
+        return sum([len(x) for x in self.actions]) + 1
+
+    def __iter__(self):
+        return self.actions.__iter__()
+
+    @notify_step_begin_end
+    def __call__(self):
+        results = []
+        for i, action in enumerate(self.actions):
+            try:
+                results.extend(action())
+            except ProcessExecutionError as proc_ex:
+                LOG.error(&#34;\n==== ERROR ====&#34;)
+                LOG.error(&#34;Execution of a binary failed in step: %s&#34;,
+                          str(action))
+                LOG.error(str(proc_ex))
+                LOG.error(&#34;==== ERROR ====\n&#34;)
+                results.append(StepResult.ERROR)
+            except KeyboardInterrupt:
+                LOG.info(&#34;User requested termination.&#34;)
+                action.onerror()
+                results.append(StepResult.ERROR)
+                raise
+            except OSError:
+                LOG.error(&#34;Exception in step #%d: %s&#34;,
+                          i,
+                          str(action),
+                          exc_info=sys.exc_info())
+                results.append(StepResult.ERROR)
+
+            if StepResult.ERROR in results:
+                LOG.error(&#34;Execution of #%d: &#39;%s&#39; failed.&#34;, i, str(action))
+                LOG.error(&#34;&#39;%s&#39; cannot continue.&#34;, str(self))
+                action.status = StepResult.ERROR
+                action.onerror()
+                self.status = StepResult.ERROR
+                return results
+
+        self.status = StepResult.OK
+        return results
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
+        sub_actns = &#34;\n&#34;.join(sub_actns)
+        return textwrap.indent(&#34;* All required:\n&#34; + sub_actns, indent * &#34; &#34;)
+
+
+@attr.s
+class Containerize(RequireAll):
+    NAME: str = &#34;CONTAINERIZE&#34;
+    DESCRITPION: str = &#34;Redirect into container&#34;
+
+    def requires_redirect(self):
+        project = self.obj
+        return not container.in_container() and (project.container is not None)
+
+    @notify_step_begin_end
+    def __call__(self):
+        project = self.obj
+        if self.requires_redirect():
+            project.redirect()
+            self.status = StepResult.OK
+        else:
+            return super(Containerize, self).__call__()
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
+        sub_actns = &#34;\n&#34;.join(sub_actns)
+
+        if container.in_container():
+            return textwrap.indent(&#34;* Running inside container:\n&#34; + sub_actns,
+                                   indent * &#34; &#34;)
+
+        if self.requires_redirect():
+            return textwrap.indent(
+                &#34;* Continue inside container:\n&#34; + sub_actns, indent * &#34; &#34;)
+
+        return textwrap.indent(&#34;* Running without container:\n&#34; + sub_actns,
+                               indent * &#34; &#34;)
+
+
+class CleanExtra(Step):
+    NAME: str = &#34;CLEAN EXTRA&#34;
+    DESCRIPTION: str = &#34;Cleans the extra directories.&#34;
+
+    @notify_step_begin_end
+    def __call__(self):
+        if not CFG[&#39;clean&#39;]:
+            return StepResult.OK
+
+        paths = CFG[&#34;cleanup_paths&#34;].value
+        for p in paths:
+            if os.path.exists(p):
+                rm(&#34;-r&#34;, p)
+        self.status = StepResult.OK
+
+    def __str__(self, indent=0):
+        paths = CFG[&#34;cleanup_paths&#34;].value
+        lines = []
+        for p in paths:
+            lines.append(
+                textwrap.indent(&#34;* Clean the directory: {0}&#34;.format(p),
+                                indent * &#34; &#34;))
+        return &#34;\n&#34;.join(lines)
+
+
+class ProjectEnvironment(Step):
+    NAME: str = &#39;ENV&#39;
+    DESCRIPTION: str = &#39;Prepare the project environment.&#39;
+
+    @notify_step_begin_end
+    def __call__(self):
+        project = self.obj
+        prj_vars = project.variant
+
+        for name, variant in prj_vars.items():
+            LOG.info(f&#34;Fetching {str(name)} @ {variant.version}&#34;)
+            src = variant.owner
+            src.version(project.builddir, variant.version)
+
+    def __str__(self, indent=0):
+        project = self.obj
+        variant = project.variant
+        version_str = source.variants.to_str(tuple(variant.values()))
+
+        return textwrap.indent(
+            &#34;* Project environment for: {} @ {}&#34;.format(
+                project.name, version_str), indent * &#34; &#34;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="benchbuild.utils.actions.log_before_after"><code class="name flex">
+<span>def <span class="ident">log_before_after</span></span>(<span>name: str, desc: str)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Log customized stirng before &amp; after running func.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_before_after(name: str, desc: str):
+    &#34;&#34;&#34;Log customized stirng before &amp; after running func.&#34;&#34;&#34;
+    def func_decorator(f):
+        &#34;&#34;&#34;Wrapper stub.&#34;&#34;&#34;
+        @ft.wraps(f)
+        def wrapper(*args, **kwargs):
+            &#34;&#34;&#34;Wrapper stub.&#34;&#34;&#34;
+            LOG.info(f&#39;{name} -&gt; {desc}\n&#39;)
+            res = f(*args, **kwargs)
+
+            if StepResult.ERROR in res:
+                LOG.error(f&#39;{name} ERROR\n&#39;)
+            return res
+
+        return wrapper
+
+    return func_decorator</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.actions.notify_step_begin_end"><code class="name flex">
+<span>def <span class="ident">notify_step_begin_end</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Print the beginning and the end of a <code>func</code>.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def notify_step_begin_end(func):
+    &#34;&#34;&#34;Print the beginning and the end of a `func`.&#34;&#34;&#34;
+    @ft.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        &#34;&#34;&#34;Wrapper stub.&#34;&#34;&#34;
+        cls = self.__class__
+        on_step_begin = cls.ON_STEP_BEGIN
+        on_step_end = cls.ON_STEP_END
+
+        for begin_listener in on_step_begin:
+            begin_listener(self)
+
+        res = func(self, *args, **kwargs)
+
+        for end_listener in on_step_end:
+            end_listener(self, func)
+        return res
+
+    return wrapper</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.actions.prepend_status"><code class="name flex">
+<span>def <span class="ident">prepend_status</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Prepends the output of <code>func</code> with the status.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def prepend_status(func):
+    &#34;&#34;&#34;Prepends the output of `func` with the status.&#34;&#34;&#34;
+    @ft.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        &#34;&#34;&#34;Wrapper stub.&#34;&#34;&#34;
+        res = func(self, *args, **kwargs)
+        if self.status is not StepResult.UNSET:
+            res = &#34;[{status}]&#34;.format(status=self.status.name) + res
+        return res
+
+    return wrapper</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.actions.run_any_child"><code class="name flex">
+<span>def <span class="ident">run_any_child</span></span>(<span>child: <a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a>)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Execute child step.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>child</code></strong></dt>
+<dd>The child step.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_any_child(child: Step):
+    &#34;&#34;&#34;
+    Execute child step.
+
+    Args:
+        child: The child step.
+    &#34;&#34;&#34;
+    return child()</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.actions.step_has_failed"><code class="name flex">
+<span>def <span class="ident">step_has_failed</span></span>(<span>step_results, error_status=None)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step_has_failed(step_results, error_status=None):
+    if not error_status:
+        error_status = [StepResult.ERROR, StepResult.CAN_CONTINUE]
+
+    return len(list(filter(lambda res: res in error_status, step_results))) &gt; 0</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.actions.to_step_result"><code class="name flex">
+<span>def <span class="ident">to_step_result</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Convert a function return to a list of StepResults.</p>
+<p>All Step subclasses automatically wrap the result of their
+<strong>call</strong> method's result with this wrapper.
+If the result is not a list of StepResult values, one will
+be generated.</p>
+<p>result of <code>[StepResult.OK]</code>, or convert the given result into
+a list.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>func</code></strong></dt>
+<dd>The function to wrap.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_step_result(func):
+    &#34;&#34;&#34;Convert a function return to a list of StepResults.
+
+    All Step subclasses automatically wrap the result of their
+    __call__ method&#39;s result with this wrapper.
+    If the result is not a list of StepResult values, one will
+    be generated.
+
+    result of `[StepResult.OK]`, or convert the given result into
+    a list.
+
+    Args:
+        func: The function to wrap.
+    &#34;&#34;&#34;
+    @ft.wraps(func)
+    def wrapper(*args, **kwargs):
+        &#34;&#34;&#34;Wrapper stub.&#34;&#34;&#34;
+        res = func(*args, **kwargs)
+        if not res:
+            res = [StepResult.OK]
+
+        if not hasattr(res, &#34;__iter__&#34;):
+            res = [res]
+        return res
+
+    return wrapper</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="benchbuild.utils.actions.Any"><code class="flex name class">
+<span>class <span class="ident">Any</span></span>
+<span>(</span><span>obj=None, action_fn=None, status=StepResult.UNSET, actions=NOTHING)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Any(Step):
+    NAME: str = &#34;ANY&#34;
+    DESCRIPTION: str = &#34;Just run all actions, no questions asked.&#34;
+
+    actions = attr.ib(default=attr.Factory(list), repr=False)
+
+    def __len__(self):
+        return sum([len(x) for x in self.actions]) + 1
+
+    def __iter__(self):
+        return self.actions.__iter__()
+
+    @notify_step_begin_end
+    def __call__(self):
+        length = len(self.actions)
+        cnt = 0
+        results = [StepResult.OK]
+        for a in self.actions:
+            cnt = cnt + 1
+            result = a()
+            results.append(result)
+
+            if StepResult.ERROR in result:
+                LOG.warning(&#34;%d actions left in queue&#34;, length - cnt)
+        self.status = StepResult.OK
+        if StepResult.ERROR in results:
+            self.status = StepResult.CAN_CONTINUE
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
+        sub_actns = &#34;\n&#34;.join(sub_actns)
+        return textwrap.indent(&#34;* Execute all of:\n&#34; + sub_actns, indent * &#34; &#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Experiment" href="#benchbuild.utils.actions.Experiment">Experiment</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.Step.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.Clean"><code class="flex name class">
+<span>class <span class="ident">Clean</span></span>
+<span>(</span><span>obj=None, action_fn=None, status=StepResult.UNSET, check_empty=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Clean(Step):
+    NAME: str = &#34;CLEAN&#34;
+    DESCRIPTION: str = &#34;Cleans the build directory&#34;
+
+    check_empty = attr.ib(default=False)
+
+    @staticmethod
+    def clean_mountpoints(root: str):
+        &#34;&#34;&#34;
+        Unmount any remaining mountpoints under :root.
+
+        Args:
+            root: All UnionFS-mountpoints under this directory will be
+                  unmounted.
+        &#34;&#34;&#34;
+        import psutil
+        umount_paths = []
+        real_root = os.path.realpath(root)
+        for part in psutil.disk_partitions(all=True):
+            if os.path.commonpath([part.mountpoint, real_root]) == real_root:
+                if not part.fstype == &#34;fuse.unionfs&#34;:
+                    LOG.error(&#34;NON-UnionFS mountpoint found under %s&#34;, root)
+                else:
+                    umount_paths.append(part.mountpoint)
+
+    @notify_step_begin_end
+    def __call__(self):
+        if not CFG[&#39;clean&#39;]:
+            LOG.warning(&#34;Clean disabled by config.&#34;)
+            return
+        if not self.obj:
+            LOG.warning(&#34;No object assigned to this action.&#34;)
+            return
+        obj_builddir = os.path.abspath(self.obj.builddir)
+        if os.path.exists(obj_builddir):
+            LOG.debug(&#34;Path %s exists&#34;, obj_builddir)
+            Clean.clean_mountpoints(obj_builddir)
+            if self.check_empty:
+                rmdir(obj_builddir, retcode=None)
+            else:
+                rm(&#34;-rf&#34;, obj_builddir)
+        else:
+            LOG.debug(&#34;Path %s did not exist anymore&#34;, obj_builddir)
+        self.status = StepResult.OK
+
+    def __str__(self, indent=0):
+        return textwrap.indent(
+            &#34;* {0}: Clean the directory: {1}&#34;.format(self.obj.name,
+                                                     self.obj.builddir),
+            indent * &#34; &#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="benchbuild.utils.actions.Clean.clean_mountpoints"><code class="name flex">
+<span>def <span class="ident">clean_mountpoints</span></span>(<span>root: str)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Unmount any remaining mountpoints under :root.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>root</code></strong></dt>
+<dd>All UnionFS-mountpoints under this directory will be
+unmounted.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def clean_mountpoints(root: str):
+    &#34;&#34;&#34;
+    Unmount any remaining mountpoints under :root.
+
+    Args:
+        root: All UnionFS-mountpoints under this directory will be
+              unmounted.
+    &#34;&#34;&#34;
+    import psutil
+    umount_paths = []
+    real_root = os.path.realpath(root)
+    for part in psutil.disk_partitions(all=True):
+        if os.path.commonpath([part.mountpoint, real_root]) == real_root:
+            if not part.fstype == &#34;fuse.unionfs&#34;:
+                LOG.error(&#34;NON-UnionFS mountpoint found under %s&#34;, root)
+            else:
+                umount_paths.append(part.mountpoint)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.Step.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.CleanExtra"><code class="flex name class">
+<span>class <span class="ident">CleanExtra</span></span>
+<span>(</span><span>obj=None, action_fn=None, status=StepResult.UNSET)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CleanExtra(Step):
+    NAME: str = &#34;CLEAN EXTRA&#34;
+    DESCRIPTION: str = &#34;Cleans the extra directories.&#34;
+
+    @notify_step_begin_end
+    def __call__(self):
+        if not CFG[&#39;clean&#39;]:
+            return StepResult.OK
+
+        paths = CFG[&#34;cleanup_paths&#34;].value
+        for p in paths:
+            if os.path.exists(p):
+                rm(&#34;-r&#34;, p)
+        self.status = StepResult.OK
+
+    def __str__(self, indent=0):
+        paths = CFG[&#34;cleanup_paths&#34;].value
+        lines = []
+        for p in paths:
+            lines.append(
+                textwrap.indent(&#34;* Clean the directory: {0}&#34;.format(p),
+                                indent * &#34; &#34;))
+        return &#34;\n&#34;.join(lines)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.Step.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.Compile"><code class="flex name class">
+<span>class <span class="ident">Compile</span></span>
+<span>(</span><span>project)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Compile(Step):
+    NAME: str = &#34;COMPILE&#34;
+    DESCRIPTION: str = &#34;Compile the project&#34;
+
+    def __init__(self, project):
+        super(Compile, self).__init__(obj=project, action_fn=project.compile)
+
+    def __str__(self, indent=0):
+        return textwrap.indent(&#34;* {0}: Compile&#34;.format(self.obj.name),
+                               indent * &#34; &#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.Step.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.Containerize"><code class="flex name class">
+<span>class <span class="ident">Containerize</span></span>
+<span>(</span><span>obj=None, action_fn=None, status=StepResult.UNSET, actions=NOTHING)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Containerize(RequireAll):
+    NAME: str = &#34;CONTAINERIZE&#34;
+    DESCRITPION: str = &#34;Redirect into container&#34;
+
+    def requires_redirect(self):
+        project = self.obj
+        return not container.in_container() and (project.container is not None)
+
+    @notify_step_begin_end
+    def __call__(self):
+        project = self.obj
+        if self.requires_redirect():
+            project.redirect()
+            self.status = StepResult.OK
+        else:
+            return super(Containerize, self).__call__()
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
+        sub_actns = &#34;\n&#34;.join(sub_actns)
+
+        if container.in_container():
+            return textwrap.indent(&#34;* Running inside container:\n&#34; + sub_actns,
+                                   indent * &#34; &#34;)
+
+        if self.requires_redirect():
+            return textwrap.indent(
+                &#34;* Continue inside container:\n&#34; + sub_actns, indent * &#34; &#34;)
+
+        return textwrap.indent(&#34;* Running without container:\n&#34; + sub_actns,
+                               indent * &#34; &#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.RequireAll" href="#benchbuild.utils.actions.RequireAll">RequireAll</a></li>
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.utils.actions.Containerize.DESCRITPION"><code class="name">var <span class="ident">DESCRITPION</span></code></dt>
+<dd>
+<section class="desc"><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.utils.actions.Containerize.requires_redirect"><code class="name flex">
+<span>def <span class="ident">requires_redirect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def requires_redirect(self):
+    project = self.obj
+    return not container.in_container() and (project.container is not None)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.RequireAll" href="#benchbuild.utils.actions.RequireAll">RequireAll</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.RequireAll.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.RequireAll.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.RequireAll.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.RequireAll.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.Echo"><code class="flex name class">
+<span>class <span class="ident">Echo</span></span>
+<span>(</span><span>obj=None, action_fn=None, status=StepResult.UNSET, message='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Echo(Step):
+    NAME: str = &#39;ECHO&#39;
+    DESCRIPTION: str = &#39;Print a message.&#39;
+
+    message = attr.ib(default=&#34;&#34;)
+
+    def __str__(self, indent=0):
+        return textwrap.indent(&#34;* echo: {0}&#34;.format(self.message),
+                               indent * &#34; &#34;)
+
+    @notify_step_begin_end
+    def __call__(self):
+        LOG.info(self.message)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.Step.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.Experiment"><code class="flex name class">
+<span>class <span class="ident">Experiment</span></span>
+<span>(</span><span>obj=None, action_fn=None, status=StepResult.UNSET, actions=NOTHING)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Experiment(Any):
+    NAME: str = &#34;EXPERIMENT&#34;
+    DESCRIPTION: str = &#34;Run a experiment, wrapped in a db transaction&#34;
+
+    def __attrs_post_init__(self):
+        self.actions = \
+            [Echo(message=&#34;Start experiment: {0}&#34;.format(self.obj.name))] + \
+            self.actions + \
+            [Echo(message=&#34;Completed experiment: {0}&#34;.format(self.obj.name))]
+
+    def begin_transaction(self):
+        experiment, session = db.persist_experiment(self.obj)
+        if experiment.begin is None:
+            experiment.begin = datetime.now()
+        else:
+            experiment.begin = min(experiment.begin, datetime.now())
+        session.add(experiment)
+        try:
+            session.commit()
+        except sa.orm.exc.StaleDataError:
+            LOG.error(&#34;Transaction isolation level caused a StaleDataError&#34;)
+
+        # React to external signals
+        signals.handlers.register(Experiment.end_transaction, experiment,
+                                  session)
+
+        return experiment, session
+
+    @staticmethod
+    def end_transaction(experiment, session):
+        try:
+            if experiment.end is None:
+                experiment.end = datetime.now()
+            else:
+                experiment.end = max(experiment.end, datetime.now())
+            session.add(experiment)
+            session.commit()
+        except sa.exc.InvalidRequestError as inv_req:
+            LOG.error(inv_req)
+
+    def __run_children(self, num_processes: int):
+        results = []
+        actions = self.actions
+
+        try:
+            with mp.Pool(num_processes) as pool:
+                results = list(
+                    itertools.chain.from_iterable(
+                        pool.map(run_any_child, actions)))
+        except KeyboardInterrupt:
+            LOG.info(&#34;Experiment aborting by user request&#34;)
+            results.append(StepResult.ERROR)
+        except Exception:
+            LOG.error(&#34;Experiment terminates &#34; &#34;because we got an exception:&#34;)
+            e_type, e_value, e_traceb = sys.exc_info()
+            lines = traceback.format_exception(e_type, e_value, e_traceb)
+            LOG.error(&#34;&#34;.join(lines))
+            results.append(StepResult.ERROR)
+        return results
+
+    @notify_step_begin_end
+    def __call__(self):
+        results = []
+        session = None
+        experiment, session = self.begin_transaction()
+        try:
+            results = self.__run_children(int(CFG[&#34;parallel_processes&#34;]))
+        finally:
+            self.end_transaction(experiment, session)
+            signals.handlers.deregister(self.end_transaction)
+        self.status = max(results)
+        return results
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
+        sub_actns = &#34;\n&#34;.join(sub_actns)
+        return textwrap.indent(
+            &#34;\nExperiment: {0}\n&#34;.format(self.obj.name) + sub_actns,
+            indent * &#34; &#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Any" href="#benchbuild.utils.actions.Any">Any</a></li>
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="benchbuild.utils.actions.Experiment.end_transaction"><code class="name flex">
+<span>def <span class="ident">end_transaction</span></span>(<span>experiment, session)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def end_transaction(experiment, session):
+    try:
+        if experiment.end is None:
+            experiment.end = datetime.now()
+        else:
+            experiment.end = max(experiment.end, datetime.now())
+        session.add(experiment)
+        session.commit()
+    except sa.exc.InvalidRequestError as inv_req:
+        LOG.error(inv_req)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.utils.actions.Experiment.begin_transaction"><code class="name flex">
+<span>def <span class="ident">begin_transaction</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def begin_transaction(self):
+    experiment, session = db.persist_experiment(self.obj)
+    if experiment.begin is None:
+        experiment.begin = datetime.now()
+    else:
+        experiment.begin = min(experiment.begin, datetime.now())
+    session.add(experiment)
+    try:
+        session.commit()
+    except sa.orm.exc.StaleDataError:
+        LOG.error(&#34;Transaction isolation level caused a StaleDataError&#34;)
+
+    # React to external signals
+    signals.handlers.register(Experiment.end_transaction, experiment,
+                              session)
+
+    return experiment, session</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.Any" href="#benchbuild.utils.actions.Any">Any</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.Any.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Any.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Any.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Any.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.MakeBuildDir"><code class="flex name class">
+<span>class <span class="ident">MakeBuildDir</span></span>
+<span>(</span><span>obj=None, action_fn=None, status=StepResult.UNSET)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MakeBuildDir(Step):
+    NAME: str = &#34;MKDIR&#34;
+    DESCRIPTION: str = &#34;Create the build directory&#34;
+
+    @notify_step_begin_end
+    def __call__(self):
+        if not self.obj:
+            return
+        if not os.path.exists(self.obj.builddir):
+            mkdir(&#34;-p&#34;, self.obj.builddir)
+        self.status = StepResult.OK
+
+    def __str__(self, indent=0):
+        return textwrap.indent(
+            &#34;* {0}: Create the build directory&#34;.format(self.obj.name),
+            indent * &#34; &#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.Step.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.ProjectEnvironment"><code class="flex name class">
+<span>class <span class="ident">ProjectEnvironment</span></span>
+<span>(</span><span>obj=None, action_fn=None, status=StepResult.UNSET)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ProjectEnvironment(Step):
+    NAME: str = &#39;ENV&#39;
+    DESCRIPTION: str = &#39;Prepare the project environment.&#39;
+
+    @notify_step_begin_end
+    def __call__(self):
+        project = self.obj
+        prj_vars = project.variant
+
+        for name, variant in prj_vars.items():
+            LOG.info(f&#34;Fetching {str(name)} @ {variant.version}&#34;)
+            src = variant.owner
+            src.version(project.builddir, variant.version)
+
+    def __str__(self, indent=0):
+        project = self.obj
+        variant = project.variant
+        version_str = source.variants.to_str(tuple(variant.values()))
+
+        return textwrap.indent(
+            &#34;* Project environment for: {} @ {}&#34;.format(
+                project.name, version_str), indent * &#34; &#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.Step.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.RequireAll"><code class="flex name class">
+<span>class <span class="ident">RequireAll</span></span>
+<span>(</span><span>obj=None, action_fn=None, status=StepResult.UNSET, actions=NOTHING)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RequireAll(Step):
+    actions = attr.ib(default=attr.Factory(list))
+
+    def __len__(self):
+        return sum([len(x) for x in self.actions]) + 1
+
+    def __iter__(self):
+        return self.actions.__iter__()
+
+    @notify_step_begin_end
+    def __call__(self):
+        results = []
+        for i, action in enumerate(self.actions):
+            try:
+                results.extend(action())
+            except ProcessExecutionError as proc_ex:
+                LOG.error(&#34;\n==== ERROR ====&#34;)
+                LOG.error(&#34;Execution of a binary failed in step: %s&#34;,
+                          str(action))
+                LOG.error(str(proc_ex))
+                LOG.error(&#34;==== ERROR ====\n&#34;)
+                results.append(StepResult.ERROR)
+            except KeyboardInterrupt:
+                LOG.info(&#34;User requested termination.&#34;)
+                action.onerror()
+                results.append(StepResult.ERROR)
+                raise
+            except OSError:
+                LOG.error(&#34;Exception in step #%d: %s&#34;,
+                          i,
+                          str(action),
+                          exc_info=sys.exc_info())
+                results.append(StepResult.ERROR)
+
+            if StepResult.ERROR in results:
+                LOG.error(&#34;Execution of #%d: &#39;%s&#39; failed.&#34;, i, str(action))
+                LOG.error(&#34;&#39;%s&#39; cannot continue.&#34;, str(self))
+                action.status = StepResult.ERROR
+                action.onerror()
+                self.status = StepResult.ERROR
+                return results
+
+        self.status = StepResult.OK
+        return results
+
+    def __str__(self, indent=0):
+        sub_actns = [a.__str__(indent + 1) for a in self.actions]
+        sub_actns = &#34;\n&#34;.join(sub_actns)
+        return textwrap.indent(&#34;* All required:\n&#34; + sub_actns, indent * &#34; &#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Containerize" href="#benchbuild.utils.actions.Containerize">Containerize</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.Step.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.Run"><code class="flex name class">
+<span>class <span class="ident">Run</span></span>
+<span>(</span><span>project)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Run(Step):
+    NAME: str = &#34;RUN&#34;
+    DESCRIPTION: str = &#34;Execute the run action&#34;
+
+    def __init__(self, project):
+        super(Run, self).__init__(obj=project, action_fn=project.run)
+
+    @notify_step_begin_end
+    def __call__(self):
+        if not self.obj:
+            return
+        if not self.action_fn:
+            return
+
+        self.action_fn()
+        self.status = StepResult.OK
+
+    def __str__(self, indent=0):
+        return textwrap.indent(
+            &#34;* {0}: Execute run-time tests.&#34;.format(self.obj.name),
+            indent * &#34; &#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></b></code>:
+<ul class="hlist">
+<li><code><a title="benchbuild.utils.actions.Step.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.Step"><code class="flex name class">
+<span>class <span class="ident">Step</span></span>
+<span>(</span><span>obj=None, action_fn=None, status=StepResult.UNSET)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base class of a step.</p>
+<p>This stores all common attributes for step classes.
+metaclass ([type], optional): Defaults to StepClass. Takes
+care of wrapping Steps correctly.</p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><strong><code>StopIteration</code></strong></dt>
+<dd>If we do not encapsulate more substeps.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Step(metaclass=StepClass):
+    &#34;&#34;&#34;Base class of a step.
+
+    This stores all common attributes for step classes.
+        metaclass ([type], optional): Defaults to StepClass. Takes
+            care of wrapping Steps correctly.
+
+    Raises:
+        StopIteration: If we do not encapsulate more substeps.
+    &#34;&#34;&#34;
+
+    NAME: str = &#34;&#34;
+    DESCRIPTION: str = &#34;&#34;
+
+    ON_STEP_BEGIN = []
+    ON_STEP_END = []
+
+    obj = attr.ib(default=None, repr=False)
+    action_fn = attr.ib(default=None, repr=False)
+    status = attr.ib(default=StepResult.UNSET)
+
+    def __len__(self):
+        return 1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        raise StopIteration
+
+    @notify_step_begin_end
+    def __call__(self):
+        if not self.action_fn:
+            return StepResult.ERROR
+        self.action_fn()
+        self.status = StepResult.OK
+        return StepResult.OK
+
+    def __str__(self, indent=0):
+        return textwrap.indent(
+            f&#39;* {self.obj.name}: Execute configured action.&#39;, indent * &#34; &#34;)
+
+    def onerror(self):
+        Clean(self.obj)()</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.actions.Any" href="#benchbuild.utils.actions.Any">Any</a></li>
+<li><a title="benchbuild.utils.actions.Clean" href="#benchbuild.utils.actions.Clean">Clean</a></li>
+<li><a title="benchbuild.utils.actions.CleanExtra" href="#benchbuild.utils.actions.CleanExtra">CleanExtra</a></li>
+<li><a title="benchbuild.utils.actions.Compile" href="#benchbuild.utils.actions.Compile">Compile</a></li>
+<li><a title="benchbuild.utils.actions.Echo" href="#benchbuild.utils.actions.Echo">Echo</a></li>
+<li><a title="benchbuild.utils.actions.MakeBuildDir" href="#benchbuild.utils.actions.MakeBuildDir">MakeBuildDir</a></li>
+<li><a title="benchbuild.utils.actions.ProjectEnvironment" href="#benchbuild.utils.actions.ProjectEnvironment">ProjectEnvironment</a></li>
+<li><a title="benchbuild.utils.actions.RequireAll" href="#benchbuild.utils.actions.RequireAll">RequireAll</a></li>
+<li><a title="benchbuild.utils.actions.Run" href="#benchbuild.utils.actions.Run">Run</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.utils.actions.Step.DESCRIPTION"><code class="name">var <span class="ident">DESCRIPTION</span></code></dt>
+<dd>
+<section class="desc"><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p></section>
+</dd>
+<dt id="benchbuild.utils.actions.Step.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<section class="desc"><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p></section>
+</dd>
+<dt id="benchbuild.utils.actions.Step.ON_STEP_BEGIN"><code class="name">var <span class="ident">ON_STEP_BEGIN</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+<dt id="benchbuild.utils.actions.Step.ON_STEP_END"><code class="name">var <span class="ident">ON_STEP_END</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.utils.actions.Step.onerror"><code class="name flex">
+<span>def <span class="ident">onerror</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def onerror(self):
+    Clean(self.obj)()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="benchbuild.utils.actions.StepClass"><code class="flex name class">
+<span>class <span class="ident">StepClass</span></span>
+<span>(</span><span>name, bases, namespace, **_)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Decorate <code>steps</code> with logging and result conversion.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StepClass(abc.ABCMeta):
+    &#34;&#34;&#34;Decorate `steps` with logging and result conversion.&#34;&#34;&#34;
+    def __new__(mcs, name, bases, namespace, **_):
+        result = abc.ABCMeta.__new__(mcs, name, bases, dict(namespace))
+
+        NAME: str = result.NAME
+        DESCRIPTION: str = result.DESCRIPTION
+
+        if NAME and DESCRIPTION:
+            result.__call__ = log_before_after(NAME, DESCRIPTION)(
+                to_step_result(result.__call__))
+        else:
+            result.__call__ = to_step_result(result.__call__)
+
+        result.__str__ = prepend_status(result.__str__)
+        return result</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABCMeta</li>
+<li>builtins.type</li>
+</ul>
+</dd>
+<dt id="benchbuild.utils.actions.StepResult"><code class="flex name class">
+<span>class <span class="ident">StepResult</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Result type for action results.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StepResult(enum.IntEnum):
+    &#34;&#34;&#34;Result type for action results.&#34;&#34;&#34;
+    UNSET = 0
+    OK = 1
+    CAN_CONTINUE = 2
+    ERROR = 3</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.utils.actions.StepResult.CAN_CONTINUE"><code class="name">var <span class="ident">CAN_CONTINUE</span></code></dt>
+<dd>
+<section class="desc"><p>Result type for action results.</p></section>
+</dd>
+<dt id="benchbuild.utils.actions.StepResult.ERROR"><code class="name">var <span class="ident">ERROR</span></code></dt>
+<dd>
+<section class="desc"><p>Result type for action results.</p></section>
+</dd>
+<dt id="benchbuild.utils.actions.StepResult.OK"><code class="name">var <span class="ident">OK</span></code></dt>
+<dd>
+<section class="desc"><p>Result type for action results.</p></section>
+</dd>
+<dt id="benchbuild.utils.actions.StepResult.UNSET"><code class="name">var <span class="ident">UNSET</span></code></dt>
+<dd>
+<section class="desc"><p>Result type for action results.</p></section>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#actions">Actions</a><ul>
+<li><a href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="benchbuild.utils" href="index.html">benchbuild.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="benchbuild.utils.actions.log_before_after" href="#benchbuild.utils.actions.log_before_after">log_before_after</a></code></li>
+<li><code><a title="benchbuild.utils.actions.notify_step_begin_end" href="#benchbuild.utils.actions.notify_step_begin_end">notify_step_begin_end</a></code></li>
+<li><code><a title="benchbuild.utils.actions.prepend_status" href="#benchbuild.utils.actions.prepend_status">prepend_status</a></code></li>
+<li><code><a title="benchbuild.utils.actions.run_any_child" href="#benchbuild.utils.actions.run_any_child">run_any_child</a></code></li>
+<li><code><a title="benchbuild.utils.actions.step_has_failed" href="#benchbuild.utils.actions.step_has_failed">step_has_failed</a></code></li>
+<li><code><a title="benchbuild.utils.actions.to_step_result" href="#benchbuild.utils.actions.to_step_result">to_step_result</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="benchbuild.utils.actions.Any" href="#benchbuild.utils.actions.Any">Any</a></code></h4>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.Clean" href="#benchbuild.utils.actions.Clean">Clean</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.actions.Clean.clean_mountpoints" href="#benchbuild.utils.actions.Clean.clean_mountpoints">clean_mountpoints</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.CleanExtra" href="#benchbuild.utils.actions.CleanExtra">CleanExtra</a></code></h4>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.Compile" href="#benchbuild.utils.actions.Compile">Compile</a></code></h4>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.Containerize" href="#benchbuild.utils.actions.Containerize">Containerize</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.actions.Containerize.DESCRITPION" href="#benchbuild.utils.actions.Containerize.DESCRITPION">DESCRITPION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Containerize.requires_redirect" href="#benchbuild.utils.actions.Containerize.requires_redirect">requires_redirect</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.Echo" href="#benchbuild.utils.actions.Echo">Echo</a></code></h4>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.Experiment" href="#benchbuild.utils.actions.Experiment">Experiment</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.actions.Experiment.begin_transaction" href="#benchbuild.utils.actions.Experiment.begin_transaction">begin_transaction</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Experiment.end_transaction" href="#benchbuild.utils.actions.Experiment.end_transaction">end_transaction</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.MakeBuildDir" href="#benchbuild.utils.actions.MakeBuildDir">MakeBuildDir</a></code></h4>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.ProjectEnvironment" href="#benchbuild.utils.actions.ProjectEnvironment">ProjectEnvironment</a></code></h4>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.RequireAll" href="#benchbuild.utils.actions.RequireAll">RequireAll</a></code></h4>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.Run" href="#benchbuild.utils.actions.Run">Run</a></code></h4>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.Step" href="#benchbuild.utils.actions.Step">Step</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.actions.Step.DESCRIPTION" href="#benchbuild.utils.actions.Step.DESCRIPTION">DESCRIPTION</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.NAME" href="#benchbuild.utils.actions.Step.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_BEGIN" href="#benchbuild.utils.actions.Step.ON_STEP_BEGIN">ON_STEP_BEGIN</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.ON_STEP_END" href="#benchbuild.utils.actions.Step.ON_STEP_END">ON_STEP_END</a></code></li>
+<li><code><a title="benchbuild.utils.actions.Step.onerror" href="#benchbuild.utils.actions.Step.onerror">onerror</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.StepClass" href="#benchbuild.utils.actions.StepClass">StepClass</a></code></h4>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.actions.StepResult" href="#benchbuild.utils.actions.StepResult">StepResult</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.actions.StepResult.CAN_CONTINUE" href="#benchbuild.utils.actions.StepResult.CAN_CONTINUE">CAN_CONTINUE</a></code></li>
+<li><code><a title="benchbuild.utils.actions.StepResult.ERROR" href="#benchbuild.utils.actions.StepResult.ERROR">ERROR</a></code></li>
+<li><code><a title="benchbuild.utils.actions.StepResult.OK" href="#benchbuild.utils.actions.StepResult.OK">OK</a></code></li>
+<li><code><a title="benchbuild.utils.actions.StepResult.UNSET" href="#benchbuild.utils.actions.StepResult.UNSET">UNSET</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

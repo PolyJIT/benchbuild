@@ -14,7 +14,6 @@ pyparsing>=2.2
 PyYAML~=5.1
 Jinja2>=2.2
 attrs>=17.4.0
-urwid>=2.0.1
 docutils>=0.12
 pylint
 yapf

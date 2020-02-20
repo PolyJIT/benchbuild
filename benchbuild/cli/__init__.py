@@ -1,6 +1,6 @@
 """The CLI package."""
 __all__ = [
-    "main", "bootstrap", "config", "container", "log", "project", "experiment",
+    "main", "bootstrap", "config", "container", "experiment", "log", "project",
     "report", "run", "slurm"
 ]
 

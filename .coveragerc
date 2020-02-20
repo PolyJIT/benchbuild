@@ -1,5 +1,15 @@
 [run]
+include = */benchbuild/*
+omit =
+  */benchbuild/lib/*
+  */benchbuild/bin/*
 branch = True
-source:
+parallel = True
+
+[paths]
+source =
   benchbuild/
-  tests
+  */site-packages/benchbuild/
+
+[report]
+ignore_errors = True

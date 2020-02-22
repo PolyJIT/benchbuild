@@ -57,6 +57,7 @@ class Buildah(DeclarativeTool):
         return chain.result
 
     def from_(self, base_img: str):
+
         def from__(_):
             self.in_progress = __buildah__()('from', base_img).strip()
             return self.in_progress
@@ -65,6 +66,7 @@ class Buildah(DeclarativeTool):
         return self
 
     def bud(self, dockerfile: str):
+
         def bud_(_):
             return (
                 __buildah__()['bud'] << textwrap.dedent(dockerfile))().strip()
@@ -73,6 +75,7 @@ class Buildah(DeclarativeTool):
         return self
 
     def add(self, src: str, dest: str):
+
         def add_(build_id: str):
             __buildah__()('add', build_id, src, dest)
             return build_id
@@ -81,6 +84,7 @@ class Buildah(DeclarativeTool):
         return self
 
     def commit(self, tag: str):
+
         def commit_(build_id: str):
             image_id = __buildah__()('commit', build_id, tag).strip()
             return image_id
@@ -89,6 +93,7 @@ class Buildah(DeclarativeTool):
         return self
 
     def copy(self, src: str, dest: str):
+
         def copy_(build_id: str):
             __buildah__()('copy', build_id, src, dest)
             return build_id
@@ -97,6 +102,7 @@ class Buildah(DeclarativeTool):
         return self
 
     def run(self, *args, **kwargs):
+
         def run_(build_id: str):
             kws = []
             for name, value in dict(kwargs).items():

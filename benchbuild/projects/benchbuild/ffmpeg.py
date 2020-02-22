@@ -1,9 +1,10 @@
 from plumbum import local
 
-from benchbuild.project import Project
 from benchbuild.environments import container
-from benchbuild.source import HTTP
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.source import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
@@ -13,10 +14,9 @@ class LibAV(Project):
     DOMAIN: str = 'multimedia'
     GROUP: str = 'benchbuild'
     SOURCE = [
-        HTTP(remote={
-            '3.1.3': 'http://ffmpeg.org/releases/ffmpeg-3.1.3.tar.bz2'
-        },
-             local='ffmpeg.tar.bz2')
+        HTTP(
+            remote={'3.1.3': 'http://ffmpeg.org/releases/ffmpeg-3.1.3.tar.bz2'},
+            local='ffmpeg.tar.bz2')
     ]
     CONTAINER = container.Buildah().from_('debian:buster-slim')
 

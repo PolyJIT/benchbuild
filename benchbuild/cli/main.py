@@ -1,5 +1,6 @@
 """Main CLI unit of BenchBuild."""
 import os
+
 from plumbum import cli
 
 from benchbuild import plugins

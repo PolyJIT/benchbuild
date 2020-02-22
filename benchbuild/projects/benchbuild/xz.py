@@ -3,6 +3,7 @@ from plumbum import local
 from benchbuild.environments import container
 from benchbuild.project import Project
 from benchbuild.source import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 

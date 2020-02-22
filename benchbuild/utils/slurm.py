@@ -9,10 +9,10 @@ import os
 import sys
 from typing import Iterable
 
-from plumbum import local, TF
+from plumbum import TF, local
 
-from benchbuild.settings import CFG
 from benchbuild.experiment import Experiment
+from benchbuild.settings import CFG
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
 
@@ -52,10 +52,10 @@ def __expand_project_versions__(experiment: Experiment) -> Iterable[str]:
     for _, project_type in project_types.items():
         for version in project_type.versions():
             project = project_type(experiment, version=version)
-            expanded.append("{name}-{group}@{version}".format(
-                name=project.name,
-                group=project.group,
-                version=project.version))
+            expanded.append(
+                "{name}-{group}@{version}".format(name=project.name,
+                                                  group=project.group,
+                                                  version=project.version))
     return expanded
 
 

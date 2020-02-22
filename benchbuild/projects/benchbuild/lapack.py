@@ -2,10 +2,11 @@ import logging
 
 from plumbum import local
 
-from benchbuild.project import Project
 from benchbuild.environments import container
-from benchbuild.source import Git, HTTP
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.source import HTTP, Git
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 

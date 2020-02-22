@@ -1,4 +1,4 @@
-from setuptools import setup, find_namespace_packages
+from setuptools import find_namespace_packages, setup
 
 with open('README.md') as f:
     long_description = f.read()
@@ -16,8 +16,8 @@ sql_extra_files = [
     "func.total_dyncov_clean.sql", "func.total_speedup.sql",
     "func.compare_region_wise.sql", "func.project_region_time.sql",
     "func.run_durations.sql", "func.speedup.sql", "func.total_dyncov.sql",
-    "func.pj-test-eval.sql", "func.compilestats_eval.sql",
-    "func.polly_mse.sql", "func.profileScopDetection-eval.sql"
+    "func.pj-test-eval.sql", "func.compilestats_eval.sql", "func.polly_mse.sql",
+    "func.profileScopDetection-eval.sql"
 ]
 
 setup(name='benchbuild',

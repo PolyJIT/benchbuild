@@ -16,8 +16,8 @@ import logging
 import attr
 from plumbum import ProcessExecutionError, local
 
-from benchbuild.settings import CFG
 from benchbuild.project import Project
+from benchbuild.settings import CFG
 from benchbuild.utils import compiler, container, path, run, uchroot
 from benchbuild.utils.cmd import cp, ln
 

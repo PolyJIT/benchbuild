@@ -1,3 +1,3 @@
-from . import base, compiler, run, time, log
+from . import base, compiler, log, run, time
 
 Extension = base.Extension

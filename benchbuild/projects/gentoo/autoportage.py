@@ -10,6 +10,7 @@ class AutoPortage(GentooGroup):
     """
     Generic portage experiment.
     """
+
     def compile(self):
         emerge_in_chroot = uchroot.uchroot()["/usr/bin/emerge"]
         prog = self.DOMAIN + "/" + str(self.NAME)[len(self.DOMAIN) + 1:]

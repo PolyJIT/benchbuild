@@ -1,9 +1,10 @@
 from plumbum import local
 
+from benchbuild.environments import container
 from benchbuild.project import Project
 from benchbuild.settings import CFG
-from benchbuild.environments import container
 from benchbuild.source import HTTP, Git
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make
 
 
@@ -20,9 +21,8 @@ class X264(Project):
             limit=5),
         HTTP(remote={'tbbt-small': 'http://lairosiel.de/dist/tbbt-small.y4m'},
              local='tbbt-small.y4m'),
-        HTTP(
-            remote={'sintel': 'http://lairosiel.de/dist/Sintel.2010.720p.raw'},
-            local='sintel.raw'),
+        HTTP(remote={'sintel': 'http://lairosiel.de/dist/Sintel.2010.720p.raw'},
+             local='sintel.raw'),
     ]
 
     CONFIG = {"tbbt-small": [], "sintel": ["--input-res", "1280x720"]}

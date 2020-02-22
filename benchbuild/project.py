@@ -17,11 +17,11 @@ a separate build directory in isolation of one another.
 """
 import copy
 import logging
-from typing import Dict, List, Tuple, Optional, Mapping, Type
 import uuid
 from abc import abstractmethod
 from functools import partial
 from os import getenv
+from typing import Dict, List, Mapping, Optional, Tuple, Type
 
 import attr
 from plumbum import ProcessExecutionError, local
@@ -31,8 +31,8 @@ from benchbuild import signals, source
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
-from benchbuild.utils import db, run, unionfs
 from benchbuild.source import variants
+from benchbuild.utils import db, run, unionfs
 
 LOG = logging.getLogger(__name__)
 
@@ -379,11 +379,11 @@ def populate(projects_to_filter=None,
     if group:
         groupkeys = set(group)
         prjs = {
-            name: cls
-            for name, cls in prjs.items() if cls.GROUP in groupkeys
+            name: cls for name, cls in prjs.items() if cls.GROUP in groupkeys
         }
 
     return {
         x: prjs[x]
-        for x in prjs if prjs[x].DOMAIN != "debug" or x in projects_to_filter
+        for x in prjs
+        if prjs[x].DOMAIN != "debug" or x in projects_to_filter
     }

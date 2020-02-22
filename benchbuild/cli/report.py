@@ -8,6 +8,7 @@ from benchbuild.utils import schema
 @BenchBuild.subcommand("report")
 class BenchBuildReport(cli.Application):
     """Generate Reports from the benchbuild db."""
+
     def __init__(self, executable):
         super(BenchBuildReport, self).__init__(executable=executable)
         self.experiment_names = []
@@ -62,7 +63,8 @@ class BenchBuildReport(cli.Application):
 
         if self.report_names:
             _reports = [
-                all_reports[name] for name in all_reports
+                all_reports[name]
+                for name in all_reports
                 if name in self.report_names
             ]
             generate_reports(_reports, self.experiment_names)
@@ -70,9 +72,10 @@ class BenchBuildReport(cli.Application):
 
         if self.experiment_names:
             _reports = [
-                all_reports[name] for name in all_reports
-                if set(all_reports[name].SUPPORTED_EXPERIMENTS)
-                & set(self.experiment_names)
+                all_reports[name]
+                for name in all_reports
+                if set(all_reports[name].SUPPORTED_EXPERIMENTS) &
+                set(self.experiment_names)
             ]
             generate_reports(_reports, self.experiment_names)
             exit(0)

@@ -2,10 +2,11 @@ from functools import partial
 
 from plumbum import local
 
-from benchbuild.project import Project
 from benchbuild.environments import container
-from benchbuild.source import Git
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.source import Git
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, mkdir, tar
 
 

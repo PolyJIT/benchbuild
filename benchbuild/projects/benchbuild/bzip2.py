@@ -1,8 +1,10 @@
-from benchbuild.project import Project
-from benchbuild.source import Git, HTTP
-from benchbuild.utils.cmd import make, tar
+from plumbum import local
 
 from benchbuild.environments import Buildah
+from benchbuild.project import Project
+from benchbuild.source import HTTP, Git
+from benchbuild.utils import compiler, run, wrapping
+from benchbuild.utils.cmd import make, tar
 
 
 class Bzip2(Project):

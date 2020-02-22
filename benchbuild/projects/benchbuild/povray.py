@@ -1,11 +1,10 @@
 from plumbum import FG, local
 
-from benchbuild.project import Project
 from benchbuild.environments import container
-from benchbuild.source import Git, HTTP
+from benchbuild.project import Project
+from benchbuild.source import HTTP, Git
 from benchbuild.utils import compiler, run, wrapping
-from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, sed, sh,
-                                  tar)
+from benchbuild.utils.cmd import cp, find, grep, head, make, mkdir, sed, sh, tar
 
 
 class Povray(Project):
@@ -18,8 +17,8 @@ class Povray(Project):
         Git(remote='https://github.com/POV-Ray/povray', local='povray.git'),
         HTTP(remote={
             '1.59.0':
-            'http://sourceforge.net/projects/boost/files/boost/1.59.0/'
-            'boost_1_59_0.tar.bz2'
+                'http://sourceforge.net/projects/boost/files/boost/1.59.0/'
+                'boost_1_59_0.tar.bz2'
         },
              local='boost.tar.bz2'),
         HTTP(remote={
@@ -96,9 +95,9 @@ class Povray(Project):
                            INSTALL_DIR='.',
                            OUTPUT_DIR=tmpdir,
                            POVINI=povini):
-                options = ((((head["-n", "50", "\"" + pov_f + "\""]
-                              | grep["-E", "'^//[ ]+[-+]{1}[^ -]'"])
-                             | head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
+                options = ((((head["-n", "50", "\"" + pov_f + "\""] |
+                              grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]) |
+                             head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
                 povray("+L" + scene_dir,
                        "+L" + tmpdir,
                        "-i" + pov_f,

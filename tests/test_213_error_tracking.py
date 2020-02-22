@@ -2,18 +2,19 @@
 Test issue 213: Wrong error tracking for failed commands
 """
 import unittest
-import attr
 
+import attr
 from plumbum import ProcessExecutionError
 
-from benchbuild import project as prj
 from benchbuild import experiment
+from benchbuild import project as prj
 from benchbuild.utils import actions as a
 from benchbuild.utils import tasks
 
 
 @attr.s
 class Issue213a(a.Step):
+
     @a.notify_step_begin_end
     def __call__(self):
         raise ProcessExecutionError([], 1, "", "")
@@ -21,6 +22,7 @@ class Issue213a(a.Step):
 
 @attr.s
 class Issue213b(a.Step):
+
     @a.notify_step_begin_end
     def __call__(self):
         return a.StepResult.ERROR
@@ -59,6 +61,7 @@ class ErrorStateExp(experiment.Experiment):
 
 class TrackErrorsTestCase(unittest.TestCase):
     """Test issue #213."""
+
     def test_exception(self):
         plan = list(tasks.generate_plan([ExceptionExp], [EmptyProject]))
         self.assertEqual(len(plan),

@@ -3,11 +3,11 @@ Test YAML functions from benchbuild's settings module.
 """
 import unittest
 import uuid
+
 import yaml
 
 from benchbuild.utils.settings import (uuid_add_implicit_resolver,
                                        uuid_constructor, uuid_representer)
-"""TestLoader for unit-testing."""
 
 
 class Loader(yaml.SafeLoader):
@@ -28,6 +28,7 @@ UUID_OUT = "{{test: {uuid}}}".format(uuid=TEST_UUID)
 
 class TestUUID(unittest.TestCase):
     """Test load and store of uuids inside Configuration objects."""
+
     def test_uuid_resolver(self):
         """Test dump and load of uuid objects."""
 

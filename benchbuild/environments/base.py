@@ -5,8 +5,10 @@ TODO
 """
 import attr
 
+
 @attr.s
 class Environment:
+
     def cmd(self, *args):
         """
         Fetch a command mapped inside the environment.
@@ -28,7 +30,6 @@ class Environment:
             TODO
         """
         pass
-
 
     def wrap(self, wrapper_func, path):
         """
@@ -56,6 +57,7 @@ class Environment:
 
         """
         pass
+
 
 def compatible(env, project_or_experiment):
     pass

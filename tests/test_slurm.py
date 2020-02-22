@@ -15,6 +15,7 @@ from benchbuild.utils.cmd import true
 
 
 class TestSLURM(unittest.TestCase):
+
     def setUp(self):
         # Disable database interaction.
         test.TestProject.__attrs_post_init__ = unittest.mock.MagicMock()

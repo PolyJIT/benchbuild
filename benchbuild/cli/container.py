@@ -1,14 +1,14 @@
 """Subcommand for containerizing benchbuild experiments."""
 import itertools
-from typing import List, Generator, Tuple
+from typing import Generator, List, Tuple
 
 from plumbum import cli
 
-from benchbuild import plugins, environments, experiment, project, source
+from benchbuild import environments, experiment, plugins, project, source
 from benchbuild.cli.main import BenchBuild
 from benchbuild.environments import Buildah
-from benchbuild.utils.cmd import mkdir, rm
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import mkdir, rm
 
 
 @BenchBuild.subcommand("container")
@@ -20,7 +20,7 @@ class BenchBuildContainer(cli.Application):
                 str,
                 list=True,
                 help="Specify experiments to run")
-    def set_experiments(self, names):
+    def set_experiments(self, names: List[str]) -> None:
         self.experiment_args = names
 
     @cli.switch(["-G", "--group"],
@@ -28,10 +28,10 @@ class BenchBuildContainer(cli.Application):
                 list=True,
                 requires=["--experiment"],
                 help="Run a group of projects under the given experiments")
-    def set_group(self, groups):
+    def set_group(self, groups: List[str]) -> None:
         self.group_args = groups
 
-    def main(self, *projects):
+    def main(self, *projects: str) -> int:
         """Main entry point of benchbuild container."""
         plugins.discover()
         cli_experiments = self.experiment_args
@@ -72,6 +72,19 @@ class BenchBuildContainer(cli.Application):
         # 5. Prepare results directory
         # 6. Setup podman container.
         # 7. Call benchbuild run with the given experiment/project config.
+        return 0
+
+
+@BenchBuildContainer.subcommand("prepare")
+class BenchBuildContainerBuild(cli.Application):
+    """
+    Prepare a container base image.
+
+    Prepare an existing OCI-container image for the use with benchbuild.
+    """
+
+    def main(self, *projects):
+        pass
 
 
 def build_project_images(

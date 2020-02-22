@@ -1,9 +1,12 @@
 import logging
 
+from plumbum import local
+
 from benchbuild.environments import container
 from benchbuild.project import Project
-from benchbuild.source import HTTP
 from benchbuild.settings import CFG
+from benchbuild.source import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import diff, tar
 
 LOG = logging.getLogger(__name__)
@@ -79,7 +82,7 @@ class PolyBenchGroup(Project):
     SOURCE = [
         HTTP(remote={
             '4.2':
-            'http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz'
+                'http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz'
         },
              local='polybench.tar.gz')
     ]
@@ -134,6 +137,7 @@ class PolyBenchGroup(Project):
               utils_dir / "polybench.c", src_file, "-lm", "-o", self.name)
 
     def run_tests(self):
+
         def filter_stderr(stderr_raw, stderr_filtered):
             """Extract dump_arrays_output from stderr."""
             with open(stderr_raw, 'r') as stderr:

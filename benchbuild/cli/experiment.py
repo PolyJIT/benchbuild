@@ -11,6 +11,7 @@ from benchbuild.utils import schema
 @BenchBuild.subcommand("experiment")
 class BBExperiment(cli.Application):
     """Manage BenchBuild's known experiments."""
+
     def main(self):
         if not self.nested_command:
             self.help()
@@ -19,6 +20,7 @@ class BBExperiment(cli.Application):
 @BBExperiment.subcommand("view")
 class BBExperimentView(cli.Application):
     """View available experiments."""
+
     def main(self):
         all_exps = experiment.discovered()
         for exp_cls in all_exps.values():

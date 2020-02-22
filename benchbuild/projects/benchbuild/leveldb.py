@@ -1,8 +1,11 @@
 from os import getenv
 
-from benchbuild.project import Project
+from plumbum import local
+
 from benchbuild.environments import container
+from benchbuild.project import Project
 from benchbuild.source import Git
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make
 
 

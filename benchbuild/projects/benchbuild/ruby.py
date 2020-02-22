@@ -1,9 +1,10 @@
 from plumbum import local
 
-from benchbuild.project import Project
 from benchbuild.environments import container
-from benchbuild.source import HTTP
+from benchbuild.project import Project
 from benchbuild.settings import CFG
+from benchbuild.source import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, ruby, tar
 
 
@@ -14,12 +15,12 @@ class Ruby(Project):
     SOURCE = [
         HTTP(remote={
             '2.7.0':
-            'https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.0.tar.gz'
+                'https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.0.tar.gz'
         },
              local='ruby.tar.gz'),
         HTTP(remote={
             '2016-11-ruby-inputs.tar.gz':
-            'http://lairosiel.de/dist/2016-11-ruby-inputs.tar.gz'
+                'http://lairosiel.de/dist/2016-11-ruby-inputs.tar.gz'
         },
              local='inputs.tar.gz')
     ]

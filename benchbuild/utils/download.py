@@ -10,18 +10,24 @@ found in BB_TMP_DIR, nothing will be downloaded at all.
 Supported methods:
         Copy, CopyNoFail, Wget, Git, Svn, Rsync
 """
+import hashlib
 import logging
 import os
+from typing import Any, Callable, Dict, List, Optional, Type
 
-from plumbum import local
+from plumbum import LocalPath, local
 
 from benchbuild.settings import CFG
+from benchbuild.utils.cmd import rm
 from benchbuild.utils.path import flocked
 
 LOG = logging.getLogger(__name__)
 
+ClassDecorator = Callable[[Type[Any]], Callable[[Any], Any]]
+StrPredicate = Callable[[str], bool]
 
-def get_hash_of_dirs(directory):
+
+def get_hash_of_dirs(directory: LocalPath) -> str:
     """
     Recursively hash the contents of the given directory.
 
@@ -30,11 +36,13 @@ def get_hash_of_dirs(directory):
 
     Returns:
         A hash of all the contents in the directory.
+
+    Raises:
+        FileNotFoundError
     """
-    import hashlib
     sha = hashlib.sha512()
     if not os.path.exists(directory):
-        return -1
+        raise FileNotFoundError
 
     for root, _, files in os.walk(directory):
         for name in files:
@@ -46,7 +54,7 @@ def get_hash_of_dirs(directory):
     return sha.hexdigest()
 
 
-def source_required(src_file):
+def source_required(src_file: LocalPath) -> bool:
     """
     Check, if a download is required.
 
@@ -69,7 +77,6 @@ def source_required(src_file):
             old_hash = h_file.readline()
         required = not new_hash == old_hash
         if required:
-            from benchbuild.utils.cmd import rm
             rm("-r", src_file)
             rm(hash_file)
     if required:
@@ -79,7 +86,7 @@ def source_required(src_file):
     return required
 
 
-def update_hash(src_file):
+def update_hash(src_file: LocalPath) -> str:
     """
     Update the hash for the given file.
 
@@ -88,14 +95,14 @@ def update_hash(src_file):
         root: The path of the given file.
     """
     hash_file = local.path(src_file) + ".hash"
-    new_hash = 0
+    new_hash = ''
     with open(hash_file, 'w') as h_file:
         new_hash = get_hash_of_dirs(src_file)
         h_file.write(str(new_hash))
     return new_hash
 
 
-def Copy(From, To):
+def Copy(From: LocalPath, To: LocalPath) -> None:
     """
     Small copy wrapper.
 
@@ -107,7 +114,7 @@ def Copy(From, To):
     cp("-ar", "--reflink=auto", From, To)
 
 
-def CopyNoFail(src, root=None):
+def CopyNoFail(src: LocalPath, root: Optional[LocalPath] = None) -> bool:
     """
     Just copy fName into the current working directory, if it exists.
 
@@ -122,7 +129,7 @@ def CopyNoFail(src, root=None):
         True, if we copied something.
     """
     if root is None:
-        root = str(CFG["tmp_dir"])
+        root = local.path(str(CFG["tmp_dir"]))
     src_path = local.path(root) / src
 
     if src_path.exists():
@@ -131,14 +138,16 @@ def CopyNoFail(src, root=None):
     return False
 
 
-def Wget(src_url, tgt_name, tgt_root=None):
+def Wget(src_url: str,
+         tgt_name: str,
+         tgt_root: Optional[LocalPath] = None) -> None:
     """
     Download url, if required.
 
     Args:
         src_url (str): Our SOURCE url.
         tgt_name (str): The filename we want to have on disk.
-        tgt_root (str): The TARGET directory for the download.
+        tgt_root (LocalPath): The TARGET directory for the download.
             Defaults to ``CFG["tmpdir"]``.
     """
     if tgt_root is None:
@@ -156,7 +165,11 @@ def Wget(src_url, tgt_name, tgt_root=None):
     Copy(tgt_file, ".")
 
 
-def with_wget(url_dict=None, target_file=None):
+URLDict = Dict[str, str]
+
+
+def with_wget(url_dict: Optional[URLDict] = None,
+              target_file: Optional[LocalPath] = None) -> Any:
     """
     Decorate a project class with wget-based version information.
 
@@ -174,16 +187,19 @@ def with_wget(url_dict=None, target_file=None):
             the decorated class.
     """
 
-    def wget_decorator(cls):
-        def download_impl(self):
+    def wget_decorator(cls: Type[Any]) -> Type[Any]:
+
+        def download_impl(self: Any) -> None:
             """Download the selected version from the url_dict value."""
             t_file = target_file if target_file else self.SRC_FILE
+            assert url_dict
             t_version = url_dict[self.version]
             Wget(t_version, t_file)
 
         @staticmethod
-        def versions_impl():
+        def versions_impl() -> List[str]:
             """Return a list of versions from the url_dict keys."""
+            assert url_dict
             return list(url_dict.keys())
 
         cls.versions = versions_impl
@@ -221,7 +237,11 @@ def __clone_needed__(repository: str, directory: str) -> bool:
     return requires_clone
 
 
-def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
+def Git(repository: str,
+        directory: str,
+        rev: Optional[str] = None,
+        prefix: Optional[str] = None,
+        shallow_clone: bool = True) -> LocalPath:
     """
     Get a clone of the given repo
 
@@ -261,14 +281,15 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     return repository_loc
 
 
-def with_git(repo,
-             target_dir=None,
-             limit=None,
-             refspec="HEAD",
-             clone=True,
-             rev_list_args=None,
-             shallow_clone=True,
-             version_filter=lambda version: True):
+def with_git(
+        repo: str,
+        target_dir: Optional[str] = None,
+        limit: Optional[int] = None,
+        refspec: str = "HEAD",
+        clone=True,
+        rev_list_args: Optional[List[str]] = None,
+        shallow_clone: bool = True,
+        version_filter: StrPredicate = lambda version: True) -> ClassDecorator:
     """
     Decorate a project class with git-based version information.
 
@@ -303,11 +324,11 @@ def with_git(repo,
     if not rev_list_args:
         rev_list_args = []
 
-    def git_decorator(cls):
+    def git_decorator(cls: Any) -> Any:
         from benchbuild.utils.cmd import git
 
         @staticmethod
-        def versions_impl():
+        def versions_impl() -> Any:
             """Return a list of versions from the git hashes up to :limit:."""
             directory = cls.SRC_FILE if target_dir is None else target_dir
             repo_prefix = local.path(str(CFG["tmp_dir"]))
@@ -320,15 +341,13 @@ def with_git(repo,
             with local.cwd(repo_loc):
                 rev_list = git("rev-list", "--abbrev-commit", "--abbrev=10",
                                refspec, *rev_list_args).strip().split('\n')
-                latest = git("rev-parse", "--short=10",
-                             refspec).strip().split('\n')
 
             if limit:
                 return list(filter(version_filter, rev_list))[:limit]
 
             return list(filter(version_filter, rev_list))
 
-        def download_impl(self):
+        def download_impl(self: Any) -> None:
             """Download the selected version."""
             nonlocal target_dir, git
             directory = cls.SRC_FILE if target_dir is None else target_dir
@@ -345,7 +364,7 @@ def with_git(repo,
     return git_decorator
 
 
-def Svn(url, fname, to=None):
+def Svn(url: str, fname: str, to: Optional[str] = None) -> None:
     """
     Checkout the SVN repo.
 
@@ -369,7 +388,7 @@ def Svn(url, fname, to=None):
     Copy(src_dir, ".")
 
 
-def Rsync(url, tgt_name, tgt_root=None):
+def Rsync(url: str, tgt_name: str, tgt_root: Optional[str] = None) -> None:
     """
     RSync a folder.
 

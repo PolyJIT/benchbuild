@@ -1,3 +1,3 @@
 from .base import Environment
-from .container import (Buildah, instanciate_project_container,
-                        finalize_project_container, tag, by_project, by_tag)
+from .container import (Buildah, by_project, by_tag, finalize_project_container,
+                        instanciate_project_container, tag)

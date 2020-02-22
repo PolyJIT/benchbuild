@@ -4,6 +4,7 @@ Orchestrate experiment execution.
 from typing import Callable, List, Tuple, Type
 
 import attr
+
 from benchbuild.experiment import Experiment
 from benchbuild.project import Project
 from benchbuild.utils import actions, tasks
@@ -13,8 +14,8 @@ Experiments = Type[List[ExperimentCls]]
 ProjectCls = Type[Project]
 Projects = Type[List[ProjectCls]]
 ExperimentProject = Tuple[ExperimentCls, ProjectCls]
-ExpStrategy: Type = Type[Callable[[List[Experiment], List[Project]], List[
-    Tuple[Experiment, Project]]]]
+ExpStrategy: Type = Type[Callable[[List[Experiment], List[Project]],
+                                  List[Tuple[Experiment, Project]]]]
 
 
 @attr.s

@@ -10,6 +10,7 @@ LOG = logging.getLogger(__name__)
 
 
 def validate(func):
+
     def validate_run_func(run, session, *args, **kwargs):
         if run.status == 'failed':
             LOG.debug("Run failed. Execution of '%s' cancelled", str(func))
@@ -42,13 +43,12 @@ def create_run(cmd, project, exp, grp):
     from benchbuild.utils import schema as s
 
     session = s.Session()
-    run = s.Run(
-        command=str(cmd),
-        project_name=project.name,
-        project_group=project.group,
-        experiment_name=exp,
-        run_group=str(grp),
-        experiment_group=project.experiment.id)
+    run = s.Run(command=str(cmd),
+                project_name=project.name,
+                project_group=project.group,
+                experiment_name=exp,
+                run_group=str(grp),
+                experiment_group=project.experiment.id)
     session.add(run)
     session.commit()
 
@@ -179,12 +179,12 @@ def persist_time(run, session, timings):
     from benchbuild.utils import schema as s
 
     for timing in timings:
-        session.add(
-            s.Metric(name="time.user_s", value=timing[0], run_id=run.id))
+        session.add(s.Metric(name="time.user_s", value=timing[0],
+                             run_id=run.id))
         session.add(
             s.Metric(name="time.system_s", value=timing[1], run_id=run.id))
-        session.add(
-            s.Metric(name="time.real_s", value=timing[2], run_id=run.id))
+        session.add(s.Metric(name="time.real_s", value=timing[2],
+                             run_id=run.id))
 
 
 def persist_perf(run, session, svg_path):
@@ -233,5 +233,4 @@ def persist_config(run, session, cfg):
     from benchbuild.utils import schema as s
 
     for cfg_elem in cfg:
-        session.add(
-            s.Config(name=cfg_elem, value=cfg[cfg_elem], run_id=run.id))
+        session.add(s.Config(name=cfg_elem, value=cfg[cfg_elem], run_id=run.id))

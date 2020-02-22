@@ -33,17 +33,17 @@ def main(argv):
                 PROJECT.name = match.group('name')
     persist_project(PROJECT)
 
-    with local.env(
-            PATH="{{ path }}",
-            LD_LIBRARY_PATH="{{ ld_lib_path }}",
-            HOME="{{ home }}",
-            BB_CMD=str(real_command) + " ".join(real_command_args)):
+    with local.env(PATH="{{ path }}",
+                   LD_LIBRARY_PATH="{{ ld_lib_path }}",
+                   HOME="{{ home }}",
+                   BB_CMD=str(real_command) + " ".join(real_command_args)):
         if PROJECT.runtime_extension is None:
             exitcode, _, _ = real_command[real_command_args] & TEE
             return exitcode
 
-        run_info = PROJECT.runtime_extension(
-            real_command, real_command_args, project=PROJECT)
+        run_info = PROJECT.runtime_extension(real_command,
+                                             real_command_args,
+                                             project=PROJECT)
         return exit_code_from_run_infos(run_info)
 
 

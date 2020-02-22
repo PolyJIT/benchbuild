@@ -4,6 +4,7 @@ crafty experiment within gentoo chroot.
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils import download, wrapping, run
 from benchbuild.utils.cmd import cat
 
 
@@ -19,7 +20,7 @@ class Crafty(GentooGroup):
 
         book_file = "book.bin"
         book_bin = "http://www.craftychess.com/" + book_file
-        bb.download.Wget(book_bin, book_file)
+        download.Wget(book_bin, book_file)
 
     def run_tests(self):
         crafty_path = local.path("/usr/bin/crafty")

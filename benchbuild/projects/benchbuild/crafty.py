@@ -54,7 +54,7 @@ class Crafty(Project):
         test_source = local.path(self.source_of('inputs.tar.gz'))
 
         with local.cwd(unpack_dir):
-            crafty = wrapping.wrapping.wrap("./crafty", self)
+            crafty = wrapping.wrap("./crafty", self)
             test1 = run.watch((cat[test_source / "test1.sh"] | crafty))
             test2 = run.watch((cat[test_source / "test2.sh"] | crafty))
 

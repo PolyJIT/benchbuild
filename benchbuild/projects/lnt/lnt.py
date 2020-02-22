@@ -6,7 +6,7 @@ from plumbum import FG, local
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.source import Git
-from benchbuild.utils import compiler, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv
 
 LOG = logging.getLogger(__name__)
@@ -78,8 +78,9 @@ class LNTGroup(Project):
 
     def run_tests(self):
         test_suite_source = local.path(self.source_of('test-suite'))
-        binary = wrapping.wrapping.wrap_dynamic(
-            self, "lnt_runner", name_filters=LNTGroup.NAME_FILTERS)
+        binary = wrapping.wrap_dynamic(self,
+                                       "lnt_runner",
+                                       name_filters=LNTGroup.NAME_FILTERS)
 
         runtest = run.watch(self.lnt)
         runtest("runtest", "nt", "-v", "-j1", "--sandbox", self.sandbox_dir,
@@ -116,7 +117,7 @@ class SPEC2006(LNTGroup):
     SUBDIR = "External/SPEC"
 
     def compile(self):
-        if bb.download.CopyNoFail('speccpu2006'):
+        if download.CopyNoFail('speccpu2006'):
             super(SPEC2006, self).compile()
         else:
             print('======================================================')

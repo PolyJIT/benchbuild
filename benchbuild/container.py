@@ -416,7 +416,7 @@ class ContainerBootstrap(cli.Application):
         if not bootstrap.find_package("uchroot"):
             if not bootstrap.find_package("cmake"):
                 self.install_cmake_and_exit()
-            bootstrap.install_uchroot()
+            bootstrap.install_uchroot(None)
         print("...OK")
         config_file = str(CFG["config_file"])
         if not (config_file and os.path.exists(config_file)):

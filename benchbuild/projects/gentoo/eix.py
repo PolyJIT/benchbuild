@@ -4,6 +4,7 @@ eix experiment within gentoo chroot
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils import run, wrapping
 
 
 class Eix(GentooGroup):

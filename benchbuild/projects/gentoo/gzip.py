@@ -4,6 +4,7 @@ gzip experiment within gentoo chroot.
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils import download, run, wrapping
 from benchbuild.utils.cmd import tar
 
 
@@ -25,7 +26,7 @@ class GZip(GentooGroup):
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
-        bb.download.Wget(test_url, test_archive)
+        download.Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
     def run_tests(self):

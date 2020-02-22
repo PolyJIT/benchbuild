@@ -3,7 +3,7 @@ from plumbum import local
 from benchbuild.environments import container
 from benchbuild.project import Project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make
 
 
@@ -17,7 +17,7 @@ class SDCC(Project):
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + SRC_FILE
 
     def compile(self):
-        bb.download.Svn(self.src_uri, self.SRC_FILE)
+        download.Svn(self.src_uri, self.SRC_FILE)
 
         clang = compiler.cc(self)
         clang_cxx = compiler.cxx(self)

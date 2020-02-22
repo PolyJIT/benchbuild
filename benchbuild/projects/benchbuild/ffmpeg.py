@@ -4,7 +4,7 @@ from benchbuild.environments import container
 from benchbuild.project import Project
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
-from benchbuild.utils import compiler, run, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
@@ -40,7 +40,7 @@ class LibAV(Project):
         clang = compiler.cc(self)
 
         with local.cwd(unpack_dir):
-            bb.download.Rsync(self.fate_uri, self.fate_dir)
+            download.Rsync(self.fate_uri, self.fate_dir)
             configure = local["./configure"]
             configure = run.watch(configure)
             make_ = run.watch(make)

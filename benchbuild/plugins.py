@@ -34,6 +34,7 @@ def discover():
                                       report_plugins):
             try:
                 importlib.import_module(plugin)
+                LOG.info('Found report: %s', str(plugin))
             except ImportError as import_error:
-                LOG.error("Could not find '%s'", plugin)
-                LOG.error("ImportError: %s", import_error.msg)
+                LOG.error("Could not find '%s'", import_error.name)
+                LOG.debug("ImportError: %s", import_error.msg)

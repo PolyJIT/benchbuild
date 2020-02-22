@@ -9,13 +9,15 @@ def test_discovery(caplog):
     CFG['plugins']['projects'] = []
     CFG['plugins']['experiments'] = []
     CFG["plugins"]["reports"] = [
-        "benchbuild.non.existing", "benchbuild.reports.raw"
+        'benchbuild.non_existing', 'benchbuild.reports.raw'
     ]
     discover()
 
     assert caplog.record_tuples == [
         ('benchbuild.plugins', logging.ERROR,
-         "Could not find 'benchbuild.non.existing'"),
+         "Could not find 'benchbuild.non_existing'"),
         ('benchbuild.plugins', logging.DEBUG,
+         "ImportError: No module named 'benchbuild.non_existing'"),
+        ('benchbuild.plugins', logging.INFO,
          "Found report: benchbuild.reports.raw"),
     ]

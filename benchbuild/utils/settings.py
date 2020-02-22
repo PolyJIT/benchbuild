@@ -13,6 +13,7 @@ import logging
 import os
 import re
 import sys
+from typing import Any, Dict, List, Optional, Union
 import uuid
 import warnings
 
@@ -20,7 +21,7 @@ import attr
 import six
 import yaml
 from pkg_resources import DistributionNotFound, get_distribution
-from plumbum import local
+from plumbum import local, LocalPath
 
 import benchbuild.utils.user_interface as ui
 
@@ -60,7 +61,7 @@ def available_cpu_count() -> int:
     # http://code.google.com/p/psutil/
     try:
         import psutil
-        return psutil.cpu_count()  # psutil.NUM_CPUS on old versions
+        return int(psutil.cpu_count())  # psutil.NUM_CPUS on old versions
     except (ImportError, AttributeError):
         LOG.debug("Could not get the number of allowed CPUs")
 
@@ -127,7 +128,7 @@ class ConfigDumper(yaml.SafeDumper):
     pass
 
 
-def to_yaml(value) -> str:
+def to_yaml(value) -> Optional[str]:
     """Convert a given value to a YAML string."""
     stream = yaml.io.StringIO()
     dumper = ConfigDumper(stream, default_flow_style=True, width=sys.maxsize)
@@ -135,7 +136,7 @@ def to_yaml(value) -> str:
     try:
         dumper.open()
         dumper.represent(value)
-        val = stream.getvalue().strip()
+        val = str(stream.getvalue()).strip()
         dumper.close()
     finally:
         dumper.dispose()
@@ -143,7 +144,7 @@ def to_yaml(value) -> str:
     return val
 
 
-def to_env_var(env_var: str, value) -> str:
+def to_env_var(env_var: str, value: Any) -> str:
     """
     Create an environment variable from a name and a value.
 
@@ -156,15 +157,14 @@ def to_env_var(env_var: str, value) -> str:
         value (Any): A value we convert from.
     """
     val = to_yaml(value)
-    ret_val = "%s=%s" % (env_var, escape_yaml(val))
+    ret_val = "%s=%s" % (env_var, escape_yaml(str(val)))
     return ret_val
 
 
+InnerNode = Dict[str, Any]
+
+
 class Configuration:
-    """Forward declaration."""
-
-
-class Configuration():
     """
     Dictionary-like data structure to contain all configuration variables.
 
@@ -179,22 +179,26 @@ class Configuration():
 
     The configuration can be stored/loaded as YAML.
     """
-
-    def __init__(self, parent_key: str, node=None, parent=None, init=True):
+    def __init__(self,
+                 parent_key: str,
+                 node: Optional[InnerNode] = None,
+                 parent: Optional['Configuration'] = None,
+                 init: bool = True):
         self.parent = parent
         self.parent_key = parent_key
         self.node = node if node is not None else {}
         if init:
             self.init_from_env()
 
-    def filter_exports(self):
+    def filter_exports(self) -> None:
         if self.has_default():
             do_export = True
             if "export" in self.node:
                 do_export = self.node["export"]
 
             if not do_export:
-                self.parent.node.pop(self.parent_key)
+                if self.parent:
+                    self.parent.node.pop(self.parent_key)
         else:
             selfcopy = copy.deepcopy(self)
             for k in self.node:
@@ -202,25 +206,23 @@ class Configuration():
                     selfcopy[k].filter_exports()
             self.__dict__ = selfcopy.__dict__
 
-    def store(self, config_file):
+    def store(self, config_file: LocalPath) -> None:
         """ Store the configuration dictionary to a file."""
 
         selfcopy = copy.deepcopy(self)
         selfcopy.filter_exports()
 
         with open(config_file, 'w') as outf:
-            yaml.dump(
-                selfcopy.node,
-                outf,
-                width=80,
-                indent=4,
-                default_flow_style=False,
-                Dumper=ConfigDumper)
+            yaml.dump(selfcopy.node,
+                      outf,
+                      width=80,
+                      indent=4,
+                      default_flow_style=False,
+                      Dumper=ConfigDumper)
 
-    def load(self, _from):
+    def load(self, _from: LocalPath) -> None:
         """Load the configuration dictionary from file."""
-
-        def load_rec(inode, config):
+        def load_rec(inode: Dict[str, Any], config: Configuration) -> None:
             """Recursive part of loading."""
             for k in config:
                 if isinstance(config[k], dict) and \
@@ -232,8 +234,8 @@ class Configuration():
                 else:
                     inode[k] = config[k]
 
-        with open(_from, 'r') as infile:
-            obj = yaml.load(infile, Loader=ConfigLoader)
+        with open(str(_from), 'r') as infile:
+            obj: Configuration = yaml.load(infile, Loader=ConfigLoader)
             upgrade(obj)
             load_rec(self.node, obj)
             self['config_file'] = os.path.abspath(_from)
@@ -250,7 +252,7 @@ class Configuration():
         """Check, if the node is a 'leaf' node."""
         return self.has_value() or self.has_default()
 
-    def init_from_env(self):
+    def init_from_env(self) -> None:
         """
         Initialize this node from environment.
 
@@ -268,8 +270,8 @@ class Configuration():
                 env_val = self.node['default']
             env_val = os.getenv(env_var, to_yaml(env_val))
             try:
-                self.node['value'] = yaml.load(
-                    str(env_val), Loader=ConfigLoader)
+                self.node['value'] = yaml.load(str(env_val),
+                                               Loader=ConfigLoader)
             except ValueError:
                 self.node['value'] = env_val
         else:
@@ -278,10 +280,9 @@ class Configuration():
                     self[k].init_from_env()
 
     @property
-    def value(self):
+    def value(self) -> Any:
         """Return the node value, if we're a leaf node."""
-
-        def validate(node_value):
+        def validate(node_value: Any) -> Any:
             if hasattr(node_value, 'validate'):
                 node_value.validate()
             return node_value
@@ -290,7 +291,7 @@ class Configuration():
             return validate(self.node['value'])
         return self
 
-    def __getitem__(self, key) -> Configuration:
+    def __getitem__(self, key: str) -> 'Configuration':
         if key not in self.node:
             warnings.warn(
                 "Access to non-existing config element: {0}".format(key),
@@ -299,7 +300,7 @@ class Configuration():
             return Configuration(key, init=False)
         return Configuration(key, parent=self, node=self.node[key], init=False)
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key: str, val: Any) -> None:
         if key in self.node:
             self.node[key]['value'] = val
         else:
@@ -308,7 +309,7 @@ class Configuration():
             else:
                 self.node[key] = {'value': val}
 
-    def __iadd__(self, rhs) -> Configuration:
+    def __iadd__(self, rhs: Any) -> Any:
         """Append a value to a list value."""
         if not self.has_value():
             raise TypeError("Inner configuration node does not support +=.")
@@ -333,7 +334,7 @@ class Configuration():
             return True
         return bool(self.value)
 
-    def __contains__(self, key):
+    def __contains__(self, key: str) -> bool:
         return key in self.node
 
     def __str__(self) -> str:
@@ -360,10 +361,10 @@ class Configuration():
     def __to_env_var__(self) -> str:
         parent_key = self.parent_key
         if self.parent:
-            return (self.parent.__to_env_var__() + "_" + parent_key).upper()
+            return str(self.parent.__to_env_var__() + "_" + parent_key).upper()
         return parent_key.upper()
 
-    def to_env_dict(self):
+    def to_env_dict(self) -> Dict[str, Any]:
         """Convert configuration object to a flat dictionary."""
         entries = {}
         if self.has_value():
@@ -377,10 +378,11 @@ class Configuration():
         return entries
 
 
-def convert_components(value):
+def convert_components(value: Union[str, List[str]]) -> List[str]:
     is_str = isinstance(value, six.string_types)
     new_value = value
     if is_str:
+        new_value = str(new_value)
         if os.path.sep in new_value:
             new_value = new_value.split(os.path.sep)
         else:
@@ -394,16 +396,15 @@ class ConfigPath:
     """Wrapper around paths represented as list of strings."""
     components = attr.ib(converter=convert_components)
 
-    def validate(self):
+    def validate(self) -> None:
         """Make sure this configuration path exists."""
         path = local.path(ConfigPath.path_to_str(self.components))
 
         if not path.exists():
             print("The path '%s' is required by your configuration." % path)
-            yes = ui.ask(
-                "Should I create '%s' for you?" % path,
-                default_answer=True,
-                default_answer_str="yes")
+            yes = ui.ask("Should I create '%s' for you?" % path,
+                         default_answer=True,
+                         default_answer_str="yes")
             if yes:
                 path.mkdir()
             else:
@@ -412,7 +413,7 @@ class ConfigPath:
             LOG.error("The path '%s' needs to exist.", path)
 
     @staticmethod
-    def path_to_str(components) -> str:
+    def path_to_str(components: List[str]) -> str:
         if components:
             return os.path.sep + os.path.sep.join(components)
         return os.path.sep
@@ -436,7 +437,9 @@ def path_constructor(loader, node):
     return ConfigPath(value)
 
 
-def find_config(test_file=None, defaults=None, root=os.curdir):
+def find_config(test_file: Optional[str] = None,
+                defaults: Optional[List[str]] = None,
+                root: str = os.curdir) -> Optional[LocalPath]:
     """
     Find the path to the default config file.
 
@@ -446,6 +449,7 @@ def find_config(test_file=None, defaults=None, root=os.curdir):
     If we can't find anything, we return None.
 
     Args:
+        test_file: 
         default: The name of the config file we look for.
         root: The directory to start looking for.
 
@@ -455,7 +459,7 @@ def find_config(test_file=None, defaults=None, root=os.curdir):
     if defaults is None:
         defaults = [".benchbuild.yml", ".benchbuild.yaml"]
 
-    def walk_rec(cur_path, root):
+    def walk_rec(cur_path: LocalPath, root: str) -> LocalPath:
         cur_path = local.path(root) / test_file
         if cur_path.exists():
             return cur_path
@@ -471,8 +475,12 @@ def find_config(test_file=None, defaults=None, root=os.curdir):
         if ret is not None:
             return ret
 
+    return None
 
-def setup_config(cfg, config_filenames=None, env_var_name=None):
+
+def setup_config(cfg: Configuration,
+                 config_filenames: Optional[List[str]] = None,
+                 env_var_name: Optional[str] = None) -> None:
     """
     This will initialize the given configuration object.
 
@@ -502,8 +510,8 @@ def setup_config(cfg, config_filenames=None, env_var_name=None):
     cfg.init_from_env()
 
 
-def update_env(cfg):
-    env = cfg["env"].value
+def update_env(cfg: Configuration) -> None:
+    env: Dict[str, str] = dict(cfg["env"].value)
 
     path = env.get("PATH", "")
     path = os.path.pathsep.join(path)
@@ -530,7 +538,7 @@ def update_env(cfg):
         local.env.update(HOME=os.environ["HOME"])
 
 
-def upgrade(cfg):
+def upgrade(cfg: Configuration) -> None:
     """Provide forward migration for configuration files."""
     db_node = cfg["db"]
     old_db_elems = ["host", "name", "port", "pass", "user", "dialect"]
@@ -570,12 +578,13 @@ def uuid_add_implicit_resolver(loader=ConfigLoader, dumper=ConfigDumper):
     yaml.add_implicit_resolver('!uuid', pattern, Loader=loader, Dumper=dumper)
 
 
-def __init_module__():
+def __init_module__() -> None:
     yaml.add_representer(uuid.UUID, uuid_representer, Dumper=ConfigDumper)
     yaml.add_representer(ConfigPath, path_representer, Dumper=ConfigDumper)
     yaml.add_constructor('!uuid', uuid_constructor, Loader=ConfigLoader)
-    yaml.add_constructor(
-        '!create-if-needed', path_constructor, Loader=ConfigLoader)
+    yaml.add_constructor('!create-if-needed',
+                         path_constructor,
+                         Loader=ConfigLoader)
     uuid_add_implicit_resolver()
 
 

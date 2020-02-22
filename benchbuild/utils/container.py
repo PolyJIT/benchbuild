@@ -1,8 +1,8 @@
 """Container utilites."""
 import logging
 import os
-
 from datetime import datetime
+
 from plumbum import TF, ProcessExecutionError, local
 
 from benchbuild.settings import CFG
@@ -77,8 +77,8 @@ class Gentoo(Container):
             Latest src_uri from gentoo's distfiles mirror.
         """
         try:
-            src_uri = (curl[Gentoo._LATEST_TXT] | tail["-n", "+3"]
-                       | cut["-f1", "-d "])().strip()
+            src_uri = (curl[Gentoo._LATEST_TXT] | tail["-n", "+3"] |
+                       cut["-f1", "-d "])().strip()
         except ProcessExecutionError as proc_ex:
             src_uri = "NOT-FOUND"
             LOG.error("Could not determine latest stage3 src uri: %s",
@@ -97,8 +97,7 @@ class Gentoo(Container):
                 .strftime("%Y-%m-%d")
         except ProcessExecutionError as proc_ex:
             _version = "unknown"
-            LOG.error("Could not determine timestamp: %s",
-                      str(proc_ex))
+            LOG.error("Could not determine timestamp: %s", str(proc_ex))
         return _version
 
     @property
@@ -165,8 +164,8 @@ def unpack(container, path):
 
         # Check, if we need erlent support for this archive.
         has_erlent = bash[
-            "-c", "tar --list -f './{0}' | grep --silent '.erlent'".format(
-                name)]
+            "-c",
+            "tar --list -f './{0}' | grep --silent '.erlent'".format(name)]
         has_erlent = (has_erlent & TF)
 
         untar = local["/bin/tar"]["xf", "./" + name]

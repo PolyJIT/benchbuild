@@ -1,6 +1,9 @@
-from benchbuild.project import Project
+from plumbum import local
+
 from benchbuild.environments import container
+from benchbuild.project import Project
 from benchbuild.source import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import cp, make, tar
 
 
@@ -12,9 +15,8 @@ class SevenZip(Project):
     GROUP: str = 'benchbuild'
     SOURCE: str = [
         HTTP(remote={
-            '16.02':
-            'http://downloads.sourceforge.net/'
-            'project/p7zip/p7zip/16.02/p7zip_16.02_src_all.tar.bz2'
+            '16.02': 'http://downloads.sourceforge.net/'
+                     'project/p7zip/p7zip/16.02/p7zip_16.02_src_all.tar.bz2'
         },
              local='p7zip.tar.bz2')
     ]

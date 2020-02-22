@@ -2,10 +2,12 @@
 The task module distributes benchbuild's excution plans over processes.
 """
 from typing import List, Type
+
 import benchbuild.utils.actions as actns
 
 ExperimentT = Type['Experiment']
 ProjectT = Type['Project']
+
 
 def execute_plan(plan):
     """"Execute the plan.

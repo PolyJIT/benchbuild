@@ -33,7 +33,7 @@ class RawReport(Report):
         for r in qr:
             yield r
 
-    def generate(self):
+    def generate(self) -> None:
         results_f = os.path.abspath(self.out_path)
         with open(results_f, 'w') as csv_f:
             fieldnames = [

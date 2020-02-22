@@ -102,12 +102,11 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         """Dynamic projects don't support a run() test."""
         del args, kwargs  # Unused
 
-        LOG.warning(
-            "Runtime testing not supported on auto-generated projects.")
+        LOG.warning("Runtime testing not supported on auto-generated projects.")
         return
 
     newclass = type(
-        name, (BaseClass, ), {
+        name, (BaseClass,), {
             "NAME": NAME,
             "DOMAIN": DOMAIN,
             "SRC_FILE": "none",

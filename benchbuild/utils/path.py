@@ -120,15 +120,15 @@ def mkdir_interactive(dirpath):
     if os.path.exists(dirpath):
         return
 
-    response = ui.ask(
-        "The directory {dirname} does not exist yet. "
-        "Should I create it?".format(dirname=dirpath),
-        default_answer=True,
-        default_answer_str="yes")
+    response = ui.ask("The directory {dirname} does not exist yet. "
+                      "Should I create it?".format(dirname=dirpath),
+                      default_answer=True,
+                      default_answer_str="yes")
 
     if response:
         mkdir("-p", dirpath)
         print("Created directory {0}.".format(dirpath))
+
 
 @contextmanager
 def flocked(filename: str, lock_type: int = fcntl.LOCK_EX):

@@ -3,10 +3,10 @@ import logging
 
 from plumbum import FG, local
 
-from benchbuild.source import Git
 from benchbuild.project import Project
-
 from benchbuild.settings import CFG
+from benchbuild.source import Git
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv
 
 LOG = logging.getLogger(__name__)

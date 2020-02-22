@@ -1,9 +1,11 @@
 import logging
 
-from benchbuild.project import Project
+from plumbum import local
+
 from benchbuild.environments import container
+from benchbuild.project import Project
 from benchbuild.source import HTTP
-from benchbuild.utils import path
+from benchbuild.utils import compiler, path, run, wrapping
 from benchbuild.utils.cmd import patch
 
 LOG = logging.getLogger(__name__)

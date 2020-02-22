@@ -13,15 +13,15 @@ import logging
 import os
 import re
 import sys
-from typing import Any, Dict, List, Optional, Union
 import uuid
 import warnings
+from typing import Any, Dict, List, Optional, Union
 
 import attr
 import six
 import yaml
 from pkg_resources import DistributionNotFound, get_distribution
-from plumbum import local, LocalPath
+from plumbum import LocalPath, local
 
 import benchbuild.utils.user_interface as ui
 
@@ -179,6 +179,7 @@ class Configuration:
 
     The configuration can be stored/loaded as YAML.
     """
+
     def __init__(self,
                  parent_key: str,
                  node: Optional[InnerNode] = None,
@@ -222,6 +223,7 @@ class Configuration:
 
     def load(self, _from: LocalPath) -> None:
         """Load the configuration dictionary from file."""
+
         def load_rec(inode: Dict[str, Any], config: Configuration) -> None:
             """Recursive part of loading."""
             for k in config:
@@ -282,6 +284,7 @@ class Configuration:
     @property
     def value(self) -> Any:
         """Return the node value, if we're a leaf node."""
+
         def validate(node_value: Any) -> Any:
             if hasattr(node_value, 'validate'):
                 node_value.validate()
@@ -449,7 +452,7 @@ def find_config(test_file: Optional[str] = None,
     If we can't find anything, we return None.
 
     Args:
-        test_file: 
+        test_file:
         default: The name of the config file we look for.
         root: The directory to start looking for.
 

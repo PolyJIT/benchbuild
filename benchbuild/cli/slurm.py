@@ -12,15 +12,15 @@ import sys
 from plumbum import cli
 
 from benchbuild import experiment, plugins, project
-
+from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
 from benchbuild.utils import slurm
-from benchbuild.cli.main import BenchBuild
 
 
 @BenchBuild.subcommand("slurm")
 class Slurm(cli.Application):
     """ Generate a SLURM script. """
+
     def __init__(self, executable):
         super(Slurm, self).__init__(executable)
         self._experiment = None

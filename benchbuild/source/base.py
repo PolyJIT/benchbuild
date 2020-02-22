@@ -3,16 +3,17 @@ Provide a base interface for downloadable sources.
 """
 import abc
 import itertools
-
 from typing import List, Mapping, Union
 
 import attr
 
-from .variants import Variant, VariantContext, context
 from benchbuild.settings import CFG
+
+from .variants import Variant, VariantContext, context
 
 
 class ISource(abc.ABC):
+
     @abc.abstractproperty
     def default(self) -> Variant:
         """
@@ -89,6 +90,7 @@ Sources = List['BaseSource']
 
 @attr.s
 class NoSource(BaseSource):
+
     @property
     def default(self):
         return Variant(owner=self, version='None')

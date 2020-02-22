@@ -10,18 +10,8 @@ import os
 
 from benchbuild.settings import CFG
 
-from . import autoportage
-from . import gentoo
-from . import bzip2
-from . import gzip
-from . import sevenz
-from . import xz
-from . import postgresql
-from . import lammps
-from . import x264
-from . import crafty
-from . import info
-from . import eix
+from . import (autoportage, bzip2, crafty, eix, gentoo, gzip, info, lammps,
+               postgresql, sevenz, x264, xz)
 
 LOG = logging.getLogger(__name__)
 

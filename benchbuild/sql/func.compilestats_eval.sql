@@ -105,7 +105,7 @@ BEGIN
   WHERE
     experiment_group = ANY (exp_ids) AND
     compilestats.component = ANY(components) AND
-    config.name = 'name' 
+    config.name = 'name'
   group by
     project.name, config.value, compilestats.name
   order by

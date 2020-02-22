@@ -3,8 +3,6 @@ bzip2 experiment within gentoo chroot.
 """
 from plumbum import local
 
-
-
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.cmd import tar
 

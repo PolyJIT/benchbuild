@@ -18,11 +18,10 @@ def main(argv):
     real_command = local["{{ runf }}"]
     real_command_args = argv[1:]
 
-    with local.env(
-            PATH="{{ path }}",
-            LD_LIBRARY_PATH="{{ ld_library_path }}",
-            HOME="{{ home }}",
-            BB_CMD=str(real_command) + " ".join(real_command_args)):
+    with local.env(PATH="{{ path }}",
+                   LD_LIBRARY_PATH="{{ ld_library_path }}",
+                   HOME="{{ home }}",
+                   BB_CMD=str(real_command) + " ".join(real_command_args)):
         if PROJECT.runtime_extension is None:
             exitcode, _, _ = real_command[real_command_args] & TEE
             return exitcode

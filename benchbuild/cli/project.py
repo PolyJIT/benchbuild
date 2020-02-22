@@ -1,14 +1,15 @@
 """Subcommand for project handling."""
 from plumbum import cli
 
+from benchbuild import source
 from benchbuild.cli.main import BenchBuild
 from benchbuild.project import populate
-from benchbuild import source
 
 
 @BenchBuild.subcommand("project")
 class BBProject(cli.Application):
     """Manage BenchBuild's known projects."""
+
     def main(self):
         if not self.nested_command:
             self.help()
@@ -41,8 +42,7 @@ def print_projects(projects=None):
     """
     grouped_by = {}
     if not projects:
-        print(
-            "Your selection didn't include any projects for this experiment.")
+        print("Your selection didn't include any projects for this experiment.")
         return
 
     for name in projects:

@@ -1,8 +1,8 @@
 import logging
 
 from benchbuild.extensions import base
-from benchbuild.utils.cmd import time
 from benchbuild.utils import db
+from benchbuild.utils.cmd import time
 
 LOG = logging.getLogger(__name__)
 

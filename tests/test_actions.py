@@ -35,16 +35,19 @@ class EmptyExperiment(Experiment):
 
 
 class FailAlways(a.Step):
+
     def __call__(self):
         raise ProcessExecutionError([], 1, "", "")
 
 
 class PassAlways(a.Step):
+
     def __call__(self):
         return a.StepResult.OK
 
 
 class ActionsTestCase(unittest.TestCase):
+
     def test_for_all_pass(self):
         ep = EmptyProject(EmptyExperiment())
         actn = a.RequireAll(actions=[PassAlways(ep)])

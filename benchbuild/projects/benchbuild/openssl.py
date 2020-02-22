@@ -1,8 +1,9 @@
 from plumbum import local
 
-from benchbuild.project import Project
 from benchbuild.environments import container
+from benchbuild.project import Project
 from benchbuild.source import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
@@ -14,19 +15,18 @@ class LibreSSL(Project):
     GROUP: str = 'benchbuild'
     BINARIES = [
         "aeadtest", "aes_wrap", "asn1test", "base64test", "bftest", "bntest",
-        "bytestringtest", "casttest", "chachatest", "cipherstest",
-        "cts128test", "destest", "dhtest", "dsatest", "ecdhtest", "ecdsatest",
-        "ectest", "enginetest", "evptest", "exptest", "gcm128test",
-        "gost2814789t", "hmactest", "ideatest", "igetest", "md4test",
-        "md5test", "mdc2test", "mont", "pbkdf2", "pkcs7test", "poly1305test",
-        "pq_test", "randtest", "rc2test", "rc4test", "rmdtest", "sha1test",
-        "sha256test", "sha512test", "shatest", "ssltest", "timingsafe",
-        "utf8test"
+        "bytestringtest", "casttest", "chachatest", "cipherstest", "cts128test",
+        "destest", "dhtest", "dsatest", "ecdhtest", "ecdsatest", "ectest",
+        "enginetest", "evptest", "exptest", "gcm128test", "gost2814789t",
+        "hmactest", "ideatest", "igetest", "md4test", "md5test", "mdc2test",
+        "mont", "pbkdf2", "pkcs7test", "poly1305test", "pq_test", "randtest",
+        "rc2test", "rc4test", "rmdtest", "sha1test", "sha256test", "sha512test",
+        "shatest", "ssltest", "timingsafe", "utf8test"
     ]
     SOURCE = [
         HTTP(remote={
             '2.1.6.':
-            'http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz'
+                'http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz'
         },
              local='libressl.tar.gz')
     ]

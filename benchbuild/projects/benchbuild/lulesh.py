@@ -1,9 +1,9 @@
 from plumbum import local
 
-from benchbuild.project import Project
 from benchbuild.environments import container
-
+from benchbuild.project import Project
 from benchbuild.source import Git
+from benchbuild.utils import compiler, run, wrapping
 
 
 class Lulesh(Project):

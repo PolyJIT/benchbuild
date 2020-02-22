@@ -66,6 +66,7 @@ def to_step_result(func):
     Args:
         func: The function to wrap.
     """
+
     @ft.wraps(func)
     def wrapper(*args, **kwargs):
         """Wrapper stub."""
@@ -82,6 +83,7 @@ def to_step_result(func):
 
 def prepend_status(func):
     """Prepends the output of `func` with the status."""
+
     @ft.wraps(func)
     def wrapper(self, *args, **kwargs):
         """Wrapper stub."""
@@ -95,6 +97,7 @@ def prepend_status(func):
 
 def notify_step_begin_end(func):
     """Print the beginning and the end of a `func`."""
+
     @ft.wraps(func)
     def wrapper(self, *args, **kwargs):
         """Wrapper stub."""
@@ -116,8 +119,10 @@ def notify_step_begin_end(func):
 
 def log_before_after(name: str, desc: str):
     """Log customized stirng before & after running func."""
+
     def func_decorator(f):
         """Wrapper stub."""
+
         @ft.wraps(f)
         def wrapper(*args, **kwargs):
             """Wrapper stub."""
@@ -135,6 +140,7 @@ def log_before_after(name: str, desc: str):
 
 class StepClass(abc.ABCMeta):
     """Decorate `steps` with logging and result conversion."""
+
     def __new__(mcs, name, bases, namespace, **_):
         result = abc.ABCMeta.__new__(mcs, name, bases, dict(namespace))
 
@@ -191,8 +197,8 @@ class Step(metaclass=StepClass):
         return StepResult.OK
 
     def __str__(self, indent=0):
-        return textwrap.indent(
-            f'* {self.obj.name}: Execute configured action.', indent * " ")
+        return textwrap.indent(f'* {self.obj.name}: Execute configured action.',
+                               indent * " ")
 
     def onerror(self):
         Clean(self.obj)()
@@ -312,8 +318,7 @@ class Echo(Step):
     message = attr.ib(default="")
 
     def __str__(self, indent=0):
-        return textwrap.indent("* echo: {0}".format(self.message),
-                               indent * " ")
+        return textwrap.indent("* echo: {0}".format(self.message), indent * " ")
 
     @notify_step_begin_end
     def __call__(self):
@@ -526,8 +531,8 @@ class Containerize(RequireAll):
                                    indent * " ")
 
         if self.requires_redirect():
-            return textwrap.indent(
-                "* Continue inside container:\n" + sub_actns, indent * " ")
+            return textwrap.indent("* Continue inside container:\n" + sub_actns,
+                                   indent * " ")
 
         return textwrap.indent("* Running without container:\n" + sub_actns,
                                indent * " ")
@@ -578,5 +583,6 @@ class ProjectEnvironment(Step):
         version_str = source.variants.to_str(tuple(variant.values()))
 
         return textwrap.indent(
-            "* Project environment for: {} @ {}".format(
-                project.name, version_str), indent * " ")
+            "* Project environment for: {} @ {}".format(project.name,
+                                                        version_str),
+            indent * " ")

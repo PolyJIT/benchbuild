@@ -14,16 +14,16 @@ Any subclass of
 will automatically register itself and is available on the CLI for all
 subcommands.
 """
-import logging
 import importlib
 import itertools
+import logging
 
 from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
 
 
-def discover():
+def discover() -> None:
     """Import all plugins listed in our configuration."""
     if CFG["plugins"]["autoload"]:
         experiment_plugins = CFG["plugins"]["experiments"].value
@@ -37,4 +37,4 @@ def discover():
                 LOG.info('Found report: %s', str(plugin))
             except ImportError as import_error:
                 LOG.error("Could not find '%s'", import_error.name)
-                LOG.debug("ImportError: %s", import_error.msg)
+                LOG.debug("ImportError: %s", import_error)

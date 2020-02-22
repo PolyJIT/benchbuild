@@ -3,7 +3,8 @@ from plumbum import local
 from benchbuild.environments import container
 from benchbuild.project import Project
 from benchbuild.source import HTTP
-from benchbuild.utils.cmd import cat, make, unzip, tar
+from benchbuild.utils import compiler, run, wrapping
+from benchbuild.utils.cmd import cat, make, tar, unzip
 
 
 class Crocopat(Project):

@@ -1,9 +1,11 @@
 import csv
 import os
-import sqlalchemy as sa
+
 import pandas as pd
-from benchbuild.reports import Report
+import sqlalchemy as sa
+
 from benchbuild.experiment import ExperimentRegistry
+from benchbuild.reports import Report
 
 
 class StatusReport(Report):
@@ -23,8 +25,7 @@ class StatusReport(Report):
     def report(self):
         qry = StatusReport.\
             QUERY_STATUS.unique_params(exp_ids=self.experiment_ids)
-        yield ("status",
-               ('project', 'group', 'status', 'runs'),
+        yield ("status", ('project', 'group', 'status', 'runs'),
                self.session.execute(qry).fetchall())
 
     def generate(self):
@@ -69,15 +70,14 @@ class FullDump(Report):
         run = tables['run']
         joined = run
         for table in required_tables:
-            joined = joined.outerjoin(
-                table, run.columns.id == table.c['run_id'])
+            joined = joined.outerjoin(table,
+                                      run.columns.id == table.c['run_id'])
         joined = joined.select(use_labels=True).where(
-            run.columns.experiment_group.in_(
-                self.experiment_ids)
-        )
+            run.columns.experiment_group.in_(self.experiment_ids))
 
-        return pd.read_sql_query(
-            joined, self.session.connection(), chunksize=100)
+        return pd.read_sql_query(joined,
+                                 self.session.connection(),
+                                 chunksize=100)
 
     def generate(self):
         """

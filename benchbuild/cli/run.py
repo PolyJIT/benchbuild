@@ -10,7 +10,7 @@ import time
 
 from plumbum import cli
 
-from benchbuild import experiment, plugins, project, engine
+from benchbuild import engine, experiment, plugins, project
 from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
 from benchbuild.utils import actions, progress

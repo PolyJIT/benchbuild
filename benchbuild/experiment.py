@@ -75,6 +75,7 @@ class Experiment(metaclass=ExperimentRegistry):
             instance of experiment. Equivalent to the `experiment_group`
             in the database scheme.
     """
+
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
         del args, kwargs  # Temporarily unused
@@ -216,6 +217,7 @@ class Experiment(metaclass=ExperimentRegistry):
 
 class Configuration:
     """Build a set of experiment actions out of a list of configurations."""
+
     def __init__(self, project=None, config=None):
         _project = copy.deepcopy(project)
         self.config = {}

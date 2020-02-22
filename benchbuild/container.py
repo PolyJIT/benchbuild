@@ -62,9 +62,9 @@ def setup_container(builddir, _container):
                           os.path.abspath("."), "--"]
 
         # Check, if we need erlent support for this archive.
-        has_erlent = bash[
-            "-c", "tar --list -f './{0}' | grep --silent '.erlent'".format(
-                container_in)]
+        has_erlent = bash["-c",
+                          "tar --list -f './{0}' | grep --silent '.erlent'".
+                          format(container_in)]
         has_erlent = (has_erlent & TF)
 
         # Unpack input container to: container-in
@@ -281,21 +281,20 @@ class Container(cli.Application):
         """Find and writes the output path of a chroot container."""
         p = local.path(_container)
         if p.exists():
-            if not ui.ask("Path '{0}' already exists."
-                          " Overwrite?".format(p)):
+            if not ui.ask("Path '{0}' already exists." " Overwrite?".format(p)):
                 sys.exit(0)
         CFG["container"]["output"] = str(p)
 
-    @cli.switch(
-        ["-s", "--shell"],
-        str,
-        help="The shell command we invoke inside the container.")
+    @cli.switch(["-s", "--shell"],
+                str,
+                help="The shell command we invoke inside the container.")
     def shell(self, custom_shell):
         """The command to run inside the container."""
         CFG["container"]["shell"] = custom_shell
 
-    @cli.switch(
-        ["-t", "-tmp-dir"], cli.ExistingDirectory, help="Temporary directory")
+    @cli.switch(["-t", "-tmp-dir"],
+                cli.ExistingDirectory,
+                help="Temporary directory")
     def builddir(self, tmpdir):
         """Set the current builddir of the container."""
         CFG["build_dir"] = tmpdir
@@ -361,11 +360,10 @@ class ContainerCreate(cli.Application):
 
     _strategy = BashStrategy()
 
-    @cli.switch(
-        ["-S", "--strategy"],
-        cli.Set("bash", "polyjit", case_sensitive=False),
-        help="Defines the strategy used to create a new container.",
-        mandatory=False)
+    @cli.switch(["-S", "--strategy"],
+                cli.Set("bash", "polyjit", case_sensitive=False),
+                help="Defines the strategy used to create a new container.",
+                mandatory=False)
     def strategy(self, strategy):
         """Select strategy based on key.
 
@@ -395,12 +393,11 @@ class ContainerCreate(cli.Application):
             in_container = setup_container(builddir, in_container)
 
         self._strategy.run(
-            MockObj(
-                builddir=builddir,
-                in_container=in_container,
-                out_container=out_container,
-                mounts=mounts,
-                shell=shell))
+            MockObj(builddir=builddir,
+                    in_container=in_container,
+                    out_container=out_container,
+                    mounts=mounts,
+                    shell=shell))
         clean_directories(builddir, in_is_file, True)
 
 
@@ -426,9 +423,8 @@ class ContainerBootstrap(cli.Application):
             config_file = ".benchbuild.json"
         CFG.store(config_file)
         print("Storing config in {0}".format(os.path.abspath(config_file)))
-        print(
-            "Future container commands from this directory will automatically"
-            " source the config file.")
+        print("Future container commands from this directory will automatically"
+              " source the config file.")
 
 
 @Container.subcommand("list")

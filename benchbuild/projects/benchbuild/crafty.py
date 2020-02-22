@@ -1,6 +1,9 @@
+from plumbum import local
+
 from benchbuild.environments import container
 from benchbuild.project import Project
 from benchbuild.source import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
 
 
@@ -13,7 +16,7 @@ class Crafty(Project):
     SOURCE = [
         HTTP(remote={
             '25.2':
-            'http://www.craftychess.com/downloads/source/crafty-25.2.zip'
+                'http://www.craftychess.com/downloads/source/crafty-25.2.zip'
         },
              local='crafty.zip'),
         HTTP(remote={
@@ -22,7 +25,7 @@ class Crafty(Project):
              local='book.bin'),
         HTTP(remote={
             '2016-11-crafty.tar.gz':
-            'http://lairosiel.de/dist/2016-11-crafty.tar.gz'
+                'http://lairosiel.de/dist/2016-11-crafty.tar.gz'
         },
              local='inputs.tar.gz')
     ]

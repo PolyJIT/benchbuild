@@ -1,9 +1,9 @@
 from plumbum import local
 
-from benchbuild.project import Project
-
 from benchbuild.environments import container
+from benchbuild.project import Project
 from benchbuild.source import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
@@ -16,7 +16,7 @@ class Ccrypt(Project):
     SOURCE = [
         HTTP(remote={
             '1.11':
-            "http://ccrypt.sourceforge.net/download/1.11/ccrypt-1.11.tar.gz"
+                "http://ccrypt.sourceforge.net/download/1.11/ccrypt-1.11.tar.gz"
         },
              local='ccrypt.tar.gz')
     ]

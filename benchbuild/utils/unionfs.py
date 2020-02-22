@@ -153,8 +153,8 @@ def __unionfs_set_up(ro_dir, rw_dir, mount_dir):
     from benchbuild.utils.cmd import unionfs as unionfs_cmd
     LOG.debug("Mounting UnionFS on %s with RO:%s RW:%s", mount_dir, ro_dir,
               rw_dir)
-    return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow", rw_dir +
-                       "=RW:" + ro_dir + "=RO", mount_dir]
+    return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow",
+                       rw_dir + "=RW:" + ro_dir + "=RO", mount_dir]
 
 
 class UnmountError(BaseException):

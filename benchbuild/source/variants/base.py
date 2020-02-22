@@ -1,4 +1,4 @@
-from typing import Any, Iterable, Dict
+from typing import Any, Dict, Iterable
 
 import attr
 

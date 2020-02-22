@@ -1,10 +1,10 @@
 from plumbum import local
 
 from benchbuild.environments import container
-
-from benchbuild.source import Git
-from benchbuild.settings import CFG
 from benchbuild.projects.polybench.polybench import PolyBenchGroup
+from benchbuild.settings import CFG
+from benchbuild.source import Git
+from benchbuild.utils import compiler, run, wrapping
 
 
 class PolybenchModGroup(PolyBenchGroup):

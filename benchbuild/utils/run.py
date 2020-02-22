@@ -4,10 +4,10 @@ import sys
 import typing as t
 from contextlib import contextmanager
 
+import attr
 from plumbum import TEE, local
 from plumbum.commands import ProcessExecutionError
 
-import attr
 from benchbuild import settings, signals
 
 CFG = settings.CFG
@@ -34,6 +34,7 @@ class RunInfo:
         db_run ():
         session ():
     """
+
     def __begin(self, command, project, ename, group):
         """
         Begin a run in the database log.
@@ -311,6 +312,7 @@ def watch(command):
     Args:
         command: The plumbumb command to execute.
     """
+
     def f(*args, retcode=0):
         final_command = command[args]
         return final_command & TEE(retcode=retcode)
@@ -349,6 +351,7 @@ def in_builddir(sub='.'):
 
     def wrap_in_builddir(func):
         """Wrap the function for the new build directory."""
+
         @wraps(func)
         def wrap_in_builddir_func(self, *args, **kwargs):
             """The actual function inside the wrapper for the new builddir."""

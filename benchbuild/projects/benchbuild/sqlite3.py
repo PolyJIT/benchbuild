@@ -1,6 +1,9 @@
+from plumbum import local
+
 from benchbuild.environments import container
 from benchbuild.project import Project
-from benchbuild.source import Git, HTTP
+from benchbuild.source import HTTP, Git
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, unzip
 
 
@@ -13,7 +16,7 @@ class SQLite3(Project):
     SOURCE = [
         HTTP(remote={
             '3080900':
-            'http://www.sqlite.org/2015/sqlite-amalgamation-3080900.zip'
+                'http://www.sqlite.org/2015/sqlite-amalgamation-3080900.zip'
         },
              local='sqlite.zip'),
         Git(remote='https://github.com/google/leveldb',

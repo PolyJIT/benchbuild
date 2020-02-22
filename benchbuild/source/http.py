@@ -17,6 +17,7 @@ class HTTP(base.BaseSource):
     """
     Fetch the downloadable source via http.
     """
+
     @property
     def default(self) -> variants.Variant:
         return self.versions()[0]

@@ -4,6 +4,7 @@ attrs~=19.3
 dill~=0.3
 pandas~=1.0
 parse~=1.15
+pathos~=0.2
 pdoc3~=0.8
 plumbum~=1.6
 psutil~=5.7

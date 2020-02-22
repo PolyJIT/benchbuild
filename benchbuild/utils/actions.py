@@ -17,7 +17,6 @@ import enum
 import functools as ft
 import itertools
 import logging
-import multiprocessing as mp
 import os
 import sys
 import textwrap
@@ -25,6 +24,7 @@ import traceback
 from datetime import datetime
 
 import attr
+import pathos.multiprocessing as mp
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 

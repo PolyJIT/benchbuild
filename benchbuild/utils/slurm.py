@@ -50,7 +50,7 @@ def __expand_project_versions__(experiment: Experiment) -> Iterable[str]:
     expanded = []
 
     for _, project_type in project_types.items():
-        for version in project_type.versions():
+        for version in experiment.sample(project_type, project_type.versions()):
             project = project_type(experiment, version=version)
             expanded.append("{name}-{group}@{version}".format(
                 name=project.name,

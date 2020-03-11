@@ -239,7 +239,7 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
 
     src_dir = local.path(repository_loc) / directory
     tgt_dir = local.path(local.cwd) / directory
-    lock_f = local.path(local.cwd / directory + '.lock')
+    lock_f = local.path(repository_loc + directory + '.lock')
 
     extra_param = []
     if shallow_clone:

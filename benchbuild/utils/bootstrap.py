@@ -32,26 +32,31 @@ PACKAGES = {
     "unionfs": {
         "gentoo base system": ["sys-fs/unionfs-fuse"],
         "ubuntu": ["unionfs-fuse"],
-        "debian": ["unionfs-fuse"]
+        "debian": ["unionfs-fuse"],
+        "suse": ["unionfs-fuse"]
     },
     "postgres": {
         "gentoo base system": ["dev-db/postgres", "dev-libs/libpqxx"],
         "ubuntu": ["libpq-dev", "libpqxx-dev"],
-        "debian": ["libpq-dev", "libpqxx-dev"]
+        "debian": ["libpq-dev", "libpqxx-dev"],
+        "suse": ["postgresql-devel", "libpqxx-devel"]
     },
     "fusermount": {
         "gentoo base system": ["sys-fs/fuse"],
         "ubuntu": ["fuse"],
-        "debian": ["fuse"]
+        "debian": ["fuse"],
+        "suse": ["fuse", "fuse-devel"]
     },
     "cmake": {
         "gentoo base system": ["dev-util/cmake"],
         "ubuntu": ["cmake"],
-        "debian": ["cmake"]
+        "debian": ["cmake"],
+        "suse": ["cmake"]
     },
     "autoreconf": {
         "ubuntu": ["autoconf"],
-        "debian": ["autoconf"]
+        "debian": ["autoconf"],
+        "suse": ["autoconf"]
     }
 }
 
@@ -67,6 +72,10 @@ PACKAGE_MANAGER = {
     "debian": {
         "cmd": "apt-get",
         "args": ["install"]
+    },
+    "suse": {
+        "cmd": "zypper",
+        "args": ["install"],
     }
 }
 
@@ -125,7 +134,22 @@ def linux_distribution_major():
     if not platform.system() == 'Linux':
         return None
 
-    return platform.linux_distribution()
+    # python > 3.7
+    lsb_release = local["lsb_release"]
+    distribution = lsb_release["-ds"]()
+    if "SUSE" in distribution or "SuSE" in distribution:
+        return "suse"
+    if "Debian" in distribution:
+        return "debian"
+    if "Ubuntu" in distribution:
+        return "ubuntu"
+    if "Ubuntu" in distribution:
+        return "ubuntu"
+    if "Gentoo" in distribution:
+        return "gentoo"
+
+    return None
+
 
 
 def install_package(pkg_name):
@@ -134,8 +158,7 @@ def install_package(pkg_name):
 
     if pkg_name not in PACKAGES:
         print("No bootstrap support for package '{0}'".format(pkg_name))
-    linux, _, _ = linux_distribution_major()
-    linux = str(linux.lower())
+    linux = linux_distribution_major()
     package_manager = PACKAGE_MANAGER[linux]
     packages = PACKAGES[pkg_name][linux]
     for pkg_name_on_host in packages:

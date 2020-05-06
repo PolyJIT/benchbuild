@@ -46,6 +46,7 @@ setup(
         "pandas>=0.20.3",
         "psutil>=4.0.0",
         "sqlalchemy-migrate",
+        "pygit2>=1.2",
         "pygtrie>=2.2",
         "pyparsing>=2.2",
         "PyYAML~=5.1",

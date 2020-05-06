@@ -1,0 +1,230 @@
+import abc
+import typing as tp
+from enum import IntFlag
+from pathlib import Path
+
+import pygit2
+from plumbum import local
+from plumbum.machines import LocalCommand
+
+local_git = local["git"]
+
+
+def _get_git_for_path(repo_path: Path) -> LocalCommand:
+    return local_git["-C", str(repo_path)]
+
+
+def _get_all_revisions_between(c_start: str, c_end: str,
+                                git: LocalCommand) -> tp.List[str]:
+    """
+    Returns a list of all revisions between two commits c_start and c_end
+    (inclusive), where c_start comes before c_end.
+    It is assumed that the current working directory is the git repository.
+    """
+    result = [c_start]
+    result.extend(
+        git("log", "--pretty=%H", "--ancestry-path",
+            f"{c_start}..{c_end}").strip().split())
+    return result
+
+
+class AbstractRevisionRange(abc.ABC):
+    """
+    A set of revisions that is marked as blocked.
+    """
+    def __init__(self, comment: tp.Optional[str] = None):
+        self.__comment = comment
+
+    @property
+    def comment(self) -> tp.Optional[str]:
+        """
+        The reason for this block.
+        """
+        return self.__comment
+
+    @abc.abstractmethod
+    def init_cache(self, repo_path: Path) -> None:
+        """
+        Subclasses relying on complex functionality for determining their set
+        of blocked revisions can use this method to initialize a cache.
+        """
+
+    @abc.abstractmethod
+    def __iter__(self) -> tp.Iterator[str]:
+        pass
+
+
+class SingleRevision(AbstractRevisionRange):
+    """
+    A single blocked revision.
+    """
+
+    def __init__(self, rev_id: str, comment: tp.Optional[str] = None):
+        super().__init__(comment)
+        self.__id = rev_id
+
+    def init_cache(self, repo_path: Path) -> None:
+        pass
+
+    def __iter__(self) -> tp.Iterator[str]:
+        return [self.__id].__iter__()
+
+
+class RevisionRange(AbstractRevisionRange):
+    """
+    A range of blocked revisions.
+    """
+    def __init__(self,
+                 id_start: str,
+                 id_end: str,
+                 comment: tp.Optional[str] = None):
+        super().__init__(comment)
+        self.__id_start = id_start
+        self.__id_end = id_end
+        # cache for commit hashes
+        self.__revision_list: tp.Optional[tp.List[str]] = None
+
+    def init_cache(self, repo_path: Path) -> None:
+        git = _get_git_for_path(repo_path)
+        self.__revision_list = _get_all_revisions_between(
+            self.__id_start, self.__id_end, git)
+
+    def __iter__(self) -> tp.Iterator[str]:
+        if self.__revision_list is None:
+            raise AssertionError
+        return self.__revision_list.__iter__()
+
+
+class GoodBadSubgraph(AbstractRevisionRange):
+    """
+    A set of revisions containing a certain buggy commit but not its fix.
+    """
+    def __init__(self,
+                 bad_commits: tp.List[str],
+                 good_commits: tp.List[str],
+                 comment: tp.Optional[str] = None):
+        super().__init__(comment)
+        self.__bad_commit_ids = bad_commits
+        self.__good_commit_ids = good_commits
+        # cache for commit hashes
+        self.__revision_list: tp.Optional[tp.List[str]] = None
+
+    def init_cache(self, repo_path: Path) -> None:
+        self.__revision_list = []
+        repo = pygit2.Repository(str(repo_path))
+        git = _get_git_for_path(repo_path)
+
+        class CommitState(IntFlag):
+            BOT = 0
+            FIXED = 1
+            BUGGY = 2
+            UNKNOWN = FIXED | BUGGY
+
+        def find_blocked_commits(
+                commit: pygit2.Commit, good: tp.List[pygit2.Commit],
+                bad: tp.List[pygit2.Commit]) -> tp.List[pygit2.Commit]:
+            """
+            Find all buggy commits not yet fixed by performing a backwards
+            search starting at commit.
+
+            Args:
+                commit: the head commit
+                good:   good commits (or fixes)
+                bad:    bad commits (or bugs)
+
+            Returns: all transitive parents of commit that have an ancestor
+                     from bad that is not fixed by some commit from good.
+            """
+            stack: tp.List[pygit2.Commit] = [commit]
+            blocked: tp.Dict[pygit2.Commit, CommitState] = {}
+
+            while stack:
+                current_commit = stack.pop()
+
+                if current_commit in good:
+                    blocked[current_commit] = CommitState.FIXED
+                if current_commit in bad:
+                    blocked[current_commit] = CommitState.BUGGY
+
+                # must be deeper in the stack than its parents
+                if current_commit not in blocked.keys():
+                    stack.append(current_commit)
+
+                for parent in current_commit.parents:
+                    if parent not in blocked.keys():
+                        stack.append(parent)
+
+                # if all parents are already handled, determine whether
+                # the current commit is blocked or not.
+                if current_commit not in blocked.keys() and all(
+                        parent in blocked.keys()
+                        for parent in current_commit.parents):
+                    blocked[current_commit] = CommitState.BOT
+                    for parent in current_commit.parents:
+                        if blocked[parent] & CommitState.FIXED:
+                            blocked[current_commit] |= CommitState.FIXED
+                        if blocked[parent] & CommitState.BUGGY:
+                            blocked[current_commit] |= CommitState.BUGGY
+
+            return [
+                commit for commit in blocked
+                # for more aggressive blocking use:
+                # if blocked[commit] & CommitState.BUGGY
+                if blocked[commit] == CommitState.BUGGY
+            ]
+
+        bad_commits = [repo.get(bug_id) for bug_id in self.__bad_commit_ids]
+        good_commits = [repo.get(fix_id) for fix_id in self.__good_commit_ids]
+
+        # start search from all branch heads
+        heads = git("show-ref", "--heads", "-s").strip().split("\n")
+        for head in heads:
+            self.__revision_list.extend([
+                str(commit.id) for commit in find_blocked_commits(
+                    repo.get(head), good_commits, bad_commits)
+            ])
+
+    def __iter__(self) -> tp.Iterator[str]:
+        if self.__revision_list is None:
+            raise AssertionError
+        return self.__revision_list.__iter__()
+
+
+def block_revisions(blocks: tp.List[AbstractRevisionRange]) -> tp.Any:
+    """
+    Decorator for project classes for blacklisting/blocking revisions.
+
+    ATTENTION: This decorator depends on things introduced by the
+    @with_git decorator and therefore must be used above that decorator.
+
+    This adds a new static method ``is_blocked_revision`` that checks
+    whether a given revision id is marked as blocked.
+
+    Args:
+        blocks: A list of :class:`AbstractRevisionRange` s.
+    """
+    def revision_blocker_decorator(cls: tp.Any) -> tp.Any:
+        def is_blocked_revision_impl(
+                rev_id: str) -> tp.Tuple[bool, tp.Optional[str]]:
+            """
+            Checks whether a revision is blocked or not. Also returns the
+            reason for the block if available.
+            """
+            # trigger caching for BlockedRevisionRanges
+            if not cls.blocked_revisions_initialized:
+                cls.blocked_revisions_initialized = True
+                for block in blocks:
+                    # TODO: how to access local repository?
+                    block.init_cache(cls.repo_path())
+
+            for b_entry in blocks:
+                for b_item in b_entry:
+                    if b_item.startswith(rev_id):
+                        return True, b_entry.comment
+            return False, None
+
+        cls.blocked_revisions_initialized = False
+        cls.is_blocked_revision = is_blocked_revision_impl
+        return cls
+
+    return revision_blocker_decorator

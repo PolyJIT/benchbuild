@@ -1,3 +1,8 @@
+"""
+Revision ranges model a sub-graph of the git history by various means and can be
+used to modify project behaviour on a per-revision basis.
+"""
+
 import abc
 import typing as tp
 from enum import IntFlag
@@ -11,15 +16,25 @@ local_git = local["git"]
 
 
 def _get_git_for_path(repo_path: Path) -> LocalCommand:
+    """
+    Enhance the ``local["git"]`` command to use the ``-C`` parameter to run in
+    a specific directory.
+
+    Args:
+         repo_path: The path of the git repository the returned git command will
+                    run in.
+
+    Returns:
+        The git command with an added ``-C`` parameter.
+    """
     return local_git["-C", str(repo_path)]
 
 
 def _get_all_revisions_between(c_start: str, c_end: str,
-                                git: LocalCommand) -> tp.List[str]:
+                               git: LocalCommand) -> tp.List[str]:
     """
-    Returns a list of all revisions between two commits c_start and c_end
-    (inclusive), where c_start comes before c_end.
-    It is assumed that the current working directory is the git repository.
+    Returns a list of all revisions that are both descendants of c_start, and
+    ancestors of c_end.
     """
     result = [c_start]
     result.extend(
@@ -30,7 +45,8 @@ def _get_all_revisions_between(c_start: str, c_end: str,
 
 class AbstractRevisionRange(abc.ABC):
     """
-    A set of revisions that is marked as blocked.
+    Revision ranges represent a set of revisions, i.e., a sub-graph of the
+    history of a git repository.
     """
     def __init__(self, comment: tp.Optional[str] = None):
         self.__comment = comment
@@ -38,7 +54,7 @@ class AbstractRevisionRange(abc.ABC):
     @property
     def comment(self) -> tp.Optional[str]:
         """
-        The reason for this block.
+        A comment associated with this revision range.
         """
         return self.__comment
 
@@ -46,19 +62,32 @@ class AbstractRevisionRange(abc.ABC):
     def init_cache(self, repo_path: Path) -> None:
         """
         Subclasses relying on complex functionality for determining their set
-        of blocked revisions can use this method to initialize a cache.
+        of revisions can use this method to initialize a cache.
+
+        Args:
+            repo_path: The path to the git repository this range is defined for.
         """
 
     @abc.abstractmethod
     def __iter__(self) -> tp.Iterator[str]:
+        """
+        Allows iterating over the revisions contained in this revision range in
+        no particular order.
+
+        Returns:
+            An iterator over the revisions contained in this revision range.
+        """
         pass
 
 
 class SingleRevision(AbstractRevisionRange):
     """
-    A single blocked revision.
-    """
+    A single revision.
 
+    Args:
+        rev_id: The commit hash of the single revision.
+        comment: See :func:`AbstractRevisionRange.comment()`.
+    """
     def __init__(self, rev_id: str, comment: tp.Optional[str] = None):
         super().__init__(comment)
         self.__id = rev_id
@@ -72,7 +101,13 @@ class SingleRevision(AbstractRevisionRange):
 
 class RevisionRange(AbstractRevisionRange):
     """
-    A range of blocked revisions.
+    The range of revisions between two commits `start` and `end`, i.e., all
+    revisions that are both descendants of `start`, and ancestors of `end`.
+
+    Args:
+        id_start: The commit hash of `start`.
+        id_end: The commit hash of `end`.
+        comment: See :func:`AbstractRevisionRange.comment()`.
     """
     def __init__(self,
                  id_start: str,
@@ -95,9 +130,79 @@ class RevisionRange(AbstractRevisionRange):
         return self.__revision_list.__iter__()
 
 
+class CommitState(IntFlag):
+    BOT = 0
+    GOOD = 1
+    BAD = 2
+    UNKNOWN = GOOD | BAD
+
+
+def _find_blocked_commits(
+        commit: pygit2.Commit, good: tp.List[pygit2.Commit],
+        bad: tp.List[pygit2.Commit]) -> tp.List[pygit2.Commit]:
+    """
+    Find all commits affected by a bad commit and not yet "fixed" by a
+    good commit. This is done by performing a backwards search starting
+    at ``commit``.
+
+    Args:
+        commit: The head commit.
+        good:   Good commits (or fixes).
+        bad:    Bad commits (or bugs).
+
+    Returns:
+        All transitive parents of commit that have an ancestor from bad
+        that is not fixed by some commit from good.
+    """
+    stack: tp.List[pygit2.Commit] = [commit]
+    blocked: tp.Dict[pygit2.Commit, CommitState] = {}
+
+    while stack:
+        current_commit = stack.pop()
+
+        if current_commit in good:
+            blocked[current_commit] = CommitState.GOOD
+        if current_commit in bad:
+            blocked[current_commit] = CommitState.BAD
+
+        # must be deeper in the stack than its parents
+        if current_commit not in blocked.keys():
+            stack.append(current_commit)
+
+        for parent in current_commit.parents:
+            if parent not in blocked.keys():
+                stack.append(parent)
+
+        # if all parents are already handled, determine whether
+        # the current commit is blocked or not.
+        if current_commit not in blocked.keys() and all(
+                parent in blocked.keys()
+                for parent in current_commit.parents):
+            blocked[current_commit] = CommitState.BOT
+            for parent in current_commit.parents:
+                if blocked[parent] & CommitState.GOOD:
+                    blocked[current_commit] |= CommitState.GOOD
+                if blocked[parent] & CommitState.BAD:
+                    blocked[current_commit] |= CommitState.BAD
+
+    return [
+        commit for commit in blocked
+        # for more aggressive blocking use:
+        # if blocked[commit] & CommitState.BUGGY
+        if blocked[commit] == CommitState.BAD
+    ]
+
+
 class GoodBadSubgraph(AbstractRevisionRange):
     """
-    A set of revisions containing a certain buggy commit but not its fix.
+    A range of revisions containing all revisions that contain some `bad`
+    commit, but no `good` commit, e.g., all revisions that are affected by some
+    bug, but that do not contain the fix for the bug.
+
+    Args:
+        bad_commits: A list of `bad` commits.
+        good_commits: A list of `good` commits.
+        comment: See :func:`AbstractRevisionRange.comment()`.
     """
     def __init__(self,
                  bad_commits: tp.List[str],
@@ -114,65 +219,6 @@ class GoodBadSubgraph(AbstractRevisionRange):
         repo = pygit2.Repository(str(repo_path))
         git = _get_git_for_path(repo_path)
 
-        class CommitState(IntFlag):
-            BOT = 0
-            FIXED = 1
-            BUGGY = 2
-            UNKNOWN = FIXED | BUGGY
-
-        def find_blocked_commits(
-                commit: pygit2.Commit, good: tp.List[pygit2.Commit],
-                bad: tp.List[pygit2.Commit]) -> tp.List[pygit2.Commit]:
-            """
-            Find all buggy commits not yet fixed by performing a backwards
-            search starting at commit.
-
-            Args:
-                commit: the head commit
-                good:   good commits (or fixes)
-                bad:    bad commits (or bugs)
-
-            Returns: all transitive parents of commit that have an ancestor
-                     from bad that is not fixed by some commit from good.
-            """
-            stack: tp.List[pygit2.Commit] = [commit]
-            blocked: tp.Dict[pygit2.Commit, CommitState] = {}
-
-            while stack:
-                current_commit = stack.pop()
-
-                if current_commit in good:
-                    blocked[current_commit] = CommitState.FIXED
-                if current_commit in bad:
-                    blocked[current_commit] = CommitState.BUGGY
-
-                # must be deeper in the stack than its parents
-                if current_commit not in blocked.keys():
-                    stack.append(current_commit)
-
-                for parent in current_commit.parents:
-                    if parent not in blocked.keys():
-                        stack.append(parent)
-
-                # if all parents are already handled, determine whether
-                # the current commit is blocked or not.
-                if current_commit not in blocked.keys() and all(
-                        parent in blocked.keys()
-                        for parent in current_commit.parents):
-                    blocked[current_commit] = CommitState.BOT
-                    for parent in current_commit.parents:
-                        if blocked[parent] & CommitState.FIXED:
-                            blocked[current_commit] |= CommitState.FIXED
-                        if blocked[parent] & CommitState.BUGGY:
-                            blocked[current_commit] |= CommitState.BUGGY
-
-            return [
-                commit for commit in blocked
-                # for more aggressive blocking use:
-                # if blocked[commit] & CommitState.BUGGY
-                if blocked[commit] == CommitState.BUGGY
-            ]
-
         bad_commits = [repo.get(bug_id) for bug_id in self.__bad_commit_ids]
         good_commits = [repo.get(fix_id) for fix_id in self.__good_commit_ids]
 
@@ -180,7 +226,7 @@ class GoodBadSubgraph(AbstractRevisionRange):
         heads = git("show-ref", "--heads", "-s").strip().split("\n")
         for head in heads:
             self.__revision_list.extend([
-                str(commit.id) for commit in find_blocked_commits(
+                str(commit.id) for commit in _find_blocked_commits(
                     repo.get(head), good_commits, bad_commits)
             ])
 

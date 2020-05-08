@@ -9,10 +9,8 @@ from enum import IntFlag
 from pathlib import Path
 
 import pygit2
-from plumbum import local
+from benchbuild.utils.cmd import git as local_git
 from plumbum.machines import LocalCommand
-
-local_git = local["git"]
 
 
 def _get_git_for_path(repo_path: Path) -> LocalCommand:
@@ -105,8 +103,8 @@ class RevisionRange(AbstractRevisionRange):
     revisions that are both descendants of `start`, and ancestors of `end`.
 
     Args:
-        id_start: The commit hash of `start`.
-        id_end: The commit hash of `end`.
+        id_start: The commit hash of `start` (exclusive).
+        id_end: The commit hash of `end` (inclusive).
         comment: See :func:`AbstractRevisionRange.comment()`.
     """
     def __init__(self,

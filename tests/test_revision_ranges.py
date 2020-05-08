@@ -1,6 +1,6 @@
 """Test the revision_ranges module."""
-import unittest
 from pathlib import Path
+import unittest
 from unittest import mock
 
 import benchbuild.utils.revision_ranges as ranges
@@ -8,7 +8,6 @@ import benchbuild.utils.revision_ranges as ranges
 
 class TestRevisionRanges(unittest.TestCase):
     """Test the revision range classes."""
-
     def test_single_revision(self):
         revision_range = ranges.SingleRevision("1234abc")
         self.assertIn("1234abc", revision_range)

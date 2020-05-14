@@ -80,7 +80,7 @@ class CommandAlias(ModuleType):
                 return alias_cmd
             except AttributeError:
                 pass
-        LOG.warning("'%s' cannot be found. Import failed.", command)
+        LOG.debug("'%s' cannot be found. Import failed.", command)
         return ERROR
 
     def __getitem__(self, command):

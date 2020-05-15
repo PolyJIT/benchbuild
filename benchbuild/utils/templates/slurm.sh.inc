@@ -26,6 +26,7 @@ projects=(
 # End of list of available projects
 _project="${projects[$SLURM_ARRAY_TASK_ID]}"
 
+mkdir -p $(dirname {{ log }})
 exec 1> {{ log }}-$_project
 exec 2>&1
 

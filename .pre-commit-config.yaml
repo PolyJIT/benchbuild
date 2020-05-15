@@ -1,12 +1,12 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v2.5.0
     hooks:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
 -   repo: https://github.com/asottile/seed-isort-config
-    rev: v2.0.0
+    rev: v2.1.1
     hooks:
     -   id: seed-isort-config
 -   repo: https://github.com/pre-commit/mirrors-isort
@@ -15,6 +15,6 @@ repos:
     - id: isort
       args: ['-nis', '--lines', '80']
 -   repo: https://github.com/pre-commit/mirrors-yapf
-    rev: 'v0.29.0'  # Use the sha / tag you want to point at
+    rev: v0.30.0  # Use the sha / tag you want to point at
     hooks:
     -   id: yapf

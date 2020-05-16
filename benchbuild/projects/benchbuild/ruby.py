@@ -4,6 +4,7 @@ from benchbuild import project
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, ruby, tar
+from benchbuild.utils.settings import get_number_of_jobs
 
 
 @download.with_wget({
@@ -27,9 +28,9 @@ class Ruby(project.Project):
         with local.cwd(unpack_dir):
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure = local["./configure"]
-                run.run(
-                    configure["--with-static-linked-ext", "--disable-shared"])
-            run.run(make["-j", CFG["jobs"]])
+                run.run(configure["--with-static-linked-ext",
+                                  "--disable-shared"])
+            run.run(make["-j", get_number_of_jobs(CFG)])
 
     def run_tests(self, runner):
         unpack_dir = local.path('ruby-{0}'.format(self.version))

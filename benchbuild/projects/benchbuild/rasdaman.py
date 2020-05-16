@@ -4,6 +4,7 @@ from benchbuild import project
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run
 from benchbuild.utils.cmd import autoreconf, make
+from benchbuild.utils.settings import get_number_of_jobs
 
 
 @download.with_git('git://rasdaman.org/rasdaman.git', limit=5)
@@ -35,7 +36,7 @@ class Rasdaman(project.Project):
                 run.run(configure["--with-pic", "--enable-static",
                                   "--disable-debug", "--with-gnu-ld",
                                   "--without-ld-shared", "--without-libtool"])
-                run.run(make["-j", CFG["jobs"]])
+                run.run(make["-j", get_number_of_jobs(CFG)])
 
         with local.cwd(rasdaman_dir):
             autoreconf("-i")
@@ -46,7 +47,7 @@ class Rasdaman(project.Project):
                                   "--enable-benchmark", "--with-static-libs",
                                   "--disable-java", "--with-pic",
                                   "--disable-debug", "--without-docs"])
-            run.run(make["clean", "all", "-j", CFG["jobs"]])
+            run.run(make["clean", "all", "-j", get_number_of_jobs(CFG)])
 
     def run_tests(self, runner):
         import logging

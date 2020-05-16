@@ -4,6 +4,7 @@ from benchbuild import project
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make
+from benchbuild.utils.settings import get_number_of_jobs
 
 
 class SDCC(project.Project):
@@ -26,7 +27,7 @@ class SDCC(project.Project):
                 run.run(configure["--without-ccache", "--disable-pic14-port",
                                   "--disable-pic16-port"])
 
-            run.run(make["-j", CFG["jobs"]])
+            run.run(make["-j", get_number_of_jobs(CFG)])
 
     def run_tests(self, runner):
         sdcc = wrapping.wrap(self.run_f, self)

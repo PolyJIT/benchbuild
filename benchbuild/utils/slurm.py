@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 from typing import Iterable
+from pathlib import Path
 
 from plumbum import local, TF
 
@@ -86,7 +87,15 @@ def __save__(script_name, benchbuild, experiment, projects):
     """
     from jinja2 import Environment, PackageLoader
 
-    logs_dir = os.path.dirname(CFG['slurm']['logs'].value)
+    logs_dir = Path(CFG['slurm']['logs'].value)
+    if logs_dir.suffix != '':
+        logs_dir = logs_dir.parent / logs_dir.stem
+        LOG.warning(
+            f"Config slurm:logs should be a folder, defaulting to {logs_dir}.")
+
+    if not logs_dir.exists():
+        logs_dir.mkdir()
+
     node_command = str(benchbuild["-E", experiment.name, "$_project"])
     env = Environment(
         trim_blocks=True,
@@ -104,7 +113,7 @@ def __save__(script_name, benchbuild, experiment, projects):
                 cpus=int(CFG['slurm']['cpus_per_task']),
                 exclusive=bool(CFG['slurm']['exclusive']),
                 lockfile=str(CFG['slurm']["node_dir"]) + ".lock",
-                log=local.path(logs_dir) / str(experiment.id),
+                log=logs_dir.resolve() / str(experiment.id),
                 max_running=int(CFG['slurm']['max_running']),
                 name=experiment.name,
                 nice=int(CFG['slurm']['nice']),

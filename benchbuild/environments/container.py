@@ -10,16 +10,17 @@ help you.
 import json
 import logging
 import textwrap
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import attr
 import rx
-import rx.operators as ops
+from plumbum import local
 from rx.core.typing import Observable
 
-from benchbuild.project import Project
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import buildah
+from benchbuild.typing import (CallChain, CommandFunc, Project, ProjectT,
+                               VariantContext)
+from benchbuild.utils.cmd import buildah, mktemp
 
 # Image declaration.
 LOG = logging.getLogger(__name__)
@@ -44,9 +45,6 @@ __BH_RUN__ = __buildah__()['run']
 __BH_CLEAN__ = __buildah__()['clean']
 __BH_INSPECT__ = __buildah__()['inspect']
 
-CommandFunc = Callable[[str], Union[str, None]]
-CallChain = List[CommandFunc]
-
 
 @attr.s
 class DeclarativeTool:
@@ -56,14 +54,15 @@ class DeclarativeTool:
         return len(self.chain)
 
 
-def create_observable_callchain(tool: DeclarativeTool) -> Observable:
-    return rx.from_iterable(tool.chain).pipe(
-        ops.scan(lambda acc, f: f(acc), None))
+def from_tool(tool: DeclarativeTool) -> Observable:
+    return rx.from_iterable(tool.chain)
 
 
 @attr.s
 class Buildah(DeclarativeTool):
     image: str = attr.ib(default='')
+    context_dir: Optional[str] = attr.ib(default=None)
+    current: str = attr.ib(init=False)
 
     def from_(self, base_img: str) -> 'Buildah':
         """
@@ -76,10 +75,48 @@ class Buildah(DeclarativeTool):
             self
         """
 
-        def from__(_):
-            return __BH_FROM__(base_img).strip()
+        def from__():
+            self.current = __BH_FROM__(base_img).strip()
+            return f'buildah from {base_img}'
 
         self.chain.append(from__)
+        return self
+
+    def context(self, func: CommandFunc) -> 'Buildah':
+        """
+        Add a custom command function to the chain.
+
+        This may be used to setup a build context on demand.
+
+        Args:
+            func: The CommandFunc to call during chain execution.
+
+        Returns:
+            self
+        """
+
+        def context_sandbox():
+            tmpdir = self.context_dir
+            if tmpdir is None or (not local.path(tmpdir).exists()):
+                tmpdir = mktemp('-dt', '-p', str(CFG['build_dir'])).strip()
+                self.context_dir = tmpdir
+
+            with local.cwd(tmpdir):
+                func()
+            return f'context in {tmpdir}'
+
+        self.chain.append(context_sandbox)
+        return self
+
+    def clear_context(self) -> 'Buildah':
+
+        def clear():
+            tmpdir = self.context_dir
+            if tmpdir and local.path(tmpdir).exists():
+                LOG.debug('wiping %s', tmpdir)
+            return f'clear context in {self.context_dir}'
+
+        self.chain.append(clear)
         return self
 
     def bud(self, dockerfile: str) -> 'Buildah':
@@ -93,8 +130,9 @@ class Buildah(DeclarativeTool):
             self
         """
 
-        def bud_(_):
-            return (__BH_BUD__ << textwrap.dedent(dockerfile))().strip()
+        def bud_():
+            (__BH_BUD__ << textwrap.dedent(dockerfile))()
+            return f'buildah bud ...'
 
         self.chain.append(bud_)
         return self
@@ -110,9 +148,16 @@ class Buildah(DeclarativeTool):
             self
         """
 
-        def add_(build_id: str):
-            __BH_ADD__(build_id, src, dest)
-            return build_id
+        def add_():
+            tmpdir = self.context_dir
+            if tmpdir is None or (not local.path(tmpdir).exists()):
+                LOG.error(
+                    'No build context, cannot add. Try using context(...)')
+                return self.current
+
+            with local.cwd(tmpdir):
+                __BH_ADD__(self.current, src, dest)
+            return f'buildah add {self.current} {src} {dest}'
 
         self.chain.append(add_)
         return self
@@ -127,8 +172,9 @@ class Buildah(DeclarativeTool):
             self
         """
 
-        def commit_(build_id: str):
-            return __BH_COMMIT__(build_id, tag).strip()
+        def commit_():
+            __BH_COMMIT__(self.current, tag)
+            return f'buildah commit {self.current} {tag}'
 
         self.chain.append(commit_)
         return self
@@ -144,9 +190,9 @@ class Buildah(DeclarativeTool):
             self
         """
 
-        def copy_(build_id: str):
-            __BH_COPY__(build_id, src, dest)
-            return build_id
+        def copy_():
+            __BH_COPY__(self.current, src, dest)
+            return self.current
 
         self.chain.append(copy_)
         return self
@@ -163,14 +209,14 @@ class Buildah(DeclarativeTool):
             self
         """
 
-        def run_(build_id: str):
+        def run_():
             kws = []
             for name, value in dict(kwargs).items():
                 kws.append(f'--{name}')
                 kws.append(f'{str(value)}')
 
-            __BH_RUN__(*kws, build_id, '--', *args)
-            return build_id
+            __BH_RUN__(*kws, self.current, '--', *args)
+            return f"buildah run {self.current} -- {' '.join(args)}"
 
         self.chain.append(run_)
         return self
@@ -198,7 +244,14 @@ def by_tag(tag: str) -> Optional[Any]:
             yield res
 
 
-def by_project(project: Project) -> Any:
+def mktag(name: str, group: str, variant: VariantContext) -> str:
+    """Generate a container tag."""
+    version_str = "-".join([str(var) for var in variant.values()])
+    return f"{name}/{group}:{version_str}"
+
+
+def by_project(project: Union[Project, ProjectT],
+               variant: Optional[VariantContext] = None) -> Any:
     """
     Find a container image by project.
 
@@ -209,14 +262,20 @@ def by_project(project: Project) -> Any:
 
     """
 
-    def mktag(project: Project) -> str:
-        """Generate a container tag."""
-        version_str = "-".join([str(var) for var in project.variant.values()])
-        return f"{project.name}/{project.group}:{version_str}"
+    name = project.NAME
+    group = project.GROUP
+    variant = variant if variant else project.variant
 
-    image_tag = mktag(project)
+    image_tag = mktag(name, group, variant)
     for res in by_tag(image_tag):
         yield res
+
+
+def is_cached(project: Union[Project, ProjectT],
+              variant: Optional[VariantContext] = None) -> bool:
+    for _ in by_project(project, variant):
+        return True
+    return False
 
 
 def by_id(imageid: str) -> Optional[Dict[str, Any]]:
@@ -237,3 +296,50 @@ def by_id(imageid: str) -> Optional[Dict[str, Any]]:
     if results:
         results = json.loads(results)
     return results
+
+
+def add_benchbuild(image: Buildah) -> None:
+    src_dir = str(CFG['container']['source'])
+    tgt_dir = '/benchbuild'
+    crun = '/usr/bin/crun'
+
+    def from_source(image):
+        image.run('mkdir', f'{tgt_dir}', runtime=crun)
+        # The image requires git, pip and a working python3.7 or better.
+        image.run('pip3', 'install', '-U', 'setuptools', runtime=crun)
+        image.run('pip3',
+                  'install',
+                  f'{tgt_dir}',
+                  mount=f'type=bind,src={src_dir},target={tgt_dir}',
+                  runtime=crun)
+
+    def from_pip(image):
+        image.run('pip', 'install', 'benchbuild', runtime=crun)
+
+    if bool(CFG['container']['from_source']):
+        from_source(image)
+    else:
+        from_pip(image)
+
+
+def add_project_sources(var: VariantContext, image: Buildah) -> None:
+
+    def setup_context() -> 'None':
+        for version in var.values():
+            src = version.owner
+            src.version(local.cwd, str(version))
+
+    image.context(setup_context)
+    image.add('.', "/app/")
+
+
+def commit(prj: ProjectT, var: VariantContext) -> None:
+    tag = mktag(prj.NAME, prj.GROUP, var)
+    image = prj.CONTAINER
+    image.commit(tag)
+    image.clear_context()
+
+
+def materialize(prj: ProjectT, var: VariantContext) -> rx.Observable:
+    return rx.combine_latest(rx.return_value(prj), rx.return_value(var),
+                             from_tool(prj.CONTAINER))

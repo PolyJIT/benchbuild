@@ -1,14 +1,20 @@
 """Subcommand for containerizing benchbuild experiments."""
-import itertools
-from typing import Generator, List, Tuple
+import sys
+from typing import (Any, Callable, Dict, Generator, List, Optional, Tuple,
+                    Type, Union)
 
+import attr
+import rx
 from plumbum import cli
+from rich import print
+from rich.progress import BarColumn, Progress, TaskID
+from rx import operators as ops
 
-from benchbuild import environments, experiment, plugins, project, source
+from benchbuild import environments as envs
+from benchbuild import experiment, plugins, project, streams
 from benchbuild.cli.main import BenchBuild
-from benchbuild.environments import Buildah
-from benchbuild.settings import CFG
-from benchbuild.utils.cmd import mkdir, rm
+from benchbuild.source.variants import VariantContext
+from benchbuild.typing import CommandFunc, ExperimentT, ProjectT
 
 
 @BenchBuild.subcommand("container")
@@ -58,119 +64,136 @@ class BenchBuildContainer(cli.Application):
             print("No projects selected.")
             return -2
 
-        # For all project versions:
-        # 2. Build project image.
-        final_images = []
-        for p_name, p_image in build_project_images(wanted_experiments,
-                                                    wanted_projects):
-            # 3. Build experiment image from each project image.
-            for e_image in build_experiment_images(p_name, p_image,
-                                                   wanted_experiments):
-                # 4. Integrate bencbuild into the experiment image
-                final_images.append(add_benchbuild(e_image))
+        main2(wanted_projects, wanted_experiments)
 
-        # 5. Prepare results directory
-        # 6. Setup podman container.
-        # 7. Call benchbuild run with the given experiment/project config.
         return 0
 
 
-@BenchBuildContainer.subcommand("prepare")
-class BenchBuildContainerBuild(cli.Application):
-    """
-    Prepare a container base image.
+def main2(wanted_projects: Dict[str, ProjectT],
+          wanted_experiments: Dict[str, ExperimentT]):
+    view = BuildView()
 
-    Prepare an existing OCI-container image for the use with benchbuild.
-    """
+    #experiment_stream = rx.from_iterable(wanted_experiments.values())
 
-    def main(self, *projects):
-        pass
+    def filter_cached(combined: Tuple[ProjectT, VariantContext]) -> bool:
+        prj, var = combined
+        return not envs.is_cached(prj, var)
 
+    project_images = streams.from_projects(wanted_projects.values()).pipe(
+        ops.filter(filter_cached),
+        ops.do_action(on_next=view.print),
+        ops.starmap(lambda p, v: {
+            'project': p,
+            'variant': v
+        }),
+    )
 
-def build_project_images(
-        wanted_experiments,
-        wanted_projects) -> Generator[Tuple[str, str], None, None]:
-    """Build container images."""
-    combinations = itertools.product(wanted_projects.items(),
-                                     wanted_experiments.items())
+    def build_image(elem: Dict[str, Any]) -> None:
+        prj = elem['project']
+        var = elem['variant']
+        img = prj.CONTAINER
 
-    def build_project_image(prj: project.Project) -> Buildah:
-        # Setup build context
-        builddir = prj.builddir
+        envs.add_benchbuild(img)
+        envs.add_project_sources(var, img)
+        envs.commit(prj, var)
 
-        mkdir('-p', builddir)
-        container = prj.container
+    # Augment the user-defined project image declarations.
+    project_images.subscribe(on_next=build_image)
 
-        variant = prj.variant
-        for version in variant.values():
-            src = version.owner
-            loc = src.version(builddir, str(version))
-            container.add(loc, f"/.benchuild/{version}")
+    # Build a grouped task stream
+    project_tasks = project_images.pipe(
+        ops.map(lambda o: (o['project'], o['variant'])),
+        ops.starmap(envs.materialize), ops.merge_all(),
+        ops.group_by(key_mapper=lambda o: o[0].NAME,
+                     subject_mapper=lambda: rx.subject.ReplaySubject()))
 
-        container = environments.finalize_project_container(prj, container)
-        rm('-r', builddir)
-        return container
+    # Count tasks per group and prepare the view
+    task_counts = project_tasks.pipe(
+        ops.flat_map(lambda group: group.pipe(
+            ops.do_action(on_next=view.print), ops.count(),
+            ops.map(lambda cnt: (group.key, cnt)))))
+    task_counts.subscribe(lambda event: view.view_task(event[0], event[1], ''))
 
-    for (prj_key, prj_cls), (_, exp_cls) in combinations:
-        # FIXME: Need customizable version filters
-        for variant in source.product(prj_cls.SOURCE):
-            ctx = source.variants.context(variant)
-            if not hasattr(prj_cls, 'CONTAINER'):
-                print(f"{prj_key} does not support container mode yet.")
-                continue
-            exp = exp_cls()
-            prj: project.Project = prj_cls(exp, variant=ctx)
+    # Run the tasks per group and update the view
+    def run_task(name: str, task: CommandFunc) -> None:
+        message = task()
+        return (name, message)
 
-            for image_info in environments.by_project(prj):
-                yield (prj_key, image_info["id"])
-                break
-            else:
-                # FIXME: Support forced rebuild.
-                print(f"Building... {str(ctx)}")
-                yield (prj_key, build_project_image(prj))
+    task_runs = project_tasks.pipe(
+        ops.flat_map(lambda group: group.pipe(
+            ops.starmap(lambda prj, var, task:
+                        (group.key, task)), ops.starmap(run_task))))
+    task_runs.subscribe(on_next=lambda res: view.update(res[0], res[1]),
+                        on_error=view.print)
+    # FIXME: Error handling.
 
-
-def build_experiment_images(name: str, image: str,
-                            wanted_experiments) -> Generator[str, None, None]:
-    for exp, _ in wanted_experiments.items():
-        tag = f"{exp}/{name}:{image[:12]}"
-        for image_info in environments.by_tag(tag):
-            container = image_info["id"]
-            yield tag
-            break
-        else:
-            container = Buildah()
-            container.from_(image)
-            yield container.finalize(tag)
+    sys.exit(0)
 
 
-def add_benchbuild(image: str) -> str:
-    src_dir = str(CFG['container']['source'])
-    tgt_dir = '/benchbuild'
-    crun = '/usr/bin/crun'
+#def experiment_builder(image_infos: List[Dict[str, str]],
+#                       exp: ExperimentT) -> rx.Observable:
+#    def on_subscribe(
+#            observer: rx.typing.Observer,
+#            _: Optional[rx.typing.Scheduler] = None) -> rx.typing.Disposable:
+#
+#        task_name = f'{exp.NAME}'
+#        observer.on_next(BuildNewTask(task_name, len(image_infos)))
+#        for image in image_infos:
+#            from_ = image['id']
+#            repo = image['repo']
+#            version = image['version']
+#            tag = f'{exp.NAME}/{repo}:{version}'
+#
+#            res = build_experiment_image(tag, from_, exp)
+#            observer.on_next(BuildResult(task_name, None, res))
+#        observer.on_completed()
+#
+#    return rx.create(on_subscribe)
 
-    def from_source(container):
-        container.run('mkdir', '/benchbuild', runtime=crun)
-        container.run('apt-get', 'update', runtime=crun)
-        container.run('apt-get', 'install', '-y', 'python-pip', runtime=crun)
-        container.run('pip', 'install', '-U', 'setuptools', runtime=crun)
-        container.run('pip', 'list', runtime=crun)
-        container.run('pip',
-                      'install',
-                      '/benchbuild/',
-                      mount=f'type=bind,src={src_dir},target={tgt_dir}',
-                      runtime=crun)
+#def build_experiment_image(tag: str, from_: str, exp: ExperimentT) -> str:
+#
+#    def cache_lookup(imageid: str) -> bool:
+#        image_info = environments.by_id(imageid)
+#        if "FromImageID" in image_info:
+#            return image_info["FromImageID"]
+#        return None
+#
+#    cache = cache_lookup(tag)
+#    if cache:
+#        return cache
+#
+#    container = envs.Buildah()
+#    container.from_(from_)
+#    return container.finalize(tag)
 
-    def from_pip(container):
-        container.run('pip', 'install', 'benchbuild', runtime=crun)
 
-    tag = f'{image}-bb'
-    for image_info in environments.by_tag(tag):
-        return image_info['id']
+@attr.s
+class BuildView:
+    progress: Progress = attr.ib(init=False)
+    tasks: Dict[str, TaskID] = attr.ib(init=False)
 
-    container = Buildah().from_(image)
-    if bool(CFG['container']['from_source']):
-        from_source(container)
-    else:
-        from_pip(container)
-    return container.finalize(tag=tag)
+    def __attrs_post_init__(self):
+        self.progress = Progress("[progress.description]{task.description}",
+                                 BarColumn(),
+                                 "[progress.percentage]{task.remaining}",
+                                 "{task.fields[message]}")
+        self.tasks = dict()
+
+    def view_task(self, name: str, count: str, message: str):
+        if name not in self.tasks:
+            self.tasks[name] = self.progress.add_task(name,
+                                                      total=count,
+                                                      message=message)
+
+    def update(self, name: str, message: str):
+        if name in self.tasks:
+            self.progress.update(self.tasks[name],
+                                 advance=1,
+                                 refresh=True,
+                                 message=message)
+
+    def print(self, *args, **kwargs):
+        self.progress.print(*args, **kwargs)
+
+    def done(self):
+        self.progress.stop()

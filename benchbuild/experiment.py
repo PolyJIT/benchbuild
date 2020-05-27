@@ -33,6 +33,7 @@ from abc import abstractmethod
 import attr
 
 import benchbuild.utils.actions as actns
+from benchbuild import typing as bt
 from benchbuild.settings import CFG
 from benchbuild.utils.requirements import Requirement
 
@@ -58,8 +59,8 @@ class ExperimentRegistry(type):
         return cls
 
 
-@attr.s(eq=False)
-class Experiment(metaclass=ExperimentRegistry):
+@attr.s()
+class Experiment(bt.Experiment, metaclass=ExperimentRegistry):
     """
     A series of commands executed on a project that form an experiment.
 

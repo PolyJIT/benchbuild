@@ -34,6 +34,7 @@ import attr
 
 import benchbuild.source as bb_dl
 import benchbuild.source.variants as variants
+from benchbuild import typing as bt
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Clean, CleanExtra, Compile, Containerize,
                                       Echo, MakeBuildDir, ProjectEnvironment,
@@ -54,7 +55,7 @@ class ExperimentRegistry(type):
 
 
 @attr.s()
-class Experiment(metaclass=ExperimentRegistry):
+class Experiment(bt.Experiment, metaclass=ExperimentRegistry):
     """
     A series of commands executed on a project that form an experiment.
 

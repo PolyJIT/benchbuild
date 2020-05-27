@@ -1,10 +1,13 @@
-from typing import Any, Dict, Iterable
+from typing import Any, Iterable
 
 import attr
 
+from benchbuild.typing import Variant as VariantT
+from benchbuild.typing import VariantContext, VariantTuple
+
 
 @attr.s(repr=False)
-class Variant:
+class Variant(VariantT):
     owner: Any = attr.ib(repr=False)
     version: str = attr.ib()
 
@@ -13,10 +16,6 @@ class Variant:
 
     def __str__(self):
         return repr(self)
-
-
-VariantTuple = Iterable[Variant]
-VariantContext = Dict[str, Variant]
 
 
 def context(variant: VariantTuple) -> VariantContext:

@@ -28,6 +28,7 @@ from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
 from benchbuild import signals, source
+from benchbuild import typing as bt
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
@@ -84,7 +85,7 @@ class ProjectDecorator(ProjectRegistry):
 
 
 @attr.s
-class Project(metaclass=ProjectDecorator):
+class Project(bt.Project, metaclass=ProjectDecorator):
     """Abstract class for benchbuild projects.
 
     A project is an arbitrary software system usable by benchbuild in

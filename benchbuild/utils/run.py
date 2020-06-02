@@ -9,6 +9,7 @@ from plumbum import TEE, local
 from plumbum.commands import ProcessExecutionError
 
 from benchbuild import settings, signals
+from benchbuild.typing import Experiment, Project
 
 CFG = settings.CFG
 LOG = logging.getLogger(__name__)
@@ -35,14 +36,14 @@ class RunInfo:
         session ():
     """
 
-    def __begin(self, command, project, ename, group):
+    def __begin(self, command, project: Project, experiment: Experiment, group):
         """
         Begin a run in the database log.
 
         Args:
             command: The command that will be executed.
-            pname: The project name we belong to.
-            ename: The experiment name we belong to.
+            project: The project we belong to.
+            experiment: The experiment we belong to.
             group: The run group we belong to.
 
         Returns:
@@ -53,7 +54,7 @@ class RunInfo:
         from benchbuild.utils import schema as s
         from datetime import datetime
 
-        db_run, session = create_run(command, project, ename, group)
+        db_run, session = create_run(command, project, experiment, group)
         db_run.begin = datetime.now()
         db_run.status = 'running'
         log = s.RunLog()
@@ -138,7 +139,7 @@ class RunInfo:
     payload = attr.ib(init=False, default=None, repr=False)
 
     def __attrs_post_init__(self):
-        self.__begin(self.cmd, self.project, self.experiment.name,
+        self.__begin(self.cmd, self.project, self.experiment,
                      self.project.run_uuid)
         signals.handlers.register(self.__fail, 15, "SIGTERM", "SIGTERM")
 
@@ -202,7 +203,7 @@ class RunInfo:
         self.session.commit()
 
 
-def begin_run_group(project):
+def begin_run_group(project: Project, experiment: Experiment):
     """
     Begin a run_group in the database.
 
@@ -219,7 +220,7 @@ def begin_run_group(project):
     from benchbuild.utils.db import create_run_group
     from datetime import datetime
 
-    group, session = create_run_group(project)
+    group, session = create_run_group(project, experiment)
     group.begin = datetime.now()
     group.status = 'running'
 
@@ -283,7 +284,7 @@ def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
 
 
 @contextmanager
-def track_execution(cmd, project, experiment, **kwargs):
+def track_execution(cmd, project: Project, experiment: Experiment, **kwargs):
     """Guard the execution of the given command.
 
     The given command (`cmd`) will be executed inside a database context.

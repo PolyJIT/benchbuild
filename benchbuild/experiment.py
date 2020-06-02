@@ -35,6 +35,7 @@ import attr
 import benchbuild.source as bb_dl
 import benchbuild.source.variants as variants
 from benchbuild import typing as bt
+from benchbuild.project import build_dir
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Clean, CleanExtra, Compile, Containerize,
                                       Echo, MakeBuildDir, ProjectEnvironment,
@@ -151,15 +152,17 @@ class Experiment(bt.Experiment, metaclass=ExperimentRegistry):
                 var_context = variants.context(variant)
                 version_str = variants.to_str(variant)
 
-                p = prj_cls(self, variant=var_context)
+                p = prj_cls(variant=var_context)
+                p.builddir = build_dir(self, p)
                 atomic_actions = [
                     Clean(p),
                     MakeBuildDir(p),
                     Echo(message="Selected {0} with version {1}".format(
                         p.name, version_str)),
-                    ProjectEnvironment(p),
-                    Containerize(obj=p, actions=self.actions_for_project(p))
+                    ProjectEnvironment(p)  #,
+                    #Containerize(obj=p, actions=self.actions_for_project(p))
                 ]
+                atomic_actions.extend(self.actions_for_project(p))
 
                 prj_actions.append(RequireAll(actions=atomic_actions))
             actions.extend(prj_actions)
@@ -205,13 +208,15 @@ class Experiment(bt.Experiment, metaclass=ExperimentRegistry):
             for v in tail:
                 yield v
 
-    @staticmethod
-    def default_runtime_actions(project):
+    def default_runtime_actions(self, project):
         """Return a series of actions for a run time experiment."""
-        return [Compile(project), Run(project), Clean(project)]
+        return [
+            Compile(project),
+            Run(obj=project, project=project, experiment=self),
+            Clean(project)
+        ]
 
-    @staticmethod
-    def default_compiletime_actions(project):
+    def default_compiletime_actions(self, project):
         """Return a series of actions for a compile time experiment."""
         return [Compile(project), Clean(project)]
 

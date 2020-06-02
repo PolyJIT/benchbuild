@@ -61,11 +61,7 @@ class Project:
     SOURCE: List[Source]
 
     @abstractmethod
-    def run_test(self) -> None:
-        return NotImplemented
-
-    @abstractmethod
-    def run(self) -> None:
+    def run_tests(self) -> None:
         return NotImplemented
 
     @abstractmethod

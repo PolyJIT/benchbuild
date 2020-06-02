@@ -24,13 +24,12 @@ from os import getenv
 from typing import Dict, List, Mapping, Optional, Tuple, Type
 
 import attr
-from plumbum import ProcessExecutionError, local
+from plumbum import local
+from plumbum.path.local import LocalPath
 from pygtrie import StringTrie
 
-from benchbuild import signals, source
+from benchbuild import source
 from benchbuild import typing as bt
-from benchbuild.extensions import compiler
-from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
 from benchbuild.source import variants
 from benchbuild.utils import db, run, unionfs
@@ -112,8 +111,6 @@ class Project(bt.Project, metaclass=ProjectDecorator):
         TypeError: Validation of properties may throw a TypeError.
 
     Attributes:
-        experiment (benchbuild.experiment.Experiment):
-            The experiment this project is assigned to.
         name (str, optional):
             The name of this project. Defaults to `NAME`.
         domain (str, optional):
@@ -164,8 +161,6 @@ class Project(bt.Project, metaclass=ProjectDecorator):
                 f'{mod_ident} does not define a GROUP class attribute.')
         return new_self
 
-    experiment = attr.ib()
-
     variant: variants.VariantContext = attr.ib()
 
     @variant.default
@@ -202,18 +197,14 @@ class Project(bt.Project, metaclass=ProjectDecorator):
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
-    builddir = attr.ib(default=attr.Factory(lambda self: local.path(
-        str(CFG["build_dir"])) / self.experiment.name / self.id,
-                                            takes_self=True))
+    builddir = attr.ib(default=attr.Factory(
+        lambda self: local.path(str(CFG["build_dir"])) / self.id,
+        takes_self=True))
 
     source = attr.ib(
         default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True))
 
-    compiler_extension = attr.ib(
-        default=attr.Factory(lambda self: ext_run.WithTimeout(
-            compiler.RunCompiler(self, self.experiment)),
-                             takes_self=True))
-
+    compiler_extension = attr.ib(default=None)
     runtime_extension = attr.ib(default=None)
 
     def __attrs_post_init__(self):
@@ -230,38 +221,6 @@ class Project(bt.Project, metaclass=ProjectDecorator):
             experiment: The experiment we run this project under
             run: A function that takes the run command.
         """
-
-    def run(self):
-        """Run the tests of this project.
-
-        This method initializes the default environment and takes care of
-        cleaning up the mess we made, after a successfull run.
-
-        Args:
-            experiment: The experiment we run this project under
-        """
-        from benchbuild.utils.run import (begin_run_group, end_run_group,
-                                          fail_run_group)
-        CFG["experiment"] = self.experiment.name
-        CFG["project"] = self.NAME
-        CFG["domain"] = self.DOMAIN
-        CFG["group"] = self.GROUP
-        CFG["db"]["run_group"] = str(self.run_uuid)
-
-        group, session = begin_run_group(self)
-        signals.handlers.register(fail_run_group, group, session)
-
-        try:
-            self.run_tests()
-            end_run_group(group, session)
-        except ProcessExecutionError:
-            fail_run_group(group, session)
-            raise
-        except KeyboardInterrupt:
-            fail_run_group(group, session)
-            raise
-        finally:
-            signals.handlers.deregister(fail_run_group)
 
     def clean(self):
         """Clean the project build directory."""
@@ -388,3 +347,7 @@ def populate(projects_to_filter=None,
         for x in prjs
         if prjs[x].DOMAIN != "debug" or x in projects_to_filter
     }
+
+
+def build_dir(e: bt.Experiment, p: bt.Project) -> LocalPath:
+    return local.path(str(CFG['builddir'])) / str(e.name) / str(p.id)

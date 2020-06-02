@@ -6,7 +6,7 @@ directories for benchbuild. No compilation & no run can be done with it.
 """
 
 from benchbuild.experiment import Experiment
-from benchbuild.extensions import run
+from benchbuild.extensions import compiler, run
 from benchbuild.utils.actions import Clean, Compile, MakeBuildDir
 
 
@@ -17,6 +17,8 @@ class Empty(Experiment):
 
     def actions_for_project(self, project):
         """ Do nothing. """
+        project.compiler_extension = run.WithTimeout(
+            compiler.RunCompiler(project, self))
         return [MakeBuildDir(project), Compile(project), Clean(project)]
 
 

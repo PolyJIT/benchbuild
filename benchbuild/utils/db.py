@@ -1,10 +1,10 @@
 """Database support module for the benchbuild study."""
 import logging
-import os
 
 from sqlalchemy.exc import IntegrityError
 
 from benchbuild.settings import CFG
+from benchbuild.typing import Experiment, Project
 
 LOG = logging.getLogger(__name__)
 
@@ -46,16 +46,16 @@ def create_run(cmd, project, exp, grp):
     run = s.Run(command=str(cmd),
                 project_name=project.name,
                 project_group=project.group,
-                experiment_name=exp,
+                experiment_name=exp.name,
                 run_group=str(grp),
-                experiment_group=project.experiment.id)
+                experiment_group=exp.id)
     session.add(run)
     session.commit()
 
     return (run, session)
 
 
-def create_run_group(prj):
+def create_run_group(prj: Project, experiment: Experiment):
     """
     Create a new 'run_group' in the database.
 
@@ -66,6 +66,7 @@ def create_run_group(prj):
 
     Args:
         prj - The project for which we open the run_group.
+        experiment - The experiment this group belongs to.
 
     Returns:
         A tuple (group, session) containing both the newly created run_group and
@@ -74,7 +75,6 @@ def create_run_group(prj):
     from benchbuild.utils import schema as s
 
     session = s.Session()
-    experiment = prj.experiment
     group = s.RunGroup(id=prj.run_uuid, experiment=experiment.id)
     session.add(group)
     session.commit()

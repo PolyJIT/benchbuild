@@ -16,7 +16,7 @@ Measurements
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
 from benchbuild.experiment import Experiment
-from benchbuild.extensions import run, time
+from benchbuild.extensions import compiler, run, time
 
 
 class RawRuntime(Experiment):
@@ -29,4 +29,6 @@ class RawRuntime(Experiment):
         project.cflags = ["-O3", "-fno-omit-frame-pointer"]
         project.runtime_extension = time.RunWithTime(
             run.RuntimeExtension(project, self))
+        project.compiler_extension = run.WithTimeout(
+            compiler.RunCompiler(project, self))
         return self.default_runtime_actions(project)

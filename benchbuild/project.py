@@ -25,10 +25,11 @@ from os import getenv
 
 import attr
 import yaml
-from plumbum import ProcessExecutionError, local
+from plumbum import local
+from plumbum.path.local import LocalPath
 from pygtrie import StringTrie
 
-from benchbuild import signals, source
+from benchbuild import source
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
@@ -257,39 +258,7 @@ class Project(metaclass=ProjectDecorator):
             run: A function that takes the run command.
         """
 
-    def run(self) -> None:
-        """Run the tests of this project.
-
-        This method initializes the default environment and takes care of
-        cleaning up the mess we made, after a successfull run.
-
-        Args:
-            experiment: The experiment we run this project under
-        """
-        from benchbuild.utils.run import (begin_run_group, end_run_group,
-                                          fail_run_group)
-        CFG["experiment"] = self.experiment.name
-        CFG["project"] = self.NAME
-        CFG["domain"] = self.DOMAIN
-        CFG["group"] = self.GROUP
-        CFG["db"]["run_group"] = str(self.run_uuid)
-
-        group, session = begin_run_group(self)
-        signals.handlers.register(fail_run_group, group, session)
-
-        try:
-            self.run_tests()
-            end_run_group(group, session)
-        except ProcessExecutionError:
-            fail_run_group(group, session)
-            raise
-        except KeyboardInterrupt:
-            fail_run_group(group, session)
-            raise
-        finally:
-            signals.handlers.deregister(fail_run_group)
-
-    def clean(self) -> None:
+    def clean(self):
         """Clean the project build directory."""
         builddir_p = local.path(self.builddir)
         builddir_p.delete()
@@ -508,3 +477,7 @@ def populate(projects_to_filter: ProjectNames,
         for x in prjs
         if prjs[x].DOMAIN != "debug" or x in projects_to_filter
     }
+
+
+def build_dir(e, p) -> LocalPath:
+    return local.path(str(CFG['build_dir'])) / str(e.name) / str(p.id)

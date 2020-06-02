@@ -4,6 +4,7 @@ from benchbuild import project
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cp, make, tar
+from benchbuild.utils.settings import get_number_of_jobs
 
 
 @download.with_wget({"1.6": "http://ftpmirror.gnu.org/gzip/gzip-1.6.tar.xz"})
@@ -52,4 +53,4 @@ class Gzip(project.Project):
             with local.env(CC=str(clang)):
                 run.run(configure["--disable-dependency-tracking",
                                   "--disable-silent-rules", "--with-gnu-ld"])
-            run.run(make["-j" + str(CFG["jobs"]), "clean", "all"])
+            run.run(make["-j" + str(get_number_of_jobs(CFG)), "clean", "all"])

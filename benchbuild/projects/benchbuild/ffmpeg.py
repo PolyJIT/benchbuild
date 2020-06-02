@@ -4,6 +4,7 @@ from benchbuild import project
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
+from benchbuild.utils.settings import get_number_of_jobs
 
 
 @download.with_wget({
@@ -40,4 +41,4 @@ class LibAV(project.Project):
                 "--disable-shared", "--cc=" + str(clang), "--extra-ldflags=" +
                 " ".join(self.ldflags), "--samples=" + self.fate_dir])
             run.run(make["clean"])
-            run.run(make["-j{0}".format(str(CFG["jobs"])), "all"])
+            run.run(make["-j{0}".format(str(get_number_of_jobs(CFG))), "all"])

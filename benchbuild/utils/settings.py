@@ -85,6 +85,19 @@ def available_cpu_count() -> int:
     raise Exception('Can not determine number of CPUs on this system')
 
 
+def current_available_threads() -> int:
+    """Returns the number of currently available threads for BB."""
+    return len(os.sched_getaffinity(0))
+
+
+def get_number_of_jobs(config: 'Configuration') -> int:
+    """Returns the number of jobs set in the config."""
+    jobs_configured = int(config["jobs"])
+    if jobs_configured == 0:
+        return current_available_threads()
+    return jobs_configured
+
+
 class InvalidConfigKey(RuntimeWarning):
     """Warn, if you access a non-existing key benchbuild's configuration."""
 

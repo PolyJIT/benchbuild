@@ -6,6 +6,7 @@ from benchbuild import project
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
+from benchbuild.utils.settings import get_number_of_jobs
 
 
 @download.with_git("https://github.com/xianyi/OpenBLAS", limit=5)
@@ -66,10 +67,10 @@ class Lapack(project.Project):
                 ]
                 makefile.writelines(content)
 
-            run.run(make["-j", CFG["jobs"], "f2clib", "blaslib"])
+            run.run(make["-j", get_number_of_jobs(CFG), "f2clib", "blaslib"])
             with local.cwd(local.path("BLAS") / "TESTING"):
-                run.run(make["-j", CFG["jobs"], "-f", "Makeblat2"])
-                run.run(make["-j", CFG["jobs"], "-f", "Makeblat3"])
+                run.run(make["-j", get_number_of_jobs(CFG), "-f", "Makeblat2"])
+                run.run(make["-j", get_number_of_jobs(CFG), "-f", "Makeblat3"])
 
     def run_tests(self, runner):
         unpack_dir = local.path("CLAPACK-{0}".format(self.version))

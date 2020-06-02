@@ -16,6 +16,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils import bootstrap, container, download, log, run, uchroot
 from benchbuild.utils import user_interface as ui
 from benchbuild.utils.cmd import bash, mkdir, mv, rm, tar
+from benchbuild.utils.settings import get_number_of_jobs
 
 LOG = logging.getLogger(__name__)
 
@@ -234,7 +235,7 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
 
             packages = \
                 CFG["container"]["strategy"]["polyjit"]["packages"].value
-            with local.env(MAKEOPTS="-j{0}".format(int(CFG["jobs"]))):
+            with local.env(MAKEOPTS="-j{0}".format(get_number_of_jobs(CFG))):
                 if want_sync:
                     LOG.debug("Synchronizing portage.")
                     run.run(emerge_in_chroot["--sync"])

@@ -6,6 +6,7 @@ from plumbum import local
 
 from benchbuild.extensions import base
 from benchbuild.utils import db, run
+from benchbuild.utils.settings import get_number_of_jobs
 
 LOG = logging.getLogger(__name__)
 
@@ -81,10 +82,10 @@ class SetThreadLimit(base.Extension):
 
         config = self.config
         if config is not None and 'jobs' in config.keys():
-            jobs = config['jobs']
+            jobs = get_number_of_jobs(config)
         else:
             LOG.warning("Parameter 'config' was unusable, using defaults")
-            jobs = int(CFG["jobs"])
+            jobs = get_number_of_jobs(CFG)
 
         ret = None
         with local.env(OMP_NUM_THREADS=str(jobs)):

@@ -4,6 +4,7 @@ from benchbuild import project
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cp, make
+from benchbuild.utils.settings import get_number_of_jobs
 
 
 @download.with_git(
@@ -39,7 +40,7 @@ class X264(project.Project):
                 run.run(configure["--disable-thread", "--disable-opencl",
                                   "--enable-pic"])
 
-            run.run(make["clean", "all", "-j", CFG["jobs"]])
+            run.run(make["clean", "all", "-j", get_number_of_jobs(CFG)])
 
     def run_tests(self, runner):
         x264 = wrapping.wrap(local.path(self.src_file) / "x264", self)

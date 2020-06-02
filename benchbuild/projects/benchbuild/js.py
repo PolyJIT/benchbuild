@@ -5,6 +5,7 @@ from plumbum import local
 from benchbuild import project
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils.settings import get_number_of_jobs
 from benchbuild.utils.cmd import make, mkdir, tar
 
 
@@ -56,7 +57,7 @@ class SpiderMonkey(project.Project):
 
         mozjs_obj_dir = mozjs_src_dir / "obj"
         with local.cwd(mozjs_obj_dir):
-            run.run(make["-j", str(CFG["jobs"])])
+            run.run(make["-j", get_number_of_jobs(CFG)])
 
     def run_tests(self, runner):
         mozjs_obj_dir = local.path("mozjs-0.0.0") / "js" / "src" / "obj"

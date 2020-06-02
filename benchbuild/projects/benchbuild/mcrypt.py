@@ -4,6 +4,7 @@ from benchbuild import project
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, path, run, wrapping
 from benchbuild.utils.cmd import make, tar
+from benchbuild.utils.settings import get_number_of_jobs
 
 
 @download.with_wget({
@@ -54,14 +55,14 @@ class MCrypt(project.Project):
             configure = local["./configure"]
             with local.env(CC=_cc, CXX=_cxx):
                 run.run(configure["--prefix=" + builddir])
-                run.run(make["-j", CFG["jobs"], "install"])
+                run.run(make["-j", get_number_of_jobs(CFG), "install"])
 
         # Builder libmcrypt dependency
         with local.cwd(libmcrypt_dir):
             configure = local["./configure"]
             with local.env(CC=_cc, CXX=_cxx):
                 run.run(configure["--prefix=" + builddir])
-                run.run(make["-j", CFG["jobs"], "install"])
+                run.run(make["-j", get_number_of_jobs(CFG), "install"])
 
         with local.cwd(mcrypt_dir):
             configure = local["./configure"]
@@ -79,9 +80,9 @@ class MCrypt(project.Project):
             with local.env(**env):
                 run.run(configure["--disable-dependency-tracking",
                                   "--enable-static", "--disable-shared",
-                                  "--with-libmcrypt=" +
-                                  builddir, "--with-libmhash=" + builddir])
-            run.run(make["-j", CFG["jobs"]])
+                                  "--with-libmcrypt=" + builddir,
+                                  "--with-libmhash=" + builddir])
+            run.run(make["-j", get_number_of_jobs(CFG)])
 
     def run_tests(self, runner):
         mcrypt_dir = local.path(self.builddir) / "mcrypt-2.6.8"

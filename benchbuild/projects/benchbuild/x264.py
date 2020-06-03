@@ -25,6 +25,7 @@ class X264(bb.Project):
     ]
 
     CONFIG = {"tbbt-small": [], "sintel": ["--input-res", "1280x720"]}
+    CONTAINER = container.Buildah().from_('debian:buster-slim')
 
     def compile(self):
         x264_repo = bb.path(self.source_of('x264.git'))

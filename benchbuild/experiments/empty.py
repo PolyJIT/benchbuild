@@ -5,6 +5,7 @@ This experiment is for debugging purposes. It only prepares the basic
 directories for benchbuild. No compilation & no run can be done with it.
 """
 
+from benchbuild.environments import Buildah
 from benchbuild.experiment import Experiment
 from benchbuild.extensions import run
 from benchbuild.utils.actions import Clean, Compile, MakeBuildDir
@@ -14,6 +15,7 @@ class Empty(Experiment):
     """The empty experiment."""
 
     NAME = "empty"
+    CONTAINER = Buildah()
 
     def actions_for_project(self, project):
         """ Do nothing. """
@@ -24,6 +26,7 @@ class NoMeasurement(Experiment):
     """Run everything but do not measure anything."""
 
     NAME = "no-measurement"
+    CONTAINER = Buildah()
 
     def actions_for_project(self, project):
         """Execute all actions but don't do anything as extension."""

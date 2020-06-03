@@ -1,14 +1,14 @@
 """
 Defines commonly required data streams.
 """
+import copy
 from typing import Iterable, Tuple
 
 import rx
-import rx.operators as ops
 from rx.core.typing import Observable
 
 from benchbuild import source
-from benchbuild.typing import ProjectT, VariantContext, VariantTuple
+from benchbuild.typing import ExperimentT, ProjectT, VariantContext
 
 
 def project_stream(project_classes: Iterable[ProjectT]) -> Observable:
@@ -16,32 +16,9 @@ def project_stream(project_classes: Iterable[ProjectT]) -> Observable:
         pc(source.variants.context(variant))
         for pc in project_classes
         for variant in source.product(pc.SOURCE)
-    ])
+    ]).pipe(rx.operators.map(copy.deepcopy))
 
 
-def from_project_classes(projects: Iterable[ProjectT]) -> Observable:
-    """
-    Emit a stream of project classes and an associated variant context.
-
-    Args:
-        projects: An iterable of project classes, commonly obtained via cli.
-
-    Returns:
-        An observable stream of (ProjectT, VariantContext)
-    """
-    project_stream = rx.from_iterable(projects)
-
-    def add_variants(prj: ProjectT) -> rx.Observable:
-        variants = source.product(prj.SOURCE)
-        return rx.combine_latest(rx.return_value(prj),
-                                 rx.from_iterable(variants))
-
-    def variant_to_context(
-            prj: ProjectT,
-            var: VariantTuple) -> Tuple[VariantContext, ProjectT]:
-        return (prj, source.variants.context(var))
-
-    return project_stream.pipe(
-        ops.flat_map(add_variants),
-        ops.starmap(variant_to_context),
-    )
+def experiment_stream(experiment_classes: Iterable[ExperimentT]) -> Observable:
+    return rx.from_iterable([exp() for exp in experiment_classes
+                            ]).pipe(rx.operators.map(copy.deepcopy))

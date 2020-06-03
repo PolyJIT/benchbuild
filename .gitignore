@@ -11,3 +11,5 @@ __pycache__/
 .ipynb_checkpoints/
 .mypy_cache/
 .pytest_cache/
+containers/
+build/

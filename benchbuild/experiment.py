@@ -88,6 +88,7 @@ class Experiment(metaclass=ExperimentRegistry):
     NAME: tp.ClassVar[str] = ''
     SCHEMA = None
     REQUIREMENTS: tp.List[Requirement] = []
+    CONTAINER = None
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
@@ -137,6 +138,9 @@ class Experiment(metaclass=ExperimentRegistry):
         if isinstance(new_schema, collections.abc.Iterable):
             return True
         return False
+
+    container = attr.ib(default=attr.Factory(lambda self: type(self).CONTAINER,
+                                             takes_self=True))
 
     @abstractmethod
     def actions_for_project(self, project: Project) -> Actions:

@@ -81,7 +81,7 @@ def __create_jinja_env():
     from jinja2 import Environment, PackageLoader
     return Environment(trim_blocks=True,
                        lstrip_blocks=True,
-                       loader=PackageLoader('benchbuild', 'utils/templates'))
+                       loader=PackageLoader('benchbuild', 'res'))
 
 
 def wrap(name: str,
@@ -105,7 +105,7 @@ def wrap(name: str,
         A plumbum command, ready to launch.
     """
     env = __create_jinja_env()
-    template = env.get_template('run_static.py.inc')
+    template = env.get_template('wrapping/run_static.py.inc')
 
     name_absolute = os.path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
@@ -174,7 +174,7 @@ def wrap_dynamic(project,
 
     """
     env = __create_jinja_env()
-    template = env.get_template('run_dynamic.py.inc')
+    template = env.get_template('wrapping/run_dynamic.py.inc')
 
     name_absolute = os.path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
@@ -231,7 +231,7 @@ def wrap_cc(filepath,
         Command of the new compiler we can call.
     """
     env = __create_jinja_env()
-    template = env.get_template('run_compiler.py.inc')
+    template = env.get_template('wrapping/run_compiler.py.inc')
 
     cc_fname = local.path(filepath).with_suffix(".benchbuild.cc", depth=0)
     cc_f = persist(compiler, filename=cc_fname)

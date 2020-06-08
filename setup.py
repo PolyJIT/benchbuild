@@ -3,21 +3,17 @@ from setuptools import find_packages, setup
 with open('README.md') as f:
     long_description = f.read()
 
-extra_files = [
-    "templates/run_compiler.py.inc", "templates/run_static.py.inc",
-    "templates/run_dynamic.py.inc", "templates/slurm.sh.inc"
-]
-
-src_extra_files = ["patches/linpack.patch"]
-
-sql_extra_files = [
-    "func.compare_region_wise2.sql", "func.experiments.sql",
-    "func.recompilation.sql", "func.run_regions.sql",
-    "func.total_dyncov_clean.sql", "func.total_speedup.sql",
-    "func.compare_region_wise.sql", "func.project_region_time.sql",
-    "func.run_durations.sql", "func.speedup.sql", "func.total_dyncov.sql",
-    "func.pj-test-eval.sql", "func.compilestats_eval.sql", "func.polly_mse.sql",
-    "func.profileScopDetection-eval.sql"
+RESOURCES = [
+    'res/misc/slurm.sh.inc', "res/sql/func.compare_region_wise2.sql",
+    "res/sql/func.experiments.sql", "res/sql/func.recompilation.sql",
+    "res/sql/func.run_regions.sql", "res/sql/func.total_dyncov_clean.sql",
+    "res/sql/func.total_speedup.sql", "res/sql/func.compare_region_wise.sql",
+    "res/sql/func.project_region_time.sql", "res/sql/func.run_durations.sql",
+    "res/sql/func.speedup.sql", "res/sql/func.total_dyncov.sql",
+    "res/sql/func.pj-test-eval.sql", "res/sql/func.compilestats_eval.sql",
+    "res/sql/func.polly_mse.sql", "res/sql/func.profileScopDetection-eval.sql",
+    "res/wrapping/run_compiler.py.inc", "res/wrapping/run_static.py.inc",
+    "res/wrapping/run_dynamic.py.inc", "res/patches/linpack.patch"
 ]
 
 setup(name='benchbuild',
@@ -27,11 +23,7 @@ setup(name='benchbuild',
           "docs", "extern", "filters", "linker", "src", "statistics", "tests",
           "results"
       ]),
-      package_data={
-          "benchbuild.utils": extra_files,
-          "benchbuild": sql_extra_files,
-          "becnbuild.projects": src_extra_files
-      },
+      package_data={"benchbuild": RESOURCES},
       include_package_data=True,
       setup_requires=["pytest-runner", "setuptools_scm"],
       tests_require=["pytest", "pytest-describe"],

@@ -1,0 +1,10 @@
+FROM alpine:latest
+RUN apk update && \
+    apk add \
+        python3 \
+        python3-dev \
+        linux-headers \
+        musl-dev \
+        git \
+        gcc \
+        sqlite-libs

@@ -13,7 +13,8 @@ RESOURCES = [
     "res/sql/func.pj-test-eval.sql", "res/sql/func.compilestats_eval.sql",
     "res/sql/func.polly_mse.sql", "res/sql/func.profileScopDetection-eval.sql",
     "res/wrapping/run_compiler.py.inc", "res/wrapping/run_static.py.inc",
-    "res/wrapping/run_dynamic.py.inc", "res/patches/linpack.patch"
+    "res/wrapping/run_dynamic.py.inc", "res/patches/linpack.patch",
+    "res/images/Dockerfile.alpine"
 ]
 
 setup(name='benchbuild',

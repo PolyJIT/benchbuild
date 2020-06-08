@@ -488,7 +488,7 @@ def init_functions(connection):
     """Initialize all SQL functions in the database."""
     if settings.CFG["db"]["create_functions"]:
         print("Refreshing SQL functions...")
-        for file in path.template_files("../sql/", exts=[".sql"]):
+        for file in path.template_files("sql/", exts=[".sql"]):
             func = sa.DDL(path.template_str(file))
             LOG.info("Loading: '%s' into database", file)
             connection.execute(func)

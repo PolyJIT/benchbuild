@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.project API documentation</title>
 <meta name="description" content="Project …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -55,7 +55,7 @@ a separate build directory in isolation of one another.
 &#34;&#34;&#34;
 import copy
 import logging
-from typing import Dict, List, Tuple, Optional, Mapping, Type
+from typing import Tuple, Optional, Mapping, Type
 import uuid
 from abc import abstractmethod
 from functools import partial
@@ -65,12 +65,11 @@ import attr
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
-from benchbuild import signals, source
+from benchbuild import signals
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
-from benchbuild.utils import db, run, unionfs
-from benchbuild.source import variants
+from benchbuild.utils import db, run, unionfs, wrapping
 
 LOG = logging.getLogger(__name__)
 
@@ -84,7 +83,7 @@ class ProjectRegistry(type):
         &#34;&#34;&#34;Register a project in the registry.&#34;&#34;&#34;
         super(ProjectRegistry, cls).__init__(name, bases, attrs)
 
-        if &#39;&#39; not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
+        if None not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
             key = &#34;{name}/{group}&#34;.format(name=cls.NAME, group=cls.GROUP)
             ProjectRegistry.projects[key] = cls
 
@@ -138,6 +137,8 @@ class Project(metaclass=ProjectDecorator):
         run_tests: Wrap any binary that has to be run under the
             runtime_extension wrapper and execute an implementation defined
             set of run-time tests.
+            Defaults to a call of a binary with the name `run_f` in the
+            build directory without arguments.
         clean: Clean the project&#39;s build directory. Defaults to
             recursive &#39;rm&#39; on the build directory and can be disabled
             by setting the environment variable ``BB_CLEAN=false``.
@@ -157,15 +158,27 @@ class Project(metaclass=ProjectDecorator):
             The application domain of this project. Defaults to `DOMAIN`.
         group (str, optional):
             The group this project belongs to. Defaults to `GROUP`.
+        src_file (str, optional):
+            A main src_file this project is assigned to. Defaults to `SRC_FILE`
         container (benchbuild.utils.container.Container, optional):
             A uchroot compatible container that we can use for this project.
             Defaults to `benchbuild.utils.container.Gentoo`.
+        version (str, optional):
+            A version information for this project. Defaults to `VERSION`.
         builddir (str, optional):
             The build directory for this project. Auto generated, if not set.
+        testdir (str, optional):
+            The location of any additional test-files for this project,
+            usually stored out of tree. Auto generated, if not set. Usually a
+            project implementation
+            will define this itself.
         cflags (:obj:`list` of :obj:`str`, optional)
             A list of cflags used, for compilation of this project.
         ldflags (:obj:`list` of :obj:`str`, optional)
             A list of ldflags used, for compilation of this project.
+        run_f (str, optional):
+            A filename that points to the binary we want to track.
+            Usually a project implementation will define this itself.
         run_uuid (uuid.UUID, optional):
             An UUID that identifies all binaries executed by a single run of
             this project. In the database schema this is named the &#39;run_group&#39;.
@@ -180,46 +193,60 @@ class Project(metaclass=ProjectDecorator):
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     &#34;&#34;&#34;
+    NAME = None
+    DOMAIN = None
+    GROUP = None
+    VERSION = None
+    SRC_FILE = None
     CONTAINER = None
-    DOMAIN: str = &#34;&#34;
-    GROUP: str = &#34;&#34;
-    NAME: str = &#34;&#34;
-    SOURCE: List[source.BaseSource] = []
 
     def __new__(cls, *args, **kwargs):
         &#34;&#34;&#34;Create a new project instance and set some defaults.&#34;&#34;&#34;
         new_self = super(Project, cls).__new__(cls)
-        mod_ident = f&#39;{cls.__name__} @ {cls.__module__}&#39;
-        if not cls.NAME:
+        if cls.NAME is None:
             raise AttributeError(
-                f&#39;{mod_ident} does not define a NAME class attribute.&#39;)
-        if not cls.DOMAIN:
+                &#34;{0} @ {1} does not define a NAME class attribute.&#34;.format(
+                    cls.__name__, cls.__module__))
+        if cls.DOMAIN is None:
             raise AttributeError(
-                f&#39;{mod_ident} does not define a DOMAIN class attribute.&#39;)
-        if not cls.GROUP:
+                &#34;{0} @ {1} does not define a DOMAIN class attribute.&#34;.format(
+                    cls.__name__, cls.__module__))
+        if cls.GROUP is None:
             raise AttributeError(
-                f&#39;{mod_ident} does not define a GROUP class attribute.&#39;)
+                &#34;{0} @ {1} does not define a GROUP class attribute.&#34;.format(
+                    cls.__name__, cls.__module__))
         return new_self
 
     experiment = attr.ib()
 
-    variant: variants.VariantContext = attr.ib()
-
-    @variant.default
-    def __default_variant(self) -&gt; source.variants.VariantContext:
-        return source.default(type(self).SOURCE)
-
-    name: str = attr.ib(
+    name = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
-    domain: str = attr.ib(
+    domain = attr.ib(
         default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True))
 
     group = attr.ib(
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
 
-    container = attr.ib(default=attr.Factory(
-        lambda self: copy.deepcopy(type(self).CONTAINER), takes_self=True))
+    src_file = attr.ib(
+        default=attr.Factory(
+            lambda self: type(self).SRC_FILE, takes_self=True))
+
+    container = attr.ib(
+        default=attr.Factory(
+            lambda self: type(self).CONTAINER, takes_self=True))
+
+    version = attr.ib(
+        default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
+
+    testdir = attr.ib()
+
+    @testdir.default
+    def __default_testdir(self):
+        if self.group:
+            return local.path(str(
+                CFG[&#34;test_dir&#34;])) / self.domain / self.group / self.name
+        return local.path(str(CFG[&#34;test_dir&#34;])) / self.domain / self.name
 
     cflags = attr.ib(default=attr.Factory(list))
 
@@ -239,25 +266,27 @@ class Project(metaclass=ProjectDecorator):
         if not isinstance(value, uuid.UUID):
             raise TypeError(&#34;{attribute} must be a valid UUID object&#34;)
 
-    builddir = attr.ib(default=attr.Factory(lambda self: local.path(
-        str(CFG[&#34;build_dir&#34;])) / self.experiment.name / self.id,
-                                            takes_self=True))
+    builddir = attr.ib(default=attr.Factory(
+        lambda self: local.path(str(CFG[&#34;build_dir&#34;])) /
+        &#34;{}-{}&#34;.format(
+            self.experiment.name, self.id),
+        takes_self=True))
 
-    source = attr.ib(
-        default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True))
+    run_f = attr.ib(
+        default=attr.Factory(
+            lambda self: local.path(self.builddir) / self.name,
+            takes_self=True))
 
-    compiler_extension = attr.ib(
-        default=attr.Factory(lambda self: ext_run.WithTimeout(
-            compiler.RunCompiler(self, self.experiment)),
-                             takes_self=True))
+    compiler_extension = attr.ib(default=attr.Factory(
+        lambda self: ext_run.WithTimeout(
+            compiler.RunCompiler(self, self.experiment)), takes_self=True))
 
     runtime_extension = attr.ib(default=None)
 
     def __attrs_post_init__(self):
         db.persist_project(self)
 
-    @abstractmethod
-    def run_tests(self):
+    def run_tests(self, runner):
         &#34;&#34;&#34;
         Run the tests of this project.
 
@@ -267,6 +296,8 @@ class Project(metaclass=ProjectDecorator):
             experiment: The experiment we run this project under
             run: A function that takes the run command.
         &#34;&#34;&#34;
+        exp = wrapping.wrap(self.run_f, self)
+        runner(exp)
 
     def run(self):
         &#34;&#34;&#34;Run the tests of this project.
@@ -283,13 +314,14 @@ class Project(metaclass=ProjectDecorator):
         CFG[&#34;project&#34;] = self.NAME
         CFG[&#34;domain&#34;] = self.DOMAIN
         CFG[&#34;group&#34;] = self.GROUP
+        CFG[&#34;version&#34;] = self.VERSION
         CFG[&#34;db&#34;][&#34;run_group&#34;] = str(self.run_uuid)
 
         group, session = begin_run_group(self)
         signals.handlers.register(fail_run_group, group, session)
 
         try:
-            self.run_tests()
+            self.run_tests(run.run)
             end_run_group(group, session)
         except ProcessExecutionError:
             fail_run_group(group, session)
@@ -305,63 +337,45 @@ class Project(metaclass=ProjectDecorator):
         builddir_p = local.path(self.builddir)
         builddir_p.delete()
 
-    def clone(self):
-        &#34;&#34;&#34;Create a deepcopy of ourself.&#34;&#34;&#34;
-        new_p = copy.deepcopy(self)
-        new_p.run_uuid = uuid.uuid4()
-        return new_p
-
-    @abstractmethod
-    def compile(self):
-        &#34;&#34;&#34;Compile the project.&#34;&#34;&#34;
-
-    @property
-    def id(self):
-        version_str = source.variants.to_str(tuple(self.variant.values()))
-        return f&#34;{self.name}/{self.group}/{version_str}/{self.run_uuid}&#34;
-
     def prepare(self):
         &#34;&#34;&#34;Prepare the build diretory.&#34;&#34;&#34;
         builddir_p = local.path(self.builddir)
         if not builddir_p.exists():
             builddir_p.mkdir()
 
+    @abstractmethod
+    def compile(self):
+        &#34;&#34;&#34;Compile the project.&#34;&#34;&#34;
+
+    def download(self, version=None):
+        &#34;&#34;&#34;Auto-generated by with_* decorators.&#34;&#34;&#34;
+        del version
+        LOG.error(&#34;Not implemented.&#34;)
+
     def redirect(self):
         &#34;&#34;&#34;Redirect execution to a containerized benchbuild instance.&#34;&#34;&#34;
         LOG.error(&#34;Redirection not supported by project.&#34;)
 
-    def source_of(self, name: str) -&gt; Optional[str]:
-        &#34;&#34;&#34;
-        Retrieve source for given index name.
+    def clone(self):
+        &#34;&#34;&#34;Create a deepcopy of ourself.&#34;&#34;&#34;
+        new_p = copy.deepcopy(self)
+        new_p.run_uuid = uuid.uuid4()
+        return new_p
 
-        Args:
-            project (Project): The project to access.
-            name (str): Local name of the source .
+    @property
+    def id(self):
+        return &#34;{name}-{group}@{version}_uuid_{id}&#34;.format(
+            name=self.name,
+            group=self.group,
+            version=self.version,
+            id=self.run_uuid)
 
-        Returns:
-            (Optional[BaseSource]): A source representing this variant.
-        &#34;&#34;&#34;
-        variant = self.variant
-        if name in variant:
-            return variant[name].owner.local
-        return None
-
-    def version_of(self, name: str) -&gt; Optional[str]:
-        &#34;&#34;&#34;
-        Retrieve source for given index name.
-
-        Args:
-            project (Project): The project to access.
-            name (str): Local name of the source .
-
-        Returns:
-            (Optional[BaseSource]): A source representing this variant.
-        &#34;&#34;&#34;
-        variant = self.variant
-        if name in variant:
-            return str(variant[name])
-        return None
-
+    @classmethod
+    def versions(cls):
+        &#34;&#34;&#34;Return all available versions.&#34;&#34;&#34;
+        if cls.VERSION:
+            return [cls.VERSION]
+        return [&#34;unknown&#34;]
 
 def __split_project_input__(project_input: str) -&gt; Tuple[str, Optional[str]]:
     split_input = project_input.rsplit(&#39;@&#39;, maxsplit=1)
@@ -369,11 +383,6 @@ def __split_project_input__(project_input: str) -&gt; Tuple[str, Optional[str]]:
     second = split_input[1] if len(split_input) &gt; 1 else None
 
     return (first, second)
-
-
-def discovered() -&gt; Dict[str, Project]:
-    &#34;&#34;&#34;Return all discovered projects.&#34;&#34;&#34;
-    return ProjectRegistry.projects
 
 
 def populate(projects_to_filter=None,
@@ -387,7 +396,7 @@ def populate(projects_to_filter=None,
             We intersect the list of projects with the list of supported
             projects to get the list of projects that belong to this
             experiment.
-        group (list(str))):
+        group (list(str)):
             In addition to the project filter, we provide a way to filter
             whole groups.
     Returns:
@@ -396,21 +405,23 @@ def populate(projects_to_filter=None,
     if projects_to_filter is None:
         projects_to_filter = []
 
-    prjs = discovered()
+    import benchbuild.projects as all_projects
+    all_projects.discover()
+
+    prjs = ProjectRegistry.projects
     if projects_to_filter:
         prjs = {}
-
         def single_version_impl(version):
             return lambda: [version]
 
         for filter_project in set(projects_to_filter):
             project_str, version = __split_project_input__(filter_project)
             try:
-                selected = ProjectRegistry.projects.items(prefix=project_str)
-                for name, prj_cls in selected:
+                for name, project_type in ProjectRegistry.projects.items(
+                        prefix=project_str):
                     if version:
-                        prj_cls.versions = single_version_impl(version)
-                    prjs.update({name: prj_cls})
+                        project_type.versions = single_version_impl(version)
+                    prjs.update({name: project_type})
             except KeyError:
                 pass
 
@@ -434,36 +445,22 @@ def populate(projects_to_filter=None,
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="benchbuild.project.discovered"><code class="name flex">
-<span>def <span class="ident">discovered</span></span>(<span>) -> Dict[str, <a title="benchbuild.project.Project" href="#benchbuild.project.Project">Project</a>]</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Return all discovered projects.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def discovered() -&gt; Dict[str, Project]:
-    &#34;&#34;&#34;Return all discovered projects.&#34;&#34;&#34;
-    return ProjectRegistry.projects</code></pre>
-</details>
-</dd>
 <dt id="benchbuild.project.populate"><code class="name flex">
 <span>def <span class="ident">populate</span></span>(<span>projects_to_filter=None, group=None) -> Mapping[str, Tuple[Type[<a title="benchbuild.project.Project" href="#benchbuild.project.Project">Project</a>], Union[str, NoneType]]]</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Populate the list of projects that belong to this experiment.</p>
+<div class="desc"><p>Populate the list of projects that belong to this experiment.</p>
 <h2 id="args">Args</h2>
 <p>projects_to_filter (list(Project)):
 List of projects we want to assign to this experiment.
 We intersect the list of projects with the list of supported
 projects to get the list of projects that belong to this
 experiment.
-group (list(str))):
+group (list(str)):
 In addition to the project filter, we provide a way to filter
 whole groups.</p>
 <h2 id="returns">Returns</h2>
-<p>a dictionary of (project name, project class) pairs.</p></section>
+<p>a dictionary of (project name, project class) pairs.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -479,7 +476,7 @@ whole groups.</p>
             We intersect the list of projects with the list of supported
             projects to get the list of projects that belong to this
             experiment.
-        group (list(str))):
+        group (list(str)):
             In addition to the project filter, we provide a way to filter
             whole groups.
     Returns:
@@ -488,21 +485,23 @@ whole groups.</p>
     if projects_to_filter is None:
         projects_to_filter = []
 
-    prjs = discovered()
+    import benchbuild.projects as all_projects
+    all_projects.discover()
+
+    prjs = ProjectRegistry.projects
     if projects_to_filter:
         prjs = {}
-
         def single_version_impl(version):
             return lambda: [version]
 
         for filter_project in set(projects_to_filter):
             project_str, version = __split_project_input__(filter_project)
             try:
-                selected = ProjectRegistry.projects.items(prefix=project_str)
-                for name, prj_cls in selected:
+                for name, project_type in ProjectRegistry.projects.items(
+                        prefix=project_str):
                     if version:
-                        prj_cls.versions = single_version_impl(version)
-                    prjs.update({name: prj_cls})
+                        project_type.versions = single_version_impl(version)
+                    prjs.update({name: project_type})
             except KeyError:
                 pass
 
@@ -529,7 +528,7 @@ whole groups.</p>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Abstract class for benchbuild projects.</p>
+<div class="desc"><p>Abstract class for benchbuild projects.</p>
 <p>A project is an arbitrary software system usable by benchbuild in
 experiments.
 Subclasses of Project are registered automatically by benchbuild, if
@@ -541,16 +540,18 @@ compile: Downloads &amp; Compiles the source.</p>
 run_tests: Wrap any binary that has to be run under the
 runtime_extension wrapper and execute an implementation defined
 set of run-time tests.
+Defaults to a call of a binary with the name <code>run_f</code> in the
+build directory without arguments.
 clean: Clean the project's build directory. Defaults to
 recursive 'rm' on the build directory and can be disabled
 by setting the environment variable <code>BB_CLEAN=false</code>.</p>
 <h2 id="raises">Raises</h2>
 <dl>
-<dt><strong><code>AttributeError</code></strong></dt>
+<dt><code>AttributeError</code></dt>
 <dd>Class definition raises an attribute error, if
 the implementation does not provide a value for the attributes
 <code>NAME</code>, <code>DOMAIN</code>, and <code>GROUP</code></dd>
-<dt><strong><code>TypeError</code></strong></dt>
+<dt><code>TypeError</code></dt>
 <dd>Validation of properties may throw a TypeError.</dd>
 </dl>
 <h2 id="attributes">Attributes</h2>
@@ -562,15 +563,27 @@ domain (str, optional):
 The application domain of this project. Defaults to <code>DOMAIN</code>.
 group (str, optional):
 The group this project belongs to. Defaults to <code>GROUP</code>.
+src_file (str, optional):
+A main src_file this project is assigned to. Defaults to <code>SRC_FILE</code>
 container (benchbuild.utils.container.Container, optional):
 A uchroot compatible container that we can use for this project.
-Defaults to <a title="benchbuild.utils.container.Gentoo" href="utils/container.html#benchbuild.utils.container.Gentoo"><code>Gentoo</code></a>.
+Defaults to <code><a title="benchbuild.utils.container.Gentoo" href="utils/container.html#benchbuild.utils.container.Gentoo">Gentoo</a></code>.
+version (str, optional):
+A version information for this project. Defaults to <code>VERSION</code>.
 builddir (str, optional):
 The build directory for this project. Auto generated, if not set.
+testdir (str, optional):
+The location of any additional test-files for this project,
+usually stored out of tree. Auto generated, if not set. Usually a
+project implementation
+will define this itself.
 cflags (:obj:<code>list</code> of :obj:<code>str</code>, optional)
 A list of cflags used, for compilation of this project.
 ldflags (:obj:<code>list</code> of :obj:<code>str</code>, optional)
 A list of ldflags used, for compilation of this project.
+run_f (str, optional):
+A filename that points to the binary we want to track.
+Usually a project implementation will define this itself.
 run_uuid (uuid.UUID, optional):
 An UUID that identifies all binaries executed by a single run of
 this project. In the database schema this is named the 'run_group'.
@@ -582,8 +595,8 @@ runtime_extension (Callable[str, iterable[str], RunInfo], optional):
 A composable extension that will be used in place of any binary
 this project
 wants to execute. Which binaries to replace is defined by the
-implementation using <a title="benchbuild.utils.wrapping.wrap" href="utils/wrapping.html#benchbuild.utils.wrapping.wrap"><code>wrap()</code></a>.
-Defaults to None.</p></section>
+implementation using <code><a title="benchbuild.utils.wrapping.wrap" href="utils/wrapping.html#benchbuild.utils.wrapping.wrap">wrap()</a></code>.
+Defaults to None.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -604,6 +617,8 @@ Defaults to None.</p></section>
         run_tests: Wrap any binary that has to be run under the
             runtime_extension wrapper and execute an implementation defined
             set of run-time tests.
+            Defaults to a call of a binary with the name `run_f` in the
+            build directory without arguments.
         clean: Clean the project&#39;s build directory. Defaults to
             recursive &#39;rm&#39; on the build directory and can be disabled
             by setting the environment variable ``BB_CLEAN=false``.
@@ -623,15 +638,27 @@ Defaults to None.</p></section>
             The application domain of this project. Defaults to `DOMAIN`.
         group (str, optional):
             The group this project belongs to. Defaults to `GROUP`.
+        src_file (str, optional):
+            A main src_file this project is assigned to. Defaults to `SRC_FILE`
         container (benchbuild.utils.container.Container, optional):
             A uchroot compatible container that we can use for this project.
             Defaults to `benchbuild.utils.container.Gentoo`.
+        version (str, optional):
+            A version information for this project. Defaults to `VERSION`.
         builddir (str, optional):
             The build directory for this project. Auto generated, if not set.
+        testdir (str, optional):
+            The location of any additional test-files for this project,
+            usually stored out of tree. Auto generated, if not set. Usually a
+            project implementation
+            will define this itself.
         cflags (:obj:`list` of :obj:`str`, optional)
             A list of cflags used, for compilation of this project.
         ldflags (:obj:`list` of :obj:`str`, optional)
             A list of ldflags used, for compilation of this project.
+        run_f (str, optional):
+            A filename that points to the binary we want to track.
+            Usually a project implementation will define this itself.
         run_uuid (uuid.UUID, optional):
             An UUID that identifies all binaries executed by a single run of
             this project. In the database schema this is named the &#39;run_group&#39;.
@@ -646,46 +673,60 @@ Defaults to None.</p></section>
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     &#34;&#34;&#34;
+    NAME = None
+    DOMAIN = None
+    GROUP = None
+    VERSION = None
+    SRC_FILE = None
     CONTAINER = None
-    DOMAIN: str = &#34;&#34;
-    GROUP: str = &#34;&#34;
-    NAME: str = &#34;&#34;
-    SOURCE: List[source.BaseSource] = []
 
     def __new__(cls, *args, **kwargs):
         &#34;&#34;&#34;Create a new project instance and set some defaults.&#34;&#34;&#34;
         new_self = super(Project, cls).__new__(cls)
-        mod_ident = f&#39;{cls.__name__} @ {cls.__module__}&#39;
-        if not cls.NAME:
+        if cls.NAME is None:
             raise AttributeError(
-                f&#39;{mod_ident} does not define a NAME class attribute.&#39;)
-        if not cls.DOMAIN:
+                &#34;{0} @ {1} does not define a NAME class attribute.&#34;.format(
+                    cls.__name__, cls.__module__))
+        if cls.DOMAIN is None:
             raise AttributeError(
-                f&#39;{mod_ident} does not define a DOMAIN class attribute.&#39;)
-        if not cls.GROUP:
+                &#34;{0} @ {1} does not define a DOMAIN class attribute.&#34;.format(
+                    cls.__name__, cls.__module__))
+        if cls.GROUP is None:
             raise AttributeError(
-                f&#39;{mod_ident} does not define a GROUP class attribute.&#39;)
+                &#34;{0} @ {1} does not define a GROUP class attribute.&#34;.format(
+                    cls.__name__, cls.__module__))
         return new_self
 
     experiment = attr.ib()
 
-    variant: variants.VariantContext = attr.ib()
-
-    @variant.default
-    def __default_variant(self) -&gt; source.variants.VariantContext:
-        return source.default(type(self).SOURCE)
-
-    name: str = attr.ib(
+    name = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
-    domain: str = attr.ib(
+    domain = attr.ib(
         default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True))
 
     group = attr.ib(
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
 
-    container = attr.ib(default=attr.Factory(
-        lambda self: copy.deepcopy(type(self).CONTAINER), takes_self=True))
+    src_file = attr.ib(
+        default=attr.Factory(
+            lambda self: type(self).SRC_FILE, takes_self=True))
+
+    container = attr.ib(
+        default=attr.Factory(
+            lambda self: type(self).CONTAINER, takes_self=True))
+
+    version = attr.ib(
+        default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
+
+    testdir = attr.ib()
+
+    @testdir.default
+    def __default_testdir(self):
+        if self.group:
+            return local.path(str(
+                CFG[&#34;test_dir&#34;])) / self.domain / self.group / self.name
+        return local.path(str(CFG[&#34;test_dir&#34;])) / self.domain / self.name
 
     cflags = attr.ib(default=attr.Factory(list))
 
@@ -705,25 +746,27 @@ Defaults to None.</p></section>
         if not isinstance(value, uuid.UUID):
             raise TypeError(&#34;{attribute} must be a valid UUID object&#34;)
 
-    builddir = attr.ib(default=attr.Factory(lambda self: local.path(
-        str(CFG[&#34;build_dir&#34;])) / self.experiment.name / self.id,
-                                            takes_self=True))
+    builddir = attr.ib(default=attr.Factory(
+        lambda self: local.path(str(CFG[&#34;build_dir&#34;])) /
+        &#34;{}-{}&#34;.format(
+            self.experiment.name, self.id),
+        takes_self=True))
 
-    source = attr.ib(
-        default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True))
+    run_f = attr.ib(
+        default=attr.Factory(
+            lambda self: local.path(self.builddir) / self.name,
+            takes_self=True))
 
-    compiler_extension = attr.ib(
-        default=attr.Factory(lambda self: ext_run.WithTimeout(
-            compiler.RunCompiler(self, self.experiment)),
-                             takes_self=True))
+    compiler_extension = attr.ib(default=attr.Factory(
+        lambda self: ext_run.WithTimeout(
+            compiler.RunCompiler(self, self.experiment)), takes_self=True))
 
     runtime_extension = attr.ib(default=None)
 
     def __attrs_post_init__(self):
         db.persist_project(self)
 
-    @abstractmethod
-    def run_tests(self):
+    def run_tests(self, runner):
         &#34;&#34;&#34;
         Run the tests of this project.
 
@@ -733,6 +776,8 @@ Defaults to None.</p></section>
             experiment: The experiment we run this project under
             run: A function that takes the run command.
         &#34;&#34;&#34;
+        exp = wrapping.wrap(self.run_f, self)
+        runner(exp)
 
     def run(self):
         &#34;&#34;&#34;Run the tests of this project.
@@ -749,13 +794,14 @@ Defaults to None.</p></section>
         CFG[&#34;project&#34;] = self.NAME
         CFG[&#34;domain&#34;] = self.DOMAIN
         CFG[&#34;group&#34;] = self.GROUP
+        CFG[&#34;version&#34;] = self.VERSION
         CFG[&#34;db&#34;][&#34;run_group&#34;] = str(self.run_uuid)
 
         group, session = begin_run_group(self)
         signals.handlers.register(fail_run_group, group, session)
 
         try:
-            self.run_tests()
+            self.run_tests(run.run)
             end_run_group(group, session)
         except ProcessExecutionError:
             fail_run_group(group, session)
@@ -771,125 +817,147 @@ Defaults to None.</p></section>
         builddir_p = local.path(self.builddir)
         builddir_p.delete()
 
-    def clone(self):
-        &#34;&#34;&#34;Create a deepcopy of ourself.&#34;&#34;&#34;
-        new_p = copy.deepcopy(self)
-        new_p.run_uuid = uuid.uuid4()
-        return new_p
-
-    @abstractmethod
-    def compile(self):
-        &#34;&#34;&#34;Compile the project.&#34;&#34;&#34;
-
-    @property
-    def id(self):
-        version_str = source.variants.to_str(tuple(self.variant.values()))
-        return f&#34;{self.name}/{self.group}/{version_str}/{self.run_uuid}&#34;
-
     def prepare(self):
         &#34;&#34;&#34;Prepare the build diretory.&#34;&#34;&#34;
         builddir_p = local.path(self.builddir)
         if not builddir_p.exists():
             builddir_p.mkdir()
 
+    @abstractmethod
+    def compile(self):
+        &#34;&#34;&#34;Compile the project.&#34;&#34;&#34;
+
+    def download(self, version=None):
+        &#34;&#34;&#34;Auto-generated by with_* decorators.&#34;&#34;&#34;
+        del version
+        LOG.error(&#34;Not implemented.&#34;)
+
     def redirect(self):
         &#34;&#34;&#34;Redirect execution to a containerized benchbuild instance.&#34;&#34;&#34;
         LOG.error(&#34;Redirection not supported by project.&#34;)
 
-    def source_of(self, name: str) -&gt; Optional[str]:
-        &#34;&#34;&#34;
-        Retrieve source for given index name.
+    def clone(self):
+        &#34;&#34;&#34;Create a deepcopy of ourself.&#34;&#34;&#34;
+        new_p = copy.deepcopy(self)
+        new_p.run_uuid = uuid.uuid4()
+        return new_p
 
-        Args:
-            project (Project): The project to access.
-            name (str): Local name of the source .
+    @property
+    def id(self):
+        return &#34;{name}-{group}@{version}_uuid_{id}&#34;.format(
+            name=self.name,
+            group=self.group,
+            version=self.version,
+            id=self.run_uuid)
 
-        Returns:
-            (Optional[BaseSource]): A source representing this variant.
-        &#34;&#34;&#34;
-        variant = self.variant
-        if name in variant:
-            return variant[name].owner.local
-        return None
-
-    def version_of(self, name: str) -&gt; Optional[str]:
-        &#34;&#34;&#34;
-        Retrieve source for given index name.
-
-        Args:
-            project (Project): The project to access.
-            name (str): Local name of the source .
-
-        Returns:
-            (Optional[BaseSource]): A source representing this variant.
-        &#34;&#34;&#34;
-        variant = self.variant
-        if name in variant:
-            return str(variant[name])
-        return None</code></pre>
+    @classmethod
+    def versions(cls):
+        &#34;&#34;&#34;Return all available versions.&#34;&#34;&#34;
+        if cls.VERSION:
+            return [cls.VERSION]
+        return [&#34;unknown&#34;]</code></pre>
 </details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="projects/apollo/rodinia.html#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
+<li><a title="benchbuild.projects.apollo.scimark.SciMark" href="projects/apollo/scimark.html#benchbuild.projects.apollo.scimark.SciMark">SciMark</a></li>
+<li><a title="benchbuild.projects.benchbuild.bots.BOTSGroup" href="projects/benchbuild/bots.html#benchbuild.projects.benchbuild.bots.BOTSGroup">BOTSGroup</a></li>
+<li><a title="benchbuild.projects.benchbuild.bzip2.Bzip2" href="projects/benchbuild/bzip2.html#benchbuild.projects.benchbuild.bzip2.Bzip2">Bzip2</a></li>
+<li><a title="benchbuild.projects.benchbuild.ccrypt.Ccrypt" href="projects/benchbuild/ccrypt.html#benchbuild.projects.benchbuild.ccrypt.Ccrypt">Ccrypt</a></li>
+<li><a title="benchbuild.projects.benchbuild.crafty.Crafty" href="projects/benchbuild/crafty.html#benchbuild.projects.benchbuild.crafty.Crafty">Crafty</a></li>
+<li><a title="benchbuild.projects.benchbuild.crocopat.Crocopat" href="projects/benchbuild/crocopat.html#benchbuild.projects.benchbuild.crocopat.Crocopat">Crocopat</a></li>
+<li><a title="benchbuild.projects.benchbuild.ffmpeg.LibAV" href="projects/benchbuild/ffmpeg.html#benchbuild.projects.benchbuild.ffmpeg.LibAV">LibAV</a></li>
+<li><a title="benchbuild.projects.benchbuild.gzip.Gzip" href="projects/benchbuild/gzip.html#benchbuild.projects.benchbuild.gzip.Gzip">Gzip</a></li>
+<li><a title="benchbuild.projects.benchbuild.js.SpiderMonkey" href="projects/benchbuild/js.html#benchbuild.projects.benchbuild.js.SpiderMonkey">SpiderMonkey</a></li>
+<li><a title="benchbuild.projects.benchbuild.lammps.Lammps" href="projects/benchbuild/lammps.html#benchbuild.projects.benchbuild.lammps.Lammps">Lammps</a></li>
+<li><a title="benchbuild.projects.benchbuild.lapack.Lapack" href="projects/benchbuild/lapack.html#benchbuild.projects.benchbuild.lapack.Lapack">Lapack</a></li>
+<li><a title="benchbuild.projects.benchbuild.lapack.OpenBlas" href="projects/benchbuild/lapack.html#benchbuild.projects.benchbuild.lapack.OpenBlas">OpenBlas</a></li>
+<li><a title="benchbuild.projects.benchbuild.leveldb.LevelDB" href="projects/benchbuild/leveldb.html#benchbuild.projects.benchbuild.leveldb.LevelDB">LevelDB</a></li>
+<li><a title="benchbuild.projects.benchbuild.linpack.Linpack" href="projects/benchbuild/linpack.html#benchbuild.projects.benchbuild.linpack.Linpack">Linpack</a></li>
+<li><a title="benchbuild.projects.benchbuild.lulesh.Lulesh" href="projects/benchbuild/lulesh.html#benchbuild.projects.benchbuild.lulesh.Lulesh">Lulesh</a></li>
+<li><a title="benchbuild.projects.benchbuild.lulesh.LuleshOMP" href="projects/benchbuild/lulesh.html#benchbuild.projects.benchbuild.lulesh.LuleshOMP">LuleshOMP</a></li>
+<li><a title="benchbuild.projects.benchbuild.mcrypt.MCrypt" href="projects/benchbuild/mcrypt.html#benchbuild.projects.benchbuild.mcrypt.MCrypt">MCrypt</a></li>
+<li><a title="benchbuild.projects.benchbuild.minisat.Minisat" href="projects/benchbuild/minisat.html#benchbuild.projects.benchbuild.minisat.Minisat">Minisat</a></li>
+<li><a title="benchbuild.projects.benchbuild.openssl.LibreSSL" href="projects/benchbuild/openssl.html#benchbuild.projects.benchbuild.openssl.LibreSSL">LibreSSL</a></li>
+<li><a title="benchbuild.projects.benchbuild.povray.Povray" href="projects/benchbuild/povray.html#benchbuild.projects.benchbuild.povray.Povray">Povray</a></li>
+<li><a title="benchbuild.projects.benchbuild.python.Python" href="projects/benchbuild/python.html#benchbuild.projects.benchbuild.python.Python">Python</a></li>
+<li><a title="benchbuild.projects.benchbuild.rasdaman.Rasdaman" href="projects/benchbuild/rasdaman.html#benchbuild.projects.benchbuild.rasdaman.Rasdaman">Rasdaman</a></li>
+<li><a title="benchbuild.projects.benchbuild.ruby.Ruby" href="projects/benchbuild/ruby.html#benchbuild.projects.benchbuild.ruby.Ruby">Ruby</a></li>
+<li><a title="benchbuild.projects.benchbuild.sdcc.SDCC" href="projects/benchbuild/sdcc.html#benchbuild.projects.benchbuild.sdcc.SDCC">SDCC</a></li>
+<li><a title="benchbuild.projects.benchbuild.sevenz.SevenZip" href="projects/benchbuild/sevenz.html#benchbuild.projects.benchbuild.sevenz.SevenZip">SevenZip</a></li>
+<li><a title="benchbuild.projects.benchbuild.sqlite3.SQLite3" href="projects/benchbuild/sqlite3.html#benchbuild.projects.benchbuild.sqlite3.SQLite3">SQLite3</a></li>
+<li><a title="benchbuild.projects.benchbuild.tcc.TCC" href="projects/benchbuild/tcc.html#benchbuild.projects.benchbuild.tcc.TCC">TCC</a></li>
+<li><a title="benchbuild.projects.benchbuild.x264.X264" href="projects/benchbuild/x264.html#benchbuild.projects.benchbuild.x264.X264">X264</a></li>
+<li><a title="benchbuild.projects.benchbuild.xz.XZ" href="projects/benchbuild/xz.html#benchbuild.projects.benchbuild.xz.XZ">XZ</a></li>
+<li><a title="benchbuild.projects.gentoo.gentoo.GentooGroup" href="projects/gentoo/gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup">GentooGroup</a></li>
+<li><a title="benchbuild.projects.lnt.lnt.LNTGroup" href="projects/lnt/lnt.html#benchbuild.projects.lnt.lnt.LNTGroup">LNTGroup</a></li>
+<li><a title="benchbuild.projects.polybench.polybench.PolyBenchGroup" href="projects/polybench/polybench.html#benchbuild.projects.polybench.polybench.PolyBenchGroup">PolyBenchGroup</a></li>
+<li><a title="benchbuild.projects.test.test.TestProject" href="projects/test/test.html#benchbuild.projects.test.test.TestProject">TestProject</a></li>
+<li><a title="benchbuild.projects.test.test.TestProjectRuntimeFail" href="projects/test/test.html#benchbuild.projects.test.test.TestProjectRuntimeFail">TestProjectRuntimeFail</a></li>
+</ul>
 <h3>Class variables</h3>
 <dl>
 <dt id="benchbuild.project.Project.CONTAINER"><code class="name">var <span class="ident">CONTAINER</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.project.Project.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.project.Project.GROUP"><code class="name">var <span class="ident">GROUP</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.project.Project.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
 </dd>
-<dt id="benchbuild.project.Project.SOURCE"><code class="name">var <span class="ident">SOURCE</span></code></dt>
+<dt id="benchbuild.project.Project.SRC_FILE"><code class="name">var <span class="ident">SRC_FILE</span></code></dt>
 <dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.project.Project.VERSION"><code class="name">var <span class="ident">VERSION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="benchbuild.project.Project.versions"><code class="name flex">
+<span>def <span class="ident">versions</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return all available versions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def versions(cls):
+    &#34;&#34;&#34;Return all available versions.&#34;&#34;&#34;
+    if cls.VERSION:
+        return [cls.VERSION]
+    return [&#34;unknown&#34;]</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="benchbuild.project.Project.id"><code class="name">var <span class="ident">id</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def id(self):
-    version_str = source.variants.to_str(tuple(self.variant.values()))
-    return f&#34;{self.name}/{self.group}/{version_str}/{self.run_uuid}&#34;</code></pre>
+    return &#34;{name}-{group}@{version}_uuid_{id}&#34;.format(
+        name=self.name,
+        group=self.group,
+        version=self.version,
+        id=self.run_uuid)</code></pre>
 </details>
 </dd>
 </dl>
@@ -899,7 +967,7 @@ def id(self):
 <span>def <span class="ident">clean</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Clean the project build directory.</p></section>
+<div class="desc"><p>Clean the project build directory.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -914,7 +982,7 @@ def id(self):
 <span>def <span class="ident">clone</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Create a deepcopy of ourself.</p></section>
+<div class="desc"><p>Create a deepcopy of ourself.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -930,7 +998,7 @@ def id(self):
 <span>def <span class="ident">compile</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Compile the project.</p></section>
+<div class="desc"><p>Compile the project.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -940,11 +1008,26 @@ def compile(self):
     &#34;&#34;&#34;Compile the project.&#34;&#34;&#34;</code></pre>
 </details>
 </dd>
+<dt id="benchbuild.project.Project.download"><code class="name flex">
+<span>def <span class="ident">download</span></span>(<span>self, version=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Auto-generated by with_* decorators.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download(self, version=None):
+    &#34;&#34;&#34;Auto-generated by with_* decorators.&#34;&#34;&#34;
+    del version
+    LOG.error(&#34;Not implemented.&#34;)</code></pre>
+</details>
+</dd>
 <dt id="benchbuild.project.Project.prepare"><code class="name flex">
 <span>def <span class="ident">prepare</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Prepare the build diretory.</p></section>
+<div class="desc"><p>Prepare the build diretory.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -960,7 +1043,7 @@ def compile(self):
 <span>def <span class="ident">redirect</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Redirect execution to a containerized benchbuild instance.</p></section>
+<div class="desc"><p>Redirect execution to a containerized benchbuild instance.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -974,14 +1057,14 @@ def compile(self):
 <span>def <span class="ident">run</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Run the tests of this project.</p>
+<div class="desc"><p>Run the tests of this project.</p>
 <p>This method initializes the default environment and takes care of
 cleaning up the mess we made, after a successfull run.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>experiment</code></strong></dt>
 <dd>The experiment we run this project under</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1001,13 +1084,14 @@ cleaning up the mess we made, after a successfull run.</p>
     CFG[&#34;project&#34;] = self.NAME
     CFG[&#34;domain&#34;] = self.DOMAIN
     CFG[&#34;group&#34;] = self.GROUP
+    CFG[&#34;version&#34;] = self.VERSION
     CFG[&#34;db&#34;][&#34;run_group&#34;] = str(self.run_uuid)
 
     group, session = begin_run_group(self)
     signals.handlers.register(fail_run_group, group, session)
 
     try:
-        self.run_tests()
+        self.run_tests(run.run)
         end_run_group(group, session)
     except ProcessExecutionError:
         fail_run_group(group, session)
@@ -1020,10 +1104,10 @@ cleaning up the mess we made, after a successfull run.</p>
 </details>
 </dd>
 <dt id="benchbuild.project.Project.run_tests"><code class="name flex">
-<span>def <span class="ident">run_tests</span></span>(<span>self)</span>
+<span>def <span class="ident">run_tests</span></span>(<span>self, runner)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Run the tests of this project.</p>
+<div class="desc"><p>Run the tests of this project.</p>
 <p>Clients override this method to provide customized run-time tests.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -1031,13 +1115,12 @@ cleaning up the mess we made, after a successfull run.</p>
 <dd>The experiment we run this project under</dd>
 <dt><strong><code>run</code></strong></dt>
 <dd>A function that takes the run command.</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@abstractmethod
-def run_tests(self):
+<pre><code class="python">def run_tests(self, runner):
     &#34;&#34;&#34;
     Run the tests of this project.
 
@@ -1046,77 +1129,9 @@ def run_tests(self):
     Args:
         experiment: The experiment we run this project under
         run: A function that takes the run command.
-    &#34;&#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="benchbuild.project.Project.source_of"><code class="name flex">
-<span>def <span class="ident">source_of</span></span>(<span>self, name: str) -> Union[str, NoneType]</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Retrieve source for given index name.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>project</code></strong> :&ensp;<a title="benchbuild.project.Project" href="#benchbuild.project.Project"><code>Project</code></a></dt>
-<dd>The project to access.</dd>
-<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
-<dd>Local name of the source .</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>(Optional[BaseSource]): A source representing this variant.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def source_of(self, name: str) -&gt; Optional[str]:
     &#34;&#34;&#34;
-    Retrieve source for given index name.
-
-    Args:
-        project (Project): The project to access.
-        name (str): Local name of the source .
-
-    Returns:
-        (Optional[BaseSource]): A source representing this variant.
-    &#34;&#34;&#34;
-    variant = self.variant
-    if name in variant:
-        return variant[name].owner.local
-    return None</code></pre>
-</details>
-</dd>
-<dt id="benchbuild.project.Project.version_of"><code class="name flex">
-<span>def <span class="ident">version_of</span></span>(<span>self, name: str) -> Union[str, NoneType]</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Retrieve source for given index name.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>project</code></strong> :&ensp;<a title="benchbuild.project.Project" href="#benchbuild.project.Project"><code>Project</code></a></dt>
-<dd>The project to access.</dd>
-<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
-<dd>Local name of the source .</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>(Optional[BaseSource]): A source representing this variant.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def version_of(self, name: str) -&gt; Optional[str]:
-    &#34;&#34;&#34;
-    Retrieve source for given index name.
-
-    Args:
-        project (Project): The project to access.
-        name (str): Local name of the source .
-
-    Returns:
-        (Optional[BaseSource]): A source representing this variant.
-    &#34;&#34;&#34;
-    variant = self.variant
-    if name in variant:
-        return str(variant[name])
-    return None</code></pre>
+    exp = wrapping.wrap(self.run_f, self)
+    runner(exp)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1126,10 +1141,10 @@ def run_tests(self):
 <span>(</span><span>name, bases, attrs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Decorate the interface of a project with the in_builddir decorator.</p>
+<div class="desc"><p>Decorate the interface of a project with the in_builddir decorator.</p>
 <p>This is just a small safety net for benchbuild users, because we make
 sure to run every project method in the project's build directory.</p>
-<p>Register a project in the registry.</p></section>
+<p>Register a project in the registry.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1174,27 +1189,17 @@ sure to run every project method in the project's build directory.</p>
 <dl>
 <dt id="benchbuild.project.ProjectDecorator.decorated_methods"><code class="name">var <span class="ident">decorated_methods</span></code></dt>
 <dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
+<div class="desc"></div>
 </dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="benchbuild.project.ProjectRegistry" href="#benchbuild.project.ProjectRegistry">ProjectRegistry</a></b></code>:
-<ul class="hlist">
-<li><code><a title="benchbuild.project.ProjectRegistry.projects" href="#benchbuild.project.ProjectRegistry.projects">projects</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 <dt id="benchbuild.project.ProjectRegistry"><code class="flex name class">
 <span>class <span class="ident">ProjectRegistry</span></span>
 <span>(</span><span>name, bases, attrs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Registry for benchbuild projects.</p>
-<p>Register a project in the registry.</p></section>
+<div class="desc"><p>Registry for benchbuild projects.</p>
+<p>Register a project in the registry.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1208,7 +1213,7 @@ The argument must be an iterable if specified.</p></section>
         &#34;&#34;&#34;Register a project in the registry.&#34;&#34;&#34;
         super(ProjectRegistry, cls).__init__(name, bases, attrs)
 
-        if &#39;&#39; not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
+        if None not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
             key = &#34;{name}/{group}&#34;.format(name=cls.NAME, group=cls.GROUP)
             ProjectRegistry.projects[key] = cls</code></pre>
 </details>
@@ -1224,28 +1229,7 @@ The argument must be an iterable if specified.</p></section>
 <dl>
 <dt id="benchbuild.project.ProjectRegistry.projects"><code class="name">var <span class="ident">projects</span></code></dt>
 <dd>
-<section class="desc"><p>:class:<code>pygtrie.Trie</code> variant accepting strings with a separator as keys.</p>
-<p>The trie accepts strings as keys which are split into components using
-a separator specified during initialisation (forward slash,i.e. <code>/</code>, by
-default).</p>
-<p>Canonical example where this class can be used is when keys are paths.
-For
-example, it could map from a path to a request handler::</p>
-<pre><code>import pygtrie
-
-def handle_root(): pass
-def handle_admin(): pass
-def handle_admin_images(): pass
-
-handlers = pygtrie.StringTrie()
-handlers[''] = handle_root
-handlers['/admin'] = handle_admin
-handlers['/admin/images'] = handle_admin_images
-
-request_path = '/admin/images/foo'
-
-handler = handlers.longest_prefix(request_path)
-</code></pre></section>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -1265,7 +1249,6 @@ handler = handlers.longest_prefix(request_path)
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="benchbuild.project.discovered" href="#benchbuild.project.discovered">discovered</a></code></li>
 <li><code><a title="benchbuild.project.populate" href="#benchbuild.project.populate">populate</a></code></li>
 </ul>
 </li>
@@ -1278,17 +1261,18 @@ handler = handlers.longest_prefix(request_path)
 <li><code><a title="benchbuild.project.Project.DOMAIN" href="#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
 <li><code><a title="benchbuild.project.Project.GROUP" href="#benchbuild.project.Project.GROUP">GROUP</a></code></li>
 <li><code><a title="benchbuild.project.Project.NAME" href="#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.project.Project.SOURCE" href="#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
+<li><code><a title="benchbuild.project.Project.SRC_FILE" href="#benchbuild.project.Project.SRC_FILE">SRC_FILE</a></code></li>
+<li><code><a title="benchbuild.project.Project.VERSION" href="#benchbuild.project.Project.VERSION">VERSION</a></code></li>
 <li><code><a title="benchbuild.project.Project.clean" href="#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.project.Project.clone" href="#benchbuild.project.Project.clone">clone</a></code></li>
 <li><code><a title="benchbuild.project.Project.compile" href="#benchbuild.project.Project.compile">compile</a></code></li>
+<li><code><a title="benchbuild.project.Project.download" href="#benchbuild.project.Project.download">download</a></code></li>
 <li><code><a title="benchbuild.project.Project.id" href="#benchbuild.project.Project.id">id</a></code></li>
 <li><code><a title="benchbuild.project.Project.prepare" href="#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.project.Project.redirect" href="#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.project.Project.run" href="#benchbuild.project.Project.run">run</a></code></li>
 <li><code><a title="benchbuild.project.Project.run_tests" href="#benchbuild.project.Project.run_tests">run_tests</a></code></li>
-<li><code><a title="benchbuild.project.Project.source_of" href="#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.project.Project.version_of" href="#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.project.Project.versions" href="#benchbuild.project.Project.versions">versions</a></code></li>
 </ul>
 </li>
 <li>
@@ -1309,7 +1293,7 @@ handler = handlers.longest_prefix(request_path)
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

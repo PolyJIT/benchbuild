@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.cli.experiment API documentation</title>
 <meta name="description" content="Subcommand for experiment handling." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -28,10 +28,9 @@
 <pre><code class="python">&#34;&#34;&#34;Subcommand for experiment handling.&#34;&#34;&#34;
 import sqlalchemy as sa
 import urwid
-from jinja2 import Environment, PackageLoader
 from plumbum import cli
 
-from benchbuild import experiment, plugins
+from benchbuild import experiment, experiments
 from benchbuild.cli.main import BenchBuild
 from benchbuild.utils import schema
 
@@ -39,6 +38,7 @@ from benchbuild.utils import schema
 @BenchBuild.subcommand(&#34;experiment&#34;)
 class BBExperiment(cli.Application):
     &#34;&#34;&#34;Manage BenchBuild&#39;s known experiments.&#34;&#34;&#34;
+
     def main(self):
         if not self.nested_command:
             self.help()
@@ -47,8 +47,10 @@ class BBExperiment(cli.Application):
 @BBExperiment.subcommand(&#34;view&#34;)
 class BBExperimentView(cli.Application):
     &#34;&#34;&#34;View available experiments.&#34;&#34;&#34;
+
     def main(self):
-        all_exps = experiment.discovered()
+        experiments.discover()
+        all_exps = experiment.ExperimentRegistry.experiments
         for exp_cls in all_exps.values():
             print(exp_cls.NAME)
             docstring = exp_cls.__doc__ or &#34;-- no docstring --&#34;
@@ -128,15 +130,15 @@ class HorizontalBoxes(urwid.Columns):
         }
         if self.contents:
             del self.contents[self.focus_position + 1:]
-        self.contents.append(
-            (urwid.AttrMap(box, &#39;options&#39;,
-                           focus_map), self.options(&#39;given&#39;, 80)))
+        self.contents.append((urwid.AttrMap(box, &#39;options&#39;, focus_map),
+                              self.options(&#39;given&#39;, 80)))
         self.focus_position = len(self.contents) - 1
 
 
 @BBExperiment.subcommand(&#34;manage&#34;)
 class BBExperimentShow(cli.Application):
     &#34;&#34;&#34;Show completed experiments.&#34;&#34;&#34;
+
     def main(self):
         def maybe_exit(key):
             if key in (&#39;q&#39;, &#39;Q&#39;):
@@ -155,16 +157,19 @@ class BBExperimentShow(cli.Application):
         # yapf: enable
         top = HorizontalBoxes()
         top.open_box(refresh_root_window(top))
-        loop = urwid.MainLoop(urwid.Filler(top, &#39;top&#39;, height=48),
-                              palette=palette,
-                              unhandled_input=maybe_exit)
+        loop = urwid.MainLoop(
+            urwid.Filler(top, &#39;top&#39;, height=48),
+            palette=palette,
+            unhandled_input=maybe_exit)
         loop.run()
 
 
 def get_template():
-    env = Environment(trim_blocks=True,
-                      lstrip_blocks=True,
-                      loader=PackageLoader(&#39;benchbuild&#39;, &#39;utils/templates&#39;))
+    from jinja2 import Environment, PackageLoader
+    env = Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=PackageLoader(&#39;benchbuild&#39;, &#39;utils/templates&#39;))
     return env.get_template(&#39;experiment_show.txt.inc&#39;)
 
 
@@ -172,29 +177,31 @@ def render_experiment(_experiment):
     template = get_template()
     sess = schema.Session()
 
-    return template.render(name=_experiment.name,
-                           description=_experiment.description,
-                           start_date=_experiment.begin,
-                           end_date=_experiment.end,
-                           id=_experiment.id,
-                           num_completed_runs=get_completed_runs(
-                               sess, _experiment),
-                           num_failed_runs=get_failed_runs(sess, _experiment))
+    return template.render(
+        name=_experiment.name,
+        description=_experiment.description,
+        start_date=_experiment.begin,
+        end_date=_experiment.end,
+        id=_experiment.id,
+        num_completed_runs=get_completed_runs(sess, _experiment),
+        num_failed_runs=get_failed_runs(sess, _experiment))
 
 
 def refresh_root_window(root):
     session = schema.Session()
     all_db_exps = experiments_from_db(session)
-    menu_top = SubMenu(&#39;Experiments in database&#39;, [
-        SubMenu(&#34;{name} - {desc}&#34;.format(
-            name=elem.name, desc=elem.description), [
-                urwid.Text(render_experiment(elem)),
-                urwid.Divider(),
-                Choice(&#34;Delete&#34;, top=root, payload=elem)
-            ],
+    menu_top = SubMenu(
+        &#39;Experiments in database&#39;, [
+            SubMenu(
+                &#34;{name} - {desc}&#34;.format(
+                    name=elem.name, desc=elem.description), [
+                        urwid.Text(render_experiment(elem)),
+                        urwid.Divider(),
+                        Choice(&#34;Delete&#34;, top=root, payload=elem)
+                    ],
                 top=root) for elem in all_db_exps
-    ],
-                       top=root)
+        ],
+        top=root)
     return menu_top.menu
 
 
@@ -225,7 +232,7 @@ def get_failed_runs(session, exp):
 <span>def <span class="ident">experiments_from_db</span></span>(<span>session)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -238,7 +245,7 @@ def get_failed_runs(session, exp):
 <span>def <span class="ident">get_completed_runs</span></span>(<span>session, exp)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -253,7 +260,7 @@ def get_failed_runs(session, exp):
 <span>def <span class="ident">get_failed_runs</span></span>(<span>session, exp)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -268,15 +275,17 @@ def get_failed_runs(session, exp):
 <span>def <span class="ident">get_template</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_template():
-    env = Environment(trim_blocks=True,
-                      lstrip_blocks=True,
-                      loader=PackageLoader(&#39;benchbuild&#39;, &#39;utils/templates&#39;))
+    from jinja2 import Environment, PackageLoader
+    env = Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=PackageLoader(&#39;benchbuild&#39;, &#39;utils/templates&#39;))
     return env.get_template(&#39;experiment_show.txt.inc&#39;)</code></pre>
 </details>
 </dd>
@@ -284,7 +293,7 @@ def get_failed_runs(session, exp):
 <span>def <span class="ident">refresh_root_window</span></span>(<span>root)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -292,16 +301,18 @@ def get_failed_runs(session, exp):
 <pre><code class="python">def refresh_root_window(root):
     session = schema.Session()
     all_db_exps = experiments_from_db(session)
-    menu_top = SubMenu(&#39;Experiments in database&#39;, [
-        SubMenu(&#34;{name} - {desc}&#34;.format(
-            name=elem.name, desc=elem.description), [
-                urwid.Text(render_experiment(elem)),
-                urwid.Divider(),
-                Choice(&#34;Delete&#34;, top=root, payload=elem)
-            ],
+    menu_top = SubMenu(
+        &#39;Experiments in database&#39;, [
+            SubMenu(
+                &#34;{name} - {desc}&#34;.format(
+                    name=elem.name, desc=elem.description), [
+                        urwid.Text(render_experiment(elem)),
+                        urwid.Divider(),
+                        Choice(&#34;Delete&#34;, top=root, payload=elem)
+                    ],
                 top=root) for elem in all_db_exps
-    ],
-                       top=root)
+        ],
+        top=root)
     return menu_top.menu</code></pre>
 </details>
 </dd>
@@ -309,7 +320,7 @@ def get_failed_runs(session, exp):
 <span>def <span class="ident">render_experiment</span></span>(<span>_experiment)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -318,14 +329,14 @@ def get_failed_runs(session, exp):
     template = get_template()
     sess = schema.Session()
 
-    return template.render(name=_experiment.name,
-                           description=_experiment.description,
-                           start_date=_experiment.begin,
-                           end_date=_experiment.end,
-                           id=_experiment.id,
-                           num_completed_runs=get_completed_runs(
-                               sess, _experiment),
-                           num_failed_runs=get_failed_runs(sess, _experiment))</code></pre>
+    return template.render(
+        name=_experiment.name,
+        description=_experiment.description,
+        start_date=_experiment.begin,
+        end_date=_experiment.end,
+        id=_experiment.id,
+        num_completed_runs=get_completed_runs(sess, _experiment),
+        num_failed_runs=get_failed_runs(sess, _experiment))</code></pre>
 </details>
 </dd>
 </dl>
@@ -338,13 +349,14 @@ def get_failed_runs(session, exp):
 <span>(</span><span>executable=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Manage BenchBuild's known experiments.</p></section>
+<div class="desc"><p>Manage BenchBuild's known experiments.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class BBExperiment(cli.Application):
     &#34;&#34;&#34;Manage BenchBuild&#39;s known experiments.&#34;&#34;&#34;
+
     def main(self):
         if not self.nested_command:
             self.help()</code></pre>
@@ -359,7 +371,7 @@ def get_failed_runs(session, exp):
 <span>def <span class="ident">main</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Implement me (no need to call super)</p></section>
+<div class="desc"><p>Implement me (no need to call super)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -376,13 +388,14 @@ def get_failed_runs(session, exp):
 <span>(</span><span>executable=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Show completed experiments.</p></section>
+<div class="desc"><p>Show completed experiments.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class BBExperimentShow(cli.Application):
     &#34;&#34;&#34;Show completed experiments.&#34;&#34;&#34;
+
     def main(self):
         def maybe_exit(key):
             if key in (&#39;q&#39;, &#39;Q&#39;):
@@ -401,9 +414,10 @@ def get_failed_runs(session, exp):
         # yapf: enable
         top = HorizontalBoxes()
         top.open_box(refresh_root_window(top))
-        loop = urwid.MainLoop(urwid.Filler(top, &#39;top&#39;, height=48),
-                              palette=palette,
-                              unhandled_input=maybe_exit)
+        loop = urwid.MainLoop(
+            urwid.Filler(top, &#39;top&#39;, height=48),
+            palette=palette,
+            unhandled_input=maybe_exit)
         loop.run()</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -416,7 +430,7 @@ def get_failed_runs(session, exp):
 <span>def <span class="ident">main</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Implement me (no need to call super)</p></section>
+<div class="desc"><p>Implement me (no need to call super)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -439,9 +453,10 @@ def get_failed_runs(session, exp):
     # yapf: enable
     top = HorizontalBoxes()
     top.open_box(refresh_root_window(top))
-    loop = urwid.MainLoop(urwid.Filler(top, &#39;top&#39;, height=48),
-                          palette=palette,
-                          unhandled_input=maybe_exit)
+    loop = urwid.MainLoop(
+        urwid.Filler(top, &#39;top&#39;, height=48),
+        palette=palette,
+        unhandled_input=maybe_exit)
     loop.run()</code></pre>
 </details>
 </dd>
@@ -452,15 +467,17 @@ def get_failed_runs(session, exp):
 <span>(</span><span>executable=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>View available experiments.</p></section>
+<div class="desc"><p>View available experiments.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class BBExperimentView(cli.Application):
     &#34;&#34;&#34;View available experiments.&#34;&#34;&#34;
+
     def main(self):
-        all_exps = experiment.discovered()
+        experiments.discover()
+        all_exps = experiment.ExperimentRegistry.experiments
         for exp_cls in all_exps.values():
             print(exp_cls.NAME)
             docstring = exp_cls.__doc__ or &#34;-- no docstring --&#34;
@@ -476,13 +493,14 @@ def get_failed_runs(session, exp):
 <span>def <span class="ident">main</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Implement me (no need to call super)</p></section>
+<div class="desc"><p>Implement me (no need to call super)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def main(self):
-    all_exps = experiment.discovered()
+    experiments.discover()
+    all_exps = experiment.ExperimentRegistry.experiments
     for exp_cls in all_exps.values():
         print(exp_cls.NAME)
         docstring = exp_cls.__doc__ or &#34;-- no docstring --&#34;
@@ -496,7 +514,7 @@ def get_failed_runs(session, exp):
 <span>(</span><span>caption, payload, top)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Widget base class</p>
+<div class="desc"><p>Widget base class</p>
 <div class="admonition attribute">
 <p class="admonition-title">Attribute:&ensp;_selectable</p>
 <p>:annotation: = False</p>
@@ -712,7 +730,7 @@ The details of that composition should not affect
 users of the subclass.
 The subclass may decide to expose some
 of the wrapped widgets by behaving like a ContainerWidget or
-WidgetDecoration, or it may hide them from outside access.</p></section>
+WidgetDecoration, or it may hide them from outside access.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -759,7 +777,7 @@ WidgetDecoration, or it may hide them from outside access.</p></section>
 <span>def <span class="ident">item_chosen</span></span>(<span>self, _)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -794,7 +812,7 @@ WidgetDecoration, or it may hide them from outside access.</p></section>
 <span>class <span class="ident">HorizontalBoxes</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>Widgets arranged horizontally in columns from left to right</p>
+<div class="desc"><p>Widgets arranged horizontally in columns from left to right</p>
 <p>:param widget_list: iterable of flow or box widgets
 :param dividechars: number of blank characters between columns
 :param focus_column: index into widget_list of column in focus,
@@ -821,7 +839,7 @@ are calculated as the largest rows() returned from all columns
 except the ones listed in <em>box_columns</em>.
 The box widgets in
 <em>box_columns</em> will be displayed with this calculated number of rows,
-filling the full height.</p></section>
+filling the full height.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -841,9 +859,8 @@ filling the full height.</p></section>
         }
         if self.contents:
             del self.contents[self.focus_position + 1:]
-        self.contents.append(
-            (urwid.AttrMap(box, &#39;options&#39;,
-                           focus_map), self.options(&#39;given&#39;, 80)))
+        self.contents.append((urwid.AttrMap(box, &#39;options&#39;, focus_map),
+                              self.options(&#39;given&#39;, 80)))
         self.focus_position = len(self.contents) - 1</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -859,7 +876,7 @@ filling the full height.</p></section>
 <span>def <span class="ident">clear</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -872,7 +889,7 @@ filling the full height.</p></section>
 <span>def <span class="ident">open_box</span></span>(<span>self, box)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -885,9 +902,8 @@ filling the full height.</p></section>
     }
     if self.contents:
         del self.contents[self.focus_position + 1:]
-    self.contents.append(
-        (urwid.AttrMap(box, &#39;options&#39;,
-                       focus_map), self.options(&#39;given&#39;, 80)))
+    self.contents.append((urwid.AttrMap(box, &#39;options&#39;, focus_map),
+                          self.options(&#39;given&#39;, 80)))
     self.focus_position = len(self.contents) - 1</code></pre>
 </details>
 </dd>
@@ -898,7 +914,7 @@ filling the full height.</p></section>
 <span>(</span><span>caption, callback)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Widget base class</p>
+<div class="desc"><p>Widget base class</p>
 <div class="admonition attribute">
 <p class="admonition-title">Attribute:&ensp;_selectable</p>
 <p>:annotation: = False</p>
@@ -1114,12 +1130,12 @@ function call for a single callback
 <p>where callback is callback(button [,user_data])
 Unregister signal handlers with::</p>
 <p>urwid.disconnect_signal(button, 'click', callback, user_data)</p>
-<pre><code>&gt;&gt;&gt; Button(u"Ok")
+<pre><code class="python">&gt;&gt;&gt; Button(u&quot;Ok&quot;)
 &lt;Button selectable flow widget 'Ok'&gt;
-&gt;&gt;&gt; b = Button("Cancel")
+&gt;&gt;&gt; b = Button(&quot;Cancel&quot;)
 &gt;&gt;&gt; b.render((15,), focus=True).text # ... = b in Python 3
 [...'&lt; Cancel      &gt;']
-</code></pre></section>
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1145,7 +1161,7 @@ Unregister signal handlers with::</p>
 <span>(</span><span>caption, choices, top)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Widget base class</p>
+<div class="desc"><p>Widget base class</p>
 <div class="admonition attribute">
 <p class="admonition-title">Attribute:&ensp;_selectable</p>
 <p>:annotation: = False</p>
@@ -1361,7 +1377,7 @@ The details of that composition should not affect
 users of the subclass.
 The subclass may decide to expose some
 of the wrapped widgets by behaving like a ContainerWidget or
-WidgetDecoration, or it may hide them from outside access.</p></section>
+WidgetDecoration, or it may hide them from outside access.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1395,7 +1411,7 @@ WidgetDecoration, or it may hide them from outside access.</p></section>
 <span>def <span class="ident">open_menu</span></span>(<span>self, _)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1478,7 +1494,7 @@ WidgetDecoration, or it may hide them from outside access.</p></section>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

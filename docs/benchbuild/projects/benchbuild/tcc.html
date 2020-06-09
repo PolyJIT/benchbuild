@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.projects.benchbuild.tcc API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -28,31 +28,27 @@
 
 from plumbum import local
 
-from benchbuild.project import Project
-from benchbuild.environments import container
-from benchbuild.source import HTTP
+from benchbuild import project
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, mkdir, tar
 
 
-class TCC(Project):
-    NAME: str = &#39;tcc&#39;
-    DOMAIN: str = &#39;compilation&#39;
-    GROUP: str = &#39;benchbuild&#39;
-    SOURCE: str = [
-        HTTP(remote={
-            &#39;0.9.26&#39;:
-            &#39;http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2&#39;
-        },
-             local=&#39;tcc.tar.bz2&#39;)
-    ]
-    CONTAINER = container.Buildah().from_(&#39;debian:buster-slim&#39;)
+@download.with_wget({
+    &#39;0.9.26&#39;:
+    &#39;http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2&#39;
+})
+class TCC(project.Project):
+    NAME = &#39;tcc&#39;
+    DOMAIN = &#39;compilation&#39;
+    GROUP = &#39;benchbuild&#39;
+    VERSION = &#39;0.9.26&#39;
+    SRC_FILE = &#39;tcc.tar.bz2&#39;
 
     def compile(self):
-        tcc_source = local.path(self.source_of(&#39;tcc.tar.bz2&#39;))
-        tcc_version = self.version_of(&#39;tcc.tar.bz2&#39;)
+        self.download()
 
-        tar(&#34;xf&#34;, tcc_source)
-        unpack_dir = local.path(f&#39;tcc-{tcc_version}.tar.bz2&#39;)
+        tar(&#34;xf&#34;, self.src_file)
+        unpack_dir = local.path(&#39;tcc-{0}.tar.bz2&#39;.format(self.version))
 
         clang = compiler.cc(self)
 
@@ -60,21 +56,16 @@ class TCC(Project):
             mkdir(&#34;build&#34;)
             with local.cwd(&#34;build&#34;):
                 configure = local[&#34;../configure&#34;]
-                configure = run.watch(configure)
-                configure(&#34;--cc=&#34; + str(clang), &#34;--with-libgcc&#34;)
-
-                make_ = run.watch(make)
-                make_()
+                run.run(configure[&#34;--cc=&#34; + str(clang), &#34;--with-libgcc&#34;])
+                run.run(make)
 
     def run_tests(self, runner):
-        tcc_version = self.version_of(&#39;tcc.tar.bz2&#39;)
-        unpack_dir = local.path(f&#39;tcc-{tcc_version}.tar.bz2&#39;)
+        unpack_dir = local.path(&#39;tcc-{0}.tar.bz2&#39;.format(self.version))
         with local.cwd(unpack_dir):
             with local.cwd(&#34;build&#34;):
                 wrapping.wrap(&#34;tcc&#34;, self)
                 inc_path = path.abspath(&#34;..&#34;)
-                make_ = run.watch(make)
-                make_(&#34;TCCFLAGS=-B{}&#34;.format(inc_path), &#34;test&#34;, &#34;-i&#34;)</code></pre>
+                runner(make[&#34;TCCFLAGS=-B{}&#34;.format(inc_path), &#34;test&#34;, &#34;-i&#34;])</code></pre>
 </details>
 </section>
 <section>
@@ -91,7 +82,7 @@ class TCC(Project):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Abstract class for benchbuild projects.</p>
+<div class="desc"><p>Abstract class for benchbuild projects.</p>
 <p>A project is an arbitrary software system usable by benchbuild in
 experiments.
 Subclasses of Project are registered automatically by benchbuild, if
@@ -103,16 +94,18 @@ compile: Downloads &amp; Compiles the source.</p>
 run_tests: Wrap any binary that has to be run under the
 runtime_extension wrapper and execute an implementation defined
 set of run-time tests.
+Defaults to a call of a binary with the name <code>run_f</code> in the
+build directory without arguments.
 clean: Clean the project's build directory. Defaults to
 recursive 'rm' on the build directory and can be disabled
 by setting the environment variable <code>BB_CLEAN=false</code>.</p>
 <h2 id="raises">Raises</h2>
 <dl>
-<dt><strong><code>AttributeError</code></strong></dt>
+<dt><code>AttributeError</code></dt>
 <dd>Class definition raises an attribute error, if
 the implementation does not provide a value for the attributes
 <code>NAME</code>, <code>DOMAIN</code>, and <code>GROUP</code></dd>
-<dt><strong><code>TypeError</code></strong></dt>
+<dt><code>TypeError</code></dt>
 <dd>Validation of properties may throw a TypeError.</dd>
 </dl>
 <h2 id="attributes">Attributes</h2>
@@ -124,15 +117,27 @@ domain (str, optional):
 The application domain of this project. Defaults to <code>DOMAIN</code>.
 group (str, optional):
 The group this project belongs to. Defaults to <code>GROUP</code>.
+src_file (str, optional):
+A main src_file this project is assigned to. Defaults to <code>SRC_FILE</code>
 container (benchbuild.utils.container.Container, optional):
 A uchroot compatible container that we can use for this project.
-Defaults to <a title="benchbuild.utils.container.Gentoo" href="../../utils/container.html#benchbuild.utils.container.Gentoo"><code>Gentoo</code></a>.
+Defaults to <code><a title="benchbuild.utils.container.Gentoo" href="../../utils/container.html#benchbuild.utils.container.Gentoo">Gentoo</a></code>.
+version (str, optional):
+A version information for this project. Defaults to <code>VERSION</code>.
 builddir (str, optional):
 The build directory for this project. Auto generated, if not set.
+testdir (str, optional):
+The location of any additional test-files for this project,
+usually stored out of tree. Auto generated, if not set. Usually a
+project implementation
+will define this itself.
 cflags (:obj:<code>list</code> of :obj:<code>str</code>, optional)
 A list of cflags used, for compilation of this project.
 ldflags (:obj:<code>list</code> of :obj:<code>str</code>, optional)
 A list of ldflags used, for compilation of this project.
+run_f (str, optional):
+A filename that points to the binary we want to track.
+Usually a project implementation will define this itself.
 run_uuid (uuid.UUID, optional):
 An UUID that identifies all binaries executed by a single run of
 this project. In the database schema this is named the 'run_group'.
@@ -144,31 +149,24 @@ runtime_extension (Callable[str, iterable[str], RunInfo], optional):
 A composable extension that will be used in place of any binary
 this project
 wants to execute. Which binaries to replace is defined by the
-implementation using <a title="benchbuild.utils.wrapping.wrap" href="../../utils/wrapping.html#benchbuild.utils.wrapping.wrap"><code>wrap()</code></a>.
-Defaults to None.</p></section>
+implementation using <code><a title="benchbuild.utils.wrapping.wrap" href="../../utils/wrapping.html#benchbuild.utils.wrapping.wrap">wrap()</a></code>.
+Defaults to None.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class TCC(Project):
-    NAME: str = &#39;tcc&#39;
-    DOMAIN: str = &#39;compilation&#39;
-    GROUP: str = &#39;benchbuild&#39;
-    SOURCE: str = [
-        HTTP(remote={
-            &#39;0.9.26&#39;:
-            &#39;http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2&#39;
-        },
-             local=&#39;tcc.tar.bz2&#39;)
-    ]
-    CONTAINER = container.Buildah().from_(&#39;debian:buster-slim&#39;)
+<pre><code class="python">class TCC(project.Project):
+    NAME = &#39;tcc&#39;
+    DOMAIN = &#39;compilation&#39;
+    GROUP = &#39;benchbuild&#39;
+    VERSION = &#39;0.9.26&#39;
+    SRC_FILE = &#39;tcc.tar.bz2&#39;
 
     def compile(self):
-        tcc_source = local.path(self.source_of(&#39;tcc.tar.bz2&#39;))
-        tcc_version = self.version_of(&#39;tcc.tar.bz2&#39;)
+        self.download()
 
-        tar(&#34;xf&#34;, tcc_source)
-        unpack_dir = local.path(f&#39;tcc-{tcc_version}.tar.bz2&#39;)
+        tar(&#34;xf&#34;, self.src_file)
+        unpack_dir = local.path(&#39;tcc-{0}.tar.bz2&#39;.format(self.version))
 
         clang = compiler.cc(self)
 
@@ -176,21 +174,16 @@ Defaults to None.</p></section>
             mkdir(&#34;build&#34;)
             with local.cwd(&#34;build&#34;):
                 configure = local[&#34;../configure&#34;]
-                configure = run.watch(configure)
-                configure(&#34;--cc=&#34; + str(clang), &#34;--with-libgcc&#34;)
-
-                make_ = run.watch(make)
-                make_()
+                run.run(configure[&#34;--cc=&#34; + str(clang), &#34;--with-libgcc&#34;])
+                run.run(make)
 
     def run_tests(self, runner):
-        tcc_version = self.version_of(&#39;tcc.tar.bz2&#39;)
-        unpack_dir = local.path(f&#39;tcc-{tcc_version}.tar.bz2&#39;)
+        unpack_dir = local.path(&#39;tcc-{0}.tar.bz2&#39;.format(self.version))
         with local.cwd(unpack_dir):
             with local.cwd(&#34;build&#34;):
                 wrapping.wrap(&#34;tcc&#34;, self)
                 inc_path = path.abspath(&#34;..&#34;)
-                make_ = run.watch(make)
-                make_(&#34;TCCFLAGS=-B{}&#34;.format(inc_path), &#34;test&#34;, &#34;-i&#34;)</code></pre>
+                runner(make[&#34;TCCFLAGS=-B{}&#34;.format(inc_path), &#34;test&#34;, &#34;-i&#34;])</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -198,19 +191,68 @@ Defaults to None.</p></section>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="benchbuild.projects.benchbuild.tcc.TCC.CONTAINER"><code class="name">var <span class="ident">CONTAINER</span></code></dt>
+<dt id="benchbuild.projects.benchbuild.tcc.TCC.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.benchbuild.tcc.TCC.GROUP"><code class="name">var <span class="ident">GROUP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.benchbuild.tcc.TCC.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.benchbuild.tcc.TCC.SRC_FILE"><code class="name">var <span class="ident">SRC_FILE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.benchbuild.tcc.TCC.VERSION"><code class="name">var <span class="ident">VERSION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="benchbuild.projects.benchbuild.tcc.TCC.versions"><code class="name flex">
+<span>def <span class="ident">versions</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of versions from the url_dict keys.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def versions_impl():
+    &#34;&#34;&#34;Return a list of versions from the url_dict keys.&#34;&#34;&#34;
+    return list(url_dict.keys())</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.projects.benchbuild.tcc.TCC.download"><code class="name flex">
+<span>def <span class="ident">download</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download the selected version from the url_dict value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_impl(self):
+    &#34;&#34;&#34;Download the selected version from the url_dict value.&#34;&#34;&#34;
+    t_file = target_file if target_file else self.SRC_FILE
+    t_version = url_dict[self.version]
+    Wget(t_version, t_file)</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.project.Project.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.project.Project.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.project.Project.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.project.Project.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.project.Project.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.project.Project.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
 <li><code><a title="benchbuild.project.Project.compile" href="../../project.html#benchbuild.project.Project.compile">compile</a></code></li>
@@ -218,8 +260,6 @@ Defaults to None.</p></section>
 <li><code><a title="benchbuild.project.Project.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.project.Project.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
 <li><code><a title="benchbuild.project.Project.run_tests" href="../../project.html#benchbuild.project.Project.run_tests">run_tests</a></code></li>
-<li><code><a title="benchbuild.project.Project.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.project.Project.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
 </ul>
 </li>
 </ul>
@@ -242,8 +282,14 @@ Defaults to None.</p></section>
 <ul>
 <li>
 <h4><code><a title="benchbuild.projects.benchbuild.tcc.TCC" href="#benchbuild.projects.benchbuild.tcc.TCC">TCC</a></code></h4>
-<ul class="">
-<li><code><a title="benchbuild.projects.benchbuild.tcc.TCC.CONTAINER" href="#benchbuild.projects.benchbuild.tcc.TCC.CONTAINER">CONTAINER</a></code></li>
+<ul class="two-column">
+<li><code><a title="benchbuild.projects.benchbuild.tcc.TCC.DOMAIN" href="#benchbuild.projects.benchbuild.tcc.TCC.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.tcc.TCC.GROUP" href="#benchbuild.projects.benchbuild.tcc.TCC.GROUP">GROUP</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.tcc.TCC.NAME" href="#benchbuild.projects.benchbuild.tcc.TCC.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.tcc.TCC.SRC_FILE" href="#benchbuild.projects.benchbuild.tcc.TCC.SRC_FILE">SRC_FILE</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.tcc.TCC.VERSION" href="#benchbuild.projects.benchbuild.tcc.TCC.VERSION">VERSION</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.tcc.TCC.download" href="#benchbuild.projects.benchbuild.tcc.TCC.download">download</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.tcc.TCC.versions" href="#benchbuild.projects.benchbuild.tcc.TCC.versions">versions</a></code></li>
 </ul>
 </li>
 </ul>
@@ -252,7 +298,7 @@ Defaults to None.</p></section>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

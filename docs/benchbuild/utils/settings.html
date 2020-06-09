@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.utils.settings API documentation</title>
 <meta name="description" content="Configuration utilities …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -115,6 +115,19 @@ def available_cpu_count() -&gt; int:
         LOG.debug(&#34;Could not get the number of allowed CPUs&#34;)
 
     raise Exception(&#39;Can not determine number of CPUs on this system&#39;)
+
+
+def current_available_threads() -&gt; int:
+    &#34;&#34;&#34;Returns the number of currently available threads for BB.&#34;&#34;&#34;
+    return len(os.sched_getaffinity(0))
+
+
+def get_number_of_jobs(config: &#39;Configuration&#39;) -&gt; int:
+    &#34;&#34;&#34;Returns the number of jobs set in the config.&#34;&#34;&#34;
+    jobs_configured = int(config[&#34;jobs&#34;])
+    if jobs_configured == 0:
+        return current_available_threads()
+    return jobs_configured
 
 
 class InvalidConfigKey(RuntimeWarning):
@@ -625,12 +638,12 @@ __init_module__()</code></pre>
 <span>def <span class="ident">available_cpu_count</span></span>(<span>) -> int</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Get the number of available CPUs.</p>
+<div class="desc"><p>Get the number of available CPUs.</p>
 <p>Number of available virtual or physical CPUs on this system, i.e.
 user/real as output by time(1) when called with an optimally scaling
 userspace-only program.</p>
 <h2 id="returns">Returns</h2>
-<p>Number of avaialable CPUs.</p></section>
+<p>Number of avaialable CPUs.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -691,7 +704,7 @@ userspace-only program.</p>
 <span>def <span class="ident">convert_components</span></span>(<span>value)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -708,16 +721,30 @@ userspace-only program.</p>
     return new_value</code></pre>
 </details>
 </dd>
+<dt id="benchbuild.utils.settings.current_available_threads"><code class="name flex">
+<span>def <span class="ident">current_available_threads</span></span>(<span>) -> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the number of currently available threads for BB.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def current_available_threads() -&gt; int:
+    &#34;&#34;&#34;Returns the number of currently available threads for BB.&#34;&#34;&#34;
+    return len(os.sched_getaffinity(0))</code></pre>
+</details>
+</dd>
 <dt id="benchbuild.utils.settings.escape_yaml"><code class="name flex">
 <span>def <span class="ident">escape_yaml</span></span>(<span>raw_str: str) -> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Shell-Escape a yaml input string.</p>
+<div class="desc"><p>Shell-Escape a yaml input string.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>raw_str</code></strong></dt>
 <dd>The unescaped string.</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -749,7 +776,7 @@ userspace-only program.</p>
 <span>def <span class="ident">find_config</span></span>(<span>test_file=None, defaults=None, root='.')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Find the path to the default config file.</p>
+<div class="desc"><p>Find the path to the default config file.</p>
 <p>We look at :root: for the :default: config file. If we can't find it
 there we start looking at the parent directory recursively until we
 find a file named :default: and return the absolute path to it.
@@ -762,7 +789,7 @@ If we can't find anything, we return None.</p>
 <dd>The directory to start looking for.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>Path to the default config file, None if we can't find anything.</p></section>
+<p>Path to the default config file, None if we can't find anything.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -803,11 +830,28 @@ If we can't find anything, we return None.</p>
             return ret</code></pre>
 </details>
 </dd>
+<dt id="benchbuild.utils.settings.get_number_of_jobs"><code class="name flex">
+<span>def <span class="ident">get_number_of_jobs</span></span>(<span>config: Configuration) -> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the number of jobs set in the config.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_number_of_jobs(config: &#39;Configuration&#39;) -&gt; int:
+    &#34;&#34;&#34;Returns the number of jobs set in the config.&#34;&#34;&#34;
+    jobs_configured = int(config[&#34;jobs&#34;])
+    if jobs_configured == 0:
+        return current_available_threads()
+    return jobs_configured</code></pre>
+</details>
+</dd>
 <dt id="benchbuild.utils.settings.is_yaml"><code class="name flex">
 <span>def <span class="ident">is_yaml</span></span>(<span>cfg_file: str) -> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Is the given cfg_file a YAML file.</p></section>
+<div class="desc"><p>Is the given cfg_file a YAML file.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -821,8 +865,8 @@ If we can't find anything, we return None.</p>
 <span>def <span class="ident">path_constructor</span></span>(<span>loader, node)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>"
-Construct a ConfigPath object form a scalar YAML node.</p></section>
+<div class="desc"><p>"
+Construct a ConfigPath object form a scalar YAML node.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -839,7 +883,7 @@ Construct a ConfigPath object form a scalar YAML node.</p></section>
 <span>def <span class="ident">path_representer</span></span>(<span>dumper, data)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Represent a ConfigPath object as a scalar YAML node.</p></section>
+<div class="desc"><p>Represent a ConfigPath object as a scalar YAML node.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -855,7 +899,7 @@ Construct a ConfigPath object form a scalar YAML node.</p></section>
 <span>def <span class="ident">setup_config</span></span>(<span>cfg, config_filenames=None, env_var_name=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>This will initialize the given configuration object.</p>
+<div class="desc"><p>This will initialize the given configuration object.</p>
 <p>The following resources are available in the same order:
 1) Default settings.
 2) Config file.
@@ -869,7 +913,7 @@ value, if there is already one.)</p>
 <dd>list of possible config filenames</dd>
 <dt><strong><code>env_var_name</code></strong></dt>
 <dd>name of the environment variable holding the config path</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -908,7 +952,7 @@ value, if there is already one.)</p>
 <span>def <span class="ident">to_env_var</span></span>(<span>env_var: str, value) -> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Create an environment variable from a name and a value.</p>
+<div class="desc"><p>Create an environment variable from a name and a value.</p>
 <p>This generates a shell-compatible representation of an
 environment variable that is assigned a YAML representation of
 a value.</p>
@@ -918,7 +962,7 @@ a value.</p>
 <dd>Name of the environment variable.</dd>
 <dt><strong><code>value</code></strong> :&ensp;<code>Any</code></dt>
 <dd>A value we convert from.</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -944,7 +988,7 @@ a value.</p>
 <span>def <span class="ident">to_yaml</span></span>(<span>value) -> str</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Convert a given value to a YAML string.</p></section>
+<div class="desc"><p>Convert a given value to a YAML string.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -969,7 +1013,7 @@ a value.</p>
 <span>def <span class="ident">update_env</span></span>(<span>cfg)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1006,7 +1050,7 @@ a value.</p>
 <span>def <span class="ident">upgrade</span></span>(<span>cfg)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Provide forward migration for configuration files.</p></section>
+<div class="desc"><p>Provide forward migration for configuration files.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1035,7 +1079,7 @@ a value.</p>
 <span>def <span class="ident">uuid_add_implicit_resolver</span></span>(<span>loader=benchbuild.utils.settings.ConfigLoader, dumper=benchbuild.utils.settings.ConfigDumper)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Attach an implicit pattern resolver for UUID objects.</p></section>
+<div class="desc"><p>Attach an implicit pattern resolver for UUID objects.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1051,7 +1095,7 @@ a value.</p>
 <span>def <span class="ident">uuid_constructor</span></span>(<span>loader, node)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>"Construct a uuid.UUID object form a scalar YAML node.</p></section>
+<div class="desc"><p>"Construct a uuid.UUID object form a scalar YAML node.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1067,7 +1111,7 @@ a value.</p>
 <span>def <span class="ident">uuid_representer</span></span>(<span>dumper, data)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Represent a uuid.UUID object as a scalar YAML node.</p></section>
+<div class="desc"><p>Represent a uuid.UUID object as a scalar YAML node.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1088,7 +1132,7 @@ a value.</p>
 <span>(</span><span>stream, default_style=None, default_flow_style=False, canonical=None, indent=None, width=None, allow_unicode=None, line_break=None, encoding=None, explicit_start=None, explicit_end=None, version=None, tags=None, sort_keys=True)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Avoid polluting yaml's namespace with our modifications.</p></section>
+<div class="desc"><p>Avoid polluting yaml's namespace with our modifications.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1111,31 +1155,11 @@ a value.</p>
 <dl>
 <dt id="benchbuild.utils.settings.ConfigDumper.yaml_implicit_resolvers"><code class="name">var <span class="ident">yaml_implicit_resolvers</span></code></dt>
 <dd>
-<section class="desc"><p>dict() -&gt; new empty dictionary
-dict(mapping) -&gt; new dictionary initialized from a mapping object's
-(key, value) pairs
-dict(iterable) -&gt; new dictionary initialized as if via:
-d = {}
-for k, v in iterable:
-d[k] = v
-dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
-in the keyword argument list.
-For example:
-dict(one=1, two=2)</p></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.utils.settings.ConfigDumper.yaml_representers"><code class="name">var <span class="ident">yaml_representers</span></code></dt>
 <dd>
-<section class="desc"><p>dict() -&gt; new empty dictionary
-dict(mapping) -&gt; new dictionary initialized from a mapping object's
-(key, value) pairs
-dict(iterable) -&gt; new dictionary initialized as if via:
-d = {}
-for k, v in iterable:
-d[k] = v
-dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
-in the keyword argument list.
-For example:
-dict(one=1, two=2)</p></section>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -1144,8 +1168,8 @@ dict(one=1, two=2)</p></section>
 <span>(</span><span>stream)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Avoid polluting yaml's namespace with our modifications.</p>
-<p>Initialize the scanner.</p></section>
+<div class="desc"><p>Avoid polluting yaml's namespace with our modifications.</p>
+<p>Initialize the scanner.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1170,31 +1194,11 @@ dict(one=1, two=2)</p></section>
 <dl>
 <dt id="benchbuild.utils.settings.ConfigLoader.yaml_constructors"><code class="name">var <span class="ident">yaml_constructors</span></code></dt>
 <dd>
-<section class="desc"><p>dict() -&gt; new empty dictionary
-dict(mapping) -&gt; new dictionary initialized from a mapping object's
-(key, value) pairs
-dict(iterable) -&gt; new dictionary initialized as if via:
-d = {}
-for k, v in iterable:
-d[k] = v
-dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
-in the keyword argument list.
-For example:
-dict(one=1, two=2)</p></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.utils.settings.ConfigLoader.yaml_implicit_resolvers"><code class="name">var <span class="ident">yaml_implicit_resolvers</span></code></dt>
 <dd>
-<section class="desc"><p>dict() -&gt; new empty dictionary
-dict(mapping) -&gt; new dictionary initialized from a mapping object's
-(key, value) pairs
-dict(iterable) -&gt; new dictionary initialized as if via:
-d = {}
-for k, v in iterable:
-d[k] = v
-dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
-in the keyword argument list.
-For example:
-dict(one=1, two=2)</p></section>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -1203,7 +1207,7 @@ dict(one=1, two=2)</p></section>
 <span>(</span><span>components)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Wrapper around paths represented as list of strings.</p></section>
+<div class="desc"><p>Wrapper around paths represented as list of strings.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1244,7 +1248,7 @@ dict(one=1, two=2)</p></section>
 <span>def <span class="ident">path_to_str</span></span>(<span>components) -> str</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1263,7 +1267,7 @@ def path_to_str(components) -&gt; str:
 <span>def <span class="ident">validate</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Make sure this configuration path exists.</p></section>
+<div class="desc"><p>Make sure this configuration path exists.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1293,7 +1297,7 @@ def path_to_str(components) -&gt; str:
 <span>(</span><span>parent_key: str, node=None, parent=None, init=True)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Dictionary-like data structure to contain all configuration variables.</p>
+<div class="desc"><p>Dictionary-like data structure to contain all configuration variables.</p>
 <p>This serves as a configuration dictionary throughout benchbuild. You can
 use it to access all configuration options that are available. Whenever the
 structure is updated with a new subtree, all variables defined in the new
@@ -1301,7 +1305,7 @@ subtree are updated from the environment.</p>
 <p>Environment variables are generated from the tree paths automatically.
 CFG["build_dir"] becomes BB_BUILD_DIR
 CFG["llvm"]["dir"] becomes BB_LLVM_DIR</p>
-<p>The configuration can be stored/loaded as YAML.</p></section>
+<p>The configuration can be stored/loaded as YAML.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1313,7 +1317,7 @@ CFG["llvm"]["dir"] becomes BB_LLVM_DIR</p>
 <dl>
 <dt id="benchbuild.utils.settings.Configuration.value"><code class="name">var <span class="ident">value</span></code></dt>
 <dd>
-<section class="desc"><p>Return the node value, if we're a leaf node.</p></section>
+<div class="desc"><p>Return the node value, if we're a leaf node.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1339,7 +1343,7 @@ def value(self):
 <span>def <span class="ident">filter_exports</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1364,7 +1368,7 @@ def value(self):
 <span>def <span class="ident">has_default</span></span>(<span>self) -> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Check, if the node contains a 'default' value.</p></section>
+<div class="desc"><p>Check, if the node contains a 'default' value.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1378,7 +1382,7 @@ def value(self):
 <span>def <span class="ident">has_value</span></span>(<span>self) -> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Check, if the node contains a 'value'.</p></section>
+<div class="desc"><p>Check, if the node contains a 'value'.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1392,11 +1396,11 @@ def value(self):
 <span>def <span class="ident">init_from_env</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Initialize this node from environment.</p>
+<div class="desc"><p>Initialize this node from environment.</p>
 <p>If we're a leaf node, i.e., a node containing a dictionary that
 consist of a 'default' key, compute our env variable and initialize
 our value from the environment.
-Otherwise, init our children.</p></section>
+Otherwise, init our children.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1433,7 +1437,7 @@ Otherwise, init our children.</p></section>
 <span>def <span class="ident">is_leaf</span></span>(<span>self) -> bool</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Check, if the node is a 'leaf' node.</p></section>
+<div class="desc"><p>Check, if the node is a 'leaf' node.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1447,7 +1451,7 @@ Otherwise, init our children.</p></section>
 <span>def <span class="ident">load</span></span>(<span>self, _from)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Load the configuration dictionary from file.</p></section>
+<div class="desc"><p>Load the configuration dictionary from file.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1478,7 +1482,7 @@ Otherwise, init our children.</p></section>
 <span>def <span class="ident">store</span></span>(<span>self, config_file)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Store the configuration dictionary to a file.</p></section>
+<div class="desc"><p>Store the configuration dictionary to a file.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1503,7 +1507,7 @@ Otherwise, init our children.</p></section>
 <span>def <span class="ident">to_env_dict</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Convert configuration object to a flat dictionary.</p></section>
+<div class="desc"><p>Convert configuration object to a flat dictionary.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1529,7 +1533,7 @@ Otherwise, init our children.</p></section>
 <span>(</span><span>...)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Warn, if you access a non-existing key benchbuild's configuration.</p></section>
+<div class="desc"><p>Warn, if you access a non-existing key benchbuild's configuration.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1563,8 +1567,10 @@ Otherwise, init our children.</p></section>
 <ul class="">
 <li><code><a title="benchbuild.utils.settings.available_cpu_count" href="#benchbuild.utils.settings.available_cpu_count">available_cpu_count</a></code></li>
 <li><code><a title="benchbuild.utils.settings.convert_components" href="#benchbuild.utils.settings.convert_components">convert_components</a></code></li>
+<li><code><a title="benchbuild.utils.settings.current_available_threads" href="#benchbuild.utils.settings.current_available_threads">current_available_threads</a></code></li>
 <li><code><a title="benchbuild.utils.settings.escape_yaml" href="#benchbuild.utils.settings.escape_yaml">escape_yaml</a></code></li>
 <li><code><a title="benchbuild.utils.settings.find_config" href="#benchbuild.utils.settings.find_config">find_config</a></code></li>
+<li><code><a title="benchbuild.utils.settings.get_number_of_jobs" href="#benchbuild.utils.settings.get_number_of_jobs">get_number_of_jobs</a></code></li>
 <li><code><a title="benchbuild.utils.settings.is_yaml" href="#benchbuild.utils.settings.is_yaml">is_yaml</a></code></li>
 <li><code><a title="benchbuild.utils.settings.path_constructor" href="#benchbuild.utils.settings.path_constructor">path_constructor</a></code></li>
 <li><code><a title="benchbuild.utils.settings.path_representer" href="#benchbuild.utils.settings.path_representer">path_representer</a></code></li>
@@ -1624,7 +1630,7 @@ Otherwise, init our children.</p></section>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.projects.apollo.rodinia API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -27,31 +27,31 @@
 <pre><code class="python">import attr
 from plumbum import local
 
-from benchbuild.project import Project
-from benchbuild.source import HTTP
-from benchbuild.utils import compiler, run, wrapping
+from benchbuild import project
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import sh, tar
 
 
 @attr.s
-class RodiniaGroup(Project):
+@download.with_wget({
+    &#39;3.1&#39;:
+    &#39;http://www.cs.virginia.edu/&#39;
+    &#39;~kw5na/lava/Rodinia/Packages/Current/3.1/rodinia_3.1.tar.bz2&#39;})
+class RodiniaGroup(project.Project):
     &#34;&#34;&#34;Generic handling of Rodinia benchmarks.&#34;&#34;&#34;
     DOMAIN = &#39;rodinia&#39;
     GROUP = &#39;rodinia&#39;
-    SOURCE = [HTTP(
-        remote={&#39;3.1&#39;: &#39;http://www.cs.virginia.edu/&#39;
-                       &#39;~kw5na/lava/Rodinia/Packages/Current/3.1/&#39;
-                       &#39;rodinia_3.1.tar.bz2&#39;},
-        local=&#39;rodinia.tar.bz2&#39;)]
+    VERSION = &#39;3.1&#39;
+    SRC_FILE = &#39;rodinia.tar.bz2&#39;
     CONFIG = {}
 
     config = attr.ib(default=attr.Factory(
         lambda self: type(self).CONFIG, takes_self=True))
 
     def compile(self):
-        tar(&#39;xf&#39;, &#39;rodinia.tar.bz2&#39;)
-        rodinia_version = self.version_of(&#39;rodinia.tar.bz2&#39;)
-        unpack_dir = local.path(f&#39;rodinia_{rodinia_version}&#39;)
+        self.download()
+        tar(&#34;xf&#34;, self.src_file)
+        unpack_dir = local.path(&#39;rodinia_{0}&#39;.format(self.version))
 
         c_compiler = compiler.cc(self)
         cxx_compiler = compiler.cxx(self)
@@ -68,24 +68,21 @@ class RodiniaGroup(Project):
                     _cc = _cc[config_flags]
                 _cc = _cc[srcfiles]
                 _cc = _cc[&#34;-o&#34;, outfile]
-                _cc = run.watch(_cc)
-                _cc()
+                run.run(_cc)
 
     @staticmethod
     def select_compiler(c_compiler, _):
         return c_compiler
 
-    def run_tests(self):
-        rodinia_version = self.version_of(&#39;rodinia.tar.bz2&#39;)
-        unpack_dir = local.path(f&#39;rodinia_{rodinia_version}&#39;)
+    def run_tests(self, runner):
+        unpack_dir = local.path(&#39;rodinia_{0}&#39;.format(self.version))
         in_src_dir = unpack_dir / self.config[&#39;dir&#39;]
 
         for outfile in self.config[&#39;src&#39;]:
             wrapping.wrap(in_src_dir / outfile, self)
 
         with local.cwd(in_src_dir):
-            sh_ = run.watch(sh)
-            sh_(&#39;./run&#39;)
+            runner(sh[&#39;./run&#39;])
 
 
 class Backprop(RodiniaGroup):
@@ -514,7 +511,7 @@ class StreamCluster(RodiniaGroup):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -543,13 +540,24 @@ class StreamCluster(RodiniaGroup):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.BFS.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.BFS.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="benchbuild.projects.apollo.rodinia.BFS.select_compiler"><code class="name flex">
 <span>def <span class="ident">select_compiler</span></span>(<span>_, cc)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -564,18 +572,13 @@ def select_compiler(_, cc):
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -591,7 +594,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -620,22 +623,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.BPlusTree.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.BPlusTree.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -651,7 +660,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -679,22 +688,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.Backprop.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.Backprop.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -710,7 +725,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -735,13 +750,24 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.CFD.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.CFD.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="benchbuild.projects.apollo.rodinia.CFD.select_compiler"><code class="name flex">
 <span>def <span class="ident">select_compiler</span></span>(<span>_, cc)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -756,18 +782,13 @@ def select_compiler(_, cc):
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -783,7 +804,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -811,22 +832,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.HeartWall.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.HeartWall.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -842,7 +869,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -870,13 +897,24 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.Hotspot.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.Hotspot.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="benchbuild.projects.apollo.rodinia.Hotspot.select_compiler"><code class="name flex">
 <span>def <span class="ident">select_compiler</span></span>(<span>_, cc)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -891,18 +929,13 @@ def select_compiler(_, cc):
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -918,7 +951,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -943,22 +976,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.Hotspot3D.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.Hotspot3D.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -974,7 +1013,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1008,22 +1047,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.KMeans.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.KMeans.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1039,7 +1084,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1067,22 +1112,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.LUD.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.LUD.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1098,7 +1149,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1126,22 +1177,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.LavaMD.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.LavaMD.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1157,7 +1214,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1250,22 +1307,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.Leukocyte.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.Leukocyte.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1281,7 +1344,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1306,22 +1369,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.Myocyte.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.Myocyte.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1337,7 +1406,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1362,22 +1431,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.NN.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.NN.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1393,7 +1468,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1422,13 +1497,24 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.NW.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.NW.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="benchbuild.projects.apollo.rodinia.NW.select_compiler"><code class="name flex">
 <span>def <span class="ident">select_compiler</span></span>(<span>_, cc)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1443,18 +1529,13 @@ def select_compiler(_, cc):
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1470,7 +1551,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1495,22 +1576,28 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.ParticleFilter.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.ParticleFilter.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1526,7 +1613,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1554,13 +1641,24 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.PathFinder.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.PathFinder.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="benchbuild.projects.apollo.rodinia.PathFinder.select_compiler"><code class="name flex">
 <span>def <span class="ident">select_compiler</span></span>(<span>_, cc)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1575,18 +1673,13 @@ def select_compiler(_, cc):
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1602,29 +1695,26 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class RodiniaGroup(Project):
+<pre><code class="python">class RodiniaGroup(project.Project):
     &#34;&#34;&#34;Generic handling of Rodinia benchmarks.&#34;&#34;&#34;
     DOMAIN = &#39;rodinia&#39;
     GROUP = &#39;rodinia&#39;
-    SOURCE = [HTTP(
-        remote={&#39;3.1&#39;: &#39;http://www.cs.virginia.edu/&#39;
-                       &#39;~kw5na/lava/Rodinia/Packages/Current/3.1/&#39;
-                       &#39;rodinia_3.1.tar.bz2&#39;},
-        local=&#39;rodinia.tar.bz2&#39;)]
+    VERSION = &#39;3.1&#39;
+    SRC_FILE = &#39;rodinia.tar.bz2&#39;
     CONFIG = {}
 
     config = attr.ib(default=attr.Factory(
         lambda self: type(self).CONFIG, takes_self=True))
 
     def compile(self):
-        tar(&#39;xf&#39;, &#39;rodinia.tar.bz2&#39;)
-        rodinia_version = self.version_of(&#39;rodinia.tar.bz2&#39;)
-        unpack_dir = local.path(f&#39;rodinia_{rodinia_version}&#39;)
+        self.download()
+        tar(&#34;xf&#34;, self.src_file)
+        unpack_dir = local.path(&#39;rodinia_{0}&#39;.format(self.version))
 
         c_compiler = compiler.cc(self)
         cxx_compiler = compiler.cxx(self)
@@ -1641,24 +1731,21 @@ def select_compiler(_, cc):
                     _cc = _cc[config_flags]
                 _cc = _cc[srcfiles]
                 _cc = _cc[&#34;-o&#34;, outfile]
-                _cc = run.watch(_cc)
-                _cc()
+                run.run(_cc)
 
     @staticmethod
     def select_compiler(c_compiler, _):
         return c_compiler
 
-    def run_tests(self):
-        rodinia_version = self.version_of(&#39;rodinia.tar.bz2&#39;)
-        unpack_dir = local.path(f&#39;rodinia_{rodinia_version}&#39;)
+    def run_tests(self, runner):
+        unpack_dir = local.path(&#39;rodinia_{0}&#39;.format(self.version))
         in_src_dir = unpack_dir / self.config[&#39;dir&#39;]
 
         for outfile in self.config[&#39;src&#39;]:
             wrapping.wrap(in_src_dir / outfile, self)
 
         with local.cwd(in_src_dir):
-            sh_ = run.watch(sh)
-            sh_(&#39;./run&#39;)</code></pre>
+            runner(sh[&#39;./run&#39;])</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1690,17 +1777,23 @@ def select_compiler(_, cc):
 <dl>
 <dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
 <dd>
-<section class="desc"><p>dict() -&gt; new empty dictionary
-dict(mapping) -&gt; new dictionary initialized from a mapping object's
-(key, value) pairs
-dict(iterable) -&gt; new dictionary initialized as if via:
-d = {}
-for k, v in iterable:
-d[k] = v
-dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
-in the keyword argument list.
-For example:
-dict(one=1, two=2)</p></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP"><code class="name">var <span class="ident">GROUP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.SRC_FILE"><code class="name">var <span class="ident">SRC_FILE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.VERSION"><code class="name">var <span class="ident">VERSION</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -1709,7 +1802,7 @@ dict(one=1, two=2)</p></section>
 <span>def <span class="ident">select_compiler</span></span>(<span>c_compiler, _)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1719,15 +1812,45 @@ def select_compiler(c_compiler, _):
     return c_compiler</code></pre>
 </details>
 </dd>
+<dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions"><code class="name flex">
+<span>def <span class="ident">versions</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of versions from the url_dict keys.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def versions_impl():
+    &#34;&#34;&#34;Return a list of versions from the url_dict keys.&#34;&#34;&#34;
+    return list(url_dict.keys())</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.RodiniaGroup.download"><code class="name flex">
+<span>def <span class="ident">download</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download the selected version from the url_dict value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_impl(self):
+    &#34;&#34;&#34;Download the selected version from the url_dict value.&#34;&#34;&#34;
+    t_file = target_file if target_file else self.SRC_FILE
+    t_version = url_dict[self.version]
+    Wget(t_version, t_file)</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.project.Project.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.project.Project.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.project.Project.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.project.Project.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.project.Project.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.project.Project.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
 <li><code><a title="benchbuild.project.Project.compile" href="../../project.html#benchbuild.project.Project.compile">compile</a></code></li>
@@ -1735,8 +1858,6 @@ def select_compiler(c_compiler, _):
 <li><code><a title="benchbuild.project.Project.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.project.Project.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
 <li><code><a title="benchbuild.project.Project.run_tests" href="../../project.html#benchbuild.project.Project.run_tests">run_tests</a></code></li>
-<li><code><a title="benchbuild.project.Project.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.project.Project.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1746,7 +1867,7 @@ def select_compiler(c_compiler, _):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1772,22 +1893,28 @@ def select_compiler(c_compiler, _):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.SRAD1.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.SRAD1.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1803,7 +1930,7 @@ def select_compiler(c_compiler, _):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1832,13 +1959,24 @@ def select_compiler(c_compiler, _):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.SRAD2.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.SRAD2.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="benchbuild.projects.apollo.rodinia.SRAD2.select_compiler"><code class="name flex">
 <span>def <span class="ident">select_compiler</span></span>(<span>_, cc)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1853,18 +1991,13 @@ def select_compiler(_, cc):
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1880,7 +2013,7 @@ def select_compiler(_, cc):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generic handling of Rodinia benchmarks.</p></section>
+<div class="desc"><p>Generic handling of Rodinia benchmarks.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1909,13 +2042,24 @@ def select_compiler(_, cc):
 <li><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></li>
 <li><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="benchbuild.projects.apollo.rodinia.StreamCluster.CONFIG"><code class="name">var <span class="ident">CONFIG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.apollo.rodinia.StreamCluster.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="benchbuild.projects.apollo.rodinia.StreamCluster.select_compiler"><code class="name flex">
 <span>def <span class="ident">select_compiler</span></span>(<span>_, cc)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1930,18 +2074,13 @@ def select_compiler(_, cc):
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -1971,85 +2110,153 @@ def select_compiler(_, cc):
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.BFS" href="#benchbuild.projects.apollo.rodinia.BFS">BFS</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.BFS.CONFIG" href="#benchbuild.projects.apollo.rodinia.BFS.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.BFS.NAME" href="#benchbuild.projects.apollo.rodinia.BFS.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.BFS.select_compiler" href="#benchbuild.projects.apollo.rodinia.BFS.select_compiler">select_compiler</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.BPlusTree" href="#benchbuild.projects.apollo.rodinia.BPlusTree">BPlusTree</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.BPlusTree.CONFIG" href="#benchbuild.projects.apollo.rodinia.BPlusTree.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.BPlusTree.NAME" href="#benchbuild.projects.apollo.rodinia.BPlusTree.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.Backprop" href="#benchbuild.projects.apollo.rodinia.Backprop">Backprop</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.Backprop.CONFIG" href="#benchbuild.projects.apollo.rodinia.Backprop.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.Backprop.NAME" href="#benchbuild.projects.apollo.rodinia.Backprop.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.CFD" href="#benchbuild.projects.apollo.rodinia.CFD">CFD</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.CFD.CONFIG" href="#benchbuild.projects.apollo.rodinia.CFD.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.CFD.NAME" href="#benchbuild.projects.apollo.rodinia.CFD.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.CFD.select_compiler" href="#benchbuild.projects.apollo.rodinia.CFD.select_compiler">select_compiler</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.HeartWall" href="#benchbuild.projects.apollo.rodinia.HeartWall">HeartWall</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.HeartWall.CONFIG" href="#benchbuild.projects.apollo.rodinia.HeartWall.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.HeartWall.NAME" href="#benchbuild.projects.apollo.rodinia.HeartWall.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.Hotspot" href="#benchbuild.projects.apollo.rodinia.Hotspot">Hotspot</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.Hotspot.CONFIG" href="#benchbuild.projects.apollo.rodinia.Hotspot.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.Hotspot.NAME" href="#benchbuild.projects.apollo.rodinia.Hotspot.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.Hotspot.select_compiler" href="#benchbuild.projects.apollo.rodinia.Hotspot.select_compiler">select_compiler</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.Hotspot3D" href="#benchbuild.projects.apollo.rodinia.Hotspot3D">Hotspot3D</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.Hotspot3D.CONFIG" href="#benchbuild.projects.apollo.rodinia.Hotspot3D.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.Hotspot3D.NAME" href="#benchbuild.projects.apollo.rodinia.Hotspot3D.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.KMeans" href="#benchbuild.projects.apollo.rodinia.KMeans">KMeans</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.KMeans.CONFIG" href="#benchbuild.projects.apollo.rodinia.KMeans.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.KMeans.NAME" href="#benchbuild.projects.apollo.rodinia.KMeans.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.LUD" href="#benchbuild.projects.apollo.rodinia.LUD">LUD</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.LUD.CONFIG" href="#benchbuild.projects.apollo.rodinia.LUD.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.LUD.NAME" href="#benchbuild.projects.apollo.rodinia.LUD.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.LavaMD" href="#benchbuild.projects.apollo.rodinia.LavaMD">LavaMD</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.LavaMD.CONFIG" href="#benchbuild.projects.apollo.rodinia.LavaMD.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.LavaMD.NAME" href="#benchbuild.projects.apollo.rodinia.LavaMD.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.Leukocyte" href="#benchbuild.projects.apollo.rodinia.Leukocyte">Leukocyte</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.Leukocyte.CONFIG" href="#benchbuild.projects.apollo.rodinia.Leukocyte.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.Leukocyte.NAME" href="#benchbuild.projects.apollo.rodinia.Leukocyte.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.Myocyte" href="#benchbuild.projects.apollo.rodinia.Myocyte">Myocyte</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.Myocyte.CONFIG" href="#benchbuild.projects.apollo.rodinia.Myocyte.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.Myocyte.NAME" href="#benchbuild.projects.apollo.rodinia.Myocyte.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.NN" href="#benchbuild.projects.apollo.rodinia.NN">NN</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.NN.CONFIG" href="#benchbuild.projects.apollo.rodinia.NN.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.NN.NAME" href="#benchbuild.projects.apollo.rodinia.NN.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.NW" href="#benchbuild.projects.apollo.rodinia.NW">NW</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.NW.CONFIG" href="#benchbuild.projects.apollo.rodinia.NW.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.NW.NAME" href="#benchbuild.projects.apollo.rodinia.NW.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.NW.select_compiler" href="#benchbuild.projects.apollo.rodinia.NW.select_compiler">select_compiler</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.ParticleFilter" href="#benchbuild.projects.apollo.rodinia.ParticleFilter">ParticleFilter</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.ParticleFilter.CONFIG" href="#benchbuild.projects.apollo.rodinia.ParticleFilter.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.ParticleFilter.NAME" href="#benchbuild.projects.apollo.rodinia.ParticleFilter.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.PathFinder" href="#benchbuild.projects.apollo.rodinia.PathFinder">PathFinder</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.PathFinder.CONFIG" href="#benchbuild.projects.apollo.rodinia.PathFinder.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.PathFinder.NAME" href="#benchbuild.projects.apollo.rodinia.PathFinder.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.PathFinder.select_compiler" href="#benchbuild.projects.apollo.rodinia.PathFinder.select_compiler">select_compiler</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup">RodiniaGroup</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.GROUP">GROUP</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.SRC_FILE" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.SRC_FILE">SRC_FILE</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.VERSION" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.VERSION">VERSION</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.download" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.select_compiler" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.select_compiler">select_compiler</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.RodiniaGroup.versions" href="#benchbuild.projects.apollo.rodinia.RodiniaGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.SRAD1" href="#benchbuild.projects.apollo.rodinia.SRAD1">SRAD1</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.SRAD1.CONFIG" href="#benchbuild.projects.apollo.rodinia.SRAD1.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.SRAD1.NAME" href="#benchbuild.projects.apollo.rodinia.SRAD1.NAME">NAME</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.SRAD2" href="#benchbuild.projects.apollo.rodinia.SRAD2">SRAD2</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.SRAD2.CONFIG" href="#benchbuild.projects.apollo.rodinia.SRAD2.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.SRAD2.NAME" href="#benchbuild.projects.apollo.rodinia.SRAD2.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.SRAD2.select_compiler" href="#benchbuild.projects.apollo.rodinia.SRAD2.select_compiler">select_compiler</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.apollo.rodinia.StreamCluster" href="#benchbuild.projects.apollo.rodinia.StreamCluster">StreamCluster</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.apollo.rodinia.StreamCluster.CONFIG" href="#benchbuild.projects.apollo.rodinia.StreamCluster.CONFIG">CONFIG</a></code></li>
+<li><code><a title="benchbuild.projects.apollo.rodinia.StreamCluster.NAME" href="#benchbuild.projects.apollo.rodinia.StreamCluster.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.apollo.rodinia.StreamCluster.select_compiler" href="#benchbuild.projects.apollo.rodinia.StreamCluster.select_compiler">select_compiler</a></code></li>
 </ul>
 </li>
@@ -2059,7 +2266,7 @@ def select_compiler(_, cc):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

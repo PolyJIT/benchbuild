@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.projects.lnt.lnt API documentation</title>
 <meta name="description" content="LNT based measurements." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -30,35 +30,31 @@ import logging
 
 from plumbum import FG, local
 
-from benchbuild.source import Git
-from benchbuild.project import Project
-
+from benchbuild import project
 from benchbuild.settings import CFG
+from benchbuild.utils import compiler, download, wrapping
 from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv
 
 LOG = logging.getLogger(__name__)
 
 
-class LNTGroup(Project):
+@download.with_git(&#34;http://llvm.org/git/lnt&#34;, limit=5)
+class LNTGroup(project.Project):
     &#34;&#34;&#34;LNT ProjectGroup for running the lnt test suite.&#34;&#34;&#34;
 
-    DOMAIN: str = &#39;lnt&#39;
-    GROUP: str = &#39;lnt&#39;
+    DOMAIN = &#39;lnt&#39;
+    GROUP = &#39;lnt&#39;
+    VERSION = &#39;HEAD&#39;
     NAME_FILTERS = [
         r&#39;(?P&lt;name&gt;.+)\.simple&#39;,
         r&#39;(?P&lt;name&gt;.+)-(dbl|flt)&#39;,
     ]
     SUBDIR = None
-    SOURCE = [
-        Git(remote=&#39;http://llvm.org/git/lnt&#39;,
-            local=&#39;lnt.git&#39;,
-            refspec=&#39;HEAD&#39;,
-            limit=5),
-        Git(remote=&#39;http://llvm.org/git/test-suite&#39;,
-            local=&#39;test-suite&#39;,
-            refspec=&#39;HEAD&#39;,
-            limit=5)
-    ]
+    SRC_FILE = &#34;lnt.git&#34;
+
+    src_dir = &#34;lnt&#34;
+    test_suite_dir = &#34;test-suite&#34;
+    test_suite_uri = &#34;http://llvm.org/git/test-suite&#34;
 
     # Will be set by configure.
     lnt = None
@@ -68,15 +64,14 @@ class LNTGroup(Project):
     binary = None
 
     def compile(self):
-        lnt_repo = local.path(self.source_of(&#39;lnt.git&#39;))
-        test_suite_source = local.path(self.source_of(&#39;test-suite&#39;))
+        self.download()
+        download.Git(self.test_suite_uri, self.test_suite_dir)
 
         venv_path = local.cwd / &#34;local&#34;
         virtualenv(venv_path, &#34;--python=python2&#34;)
         pip_path = local.cwd / &#34;local&#34; / &#34;bin&#34; / &#34;pip&#34;
         pip = local[pip_path]
-
-        with local.cwd(lnt_repo):
+        with local.cwd(self.SRC_FILE):
             pip(&#34;install&#34;, &#34;--no-cache-dir&#34;, &#34;--disable-pip-version-check&#34;,
                 &#34;-e&#34;, &#34;.&#34;)
 
@@ -89,12 +84,11 @@ class LNTGroup(Project):
         self.clang = compiler.cc(self, detect_project=True)
         self.clang_cxx = compiler.cxx(self, detect_project=True)
 
-        runtest = run.watch(self.lnt)
-        runtest(&#34;runtest&#34;, &#34;test-suite&#34;, &#34;-v&#34;, &#34;-j1&#34;, &#34;--sandbox&#34;,
-                self.sandbox_dir, &#34;--benchmarking-only&#34;,
-                &#34;--only-compile&#34;, &#34;--cc&#34;, str(self.clang), &#34;--cxx&#34;,
-                str(self.clang_cxx), &#34;--test-suite&#34;, test_suite_source,
-                &#34;--only-test=&#34; + self.SUBDIR)
+        self.lnt(&#34;runtest&#34;, &#34;test-suite&#34;, &#34;-v&#34;, &#34;-j1&#34;, &#34;--sandbox&#34;,
+                 self.sandbox_dir, &#34;--benchmarking-only&#34;,
+                 &#34;--only-compile&#34;, &#34;--cc&#34;, str(self.clang), &#34;--cxx&#34;,
+                 str(self.clang_cxx), &#34;--test-suite&#34;, self.test_suite_dir,
+                 &#34;--only-test=&#34; + self.SUBDIR)
 
     @staticmethod
     def after_run_tests(sandbox_dir):
@@ -103,18 +97,18 @@ class LNTGroup(Project):
             LOG.info(&#34;Dumping contents of: %s&#34;, log)
             (cat[log] &amp; FG)  # pylint: disable=pointless-statement
 
-    def run_tests(self):
-        test_suite_source = local.path(self.source_of(&#39;test-suite&#39;))
-        binary = wrapping.wrapping.wrap_dynamic(
+    def run_tests(self, runner):
+        binary = wrapping.wrap_dynamic(
             self, &#34;lnt_runner&#34;, name_filters=LNTGroup.NAME_FILTERS)
 
-        runtest = run.watch(self.lnt)
-        runtest(&#34;runtest&#34;, &#34;nt&#34;, &#34;-v&#34;, &#34;-j1&#34;, &#34;--sandbox&#34;, self.sandbox_dir,
-                &#34;--benchmarking-only&#34;, &#34;--cc&#34;, str(self.clang), &#34;--cxx&#34;,
-                str(self.clang_cxx), &#34;--test-suite&#34;, test_suite_source,
-                &#34;--test-style&#34;, &#34;simple&#34;, &#34;--test-externals&#34;, self.builddir,
-                &#34;--make-param=RUNUNDER=&#34; + str(binary),
-                &#34;--only-test=&#34; + self.SUBDIR)
+        runner(
+            self.lnt[&#34;runtest&#34;, &#34;nt&#34;, &#34;-v&#34;, &#34;-j1&#34;, &#34;--sandbox&#34;,
+                     self.sandbox_dir, &#34;--benchmarking-only&#34;, &#34;--cc&#34;,
+                     str(self.clang), &#34;--cxx&#34;,
+                     str(self.clang_cxx), &#34;--test-suite&#34;, self.test_suite_dir,
+                     &#34;--test-style&#34;, &#34;simple&#34;, &#34;--test-externals&#34;,
+                     self.builddir, &#34;--make-param=RUNUNDER=&#34; +
+                     str(binary), &#34;--only-test=&#34; + self.SUBDIR])
 
         LNTGroup.after_run_tests(self.sandbox_dir)
 
@@ -143,7 +137,7 @@ class SPEC2006(LNTGroup):
     SUBDIR = &#34;External/SPEC&#34;
 
     def compile(self):
-        if bb.download.CopyNoFail(&#39;speccpu2006&#39;):
+        if download.CopyNoFail(&#39;speccpu2006&#39;):
             super(SPEC2006, self).compile()
         else:
             print(&#39;======================================================&#39;)
@@ -153,23 +147,16 @@ class SPEC2006(LNTGroup):
 
 
 class Povray(LNTGroup):
-    NAME: str = &#39;Povray&#39;
-    DOMAIN: str = &#39;LNT (Ext)&#39;
-    SUBDIR: str = &#34;External/Povray&#34;
-    SOURCE = [
-        Git(remote=&#39;http://llvm.org/git/lnt&#39;,
-            local=&#39;lnt.git&#39;,
-            refspec=&#39;HEAD&#39;,
-            limit=5),
-        Git(remote=&#39;http://llvm.org/git/test-suite&#39;,
-            local=&#39;test-suite&#39;,
-            refspec=&#39;HEAD&#39;,
-            limit=5),
-        Git(remote=&#39;https://github.com/POV-Ray/povray&#39;,
-            local=&#39;povray.git&#39;,
-            refspec=&#39;HEAD&#39;,
-            limit=5)
-    ]</code></pre>
+    NAME = &#39;Povray&#39;
+    DOMAIN = &#39;LNT (Ext)&#39;
+    SUBDIR = &#34;External/Povray&#34;
+
+    povray_url = &#34;https://github.com/POV-Ray/povray&#34;
+    povray_src_dir = &#34;Povray&#34;
+
+    def compile(self):
+        download.Git(self.povray_url, self.povray_src_dir)
+        super(Povray, self).compile()</code></pre>
 </details>
 </section>
 <section>
@@ -186,31 +173,27 @@ class Povray(LNTGroup):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></section>
+<div class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class LNTGroup(Project):
+<pre><code class="python">class LNTGroup(project.Project):
     &#34;&#34;&#34;LNT ProjectGroup for running the lnt test suite.&#34;&#34;&#34;
 
-    DOMAIN: str = &#39;lnt&#39;
-    GROUP: str = &#39;lnt&#39;
+    DOMAIN = &#39;lnt&#39;
+    GROUP = &#39;lnt&#39;
+    VERSION = &#39;HEAD&#39;
     NAME_FILTERS = [
         r&#39;(?P&lt;name&gt;.+)\.simple&#39;,
         r&#39;(?P&lt;name&gt;.+)-(dbl|flt)&#39;,
     ]
     SUBDIR = None
-    SOURCE = [
-        Git(remote=&#39;http://llvm.org/git/lnt&#39;,
-            local=&#39;lnt.git&#39;,
-            refspec=&#39;HEAD&#39;,
-            limit=5),
-        Git(remote=&#39;http://llvm.org/git/test-suite&#39;,
-            local=&#39;test-suite&#39;,
-            refspec=&#39;HEAD&#39;,
-            limit=5)
-    ]
+    SRC_FILE = &#34;lnt.git&#34;
+
+    src_dir = &#34;lnt&#34;
+    test_suite_dir = &#34;test-suite&#34;
+    test_suite_uri = &#34;http://llvm.org/git/test-suite&#34;
 
     # Will be set by configure.
     lnt = None
@@ -220,15 +203,14 @@ class Povray(LNTGroup):
     binary = None
 
     def compile(self):
-        lnt_repo = local.path(self.source_of(&#39;lnt.git&#39;))
-        test_suite_source = local.path(self.source_of(&#39;test-suite&#39;))
+        self.download()
+        download.Git(self.test_suite_uri, self.test_suite_dir)
 
         venv_path = local.cwd / &#34;local&#34;
         virtualenv(venv_path, &#34;--python=python2&#34;)
         pip_path = local.cwd / &#34;local&#34; / &#34;bin&#34; / &#34;pip&#34;
         pip = local[pip_path]
-
-        with local.cwd(lnt_repo):
+        with local.cwd(self.SRC_FILE):
             pip(&#34;install&#34;, &#34;--no-cache-dir&#34;, &#34;--disable-pip-version-check&#34;,
                 &#34;-e&#34;, &#34;.&#34;)
 
@@ -241,12 +223,11 @@ class Povray(LNTGroup):
         self.clang = compiler.cc(self, detect_project=True)
         self.clang_cxx = compiler.cxx(self, detect_project=True)
 
-        runtest = run.watch(self.lnt)
-        runtest(&#34;runtest&#34;, &#34;test-suite&#34;, &#34;-v&#34;, &#34;-j1&#34;, &#34;--sandbox&#34;,
-                self.sandbox_dir, &#34;--benchmarking-only&#34;,
-                &#34;--only-compile&#34;, &#34;--cc&#34;, str(self.clang), &#34;--cxx&#34;,
-                str(self.clang_cxx), &#34;--test-suite&#34;, test_suite_source,
-                &#34;--only-test=&#34; + self.SUBDIR)
+        self.lnt(&#34;runtest&#34;, &#34;test-suite&#34;, &#34;-v&#34;, &#34;-j1&#34;, &#34;--sandbox&#34;,
+                 self.sandbox_dir, &#34;--benchmarking-only&#34;,
+                 &#34;--only-compile&#34;, &#34;--cc&#34;, str(self.clang), &#34;--cxx&#34;,
+                 str(self.clang_cxx), &#34;--test-suite&#34;, self.test_suite_dir,
+                 &#34;--only-test=&#34; + self.SUBDIR)
 
     @staticmethod
     def after_run_tests(sandbox_dir):
@@ -255,18 +236,18 @@ class Povray(LNTGroup):
             LOG.info(&#34;Dumping contents of: %s&#34;, log)
             (cat[log] &amp; FG)  # pylint: disable=pointless-statement
 
-    def run_tests(self):
-        test_suite_source = local.path(self.source_of(&#39;test-suite&#39;))
-        binary = wrapping.wrapping.wrap_dynamic(
+    def run_tests(self, runner):
+        binary = wrapping.wrap_dynamic(
             self, &#34;lnt_runner&#34;, name_filters=LNTGroup.NAME_FILTERS)
 
-        runtest = run.watch(self.lnt)
-        runtest(&#34;runtest&#34;, &#34;nt&#34;, &#34;-v&#34;, &#34;-j1&#34;, &#34;--sandbox&#34;, self.sandbox_dir,
-                &#34;--benchmarking-only&#34;, &#34;--cc&#34;, str(self.clang), &#34;--cxx&#34;,
-                str(self.clang_cxx), &#34;--test-suite&#34;, test_suite_source,
-                &#34;--test-style&#34;, &#34;simple&#34;, &#34;--test-externals&#34;, self.builddir,
-                &#34;--make-param=RUNUNDER=&#34; + str(binary),
-                &#34;--only-test=&#34; + self.SUBDIR)
+        runner(
+            self.lnt[&#34;runtest&#34;, &#34;nt&#34;, &#34;-v&#34;, &#34;-j1&#34;, &#34;--sandbox&#34;,
+                     self.sandbox_dir, &#34;--benchmarking-only&#34;, &#34;--cc&#34;,
+                     str(self.clang), &#34;--cxx&#34;,
+                     str(self.clang_cxx), &#34;--test-suite&#34;, self.test_suite_dir,
+                     &#34;--test-style&#34;, &#34;simple&#34;, &#34;--test-externals&#34;,
+                     self.builddir, &#34;--make-param=RUNUNDER=&#34; +
+                     str(binary), &#34;--only-test=&#34; + self.SUBDIR])
 
         LNTGroup.after_run_tests(self.sandbox_dir)</code></pre>
 </details>
@@ -284,35 +265,65 @@ class Povray(LNTGroup):
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.GROUP"><code class="name">var <span class="ident">GROUP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS"><code class="name">var <span class="ident">NAME_FILTERS</span></code></dt>
 <dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.SRC_FILE"><code class="name">var <span class="ident">SRC_FILE</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.SUBDIR"><code class="name">var <span class="ident">SUBDIR</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.VERSION"><code class="name">var <span class="ident">VERSION</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.binary"><code class="name">var <span class="ident">binary</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.clang"><code class="name">var <span class="ident">clang</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.clang_cxx"><code class="name">var <span class="ident">clang_cxx</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.lnt"><code class="name">var <span class="ident">lnt</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.repository"><code class="name">var <span class="ident">repository</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.projects.lnt.lnt.LNTGroup.sandbox_dir"><code class="name">var <span class="ident">sandbox_dir</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.src_dir"><code class="name">var <span class="ident">src_dir</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.test_suite_dir"><code class="name">var <span class="ident">test_suite_dir</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.test_suite_uri"><code class="name">var <span class="ident">test_suite_uri</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -321,7 +332,7 @@ The argument must be an iterable if specified.</p></section>
 <span>def <span class="ident">after_run_tests</span></span>(<span>sandbox_dir)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -334,15 +345,66 @@ def after_run_tests(sandbox_dir):
         (cat[log] &amp; FG)  # pylint: disable=pointless-statement</code></pre>
 </details>
 </dd>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.versions"><code class="name flex">
+<span>def <span class="ident">versions</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of versions from the git hashes up to :limit:.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def versions_impl():
+    &#34;&#34;&#34;Return a list of versions from the git hashes up to :limit:.&#34;&#34;&#34;
+    directory = cls.SRC_FILE if target_dir is None else target_dir
+    repo_prefix = local.path(str(CFG[&#34;tmp_dir&#34;]))
+    repo_loc = local.path(repo_prefix) / directory
+    if __clone_needed__(repo, repo_loc):
+        if not clone:
+            return []
+        git(&#34;clone&#34;, repo, repo_loc)
+
+    with local.cwd(repo_loc):
+        rev_list = git(&#34;rev-list&#34;, &#34;--abbrev-commit&#34;, &#34;--abbrev=10&#34;,
+                       refspec, *rev_list_args).strip().split(&#39;\n&#39;)
+        latest = git(&#34;rev-parse&#34;, &#34;--short=10&#34;,
+                     refspec).strip().split(&#39;\n&#39;)
+        cls.VERSION = latest[0]
+
+    if limit:
+        return list(filter(version_filter, rev_list))[:limit]
+
+    return list(filter(version_filter, rev_list))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.projects.lnt.lnt.LNTGroup.download"><code class="name flex">
+<span>def <span class="ident">download</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download the selected version.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_impl(self):
+    &#34;&#34;&#34;Download the selected version.&#34;&#34;&#34;
+    nonlocal target_dir, git
+    directory = cls.SRC_FILE if target_dir is None else target_dir
+    Git(self.repository,
+        directory,
+        self.version,
+        shallow_clone=shallow_clone)</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.project.Project.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.project.Project.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.project.Project.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.project.Project.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.project.Project.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.project.Project.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
 <li><code><a title="benchbuild.project.Project.compile" href="../../project.html#benchbuild.project.Project.compile">compile</a></code></li>
@@ -350,8 +412,6 @@ def after_run_tests(sandbox_dir):
 <li><code><a title="benchbuild.project.Project.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.project.Project.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
 <li><code><a title="benchbuild.project.Project.run_tests" href="../../project.html#benchbuild.project.Project.run_tests">run_tests</a></code></li>
-<li><code><a title="benchbuild.project.Project.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.project.Project.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
 </ul>
 </li>
 </ul>
@@ -361,7 +421,7 @@ def after_run_tests(sandbox_dir):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></section>
+<div class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -378,35 +438,30 @@ def after_run_tests(sandbox_dir):
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="benchbuild.projects.lnt.lnt.MultiSourceApplications.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.MultiSourceApplications.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="benchbuild.projects.lnt.lnt.MultiSourceApplications.SUBDIR"><code class="name">var <span class="ident">SUBDIR</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.lnt.lnt.LNTGroup" href="#benchbuild.projects.lnt.lnt.LNTGroup">LNTGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS" href="#benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS">NAME_FILTERS</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.download" href="#benchbuild.projects.lnt.lnt.LNTGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.versions" href="#benchbuild.projects.lnt.lnt.LNTGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -422,7 +477,7 @@ errors defaults to 'strict'.</p></section>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></section>
+<div class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -439,35 +494,30 @@ errors defaults to 'strict'.</p></section>
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.SUBDIR"><code class="name">var <span class="ident">SUBDIR</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.lnt.lnt.LNTGroup" href="#benchbuild.projects.lnt.lnt.LNTGroup">LNTGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS" href="#benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS">NAME_FILTERS</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.download" href="#benchbuild.projects.lnt.lnt.LNTGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.versions" href="#benchbuild.projects.lnt.lnt.LNTGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -483,29 +533,22 @@ errors defaults to 'strict'.</p></section>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></section>
+<div class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Povray(LNTGroup):
-    NAME: str = &#39;Povray&#39;
-    DOMAIN: str = &#39;LNT (Ext)&#39;
-    SUBDIR: str = &#34;External/Povray&#34;
-    SOURCE = [
-        Git(remote=&#39;http://llvm.org/git/lnt&#39;,
-            local=&#39;lnt.git&#39;,
-            refspec=&#39;HEAD&#39;,
-            limit=5),
-        Git(remote=&#39;http://llvm.org/git/test-suite&#39;,
-            local=&#39;test-suite&#39;,
-            refspec=&#39;HEAD&#39;,
-            limit=5),
-        Git(remote=&#39;https://github.com/POV-Ray/povray&#39;,
-            local=&#39;povray.git&#39;,
-            refspec=&#39;HEAD&#39;,
-            limit=5)
-    ]</code></pre>
+    NAME = &#39;Povray&#39;
+    DOMAIN = &#39;LNT (Ext)&#39;
+    SUBDIR = &#34;External/Povray&#34;
+
+    povray_url = &#34;https://github.com/POV-Ray/povray&#34;
+    povray_src_dir = &#34;Povray&#34;
+
+    def compile(self):
+        download.Git(self.povray_url, self.povray_src_dir)
+        super(Povray, self).compile()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -514,40 +557,47 @@ errors defaults to 'strict'.</p></section>
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="benchbuild.projects.lnt.lnt.Povray.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.Povray.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="benchbuild.projects.lnt.lnt.Povray.SUBDIR"><code class="name">var <span class="ident">SUBDIR</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.Povray.povray_src_dir"><code class="name">var <span class="ident">povray_src_dir</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.Povray.povray_url"><code class="name">var <span class="ident">povray_url</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.lnt.lnt.LNTGroup" href="#benchbuild.projects.lnt.lnt.LNTGroup">LNTGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS" href="#benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS">NAME_FILTERS</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.download" href="#benchbuild.projects.lnt.lnt.LNTGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.versions" href="#benchbuild.projects.lnt.lnt.LNTGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
 <ul class="hlist">
 <li><code><a title="benchbuild.project.Project.compile" href="../../project.html#benchbuild.project.Project.compile">compile</a></code></li>
+</ul>
+</li>
+<li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
+<ul class="hlist">
 <li><code><a title="benchbuild.project.Project.run_tests" href="../../project.html#benchbuild.project.Project.run_tests">run_tests</a></code></li>
 </ul>
 </li>
@@ -558,7 +608,7 @@ errors defaults to 'strict'.</p></section>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></section>
+<div class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -569,7 +619,7 @@ errors defaults to 'strict'.</p></section>
     SUBDIR = &#34;External/SPEC&#34;
 
     def compile(self):
-        if bb.download.CopyNoFail(&#39;speccpu2006&#39;):
+        if download.CopyNoFail(&#39;speccpu2006&#39;):
             super(SPEC2006, self).compile()
         else:
             print(&#39;======================================================&#39;)
@@ -584,39 +634,30 @@ errors defaults to 'strict'.</p></section>
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="benchbuild.projects.lnt.lnt.SPEC2006.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.SPEC2006.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="benchbuild.projects.lnt.lnt.SPEC2006.SUBDIR"><code class="name">var <span class="ident">SUBDIR</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.lnt.lnt.LNTGroup" href="#benchbuild.projects.lnt.lnt.LNTGroup">LNTGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-</ul>
-</li>
-<li><code><b><a title="benchbuild.projects.lnt.lnt.LNTGroup" href="#benchbuild.projects.lnt.lnt.LNTGroup">LNTGroup</a></b></code>:
-<ul class="hlist">
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS" href="#benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS">NAME_FILTERS</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.download" href="#benchbuild.projects.lnt.lnt.LNTGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.versions" href="#benchbuild.projects.lnt.lnt.LNTGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -636,7 +677,7 @@ errors defaults to 'strict'.</p></section>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></section>
+<div class="desc"><p>LNT ProjectGroup for running the lnt test suite.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -653,35 +694,30 @@ errors defaults to 'strict'.</p></section>
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.SUBDIR"><code class="name">var <span class="ident">SUBDIR</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.lnt.lnt.LNTGroup" href="#benchbuild.projects.lnt.lnt.LNTGroup">LNTGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS" href="#benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS">NAME_FILTERS</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.download" href="#benchbuild.projects.lnt.lnt.LNTGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.versions" href="#benchbuild.projects.lnt.lnt.LNTGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -711,43 +747,65 @@ errors defaults to 'strict'.</p></section>
 <li>
 <h4><code><a title="benchbuild.projects.lnt.lnt.LNTGroup" href="#benchbuild.projects.lnt.lnt.LNTGroup">LNTGroup</a></code></h4>
 <ul class="two-column">
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.DOMAIN" href="#benchbuild.projects.lnt.lnt.LNTGroup.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.GROUP" href="#benchbuild.projects.lnt.lnt.LNTGroup.GROUP">GROUP</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS" href="#benchbuild.projects.lnt.lnt.LNTGroup.NAME_FILTERS">NAME_FILTERS</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.SRC_FILE" href="#benchbuild.projects.lnt.lnt.LNTGroup.SRC_FILE">SRC_FILE</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.SUBDIR" href="#benchbuild.projects.lnt.lnt.LNTGroup.SUBDIR">SUBDIR</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.VERSION" href="#benchbuild.projects.lnt.lnt.LNTGroup.VERSION">VERSION</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.after_run_tests" href="#benchbuild.projects.lnt.lnt.LNTGroup.after_run_tests">after_run_tests</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.binary" href="#benchbuild.projects.lnt.lnt.LNTGroup.binary">binary</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clang" href="#benchbuild.projects.lnt.lnt.LNTGroup.clang">clang</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.clang_cxx" href="#benchbuild.projects.lnt.lnt.LNTGroup.clang_cxx">clang_cxx</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.download" href="#benchbuild.projects.lnt.lnt.LNTGroup.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.lnt" href="#benchbuild.projects.lnt.lnt.LNTGroup.lnt">lnt</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.repository" href="#benchbuild.projects.lnt.lnt.LNTGroup.repository">repository</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.sandbox_dir" href="#benchbuild.projects.lnt.lnt.LNTGroup.sandbox_dir">sandbox_dir</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.src_dir" href="#benchbuild.projects.lnt.lnt.LNTGroup.src_dir">src_dir</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.test_suite_dir" href="#benchbuild.projects.lnt.lnt.LNTGroup.test_suite_dir">test_suite_dir</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.test_suite_uri" href="#benchbuild.projects.lnt.lnt.LNTGroup.test_suite_uri">test_suite_uri</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.LNTGroup.versions" href="#benchbuild.projects.lnt.lnt.LNTGroup.versions">versions</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.lnt.lnt.MultiSourceApplications" href="#benchbuild.projects.lnt.lnt.MultiSourceApplications">MultiSourceApplications</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.lnt.lnt.MultiSourceApplications.DOMAIN" href="#benchbuild.projects.lnt.lnt.MultiSourceApplications.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.MultiSourceApplications.NAME" href="#benchbuild.projects.lnt.lnt.MultiSourceApplications.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.MultiSourceApplications.SUBDIR" href="#benchbuild.projects.lnt.lnt.MultiSourceApplications.SUBDIR">SUBDIR</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.lnt.lnt.MultiSourceBenchmarks" href="#benchbuild.projects.lnt.lnt.MultiSourceBenchmarks">MultiSourceBenchmarks</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.DOMAIN" href="#benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.NAME" href="#benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.SUBDIR" href="#benchbuild.projects.lnt.lnt.MultiSourceBenchmarks.SUBDIR">SUBDIR</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.lnt.lnt.Povray" href="#benchbuild.projects.lnt.lnt.Povray">Povray</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.lnt.lnt.Povray.DOMAIN" href="#benchbuild.projects.lnt.lnt.Povray.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.Povray.NAME" href="#benchbuild.projects.lnt.lnt.Povray.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.Povray.SUBDIR" href="#benchbuild.projects.lnt.lnt.Povray.SUBDIR">SUBDIR</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.Povray.povray_src_dir" href="#benchbuild.projects.lnt.lnt.Povray.povray_src_dir">povray_src_dir</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.Povray.povray_url" href="#benchbuild.projects.lnt.lnt.Povray.povray_url">povray_url</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.lnt.lnt.SPEC2006" href="#benchbuild.projects.lnt.lnt.SPEC2006">SPEC2006</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.lnt.lnt.SPEC2006.DOMAIN" href="#benchbuild.projects.lnt.lnt.SPEC2006.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.SPEC2006.NAME" href="#benchbuild.projects.lnt.lnt.SPEC2006.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.SPEC2006.SUBDIR" href="#benchbuild.projects.lnt.lnt.SPEC2006.SUBDIR">SUBDIR</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="benchbuild.projects.lnt.lnt.SingleSourceBenchmarks" href="#benchbuild.projects.lnt.lnt.SingleSourceBenchmarks">SingleSourceBenchmarks</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.DOMAIN" href="#benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.NAME" href="#benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.SUBDIR" href="#benchbuild.projects.lnt.lnt.SingleSourceBenchmarks.SUBDIR">SUBDIR</a></code></li>
 </ul>
 </li>
@@ -757,7 +815,7 @@ errors defaults to 'strict'.</p></section>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

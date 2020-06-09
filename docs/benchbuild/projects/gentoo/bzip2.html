@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.projects.gentoo.bzip2 API documentation</title>
 <meta name="description" content="bzip2 experiment within gentoo chroot." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -30,9 +30,8 @@ bzip2 experiment within gentoo chroot.
 &#34;&#34;&#34;
 from plumbum import local
 
-
-
 from benchbuild.projects.gentoo.gentoo import GentooGroup
+from benchbuild.utils import download, wrapping
 from benchbuild.utils.cmd import tar
 
 
@@ -40,8 +39,8 @@ class BZip2(GentooGroup):
     &#34;&#34;&#34;
         app-arch/bzip2
     &#34;&#34;&#34;
-    NAME: str = &#34;bzip2&#34;
-    DOMAIN: str = &#34;app-arch&#34;
+    NAME = &#34;bzip2&#34;
+    DOMAIN = &#34;app-arch&#34;
 
     test_url = &#34;http://lairosiel.de/dist/&#34;
     test_archive = &#34;compression.tar.gz&#34;
@@ -54,26 +53,28 @@ class BZip2(GentooGroup):
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
-        bb.download.Wget(test_url, test_archive)
+        download.Wget(test_url, test_archive)
         tar(&#34;fxz&#34;, test_archive)
 
-    def run_tests(self):
+    def run_tests(self, runner):
         bzip2 = wrapping.wrap(local.path(&#39;/bin/bzip2&#39;), self)
-        bzip2 = run.watch(bzip2)
 
         # Compress
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/text.html&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/chicken.jpg&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/control&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/input.source&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/liberty.jpg&#34;)
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/text.html&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/chicken.jpg&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/control&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/input.source&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/liberty.jpg&#34;])
 
         # Decompress
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/text.html.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/chicken.jpg.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/control.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/input.source.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/liberty.jpg.bz2&#34;)</code></pre>
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/text.html.bz2&#34;])
+        runner(
+            bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/chicken.jpg.bz2&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/control.bz2&#34;])
+        runner(
+            bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/input.source.bz2&#34;])
+        runner(
+            bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/liberty.jpg.bz2&#34;])</code></pre>
 </details>
 </section>
 <section>
@@ -90,7 +91,7 @@ class BZip2(GentooGroup):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>app-arch/bzip2</p></section>
+<div class="desc"><p>app-arch/bzip2</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -99,8 +100,8 @@ class BZip2(GentooGroup):
     &#34;&#34;&#34;
         app-arch/bzip2
     &#34;&#34;&#34;
-    NAME: str = &#34;bzip2&#34;
-    DOMAIN: str = &#34;app-arch&#34;
+    NAME = &#34;bzip2&#34;
+    DOMAIN = &#34;app-arch&#34;
 
     test_url = &#34;http://lairosiel.de/dist/&#34;
     test_archive = &#34;compression.tar.gz&#34;
@@ -113,26 +114,28 @@ class BZip2(GentooGroup):
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive
-        bb.download.Wget(test_url, test_archive)
+        download.Wget(test_url, test_archive)
         tar(&#34;fxz&#34;, test_archive)
 
-    def run_tests(self):
+    def run_tests(self, runner):
         bzip2 = wrapping.wrap(local.path(&#39;/bin/bzip2&#39;), self)
-        bzip2 = run.watch(bzip2)
 
         # Compress
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/text.html&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/chicken.jpg&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/control&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/input.source&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/liberty.jpg&#34;)
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/text.html&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/chicken.jpg&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/control&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/input.source&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/liberty.jpg&#34;])
 
         # Decompress
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/text.html.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/chicken.jpg.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/control.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/input.source.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/liberty.jpg.bz2&#34;)</code></pre>
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/text.html.bz2&#34;])
+        runner(
+            bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/chicken.jpg.bz2&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/control.bz2&#34;])
+        runner(
+            bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/input.source.bz2&#34;])
+        runner(
+            bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/liberty.jpg.bz2&#34;])</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -141,56 +144,38 @@ class BZip2(GentooGroup):
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="benchbuild.projects.gentoo.bzip2.BZip2.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.gentoo.bzip2.BZip2.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="benchbuild.projects.gentoo.bzip2.BZip2.test_archive"><code class="name">var <span class="ident">test_archive</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.projects.gentoo.bzip2.BZip2.test_url"><code class="name">var <span class="ident">test_url</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.projects.gentoo.bzip2.BZip2.testfiles"><code class="name">var <span class="ident">testfiles</span></code></dt>
 <dd>
-<section class="desc"><p>Built-in mutable sequence.</p>
-<p>If no argument is given, the constructor creates a new empty list.
-The argument must be an iterable if specified.</p></section>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.projects.gentoo.gentoo.GentooGroup" href="gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup">GentooGroup</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-</ul>
-</li>
-<li><code><b><a title="benchbuild.projects.gentoo.gentoo.GentooGroup" href="gentoo.html#benchbuild.projects.gentoo.gentoo.GentooGroup">GentooGroup</a></b></code>:
-<ul class="hlist">
-<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.download" href="../../project.html#benchbuild.project.Project.download">download</a></code></li>
 <li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
 <li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.run_tests" href="../../project.html#benchbuild.project.Project.run_tests">run_tests</a></code></li>
-<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.versions" href="../../project.html#benchbuild.project.Project.versions">versions</a></code></li>
 </ul>
 </li>
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
@@ -224,6 +209,8 @@ The argument must be an iterable if specified.</p></section>
 <li>
 <h4><code><a title="benchbuild.projects.gentoo.bzip2.BZip2" href="#benchbuild.projects.gentoo.bzip2.BZip2">BZip2</a></code></h4>
 <ul class="">
+<li><code><a title="benchbuild.projects.gentoo.bzip2.BZip2.DOMAIN" href="#benchbuild.projects.gentoo.bzip2.BZip2.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.bzip2.BZip2.NAME" href="#benchbuild.projects.gentoo.bzip2.BZip2.NAME">NAME</a></code></li>
 <li><code><a title="benchbuild.projects.gentoo.bzip2.BZip2.test_archive" href="#benchbuild.projects.gentoo.bzip2.BZip2.test_archive">test_archive</a></code></li>
 <li><code><a title="benchbuild.projects.gentoo.bzip2.BZip2.test_url" href="#benchbuild.projects.gentoo.bzip2.BZip2.test_url">test_url</a></code></li>
 <li><code><a title="benchbuild.projects.gentoo.bzip2.BZip2.testfiles" href="#benchbuild.projects.gentoo.bzip2.BZip2.testfiles">testfiles</a></code></li>
@@ -235,7 +222,7 @@ The argument must be an iterable if specified.</p></section>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

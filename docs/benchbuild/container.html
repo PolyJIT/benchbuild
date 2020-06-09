@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.container API documentation</title>
 <meta name="description" content="Container construction tool …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -46,6 +46,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils import bootstrap, container, download, log, run, uchroot
 from benchbuild.utils import user_interface as ui
 from benchbuild.utils.cmd import bash, mkdir, mv, rm, tar
+from benchbuild.utils.settings import get_number_of_jobs
 
 LOG = logging.getLogger(__name__)
 
@@ -252,13 +253,11 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
             gentoo.configure_portage()
 
             sed_in_chroot = uchroot.uchroot()[&#34;/bin/sed&#34;]
-            sed_in_chroot = run.watch(sed_in_chroot)
             emerge_in_chroot = uchroot.uchroot()[&#34;/usr/bin/emerge&#34;]
-            emerge_in_chroot = run.watch(emerge_in_chroot)
             has_pkg = uchroot.uchroot()[&#34;/usr/bin/qlist&#34;, &#34;-I&#34;]
 
-            sed_in_chroot(&#34;-i&#34;, &#39;/CC=/d&#39;, &#34;/etc/portage/make.conf&#34;)
-            sed_in_chroot(&#34;-i&#34;, &#39;/CXX=/d&#39;, &#34;/etc/portage/make.conf&#34;)
+            run.run(sed_in_chroot[&#34;-i&#34;, &#39;/CC=/d&#39;, &#34;/etc/portage/make.conf&#34;])
+            run.run(sed_in_chroot[&#34;-i&#34;, &#39;/CXX=/d&#39;, &#34;/etc/portage/make.conf&#34;])
 
             want_sync = bool(CFG[&#34;container&#34;][&#34;strategy&#34;][&#34;polyjit&#34;][&#34;sync&#34;])
             want_upgrade = bool(
@@ -266,20 +265,20 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
 
             packages = \
                 CFG[&#34;container&#34;][&#34;strategy&#34;][&#34;polyjit&#34;][&#34;packages&#34;].value
-            with local.env(MAKEOPTS=&#34;-j{0}&#34;.format(int(CFG[&#34;jobs&#34;]))):
+            with local.env(MAKEOPTS=&#34;-j{0}&#34;.format(get_number_of_jobs(CFG))):
                 if want_sync:
                     LOG.debug(&#34;Synchronizing portage.&#34;)
-                    emerge_in_chroot(&#34;--sync&#34;)
+                    run.run(emerge_in_chroot[&#34;--sync&#34;])
                 if want_upgrade:
                     LOG.debug(&#34;Upgrading world.&#34;)
-                    emerge_in_chroot(&#34;--autounmask-only=y&#34;, &#34;-uUDN&#34;,
-                                     &#34;--with-bdeps=y&#34;, &#34;@world&#34;)
+                    run.run(emerge_in_chroot[&#34;--autounmask-only=y&#34;, &#34;-uUDN&#34;,
+                                             &#34;--with-bdeps=y&#34;, &#34;@world&#34;])
                 for pkg in packages:
                     if has_pkg[pkg[&#34;name&#34;]] &amp; TF:
                         continue
                     env = pkg[&#34;env&#34;]
                     with local.env(**env):
-                        emerge_in_chroot(pkg[&#34;name&#34;])
+                        run.run(emerge_in_chroot[pkg[&#34;name&#34;]])
 
             gentoo.setup_benchbuild()
 
@@ -487,7 +486,7 @@ def main(*args):
 <span>def <span class="ident">clean_directories</span></span>(<span>builddir, in_dir=True, out_dir=True)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Remove the in and out of the container if confirmed by the user.</p></section>
+<div class="desc"><p>Remove the in and out of the container if confirmed by the user.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -509,7 +508,7 @@ def main(*args):
 <span>def <span class="ident">find_hash</span></span>(<span>container_db, key)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Find the first container in the database with the given key.</p></section>
+<div class="desc"><p>Find the first container in the database with the given key.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -526,7 +525,7 @@ def main(*args):
 <span>def <span class="ident">main</span></span>(<span>*args)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Main entry point for the container tool.</p></section>
+<div class="desc"><p>Main entry point for the container tool.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -540,14 +539,14 @@ def main(*args):
 <span>def <span class="ident">pack_container</span></span>(<span>in_container, out_file)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Pack a container image into a .tar.bz2 archive.</p>
+<div class="desc"><p>Pack a container image into a .tar.bz2 archive.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>in_container</code></strong> :&ensp;<code>str</code></dt>
 <dd>Path string to the container image.</dd>
 <dt><strong><code>out_file</code></strong> :&ensp;<code>str</code></dt>
 <dd>Output file name.</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -581,9 +580,9 @@ def main(*args):
 <span>def <span class="ident">run_in_container</span></span>(<span>command, container_dir)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Run a given command inside a container.</p>
+<div class="desc"><p>Run a given command inside a container.</p>
 <p>Mounts a directory as a container at the given mountpoint and tries to run
-the given command inside the new container.</p></section>
+the given command inside the new container.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -616,7 +615,7 @@ the given command inside the new container.</p></section>
 <span>def <span class="ident">set_input_container</span></span>(<span>_container, cfg)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Save the input for the container in the configurations.</p></section>
+<div class="desc"><p>Save the input for the container in the configurations.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -635,9 +634,9 @@ the given command inside the new container.</p></section>
 <span>def <span class="ident">setup_bash_in_container</span></span>(<span>builddir, _container, outfile, shell)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Setup a bash environment inside a container.</p>
+<div class="desc"><p>Setup a bash environment inside a container.</p>
 <p>Creates a new chroot, which the user can use as a bash to run the wanted
-projects inside the mounted container, that also gets returned afterwards.</p></section>
+projects inside the mounted container, that also gets returned afterwards.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -672,7 +671,7 @@ projects inside the mounted container, that also gets returned afterwards.</p></
 <span>def <span class="ident">setup_container</span></span>(<span>builddir, _container)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Prepare the container and returns the path where it can be found.</p></section>
+<div class="desc"><p>Prepare the container and returns the path where it can be found.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -717,7 +716,7 @@ projects inside the mounted container, that also gets returned afterwards.</p></
 <span>def <span class="ident">setup_directories</span></span>(<span>builddir)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Create the in and out directories of the container.</p></section>
+<div class="desc"><p>Create the in and out directories of the container.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -743,7 +742,7 @@ projects inside the mounted container, that also gets returned afterwards.</p></
 <span>class <span class="ident">BashStrategy</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>The user interface for setting up a bash inside the container.</p></section>
+<div class="desc"><p>The user interface for setting up a bash inside the container.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -775,7 +774,7 @@ projects inside the mounted container, that also gets returned afterwards.</p></
 <span>(</span><span>executable=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Manage uchroot containers.</p></section>
+<div class="desc"><p>Manage uchroot containers.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -855,22 +854,14 @@ projects inside the mounted container, that also gets returned afterwards.</p></
 <dl>
 <dt id="benchbuild.container.Container.VERSION"><code class="name">var <span class="ident">VERSION</span></code></dt>
 <dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="benchbuild.container.Container.verbosity"><code class="name">var <span class="ident">verbosity</span></code></dt>
 <dd>
-<section class="desc"><p>Sets an attribute</p></section>
+<div class="desc"><p>Sets an attribute</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -890,7 +881,7 @@ errors defaults to 'strict'.</p></section>
 <span>def <span class="ident">builddir</span></span>(<span>self, tmpdir)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Set the current builddir of the container.</p></section>
+<div class="desc"><p>Set the current builddir of the container.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -906,7 +897,7 @@ def builddir(self, tmpdir):
 <span>def <span class="ident">input_file</span></span>(<span>self, _container)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Find the input path of a uchroot container.</p></section>
+<div class="desc"><p>Find the input path of a uchroot container.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -929,7 +920,7 @@ def input_file(self, _container):
 <span>def <span class="ident">main</span></span>(<span>self, *args)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Implement me (no need to call super)</p></section>
+<div class="desc"><p>Implement me (no need to call super)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -953,7 +944,7 @@ def input_file(self, _container):
 <span>def <span class="ident">mounts</span></span>(<span>self, user_mount)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Save the current mount of the container into the settings.</p></section>
+<div class="desc"><p>Save the current mount of the container into the settings.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -972,7 +963,7 @@ def mounts(self, user_mount):
 <span>def <span class="ident">output_file</span></span>(<span>self, _container)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Find and writes the output path of a chroot container.</p></section>
+<div class="desc"><p>Find and writes the output path of a chroot container.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -992,7 +983,7 @@ def output_file(self, _container):
 <span>def <span class="ident">shell</span></span>(<span>self, custom_shell)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>The command to run inside the container.</p></section>
+<div class="desc"><p>The command to run inside the container.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1013,7 +1004,7 @@ def shell(self, custom_shell):
 <span>(</span><span>executable=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Check for the needed files.</p></section>
+<div class="desc"><p>Check for the needed files.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1053,7 +1044,7 @@ def shell(self, custom_shell):
 <span>def <span class="ident">install_cmake_and_exit</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Tell the user to install cmake and aborts the current process.</p></section>
+<div class="desc"><p>Tell the user to install cmake and aborts the current process.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1069,7 +1060,7 @@ def shell(self, custom_shell):
 <span>def <span class="ident">main</span></span>(<span>self, *args)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Implement me (no need to call super)</p></section>
+<div class="desc"><p>Implement me (no need to call super)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1098,11 +1089,11 @@ def shell(self, custom_shell):
 <span>(</span><span>executable=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Create a new container with a predefined strategy.</p>
+<div class="desc"><p>Create a new container with a predefined strategy.</p>
 <p>We offer a variety of creation policies for a new container. By default a
 basic 'spawn a bash' policy is used. This just leaves you inside a bash
 that is started in the extracted container. After customization you can
-exit the bash and pack up the result.</p></section>
+exit the bash and pack up the result.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1171,7 +1162,7 @@ exit the bash and pack up the result.</p></section>
 <span>def <span class="ident">main</span></span>(<span>self, *args)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Implement me (no need to call super)</p></section>
+<div class="desc"><p>Implement me (no need to call super)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1204,14 +1195,14 @@ exit the bash and pack up the result.</p></section>
 <span>def <span class="ident">strategy</span></span>(<span>self, strategy)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Select strategy based on key.</p>
+<div class="desc"><p>Select strategy based on key.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>strategy</code></strong> :&ensp;<code>str</code></dt>
 <dd>The strategy to select.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>A strategy object.</p></section>
+<p>A strategy object.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1243,7 +1234,7 @@ def strategy(self, strategy):
 <span>(</span><span>executable=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Prints a list of the known containers.</p></section>
+<div class="desc"><p>Prints a list of the known containers.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1266,7 +1257,7 @@ def strategy(self, strategy):
 <span>def <span class="ident">main</span></span>(<span>self, *args)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Implement me (no need to call super)</p></section>
+<div class="desc"><p>Implement me (no need to call super)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1284,7 +1275,7 @@ def strategy(self, strategy):
 <span>(</span><span>executable=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Execute commannds inside a prebuilt container.</p></section>
+<div class="desc"><p>Execute commannds inside a prebuilt container.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1319,7 +1310,7 @@ def strategy(self, strategy):
 <span>def <span class="ident">main</span></span>(<span>self, *args)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Implement me (no need to call super)</p></section>
+<div class="desc"><p>Implement me (no need to call super)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1348,7 +1339,7 @@ def strategy(self, strategy):
 <span>class <span class="ident">ContainerStrategy</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>Interfaces for the different containers chosen by the experiment.</p></section>
+<div class="desc"><p>Interfaces for the different containers chosen by the experiment.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1376,12 +1367,12 @@ def strategy(self, strategy):
 <span>def <span class="ident">run</span></span>(<span>self, context)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Execute a container strategy.</p>
+<div class="desc"><p>Execute a container strategy.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>context</code></strong></dt>
 <dd>A context object with attributes used for the strategy.</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1403,8 +1394,8 @@ def run(self, context):
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Context object to be used in strategies.</p>
-<p>This object's attributes are initialized on construction.</p></section>
+<div class="desc"><p>Context object to be used in strategies.</p>
+<p>This object's attributes are initialized on construction.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1423,7 +1414,7 @@ def run(self, context):
 <span>class <span class="ident">SetupPolyJITGentooStrategy</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>Interface of using gentoo as a container for an experiment.</p></section>
+<div class="desc"><p>Interface of using gentoo as a container for an experiment.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1443,13 +1434,11 @@ def run(self, context):
             gentoo.configure_portage()
 
             sed_in_chroot = uchroot.uchroot()[&#34;/bin/sed&#34;]
-            sed_in_chroot = run.watch(sed_in_chroot)
             emerge_in_chroot = uchroot.uchroot()[&#34;/usr/bin/emerge&#34;]
-            emerge_in_chroot = run.watch(emerge_in_chroot)
             has_pkg = uchroot.uchroot()[&#34;/usr/bin/qlist&#34;, &#34;-I&#34;]
 
-            sed_in_chroot(&#34;-i&#34;, &#39;/CC=/d&#39;, &#34;/etc/portage/make.conf&#34;)
-            sed_in_chroot(&#34;-i&#34;, &#39;/CXX=/d&#39;, &#34;/etc/portage/make.conf&#34;)
+            run.run(sed_in_chroot[&#34;-i&#34;, &#39;/CC=/d&#39;, &#34;/etc/portage/make.conf&#34;])
+            run.run(sed_in_chroot[&#34;-i&#34;, &#39;/CXX=/d&#39;, &#34;/etc/portage/make.conf&#34;])
 
             want_sync = bool(CFG[&#34;container&#34;][&#34;strategy&#34;][&#34;polyjit&#34;][&#34;sync&#34;])
             want_upgrade = bool(
@@ -1457,20 +1446,20 @@ def run(self, context):
 
             packages = \
                 CFG[&#34;container&#34;][&#34;strategy&#34;][&#34;polyjit&#34;][&#34;packages&#34;].value
-            with local.env(MAKEOPTS=&#34;-j{0}&#34;.format(int(CFG[&#34;jobs&#34;]))):
+            with local.env(MAKEOPTS=&#34;-j{0}&#34;.format(get_number_of_jobs(CFG))):
                 if want_sync:
                     LOG.debug(&#34;Synchronizing portage.&#34;)
-                    emerge_in_chroot(&#34;--sync&#34;)
+                    run.run(emerge_in_chroot[&#34;--sync&#34;])
                 if want_upgrade:
                     LOG.debug(&#34;Upgrading world.&#34;)
-                    emerge_in_chroot(&#34;--autounmask-only=y&#34;, &#34;-uUDN&#34;,
-                                     &#34;--with-bdeps=y&#34;, &#34;@world&#34;)
+                    run.run(emerge_in_chroot[&#34;--autounmask-only=y&#34;, &#34;-uUDN&#34;,
+                                             &#34;--with-bdeps=y&#34;, &#34;@world&#34;])
                 for pkg in packages:
                     if has_pkg[pkg[&#34;name&#34;]] &amp; TF:
                         continue
                     env = pkg[&#34;env&#34;]
                     with local.env(**env):
-                        emerge_in_chroot(pkg[&#34;name&#34;])
+                        run.run(emerge_in_chroot[pkg[&#34;name&#34;]])
 
             gentoo.setup_benchbuild()
 
@@ -1488,7 +1477,7 @@ def run(self, context):
 <span>def <span class="ident">run</span></span>(<span>self, context)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Setup a gentoo container suitable for PolyJIT.</p></section>
+<div class="desc"><p>Setup a gentoo container suitable for PolyJIT.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1505,13 +1494,11 @@ def run(self, context):
         gentoo.configure_portage()
 
         sed_in_chroot = uchroot.uchroot()[&#34;/bin/sed&#34;]
-        sed_in_chroot = run.watch(sed_in_chroot)
         emerge_in_chroot = uchroot.uchroot()[&#34;/usr/bin/emerge&#34;]
-        emerge_in_chroot = run.watch(emerge_in_chroot)
         has_pkg = uchroot.uchroot()[&#34;/usr/bin/qlist&#34;, &#34;-I&#34;]
 
-        sed_in_chroot(&#34;-i&#34;, &#39;/CC=/d&#39;, &#34;/etc/portage/make.conf&#34;)
-        sed_in_chroot(&#34;-i&#34;, &#39;/CXX=/d&#39;, &#34;/etc/portage/make.conf&#34;)
+        run.run(sed_in_chroot[&#34;-i&#34;, &#39;/CC=/d&#39;, &#34;/etc/portage/make.conf&#34;])
+        run.run(sed_in_chroot[&#34;-i&#34;, &#39;/CXX=/d&#39;, &#34;/etc/portage/make.conf&#34;])
 
         want_sync = bool(CFG[&#34;container&#34;][&#34;strategy&#34;][&#34;polyjit&#34;][&#34;sync&#34;])
         want_upgrade = bool(
@@ -1519,20 +1506,20 @@ def run(self, context):
 
         packages = \
             CFG[&#34;container&#34;][&#34;strategy&#34;][&#34;polyjit&#34;][&#34;packages&#34;].value
-        with local.env(MAKEOPTS=&#34;-j{0}&#34;.format(int(CFG[&#34;jobs&#34;]))):
+        with local.env(MAKEOPTS=&#34;-j{0}&#34;.format(get_number_of_jobs(CFG))):
             if want_sync:
                 LOG.debug(&#34;Synchronizing portage.&#34;)
-                emerge_in_chroot(&#34;--sync&#34;)
+                run.run(emerge_in_chroot[&#34;--sync&#34;])
             if want_upgrade:
                 LOG.debug(&#34;Upgrading world.&#34;)
-                emerge_in_chroot(&#34;--autounmask-only=y&#34;, &#34;-uUDN&#34;,
-                                 &#34;--with-bdeps=y&#34;, &#34;@world&#34;)
+                run.run(emerge_in_chroot[&#34;--autounmask-only=y&#34;, &#34;-uUDN&#34;,
+                                         &#34;--with-bdeps=y&#34;, &#34;@world&#34;])
             for pkg in packages:
                 if has_pkg[pkg[&#34;name&#34;]] &amp; TF:
                     continue
                 env = pkg[&#34;env&#34;]
                 with local.env(**env):
-                    emerge_in_chroot(pkg[&#34;name&#34;])
+                    run.run(emerge_in_chroot[pkg[&#34;name&#34;]])
 
         gentoo.setup_benchbuild()
 
@@ -1635,7 +1622,7 @@ def run(self, context):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

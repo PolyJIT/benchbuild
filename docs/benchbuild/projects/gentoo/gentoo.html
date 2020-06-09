@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.projects.gentoo.gentoo API documentation</title>
 <meta name="description" content="The Gentoo module for running tests on builds from the portage tree …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -51,8 +51,8 @@ import logging
 import attr
 from plumbum import ProcessExecutionError, local
 
+from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.project import Project
 from benchbuild.utils import compiler, container, path, run, uchroot
 from benchbuild.utils.cmd import cp, ln
 
@@ -60,12 +60,13 @@ LOG = logging.getLogger(__name__)
 
 
 @attr.s
-class GentooGroup(Project):
+class GentooGroup(project.Project):
     &#34;&#34;&#34;Gentoo ProjectGroup is the base class for every portage build.&#34;&#34;&#34;
 
     GROUP = &#39;gentoo&#39;
     CONTAINER = container.Gentoo()
     SRC_FILE = None
+    VERSION = CONTAINER.version
 
     emerge_env = attr.ib(default={}, repr=False, cmp=False)
 
@@ -80,14 +81,13 @@ class GentooGroup(Project):
         self.configure_benchbuild(CFG)
         path.mkfile_uchroot(&#34;/.benchbuild-container&#34;)
         benchbuild = find_benchbuild()
-        benchbuild = run.watch(benchbuild)
         with local.env(BB_VERBOSITY=str(CFG[&#39;verbosity&#39;])):
             project_id = &#34;{0}/{1}&#34;.format(self.name, self.group)
-            benchbuild(&#34;run&#34;, &#34;-E&#34;, self.experiment.name, project_id)
+            run.run(benchbuild[&#34;run&#34;, &#34;-E&#34;, self.experiment.name, project_id])
 
     def compile(self):
-        package_atom = &#34;{domain}/{name}&#34;.format(domain=self.domain,
-                                                name=self.name)
+        package_atom = &#34;{domain}/{name}&#34;.format(
+            domain=self.domain, name=self.name)
 
         LOG.debug(&#39;Installing dependencies.&#39;)
         emerge(package_atom, &#39;--onlydeps&#39;, env=self.emerge_env)
@@ -135,8 +135,7 @@ def emerge(package, *args, env=None):
     from benchbuild.utils.cmd import emerge as _emerge
 
     with local.env(env):
-        emerge_ = run.watch(_emerge)
-        emerge_(&#34;--autounmask-continue&#34;, args, package)
+        run.run(_emerge[&#34;--autounmask-continue&#34;, args, package])
 
 
 def setup_networking():
@@ -356,8 +355,8 @@ def setup_benchbuild():
 def __upgrade_from_pip(venv_dir):
     LOG.debug(&#34;Upgrading from pip&#34;)
     uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), [&#39;HOME&#39;])
-    uchroot.uretry(uchrt_cmd[venv_dir / &#34;bin&#34; / &#34;pip3&#34;, &#34;install&#34;, &#34;--upgrade&#34;,
-                             &#34;benchbuild&#34;])
+    uchroot.uretry(uchrt_cmd[venv_dir / &#34;bin&#34; /
+                             &#34;pip3&#34;, &#34;install&#34;, &#34;--upgrade&#34;, &#34;benchbuild&#34;])
 
 
 def __mount_source(src_dir):
@@ -393,7 +392,7 @@ def __upgrade_from_source(venv_dir, with_deps=True):
 <span>def <span class="ident">configure_portage</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -409,7 +408,7 @@ def __upgrade_from_source(venv_dir, with_deps=True):
 <span>def <span class="ident">emerge</span></span>(<span>package, *args, env=None)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -418,15 +417,14 @@ def __upgrade_from_source(venv_dir, with_deps=True):
     from benchbuild.utils.cmd import emerge as _emerge
 
     with local.env(env):
-        emerge_ = run.watch(_emerge)
-        emerge_(&#34;--autounmask-continue&#34;, args, package)</code></pre>
+        run.run(_emerge[&#34;--autounmask-continue&#34;, args, package])</code></pre>
 </details>
 </dd>
 <dt id="benchbuild.projects.gentoo.gentoo.find_benchbuild"><code class="name flex">
 <span>def <span class="ident">find_benchbuild</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -447,7 +445,7 @@ def __upgrade_from_source(venv_dir, with_deps=True):
 <span>def <span class="ident">requires_update</span></span>(<span>benchbuild)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -471,9 +469,9 @@ def __upgrade_from_source(venv_dir, with_deps=True):
 <span>def <span class="ident">setup_benchbuild</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Setup benchbuild inside a container.</p>
+<div class="desc"><p>Setup benchbuild inside a container.</p>
 <p>This will query a for an existing installation of benchbuild and
-try to upgrade it to the latest version, if possible.</p></section>
+try to upgrade it to the latest version, if possible.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -514,7 +512,7 @@ try to upgrade it to the latest version, if possible.</p></section>
 <span>def <span class="ident">setup_compilers</span></span>(<span>_path)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -533,7 +531,7 @@ CXX=&#34;/clang++&#34;
 <span>def <span class="ident">setup_networking</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -549,7 +547,7 @@ CXX=&#34;/clang++&#34;
 <span>def <span class="ident">setup_virtualenv</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -566,9 +564,9 @@ CXX=&#34;/clang++&#34;
 <span>def <span class="ident">write_bashrc</span></span>(<span>_path)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Write a valid gentoo bashrc file to :path:.</p>
+<div class="desc"><p>Write a valid gentoo bashrc file to :path:.</p>
 <h2 id="args">Args</h2>
-<p>path - The output path of the make.conf</p></section>
+<p>path - The output path of the make.conf</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -604,9 +602,9 @@ export LD_LIBRARY_PATH=&#34;{1}:${{LD_LIBRARY_PATH}}&#34;
 <span>def <span class="ident">write_layout</span></span>(<span>_path)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Write a valid gentoo layout file to :path:.</p>
+<div class="desc"><p>Write a valid gentoo layout file to :path:.</p>
 <h2 id="args">Args</h2>
-<p>path - The output path of the layout.conf</p></section>
+<p>path - The output path of the layout.conf</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -630,9 +628,9 @@ export LD_LIBRARY_PATH=&#34;{1}:${{LD_LIBRARY_PATH}}&#34;
 <span>def <span class="ident">write_makeconfig</span></span>(<span>_path)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Write a valid gentoo make.conf file to :path:.</p>
+<div class="desc"><p>Write a valid gentoo make.conf file to :path:.</p>
 <h2 id="args">Args</h2>
-<p>path - The output path of the make.conf</p></section>
+<p>path - The output path of the make.conf</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -689,7 +687,7 @@ PKGDIR=&#34;${PORTDIR}/packages&#34;
 <span>def <span class="ident">write_sandbox_d</span></span>(<span>_path)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -707,9 +705,9 @@ SANDBOX_WRITE=&#34;/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout&#
 <span>def <span class="ident">write_wgetrc</span></span>(<span>_path)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Write a valid gentoo wgetrc file to :path:.</p>
+<div class="desc"><p>Write a valid gentoo wgetrc file to :path:.</p>
 <h2 id="args">Args</h2>
-<p>path - The output path of the wgetrc</p></section>
+<p>path - The output path of the wgetrc</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -748,17 +746,18 @@ SANDBOX_WRITE=&#34;/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout&#
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Gentoo ProjectGroup is the base class for every portage build.</p></section>
+<div class="desc"><p>Gentoo ProjectGroup is the base class for every portage build.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class GentooGroup(Project):
+<pre><code class="python">class GentooGroup(project.Project):
     &#34;&#34;&#34;Gentoo ProjectGroup is the base class for every portage build.&#34;&#34;&#34;
 
     GROUP = &#39;gentoo&#39;
     CONTAINER = container.Gentoo()
     SRC_FILE = None
+    VERSION = CONTAINER.version
 
     emerge_env = attr.ib(default={}, repr=False, cmp=False)
 
@@ -773,14 +772,13 @@ SANDBOX_WRITE=&#34;/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout&#
         self.configure_benchbuild(CFG)
         path.mkfile_uchroot(&#34;/.benchbuild-container&#34;)
         benchbuild = find_benchbuild()
-        benchbuild = run.watch(benchbuild)
         with local.env(BB_VERBOSITY=str(CFG[&#39;verbosity&#39;])):
             project_id = &#34;{0}/{1}&#34;.format(self.name, self.group)
-            benchbuild(&#34;run&#34;, &#34;-E&#34;, self.experiment.name, project_id)
+            run.run(benchbuild[&#34;run&#34;, &#34;-E&#34;, self.experiment.name, project_id])
 
     def compile(self):
-        package_atom = &#34;{domain}/{name}&#34;.format(domain=self.domain,
-                                                name=self.name)
+        package_atom = &#34;{domain}/{name}&#34;.format(
+            domain=self.domain, name=self.name)
 
         LOG.debug(&#39;Installing dependencies.&#39;)
         emerge(package_atom, &#39;--onlydeps&#39;, env=self.emerge_env)
@@ -844,11 +842,19 @@ SANDBOX_WRITE=&#34;/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout&#
 <dl>
 <dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.CONTAINER"><code class="name">var <span class="ident">CONTAINER</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.GROUP"><code class="name">var <span class="ident">GROUP</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.SRC_FILE"><code class="name">var <span class="ident">SRC_FILE</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.gentoo.gentoo.GentooGroup.VERSION"><code class="name">var <span class="ident">VERSION</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -857,7 +863,7 @@ SANDBOX_WRITE=&#34;/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout&#
 <span>def <span class="ident">configure_benchbuild</span></span>(<span>self, cfg)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -897,19 +903,15 @@ SANDBOX_WRITE=&#34;/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout&#
 <ul class="hlist">
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.project.Project.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.project.Project.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.project.Project.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.project.Project.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.project.Project.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.project.Project.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
 <li><code><a title="benchbuild.project.Project.compile" href="../../project.html#benchbuild.project.Project.compile">compile</a></code></li>
+<li><code><a title="benchbuild.project.Project.download" href="../../project.html#benchbuild.project.Project.download">download</a></code></li>
 <li><code><a title="benchbuild.project.Project.prepare" href="../../project.html#benchbuild.project.Project.prepare">prepare</a></code></li>
 <li><code><a title="benchbuild.project.Project.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.project.Project.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
 <li><code><a title="benchbuild.project.Project.run_tests" href="../../project.html#benchbuild.project.Project.run_tests">run_tests</a></code></li>
-<li><code><a title="benchbuild.project.Project.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.project.Project.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
+<li><code><a title="benchbuild.project.Project.versions" href="../../project.html#benchbuild.project.Project.versions">versions</a></code></li>
 </ul>
 </li>
 </ul>
@@ -951,7 +953,9 @@ SANDBOX_WRITE=&#34;/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout&#
 <h4><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup" href="#benchbuild.projects.gentoo.gentoo.GentooGroup">GentooGroup</a></code></h4>
 <ul class="">
 <li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.CONTAINER" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.CONTAINER">CONTAINER</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.GROUP" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.GROUP">GROUP</a></code></li>
 <li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.SRC_FILE" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.SRC_FILE">SRC_FILE</a></code></li>
+<li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.VERSION" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.VERSION">VERSION</a></code></li>
 <li><code><a title="benchbuild.projects.gentoo.gentoo.GentooGroup.configure_benchbuild" href="#benchbuild.projects.gentoo.gentoo.GentooGroup.configure_benchbuild">configure_benchbuild</a></code></li>
 </ul>
 </li>
@@ -961,7 +965,7 @@ SANDBOX_WRITE=&#34;/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout&#
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

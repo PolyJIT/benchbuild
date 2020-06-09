@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.utils.schema API documentation</title>
 <meta name="description" content="Database schema for benchbuild …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -392,7 +392,7 @@ def get_version_data():
 def enforce_versioning(force=False):
     &#34;&#34;&#34;Install versioning on the db.&#34;&#34;&#34;
     connect_str, repo_url = get_version_data()
-    #LOG.warning(&#34;Your database uses an unversioned benchbuild schema.&#34;)
+    LOG.warning(&#34;Your database uses an unversioned benchbuild schema.&#34;)
     if not force and not ui.ask(
             &#34;Should I enforce version control on your schema?&#34;):
         LOG.error(&#34;User declined schema versioning.&#34;)
@@ -498,7 +498,7 @@ class SessionManager:
             self.__transaction = self.connection.begin()
 
         if needed_schema(self.connection, BASE.metadata):
-            #LOG.debug(&#34;Initialized new db schema.&#34;)
+            LOG.debug(&#34;Initialized new db schema.&#34;)
             repo_version = enforce_versioning(force=True)
         else:
             repo_version, db_version = setup_versioning()
@@ -554,7 +554,7 @@ def init_functions(connection):
 <span>def <span class="ident">Session</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -573,7 +573,7 @@ def init_functions(connection):
 <span>def <span class="ident">enforce_versioning</span></span>(<span>force=False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Install versioning on the db.</p></section>
+<div class="desc"><p>Install versioning on the db.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -586,7 +586,7 @@ def init_functions(connection):
 def enforce_versioning(force=False):
     &#34;&#34;&#34;Install versioning on the db.&#34;&#34;&#34;
     connect_str, repo_url = get_version_data()
-    #LOG.warning(&#34;Your database uses an unversioned benchbuild schema.&#34;)
+    LOG.warning(&#34;Your database uses an unversioned benchbuild schema.&#34;)
     if not force and not ui.ask(
             &#34;Should I enforce version control on your schema?&#34;):
         LOG.error(&#34;User declined schema versioning.&#34;)
@@ -600,7 +600,7 @@ def enforce_versioning(force=False):
 <span>def <span class="ident">exceptions</span></span>(<span>error_is_fatal=True, error_messages=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Handle SQLAlchemy exceptions in a sane way.</p>
+<div class="desc"><p>Handle SQLAlchemy exceptions in a sane way.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>func</code></strong></dt>
@@ -613,7 +613,7 @@ if error_is_fatal is False.</dd>
 <dt><strong><code>error_messages</code></strong></dt>
 <dd>A dictionary that assigns an exception class to a
 customized error message.</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -664,7 +664,7 @@ customized error message.</dd>
 <span>def <span class="ident">get_version_data</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Retreive migration information.</p></section>
+<div class="desc"><p>Retreive migration information.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -680,7 +680,7 @@ customized error message.</dd>
 <span>def <span class="ident">init_functions</span></span>(<span>connection)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Initialize all SQL functions in the database.</p></section>
+<div class="desc"><p>Initialize all SQL functions in the database.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -700,7 +700,7 @@ customized error message.</dd>
 <span>def <span class="ident">maybe_update_db</span></span>(<span>repo_version, db_version)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -738,7 +738,7 @@ def maybe_update_db(repo_version, db_version):
 <span>def <span class="ident">metadata</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -751,7 +751,7 @@ def maybe_update_db(repo_version, db_version):
 <span>def <span class="ident">needed_schema</span></span>(<span>connection, meta)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -781,7 +781,7 @@ def maybe_update_db(repo_version, db_version):
 <span>def <span class="ident">setup_versioning</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -812,7 +812,7 @@ def maybe_update_db(repo_version, db_version):
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Store customized information about a run.</p>
+<div class="desc"><p>Store customized information about a run.</p>
 <p>You can store arbitrary configuration information about a run here.
 Use it for extended filtering against the run table.</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
@@ -820,7 +820,7 @@ Use it for extended filtering against the run table.</p>
 values in <code>kwargs</code>.</p>
 <p>Only keys that are present as
 attributes of the instance's class are allowed. These could be,
-for example, any mapped columns or relationships.</p></section>
+for example, any mapped columns or relationships.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -851,7 +851,7 @@ for example, any mapped columns or relationships.</p></section>
 <dl>
 <dt id="benchbuild.utils.schema.Config.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -869,7 +869,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Config.run_id"><code class="name">var <span class="ident">run_id</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -887,7 +887,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Config.value"><code class="name">var <span class="ident">value</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -910,13 +910,13 @@ for example, any mapped columns or relationships.</p></section>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Store metadata about experiments.</p>
+<div class="desc"><p>Store metadata about experiments.</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
 <p>Sets attributes on the constructed instance using the names and
 values in <code>kwargs</code>.</p>
 <p>Only keys that are present as
 attributes of the instance's class are allowed. These could be,
-for example, any mapped columns or relationships.</p></section>
+for example, any mapped columns or relationships.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -954,7 +954,7 @@ for example, any mapped columns or relationships.</p></section>
 <dl>
 <dt id="benchbuild.utils.schema.Experiment.begin"><code class="name">var <span class="ident">begin</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -972,7 +972,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Experiment.description"><code class="name">var <span class="ident">description</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -990,7 +990,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Experiment.end"><code class="name">var <span class="ident">end</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1008,7 +1008,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Experiment.id"><code class="name">var <span class="ident">id</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1026,7 +1026,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Experiment.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1044,7 +1044,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Experiment.run_groups"><code class="name">var <span class="ident">run_groups</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1062,7 +1062,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Experiment.runs"><code class="name">var <span class="ident">runs</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1085,7 +1085,7 @@ for example, any mapped columns or relationships.</p></section>
 <span>(</span><span>*args, as_uuid=False, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Platform-independent GUID type.</p>
+<div class="desc"><p>Platform-independent GUID type.</p>
 <p>Uses Postgresql's UUID type, otherwise uses
 CHAR(32), storing as stringified hex values.</p>
 <p>Construct a :class:<code>.TypeDecorator</code>.</p>
@@ -1098,7 +1098,7 @@ object is assigned to the <code>self.impl</code> instance attribute
 it will be assigned to the same instance attribute 'as-is',
 ignoring those arguments passed to the constructor.</p>
 <p>Subclasses can override this to customize the generation
-of <code>self.impl</code> entirely.</p></section>
+of <code>self.impl</code> entirely.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1142,24 +1142,11 @@ of <code>self.impl</code> entirely.</p></section>
 <dl>
 <dt id="benchbuild.utils.schema.GUID.as_uuid"><code class="name">var <span class="ident">as_uuid</span></code></dt>
 <dd>
-<section class="desc"><p>bool(x) -&gt; bool</p>
-<p>Returns True when the argument x is true, False otherwise.
-The builtins True and False are the only two instances of the class bool.
-The class bool is a subclass of the class int, and cannot be subclassed.</p></section>
+<div class="desc"></div>
 </dd>
 <dt id="benchbuild.utils.schema.GUID.impl"><code class="name">var <span class="ident">impl</span></code></dt>
 <dd>
-<section class="desc"><p>The SQL CHAR type.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class CHAR(String):
-
-    &#34;&#34;&#34;The SQL CHAR type.&#34;&#34;&#34;
-
-    __visit_name__ = &#34;CHAR&#34;</code></pre>
-</details>
+<div class="desc"><p>The SQL CHAR type.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1168,14 +1155,14 @@ The class bool is a subclass of the class int, and cannot be subclassed.</p></se
 <span>def <span class="ident">load_dialect_impl</span></span>(<span>self, dialect)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Return a :class:<code>.TypeEngine</code> object corresponding to a dialect.</p>
+<div class="desc"><p>Return a :class:<code>.TypeEngine</code> object corresponding to a dialect.</p>
 <p>This is an end-user override hook that can be used to provide
 differing types depending on the given dialect.
 It is used
 by the :class:<code>.TypeDecorator</code> implementation of :meth:<code>type_engine</code>
 to help determine what type should ultimately be returned
 for a given :class:<code>.TypeDecorator</code>.</p>
-<p>By default returns <code>self.impl</code>.</p></section>
+<p>By default returns <code>self.impl</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1191,7 +1178,7 @@ for a given :class:<code>.TypeDecorator</code>.</p>
 <span>def <span class="ident">process_bind_param</span></span>(<span>self, value, dialect)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Receive a bound parameter value to be converted.</p>
+<div class="desc"><p>Receive a bound parameter value to be converted.</p>
 <p>Subclasses override this method to return the
 value that should be passed along to the underlying
 :class:<code>.TypeEngine</code> object, and from there to the
@@ -1205,7 +1192,7 @@ this class.</p>
 <p>:param value: Data to operate upon, of any type expected by
 this method in the subclass.
 Can be <code>None</code>.
-:param dialect: the :class:<code>.Dialect</code> in use.</p></section>
+:param dialect: the :class:<code>.Dialect</code> in use.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1218,7 +1205,7 @@ Can be <code>None</code>.
 <span>def <span class="ident">process_result_value</span></span>(<span>self, value, dialect)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Receive a result-row column value to be converted.</p>
+<div class="desc"><p>Receive a result-row column value to be converted.</p>
 <p>Subclasses should implement this method to operate on data
 fetched from the database.</p>
 <p>Subclasses override this method to return the
@@ -1234,7 +1221,7 @@ this method in the subclass.
 Can be <code>None</code>.
 :param dialect: the :class:<code>.Dialect</code> in use.</p>
 <p>This operation should be designed to be reversible by
-the "process_bind_param" method of this class.</p></section>
+the "process_bind_param" method of this class.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1253,7 +1240,7 @@ the "process_bind_param" method of this class.</p></section>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Store metadata information for every run.</p>
+<div class="desc"><p>Store metadata information for every run.</p>
 <p>If you happen to have some free-form data that belongs to the database,
 this is the place for it.</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
@@ -1261,7 +1248,7 @@ this is the place for it.</p>
 values in <code>kwargs</code>.</p>
 <p>Only keys that are present as
 attributes of the instance's class are allowed. These could be,
-for example, any mapped columns or relationships.</p></section>
+for example, any mapped columns or relationships.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1292,7 +1279,7 @@ for example, any mapped columns or relationships.</p></section>
 <dl>
 <dt id="benchbuild.utils.schema.Metadata.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1310,7 +1297,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Metadata.run_id"><code class="name">var <span class="ident">run_id</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1328,7 +1315,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Metadata.value"><code class="name">var <span class="ident">value</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1351,13 +1338,13 @@ for example, any mapped columns or relationships.</p></section>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Store default metrics, simple name value store.</p>
+<div class="desc"><p>Store default metrics, simple name value store.</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
 <p>Sets attributes on the constructed instance using the names and
 values in <code>kwargs</code>.</p>
 <p>Only keys that are present as
 attributes of the instance's class are allowed. These could be,
-for example, any mapped columns or relationships.</p></section>
+for example, any mapped columns or relationships.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1386,7 +1373,7 @@ for example, any mapped columns or relationships.</p></section>
 <dl>
 <dt id="benchbuild.utils.schema.Metric.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1404,7 +1391,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Metric.run_id"><code class="name">var <span class="ident">run_id</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1422,7 +1409,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Metric.value"><code class="name">var <span class="ident">value</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1445,13 +1432,13 @@ for example, any mapped columns or relationships.</p></section>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Store project metadata.</p>
+<div class="desc"><p>Store project metadata.</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
 <p>Sets attributes on the constructed instance using the names and
 values in <code>kwargs</code>.</p>
 <p>Only keys that are present as
 attributes of the instance's class are allowed. These could be,
-for example, any mapped columns or relationships.</p></section>
+for example, any mapped columns or relationships.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1489,7 +1476,7 @@ for example, any mapped columns or relationships.</p></section>
 <dl>
 <dt id="benchbuild.utils.schema.Project.description"><code class="name">var <span class="ident">description</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1507,7 +1494,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Project.domain"><code class="name">var <span class="ident">domain</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1525,7 +1512,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Project.group_name"><code class="name">var <span class="ident">group_name</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1543,7 +1530,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Project.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1561,7 +1548,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Project.runs"><code class="name">var <span class="ident">runs</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1579,7 +1566,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Project.src_url"><code class="name">var <span class="ident">src_url</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1597,7 +1584,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Project.version"><code class="name">var <span class="ident">version</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1620,13 +1607,13 @@ for example, any mapped columns or relationships.</p></section>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Store a run for each executed test binary.</p>
+<div class="desc"><p>Store a run for each executed test binary.</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
 <p>Sets attributes on the constructed instance using the names and
 values in <code>kwargs</code>.</p>
 <p>Only keys that are present as
 attributes of the instance's class are allowed. These could be,
-for example, any mapped columns or relationships.</p></section>
+for example, any mapped columns or relationships.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1689,7 +1676,7 @@ for example, any mapped columns or relationships.</p></section>
 <dl>
 <dt id="benchbuild.utils.schema.Run.begin"><code class="name">var <span class="ident">begin</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1707,7 +1694,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.command"><code class="name">var <span class="ident">command</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1725,7 +1712,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.configurations"><code class="name">var <span class="ident">configurations</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1743,7 +1730,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.end"><code class="name">var <span class="ident">end</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1761,7 +1748,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.experiment_group"><code class="name">var <span class="ident">experiment_group</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1779,7 +1766,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.experiment_name"><code class="name">var <span class="ident">experiment_name</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1797,7 +1784,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.id"><code class="name">var <span class="ident">id</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1815,7 +1802,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.logs"><code class="name">var <span class="ident">logs</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1833,7 +1820,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.metrics"><code class="name">var <span class="ident">metrics</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1851,7 +1838,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.project_group"><code class="name">var <span class="ident">project_group</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1869,7 +1856,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.project_name"><code class="name">var <span class="ident">project_name</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1887,7 +1874,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.run_group"><code class="name">var <span class="ident">run_group</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1905,7 +1892,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.status"><code class="name">var <span class="ident">status</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1923,7 +1910,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.Run.stored_data"><code class="name">var <span class="ident">stored_data</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1946,13 +1933,13 @@ for example, any mapped columns or relationships.</p></section>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Store information about a run group. </p>
+<div class="desc"><p>Store information about a run group. </p>
 <p>A simple constructor that allows initialization from kwargs.</p>
 <p>Sets attributes on the constructed instance using the names and
 values in <code>kwargs</code>.</p>
 <p>Only keys that are present as
 attributes of the instance's class are allowed. These could be,
-for example, any mapped columns or relationships.</p></section>
+for example, any mapped columns or relationships.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1980,7 +1967,7 @@ for example, any mapped columns or relationships.</p></section>
 <dl>
 <dt id="benchbuild.utils.schema.RunGroup.begin"><code class="name">var <span class="ident">begin</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1998,7 +1985,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.RunGroup.end"><code class="name">var <span class="ident">end</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2016,7 +2003,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.RunGroup.experiment"><code class="name">var <span class="ident">experiment</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2034,7 +2021,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.RunGroup.id"><code class="name">var <span class="ident">id</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2052,7 +2039,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.RunGroup.status"><code class="name">var <span class="ident">status</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2075,7 +2062,7 @@ for example, any mapped columns or relationships.</p></section>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Store log information for every run.</p>
+<div class="desc"><p>Store log information for every run.</p>
 <p>Properties like, start time, finish time, exit code, stderr, stdout
 are stored here.</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
@@ -2083,7 +2070,7 @@ are stored here.</p>
 values in <code>kwargs</code>.</p>
 <p>Only keys that are present as
 attributes of the instance's class are allowed. These could be,
-for example, any mapped columns or relationships.</p></section>
+for example, any mapped columns or relationships.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2118,7 +2105,7 @@ for example, any mapped columns or relationships.</p></section>
 <dl>
 <dt id="benchbuild.utils.schema.RunLog.begin"><code class="name">var <span class="ident">begin</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2136,7 +2123,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.RunLog.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2154,7 +2141,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.RunLog.end"><code class="name">var <span class="ident">end</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2172,7 +2159,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.RunLog.run_id"><code class="name">var <span class="ident">run_id</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2190,7 +2177,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.RunLog.status"><code class="name">var <span class="ident">status</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2208,7 +2195,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.RunLog.stderr"><code class="name">var <span class="ident">stderr</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2226,7 +2213,7 @@ for example, any mapped columns or relationships.</p></section>
 </dd>
 <dt id="benchbuild.utils.schema.RunLog.stdout"><code class="name">var <span class="ident">stdout</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2248,7 +2235,7 @@ for example, any mapped columns or relationships.</p></section>
 <span>class <span class="ident">SessionManager</span></span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2304,7 +2291,7 @@ for example, any mapped columns or relationships.</p></section>
             self.__transaction = self.connection.begin()
 
         if needed_schema(self.connection, BASE.metadata):
-            #LOG.debug(&#34;Initialized new db schema.&#34;)
+            LOG.debug(&#34;Initialized new db schema.&#34;)
             repo_version = enforce_versioning(force=True)
         else:
             repo_version, db_version = setup_versioning()
@@ -2323,10 +2310,10 @@ for example, any mapped columns or relationships.</p></section>
 <span>def <span class="ident">configure_engine</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Configure the databse connection.</p>
+<div class="desc"><p>Configure the databse connection.</p>
 <p>Sets appropriate transaction isolation levels and handle errors.</p>
 <h2 id="returns">Returns</h2>
-<p>True, if we did not encounter any unrecoverable errors, else False.</p></section>
+<p>True, if we did not encounter any unrecoverable errors, else False.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2351,10 +2338,10 @@ for example, any mapped columns or relationships.</p></section>
 <span>def <span class="ident">connect_engine</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Establish a connection to the database.</p>
+<div class="desc"><p>Establish a connection to the database.</p>
 <p>Provides simple error handling for fatal errors.</p>
 <h2 id="returns">Returns</h2>
-<p>True, if we could establish a connection, else False.</p></section>
+<p>True, if we could establish a connection, else False.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2381,7 +2368,7 @@ for example, any mapped columns or relationships.</p></section>
 <span>def <span class="ident">get</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2536,7 +2523,7 @@ for example, any mapped columns or relationships.</p></section>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

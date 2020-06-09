@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.4" />
+<meta name="generator" content="pdoc 0.8.1" />
 <title>benchbuild.projects.benchbuild.bzip2 API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
 <body>
@@ -24,58 +24,53 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from benchbuild.project import Project
-from benchbuild.source import Git, HTTP
-from benchbuild.utils.cmd import make, tar
+<pre><code class="python">from plumbum import local
 
-from benchbuild.environments import Buildah
+from benchbuild import project
+from benchbuild.utils.cmd import cp, make
+from benchbuild.utils import compiler, download, run, wrapping
 
 
-class Bzip2(Project):
+@download.with_git(&#34;https://github.com/PolyJIT/bzip2&#34;, limit=1, refspec=&#34;HEAD&#34;)
+class Bzip2(project.Project):
     &#34;&#34;&#34; Bzip2 &#34;&#34;&#34;
 
-    NAME: str = &#39;bzip2&#39;
-    DOMAIN: str = &#39;compression&#39;
-    GROUP: str = &#39;benchbuild&#39;
-    SOURCE = [
-        Git(remote=&#39;https://github.com/PolyJIT/bzip2&#39;,
-            local=&#39;bzip2.git&#39;,
-            limit=1,
-            refspec=&#39;HEAD&#39;),
-        HTTP(remote={&#39;1.0&#39;: &#39;http://lairosiel.de/dist/compression.tar.gz&#39;},
-             local=&#39;compression.tar.gz&#39;)
-    ]
+    NAME = &#39;bzip2&#39;
+    DOMAIN = &#39;compression&#39;
+    GROUP = &#39;benchbuild&#39;
+    VERSION = &#39;HEAD&#39;
 
-    CONTAINER: Buildah = Buildah().from_(&#39;python:3.7-buster&#39;)
+    testfiles = [
+        &#34;text.html&#34;, &#34;chicken.jpg&#34;, &#34;control&#34;, &#34;input.source&#34;, &#34;liberty.jpg&#34;
+    ]
+    SRC_FILE = &#34;bzip2.git&#34;
 
     def compile(self):
-        bzip2_repo = self.source_of(&#39;bzip2.git&#39;)
-        compression_source = self.source_of(&#39;compression.tar.gz&#39;)
+        self.download()
 
-        tar(&#39;xf&#39;, compression_source)
+        testfiles = [local.path(self.testdir) / x for x in self.testfiles]
+        cp(testfiles, &#39;.&#39;)
+
         clang = compiler.cc(self)
-        with local.cwd(bzip2_repo):
-            make_ = run.watch(make)
-            make_(&#34;CFLAGS=-O3&#34;, &#34;CC=&#34; + str(clang), &#34;clean&#34;, &#34;bzip2&#34;)
+        with local.cwd(self.src_file):
+            run.run(make[&#34;CFLAGS=-O3&#34;, &#34;CC=&#34; + str(clang), &#34;clean&#34;, &#34;bzip2&#34;])
 
-    def run_tests(self):
-        bzip2_repo = local.path(self.source_of(&#39;bzip2.git&#39;))
-        bzip2 = wrapping.wrap(bzip2_repo / &#34;bzip2&#34;, self)
-        bzip2 = run.watch(bzip2)
+    def run_tests(self, runner):
+        bzip2 = wrapping.wrap(local.path(self.src_file) / &#34;bzip2&#34;, self)
 
         # Compress
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/text.html&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/chicken.jpg&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/control&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/input.source&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/liberty.jpg&#34;)
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;text.html&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;chicken.jpg&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;control&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;input.source&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;liberty.jpg&#34;])
 
         # Decompress
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/text.html.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/chicken.jpg.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/control.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/input.source.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/liberty.jpg.bz2&#34;)</code></pre>
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;text.html.bz2&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;chicken.jpg.bz2&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;control.bz2&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;input.source.bz2&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;liberty.jpg.bz2&#34;])</code></pre>
 </details>
 </section>
 <section>
@@ -92,56 +87,50 @@ class Bzip2(Project):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Bzip2</p></section>
+<div class="desc"><p>Bzip2</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Bzip2(Project):
+<pre><code class="python">class Bzip2(project.Project):
     &#34;&#34;&#34; Bzip2 &#34;&#34;&#34;
 
-    NAME: str = &#39;bzip2&#39;
-    DOMAIN: str = &#39;compression&#39;
-    GROUP: str = &#39;benchbuild&#39;
-    SOURCE = [
-        Git(remote=&#39;https://github.com/PolyJIT/bzip2&#39;,
-            local=&#39;bzip2.git&#39;,
-            limit=1,
-            refspec=&#39;HEAD&#39;),
-        HTTP(remote={&#39;1.0&#39;: &#39;http://lairosiel.de/dist/compression.tar.gz&#39;},
-             local=&#39;compression.tar.gz&#39;)
-    ]
+    NAME = &#39;bzip2&#39;
+    DOMAIN = &#39;compression&#39;
+    GROUP = &#39;benchbuild&#39;
+    VERSION = &#39;HEAD&#39;
 
-    CONTAINER: Buildah = Buildah().from_(&#39;python:3.7-buster&#39;)
+    testfiles = [
+        &#34;text.html&#34;, &#34;chicken.jpg&#34;, &#34;control&#34;, &#34;input.source&#34;, &#34;liberty.jpg&#34;
+    ]
+    SRC_FILE = &#34;bzip2.git&#34;
 
     def compile(self):
-        bzip2_repo = self.source_of(&#39;bzip2.git&#39;)
-        compression_source = self.source_of(&#39;compression.tar.gz&#39;)
+        self.download()
 
-        tar(&#39;xf&#39;, compression_source)
+        testfiles = [local.path(self.testdir) / x for x in self.testfiles]
+        cp(testfiles, &#39;.&#39;)
+
         clang = compiler.cc(self)
-        with local.cwd(bzip2_repo):
-            make_ = run.watch(make)
-            make_(&#34;CFLAGS=-O3&#34;, &#34;CC=&#34; + str(clang), &#34;clean&#34;, &#34;bzip2&#34;)
+        with local.cwd(self.src_file):
+            run.run(make[&#34;CFLAGS=-O3&#34;, &#34;CC=&#34; + str(clang), &#34;clean&#34;, &#34;bzip2&#34;])
 
-    def run_tests(self):
-        bzip2_repo = local.path(self.source_of(&#39;bzip2.git&#39;))
-        bzip2 = wrapping.wrap(bzip2_repo / &#34;bzip2&#34;, self)
-        bzip2 = run.watch(bzip2)
+    def run_tests(self, runner):
+        bzip2 = wrapping.wrap(local.path(self.src_file) / &#34;bzip2&#34;, self)
 
         # Compress
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/text.html&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/chicken.jpg&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/control&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/input.source&#34;)
-        bzip2(&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;compression/liberty.jpg&#34;)
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;text.html&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;chicken.jpg&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;control&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;input.source&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-z&#34;, &#34;-k&#34;, &#34;--best&#34;, &#34;liberty.jpg&#34;])
 
         # Decompress
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/text.html.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/chicken.jpg.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/control.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/input.source.bz2&#34;)
-        bzip2(&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;compression/liberty.jpg.bz2&#34;)</code></pre>
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;text.html.bz2&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;chicken.jpg.bz2&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;control.bz2&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;input.source.bz2&#34;])
+        runner(bzip2[&#34;-f&#34;, &#34;-k&#34;, &#34;--decompress&#34;, &#34;liberty.jpg.bz2&#34;])</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -149,19 +138,97 @@ class Bzip2(Project):
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="benchbuild.projects.benchbuild.bzip2.Bzip2.CONTAINER"><code class="name">var <span class="ident">CONTAINER</span></code></dt>
+<dt id="benchbuild.projects.benchbuild.bzip2.Bzip2.DOMAIN"><code class="name">var <span class="ident">DOMAIN</span></code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.benchbuild.bzip2.Bzip2.GROUP"><code class="name">var <span class="ident">GROUP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.benchbuild.bzip2.Bzip2.NAME"><code class="name">var <span class="ident">NAME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.benchbuild.bzip2.Bzip2.SRC_FILE"><code class="name">var <span class="ident">SRC_FILE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.benchbuild.bzip2.Bzip2.VERSION"><code class="name">var <span class="ident">VERSION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.benchbuild.bzip2.Bzip2.repository"><code class="name">var <span class="ident">repository</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="benchbuild.projects.benchbuild.bzip2.Bzip2.testfiles"><code class="name">var <span class="ident">testfiles</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="benchbuild.projects.benchbuild.bzip2.Bzip2.versions"><code class="name flex">
+<span>def <span class="ident">versions</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of versions from the git hashes up to :limit:.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def versions_impl():
+    &#34;&#34;&#34;Return a list of versions from the git hashes up to :limit:.&#34;&#34;&#34;
+    directory = cls.SRC_FILE if target_dir is None else target_dir
+    repo_prefix = local.path(str(CFG[&#34;tmp_dir&#34;]))
+    repo_loc = local.path(repo_prefix) / directory
+    if __clone_needed__(repo, repo_loc):
+        if not clone:
+            return []
+        git(&#34;clone&#34;, repo, repo_loc)
+
+    with local.cwd(repo_loc):
+        rev_list = git(&#34;rev-list&#34;, &#34;--abbrev-commit&#34;, &#34;--abbrev=10&#34;,
+                       refspec, *rev_list_args).strip().split(&#39;\n&#39;)
+        latest = git(&#34;rev-parse&#34;, &#34;--short=10&#34;,
+                     refspec).strip().split(&#39;\n&#39;)
+        cls.VERSION = latest[0]
+
+    if limit:
+        return list(filter(version_filter, rev_list))[:limit]
+
+    return list(filter(version_filter, rev_list))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.projects.benchbuild.bzip2.Bzip2.download"><code class="name flex">
+<span>def <span class="ident">download</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download the selected version.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_impl(self):
+    &#34;&#34;&#34;Download the selected version.&#34;&#34;&#34;
+    nonlocal target_dir, git
+    directory = cls.SRC_FILE if target_dir is None else target_dir
+    Git(self.repository,
+        directory,
+        self.version,
+        shallow_clone=shallow_clone)</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="benchbuild.project.Project" href="../../project.html#benchbuild.project.Project">Project</a></b></code>:
 <ul class="hlist">
-<li><code><a title="benchbuild.project.Project.DOMAIN" href="../../project.html#benchbuild.project.Project.DOMAIN">DOMAIN</a></code></li>
-<li><code><a title="benchbuild.project.Project.GROUP" href="../../project.html#benchbuild.project.Project.GROUP">GROUP</a></code></li>
-<li><code><a title="benchbuild.project.Project.NAME" href="../../project.html#benchbuild.project.Project.NAME">NAME</a></code></li>
-<li><code><a title="benchbuild.project.Project.SOURCE" href="../../project.html#benchbuild.project.Project.SOURCE">SOURCE</a></code></li>
 <li><code><a title="benchbuild.project.Project.clean" href="../../project.html#benchbuild.project.Project.clean">clean</a></code></li>
 <li><code><a title="benchbuild.project.Project.clone" href="../../project.html#benchbuild.project.Project.clone">clone</a></code></li>
 <li><code><a title="benchbuild.project.Project.compile" href="../../project.html#benchbuild.project.Project.compile">compile</a></code></li>
@@ -169,8 +236,6 @@ class Bzip2(Project):
 <li><code><a title="benchbuild.project.Project.redirect" href="../../project.html#benchbuild.project.Project.redirect">redirect</a></code></li>
 <li><code><a title="benchbuild.project.Project.run" href="../../project.html#benchbuild.project.Project.run">run</a></code></li>
 <li><code><a title="benchbuild.project.Project.run_tests" href="../../project.html#benchbuild.project.Project.run_tests">run_tests</a></code></li>
-<li><code><a title="benchbuild.project.Project.source_of" href="../../project.html#benchbuild.project.Project.source_of">source_of</a></code></li>
-<li><code><a title="benchbuild.project.Project.version_of" href="../../project.html#benchbuild.project.Project.version_of">version_of</a></code></li>
 </ul>
 </li>
 </ul>
@@ -193,8 +258,16 @@ class Bzip2(Project):
 <ul>
 <li>
 <h4><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2" href="#benchbuild.projects.benchbuild.bzip2.Bzip2">Bzip2</a></code></h4>
-<ul class="">
-<li><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2.CONTAINER" href="#benchbuild.projects.benchbuild.bzip2.Bzip2.CONTAINER">CONTAINER</a></code></li>
+<ul class="two-column">
+<li><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2.DOMAIN" href="#benchbuild.projects.benchbuild.bzip2.Bzip2.DOMAIN">DOMAIN</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2.GROUP" href="#benchbuild.projects.benchbuild.bzip2.Bzip2.GROUP">GROUP</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2.NAME" href="#benchbuild.projects.benchbuild.bzip2.Bzip2.NAME">NAME</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2.SRC_FILE" href="#benchbuild.projects.benchbuild.bzip2.Bzip2.SRC_FILE">SRC_FILE</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2.VERSION" href="#benchbuild.projects.benchbuild.bzip2.Bzip2.VERSION">VERSION</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2.download" href="#benchbuild.projects.benchbuild.bzip2.Bzip2.download">download</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2.repository" href="#benchbuild.projects.benchbuild.bzip2.Bzip2.repository">repository</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2.testfiles" href="#benchbuild.projects.benchbuild.bzip2.Bzip2.testfiles">testfiles</a></code></li>
+<li><code><a title="benchbuild.projects.benchbuild.bzip2.Bzip2.versions" href="#benchbuild.projects.benchbuild.bzip2.Bzip2.versions">versions</a></code></li>
 </ul>
 </li>
 </ul>
@@ -203,7 +276,7 @@ class Bzip2(Project):
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>

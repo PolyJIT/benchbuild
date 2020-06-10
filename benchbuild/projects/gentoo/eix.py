@@ -17,5 +17,5 @@ class Eix(GentooGroup):
         """Runs runtime tests for eix"""
 
         eix = wrapping.wrap(local.path('/usr/bin/eix'), self)
-        eix = run.watch(eix)
-        eix("clang")
+        _eix = run.watch(eix)
+        _eix("clang")

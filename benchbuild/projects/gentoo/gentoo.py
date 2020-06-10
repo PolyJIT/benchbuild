@@ -46,10 +46,10 @@ class GentooGroup(project.Project):
         self.configure_benchbuild(CFG)
         path.mkfile_uchroot("/.benchbuild-container")
         benchbuild = find_benchbuild()
-        benchbuild = run.watch(benchbuild)
+        _benchbuild = run.watch(benchbuild)
         with local.env(BB_VERBOSITY=str(CFG['verbosity'])):
             project_id = "{0}/{1}".format(self.name, self.group)
-            benchbuild("run", "-E", self.experiment.name, project_id)
+            _benchbuild("run", "-E", self.experiment.name, project_id)
 
     def compile(self):
         package_atom = "{domain}/{name}".format(
@@ -98,11 +98,11 @@ class GentooGroup(project.Project):
 
 
 def emerge(package, *args, env=None):
-    from benchbuild.utils.cmd import emerge as _emerge
+    from benchbuild.utils.cmd import emerge as gentoo_emerge
 
     with local.env(env):
-        emerge_ = run.watch(_emerge)
-        emerge_("--autounmask-continue", args, package)
+        _emerge = run.watch(gentoo_emerge)
+        _emerge("--autounmask-continue", args, package)
 
 
 def setup_networking():

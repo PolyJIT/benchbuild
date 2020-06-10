@@ -259,8 +259,8 @@ class Project(metaclass=ProjectDecorator):
             run: A function that takes the run command.
         """
         exp = wrapping.wrap(self.run_f, self)
-        exp = run.watch(exp)
-        exp()
+        _exp = run.watch(exp)
+        _exp()
 
     def run(self):
         """Run the tests of this project.

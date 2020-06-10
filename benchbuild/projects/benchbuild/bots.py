@@ -90,22 +90,22 @@ class BOTSGroup(project.Project):
             config.writelines(lines)
         mkdir(local.path(self.src_file) / "bin")
         with local.cwd(self.src_file):
-            make_ = run.watch(make)
-            make_("-C", self.path_dict[self.name])
+            _make = run.watch(make)
+            _make("-C", self.path_dict[self.name])
 
     def run_tests(self):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
         binary_path = local.path(self.src_file) / "bin" / binary_name
         exp = wrapping.wrap(binary_path, self)
-        exp = run.watch(exp)
+        _exp = run.watch(exp)
 
         if self.name in self.input_dict:
             for test_input in self.input_dict[self.name]:
                 input_file = local.path(
                     self.src_file) / "inputs" / self.name / test_input
-                exp("-f", input_file)
+                _exp("-f", input_file)
         else:
-            exp()
+            _exp()
 
 
 class Alignment(BOTSGroup):

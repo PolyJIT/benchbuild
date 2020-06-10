@@ -23,9 +23,9 @@ class Crocopat(project.Project):
         projects = local.path(self.testdir) / "projects" // "*.rsf"
         for program in programs:
             for _project in projects:
-                crocopat_project = run.watch(
+                _crocopat_project = run.watch(
                     (cat[_project] | crocopat[program]))
-                crocopat_project(retcode=None)
+                _crocopat_project(retcode=None)
 
     def compile(self):
         self.download()
@@ -38,5 +38,5 @@ class Crocopat(project.Project):
         clang_cxx = compiler.cxx(self)
 
         with local.cwd(crocopat_dir):
-            make_ = run.watch(make)
-            make_("CXX=" + str(clang_cxx))
+            _make = run.watch(make)
+            _make("CXX=" + str(clang_cxx))

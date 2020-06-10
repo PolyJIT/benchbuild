@@ -40,11 +40,11 @@ class Povray(project.Project):
         with local.cwd(self.boost_src_dir):
             mkdir(boost_prefix)
             bootstrap = local["./bootstrap.sh"]
-            bootstrap = run.watch(bootstrap)
-            bootstrap("--with-toolset=clang",
-                      "--prefix=\"{0}\"".format(boost_prefix))
-            _b2 = local["./b2"]
-            _b2 = run.watch(_b2)
+            _bootstrap = run.watch(bootstrap)
+            _bootstrap("--with-toolset=clang",
+                       "--prefix=\"{0}\"".format(boost_prefix))
+
+            _b2 = run.watch(local["./b2"])
             _b2("--ignore-site-config", "variant=release", "link=static",
                 "threading=multi", "optimization=speed", "install")
 
@@ -54,13 +54,13 @@ class Povray(project.Project):
                 sh("prebuild.sh")
 
             configure = local["./configure"]
-            configure = run.watch(configure)
+            _configure = run.watch(configure)
             with local.env(COMPILED_BY="BB <no@mail.nono>",
                            CC=str(clang),
                            CXX=str(clang_cxx)):
-                configure("--with-boost=" + boost_prefix)
-            make_ = run.watch(make)
-            make_("all")
+                _configure("--with-boost=" + boost_prefix)
+            _make = run.watch(make)
+            _make("all")
 
     def run_tests(self):
         povray_binary = local.path(self.src_file) / "unix" / self.name
@@ -71,7 +71,7 @@ class Povray(project.Project):
         scene_dir = local.path("share") / "povray-3.6" / "scenes"
 
         povray = wrapping.wrap(povray_binary, self)
-        povray = run.watch(povray)
+        _povray = run.watch(povray)
         pov_files = find(scene_dir, "-name", "*.pov").splitlines()
         for pov_f in pov_files:
             with local.env(POVRAY=povray_binary,
@@ -81,10 +81,10 @@ class Povray(project.Project):
                 options = ((((head["-n", "50", "\"" + pov_f + "\""]
                               | grep["-E", "'^//[ ]+[-+]{1}[^ -]'"])
                              | head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
-                povray("+L" + scene_dir,
-                       "+L" + tmpdir,
-                       "-i" + pov_f,
-                       "-o" + tmpdir,
-                       options,
-                       "-p",
-                       retcode=None)
+                _povray("+L" + scene_dir,
+                        "+L" + tmpdir,
+                        "-i" + pov_f,
+                        "-o" + tmpdir,
+                        options,
+                        "-p",
+                        retcode=None)

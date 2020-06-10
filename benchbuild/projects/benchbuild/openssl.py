@@ -38,19 +38,19 @@ class LibreSSL(project.Project):
         tar("xfz", self.src_file)
         unpack_dir = local.path("libressl-{0}".format(self.version))
         configure = local[unpack_dir / "configure"]
-        configure = run.watch(configure)
-        make_ = run.watch(make)
+        _configure = run.watch(configure)
+        _make = run.watch(make)
 
         with local.cwd(unpack_dir):
             with local.env(CC=str(clang)):
-                configure( 
+                _configure(
                     "--disable-asm", "--disable-shared", "--enable-static",
                     "--disable-dependency-tracking", "--with-pic=yes")
 
-            make_("-j8")
+            _make("-j8")
             make_tests = make["-Ctests", "-j8"]
-            make_tests = run.watch(make_tests)
-            make_tests(LibreSSL.BINARIES)
+            _make_tests = run.watch(make_tests)
+            _make_tests(LibreSSL.BINARIES)
 
     def run_tests(self):
         unpack_dir = local.path("libressl-{0}".format(self.version))
@@ -59,5 +59,5 @@ class LibreSSL(project.Project):
                 wrapping.wrap(local.cwd / binary, self)
 
         with local.cwd(unpack_dir):
-            make_ = run.watch(make)
-            make_("V=1", "check", "-i")
+            _make = run.watch(make)
+            _make("V=1", "check", "-i")

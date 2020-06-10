@@ -32,18 +32,18 @@ class Bzip2(project.Project):
 
     def run_tests(self):
         bzip2 = wrapping.wrap(local.path(self.src_file) / "bzip2", self)
-        bzip2 = run.watch(bzip2)
+        _bzip2 = run.watch(bzip2)
 
         # Compress
-        bzip2("-f", "-z", "-k", "--best", "text.html")
-        bzip2("-f", "-z", "-k", "--best", "chicken.jpg")
-        bzip2("-f", "-z", "-k", "--best", "control")
-        bzip2("-f", "-z", "-k", "--best", "input.source")
-        bzip2("-f", "-z", "-k", "--best", "liberty.jpg")
+        _bzip2("-f", "-z", "-k", "--best", "text.html")
+        _bzip2("-f", "-z", "-k", "--best", "chicken.jpg")
+        _bzip2("-f", "-z", "-k", "--best", "control")
+        _bzip2("-f", "-z", "-k", "--best", "input.source")
+        _bzip2("-f", "-z", "-k", "--best", "liberty.jpg")
 
         # Decompress
-        bzip2("-f", "-k", "--decompress", "text.html.bz2")
-        bzip2("-f", "-k", "--decompress", "chicken.jpg.bz2")
-        bzip2("-f", "-k", "--decompress", "control.bz2")
-        bzip2("-f", "-k", "--decompress", "input.source.bz2")
-        bzip2("-f", "-k", "--decompress", "liberty.jpg.bz2")
+        _bzip2("-f", "-k", "--decompress", "text.html.bz2")
+        _bzip2("-f", "-k", "--decompress", "chicken.jpg.bz2")
+        _bzip2("-f", "-k", "--decompress", "control.bz2")
+        _bzip2("-f", "-k", "--decompress", "input.source.bz2")
+        _bzip2("-f", "-k", "--decompress", "liberty.jpg.bz2")

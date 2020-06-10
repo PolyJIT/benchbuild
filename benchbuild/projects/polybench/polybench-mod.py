@@ -39,10 +39,10 @@ class PolybenchModGroup(PolyBenchGroup):
             ], polybench_opts)
 
         clang = compiler.cc(self)
-        clang = run.watch(clang)
-        clang("-I", utils_dir, "-I", src_sub, polybench_opts,
-              utils_dir / "polybench.c", kernel_file, src_file, "-lm", "-o",
-              self.name)
+        _clang = run.watch(clang)
+        _clang("-I", utils_dir, "-I", src_sub, polybench_opts,
+               utils_dir / "polybench.c", kernel_file, src_file, "-lm", "-o",
+               self.name)
 
 
 class Correlation(PolybenchModGroup):

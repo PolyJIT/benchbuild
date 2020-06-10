@@ -36,22 +36,22 @@ class Postgresql(GentooGroup):
             return su['-c', command, '-g', 'postgres', 'postgres']
 
         dropdb = pg_su('/usr/bin/dropdb')
-        dropdb = run.watch(dropdb)
+        _dropdb = run.watch(dropdb)
 
         createdb = pg_su("/usr/bin/createdb")
-        createdb = run.watch(createdb)
+        _createdb = run.watch(createdb)
 
         pgbench = pg_su("/usr/bin/pgbench")
-        pgbench = run.watch(pgbench)
+        _pgbench = run.watch(pgbench)
 
         initdb = pg_su("/usr/bin/initdb")
-        initdb = run.watch(initdb)
+        _initdb = run.watch(initdb)
 
         pg_server = pg_su(pg_path)
 
         with local.env(PGPORT="54329", PGDATA=pg_data):
             if not pg_data.exists():
-                initdb()
+                _initdb()
 
             with pg_server.bgrun() as postgres:
                 #We get the PID of the running 'pg_server, which is actually
@@ -71,9 +71,9 @@ class Postgresql(GentooGroup):
                     and c.parent().name() != 'postgres.bin'
                 ]
                 try:
-                    createdb()
-                    pgbench("-i", "portage")
-                    pgbench("-c", 1, "-S", "-t", 1000000, "portage")
-                    dropdb("portage")
+                    _createdb()
+                    _pgbench("-i", "portage")
+                    _pgbench("-c", 1, "-S", "-t", 1000000, "portage")
+                    _dropdb("portage")
                 finally:
                     kill("-sSIGTERM", real_postgres[0])

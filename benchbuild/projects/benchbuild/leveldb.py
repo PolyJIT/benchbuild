@@ -22,9 +22,9 @@ class LevelDB(project.Project):
         clang_cxx = compiler.cxx(self)
         with local.cwd(self.src_file):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
-                make_ = run.watch(make)
-                make_("clean")
-                make_("all", "-i")
+                _make = run.watch(make)
+                _make("clean")
+                _make("all", "-i")
 
     def run_tests(self):
         """
@@ -35,8 +35,8 @@ class LevelDB(project.Project):
         """
         leveldb = wrapping.wrap(
             local.path(self.src_file) / "out-static" / "db_bench", self)
-        leveldb = run.watch(leveldb)
+        _leveldb = run.watch(leveldb)
         with local.env(LD_LIBRARY_PATH="{}:{}".format(
                 local.path(self.src_file) /
                 "out-shared", getenv("LD_LIBRARY_PATH", ""))):
-            leveldb()
+            _leveldb()

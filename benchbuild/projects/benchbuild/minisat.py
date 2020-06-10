@@ -23,9 +23,9 @@ class Minisat(project.Project):
         minisat = wrapping.wrap(
             src_path / "build" / "dynamic" / "bin" / "minisat", self)
         for test_f in testfiles:
-            minisat_test = run.watch(
+            _minisat = run.watch(
                 (minisat.with_env(LD_LIBRARY_PATH=minisat_lib_path) < test_f))
-            minisat_test()
+            _minisat()
 
     def compile(self):
         self.download()
@@ -33,11 +33,11 @@ class Minisat(project.Project):
             git("fetch", "origin", "pull/17/head:clang")
             git("checkout", "clang")
 
-            make_ = run.watch(make)
-            make_("config")
+            _make = run.watch(make)
+            _make("config")
 
             clang = compiler.cc(self)
             clang_cxx = compiler.cxx(self)
 
-            make_("CC=" + str(clang), "CXX=" + str(clang_cxx), "clean", "lsh",
+            _make("CC=" + str(clang), "CXX=" + str(clang_cxx), "clean", "lsh",
                   "sh")

@@ -28,7 +28,7 @@ class X264(GentooGroup):
 
     def run_tests(self, runner):
         x264 = wrapping.wrap(local.path('/usr/bin/x264'), self)
-        x264 = run.watch(x264)
+        _x264 = run.watch(x264)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",
@@ -43,5 +43,5 @@ class X264(GentooGroup):
 
         for ifile in self.inputfiles:
             for _, test in enumerate(tests):
-                x264(ifile, self.inputfiles[ifile], "--threads", "1", "-o",
-                     "/dev/null", test.split(" "))
+                _x264(ifile, self.inputfiles[ifile], "--threads", "1", "-o",
+                      "/dev/null", test.split(" "))

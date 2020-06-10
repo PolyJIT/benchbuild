@@ -31,21 +31,21 @@ class XZ(project.Project):
         clang = compiler.cc(self)
         with local.cwd(unpack_dir):
             configure = local["./configure"]
-            configure = run.watch(configure)
+            _configure = run.watch(configure)
             with local.env(CC=str(clang)):
-                configure("--enable-threads=no", "--with-gnu-ld=yes",
-                          "--disable-shared", "--disable-dependency-tracking",
-                          "--disable-xzdec", "--disable-lzmadec",
-                          "--disable-lzmainfo", "--disable-lzma-links",
-                          "--disable-scripts", "--disable-doc")
+                _configure("--enable-threads=no", "--with-gnu-ld=yes",
+                           "--disable-shared", "--disable-dependency-tracking",
+                           "--disable-xzdec", "--disable-lzmadec",
+                           "--disable-lzmainfo", "--disable-lzma-links",
+                           "--disable-scripts", "--disable-doc")
 
-            make_ = run.watch(make)
-            make_("CC=" + str(clang), "clean", "all")
+            _make = run.watch(make)
+            _make("CC=" + str(clang), "clean", "all")
 
     def run_tests(self):
         unpack_dir = local.path('xz-{0}'.format(self.version))
-        _xz = wrapping.wrap(unpack_dir / "src" / "xz" / "xz", self)
-        _xz = run.watch(_xz)
+        xz = wrapping.wrap(unpack_dir / "src" / "xz" / "xz", self)
+        _xz = run.watch(xz)
 
         # Compress
         _xz("--compress", "-f", "-k", "-e", "-9", "text.html")

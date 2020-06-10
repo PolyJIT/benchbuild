@@ -36,5 +36,6 @@ class Lammps(GentooGroup):
         with local.cwd(lammps_dir):
             tests = lammps_dir // "in.*"
             for test in tests:
-                lammps_test = run.watch((lammps < wrapping.strip_path_prefix(test, builddir)))
-                lammps_test()
+                _lammps_test = run.watch(
+                    (lammps < wrapping.strip_path_prefix(test, builddir)))
+                _lammps_test()

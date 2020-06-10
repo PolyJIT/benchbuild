@@ -106,12 +106,12 @@ def wrap(name, project, sprefix=None, python=sys.executable):
     name_absolute = os.path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
     if sprefix:
-        mv_ = run.watch(uchroot()["/bin/mv"])
-        mv_(strip_path_prefix(name_absolute, sprefix),
+        _mv = run.watch(uchroot()["/bin/mv"])
+        _mv(strip_path_prefix(name_absolute, sprefix),
             strip_path_prefix(real_f, sprefix))
     else:
-        mv_ = run.watch(mv)
-        mv(name_absolute, real_f)
+        _mv = run.watch(mv)
+        _mv(name_absolute, real_f)
 
     project_file = persist(project, suffix=".project")
 
@@ -135,8 +135,8 @@ def wrap(name, project, sprefix=None, python=sys.executable):
                 python=python,
             ))
 
-    chmod_ = run.watch(chmod)
-    chmod_("+x", name_absolute)
+    _chmod = run.watch(chmod)
+    _chmod("+x", name_absolute)
     return local[name_absolute]
 
 

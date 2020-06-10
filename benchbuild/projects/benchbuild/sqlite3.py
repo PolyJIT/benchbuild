@@ -26,11 +26,11 @@ class SQLite3(project.Project):
         SQLite3.fetch_leveldb()
 
         clang = compiler.cc(self)
-        clang = run.watch(clang)
+        _clang = run.watch(clang)
 
         with local.cwd(unpack_dir):
-            clang("-fPIC", "-I.", "-c", "sqlite3.c")
-            clang("-shared", "-o", "libsqlite3.so", "sqlite3.o", "-ldl")
+            _clang("-fPIC", "-I.", "-c", "sqlite3.c")
+            _clang("-shared", "-o", "libsqlite3.so", "sqlite3.o", "-ldl")
 
         self.build_leveldb()
 
@@ -51,8 +51,8 @@ class SQLite3(project.Project):
 
         with local.cwd(leveldb_dir):
             with local.env(CXX=str(clang_cxx), CC=str(clang)):
-                make_ = run.watch(make)
-                make_("clean", "out-static/db_bench_sqlite3")
+                _make = run.watch(make)
+                _make("clean", "out-static/db_bench_sqlite3")
 
     def run_tests(self):
         leveldb_dir = local.path("leveldb.src")
@@ -60,5 +60,5 @@ class SQLite3(project.Project):
             with local.env(LD_LIBRARY_PATH=leveldb_dir):
                 sqlite = wrapping.wrap(
                     leveldb_dir / 'out-static' / 'db_bench_sqlite3', self)
-                sqlite = run.watch(sqlite)
-                sqlite()
+                _sqlite = run.watch(sqlite)
+                _sqlite()

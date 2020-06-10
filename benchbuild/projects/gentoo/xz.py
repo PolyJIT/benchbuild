@@ -31,18 +31,18 @@ class XZ(GentooGroup):
 
     def run_tests(self):
         xz = wrapping.wrap(local.path("/usr/bin/xz"), self)
-        xz = run.watch(xz)
+        _xz = run.watch(xz)
 
         # Compress
-        xz("--compress", "-f", "-k", "-e", "-9", "compression/text.html")
-        xz("--compress", "-f", "-k", "-e", "-9", "compression/chicken.jpg")
-        xz("--compress", "-f", "-k", "-e", "-9", "compression/control")
-        xz("--compress", "-f", "-k", "-e", "-9", "compression/input.source")
-        xz("--compress", "-f", "-k", "-e", "-9", "compression/liberty.jpg")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/text.html")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/chicken.jpg")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/control")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/input.source")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/liberty.jpg")
 
         # Decompress
-        xz("--decompress", "-f", "-k", "compression/text.html.xz")
-        xz("--decompress", "-f", "-k", "compression/chicken.jpg.xz")
-        xz("--decompress", "-f", "-k", "compression/control.xz")
-        xz("--decompress", "-f", "-k", "compression/input.source.xz")
-        xz("--decompress", "-f", "-k", "compression/liberty.jpg.xz")
+        _xz("--decompress", "-f", "-k", "compression/text.html.xz")
+        _xz("--decompress", "-f", "-k", "compression/chicken.jpg.xz")
+        _xz("--decompress", "-f", "-k", "compression/control.xz")
+        _xz("--decompress", "-f", "-k", "compression/input.source.xz")
+        _xz("--decompress", "-f", "-k", "compression/liberty.jpg.xz")

@@ -32,8 +32,8 @@ class Crafty(project.Project):
         clang = compiler.cc(self)
         with local.cwd(unpack_dir):
             target_opts = ["-DCPUS=1", "-DSYZYGY", "-DTEST"]
-            make_ = run.watch(make)
-            make_("target=UNIX", "CC=" + str(clang),
+            _make = run.watch(make)
+            _make("target=UNIX", "CC=" + str(clang),
                   "opt=" + " ".join(target_opts), "crafty-make")
 
     def run_tests(self):
@@ -41,8 +41,8 @@ class Crafty(project.Project):
         with local.cwd(unpack_dir):
             crafty = wrapping.wrap("./crafty", self)
             testdir = local.path(self.testdir)
-            test1 = run.watch((cat[testdir / "test1.sh"] | crafty))
-            test2 = run.watch((cat[testdir / "test2.sh"] | crafty))
+            _test1 = run.watch((cat[testdir / "test1.sh"] | crafty))
+            _test2 = run.watch((cat[testdir / "test2.sh"] | crafty))
 
-            test1(retcode=[0, 120])
-            test2(retcode=[0, 120])
+            _test1(retcode=[0, 120])
+            _test2(retcode=[0, 120])

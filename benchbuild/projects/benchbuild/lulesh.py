@@ -30,10 +30,10 @@ class Lulesh(project.Project):
 
     def run_tests(self):
         lulesh = wrapping.wrap("lulesh", self)
-        lulesh = run.watch(lulesh)
+        _lulesh = run.watch(lulesh)
 
         for i in range(1, 15):
-            lulesh("-i", i)
+            _lulesh("-i", i)
 
 
 @download.with_git("https://github.com/LLNL/LULESH/", limit=5)
@@ -62,6 +62,6 @@ class LuleshOMP(project.Project):
 
     def run_tests(self):
         lulesh = wrapping.wrap("lulesh", self)
-        lulesh = run.watch(lulesh)
+        _lulesh = run.watch(lulesh)
         for i in range(1, 15):
-            lulesh("-i", i)
+            _lulesh("-i", i)

@@ -57,12 +57,12 @@ class LNTGroup(project.Project):
         self.clang = compiler.cc(self, detect_project=True)
         self.clang_cxx = compiler.cxx(self, detect_project=True)
 
-        runtest = run.watch(self.lnt)
-        runtest("runtest", "test-suite", "-v", "-j1", "--sandbox",
-                self.sandbox_dir, "--benchmarking-only",
-                "--only-compile", "--cc", str(self.clang), "--cxx",
-                str(self.clang_cxx), "--test-suite", self.test_suite_dir,
-                "--only-test=" + self.SUBDIR)
+        _runtest = run.watch(self.lnt)
+        _runtest("runtest", "test-suite", "-v", "-j1", "--sandbox",
+                 self.sandbox_dir, "--benchmarking-only",
+                 "--only-compile", "--cc", str(self.clang), "--cxx",
+                 str(self.clang_cxx), "--test-suite", self.test_suite_dir,
+                 "--only-test=" + self.SUBDIR)
 
     @staticmethod
     def after_run_tests(sandbox_dir):
@@ -76,13 +76,13 @@ class LNTGroup(project.Project):
                                        "lnt_runner",
                                        name_filters=LNTGroup.NAME_FILTERS)
 
-        runtest = run.watch(self.lnt)
-        runtest("runtest", "nt", "-v", "-j1", "--sandbox", self.sandbox_dir,
-                "--benchmarking-only", "--cc", str(self.clang), "--cxx",
-                str(self.clang_cxx), "--test-suite", self.test_suite_dir,
-                "--test-style", "simple", "--test-externals", self.builddir,
-                "--make-param=RUNUNDER=" + str(binary),
-                "--only-test=" + self.SUBDIR)
+        _runtest = run.watch(self.lnt)
+        _runtest("runtest", "nt", "-v", "-j1", "--sandbox", self.sandbox_dir,
+                 "--benchmarking-only", "--cc", str(self.clang), "--cxx",
+                 str(self.clang_cxx), "--test-suite", self.test_suite_dir,
+                 "--test-style", "simple", "--test-externals", self.builddir,
+                 "--make-param=RUNUNDER=" + str(binary),
+                 "--only-test=" + self.SUBDIR)
 
         LNTGroup.after_run_tests(self.sandbox_dir)
 

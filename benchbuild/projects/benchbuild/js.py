@@ -52,13 +52,13 @@ class SpiderMonkey(project.Project):
             with local.cwd("obj"):
                 with local.env(CC=str(clang), CXX=str(clang_cxx)):
                     configure = local["../configure"]
-                    configure = run.watch(configure)
-                    configure('--without-system-zlib')
+                    _configure = run.watch(configure)
+                    _configure('--without-system-zlib')
 
         mozjs_obj_dir = mozjs_src_dir / "obj"
         with local.cwd(mozjs_obj_dir):
-            make_ = run.watch(make)
-            make_("-j", get_number_of_jobs(CFG))
+            _make = run.watch(make)
+            _make("-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
         mozjs_obj_dir = local.path("mozjs-0.0.0") / "js" / "src" / "obj"

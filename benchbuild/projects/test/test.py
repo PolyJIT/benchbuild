@@ -23,13 +23,13 @@ int main(int argc, char **argv) {
             test_source.write(lines)
 
         clang = compiler.cxx(self)
-        clang = run.watch(clang)
-        clang(self.src_file, "-o", self.src_file + ".out")
+        _clang = run.watch(clang)
+        _clang(self.src_file, "-o", self.src_file + ".out")
 
     def run_tests(self):
         exp = wrapping.wrap(self.src_file + ".out", self)
-        exp = run.watch(exp)
-        exp()
+        _exp = run.watch(exp)
+        _exp()
 
 
 class TestProjectRuntimeFail(project.Project):
@@ -54,10 +54,10 @@ int main(int argc, char **argv) {
             test_source.write(lines)
 
         clang = compiler.cxx(self)
-        clang = run.watch(clang)
-        clang(self.src_file, "-o", self.src_file + ".out")
+        _clang = run.watch(clang)
+        _clang(self.src_file, "-o", self.src_file + ".out")
 
     def run_tests(self):
         exp = wrapping.wrap(self.src_file + ".out", self)
-        exp = run.watch(exp)
-        exp()
+        _exp = run.watch(exp)
+        _exp()

@@ -34,18 +34,18 @@ class X264(project.Project):
 
         with local.cwd(self.SRC_FILE):
             configure = local["./configure"]
-            configure = run.watch(configure)
+            _configure = run.watch(configure)
 
             with local.env(CC=str(clang)):
-                configure("--disable-thread", "--disable-opencl",
-                          "--enable-pic")
+                _configure("--disable-thread", "--disable-opencl",
+                           "--enable-pic")
 
-            make_ = run.watch(make)
-            make_("clean", "all", "-j", get_number_of_jobs(CFG))
+            _make = run.watch(make)
+            _make("clean", "all", "-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
         x264 = wrapping.wrap(local.path(self.src_file) / "x264", self)
-        x264 = run.watch(x264)
+        _x264 = run.watch(x264)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",
@@ -61,5 +61,5 @@ class X264(project.Project):
         for ifile in self.inputfiles:
             testfile = local.path(self.testdir) / ifile
             for _, test in enumerate(tests):
-                x264(testfile, self.inputfiles[ifile], "--threads", "1", "-o",
-                     "/dev/null", test.split(" "))
+                _x264(testfile, self.inputfiles[ifile], "--threads", "1", "-o",
+                      "/dev/null", test.split(" "))

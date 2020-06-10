@@ -32,13 +32,13 @@ class Python(project.Project):
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure("--disable-shared", "--without-gcc")
 
-            make_ = run.watch(make)
-            make_()
+            _make = run.watch(make)
+            _make()
 
     def run_tests(self):
         unpack_dir = local.path('Python-{0}'.format(self.version))
         wrapping.wrap(unpack_dir / "python", self)
 
         with local.cwd(unpack_dir):
-            make_ = run.watch(make)
-            make_("-i", "test")
+            _make = run.watch(make)
+            _make("-i", "test")

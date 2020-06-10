@@ -45,8 +45,8 @@ class FuncClass:
             with local.env(CONFIG_PROTECT="-*"):
                 fake_emerge = _uchroot["emerge", "--autounmask-only=y",
                                        "--autounmask-write=y", "--nodeps"]
-                fake_emerge = run.watch(fake_emerge)
-                fake_emerge(package)
+                _fake_emerge = run.watch(fake_emerge)
+                _fake_emerge(package)
 
             emerge_in_chroot = \
                 _uchroot["emerge", "-p", "--nodeps", package]

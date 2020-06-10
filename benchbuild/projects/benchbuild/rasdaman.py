@@ -31,27 +31,27 @@ class Rasdaman(project.Project):
 
         with local.cwd(gdal_dir):
             configure = local["./configure"]
-            configure = run.watch(configure)
+            _configure = run.watch(configure)
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                configure("--with-pic", "--enable-static",
-                                  "--disable-debug", "--with-gnu-ld",
-                                  "--without-ld-shared", "--without-libtool")
-                make_ = run.watch(make)
-                make_("-j", get_number_of_jobs(CFG))
+                _configure("--with-pic", "--enable-static",
+                           "--disable-debug", "--with-gnu-ld",
+                           "--without-ld-shared", "--without-libtool")
+                _make = run.watch(make)
+                _make("-j", get_number_of_jobs(CFG))
 
         with local.cwd(rasdaman_dir):
             autoreconf("-i")
             configure = local["./configure"]
-            configure = run.watch(configure)
+            _configure = run.watch(configure)
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                configure("--without-debug-symbols",
-                                  "--enable-benchmark", "--with-static-libs",
-                                  "--disable-java", "--with-pic",
-                                  "--disable-debug", "--without-docs")
-            make_ = run.watch(make)
-            make_("clean", "all", "-j", get_number_of_jobs(CFG))
+                _configure("--without-debug-symbols",
+                           "--enable-benchmark", "--with-static-libs",
+                           "--disable-java", "--with-pic",
+                           "--disable-debug", "--without-docs")
+            _make = run.watch(make)
+            _make("clean", "all", "-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
         import logging

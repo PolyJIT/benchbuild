@@ -28,8 +28,8 @@ class Ruby(project.Project):
                 configure = local["./configure"]
                 configure = run.watch(configure)
                 configure("--with-static-linked-ext", "--disable-shared")
-            make_ = run.watch(make)
-            make_("-j", get_number_of_jobs(CFG))
+            _make = run.watch(make)
+            _make("-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
         unpack_dir = local.path('ruby-{0}'.format(self.version))
@@ -37,8 +37,8 @@ class Ruby(project.Project):
         testdir = local.path(self.testdir)
 
         with local.env(RUBYOPT=""):
-            ruby_ = run.watch(ruby)
-            ruby(
+            _ruby = run.watch(ruby)
+            _ruby(
                 testdir / "benchmark" / "run.rb",
                 "--ruby=\"" + str(ruby_n) + "\"",
                 "--opts=\"-I" + testdir / "lib" + " -I" + testdir / "." +

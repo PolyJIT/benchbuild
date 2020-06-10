@@ -94,12 +94,12 @@ class PolyBenchGroup(project.Project):
         self.ldflags = []
 
         clang_no_opts = compiler.cc(self)
-        clang_no_opts = run.watch(clang_no_opts)
+        _clang_no_opts = run.watch(clang_no_opts)
 
         self.cflags = cflags
         self.ldflags = ldflags
-        clang_no_opts(polybench_opts, compiler_args, "-o",
-                      self.name + ".no-opts", "-lm")
+        _clang_no_opts(polybench_opts, compiler_args, "-o",
+                       self.name + ".no-opts", "-lm")
         return polybench_opts
 
     def compile(self):
@@ -129,9 +129,9 @@ class PolyBenchGroup(project.Project):
                 src_file, "-lm"
             ], polybench_opts)
         clang = compiler.cc(self)
-        clang = run.watch(clang)
-        clang("-I", utils_dir, "-I", src_sub, polybench_opts,
-              utils_dir / "polybench.c", src_file, "-lm", "-o", self.name)
+        _clang = run.watch(clang)
+        _clang("-I", utils_dir, "-I", src_sub, polybench_opts,
+               utils_dir / "polybench.c", src_file, "-lm", "-o", self.name)
 
     def run_tests(self):
         def filter_stderr(stderr_raw, stderr_filtered):
@@ -149,8 +149,8 @@ class PolyBenchGroup(project.Project):
         opt_stderr_filtered = opt_stderr_raw + ".filtered"
 
         polybench_bin = wrapping.wrap(binary, self)
-        polybench_bin = run.watch(polybench_bin)
-        polybench_bin()
+        _polybench_bin = run.watch(polybench_bin)
+        _polybench_bin()
 
         filter_stderr(opt_stderr_raw, opt_stderr_filtered)
 
@@ -161,13 +161,12 @@ class PolyBenchGroup(project.Project):
 
             with local.env(BB_IS_BASELINE=True):
                 polybench_bin = wrapping.wrap(binary, self)
-                polybench_bin = run.watch(polybench_bin)
-                polybench_bin()
+                _polybench_bin = run.watch(polybench_bin)
+                _polybench_bin()
             filter_stderr(noopt_stderr_raw, noopt_stderr_filtered)
 
-            diff_ = diff[noopt_stderr_filtered, opt_stderr_filtered]
-            diff_ = run.watch(diff_)
-            diff_(retcode=0)
+            _diff = run.watch(diff[noopt_stderr_filtered, opt_stderr_filtered])
+            _diff(retcode=0)
 
 
 class Correlation(PolyBenchGroup):

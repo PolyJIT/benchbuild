@@ -22,10 +22,10 @@ class SciMark(Project):
         self.download()
         unzip(local.cwd / self.src_file)
         clang = cc(self)
-        clang = run.watch(clang)
-        make("CC=" + str(clang), "scimark2")
+        _clang = run.watch(clang)
+        make("CC=" + str(_clang), "scimark2")
 
     def run_tests(self):
         scimark2 = wrap(local.path('scimark2'), self)
-        scimark2 = run.watch(scimark2)
-        scimark2()
+        _scimark2 = run.watch(scimark2)
+        _scimark2()

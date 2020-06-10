@@ -26,8 +26,8 @@ class Lammps(project.Project):
         for test in tests:
             dirname = test.dirname
             with local.cwd(dirname):
-                lmp_serial = run.watch((lmp_serial < test))
-                lmp_serial(retcode=None)
+                _lmp_serial = run.watch((lmp_serial < test))
+                _lmp_serial(retcode=None)
 
     def compile(self):
         self.download()
@@ -35,6 +35,6 @@ class Lammps(project.Project):
 
         clang_cxx = compiler.cxx(self)
         with local.cwd(local.path(self.src_file) / "src"):
-            make_ = run.watch(make)
-            make_("CC=" + str(clang_cxx), "LINK=" + str(clang_cxx), "clean",
+            _make = run.watch(make)
+            _make("CC=" + str(clang_cxx), "LINK=" + str(clang_cxx), "clean",
                   "serial")

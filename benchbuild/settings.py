@@ -38,14 +38,6 @@ CFG = s.Configuration(
             "default":
             s.ConfigPath(os.path.join(os.getcwd(), "results"))
         },
-        "test_dir": {
-            "desc":
-            "Additional test inputs, required for (some) run-time tests."
-            "These can be obtained from the a different repo. Most "
-            "projects don't need it",
-            "default":
-            os.path.join(os.getcwd(), "testinputs")
-        },
         "tmp_dir": {
             "desc": "Temporary dir. This will be used for caching downloads.",
             "default": s.ConfigPath(os.path.join(os.getcwd(), "tmp"))

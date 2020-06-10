@@ -1,7 +1,5 @@
 from benchbuild import project
-from benchbuild.utils import compiler
-from benchbuild.utils import run
-from benchbuild.utils import wrapping
+from benchbuild.utils import compiler, run, wrapping
 
 
 class TestProject(project.Project):
@@ -25,11 +23,13 @@ int main(int argc, char **argv) {
             test_source.write(lines)
 
         clang = compiler.cxx(self)
-        run.run(clang[self.src_file, "-o", self.src_file + ".out"])
+        _clang = run.watch(clang)
+        _clang(self.src_file, "-o", self.src_file + ".out")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         exp = wrapping.wrap(self.src_file + ".out", self)
-        runner(exp)
+        _exp = run.watch(exp)
+        _exp()
 
 
 class TestProjectRuntimeFail(project.Project):
@@ -54,8 +54,10 @@ int main(int argc, char **argv) {
             test_source.write(lines)
 
         clang = compiler.cxx(self)
-        run.run(clang[self.src_file, "-o", self.src_file + ".out"])
+        _clang = run.watch(clang)
+        _clang(self.src_file, "-o", self.src_file + ".out")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         exp = wrapping.wrap(self.src_file + ".out", self)
-        runner(exp)
+        _exp = run.watch(exp)
+        _exp()

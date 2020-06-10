@@ -30,13 +30,17 @@ class TCC(project.Project):
             mkdir("build")
             with local.cwd("build"):
                 configure = local["../configure"]
-                run.run(configure["--cc=" + str(clang), "--with-libgcc"])
-                run.run(make)
+                _configure = run.watch(configure)
+                _configure("--cc=" + str(clang), "--with-libgcc")
 
-    def run_tests(self, runner):
+                _make = run.watch(make)
+                _make()
+
+    def run_tests(self):
         unpack_dir = local.path('tcc-{0}.tar.bz2'.format(self.version))
         with local.cwd(unpack_dir):
             with local.cwd("build"):
                 wrapping.wrap("tcc", self)
                 inc_path = path.abspath("..")
-                runner(make["TCCFLAGS=-B{}".format(inc_path), "test", "-i"])
+                _make = run.watch(make)
+                _make("TCCFLAGS=-B{}".format(inc_path), "test", "-i")

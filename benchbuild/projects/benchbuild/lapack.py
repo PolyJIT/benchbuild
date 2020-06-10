@@ -22,10 +22,10 @@ class OpenBlas(project.Project):
 
         clang = compiler.cc(self)
         with local.cwd(self.src_file):
-            run.run(make["CC=" + str(clang)])
+            _make = run.watch(make)
+            _make("CC=" + str(clang))
 
-    def run_tests(self, runner):
-        del runner
+    def run_tests(self):
         log = logging.getLogger(__name__)
         log.warning('Not implemented')
 
@@ -67,29 +67,43 @@ class Lapack(project.Project):
                 ]
                 makefile.writelines(content)
 
-            run.run(make["-j", get_number_of_jobs(CFG), "f2clib", "blaslib"])
+            _make = run.watch(make)
+            _make("-j", get_number_of_jobs(CFG), "f2clib", "blaslib")
             with local.cwd(local.path("BLAS") / "TESTING"):
-                run.run(make["-j", get_number_of_jobs(CFG), "-f", "Makeblat2"])
-                run.run(make["-j", get_number_of_jobs(CFG), "-f", "Makeblat3"])
+                _make("-j", get_number_of_jobs(CFG), "-f", "Makeblat2")
+                _make("-j", get_number_of_jobs(CFG), "-f", "Makeblat3")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         unpack_dir = local.path("CLAPACK-{0}".format(self.version))
         with local.cwd(unpack_dir / "BLAS"):
             xblat2s = wrapping.wrap("xblat2s", self)
+            _xblat2s = run.watch((xblat2s < "sblat2.in"))
+            _xblat2s()
+
             xblat2d = wrapping.wrap("xblat2d", self)
+            _xblat2d = run.watch((xblat2d < "dblat2.in"))
+            _xblat2d()
+
             xblat2c = wrapping.wrap("xblat2c", self)
+            _xblat2c = run.watch((xblat2c < "cblat2.in"))
+            _xblat2c()
+
             xblat2z = wrapping.wrap("xblat2z", self)
+            _xblat2z = run.watch((xblat2z < "zblat2.in"))
+            _xblat2z()
 
             xblat3s = wrapping.wrap("xblat3s", self)
-            xblat3d = wrapping.wrap("xblat3d", self)
-            xblat3c = wrapping.wrap("xblat3c", self)
-            xblat3z = wrapping.wrap("xblat3z", self)
+            _xblat3s = run.watch((xblat3s < "sblat3.in"))
+            _xblat3s()
 
-            runner((xblat2s < "sblat2.in"))
-            runner((xblat2d < "dblat2.in"))
-            runner((xblat2c < "cblat2.in"))
-            runner((xblat2z < "zblat2.in"))
-            runner((xblat3s < "sblat3.in"))
-            runner((xblat3d < "dblat3.in"))
-            runner((xblat3c < "cblat3.in"))
-            runner((xblat3z < "zblat3.in"))
+            xblat3d = wrapping.wrap("xblat3d", self)
+            _xblat3d = run.watch((xblat3d < "dblat3.in"))
+            _xblat3d()
+
+            xblat3c = wrapping.wrap("xblat3c", self)
+            _xblat3c = run.watch((xblat3c < "cblat3.in"))
+            _xblat3c()
+
+            xblat3z = wrapping.wrap("xblat3z", self)
+            _xblat3z = run.watch((xblat3z < "zblat3.in"))
+            _xblat3z()

@@ -1,10 +1,10 @@
 from plumbum import local
 
 from benchbuild.project import Project
+from benchbuild.utils import run
 from benchbuild.utils.cmd import make, unzip
 from benchbuild.utils.compiler import cc
 from benchbuild.utils.download import with_wget
-from benchbuild.utils.run import run
 from benchbuild.utils.wrapping import wrap
 
 
@@ -22,8 +22,10 @@ class SciMark(Project):
         self.download()
         unzip(local.cwd / self.src_file)
         clang = cc(self)
-        run(make["CC=" + str(clang), "scimark2"])
+        _clang = run.watch(clang)
+        make("CC=" + str(_clang), "scimark2")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         scimark2 = wrap(local.path('scimark2'), self)
-        runner(scimark2)
+        _scimark2 = run.watch(scimark2)
+        _scimark2()

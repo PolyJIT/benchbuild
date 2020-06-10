@@ -1,7 +1,7 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils import compiler, download, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 
 
 @download.with_git("https://github.com/LLNL/LULESH/", limit=5)
@@ -28,10 +28,12 @@ class Lulesh(project.Project):
         with local.cwd(self.src_file):
             clang(obj_files, "-lm", "-o", "../lulesh")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         lulesh = wrapping.wrap("lulesh", self)
+        _lulesh = run.watch(lulesh)
+
         for i in range(1, 15):
-            runner(lulesh["-i", i])
+            _lulesh("-i", i)
 
 
 @download.with_git("https://github.com/LLNL/LULESH/", limit=5)
@@ -58,7 +60,8 @@ class LuleshOMP(project.Project):
         with local.cwd(self.src_file):
             clang(obj_files, "-lm", "-o", "../lulesh")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         lulesh = wrapping.wrap("lulesh", self)
+        _lulesh = run.watch(lulesh)
         for i in range(1, 15):
-            runner(lulesh["-i", i])
+            _lulesh("-i", i)

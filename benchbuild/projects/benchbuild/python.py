@@ -28,14 +28,17 @@ class Python(project.Project):
 
         with local.cwd(unpack_dir):
             configure = local["./configure"]
+            configure = run.watch(configure)
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                run.run(configure["--disable-shared", "--without-gcc"])
+                configure("--disable-shared", "--without-gcc")
 
-            run.run(make)
+            _make = run.watch(make)
+            _make()
 
-    def run_tests(self, runner):
+    def run_tests(self):
         unpack_dir = local.path('Python-{0}'.format(self.version))
         wrapping.wrap(unpack_dir / "python", self)
 
         with local.cwd(unpack_dir):
-            runner(make["-i", "test"])
+            _make = run.watch(make)
+            _make("-i", "test")

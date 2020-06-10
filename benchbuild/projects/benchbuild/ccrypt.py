@@ -28,14 +28,18 @@ class Ccrypt(project.Project):
 
         with local.cwd(unpack_dir):
             configure = local["./configure"]
+            _configure = run.watch(configure)
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                run.run(configure)
-            run.run(make["check"])
+                _configure()
+            _make = run.watch(make)
+            _make("check")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         unpack_dir = 'ccrypt-{0}'.format(self.version)
         with local.cwd(unpack_dir):
             wrapping.wrap(local.path("src") / self.name, self)
             wrapping.wrap(local.path("check") / "crypt3-check", self)
             wrapping.wrap(local.path("check") / "rijndael-check", self)
-            run.run(make["check"])
+
+            _make = run.watch(make)
+            _make("check")

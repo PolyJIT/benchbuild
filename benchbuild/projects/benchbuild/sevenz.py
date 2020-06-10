@@ -31,10 +31,11 @@ class SevenZip(project.Project):
         clang_cxx = compiler.cxx(self)
 
         with local.cwd(unpack_dir):
-            run.run(make["CC=" + str(clang), "CXX=" +
-                         str(clang_cxx), "clean", "all"])
+            _make = run.watch(make)
+            _make("CC=" + str(clang), "CXX=" + str(clang_cxx), "clean", "all")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         unpack_dir = local.path('p7zip_{0}'.format(self.version))
         _7z = wrapping.wrap(unpack_dir / "bin" / "7za", self)
-        runner(_7z["b", "-mmt1"])
+        _7z = run.watch(_7z)
+        _7z("b", "-mmt1")

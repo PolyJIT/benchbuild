@@ -15,10 +15,10 @@ class Lammps(project.Project):
     SRC_FILE = 'lammps.git'
     VERSION = 'HEAD'
 
-    def run_tests(self, runner):
+    def run_tests(self):
         src_path = local.path(self.src_file)
         lammps_dir = src_path / "src"
-        exp = wrapping.wrap(lammps_dir / "lmp_serial", self)
+        lmp_serial = wrapping.wrap(lammps_dir / "lmp_serial", self)
 
         examples_dir = src_path / "examples"
         tests = examples_dir // "*" // "in.*"
@@ -26,8 +26,8 @@ class Lammps(project.Project):
         for test in tests:
             dirname = test.dirname
             with local.cwd(dirname):
-                cmd = (exp < test)
-                runner(cmd, None)
+                _lmp_serial = run.watch((lmp_serial < test))
+                _lmp_serial(retcode=None)
 
     def compile(self):
         self.download()
@@ -35,5 +35,6 @@ class Lammps(project.Project):
 
         clang_cxx = compiler.cxx(self)
         with local.cwd(local.path(self.src_file) / "src"):
-            run.run(make["CC=" + str(clang_cxx), "LINK=" +
-                         str(clang_cxx), "clean", "serial"])
+            _make = run.watch(make)
+            _make("CC=" + str(clang_cxx), "LINK=" + str(clang_cxx), "clean",
+                  "serial")

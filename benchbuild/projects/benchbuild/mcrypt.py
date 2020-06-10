@@ -49,23 +49,28 @@ class MCrypt(project.Project):
 
         _cc = compiler.cc(self)
         _cxx = compiler.cxx(self)
+        _make = run.watch(make)
 
         # Build mhash dependency
         with local.cwd(mhash_dir):
             configure = local["./configure"]
+            _configure = run.watch(configure)
+
             with local.env(CC=_cc, CXX=_cxx):
-                run.run(configure["--prefix=" + builddir])
-                run.run(make["-j", get_number_of_jobs(CFG), "install"])
+                _configure("--prefix=" + builddir)
+                _make("-j", get_number_of_jobs(CFG), "install")
 
         # Builder libmcrypt dependency
         with local.cwd(libmcrypt_dir):
             configure = local["./configure"]
+            _configure = run.watch(configure)
             with local.env(CC=_cc, CXX=_cxx):
-                run.run(configure["--prefix=" + builddir])
-                run.run(make["-j", get_number_of_jobs(CFG), "install"])
+                _configure("--prefix=" + builddir)
+                _make("-j", CFG["jobs"], "install")
 
         with local.cwd(mcrypt_dir):
             configure = local["./configure"]
+            _configure = run.watch(configure)
             lib_dir = builddir / "lib"
             inc_dir = builddir / "include"
             env = CFG["env"].value
@@ -78,16 +83,20 @@ class MCrypt(project.Project):
                 CFLAGS="-I" + str(inc_dir))
             env.update(mod_env)
             with local.env(**env):
-                run.run(configure["--disable-dependency-tracking",
-                                  "--enable-static", "--disable-shared",
-                                  "--with-libmcrypt=" + builddir,
-                                  "--with-libmhash=" + builddir])
-            run.run(make["-j", get_number_of_jobs(CFG)])
+                _configure("--disable-dependency-tracking",
+                           "--enable-static", "--disable-shared",
+                           "--with-libmcrypt=" +
+                           builddir, "--with-libmhash=" + builddir)
+            _make("-j", get_number_of_jobs(CFG))
 
-    def run_tests(self, runner):
+    def run_tests(self):
         mcrypt_dir = local.path(self.builddir) / "mcrypt-2.6.8"
         mcrypt_libs = mcrypt_dir / "src" / ".libs"
+
         aestest = wrapping.wrap(mcrypt_libs / "lt-aestest", self)
+        _aestest = run.watch(aestest)
+        _aestest()
+
         ciphertest = wrapping.wrap(mcrypt_libs / "lt-ciphertest", self)
-        run.run(aestest)
-        run.run(ciphertest)
+        _ciphertest = run.watch(ciphertest)
+        _ciphertest()

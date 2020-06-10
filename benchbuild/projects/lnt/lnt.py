@@ -5,7 +5,7 @@ from plumbum import FG, local
 
 from benchbuild import project
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, wrapping
+from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv
 
 LOG = logging.getLogger(__name__)
@@ -57,7 +57,8 @@ class LNTGroup(project.Project):
         self.clang = compiler.cc(self, detect_project=True)
         self.clang_cxx = compiler.cxx(self, detect_project=True)
 
-        self.lnt("runtest", "test-suite", "-v", "-j1", "--sandbox",
+        _runtest = run.watch(self.lnt)
+        _runtest("runtest", "test-suite", "-v", "-j1", "--sandbox",
                  self.sandbox_dir, "--benchmarking-only",
                  "--only-compile", "--cc", str(self.clang), "--cxx",
                  str(self.clang_cxx), "--test-suite", self.test_suite_dir,
@@ -70,18 +71,18 @@ class LNTGroup(project.Project):
             LOG.info("Dumping contents of: %s", log)
             (cat[log] & FG)  # pylint: disable=pointless-statement
 
-    def run_tests(self, runner):
-        binary = wrapping.wrap_dynamic(
-            self, "lnt_runner", name_filters=LNTGroup.NAME_FILTERS)
+    def run_tests(self):
+        binary = wrapping.wrap_dynamic(self,
+                                       "lnt_runner",
+                                       name_filters=LNTGroup.NAME_FILTERS)
 
-        runner(
-            self.lnt["runtest", "nt", "-v", "-j1", "--sandbox",
-                     self.sandbox_dir, "--benchmarking-only", "--cc",
-                     str(self.clang), "--cxx",
-                     str(self.clang_cxx), "--test-suite", self.test_suite_dir,
-                     "--test-style", "simple", "--test-externals",
-                     self.builddir, "--make-param=RUNUNDER=" +
-                     str(binary), "--only-test=" + self.SUBDIR])
+        _runtest = run.watch(self.lnt)
+        _runtest("runtest", "nt", "-v", "-j1", "--sandbox", self.sandbox_dir,
+                 "--benchmarking-only", "--cc", str(self.clang), "--cxx",
+                 str(self.clang_cxx), "--test-suite", self.test_suite_dir,
+                 "--test-style", "simple", "--test-externals", self.builddir,
+                 "--make-param=RUNUNDER=" + str(binary),
+                 "--only-test=" + self.SUBDIR)
 
         LNTGroup.after_run_tests(self.sandbox_dir)
 

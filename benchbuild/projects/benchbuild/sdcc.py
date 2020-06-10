@@ -23,12 +23,15 @@ class SDCC(project.Project):
 
         with local.cwd(self.SRC_FILE):
             configure = local["./configure"]
+            _configure = run.watch(configure)
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                run.run(configure["--without-ccache", "--disable-pic14-port",
-                                  "--disable-pic16-port"])
+                _configure("--without-ccache", "--disable-pic14-port",
+                           "--disable-pic16-port")
 
-            run.run(make["-j", get_number_of_jobs(CFG)])
+            _make = run.watch(make)
+            _make("-j", get_number_of_jobs(CFG))
 
-    def run_tests(self, runner):
+    def run_tests(self):
         sdcc = wrapping.wrap(self.run_f, self)
-        runner(sdcc)
+        _sdcc = run.watch(sdcc)
+        _sdcc()

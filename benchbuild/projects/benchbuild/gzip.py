@@ -21,23 +21,24 @@ class Gzip(project.Project):
         "text.html", "chicken.jpg", "control", "input.source", "liberty.jpg"
     ]
 
-    def run_tests(self, runner):
+    def run_tests(self):
         unpack_dir = local.path("gzip-{0}.tar.xz".format(self.version))
         gzip = wrapping.wrap(unpack_dir / "gzip", self)
+        _gzip = run.watch(gzip)
 
         # Compress
-        runner(gzip["-f", "-k", "--best", "text.html"])
-        runner(gzip["-f", "-k", "--best", "chicken.jpg"])
-        runner(gzip["-f", "-k", "--best", "control"])
-        runner(gzip["-f", "-k", "--best", "input.source"])
-        runner(gzip["-f", "-k", "--best", "liberty.jpg"])
+        _gzip("-f", "-k", "--best", "text.html")
+        _gzip("-f", "-k", "--best", "chicken.jpg")
+        _gzip("-f", "-k", "--best", "control")
+        _gzip("-f", "-k", "--best", "input.source")
+        _gzip("-f", "-k", "--best", "liberty.jpg")
 
         # Decompress
-        runner(gzip["-f", "-k", "--decompress", "text.html.gz"])
-        runner(gzip["-f", "-k", "--decompress", "chicken.jpg.gz"])
-        runner(gzip["-f", "-k", "--decompress", "control.gz"])
-        runner(gzip["-f", "-k", "--decompress", "input.source.gz"])
-        runner(gzip["-f", "-k", "--decompress", "liberty.jpg.gz"])
+        _gzip("-f", "-k", "--decompress", "text.html.gz")
+        _gzip("-f", "-k", "--decompress", "chicken.jpg.gz")
+        _gzip("-f", "-k", "--decompress", "control.gz")
+        _gzip("-f", "-k", "--decompress", "input.source.gz")
+        _gzip("-f", "-k", "--decompress", "liberty.jpg.gz")
 
     def compile(self):
         self.download()
@@ -49,8 +50,9 @@ class Gzip(project.Project):
 
         clang = compiler.cc(self)
         with local.cwd(unpack_dir):
-            configure = local["./configure"]
+            _configure = run.watch(local["./configure"])
             with local.env(CC=str(clang)):
-                run.run(configure["--disable-dependency-tracking",
-                                  "--disable-silent-rules", "--with-gnu-ld"])
-            run.run(make["-j" + str(get_number_of_jobs(CFG)), "clean", "all"])
+                _configure("--disable-dependency-tracking",
+                           "--disable-silent-rules", "--with-gnu-ld")
+            _make = run.watch(make)
+            _make("-j" + str(get_number_of_jobs(CFG)), "clean", "all")

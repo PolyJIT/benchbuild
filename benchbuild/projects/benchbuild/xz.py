@@ -31,30 +31,32 @@ class XZ(project.Project):
         clang = compiler.cc(self)
         with local.cwd(unpack_dir):
             configure = local["./configure"]
+            _configure = run.watch(configure)
             with local.env(CC=str(clang)):
-                run.run(configure["--enable-threads=no", "--with-gnu-ld=yes",
-                                  "--disable-shared",
-                                  "--disable-dependency-tracking",
-                                  "--disable-xzdec", "--disable-lzmadec",
-                                  "--disable-lzmainfo", "--disable-lzma-links",
-                                  "--disable-scripts", "--disable-doc"])
+                _configure("--enable-threads=no", "--with-gnu-ld=yes",
+                           "--disable-shared", "--disable-dependency-tracking",
+                           "--disable-xzdec", "--disable-lzmadec",
+                           "--disable-lzmainfo", "--disable-lzma-links",
+                           "--disable-scripts", "--disable-doc")
 
-            run.run(make["CC=" + str(clang), "clean", "all"])
+            _make = run.watch(make)
+            _make("CC=" + str(clang), "clean", "all")
 
-    def run_tests(self, runner):
+    def run_tests(self):
         unpack_dir = local.path('xz-{0}'.format(self.version))
-        _xz = wrapping.wrap(unpack_dir / "src" / "xz" / "xz", self)
+        xz = wrapping.wrap(unpack_dir / "src" / "xz" / "xz", self)
+        _xz = run.watch(xz)
 
         # Compress
-        runner(_xz["--compress", "-f", "-k", "-e", "-9", "text.html"])
-        runner(_xz["--compress", "-f", "-k", "-e", "-9", "chicken.jpg"])
-        runner(_xz["--compress", "-f", "-k", "-e", "-9", "control"])
-        runner(_xz["--compress", "-f", "-k", "-e", "-9", "input.source"])
-        runner(_xz["--compress", "-f", "-k", "-e", "-9", "liberty.jpg"])
+        _xz("--compress", "-f", "-k", "-e", "-9", "text.html")
+        _xz("--compress", "-f", "-k", "-e", "-9", "chicken.jpg")
+        _xz("--compress", "-f", "-k", "-e", "-9", "control")
+        _xz("--compress", "-f", "-k", "-e", "-9", "input.source")
+        _xz("--compress", "-f", "-k", "-e", "-9", "liberty.jpg")
 
         # Decompress
-        runner(_xz["--decompress", "-f", "-k", "text.html.xz"])
-        runner(_xz["--decompress", "-f", "-k", "chicken.jpg.xz"])
-        runner(_xz["--decompress", "-f", "-k", "control.xz"])
-        runner(_xz["--decompress", "-f", "-k", "input.source.xz"])
-        runner(_xz["--decompress", "-f", "-k", "liberty.jpg.xz"])
+        _xz("--decompress", "-f", "-k", "text.html.xz")
+        _xz("--decompress", "-f", "-k", "chicken.jpg.xz")
+        _xz("--decompress", "-f", "-k", "control.xz")
+        _xz("--decompress", "-f", "-k", "input.source.xz")
+        _xz("--decompress", "-f", "-k", "liberty.jpg.xz")

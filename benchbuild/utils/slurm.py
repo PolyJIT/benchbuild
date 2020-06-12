@@ -7,7 +7,7 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 import sys
-from typing import Iterable
+from typing import Iterable, List
 from pathlib import Path
 from functools import reduce
 
@@ -17,7 +17,8 @@ from benchbuild.settings import CFG
 from benchbuild.experiment import Experiment
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.slurm_options import merge_slurm_options
+from benchbuild.utils.slurm_options import (merge_slurm_options,
+                                            get_slurm_options_from_config)
 
 LOG = logging.getLogger(__name__)
 
@@ -76,7 +77,8 @@ def __ld_library_path():
     return os.path.pathsep.join([benchbuild_path, host_path])
 
 
-def __save__(script_name, benchbuild, experiment, projects):
+def __save__(script_name: str, benchbuild, experiment,
+             projects: List[str]) -> str:
     """
     Dump a bash script that can be given to SLURM.
 
@@ -104,16 +106,18 @@ def __save__(script_name, benchbuild, experiment, projects):
         lstrip_blocks=True,
         loader=PackageLoader('benchbuild', 'utils/templates'))
     template = env.get_template('slurm.sh.inc')
-
-    if len(projects) > 1:
+    project_types = list(experiment.projects.values())
+    if len(project_types) > 1:
         project_options = reduce(
-            lambda x, y: merge_slurm_options(x.SLURM_REQUIREMENTS, y.
-                                             SLURM_REQUIREMENTS), projects)
+            lambda x, y: merge_slurm_options(
+                x.SLURM_REQUIREMENTS, y.SLURM_REQUIREMENTS), project_types)
     else:
-        project_options = projects[0].SLURM_REQUIREMENTS
+        project_options = project_types[0].SLURM_REQUIREMENTS
 
     slurm_requirements = merge_slurm_options(project_options,
                                              experiment.SLURM_REQUIREMENTS)
+    slurm_requirements = merge_slurm_options(slurm_requirements,
+                                             get_slurm_options_from_config())
 
     print(slurm_requirements)
 
@@ -125,7 +129,6 @@ def __save__(script_name, benchbuild, experiment, projects):
                 clean_lockfile=str(CFG["slurm"]["node_dir"]) + \
                     ".clean-in-progress.lock",
                 cpus=int(CFG['slurm']['cpus_per_task']),
-                exclusive=bool(CFG['slurm']['exclusive']),
                 lockfile=str(CFG['slurm']["node_dir"]) + ".lock",
                 log=logs_dir.resolve() / str(experiment.id),
                 max_running=int(CFG['slurm']['max_running']),
@@ -140,6 +143,8 @@ def __save__(script_name, benchbuild, experiment, projects):
                 slurm_account=str(CFG["slurm"]["account"]),
                 slurm_partition=str(CFG["slurm"]["partition"]),
                 timelimit=str(CFG['slurm']['timelimit']),
+                sbatch_options='\n'.join(
+                    [s_opt.to_slurm_opt() for s_opt in slurm_requirements]),
             )
         )
 

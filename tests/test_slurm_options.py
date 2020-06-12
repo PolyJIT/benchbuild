@@ -1,29 +1,22 @@
 """
 Test the SLURM options generator.
 """
-import os
-import tempfile
 import unittest
-import unittest.mock
 
-from plumbum import local
-
-from benchbuild.experiments.empty import Empty
-from benchbuild.projects.test import test
-from benchbuild.utils import slurm
-from benchbuild.utils.cmd import true
 import benchbuild.utils.slurm_options as sopt
 
 
 class TestSlurmOptions(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
+    """
+    Checks base slurm options methods.
+    """
     def test_script(self):
-        pass
+        """
+        Checks that the correct sbatch option get's generated.
+        """
+        option = sopt.Exclusive()
+
+        self.assertEqual(option.to_slurm_opt(), "#SBATCH --exclusive")
 
 
 class TestCoresPerSocket(unittest.TestCase):
@@ -52,6 +45,27 @@ class TestCoresPerSocket(unittest.TestCase):
 
         self.assertEqual(merged_option.cores, 8)
         self.assertEqual(merged_option_swapped.cores, 8)
+
+    def test_cli_opt(self):
+        """
+        Checks that the correct slurm cli option is generated.
+        """
+        option = sopt.CoresPerSocket(4)
+
+        self.assertEqual(option.to_slurm_cli_opt(), "--cores-per-socket=4")
+
+
+class TestExclusive(unittest.TestCase):
+    """
+    Checks if the CoresPerSocket option works correctly.
+    """
+    def test_cli_opt(self):
+        """
+        Checks that the correct slurm cli option is generated.
+        """
+        option = sopt.Exclusive()
+
+        self.assertEqual(option.to_slurm_cli_opt(), "--exclusive")
 
 
 class TestSlurmOptionMerger(unittest.TestCase):

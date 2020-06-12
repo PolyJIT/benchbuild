@@ -2,6 +2,8 @@ import typing as tp
 from enum import Enum
 import abc
 
+from benchbuild.settings import CFG
+
 SlurmOptionSubType = tp.TypeVar("SlurmOptionSubType", bound='SlurmOption')
 
 
@@ -65,6 +67,29 @@ class CoresPerSocket(SlurmOption):
         return CoresPerSocket(max(lhs_option.cores, rhs_option.cores))
 
 
+class Exclusive(SlurmOption):
+    """
+    The job allocation can not share nodes with other running jobsThe job
+    allocation can not share nodes with other running jobs
+    """
+    def to_slurm_cli_opt(self) -> str:
+        return f"--exclusive"
+
+    def __str__(self) -> str:
+        return f"Run Exclusive"
+
+    def __repr__(self) -> str:
+        return f"Exclusive"
+
+    @classmethod
+    def merge_requirements(cls, lhs_option: 'Exclusive',
+                           rhs_option: 'Exclusive') -> 'Exclusive':
+        """
+        Merge the requirements of the same type together.
+        """
+        return Exclusive()
+
+
 def merge_slurm_options(list_1: tp.List[SlurmOption],
                         list_2: tp.List[SlurmOption]) -> tp.List[SlurmOption]:
     """
@@ -82,3 +107,10 @@ def merge_slurm_options(list_1: tp.List[SlurmOption],
             merged_options[key] = opt
 
     return list(merged_options.values())
+
+
+def get_slurm_options_from_config() -> tp.List[SlurmOption]:
+    slurm_options: tp.List[SlurmOption] = []
+    if CFG['slurm']['exclusive']:
+        slurm_options.append(Exclusive())
+    return slurm_options

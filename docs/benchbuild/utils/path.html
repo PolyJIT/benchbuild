@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>benchbuild.utils.path API documentation</title>
+<meta name="description" content="Path utilities for benchbuild." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>benchbuild.utils.path</code></h1>
+</header>
+<section id="section-intro">
+<p>Path utilities for benchbuild.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34; Path utilities for benchbuild. &#34;&#34;&#34;
+import fcntl
+import os
+from contextlib import contextmanager
+
+import benchbuild.utils.user_interface as ui
+
+
+def list_to_path(pathlist):
+    &#34;&#34;&#34;Convert a list of path elements to a path string.&#34;&#34;&#34;
+    return os.path.pathsep.join(pathlist)
+
+
+def path_to_list(pathstr):
+    &#34;&#34;&#34;Conver a path string to a list of path elements.&#34;&#34;&#34;
+    return [elem for elem in pathstr.split(os.path.pathsep) if elem]
+
+
+def determine_path():
+    &#34;&#34;&#34;Borrowed from wxglade.py&#34;&#34;&#34;
+    root = __file__
+    if os.path.islink(root):
+        root = os.path.realpath(root)
+    return os.path.dirname(os.path.abspath(root))
+
+
+def template_files(path, exts=None):
+    &#34;&#34;&#34;
+    Return a list of filenames found at @path.
+
+    The list of filenames can be filtered by extensions.
+
+    Arguments:
+        path: Existing filepath we want to list.
+        exts: List of extensions to filter by.
+
+    Returns:
+        A list of filenames found in the path.
+    &#34;&#34;&#34;
+    if not os.path.isabs(path):
+        _path = os.path.join(determine_path(), path)
+    if not (os.path.exists(_path) and os.path.isdir(_path)):
+        return []
+    if not exts:
+        exts = []
+    files = os.listdir(_path)
+    files = [f for f in files if os.path.splitext(f)[-1] in exts]
+    files = [os.path.join(path, f) for f in files]
+    return files
+
+
+def template_path(template):
+    &#34;&#34;&#34;Return path to template file.&#34;&#34;&#34;
+    return os.path.join(determine_path(), template)
+
+
+def template_str(template):
+    &#34;&#34;&#34;Read a template file from the resources and return it as str.&#34;&#34;&#34;
+    tmpl_file = os.path.join(determine_path(), template)
+    with open(tmpl_file, mode=&#39;r&#39;) as tmpl_strm:
+        return &#34;&#34;.join(tmpl_strm.readlines())
+
+
+def mkfile_uchroot(filepath, root=&#34;.&#34;):
+    &#34;&#34;&#34;
+    Create a file inside a uchroot env.
+
+    You will want to use this when you need to create a file with apropriate
+    rights inside a uchroot container with subuid/subgid handling enabled.
+
+    Args:
+        filepath:
+            The filepath that should be created. Absolute inside the
+            uchroot container.
+        root:
+            The root PATH of the container filesystem as seen outside of
+            the container.
+    &#34;&#34;&#34;
+    from benchbuild.utils.uchroot import no_args, uretry
+
+    uchroot = no_args()
+    uchroot = uchroot[&#34;-E&#34;, &#34;-A&#34;, &#34;-C&#34;, &#34;-w&#34;, &#34;/&#34;, &#34;-r&#34;]
+    uchroot = uchroot[os.path.abspath(root)]
+    uretry(uchroot[&#34;--&#34;, &#34;/bin/touch&#34;, filepath])
+
+
+def mkdir_uchroot(dirpath, root=&#34;.&#34;):
+    &#34;&#34;&#34;
+    Create a file inside a uchroot env.
+
+    You will want to use this when you need to create a file with apropriate
+    rights inside a uchroot container with subuid/subgid handling enabled.
+
+    Args:
+        dirpath:
+            The dirpath that should be created. Absolute inside the
+            uchroot container.
+        root:
+            The root PATH of the container filesystem as seen outside of
+            the container.
+    &#34;&#34;&#34;
+    from benchbuild.utils.uchroot import no_args, uretry
+
+    uchroot = no_args()
+    uchroot = uchroot[&#34;-E&#34;, &#34;-A&#34;, &#34;-C&#34;, &#34;-w&#34;, &#34;/&#34;, &#34;-r&#34;]
+    uchroot = uchroot[os.path.abspath(root)]
+    uretry(uchroot[&#34;--&#34;, &#34;/bin/mkdir&#34;, &#34;-p&#34;, dirpath])
+
+
+def mkdir_interactive(dirpath):
+    &#34;&#34;&#34;
+    Create a directory if required.
+
+    This will query the user for a confirmation.
+
+    Args:
+        dirname: The path to create.
+    &#34;&#34;&#34;
+    from benchbuild.utils.cmd import mkdir
+    if os.path.exists(dirpath):
+        return
+
+    response = ui.ask(
+        &#34;The directory {dirname} does not exist yet. &#34;
+        &#34;Should I create it?&#34;.format(dirname=dirpath),
+        default_answer=True,
+        default_answer_str=&#34;yes&#34;)
+
+    if response:
+        mkdir(&#34;-p&#34;, dirpath)
+        print(&#34;Created directory {0}.&#34;.format(dirpath))
+
+@contextmanager
+def flocked(filename: str, lock_type: int = fcntl.LOCK_EX):
+    &#34;&#34;&#34;
+    Lock a section using fcntl.
+
+    Args:
+        filename: the file to lock against.
+                  A file descriptor is opened in
+                  append mode to this path.
+        lock_type: one of fcntl&#39;s lock operations
+
+    Returns:
+        the opened file descriptor we hold the lock for.
+    &#34;&#34;&#34;
+    with open(filename, &#39;a&#39;) as fd:
+        try:
+            fcntl.flock(fd, lock_type)
+            yield fd
+        finally:
+            fcntl.flock(fd, fcntl.LOCK_UN)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="benchbuild.utils.path.determine_path"><code class="name flex">
+<span>def <span class="ident">determine_path</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Borrowed from wxglade.py</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def determine_path():
+    &#34;&#34;&#34;Borrowed from wxglade.py&#34;&#34;&#34;
+    root = __file__
+    if os.path.islink(root):
+        root = os.path.realpath(root)
+    return os.path.dirname(os.path.abspath(root))</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.path.flocked"><code class="name flex">
+<span>def <span class="ident">flocked</span></span>(<span>filename: str, lock_type: int = 2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Lock a section using fcntl.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filename</code></strong></dt>
+<dd>the file to lock against.
+A file descriptor is opened in
+append mode to this path.</dd>
+<dt><strong><code>lock_type</code></strong></dt>
+<dd>one of fcntl's lock operations</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>the opened file descriptor we hold the lock for.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@contextmanager
+def flocked(filename: str, lock_type: int = fcntl.LOCK_EX):
+    &#34;&#34;&#34;
+    Lock a section using fcntl.
+
+    Args:
+        filename: the file to lock against.
+                  A file descriptor is opened in
+                  append mode to this path.
+        lock_type: one of fcntl&#39;s lock operations
+
+    Returns:
+        the opened file descriptor we hold the lock for.
+    &#34;&#34;&#34;
+    with open(filename, &#39;a&#39;) as fd:
+        try:
+            fcntl.flock(fd, lock_type)
+            yield fd
+        finally:
+            fcntl.flock(fd, fcntl.LOCK_UN)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.path.list_to_path"><code class="name flex">
+<span>def <span class="ident">list_to_path</span></span>(<span>pathlist)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a list of path elements to a path string.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_to_path(pathlist):
+    &#34;&#34;&#34;Convert a list of path elements to a path string.&#34;&#34;&#34;
+    return os.path.pathsep.join(pathlist)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.path.mkdir_interactive"><code class="name flex">
+<span>def <span class="ident">mkdir_interactive</span></span>(<span>dirpath)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a directory if required.</p>
+<p>This will query the user for a confirmation.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dirname</code></strong></dt>
+<dd>The path to create.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mkdir_interactive(dirpath):
+    &#34;&#34;&#34;
+    Create a directory if required.
+
+    This will query the user for a confirmation.
+
+    Args:
+        dirname: The path to create.
+    &#34;&#34;&#34;
+    from benchbuild.utils.cmd import mkdir
+    if os.path.exists(dirpath):
+        return
+
+    response = ui.ask(
+        &#34;The directory {dirname} does not exist yet. &#34;
+        &#34;Should I create it?&#34;.format(dirname=dirpath),
+        default_answer=True,
+        default_answer_str=&#34;yes&#34;)
+
+    if response:
+        mkdir(&#34;-p&#34;, dirpath)
+        print(&#34;Created directory {0}.&#34;.format(dirpath))</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.path.mkdir_uchroot"><code class="name flex">
+<span>def <span class="ident">mkdir_uchroot</span></span>(<span>dirpath, root='.')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a file inside a uchroot env.</p>
+<p>You will want to use this when you need to create a file with apropriate
+rights inside a uchroot container with subuid/subgid handling enabled.</p>
+<h2 id="args">Args</h2>
+<p>dirpath:
+The dirpath that should be created. Absolute inside the
+uchroot container.
+root:
+The root PATH of the container filesystem as seen outside of
+the container.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mkdir_uchroot(dirpath, root=&#34;.&#34;):
+    &#34;&#34;&#34;
+    Create a file inside a uchroot env.
+
+    You will want to use this when you need to create a file with apropriate
+    rights inside a uchroot container with subuid/subgid handling enabled.
+
+    Args:
+        dirpath:
+            The dirpath that should be created. Absolute inside the
+            uchroot container.
+        root:
+            The root PATH of the container filesystem as seen outside of
+            the container.
+    &#34;&#34;&#34;
+    from benchbuild.utils.uchroot import no_args, uretry
+
+    uchroot = no_args()
+    uchroot = uchroot[&#34;-E&#34;, &#34;-A&#34;, &#34;-C&#34;, &#34;-w&#34;, &#34;/&#34;, &#34;-r&#34;]
+    uchroot = uchroot[os.path.abspath(root)]
+    uretry(uchroot[&#34;--&#34;, &#34;/bin/mkdir&#34;, &#34;-p&#34;, dirpath])</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.path.mkfile_uchroot"><code class="name flex">
+<span>def <span class="ident">mkfile_uchroot</span></span>(<span>filepath, root='.')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a file inside a uchroot env.</p>
+<p>You will want to use this when you need to create a file with apropriate
+rights inside a uchroot container with subuid/subgid handling enabled.</p>
+<h2 id="args">Args</h2>
+<p>filepath:
+The filepath that should be created. Absolute inside the
+uchroot container.
+root:
+The root PATH of the container filesystem as seen outside of
+the container.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mkfile_uchroot(filepath, root=&#34;.&#34;):
+    &#34;&#34;&#34;
+    Create a file inside a uchroot env.
+
+    You will want to use this when you need to create a file with apropriate
+    rights inside a uchroot container with subuid/subgid handling enabled.
+
+    Args:
+        filepath:
+            The filepath that should be created. Absolute inside the
+            uchroot container.
+        root:
+            The root PATH of the container filesystem as seen outside of
+            the container.
+    &#34;&#34;&#34;
+    from benchbuild.utils.uchroot import no_args, uretry
+
+    uchroot = no_args()
+    uchroot = uchroot[&#34;-E&#34;, &#34;-A&#34;, &#34;-C&#34;, &#34;-w&#34;, &#34;/&#34;, &#34;-r&#34;]
+    uchroot = uchroot[os.path.abspath(root)]
+    uretry(uchroot[&#34;--&#34;, &#34;/bin/touch&#34;, filepath])</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.path.path_to_list"><code class="name flex">
+<span>def <span class="ident">path_to_list</span></span>(<span>pathstr)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Conver a path string to a list of path elements.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def path_to_list(pathstr):
+    &#34;&#34;&#34;Conver a path string to a list of path elements.&#34;&#34;&#34;
+    return [elem for elem in pathstr.split(os.path.pathsep) if elem]</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.path.template_files"><code class="name flex">
+<span>def <span class="ident">template_files</span></span>(<span>path, exts=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a list of filenames found at @path.</p>
+<p>The list of filenames can be filtered by extensions.</p>
+<h2 id="arguments">Arguments</h2>
+<p>path: Existing filepath we want to list.
+exts: List of extensions to filter by.</p>
+<h2 id="returns">Returns</h2>
+<p>A list of filenames found in the path.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def template_files(path, exts=None):
+    &#34;&#34;&#34;
+    Return a list of filenames found at @path.
+
+    The list of filenames can be filtered by extensions.
+
+    Arguments:
+        path: Existing filepath we want to list.
+        exts: List of extensions to filter by.
+
+    Returns:
+        A list of filenames found in the path.
+    &#34;&#34;&#34;
+    if not os.path.isabs(path):
+        _path = os.path.join(determine_path(), path)
+    if not (os.path.exists(_path) and os.path.isdir(_path)):
+        return []
+    if not exts:
+        exts = []
+    files = os.listdir(_path)
+    files = [f for f in files if os.path.splitext(f)[-1] in exts]
+    files = [os.path.join(path, f) for f in files]
+    return files</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.path.template_path"><code class="name flex">
+<span>def <span class="ident">template_path</span></span>(<span>template)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return path to template file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def template_path(template):
+    &#34;&#34;&#34;Return path to template file.&#34;&#34;&#34;
+    return os.path.join(determine_path(), template)</code></pre>
+</details>
+</dd>
+<dt id="benchbuild.utils.path.template_str"><code class="name flex">
+<span>def <span class="ident">template_str</span></span>(<span>template)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a template file from the resources and return it as str.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def template_str(template):
+    &#34;&#34;&#34;Read a template file from the resources and return it as str.&#34;&#34;&#34;
+    tmpl_file = os.path.join(determine_path(), template)
+    with open(tmpl_file, mode=&#39;r&#39;) as tmpl_strm:
+        return &#34;&#34;.join(tmpl_strm.readlines())</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="benchbuild.utils" href="index.html">benchbuild.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="benchbuild.utils.path.determine_path" href="#benchbuild.utils.path.determine_path">determine_path</a></code></li>
+<li><code><a title="benchbuild.utils.path.flocked" href="#benchbuild.utils.path.flocked">flocked</a></code></li>
+<li><code><a title="benchbuild.utils.path.list_to_path" href="#benchbuild.utils.path.list_to_path">list_to_path</a></code></li>
+<li><code><a title="benchbuild.utils.path.mkdir_interactive" href="#benchbuild.utils.path.mkdir_interactive">mkdir_interactive</a></code></li>
+<li><code><a title="benchbuild.utils.path.mkdir_uchroot" href="#benchbuild.utils.path.mkdir_uchroot">mkdir_uchroot</a></code></li>
+<li><code><a title="benchbuild.utils.path.mkfile_uchroot" href="#benchbuild.utils.path.mkfile_uchroot">mkfile_uchroot</a></code></li>
+<li><code><a title="benchbuild.utils.path.path_to_list" href="#benchbuild.utils.path.path_to_list">path_to_list</a></code></li>
+<li><code><a title="benchbuild.utils.path.template_files" href="#benchbuild.utils.path.template_files">template_files</a></code></li>
+<li><code><a title="benchbuild.utils.path.template_path" href="#benchbuild.utils.path.template_path">template_path</a></code></li>
+<li><code><a title="benchbuild.utils.path.template_str" href="#benchbuild.utils.path.template_str">template_str</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

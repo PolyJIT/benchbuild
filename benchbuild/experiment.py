@@ -96,7 +96,7 @@ class Experiment(metaclass=ExperimentRegistry):
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
     projects = \
-        attr.ib(default=attr.Factory(list))
+        attr.ib(default=attr.Factory(dict))
 
     id = attr.ib()
 

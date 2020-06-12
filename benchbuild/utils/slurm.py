@@ -111,8 +111,10 @@ def __save__(script_name: str, benchbuild, experiment,
         project_options = reduce(
             lambda x, y: merge_slurm_options(
                 x.SLURM_REQUIREMENTS, y.SLURM_REQUIREMENTS), project_types)
-    else:
+    elif len(project_types) == 1:
         project_options = project_types[0].SLURM_REQUIREMENTS
+    else:
+        project_options = []
 
     slurm_requirements = merge_slurm_options(project_options,
                                              experiment.SLURM_REQUIREMENTS)

@@ -17,7 +17,7 @@ a separate build directory in isolation of one another.
 """
 import copy
 import logging
-from typing import Tuple, Optional, Mapping, Type
+from typing import Tuple, Optional, Mapping, Type, List
 import uuid
 from abc import abstractmethod
 from functools import partial
@@ -32,6 +32,7 @@ from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
 from benchbuild.utils import db, run, unionfs, wrapping
+from benchbuild.utils.slurm_options import SlurmOption
 
 LOG = logging.getLogger(__name__)
 
@@ -125,6 +126,9 @@ class Project(metaclass=ProjectDecorator):
         container (benchbuild.utils.container.Container, optional):
             A uchroot compatible container that we can use for this project.
             Defaults to `benchbuild.utils.container.Gentoo`.
+        slurm_requirements (:obj:`list` of :obj:`SlurmOption`)
+            A list of specific requirements a slurm node needs to provide to
+            execute this :obj:`Project`.
         version (str, optional):
             A version information for this project. Defaults to `VERSION`.
         builddir (str, optional):
@@ -161,6 +165,7 @@ class Project(metaclass=ProjectDecorator):
     VERSION = None
     SRC_FILE = None
     CONTAINER = None
+    SLURM_REQUIREMENTS: List[SlurmOption] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""

@@ -24,6 +24,7 @@ class HelloExperiment(Experiment):
 ```
 
 """
+from typing import List
 import collections
 import copy
 import uuid
@@ -35,6 +36,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
                                       Containerize, Echo, MakeBuildDir,
                                       RequireAll, Run)
+from benchbuild.utils.slurm_options import SlurmOption
 
 
 class ExperimentRegistry(type):
@@ -65,6 +67,9 @@ class Experiment(metaclass=ExperimentRegistry):
 
     Attributes:
         name (str): The name of the experiment, defaults to NAME
+        slurm_requirements (:obj:`list` of :obj:`SlurmOption`)
+            A list of specific requirements a slurm node needs to provide to
+            execute this :obj:`Experiment`.
         projects (:obj:`list` of `benchbuild.project.Project`):
             A list of projects that is assigned to this experiment.
         id (str):
@@ -75,6 +80,7 @@ class Experiment(metaclass=ExperimentRegistry):
 
     NAME = None
     SCHEMA = None
+    SLURM_REQUIREMENTS: List[SlurmOption] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""

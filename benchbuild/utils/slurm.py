@@ -9,6 +9,7 @@ import os
 import sys
 from typing import Iterable
 from pathlib import Path
+from functools import reduce
 
 from plumbum import local, TF
 
@@ -16,6 +17,7 @@ from benchbuild.settings import CFG
 from benchbuild.experiment import Experiment
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
+from benchbuild.utils.slurm_options import merge_slurm_options
 
 LOG = logging.getLogger(__name__)
 
@@ -102,6 +104,18 @@ def __save__(script_name, benchbuild, experiment, projects):
         lstrip_blocks=True,
         loader=PackageLoader('benchbuild', 'utils/templates'))
     template = env.get_template('slurm.sh.inc')
+
+    if len(projects) > 1:
+        project_options = reduce(
+            lambda x, y: merge_slurm_options(x.SLURM_REQUIREMENTS, y.
+                                             SLURM_REQUIREMENTS), projects)
+    else:
+        project_options = projects[0].SLURM_REQUIREMENTS
+
+    slurm_requirements = merge_slurm_options(project_options,
+                                             experiment.SLURM_REQUIREMENTS)
+
+    print(slurm_requirements)
 
     with open(script_name, 'w') as slurm2:
         slurm2.write(

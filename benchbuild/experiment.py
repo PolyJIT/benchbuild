@@ -67,8 +67,8 @@ class Experiment(metaclass=ExperimentRegistry):
 
     Attributes:
         name (str): The name of the experiment, defaults to NAME
-        slurm_requirements (:obj:`list` of :obj:`SlurmOption`)
-            A list of specific requirements a slurm node needs to provide to
+        slurm_options (:obj:`list` of :obj:`SlurmOption`)
+            A list of specific options that should be passed on to slurm to
             execute this :obj:`Experiment`.
         projects (:obj:`list` of `benchbuild.project.Project`):
             A list of projects that is assigned to this experiment.
@@ -80,7 +80,7 @@ class Experiment(metaclass=ExperimentRegistry):
 
     NAME = None
     SCHEMA = None
-    SLURM_REQUIREMENTS: List[SlurmOption] = []
+    SLURM_OPTIONS: List[SlurmOption] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""

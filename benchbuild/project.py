@@ -126,8 +126,8 @@ class Project(metaclass=ProjectDecorator):
         container (benchbuild.utils.container.Container, optional):
             A uchroot compatible container that we can use for this project.
             Defaults to `benchbuild.utils.container.Gentoo`.
-        slurm_requirements (:obj:`list` of :obj:`SlurmOption`)
-            A list of specific requirements a slurm node needs to provide to
+        slurm_options (:obj:`list` of :obj:`SlurmOption`)
+            A list of specific options that should be passed on to slurm to
             execute this :obj:`Project`.
         version (str, optional):
             A version information for this project. Defaults to `VERSION`.
@@ -165,7 +165,7 @@ class Project(metaclass=ProjectDecorator):
     VERSION = None
     SRC_FILE = None
     CONTAINER = None
-    SLURM_REQUIREMENTS: List[SlurmOption] = []
+    SLURM_OPTIONS: List[SlurmOption] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""

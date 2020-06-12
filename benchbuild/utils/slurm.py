@@ -109,19 +109,17 @@ def __save__(script_name: str, benchbuild, experiment,
     project_types = list(experiment.projects.values())
     if len(project_types) > 1:
         project_options = reduce(
-            lambda x, y: merge_slurm_options(
-                x.SLURM_REQUIREMENTS, y.SLURM_REQUIREMENTS), project_types)
+            lambda x, y: merge_slurm_options(x.SLURM_OPTIONS, y.SLURM_OPTIONS),
+            project_types)
     elif len(project_types) == 1:
-        project_options = project_types[0].SLURM_REQUIREMENTS
+        project_options = project_types[0].SLURM_OPTIONS
     else:
         project_options = []
 
-    slurm_requirements = merge_slurm_options(project_options,
-                                             experiment.SLURM_REQUIREMENTS)
-    slurm_requirements = merge_slurm_options(slurm_requirements,
-                                             get_slurm_options_from_config())
-
-    print(slurm_requirements)
+    slurm_options = merge_slurm_options(project_options,
+                                        experiment.SLURM_OPTIONS)
+    slurm_options = merge_slurm_options(slurm_options,
+                                        get_slurm_options_from_config())
 
     with open(script_name, 'w') as slurm2:
         slurm2.write(
@@ -146,7 +144,7 @@ def __save__(script_name: str, benchbuild, experiment,
                 slurm_partition=str(CFG["slurm"]["partition"]),
                 timelimit=str(CFG['slurm']['timelimit']),
                 sbatch_options='\n'.join(
-                    [s_opt.to_slurm_opt() for s_opt in slurm_requirements]),
+                    [s_opt.to_slurm_opt() for s_opt in slurm_options]),
             )
         )
 

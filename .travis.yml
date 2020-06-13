@@ -30,7 +30,7 @@ env:
   - BB_UNIONFS_ENABLE=false BB_PLUGINS_EXPERIMENTS='["benchbuild.experiments.raw", "benchbuild.experiments.empty"]'
 
 script:
-  - reviewdog -config=.reviewdog.yml -reporter=github-pr-check
+  - reviewdog -conf=.reviewdog.yml -reporter=github-pr-check
 
   - coverage run -p `which benchbuild` bootstrap -s
   - pytest --cov-config=./.coveragerc --cov=./ benchbuild tests

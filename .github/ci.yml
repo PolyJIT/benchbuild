@@ -19,7 +19,7 @@ jobs:
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
-	python-version: ${{ matrix.python-version }}
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: |
@@ -31,14 +31,14 @@ jobs:
 
     - name: Run integration tests
       run: |
-	coverage run -p `which benchbuild` bootstrap -s
-	pytest --cov-config=./.coveragerc --cov=./ benchbuild tests
-	coverage run -p `which benchbuild` config view
-	coverage run -p `which benchbuild` project view
-	coverage run -p `which benchbuild` experiment view
-	coverage run -p `which benchbuild` -vvvvv run --full test
-	coverage combine -a
-	coverage report
+        coverage run -p `which benchbuild` bootstrap -s
+        pytest --cov-config=./.coveragerc --cov=./ benchbuild tests
+        coverage run -p `which benchbuild` config view
+        coverage run -p `which benchbuild` project view
+        coverage run -p `which benchbuild` experiment view
+        coverage run -p `which benchbuild` -vvvvv run --full test
+        coverage combine -a
+        coverage report
 
    - name: Upload coverage report
      run: codecov

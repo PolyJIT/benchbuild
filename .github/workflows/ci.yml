@@ -40,5 +40,5 @@ jobs:
         coverage combine -a
         coverage report
 
-   - name: Upload coverage report
-     run: codecov
+    - name: Upload coverage report
+      run: codecov

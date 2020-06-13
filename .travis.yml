@@ -17,6 +17,9 @@ addons:
       - clang
 
 install:
+  - mkdir -p ~/bin/ && export PATH="~/bin/:$PATH"
+  - curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b ~/bin 
+
   - pip install .
   - pip install -r requirements.txt
   - pip install codecov
@@ -27,6 +30,8 @@ env:
   - BB_UNIONFS_ENABLE=false BB_PLUGINS_EXPERIMENTS='["benchbuild.experiments.raw", "benchbuild.experiments.empty"]'
 
 script:
+  - reviewdog -config=.reviewdog.yml -reporter=github-pr-check
+
   - coverage run -p `which benchbuild` bootstrap -s
   - pytest --cov-config=./.coveragerc --cov=./ benchbuild tests
   - coverage run -p `which benchbuild` config view
@@ -35,7 +40,6 @@ script:
   - coverage run -p `which benchbuild` -vvvvv run --full test
   - coverage combine -a
   - coverage report
-  - mypy --strict benchbuild
 
 after_success:
   - codecov

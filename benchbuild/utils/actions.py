@@ -198,10 +198,13 @@ class StepClass(type):
         name_ = attrs['NAME']
         description_ = attrs['DESCRIPTION']
 
-        original_call = attrs['__call__'] if '__call__' in attrs else [
-            base.__dict__['__call__'] for base in bases
-            if '__call__' in base.__dict__
-        ][0]
+        def base_attr(name: str) -> Any:
+            return attrs[name] if name in attrs else [
+                base.__dict__[name] for base in bases if name in base.__dict__
+            ][0]
+
+        original_call = base_attr('__call__')
+        original_str = base_attr('__str__')
 
         if name_ and description_:
             attrs['__call__'] = log_before_after(name_, description_)(

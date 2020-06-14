@@ -213,7 +213,6 @@ class StepClass(type):
             original_call = attrs['__call__']
             attrs['__call__'] = to_step_result(original_call)
 
-        original_str = attrs['__str__']
         attrs['__str__'] = prepend_status(original_str)
 
         return super(StepClass, mcs).__new__(mcs, name, bases, attrs)

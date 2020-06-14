@@ -2,6 +2,7 @@ import logging
 import typing as tp
 from enum import Enum
 import abc
+from enum import Enum
 
 from benchbuild.settings import CFG
 
@@ -145,12 +146,12 @@ class Hint(SlurmOption):
             the task/affinity plugin.
     """
     class SlurmHints(Enum):
-        compute_bound = "compute_bound",
-        memory_bound = "memory_bound",
-        multithread = "multithread",
-        nomultithread = "nomultithread",
+        compute_bound = "compute_bound"
+        memory_bound = "memory_bound"
+        multithread = "multithread"
+        nomultithread = "nomultithread"
 
-        def __str__(self):
+        def __str__(self) -> str:
             return self.value
 
     def __init__(self, hints: tp.Set[SlurmHints]) -> None:

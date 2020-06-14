@@ -103,6 +103,94 @@ class TestNiceness(unittest.TestCase):
         self.assertEqual(option.to_slurm_cli_opt(), "--nice=42")
 
 
+class TestHint(unittest.TestCase):
+    """
+    Checks if the Hint option works correctly.
+    """
+    def test_init_hint(self):
+        """
+        Checks that we can correctly initialize a Hint option.
+        """
+        option = sopt.Hint({sopt.Hint.SlurmHints.compute_bound})
+
+        self.assertSetEqual(option.hints, {sopt.Hint.SlurmHints.compute_bound})
+
+    def test_merge_requirements_disj(self):
+        """
+        Checks if hint options are correctly merged together.
+        """
+        option = sopt.Hint({sopt.Hint.SlurmHints.compute_bound})
+        other_option = sopt.Hint({sopt.Hint.SlurmHints.multithread})
+
+        merged_option = sopt.Hint.merge_requirements(option, other_option)
+        merged_option_swapped = sopt.Hint.merge_requirements(
+            other_option, option)
+
+        self.assertSetEqual(merged_option.hints, {
+            sopt.Hint.SlurmHints.compute_bound,
+            sopt.Hint.SlurmHints.multithread
+        })
+        self.assertSetEqual(merged_option_swapped.hints, {
+            sopt.Hint.SlurmHints.compute_bound,
+            sopt.Hint.SlurmHints.multithread
+        })
+
+    def test_merge_requirements_additional(self):
+        """
+        Checks if hint options are correctly merged together.
+        """
+        option = sopt.Hint({sopt.Hint.SlurmHints.compute_bound})
+        other_option = sopt.Hint({
+            sopt.Hint.SlurmHints.multithread,
+            sopt.Hint.SlurmHints.compute_bound
+        })
+
+        merged_option = sopt.Hint.merge_requirements(option, other_option)
+        merged_option_swapped = sopt.Hint.merge_requirements(
+            other_option, option)
+
+        self.assertSetEqual(merged_option.hints, {
+            sopt.Hint.SlurmHints.compute_bound,
+            sopt.Hint.SlurmHints.multithread
+        })
+        self.assertSetEqual(merged_option_swapped.hints, {
+            sopt.Hint.SlurmHints.compute_bound,
+            sopt.Hint.SlurmHints.multithread
+        })
+
+    def test_merge_requirements_mutally_exclusive(self):
+        """
+        Checks if hint options are correctly merged together.
+        """
+        option = sopt.Hint({sopt.Hint.SlurmHints.compute_bound})
+        other_option = sopt.Hint({sopt.Hint.SlurmHints.memory_bound})
+
+        self.assertRaises(ValueError, sopt.Hint.merge_requirements, option,
+                          other_option)
+
+    def test_cli_opt(self):
+        """
+        Checks that the correct slurm cli option is generated.
+        """
+        option = sopt.Hint({sopt.Hint.SlurmHints.compute_bound})
+
+        self.assertEqual(option.to_slurm_cli_opt(), "--hint=compute_bound")
+
+    def test_cli_opt_multiple(self):
+        """
+        Checks that the correct slurm cli option is generated.
+        """
+        option = sopt.Hint({
+            sopt.Hint.SlurmHints.compute_bound,
+            sopt.Hint.SlurmHints.nomultithread
+        })
+
+        output_string = option.to_slurm_cli_opt()
+        self.assertTrue(output_string.startswith("--hint="))
+        self.assertTrue("compute_bound" in output_string)
+        self.assertTrue("nomultithread" in output_string)
+
+
 class TestSlurmOptionMerger(unittest.TestCase):
     """
     Checks if slurm option list get merged correctly.

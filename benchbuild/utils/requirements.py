@@ -9,16 +9,58 @@ from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
 
-SlurmOptionSubType = tp.TypeVar("SlurmOptionSubType", bound='SlurmOption')
+RequirementSubType = tp.TypeVar("RequirementSubType", bound='Requirement')
 
 
 @attr.s
 class Requirement:
     """
-    Base class for Slurm options.
+    Base class for requirements.
     """
+    @abc.abstractmethod
+    def to_option(self) -> str:
+        """
+        Converts Requirement to a script options.
+        """
 
-    # TODO: refactor
+    @abc.abstractmethod
+    def to_cli_option(self) -> str:
+        """
+        Converts Requirement to a command line options.
+        """
+
+    @classmethod
+    @abc.abstractmethod
+    def merge_requirements(
+            cls: tp.Type[RequirementSubType], lhs_option: RequirementSubType,
+            rhs_option: RequirementSubType) -> RequirementSubType:
+        """
+        Merge the requirements of the same type together.
+        """
+        return type(lhs_option).merge_requirements(lhs_option, rhs_option)
+
+
+################################################################################
+# Slurm Requirements                                                           #
+################################################################################
+
+
+class SlurmRequirement(Requirement):
+    """
+    Base class for slurm requirements.
+    """
+    def to_option(self) -> str:
+        """
+        Converts Requirement to a script options.
+        """
+        return self.to_slurm_opt()
+
+    def to_cli_option(self) -> str:
+        """
+        Converts Requirement to a command line options.
+        """
+        return self.to_slurm_cli_opt()
+
     def to_slurm_opt(self) -> str:
         """
         Converst slurm option into a script usable option string, i.e., bash
@@ -32,19 +74,9 @@ class Requirement:
         Converst slurm option to command line string.
         """
 
-    @classmethod
-    @abc.abstractmethod
-    def merge_requirements(
-            cls: tp.Type[SlurmOptionSubType], lhs_option: SlurmOptionSubType,
-            rhs_option: SlurmOptionSubType) -> SlurmOptionSubType:
-        """
-        Merge the requirements of the same type together.
-        """
-        return type(lhs_option).merge_requirements(lhs_option, rhs_option)
-
 
 @attr.s
-class SlurmCoresPerSocket(Requirement):
+class SlurmCoresPerSocket(SlurmRequirement):
     """
     Restrict node selection to nodes with at least the specified number of
     cores per socket. See additional information under -B option above when
@@ -65,7 +97,7 @@ class SlurmCoresPerSocket(Requirement):
         return SlurmCoresPerSocket(max(lhs_option.cores, rhs_option.cores))
 
 
-class SlurmExclusive(Requirement):
+class SlurmExclusive(SlurmRequirement):
     """
     The job allocation can not share nodes with other running jobsThe job
     allocation can not share nodes with other running jobs
@@ -89,7 +121,7 @@ class SlurmExclusive(Requirement):
 
 
 @attr.s
-class SlurmNiceness(Requirement):
+class SlurmNiceness(SlurmRequirement):
     """
     Run the job with an adjusted scheduling priority within Slurm. With no
     adjustment value the scheduling priority is decreased by 100. A negative
@@ -116,7 +148,7 @@ class SlurmNiceness(Requirement):
 
 
 @attr.s
-class SlurmHint(Requirement):
+class SlurmHint(SlurmRequirement):
     """
     Bind tasks according to application hints.
         * compute_bound
@@ -184,7 +216,7 @@ class SlurmHint(Requirement):
         return True
 
 
-class SlurmTime(Requirement):
+class SlurmTime(SlurmRequirement):
     """
     Set a limit on the total run time of the job allocation.
 

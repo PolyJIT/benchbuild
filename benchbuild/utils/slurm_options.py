@@ -48,7 +48,6 @@ class CoresPerSocket(SlurmOption):
     cores per socket. See additional information under -B option above when
     task/affinity plugin is enabled.
     """
-    """ Number of cores required per socket. """
     cores: int = attr.ib()
 
     def to_slurm_cli_opt(self) -> str:

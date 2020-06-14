@@ -12,6 +12,7 @@ Supported methods:
 """
 import logging
 import os
+from typing import Callable, List, Optional, Type
 
 from plumbum import local
 
@@ -20,6 +21,7 @@ from benchbuild.utils.path import flocked
 
 LOG = logging.getLogger(__name__)
 
+AnyC = Type[object]
 
 def get_hash_of_dirs(directory):
     """
@@ -261,14 +263,16 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     return repository_loc
 
 
-def with_git(repo,
-             target_dir=None,
-             limit=None,
-             refspec="HEAD",
-             clone=True,
-             rev_list_args=None,
-             shallow_clone=True,
-             version_filter=lambda version: True):
+def with_git(
+        repo: str,
+        target_dir: Optional[str] = None,
+        limit: Optional[int] = None,
+        refspec: str = "HEAD",
+        clone: bool = True,
+        rev_list_args: Optional[List[str]] = None,
+        shallow_clone: bool = True,
+        version_filter: Callable[[str], bool] = lambda version: True
+) -> Callable[[AnyC], AnyC]:
     """
     Decorate a project class with git-based version information.
 

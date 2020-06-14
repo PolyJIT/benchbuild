@@ -7,7 +7,9 @@ from benchbuild.utils.cmd import cp, make
 from benchbuild.utils.settings import get_number_of_jobs
 
 
-@download.with_git("git://git.videolan.org/x264.git", refspec="HEAD", limit=5)
+@download.with_git("https://code.videolan.org/videolan/x264.git",
+                   refspec="HEAD",
+                   limit=5)
 class X264(project.Project):
     """ x264 """
 

@@ -36,7 +36,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
                                       Containerize, Echo, MakeBuildDir,
                                       RequireAll, Run)
-from benchbuild.utils.slurm_options import Requirement
+from benchbuild.utils.requirements import Requirement
 
 
 class ExperimentRegistry(type):

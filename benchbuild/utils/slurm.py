@@ -17,8 +17,8 @@ from benchbuild.settings import CFG
 from benchbuild.experiment import Experiment
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.slurm_options import (merge_slurm_options,
-                                            get_slurm_options_from_config)
+from benchbuild.utils.requirements import (merge_slurm_options,
+                                           get_slurm_options_from_config)
 
 LOG = logging.getLogger(__name__)
 

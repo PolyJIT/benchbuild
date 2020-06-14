@@ -32,7 +32,7 @@ from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
 from benchbuild.utils import db, run, unionfs, wrapping
-from benchbuild.utils.slurm_options import Requirement
+from benchbuild.utils.requirements import Requirement
 
 LOG = logging.getLogger(__name__)
 

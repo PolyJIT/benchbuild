@@ -140,7 +140,6 @@ def __save__(script_name: str, benchbuild, experiment,
                 projects=projects,
                 slurm_account=str(CFG["slurm"]["account"]),
                 slurm_partition=str(CFG["slurm"]["partition"]),
-                timelimit=str(CFG['slurm']['timelimit']),
                 sbatch_options='\n'.join(
                     [s_opt.to_slurm_opt() for s_opt in slurm_options]),
             )

@@ -191,6 +191,89 @@ class TestHint(unittest.TestCase):
         self.assertTrue("nomultithread" in output_string)
 
 
+class TestTime(unittest.TestCase):
+    """
+    Checks if the Time option works correctly.
+    """
+    def test_init_niceness(self):
+        """
+        Checks that we can correctly initialize a Time option.
+        """
+        option = sopt.Time("6:3:1")
+
+        self.assertEqual(option.timelimit, (0, 6, 3, 1))
+
+    def test_merge_requirements(self):
+        """
+        Checks if timelimit options are correctly merged together.
+        """
+        option = sopt.Time("6:3:1")
+        other_option = sopt.Time("3:3:1")
+
+        merged_option = sopt.Time.merge_requirements(option, other_option)
+        merged_option_swapped = sopt.Time.merge_requirements(
+            other_option, option)
+
+        self.assertEqual(merged_option.timelimit, (0, 3, 3, 1))
+        self.assertEqual(merged_option_swapped.timelimit, (0, 3, 3, 1))
+
+    def test_cli_opt(self):
+        """
+        Checks that the correct slurm cli option is generated.
+        """
+        option = sopt.Time("6:3:1")
+
+        self.assertEqual(option.to_slurm_cli_opt(), "--time=6:03:01")
+
+    def test_to_slurm_time_format_minute(self):
+        """
+        Checks that Time correctly generates slurm time specifiers.
+        """
+        option = sopt.Time("1")
+
+        self.assertEqual(option.to_slurm_time_format(), "1")
+
+    def test_to_slurm_time_format_min_secs(self):
+        """
+        Checks that Time correctly generates slurm time specifiers.
+        """
+        option = sopt.Time("1:2")
+
+        self.assertEqual(option.to_slurm_time_format(), "1:02")
+
+    def test_to_slurm_time_format_hours_min_secs(self):
+        """
+        Checks that Time correctly generates slurm time specifiers.
+        """
+        option = sopt.Time("4:1:2")
+
+        self.assertEqual(option.to_slurm_time_format(), "4:01:02")
+
+    def test_to_slurm_time_format_days_hours(self):
+        """
+        Checks that Time correctly generates slurm time specifiers.
+        """
+        option = sopt.Time("30-10")
+
+        self.assertEqual(option.to_slurm_time_format(), "30-10")
+
+    def test_to_slurm_time_format_days_hours_minutes(self):
+        """
+        Checks that Time correctly generates slurm time specifiers.
+        """
+        option = sopt.Time("30-10:8")
+
+        self.assertEqual(option.to_slurm_time_format(), "30-10:08")
+
+    def test_to_slurm_time_format_days_hours_minutes_secs(self):
+        """
+        Checks that Time correctly generates slurm time specifiers.
+        """
+        option = sopt.Time("30-10:8:2")
+
+        self.assertEqual(option.to_slurm_time_format(), "30-10:08:02")
+
+
 class TestSlurmOptionMerger(unittest.TestCase):
     """
     Checks if slurm option list get merged correctly.

@@ -1,6 +1,7 @@
 import logging
 import typing as tp
 from enum import Enum
+import copy
 import abc
 
 from benchbuild.settings import CFG
@@ -203,6 +204,126 @@ class Hint(SlurmOption):
         return True
 
 
+class Time(SlurmOption):
+    """
+    Set a limit on the total run time of the job allocation.
+
+    A time limit of zero requests that no time limit be imposed. Acceptable
+    time formats include "minutes", "minutes:seconds", "hours:minutes:seconds",
+    "days-hours", "days-hours:minutes" and "days-hours:minutes:seconds".
+    """
+    def __init__(self, time_specifier: str) -> None:
+        self.__timelimit = self._convert_to_time_tuple(time_specifier)
+
+    @property
+    def timelimit(self) -> tp.Tuple[int, int, int, int]:
+        return self.__timelimit
+
+    def to_slurm_time_format(self) -> str:
+        """
+        Converst Time option into slurm compatible time format.
+        """
+        days = self.timelimit[0]
+        hours = self.timelimit[1]
+        minutes = self.timelimit[2]
+        seconds = self.timelimit[3]
+        tmp_str = ""
+        if days > 0:
+            tmp_str += f"{days}-{hours:02d}"
+            if minutes > 0 or seconds > 0:
+                tmp_str += f":{minutes:02d}"
+            if seconds > 0:
+                tmp_str += f":{seconds:02d}"
+        else:
+            if hours > 0:
+                tmp_str += f"{hours}"
+                tmp_str += f":{minutes:02d}"
+                tmp_str += f":{seconds:02d}"
+            else:
+                tmp_str += f"{minutes}"
+                if seconds > 0:
+                    tmp_str += f":{seconds:02d}"
+
+        return tmp_str
+
+    def to_slurm_cli_opt(self) -> str:
+        return f"--time={self.to_slurm_time_format()}"
+
+    def __str__(self) -> str:
+        return f"Timelimit: {self.timelimit}"
+
+    def __repr__(self) -> str:
+        return f"Time ({str(self)})"
+
+    def __lt__(self, other) -> bool:
+        return self.timelimit < other.timelimit
+
+    @classmethod
+    def merge_requirements(cls, lhs_option: 'Time',
+                           rhs_option: 'Time') -> 'Time':
+        """
+        Merge the requirements of the same type together.
+        """
+        if lhs_option < rhs_option:
+            return copy.deepcopy(lhs_option)
+        return copy.deepcopy(rhs_option)
+
+    @staticmethod
+    def _convert_to_time_tuple(
+            time_specifier: str) -> tp.Tuple[int, int, int, int]:
+        """
+        Convert slurm time specifier to tuple.
+
+        Returns:
+            time tuple with (days, hours, minutes, seconds)
+
+        >>> Time._convert_to_time_tuple("4")
+        (0, 0, 4, 0)
+        >>> Time._convert_to_time_tuple("4:2")
+        (0, 0, 4, 2)
+        >>> Time._convert_to_time_tuple("8:4:2")
+        (0, 8, 4, 2)
+        >>> Time._convert_to_time_tuple("16-8")
+        (16, 8, 0, 0)
+        >>> Time._convert_to_time_tuple("16-8:4")
+        (16, 8, 4, 0)
+        >>> Time._convert_to_time_tuple("16-8:4:2")
+        (16, 8, 4, 2)
+        """
+        days = 0
+        hours = 0
+        minutes = 0
+        seconds = 0
+
+        if time_specifier.count('-'):
+            with_days = True
+            days = int(time_specifier.split('-')[0])
+            time_specifier = time_specifier.split('-')[1]
+        else:
+            with_days = False
+
+        num_colon = time_specifier.count(':')
+
+        if num_colon == 0:
+            if with_days:
+                hours = int(time_specifier)
+            else:
+                minutes = int(time_specifier)
+        elif num_colon == 1:
+            if with_days:
+                hours = int(time_specifier.split(':')[0])
+                minutes = int(time_specifier.split(':')[1])
+            else:
+                minutes = int(time_specifier.split(':')[0])
+                seconds = int(time_specifier.split(':')[1])
+        elif num_colon == 2:
+            hours = int(time_specifier.split(':')[0])
+            minutes = int(time_specifier.split(':')[1])
+            seconds = int(time_specifier.split(':')[2])
+
+        return (days, hours, minutes, seconds)
+
+
 def merge_slurm_options(list_1: tp.List[SlurmOption],
                         list_2: tp.List[SlurmOption]) -> tp.List[SlurmOption]:
     """
@@ -234,6 +355,7 @@ def get_slurm_options_from_config() -> tp.List[SlurmOption]:
     if not CFG['slurm']['multithread']:
         slurm_options.append(Hint({Hint.SlurmHints.nomultithread}))
 
+    slurm_options.append(Time(str(CFG['slurm']['timelimit'])))
     slurm_options.append(Niceness(int(CFG['slurm']['nice'])))
 
     return slurm_options

@@ -2,35 +2,44 @@
 Public API of benchbuild.
 """
 import sys
-from typing import Callable, Optional
-from plumbum.commands import BaseCommand
-from plumbum import local, Path
+from plumbum import local
 
 from . import experiments as __EXPERIMENTS__
 from . import projects as __PROJECTS__
 from . import reports as __REPORTS__
-from .project import Project
-from .settings import CFG
-from .utils import compiler, download, run
 from .utils import settings as __SETTINGS__
+
+# Export: Project
+from .project import Project
+
+# Export: Configuration
+from .settings import CFG
+
+# Export: compiler, download, run and wrapping modules
+from .utils import compiler, download, run
 from .utils import wrapping
 
-__EXPERIMENTS__.discover()
-__PROJECTS__.discover()
-__REPORTS__.discover()
-__SETTINGS__.setup_config(CFG)
+def __init__() -> None:
+    """Initialize all plugins and settings."""
+    __EXPERIMENTS__.discover()
+    __PROJECTS__.discover()
+    __REPORTS__.discover()
+    __SETTINGS__.setup_config(CFG)
 
+__init__()
+
+# Forwards to plumbum
 cwd = local.cwd
 env = local.env
 path = local.path
 
+# Wrapping / Execution utilities
 wrap = wrapping.wrap
 watch = run.watch
 
+# Clean the namespace
 del local
 del sys
-del BaseCommand
-del Path
 del __EXPERIMENTS__
 del __PROJECTS__
 del __REPORTS__

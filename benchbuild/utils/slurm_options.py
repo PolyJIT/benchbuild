@@ -161,13 +161,13 @@ class Hint(SlurmOption):
         return self.__hints
 
     def to_slurm_cli_opt(self) -> str:
-        return f"--hint={','.join(map(lambda x: str(x), self.hints))}"
+        return f"--hint={','.join(map(str, self.hints))}"
 
     def __str__(self) -> str:
-        return f"Hints: {','.join(map(lambda x: str(x), self.hints))}"
+        return f"Hints: {','.join(map(str, self.hints))}"
 
     def __repr__(self) -> str:
-        return f"Hint (str(self))"
+        return f"Hint ({str(self)})"
 
     @classmethod
     def merge_requirements(cls, lhs_option: 'Hint',

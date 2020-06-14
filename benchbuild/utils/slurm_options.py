@@ -13,10 +13,12 @@ SlurmOptionSubType = tp.TypeVar("SlurmOptionSubType", bound='SlurmOption')
 
 
 @attr.s
-class SlurmOption:
+class Requirement:
     """
     Base class for Slurm options.
     """
+
+    # TODO: refactor
     def to_slurm_opt(self) -> str:
         """
         Converst slurm option into a script usable option string, i.e., bash
@@ -42,7 +44,7 @@ class SlurmOption:
 
 
 @attr.s
-class CoresPerSocket(SlurmOption):
+class SlurmCoresPerSocket(Requirement):
     """
     Restrict node selection to nodes with at least the specified number of
     cores per socket. See additional information under -B option above when
@@ -54,15 +56,16 @@ class CoresPerSocket(SlurmOption):
         return f"--cores-per-socket={self.cores}"
 
     @classmethod
-    def merge_requirements(cls, lhs_option: 'CoresPerSocket',
-                           rhs_option: 'CoresPerSocket') -> 'CoresPerSocket':
+    def merge_requirements(
+            cls, lhs_option: 'SlurmCoresPerSocket',
+            rhs_option: 'SlurmCoresPerSocket') -> 'SlurmCoresPerSocket':
         """
         Merge the requirements of the same type together.
         """
-        return CoresPerSocket(max(lhs_option.cores, rhs_option.cores))
+        return SlurmCoresPerSocket(max(lhs_option.cores, rhs_option.cores))
 
 
-class Exclusive(SlurmOption):
+class SlurmExclusive(Requirement):
     """
     The job allocation can not share nodes with other running jobsThe job
     allocation can not share nodes with other running jobs
@@ -77,16 +80,16 @@ class Exclusive(SlurmOption):
         return "Exclusive"
 
     @classmethod
-    def merge_requirements(cls, lhs_option: 'Exclusive',
-                           rhs_option: 'Exclusive') -> 'Exclusive':
+    def merge_requirements(cls, lhs_option: 'SlurmExclusive',
+                           rhs_option: 'SlurmExclusive') -> 'SlurmExclusive':
         """
         Merge the requirements of the same type together.
         """
-        return Exclusive()
+        return SlurmExclusive()
 
 
 @attr.s
-class Niceness(SlurmOption):
+class SlurmNiceness(Requirement):
     """
     Run the job with an adjusted scheduling priority within Slurm. With no
     adjustment value the scheduling priority is decreased by 100. A negative
@@ -100,8 +103,8 @@ class Niceness(SlurmOption):
         return f"--nice={self.niceness}"
 
     @classmethod
-    def merge_requirements(cls, lhs_option: 'Niceness',
-                           rhs_option: 'Niceness') -> 'Niceness':
+    def merge_requirements(cls, lhs_option: 'SlurmNiceness',
+                           rhs_option: 'SlurmNiceness') -> 'SlurmNiceness':
         """
         Merge the requirements of the same type together.
         """
@@ -109,11 +112,11 @@ class Niceness(SlurmOption):
             LOG.info("Multiple different slurm niceness values specifcied, "
                      "choosing the smaller value.")
 
-        return Niceness(min(lhs_option.niceness, rhs_option.niceness))
+        return SlurmNiceness(min(lhs_option.niceness, rhs_option.niceness))
 
 
 @attr.s
-class Hint(SlurmOption):
+class SlurmHint(Requirement):
     """
     Bind tasks according to application hints.
         * compute_bound
@@ -148,8 +151,8 @@ class Hint(SlurmOption):
         return f"Hint ({str(self)})"
 
     @classmethod
-    def merge_requirements(cls, lhs_option: 'Hint',
-                           rhs_option: 'Hint') -> 'Hint':
+    def merge_requirements(cls, lhs_option: 'SlurmHint',
+                           rhs_option: 'SlurmHint') -> 'SlurmHint':
         """
         Merge the requirements of the same type together.
         """
@@ -160,7 +163,7 @@ class Hint(SlurmOption):
             raise ValueError(
                 "Two mutally exclusive hints for slurm have be specified.")
 
-        return Hint(combined_hints)
+        return SlurmHint(combined_hints)
 
     @staticmethod
     def __hints_not_mutually_exclusive(hints: tp.Set[SlurmHints]) -> bool:
@@ -171,17 +174,17 @@ class Hint(SlurmOption):
         Returns:
             True, if no mutally exclusive hints are in the list
         """
-        if (Hint.SlurmHints.compute_bound in hints
-                and Hint.SlurmHints.memory_bound in hints):
+        if (SlurmHint.SlurmHints.compute_bound in hints
+                and SlurmHint.SlurmHints.memory_bound in hints):
             return False
-        if (Hint.SlurmHints.nomultithread in hints
-                and Hint.SlurmHints.multithread in hints):
+        if (SlurmHint.SlurmHints.nomultithread in hints
+                and SlurmHint.SlurmHints.multithread in hints):
             return False
 
         return True
 
 
-class Time(SlurmOption):
+class SlurmTime(Requirement):
     """
     Set a limit on the total run time of the job allocation.
 
@@ -236,8 +239,8 @@ class Time(SlurmOption):
         return self.timelimit < other.timelimit
 
     @classmethod
-    def merge_requirements(cls, lhs_option: 'Time',
-                           rhs_option: 'Time') -> 'Time':
+    def merge_requirements(cls, lhs_option: 'SlurmTime',
+                           rhs_option: 'SlurmTime') -> 'SlurmTime':
         """
         Merge the requirements of the same type together.
         """
@@ -254,17 +257,17 @@ class Time(SlurmOption):
         Returns:
             time tuple with (days, hours, minutes, seconds)
 
-        >>> Time._convert_to_time_tuple("4")
+        >>> SlurmTime._convert_to_time_tuple("4")
         (0, 0, 4, 0)
-        >>> Time._convert_to_time_tuple("4:2")
+        >>> SlurmTime._convert_to_time_tuple("4:2")
         (0, 0, 4, 2)
-        >>> Time._convert_to_time_tuple("8:4:2")
+        >>> SlurmTime._convert_to_time_tuple("8:4:2")
         (0, 8, 4, 2)
-        >>> Time._convert_to_time_tuple("16-8")
+        >>> SlurmTime._convert_to_time_tuple("16-8")
         (16, 8, 0, 0)
-        >>> Time._convert_to_time_tuple("16-8:4")
+        >>> SlurmTime._convert_to_time_tuple("16-8:4")
         (16, 8, 4, 0)
-        >>> Time._convert_to_time_tuple("16-8:4:2")
+        >>> SlurmTime._convert_to_time_tuple("16-8:4:2")
         (16, 8, 4, 2)
         """
         days = 0
@@ -301,12 +304,12 @@ class Time(SlurmOption):
         return (days, hours, minutes, seconds)
 
 
-def merge_slurm_options(list_1: tp.List[SlurmOption],
-                        list_2: tp.List[SlurmOption]) -> tp.List[SlurmOption]:
+def merge_slurm_options(list_1: tp.List[Requirement],
+                        list_2: tp.List[Requirement]) -> tp.List[Requirement]:
     """
     Merged two lists of SlurmOptions into one.
     """
-    merged_options: tp.Dict[tp.Type[SlurmOption], SlurmOption] = dict()
+    merged_options: tp.Dict[tp.Type[Requirement], Requirement] = dict()
 
     for opt in list_1 + list_2:
         key = type(opt)
@@ -320,19 +323,19 @@ def merge_slurm_options(list_1: tp.List[SlurmOption],
     return list(merged_options.values())
 
 
-def get_slurm_options_from_config() -> tp.List[SlurmOption]:
+def get_slurm_options_from_config() -> tp.List[Requirement]:
     """
     Generates a list of `SlurmOptions` which are specified in the BenchBuild
     config.
     """
-    slurm_options: tp.List[SlurmOption] = []
+    slurm_options: tp.List[Requirement] = []
     if CFG['slurm']['exclusive']:
-        slurm_options.append(Exclusive())
+        slurm_options.append(SlurmExclusive())
 
     if not CFG['slurm']['multithread']:
-        slurm_options.append(Hint({Hint.SlurmHints.nomultithread}))
+        slurm_options.append(SlurmHint({SlurmHint.SlurmHints.nomultithread}))
 
-    slurm_options.append(Time(str(CFG['slurm']['timelimit'])))
-    slurm_options.append(Niceness(int(CFG['slurm']['nice'])))
+    slurm_options.append(SlurmTime(str(CFG['slurm']['timelimit'])))
+    slurm_options.append(SlurmNiceness(int(CFG['slurm']['nice'])))
 
     return slurm_options

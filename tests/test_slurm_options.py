@@ -14,7 +14,7 @@ class TestSlurmOptions(unittest.TestCase):
         """
         Checks that the correct sbatch option get's generated.
         """
-        option = sopt.Exclusive()
+        option = sopt.SlurmExclusive()
 
         self.assertEqual(option.to_slurm_opt(), "#SBATCH --exclusive")
 
@@ -27,7 +27,7 @@ class TestCoresPerSocket(unittest.TestCase):
         """
         Checks that we can correctly initialize a CoresPerSocket option.
         """
-        option = sopt.CoresPerSocket(42)
+        option = sopt.SlurmCoresPerSocket(42)
 
         self.assertEqual(option.cores, 42)
 
@@ -35,12 +35,12 @@ class TestCoresPerSocket(unittest.TestCase):
         """
         Checks if cores per socket options are correctly merged together.
         """
-        option = sopt.CoresPerSocket(4)
-        other_option = sopt.CoresPerSocket(8)
+        option = sopt.SlurmCoresPerSocket(4)
+        other_option = sopt.SlurmCoresPerSocket(8)
 
-        merged_option = sopt.CoresPerSocket.merge_requirements(
+        merged_option = sopt.SlurmCoresPerSocket.merge_requirements(
             option, other_option)
-        merged_option_swapped = sopt.CoresPerSocket.merge_requirements(
+        merged_option_swapped = sopt.SlurmCoresPerSocket.merge_requirements(
             other_option, option)
 
         self.assertEqual(merged_option.cores, 8)
@@ -50,7 +50,7 @@ class TestCoresPerSocket(unittest.TestCase):
         """
         Checks that the correct slurm cli option is generated.
         """
-        option = sopt.CoresPerSocket(4)
+        option = sopt.SlurmCoresPerSocket(4)
 
         self.assertEqual(option.to_slurm_cli_opt(), "--cores-per-socket=4")
 
@@ -63,7 +63,7 @@ class TestExclusive(unittest.TestCase):
         """
         Checks that the correct slurm cli option is generated.
         """
-        option = sopt.Exclusive()
+        option = sopt.SlurmExclusive()
 
         self.assertEqual(option.to_slurm_cli_opt(), "--exclusive")
 
@@ -76,7 +76,7 @@ class TestNiceness(unittest.TestCase):
         """
         Checks that we can correctly initialize a Niceness option.
         """
-        option = sopt.Niceness(42)
+        option = sopt.SlurmNiceness(42)
 
         self.assertEqual(option.niceness, 42)
 
@@ -84,11 +84,12 @@ class TestNiceness(unittest.TestCase):
         """
         Checks if niceness options are correctly merged together.
         """
-        option = sopt.Niceness(4)
-        other_option = sopt.Niceness(8)
+        option = sopt.SlurmNiceness(4)
+        other_option = sopt.SlurmNiceness(8)
 
-        merged_option = sopt.Niceness.merge_requirements(option, other_option)
-        merged_option_swapped = sopt.Niceness.merge_requirements(
+        merged_option = sopt.SlurmNiceness.merge_requirements(
+            option, other_option)
+        merged_option_swapped = sopt.SlurmNiceness.merge_requirements(
             other_option, option)
 
         self.assertEqual(merged_option.niceness, 4)
@@ -98,7 +99,7 @@ class TestNiceness(unittest.TestCase):
         """
         Checks that the correct slurm cli option is generated.
         """
-        option = sopt.Niceness(42)
+        option = sopt.SlurmNiceness(42)
 
         self.assertEqual(option.to_slurm_cli_opt(), "--nice=42")
 
@@ -111,68 +112,73 @@ class TestHint(unittest.TestCase):
         """
         Checks that we can correctly initialize a Hint option.
         """
-        option = sopt.Hint({sopt.Hint.SlurmHints.compute_bound})
+        option = sopt.SlurmHint({sopt.SlurmHint.SlurmHints.compute_bound})
 
-        self.assertSetEqual(option.hints, {sopt.Hint.SlurmHints.compute_bound})
+        self.assertSetEqual(option.hints,
+                            {sopt.SlurmHint.SlurmHints.compute_bound})
 
     def test_merge_requirements_disj(self):
         """
         Checks if hint options are correctly merged together.
         """
-        option = sopt.Hint({sopt.Hint.SlurmHints.compute_bound})
-        other_option = sopt.Hint({sopt.Hint.SlurmHints.multithread})
+        option = sopt.SlurmHint({sopt.SlurmHint.SlurmHints.compute_bound})
+        other_option = sopt.SlurmHint({sopt.SlurmHint.SlurmHints.multithread})
 
-        merged_option = sopt.Hint.merge_requirements(option, other_option)
-        merged_option_swapped = sopt.Hint.merge_requirements(
+        merged_option = sopt.SlurmHint.merge_requirements(option, other_option)
+        merged_option_swapped = sopt.SlurmHint.merge_requirements(
             other_option, option)
 
-        self.assertSetEqual(merged_option.hints, {
-            sopt.Hint.SlurmHints.compute_bound,
-            sopt.Hint.SlurmHints.multithread
-        })
-        self.assertSetEqual(merged_option_swapped.hints, {
-            sopt.Hint.SlurmHints.compute_bound,
-            sopt.Hint.SlurmHints.multithread
-        })
+        self.assertSetEqual(
+            merged_option.hints, {
+                sopt.SlurmHint.SlurmHints.compute_bound,
+                sopt.SlurmHint.SlurmHints.multithread
+            })
+        self.assertSetEqual(
+            merged_option_swapped.hints, {
+                sopt.SlurmHint.SlurmHints.compute_bound,
+                sopt.SlurmHint.SlurmHints.multithread
+            })
 
     def test_merge_requirements_additional(self):
         """
         Checks if hint options are correctly merged together.
         """
-        option = sopt.Hint({sopt.Hint.SlurmHints.compute_bound})
-        other_option = sopt.Hint({
-            sopt.Hint.SlurmHints.multithread,
-            sopt.Hint.SlurmHints.compute_bound
+        option = sopt.SlurmHint({sopt.SlurmHint.SlurmHints.compute_bound})
+        other_option = sopt.SlurmHint({
+            sopt.SlurmHint.SlurmHints.multithread,
+            sopt.SlurmHint.SlurmHints.compute_bound
         })
 
-        merged_option = sopt.Hint.merge_requirements(option, other_option)
-        merged_option_swapped = sopt.Hint.merge_requirements(
+        merged_option = sopt.SlurmHint.merge_requirements(option, other_option)
+        merged_option_swapped = sopt.SlurmHint.merge_requirements(
             other_option, option)
 
-        self.assertSetEqual(merged_option.hints, {
-            sopt.Hint.SlurmHints.compute_bound,
-            sopt.Hint.SlurmHints.multithread
-        })
-        self.assertSetEqual(merged_option_swapped.hints, {
-            sopt.Hint.SlurmHints.compute_bound,
-            sopt.Hint.SlurmHints.multithread
-        })
+        self.assertSetEqual(
+            merged_option.hints, {
+                sopt.SlurmHint.SlurmHints.compute_bound,
+                sopt.SlurmHint.SlurmHints.multithread
+            })
+        self.assertSetEqual(
+            merged_option_swapped.hints, {
+                sopt.SlurmHint.SlurmHints.compute_bound,
+                sopt.SlurmHint.SlurmHints.multithread
+            })
 
     def test_merge_requirements_mutally_exclusive(self):
         """
         Checks if hint options are correctly merged together.
         """
-        option = sopt.Hint({sopt.Hint.SlurmHints.compute_bound})
-        other_option = sopt.Hint({sopt.Hint.SlurmHints.memory_bound})
+        option = sopt.SlurmHint({sopt.SlurmHint.SlurmHints.compute_bound})
+        other_option = sopt.SlurmHint({sopt.SlurmHint.SlurmHints.memory_bound})
 
-        self.assertRaises(ValueError, sopt.Hint.merge_requirements, option,
-                          other_option)
+        self.assertRaises(ValueError, sopt.SlurmHint.merge_requirements,
+                          option, other_option)
 
     def test_cli_opt(self):
         """
         Checks that the correct slurm cli option is generated.
         """
-        option = sopt.Hint({sopt.Hint.SlurmHints.compute_bound})
+        option = sopt.SlurmHint({sopt.SlurmHint.SlurmHints.compute_bound})
 
         self.assertEqual(option.to_slurm_cli_opt(), "--hint=compute_bound")
 
@@ -180,9 +186,9 @@ class TestHint(unittest.TestCase):
         """
         Checks that the correct slurm cli option is generated.
         """
-        option = sopt.Hint({
-            sopt.Hint.SlurmHints.compute_bound,
-            sopt.Hint.SlurmHints.nomultithread
+        option = sopt.SlurmHint({
+            sopt.SlurmHint.SlurmHints.compute_bound,
+            sopt.SlurmHint.SlurmHints.nomultithread
         })
 
         output_string = option.to_slurm_cli_opt()
@@ -199,7 +205,7 @@ class TestTime(unittest.TestCase):
         """
         Checks that we can correctly initialize a Time option.
         """
-        option = sopt.Time("6:3:1")
+        option = sopt.SlurmTime("6:3:1")
 
         self.assertEqual(option.timelimit, (0, 6, 3, 1))
 
@@ -207,11 +213,11 @@ class TestTime(unittest.TestCase):
         """
         Checks if timelimit options are correctly merged together.
         """
-        option = sopt.Time("6:3:1")
-        other_option = sopt.Time("3:3:1")
+        option = sopt.SlurmTime("6:3:1")
+        other_option = sopt.SlurmTime("3:3:1")
 
-        merged_option = sopt.Time.merge_requirements(option, other_option)
-        merged_option_swapped = sopt.Time.merge_requirements(
+        merged_option = sopt.SlurmTime.merge_requirements(option, other_option)
+        merged_option_swapped = sopt.SlurmTime.merge_requirements(
             other_option, option)
 
         self.assertEqual(merged_option.timelimit, (0, 3, 3, 1))
@@ -221,7 +227,7 @@ class TestTime(unittest.TestCase):
         """
         Checks that the correct slurm cli option is generated.
         """
-        option = sopt.Time("6:3:1")
+        option = sopt.SlurmTime("6:3:1")
 
         self.assertEqual(option.to_slurm_cli_opt(), "--time=6:03:01")
 
@@ -229,7 +235,7 @@ class TestTime(unittest.TestCase):
         """
         Checks that Time correctly generates slurm time specifiers.
         """
-        option = sopt.Time("1")
+        option = sopt.SlurmTime("1")
 
         self.assertEqual(option.to_slurm_time_format(), "1")
 
@@ -237,7 +243,7 @@ class TestTime(unittest.TestCase):
         """
         Checks that Time correctly generates slurm time specifiers.
         """
-        option = sopt.Time("1:2")
+        option = sopt.SlurmTime("1:2")
 
         self.assertEqual(option.to_slurm_time_format(), "1:02")
 
@@ -245,7 +251,7 @@ class TestTime(unittest.TestCase):
         """
         Checks that Time correctly generates slurm time specifiers.
         """
-        option = sopt.Time("4:1:2")
+        option = sopt.SlurmTime("4:1:2")
 
         self.assertEqual(option.to_slurm_time_format(), "4:01:02")
 
@@ -253,7 +259,7 @@ class TestTime(unittest.TestCase):
         """
         Checks that Time correctly generates slurm time specifiers.
         """
-        option = sopt.Time("30-10")
+        option = sopt.SlurmTime("30-10")
 
         self.assertEqual(option.to_slurm_time_format(), "30-10")
 
@@ -261,7 +267,7 @@ class TestTime(unittest.TestCase):
         """
         Checks that Time correctly generates slurm time specifiers.
         """
-        option = sopt.Time("30-10:8")
+        option = sopt.SlurmTime("30-10:8")
 
         self.assertEqual(option.to_slurm_time_format(), "30-10:08")
 
@@ -269,7 +275,7 @@ class TestTime(unittest.TestCase):
         """
         Checks that Time correctly generates slurm time specifiers.
         """
-        option = sopt.Time("30-10:8:2")
+        option = sopt.SlurmTime("30-10:8:2")
 
         self.assertEqual(option.to_slurm_time_format(), "30-10:08:02")
 
@@ -282,11 +288,11 @@ class TestSlurmOptionMerger(unittest.TestCase):
         """
         Checks that merging two lists with the same option merges the options.
         """
-        opt_list_1 = [sopt.CoresPerSocket(4)]
-        opt_list_2 = [sopt.CoresPerSocket(8)]
+        opt_list_1 = [sopt.SlurmCoresPerSocket(4)]
+        opt_list_2 = [sopt.SlurmCoresPerSocket(8)]
 
         merged_list = sopt.merge_slurm_options(opt_list_1, opt_list_2)
 
         self.assertEqual(len(merged_list), 1)
-        self.assertEqual(type(merged_list[0]), sopt.CoresPerSocket)
+        self.assertEqual(type(merged_list[0]), sopt.SlurmCoresPerSocket)
         self.assertEqual(merged_list[0].cores, 8)

@@ -32,7 +32,7 @@ from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
 from benchbuild.utils import db, run, unionfs, wrapping
-from benchbuild.utils.slurm_options import SlurmOption
+from benchbuild.utils.slurm_options import Requirement
 
 LOG = logging.getLogger(__name__)
 
@@ -126,9 +126,9 @@ class Project(metaclass=ProjectDecorator):
         container (benchbuild.utils.container.Container, optional):
             A uchroot compatible container that we can use for this project.
             Defaults to `benchbuild.utils.container.Gentoo`.
-        slurm_options (:obj:`list` of :obj:`SlurmOption`)
-            A list of specific options that should be passed on to slurm to
-            execute this :obj:`Project`.
+        requirements (:obj:`list` of :obj:`Requirement`)
+            A list of specific requirements that are used to configure the
+            execution environment.
         version (str, optional):
             A version information for this project. Defaults to `VERSION`.
         builddir (str, optional):
@@ -165,7 +165,7 @@ class Project(metaclass=ProjectDecorator):
     VERSION = None
     SRC_FILE = None
     CONTAINER = None
-    SLURM_OPTIONS: List[SlurmOption] = []
+    REQUIREMENTS: List[Requirement] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -195,13 +195,11 @@ class Project(metaclass=ProjectDecorator):
     group = attr.ib(
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
 
-    src_file = attr.ib(
-        default=attr.Factory(
-            lambda self: type(self).SRC_FILE, takes_self=True))
+    src_file = attr.ib(default=attr.Factory(lambda self: type(self).SRC_FILE,
+                                            takes_self=True))
 
-    container = attr.ib(
-        default=attr.Factory(
-            lambda self: type(self).CONTAINER, takes_self=True))
+    container = attr.ib(default=attr.Factory(lambda self: type(self).CONTAINER,
+                                             takes_self=True))
 
     version = attr.ib(
         default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
@@ -233,20 +231,17 @@ class Project(metaclass=ProjectDecorator):
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
-    builddir = attr.ib(default=attr.Factory(
-        lambda self: local.path(str(CFG["build_dir"])) /
-        "{}-{}".format(
-            self.experiment.name, self.id),
-        takes_self=True))
+    builddir = attr.ib(default=attr.Factory(lambda self: local.path(
+        str(CFG["build_dir"])) / "{}-{}".format(self.experiment.name, self.id),
+                                            takes_self=True))
 
-    run_f = attr.ib(
-        default=attr.Factory(
-            lambda self: local.path(self.builddir) / self.name,
-            takes_self=True))
+    run_f = attr.ib(default=attr.Factory(
+        lambda self: local.path(self.builddir) / self.name, takes_self=True))
 
-    compiler_extension = attr.ib(default=attr.Factory(
-        lambda self: ext_run.WithTimeout(
-            compiler.RunCompiler(self, self.experiment)), takes_self=True))
+    compiler_extension = attr.ib(
+        default=attr.Factory(lambda self: ext_run.WithTimeout(
+            compiler.RunCompiler(self, self.experiment)),
+                             takes_self=True))
 
     runtime_extension = attr.ib(default=None)
 
@@ -344,6 +339,7 @@ class Project(metaclass=ProjectDecorator):
             return [cls.VERSION]
         return ["unknown"]
 
+
 def __split_project_input__(project_input: str) -> Tuple[str, Optional[str]]:
     split_input = project_input.rsplit('@', maxsplit=1)
     first = split_input[0]
@@ -378,6 +374,7 @@ def populate(projects_to_filter=None,
     prjs = ProjectRegistry.projects
     if projects_to_filter:
         prjs = {}
+
         def single_version_impl(version):
             return lambda: [version]
 

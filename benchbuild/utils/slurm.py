@@ -109,15 +109,15 @@ def __save__(script_name: str, benchbuild, experiment,
     project_types = list(experiment.projects.values())
     if len(project_types) > 1:
         project_options = reduce(
-            lambda x, y: merge_slurm_options(x.SLURM_OPTIONS, y.SLURM_OPTIONS),
+            lambda x, y: merge_slurm_options(x.REQUIREMENTS, y.REQUIREMENTS),
             project_types)
     elif len(project_types) == 1:
-        project_options = project_types[0].SLURM_OPTIONS
+        project_options = project_types[0].REQUIREMENTS
     else:
         project_options = []
 
     slurm_options = merge_slurm_options(project_options,
-                                        experiment.SLURM_OPTIONS)
+                                        experiment.REQUIREMENTS)
     slurm_options = merge_slurm_options(slurm_options,
                                         get_slurm_options_from_config())
 

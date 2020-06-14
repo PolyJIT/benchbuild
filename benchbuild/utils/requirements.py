@@ -216,6 +216,62 @@ class SlurmHint(SlurmRequirement):
         return True
 
 
+def _convert_to_time_tuple(
+        time_specifier: str) -> tp.Tuple[int, int, int, int]:
+    """
+    Convert slurm time specifier to tuple.
+
+    Returns:
+        time tuple with (days, hours, minutes, seconds)
+
+    >>> _convert_to_time_tuple("4")
+    (0, 0, 4, 0)
+    >>> _convert_to_time_tuple("4:2")
+    (0, 0, 4, 2)
+    >>> _convert_to_time_tuple("8:4:2")
+    (0, 8, 4, 2)
+    >>> _convert_to_time_tuple("16-8")
+    (16, 8, 0, 0)
+    >>> _convert_to_time_tuple("16-8:4")
+    (16, 8, 4, 0)
+    >>> _convert_to_time_tuple("16-8:4:2")
+    (16, 8, 4, 2)
+    """
+    days = 0
+    hours = 0
+    minutes = 0
+    seconds = 0
+
+    if time_specifier.count('-'):
+        with_days = True
+        days = int(time_specifier.split('-')[0])
+        time_specifier = time_specifier.split('-')[1]
+    else:
+        with_days = False
+
+    num_colon = time_specifier.count(':')
+
+    if num_colon == 0:
+        if with_days:
+            hours = int(time_specifier)
+        else:
+            minutes = int(time_specifier)
+    elif num_colon == 1:
+        if with_days:
+            hours = int(time_specifier.split(':')[0])
+            minutes = int(time_specifier.split(':')[1])
+        else:
+            minutes = int(time_specifier.split(':')[0])
+            seconds = int(time_specifier.split(':')[1])
+    elif num_colon == 2:
+        hours = int(time_specifier.split(':')[0])
+        minutes = int(time_specifier.split(':')[1])
+        seconds = int(time_specifier.split(':')[2])
+
+    return (days, hours, minutes, seconds)
+
+
+@attr.s
 class SlurmTime(SlurmRequirement):
     """
     Set a limit on the total run time of the job allocation.
@@ -224,12 +280,8 @@ class SlurmTime(SlurmRequirement):
     time formats include "minutes", "minutes:seconds", "hours:minutes:seconds",
     "days-hours", "days-hours:minutes" and "days-hours:minutes:seconds".
     """
-    def __init__(self, time_specifier: str) -> None:
-        self.__timelimit = self._convert_to_time_tuple(time_specifier)
-
-    @property
-    def timelimit(self) -> tp.Tuple[int, int, int, int]:
-        return self.__timelimit
+    timelimit: tp.Tuple[int, int, int,
+                        int] = attr.ib(converter=_convert_to_time_tuple)
 
     def to_slurm_time_format(self) -> str:
         """
@@ -261,15 +313,6 @@ class SlurmTime(SlurmRequirement):
     def to_slurm_cli_opt(self) -> str:
         return f"--time={self.to_slurm_time_format()}"
 
-    def __str__(self) -> str:
-        return f"Timelimit: {self.timelimit}"
-
-    def __repr__(self) -> str:
-        return f"Time ({str(self)})"
-
-    def __lt__(self, other) -> bool:
-        return self.timelimit < other.timelimit
-
     @classmethod
     def merge_requirements(cls, lhs_option: 'SlurmTime',
                            rhs_option: 'SlurmTime') -> 'SlurmTime':
@@ -279,61 +322,6 @@ class SlurmTime(SlurmRequirement):
         if lhs_option < rhs_option:
             return copy.deepcopy(lhs_option)
         return copy.deepcopy(rhs_option)
-
-    @staticmethod
-    def _convert_to_time_tuple(
-            time_specifier: str) -> tp.Tuple[int, int, int, int]:
-        """
-        Convert slurm time specifier to tuple.
-
-        Returns:
-            time tuple with (days, hours, minutes, seconds)
-
-        >>> SlurmTime._convert_to_time_tuple("4")
-        (0, 0, 4, 0)
-        >>> SlurmTime._convert_to_time_tuple("4:2")
-        (0, 0, 4, 2)
-        >>> SlurmTime._convert_to_time_tuple("8:4:2")
-        (0, 8, 4, 2)
-        >>> SlurmTime._convert_to_time_tuple("16-8")
-        (16, 8, 0, 0)
-        >>> SlurmTime._convert_to_time_tuple("16-8:4")
-        (16, 8, 4, 0)
-        >>> SlurmTime._convert_to_time_tuple("16-8:4:2")
-        (16, 8, 4, 2)
-        """
-        days = 0
-        hours = 0
-        minutes = 0
-        seconds = 0
-
-        if time_specifier.count('-'):
-            with_days = True
-            days = int(time_specifier.split('-')[0])
-            time_specifier = time_specifier.split('-')[1]
-        else:
-            with_days = False
-
-        num_colon = time_specifier.count(':')
-
-        if num_colon == 0:
-            if with_days:
-                hours = int(time_specifier)
-            else:
-                minutes = int(time_specifier)
-        elif num_colon == 1:
-            if with_days:
-                hours = int(time_specifier.split(':')[0])
-                minutes = int(time_specifier.split(':')[1])
-            else:
-                minutes = int(time_specifier.split(':')[0])
-                seconds = int(time_specifier.split(':')[1])
-        elif num_colon == 2:
-            hours = int(time_specifier.split(':')[0])
-            minutes = int(time_specifier.split(':')[1])
-            seconds = int(time_specifier.split(':')[2])
-
-        return (days, hours, minutes, seconds)
 
 
 def merge_slurm_options(list_1: tp.List[Requirement],

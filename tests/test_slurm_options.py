@@ -68,6 +68,41 @@ class TestExclusive(unittest.TestCase):
         self.assertEqual(option.to_slurm_cli_opt(), "--exclusive")
 
 
+class TestNiceness(unittest.TestCase):
+    """
+    Checks if the Niceness option works correctly.
+    """
+    def test_init_niceness(self):
+        """
+        Checks that we can correctly initialize a Niceness option.
+        """
+        option = sopt.Niceness(42)
+
+        self.assertEqual(option.niceness, 42)
+
+    def test_merge_requirements(self):
+        """
+        Checks if niceness options are correctly merged together.
+        """
+        option = sopt.Niceness(4)
+        other_option = sopt.Niceness(8)
+
+        merged_option = sopt.Niceness.merge_requirements(option, other_option)
+        merged_option_swapped = sopt.Niceness.merge_requirements(
+            other_option, option)
+
+        self.assertEqual(merged_option.niceness, 4)
+        self.assertEqual(merged_option_swapped.niceness, 4)
+
+    def test_cli_opt(self):
+        """
+        Checks that the correct slurm cli option is generated.
+        """
+        option = sopt.Niceness(42)
+
+        self.assertEqual(option.to_slurm_cli_opt(), "--nice=42")
+
+
 class TestSlurmOptionMerger(unittest.TestCase):
     """
     Checks if slurm option list get merged correctly.

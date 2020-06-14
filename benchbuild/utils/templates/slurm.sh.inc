@@ -3,16 +3,12 @@
 #SBATCH -t "{{ timelimit }}"
 #SBATCH --ntasks {{ ntasks|default(1) }}
 #SBATCH --cpus-per-task {{ cpus|default(1) }}
-{% if no_multithreading %}
-#SBATCH --hint=nomultithread
-{% endif %}
 {% if max_running > 0 %}
 #SBATCH --array=0-{{ projects|length() - 1 }}%{{ max_running }}
 {% else %}
 #SBATCH --array=0-{{ projects|length() - 1 }}
 {% endif %}
 {# FIXME: Still requires support for max running #}
-#SBATCH --nice={{ nice }}
 {{ sbatch_options }}
 
 # List of available projects

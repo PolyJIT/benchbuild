@@ -21,8 +21,7 @@ import os
 import sys
 import textwrap
 import traceback
-from typing import (Any, ClassVar, TypeVar, Callable, List, overload,
-                    Type, Tuple, Dict, Union)
+import typing as tp
 from datetime import datetime
 
 import attr
@@ -36,14 +35,14 @@ from benchbuild.utils.cmd import mkdir, rm, rmdir
 
 LOG = logging.getLogger(__name__)
 
-ReturnType = TypeVar('ReturnType')
-ReturnTypeA = TypeVar('ReturnTypeA')
-ReturnTypeB = TypeVar('ReturnTypeB')
-DecoratedFunction = Callable[..., ReturnType]
-FunctionDecorator = Callable[[DecoratedFunction[ReturnTypeA]],
-                             DecoratedFunction[ReturnTypeB]]
+ReturnType = tp.TypeVar('ReturnType')
+ReturnTypeA = tp.TypeVar('ReturnTypeA')
+ReturnTypeB = tp.TypeVar('ReturnTypeB')
+DecoratedFunction = tp.Callable[..., ReturnType]
+FunctionDecorator = tp.Callable[[DecoratedFunction[ReturnTypeA]],
+                                DecoratedFunction[ReturnTypeB]]
 
-StepResultType = Union['StepResult', List['StepResult']]
+StepResultType = tp.Union['StepResult', tp.List['StepResult']]
 
 @enum.unique
 class StepResult(enum.IntEnum):
@@ -53,7 +52,7 @@ class StepResult(enum.IntEnum):
     CAN_CONTINUE = 2
     ERROR = 3
 
-StepResultList = List[StepResult]
+StepResultList = tp.List[StepResult]
 
 def step_has_failed(step_results, error_status=None):
     if not error_status:
@@ -72,7 +71,7 @@ def print_steps(steps):
 
 
 def to_step_result(
-        func: DecoratedFunction[Any]) -> DecoratedFunction[StepResultList]:
+        func: DecoratedFunction[tp.Any]) -> DecoratedFunction[StepResultList]:
     """Convert a function return to a list of StepResults.
 
     All Step subclasses automatically wrap the result of their
@@ -103,11 +102,11 @@ def to_step_result(
 def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
     """Prepends the output of `func` with the status."""
 
-    @overload
+    @tp.overload
     def wrapper(self: 'Step', indent: int) -> str:
         ...
 
-    @overload
+    @tp.overload
     def wrapper(self: 'Step') -> str:
         ...
 
@@ -128,7 +127,7 @@ def notify_step_begin_end(
     """Print the beginning and the end of a `func`."""
 
     @ft.wraps(func)
-    def wrapper(self: 'Step', *args: Any, **kwargs: Any) -> StepResultType:
+    def wrapper(self: 'Step', *args: tp.Any, **kwargs: tp.Any) -> StepResultType:
         """Wrapper stub."""
         cls = self.__class__
         on_step_begin = cls.ON_STEP_BEGIN
@@ -152,12 +151,12 @@ def log_before_after(
     """Log customized string before & after running func."""
 
     def func_decorator(
-            func: DecoratedFunction[List[StepResult]]
-    ) -> DecoratedFunction[List[StepResult]]:
+            func: DecoratedFunction[tp.List[StepResult]]
+    ) -> DecoratedFunction[tp.List[StepResult]]:
         """Wrapper stub."""
 
         @ft.wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> List[StepResult]:
+        def wrapper(*args: tp.Any, **kwargs: tp.Any) -> tp.List[StepResult]:
             """Wrapper stub."""
             LOG.info("\n%s - %s", name, desc)
             res = func(*args, **kwargs)
@@ -175,8 +174,9 @@ def log_before_after(
 class StepClass(type):
     """Decorate `steps` with logging and result conversion."""
 
-    def __new__(mcs: Type['StepClass'], name: str, bases: Tuple[type, ...],
-                attrs: Dict[str, Any]) -> Any:
+    def __new__(mcs: tp.Type['StepClass'], name: str,
+                bases: tp.Tuple[type, ...], attrs: tp.Dict[str,
+                                                           tp.Any]) -> tp.Any:
         if not 'NAME' in attrs:
             raise AttributeError(
                 f'{name} does not define a NAME class attribute.')
@@ -198,7 +198,7 @@ class StepClass(type):
         name_ = attrs['NAME']
         description_ = attrs['DESCRIPTION']
 
-        def base_attr(name: str) -> Any:
+        def base_attr(name: str) -> tp.Any:
             return attrs[name] if name in attrs else [
                 base.__dict__[name] for base in bases if name in base.__dict__
             ][0]
@@ -230,8 +230,8 @@ class Step(metaclass=StepClass):
     Raises:
         StopIteration: If we do not encapsulate more substeps.
     """
-    NAME: ClassVar[str] = ""
-    DESCRIPTION: ClassVar[str] = ""
+    NAME: tp.ClassVar[str] = ""
+    DESCRIPTION: tp.ClassVar[str] = ""
 
     ON_STEP_BEGIN = []
     ON_STEP_END = []
@@ -386,7 +386,7 @@ class Echo(Step):
         return StepResult.OK
 
 
-def run_any_child(child: Step) -> List[StepResult]:
+def run_any_child(child: Step) -> tp.List[StepResult]:
     """
     Execute child step.
 
@@ -409,7 +409,7 @@ class Any(Step):
     def __iter__(self):
         return self.actions.__iter__()
 
-    def __call__(self) -> List[StepResult]:
+    def __call__(self) -> tp.List[StepResult]:
         length = len(self.actions)
         cnt = 0
         results = [StepResult.OK]
@@ -472,7 +472,7 @@ class Experiment(Any):
         except sa.exc.InvalidRequestError as inv_req:
             LOG.error(inv_req)
 
-    def __run_children(self, num_processes: int) -> List[StepResult]:
+    def __run_children(self, num_processes: int) -> tp.List[StepResult]:
         results = []
         actions = self.actions
 
@@ -492,7 +492,7 @@ class Experiment(Any):
             results.append(StepResult.ERROR)
         return results
 
-    def __call__(self) -> List[StepResult]:
+    def __call__(self) -> tp.List[StepResult]:
         results = []
         session = None
         experiment, session = self.begin_transaction()

@@ -3,6 +3,7 @@ import typing as tp
 from enum import Enum
 import copy
 import abc
+import attr
 
 from benchbuild.settings import CFG
 
@@ -11,6 +12,7 @@ LOG = logging.getLogger(__name__)
 SlurmOptionSubType = tp.TypeVar("SlurmOptionSubType", bound='SlurmOption')
 
 
+@attr.s
 class SlurmOption:
     """
     Base class for Slurm options.
@@ -39,28 +41,18 @@ class SlurmOption:
         return type(lhs_option).merge_requirements(lhs_option, rhs_option)
 
 
+@attr.s
 class CoresPerSocket(SlurmOption):
     """
     Restrict node selection to nodes with at least the specified number of
     cores per socket. See additional information under -B option above when
     task/affinity plugin is enabled.
     """
-    def __init__(self, cores: int) -> None:
-        self.__cores = cores
-
-    @property
-    def cores(self) -> int:
-        """ Number of cores required per socket. """
-        return self.__cores
+    """ Number of cores required per socket. """
+    cores: int = attr.ib()
 
     def to_slurm_cli_opt(self) -> str:
         return f"--cores-per-socket={self.cores}"
-
-    def __str__(self) -> str:
-        return f"Cores {self.cores}"
-
-    def __repr__(self) -> str:
-        return f"CoresPerSocket (Cores: {self.cores})"
 
     @classmethod
     def merge_requirements(cls, lhs_option: 'CoresPerSocket',
@@ -94,6 +86,7 @@ class Exclusive(SlurmOption):
         return Exclusive()
 
 
+@attr.s
 class Niceness(SlurmOption):
     """
     Run the job with an adjusted scheduling priority within Slurm. With no
@@ -102,21 +95,10 @@ class Niceness(SlurmOption):
     range is +/- 2147483645. Only privileged users can specify a negative
     adjustment.
     """
-    def __init__(self, niceness: int) -> None:
-        self.__niceness = niceness
-
-    @property
-    def niceness(self) -> int:
-        return self.__niceness
+    niceness: int = attr.ib()
 
     def to_slurm_cli_opt(self) -> str:
         return f"--nice={self.niceness}"
-
-    def __str__(self) -> str:
-        return f"Nice: {self.niceness}"
-
-    def __repr__(self) -> str:
-        return f"Niceness (Nice: {self.niceness})"
 
     @classmethod
     def merge_requirements(cls, lhs_option: 'Niceness',
@@ -131,6 +113,7 @@ class Niceness(SlurmOption):
         return Niceness(min(lhs_option.niceness, rhs_option.niceness))
 
 
+@attr.s
 class Hint(SlurmOption):
     """
     Bind tasks according to application hints.
@@ -152,14 +135,9 @@ class Hint(SlurmOption):
         nomultithread = "nomultithread"
 
         def __str__(self) -> str:
-            return tp.cast(str, self.value)
+            return str(self.value)
 
-    def __init__(self, hints: tp.Set[SlurmHints]) -> None:
-        self.__hints = hints
-
-    @property
-    def hints(self) -> tp.Set[SlurmHints]:
-        return self.__hints
+    hints: tp.Set[SlurmHints] = attr.ib()
 
     def to_slurm_cli_opt(self) -> str:
         return f"--hint={','.join(map(str, self.hints))}"

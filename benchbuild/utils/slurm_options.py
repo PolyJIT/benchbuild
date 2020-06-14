@@ -2,7 +2,6 @@ import logging
 import typing as tp
 from enum import Enum
 import abc
-from enum import Enum
 
 from benchbuild.settings import CFG
 
@@ -77,13 +76,13 @@ class Exclusive(SlurmOption):
     allocation can not share nodes with other running jobs
     """
     def to_slurm_cli_opt(self) -> str:
-        return f"--exclusive"
+        return "--exclusive"
 
     def __str__(self) -> str:
-        return f"Run Exclusive"
+        return "Run Exclusive"
 
     def __repr__(self) -> str:
-        return f"Exclusive"
+        return "Exclusive"
 
     @classmethod
     def merge_requirements(cls, lhs_option: 'Exclusive',
@@ -142,7 +141,7 @@ class Hint(SlurmOption):
             in each socket, one thread per core.
         * [no]multithread
             [don't] use extra threads with in-core multi-threading which can
-            benefit communication intensive applications. Only supported with 
+            benefit communication intensive applications. Only supported with
             the task/affinity plugin.
     """
     class SlurmHints(Enum):
@@ -152,7 +151,7 @@ class Hint(SlurmOption):
         nomultithread = "nomultithread"
 
         def __str__(self) -> str:
-            return self.value
+            return tp.cast(str, self.value)
 
     def __init__(self, hints: tp.Set[SlurmHints]) -> None:
         self.__hints = hints
@@ -186,7 +185,7 @@ class Hint(SlurmOption):
         return Hint(combined_hints)
 
     @staticmethod
-    def __hints_not_mutually_exclusive(hints: tp.Set[SlurmHints]):
+    def __hints_not_mutually_exclusive(hints: tp.Set[SlurmHints]) -> bool:
         """
         Checks that a list of `SlurmHints` does not include mutally exclusive
         hints.
@@ -224,6 +223,10 @@ def merge_slurm_options(list_1: tp.List[SlurmOption],
 
 
 def get_slurm_options_from_config() -> tp.List[SlurmOption]:
+    """
+    Generates a list of `SlurmOptions` which are specified in the BenchBuild
+    config.
+    """
     slurm_options: tp.List[SlurmOption] = []
     if CFG['slurm']['exclusive']:
         slurm_options.append(Exclusive())

@@ -45,4 +45,4 @@ jobs:
         coverage report
 
     - name: Upload coverage report
-      run: codecov
+      uses: codecov/codecov-action@v1

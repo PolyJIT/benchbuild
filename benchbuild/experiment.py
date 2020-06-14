@@ -24,6 +24,7 @@ class HelloExperiment(Experiment):
 ```
 
 """
+from typing import List
 import collections
 import copy
 import uuid
@@ -35,6 +36,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
                                       Containerize, Echo, MakeBuildDir,
                                       RequireAll, Run)
+from benchbuild.utils.requirements import Requirement
 
 
 class ExperimentRegistry(type):
@@ -65,6 +67,9 @@ class Experiment(metaclass=ExperimentRegistry):
 
     Attributes:
         name (str): The name of the experiment, defaults to NAME
+        requirements (:obj:`list` of :obj:`Requirement`)
+            A list of specific requirements that are used to configure the
+            execution environment.
         projects (:obj:`list` of `benchbuild.project.Project`):
             A list of projects that is assigned to this experiment.
         id (str):
@@ -75,6 +80,7 @@ class Experiment(metaclass=ExperimentRegistry):
 
     NAME = None
     SCHEMA = None
+    REQUIREMENTS: List[Requirement] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
@@ -90,7 +96,7 @@ class Experiment(metaclass=ExperimentRegistry):
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
     projects = \
-        attr.ib(default=attr.Factory(list))
+        attr.ib(default=attr.Factory(dict))
 
     id = attr.ib()
 
@@ -211,7 +217,6 @@ class Experiment(metaclass=ExperimentRegistry):
 
 class Configuration:
     """Build a set of experiment actions out of a list of configurations."""
-
     def __init__(self, project=None, config=None):
         _project = copy.deepcopy(project)
         self.config = {}

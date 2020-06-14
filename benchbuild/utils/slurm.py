@@ -7,8 +7,9 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 import sys
-from typing import Iterable
+from typing import Iterable, List
 from pathlib import Path
+from functools import reduce
 
 from plumbum import local, TF
 
@@ -16,6 +17,8 @@ from benchbuild.settings import CFG
 from benchbuild.experiment import Experiment
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
+from benchbuild.utils.requirements import (merge_slurm_options,
+                                           get_slurm_options_from_config)
 
 LOG = logging.getLogger(__name__)
 
@@ -74,7 +77,8 @@ def __ld_library_path():
     return os.path.pathsep.join([benchbuild_path, host_path])
 
 
-def __save__(script_name, benchbuild, experiment, projects):
+def __save__(script_name: str, benchbuild, experiment,
+             projects: List[str]) -> str:
     """
     Dump a bash script that can be given to SLURM.
 
@@ -102,6 +106,20 @@ def __save__(script_name, benchbuild, experiment, projects):
         lstrip_blocks=True,
         loader=PackageLoader('benchbuild', 'utils/templates'))
     template = env.get_template('slurm.sh.inc')
+    project_types = list(experiment.projects.values())
+    if len(project_types) > 1:
+        project_options = reduce(
+            lambda x, y: merge_slurm_options(x.REQUIREMENTS, y.REQUIREMENTS),
+            project_types)
+    elif len(project_types) == 1:
+        project_options = project_types[0].REQUIREMENTS
+    else:
+        project_options = []
+
+    slurm_options = merge_slurm_options(project_options,
+                                        experiment.REQUIREMENTS)
+    slurm_options = merge_slurm_options(slurm_options,
+                                        get_slurm_options_from_config())
 
     with open(script_name, 'w') as slurm2:
         slurm2.write(
@@ -111,21 +129,19 @@ def __save__(script_name, benchbuild, experiment, projects):
                 clean_lockfile=str(CFG["slurm"]["node_dir"]) + \
                     ".clean-in-progress.lock",
                 cpus=int(CFG['slurm']['cpus_per_task']),
-                exclusive=bool(CFG['slurm']['exclusive']),
                 lockfile=str(CFG['slurm']["node_dir"]) + ".lock",
                 log=logs_dir.resolve() / str(experiment.id),
                 max_running=int(CFG['slurm']['max_running']),
                 name=experiment.name,
-                nice=int(CFG['slurm']['nice']),
                 nice_clean=int(CFG["slurm"]["nice_clean"]),
                 node_command=node_command,
-                no_multithreading=not CFG['slurm']['multithread'],
                 ntasks=1,
                 prefix=str(CFG["slurm"]["node_dir"]),
                 projects=projects,
                 slurm_account=str(CFG["slurm"]["account"]),
                 slurm_partition=str(CFG["slurm"]["partition"]),
-                timelimit=str(CFG['slurm']['timelimit']),
+                sbatch_options='\n'.join(
+                    [s_opt.to_option() for s_opt in slurm_options]),
             )
         )
 

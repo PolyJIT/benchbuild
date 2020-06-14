@@ -31,15 +31,20 @@ class EmptyExperiment(Experiment):
 
     def actions_for_project(self, project):
         del project
-        pass
 
 
 class FailAlways(a.Step):
+    NAME = "FAIL ALWAYS"
+    DESCRIPTION = "A Step that guarantees to fail."
+
     def __call__(self):
         raise ProcessExecutionError([], 1, "", "")
 
 
 class PassAlways(a.Step):
+    NAME = "PASS ALWAYS"
+    DESCRIPTION = "A Step that guarantees to succeed."
+
     def __call__(self):
         return a.StepResult.OK
 

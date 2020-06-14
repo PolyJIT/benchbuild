@@ -265,11 +265,11 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
 
 def with_git(
         repo: str,
-        target_dir: str = None,
+        target_dir: Optional[str] = None,
         limit: Optional[int] = None,
         refspec: str = "HEAD",
         clone: bool = True,
-        rev_list_args: List[str] = None,
+        rev_list_args: Optional[List[str]] = None,
         shallow_clone: bool = True,
         version_filter: Callable[[str], bool] = lambda version: True
 ) -> Callable[[AnyC], AnyC]:

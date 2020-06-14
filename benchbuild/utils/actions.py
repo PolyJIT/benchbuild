@@ -127,7 +127,8 @@ def notify_step_begin_end(
     """Print the beginning and the end of a `func`."""
 
     @ft.wraps(func)
-    def wrapper(self: 'Step', *args: tp.Any, **kwargs: tp.Any) -> StepResultType:
+    def wrapper(self: 'Step', *args: tp.Any,
+                **kwargs: tp.Any) -> StepResultType:
         """Wrapper stub."""
         cls = self.__class__
         on_step_begin = cls.ON_STEP_BEGIN

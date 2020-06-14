@@ -223,18 +223,19 @@ def _convert_to_time_tuple(
     Returns:
         time tuple with (days, hours, minutes, seconds)
 
-    >>> _convert_to_time_tuple("4")
-    (0, 0, 4, 0)
-    >>> _convert_to_time_tuple("4:2")
-    (0, 0, 4, 2)
-    >>> _convert_to_time_tuple("8:4:2")
-    (0, 8, 4, 2)
-    >>> _convert_to_time_tuple("16-8")
-    (16, 8, 0, 0)
-    >>> _convert_to_time_tuple("16-8:4")
-    (16, 8, 4, 0)
-    >>> _convert_to_time_tuple("16-8:4:2")
-    (16, 8, 4, 2)
+    Examples:
+        >>> _convert_to_time_tuple("4")
+        (0, 0, 4, 0)
+        >>> _convert_to_time_tuple("4:2")
+        (0, 0, 4, 2)
+        >>> _convert_to_time_tuple("8:4:2")
+        (0, 8, 4, 2)
+        >>> _convert_to_time_tuple("16-8")
+        (16, 8, 0, 0)
+        >>> _convert_to_time_tuple("16-8:4")
+        (16, 8, 4, 0)
+        >>> _convert_to_time_tuple("16-8:4:2")
+        (16, 8, 4, 2)
     """
     days = 0
     hours = 0

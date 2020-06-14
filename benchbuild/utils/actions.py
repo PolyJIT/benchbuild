@@ -21,7 +21,7 @@ import os
 import sys
 import textwrap
 import traceback
-from typing import (Any, ClassVar, TypeVar, Callable, List, Iterable, overload,
+from typing import (Any, ClassVar, TypeVar, Callable, List, overload,
                     Type, Tuple, Dict, Union)
 from datetime import datetime
 
@@ -123,7 +123,7 @@ def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
 
 
 def notify_step_begin_end(
-    func: DecoratedFunction[StepResultList]
+        func: DecoratedFunction[StepResultList]
 ) -> DecoratedFunction[StepResultList]:
     """Print the beginning and the end of a `func`."""
 
@@ -152,7 +152,7 @@ def log_before_after(
     """Log customized string before & after running func."""
 
     def func_decorator(
-        func: DecoratedFunction[List[StepResult]]
+            func: DecoratedFunction[List[StepResult]]
     ) -> DecoratedFunction[List[StepResult]]:
         """Wrapper stub."""
 

@@ -63,7 +63,7 @@ class SlurmRequirement(Requirement):
 
     def to_slurm_opt(self) -> str:
         """
-        Converst slurm option into a script usable option string, i.e., bash
+        Convert slurm option into a script usable option string, i.e., bash
         #SBATCH option line.
         """
         return f"#SBATCH {self.to_slurm_cli_opt()}"
@@ -71,7 +71,7 @@ class SlurmRequirement(Requirement):
     @abc.abstractmethod
     def to_slurm_cli_opt(self) -> str:
         """
-        Converst slurm option to command line string.
+        Convert slurm option to command line string.
         """
 
 
@@ -79,8 +79,8 @@ class SlurmRequirement(Requirement):
 class SlurmCoresPerSocket(SlurmRequirement):
     """
     Restrict node selection to nodes with at least the specified number of
-    cores per socket. See additional information under -B option above when
-    task/affinity plugin is enabled.
+    cores per socket. See additional information under -B option in the slurm
+    documentation. Only works when task/affinity plugin is enabled.
     """
     cores: int = attr.ib()
 
@@ -99,8 +99,7 @@ class SlurmCoresPerSocket(SlurmRequirement):
 
 class SlurmExclusive(SlurmRequirement):
     """
-    The job allocation can not share nodes with other running jobsThe job
-    allocation can not share nodes with other running jobs
+    The job allocation can not share nodes with other running jobs.
     """
     def to_slurm_cli_opt(self) -> str:
         return "--exclusive"

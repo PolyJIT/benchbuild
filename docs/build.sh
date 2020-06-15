@@ -13,7 +13,7 @@ echo
 mkdir -p "$BUILDROOT"
 [ -d "$BUILDROOT" ] || die "could not create BUILDROOT"
 
-pdoc3 --html -c show_type_annotations=True -o "$BUILDROOT" benchbuild
+portray as_html -o "$BUILDROOT"
 
 echo
 echo "Documentation built in: $BUILDROOT"

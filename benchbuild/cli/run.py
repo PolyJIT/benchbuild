@@ -6,6 +6,7 @@ This subcommand executes experiments on a set of user-controlled projects.
 See the output of benchbuild run --help for more information.
 """
 import logging
+import sys
 import time
 
 from plumbum import cli
@@ -114,7 +115,7 @@ class BenchBuildRun(cli.Application):
         ngn.print_plan()
 
         if self.pretend:
-            exit(0)
+            sys.exit(0)
 
         if self.show_progress:
             pg_bar = type(self).setup_progress(CFG, num_actions)

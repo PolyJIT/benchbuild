@@ -1,5 +1,9 @@
 name: Build Documentation
-on: [push]
+on:
+  push:
+    branches:
+      - master
+      - doc/deploy-docs-to-ghpages
 jobs:
   doc:
     name: Deploy documentation

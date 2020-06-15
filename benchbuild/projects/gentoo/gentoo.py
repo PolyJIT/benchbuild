@@ -52,8 +52,8 @@ class GentooGroup(project.Project):
             _benchbuild("run", "-E", self.experiment.name, project_id)
 
     def compile(self):
-        package_atom = "{domain}/{name}".format(
-            domain=self.domain, name=self.name)
+        package_atom = "{domain}/{name}".format(domain=self.domain,
+                                                name=self.name)
 
         LOG.debug('Installing dependencies.')
         emerge(package_atom, '--onlydeps', env=self.emerge_env)
@@ -322,8 +322,8 @@ def setup_benchbuild():
 def __upgrade_from_pip(venv_dir):
     LOG.debug("Upgrading from pip")
     uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
-    uchroot.uretry(uchrt_cmd[venv_dir / "bin" /
-                             "pip3", "install", "--upgrade", "benchbuild"])
+    uchroot.uretry(uchrt_cmd[venv_dir / "bin" / "pip3", "install", "--upgrade",
+                             "benchbuild"])
 
 
 def __mount_source(src_dir):

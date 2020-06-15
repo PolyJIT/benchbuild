@@ -5,10 +5,8 @@ from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, unzip
 
 
-@download.with_wget({
-    '3080900':
-    'http://www.sqlite.org/2015/sqlite-amalgamation-3080900.zip'
-})
+@download.with_wget(
+    {'3080900': 'http://www.sqlite.org/2015/sqlite-amalgamation-3080900.zip'})
 class SQLite3(project.Project):
     """ SQLite3 """
 

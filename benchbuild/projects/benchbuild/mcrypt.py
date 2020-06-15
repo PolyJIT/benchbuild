@@ -8,9 +8,8 @@ from benchbuild.utils.settings import get_number_of_jobs
 
 
 @download.with_wget({
-    "2.6.8":
-    'http://sourceforge.net/'
-    'projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz'
+    "2.6.8": 'http://sourceforge.net/'
+             'projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz'
 })
 class MCrypt(project.Project):
     """ MCrypt benchmark """
@@ -74,19 +73,17 @@ class MCrypt(project.Project):
             lib_dir = builddir / "lib"
             inc_dir = builddir / "include"
             env = CFG["env"].value
-            mod_env = dict(
-                CC=_cc,
-                CXX=_cxx,
-                LD_LIBRARY_PATH=path.list_to_path(
-                    [str(lib_dir)] + env.get("LD_LIBRARY_PATH", [])),
-                LDFLAGS="-L" + str(lib_dir),
-                CFLAGS="-I" + str(inc_dir))
+            mod_env = dict(CC=_cc,
+                           CXX=_cxx,
+                           LD_LIBRARY_PATH=path.list_to_path(
+                               [str(lib_dir)] + env.get("LD_LIBRARY_PATH", [])),
+                           LDFLAGS="-L" + str(lib_dir),
+                           CFLAGS="-I" + str(inc_dir))
             env.update(mod_env)
             with local.env(**env):
-                _configure("--disable-dependency-tracking",
-                           "--enable-static", "--disable-shared",
-                           "--with-libmcrypt=" +
-                           builddir, "--with-libmhash=" + builddir)
+                _configure("--disable-dependency-tracking", "--enable-static",
+                           "--disable-shared", "--with-libmcrypt=" + builddir,
+                           "--with-libmhash=" + builddir)
             _make("-j", get_number_of_jobs(CFG))
 
     def run_tests(self):

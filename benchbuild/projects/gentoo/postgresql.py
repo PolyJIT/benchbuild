@@ -66,9 +66,10 @@ class Postgresql(GentooGroup):
                 sleep(3)
                 postgres_root = Process(pid=postgres.pid)
                 real_postgres = [
-                    c.pid for c in postgres_root.children(True)
-                    if c.name() == 'postgres.bin'
-                    and c.parent().name() != 'postgres.bin'
+                    c.pid
+                    for c in postgres_root.children(True)
+                    if c.name() == 'postgres.bin' and
+                    c.parent().name() != 'postgres.bin'
                 ]
                 try:
                     _createdb()

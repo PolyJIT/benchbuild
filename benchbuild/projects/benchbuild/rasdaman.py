@@ -34,9 +34,9 @@ class Rasdaman(project.Project):
             _configure = run.watch(configure)
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                _configure("--with-pic", "--enable-static",
-                           "--disable-debug", "--with-gnu-ld",
-                           "--without-ld-shared", "--without-libtool")
+                _configure("--with-pic", "--enable-static", "--disable-debug",
+                           "--with-gnu-ld", "--without-ld-shared",
+                           "--without-libtool")
                 _make = run.watch(make)
                 _make("-j", get_number_of_jobs(CFG))
 
@@ -46,9 +46,8 @@ class Rasdaman(project.Project):
             _configure = run.watch(configure)
 
             with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                _configure("--without-debug-symbols",
-                           "--enable-benchmark", "--with-static-libs",
-                           "--disable-java", "--with-pic",
+                _configure("--without-debug-symbols", "--enable-benchmark",
+                           "--with-static-libs", "--disable-java", "--with-pic",
                            "--disable-debug", "--without-docs")
             _make = run.watch(make)
             _make("clean", "all", "-j", get_number_of_jobs(CFG))

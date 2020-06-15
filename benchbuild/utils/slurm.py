@@ -7,18 +7,18 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 import sys
-from typing import Iterable, List
-from pathlib import Path
 from functools import reduce
+from pathlib import Path
+from typing import Iterable, List
 
-from plumbum import local, TF
+from plumbum import TF, local
 
-from benchbuild.settings import CFG
 from benchbuild.experiment import Experiment
+from benchbuild.settings import CFG
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.requirements import (merge_slurm_options,
-                                           get_slurm_options_from_config)
+from benchbuild.utils.requirements import (get_slurm_options_from_config,
+                                           merge_slurm_options)
 
 LOG = logging.getLogger(__name__)
 
@@ -56,10 +56,10 @@ def __expand_project_versions__(experiment: Experiment) -> Iterable[str]:
     for _, project_type in project_types.items():
         for version in experiment.sample(project_type, project_type.versions()):
             project = project_type(experiment, version=version)
-            expanded.append("{name}-{group}@{version}".format(
-                name=project.name,
-                group=project.group,
-                version=project.version))
+            expanded.append(
+                "{name}-{group}@{version}".format(name=project.name,
+                                                  group=project.group,
+                                                  version=project.version))
     return expanded
 
 
@@ -101,10 +101,9 @@ def __save__(script_name: str, benchbuild, experiment,
         logs_dir.mkdir()
 
     node_command = str(benchbuild["-E", experiment.name, "$_project"])
-    env = Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    env = Environment(trim_blocks=True,
+                      lstrip_blocks=True,
+                      loader=PackageLoader('benchbuild', 'utils/templates'))
     template = env.get_template('slurm.sh.inc')
     project_types = list(experiment.projects.values())
     if len(project_types) > 1:

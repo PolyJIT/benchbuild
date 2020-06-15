@@ -4,10 +4,10 @@ import sys
 import typing as t
 from contextlib import contextmanager
 
+import attr
 from plumbum import TEE, local
 from plumbum.commands import ProcessExecutionError
 
-import attr
 from benchbuild import settings, signals
 
 CFG = settings.CFG
@@ -312,6 +312,7 @@ def watch(command):
     Args:
         command: The plumbumb command to execute.
     """
+
     def f(*args, retcode=0):
         final_command = command[args]
         return final_command & TEE(retcode=retcode)

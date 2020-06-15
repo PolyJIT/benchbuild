@@ -5,10 +5,8 @@ from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@download.with_wget({
-    '3.4.3':
-    'https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz'
-})
+@download.with_wget(
+    {'3.4.3': 'https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz'})
 class Python(project.Project):
     """ python benchmarks """
 

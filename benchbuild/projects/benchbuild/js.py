@@ -5,15 +5,14 @@ from plumbum import local
 from benchbuild import project
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, download, run, wrapping
-from benchbuild.utils.settings import get_number_of_jobs
 from benchbuild.utils.cmd import make, mkdir, tar
+from benchbuild.utils.settings import get_number_of_jobs
 
 
-@download.with_git(
-    "https://github.com/mozilla/gecko-dev.git",
-    target_dir="gecko-dev.git",
-    clone=False,
-    limit=5)
+@download.with_git("https://github.com/mozilla/gecko-dev.git",
+                   target_dir="gecko-dev.git",
+                   clone=False,
+                   limit=5)
 class SpiderMonkey(project.Project):
     """
     SpiderMonkey requires a legacy version of autoconf: autoconf-2.13
@@ -35,11 +34,10 @@ class SpiderMonkey(project.Project):
         clang_cxx = compiler.cxx(self)
         with local.cwd(js_dir):
             make_src_pkg = local["./make-source-package.sh"]
-            with local.env(
-                    DIST=self.builddir,
-                    MOZJS_MAJOR_VERSION=0,
-                    MOZJS_MINOR_VERSION=0,
-                    MOZJS_PATCH_VERSION=0):
+            with local.env(DIST=self.builddir,
+                           MOZJS_MAJOR_VERSION=0,
+                           MOZJS_MINOR_VERSION=0,
+                           MOZJS_PATCH_VERSION=0):
                 make_src_pkg()
 
         mozjs_dir = local.path("mozjs-0.0.0")

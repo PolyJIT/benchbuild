@@ -24,11 +24,11 @@ class HelloExperiment(Experiment):
 ```
 
 """
-from typing import List
 import collections
 import copy
 import uuid
 from abc import abstractmethod
+from typing import List
 
 import attr
 
@@ -217,6 +217,7 @@ class Experiment(metaclass=ExperimentRegistry):
 
 class Configuration:
     """Build a set of experiment actions out of a list of configurations."""
+
     def __init__(self, project=None, config=None):
         _project = copy.deepcopy(project)
         self.config = {}

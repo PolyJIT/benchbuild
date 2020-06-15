@@ -44,6 +44,7 @@ FunctionDecorator = tp.Callable[[DecoratedFunction[ReturnTypeA]],
 
 StepResultType = tp.Union['StepResult', tp.List['StepResult']]
 
+
 @enum.unique
 class StepResult(enum.IntEnum):
     """Result type for action results."""
@@ -52,7 +53,9 @@ class StepResult(enum.IntEnum):
     CAN_CONTINUE = 2
     ERROR = 3
 
+
 StepResultList = tp.List[StepResult]
+
 
 def step_has_failed(step_results, error_status=None):
     if not error_status:
@@ -99,6 +102,7 @@ def to_step_result(
 
     return wrapper
 
+
 def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
     """Prepends the output of `func` with the status."""
 
@@ -122,7 +126,7 @@ def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
 
 
 def notify_step_begin_end(
-        func: DecoratedFunction[StepResultList]
+    func: DecoratedFunction[StepResultList]
 ) -> DecoratedFunction[StepResultList]:
     """Print the beginning and the end of a `func`."""
 
@@ -152,7 +156,7 @@ def log_before_after(
     """Log customized string before & after running func."""
 
     def func_decorator(
-            func: DecoratedFunction[tp.List[StepResult]]
+        func: DecoratedFunction[tp.List[StepResult]]
     ) -> DecoratedFunction[tp.List[StepResult]]:
         """Wrapper stub."""
 
@@ -188,13 +192,11 @@ class StepClass(type):
 
         base_has_call = any([hasattr(bt, '__call__') for bt in bases])
         if not (base_has_call or '__call__' in attrs):
-            raise AttributeError(
-                f'{name} does not define a __call__ method.')
+            raise AttributeError(f'{name} does not define a __call__ method.')
 
         base_has_str = any([hasattr(bt, '__call__') for bt in bases])
         if not (base_has_str or '__str__' in attrs):
-            raise AttributeError(
-                f'{name} does not define a __str__ method.')
+            raise AttributeError(f'{name} does not define a __str__ method.')
 
         name_ = attrs['NAME']
         description_ = attrs['DESCRIPTION']
@@ -217,7 +219,6 @@ class StepClass(type):
         attrs['__str__'] = prepend_status(original_str)
 
         return super(StepClass, mcs).__new__(mcs, name, bases, attrs)
-
 
 
 @attr.s(cmp=False)
@@ -314,8 +315,9 @@ class Clean(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Clean the directory: {1}".format(
-                self.obj.name, self.obj.builddir), indent * " ")
+            "* {0}: Clean the directory: {1}".format(self.obj.name,
+                                                     self.obj.builddir),
+            indent * " ")
 
 
 class MakeBuildDir(Step):
@@ -379,8 +381,7 @@ class Echo(Step):
     message = attr.ib(default="")
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent("* echo: {0}".format(self.message),
-                               indent * " ")
+        return textwrap.indent("* echo: {0}".format(self.message), indent * " ")
 
     def __call__(self) -> StepResultType:
         LOG.info(self.message)
@@ -544,11 +545,10 @@ class RequireAll(Step):
                 results.append(StepResult.ERROR)
                 raise
             except OSError:
-                LOG.error(
-                    "Exception in step #%d: %s",
-                    i,
-                    str(action),
-                    exc_info=sys.exc_info())
+                LOG.error("Exception in step #%d: %s",
+                          i,
+                          str(action),
+                          exc_info=sys.exc_info())
                 results.append(StepResult.ERROR)
 
             if StepResult.ERROR in results:
@@ -594,8 +594,8 @@ class Containerize(RequireAll):
                                    indent * " ")
 
         if self.requires_redirect():
-            return textwrap.indent(
-                "* Continue inside container:\n" + sub_actns, indent * " ")
+            return textwrap.indent("* Continue inside container:\n" + sub_actns,
+                                   indent * " ")
 
         return textwrap.indent("* Running without container:\n" + sub_actns,
                                indent * " ")

@@ -58,12 +58,13 @@ class Report(metaclass=ReportRegistry):
         new_self = super(Report, cls).__new__(cls)
         if not cls.SUPPORTED_EXPERIMENTS:
             raise AttributeError(
-                "{0} @ {1} does not define a SUPPORTED_EXPERIMENTS attribute"
-                .format(cls.__name__, cls.__module__))
+                "{0} @ {1} does not define a SUPPORTED_EXPERIMENTS attribute".
+                format(cls.__name__, cls.__module__))
 
         if cls.NAME is None:
-            raise AttributeError("{0} @ {1} does not define a NAME attribute"
-                                 .format(cls.__name__, cls.__module__))
+            raise AttributeError(
+                "{0} @ {1} does not define a NAME attribute".format(
+                    cls.__name__, cls.__module__))
         new_self.name = cls.NAME
         return new_self
 

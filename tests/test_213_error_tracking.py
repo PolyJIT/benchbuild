@@ -2,12 +2,12 @@
 Test issue 213: Wrong error tracking for failed commands
 """
 import unittest
-import attr
 
+import attr
 from plumbum import ProcessExecutionError
 
-from benchbuild import project as prj
 from benchbuild import experiment
+from benchbuild import project as prj
 from benchbuild.utils import actions as a
 from benchbuild.utils import tasks
 

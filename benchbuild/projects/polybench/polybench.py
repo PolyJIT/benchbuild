@@ -43,7 +43,7 @@ def get_dump_arrays_output(data):
 
 @download.with_wget({
     "4.2":
-    "http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz"
+        "http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz"
 })
 class PolyBenchGroup(project.Project):
     DOMAIN = 'polybench'
@@ -134,6 +134,7 @@ class PolyBenchGroup(project.Project):
                utils_dir / "polybench.c", src_file, "-lm", "-o", self.name)
 
     def run_tests(self):
+
         def filter_stderr(stderr_raw, stderr_filtered):
             """Extract dump_arrays_output from stderr."""
             with open(stderr_raw, 'r') as stderr:

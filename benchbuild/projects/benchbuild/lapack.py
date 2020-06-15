@@ -49,9 +49,8 @@ class Lapack(project.Project):
             with open("make.inc", 'w') as makefile:
                 content = [
                     "SHELL     = /bin/sh\n", "PLAT      = _LINUX\n",
-                    "CC        = " + str(clang) + "\n",
-                    "CXX       = " + str(clang_cxx) + "\n",
-                    "CFLAGS    = -I$(TOPDIR)/INCLUDE\n",
+                    "CC        = " + str(clang) + "\n", "CXX       = " +
+                    str(clang_cxx) + "\n", "CFLAGS    = -I$(TOPDIR)/INCLUDE\n",
                     "LOADER    = " + str(clang) + "\n", "LOADOPTS  = \n",
                     "NOOPT     = -O0 -I$(TOPDIR)/INCLUDE\n",
                     "DRVCFLAGS = $(CFLAGS)\n", "F2CCFLAGS = $(CFLAGS)\n",

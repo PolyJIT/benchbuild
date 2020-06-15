@@ -25,35 +25,32 @@ class BenchBuildRun(cli.Application):
     experiment_names = []
     group_names = None
 
-    test_full = cli.Flag(
-        ["-F", "--full"],
-        help="Test all experiments for the project",
-        default=False)
+    test_full = cli.Flag(["-F", "--full"],
+                         help="Test all experiments for the project",
+                         default=False)
 
-    @cli.switch(
-        ["-E", "--experiment"],
-        str,
-        list=True,
-        help="Specify experiments to run")
+    @cli.switch(["-E", "--experiment"],
+                str,
+                list=True,
+                help="Specify experiments to run")
     def set_experiments(self, names):
         self.experiment_names = names
 
-    @cli.switch(
-        ["-D", "--description"],
-        str,
-        help="A description for this experiment run")
+    @cli.switch(["-D", "--description"],
+                str,
+                help="A description for this experiment run")
     def set_experiment_tag(self, description):
         CFG["experiment_description"] = description
 
-    show_progress = cli.Flag(
-        ["--disable-progress"], help="Disable progress bar", default=True)
+    show_progress = cli.Flag(["--disable-progress"],
+                             help="Disable progress bar",
+                             default=True)
 
-    @cli.switch(
-        ["-G", "--group"],
-        str,
-        list=True,
-        requires=["--experiment"],
-        help="Run a group of projects under the given experiments")
+    @cli.switch(["-G", "--group"],
+                str,
+                list=True,
+                requires=["--experiment"],
+                help="Run a group of projects under the given experiments")
     def set_group(self, groups):
         self.group_names = groups
 
@@ -70,13 +67,12 @@ class BenchBuildRun(cli.Application):
         Returns:
             The configured progress bar.
         """
-        pg_bar = progress.ProgressBar(
-            width=80,
-            pg_char='|',
-            length=num_actions,
-            has_output=int(cfg["verbosity"]) > 0,
-            body=True,
-            timer=False)
+        pg_bar = progress.ProgressBar(width=80,
+                                      pg_char='|',
+                                      length=num_actions,
+                                      has_output=int(cfg["verbosity"]) > 0,
+                                      body=True,
+                                      timer=False)
 
         def on_step_end(step, func):
             del step, func
@@ -150,5 +146,6 @@ Summary:
 {num_failed} actions failed to execute.
 
 This run took: {elapsed_time:8.3f} seconds.
-    """.format(
-        num_total=num_actions, num_failed=num_failed, elapsed_time=duration))
+    """.format(num_total=num_actions,
+               num_failed=num_failed,
+               elapsed_time=duration))

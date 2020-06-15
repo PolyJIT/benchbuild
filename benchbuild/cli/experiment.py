@@ -31,6 +31,7 @@ class BBExperimentView(cli.Application):
 
 
 class MenuButton(urwid.Button):
+
     def __init__(self, caption, callback):
         super(MenuButton, self).__init__("")
         urwid.connect_signal(self, 'click', callback)
@@ -40,6 +41,7 @@ class MenuButton(urwid.Button):
 
 
 class SubMenu(urwid.WidgetWrap):
+
     def __init__(self, caption, choices, top):
         super(SubMenu, self).__init__(
             MenuButton([caption, "\N{HORIZONTAL ELLIPSIS}"], self.open_menu))
@@ -58,6 +60,7 @@ class SubMenu(urwid.WidgetWrap):
 
 
 class Choice(urwid.WidgetWrap):
+
     def __init__(self, caption, payload, top):
         super(Choice, self).__init__(MenuButton(caption, self.item_chosen))
         self.caption = caption
@@ -89,6 +92,7 @@ class Choice(urwid.WidgetWrap):
 
 
 class HorizontalBoxes(urwid.Columns):
+
     def __init__(self):
         super(HorizontalBoxes, self).__init__([], dividechars=1)
 
@@ -103,8 +107,9 @@ class HorizontalBoxes(urwid.Columns):
         }
         if self.contents:
             del self.contents[self.focus_position + 1:]
-        self.contents.append((urwid.AttrMap(box, 'options', focus_map),
-                              self.options('given', 80)))
+        self.contents.append(
+            (urwid.AttrMap(box, 'options',
+                           focus_map), self.options('given', 80)))
         self.focus_position = len(self.contents) - 1
 
 
@@ -113,6 +118,7 @@ class BBExperimentShow(cli.Application):
     """Show completed experiments."""
 
     def main(self):
+
         def maybe_exit(key):
             if key in ('q', 'Q'):
                 raise urwid.ExitMainLoop()
@@ -130,19 +136,17 @@ class BBExperimentShow(cli.Application):
         # yapf: enable
         top = HorizontalBoxes()
         top.open_box(refresh_root_window(top))
-        loop = urwid.MainLoop(
-            urwid.Filler(top, 'top', height=48),
-            palette=palette,
-            unhandled_input=maybe_exit)
+        loop = urwid.MainLoop(urwid.Filler(top, 'top', height=48),
+                              palette=palette,
+                              unhandled_input=maybe_exit)
         loop.run()
 
 
 def get_template():
     from jinja2 import Environment, PackageLoader
-    env = Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    env = Environment(trim_blocks=True,
+                      lstrip_blocks=True,
+                      loader=PackageLoader('benchbuild', 'utils/templates'))
     return env.get_template('experiment_show.txt.inc')
 
 
@@ -150,31 +154,29 @@ def render_experiment(_experiment):
     template = get_template()
     sess = schema.Session()
 
-    return template.render(
-        name=_experiment.name,
-        description=_experiment.description,
-        start_date=_experiment.begin,
-        end_date=_experiment.end,
-        id=_experiment.id,
-        num_completed_runs=get_completed_runs(sess, _experiment),
-        num_failed_runs=get_failed_runs(sess, _experiment))
+    return template.render(name=_experiment.name,
+                           description=_experiment.description,
+                           start_date=_experiment.begin,
+                           end_date=_experiment.end,
+                           id=_experiment.id,
+                           num_completed_runs=get_completed_runs(
+                               sess, _experiment),
+                           num_failed_runs=get_failed_runs(sess, _experiment))
 
 
 def refresh_root_window(root):
     session = schema.Session()
     all_db_exps = experiments_from_db(session)
-    menu_top = SubMenu(
-        'Experiments in database', [
-            SubMenu(
-                "{name} - {desc}".format(
-                    name=elem.name, desc=elem.description), [
-                        urwid.Text(render_experiment(elem)),
-                        urwid.Divider(),
-                        Choice("Delete", top=root, payload=elem)
-                    ],
+    menu_top = SubMenu('Experiments in database', [
+        SubMenu("{name} - {desc}".format(name=elem.name, desc=elem.description),
+                [
+                    urwid.Text(render_experiment(elem)),
+                    urwid.Divider(),
+                    Choice("Delete", top=root, payload=elem)
+                ],
                 top=root) for elem in all_db_exps
-        ],
-        top=root)
+    ],
+                       top=root)
     return menu_top.menu
 
 

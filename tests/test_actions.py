@@ -50,6 +50,7 @@ class PassAlways(a.Step):
 
 
 class ActionsTestCase(unittest.TestCase):
+
     def test_for_all_pass(self):
         ep = EmptyProject(EmptyExperiment())
         actn = a.RequireAll(actions=[PassAlways(ep)])

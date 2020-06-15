@@ -42,11 +42,10 @@ class RunCompiler(base.Extension):
             run_info = _run()
             if self.config:
                 LOG.info(
-                    yaml.dump(
-                        self.config,
-                        width=40,
-                        indent=4,
-                        default_flow_style=False))
+                    yaml.dump(self.config,
+                              width=40,
+                              indent=4,
+                              default_flow_style=False))
                 db.persist_config(run_info.db_run, run_info.session,
                                   self.config)
 

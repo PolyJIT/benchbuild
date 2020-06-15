@@ -1,5 +1,6 @@
-import pytest
 import uuid
+
+import pytest
 
 from benchbuild.utils.settings import Configuration
 
@@ -66,9 +67,7 @@ def test_representation(bb):
     bb['str'] = {'default': 'test'}
     assert repr(bb['str']) == 'BB_STR=test'
 
-    bb['bool'] = {
-        'default': True
-    }
+    bb['bool'] = {'default': True}
     assert repr(bb['bool']) == 'BB_BOOL=true'
 
     bb['dict'] = {'default': {'test': True}}

@@ -151,7 +151,6 @@ def linux_distribution_major():
     return None
 
 
-
 def install_package(pkg_name):
     if not bool(CFG['bootstrap']['install']):
         return False

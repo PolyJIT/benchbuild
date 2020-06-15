@@ -1,7 +1,7 @@
 """Test benchbuild's runtime wrappers."""
+import os
 import tempfile
 import unittest
-import os
 
 from plumbum import local
 from plumbum.cmd import rm
@@ -32,6 +32,7 @@ class EmptyProject(project.Project):
 
 
 class WrapperTests(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.tmp_dir = tempfile.mkdtemp()
@@ -43,12 +44,12 @@ class WrapperTests(unittest.TestCase):
             rm("-r", cls.tmp_dir)
 
     def setUp(self):
-        self.tmp_script_fd, self.tmp_script = tempfile.mkstemp(
-            dir=self.tmp_dir)
+        self.tmp_script_fd, self.tmp_script = tempfile.mkstemp(dir=self.tmp_dir)
         self.assertTrue(os.path.exists(self.tmp_script))
 
 
 class RunCompiler(WrapperTests):
+
     def test_create(self):
         with local.cwd(self.tmp_dir):
             cmd = compilers.cc(EmptyProject(empty.Empty()))
@@ -56,6 +57,7 @@ class RunCompiler(WrapperTests):
 
 
 class RunStatic(WrapperTests):
+
     def test_create(self):
         with local.cwd(self.tmp_dir):
             self.cmd = wrappers.wrap(self.tmp_script,
@@ -65,8 +67,9 @@ class RunStatic(WrapperTests):
 
 
 class RunDynamic(WrapperTests):
+
     def test_create(self):
         with local.cwd(self.tmp_dir):
-            cmd = wrappers.wrap_dynamic(
-                EmptyProject(empty.Empty()), self.tmp_script)
+            cmd = wrappers.wrap_dynamic(EmptyProject(empty.Empty()),
+                                        self.tmp_script)
         self.assertTrue(os.path.exists(str(cmd)))

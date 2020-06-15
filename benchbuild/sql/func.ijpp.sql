@@ -19,7 +19,7 @@ RETURN QUERY
       SELECT min(max_rank) OVER (PARTITION BY run_2.project_name, run_2.project_group) AS max_valid_rank, run_2.* FROM
       (
           -- Add column with the maximum rank within the partition, only get completed.
-          SELECT max(rank) OVER (PARTITION BY run_1.project_name, run_1.project_group, run_1.config) AS max_rank, run_1.* FROM 
+          SELECT max(rank) OVER (PARTITION BY run_1.project_name, run_1.project_group, run_1.config) AS max_rank, run_1.* FROM
           (
               -- Rank by configuration (Filtered by experiment, to speed things up)
               SELECT rank() OVER (PARTITION BY run.project_name, run.project_group, config_1.value ORDER BY run.begin),
@@ -486,7 +486,7 @@ RETURNS TABLE (
 )
 AS $BODY$ BEGIN
 RETURN QUERY
-  SELECT * from ( 
+  SELECT * from (
     SELECT
       results.project_name,
       results.project_group,

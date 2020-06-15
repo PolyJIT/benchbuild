@@ -222,13 +222,12 @@ class Configuration():
         selfcopy.filter_exports()
 
         with open(config_file, 'w') as outf:
-            yaml.dump(
-                selfcopy.node,
-                outf,
-                width=80,
-                indent=4,
-                default_flow_style=False,
-                Dumper=ConfigDumper)
+            yaml.dump(selfcopy.node,
+                      outf,
+                      width=80,
+                      indent=4,
+                      default_flow_style=False,
+                      Dumper=ConfigDumper)
 
     def load(self, _from):
         """Load the configuration dictionary from file."""
@@ -281,8 +280,8 @@ class Configuration():
                 env_val = self.node['default']
             env_val = os.getenv(env_var, to_yaml(env_val))
             try:
-                self.node['value'] = yaml.load(
-                    str(env_val), Loader=ConfigLoader)
+                self.node['value'] = yaml.load(str(env_val),
+                                               Loader=ConfigLoader)
             except ValueError:
                 self.node['value'] = env_val
         else:
@@ -413,10 +412,9 @@ class ConfigPath:
 
         if not path.exists():
             print("The path '%s' is required by your configuration." % path)
-            yes = ui.ask(
-                "Should I create '%s' for you?" % path,
-                default_answer=True,
-                default_answer_str="yes")
+            yes = ui.ask("Should I create '%s' for you?" % path,
+                         default_answer=True,
+                         default_answer_str="yes")
             if yes:
                 path.mkdir()
             else:
@@ -587,8 +585,9 @@ def __init_module__():
     yaml.add_representer(uuid.UUID, uuid_representer, Dumper=ConfigDumper)
     yaml.add_representer(ConfigPath, path_representer, Dumper=ConfigDumper)
     yaml.add_constructor('!uuid', uuid_constructor, Loader=ConfigLoader)
-    yaml.add_constructor(
-        '!create-if-needed', path_constructor, Loader=ConfigLoader)
+    yaml.add_constructor('!create-if-needed',
+                         path_constructor,
+                         Loader=ConfigLoader)
     uuid_add_implicit_resolver()
 
 

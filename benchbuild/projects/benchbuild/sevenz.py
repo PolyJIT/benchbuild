@@ -1,14 +1,13 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils.cmd import cp, make, tar
 from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils.cmd import cp, make, tar
 
 
 @download.with_wget({
-    '16.02':
-    'http://downloads.sourceforge.net/'
-    'project/p7zip/p7zip/16.02/p7zip_16.02_src_all.tar.bz2'
+    '16.02': 'http://downloads.sourceforge.net/'
+             'project/p7zip/p7zip/16.02/p7zip_16.02_src_all.tar.bz2'
 })
 class SevenZip(project.Project):
     """ 7Zip """

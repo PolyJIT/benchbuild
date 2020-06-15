@@ -10,6 +10,7 @@ class TestSlurmOptions(unittest.TestCase):
     """
     Checks base slurm options methods.
     """
+
     def test_script(self):
         """
         Checks that the correct sbatch option get's generated.
@@ -23,6 +24,7 @@ class TestCoresPerSocket(unittest.TestCase):
     """
     Checks if the CoresPerSocket option works correctly.
     """
+
     def test_init_cores(self):
         """
         Checks that we can correctly initialize a CoresPerSocket option.
@@ -59,6 +61,7 @@ class TestExclusive(unittest.TestCase):
     """
     Checks if the CoresPerSocket option works correctly.
     """
+
     def test_cli_opt(self):
         """
         Checks that the correct slurm cli option is generated.
@@ -72,6 +75,7 @@ class TestNiceness(unittest.TestCase):
     """
     Checks if the Niceness option works correctly.
     """
+
     def test_init_niceness(self):
         """
         Checks that we can correctly initialize a Niceness option.
@@ -108,6 +112,7 @@ class TestHint(unittest.TestCase):
     """
     Checks if the Hint option works correctly.
     """
+
     def test_init_hint(self):
         """
         Checks that we can correctly initialize a Hint option.
@@ -201,6 +206,7 @@ class TestTime(unittest.TestCase):
     """
     Checks if the Time option works correctly.
     """
+
     def test_init_niceness(self):
         """
         Checks that we can correctly initialize a Time option.
@@ -284,6 +290,7 @@ class TestSlurmOptionMerger(unittest.TestCase):
     """
     Checks if slurm option list get merged correctly.
     """
+
     def test_merge_same(self):
         """
         Checks that merging two lists with the same option merges the options.

@@ -9,7 +9,7 @@ from benchbuild.utils.cmd import make, mkdir, tar
 
 @download.with_wget({
     '0.9.26':
-    'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'
+        'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'
 })
 class TCC(project.Project):
     NAME = 'tcc'

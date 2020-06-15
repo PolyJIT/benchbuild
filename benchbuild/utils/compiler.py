@@ -70,8 +70,10 @@ def cxx(project, detect_project=False):
     from benchbuild.utils import cmd
 
     cxx_name = str(CFG["compiler"]["cxx"])
-    wrap_cc(
-        cxx_name, compiler(cxx_name), project, detect_project=detect_project)
+    wrap_cc(cxx_name,
+            compiler(cxx_name),
+            project,
+            detect_project=detect_project)
     return cmd["./{name}".format(name=cxx_name)]
 
 
@@ -108,7 +110,7 @@ def compiler(name):
     """
     pinfo = __get_paths()
     _compiler = local[name]
-    _compiler = _compiler.setenv(
-        PATH=pinfo["path"], LD_LIBRARY_PATH=pinfo["ld_library_path"],
-        HOME=pinfo["home"])
+    _compiler = _compiler.setenv(PATH=pinfo["path"],
+                                 LD_LIBRARY_PATH=pinfo["ld_library_path"],
+                                 HOME=pinfo["home"])
     return _compiler

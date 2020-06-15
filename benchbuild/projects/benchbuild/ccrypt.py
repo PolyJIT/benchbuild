@@ -5,10 +5,8 @@ from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
-@download.with_wget({
-    "1.10":
-    "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
-})
+@download.with_wget(
+    {"1.10": "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"})
 class Ccrypt(project.Project):
     """ ccrypt benchmark """
 

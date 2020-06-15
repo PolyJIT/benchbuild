@@ -35,11 +35,10 @@ class RuntimeExtension(base.Extension):
             if self.config:
                 run_info.add_payload("config", self.config)
                 LOG.info(
-                    yaml.dump(
-                        self.config,
-                        width=40,
-                        indent=4,
-                        default_flow_style=False))
+                    yaml.dump(self.config,
+                              width=40,
+                              indent=4,
+                              default_flow_style=False))
                 self.config['baseline'] = \
                     os.getenv("BB_IS_BASELINE", "False")
                 db.persist_config(run_info.db_run, run_info.session,

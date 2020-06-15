@@ -3,9 +3,10 @@ Module handler that makes sure the modules for our commands are build similar
 to plumbum. The built modules are only active during a run of an experiment and
 get deleted afterwards.
 """
-import sys
 import logging
+import sys
 from types import ModuleType
+
 from plumbum.machines.local import LocalCommand
 
 __ALIASES__ = {"unionfs": ["unionfs_fuse", "unionfs"]}

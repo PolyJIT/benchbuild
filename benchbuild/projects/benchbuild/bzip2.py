@@ -1,8 +1,8 @@
 from plumbum import local
 
 from benchbuild import project
-from benchbuild.utils.cmd import cp, make
 from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils.cmd import cp, make
 
 
 @download.with_git("https://github.com/PolyJIT/bzip2", limit=1, refspec="HEAD")

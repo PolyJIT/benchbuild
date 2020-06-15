@@ -8,9 +8,9 @@ from benchbuild.utils.cmd import sh, tar
 
 @attr.s
 @download.with_wget({
-    '3.1':
-    'http://www.cs.virginia.edu/'
-    '~kw5na/lava/Rodinia/Packages/Current/3.1/rodinia_3.1.tar.bz2'})
+    '3.1': 'http://www.cs.virginia.edu/'
+           '~kw5na/lava/Rodinia/Packages/Current/3.1/rodinia_3.1.tar.bz2'
+})
 class RodiniaGroup(project.Project):
     """Generic handling of Rodinia benchmarks."""
     DOMAIN = 'rodinia'
@@ -19,8 +19,8 @@ class RodiniaGroup(project.Project):
     SRC_FILE = 'rodinia.tar.bz2'
     CONFIG = {}
 
-    config = attr.ib(default=attr.Factory(
-        lambda self: type(self).CONFIG, takes_self=True))
+    config = attr.ib(
+        default=attr.Factory(lambda self: type(self).CONFIG, takes_self=True))
 
     def compile(self):
         self.download()
@@ -67,16 +67,10 @@ class Backprop(RodiniaGroup):
         "dir": "openmp/backprop",
         "src": {
             NAME: [
-                "backprop_kernel.c",
-                "imagenet.c",
-                "facetrain.c",
-                "backprop.c"
+                "backprop_kernel.c", "imagenet.c", "facetrain.c", "backprop.c"
             ]
         },
-        "flags": [
-            "-fopenmp",
-            "-lm"
-        ]
+        "flags": ["-fopenmp", "-lm"]
     }
 
 
@@ -85,14 +79,9 @@ class BFS(RodiniaGroup):
     CONFIG = {
         "dir": "openmp/bfs",
         "src": {
-            NAME: [
-                "bfs.cpp"
-            ]
+            NAME: ["bfs.cpp"]
         },
-        "flags": [
-            "-fopenmp",
-            "-UOPEN"
-        ]
+        "flags": ["-fopenmp", "-UOPEN"]
     }
 
     @staticmethod
@@ -106,30 +95,17 @@ class BPlusTree(RodiniaGroup):
         "dir": "openmp/b+tree",
         "src": {
             "b+tree.out": [
-                "./main.c",
-                "./kernel/kernel_cpu.c",
-                "./kernel/kernel_cpu_2.c",
-                "./util/timer/timer.c",
-                "./util/num/num.c"
+                "./main.c", "./kernel/kernel_cpu.c", "./kernel/kernel_cpu_2.c",
+                "./util/timer/timer.c", "./util/num/num.c"
             ]
         },
-        "flags": [
-            "-fopenmp",
-            "-lm"
-        ]
+        "flags": ["-fopenmp", "-lm"]
     }
 
 
 class CFD(RodiniaGroup):
     NAME = 'cfd'
-    CONFIG = {
-        "dir": "openmp/cfd",
-        "src": {
-            "euler3d_cpu": [
-                "euler3d_cpu.cpp"
-            ]
-        }
-    }
+    CONFIG = {"dir": "openmp/cfd", "src": {"euler3d_cpu": ["euler3d_cpu.cpp"]}}
 
     @staticmethod
     def select_compiler(_, cc):
@@ -141,17 +117,9 @@ class HeartWall(RodiniaGroup):
     CONFIG = {
         "dir": "openmp/heartwall",
         "src": {
-            NAME: [
-                "./AVI/avimod.c",
-                "./AVI/avilib.c",
-                "./main.c"
-            ]
+            NAME: ["./AVI/avimod.c", "./AVI/avilib.c", "./main.c"]
         },
-        "flags": [
-            "-I./AVI",
-            "-fopenmp",
-            "-lm"
-        ]
+        "flags": ["-I./AVI", "-fopenmp", "-lm"]
     }
 
 
@@ -160,13 +128,9 @@ class Hotspot(RodiniaGroup):
     CONFIG = {
         "dir": "openmp/hotspot",
         "src": {
-            NAME: [
-                "hotspot_openmp.cpp"
-            ]
+            NAME: ["hotspot_openmp.cpp"]
         },
-        "flags": [
-            "-fopenmp"
-        ]
+        "flags": ["-fopenmp"]
     }
 
     @staticmethod
@@ -179,14 +143,9 @@ class Hotspot3D(RodiniaGroup):
     CONFIG = {
         "dir": "openmp/hotspot3D",
         "src": {
-            "3D": [
-                "./3D.c"
-            ]
+            "3D": ["./3D.c"]
         },
-        "flags": [
-            "-fopenmp",
-            "-lm"
-        ]
+        "flags": ["-fopenmp", "-lm"]
     }
 
 
@@ -197,21 +156,16 @@ class KMeans(RodiniaGroup):
         "src": {
             "./kmeans_serial/kmeans": [
                 "./kmeans_serial/kmeans_clustering.c",
-                "./kmeans_serial/kmeans.c",
-                "./kmeans_serial/getopt.c",
+                "./kmeans_serial/kmeans.c", "./kmeans_serial/getopt.c",
                 "./kmeans_serial/cluster.c"
             ],
             "./kmeans_openmp/kmeans": [
                 "./kmeans_openmp/kmeans_clustering.c",
-                "./kmeans_openmp/kmeans.c",
-                "./kmeans_openmp/getopt.c",
+                "./kmeans_openmp/kmeans.c", "./kmeans_openmp/getopt.c",
                 "./kmeans_openmp/cluster.c"
             ]
         },
-        "flags": [
-            "-lm",
-            "-fopenmp"
-        ]
+        "flags": ["-lm", "-fopenmp"]
     }
 
 
@@ -221,101 +175,61 @@ class LavaMD(RodiniaGroup):
         "dir": "openmp/lavaMD",
         "src": {
             NAME: [
-                "./main.c",
-                "./util/timer/timer.c",
-                "./util/num/num.c",
+                "./main.c", "./util/timer/timer.c", "./util/num/num.c",
                 "./kernel/kernel_cpu.c"
             ]
         },
-        "flags": [
-            "-lm",
-            "-fopenmp"
-        ]
+        "flags": ["-lm", "-fopenmp"]
     }
 
 
 class Leukocyte(RodiniaGroup):
     NAME = 'leukocyte'
     CONFIG = {
-        "dir": "openmp/leukocyte",
+        "dir":
+            "openmp/leukocyte",
         "src": {
             NAME: [
-                "./meschach_lib/memstat.c",
-                "./meschach_lib/meminfo.c",
-                "./meschach_lib/version.c",
-                "./meschach_lib/ivecop.c",
-                "./meschach_lib/matlab.c",
-                "./meschach_lib/machine.c",
-                "./meschach_lib/otherio.c",
-                "./meschach_lib/init.c",
-                "./meschach_lib/submat.c",
-                "./meschach_lib/pxop.c",
-                "./meschach_lib/matop.c",
-                "./meschach_lib/vecop.c",
-                "./meschach_lib/memory.c",
-                "./meschach_lib/matrixio.c",
-                "./meschach_lib/err.c",
-                "./meschach_lib/copy.c",
-                "./meschach_lib/bdfactor.c",
-                "./meschach_lib/mfunc.c",
-                "./meschach_lib/fft.c",
-                "./meschach_lib/svd.c",
-                "./meschach_lib/schur.c",
-                "./meschach_lib/symmeig.c",
-                "./meschach_lib/hessen.c",
-                "./meschach_lib/norm.c",
-                "./meschach_lib/update.c",
-                "./meschach_lib/givens.c",
-                "./meschach_lib/hsehldr.c",
-                "./meschach_lib/solve.c",
-                "./meschach_lib/qrfactor.c",
-                "./meschach_lib/chfactor.c",
-                "./meschach_lib/bkpfacto.c",
-                "./meschach_lib/lufactor.c",
-                "./meschach_lib/iternsym.c",
-                "./meschach_lib/itersym.c",
-                "./meschach_lib/iter0.c",
-                "./meschach_lib/spswap.c",
-                "./meschach_lib/spbkp.c",
-                "./meschach_lib/splufctr.c",
-                "./meschach_lib/spchfctr.c",
-                "./meschach_lib/sparseio.c",
-                "./meschach_lib/sprow.c",
-                "./meschach_lib/sparse.c",
-                "./meschach_lib/zfunc.c",
-                "./meschach_lib/znorm.c",
-                "./meschach_lib/zmatop.c",
-                "./meschach_lib/zvecop.c",
-                "./meschach_lib/zmemory.c",
-                "./meschach_lib/zmatio.c",
-                "./meschach_lib/zcopy.c",
-                "./meschach_lib/zmachine.c",
-                "./meschach_lib/zschur.c",
-                "./meschach_lib/zhessen.c",
-                "./meschach_lib/zgivens.c",
-                "./meschach_lib/zqrfctr.c",
-                "./meschach_lib/zhsehldr.c",
-                "./meschach_lib/zmatlab.c",
-                "./meschach_lib/zsolve.c",
-                "./meschach_lib/zlufctr.c",
-                "./OpenMP/detect_main.c",
-                "./OpenMP/misc_math.c",
-                "./OpenMP/track_ellipse.c",
-                "./OpenMP/find_ellipse.c",
+                "./meschach_lib/memstat.c", "./meschach_lib/meminfo.c",
+                "./meschach_lib/version.c", "./meschach_lib/ivecop.c",
+                "./meschach_lib/matlab.c", "./meschach_lib/machine.c",
+                "./meschach_lib/otherio.c", "./meschach_lib/init.c",
+                "./meschach_lib/submat.c", "./meschach_lib/pxop.c",
+                "./meschach_lib/matop.c", "./meschach_lib/vecop.c",
+                "./meschach_lib/memory.c", "./meschach_lib/matrixio.c",
+                "./meschach_lib/err.c", "./meschach_lib/copy.c",
+                "./meschach_lib/bdfactor.c", "./meschach_lib/mfunc.c",
+                "./meschach_lib/fft.c", "./meschach_lib/svd.c",
+                "./meschach_lib/schur.c", "./meschach_lib/symmeig.c",
+                "./meschach_lib/hessen.c", "./meschach_lib/norm.c",
+                "./meschach_lib/update.c", "./meschach_lib/givens.c",
+                "./meschach_lib/hsehldr.c", "./meschach_lib/solve.c",
+                "./meschach_lib/qrfactor.c", "./meschach_lib/chfactor.c",
+                "./meschach_lib/bkpfacto.c", "./meschach_lib/lufactor.c",
+                "./meschach_lib/iternsym.c", "./meschach_lib/itersym.c",
+                "./meschach_lib/iter0.c", "./meschach_lib/spswap.c",
+                "./meschach_lib/spbkp.c", "./meschach_lib/splufctr.c",
+                "./meschach_lib/spchfctr.c", "./meschach_lib/sparseio.c",
+                "./meschach_lib/sprow.c", "./meschach_lib/sparse.c",
+                "./meschach_lib/zfunc.c", "./meschach_lib/znorm.c",
+                "./meschach_lib/zmatop.c", "./meschach_lib/zvecop.c",
+                "./meschach_lib/zmemory.c", "./meschach_lib/zmatio.c",
+                "./meschach_lib/zcopy.c", "./meschach_lib/zmachine.c",
+                "./meschach_lib/zschur.c", "./meschach_lib/zhessen.c",
+                "./meschach_lib/zgivens.c", "./meschach_lib/zqrfctr.c",
+                "./meschach_lib/zhsehldr.c", "./meschach_lib/zmatlab.c",
+                "./meschach_lib/zsolve.c", "./meschach_lib/zlufctr.c",
+                "./OpenMP/detect_main.c", "./OpenMP/misc_math.c",
+                "./OpenMP/track_ellipse.c", "./OpenMP/find_ellipse.c",
                 "./OpenMP/avilib.c"
             ]
         },
         "flags": [
-            "-DSPARSE",
-            "-DCOMPLEX",
-            "-DREAL_FLT",
-            "-DREAL_DBL",
-            "-I./meschach_lib",
-            "-lm",
-            "-lpthread",
-            "-fopenmp"
+            "-DSPARSE", "-DCOMPLEX", "-DREAL_FLT", "-DREAL_DBL",
+            "-I./meschach_lib", "-lm", "-lpthread", "-fopenmp"
         ]
     }
+
 
 class LUD(RodiniaGroup):
     NAME = 'lud'
@@ -323,61 +237,43 @@ class LUD(RodiniaGroup):
         "dir": "openmp/lud",
         "src": {
             "./omp/lud_omp": [
-                "./common/common.c",
-                "./omp/lud_omp.c",
-                "./omp/lud.c"
+                "./common/common.c", "./omp/lud_omp.c", "./omp/lud.c"
             ]
         },
-        "flags": [
-            "-I./common",
-            "-lm",
-            "-fopenmp"
-        ]
+        "flags": ["-I./common", "-lm", "-fopenmp"]
     }
+
 
 class Myocyte(RodiniaGroup):
     NAME = 'myocyte'
     CONFIG = {
         "dir": "openmp/myocyte",
         "src": {
-            "./myocyte.out": [
-                "main.c"
-            ]
+            "./myocyte.out": ["main.c"]
         },
-        "flags": [
-            "-lm",
-            "-fopenmp"
-        ]
+        "flags": ["-lm", "-fopenmp"]
     }
+
 
 class NN(RodiniaGroup):
     NAME = 'nn'
     CONFIG = {
         "dir": "openmp/nn",
         "src": {
-            NAME: [
-                "./nn_openmp.c"
-            ]
+            NAME: ["./nn_openmp.c"]
         },
-        "flags": [
-            "-lm",
-            "-fopenmp"
-        ]
+        "flags": ["-lm", "-fopenmp"]
     }
+
 
 class NW(RodiniaGroup):
     NAME = 'nw'
     CONFIG = {
         "dir": "openmp/nw",
         "src": {
-            "needle": [
-                "./needle.cpp"
-            ]
+            "needle": ["./needle.cpp"]
         },
-        "flags": [
-            "-lm",
-            "-fopenmp"
-        ]
+        "flags": ["-lm", "-fopenmp"]
     }
 
     @staticmethod
@@ -390,82 +286,61 @@ class ParticleFilter(RodiniaGroup):
     CONFIG = {
         "dir": "openmp/particlefilter",
         "src": {
-            "particle_filter": [
-                "./ex_particle_OPENMP_seq.c"
-            ]
+            "particle_filter": ["./ex_particle_OPENMP_seq.c"]
         },
-        "flags": [
-            "-lm",
-            "-fopenmp"
-        ]
+        "flags": ["-lm", "-fopenmp"]
     }
+
 
 class PathFinder(RodiniaGroup):
     NAME = 'pathfinder'
     CONFIG = {
         "dir": "openmp/pathfinder",
         "src": {
-            "pathfinder": [
-                "./pathfinder.cpp"
-            ]
+            "pathfinder": ["./pathfinder.cpp"]
         },
-        "flags": [
-            "-fopenmp"
-        ]
+        "flags": ["-fopenmp"]
     }
 
     @staticmethod
     def select_compiler(_, cc):
         return cc
+
 
 class SRAD1(RodiniaGroup):
     NAME = 'srad-1'
     CONFIG = {
         "dir": "openmp/srad/srad_v1",
         "src": {
-            "srad": [
-                "./main.c"
-            ]
+            "srad": ["./main.c"]
         },
-        "flags": [
-            "-I.",
-            "-lm",
-            "-fopenmp"
-        ]
+        "flags": ["-I.", "-lm", "-fopenmp"]
     }
+
 
 class SRAD2(RodiniaGroup):
     NAME = 'srad-2'
     CONFIG = {
         "dir": "openmp/srad/srad_v2",
         "src": {
-            "srad": [
-                "./srad.cpp"
-            ]
+            "srad": ["./srad.cpp"]
         },
-        "flags": [
-            "-lm",
-            "-fopenmp"
-        ]
+        "flags": ["-lm", "-fopenmp"]
     }
 
     @staticmethod
     def select_compiler(_, cc):
         return cc
 
+
 class StreamCluster(RodiniaGroup):
     NAME = 'streamcluster'
     CONFIG = {
         "dir": "openmp/streamcluster",
         "src": {
-            "./sc_omp": [
-                "./streamcluster_omp.cpp"
-            ]
+            "./sc_omp": ["./streamcluster_omp.cpp"]
         },
-        "flags": [
-            "-lpthread",
-            "-fopenmp"
-        ]
+        "flags": ["-lpthread", "-fopenmp"]
     }
 
     @staticmethod

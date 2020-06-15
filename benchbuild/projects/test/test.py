@@ -15,7 +15,7 @@ class TestProject(project.Project):
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {
-    std::cout << "Hello (stdout) World" << std::endl;    
+    std::cout << "Hello (stdout) World" << std::endl;
     std::cerr << "Hello (stderr) World" << std::endl;
     return 0;
 }

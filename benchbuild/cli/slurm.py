@@ -11,14 +11,13 @@ import sys
 
 from plumbum import cli
 
-import benchbuild.projects
 import benchbuild.experiment
 import benchbuild.experiments
 import benchbuild.project
-
+import benchbuild.projects
+from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
 from benchbuild.utils import slurm
-from benchbuild.cli.main import BenchBuild
 
 
 @BenchBuild.subcommand("slurm")
@@ -31,29 +30,26 @@ class Slurm(cli.Application):
         self._group_names = None
         self._description = None
 
-    @cli.switch(
-        ["-E", "--experiment"],
-        str,
-        mandatory=True,
-        help="Specify experiments to run")
+    @cli.switch(["-E", "--experiment"],
+                str,
+                mandatory=True,
+                help="Specify experiments to run")
     def experiment(self, cfg_experiment):
         """Specify experiments to run"""
         self._experiment = cfg_experiment
 
-    @cli.switch(
-        ["-D", "--description"],
-        str,
-        help="A description for this experiment run")
+    @cli.switch(["-D", "--description"],
+                str,
+                help="A description for this experiment run")
     def experiment_tag(self, description):
         """A description for this experiment run"""
         self._description = description
 
-    @cli.switch(
-        ["-G", "--group"],
-        str,
-        list=True,
-        requires=["--experiment"],
-        help="Run a group of projects under the given experiments")
+    @cli.switch(["-G", "--group"],
+                str,
+                list=True,
+                requires=["--experiment"],
+                help="Run a group of projects under the given experiments")
     def group(self, groups):
         """Run a group of projects under the given experiments"""
         self._group_names = groups

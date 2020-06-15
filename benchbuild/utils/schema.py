@@ -126,7 +126,7 @@ class Run(BASE):
         ['project_name', 'project_group'],
         ['project.name', 'project.group_name'],
         onupdate="CASCADE",
-        ondelete="CASCADE"), )
+        ondelete="CASCADE"),)
 
     id = Column(Integer, primary_key=True)
     command = Column(String)
@@ -134,39 +134,36 @@ class Run(BASE):
     project_group = Column(String, index=True)
     experiment_name = Column(String, index=True)
     run_group = Column(GUID(as_uuid=True), index=True)
-    experiment_group = Column(
-        GUID(as_uuid=True),
-        ForeignKey("experiment.id", ondelete="CASCADE", onupdate="CASCADE"),
-        index=True)
+    experiment_group = Column(GUID(as_uuid=True),
+                              ForeignKey("experiment.id",
+                                         ondelete="CASCADE",
+                                         onupdate="CASCADE"),
+                              index=True)
 
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Enum('completed', 'running', 'failed', name="run_state"))
 
-    metrics = sa.orm.relationship(
-        "Metric",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True)
-    logs = sa.orm.relationship(
-        "RunLog",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True)
-    stored_data = sa.orm.relationship(
-        "Metadata",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True)
-    configurations = sa.orm.relationship(
-        "Config",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True)
+    metrics = sa.orm.relationship("Metric",
+                                  cascade="all, delete-orphan",
+                                  passive_deletes=True,
+                                  passive_updates=True)
+    logs = sa.orm.relationship("RunLog",
+                               cascade="all, delete-orphan",
+                               passive_deletes=True,
+                               passive_updates=True)
+    stored_data = sa.orm.relationship("Metadata",
+                                      cascade="all, delete-orphan",
+                                      passive_deletes=True,
+                                      passive_updates=True)
+    configurations = sa.orm.relationship("Config",
+                                         cascade="all, delete-orphan",
+                                         passive_deletes=True,
+                                         passive_updates=True)
 
     def __repr__(self):
-        return ("<Run: {0} status={1} run={2}>").format(
-            self.project_name, self.status, self.id)
+        return ("<Run: {0} status={1} run={2}>").format(self.project_name,
+                                                        self.status, self.id)
 
 
 class RunGroup(BASE):
@@ -175,10 +172,11 @@ class RunGroup(BASE):
     __tablename__ = 'rungroup'
 
     id = Column(GUID(as_uuid=True), primary_key=True, index=True)
-    experiment = Column(
-        GUID(as_uuid=True),
-        ForeignKey("experiment.id", ondelete="CASCADE", onupdate="CASCADE"),
-        index=True)
+    experiment = Column(GUID(as_uuid=True),
+                        ForeignKey("experiment.id",
+                                   ondelete="CASCADE",
+                                   onupdate="CASCADE"),
+                        index=True)
 
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
@@ -196,16 +194,14 @@ class Experiment(BASE):
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
 
-    runs = sa.orm.relationship(
-        "Run",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True)
-    run_groups = sa.orm.relationship(
-        "RunGroup",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True)
+    runs = sa.orm.relationship("Run",
+                               cascade="all, delete-orphan",
+                               passive_deletes=True,
+                               passive_updates=True)
+    run_groups = sa.orm.relationship("RunGroup",
+                                     cascade="all, delete-orphan",
+                                     passive_deletes=True,
+                                     passive_updates=True)
 
     def __repr__(self):
         return "<Experiment {name}>".format(name=self.name)
@@ -223,11 +219,10 @@ class Project(BASE):
     group_name = Column(String, primary_key=True)
     version = Column(String)
 
-    runs = sa.orm.relationship(
-        "Run",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-        passive_updates=True)
+    runs = sa.orm.relationship("Run",
+                               cascade="all, delete-orphan",
+                               passive_deletes=True,
+                               passive_updates=True)
 
     def __repr__(self):
         return "<Project {group}@{domain}/{name} V:{version}>".format(
@@ -244,11 +239,11 @@ class Metric(BASE):
 
     name = Column(String, primary_key=True, index=True, nullable=False)
     value = Column(Float)
-    run_id = Column(
-        Integer,
-        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
-        index=True,
-        primary_key=True)
+    run_id = Column(Integer,
+                    ForeignKey("run.id", onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
 
     def __repr__(self):
         return "{0} - {1}".format(self.name, self.value)
@@ -264,11 +259,11 @@ class RunLog(BASE):
 
     __tablename__ = 'log'
 
-    run_id = Column(
-        Integer,
-        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
-        index=True,
-        primary_key=True)
+    run_id = Column(Integer,
+                    ForeignKey("run.id", onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Integer)
@@ -287,11 +282,11 @@ class Metadata(BASE):
 
     __tablename__ = "metadata"
 
-    run_id = Column(
-        Integer,
-        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
-        index=True,
-        primary_key=True)
+    run_id = Column(Integer,
+                    ForeignKey("run.id", onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
     name = Column(String)
     value = Column(String)
 
@@ -306,11 +301,11 @@ class Config(BASE):
 
     __tablename__ = 'config'
 
-    run_id = Column(
-        Integer,
-        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
-        index=True,
-        primary_key=True)
+    run_id = Column(Integer,
+                    ForeignKey("run.id", onupdate="CASCADE",
+                               ondelete="CASCADE"),
+                    index=True,
+                    primary_key=True)
     name = Column(String, primary_key=True)
     value = Column(String)
 
@@ -346,7 +341,7 @@ def get_version_data():
 @exceptions(
     error_messages={
         sa.exc.ProgrammingError:
-        "Could not enforce versioning. Are you allowed to modify the database?"
+            "Could not enforce versioning. Are you allowed to modify the database?"
     })
 def enforce_versioning(force=False):
     """Install versioning on the db."""
@@ -380,8 +375,8 @@ def setup_versioning():
 @exceptions(
     error_messages={
         sa.exc.ProgrammingError:
-        "Update failed."
-        " Base schema version diverged from the expected structure."
+            "Update failed."
+            " Base schema version diverged from the expected structure."
     })
 def maybe_update_db(repo_version, db_version):
     if db_version is None:
@@ -391,9 +386,8 @@ def maybe_update_db(repo_version, db_version):
 
     LOG.warning("Your database contains version '%s' of benchbuild's schema.",
                 db_version)
-    LOG.warning(
-        "Benchbuild currently requires version '%s' to work correctly.",
-        repo_version)
+    LOG.warning("Benchbuild currently requires version '%s' to work correctly.",
+                repo_version)
     if not ui.ask("Should I attempt to update your schema to version '{0}'?".
                   format(repo_version)):
         LOG.error("User declined schema upgrade.")
@@ -407,6 +401,7 @@ def maybe_update_db(repo_version, db_version):
 
 
 class SessionManager:
+
     def connect_engine(self):
         """
         Establish a connection to the database.
@@ -440,8 +435,7 @@ class SessionManager:
         return True
 
     @exceptions(error_messages={
-        sa.exc.NoSuchModuleError:
-        "Connect string contained an invalid backend."
+        sa.exc.NoSuchModuleError: "Connect string contained an invalid backend."
     })
     def __init__(self):
         self.__test_mode = bool(settings.CFG['db']['rollback'])
@@ -452,8 +446,7 @@ class SessionManager:
 
         self.__transaction = None
         if self.__test_mode:
-            LOG.warning(
-                "DB test mode active, all actions will be rolled back.")
+            LOG.warning("DB test mode active, all actions will be rolled back.")
             self.__transaction = self.connection.begin()
 
         if needed_schema(self.connection, BASE.metadata):

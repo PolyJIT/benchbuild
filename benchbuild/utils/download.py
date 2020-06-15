@@ -23,6 +23,7 @@ LOG = logging.getLogger(__name__)
 
 AnyC = Type[object]
 
+
 def get_hash_of_dirs(directory):
     """
     Recursively hash the contents of the given directory.
@@ -177,6 +178,7 @@ def with_wget(url_dict=None, target_file=None):
     """
 
     def wget_decorator(cls):
+
         def download_impl(self):
             """Download the selected version from the url_dict value."""
             t_file = target_file if target_file else self.SRC_FILE
@@ -264,14 +266,14 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
 
 
 def with_git(
-        repo: str,
-        target_dir: Optional[str] = None,
-        limit: Optional[int] = None,
-        refspec: str = "HEAD",
-        clone: bool = True,
-        rev_list_args: Optional[List[str]] = None,
-        shallow_clone: bool = True,
-        version_filter: Callable[[str], bool] = lambda version: True
+    repo: str,
+    target_dir: Optional[str] = None,
+    limit: Optional[int] = None,
+    refspec: str = "HEAD",
+    clone: bool = True,
+    rev_list_args: Optional[List[str]] = None,
+    shallow_clone: bool = True,
+    version_filter: Callable[[str], bool] = lambda version: True
 ) -> Callable[[AnyC], AnyC]:
     """
     Decorate a project class with git-based version information.

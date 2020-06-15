@@ -78,9 +78,9 @@ class Povray(project.Project):
                            INSTALL_DIR='.',
                            OUTPUT_DIR=tmpdir,
                            POVINI=povini):
-                options = ((((head["-n", "50", "\"" + pov_f + "\""]
-                              | grep["-E", "'^//[ ]+[-+]{1}[^ -]'"])
-                             | head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
+                options = ((((head["-n", "50", "\"" + pov_f + "\""] |
+                              grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]) |
+                             head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
                 _povray("+L" + scene_dir,
                         "+L" + tmpdir,
                         "-i" + pov_f,

@@ -1,8 +1,9 @@
+import abc
+import copy
 import logging
 import typing as tp
 from enum import Enum
-import copy
-import abc
+
 import attr
 
 from benchbuild.settings import CFG
@@ -17,6 +18,7 @@ class Requirement:
     """
     Base class for requirements.
     """
+
     @abc.abstractmethod
     def to_option(self) -> str:
         """
@@ -49,6 +51,7 @@ class SlurmRequirement(Requirement):
     """
     Base class for slurm requirements.
     """
+
     def to_option(self) -> str:
         """
         Converts Requirement to a script options.
@@ -101,6 +104,7 @@ class SlurmExclusive(SlurmRequirement):
     """
     The job allocation can not share nodes with other running jobs.
     """
+
     def to_slurm_cli_opt(self) -> str:
         return "--exclusive"
 
@@ -161,6 +165,7 @@ class SlurmHint(SlurmRequirement):
             benefit communication intensive applications. Only supported with
             the task/affinity plugin.
     """
+
     class SlurmHints(Enum):
         compute_bound = "compute_bound"
         memory_bound = "memory_bound"
@@ -205,18 +210,17 @@ class SlurmHint(SlurmRequirement):
         Returns:
             True, if no mutally exclusive hints are in the list
         """
-        if (SlurmHint.SlurmHints.compute_bound in hints
-                and SlurmHint.SlurmHints.memory_bound in hints):
+        if (SlurmHint.SlurmHints.compute_bound in hints and
+                SlurmHint.SlurmHints.memory_bound in hints):
             return False
-        if (SlurmHint.SlurmHints.nomultithread in hints
-                and SlurmHint.SlurmHints.multithread in hints):
+        if (SlurmHint.SlurmHints.nomultithread in hints and
+                SlurmHint.SlurmHints.multithread in hints):
             return False
 
         return True
 
 
-def _convert_to_time_tuple(
-        time_specifier: str) -> tp.Tuple[int, int, int, int]:
+def _convert_to_time_tuple(time_specifier: str) -> tp.Tuple[int, int, int, int]:
     """
     Convert slurm time specifier to tuple.
 

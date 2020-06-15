@@ -17,11 +17,11 @@ a separate build directory in isolation of one another.
 """
 import copy
 import logging
-from typing import Tuple, Optional, Mapping, Type, List
 import uuid
 from abc import abstractmethod
 from functools import partial
 from os import getenv
+from typing import List, Mapping, Optional, Tuple, Type
 
 import attr
 from plumbum import ProcessExecutionError, local
@@ -195,8 +195,8 @@ class Project(metaclass=ProjectDecorator):
     group = attr.ib(
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
 
-    src_file = attr.ib(default=attr.Factory(lambda self: type(self).SRC_FILE,
-                                            takes_self=True))
+    src_file = attr.ib(
+        default=attr.Factory(lambda self: type(self).SRC_FILE, takes_self=True))
 
     container = attr.ib(default=attr.Factory(lambda self: type(self).CONTAINER,
                                              takes_self=True))
@@ -327,11 +327,10 @@ class Project(metaclass=ProjectDecorator):
 
     @property
     def id(self):
-        return "{name}-{group}@{version}_uuid_{id}".format(
-            name=self.name,
-            group=self.group,
-            version=self.version,
-            id=self.run_uuid)
+        return "{name}-{group}@{version}_uuid_{id}".format(name=self.name,
+                                                           group=self.group,
+                                                           version=self.version,
+                                                           id=self.run_uuid)
 
     @classmethod
     def versions(cls):
@@ -393,11 +392,11 @@ def populate(projects_to_filter=None,
     if group:
         groupkeys = set(group)
         prjs = {
-            name: cls
-            for name, cls in prjs.items() if cls.GROUP in groupkeys
+            name: cls for name, cls in prjs.items() if cls.GROUP in groupkeys
         }
 
     return {
         x: prjs[x]
-        for x in prjs if prjs[x].DOMAIN != "debug" or x in projects_to_filter
+        for x in prjs
+        if prjs[x].DOMAIN != "debug" or x in projects_to_filter
     }

@@ -11,6 +11,7 @@ from benchbuild.project import populate
 from . import experiments as __EXPERIMENTS__
 from . import projects as __PROJECTS__
 from . import reports as __REPORTS__
+from . import source
 # Export: Project
 from .project import Project
 # Export: Configuration

@@ -5,29 +5,32 @@ from plumbum import FG, local
 
 import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import download
+from benchbuild.source import Git
 from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv
 
 LOG = logging.getLogger(__name__)
 
 
-@download.with_git("http://llvm.org/git/lnt", limit=5)
 class LNTGroup(bb.Project):
     """LNT ProjectGroup for running the lnt test suite."""
 
     DOMAIN = 'lnt'
     GROUP = 'lnt'
-    VERSION = 'HEAD'
     NAME_FILTERS = [
         r'(?P<name>.+)\.simple',
         r'(?P<name>.+)-(dbl|flt)',
     ]
     SUBDIR = None
-    SRC_FILE = "lnt.git"
-
-    src_dir = "lnt"
-    test_suite_dir = "test-suite"
-    test_suite_uri = "http://llvm.org/git/test-suite"
+    SOURCE = [
+        Git(remote='http://llvm.org/git/lnt',
+            local='lnt.git',
+            refspec='HEAD',
+            limit=5),
+        Git(remote='http://llvm.org/git/test-suite',
+            local='test-suite',
+            refspec='HEAD',
+            limit=5)
+    ]
 
     # Will be set by configure.
     lnt = None
@@ -37,14 +40,15 @@ class LNTGroup(bb.Project):
     binary = None
 
     def compile(self):
-        self.download()
-        download.Git(self.test_suite_uri, self.test_suite_dir)
+        lnt_repo = bb.path(self.source_of('lnt.git'))
+        test_suite_source = bb.path(self.source_of('test-suite'))
 
         venv_path = bb.cwd / "local"
         virtualenv(venv_path, "--python=python2")
         pip_path = bb.cwd / "local" / "bin" / "pip"
         pip = local[pip_path]
-        with bb.cwd(self.SRC_FILE):
+
+        with bb.cwd(lnt_repo):
             pip("install", "--no-cache-dir", "--disable-pip-version-check",
                 "-e", ".")
 
@@ -72,6 +76,7 @@ class LNTGroup(bb.Project):
             (cat[log] & FG)  # pylint: disable=pointless-statement
 
     def run_tests(self):
+        test_suite_source = bb.path(self.source_of('test-suite'))
         binary = bb.wrapping.wrap_dynamic(self,
                                           "lnt_runner",
                                           name_filters=LNTGroup.NAME_FILTERS)
@@ -79,7 +84,7 @@ class LNTGroup(bb.Project):
         _runtest = bb.watch(self.lnt)
         _runtest("runtest", "nt", "-v", "-j1", "--sandbox", self.sandbox_dir,
                  "--benchmarking-only", "--cc", str(self.clang), "--cxx",
-                 str(self.clang_cxx), "--test-suite", self.test_suite_dir,
+                 str(self.clang_cxx), "--test-suite", test_suite_source,
                  "--test-style", "simple", "--test-externals", self.builddir,
                  "--make-param=RUNUNDER=" + str(binary),
                  "--only-test=" + self.SUBDIR)
@@ -124,10 +129,17 @@ class Povray(LNTGroup):
     NAME = 'Povray'
     DOMAIN = 'LNT (Ext)'
     SUBDIR = "External/Povray"
-
-    povray_url = "https://github.com/POV-Ray/povray"
-    povray_src_dir = "Povray"
-
-    def compile(self):
-        download.Git(self.povray_url, self.povray_src_dir)
-        super(Povray, self).compile()
+    SOURCE = [
+        Git(remote='http://llvm.org/git/lnt',
+            local='lnt.git',
+            refspec='HEAD',
+            limit=5),
+        Git(remote='http://llvm.org/git/test-suite',
+            local='test-suite',
+            refspec='HEAD',
+            limit=5),
+        Git(remote='https://github.com/POV-Ray/povray',
+            local='povray.git',
+            refspec='HEAD',
+            limit=5)
+    ]

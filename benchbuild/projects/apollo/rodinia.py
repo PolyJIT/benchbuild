@@ -1,29 +1,32 @@
 import attr
 
 import benchbuild as bb
+from benchbuild.source import HTTP
 from benchbuild.utils.cmd import sh, tar
 
 
 @attr.s
-@download.with_wget({
-    '3.1': 'http://www.cs.virginia.edu/'
-           '~kw5na/lava/Rodinia/Packages/Current/3.1/rodinia_3.1.tar.bz2'
-})
 class RodiniaGroup(bb.Project):
     """Generic handling of Rodinia benchmarks."""
     DOMAIN = 'rodinia'
     GROUP = 'rodinia'
-    VERSION = '3.1'
-    SRC_FILE = 'rodinia.tar.bz2'
+    SOURCE = [
+        HTTP(remote={
+            '3.1': 'http://www.cs.virginia.edu/'
+                   '~kw5na/lava/Rodinia/Packages/Current/3.1/'
+                   'rodinia_3.1.tar.bz2'
+        },
+             local='rodinia.tar.bz2')
+    ]
     CONFIG = {}
 
     config = attr.ib(
         default=attr.Factory(lambda self: type(self).CONFIG, takes_self=True))
 
     def compile(self):
-        self.download()
-        unpack_dir = bb.path('rodinia_{0}'.format(self.version))
         tar('xf', 'rodinia.tar.bz2')
+        rodinia_version = self.version_of('rodinia.tar.bz2')
+        unpack_dir = bb.path(f'rodinia_{rodinia_version}')
 
         c_compiler = bb.compiler.cc(self)
         cxx_compiler = bb.compiler.cxx(self)
@@ -48,7 +51,8 @@ class RodiniaGroup(bb.Project):
         return c_compiler
 
     def run_tests(self):
-        unpack_dir = bb.path('rodinia_{0}'.format(self.version))
+        rodinia_version = self.version_of('rodinia.tar.bz2')
+        unpack_dir = bb.path(f'rodinia_{rodinia_version}')
         in_src_dir = unpack_dir / self.config['dir']
 
         for outfile in self.config['src']:

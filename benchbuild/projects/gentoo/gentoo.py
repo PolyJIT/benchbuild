@@ -31,7 +31,6 @@ class GentooGroup(bb.Project):
     GROUP = 'gentoo'
     CONTAINER = container.Gentoo()
     SRC_FILE = None
-    VERSION = CONTAINER.version
 
     emerge_env = attr.ib(default={}, repr=False, cmp=False)
 

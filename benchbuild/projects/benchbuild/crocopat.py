@@ -1,24 +1,35 @@
+from plumbum import local
+
 import benchbuild as bb
-from benchbuild.utils import download
-from benchbuild.utils.cmd import cat, make, unzip
+from benchbuild.source import HTTP
+from benchbuild.utils.cmd import cat, make, tar, unzip
 
 
-@download.with_wget(
-    {"2.1.4": "http://crocopat.googlecode.com/files/crocopat-2.1.4.zip"})
 class Crocopat(bb.Project):
     """ crocopat benchmark """
 
     NAME = 'crocopat'
     DOMAIN = 'verification'
     GROUP = 'benchbuild'
-    VERSION = '2.1.4'
-    SRC_FILE = "crocopat.zip"
+    SOURCE = [
+        HTTP(remote={
+            '2.1.4': 'http://crocopat.googlecode.com/files/crocopat-2.1.4.zip'
+        },
+             local='crocopat.zip'),
+        HTTP(remote={
+            '2014-10': 'http://lairosiel.de/dist/2014-10-crocopat.tar.gz'
+        },
+             local='inputs.tar.gz')
+    ]
 
     def run_tests(self):
         crocopat = bb.wrap('crocopat', self)
+        test_source = self.source_of('inputs.tar.gz')
+        tar('xf', test_source)
 
-        programs = bb.path(self.testdir) / "programs" // "*.rml"
-        projects = bb.path(self.testdir) / "projects" // "*.rsf"
+        test_dir = local.path('./crocopat/')
+        programs = test_dir / "programs" // "*.rml"
+        projects = test_dir / "projects" // "*.rsf"
         for program in programs:
             for _project in projects:
                 _crocopat_project = bb.watch(
@@ -26,9 +37,10 @@ class Crocopat(bb.Project):
                 _crocopat_project(retcode=None)
 
     def compile(self):
-        self.download()
-        unzip(self.src_file)
-        unpack_dir = "crocopat-{0}".format(self.version)
+        crocopat_source = bb.path(self.source_of('crocopat.zip'))
+        crocopat_version = self.version_of('crocopat.zip')
+        unzip(crocopat_source)
+        unpack_dir = f'crocopat-{crocopat_version}'
 
         crocopat_dir = bb.path(unpack_dir) / "src"
         self.cflags += ["-I.", "-ansi"]

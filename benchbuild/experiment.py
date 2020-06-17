@@ -32,10 +32,12 @@ from typing import List
 
 import attr
 
+import benchbuild.source as bb_dl
+import benchbuild.source.variants as variants
 from benchbuild.settings import CFG
 from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
                                       Containerize, Echo, MakeBuildDir,
-                                      RequireAll, Run)
+                                      ProjectEnvironment, RequireAll, Run)
 from benchbuild.utils.requirements import Requirement
 
 
@@ -146,20 +148,24 @@ class Experiment(metaclass=ExperimentRegistry):
         """
         actions = []
 
-        for project in self.projects:
-            prj_cls = self.projects[project]
-
+        for prj_cls in self.projects:
             prj_actions = []
-            for version in self.sample(prj_cls, prj_cls.versions()):
-                p = prj_cls(self, version=version)
 
+            project_variants = bb_dl.product(prj_cls.SOURCE)
+            for variant in project_variants:
+                var_context = variants.context(variant)
+                version_str = variants.to_str(variant)
+
+                p = prj_cls(self, variant=var_context)
                 atomic_actions = [
                     Clean(p),
                     MakeBuildDir(p),
                     Echo(message="Selected {0} with version {1}".format(
-                        p.name, p.version)),
+                        p.name, version_str)),
+                    ProjectEnvironment(p),
                     Containerize(obj=p, actions=self.actions_for_project(p))
                 ]
+
                 prj_actions.append(RequireAll(actions=atomic_actions))
             actions.extend(prj_actions)
 

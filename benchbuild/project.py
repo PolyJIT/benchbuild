@@ -27,11 +27,14 @@ import attr
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
+import benchbuild as bb
 from benchbuild import signals
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
-from benchbuild.utils import db, run, unionfs, wrapping
+from benchbuild.source import variants
+from benchbuild.source.base import BaseSource
+from benchbuild.utils import db, run, unionfs
 from benchbuild.utils.requirements import Requirement
 
 LOG = logging.getLogger(__name__)
@@ -100,8 +103,6 @@ class Project(metaclass=ProjectDecorator):
         run_tests: Wrap any binary that has to be run under the
             runtime_extension wrapper and execute an implementation defined
             set of run-time tests.
-            Defaults to a call of a binary with the name `run_f` in the
-            build directory without arguments.
         clean: Clean the project's build directory. Defaults to
             recursive 'rm' on the build directory and can be disabled
             by setting the environment variable ``BB_CLEAN=false``.
@@ -121,8 +122,6 @@ class Project(metaclass=ProjectDecorator):
             The application domain of this project. Defaults to `DOMAIN`.
         group (str, optional):
             The group this project belongs to. Defaults to `GROUP`.
-        src_file (str, optional):
-            A main src_file this project is assigned to. Defaults to `SRC_FILE`
         container (benchbuild.utils.container.Container, optional):
             A uchroot compatible container that we can use for this project.
             Defaults to `benchbuild.utils.container.Gentoo`.
@@ -133,18 +132,10 @@ class Project(metaclass=ProjectDecorator):
             A version information for this project. Defaults to `VERSION`.
         builddir (str, optional):
             The build directory for this project. Auto generated, if not set.
-        testdir (str, optional):
-            The location of any additional test-files for this project,
-            usually stored out of tree. Auto generated, if not set. Usually a
-            project implementation
-            will define this itself.
         cflags (:obj:`list` of :obj:`str`, optional)
             A list of cflags used, for compilation of this project.
         ldflags (:obj:`list` of :obj:`str`, optional)
             A list of ldflags used, for compilation of this project.
-        run_f (str, optional):
-            A filename that points to the binary we want to track.
-            Usually a project implementation will define this itself.
         run_uuid (uuid.UUID, optional):
             An UUID that identifies all binaries executed by a single run of
             this project. In the database schema this is named the 'run_group'.
@@ -159,13 +150,12 @@ class Project(metaclass=ProjectDecorator):
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
-    VERSION = None
-    SRC_FILE = None
     CONTAINER = None
     DOMAIN: tp.ClassVar[str] = ""
     GROUP: tp.ClassVar[str] = ""
     NAME: tp.ClassVar[str] = ""
     REQUIREMENTS: tp.List[Requirement] = []
+    SOURCE: tp.List[BaseSource] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -184,6 +174,12 @@ class Project(metaclass=ProjectDecorator):
 
     experiment = attr.ib()
 
+    variant: variants.VariantContext = attr.ib()
+
+    @variant.default
+    def __default_variant(self) -> bb.source.variants.VariantContext:
+        return bb.source.default(type(self).SOURCE)
+
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
@@ -193,23 +189,8 @@ class Project(metaclass=ProjectDecorator):
     group = attr.ib(
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
 
-    src_file = attr.ib(
-        default=attr.Factory(lambda self: type(self).SRC_FILE, takes_self=True))
-
     container = attr.ib(default=attr.Factory(lambda self: type(self).CONTAINER,
                                              takes_self=True))
-
-    version = attr.ib(
-        default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
-
-    testdir = attr.ib()
-
-    @testdir.default
-    def __default_testdir(self):
-        if self.group:
-            return local.path(str(
-                CFG["test_dir"])) / self.domain / self.group / self.name
-        return local.path(str(CFG["test_dir"])) / self.domain / self.name
 
     cflags = attr.ib(default=attr.Factory(list))
 
@@ -233,8 +214,8 @@ class Project(metaclass=ProjectDecorator):
         str(CFG["build_dir"])) / self.experiment.name / self.id,
                                             takes_self=True))
 
-    run_f = attr.ib(default=attr.Factory(
-        lambda self: local.path(self.builddir) / self.name, takes_self=True))
+    source = attr.ib(
+        default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True))
 
     compiler_extension = attr.ib(
         default=attr.Factory(lambda self: ext_run.WithTimeout(
@@ -273,7 +254,6 @@ class Project(metaclass=ProjectDecorator):
         CFG["project"] = self.NAME
         CFG["domain"] = self.DOMAIN
         CFG["group"] = self.GROUP
-        CFG["version"] = self.VERSION
         CFG["db"]["run_group"] = str(self.run_uuid)
 
         group, session = begin_run_group(self)
@@ -296,11 +276,6 @@ class Project(metaclass=ProjectDecorator):
         builddir_p = local.path(self.builddir)
         builddir_p.delete()
 
-    def download(self, version=None):
-        """Auto-generated by with_* decorators."""
-        del version
-        LOG.error("Not implemented.")
-
     def clone(self):
         """Create a deepcopy of ourself."""
         new_p = copy.deepcopy(self)
@@ -313,17 +288,8 @@ class Project(metaclass=ProjectDecorator):
 
     @property
     def id(self):
-        return "{name}-{group}@{version}_uuid_{id}".format(name=self.name,
-                                                           group=self.group,
-                                                           version=self.version,
-                                                           id=self.run_uuid)
-
-    @classmethod
-    def versions(cls):
-        """Return all available versions."""
-        if cls.VERSION:
-            return [cls.VERSION]
-        return ["unknown"]
+        version_str = bb.source.variants.to_str(tuple(self.variant.values()))
+        return f"{self.name}/{self.group}/{version_str}/{self.run_uuid}"
 
     def prepare(self):
         """Prepare the build diretory."""
@@ -334,6 +300,38 @@ class Project(metaclass=ProjectDecorator):
     def redirect(self):
         """Redirect execution to a containerized benchbuild instance."""
         LOG.error("Redirection not supported by project.")
+
+    def source_of(self, name: str) -> tp.Optional[str]:
+        """
+        Retrieve source for given index name.
+
+        Args:
+            project (Project): The project to access.
+            name (str): Local name of the source .
+
+        Returns:
+            (Optional[BaseSource]): A source representing this variant.
+        """
+        variant = self.variant
+        if name in variant:
+            return variant[name].owner.local
+        return None
+
+    def version_of(self, name: str) -> tp.Optional[str]:
+        """
+        Retrieve source for given index name.
+
+        Args:
+            project (Project): The project to access.
+            name (str): Local name of the source .
+
+        Returns:
+            (Optional[BaseSource]): A source representing this variant.
+        """
+        variant = self.variant
+        if name in variant:
+            return str(variant[name])
+        return None
 
 
 def __split_project_input__(

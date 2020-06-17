@@ -1,26 +1,30 @@
 from os import getenv
 
 import benchbuild as bb
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.source import Git
 from benchbuild.utils.cmd import make
 
 
-@download.with_git("https://github.com/google/leveldb", limit=5)
 class LevelDB(bb.Project):
     NAME = 'leveldb'
     DOMAIN = 'database'
     GROUP = 'benchbuild'
-    SRC_FILE = 'leveldb.src'
-    VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/google/leveldb',
+            local='leveldb.src',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     def compile(self):
-        self.download()
+        leveldb_repo = bb.path(self.source_of('leveldb.src'))
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
+
         with bb.cwd(leveldb_repo):
             with bb.env(CXX=str(clang_cxx), CC=str(clang)):
-                _make_ = bb.watch(make)
+                _make = bb.watch(make)
                 _make("clean")
                 _make("all", "-i")
 
@@ -31,10 +35,10 @@ class LevelDB(bb.Project):
         Args:
             experiment: The experiment's run function.
         """
-        leveldb = bb.wrap(
-            bb.path(self.src_file) / "out-static" / "db_bench", self)
+        leveldb_repo = bb.path(self.source_of('leveldb.src'))
+
+        leveldb = bb.wrap(leveldb_repo / "out-static" / "db_bench", self)
         _leveldb = bb.watch(leveldb)
         with bb.env(LD_LIBRARY_PATH="{}:{}".format(
-                bb.path(self.src_file) /
-                "out-shared", getenv("LD_LIBRARY_PATH", ""))):
+                leveldb_repo / "out-shared", getenv("LD_LIBRARY_PATH", ""))):
             _leveldb()

@@ -2,7 +2,7 @@ import logging
 
 import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import download
+from benchbuild.source import HTTP
 from benchbuild.utils.cmd import diff, tar
 
 LOG = logging.getLogger(__name__)
@@ -39,14 +39,9 @@ def get_dump_arrays_output(data):
     return out
 
 
-@download.with_wget({
-    "4.2":
-        "http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz"
-})
 class PolyBenchGroup(bb.Project):
     DOMAIN = 'polybench'
     GROUP = 'polybench'
-    VERSION = '4.2'
     path_dict = {
         "correlation": "datamining",
         "covariance": "datamining",
@@ -80,7 +75,13 @@ class PolyBenchGroup(bb.Project):
         "floyd-warshall": "medley",
     }
 
-    SRC_FILE = "polybench.tar.gz"
+    SOURCE = [
+        HTTP(remote={
+            '4.2':
+                'http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz'
+        },
+             local='polybench.tar.gz')
+    ]
 
     def compile_verify(self, compiler_args, polybench_opts):
         polybench_opts.append("-DPOLYBENCH_DUMP_ARRAYS")
@@ -101,16 +102,16 @@ class PolyBenchGroup(bb.Project):
         return polybench_opts
 
     def compile(self):
-        self.download()
+        polybench_source = bb.path(self.source_of('polybench.tar.gz'))
+        polybench_version = self.version_of('polybench.tar.gz')
 
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
         workload = str(polybench_opts["workload"])
 
-        tar('xfz', self.src_file)
-        src_dir_name = "polybench-c-{0}".format(self.version)
+        tar('xfz', polybench_source)
 
-        src_dir = bb.cwd / src_dir_name
+        src_dir = bb.path(f'./polybench-c-{polybench_version}')
         src_sub = src_dir / self.path_dict[self.name] / self.name
 
         src_file = src_sub / (self.name + ".c")

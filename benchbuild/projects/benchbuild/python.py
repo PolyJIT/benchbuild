@@ -1,25 +1,30 @@
 from plumbum import local
 
 import benchbuild as bb
-from benchbuild.utils import download
+from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
 
 
-@download.with_wget(
-    {'3.4.3': 'https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz'})
 class Python(bb.Project):
     """ python benchmarks """
 
     NAME = 'python'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
-    VERSION = '3.4.3'
-    SRC_FILE = 'python.tar.xz'
+    SOURCE = [
+        HTTP(remote={
+            '3.4.3':
+                'https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz'
+        },
+             local='python.tar.xz')
+    ]
 
     def compile(self):
-        self.download()
-        tar("xfJ", self.src_file)
-        unpack_dir = bb.path('Python-{0}'.format(self.version))
+        python_source = bb.path(self.source_of('python.tar.xz'))
+        python_version = self.version_of('python.tar.xz')
+
+        tar("xfJ", python_source)
+        unpack_dir = bb.path(f'Python-{python_version}')
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
@@ -34,7 +39,8 @@ class Python(bb.Project):
             _make()
 
     def run_tests(self):
-        unpack_dir = bb.path('Python-{0}'.format(self.version))
+        python_version = self.version_of('python.tar.xz')
+        unpack_dir = bb.path(f'Python-{python_version}')
         bb.wrap(unpack_dir / "python", self)
 
         with bb.cwd(unpack_dir):

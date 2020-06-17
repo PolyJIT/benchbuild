@@ -1,20 +1,31 @@
 from plumbum import FG, local
 
 import benchbuild as bb
-from benchbuild.utils import download
+from benchbuild.source import HTTP, Git
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, sed, sh,
                                   tar)
 
 
-@download.with_git('https://github.com/POV-Ray/povray', limit=5)
 class Povray(bb.Project):
     """ povray benchmark """
 
     NAME = 'povray'
     DOMAIN = 'multimedia'
     GROUP = 'benchbuild'
-    SRC_FILE = 'povray.git'
-    VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/POV-Ray/povray', local='povray.git'),
+        HTTP(remote={
+            '1.59.0':
+                'http://sourceforge.net/projects/boost/files/boost/1.59.0/'
+                'boost_1_59_0.tar.bz2'
+        },
+             local='boost.tar.bz2'),
+        HTTP(remote={
+            '2016-05-povray': 'http://lairosiel.de/dist/2016-05-povray.tar.gz'
+        },
+             local='inputs.tar.gz')
+    ]
 
     boost_src_dir = "boost_1_59_0"
     boost_src_file = boost_src_dir + ".tar.bz2"
@@ -23,15 +34,20 @@ class Povray(bb.Project):
         boost_src_file
 
     def compile(self):
-        self.download()
-        download.Wget(self.boost_src_uri, self.boost_src_file)
-        tar("xfj", self.boost_src_file)
+        povray_repo = bb.path(self.source_of('povray.git'))
+        boost_source = bb.path(self.source_of('boost.tar.bz2'))
+        inputs_source = bb.path(self.source_of('inputs.tar.gz'))
 
-        cp("-ar", bb.path(self.testdir) / "cfg", '.')
-        cp("-ar", bb.path(self.testdir) / "etc", '.')
-        cp("-ar", bb.path(self.testdir) / "scenes", '.')
-        cp("-ar", bb.path(self.testdir) / "share", '.')
-        cp("-ar", bb.path(self.testdir) / "test", '.')
+        tar('xf', boost_source)
+        tar('xf', inputs_source)
+
+        inputs_dir = bb.path('./povray/')
+
+        cp("-ar", inputs_dir / "cfg", '.')
+        cp("-ar", inputs_dir / "etc", '.')
+        cp("-ar", inputs_dir / "scenes", '.')
+        cp("-ar", inputs_dir / "share", '.')
+        cp("-ar", inputs_dir / "test", '.')
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
@@ -48,8 +64,7 @@ class Povray(bb.Project):
             _b2("--ignore-site-config", "variant=release", "link=static",
                 "threading=multi", "optimization=speed", "install")
 
-        src_file = bb.path(self.src_file)
-        with bb.cwd(src_file):
+        with bb.cwd(povray_repo):
             with bb.cwd("unix"):
                 sh("prebuild.sh")
 
@@ -63,7 +78,8 @@ class Povray(bb.Project):
             _make("all")
 
     def run_tests(self):
-        povray_binary = bb.path(self.src_file) / "unix" / self.name
+        povray_repo = bb.path(self.source_of('povray.git'))
+        povray_binary = povray_repo / 'unix' / self.name
         tmpdir = bb.path("tmp")
         tmpdir.mkdir()
 

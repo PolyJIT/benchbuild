@@ -3,12 +3,13 @@ Provide a base interface for downloadable sources.
 """
 import abc
 import itertools
-from typing import List, Mapping, Union
+from typing import Iterable, List, Mapping, Union
 
 import attr
 
-from benchbuild import variants
 from benchbuild.settings import CFG
+
+from . import variants
 
 
 class ISource(abc.ABC):
@@ -97,7 +98,7 @@ class NoSource(BaseSource):
     def version(self, target_dir: str, version: str) -> str:
         return 'None'
 
-    def versions(self) -> List[Variant]:
+    def versions(self) -> List['Variant']:
         return ['None']
 
 

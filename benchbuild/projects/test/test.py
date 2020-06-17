@@ -1,6 +1,5 @@
 import benchbuild as bb
 from benchbuild import project
-from benchbuild.utils import run
 
 
 class TestProject(project.Project):
@@ -8,11 +7,9 @@ class TestProject(project.Project):
     NAME = "test"
     DOMAIN = "test"
     GROUP = "test"
-    VERSION = "1.0"
-    SRC_FILE = "test.cpp"
 
     def compile(self):
-        with open(self.src_file, 'w') as test_source:
+        with open('test.cpp', 'w') as test_source:
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {
@@ -23,12 +20,12 @@ int main(int argc, char **argv) {
             """
             test_source.write(lines)
 
-        _clang(self.src_file, "-o", self.src_file + ".out")
         clang = bb.compiler.cxx(self)
         _clang = bb.watch(clang)
+        _clang('test.cpp', "-o", 'test.cpp.out')
 
     def run_tests(self):
-        exp = bb.wrap(self.src_file + ".out", self)
+        exp = bb.wrap('test.cpp.out', self)
         _exp = bb.watch(exp)
         _exp()
 
@@ -39,11 +36,10 @@ class TestProjectRuntimeFail(project.Project):
     NAME = "test-fail"
     DOMAIN = "test"
     GROUP = "test"
-    VERSION = "1.0"
     SRC_FILE = "test.cpp"
 
     def compile(self):
-        with open(self.src_file, 'w') as test_source:
+        with open('test.cpp', 'w') as test_source:
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {
@@ -54,11 +50,11 @@ int main(int argc, char **argv) {
             """
             test_source.write(lines)
 
-        _clang(self.src_file, "-o", self.src_file + ".out")
         clang = bb.compiler.cxx(self)
         _clang = bb.watch(clang)
+        _clang('test.cpp', "-o", 'test.cpp.out')
 
     def run_tests(self):
-        exp = bb.wrap(self.src_file + ".out", self)
+        exp = bb.wrap('test.cpp.ou', self)
         _exp = bb.watch(exp)
         _exp()

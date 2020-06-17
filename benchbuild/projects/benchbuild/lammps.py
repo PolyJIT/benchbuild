@@ -1,25 +1,28 @@
-from benchbuild import project
-from benchbuild.utils import download
+import benchbuild as bb
+from benchbuild.source import Git
 from benchbuild.utils.cmd import make
 
 
-@download.with_git("https://github.com/lammps/lammps", limit=5)
 class Lammps(bb.Project):
     """ LAMMPS benchmark """
 
     NAME = 'lammps'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
-    SRC_FILE = 'lammps.git'
-    VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/lammps/lammps',
+            local='lammps.git',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     def run_tests(self):
-        src_path = bb.path(self.src_file)
-        lammps_dir = src_path / "src"
-        lmp_serial = bb.wrap(lammps_dir / "lmp_serial", self)
+        lammps_repo = bb.path(self.source_of('lammps.git'))
+        src = lammps_repo / 'src'
+        examples = lammps_repo / "examples"
 
-        examples_dir = src_path / "examples"
-        tests = examples_dir // "*" // "in.*"
+        lmp_serial = bb.wrap(src / "lmp_serial", self)
+        tests = examples // "*" // "in.*"
 
         for test in tests:
             dirname = test.dirname
@@ -28,9 +31,10 @@ class Lammps(bb.Project):
                 _lmp_serial(retcode=None)
 
     def compile(self):
-        self.download()
-        self.ldflags += ["-lgomp"]
+        lammps_repo = bb.path(self.source_of('lammps.git'))
+        src = lammps_repo / 'src'
 
+        self.ldflags += ["-lgomp"]
         clang_cxx = bb.compiler.cxx(self)
         with bb.cwd(src):
             _make = bb.watch(make)

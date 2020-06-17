@@ -4,15 +4,11 @@ from plumbum import local
 
 import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import download
+from benchbuild.source import Git
 from benchbuild.utils.cmd import make, mkdir, tar
 from benchbuild.utils.settings import get_number_of_jobs
 
 
-@download.with_git("https://github.com/mozilla/gecko-dev.git",
-                   target_dir="gecko-dev.git",
-                   clone=False,
-                   limit=5)
 class SpiderMonkey(bb.Project):
     """
     SpiderMonkey requires a legacy version of autoconf: autoconf-2.13
@@ -21,15 +17,17 @@ class SpiderMonkey(bb.Project):
     NAME = 'js'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
-    VERSION = 'HEAD'
-    SRC_FILE = "gecko-dev.git"
-
-    src_uri = "https://github.com/mozilla/gecko-dev.git"
+    SOURCE = [
+        Git(remote='https://github.com/mozilla/gecko-dev.git',
+            local='gecko-dev.git',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     def compile(self):
-        self.download()
+        gecko_repo = bb.path(self.source_of('gecko-dev.git'))
 
-        js_dir = bb.path(self.src_file) / "js" / "src"
+        js_dir = gecko_repo / "js" / "src"
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
         with bb.cwd(js_dir):

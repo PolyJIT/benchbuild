@@ -64,16 +64,34 @@ def print_projects(projects=None):
                 version_str = ", ".join(prj_cls.versions())
 
             project_id = f'{prj_cls.NAME}/{prj_cls.GROUP}'
+            project_version = str(bb.source.default(prj_cls.SOURCE))
 
-            project_str = \
-                "  name: {id:<32} version: {version:<24} source: {src}".format(
-                    id=str(project_id),
-                    version=str(prj_cls.VERSION),
-                    src=str(prj_cls.SRC_FILE))
-            print(project_str)
+            project_lines = [
+                f'::  {project_id}'
+                f'    default: {project_version:<24}'
+            ]
+            for src in prj_cls.SOURCE:
+                source_lines = [
+                    f'\n    * source: {src.local}',
+                ]
+                if isinstance(src.remote, str):
+                    source_lines.append(f' remote: {src.remote}')
+                    source_lines.extend([
+                        f'\n      - {str(version)}'
+                        for version in src.versions()
+                    ])
+                else:
+                    source_lines.extend([
+                        f'\n      - {str(version)} '
+                        f'remote: {src.remote[str(version)]}'
+                        for version in src.versions()
+                    ])
+                project_lines.extend(source_lines)
+
+            print(*project_lines)
             if prj_cls.__doc__:
                 docstr = prj_cls.__doc__.strip("\n ")
                 print(f'    description: {docstr}')
             if version_str:
-                print("    versions: {versions}".format(versions=version_str))
+                print(f'    versions: {version_str}')
         print()

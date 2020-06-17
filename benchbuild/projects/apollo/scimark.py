@@ -1,23 +1,25 @@
 import benchbuild as bb
+from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, unzip
-from benchbuild.utils.download import with_wget
 
 
-@with_wget({'2.1c': 'http://math.nist.gov/scimark2/scimark2_1c.zip'})
 class SciMark(bb.Project):
     """SciMark"""
 
     NAME = 'scimark'
     DOMAIN = 'scientific'
     GROUP = 'apollo'
-    VERSION = "2.1c"
-    SRC_FILE = "scimark.zip"
+
+    SOURCE = [
+        HTTP(remote={'2.1c': 'http://math.nist.gov/scimark2/scimark2_1c.zip'},
+             local='scimark.zip')
+    ]
 
     def compile(self):
-        self.download()
-        unzip(bb.cwd / self.src_file)
+        scimark_source = bb.path(self.source_of('scimark.zip'))
         clang = bb.compiler.cc(self)
         _clang = bb.watch(clang)
+        unzip(bb.cwd / scimark_source)
         make("CC=" + str(_clang), "scimark2")
 
     def run_tests(self):

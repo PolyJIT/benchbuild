@@ -3,26 +3,29 @@ from os import path
 from plumbum import local
 
 import benchbuild as bb
-from benchbuild.utils import download
+from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, mkdir, tar
 
 
-@download.with_wget({
-    '0.9.26':
-        'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'
-})
 class TCC(bb.Project):
+    VERSION = '0.9.26'
     NAME = 'tcc'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
-    VERSION = '0.9.26'
-    SRC_FILE = 'tcc.tar.bz2'
+    SOURCE = [
+        HTTP(remote={
+            '0.9.26':
+                'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'
+        },
+             local='tcc.tar.bz2')
+    ]
 
     def compile(self):
-        self.download()
+        tcc_source = bb.path(self.source_of('tcc.tar.bz2'))
+        tcc_version = self.version_of('tcc.tar.bz2')
 
-        tar("xf", self.src_file)
-        unpack_dir = bb.path('tcc-{0}.tar.bz2'.format(self.version))
+        tar("xf", tcc_source)
+        unpack_dir = bb.path(f'tcc-{tcc_version}.tar.bz2')
 
         clang = bb.compiler.cc(self)
 
@@ -37,7 +40,8 @@ class TCC(bb.Project):
                 _make()
 
     def run_tests(self):
-        unpack_dir = bb.path('tcc-{0}.tar.bz2'.format(self.version))
+        tcc_version = self.version_of('tcc.tar.bz2')
+        unpack_dir = bb.path(f'tcc-{tcc_version}.tar.bz2')
         with bb.cwd(unpack_dir):
             with bb.cwd("build"):
                 bb.wrap("tcc", self)

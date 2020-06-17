@@ -265,8 +265,8 @@ def persist(id_obj, filename=None, suffix=None):
     """
     if suffix is None:
         suffix = ".pickle"
-    if hasattr(id_obj, 'id'):
-        ident = id_obj.id
+    if hasattr(id_obj, 'run_uuid'):
+        ident = id_obj.run_uuid
     else:
         ident = str(id(id_obj))
 

@@ -1,25 +1,29 @@
 import logging
 
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import download
+from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.settings import get_number_of_jobs
 
 
-@download.with_git("https://github.com/xianyi/OpenBLAS", limit=5)
 class OpenBlas(bb.Project):
     NAME = 'openblas'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
-    SRC_FILE = 'OpenBLAS'
-    VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/xianyi/OpenBLAS',
+            local='OpenBLAS',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     def compile(self):
-        self.download()
-
-        with bb.cwd(self.src_file):
-            clang = bb.compiler.cc(self)
+        openblas_repo = bb.path(self.source_of('OpenBLAS'))
+        clang = bb.compiler.cc(self)
+        with bb.cwd(openblas_repo):
             _make = bb.watch(make)
             _make("CC=" + str(clang))
 
@@ -28,18 +32,21 @@ class OpenBlas(bb.Project):
         log.warning('Not implemented')
 
 
-@download.with_wget({"3.2.1": "http://www.netlib.org/clapack/clapack.tgz"})
 class Lapack(bb.Project):
-    NAME = 'lapack'
-    DOMAIN = 'scientific'
-    GROUP = 'benchbuild'
-    VERSION = '3.2.1'
-    SRC_FILE = "clapack.tgz"
+    NAME: str = 'lapack'
+    DOMAIN: str = 'scientific'
+    GROUP: str = 'benchbuild'
+    SOURCE = [
+        HTTP(remote={'3.2.1': 'http://www.netlib.org/clapack/clapack.tgz'},
+             local='clapack.tgz')
+    ]
 
     def compile(self):
-        self.download()
-        tar("xfz", self.src_file)
-        unpack_dir = "CLAPACK-{0}".format(self.version)
+        clapack_source = bb.path(self.source_of('clapack.tgz'))
+        clapack_version = self.version_of('clapack.tgz')
+
+        tar("xfz", clapack_source)
+        unpack_dir = "CLAPACK-{0}".format(clapack_version)
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
@@ -64,14 +71,15 @@ class Lapack(bb.Project):
                 ]
                 makefile.writelines(content)
 
-            with bb.cwd(bb.path("BLAS") / "TESTING"):
-                _make("-j", get_number_of_jobs(CFG), "f2clib", "blaslib")
+            _make = bb.watch(make)
+            _make("-j", get_number_of_jobs(CFG), "f2clib", "blaslib")
+            with bb.cwd(local.path("BLAS") / "TESTING"):
                 _make("-j", get_number_of_jobs(CFG), "-f", "Makeblat2")
                 _make("-j", get_number_of_jobs(CFG), "-f", "Makeblat3")
-            _make = bb.watch(make)
 
     def run_tests(self):
-        unpack_dir = bb.path("CLAPACK-{0}".format(self.version))
+        clapack_version = self.version_of('clapack.tgz')
+        unpack_dir = bb.path("CLAPACK-{0}".format(clapack_version))
         with bb.cwd(unpack_dir / "BLAS"):
             xblat2s = bb.wrap("xblat2s", self)
             _xblat2s = bb.watch((xblat2s < "sblat2.in"))

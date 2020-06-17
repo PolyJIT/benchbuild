@@ -99,8 +99,7 @@ def persist_project(project):
     desc = project.__doc__
     domain = project.domain
     group_name = project.group
-    version = project.version() \
-        if callable(project.version) else project.version
+    version = str(project.variant)
     try:
         src_url = project.src_uri
     except AttributeError:

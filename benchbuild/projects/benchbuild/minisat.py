@@ -1,35 +1,51 @@
 import benchbuild as bb
-from benchbuild.utils import download
-from benchbuild.utils.cmd import git, make
+from benchbuild.source import HTTP, Git
+from benchbuild.utils.cmd import git, make, tar
 
 
-@download.with_git("https://github.com/niklasso/minisat", limit=5)
 class Minisat(bb.Project):
     """ minisat benchmark """
 
     NAME = 'minisat'
     DOMAIN = 'verification'
     GROUP = 'benchbuild'
-    SRC_FILE = 'minisat.git'
-    VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/niklasso/minisat',
+            local='minisat.git',
+            limit=5,
+            refspec='HEAD'),
+        HTTP(remote={
+            '2016-11-minisat.tar.gz':
+                'http://lairosiel.de/dist/2016-11-minisat.tar.gz'
+        },
+             local='inputs.tar.gz')
+    ]
 
     def run_tests(self):
-        src_path = bb.path(self.src_file)
-        minisat_lib_path = src_path / "build" / "dynamic" / "lib"
-        testfiles = bb.path(self.testdir) // "*.cnf.gz"
+        minisat_repo = bb.path(self.source_of('minisat.git'))
+        minisat_build = minisat_repo / 'build' / 'dynamic'
+        minisat_lib = minisat_build / 'lib'
+        minisat_bin = minisat_build / 'bin'
 
-        minisat = bb.wrap(src_path / "build" / "dynamic" / "bin" / "minisat",
-                          self)
+        test_source = bb.path(self.source_of('inputs.tar.gz'))
+        test_dir = bb.path('./minisat/')
+        tar('xf', test_source)
+
+        testfiles = test_dir // "*.cnf.gz"
+
+        minisat = bb.wrap(minisat_bin / "minisat", self)
         for test_f in testfiles:
             _minisat = bb.watch(
-                (minisat.with_env(LD_LIBRARY_PATH=minisat_lib_path) < test_f))
+                (minisat.with_env(LD_LIBRARY_PATH=minisat_lib) < test_f))
             _minisat()
 
     def compile(self):
-        self.download()
-        with bb.cwd(self.src_file):
+        minisat_repo = bb.path(self.source_of('minisat.git'))
+        with bb.cwd(minisat_repo):
+            # FIXME: That needs to be modeled with Git() download handlers.
             git("fetch", "origin", "pull/17/head:clang")
             git("checkout", "clang")
+            #
 
             _make = bb.watch(make)
             _make("config")

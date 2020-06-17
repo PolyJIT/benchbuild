@@ -177,7 +177,7 @@ class Configuration:
     """Forward declaration."""
 
 
-class Configuration():
+class Configuration:
     """
     Dictionary-like data structure to contain all configuration variables.
 

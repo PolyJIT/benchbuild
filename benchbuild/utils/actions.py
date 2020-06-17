@@ -28,7 +28,7 @@ import attr
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 
-from benchbuild import signals
+from benchbuild import signals, source
 from benchbuild.settings import CFG
 from benchbuild.utils import container, db
 from benchbuild.utils.cmd import mkdir, rm, rmdir
@@ -624,3 +624,28 @@ class CleanExtra(Step):
                 textwrap.indent("* Clean the directory: {0}".format(p),
                                 indent * " "))
         return "\n".join(lines)
+
+
+class ProjectEnvironment(Step):
+    NAME = 'ENV'
+    DESCRIPTION = 'Prepare the project environment.'
+
+    @notify_step_begin_end
+    def __call__(self):
+        project = self.obj
+        prj_vars = project.variant
+
+        for name, variant in prj_vars.items():
+            LOG.info(f"Fetching {str(name)} @ {variant.version}")
+            src = variant.owner
+            src.version(project.builddir, variant.version)
+
+    def __str__(self, indent=0):
+        project = self.obj
+        variant = project.variant
+        version_str = source.variants.to_str(tuple(variant.values()))
+
+        return textwrap.indent(
+            "* Project environment for: {} @ {}".format(project.name,
+                                                        version_str),
+            indent * " ")

@@ -1,36 +1,33 @@
 from plumbum import local
 
 import benchbuild as bb
-from benchbuild.settings import CFG
-from benchbuild.utils import download
-from benchbuild.utils.cmd import cp, make
+from benchbuild import CFG
+from benchbuild.source import HTTP, Git
+from benchbuild.utils.cmd import make
 from benchbuild.utils.settings import get_number_of_jobs
 
 
-@download.with_git("https://code.videolan.org/videolan/x264.git",
-                   refspec="HEAD",
-                   limit=5)
 class X264(bb.Project):
     """ x264 """
 
     NAME = "x264"
     DOMAIN = "multimedia"
     GROUP = 'benchbuild'
-    VERSION = 'HEAD'
-    SRC_FILE = 'x264.git'
+    SOURCE = [
+        Git(remote='https://code.videolan.org/videolan/x264.git',
+            local='x264.git',
+            refspec='HEAD',
+            limit=5),
+        HTTP(remote={'tbbt-small': 'http://lairosiel.de/dist/tbbt-small.y4m'},
+             local='tbbt-small.y4m'),
+        HTTP(remote={'sintel': 'http://lairosiel.de/dist/Sintel.2010.720p.raw'},
+             local='sintel.raw'),
+    ]
 
-    inputfiles = {
-        "tbbt-small.y4m": [],
-        "Sintel.2010.720p.raw": ["--input-res", "1280x720"]
-    }
-
-    src_uri = "git://git.videolan.org/x264.git"
+    CONFIG = {"tbbt-small": [], "sintel": ["--input-res", "1280x720"]}
 
     def compile(self):
-        self.download()
-        testfiles = [bb.path(self.testdir) / x for x in self.inputfiles]
-        for testfile in testfiles:
-            cp(testfile, self.builddir)
+        x264_repo = bb.path(self.source_of('x264.git'))
         clang = bb.compiler.cc(self)
 
         with bb.cwd(x264_repo):
@@ -45,7 +42,10 @@ class X264(bb.Project):
             _make("clean", "all", "-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
-        x264 = bb.wrap(bb.path(self.src_file) / "x264", self)
+        x264_repo = self.source_of('x264.git')
+        inputfiles = [self.source_of('tbbt-small'), self.source_of('sintel')]
+
+        x264 = bb.wrap(x264_repo / "x264", self)
         _x264 = bb.watch(x264)
 
         tests = [
@@ -59,8 +59,7 @@ class X264(bb.Project):
             "--frames 50 -q0 -m2 -r1 --me hex --no-cabac",
         ]
 
-        for ifile in self.inputfiles:
-            testfile = bb.path(self.testdir) / ifile
+        for testfile in inputfiles:
             for _, test in enumerate(tests):
-                _x264(testfile, self.inputfiles[ifile], "--threads", "1", "-o",
+                _x264(testfile, self.CONFIG[testfile], "--threads", "1", "-o",
                       "/dev/null", test.split(" "))

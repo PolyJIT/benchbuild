@@ -6,9 +6,10 @@ from typing import List, Mapping, Union
 import attr
 from plumbum import local
 
-from benchbuild import variants
 from benchbuild.source import base
-from benchbuild.utils.cmd import cp, tar, wget
+from benchbuild.utils.cmd import cp, wget
+
+from . import variants
 
 
 @attr.s

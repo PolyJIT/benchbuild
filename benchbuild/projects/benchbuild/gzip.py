@@ -1,14 +1,14 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils import download
 from benchbuild.utils.cmd import cp, make, tar
 from benchbuild.utils.settings import get_number_of_jobs
 
 
 @download.with_wget({"1.6": "http://ftpmirror.gnu.org/gzip/gzip-1.6.tar.xz"})
-class Gzip(project.Project):
+class Gzip(bb.Project):
     """ Gzip """
 
     NAME = 'gzip'
@@ -22,9 +22,10 @@ class Gzip(project.Project):
     ]
 
     def run_tests(self):
-        unpack_dir = local.path("gzip-{0}.tar.xz".format(self.version))
-        gzip = wrapping.wrap(unpack_dir / "gzip", self)
-        _gzip = run.watch(gzip)
+        unpack_dir = bb.path("gzip-{0}.tar.xz".format(self.version))
+
+        gzip = bb.wrap(unpack_dir / "gzip", self)
+        _gzip = bb.watch(gzip)
 
         # Compress
         _gzip("-f", "-k", "--best", "text.html")
@@ -45,14 +46,14 @@ class Gzip(project.Project):
         tar("xfJ", self.src_file)
         unpack_dir = "gzip-{0}.tar.xz".format(self.version)
 
-        testfiles = [local.path(self.testdir) / x for x in self.testfiles]
+        testfiles = [bb.path(self.testdir) / x for x in self.testfiles]
         cp(testfiles, '.')
 
-        clang = compiler.cc(self)
-        with local.cwd(unpack_dir):
-            _configure = run.watch(local["./configure"])
-            with local.env(CC=str(clang)):
+        clang = bb.compiler.cc(self)
+        with bb.cwd(unpack_dir):
+            _configure = bb.watch(local["./configure"])
+            with bb.env(CC=str(clang)):
                 _configure("--disable-dependency-tracking",
                            "--disable-silent-rules", "--with-gnu-ld")
-            _make = run.watch(make)
+            _make = bb.watch(make)
             _make("-j" + str(get_number_of_jobs(CFG)), "clean", "all")

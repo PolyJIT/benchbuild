@@ -1,13 +1,13 @@
 from plumbum import local
 
-from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+import benchbuild as bb
+from benchbuild.utils import download
 from benchbuild.utils.cmd import make, tar
 
 
 @download.with_wget(
     {"1.10": "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"})
-class Ccrypt(project.Project):
+class Ccrypt(bb.Project):
     """ ccrypt benchmark """
 
     NAME = 'ccrypt'
@@ -21,23 +21,23 @@ class Ccrypt(project.Project):
         tar('xfz', self.src_file)
         unpack_dir = 'ccrypt-{0}'.format(self.version)
 
-        clang = compiler.cc(self)
-        clang_cxx = compiler.cxx(self)
+        clang = bb.compiler.cc(self)
+        clang_cxx = bb.compiler.cxx(self)
 
-        with local.cwd(unpack_dir):
+        with bb.cwd(unpack_dir):
             configure = local["./configure"]
-            _configure = run.watch(configure)
-            with local.env(CC=str(clang), CXX=str(clang_cxx)):
+            _configure = bb.watch(configure)
+            with bb.env(CC=str(clang), CXX=str(clang_cxx)):
                 _configure()
-            _make = run.watch(make)
+            _make = bb.watch(make)
             _make("check")
 
     def run_tests(self):
         unpack_dir = 'ccrypt-{0}'.format(self.version)
-        with local.cwd(unpack_dir):
-            wrapping.wrap(local.path("src") / self.name, self)
-            wrapping.wrap(local.path("check") / "crypt3-check", self)
-            wrapping.wrap(local.path("check") / "rijndael-check", self)
+        with bb.cwd(unpack_dir):
+            bb.wrap(bb.path("src") / self.name, self)
+            bb.wrap(bb.path("check") / "crypt3-check", self)
+            bb.wrap(bb.path("check") / "rijndael-check", self)
 
-            _make = run.watch(make)
+            _make = bb.watch(make)
             _make("check")

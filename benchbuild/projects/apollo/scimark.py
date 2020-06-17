@@ -1,15 +1,10 @@
-from plumbum import local
-
-from benchbuild.project import Project
-from benchbuild.utils import run
+import benchbuild as bb
 from benchbuild.utils.cmd import make, unzip
-from benchbuild.utils.compiler import cc
 from benchbuild.utils.download import with_wget
-from benchbuild.utils.wrapping import wrap
 
 
 @with_wget({'2.1c': 'http://math.nist.gov/scimark2/scimark2_1c.zip'})
-class SciMark(Project):
+class SciMark(bb.Project):
     """SciMark"""
 
     NAME = 'scimark'
@@ -20,12 +15,12 @@ class SciMark(Project):
 
     def compile(self):
         self.download()
-        unzip(local.cwd / self.src_file)
-        clang = cc(self)
-        _clang = run.watch(clang)
+        unzip(bb.cwd / self.src_file)
+        clang = bb.compiler.cc(self)
+        _clang = bb.watch(clang)
         make("CC=" + str(_clang), "scimark2")
 
     def run_tests(self):
-        scimark2 = wrap(local.path('scimark2'), self)
-        _scimark2 = run.watch(scimark2)
+        scimark2 = bb.wrap(bb.path('scimark2'), self)
+        _scimark2 = bb.watch(scimark2)
         _scimark2()

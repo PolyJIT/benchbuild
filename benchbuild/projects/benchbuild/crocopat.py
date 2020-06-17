@@ -1,13 +1,11 @@
-from plumbum import local
-
-from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+import benchbuild as bb
+from benchbuild.utils import download
 from benchbuild.utils.cmd import cat, make, unzip
 
 
 @download.with_wget(
     {"2.1.4": "http://crocopat.googlecode.com/files/crocopat-2.1.4.zip"})
-class Crocopat(project.Project):
+class Crocopat(bb.Project):
     """ crocopat benchmark """
 
     NAME = 'crocopat'
@@ -17,13 +15,13 @@ class Crocopat(project.Project):
     SRC_FILE = "crocopat.zip"
 
     def run_tests(self):
-        crocopat = wrapping.wrap(self.run_f, self)
+        crocopat = bb.wrap('crocopat', self)
 
-        programs = local.path(self.testdir) / "programs" // "*.rml"
-        projects = local.path(self.testdir) / "projects" // "*.rsf"
+        programs = bb.path(self.testdir) / "programs" // "*.rml"
+        projects = bb.path(self.testdir) / "projects" // "*.rsf"
         for program in programs:
             for _project in projects:
-                _crocopat_project = run.watch(
+                _crocopat_project = bb.watch(
                     (cat[_project] | crocopat[program]))
                 _crocopat_project(retcode=None)
 
@@ -32,11 +30,11 @@ class Crocopat(project.Project):
         unzip(self.src_file)
         unpack_dir = "crocopat-{0}".format(self.version)
 
-        crocopat_dir = local.path(unpack_dir) / "src"
+        crocopat_dir = bb.path(unpack_dir) / "src"
         self.cflags += ["-I.", "-ansi"]
         self.ldflags += ["-L.", "-lrelbdd"]
-        clang_cxx = compiler.cxx(self)
+        clang_cxx = bb.compiler.cxx(self)
 
-        with local.cwd(crocopat_dir):
-            _make = run.watch(make)
+        with bb.cwd(crocopat_dir):
+            _make = bb.watch(make)
             _make("CXX=" + str(clang_cxx))

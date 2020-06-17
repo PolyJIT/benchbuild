@@ -1,12 +1,11 @@
-from plumbum import local
-
+import benchbuild as bb
 from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils import download
 from benchbuild.utils.cmd import cp, make
 
 
 @download.with_git("https://github.com/PolyJIT/bzip2", limit=1, refspec="HEAD")
-class Bzip2(project.Project):
+class Bzip2(bb.Project):
     """ Bzip2 """
 
     NAME = 'bzip2'
@@ -22,17 +21,17 @@ class Bzip2(project.Project):
     def compile(self):
         self.download()
 
-        testfiles = [local.path(self.testdir) / x for x in self.testfiles]
+        testfiles = [bb.path(self.testdir) / x for x in self.testfiles]
         cp(testfiles, '.')
 
-        clang = compiler.cc(self)
-        with local.cwd(self.src_file):
-            make_ = run.watch(make)
+        clang = bb.compiler.cc(self)
+        with bb.cwd(self.src_file):
+            make_ = bb.watch(make)
             make_("CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2")
 
     def run_tests(self):
-        bzip2 = wrapping.wrap(local.path(self.src_file) / "bzip2", self)
-        _bzip2 = run.watch(bzip2)
+        bzip2 = bb.wrap(bb.path(self.src_file) / "bzip2", self)
+        _bzip2 = bb.watch(bzip2)
 
         # Compress
         _bzip2("-f", "-z", "-k", "--best", "text.html")

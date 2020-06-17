@@ -1,12 +1,12 @@
 from plumbum import local
 
-from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+import benchbuild as bb
+from benchbuild.utils import download
 from benchbuild.utils.cmd import cp, make, tar
 
 
 @download.with_wget({'5.2.1': 'http://tukaani.org/xz/xz-5.2.1.tar.gz'})
-class XZ(project.Project):
+class XZ(bb.Project):
     """ XZ """
     NAME = 'xz'
     DOMAIN = 'compression'
@@ -23,29 +23,29 @@ class XZ(project.Project):
 
         tar('xfz', self.src_file)
 
-        test_dir = local.path(self.testdir)
+        test_dir = bb.path(self.testdir)
         testfiles = [test_dir / x for x in self.testfiles]
         cp(testfiles, self.builddir)
 
-        unpack_dir = local.path('xz-{0}'.format(self.version))
-        clang = compiler.cc(self)
-        with local.cwd(unpack_dir):
+        unpack_dir = bb.path('xz-{0}'.format(self.version))
+        clang = bb.compiler.cc(self)
+        with bb.cwd(unpack_dir):
             configure = local["./configure"]
-            _configure = run.watch(configure)
-            with local.env(CC=str(clang)):
+            _configure = bb.watch(configure)
+            with bb.env(CC=str(clang)):
                 _configure("--enable-threads=no", "--with-gnu-ld=yes",
                            "--disable-shared", "--disable-dependency-tracking",
                            "--disable-xzdec", "--disable-lzmadec",
                            "--disable-lzmainfo", "--disable-lzma-links",
                            "--disable-scripts", "--disable-doc")
 
-            _make = run.watch(make)
+            _make = bb.watch(make)
             _make("CC=" + str(clang), "clean", "all")
 
     def run_tests(self):
-        unpack_dir = local.path('xz-{0}'.format(self.version))
-        xz = wrapping.wrap(unpack_dir / "src" / "xz" / "xz", self)
-        _xz = run.watch(xz)
+        unpack_dir = bb.path('xz-{0}'.format(self.version))
+        xz = bb.wrap(unpack_dir / "src" / "xz" / "xz", self)
+        _xz = bb.watch(_xz)
 
         # Compress
         _xz("--compress", "-f", "-k", "-e", "-9", "text.html")

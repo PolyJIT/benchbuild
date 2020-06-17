@@ -1,13 +1,13 @@
 from plumbum import FG, local
 
-from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+import benchbuild as bb
+from benchbuild.utils import download
 from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, sed, sh,
                                   tar)
 
 
 @download.with_git('https://github.com/POV-Ray/povray', limit=5)
-class Povray(project.Project):
+class Povray(bb.Project):
     """ povray benchmark """
 
     NAME = 'povray'
@@ -27,57 +27,57 @@ class Povray(project.Project):
         download.Wget(self.boost_src_uri, self.boost_src_file)
         tar("xfj", self.boost_src_file)
 
-        cp("-ar", local.path(self.testdir) / "cfg", '.')
-        cp("-ar", local.path(self.testdir) / "etc", '.')
-        cp("-ar", local.path(self.testdir) / "scenes", '.')
-        cp("-ar", local.path(self.testdir) / "share", '.')
-        cp("-ar", local.path(self.testdir) / "test", '.')
+        cp("-ar", bb.path(self.testdir) / "cfg", '.')
+        cp("-ar", bb.path(self.testdir) / "etc", '.')
+        cp("-ar", bb.path(self.testdir) / "scenes", '.')
+        cp("-ar", bb.path(self.testdir) / "share", '.')
+        cp("-ar", bb.path(self.testdir) / "test", '.')
 
-        clang = compiler.cc(self)
-        clang_cxx = compiler.cxx(self)
+        clang = bb.compiler.cc(self)
+        clang_cxx = bb.compiler.cxx(self)
         # First we have to prepare boost for lady povray...
         boost_prefix = "boost-install"
-        with local.cwd(self.boost_src_dir):
+        with bb.cwd(self.boost_src_dir):
             mkdir(boost_prefix)
             bootstrap = local["./bootstrap.sh"]
-            _bootstrap = run.watch(bootstrap)
+            _bootstrap = bb.watch(bootstrap)
             _bootstrap("--with-toolset=clang",
                        "--prefix=\"{0}\"".format(boost_prefix))
 
-            _b2 = run.watch(local["./b2"])
+            _b2 = bb.watch(local["./b2"])
             _b2("--ignore-site-config", "variant=release", "link=static",
                 "threading=multi", "optimization=speed", "install")
 
-        src_file = local.path(self.src_file)
-        with local.cwd(src_file):
-            with local.cwd("unix"):
+        src_file = bb.path(self.src_file)
+        with bb.cwd(src_file):
+            with bb.cwd("unix"):
                 sh("prebuild.sh")
 
             configure = local["./configure"]
-            _configure = run.watch(configure)
-            with local.env(COMPILED_BY="BB <no@mail.nono>",
-                           CC=str(clang),
-                           CXX=str(clang_cxx)):
+            _configure = bb.watch(configure)
+            with bb.env(COMPILED_BY="BB <no@mail.nono>",
+                        CC=str(clang),
+                        CXX=str(clang_cxx)):
                 _configure("--with-boost=" + boost_prefix)
-            _make = run.watch(make)
+            _make = bb.watch(make)
             _make("all")
 
     def run_tests(self):
-        povray_binary = local.path(self.src_file) / "unix" / self.name
-        tmpdir = local.path("tmp")
+        povray_binary = bb.path(self.src_file) / "unix" / self.name
+        tmpdir = bb.path("tmp")
         tmpdir.mkdir()
 
-        povini = local.path("cfg") / ".povray" / "3.6" / "povray.ini"
-        scene_dir = local.path("share") / "povray-3.6" / "scenes"
+        povini = bb.path("cfg") / ".povray" / "3.6" / "povray.ini"
+        scene_dir = bb.path("share") / "povray-3.6" / "scenes"
 
-        povray = wrapping.wrap(povray_binary, self)
-        _povray = run.watch(povray)
+        povray = bb.wrap(povray_binary, self)
+        _povray = bb.watch(povray)
         pov_files = find(scene_dir, "-name", "*.pov").splitlines()
         for pov_f in pov_files:
-            with local.env(POVRAY=povray_binary,
-                           INSTALL_DIR='.',
-                           OUTPUT_DIR=tmpdir,
-                           POVINI=povini):
+            with bb.env(POVRAY=povray_binary,
+                        INSTALL_DIR='.',
+                        OUTPUT_DIR=tmpdir,
+                        POVINI=povini):
                 options = ((((head["-n", "50", "\"" + pov_f + "\""] |
                               grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]) |
                              head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)

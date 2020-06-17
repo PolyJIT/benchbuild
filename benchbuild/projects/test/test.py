@@ -1,5 +1,6 @@
+import benchbuild as bb
 from benchbuild import project
-from benchbuild.utils import compiler, run, wrapping
+from benchbuild.utils import run
 
 
 class TestProject(project.Project):
@@ -22,13 +23,13 @@ int main(int argc, char **argv) {
             """
             test_source.write(lines)
 
-        clang = compiler.cxx(self)
-        _clang = run.watch(clang)
         _clang(self.src_file, "-o", self.src_file + ".out")
+        clang = bb.compiler.cxx(self)
+        _clang = bb.watch(clang)
 
     def run_tests(self):
-        exp = wrapping.wrap(self.src_file + ".out", self)
-        _exp = run.watch(exp)
+        exp = bb.wrap(self.src_file + ".out", self)
+        _exp = bb.watch(exp)
         _exp()
 
 
@@ -53,11 +54,11 @@ int main(int argc, char **argv) {
             """
             test_source.write(lines)
 
-        clang = compiler.cxx(self)
-        _clang = run.watch(clang)
         _clang(self.src_file, "-o", self.src_file + ".out")
+        clang = bb.compiler.cxx(self)
+        _clang = bb.watch(clang)
 
     def run_tests(self):
-        exp = wrapping.wrap(self.src_file + ".out", self)
-        _exp = run.watch(exp)
+        exp = bb.wrap(self.src_file + ".out", self)
+        _exp = bb.watch(exp)
         _exp()

@@ -1,8 +1,7 @@
-from plumbum import local
-
+import benchbuild as bb
 from benchbuild.projects.polybench.polybench import PolyBenchGroup
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run
+from benchbuild.utils import download
 
 
 @download.with_git("https://github.com/simbuerg/polybench-c-4.2-1.git")
@@ -20,7 +19,7 @@ class PolybenchModGroup(PolyBenchGroup):
         verify = bool(polybench_opts["verify"])
         workload = str(polybench_opts["workload"])
 
-        src_dir = local.cwd / self.src_file
+        src_dir = bb.cwd / self.src_file
         src_sub = src_dir / self.path_dict[self.name] / self.name
 
         src_file = src_sub / (self.name + ".c")
@@ -38,8 +37,8 @@ class PolybenchModGroup(PolyBenchGroup):
                 kernel_file, src_file, "-lm"
             ], polybench_opts)
 
-        clang = compiler.cc(self)
-        _clang = run.watch(clang)
+        clang = bb.compiler.cc(self)
+        _clang = bb.watch(clang)
         _clang("-I", utils_dir, "-I", src_sub, polybench_opts,
                utils_dir / "polybench.c", kernel_file, src_file, "-lm", "-o",
                self.name)

@@ -2,8 +2,8 @@ from os import path
 
 from plumbum import local
 
-from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+import benchbuild as bb
+from benchbuild.utils import download
 from benchbuild.utils.cmd import make, mkdir, tar
 
 
@@ -11,7 +11,7 @@ from benchbuild.utils.cmd import make, mkdir, tar
     '0.9.26':
         'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'
 })
-class TCC(project.Project):
+class TCC(bb.Project):
     NAME = 'tcc'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
@@ -22,25 +22,25 @@ class TCC(project.Project):
         self.download()
 
         tar("xf", self.src_file)
-        unpack_dir = local.path('tcc-{0}.tar.bz2'.format(self.version))
+        unpack_dir = bb.path('tcc-{0}.tar.bz2'.format(self.version))
 
-        clang = compiler.cc(self)
+        clang = bb.compiler.cc(self)
 
-        with local.cwd(unpack_dir):
+        with bb.cwd(unpack_dir):
             mkdir("build")
-            with local.cwd("build"):
+            with bb.cwd("build"):
                 configure = local["../configure"]
-                _configure = run.watch(configure)
+                _configure = bb.watch(configure)
                 _configure("--cc=" + str(clang), "--with-libgcc")
 
-                _make = run.watch(make)
+                _make = bb.watch(make)
                 _make()
 
     def run_tests(self):
-        unpack_dir = local.path('tcc-{0}.tar.bz2'.format(self.version))
-        with local.cwd(unpack_dir):
-            with local.cwd("build"):
-                wrapping.wrap("tcc", self)
+        unpack_dir = bb.path('tcc-{0}.tar.bz2'.format(self.version))
+        with bb.cwd(unpack_dir):
+            with bb.cwd("build"):
+                bb.wrap("tcc", self)
                 inc_path = path.abspath("..")
-                _make = run.watch(make)
+                _make = bb.watch(make)
                 _make("TCCFLAGS=-B{}".format(inc_path), "test", "-i")

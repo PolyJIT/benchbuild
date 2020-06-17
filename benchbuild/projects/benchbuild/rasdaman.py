@@ -1,14 +1,14 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run
+from benchbuild.utils import download
 from benchbuild.utils.cmd import autoreconf, make
 from benchbuild.utils.settings import get_number_of_jobs
 
 
 @download.with_git('git://rasdaman.org/rasdaman.git', limit=5)
-class Rasdaman(project.Project):
+class Rasdaman(bb.Project):
     """ Rasdaman """
 
     NAME = 'Rasdaman'
@@ -23,33 +23,32 @@ class Rasdaman(project.Project):
     def compile(self):
         self.download()
         download.Git(self.gdal_uri, self.gdal_dir)
-        rasdaman_dir = local.path(self.src_file)
-        gdal_dir = local.path(self.gdal_dir) / self.gdal_dir
+        rasdaman_dir = bb.path(self.src_file)
+        gdal_dir = bb.path(self.gdal_dir) / self.gdal_dir
 
-        clang = compiler.cc(self)
-        clang_cxx = compiler.cxx(self)
+        clang = bb.compiler.cc(self)
+        clang_cxx = bb.compiler.cxx(self)
 
-        with local.cwd(gdal_dir):
+        with bb.cwd(gdal_dir):
             configure = local["./configure"]
-            _configure = run.watch(configure)
+            _configure = bb.watch(configure)
 
-            with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                _configure("--with-pic", "--enable-static", "--disable-debug",
-                           "--with-gnu-ld", "--without-ld-shared",
-                           "--without-libtool")
-                _make = run.watch(make)
+            with bb.env(CC=str(clang), CXX=str(clang_cxx)):
+                _configure("--with-pic", "--enable-static", "--with-gnu-ld",
+                           "--without-ld-shared", "--without-libtool")
+                _make = bb.watch(make)
                 _make("-j", get_number_of_jobs(CFG))
 
-        with local.cwd(rasdaman_dir):
+        with bb.cwd(rasdaman_repo):
             autoreconf("-i")
             configure = local["./configure"]
-            _configure = run.watch(configure)
+            _configure = bb.watch(configure)
 
-            with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                _configure("--without-debug-symbols", "--enable-benchmark",
-                           "--with-static-libs", "--disable-java", "--with-pic",
-                           "--disable-debug", "--without-docs")
-            _make = run.watch(make)
+            with bb.env(CC=str(clang), CXX=str(clang_cxx)):
+                _configure("--without-debug-symbols", "--with-static-libs",
+                           "--disable-java", "--with-pic", "--disable-debug",
+                           "--without-docs")
+            _make = bb.watch(make)
             _make("clean", "all", "-j", get_number_of_jobs(CFG))
 
     def run_tests(self):

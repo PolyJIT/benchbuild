@@ -1,8 +1,8 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.utils import download
 from benchbuild.utils.cmd import cp, make
 from benchbuild.utils.settings import get_number_of_jobs
 
@@ -10,7 +10,7 @@ from benchbuild.utils.settings import get_number_of_jobs
 @download.with_git("https://code.videolan.org/videolan/x264.git",
                    refspec="HEAD",
                    limit=5)
-class X264(project.Project):
+class X264(bb.Project):
     """ x264 """
 
     NAME = "x264"
@@ -28,26 +28,25 @@ class X264(project.Project):
 
     def compile(self):
         self.download()
-        testfiles = [local.path(self.testdir) / x for x in self.inputfiles]
+        testfiles = [bb.path(self.testdir) / x for x in self.inputfiles]
         for testfile in testfiles:
             cp(testfile, self.builddir)
+        clang = bb.compiler.cc(self)
 
-        clang = compiler.cc(self)
-
-        with local.cwd(self.SRC_FILE):
+        with bb.cwd(x264_repo):
             configure = local["./configure"]
-            _configure = run.watch(configure)
+            _configure = bb.watch(configure)
 
-            with local.env(CC=str(clang)):
+            with bb.env(CC=str(clang)):
                 _configure("--disable-thread", "--disable-opencl",
                            "--enable-pic")
 
-            _make = run.watch(make)
+            _make = bb.watch(make)
             _make("clean", "all", "-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
-        x264 = wrapping.wrap(local.path(self.src_file) / "x264", self)
-        _x264 = run.watch(x264)
+        x264 = bb.wrap(bb.path(self.src_file) / "x264", self)
+        _x264 = bb.watch(x264)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",
@@ -61,7 +60,7 @@ class X264(project.Project):
         ]
 
         for ifile in self.inputfiles:
-            testfile = local.path(self.testdir) / ifile
+            testfile = bb.path(self.testdir) / ifile
             for _, test in enumerate(tests):
                 _x264(testfile, self.inputfiles[ifile], "--threads", "1", "-o",
                       "/dev/null", test.split(" "))

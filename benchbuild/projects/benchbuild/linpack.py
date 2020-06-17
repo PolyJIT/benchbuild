@@ -1,14 +1,14 @@
 import logging
 
-from benchbuild import project
-from benchbuild.utils import compiler, download, path, run
+import benchbuild as bb
+from benchbuild.utils import download, path
 from benchbuild.utils.cmd import patch
 
 LOG = logging.getLogger(__name__)
 
 
 @download.with_wget({"5_88": "http://www.netlib.org/benchmark/linpackc.new"})
-class Linpack(project.Project):
+class Linpack(bb.Project):
     """ Linpack (C-Version) """
 
     NAME = 'linpack'
@@ -23,6 +23,11 @@ class Linpack(project.Project):
         (patch["-p0"] < lp_patch)()
 
         self.ldflags += ["-lm"]
-        clang = compiler.cc(self)
-        _clang = run.watch(clang)
-        _clang("-o", self.run_f, "linpack.c")
+        clang = bb.compiler.cc(self)
+        _clang = bb.watch(clang)
+        _clang("-o", 'linpack', "linpack.c")
+
+    def run_tests(self):
+        linpack = bb.wrap('linpack', self)
+        _linpack = bb.watch(linpack)
+        _linpack()

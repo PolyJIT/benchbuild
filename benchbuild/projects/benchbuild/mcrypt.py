@@ -1,8 +1,8 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, path, run, wrapping
+from benchbuild.utils import download, path
 from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.settings import get_number_of_jobs
 
@@ -11,7 +11,7 @@ from benchbuild.utils.settings import get_number_of_jobs
     "2.6.8": 'http://sourceforge.net/'
              'projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz'
 })
-class MCrypt(project.Project):
+class MCrypt(bb.Project):
     """ MCrypt benchmark """
 
     NAME = 'mcrypt'
@@ -40,36 +40,35 @@ class MCrypt(project.Project):
         tar('xfz', self.src_file)
         tar('xfz', self.libmcrypt_file)
         tar('xfz', self.mhash_file)
-
-        builddir = local.path(self.builddir)
+        builddir = bb.path(self.builddir)
         mcrypt_dir = builddir / "mcrypt-2.6.8"
         mhash_dir = builddir / self.mhash_dir
         libmcrypt_dir = builddir / self.libmcrypt_dir
 
-        _cc = compiler.cc(self)
-        _cxx = compiler.cxx(self)
-        _make = run.watch(make)
+        _cc = bb.compiler.cc(self)
+        _cxx = bb.compiler.cxx(self)
+        _make = bb.watch(make)
 
         # Build mhash dependency
-        with local.cwd(mhash_dir):
+        with bb.cwd(mhash_dir):
             configure = local["./configure"]
-            _configure = run.watch(configure)
+            _configure = bb.watch(configure)
 
-            with local.env(CC=_cc, CXX=_cxx):
+            with bb.env(CC=_cc, CXX=_cxx):
                 _configure("--prefix=" + builddir)
                 _make("-j", get_number_of_jobs(CFG), "install")
 
         # Builder libmcrypt dependency
-        with local.cwd(libmcrypt_dir):
+        with bb.cwd(libmcrypt_dir):
             configure = local["./configure"]
-            _configure = run.watch(configure)
-            with local.env(CC=_cc, CXX=_cxx):
+            _configure = bb.watch(configure)
+            with bb.env(CC=_cc, CXX=_cxx):
                 _configure("--prefix=" + builddir)
                 _make("-j", CFG["jobs"], "install")
 
-        with local.cwd(mcrypt_dir):
+        with bb.cwd(mcrypt_dir):
             configure = local["./configure"]
-            _configure = run.watch(configure)
+            _configure = bb.watch(configure)
             lib_dir = builddir / "lib"
             inc_dir = builddir / "include"
             env = CFG["env"].value
@@ -80,20 +79,20 @@ class MCrypt(project.Project):
                            LDFLAGS="-L" + str(lib_dir),
                            CFLAGS="-I" + str(inc_dir))
             env.update(mod_env)
-            with local.env(**env):
-                _configure("--disable-dependency-tracking", "--enable-static",
-                           "--disable-shared", "--with-libmcrypt=" + builddir,
+            with bb.env(**env):
+                _configure("--disable-dependency-tracking", "--disable-shared",
+                           "--with-libmcrypt=" + builddir,
                            "--with-libmhash=" + builddir)
             _make("-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
-        mcrypt_dir = local.path(self.builddir) / "mcrypt-2.6.8"
+        mcrypt_dir = bb.path(self.builddir) / "mcrypt-2.6.8"
         mcrypt_libs = mcrypt_dir / "src" / ".libs"
 
-        aestest = wrapping.wrap(mcrypt_libs / "lt-aestest", self)
-        _aestest = run.watch(aestest)
+        aestest = bb.wrap(mcrypt_libs / "lt-aestest", self)
+        _aestest = bb.watch(aestest)
         _aestest()
 
-        ciphertest = wrapping.wrap(mcrypt_libs / "lt-ciphertest", self)
-        _ciphertest = run.watch(ciphertest)
+        ciphertest = bb.wrap(mcrypt_libs / "lt-ciphertest", self)
+        _ciphertest = bb.watch(ciphertest)
         _ciphertest()

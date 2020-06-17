@@ -64,17 +64,7 @@ def step_has_failed(step_results, error_status=None):
     return len(list(filter(lambda res: res in error_status, step_results))) > 0
 
 
-def num_steps(steps):
-    return sum([len(step) for step in steps])
-
-
-def print_steps(steps):
-    print("Number of actions to execute: {}".format(num_steps(steps)))
-    print(*steps)
-
-
-def to_step_result(
-        func: DecoratedFunction[tp.Any]) -> DecoratedFunction[StepResultList]:
+def to_step_result(func):
     """Convert a function return to a list of StepResults.
 
     All Step subclasses automatically wrap the result of their

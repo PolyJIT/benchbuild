@@ -17,11 +17,11 @@ a separate build directory in isolation of one another.
 """
 import copy
 import logging
+import typing as tp
 import uuid
 from abc import abstractmethod
 from functools import partial
 from os import getenv
-from typing import List, Mapping, Optional, Tuple, Type
 
 import attr
 from plumbum import ProcessExecutionError, local
@@ -46,7 +46,7 @@ class ProjectRegistry(type):
         """Register a project in the registry."""
         super(ProjectRegistry, cls).__init__(name, bases, attrs)
 
-        if None not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
+        if '' not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
             key = "{name}/{group}".format(name=cls.NAME, group=cls.GROUP)
             ProjectRegistry.projects[key] = cls
 
@@ -159,13 +159,13 @@ class Project(metaclass=ProjectDecorator):
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
-    NAME = None
-    DOMAIN = None
-    GROUP = None
     VERSION = None
     SRC_FILE = None
     CONTAINER = None
-    REQUIREMENTS: List[Requirement] = []
+    DOMAIN: tp.ClassVar[str] = ""
+    GROUP: tp.ClassVar[str] = ""
+    NAME: tp.ClassVar[str] = ""
+    REQUIREMENTS: tp.List[Requirement] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -340,7 +340,8 @@ class Project(metaclass=ProjectDecorator):
         return ["unknown"]
 
 
-def __split_project_input__(project_input: str) -> Tuple[str, Optional[str]]:
+def __split_project_input__(
+        project_input: str) -> tp.Tuple[str, tp.Optional[str]]:
     split_input = project_input.rsplit('@', maxsplit=1)
     first = split_input[0]
     second = split_input[1] if len(split_input) > 1 else None
@@ -348,8 +349,10 @@ def __split_project_input__(project_input: str) -> Tuple[str, Optional[str]]:
     return (first, second)
 
 
-def populate(projects_to_filter=None,
-             group=None) -> Mapping[str, Tuple[Type[Project], Optional[str]]]:
+def populate(
+    projects_to_filter=None,
+    group=None
+) -> tp.Mapping[str, tp.Tuple[tp.Type[Project], tp.Optional[str]]]:
     """
     Populate the list of projects that belong to this experiment.
 

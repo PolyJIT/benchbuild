@@ -346,7 +346,7 @@ def get_version_data():
 def enforce_versioning(force=False):
     """Install versioning on the db."""
     connect_str, repo_url = get_version_data()
-    LOG.warning("Your database uses an unversioned benchbuild schema.")
+    LOG.debug("Your database uses an unversioned benchbuild schema.")
     if not force and not ui.ask(
             "Should I enforce version control on your schema?"):
         LOG.error("User declined schema versioning.")

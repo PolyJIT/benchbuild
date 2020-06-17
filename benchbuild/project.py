@@ -1,3 +1,4 @@
+# pylint: disable=bad-continuation
 """Project
 
 A project in benchbuild is an abstract representation of a software

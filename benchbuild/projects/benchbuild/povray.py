@@ -2,7 +2,6 @@ from plumbum import FG, local
 
 import benchbuild as bb
 from benchbuild.source import HTTP, Git
-from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, sed, sh,
                                   tar)
 

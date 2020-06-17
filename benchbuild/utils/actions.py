@@ -636,7 +636,7 @@ class ProjectEnvironment(Step):
         prj_vars = project.variant
 
         for name, variant in prj_vars.items():
-            LOG.info(f"Fetching {str(name)} @ {variant.version}")
+            LOG.info("Fetching %s @ %s", str(name), variant.version)
             src = variant.owner
             src.version(project.builddir, variant.version)
 

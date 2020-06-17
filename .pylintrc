@@ -40,7 +40,7 @@ confidence=
 
 # disable=all
 enable=all
-disable=C0114,C0115
+disable=C0114,C0115,C0330
 
 [REPORTS]
 

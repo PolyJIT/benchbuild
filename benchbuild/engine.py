@@ -1,7 +1,6 @@
 """
 Orchestrate experiment execution.
 """
-import abc
 from typing import Callable, List, Tuple, Type
 
 import attr

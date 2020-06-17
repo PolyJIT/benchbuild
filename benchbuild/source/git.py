@@ -1,15 +1,23 @@
 """
 Declare a git source.
 """
-from typing import Any, List
+import typing as tp
 
 import attr
+import plumbum as pb
 from plumbum import local
 
 from benchbuild.utils.cmd import git, mkdir
 from benchbuild.utils.path import flocked
 
-from . import base, variants
+from . import base
+
+if tp.TYPE_CHECKING:
+    from mypy_extensions import VarArg
+
+Command = tp.Callable[['VarArg(str)'], tp.Any]
+VarRemotes = tp.Union[str, tp.Dict[str, str]]
+Remotes = tp.Dict[str, str]
 
 
 @attr.s
@@ -24,13 +32,13 @@ class Git(base.BaseSource):
     shallow: bool = attr.ib(default=True)
 
     @property
-    def default(self) -> variants.Variant:
+    def default(self) -> base.Variant:
         """
         Return current HEAD as default version for this Git project.
         """
         return self.versions()[0]
 
-    def fetch(self) -> str:
+    def fetch(self) -> pb.LocalPath:
         """
         Clone the repository, if needed.
 
@@ -50,7 +58,7 @@ class Git(base.BaseSource):
             clone(self.remote, cache_path)
         return cache_path
 
-    def version(self, target_dir: str, version: str = 'HEAD') -> str:
+    def version(self, target_dir: str, version: str = 'HEAD') -> pb.LocalPath:
         """
         Create a new git worktree pointing to the requested version.
 
@@ -76,20 +84,20 @@ class Git(base.BaseSource):
                 worktree('add', '--detach', tgt_loc, version)
         return tgt_loc
 
-    def versions(self) -> List[variants.Variant]:
+    def versions(self) -> tp.List[base.Variant]:
         cache_path = self.fetch()
         git_rev_list = git['rev-list', '--abbrev-commit', '--abbrev=10']
 
-        rev_list: List[str] = []
+        rev_list: tp.List[str] = []
         with local.cwd(cache_path):
             rev_list = list(git_rev_list(self.refspec).strip().split('\n'))
 
         rev_list = rev_list[:self.limit] if self.limit else rev_list
-        revs = [variants.Variant(version=rev, owner=self) for rev in rev_list]
+        revs = [base.Variant(version=rev, owner=self) for rev in rev_list]
         return revs
 
 
-def maybe_shallow(cmd: Any, enable: bool) -> Any:
+def maybe_shallow(cmd: Command, enable: bool) -> Command:
     """
     Conditionally add the shallow clone to the given git command.
 
@@ -107,6 +115,10 @@ def maybe_shallow(cmd: Any, enable: bool) -> Any:
     return cmd
 
 
-def clone_needed(repository: str, repo_loc: str) -> bool:
+def clone_needed(repository: VarRemotes, repo_loc: str) -> bool:
     from benchbuild.utils.download import __clone_needed__
+
+    if not isinstance(repository, str):
+        raise TypeError('\'remote\' needs to be a git repo string')
+
     return __clone_needed__(repository, repo_loc)

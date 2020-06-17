@@ -64,7 +64,7 @@ def print_projects(projects=None):
                 version_str = ", ".join(prj_cls.versions())
 
             project_id = f'{prj_cls.NAME}/{prj_cls.GROUP}'
-            project_version = str(bb.source.default(prj_cls.SOURCE))
+            project_version = str(bb.source.default(*prj_cls.SOURCE))
 
             project_lines = [
                 f'::  {project_id}'

@@ -76,11 +76,12 @@ class PolyBenchGroup(bb.Project):
     }
 
     SOURCE = [
-        HTTP(remote={
-            '4.2':
-                'http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz'
-        },
-             local='polybench.tar.gz')
+        HTTP(
+            remote={
+                '4.2':
+                    'http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz'  # pylint: disable=line-too-long
+            },
+            local='polybench.tar.gz')
     ]
 
     def compile_verify(self, compiler_args, polybench_opts):

@@ -24,7 +24,7 @@ LOG = logging.getLogger(__name__)
 AnyC = Type[object]
 
 
-def get_hash_of_dirs(directory):
+def get_hash_of_dirs(directory: str) -> str:
     """
     Recursively hash the contents of the given directory.
 
@@ -49,7 +49,7 @@ def get_hash_of_dirs(directory):
     return sha.hexdigest()
 
 
-def source_required(src_file):
+def source_required(src_file: str) -> bool:
     """
     Check, if a download is required.
 
@@ -82,7 +82,7 @@ def source_required(src_file):
     return required
 
 
-def update_hash(src_file):
+def update_hash(src_file: str) -> str:
     """
     Update the hash for the given file.
 

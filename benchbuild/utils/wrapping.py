@@ -25,8 +25,10 @@ Runtime Wrappers:
 import logging
 import os
 import sys
+import typing as tp
 
 import dill
+import plumbum as pb
 from plumbum import local
 
 from benchbuild.settings import CFG
@@ -82,7 +84,10 @@ def __create_jinja_env():
                        loader=PackageLoader('benchbuild', 'utils/templates'))
 
 
-def wrap(name, project, sprefix=None, python=sys.executable):
+def wrap(name: str,
+         project: 'benchbuild.project.Project',
+         sprefix: tp.Optional[str] = None,
+         python: str = sys.executable) -> pb.commands.ConcreteCommand:
     """ Wrap the binary :name: with the runtime extension of the project.
 
     This module generates a python tool that replaces :name:

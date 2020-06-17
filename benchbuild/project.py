@@ -1,4 +1,3 @@
-# pylint: disable=bad-continuation
 """Project
 
 A project in benchbuild is an abstract representation of a software
@@ -28,17 +27,20 @@ import attr
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
-import benchbuild as bb
-from benchbuild import signals
+from benchbuild import signals, source
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
-from benchbuild.source import variants
-from benchbuild.source.base import BaseSource
 from benchbuild.utils import db, run, unionfs
 from benchbuild.utils.requirements import Requirement
 
 LOG = logging.getLogger(__name__)
+
+MaybeGroupNames = tp.Optional[tp.List[str]]
+ProjectIndex = tp.Mapping[str, tp.Tuple[tp.Type['Project'], tp.Optional[str]]]
+ProjectNames = tp.List[str]
+VariantContext = source.VariantContext
+Sources = tp.List[source.BaseSource]
 
 
 class ProjectRegistry(type):
@@ -46,13 +48,18 @@ class ProjectRegistry(type):
 
     projects = StringTrie()
 
-    def __init__(cls, name, bases, attrs):
+    def __new__(mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
+                attrs: tp.Dict[str, tp.Any]) -> tp.Any:
         """Register a project in the registry."""
-        super(ProjectRegistry, cls).__init__(name, bases, attrs)
+        cls = super(ProjectRegistry, mcs).__new__(mcs, name, bases, attrs)
 
-        if '' not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
+        if all([
+                hasattr(cls, cls_attr)
+                for cls_attr in ['NAME', 'DOMAIN', 'GROUP']
+        ]):
             key = "{name}/{group}".format(name=cls.NAME, group=cls.GROUP)
             ProjectRegistry.projects[key] = cls
+        return cls
 
 
 class ProjectDecorator(ProjectRegistry):
@@ -155,8 +162,8 @@ class Project(metaclass=ProjectDecorator):
     DOMAIN: tp.ClassVar[str] = ""
     GROUP: tp.ClassVar[str] = ""
     NAME: tp.ClassVar[str] = ""
-    REQUIREMENTS: tp.List[Requirement] = []
-    SOURCE: tp.List[BaseSource] = []
+    REQUIREMENTS: tp.ClassVar[tp.List[Requirement]] = []
+    SOURCE: tp.ClassVar[Sources] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
@@ -175,11 +182,11 @@ class Project(metaclass=ProjectDecorator):
 
     experiment = attr.ib()
 
-    variant: variants.VariantContext = attr.ib()
+    variant: VariantContext = attr.ib()
 
     @variant.default
-    def __default_variant(self) -> bb.source.variants.VariantContext:
-        return bb.source.default(type(self).SOURCE)
+    def __default_variant(self) -> VariantContext:
+        return source.default(*type(self).SOURCE)
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
@@ -187,27 +194,27 @@ class Project(metaclass=ProjectDecorator):
     domain: str = attr.ib(
         default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True))
 
-    group = attr.ib(
+    group: str = attr.ib(
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
 
     container = attr.ib(default=attr.Factory(lambda self: type(self).CONTAINER,
                                              takes_self=True))
 
-    cflags = attr.ib(default=attr.Factory(list))
+    cflags: tp.List[str] = attr.ib(default=attr.Factory(list))
 
-    ldflags = attr.ib(default=attr.Factory(list))
+    ldflags: tp.List[str] = attr.ib(default=attr.Factory(list))
 
-    run_uuid = attr.ib()
+    run_uuid: uuid.UUID = attr.ib()
 
     @run_uuid.default
-    def __default_run_uuid(self):
+    def __default_run_uuid(self):  # pylint: disable=no-self-use
         run_group = getenv("BB_DB_RUN_GROUP", None)
         if run_group:
             return uuid.UUID(run_group)
         return uuid.uuid4()
 
     @run_uuid.validator
-    def __check_if_uuid(self, _, value):
+    def __check_if_uuid(self, _: tp.Any, value: uuid.UUID) -> None:  # pylint: disable=no-self-use
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
@@ -215,7 +222,7 @@ class Project(metaclass=ProjectDecorator):
         str(CFG["build_dir"])) / self.experiment.name / self.id,
                                             takes_self=True))
 
-    source = attr.ib(
+    source: Sources = attr.ib(
         default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True))
 
     compiler_extension = attr.ib(
@@ -225,11 +232,11 @@ class Project(metaclass=ProjectDecorator):
 
     runtime_extension = attr.ib(default=None)
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         db.persist_project(self)
 
     @abstractmethod
-    def run_tests(self):
+    def run_tests(self) -> None:
         """
         Run the tests of this project.
 
@@ -240,7 +247,7 @@ class Project(metaclass=ProjectDecorator):
             run: A function that takes the run command.
         """
 
-    def run(self):
+    def run(self) -> None:
         """Run the tests of this project.
 
         This method initializes the default environment and takes care of
@@ -272,33 +279,33 @@ class Project(metaclass=ProjectDecorator):
         finally:
             signals.handlers.deregister(fail_run_group)
 
-    def clean(self):
+    def clean(self) -> None:
         """Clean the project build directory."""
         builddir_p = local.path(self.builddir)
         builddir_p.delete()
 
-    def clone(self):
+    def clone(self) -> 'Project':
         """Create a deepcopy of ourself."""
         new_p = copy.deepcopy(self)
         new_p.run_uuid = uuid.uuid4()
         return new_p
 
     @abstractmethod
-    def compile(self):
+    def compile(self) -> None:
         """Compile the project."""
 
     @property
-    def id(self):
-        version_str = bb.source.variants.to_str(tuple(self.variant.values()))
+    def id(self) -> str:
+        version_str = source.to_str(tuple(self.variant.values()))
         return f"{self.name}/{self.group}/{version_str}/{self.run_uuid}"
 
-    def prepare(self):
+    def prepare(self) -> None:
         """Prepare the build diretory."""
         builddir_p = local.path(self.builddir)
         if not builddir_p.exists():
             builddir_p.mkdir()
 
-    def redirect(self):
+    def redirect(self) -> None:
         """Redirect execution to a containerized benchbuild instance."""
         LOG.error("Redirection not supported by project.")
 
@@ -344,10 +351,8 @@ def __split_project_input__(
     return (first, second)
 
 
-def populate(
-    projects_to_filter=None,
-    group=None
-) -> tp.Mapping[str, tp.Tuple[tp.Type[Project], tp.Optional[str]]]:
+def populate(projects_to_filter: ProjectNames,
+             group: MaybeGroupNames = None) -> ProjectIndex:
     """
     Populate the list of projects that belong to this experiment.
 
@@ -373,7 +378,8 @@ def populate(
     if projects_to_filter:
         prjs = {}
 
-        def single_version_impl(version):
+        # FIXME: this is broken. needs converting to variants
+        def single_version_impl(version: str) -> tp.Callable[[], tp.List[str]]:
             return lambda: [version]
 
         for filter_project in set(projects_to_filter):

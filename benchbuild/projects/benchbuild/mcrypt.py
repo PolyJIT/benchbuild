@@ -15,21 +15,24 @@ class MCrypt(bb.Project):
     DOMAIN = 'encryption'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={
-            '2.6.8':
-                'http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz'
-        },
-             local='mcrypt.tar.gz'),
-        HTTP(remote={
-            '2.5.8':
-                'http://sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz'
-        },
-             local='libmcrypt.tar.gz'),
-        HTTP(remote={
-            '0.9.9.9':
-                'http://sourceforge.net/projects/mhash/files/mhash/0.9.9.9/mhash-0.9.9.9.tar.gz'
-        },
-             local='mhash.tar.gz')
+        HTTP(
+            remote={
+                '2.6.8':
+                    'http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz'  # pylint: disable=line-too-long
+            },
+            local='mcrypt.tar.gz'),
+        HTTP(
+            remote={
+                '2.5.8':
+                    'http://sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz'  # pylint: disable=line-too-long
+            },
+            local='libmcrypt.tar.gz'),
+        HTTP(
+            remote={
+                '0.9.9.9':
+                    'http://sourceforge.net/projects/mhash/files/mhash/0.9.9.9/mhash-0.9.9.9.tar.gz'  # pylint: disable=line-too-long
+            },
+            local='mhash.tar.gz')
     ]
 
     libmcrypt_dir = "libmcrypt-2.5.8"

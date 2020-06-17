@@ -13,11 +13,12 @@ class TCC(bb.Project):
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={
-            '0.9.26':
-                'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'
-        },
-             local='tcc.tar.bz2')
+        HTTP(
+            remote={
+                '0.9.26':
+                    'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'  # pylint: disable=line-too-long
+            },
+            local='tcc.tar.bz2')
     ]
 
     def compile(self):

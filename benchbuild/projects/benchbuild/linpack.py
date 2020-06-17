@@ -19,7 +19,7 @@ class Linpack(bb.Project):
              local='linpack.c')
     ]
 
-    def compile(self):
+    def compile(self) -> None:
         lp_patch = path.template_path("../projects/patches/linpack.patch")
         (patch["-p0"] < lp_patch)()
 
@@ -28,7 +28,7 @@ class Linpack(bb.Project):
         _clang = bb.watch(clang)
         _clang("-o", 'linpack', "linpack.c")
 
-    def run_tests(self):
+    def run_tests(self) -> None:
         linpack = bb.wrap('linpack', self)
         _linpack = bb.watch(linpack)
         _linpack()

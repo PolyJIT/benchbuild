@@ -33,9 +33,9 @@ class OpenBlas(bb.Project):
 
 
 class Lapack(bb.Project):
-    NAME: str = 'lapack'
-    DOMAIN: str = 'scientific'
-    GROUP: str = 'benchbuild'
+    NAME = 'lapack'
+    DOMAIN = 'scientific'
+    GROUP = 'benchbuild'
     SOURCE = [
         HTTP(remote={'3.2.1': 'http://www.netlib.org/clapack/clapack.tgz'},
              local='clapack.tgz')

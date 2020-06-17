@@ -1,15 +1,17 @@
 """
 Declare a http source.
 """
-from typing import List, Mapping, Union
+import typing as tp
 
 import attr
+import plumbum as pb
 from plumbum import local
 
 from benchbuild.source import base
 from benchbuild.utils.cmd import cp, wget
 
-from . import variants
+VarRemotes = tp.Union[str, tp.Dict[str, str]]
+Remotes = tp.Dict[str, str]
 
 
 @attr.s
@@ -19,10 +21,10 @@ class HTTP(base.BaseSource):
     """
 
     @property
-    def default(self) -> variants.Variant:
+    def default(self) -> base.Variant:
         return self.versions()[0]
 
-    def version(self, target_dir: str, version: str) -> str:
+    def version(self, target_dir: str, version: str) -> pb.LocalPath:
         prefix = base.target_prefix()
         remotes = normalize_remotes(self.remote)
 
@@ -37,16 +39,17 @@ class HTTP(base.BaseSource):
         cp('-ar', cache_path, target_path)
         return target_path
 
-    def versions(self) -> List[variants.Variant]:
+    def versions(self) -> tp.List[base.Variant]:
         remotes = normalize_remotes(self.remote)
-        return [variants.Variant(version=rev, owner=self) for rev in remotes]
+        return [base.Variant(version=rev, owner=self) for rev in remotes]
 
 
-def normalize_remotes(
-        remote: Union[str, Mapping[str, str]]) -> Mapping[str, str]:
-    if not isinstance(remote, Mapping):
+def normalize_remotes(remote: VarRemotes) -> Remotes:
+    if isinstance(remote, str):
         raise TypeError('\'remote\' needs to be a mapping type')
-    _remotes = {}
+
+    # FIXME: What the hell?
+    _remotes: Remotes = {}
     _remotes.update(remote)
     return _remotes
 
@@ -65,6 +68,6 @@ def download_single_version(url: str, target_path: str) -> str:
     return target_path
 
 
-def download_required(target_path) -> bool:
+def download_required(target_path: str) -> bool:
     from benchbuild.utils.download import source_required
     return source_required(target_path)

@@ -1,6 +1,13 @@
+# pylint: disable=useless-import-alias
 """
 Declarative API for downloading sources required by benchbuild.
 """
-from .base import BaseSource, default, product
-from .git import Git
-from .http import HTTP
+from .base import BaseSource as BaseSource
+from .base import Variant as Variant
+from .base import VariantContext as VariantContext
+from .base import context as context
+from .base import default as default
+from .base import product as product
+from .base import to_str as to_str
+from .git import Git as Git
+from .http import HTTP as HTTP

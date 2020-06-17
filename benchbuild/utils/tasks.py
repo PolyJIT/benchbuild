@@ -4,13 +4,14 @@ The task module distributes benchbuild's excution plans over processes.
 import typing as tp
 
 import benchbuild.utils.actions as actns
+from benchbuild import Experiment, Project
 
-ExperimentT = tp.Type['Experiment']
-ProjectT = tp.Type['Project']
+ExperimentT = tp.Type[Experiment]
+ProjectT = tp.Type[Project]
 
 ExperimentTs = tp.List[ExperimentT]
 ProjectTs = tp.List[ProjectT]
-Actions = tp.List[actns.Step]
+Actions = tp.Sequence[actns.Step]
 StepResults = tp.List[actns.StepResult]
 
 

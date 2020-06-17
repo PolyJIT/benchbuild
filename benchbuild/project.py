@@ -170,18 +170,16 @@ class Project(metaclass=ProjectDecorator):
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
         new_self = super(Project, cls).__new__(cls)
-        if cls.NAME is None:
+        mod_ident = f'{cls.__name__} @ {cls.__module__}'
+        if not cls.NAME:
             raise AttributeError(
-                "{0} @ {1} does not define a NAME class attribute.".format(
-                    cls.__name__, cls.__module__))
-        if cls.DOMAIN is None:
+                f'{mod_ident} does not define a NAME class attribute.')
+        if not cls.DOMAIN:
             raise AttributeError(
-                "{0} @ {1} does not define a DOMAIN class attribute.".format(
-                    cls.__name__, cls.__module__))
-        if cls.GROUP is None:
+                f'{mod_ident} does not define a DOMAIN class attribute.')
+        if not cls.GROUP:
             raise AttributeError(
-                "{0} @ {1} does not define a GROUP class attribute.".format(
-                    cls.__name__, cls.__module__))
+                f'{mod_ident} does not define a GROUP class attribute.')
         return new_self
 
     experiment = attr.ib()
@@ -232,7 +230,7 @@ class Project(metaclass=ProjectDecorator):
             raise TypeError("{attribute} must be a valid UUID object")
 
     builddir = attr.ib(default=attr.Factory(lambda self: local.path(
-        str(CFG["build_dir"])) / "{}-{}".format(self.experiment.name, self.id),
+        str(CFG["build_dir"])) / self.experiment.name / self.id,
                                             takes_self=True))
 
     run_f = attr.ib(default=attr.Factory(

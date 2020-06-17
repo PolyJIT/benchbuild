@@ -17,7 +17,8 @@ def configure_plumbum_log():
     if settings.CFG["debug"]:
         plumbum_local.setLevel(logging.DEBUG)
     plumbum_local.addHandler(plumbum_hdl)
-    plumbum_local.propagate = False
+    plumbum_format = logging.Formatter('$> %(message)s')
+    plumbum_hdl.setFormatter(plumbum_format)
 
 
 def configure_parse_log():

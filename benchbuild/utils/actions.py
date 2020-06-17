@@ -251,6 +251,7 @@ class Step(metaclass=StepClass):
     def __next__(self):
         raise StopIteration
 
+    @notify_step_begin_end
     def __call__(self) -> StepResultType:
         if not self.action_fn:
             return StepResult.ERROR
@@ -293,6 +294,7 @@ class Clean(Step):
                 else:
                     umount_paths.append(part.mountpoint)
 
+    @notify_step_begin_end
     def __call__(self) -> StepResultType:
         if not CFG['clean']:
             LOG.warning("Clean disabled by config.")
@@ -324,6 +326,7 @@ class MakeBuildDir(Step):
     NAME = "MKDIR"
     DESCRIPTION = "Create the build directory"
 
+    @notify_step_begin_end
     def __call__(self) -> StepResultType:
         if not self.obj:
             return StepResult.ERROR
@@ -357,6 +360,7 @@ class Run(Step):
     def __init__(self, project):
         super(Run, self).__init__(obj=project, action_fn=project.run)
 
+    @notify_step_begin_end
     def __call__(self) -> StepResultType:
         if not self.obj:
             return StepResult.ERROR
@@ -383,6 +387,7 @@ class Echo(Step):
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent("* echo: {0}".format(self.message), indent * " ")
 
+    @notify_step_begin_end
     def __call__(self) -> StepResultType:
         LOG.info(self.message)
         return StepResult.OK
@@ -411,6 +416,7 @@ class Any(Step):
     def __iter__(self):
         return self.actions.__iter__()
 
+    @notify_step_begin_end
     def __call__(self) -> tp.List[StepResult]:
         length = len(self.actions)
         cnt = 0
@@ -494,6 +500,7 @@ class Experiment(Any):
             results.append(StepResult.ERROR)
         return results
 
+    @notify_step_begin_end
     def __call__(self) -> tp.List[StepResult]:
         results = []
         session = None
@@ -527,6 +534,7 @@ class RequireAll(Step):
     def __iter__(self):
         return self.actions.__iter__()
 
+    @notify_step_begin_end
     def __call__(self) -> StepResultType:
         results = []
         for i, action in enumerate(self.actions):
@@ -577,6 +585,7 @@ class Containerize(RequireAll):
         project = self.obj
         return not container.in_container() and (project.container is not None)
 
+    @notify_step_begin_end
     def __call__(self) -> StepResultType:
         project = self.obj
         if self.requires_redirect():
@@ -605,6 +614,7 @@ class CleanExtra(Step):
     NAME = "CLEAN EXTRA"
     DESCRIPTION = "Cleans the extra directories."
 
+    @notify_step_begin_end
     def __call__(self) -> StepResult:
         if not CFG['clean']:
             return StepResult.OK

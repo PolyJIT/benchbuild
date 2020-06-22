@@ -53,7 +53,7 @@ class ExperimentRegistry(type):
                 attrs: tp.Dict[str, tp.Any]) -> tp.Any:
         """Register a project in the registry."""
         cls = super(ExperimentRegistry, mcs).__new__(mcs, name, bases, attrs)
-        if bases and hasattr(cls, 'NAME'):
+        if bases and 'NAME' in attrs:
             ExperimentRegistry.experiments[cls.NAME] = cls
         return cls
 

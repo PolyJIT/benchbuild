@@ -19,7 +19,7 @@ LOG = logging.getLogger(__name__)
 Command = t.Callable[['mypy.VarArg(str)'], t.Any]
 
 
-@attr.s(cmp=False)
+@attr.s(eq=False)
 class RunInfo:
     """
     Execution context of wrapped binaries.

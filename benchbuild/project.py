@@ -53,10 +53,10 @@ class ProjectRegistry(type):
         """Register a project in the registry."""
         cls = super(ProjectRegistry, mcs).__new__(mcs, name, bases, attrs)
 
-        if all([
-                hasattr(cls, cls_attr)
-                for cls_attr in ['NAME', 'DOMAIN', 'GROUP']
-        ]):
+        defined_attrs = all(attr in attrs and attrs[attr] is not None
+                            for attr in ['NAME', 'DOMAIN', 'GROUP'])
+
+        if bases and defined_attrs:
             key = "{name}/{group}".format(name=cls.NAME, group=cls.GROUP)
             ProjectRegistry.projects[key] = cls
         return cls

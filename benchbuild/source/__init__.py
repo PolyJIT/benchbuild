@@ -11,3 +11,6 @@ from .base import product as product
 from .base import to_str as to_str
 from .git import Git as Git
 from .http import HTTP as HTTP
+from .versions import BaseVersionFilter as BaseVersionFilter
+from .versions import BaseVersionGroup as BaseVersionGroup
+from .versions import SingleVersionFilter as SingleVersionFilter

@@ -24,6 +24,7 @@ from functools import partial
 from os import getenv
 
 import attr
+import yaml
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
@@ -39,6 +40,7 @@ LOG = logging.getLogger(__name__)
 MaybeGroupNames = tp.Optional[tp.List[str]]
 ProjectIndex = tp.Mapping[str, tp.Tuple[tp.Type['Project'], tp.Optional[str]]]
 ProjectNames = tp.List[str]
+ProjectT = tp.Type['Project']
 VariantContext = source.VariantContext
 Sources = tp.List[source.BaseSource]
 
@@ -351,6 +353,75 @@ def __split_project_input__(
     return (first, second)
 
 
+def __add_single_filter__(project: ProjectT, version: str) -> Project:
+
+    sources = project.SOURCE
+    victim = sources[0]
+    victim = source.SingleVersionFilter(victim, version)
+    sources[0] = victim
+
+    project.SOURCE = sources
+    return project
+
+
+def __add_indexed_filters__(project: ProjectT,
+                            versions: tp.List[str]) -> Project:
+    sources = project.SOURCE
+    for i in range(min(len(sources), len(versions))):
+        sources[i] = source.SingleVersionFilter(sources[i], versions[i])
+
+    project.SOURCE = sources
+    return project
+
+
+def __add_named_filters__(project: ProjectT, versions: tp.Dict[str,
+                                                               str]) -> Project:
+    sources = project.SOURCE
+    named_sources = {s.key: s for s in sources}
+    for k, v in versions.items():
+        if k in named_sources:
+            victim = named_sources[k]
+            victim = source.SingleVersionFilter(victim, v)
+            named_sources[k] = victim
+    sources = list(named_sources.values())
+
+    project.SOURCE = sources
+    return project
+
+
+def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
+    """
+    Add a set of version filters to this project's source.
+
+    The version_str argument will be used to make an educated guess about
+    the filters required.
+
+    Example:
+        benchbuild/bzip2@3.5 -> A single version filter will be wrapped around
+            source.
+        benchbuild/bzip2@[3.5,1.0] -> Each element of the input list will
+            generate a version filter that wraps the same index in the
+            project's source.
+    """
+    version_in = yaml.safe_load(version_str)
+    if not project.SOURCE:
+        return project
+    print(version_in)
+
+    if isinstance(version_in, str):
+        return __add_single_filter__(project, version_in)
+
+    if isinstance(version_in, list):
+        return __add_indexed_filters__(project, version_in)
+
+    if isinstance(version_in, dict):
+        if not all(version_in.values()):
+            return __add_indexed_filters__(project, version_in.keys())
+        return __add_named_filters__(project, version_in)
+
+    raise ValueError('not sure what this version input')
+
+
 def populate(projects_to_filter: ProjectNames,
              group: MaybeGroupNames = None) -> ProjectIndex:
     """
@@ -378,17 +449,13 @@ def populate(projects_to_filter: ProjectNames,
     if projects_to_filter:
         prjs = {}
 
-        # FIXME: this is broken. needs converting to variants
-        def single_version_impl(version: str) -> tp.Callable[[], tp.List[str]]:
-            return lambda: [version]
-
         for filter_project in set(projects_to_filter):
             project_str, version = __split_project_input__(filter_project)
             try:
                 selected = ProjectRegistry.projects.items(prefix=project_str)
                 for name, prj_cls in selected:
                     if version:
-                        prj_cls.versions = single_version_impl(version)
+                        prj_cls = __add_filters__(prj_cls, version)
                     prjs.update({name: prj_cls})
             except KeyError:
                 pass

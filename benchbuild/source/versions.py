@@ -41,6 +41,14 @@ class BaseVersionGroup(base.ISource):
 class BaseVersionFilter(base.ISource):
     child: base.ISource = attr.ib()
 
+    @property
+    def key(self) -> str:
+        return self.child.key
+
+    @property
+    def default(self) -> base.Variant:
+        return self.child.default
+
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         """
         Delegate all calls to fetch to the wrapped child object.
@@ -59,6 +67,19 @@ class BaseVersionFilter(base.ISource):
         Returns:
             List[str]: The list of all available versions.
         """
+
+
+@attr.s
+class SingleVersionFilter(BaseVersionFilter):
+    """
+    A simple single versions only filter.
+    """
+    filter_version: str = attr.ib()
+
+    def versions(self) -> tp.List[base.Variant]:
+        return [
+            v for v in self.child.versions() if str(v) == self.filter_version
+        ]
 
 
 @attr.s

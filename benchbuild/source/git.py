@@ -12,10 +12,7 @@ from benchbuild.utils.path import flocked
 
 from . import base
 
-if tp.TYPE_CHECKING:
-    from mypy_extensions import VarArg
-
-Command = tp.Callable[['VarArg(str)'], tp.Any]
+Command = tp.Callable[[...], tp.Any]
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
 

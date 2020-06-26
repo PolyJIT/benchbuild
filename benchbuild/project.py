@@ -298,7 +298,7 @@ class Project(metaclass=ProjectDecorator):
 
     @property
     def id(self) -> str:
-        version_str = source.to_str(tuple(self.variant.values()))
+        version_str = source.to_str(*tuple(self.variant.values()))
         return f"{self.name}/{self.group}/{version_str}/{self.run_uuid}"
 
     def prepare(self) -> None:

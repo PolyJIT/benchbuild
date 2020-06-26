@@ -353,7 +353,7 @@ def __split_project_input__(
     return (first, second)
 
 
-def __add_single_filter__(project: ProjectT, version: str) -> Project:
+def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
 
     sources = project.SOURCE
     victim = sources[0]
@@ -365,7 +365,7 @@ def __add_single_filter__(project: ProjectT, version: str) -> Project:
 
 
 def __add_indexed_filters__(project: ProjectT,
-                            versions: tp.List[str]) -> Project:
+                            versions: tp.List[str]) -> ProjectT:
     sources = project.SOURCE
     for i in range(min(len(sources), len(versions))):
         sources[i] = source.SingleVersionFilter(sources[i], versions[i])
@@ -374,8 +374,8 @@ def __add_indexed_filters__(project: ProjectT,
     return project
 
 
-def __add_named_filters__(project: ProjectT, versions: tp.Dict[str,
-                                                               str]) -> Project:
+def __add_named_filters__(project: ProjectT,
+                          versions: tp.Dict[str, str]) -> ProjectT:
     sources = project.SOURCE
     named_sources = {s.key: s for s in sources}
     for k, v in versions.items():
@@ -406,7 +406,6 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
     version_in = yaml.safe_load(version_str)
     if not project.SOURCE:
         return project
-    print(version_in)
 
     if isinstance(version_in, str):
         return __add_single_filter__(project, version_in)
@@ -416,7 +415,7 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
 
     if isinstance(version_in, dict):
         if not all(version_in.values()):
-            return __add_indexed_filters__(project, version_in.keys())
+            return __add_indexed_filters__(project, list(version_in.keys()))
         return __add_named_filters__(project, version_in)
 
     raise ValueError('not sure what this version input')

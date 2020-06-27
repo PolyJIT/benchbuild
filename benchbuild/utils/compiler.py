@@ -18,17 +18,13 @@ The wrapper-script generated for both functions can be found inside:
 Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
-import typing as tp
-
+import plumbum as pb
 from plumbum import local
 
 from benchbuild.settings import CFG
 from benchbuild.utils.wrapping import wrap_cc
 
-if tp.TYPE_CHECKING:
-    from mypy_extensions import VarArg
-
-Command = tp.Callable[['VarArg(str)'], tp.Any]
+Command = pb.commands.base.BaseCommand
 
 
 def cc(project: 'benchbuild.project.Project',

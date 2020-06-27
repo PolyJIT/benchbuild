@@ -12,7 +12,7 @@ from benchbuild.utils.path import flocked
 
 from . import base
 
-Command = tp.Callable[[...], tp.Any]
+Command = pb.commands.base.BaseCommand
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
 

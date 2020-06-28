@@ -114,5 +114,51 @@ def test_http_download_required():
     pass
 
 
+@attr.s
+class VersionSource(source.BaseSource):
+    known_versions: tp.List[int] = attr.ib()
+
+    @property
+    def default(self) -> Variant:
+        return Variant(owner=self, versin='1')
+
+    def version(self, target_dir: str, version: str) -> pb.LocalPath:
+        return '.'
+
+    def versions(self) -> tp.List[Variant]:
+        return [Variant(self, str(v)) for v in self.known_versions]
+
+
+@pytest.fixture
+def make_source():
+
+    def _make_version_source(versions: tp.List[int]):
+        str_versions = [str(v) for v in versions]
+        return VersionSource('ls', 'rs', known_versions=str_versions)
+
+    return _make_version_source
+
+
+def test_single_versions_filter(make_source):
+    src_1 = make_source([0])
+    src_2 = make_source(range(2))
+
+    src = source.SingleVersionFilter(src_1, '0')
+    src_vs = [str(v) for v in src.versions()]
+    assert ['0'] == src_vs
+
+    src = source.SingleVersionFilter(src_2, '-1')
+    src_vs = [str(v) for v in src.versions()]
+    assert [] == src_vs
+
+    src = source.SingleVersionFilter(src_2, '1')
+    src_vs = [str(v) for v in src.versions()]
+    assert ['1'] == src_vs
+
+    src = source.SingleVersionFilter(src_2, '2')
+    src_vs = [str(v) for v in src.versions()]
+    assert [] == src_vs
+
+
 def test_versions_product():
     pass

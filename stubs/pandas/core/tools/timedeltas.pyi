@@ -1,0 +1,3 @@
+from typing import Any
+
+def to_timedelta(arg: Any, unit: str = ..., errors: str = ...): ...

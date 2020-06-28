@@ -1,0 +1,13 @@
+from . import source as source, temp as temp
+from ._dill import CONTENTS_FMODE as CONTENTS_FMODE, DEFAULT_PROTOCOL as DEFAULT_PROTOCOL, FILE_FMODE as FILE_FMODE, HANDLE_FMODE as HANDLE_FMODE, HIGHEST_PROTOCOL as HIGHEST_PROTOCOL, Pickler as Pickler, PicklingError as PicklingError, Unpickler as Unpickler, UnpicklingError as UnpicklingError, check as check, copy as copy, dump as dump, dump_session as dump_session, dumps as dumps, load as load, load_session as load_session, loads as loads, pickle as pickle, pickles as pickles, register as register
+from .settings import settings as settings
+from typing import Any
+
+msg: str
+odict = dict
+objects: Any
+
+def load_types(pickleable: bool = ..., unpickleable: bool = ...) -> None: ...
+def extend(use_dill: bool = ...) -> None: ...
+def license() -> None: ...
+def citation() -> None: ...

@@ -1,0 +1,3 @@
+from typing import Any
+
+def get_terminal_size(default: Any = ...): ...

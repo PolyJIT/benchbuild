@@ -1,0 +1,3 @@
+from typing import Any
+
+def unpack_zerodim_and_defer(name: str) -> Any: ...

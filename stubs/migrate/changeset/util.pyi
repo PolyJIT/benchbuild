@@ -1,0 +1,3 @@
+from typing import Any
+
+def fk_column_names(constraint: Any): ...

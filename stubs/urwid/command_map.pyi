@@ -1,0 +1,23 @@
+from typing import Any
+
+REDRAW_SCREEN: str
+CURSOR_UP: str
+CURSOR_DOWN: str
+CURSOR_LEFT: str
+CURSOR_RIGHT: str
+CURSOR_PAGE_UP: str
+CURSOR_PAGE_DOWN: str
+CURSOR_MAX_LEFT: str
+CURSOR_MAX_RIGHT: str
+ACTIVATE: str
+
+class CommandMap:
+    def __init__(self) -> None: ...
+    def restore_defaults(self) -> None: ...
+    def __getitem__(self, key: Any): ...
+    def __setitem__(self, key: Any, command: Any) -> None: ...
+    def __delitem__(self, key: Any) -> None: ...
+    def clear_command(self, command: Any) -> None: ...
+    def copy(self): ...
+
+command_map: Any

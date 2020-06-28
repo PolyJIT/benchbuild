@@ -1,0 +1,13 @@
+from plumbum.commands import BG as BG, ERROUT as ERROUT, FG as FG, NOHUP as NOHUP, ProcessExecutionError as ProcessExecutionError, ProcessLineTimedOut as ProcessLineTimedOut, ProcessTimedOut as ProcessTimedOut, RETCODE as RETCODE, TEE as TEE, TF as TF
+from plumbum.machines import BaseRemoteMachine as BaseRemoteMachine, PuttyMachine as PuttyMachine, SshMachine as SshMachine
+from plumbum.path import LocalPath as LocalPath, Path as Path, RemotePath as RemotePath
+from types import ModuleType
+from typing import Any, List
+
+class LocalModule(ModuleType):
+    __package__: Any = ...
+    def __getattr__(self, name: Any): ...
+    __path__: List[str] = ...
+    __file__: Any = ...
+
+cmd: Any

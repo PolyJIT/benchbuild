@@ -1,0 +1,6 @@
+from typing import Any
+
+class KeyedInstance:
+    def __new__(cls, *p: Any, **k: Any): ...
+    @classmethod
+    def clear(cls) -> None: ...

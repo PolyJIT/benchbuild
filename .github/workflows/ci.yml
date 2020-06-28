@@ -33,10 +33,16 @@ jobs:
         pip install codecov
         pip install pytest-cov
 
-    - name: Run integration tests
+    - name: Test bootstrapping
       run: |
         coverage run -p `which benchbuild` bootstrap -s
+
+    - name: Run unittests
+      run: |
         pytest --cov-config=./.coveragerc --cov=./ benchbuild tests
+
+    - name: Run integration tests
+      run: |
         coverage run -p `which benchbuild` config view
         coverage run -p `which benchbuild` project view
         coverage run -p `which benchbuild` experiment view

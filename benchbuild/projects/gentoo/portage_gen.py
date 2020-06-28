@@ -6,7 +6,7 @@ import logging
 from plumbum import ProcessExecutionError, local
 
 from benchbuild.projects.gentoo import autoportage
-from benchbuild.utils import container, run, uchroot
+from benchbuild.utils import run, uchroot
 
 LOG = logging.getLogger(__name__)
 
@@ -98,19 +98,17 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         'DOMAIN'
     """
 
-    def run_not_supported(self, *args, **kwargs):
+    def run_not_supported(_, *args, **kwargs):
         """Dynamic projects don't support a run() test."""
         del args, kwargs  # Unused
 
         LOG.warning("Runtime testing not supported on auto-generated projects.")
-        return
 
     newclass = type(
         name, (BaseClass,), {
             "NAME": NAME,
             "DOMAIN": DOMAIN,
             "SRC_FILE": "none",
-            "VERSION": BaseClass.VERSION,
             "GROUP": "auto-gentoo",
             "run": run_not_supported,
             "__module__": "__main__"

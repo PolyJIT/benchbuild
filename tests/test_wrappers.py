@@ -10,13 +10,14 @@ import benchbuild.experiments.empty as empty
 import benchbuild.project as project
 import benchbuild.utils.compiler as compilers
 import benchbuild.utils.wrapping as wrappers
+from benchbuild.source.base import nosource
 
 
 class EmptyProject(project.Project):
     NAME = "test_empty"
     DOMAIN = "debug"
     GROUP = "debug"
-    SRC_FILE = "none"
+    SOURCE = [nosource()]
 
     def __attrs_post_init__(self):
         pass
@@ -28,6 +29,9 @@ class EmptyProject(project.Project):
         pass
 
     def download(self):
+        pass
+
+    def run_tests(self):
         pass
 
 
@@ -60,10 +64,9 @@ class RunStatic(WrapperTests):
 
     def test_create(self):
         with local.cwd(self.tmp_dir):
-            self.cmd = wrappers.wrap(self.tmp_script,
-                                     EmptyProject(empty.Empty()))
+            cmd = wrappers.wrap(self.tmp_script, EmptyProject(empty.Empty()))
             self.assertTrue(os.path.exists("{}.bin".format(self.tmp_script)))
-        self.assertTrue(os.path.exists(str(self.cmd)))
+        self.assertTrue(os.path.exists(str(cmd)))
 
 
 class RunDynamic(WrapperTests):

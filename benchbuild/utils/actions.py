@@ -28,7 +28,7 @@ import attr
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 
-from benchbuild import signals
+from benchbuild import signals, source
 from benchbuild.settings import CFG
 from benchbuild.utils import container, db
 from benchbuild.utils.cmd import mkdir, rm, rmdir
@@ -42,8 +42,6 @@ DecoratedFunction = tp.Callable[..., ReturnType]
 FunctionDecorator = tp.Callable[[DecoratedFunction[ReturnTypeA]],
                                 DecoratedFunction[ReturnTypeB]]
 
-StepResultType = tp.Union['StepResult', tp.List['StepResult']]
-
 
 @enum.unique
 class StepResult(enum.IntEnum):
@@ -55,6 +53,7 @@ class StepResult(enum.IntEnum):
 
 
 StepResultList = tp.List[StepResult]
+StepResultVariants = tp.Optional[tp.Union[StepResult, StepResultList]]
 
 
 def step_has_failed(step_results, error_status=None):
@@ -64,17 +63,8 @@ def step_has_failed(step_results, error_status=None):
     return len(list(filter(lambda res: res in error_status, step_results))) > 0
 
 
-def num_steps(steps):
-    return sum([len(step) for step in steps])
-
-
-def print_steps(steps):
-    print("Number of actions to execute: {}".format(num_steps(steps)))
-    print(*steps)
-
-
 def to_step_result(
-        func: DecoratedFunction[tp.Any]) -> DecoratedFunction[StepResultList]:
+        func: DecoratedFunction[StepResultVariants]) -> StepResultList:
     """Convert a function return to a list of StepResults.
 
     All Step subclasses automatically wrap the result of their
@@ -126,13 +116,13 @@ def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
 
 
 def notify_step_begin_end(
-    func: DecoratedFunction[StepResultList]
-) -> DecoratedFunction[StepResultList]:
+    func: DecoratedFunction[StepResultVariants]
+) -> DecoratedFunction[StepResultVariants]:
     """Print the beginning and the end of a `func`."""
 
     @ft.wraps(func)
     def wrapper(self: 'Step', *args: tp.Any,
-                **kwargs: tp.Any) -> StepResultType:
+                **kwargs: tp.Any) -> StepResultVariants:
         """Wrapper stub."""
         cls = self.__class__
         on_step_begin = cls.ON_STEP_BEGIN
@@ -152,12 +142,12 @@ def notify_step_begin_end(
 
 def log_before_after(
         name: str,
-        desc: str) -> FunctionDecorator[StepResultList, StepResultList]:
+        desc: str) -> FunctionDecorator[StepResultVariants, StepResultVariants]:
     """Log customized string before & after running func."""
 
     def func_decorator(
-        func: DecoratedFunction[tp.List[StepResult]]
-    ) -> DecoratedFunction[tp.List[StepResult]]:
+        func: DecoratedFunction[StepResultVariants]
+    ) -> DecoratedFunction[StepResultVariants]:
         """Wrapper stub."""
 
         @ft.wraps(func)
@@ -221,7 +211,7 @@ class StepClass(type):
         return super(StepClass, mcs).__new__(mcs, name, bases, attrs)
 
 
-@attr.s(cmp=False)
+@attr.s(eq=False)
 class Step(metaclass=StepClass):
     """Base class of a step.
 
@@ -251,7 +241,8 @@ class Step(metaclass=StepClass):
     def __next__(self):
         raise StopIteration
 
-    def __call__(self) -> StepResultType:
+    @notify_step_begin_end
+    def __call__(self) -> StepResultVariants:
         if not self.action_fn:
             return StepResult.ERROR
         self.action_fn()
@@ -293,7 +284,8 @@ class Clean(Step):
                 else:
                     umount_paths.append(part.mountpoint)
 
-    def __call__(self) -> StepResultType:
+    @notify_step_begin_end
+    def __call__(self) -> StepResultVariants:
         if not CFG['clean']:
             LOG.warning("Clean disabled by config.")
             return StepResult.OK
@@ -324,7 +316,8 @@ class MakeBuildDir(Step):
     NAME = "MKDIR"
     DESCRIPTION = "Create the build directory"
 
-    def __call__(self) -> StepResultType:
+    @notify_step_begin_end
+    def __call__(self) -> StepResultVariants:
         if not self.obj:
             return StepResult.ERROR
         if not os.path.exists(self.obj.builddir):
@@ -357,7 +350,8 @@ class Run(Step):
     def __init__(self, project):
         super(Run, self).__init__(obj=project, action_fn=project.run)
 
-    def __call__(self) -> StepResultType:
+    @notify_step_begin_end
+    def __call__(self) -> StepResultVariants:
         if not self.obj:
             return StepResult.ERROR
         if not self.action_fn:
@@ -383,7 +377,8 @@ class Echo(Step):
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent("* echo: {0}".format(self.message), indent * " ")
 
-    def __call__(self) -> StepResultType:
+    @notify_step_begin_end
+    def __call__(self) -> StepResultVariants:
         LOG.info(self.message)
         return StepResult.OK
 
@@ -398,12 +393,12 @@ def run_any_child(child: Step) -> tp.List[StepResult]:
     return child()
 
 
-@attr.s(cmp=False)
+@attr.s(eq=False)
 class Any(Step):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    actions = attr.ib(default=attr.Factory(list), repr=False, cmp=False)
+    actions = attr.ib(default=attr.Factory(list), repr=False, eq=False)
 
     def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
@@ -411,6 +406,7 @@ class Any(Step):
     def __iter__(self):
         return self.actions.__iter__()
 
+    @notify_step_begin_end
     def __call__(self) -> tp.List[StepResult]:
         length = len(self.actions)
         cnt = 0
@@ -433,7 +429,7 @@ class Any(Step):
         return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
 
 
-@attr.s(cmp=False, hash=True)
+@attr.s(eq=False, hash=True)
 class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
@@ -494,6 +490,7 @@ class Experiment(Any):
             results.append(StepResult.ERROR)
         return results
 
+    @notify_step_begin_end
     def __call__(self) -> tp.List[StepResult]:
         results = []
         session = None
@@ -527,7 +524,8 @@ class RequireAll(Step):
     def __iter__(self):
         return self.actions.__iter__()
 
-    def __call__(self) -> StepResultType:
+    @notify_step_begin_end
+    def __call__(self) -> StepResultVariants:
         results = []
         for i, action in enumerate(self.actions):
             try:
@@ -577,7 +575,8 @@ class Containerize(RequireAll):
         project = self.obj
         return not container.in_container() and (project.container is not None)
 
-    def __call__(self) -> StepResultType:
+    @notify_step_begin_end
+    def __call__(self) -> StepResultVariants:
         project = self.obj
         if self.requires_redirect():
             project.redirect()
@@ -605,6 +604,7 @@ class CleanExtra(Step):
     NAME = "CLEAN EXTRA"
     DESCRIPTION = "Cleans the extra directories."
 
+    @notify_step_begin_end
     def __call__(self) -> StepResult:
         if not CFG['clean']:
             return StepResult.OK
@@ -624,3 +624,28 @@ class CleanExtra(Step):
                 textwrap.indent("* Clean the directory: {0}".format(p),
                                 indent * " "))
         return "\n".join(lines)
+
+
+class ProjectEnvironment(Step):
+    NAME = 'ENV'
+    DESCRIPTION = 'Prepare the project environment.'
+
+    @notify_step_begin_end
+    def __call__(self) -> None:
+        project = self.obj
+        prj_vars = project.variant
+
+        for name, variant in prj_vars.items():
+            LOG.info("Fetching %s @ %s", str(name), variant.version)
+            src = variant.owner
+            src.version(project.builddir, variant.version)
+
+    def __str__(self, indent: int = 0) -> str:
+        project = self.obj
+        variant = project.variant
+        version_str = source.to_str(tuple(variant.values()))
+
+        return textwrap.indent(
+            "* Project environment for: {} @ {}".format(project.name,
+                                                        version_str),
+            indent * " ")

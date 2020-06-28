@@ -1,12 +1,9 @@
-from plumbum import local
-
-from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+import benchbuild as bb
+from benchbuild.source import Git
 from benchbuild.utils.cmd import make, mkdir
 
 
-@download.with_git("https://github.com/bsc-pm/bots", limit=5)
-class BOTSGroup(project.Project):
+class BOTSGroup(bb.Project):
     """
     Barcelona OpenMP Task Suite.
 
@@ -27,7 +24,12 @@ class BOTSGroup(project.Project):
 
     DOMAIN = 'bots'
     GROUP = 'bots'
-    VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/bsc-pm/bots',
+            local='bots.git',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     path_dict = {
         "alignment": "serial/alignment",
@@ -59,12 +61,10 @@ class BOTSGroup(project.Project):
         ]
     }
 
-    SRC_FILE = "bots.git"
-
     def compile(self):
-        self.download()
-        makefile_config = local.path(self.src_file) / "config" / "make.config"
-        clang = compiler.cc(self)
+        bots_repo = bb.path(self.source_of('bots.git'))
+        makefile_config = bots_repo / "config" / "make.config"
+        clang = bb.compiler.cc(self)
 
         with open(makefile_config, 'w') as config:
             lines = [
@@ -88,21 +88,21 @@ class BOTSGroup(project.Project):
             ]
             lines = [l.format(cc=clang) + "\n" for l in lines]
             config.writelines(lines)
-        mkdir(local.path(self.src_file) / "bin")
-        with local.cwd(self.src_file):
-            _make = run.watch(make)
+        mkdir(bots_repo / "bin")
+        with bb.cwd(bots_repo):
+            _make = bb.watch(make)
             _make("-C", self.path_dict[self.name])
 
     def run_tests(self):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
-        binary_path = local.path(self.src_file) / "bin" / binary_name
-        exp = wrapping.wrap(binary_path, self)
-        _exp = run.watch(exp)
+        bots_repo = bb.path(self.source_of('bots.git'))
+        binary_path = bots_repo / "bin" / binary_name
+        exp = bb.wrap(binary_path, self)
+        _exp = bb.watch(exp)
 
         if self.name in self.input_dict:
             for test_input in self.input_dict[self.name]:
-                input_file = local.path(
-                    self.src_file) / "inputs" / self.name / test_input
+                input_file = bots_repo / "inputs" / self.name / test_input
                 _exp("-f", input_file)
         else:
             _exp()

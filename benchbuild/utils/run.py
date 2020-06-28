@@ -10,11 +10,16 @@ from plumbum.commands import ProcessExecutionError
 
 from benchbuild import settings, signals
 
+if t.TYPE_CHECKING:
+    import mypy_extensions as mypy  # pylint: disable=unused-import
+
 CFG = settings.CFG
 LOG = logging.getLogger(__name__)
 
+Command = t.Callable[['mypy.VarArg(str)'], t.Any]
 
-@attr.s(cmp=False)
+
+@attr.s(eq=False)
 class RunInfo:
     """
     Execution context of wrapped binaries.
@@ -306,14 +311,16 @@ def track_execution(cmd, project, experiment, **kwargs):
     runner.commit()
 
 
-def watch(command):
+def watch(
+    command: Command
+) -> t.Callable[['mypy.VarArg', 'mypy.DefaultArg'], Command]:
     """Execute a plumbum command, depending on the user's settings.
 
     Args:
         command: The plumbumb command to execute.
     """
 
-    def f(*args, retcode=0):
+    def f(*args: t.Any, retcode: int = 0) -> Command:
         final_command = command[args]
         return final_command & TEE(retcode=retcode)
 

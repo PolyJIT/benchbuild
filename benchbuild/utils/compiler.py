@@ -18,13 +18,17 @@ The wrapper-script generated for both functions can be found inside:
 Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
+import plumbum as pb
 from plumbum import local
 
 from benchbuild.settings import CFG
 from benchbuild.utils.wrapping import wrap_cc
 
+Command = pb.commands.base.BaseCommand
 
-def cc(project, detect_project=False):
+
+def cc(project: 'benchbuild.project.Project',
+       detect_project: bool = False) -> Command:
     """
     Return a clang that hides CFLAGS and LDFLAGS.
 
@@ -49,7 +53,8 @@ def cc(project, detect_project=False):
     return cmd["./{}".format(cc_name)]
 
 
-def cxx(project, detect_project=False):
+def cxx(project: 'benchbuild.project.Project',
+        detect_project: bool = False) -> Command:
     """
     Return a clang++ that hides CFLAGS and LDFLAGS.
 

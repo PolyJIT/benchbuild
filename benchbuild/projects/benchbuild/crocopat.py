@@ -1,42 +1,52 @@
 from plumbum import local
 
-from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
-from benchbuild.utils.cmd import cat, make, unzip
+import benchbuild as bb
+from benchbuild.source import HTTP
+from benchbuild.utils.cmd import cat, make, tar, unzip
 
 
-@download.with_wget(
-    {"2.1.4": "http://crocopat.googlecode.com/files/crocopat-2.1.4.zip"})
-class Crocopat(project.Project):
+class Crocopat(bb.Project):
     """ crocopat benchmark """
 
     NAME = 'crocopat'
     DOMAIN = 'verification'
     GROUP = 'benchbuild'
-    VERSION = '2.1.4'
-    SRC_FILE = "crocopat.zip"
+    SOURCE = [
+        HTTP(remote={
+            '2.1.4': 'http://crocopat.googlecode.com/files/crocopat-2.1.4.zip'
+        },
+             local='crocopat.zip'),
+        HTTP(remote={
+            '2014-10': 'http://lairosiel.de/dist/2014-10-crocopat.tar.gz'
+        },
+             local='inputs.tar.gz')
+    ]
 
     def run_tests(self):
-        crocopat = wrapping.wrap(self.run_f, self)
+        crocopat = bb.wrap('crocopat', self)
+        test_source = self.source_of('inputs.tar.gz')
+        tar('xf', test_source)
 
-        programs = local.path(self.testdir) / "programs" // "*.rml"
-        projects = local.path(self.testdir) / "projects" // "*.rsf"
+        test_dir = local.path('./crocopat/')
+        programs = test_dir / "programs" // "*.rml"
+        projects = test_dir / "projects" // "*.rsf"
         for program in programs:
             for _project in projects:
-                _crocopat_project = run.watch(
+                _crocopat_project = bb.watch(
                     (cat[_project] | crocopat[program]))
                 _crocopat_project(retcode=None)
 
     def compile(self):
-        self.download()
-        unzip(self.src_file)
-        unpack_dir = "crocopat-{0}".format(self.version)
+        crocopat_source = bb.path(self.source_of('crocopat.zip'))
+        crocopat_version = self.version_of('crocopat.zip')
+        unzip(crocopat_source)
+        unpack_dir = f'crocopat-{crocopat_version}'
 
-        crocopat_dir = local.path(unpack_dir) / "src"
+        crocopat_dir = bb.path(unpack_dir) / "src"
         self.cflags += ["-I.", "-ansi"]
         self.ldflags += ["-L.", "-lrelbdd"]
-        clang_cxx = compiler.cxx(self)
+        clang_cxx = bb.compiler.cxx(self)
 
-        with local.cwd(crocopat_dir):
-            _make = run.watch(make)
+        with bb.cwd(crocopat_dir):
+            _make = bb.watch(make)
             _make("CXX=" + str(clang_cxx))

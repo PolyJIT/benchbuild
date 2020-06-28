@@ -1,10 +1,8 @@
 import logging
 
-from plumbum import local
-
-from benchbuild import project
+import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.source import HTTP
 from benchbuild.utils.cmd import diff, tar
 
 LOG = logging.getLogger(__name__)
@@ -41,14 +39,9 @@ def get_dump_arrays_output(data):
     return out
 
 
-@download.with_wget({
-    "4.2":
-        "http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz"
-})
-class PolyBenchGroup(project.Project):
+class PolyBenchGroup(bb.Project):
     DOMAIN = 'polybench'
     GROUP = 'polybench'
-    VERSION = '4.2'
     path_dict = {
         "correlation": "datamining",
         "covariance": "datamining",
@@ -82,7 +75,14 @@ class PolyBenchGroup(project.Project):
         "floyd-warshall": "medley",
     }
 
-    SRC_FILE = "polybench.tar.gz"
+    SOURCE = [
+        HTTP(
+            remote={
+                '4.2':
+                    'http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz'  # pylint: disable=line-too-long
+            },
+            local='polybench.tar.gz')
+    ]
 
     def compile_verify(self, compiler_args, polybench_opts):
         polybench_opts.append("-DPOLYBENCH_DUMP_ARRAYS")
@@ -93,8 +93,8 @@ class PolyBenchGroup(project.Project):
         self.cflags = []
         self.ldflags = []
 
-        clang_no_opts = compiler.cc(self)
-        _clang_no_opts = run.watch(clang_no_opts)
+        clang_no_opts = bb.compiler.cc(self)
+        _clang_no_opts = bb.watch(clang_no_opts)
 
         self.cflags = cflags
         self.ldflags = ldflags
@@ -103,16 +103,16 @@ class PolyBenchGroup(project.Project):
         return polybench_opts
 
     def compile(self):
-        self.download()
+        polybench_source = bb.path(self.source_of('polybench.tar.gz'))
+        polybench_version = self.version_of('polybench.tar.gz')
 
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
         workload = str(polybench_opts["workload"])
 
-        tar('xfz', self.src_file)
-        src_dir_name = "polybench-c-{0}".format(self.version)
+        tar('xfz', polybench_source)
 
-        src_dir = local.cwd / src_dir_name
+        src_dir = bb.path(f'./polybench-c-{polybench_version}')
         src_sub = src_dir / self.path_dict[self.name] / self.name
 
         src_file = src_sub / (self.name + ".c")
@@ -128,8 +128,8 @@ class PolyBenchGroup(project.Project):
                 "-I", utils_dir, "-I", src_sub, utils_dir / "polybench.c",
                 src_file, "-lm"
             ], polybench_opts)
-        clang = compiler.cc(self)
-        _clang = run.watch(clang)
+        clang = bb.compiler.cc(self)
+        _clang = bb.watch(clang)
         _clang("-I", utils_dir, "-I", src_sub, polybench_opts,
                utils_dir / "polybench.c", src_file, "-lm", "-o", self.name)
 
@@ -145,28 +145,28 @@ class PolyBenchGroup(project.Project):
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
 
-        binary = local.cwd / self.name
+        binary = bb.cwd / self.name
         opt_stderr_raw = binary + ".stderr"
         opt_stderr_filtered = opt_stderr_raw + ".filtered"
 
-        polybench_bin = wrapping.wrap(binary, self)
-        _polybench_bin = run.watch(polybench_bin)
+        polybench_bin = bb.wrap(binary, self)
+        _polybench_bin = bb.watch(polybench_bin)
         _polybench_bin()
 
         filter_stderr(opt_stderr_raw, opt_stderr_filtered)
 
         if verify:
-            binary = local.cwd / (self.name + ".no-opts")
+            binary = bb.cwd / (self.name + ".no-opts")
             noopt_stderr_raw = binary + ".stderr"
             noopt_stderr_filtered = noopt_stderr_raw + ".filtered"
 
-            with local.env(BB_IS_BASELINE=True):
-                polybench_bin = wrapping.wrap(binary, self)
-                _polybench_bin = run.watch(polybench_bin)
+            with bb.env(BB_IS_BASELINE=True):
+                polybench_bin = bb.wrap(binary, self)
+                _polybench_bin = bb.watch(polybench_bin)
                 _polybench_bin()
             filter_stderr(noopt_stderr_raw, noopt_stderr_filtered)
 
-            _diff = run.watch(diff[noopt_stderr_filtered, opt_stderr_filtered])
+            _diff = bb.watch(diff[noopt_stderr_filtered, opt_stderr_filtered])
             _diff(retcode=0)
 
 

@@ -6,14 +6,15 @@ This subcommand executes experiments on a set of user-controlled projects.
 See the output of benchbuild run --help for more information.
 """
 import logging
+import sys
 import time
 
 from plumbum import cli
 
-from benchbuild import experiment, experiments, project
+from benchbuild import engine, experiment, experiments, project
 from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
-from benchbuild.utils import actions, progress, tasks
+from benchbuild.utils import actions, progress
 
 LOG = logging.getLogger(__name__)
 
@@ -108,19 +109,20 @@ class BenchBuildRun(cli.Application):
             print("Could not find any experiment. Exiting.")
             return -2
 
-        plan = list(tasks.generate_plan(exps, prjs))
-        num_actions = actions.num_steps(plan)
-        actions.print_steps(plan)
+        ngn = engine.Experimentator(experiments=list(exps.values()),
+                                    projects=list(prjs.values()))
+        num_actions = ngn.num_actions
+        ngn.print_plan()
 
         if self.pretend:
-            exit(0)
+            sys.exit(0)
 
         if self.show_progress:
             pg_bar = type(self).setup_progress(CFG, num_actions)
             pg_bar.start()
 
         start = time.perf_counter()
-        failed = tasks.execute_plan(plan)
+        failed = ngn.start()
         end = time.perf_counter()
 
         if self.show_progress:

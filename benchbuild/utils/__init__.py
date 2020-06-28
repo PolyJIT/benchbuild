@@ -5,8 +5,10 @@ get deleted afterwards.
 """
 import logging
 import sys
+import typing as tp
 from types import ModuleType
 
+import plumbum as pb
 from plumbum.machines.local import LocalCommand
 
 __ALIASES__ = {"unionfs": ["unionfs_fuse", "unionfs"]}
@@ -43,10 +45,9 @@ class CommandAlias(ModuleType):
     __overrides__ = {}
     __override_all__ = None
 
-    def __getattr__(self, command):
+    def __getattr__(self, command: str) -> pb.commands.ConcreteCommand:
         """Proxy getter for plumbum commands."""
         from os import getenv
-        from plumbum import local
         from benchbuild.settings import CFG
         from benchbuild.utils.path import list_to_path
         from benchbuild.utils.path import path_to_list
@@ -56,8 +57,7 @@ class CommandAlias(ModuleType):
         if command in self.__overrides__:
             check = self.__overrides__[command]
 
-        if command in __ALIASES__:
-            check = __ALIASES__[command]
+        check = __ALIASES__.get(command, [command])
 
         env = CFG["env"].value
         path = path_to_list(getenv("PATH", ""))
@@ -73,7 +73,7 @@ class CommandAlias(ModuleType):
 
         for alias_command in check:
             try:
-                alias_cmd = local[alias_command]
+                alias_cmd = pb.local[alias_command]
                 alias_cmd = alias_cmd.with_env(
                     PATH=list_to_path(path),
                     LD_LIBRARY_PATH=list_to_path(libs_path),

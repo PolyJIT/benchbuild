@@ -8,6 +8,7 @@ pdoc3~=0.8
 plumbum~=1.6
 psutil~=5.7
 psycopg2-binary~=2.8
+pygit2>=1.2
 pygtrie~=2.3
 pyparsing~=2.4
 sqlalchemy-migrate~=0.13

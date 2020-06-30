@@ -1,12 +1,12 @@
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
 from benchbuild.utils.cmd import make
+from benchbuild.utils.settings import get_number_of_jobs
 
 
-class SDCC(project.Project):
+class SDCC(bb.Project):
     NAME = 'sdcc'
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
@@ -15,19 +15,22 @@ class SDCC(project.Project):
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + SRC_FILE
 
     def compile(self):
-        download.Svn(self.src_uri, self.SRC_FILE)
+        bb.download.Svn(self.src_uri, self.SRC_FILE)
 
-        clang = compiler.cc(self)
-        clang_cxx = compiler.cxx(self)
+        clang = bb.compiler.cc(self)
+        clang_cxx = bb.compiler.cxx(self)
 
-        with local.cwd(self.SRC_FILE):
+        with bb.cwd(self.SRC_FILE):
             configure = local["./configure"]
-            with local.env(CC=str(clang), CXX=str(clang_cxx)):
-                run.run(configure["--without-ccache", "--disable-pic14-port",
-                                  "--disable-pic16-port"])
+            _configure = bb.watch(configure)
+            with bb.env(CC=str(clang), CXX=str(clang_cxx)):
+                _configure("--without-ccache", "--disable-pic14-port",
+                           "--disable-pic16-port")
 
-            run.run(make["-j", CFG["jobs"]])
+            _make = bb.watch(make)
+            _make("-j", get_number_of_jobs(CFG))
 
-    def run_tests(self, runner):
-        sdcc = wrapping.wrap(self.run_f, self)
-        runner(sdcc)
+    def run_tests(self):
+        sdcc = bb.wrap('sdcc', self)
+        _sdcc = bb.watch(sdcc)
+        _sdcc()

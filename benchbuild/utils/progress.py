@@ -41,14 +41,13 @@ class ProgressBar(cli.progress.ProgressBase):
         else:
             percent = max(self.value, 0) / self.length
         pg_char = self.pg_char
-        ending = ' ' + (self.str_time_remaining()
-                        if self.timer else '{0} of {1} complete'.format(
-                            self.value, self.length))
+        ending = ' ' + (self.str_time_remaining() if self.timer else
+                        '{0} of {1} complete'.format(self.value, self.length))
         if width - len(ending) < 10 or self.has_output:
             self.width = 0
             if self.timer:
-                return "{0:.0%} complete: {1}".format(
-                    percent, self.str_time_remaining())
+                return "{0:.0%} complete: {1}".format(percent,
+                                                      self.str_time_remaining())
             return "{0:.0%} complete".format(percent)
         num_of_chars = int(percent * self.width)
         pbar = '[' + pg_char*num_of_chars + \

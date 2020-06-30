@@ -4,7 +4,7 @@ xz experiment within gentoo chroot.
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils import download, wrapping
+from benchbuild.utils import download, run, wrapping
 from benchbuild.utils.cmd import tar
 
 
@@ -29,23 +29,20 @@ class XZ(GentooGroup):
         download.Wget(test_url, test_archive)
         tar("fxz", test_archive)
 
-    def run_tests(self, runner):
+    def run_tests(self):
         xz = wrapping.wrap(local.path("/usr/bin/xz"), self)
+        _xz = run.watch(xz)
 
         # Compress
-        runner(
-            xz["--compress", "-f", "-k", "-e", "-9", "compression/text.html"])
-        runner(xz["--compress", "-f", "-k", "-e", "-9",
-                  "compression/chicken.jpg"])
-        runner(xz["--compress", "-f", "-k", "-e", "-9", "compression/control"])
-        runner(xz["--compress", "-f", "-k", "-e", "-9",
-                  "compression/input.source"])
-        runner(xz["--compress", "-f", "-k", "-e", "-9",
-                  "compression/liberty.jpg"])
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/text.html")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/chicken.jpg")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/control")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/input.source")
+        _xz("--compress", "-f", "-k", "-e", "-9", "compression/liberty.jpg")
 
         # Decompress
-        runner(xz["--decompress", "-f", "-k", "compression/text.html.xz"])
-        runner(xz["--decompress", "-f", "-k", "compression/chicken.jpg.xz"])
-        runner(xz["--decompress", "-f", "-k", "compression/control.xz"])
-        runner(xz["--decompress", "-f", "-k", "compression/input.source.xz"])
-        runner(xz["--decompress", "-f", "-k", "compression/liberty.jpg.xz"])
+        _xz("--decompress", "-f", "-k", "compression/text.html.xz")
+        _xz("--decompress", "-f", "-k", "compression/chicken.jpg.xz")
+        _xz("--decompress", "-f", "-k", "compression/control.xz")
+        _xz("--decompress", "-f", "-k", "compression/input.source.xz")
+        _xz("--decompress", "-f", "-k", "compression/liberty.jpg.xz")

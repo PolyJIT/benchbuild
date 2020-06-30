@@ -2,55 +2,60 @@ import logging
 
 from plumbum import local
 
-from benchbuild import project
+import benchbuild as bb
 from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
+from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, tar
+from benchbuild.utils.settings import get_number_of_jobs
 
 
-@download.with_git("https://github.com/xianyi/OpenBLAS", limit=5)
-class OpenBlas(project.Project):
+class OpenBlas(bb.Project):
     NAME = 'openblas'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
-    SRC_FILE = 'OpenBLAS'
-    VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/xianyi/OpenBLAS',
+            local='OpenBLAS',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     def compile(self):
-        self.download()
+        openblas_repo = bb.path(self.source_of('OpenBLAS'))
+        clang = bb.compiler.cc(self)
+        with bb.cwd(openblas_repo):
+            _make = bb.watch(make)
+            _make("CC=" + str(clang))
 
-        clang = compiler.cc(self)
-        with local.cwd(self.src_file):
-            run.run(make["CC=" + str(clang)])
-
-    def run_tests(self, runner):
-        del runner
+    def run_tests(self):
         log = logging.getLogger(__name__)
         log.warning('Not implemented')
 
 
-@download.with_wget({"3.2.1": "http://www.netlib.org/clapack/clapack.tgz"})
-class Lapack(project.Project):
+class Lapack(bb.Project):
     NAME = 'lapack'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
-    VERSION = '3.2.1'
-    SRC_FILE = "clapack.tgz"
+    SOURCE = [
+        HTTP(remote={'3.2.1': 'http://www.netlib.org/clapack/clapack.tgz'},
+             local='clapack.tgz')
+    ]
 
     def compile(self):
-        self.download()
-        tar("xfz", self.src_file)
-        unpack_dir = "CLAPACK-{0}".format(self.version)
+        clapack_source = bb.path(self.source_of('clapack.tgz'))
+        clapack_version = self.version_of('clapack.tgz')
 
-        clang = compiler.cc(self)
-        clang_cxx = compiler.cxx(self)
-        with local.cwd(unpack_dir):
+        tar("xfz", clapack_source)
+        unpack_dir = "CLAPACK-{0}".format(clapack_version)
+
+        clang = bb.compiler.cc(self)
+        clang_cxx = bb.compiler.cxx(self)
+        with bb.cwd(unpack_dir):
             with open("make.inc", 'w') as makefile:
                 content = [
                     "SHELL     = /bin/sh\n", "PLAT      = _LINUX\n",
-                    "CC        = " + str(clang) + "\n",
-                    "CXX       = " + str(clang_cxx) + "\n",
-                    "CFLAGS    = -I$(TOPDIR)/INCLUDE\n",
+                    "CC        = " + str(clang) + "\n", "CXX       = " +
+                    str(clang_cxx) + "\n", "CFLAGS    = -I$(TOPDIR)/INCLUDE\n",
                     "LOADER    = " + str(clang) + "\n", "LOADOPTS  = \n",
                     "NOOPT     = -O0 -I$(TOPDIR)/INCLUDE\n",
                     "DRVCFLAGS = $(CFLAGS)\n", "F2CCFLAGS = $(CFLAGS)\n",
@@ -66,29 +71,44 @@ class Lapack(project.Project):
                 ]
                 makefile.writelines(content)
 
-            run.run(make["-j", CFG["jobs"], "f2clib", "blaslib"])
-            with local.cwd(local.path("BLAS") / "TESTING"):
-                run.run(make["-j", CFG["jobs"], "-f", "Makeblat2"])
-                run.run(make["-j", CFG["jobs"], "-f", "Makeblat3"])
+            _make = bb.watch(make)
+            _make("-j", get_number_of_jobs(CFG), "f2clib", "blaslib")
+            with bb.cwd(local.path("BLAS") / "TESTING"):
+                _make("-j", get_number_of_jobs(CFG), "-f", "Makeblat2")
+                _make("-j", get_number_of_jobs(CFG), "-f", "Makeblat3")
 
-    def run_tests(self, runner):
-        unpack_dir = local.path("CLAPACK-{0}".format(self.version))
-        with local.cwd(unpack_dir / "BLAS"):
-            xblat2s = wrapping.wrap("xblat2s", self)
-            xblat2d = wrapping.wrap("xblat2d", self)
-            xblat2c = wrapping.wrap("xblat2c", self)
-            xblat2z = wrapping.wrap("xblat2z", self)
+    def run_tests(self):
+        clapack_version = self.version_of('clapack.tgz')
+        unpack_dir = bb.path("CLAPACK-{0}".format(clapack_version))
+        with bb.cwd(unpack_dir / "BLAS"):
+            xblat2s = bb.wrap("xblat2s", self)
+            _xblat2s = bb.watch((xblat2s < "sblat2.in"))
+            _xblat2s()
 
-            xblat3s = wrapping.wrap("xblat3s", self)
-            xblat3d = wrapping.wrap("xblat3d", self)
-            xblat3c = wrapping.wrap("xblat3c", self)
-            xblat3z = wrapping.wrap("xblat3z", self)
+            xblat2d = bb.wrap("xblat2d", self)
+            _xblat2d = bb.watch((xblat2d < "dblat2.in"))
+            _xblat2d()
 
-            runner((xblat2s < "sblat2.in"))
-            runner((xblat2d < "dblat2.in"))
-            runner((xblat2c < "cblat2.in"))
-            runner((xblat2z < "zblat2.in"))
-            runner((xblat3s < "sblat3.in"))
-            runner((xblat3d < "dblat3.in"))
-            runner((xblat3c < "cblat3.in"))
-            runner((xblat3z < "zblat3.in"))
+            xblat2c = bb.wrap("xblat2c", self)
+            _xblat2c = bb.watch((xblat2c < "cblat2.in"))
+            _xblat2c()
+
+            xblat2z = bb.wrap("xblat2z", self)
+            _xblat2z = bb.watch((xblat2z < "zblat2.in"))
+            _xblat2z()
+
+            xblat3s = bb.wrap("xblat3s", self)
+            _xblat3s = bb.watch((xblat3s < "sblat3.in"))
+            _xblat3s()
+
+            xblat3d = bb.wrap("xblat3d", self)
+            _xblat3d = bb.watch((xblat3d < "dblat3.in"))
+            _xblat3d()
+
+            xblat3c = bb.wrap("xblat3c", self)
+            _xblat3c = bb.watch((xblat3c < "cblat3.in"))
+            _xblat3c()
+
+            xblat3z = bb.wrap("xblat3z", self)
+            _xblat3z = bb.watch((xblat3z < "zblat3.in"))
+            _xblat3z()

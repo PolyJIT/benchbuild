@@ -1,7 +1,10 @@
 """Test user interface utility methods."""
 import os
+
 import pytest
+
 from benchbuild.utils.user_interface import ask
+
 
 @pytest.fixture
 def env():

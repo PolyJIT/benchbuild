@@ -1,9 +1,10 @@
 """Subcommand for configuration handling."""
 import os
+
 from plumbum import cli
 
-from benchbuild.cli.main import BenchBuild
 from benchbuild import settings
+from benchbuild.cli.main import BenchBuild
 
 
 @BenchBuild.subcommand("config")

@@ -2,6 +2,7 @@ import unittest
 
 
 class TestPathToList(unittest.TestCase):
+
     def test_path_to_list(self):
         from benchbuild.utils.path import path_to_list
         p = path_to_list("a:b")

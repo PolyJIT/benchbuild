@@ -1,39 +1,42 @@
-from plumbum import local
-
-from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+import benchbuild as bb
+from benchbuild.source import Git
 from benchbuild.utils.cmd import make
 
 
-@download.with_git("https://github.com/lammps/lammps", limit=5)
-class Lammps(project.Project):
+class Lammps(bb.Project):
     """ LAMMPS benchmark """
 
     NAME = 'lammps'
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
-    SRC_FILE = 'lammps.git'
-    VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/lammps/lammps',
+            local='lammps.git',
+            limit=5,
+            refspec='HEAD')
+    ]
 
-    def run_tests(self, runner):
-        src_path = local.path(self.src_file)
-        lammps_dir = src_path / "src"
-        exp = wrapping.wrap(lammps_dir / "lmp_serial", self)
+    def run_tests(self):
+        lammps_repo = bb.path(self.source_of('lammps.git'))
+        src = lammps_repo / 'src'
+        examples = lammps_repo / "examples"
 
-        examples_dir = src_path / "examples"
-        tests = examples_dir // "*" // "in.*"
+        lmp_serial = bb.wrap(src / "lmp_serial", self)
+        tests = examples // "*" // "in.*"
 
         for test in tests:
             dirname = test.dirname
-            with local.cwd(dirname):
-                cmd = (exp < test)
-                runner(cmd, None)
+            with bb.cwd(dirname):
+                _lmp_serial = bb.watch((lmp_serial < test))
+                _lmp_serial(retcode=None)
 
     def compile(self):
-        self.download()
-        self.ldflags += ["-lgomp"]
+        lammps_repo = bb.path(self.source_of('lammps.git'))
+        src = lammps_repo / 'src'
 
-        clang_cxx = compiler.cxx(self)
-        with local.cwd(local.path(self.src_file) / "src"):
-            run.run(make["CC=" + str(clang_cxx), "LINK=" +
-                         str(clang_cxx), "clean", "serial"])
+        self.ldflags += ["-lgomp"]
+        clang_cxx = bb.compiler.cxx(self)
+        with bb.cwd(src):
+            _make = bb.watch(make)
+            _make("CC=" + str(clang_cxx), "LINK=" + str(clang_cxx), "clean",
+                  "serial")

@@ -9,8 +9,8 @@ You can configure the modules we search for experiments with the settings:
 Any subclass of benchbuild.experiments.Experiment will be automatically registered and
 made available on the command line.
 """
-import logging
 import importlib
+import logging
 
 from benchbuild.settings import CFG
 

@@ -1,8 +1,8 @@
 import enum
 import logging
 
+from plumbum import FG, local
 from plumbum.commands import ProcessExecutionError
-from plumbum import local, FG
 
 from benchbuild.settings import CFG
 from benchbuild.utils import path, run
@@ -53,10 +53,9 @@ def no_args(**kwargs):
 
     prefixes = CFG["container"]["prefixes"].value
     p_paths, p_libs = env(prefixes)
-    uchrt = run.with_env_recursive(
-        uchrt,
-        LD_LIBRARY_PATH=path.list_to_path(p_libs),
-        PATH=path.list_to_path(p_paths))
+    uchrt = run.with_env_recursive(uchrt,
+                                   LD_LIBRARY_PATH=path.list_to_path(p_libs),
+                                   PATH=path.list_to_path(p_paths))
 
     return uchrt
 
@@ -98,24 +97,22 @@ def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
             raise
 
         if new_retcode in retry_retcodes:
-            retry(
-                pb_cmd,
-                retries=retries + 1,
-                max_retries=max_retries,
-                retcode=retcode,
-                retry_retcodes=retry_retcodes)
+            retry(pb_cmd,
+                  retries=retries + 1,
+                  max_retries=max_retries,
+                  retcode=retcode,
+                  retry_retcodes=retry_retcodes)
         else:
             raise
 
 
 def uretry(cmd, retcode=0):
-    retry(
-        cmd,
-        retcode=retcode,
-        retry_retcodes=[
-            UchrootEC.MNT_PROC_FAILED.value, UchrootEC.MNT_DEV_FAILED.value,
-            UchrootEC.MNT_SYS_FAILED.value, UchrootEC.MNT_PTS_FAILED.value
-        ])
+    retry(cmd,
+          retcode=retcode,
+          retry_retcodes=[
+              UchrootEC.MNT_PROC_FAILED.value, UchrootEC.MNT_DEV_FAILED.value,
+              UchrootEC.MNT_SYS_FAILED.value, UchrootEC.MNT_PTS_FAILED.value
+          ])
 
 
 def clean_env(uchroot_cmd, varnames):

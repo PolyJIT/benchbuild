@@ -6,13 +6,15 @@ All settings are modifiable by environment variables that encode
 the path in the dictionary tree.
 
 Inner nodes in the dictionary tree can be any dictionary.
-A leaf node in the dictionary tree is represented by an inner node that contains a value key.
+A leaf node in the dictionary tree is represented by an inner node that
+contains a value key.
 """
 import copy
 import logging
 import os
 import re
 import sys
+import typing as tp
 import uuid
 import warnings
 
@@ -25,6 +27,13 @@ from plumbum import local
 import benchbuild.utils.user_interface as ui
 
 LOG = logging.getLogger(__name__)
+
+
+class Indexable:
+
+    def __getitem__(self: 'Indexable', key: str) -> 'Indexable':
+        pass
+
 
 try:
     __version__ = get_distribution("benchbuild").version
@@ -83,6 +92,19 @@ def available_cpu_count() -> int:
         LOG.debug("Could not get the number of allowed CPUs")
 
     raise Exception('Can not determine number of CPUs on this system')
+
+
+def current_available_threads() -> int:
+    """Returns the number of currently available threads for BB."""
+    return len(os.sched_getaffinity(0))
+
+
+def get_number_of_jobs(config: 'Configuration') -> int:
+    """Returns the number of jobs set in the config."""
+    jobs_configured = int(config["jobs"])
+    if jobs_configured == 0:
+        return current_available_threads()
+    return jobs_configured
 
 
 class InvalidConfigKey(RuntimeWarning):
@@ -160,11 +182,7 @@ def to_env_var(env_var: str, value) -> str:
     return ret_val
 
 
-class Configuration:
-    """Forward declaration."""
-
-
-class Configuration():
+class Configuration(Indexable):
     """
     Dictionary-like data structure to contain all configuration variables.
 
@@ -209,13 +227,12 @@ class Configuration():
         selfcopy.filter_exports()
 
         with open(config_file, 'w') as outf:
-            yaml.dump(
-                selfcopy.node,
-                outf,
-                width=80,
-                indent=4,
-                default_flow_style=False,
-                Dumper=ConfigDumper)
+            yaml.dump(selfcopy.node,
+                      outf,
+                      width=80,
+                      indent=4,
+                      default_flow_style=False,
+                      Dumper=ConfigDumper)
 
     def load(self, _from):
         """Load the configuration dictionary from file."""
@@ -268,8 +285,8 @@ class Configuration():
                 env_val = self.node['default']
             env_val = os.getenv(env_var, to_yaml(env_val))
             try:
-                self.node['value'] = yaml.load(
-                    str(env_val), Loader=ConfigLoader)
+                self.node['value'] = yaml.load(str(env_val),
+                                               Loader=ConfigLoader)
             except ValueError:
                 self.node['value'] = env_val
         else:
@@ -290,7 +307,7 @@ class Configuration():
             return validate(self.node['value'])
         return self
 
-    def __getitem__(self, key) -> Configuration:
+    def __getitem__(self: Indexable, key: str) -> Indexable:
         if key not in self.node:
             warnings.warn(
                 "Access to non-existing config element: {0}".format(key),
@@ -299,7 +316,7 @@ class Configuration():
             return Configuration(key, init=False)
         return Configuration(key, parent=self, node=self.node[key], init=False)
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key: str, val: tp.Any) -> None:
         if key in self.node:
             self.node[key]['value'] = val
         else:
@@ -308,7 +325,7 @@ class Configuration():
             else:
                 self.node[key] = {'value': val}
 
-    def __iadd__(self, rhs) -> Configuration:
+    def __iadd__(self, rhs: 'Configuration') -> 'Configuration':
         """Append a value to a list value."""
         if not self.has_value():
             raise TypeError("Inner configuration node does not support +=.")
@@ -333,7 +350,7 @@ class Configuration():
             return True
         return bool(self.value)
 
-    def __contains__(self, key):
+    def __contains__(self, key: str) -> bool:
         return key in self.node
 
     def __str__(self) -> str:
@@ -363,7 +380,7 @@ class Configuration():
             return (self.parent.__to_env_var__() + "_" + parent_key).upper()
         return parent_key.upper()
 
-    def to_env_dict(self):
+    def to_env_dict(self) -> tp.Mapping[str, tp.Any]:
         """Convert configuration object to a flat dictionary."""
         entries = {}
         if self.has_value():
@@ -400,10 +417,9 @@ class ConfigPath:
 
         if not path.exists():
             print("The path '%s' is required by your configuration." % path)
-            yes = ui.ask(
-                "Should I create '%s' for you?" % path,
-                default_answer=True,
-                default_answer_str="yes")
+            yes = ui.ask("Should I create '%s' for you?" % path,
+                         default_answer=True,
+                         default_answer_str="yes")
             if yes:
                 path.mkdir()
             else:
@@ -574,8 +590,9 @@ def __init_module__():
     yaml.add_representer(uuid.UUID, uuid_representer, Dumper=ConfigDumper)
     yaml.add_representer(ConfigPath, path_representer, Dumper=ConfigDumper)
     yaml.add_constructor('!uuid', uuid_constructor, Loader=ConfigLoader)
-    yaml.add_constructor(
-        '!create-if-needed', path_constructor, Loader=ConfigLoader)
+    yaml.add_constructor('!create-if-needed',
+                         path_constructor,
+                         Loader=ConfigLoader)
     uuid_add_implicit_resolver()
 
 

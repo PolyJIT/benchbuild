@@ -45,4 +45,3 @@ ON
 (baseline.project_name = measurement.project_name and baseline.name = measurement.name);
 END
 $BODY$ LANGUAGE plpgsql;
-

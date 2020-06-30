@@ -26,15 +26,22 @@ class HelloExperiment(Experiment):
 """
 import collections
 import copy
+import typing as tp
 import uuid
 from abc import abstractmethod
 
 import attr
 
+import benchbuild.utils.actions as actns
 from benchbuild.settings import CFG
-from benchbuild.utils.actions import (Any, Clean, CleanExtra, Compile,
-                                      Containerize, Echo, MakeBuildDir,
-                                      RequireAll, Run)
+from benchbuild.utils.requirements import Requirement
+
+from . import source
+from .project import Project
+
+Actions = tp.MutableSequence[actns.Step]
+ProjectT = tp.Type[Project]
+Projects = tp.List[ProjectT]
 
 
 class ExperimentRegistry(type):
@@ -42,15 +49,16 @@ class ExperimentRegistry(type):
 
     experiments = {}
 
-    def __init__(cls, name, bases, _dict):
+    def __new__(mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
+                attrs: tp.Dict[str, tp.Any]) -> tp.Any:
         """Register a project in the registry."""
-        super(ExperimentRegistry, cls).__init__(name, bases, _dict)
-
-        if cls.NAME is not None:
+        cls = super(ExperimentRegistry, mcs).__new__(mcs, name, bases, attrs)
+        if bases and 'NAME' in attrs:
             ExperimentRegistry.experiments[cls.NAME] = cls
+        return cls
 
 
-@attr.s(cmp=False)
+@attr.s(eq=False)
 class Experiment(metaclass=ExperimentRegistry):
     """
     A series of commands executed on a project that form an experiment.
@@ -65,6 +73,9 @@ class Experiment(metaclass=ExperimentRegistry):
 
     Attributes:
         name (str): The name of the experiment, defaults to NAME
+        requirements (:obj:`list` of :obj:`Requirement`)
+            A list of specific requirements that are used to configure the
+            execution environment.
         projects (:obj:`list` of `benchbuild.project.Project`):
             A list of projects that is assigned to this experiment.
         id (str):
@@ -73,29 +84,30 @@ class Experiment(metaclass=ExperimentRegistry):
             in the database scheme.
     """
 
-    NAME = None
+    NAME: tp.ClassVar[str] = ''
     SCHEMA = None
+    REQUIREMENTS: tp.List[Requirement] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
         del args, kwargs  # Temporarily unused
         new_self = super(Experiment, cls).__new__(cls)
-        if cls.NAME is None:
+        if not cls.NAME:
             raise AttributeError(
                 "{0} @ {1} does not define a NAME class attribute.".format(
                     cls.__name__, cls.__module__))
         return new_self
 
-    name = attr.ib(
+    name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
-    projects = \
-        attr.ib(default=attr.Factory(list))
+    projects: Projects = \
+        attr.ib(default=attr.Factory(dict))
 
     id = attr.ib()
 
     @id.default
-    def default_id(self):
+    def default_id(self) -> uuid.UUID:
         cfg_exps = CFG["experiments"].value
         if self.name in cfg_exps:
             _id = cfg_exps[self.name]
@@ -106,7 +118,7 @@ class Experiment(metaclass=ExperimentRegistry):
         return _id
 
     @id.validator
-    def validate_id(self, _, new_id):
+    def validate_id(self, _: tp.Any, new_id: uuid.UUID) -> None:
         if not isinstance(new_id, uuid.UUID):
             raise TypeError("%s expected to be '%s' but got '%s'" %
                             (str(new_id), str(uuid.UUID), str(type(new_id))))
@@ -118,7 +130,7 @@ class Experiment(metaclass=ExperimentRegistry):
         return type(self).SCHEMA
 
     @schema.validator
-    def validate_schema(self, _, new_schema):
+    def validate_schema(self, _: tp.Any, new_schema) -> bool:
         if new_schema is None:
             return True
         if isinstance(new_schema, collections.abc.Iterable):
@@ -126,7 +138,7 @@ class Experiment(metaclass=ExperimentRegistry):
         return False
 
     @abstractmethod
-    def actions_for_project(self, project):
+    def actions_for_project(self, project: Project) -> Actions:
         """
         Get the actions a project wants to run.
 
@@ -134,33 +146,40 @@ class Experiment(metaclass=ExperimentRegistry):
             project (benchbuild.Project): the project we want to run.
         """
 
-    def actions(self):
+    def actions(self) -> Actions:
         """
         Common setup required to run this experiment on all projects.
         """
         actions = []
 
-        for project in self.projects:
-            prj_cls = self.projects[project]
+        for prj_cls in self.projects:
+            prj_actions: Actions = []
 
-            prj_actions = []
-            for version in self.sample(prj_cls, prj_cls.versions()):
-                p = prj_cls(self, version=version)
+            project_variants = source.product(*prj_cls.SOURCE)
+            for variant in project_variants:
+                var_context = source.context(*variant)
+                version_str = source.to_str(*variant)
 
-                atomic_actions = [
-                    Clean(p),
-                    MakeBuildDir(p),
-                    Echo(message="Selected {0} with version {1}".format(
-                        p.name, p.version)),
-                    Containerize(obj=p, actions=self.actions_for_project(p))
+                p = prj_cls(self, variant=var_context)
+                atomic_actions: Actions = [
+                    actns.Clean(p),
+                    actns.MakeBuildDir(p),
+                    actns.Echo(message="Selected {0} with version {1}".format(
+                        p.name, version_str)),
+                    actns.ProjectEnvironment(p),
+                    actns.Containerize(obj=p,
+                                       actions=self.actions_for_project(p))
                 ]
-                prj_actions.append(RequireAll(actions=atomic_actions))
+
+                prj_actions.append(actns.RequireAll(actions=atomic_actions))
             actions.extend(prj_actions)
 
-        actions.append(CleanExtra(self))
+        actions.append(actns.CleanExtra(self))
         return actions
 
-    def sample(self, prj_cls, versions=None):
+    def sample(self,
+               prj_cls: ProjectT,
+               versions: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
         """
         Sample all available versions.
 
@@ -199,14 +218,18 @@ class Experiment(metaclass=ExperimentRegistry):
                 yield v
 
     @staticmethod
-    def default_runtime_actions(project):
+    def default_runtime_actions(project: Project) -> Actions:
         """Return a series of actions for a run time experiment."""
-        return [Compile(project), Run(project), Clean(project)]
+        return [
+            actns.Compile(project),
+            actns.Run(project),
+            actns.Clean(project)
+        ]
 
     @staticmethod
-    def default_compiletime_actions(project):
+    def default_compiletime_actions(project: Project) -> Actions:
         """Return a series of actions for a compile time experiment."""
-        return [Compile(project), Clean(project)]
+        return [actns.Compile(project), actns.Clean(project)]
 
 
 class Configuration:

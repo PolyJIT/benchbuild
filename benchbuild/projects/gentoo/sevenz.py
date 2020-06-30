@@ -4,7 +4,7 @@ p7zip experiment within gentoo chroot.
 from plumbum import local
 
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils import wrapping
+from benchbuild.utils import run, wrapping
 
 
 class SevenZip(GentooGroup):
@@ -14,6 +14,7 @@ class SevenZip(GentooGroup):
     NAME = "p7zip"
     DOMAIN = "app-arch"
 
-    def run_tests(self, runner):
+    def run_tests(self):
         _7z = wrapping.wrap(local.path('/usr/bin/7z'), self)
-        runner(_7z["b", "-mmt1"])
+        _7z = run.watch(_7z)
+        _7z("b", "-mmt1")

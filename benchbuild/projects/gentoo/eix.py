@@ -3,8 +3,8 @@ eix experiment within gentoo chroot
 """
 from plumbum import local
 
+import benchbuild as bb
 from benchbuild.projects.gentoo.gentoo import GentooGroup
-from benchbuild.utils import wrapping
 
 
 class Eix(GentooGroup):
@@ -13,8 +13,9 @@ class Eix(GentooGroup):
     NAME = 'eix'
     DOMAIN = 'app-portage'
 
-    def run_tests(self, runner):
+    def run_tests(self):
         """Runs runtime tests for eix"""
 
-        eix = wrapping.wrap(local.path('/usr/bin/eix'), self)
-        runner(eix["clang"])
+        eix = bb.wrap(local.path('/usr/bin/eix'), self)
+        _eix = bb.watch(eix)
+        _eix("clang")

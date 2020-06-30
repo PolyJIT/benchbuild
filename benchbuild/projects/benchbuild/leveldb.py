@@ -1,40 +1,44 @@
 from os import getenv
 
-from plumbum import local
-
-from benchbuild import project
-from benchbuild.utils import compiler, download, run, wrapping
+import benchbuild as bb
+from benchbuild.source import Git
 from benchbuild.utils.cmd import make
 
 
-@download.with_git("https://github.com/google/leveldb", limit=5)
-class LevelDB(project.Project):
+class LevelDB(bb.Project):
     NAME = 'leveldb'
     DOMAIN = 'database'
     GROUP = 'benchbuild'
-    SRC_FILE = 'leveldb.src'
-    VERSION = 'HEAD'
+    SOURCE = [
+        Git(remote='https://github.com/google/leveldb',
+            local='leveldb.src',
+            limit=5,
+            refspec='HEAD')
+    ]
 
     def compile(self):
-        self.download()
+        leveldb_repo = bb.path(self.source_of('leveldb.src'))
 
-        clang = compiler.cc(self)
-        clang_cxx = compiler.cxx(self)
-        with local.cwd(self.src_file):
-            with local.env(CXX=str(clang_cxx), CC=str(clang)):
-                make("clean")
-                run.run(make["all", "-i"])
+        clang = bb.compiler.cc(self)
+        clang_cxx = bb.compiler.cxx(self)
 
-    def run_tests(self, runner):
+        with bb.cwd(leveldb_repo):
+            with bb.env(CXX=str(clang_cxx), CC=str(clang)):
+                _make = bb.watch(make)
+                _make("clean")
+                _make("all", "-i")
+
+    def run_tests(self):
         """
         Execute LevelDB's runtime configuration.
 
         Args:
             experiment: The experiment's run function.
         """
-        leveldb = wrapping.wrap(
-            local.path(self.src_file) / "out-static" / "db_bench", self)
-        with local.env(LD_LIBRARY_PATH="{}:{}".format(
-                local.path(self.src_file) /
-                "out-shared", getenv("LD_LIBRARY_PATH", ""))):
-            runner(leveldb)
+        leveldb_repo = bb.path(self.source_of('leveldb.src'))
+
+        leveldb = bb.wrap(leveldb_repo / "out-static" / "db_bench", self)
+        _leveldb = bb.watch(leveldb)
+        with bb.env(LD_LIBRARY_PATH="{}:{}".format(
+                leveldb_repo / "out-shared", getenv("LD_LIBRARY_PATH", ""))):
+            _leveldb()

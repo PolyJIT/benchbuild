@@ -2,21 +2,21 @@
 +++ linpack.c.new	2015-04-14 23:08:01.693012102 +0200
 @@ -62,58 +62,43 @@
  static REAL second   (void);
- 
+
  static void *mempool;
- 
- 
+
+
 -void main(void)
 +int main(void)
- 
+
      {
 -    char    buf[80];
      int     arsize;
      long    arsize2d,memreq,nreps;
      size_t  malloc_arg;
- 
+
 -    while (1)
-+    arsize = 10240; 
++    arsize = 10240;
 +    arsize/=2;
 +    arsize*=2;
 +    arsize2d = (long)arsize*(long)arsize;
@@ -75,11 +75,11 @@
 +        nreps*=2;
 +    free(mempool);
 +    printf("\n");
- 
+
 +    return 0;
 +    }
- 
+
  static REAL linpack(long nreps,int arsize)
- 
+
      {
      REAL  *a,*b;

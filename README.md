@@ -1,9 +1,7 @@
 # BenchBuild: Empirical-Research Toolkit
-![image](https://travis-ci.org/PolyJIT/benchbuild.svg?branch=master)
+![Python CI](https://github.com/PolyJIT/benchbuild/workflows/Python%20CI/badge.svg)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/217af919753b4d16b3760282c1274751)](https://www.codacy.com/app/polyjit/benchbuild_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PolyJIT/benchbuild&amp;utm_campaign=Badge_Grade)
-[![Documentation Status](https://readthedocs.org/projects/pprof-study/badge/?version=master)](http://pprof-study.readthedocs.io/en/master/?badge=master)
 [![codecov](https://codecov.io/gh/PolyJIT/benchbuild/branch/master/graph/badge.svg)](https://codecov.io/gh/PolyJIT/benchbuild)
-[![BCH compliance](https://bettercodehub.com/edge/badge/PolyJIT/benchbuild?branch=master)](https://bettercodehub.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 BenchBuild provides a lightweight toolkit to conduct empirical compile-time and run-time experiments.
@@ -264,7 +262,7 @@ class BZip(AutoPortage):
   NAME = "app-arch"
   DOMAIN = "bzip2"
 
-  def run_tests(self, run):
+  def run_tests(self):
     """Add your custom test routines here."""
 ```
 

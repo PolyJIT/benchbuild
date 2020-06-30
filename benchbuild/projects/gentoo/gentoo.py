@@ -14,9 +14,9 @@ the gentoo image in benchbuild's source directory.
 import logging
 
 import attr
-from plumbum import ProcessExecutionError, local
+from plumbum import ProcessExecutionError
 
-from benchbuild import project
+import benchbuild as bb
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, container, path, run, uchroot
 from benchbuild.utils.cmd import cp, ln
@@ -25,13 +25,12 @@ LOG = logging.getLogger(__name__)
 
 
 @attr.s
-class GentooGroup(project.Project):
+class GentooGroup(bb.Project):
     """Gentoo ProjectGroup is the base class for every portage build."""
 
     GROUP = 'gentoo'
     CONTAINER = container.Gentoo()
     SRC_FILE = None
-    VERSION = CONTAINER.version
 
     emerge_env = attr.ib(default={}, repr=False, cmp=False)
 
@@ -46,28 +45,29 @@ class GentooGroup(project.Project):
         self.configure_benchbuild(CFG)
         path.mkfile_uchroot("/.benchbuild-container")
         benchbuild = find_benchbuild()
-        with local.env(BB_VERBOSITY=str(CFG['verbosity'])):
+        _benchbuild = run.watch(benchbuild)
+        with bb.env(BB_VERBOSITY=str(CFG['verbosity'])):
             project_id = "{0}/{1}".format(self.name, self.group)
-            run.run(benchbuild["run", "-E", self.experiment.name, project_id])
+            _benchbuild("run", "-E", self.experiment.name, project_id)
 
     def compile(self):
-        package_atom = "{domain}/{name}".format(
-            domain=self.domain, name=self.name)
+        package_atom = "{domain}/{name}".format(domain=self.domain,
+                                                name=self.name)
 
         LOG.debug('Installing dependencies.')
         emerge(package_atom, '--onlydeps', env=self.emerge_env)
-        c_compiler = local.path(str(compiler.cc(self)))
-        cxx_compiler = local.path(str(compiler.cxx(self)))
+        c_compiler = bb.path(str(compiler.cc(self)))
+        cxx_compiler = bb.path(str(compiler.cxx(self)))
 
         setup_compilers('/etc/portage/make.conf')
-        ln("-sf", str(c_compiler), local.path('/') / c_compiler.basename)
-        ln('-sf', str(cxx_compiler), local.path('/') / cxx_compiler.basename)
+        ln("-sf", str(c_compiler), bb.path('/') / c_compiler.basename)
+        ln('-sf', str(cxx_compiler), bb.path('/') / cxx_compiler.basename)
 
         LOG.debug('Installing %s.', package_atom)
         emerge(package_atom, env=self.emerge_env)
 
     def configure_benchbuild(self, cfg):
-        config_file = local.path("/.benchbuild.yml")
+        config_file = bb.path("/.benchbuild.yml")
         paths, libs = \
                 uchroot.env(
                     uchroot.mounts(
@@ -97,10 +97,11 @@ class GentooGroup(project.Project):
 
 
 def emerge(package, *args, env=None):
-    from benchbuild.utils.cmd import emerge as _emerge
+    from benchbuild.utils.cmd import emerge as gentoo_emerge
 
-    with local.env(env):
-        run.run(_emerge["--autounmask-continue", args, package])
+    with bb.env(env):
+        _emerge = run.watch(gentoo_emerge)
+        _emerge("--autounmask-continue", args, package)
 
 
 def setup_networking():
@@ -118,7 +119,7 @@ def configure_portage():
 
 
 def write_sandbox_d(_path):
-    path.mkfile_uchroot(local.path('/') / _path)
+    path.mkfile_uchroot(bb.path('/') / _path)
     with open(_path, 'a') as sandbox_conf:
         lines = '''
 SANDBOX_WRITE="/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout"
@@ -147,7 +148,7 @@ def write_makeconfig(_path):
     ftp_proxy = str(CFG["gentoo"]["ftp_proxy"])
     rsync_proxy = str(CFG["gentoo"]["rsync_proxy"])
 
-    path.mkfile_uchroot(local.path('/') / _path)
+    path.mkfile_uchroot(bb.path('/') / _path)
     with open(_path, 'w') as makeconf:
         lines = '''
 PORTAGE_USERNAME=root
@@ -294,7 +295,7 @@ def setup_benchbuild():
     """
     LOG.debug("Setting up Benchbuild...")
 
-    venv_dir = local.path("/benchbuild")
+    venv_dir = bb.path("/benchbuild")
     prefixes = CFG["container"]["prefixes"].value
     prefixes.append(venv_dir)
     CFG["container"]["prefixes"] = prefixes
@@ -320,12 +321,12 @@ def setup_benchbuild():
 def __upgrade_from_pip(venv_dir):
     LOG.debug("Upgrading from pip")
     uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
-    uchroot.uretry(uchrt_cmd[venv_dir / "bin" /
-                             "pip3", "install", "--upgrade", "benchbuild"])
+    uchroot.uretry(uchrt_cmd[venv_dir / "bin" / "pip3", "install", "--upgrade",
+                             "benchbuild"])
 
 
 def __mount_source(src_dir):
-    src_dir = local.path(str(src_dir))
+    src_dir = bb.path(str(src_dir))
     mounts = CFG["container"]["mounts"].value
     mount = {"src": src_dir, "tgt": "/mnt/benchbuild"}
     mounts.append(mount)

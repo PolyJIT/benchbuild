@@ -266,7 +266,6 @@ class block_revisions():
                 git_source.fetch()
                 git_source.blocked_revisions_initialized = True
                 for block in self.__blocks:
-                    # TODO: how to access local repository?
                     block.init_cache(git_source.local)
 
             for b_entry in self.__blocks:

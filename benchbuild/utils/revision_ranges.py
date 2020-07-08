@@ -238,7 +238,7 @@ class GoodBadSubgraph(AbstractRevisionRange):
         return self.__revision_list.__iter__()
 
 
-class block_revisions():
+class block_revisions():  # pylint: disable=invalid-name
     """
     Decorator for git sources for blacklisting/blocking revisions.
 

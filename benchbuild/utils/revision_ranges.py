@@ -8,10 +8,10 @@ import typing as tp
 from enum import IntFlag
 
 import pygit2
-from benchbuild.utils.cmd import git as local_git
 from plumbum.machines import LocalCommand
 
 from benchbuild.source import Git
+from benchbuild.utils.cmd import git as local_git
 
 
 def _get_git_for_path(repo_path: str) -> LocalCommand:

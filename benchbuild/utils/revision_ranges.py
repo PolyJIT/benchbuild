@@ -261,6 +261,9 @@ class block_revisions():  # pylint: disable=invalid-name
             Checks whether a revision is blocked or not. Also returns the
             reason for the block if available.
             """
+            if not hasattr(git_source, "blocked_revisions_initialized"):
+                raise AssertionError
+
             # trigger caching for BlockedRevisionRanges
             if not git_source.blocked_revisions_initialized:
                 git_source.fetch()

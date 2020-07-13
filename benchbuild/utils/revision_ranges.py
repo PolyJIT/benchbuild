@@ -6,14 +6,15 @@ used to modify project behaviour on a per-revision basis.
 import abc
 import typing as tp
 from enum import IntFlag
-from pathlib import Path
 
 import pygit2
-from benchbuild.utils.cmd import git as local_git
 from plumbum.machines import LocalCommand
 
+from benchbuild.source import Git
+from benchbuild.utils.cmd import git as local_git
 
-def _get_git_for_path(repo_path: Path) -> LocalCommand:
+
+def _get_git_for_path(repo_path: str) -> LocalCommand:
     """
     Enhance the ``local["git"]`` command to use the ``-C`` parameter to run in
     a specific directory.
@@ -25,7 +26,7 @@ def _get_git_for_path(repo_path: Path) -> LocalCommand:
     Returns:
         The git command with an added ``-C`` parameter.
     """
-    return local_git["-C", str(repo_path)]
+    return local_git["-C", repo_path]
 
 
 def _get_all_revisions_between(c_start: str, c_end: str,
@@ -46,6 +47,7 @@ class AbstractRevisionRange(abc.ABC):
     Revision ranges represent a set of revisions, i.e., a sub-graph of the
     history of a git repository.
     """
+
     def __init__(self, comment: tp.Optional[str] = None):
         self.__comment = comment
 
@@ -57,7 +59,7 @@ class AbstractRevisionRange(abc.ABC):
         return self.__comment
 
     @abc.abstractmethod
-    def init_cache(self, repo_path: Path) -> None:
+    def init_cache(self, repo_path: str) -> None:
         """
         Subclasses relying on complex functionality for determining their set
         of revisions can use this method to initialize a cache.
@@ -86,11 +88,12 @@ class SingleRevision(AbstractRevisionRange):
         rev_id: The commit hash of the single revision.
         comment: See :func:`AbstractRevisionRange.comment()`.
     """
+
     def __init__(self, rev_id: str, comment: tp.Optional[str] = None):
         super().__init__(comment)
         self.__id = rev_id
 
-    def init_cache(self, repo_path: Path) -> None:
+    def init_cache(self, repo_path: str) -> None:
         pass
 
     def __iter__(self) -> tp.Iterator[str]:
@@ -107,6 +110,7 @@ class RevisionRange(AbstractRevisionRange):
         id_end: The commit hash of `end` (inclusive).
         comment: See :func:`AbstractRevisionRange.comment()`.
     """
+
     def __init__(self,
                  id_start: str,
                  id_end: str,
@@ -117,7 +121,7 @@ class RevisionRange(AbstractRevisionRange):
         # cache for commit hashes
         self.__revision_list: tp.Optional[tp.List[str]] = None
 
-    def init_cache(self, repo_path: Path) -> None:
+    def init_cache(self, repo_path: str) -> None:
         git = _get_git_for_path(repo_path)
         self.__revision_list = _get_all_revisions_between(
             self.__id_start, self.__id_end, git)
@@ -174,8 +178,7 @@ def _find_blocked_commits(
         # if all parents are already handled, determine whether
         # the current commit is blocked or not.
         if current_commit not in blocked.keys() and all(
-                parent in blocked.keys()
-                for parent in current_commit.parents):
+                parent in blocked.keys() for parent in current_commit.parents):
             blocked[current_commit] = CommitState.BOT
             for parent in current_commit.parents:
                 if blocked[parent] & CommitState.GOOD:
@@ -202,6 +205,7 @@ class GoodBadSubgraph(AbstractRevisionRange):
         good_commits: A list of `good` commits.
         comment: See :func:`AbstractRevisionRange.comment()`.
     """
+
     def __init__(self,
                  bad_commits: tp.List[str],
                  good_commits: tp.List[str],
@@ -212,9 +216,9 @@ class GoodBadSubgraph(AbstractRevisionRange):
         # cache for commit hashes
         self.__revision_list: tp.Optional[tp.List[str]] = None
 
-    def init_cache(self, repo_path: Path) -> None:
+    def init_cache(self, repo_path: str) -> None:
         self.__revision_list = []
-        repo = pygit2.Repository(str(repo_path))
+        repo = pygit2.Repository(repo_path)
         git = _get_git_for_path(repo_path)
 
         bad_commits = [repo.get(bug_id) for bug_id in self.__bad_commit_ids]
@@ -234,41 +238,45 @@ class GoodBadSubgraph(AbstractRevisionRange):
         return self.__revision_list.__iter__()
 
 
-def block_revisions(blocks: tp.List[AbstractRevisionRange]) -> tp.Any:
+class block_revisions():  # pylint: disable=invalid-name
     """
-    Decorator for project classes for blacklisting/blocking revisions.
+    Decorator for git sources for blacklisting/blocking revisions.
 
-    ATTENTION: This decorator depends on things introduced by the
-    @with_git decorator and therefore must be used above that decorator.
-
-    This adds a new static method ``is_blocked_revision`` that checks
+    This decorator can be added to :class:`benchbuild.source.git.Git` objects.
+    It adds a new static method ``is_blocked_revision`` that checks
     whether a given revision id is marked as blocked.
 
     Args:
         blocks: A list of :class:`AbstractRevisionRange` s.
     """
-    def revision_blocker_decorator(cls: tp.Any) -> tp.Any:
+
+    def __init__(self, blocks: tp.List[AbstractRevisionRange]) -> None:
+        self.__blocks = blocks
+
+    def __call__(self, git_source: Git) -> Git:
+
         def is_blocked_revision_impl(
                 rev_id: str) -> tp.Tuple[bool, tp.Optional[str]]:
             """
             Checks whether a revision is blocked or not. Also returns the
             reason for the block if available.
             """
-            # trigger caching for BlockedRevisionRanges
-            if not cls.blocked_revisions_initialized:
-                cls.blocked_revisions_initialized = True
-                for block in blocks:
-                    # TODO: how to access local repository?
-                    block.init_cache(cls.repo_path())
+            if not hasattr(git_source, "blocked_revisions_initialized"):
+                raise AssertionError
 
-            for b_entry in blocks:
+            # trigger caching for BlockedRevisionRanges
+            if not git_source.blocked_revisions_initialized:
+                git_source.fetch()
+                git_source.blocked_revisions_initialized = True
+                for block in self.__blocks:
+                    block.init_cache(git_source.local)
+
+            for b_entry in self.__blocks:
                 for b_item in b_entry:
                     if b_item.startswith(rev_id):
                         return True, b_entry.comment
             return False, None
 
-        cls.blocked_revisions_initialized = False
-        cls.is_blocked_revision = is_blocked_revision_impl
-        return cls
-
-    return revision_blocker_decorator
+        git_source.blocked_revisions_initialized = False
+        git_source.is_blocked_revision = is_blocked_revision_impl
+        return git_source

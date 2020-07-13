@@ -195,6 +195,20 @@ def default(*sources: BaseSource) -> VariantContext:
     return context(*first)
 
 
+def main(source: BaseSource, *sources: BaseSource) -> BaseSource:
+    """
+    Return the implicit 'main' source of a project.
+
+    We define the main source as the first source listed in a project.
+
+    If you define a new project and rely on the existence of a 'main'
+    source code repository, make sure to define it as the first one.
+    """
+    del sources
+
+    return source
+
+
 def product(*sources: BaseSource) -> NestedVariants:
     """
     Return the cross product of the given sources.

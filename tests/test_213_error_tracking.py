@@ -8,6 +8,7 @@ from plumbum import ProcessExecutionError
 
 from benchbuild import experiment
 from benchbuild import project as prj
+from benchbuild.source import nosource
 from benchbuild.utils import actions as a
 from benchbuild.utils import tasks
 
@@ -32,13 +33,14 @@ class Issue213b(a.Step):
         return a.StepResult.ERROR
 
 
+@attr.s
 class EmptyProject(prj.Project):
     """An empty project that serves as an empty shell for testing."""
 
     NAME = "test_empty"
     DOMAIN = "debug"
     GROUP = "debug"
-    SRC_FILE = "none"
+    SOURCE = [nosource()]
 
     def compile(self):
         pass

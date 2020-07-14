@@ -7,6 +7,7 @@ from plumbum import ProcessExecutionError
 
 from benchbuild.experiment import Experiment
 from benchbuild.project import Project
+from benchbuild.source import nosource
 from benchbuild.utils import actions as a
 
 
@@ -14,7 +15,7 @@ class EmptyProject(Project):
     NAME = "test_empty"
     DOMAIN = "debug"
     GROUP = "debug"
-    SRC_FILE = "none"
+    SOURCE = [nosource()]
 
     def build(self):
         pass

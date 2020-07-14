@@ -227,7 +227,7 @@ class Project(metaclass=ProjectDecorator):
     source: Sources = attr.ib(
         default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True))
 
-    primary_source: str = attr.ib(init=False)
+    primary_source: str = attr.ib()
 
     @primary_source.default
     def __default_primary_source(self) -> str:

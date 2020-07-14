@@ -6,6 +6,7 @@ import logging
 from plumbum import ProcessExecutionError, local
 
 from benchbuild.projects.gentoo import autoportage
+from benchbuild.source import nosource
 from benchbuild.utils import run, uchroot
 
 LOG = logging.getLogger(__name__)
@@ -108,7 +109,7 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         name, (BaseClass,), {
             "NAME": NAME,
             "DOMAIN": DOMAIN,
-            "SRC_FILE": "none",
+            "SOURCE": [nosource()],
             "GROUP": "auto-gentoo",
             "run": run_not_supported,
             "__module__": "__main__"

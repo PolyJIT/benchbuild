@@ -230,7 +230,7 @@ class Project(metaclass=ProjectDecorator):
     primary_source: source.BaseSource = attr.ib(init=False)
 
     @primary_source.default
-    def __default_primary_source(self) -> str:  # pylint: disable=no-self-use
+    def __default_primary_source(self) -> str:
         return source.primary(*self.source).key
 
     compiler_extension = attr.ib(

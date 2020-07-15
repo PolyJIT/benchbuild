@@ -227,6 +227,12 @@ class Project(metaclass=ProjectDecorator):
     source: Sources = attr.ib(
         default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True))
 
+    primary_source: str = attr.ib()
+
+    @primary_source.default
+    def __default_primary_source(self) -> str:
+        return source.primary(*self.source).key
+
     compiler_extension = attr.ib(
         default=attr.Factory(lambda self: ext_run.WithTimeout(
             compiler.RunCompiler(self, self.experiment)),

@@ -1,5 +1,6 @@
 import benchbuild as bb
 from benchbuild import project
+from benchbuild.source import nosource
 
 
 class TestProject(project.Project):
@@ -7,6 +8,7 @@ class TestProject(project.Project):
     NAME = "test"
     DOMAIN = "test"
     GROUP = "test"
+    SOURCE = [nosource()]
 
     def compile(self):
         with open('test.cpp', 'w') as test_source:
@@ -37,6 +39,7 @@ class TestProjectRuntimeFail(project.Project):
     DOMAIN = "test"
     GROUP = "test"
     SRC_FILE = "test.cpp"
+    SOURCE = [nosource()]
 
     def compile(self):
         with open('test.cpp', 'w') as test_source:

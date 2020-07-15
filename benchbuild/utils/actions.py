@@ -435,6 +435,9 @@ class Experiment(Any):
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
 
     def __attrs_post_init__(self):
+        if not self.actions:
+            return
+
         self.actions = \
             [Echo(message="Start experiment: {0}".format(self.obj.name))] + \
             self.actions + \
@@ -500,7 +503,7 @@ class Experiment(Any):
         finally:
             self.end_transaction(experiment, session)
             signals.handlers.deregister(self.end_transaction)
-        self.status = max(results)
+        self.status = max(results) if results else StepResult.OK
         return results
 
     def __str__(self, indent: int = 0) -> str:

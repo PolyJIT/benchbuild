@@ -24,7 +24,7 @@ class Git(base.BaseSource):
     """
 
     clone: bool = attr.ib(default=True)
-    limit: int = attr.ib(default=10)
+    limit: tp.Optional[int] = attr.ib(default=10)
     refspec: str = attr.ib(default='HEAD')
     shallow: bool = attr.ib(default=True)
 

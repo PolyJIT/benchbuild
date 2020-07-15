@@ -28,7 +28,7 @@ import yaml
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
-from benchbuild import path, signals, source
+from benchbuild import signals, source
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG

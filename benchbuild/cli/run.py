@@ -104,6 +104,9 @@ class BenchBuildRun(cli.Application):
             print('Could not find ', str(unknown_exps),
                   ' in the experiment registry.')
         prjs = project.populate(projects, group_names)
+        if not prjs:
+            print("Could not find any project. Exiting.")
+            return 1
 
         if not exps:
             print("Could not find any experiment. Exiting.")

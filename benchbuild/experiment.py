@@ -174,7 +174,8 @@ class Experiment(metaclass=ExperimentRegistry):
                 prj_actions.append(actns.RequireAll(actions=atomic_actions))
             actions.extend(prj_actions)
 
-        actions.append(actns.CleanExtra(self))
+        if actions:
+            actions.append(actns.CleanExtra(self))
         return actions
 
     def sample(self,

@@ -28,7 +28,7 @@ import yaml
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
-from benchbuild import signals, source
+from benchbuild import path, signals, source
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
@@ -220,9 +220,9 @@ class Project(metaclass=ProjectDecorator):
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
-    builddir = attr.ib(default=attr.Factory(lambda self: local.path(
+    builddir: local.path = attr.ib(default=attr.Factory(lambda self: local.path(
         str(CFG["build_dir"])) / self.experiment.name / self.id,
-                                            takes_self=True))
+                                                        takes_self=True))
 
     source: Sources = attr.ib(
         default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True))
@@ -324,7 +324,7 @@ class Project(metaclass=ProjectDecorator):
         """
         variant = self.variant
         if name in variant:
-            return variant[name].owner.local
+            return self.builddir / variant[name].owner.local
         return None
 
     def version_of(self, name: str) -> tp.Optional[str]:

@@ -67,6 +67,18 @@ def to_str(*variants: Variant) -> str:
 class ISource(abc.ABC):
 
     @abc.abstractproperty
+    def local(self) -> str:
+        """
+        The source location (path-like) after fetching it from its remote.
+        """
+
+    @abc.abstractproperty
+    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
+        """
+        The source location in the remote location.
+        """
+
+    @abc.abstractproperty
     def key(self) -> str:
         """
         Return the source's key property.

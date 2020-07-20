@@ -38,7 +38,7 @@ class BaseVersionGroup(base.ISource):
 
 
 @attr.s
-class BaseVersionFilter(base.BaseSource):
+class BaseVersionFilter(base.ISource):
     child: base.BaseSource = attr.ib()
 
     @property

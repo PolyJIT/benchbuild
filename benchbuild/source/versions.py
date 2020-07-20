@@ -47,7 +47,7 @@ class BaseVersionGroup(base.ISource):
 
 @attr.s
 class BaseVersionFilter(base.ISource):
-    child: base.BaseSource = attr.ib()
+    child: base.ISource = attr.ib()
 
     @property
     def local(self) -> str:

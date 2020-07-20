@@ -38,8 +38,16 @@ class BaseVersionGroup(base.ISource):
 
 
 @attr.s
-class BaseVersionFilter(base.ISource):
-    child: base.ISource = attr.ib()
+class BaseVersionFilter(base.BaseSource):
+    child: base.BaseSource = attr.ib()
+
+    @property
+    def local(self) -> str:
+        return self.child.local
+
+    @property
+    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
+        return self.child.remote
 
     @property
     def key(self) -> str:

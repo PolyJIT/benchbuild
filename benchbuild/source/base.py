@@ -115,8 +115,16 @@ class BaseSource(ISource):
     Base class for downloadable sources.
     """
 
-    local: str = attr.ib()
-    remote: tp.Union[str, tp.Dict[str, str]] = attr.ib()
+    _local: str = attr.ib()
+    _remote: tp.Union[str, tp.Dict[str, str]] = attr.ib()
+
+    @property
+    def local(self) -> str:
+        return self._local
+
+    @property
+    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
+        return self._remote
 
     @property
     def key(self) -> str:

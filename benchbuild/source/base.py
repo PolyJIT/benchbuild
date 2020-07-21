@@ -67,6 +67,18 @@ def to_str(*variants: Variant) -> str:
 class ISource(abc.ABC):
 
     @abc.abstractproperty
+    def local(self) -> str:
+        """
+        The source location (path-like) after fetching it from its remote.
+        """
+
+    @abc.abstractproperty
+    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
+        """
+        The source location in the remote location.
+        """
+
+    @abc.abstractproperty
     def key(self) -> str:
         """
         Return the source's key property.
@@ -115,8 +127,16 @@ class BaseSource(ISource):
     Base class for downloadable sources.
     """
 
-    local: str = attr.ib()
-    remote: tp.Union[str, tp.Dict[str, str]] = attr.ib()
+    _local: str = attr.ib()
+    _remote: tp.Union[str, tp.Dict[str, str]] = attr.ib()
+
+    @property
+    def local(self) -> str:
+        return self._local
+
+    @property
+    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
+        return self._remote
 
     @property
     def key(self) -> str:

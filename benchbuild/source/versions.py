@@ -12,6 +12,14 @@ from . import base
 class BaseVersionGroup(base.ISource):
     children: tp.List[base.ISource] = attr.ib()
 
+    @property
+    def local(self) -> str:
+        raise NotImplementedError('Does not make sense on a group of sources')
+
+    @property
+    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
+        raise NotImplementedError('Does not make sense on a group of sources')
+
     @abc.abstractmethod
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         """
@@ -40,6 +48,14 @@ class BaseVersionGroup(base.ISource):
 @attr.s
 class BaseVersionFilter(base.ISource):
     child: base.ISource = attr.ib()
+
+    @property
+    def local(self) -> str:
+        return self.child.local
+
+    @property
+    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
+        return self.child.remote
 
     @property
     def key(self) -> str:

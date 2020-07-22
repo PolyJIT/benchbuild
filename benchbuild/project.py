@@ -349,6 +349,26 @@ class Project(metaclass=ProjectDecorator):
             return str(variant[name])
         return None
 
+    @property
+    def version_of_primary(self) -> str:
+        """
+        Get version of the primary source.
+        """
+        version_str = self.version_of(self.primary_source)
+        if not version_str:
+            raise ValueError('You are expected to have a primary_source.')
+        return version_str
+
+    @property
+    def source_of_primary(self) -> str:
+        """
+        Get source of the primary source.
+        """
+        source_str = self.source_of(self.primary_source)
+        if not source_str:
+            raise ValueError('You are expected to have a primary_source.')
+        return source_str
+
 
 def __split_project_input__(
         project_input: str) -> tp.Tuple[str, tp.Optional[str]]:

@@ -211,7 +211,7 @@ class StepClass(type):
         return super(StepClass, mcs).__new__(mcs, name, bases, attrs)
 
 
-@attr.s()
+@attr.s(eq=False)
 class Step(metaclass=StepClass):
     """Base class of a step.
 
@@ -393,12 +393,12 @@ def run_any_child(child: Step) -> tp.List[StepResult]:
     return child()
 
 
-@attr.s()
+@attr.s(eq=False)
 class Any(Step):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    actions = attr.ib(default=attr.Factory(list), repr=False)
+    actions = attr.ib(default=attr.Factory(list), repr=False, eq=False)
 
     def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
@@ -429,7 +429,7 @@ class Any(Step):
         return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
 
 
-@attr.s(hash=True)
+@attr.s(eq=False, hash=True)
 class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"

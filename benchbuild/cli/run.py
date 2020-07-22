@@ -14,7 +14,6 @@ from plumbum import cli
 from benchbuild import engine, experiment, experiments, project
 from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
-from benchbuild.utils import actions
 
 LOG = logging.getLogger(__name__)
 

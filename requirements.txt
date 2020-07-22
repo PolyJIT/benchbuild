@@ -12,5 +12,4 @@ pygit2>=1.2
 pygtrie~=2.3
 pyparsing~=2.4
 sqlalchemy-migrate~=0.13
-urwid~=2.1
 virtualenv~=20.0

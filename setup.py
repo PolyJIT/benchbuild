@@ -37,10 +37,9 @@ setup(name='benchbuild',
       tests_require=["pytest"],
       install_requires=[
           "Jinja2~=2.10", "PyYAML~=5.1", "attrs~=19.3", "dill~=0.3",
-          "pandas>=0.25,<2.0", "parse~=1.14", "pathos~=0.2", "pdoc3~=0.8",
-          "plumbum~=1.6", "psutil~=5.6", "psycopg2-binary~=2.8", "pygit2>=1.2",
-          "pygtrie~=2.3", "pyparsing~=2.4", "sqlalchemy-migrate~=0.13",
-          "urwid~=2.1", "virtualenv>=16.7,<21.0"
+          "pandas>=0.25,<2.0", "parse~=1.14", "pdoc3~=0.8", "plumbum~=1.6",
+          "psutil~=5.6", "psycopg2-binary~=2.8", "pygtrie~=2.3",
+          "pyparsing~=2.4", "sqlalchemy-migrate~=0.13", "virtualenv>=16.7,<21.0"
       ],
       author="Andreas Simbuerger",
       author_email="simbuerg@fim.uni-passau.de",

@@ -27,6 +27,8 @@ class Git(base.BaseSource):
     limit: tp.Optional[int] = attr.ib(default=10)
     refspec: str = attr.ib(default='HEAD')
     shallow: bool = attr.ib(default=True)
+    version_filter: tp.Callable[[str],
+                                bool] = attr.ib(default=lambda version: True)
 
     @property
     def default(self) -> base.Variant:
@@ -89,6 +91,7 @@ class Git(base.BaseSource):
         with local.cwd(cache_path):
             rev_list = list(git_rev_list(self.refspec).strip().split('\n'))
 
+        rev_list = list(filter(self.version_filter, rev_list))
         rev_list = rev_list[:self.limit] if self.limit else rev_list
         revs = [base.Variant(version=rev, owner=self) for rev in rev_list]
         return revs

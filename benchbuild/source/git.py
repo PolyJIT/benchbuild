@@ -27,7 +27,8 @@ class Git(base.BaseSource):
     limit: tp.Optional[int] = attr.ib(default=10)
     refspec: str = attr.ib(default='HEAD')
     shallow: bool = attr.ib(default=True)
-    version_filter: tp.Callable[[str], bool] = attr.ib(default=lambda version: True)
+    version_filter: tp.Callable[[str],
+                                bool] = attr.ib(default=lambda version: True)
 
     @property
     def default(self) -> base.Variant:

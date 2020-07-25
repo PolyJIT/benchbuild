@@ -330,7 +330,7 @@ class SlurmTime(SlurmRequirement):
         return copy.deepcopy(rhs_option)
 
 
-def _get_byte_size_factor(byte_suffix):
+def _get_byte_size_factor(byte_suffix: str) -> int:
     """
     Returns the factor for a specific bytesize.
     """
@@ -352,7 +352,7 @@ def _get_byte_size_factor(byte_suffix):
 _BYTE_RGX = re.compile(r"(?P<size>\d*)(?P<byte_suffix>.*)")
 
 
-def _to_bytes(byte_str: str):
+def _to_bytes(byte_str: str) -> int:
     """
     >>> _to_bytes("4B")
     4
@@ -370,7 +370,7 @@ def _to_bytes(byte_str: str):
     raise ValueError("Passed byte size was wrongly formatted")
 
 
-def _to_biggests_byte_size(num_bytes: int):
+def _to_biggests_byte_size(num_bytes: int) -> tp.Tuple[int, str]:
     """
     >>> _to_biggests_byte_size(4)
     (4, 'B')

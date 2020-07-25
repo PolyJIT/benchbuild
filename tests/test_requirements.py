@@ -286,6 +286,51 @@ class TestTime(unittest.TestCase):
         self.assertEqual(option.to_slurm_time_format(), "30-10:08:02")
 
 
+class TestMem(unittest.TestCase):
+    """
+    Checks if the Mem option works correctly.
+    """
+
+    def test_basic_memory_parsing(self):
+        """
+        Checks that we can correctly initialize a Mem option.
+        """
+        option = req.SlurmMem("4B")
+
+        self.assertEqual(option.mem_req, 4)
+
+    def test_conversion_memory_parsing(self):
+        """
+        Checks that we can correctly initialize a Mem option, when conversion
+        parsing is required.
+        """
+        option = req.SlurmMem("4MB")
+
+        self.assertEqual(option.mem_req, 4194304)
+
+    def test_if_correct_memory_parameter_is_generated(self):
+        """
+        Checks that Mem correctly generates slurm memory requirements.
+        """
+        option = req.SlurmMem("4MB")
+
+        self.assertEqual(option.to_cli_option(), "--mem=4M")
+
+    def test_if_options_are_merged_correctly(self):
+        """
+        Checks that we can correctly merge Mem options.
+        """
+        option_1 = req.SlurmMem("4MB")
+        option_2 = req.SlurmMem("42GB")
+        merged_option_1 = req.SlurmMem.merge_requirements(option_1, option_2)
+        merged_option_2 = req.SlurmMem.merge_requirements(option_2, option_1)
+
+        self.assertEqual(merged_option_1.mem_req, 45097156608)
+        self.assertEqual(merged_option_1.to_slurm_cli_opt(), "--mem=42G")
+        self.assertEqual(merged_option_2.mem_req, 45097156608)
+        self.assertEqual(merged_option_2.to_slurm_cli_opt(), "--mem=42G")
+
+
 class TestSlurmOptionMerger(unittest.TestCase):
     """
     Checks if slurm option list get merged correctly.

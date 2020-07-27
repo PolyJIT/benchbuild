@@ -57,7 +57,7 @@ class CommandAlias(ModuleType):
         if command in self.__overrides__:
             check = self.__overrides__[command]
 
-        check = __ALIASES__.get(command, [command])
+        check.extend(__ALIASES__.get(command, [command]))
 
         env = CFG["env"].value
         path = path_to_list(getenv("PATH", ""))

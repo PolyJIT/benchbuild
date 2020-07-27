@@ -15,6 +15,7 @@ from plumbum import TF, local
 
 from benchbuild.experiment import Experiment
 from benchbuild.settings import CFG
+from benchbuild.utils import cmd
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
 from benchbuild.utils.requirements import (get_slurm_options_from_config,
@@ -36,7 +37,7 @@ def script(experiment):
     slurm_script = local.cwd / experiment.name + "-" + str(
         CFG['slurm']['script'])
 
-    srun = local["srun"]
+    srun = cmd["srun"]
     srun_args = []
     if not CFG["slurm"]["multithread"]:
         srun_args.append("--hint=nomultithread")

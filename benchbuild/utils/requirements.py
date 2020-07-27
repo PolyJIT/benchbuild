@@ -2,6 +2,8 @@ import abc
 import copy
 import logging
 import typing as tp
+import math
+import re
 from enum import Enum
 
 import attr
@@ -326,6 +328,94 @@ class SlurmTime(SlurmRequirement):
         if lhs_option < rhs_option:
             return copy.deepcopy(lhs_option)
         return copy.deepcopy(rhs_option)
+
+
+def _get_byte_size_factor(byte_suffix: str) -> int:
+    """
+    Returns the factor for a specific bytesize.
+    """
+    byte_suffix = byte_suffix.lower()
+    if byte_suffix == "b":
+        return 1
+    if byte_suffix in ("k", "kb"):
+        return 1024
+    if byte_suffix in ("m", "mb"):
+        return 1024 * 1024
+    if byte_suffix in ("g", "gb"):
+        return 1024 * 1024 * 1024
+    if byte_suffix in ("t", "tb"):
+        return 1024 * 1024 * 1024 * 1024
+
+    raise ValueError("Unsupported byte suffix")
+
+
+_BYTE_RGX = re.compile(r"(?P<size>\d*)(?P<byte_suffix>.*)")
+
+
+def _to_bytes(byte_str: str) -> int:
+    """
+    >>> _to_bytes("4B")
+    4
+    >>> _to_bytes("4MB")
+    4194304
+    >>> _to_bytes("10G")
+    10737418240
+    """
+    match = _BYTE_RGX.search(byte_str)
+    if match:
+        size = int(match.group("size"))
+        byte_suffix = match.group("byte_suffix")
+        return size * _get_byte_size_factor(byte_suffix)
+
+    raise ValueError("Passed byte size was wrongly formatted")
+
+
+def _to_biggests_byte_size(num_bytes: int) -> tp.Tuple[int, str]:
+    """
+    >>> _to_biggests_byte_size(4)
+    (4, 'B')
+    >>> _to_biggests_byte_size(4194304)
+    (4, 'M')
+    >>> _to_biggests_byte_size(4194305)
+    (5, 'M')
+    >>> _to_biggests_byte_size(10737418240)
+    (10, 'G')
+    >>> _to_biggests_byte_size(1099511627776)
+    (1, 'T')
+    """
+    if num_bytes >= _get_byte_size_factor("TB"):
+        return (math.ceil(num_bytes / _get_byte_size_factor("TB")), "T")
+    if num_bytes >= _get_byte_size_factor("GB"):
+        return (math.ceil(num_bytes / _get_byte_size_factor("GB")), "G")
+    if num_bytes >= _get_byte_size_factor("MB"):
+        return (math.ceil(num_bytes / _get_byte_size_factor("MB")), "M")
+    if num_bytes >= _get_byte_size_factor("KB"):
+        return (math.ceil(num_bytes / _get_byte_size_factor("KB")), "K")
+    return (num_bytes, "B")
+
+
+@attr.s
+class SlurmMem(SlurmRequirement):
+    """
+    Set memory requirements that specify the maximal amount of memory needed.
+
+    Specify the real memory required per node. Different units can be specified
+    using the suffix [K|M|G|T].
+    """
+
+    mem_req: int = attr.ib(converter=_to_bytes)
+
+    def to_slurm_cli_opt(self) -> str:
+        byte_size_tuple = _to_biggests_byte_size(self.mem_req)
+        return f"--mem={byte_size_tuple[0]}{byte_size_tuple[1]}"
+
+    @classmethod
+    def merge_requirements(cls, lhs_option: 'SlurmMem',
+                           rhs_option: 'SlurmMem') -> 'SlurmMem':
+        """
+        Merge the requirements of the same type together.
+        """
+        return copy.deepcopy(max(lhs_option, rhs_option))
 
 
 def merge_slurm_options(list_1: tp.List[Requirement],

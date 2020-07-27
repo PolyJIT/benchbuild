@@ -9,7 +9,7 @@ import os
 import sys
 from functools import reduce
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable, List, cast
 
 from plumbum import TF, local
 
@@ -18,7 +18,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
 from benchbuild.utils.requirements import (get_slurm_options_from_config,
-                                           merge_slurm_options)
+                                           merge_slurm_options, Requirement)
 
 LOG = logging.getLogger(__name__)
 
@@ -108,8 +108,8 @@ def __save__(script_name: str, benchbuild, experiment,
     project_types = list(experiment.projects.values())
     if len(project_types) > 1:
         project_options = reduce(
-            lambda x, y: merge_slurm_options(x.REQUIREMENTS, y.REQUIREMENTS),
-            project_types)
+            lambda x, y: merge_slurm_options(x, y.REQUIREMENTS), project_types,
+            cast(List[Requirement], []))
     elif len(project_types) == 1:
         project_options = project_types[0].REQUIREMENTS
     else:

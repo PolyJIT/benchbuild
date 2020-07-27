@@ -59,8 +59,10 @@ class ProjectRegistry(type):
                             for attr in ['NAME', 'DOMAIN', 'GROUP'])
 
         if bases and defined_attrs:
-            key = "{name}/{group}".format(name=cls.NAME, group=cls.GROUP)
+            key = f"{cls.NAME}/{cls.GROUP}"
+            key_dash = f"{cls.NAME}-{cls.GROUP}"
             ProjectRegistry.projects[key] = cls
+            ProjectRegistry.projects[key_dash] = cls
         return cls
 
 

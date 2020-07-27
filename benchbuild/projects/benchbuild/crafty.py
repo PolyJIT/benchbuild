@@ -1,5 +1,7 @@
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
 
 
@@ -25,6 +27,7 @@ class Crafty(bb.Project):
         },
              local='inputs.tar.gz')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         crafty_source = bb.path(self.source_of('crafty.zip'))

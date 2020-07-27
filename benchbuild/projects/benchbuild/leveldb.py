@@ -1,6 +1,7 @@
 from os import getenv
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import Git
 from benchbuild.utils.cmd import make
 
@@ -15,6 +16,7 @@ class LevelDB(bb.Project):
             limit=5,
             refspec='HEAD')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         leveldb_repo = bb.path(self.source_of('leveldb.src'))

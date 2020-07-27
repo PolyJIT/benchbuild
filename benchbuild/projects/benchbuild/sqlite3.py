@@ -1,4 +1,5 @@
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, unzip
 
@@ -20,6 +21,7 @@ class SQLite3(bb.Project):
             refspec='HEAD',
             limit=5)
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         sqlite_source = bb.path(self.source_of('sqlite.zip'))

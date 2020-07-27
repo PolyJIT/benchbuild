@@ -1,6 +1,7 @@
 from plumbum import FG, local
 
 import benchbuild as bb
+from benchbuild.environments import container
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, sed, sh,
                                   tar)
@@ -25,6 +26,7 @@ class Povray(bb.Project):
         },
              local='inputs.tar.gz')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     boost_src_dir = "boost_1_59_0"
     boost_src_file = boost_src_dir + ".tar.bz2"

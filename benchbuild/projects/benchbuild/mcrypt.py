@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import container
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
 from benchbuild.utils import path
@@ -34,6 +35,7 @@ class MCrypt(bb.Project):
             },
             local='mhash.tar.gz')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     libmcrypt_dir = "libmcrypt-2.5.8"
     libmcrypt_file = libmcrypt_dir + ".tar.gz"

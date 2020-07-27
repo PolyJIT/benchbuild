@@ -1,7 +1,9 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import HTTP
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make, tar
 
 
@@ -18,6 +20,7 @@ class XZ(bb.Project):
         HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
              local='compression.tar.gz')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         xz_source = bb.path(self.source_of('xz.tar.gz'))

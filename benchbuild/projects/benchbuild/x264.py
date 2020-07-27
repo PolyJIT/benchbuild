@@ -2,6 +2,7 @@ from plumbum import local
 
 import benchbuild as bb
 from benchbuild import CFG
+from benchbuild.environments import container
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make
 from benchbuild.utils.settings import get_number_of_jobs

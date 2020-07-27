@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import container
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
 
@@ -13,10 +14,12 @@ class Ccrypt(bb.Project):
     GROUP = 'benchbuild'
     SOURCE = [
         HTTP(remote={
-            '1.10': "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
+            '1.11':
+                "http://ccrypt.sourceforge.net/download/1.11/ccrypt-1.11.tar.gz"
         },
              local='ccrypt.tar.gz')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         ccrypt_source = bb.path(self.source_of('ccrypt.tar.gz'))

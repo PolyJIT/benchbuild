@@ -1,4 +1,5 @@
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, unzip
 
@@ -14,6 +15,7 @@ class SciMark(bb.Project):
         HTTP(remote={'2.1c': 'http://math.nist.gov/scimark2/scimark2_1c.zip'},
              local='scimark.zip')
     ]
+    CONTAINER = Buildah().from_('debian:buster-slim')
 
     def compile(self):
         scimark_source = bb.path(self.source_of('scimark.zip'))

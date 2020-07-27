@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import container
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
@@ -19,6 +20,7 @@ class Gzip(bb.Project):
         HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
              local='compression.tar.gz')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def run_tests(self):
         gzip_version = self.version_of('gzip.tar.xz')

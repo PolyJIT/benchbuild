@@ -1,6 +1,7 @@
 import attr
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import sh, tar
 
@@ -19,6 +20,7 @@ class RodiniaGroup(bb.Project):
              local='rodinia.tar.bz2')
     ]
     CONFIG = {}
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     config = attr.ib(
         default=attr.Factory(lambda self: type(self).CONFIG, takes_self=True))

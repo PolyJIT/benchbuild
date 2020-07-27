@@ -1,5 +1,7 @@
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import Git
+from benchbuild.utils import compiler, run, wrapping
 from benchbuild.utils.cmd import make
 
 
@@ -15,6 +17,7 @@ class Lammps(bb.Project):
             limit=5,
             refspec='HEAD')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def run_tests(self):
         lammps_repo = bb.path(self.source_of('lammps.git'))

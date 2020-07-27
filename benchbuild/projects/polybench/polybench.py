@@ -1,6 +1,7 @@
 import logging
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import diff, tar

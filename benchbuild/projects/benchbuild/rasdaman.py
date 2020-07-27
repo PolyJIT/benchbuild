@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.settings import CFG
 from benchbuild.source import Git
 from benchbuild.utils.cmd import autoreconf, make
@@ -23,6 +24,7 @@ class Rasdaman(bb.Project):
             limit=5,
             refspec='HEAD')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     gdal_dir = "gdal"
     gdal_uri = "https://github.com/OSGeo/gdal"

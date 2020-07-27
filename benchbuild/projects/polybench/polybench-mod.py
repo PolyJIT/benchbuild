@@ -1,4 +1,5 @@
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.projects.polybench.polybench import PolyBenchGroup
 from benchbuild.settings import CFG
 from benchbuild.source import Git

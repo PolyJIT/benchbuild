@@ -1,4 +1,5 @@
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import Git
 from benchbuild.utils.cmd import make, mkdir
 
@@ -30,6 +31,7 @@ class BOTSGroup(bb.Project):
             limit=5,
             refspec='HEAD')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     path_dict = {
         "alignment": "serial/alignment",

@@ -1,4 +1,5 @@
 import benchbuild as bb
+from benchbuild.environments import container
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import git, make, tar
 
@@ -20,6 +21,7 @@ class Minisat(bb.Project):
         },
              local='inputs.tar.gz')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def run_tests(self):
         minisat_repo = bb.path(self.source_of('minisat.git'))

@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
 
@@ -29,6 +30,7 @@ class LibreSSL(bb.Project):
             },
             local='libressl.tar.gz')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         libressl_source = bb.path(self.source_of('libressl.tar.gz'))

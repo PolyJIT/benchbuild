@@ -3,6 +3,7 @@ import logging
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, tar
@@ -19,6 +20,7 @@ class OpenBlas(bb.Project):
             limit=5,
             refspec='HEAD')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         openblas_repo = bb.path(self.source_of('OpenBLAS'))

@@ -1,4 +1,5 @@
 import benchbuild as bb
+from benchbuild.environments import Buildah, container
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import cp, make, tar
 
@@ -16,6 +17,7 @@ class SevenZip(bb.Project):
         },
              local='p7zip.tar.bz2')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         sevenzip_source = bb.path(self.source_of('p7zip.tar.bz2'))

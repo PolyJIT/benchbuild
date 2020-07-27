@@ -4,6 +4,7 @@ import logging
 from plumbum import FG, local
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.settings import CFG
 from benchbuild.source import Git
 from benchbuild.utils.cmd import cat, mkdir, rm, virtualenv
@@ -32,6 +33,7 @@ class LNTGroup(bb.Project):
             limit=5)
     ]
 
+    CONTAINER = Buildah().from_('benchbuild:alpine')
     # Will be set by configure.
     lnt = None
     sandbox_dir = None

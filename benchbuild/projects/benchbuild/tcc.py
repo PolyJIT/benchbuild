@@ -3,6 +3,7 @@ from os import path
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, mkdir, tar
 
@@ -20,6 +21,7 @@ class TCC(bb.Project):
             },
             local='tcc.tar.bz2')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         tcc_source = bb.path(self.source_of('tcc.tar.bz2'))

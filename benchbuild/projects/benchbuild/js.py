@@ -3,6 +3,7 @@ from functools import partial
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.settings import CFG
 from benchbuild.source import Git
 from benchbuild.utils.cmd import make, mkdir, tar
@@ -23,6 +24,7 @@ class SpiderMonkey(bb.Project):
             limit=5,
             refspec='HEAD')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         gecko_repo = bb.path(self.source_of('gecko-dev.git'))

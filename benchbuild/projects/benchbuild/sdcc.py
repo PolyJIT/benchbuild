@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import make
 from benchbuild.utils.settings import get_number_of_jobs
@@ -11,6 +12,7 @@ class SDCC(bb.Project):
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     SRC_FILE = 'sdcc'
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + SRC_FILE
 

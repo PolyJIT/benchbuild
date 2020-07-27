@@ -1,6 +1,7 @@
 import logging
 
 import benchbuild as bb
+from benchbuild.environments import Buildah
 from benchbuild.source import HTTP
 from benchbuild.utils import path
 from benchbuild.utils.cmd import patch
@@ -18,6 +19,7 @@ class Linpack(bb.Project):
         HTTP(remote={'5_88': 'http://www.netlib.org/benchmark/linpackc.new'},
              local='linpack.c')
     ]
+    CONTAINER = container.Buildah().from_('benchbuild:alpine')
 
     def compile(self) -> None:
         lp_patch = path.template_path("../projects/patches/linpack.patch")

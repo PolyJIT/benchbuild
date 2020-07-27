@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import container
 from benchbuild.source import Git
 
 
@@ -16,6 +17,7 @@ class Lulesh(bb.Project):
             limit=5,
             refspec='HEAD')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         lulesh_repo = bb.path(self.source_of('lulesh.git'))
@@ -51,6 +53,7 @@ class LuleshOMP(bb.Project):
             limit=5,
             refspec='HEAD')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def compile(self):
         lulesh_repo = bb.path(self.source_of('lulesh.git'))

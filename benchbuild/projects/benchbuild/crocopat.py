@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments import container
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import cat, make, tar, unzip
 
@@ -21,6 +22,7 @@ class Crocopat(bb.Project):
         },
              local='inputs.tar.gz')
     ]
+    CONTAINER = Buildah().from_('benchbuild:alpine')
 
     def run_tests(self):
         crocopat = bb.wrap('crocopat', self)

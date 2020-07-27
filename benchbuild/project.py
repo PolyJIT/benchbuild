@@ -436,7 +436,9 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
         return project
 
     def csv(in_str: str) -> bool:
-        return len(in_str.split(',')) > 1
+        if isinstance(in_str, str):
+            return len(in_str.split(',')) > 1
+        return False
 
     is_csv = csv(version_in)
 

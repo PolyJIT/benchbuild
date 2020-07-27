@@ -433,10 +433,16 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
     if not project.SOURCE:
         return project
 
-    if isinstance(version_in, str):
+    def csv(in_str: str) -> bool:
+        return len(in_str.split(',')) > 1
+
+    is_csv = csv(version_in)
+
+    if isinstance(version_in, str) and not is_csv:
         return __add_single_filter__(project, version_in)
 
-    if isinstance(version_in, list):
+    if isinstance(version_in, list) or is_csv:
+        version_in = version_in.split(',') if is_csv else version_in
         return __add_indexed_filters__(project, version_in)
 
     if isinstance(version_in, dict):

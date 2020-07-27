@@ -59,10 +59,6 @@ def print_projects(projects=None):
         for prj in group_projects:
             prj_cls = projects[prj]
 
-            version_str = None
-            if hasattr(prj_cls, 'versions'):
-                version_str = ", ".join(prj_cls.versions())
-
             project_id = f'{prj_cls.NAME}/{prj_cls.GROUP}'
             project_version = str(bb.source.default(*prj_cls.SOURCE))
 
@@ -92,6 +88,4 @@ def print_projects(projects=None):
             if prj_cls.__doc__:
                 docstr = prj_cls.__doc__.strip("\n ")
                 print(f'    description: {docstr}')
-            if version_str:
-                print(f'    versions: {version_str}')
         print()

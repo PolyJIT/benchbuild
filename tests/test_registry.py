@@ -1,4 +1,5 @@
 # pylint: disable=redefined-outer-name
+import copy
 import typing as tp
 
 import pytest
@@ -24,8 +25,10 @@ def empty_compile(prj: Project) -> None:
 
 @pytest.fixture
 def registry():
+    restore = copy.deepcopy(ExperimentRegistry.experiments)
     ExperimentRegistry.experiments.clear()
-    return ExperimentRegistry
+    yield ExperimentRegistry
+    ExperimentRegistry.experiments = restore
 
 
 @pytest.fixture

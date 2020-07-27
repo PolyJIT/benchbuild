@@ -178,45 +178,26 @@ class Experiment(metaclass=ExperimentRegistry):
             actions.append(actns.CleanExtra(self))
         return actions
 
-    def sample(self,
-               prj_cls: ProjectT,
-               versions: tp.Optional[tp.List[str]] = None) -> tp.List[str]:
+    @classmethod
+    def sample(cls, prj_cls: ProjectT) -> tp.List[source.VariantContext]:
         """
-        Sample all available versions.
+        Sample all versions provided by the project.
 
-        The default sampling returns the latest version only.
-        You can override this behavior in custom experiments.
+        This will enumerate all version combinations of this project.
 
         Args:
-            prj_cls (class of benchbuild.project.Project):
-                The project class we sample versions for.
-            versions (list of str):
-                An ordered list of versions for the given prj_cls.
-                You can assume that the versions in this list are
-                valid version numbers for prj_cls.
+            prj_cls: The project type to enumerate all versions from.
 
         Returns:
-            A list of version strings.
-
-        Assumptions:
-            versions:
-                * semantically ordered, descending.
-                * for version in versions:
-                    version in prj_cls.versions()
+            A list of all sampled Variants.
         """
-        if versions is None:
-            versions = prj_cls.versions()
-
-        if not versions:
-            # early return if version list is empty
-            return
-
-        head, *tail = versions
-
-        yield head
+        variants = list(source.product(*prj_cls.SOURCE))
         if bool(CFG["versions"]["full"]):
-            for v in tail:
-                yield v
+            return [source.context(*var) for var in variants]
+
+        if len(variants) > 0:
+            return [source.context(*variants[0])]
+        raise ValueError('At least one variant is rerquired!')
 
     @staticmethod
     def default_runtime_actions(project: Project) -> Actions:

@@ -59,8 +59,10 @@ class ProjectRegistry(type):
                             for attr in ['NAME', 'DOMAIN', 'GROUP'])
 
         if bases and defined_attrs:
-            key = "{name}/{group}".format(name=cls.NAME, group=cls.GROUP)
+            key = f"{cls.NAME}/{cls.GROUP}"
+            key_dash = f"{cls.NAME}-{cls.GROUP}"
             ProjectRegistry.projects[key] = cls
+            ProjectRegistry.projects[key_dash] = cls
         return cls
 
 
@@ -221,7 +223,7 @@ class Project(metaclass=ProjectDecorator):
             raise TypeError("{attribute} must be a valid UUID object")
 
     builddir: local.path = attr.ib(default=attr.Factory(lambda self: local.path(
-        str(CFG["build_dir"])) / self.experiment.name / self.id,
+        str(CFG["build_dir"])) / self.experiment.name / self.id / self.run_uuid,
                                                         takes_self=True))
 
     source: Sources = attr.ib(
@@ -305,7 +307,7 @@ class Project(metaclass=ProjectDecorator):
     @property
     def id(self) -> str:
         version_str = source.to_str(*tuple(self.variant.values()))
-        return f"{self.name}/{self.group}/{version_str}/{self.run_uuid}"
+        return f'{self.name}-{self.group}@{version_str}'
 
     def prepare(self) -> None:
         """Prepare the build diretory."""
@@ -433,10 +435,18 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
     if not project.SOURCE:
         return project
 
-    if isinstance(version_in, str):
+    def csv(in_str: str) -> bool:
+        if isinstance(in_str, str):
+            return len(in_str.split(',')) > 1
+        return False
+
+    is_csv = csv(version_in)
+
+    if isinstance(version_in, str) and not is_csv:
         return __add_single_filter__(project, version_in)
 
-    if isinstance(version_in, list):
+    if isinstance(version_in, list) or is_csv:
+        version_in = version_in.split(',') if is_csv else version_in
         return __add_indexed_filters__(project, version_in)
 
     if isinstance(version_in, dict):

@@ -13,7 +13,7 @@ from benchbuild.settings import CFG
 NestedVariants = tp.Iterable[tp.Tuple[tp.Any, ...]]
 
 
-@attr.s(repr=False)
+@attr.s(frozen=True, eq=True)
 class Variant:
     """
     Provide a 'string'-like wrapper around source version information.
@@ -29,14 +29,11 @@ class Variant:
     same way as a program variant like a specific configuraiton.
     """
 
-    owner: 'BaseSource' = attr.ib(repr=False)
+    owner: 'BaseSource' = attr.ib(eq=False, repr=False)
     version: str = attr.ib()
 
-    def __repr__(self) -> str:
-        return self.version
-
     def __str__(self) -> str:
-        return repr(self)
+        return str(self.version)
 
 
 VariantContext = tp.Dict[str, Variant]

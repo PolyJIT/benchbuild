@@ -34,7 +34,7 @@ setup(name='benchbuild',
       },
       include_package_data=True,
       setup_requires=["pytest-runner", "setuptools_scm"],
-      tests_require=["pytest"],
+      tests_require=["pytest", "pytest-describe"],
       install_requires=[
           "Jinja2~=2.10", "PyYAML~=5.1", "attrs~=19.3", "dill~=0.3",
           "pandas>=0.25,<2.0", "pathos~=0.2", "parse~=1.14", "pdoc3~=0.8",

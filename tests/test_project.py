@@ -1,10 +1,16 @@
 # pylint: disable=redefined-outer-name
+import typing as tp
+
 import attr
 import pytest
+import yaml
 from plumbum import local
 
 from benchbuild import Project
-from benchbuild.source import nosource
+from benchbuild.project import (__add_filters__, __add_indexed_filters__,
+                                __add_named_filters__, __add_single_filter__)
+from benchbuild.source import (BaseSource, SingleVersionFilter, Variant,
+                               nosource, primary)
 
 
 class DummyPrj(Project):
@@ -32,27 +38,130 @@ def dummy_exp():
     return attr.make_class('TestExp', {'name': attr.ib(default='TestExp')})
 
 
-def test_attr_version_of(dummy_exp):
-    prj = DummyPrj(experiment=dummy_exp())
-    assert hasattr(prj, 'version_of_primary')
+@pytest.fixture(params=[['1'], ['1', '2']], ids=['single', 'multi'])
+def mksource(request) -> tp.Callable[[str], BaseSource]:
+
+    @attr.s
+    class VersionSource(BaseSource):
+        test_versions = attr.ib()
+
+        @property
+        def default(self):
+            return self.versions()[0]
+
+        def version(self, target_dir, version):
+            return version
+
+        def versions(self):
+            return [Variant(self, version) for version in self.test_versions]
+
+    def source_factory(name: str = 'VersionSource') -> BaseSource:
+        cls = attr.make_class(
+            name,
+            attrs={'test_versions': attr.ib(default=request.param)},
+            bases=(VersionSource,))
+        return cls(local=name, remote='')
+
+    return source_factory
 
 
-def test_attr_source_of(dummy_exp):
-    prj = DummyPrj(experiment=dummy_exp())
-    assert hasattr(prj, 'source_of_primary')
+@pytest.fixture
+def mkproject(mksource):
+
+    def project_factory(name: str = 'VersionedProject', num_sources: int = 1):
+
+        class VersionedProject(Project):
+            NAME = DOMAIN = GROUP = name
+            SOURCE = [
+                mksource(f'VersionSource_{i}') for i in range(num_sources)
+            ]
+
+        return VersionedProject
+
+    return project_factory
 
 
-def test_version_of_primary(dummy_exp):
-    prj = DummyPrj(experiment=dummy_exp())
-    assert prj.version_of_primary == 'None'
+@attr.s
+class TI:
+    t_filter = attr.ib()
+    t_input = attr.ib()
+    t_input_not_in = attr.ib()
+    t_expect = attr.ib()
 
 
-def test_source_of_primary(dummy_exp):
-    prj = DummyPrj(experiment=dummy_exp())
-    assert local.path(prj.source_of_primary).name == 'NoSource'
+@pytest.fixture(params=[
+    TI(__add_single_filter__, "1", "ni", '1'),
+    TI(__add_indexed_filters__, ["1"], ["ni"], '1'),
+    TI(__add_named_filters__, {"VersionSource_0": "1"},
+       {"VersionSource_0": "ni"}, '1'),
+],
+                ids=['single-1', 'indexed-1', 'named-1'])
+def filter_test(request):
+    return request.param
 
 
-def test_primary_source(dummy_exp):
-    with pytest.raises(TypeError) as excinfo:
-        DummyPrjEmptySource(experiment=dummy_exp())
-    assert "primary()" in str(excinfo)
+@pytest.fixture(params=[('SingleSource', 1), ('MultiSource', 2)],
+                ids=['SingleSource', 'MultiSource'])
+def project(mkproject, request):
+    name, num = request.param
+    return mkproject(name, num)
+
+
+@pytest.fixture
+def project_instance(project, dummy_exp):
+    return project(experiment=dummy_exp())
+
+
+def describe_project():
+
+    def has_version_of(project_instance):  # pylint: disable=unused-variable
+        assert hasattr(project_instance, 'version_of_primary')
+
+    def has_source_of(project_instance):  # pylint: disable=unused-variable
+        assert hasattr(project_instance, 'source_of_primary')
+
+    def has_version_of_primary(project_instance):  # pylint: disable=unused-variable
+        assert project_instance.version_of_primary == '1'
+
+    def has_source_of_primary(project_instance):  # pylint: disable=unused-variable
+        assert local.path(
+            project_instance.source_of_primary).name == 'VersionSource_0'
+
+    def source_must_contain_elements(dummy_exp):  # pylint: disable=unused-variable
+        with pytest.raises(TypeError) as excinfo:
+            DummyPrjEmptySource(experiment=dummy_exp())
+        assert "primary()" in str(excinfo)
+
+
+def describe_filters():
+
+    def is_generated_by_add_filters(project, filter_test):  # pylint: disable=unused-variable
+        filtered_prj = __add_filters__(project,
+                                       yaml.safe_dump(filter_test.t_input))
+        assert isinstance(primary(*filtered_prj.SOURCE), SingleVersionFilter)
+
+    def wraps_primary(project, filter_test):  # pylint: disable=unused-variable
+        filtered = filter_test.t_filter(project, filter_test.t_input)
+        filtered_source = primary(*filtered.SOURCE)
+        assert isinstance(filtered_source, SingleVersionFilter)
+
+    def returns_no_versions_if_unmatched(project, filter_test):  # pylint: disable=unused-variable
+        filtered = filter_test.t_filter(project, filter_test.t_input_not_in)
+        filtered_source = primary(*filtered.SOURCE)
+
+        assert len(filtered_source.versions()) == 0
+
+    def matches_return_only_one_version(project, filter_test):  # pylint: disable=unused-variable
+        filtered = filter_test.t_filter(project, filter_test.t_input)
+        filtered_source = primary(*filtered.SOURCE)
+
+        assert len(filtered_source.versions()) == 1
+        var_1 = Variant(None, filter_test.t_expect)
+        assert all([v == var_1 for v in filtered_source.versions()])
+
+    def named_unchanged_if_unmatched(project):  # pylint: disable=unused-variable
+        um_filter = {'not-in': '1'}
+        filtered = __add_named_filters__(project, um_filter)
+
+        for src in filtered.SOURCE:
+            assert not isinstance(src, SingleVersionFilter)

@@ -221,7 +221,7 @@ class Project(metaclass=ProjectDecorator):
             raise TypeError("{attribute} must be a valid UUID object")
 
     builddir: local.path = attr.ib(default=attr.Factory(lambda self: local.path(
-        str(CFG["build_dir"])) / self.experiment.name / self.id,
+        str(CFG["build_dir"])) / self.experiment.name / self.id / self.run_uuid,
                                                         takes_self=True))
 
     source: Sources = attr.ib(
@@ -305,7 +305,7 @@ class Project(metaclass=ProjectDecorator):
     @property
     def id(self) -> str:
         version_str = source.to_str(*tuple(self.variant.values()))
-        return f"{self.name}/{self.group}/{version_str}/{self.run_uuid}"
+        return f'{self.name}-{self.group}@{version_str}'
 
     def prepare(self) -> None:
         """Prepare the build diretory."""

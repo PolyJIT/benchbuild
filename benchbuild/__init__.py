@@ -10,9 +10,7 @@ import plumbum as pb
 from benchbuild.project import populate as populate
 
 # Export: Source Code handling
-from . import experiments as __EXPERIMENTS__
-from . import projects as __PROJECTS__
-from . import reports as __REPORTS__
+from . import plugins as __PLUGINS__
 from . import source as source
 from .experiment import Experiment as Experiment
 # Export: Project
@@ -32,9 +30,7 @@ from .utils.wrapping import wrap as wrap
 
 def __init__() -> None:
     """Initialize all plugins and settings."""
-    __EXPERIMENTS__.discover()
-    __PROJECTS__.discover()
-    __REPORTS__.discover()
+    __PLUGINS__.discover()
     __SETTINGS__.setup_config(CFG)
 
 
@@ -48,7 +44,5 @@ path = pb.local.path
 # Clean the namespace
 del sys
 del pb
-del __EXPERIMENTS__
-del __PROJECTS__
-del __REPORTS__
+del __PLUGINS__
 del __SETTINGS__

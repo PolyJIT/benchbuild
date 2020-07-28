@@ -2,7 +2,7 @@
 import sqlalchemy as sa
 from plumbum import cli
 
-from benchbuild import experiment, plugins
+from benchbuild import experiment
 from benchbuild.cli.main import BenchBuild
 from benchbuild.utils import schema
 

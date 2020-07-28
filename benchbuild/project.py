@@ -383,7 +383,7 @@ def __split_project_input__(
 
 def discovered() -> tp.Dict[str, Project]:
     """Return all discovered projects."""
-    return ProjectRegistry.projects
+    return dict(ProjectRegistry.projects)
 
 
 def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:

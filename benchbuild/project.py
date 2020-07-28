@@ -381,6 +381,11 @@ def __split_project_input__(
     return (first, second)
 
 
+def discovered() -> tp.Dict[str, Project]:
+    """Return all discovered projects."""
+    return dict(ProjectRegistry.projects)
+
+
 def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
 
     sources = project.SOURCE
@@ -477,10 +482,7 @@ def populate(projects_to_filter: ProjectNames,
     if projects_to_filter is None:
         projects_to_filter = []
 
-    import benchbuild.projects as all_projects
-    all_projects.discover()
-
-    prjs = ProjectRegistry.projects
+    prjs = discovered()
     if projects_to_filter:
         prjs = {}
 

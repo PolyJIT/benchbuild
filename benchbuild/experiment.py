@@ -225,3 +225,8 @@ class Configuration:
 
     def __add__(self, rhs):
         self.config.update(rhs.config)
+
+
+def discovered() -> tp.Dict[str, Experiment]:
+    """Return all discovered experiments."""
+    return ExperimentRegistry.experiments

@@ -17,20 +17,22 @@ class BenchBuild(cli.Application):
     debug = cli.Flag('-d', help="Enable debugging output")
 
     def main(self, *args):
+        cfg = settings.CFG
+
         self.verbosity = self.verbosity if self.verbosity < 6 else 5
         if self.debug:
             self.verbosity = 3
         verbosity = int(os.getenv('BB_VERBOSITY', self.verbosity))
 
-        settings.CFG["verbosity"] = verbosity
-        settings.CFG["debug"] = self.debug
+        cfg["verbosity"] = verbosity
+        cfg["debug"] = self.debug
 
         log.configure()
         log.set_defaults()
 
         plugins.discover()
 
-        if CFG["db"]["create_functions"]:
+        if cfg["db"]["create_functions"]:
             from benchbuild.utils.schema import init_functions, Session
             init_functions(Session())
 

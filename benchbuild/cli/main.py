@@ -3,7 +3,7 @@ import os
 
 from plumbum import cli
 
-from benchbuild import settings
+from benchbuild import plugins, settings
 from benchbuild.utils import log
 
 
@@ -28,7 +28,9 @@ class BenchBuild(cli.Application):
         log.configure()
         log.set_defaults()
 
-        if settings.CFG["db"]["create_functions"]:
+        plugins.discover()
+
+        if CFG["db"]["create_functions"]:
             from benchbuild.utils.schema import init_functions, Session
             init_functions(Session())
 

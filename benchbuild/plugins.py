@@ -14,9 +14,9 @@ Any subclass of
 will automatically register itself and is available on the CLI for all
 subcommands.
 """
-import logging
 import importlib
 import itertools
+import logging
 
 from benchbuild.settings import CFG
 
@@ -34,7 +34,6 @@ def discover():
                                       report_plugins):
             try:
                 importlib.import_module(plugin)
-                LOG.error(plugin)
             except ImportError as import_error:
                 LOG.error("Could not find '%s'", plugin)
                 LOG.error("ImportError: %s", import_error.msg)

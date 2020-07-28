@@ -2,7 +2,7 @@
 import sqlalchemy as sa
 from plumbum import cli
 
-from benchbuild import experiment, experiments
+from benchbuild import experiment, plugins
 from benchbuild.cli.main import BenchBuild
 from benchbuild.utils import schema
 
@@ -21,8 +21,7 @@ class BBExperimentView(cli.Application):
     """View available experiments."""
 
     def main(self):
-        experiments.discover()
-        all_exps = experiment.ExperimentRegistry.experiments
+        all_exps = experiment.discovered()
         for exp_cls in all_exps.values():
             print(exp_cls.NAME)
             docstring = exp_cls.__doc__ or "-- no docstring --"

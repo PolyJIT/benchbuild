@@ -14,18 +14,6 @@ from benchbuild.utils import schema
 LOG = logging.getLogger(__name__)
 
 
-def discover():
-    """Import all experiments listed in *_PLUGINS_REPORTS."""
-    if CFG["plugins"]["autoload"]:
-        report_plugins = CFG["plugins"]["reports"].value
-        for plugin in report_plugins:
-            try:
-                importlib.import_module(plugin)
-                LOG.debug("Found report: %s", plugin)
-            except ImportError:
-                LOG.error("Could not find '%s'", plugin)
-
-
 class ReportRegistry(type):
     reports = {}
 
@@ -91,3 +79,8 @@ class Report(metaclass=ReportRegistry):
         else:
             exp_ids = [uuid.UUID(v) for v in self.exp_ids]
         self.experiment_ids = exp_ids
+
+
+def discovered() -> t.Dict[str, Report]:
+    """Return all discovered projects."""
+    return ReportRegistry.reports

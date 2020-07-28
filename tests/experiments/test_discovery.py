@@ -1,25 +1,32 @@
 import logging
 
-from benchbuild.experiment import ExperimentRegistry
-from benchbuild.experiments import discover
+from benchbuild.plugins import discover
 from benchbuild.settings import CFG
 
 
 def test_discovery(caplog):
     caplog.set_level(logging.DEBUG, logger='benchbuild')
-    CFG['plugins']['experiments'] = [
+    CFG['plugins']['projects'] = []
+    CFG['plugins']['reports'] = []
+    CFG["plugins"]["experiments"] = [
         "benchbuild.non.existing", "benchbuild.reports.raw"
     ]
 
     discover()
     assert caplog.record_tuples == [
-        ('benchbuild.experiments', logging.ERROR,
+        ('benchbuild.plugins', logging.ERROR,
          "Could not find 'benchbuild.non.existing'"),
-        ('benchbuild.experiments', logging.ERROR,
+        ('benchbuild.plugins', logging.ERROR,
          "ImportError: No module named 'benchbuild.non'"),
     ]
 
-    default = CFG['plugins']['experiments'].node['default']
-    CFG['plugins']['experiments'] = default
+    def_exps = CFG['plugins']['experiments'].node['default']
+    CFG['plugins']['experiments'] = def_exps
+
+    def_prjs = CFG['plugins']['projects'].node['default']
+    CFG['plugins']['projects'] = def_prjs
+
+    def_reports = CFG['plugins']['reports'].node['default']
+    CFG['plugins']['reports'] = def_reports
 
     discover()

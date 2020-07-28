@@ -11,7 +11,7 @@ import time
 
 from plumbum import cli
 
-from benchbuild import engine, experiment, experiments, project
+from benchbuild import engine, experiment, plugins, project
 from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
 
@@ -57,8 +57,8 @@ class BenchBuildRun(cli.Application):
         experiment_names = self.experiment_names
         group_names = self.group_names
 
-        experiments.discover()
-        all_exps = experiment.ExperimentRegistry.experiments
+        plugins.discover()
+        all_exps = experiment.discovered()
 
         if self.test_full:
             exps = all_exps

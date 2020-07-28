@@ -381,7 +381,7 @@ def __split_project_input__(
     return (first, second)
 
 
-def discovered() -> Dict[str, Project]:
+def discovered() -> tp.Dict[str, Project]:
     """Return all discovered projects."""
     return ProjectRegistry.projects
 

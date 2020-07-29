@@ -1,0 +1,11 @@
+runner:
+  mypy:
+    cmd: mypy --strict --show-column-numbers benchbuild
+    errorformat:
+      - "%f:%l:%c: %m"
+    level: error
+
+  pylint:
+    cmd: pylint benchbuild
+    errorformat:
+      - "%f:%l:%c: %t%n: %m"

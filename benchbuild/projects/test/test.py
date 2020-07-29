@@ -1,7 +1,6 @@
+import benchbuild as bb
 from benchbuild import project
-from benchbuild.utils import compiler
-from benchbuild.utils import run
-from benchbuild.utils import wrapping
+from benchbuild.source import nosource
 
 
 class TestProject(project.Project):
@@ -9,27 +8,28 @@ class TestProject(project.Project):
     NAME = "test"
     DOMAIN = "test"
     GROUP = "test"
-    VERSION = "1.0"
-    SRC_FILE = "test.cpp"
+    SOURCE = [nosource()]
 
     def compile(self):
-        with open(self.src_file, 'w') as test_source:
+        with open('test.cpp', 'w') as test_source:
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {
-    std::cout << "Hello (stdout) World" << std::endl;    
+    std::cout << "Hello (stdout) World" << std::endl;
     std::cerr << "Hello (stderr) World" << std::endl;
     return 0;
 }
             """
             test_source.write(lines)
 
-        clang = compiler.cxx(self)
-        run.run(clang[self.src_file, "-o", self.src_file + ".out"])
+        clang = bb.compiler.cxx(self)
+        _clang = bb.watch(clang)
+        _clang('test.cpp', "-o", 'test.cpp.out')
 
-    def run_tests(self, runner):
-        exp = wrapping.wrap(self.src_file + ".out", self)
-        runner(exp)
+    def run_tests(self):
+        exp = bb.wrap('test.cpp.out', self)
+        _exp = bb.watch(exp)
+        _exp()
 
 
 class TestProjectRuntimeFail(project.Project):
@@ -38,11 +38,11 @@ class TestProjectRuntimeFail(project.Project):
     NAME = "test-fail"
     DOMAIN = "test"
     GROUP = "test"
-    VERSION = "1.0"
     SRC_FILE = "test.cpp"
+    SOURCE = [nosource()]
 
     def compile(self):
-        with open(self.src_file, 'w') as test_source:
+        with open('test.cpp', 'w') as test_source:
             lines = """
 #include <iostream>
 int main(int argc, char **argv) {
@@ -53,9 +53,11 @@ int main(int argc, char **argv) {
             """
             test_source.write(lines)
 
-        clang = compiler.cxx(self)
-        run.run(clang[self.src_file, "-o", self.src_file + ".out"])
+        clang = bb.compiler.cxx(self)
+        _clang = bb.watch(clang)
+        _clang('test.cpp', "-o", 'test.cpp.out')
 
-    def run_tests(self, runner):
-        exp = wrapping.wrap(self.src_file + ".out", self)
-        runner(exp)
+    def run_tests(self):
+        exp = bb.wrap('test.cpp.ou', self)
+        _exp = bb.watch(exp)
+        _exp()

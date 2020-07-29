@@ -1,48 +1,52 @@
 from plumbum import local
 
-from benchbuild import project
-from benchbuild.settings import CFG
-from benchbuild.utils import compiler, download, run, wrapping
-from benchbuild.utils.cmd import cp, make
+import benchbuild as bb
+from benchbuild import CFG
+from benchbuild.source import HTTP, Git
+from benchbuild.utils.cmd import make
+from benchbuild.utils.settings import get_number_of_jobs
 
 
-@download.with_git(
-    "git://git.videolan.org/x264.git", refspec="HEAD", limit=5)
-class X264(project.Project):
+class X264(bb.Project):
     """ x264 """
 
     NAME = "x264"
     DOMAIN = "multimedia"
     GROUP = 'benchbuild'
-    VERSION = 'HEAD'
-    SRC_FILE = 'x264.git'
+    SOURCE = [
+        Git(remote='https://code.videolan.org/videolan/x264.git',
+            local='x264.git',
+            refspec='HEAD',
+            limit=5),
+        HTTP(remote={'tbbt-small': 'http://lairosiel.de/dist/tbbt-small.y4m'},
+             local='tbbt-small.y4m'),
+        HTTP(remote={'sintel': 'http://lairosiel.de/dist/Sintel.2010.720p.raw'},
+             local='sintel.raw'),
+    ]
 
-    inputfiles = {
-        "tbbt-small.y4m": [],
-        "Sintel.2010.720p.raw": ["--input-res", "1280x720"]
-    }
-
-    src_uri = "git://git.videolan.org/x264.git"
+    CONFIG = {"tbbt-small": [], "sintel": ["--input-res", "1280x720"]}
 
     def compile(self):
-        self.download()
-        testfiles = [local.path(self.testdir) / x for x in self.inputfiles]
-        for testfile in testfiles:
-            cp(testfile, self.builddir)
+        x264_repo = bb.path(self.source_of('x264.git'))
+        clang = bb.compiler.cc(self)
 
-        clang = compiler.cc(self)
-
-        with local.cwd(self.SRC_FILE):
+        with bb.cwd(x264_repo):
             configure = local["./configure"]
+            _configure = bb.watch(configure)
 
-            with local.env(CC=str(clang)):
-                run.run(configure["--disable-thread", "--disable-opencl",
-                                  "--enable-pic"])
+            with bb.env(CC=str(clang)):
+                _configure("--disable-thread", "--disable-opencl",
+                           "--enable-pic")
 
-            run.run(make["clean", "all", "-j", CFG["jobs"]])
+            _make = bb.watch(make)
+            _make("clean", "all", "-j", get_number_of_jobs(CFG))
 
-    def run_tests(self, runner):
-        x264 = wrapping.wrap(local.path(self.src_file) / "x264", self)
+    def run_tests(self):
+        x264_repo = bb.path(self.source_of('x264.git'))
+        inputfiles = [self.source_of('tbbt-small'), self.source_of('sintel')]
+
+        x264 = bb.wrap(x264_repo / "x264", self)
+        _x264 = bb.watch(x264)
 
         tests = [
             "--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb",
@@ -55,9 +59,7 @@ class X264(project.Project):
             "--frames 50 -q0 -m2 -r1 --me hex --no-cabac",
         ]
 
-        for ifile in self.inputfiles:
-            testfile = local.path(self.testdir) / ifile
+        for testfile in inputfiles:
             for _, test in enumerate(tests):
-                runner(x264[testfile, self.inputfiles[ifile], "--threads", "1",
-                            "-o", "/dev/null",
-                            test.split(" ")])
+                _x264(testfile, self.CONFIG[testfile], "--threads", "1", "-o",
+                      "/dev/null", test.split(" "))

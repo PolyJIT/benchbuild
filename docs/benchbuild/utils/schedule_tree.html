@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>benchbuild.utils.schedule_tree API documentation</title>
+<meta name="description" content="Parsing utilities for Polly&#39;s ScheduleTree representation." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>benchbuild.utils.schedule_tree</code></h1>
+</header>
+<section id="section-intro">
+<p>Parsing utilities for Polly's ScheduleTree representation.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34; Parsing utilities for Polly&#39;s ScheduleTree representation. &#34;&#34;&#34;
+import logging
+import textwrap as t
+
+import attr
+import pyparsing as p
+
+LOG = logging.getLogger(__name__)
+
+
+@attr.s
+class Node:
+    tok = attr.ib()
+
+    def indent(self, level=0, idt=&#39; &#39;):
+        val = self.tok[2]
+        if not isinstance(self.tok[2], str):
+            val = self.tok[2].indent(1)
+        return t.indent(&#39;&#34;{:s}&#34;: &#34;{:s}&#34;&#39;.format(self.tok[0], val), level * idt)
+
+
+@attr.s
+class CoincidenceNode(Node):
+    def indent(self, level=0, idt=&#39; &#39;):
+        ret = [str(child) for child in self.tok[3]]
+        ret = &#34;,&#34;.join(ret)
+
+        return t.indent(&#39;&#34;{:s}&#34;: [{:s}]&#39;.format(self.tok[0], ret), level * idt)
+
+
+@attr.s
+class RootNode(Node):
+    def indent(self, level=0, idt=&#39; &#39;):
+        ret = []
+        ret = [child.indent(level + 2) for child in self.tok[1]]
+        ret = &#34;,\n&#34;.join(ret)
+
+        return t.indent(&#39;{{\n{:s}\n}}&#39;.format(ret), level * idt)
+
+    def __str__(self):
+        return self.indent(0)
+
+
+@attr.s
+class ChildNode(Node):
+    def indent(self, level=0, idt=&#39; &#39;):
+        ret = self.tok[0].indent(level)
+        return ret
+
+
+@attr.s
+class SequenceNode(Node):
+    def indent(self, level=0, idt=&#39; &#39;):
+        ret = &#39;&#34;{:s}&#34;: [\n&#39;.format(self.tok[0])
+        for child in self.tok[3]:
+            ret += child.indent(0) + &#39;,\n&#39;
+        ret += &#39;\n]&#39;
+        return t.indent(ret, level * idt)
+
+
+NUM = p.Word(p.nums, max=1)
+NUM_LIST = p.Group(p.delimitedList(NUM))
+
+STR = p.QuotedString(&#39;&#34;&#39;)
+
+KW_CHILD = p.Keyword(&#34;child&#34;)
+KW_COINCIDENT = p.Keyword(&#34;coincident&#34;)
+KW_DOMAIN = p.Keyword(&#34;domain&#34;)
+KW_FILTER = p.Keyword(&#34;filter&#34;)
+KW_MARK = p.Keyword(&#34;mark&#34;)
+KW_OPTIONS = p.Keyword(&#34;options&#34;)
+KW_PERMUTABLE = p.Keyword(&#34;permutable&#34;)
+KW_SCHEDULE = p.Keyword(&#34;schedule&#34;)
+KW_EXTENSION = p.Keyword(&#34;extension&#34;)
+KW_SEQUENCE = p.Keyword(&#34;sequence&#34;)
+
+CHILD_NODE = p.Forward()
+ROOT = p.Forward()
+
+DOMAIN = KW_DOMAIN + &#34;:&#34; + STR
+SCHEDULE = KW_SCHEDULE + &#34;:&#34; + STR
+FILTER = KW_FILTER + &#34;:&#34; + STR
+MARK = KW_MARK + &#34;:&#34; + STR
+PERMUTABLE = KW_PERMUTABLE + &#34;:&#34; + NUM
+COINCIDENT = KW_COINCIDENT + &#34;:&#34; + &#34;[&#34; + NUM_LIST + &#34;]&#34;
+OPTIONS = KW_OPTIONS + &#34;:&#34; + STR
+EXTENSION = KW_EXTENSION + &#34;:&#34; + STR
+
+SEQ_ELEM_LIST = p.delimitedList(ROOT)
+SEQUENCE = KW_SEQUENCE + &#34;:&#34; + &#34;[&#34; + p.Group(p.delimitedList(ROOT)) + &#34;]&#34;
+CHILD = KW_CHILD + &#34;:&#34; + ROOT
+CHILD_NODE &lt;&lt; (CHILD | COINCIDENT | DOMAIN | EXTENSION | FILTER | MARK
+               | OPTIONS | PERMUTABLE | SCHEDULE | SEQUENCE)
+ROOT &lt;&lt; (&#34;{&#34; + p.Group(p.delimitedList(CHILD_NODE)) + &#34;}&#34;)
+
+CHILD.addParseAction(Node)
+CHILD_NODE.addParseAction(ChildNode)
+COINCIDENT.addParseAction(CoincidenceNode)
+DOMAIN.addParseAction(Node)
+FILTER.addParseAction(Node)
+MARK.addParseAction(Node)
+OPTIONS.addParseAction(Node)
+PERMUTABLE.addParseAction(Node)
+ROOT.addParseAction(RootNode)
+EXTENSION.addParseAction(Node)
+SCHEDULE.addParseAction(Node)
+SEQUENCE.addParseAction(SequenceNode)
+
+
+def parse_schedule_tree(tree_str):
+    if tree_str is None:
+        return &#34;No Input&#34;
+
+    try:
+        ret = ROOT.parseString(tree_str)
+        return str(ret[0])
+    except p.ParseException as ex:
+        LOG.warning(&#34;Failed to parse:&#34;)
+        LOG.warning(str(ex))
+        LOG.warning(tree_str)
+        return None</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="benchbuild.utils.schedule_tree.parse_schedule_tree"><code class="name flex">
+<span>def <span class="ident">parse_schedule_tree</span></span>(<span>tree_str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_schedule_tree(tree_str):
+    if tree_str is None:
+        return &#34;No Input&#34;
+
+    try:
+        ret = ROOT.parseString(tree_str)
+        return str(ret[0])
+    except p.ParseException as ex:
+        LOG.warning(&#34;Failed to parse:&#34;)
+        LOG.warning(str(ex))
+        LOG.warning(tree_str)
+        return None</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="benchbuild.utils.schedule_tree.ChildNode"><code class="flex name class">
+<span>class <span class="ident">ChildNode</span></span>
+<span>(</span><span>tok)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ChildNode(Node):
+    def indent(self, level=0, idt=&#39; &#39;):
+        ret = self.tok[0].indent(level)
+        return ret</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.schedule_tree.Node" href="#benchbuild.utils.schedule_tree.Node">Node</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.utils.schedule_tree.ChildNode.indent"><code class="name flex">
+<span>def <span class="ident">indent</span></span>(<span>self, level=0, idt=' ')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def indent(self, level=0, idt=&#39; &#39;):
+    ret = self.tok[0].indent(level)
+    return ret</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="benchbuild.utils.schedule_tree.CoincidenceNode"><code class="flex name class">
+<span>class <span class="ident">CoincidenceNode</span></span>
+<span>(</span><span>tok)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CoincidenceNode(Node):
+    def indent(self, level=0, idt=&#39; &#39;):
+        ret = [str(child) for child in self.tok[3]]
+        ret = &#34;,&#34;.join(ret)
+
+        return t.indent(&#39;&#34;{:s}&#34;: [{:s}]&#39;.format(self.tok[0], ret), level * idt)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.schedule_tree.Node" href="#benchbuild.utils.schedule_tree.Node">Node</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.utils.schedule_tree.CoincidenceNode.indent"><code class="name flex">
+<span>def <span class="ident">indent</span></span>(<span>self, level=0, idt=' ')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def indent(self, level=0, idt=&#39; &#39;):
+    ret = [str(child) for child in self.tok[3]]
+    ret = &#34;,&#34;.join(ret)
+
+    return t.indent(&#39;&#34;{:s}&#34;: [{:s}]&#39;.format(self.tok[0], ret), level * idt)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="benchbuild.utils.schedule_tree.Node"><code class="flex name class">
+<span>class <span class="ident">Node</span></span>
+<span>(</span><span>tok)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Node:
+    tok = attr.ib()
+
+    def indent(self, level=0, idt=&#39; &#39;):
+        val = self.tok[2]
+        if not isinstance(self.tok[2], str):
+            val = self.tok[2].indent(1)
+        return t.indent(&#39;&#34;{:s}&#34;: &#34;{:s}&#34;&#39;.format(self.tok[0], val), level * idt)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.schedule_tree.ChildNode" href="#benchbuild.utils.schedule_tree.ChildNode">ChildNode</a></li>
+<li><a title="benchbuild.utils.schedule_tree.CoincidenceNode" href="#benchbuild.utils.schedule_tree.CoincidenceNode">CoincidenceNode</a></li>
+<li><a title="benchbuild.utils.schedule_tree.RootNode" href="#benchbuild.utils.schedule_tree.RootNode">RootNode</a></li>
+<li><a title="benchbuild.utils.schedule_tree.SequenceNode" href="#benchbuild.utils.schedule_tree.SequenceNode">SequenceNode</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.utils.schedule_tree.Node.indent"><code class="name flex">
+<span>def <span class="ident">indent</span></span>(<span>self, level=0, idt=' ')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def indent(self, level=0, idt=&#39; &#39;):
+    val = self.tok[2]
+    if not isinstance(self.tok[2], str):
+        val = self.tok[2].indent(1)
+    return t.indent(&#39;&#34;{:s}&#34;: &#34;{:s}&#34;&#39;.format(self.tok[0], val), level * idt)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="benchbuild.utils.schedule_tree.RootNode"><code class="flex name class">
+<span>class <span class="ident">RootNode</span></span>
+<span>(</span><span>tok)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RootNode(Node):
+    def indent(self, level=0, idt=&#39; &#39;):
+        ret = []
+        ret = [child.indent(level + 2) for child in self.tok[1]]
+        ret = &#34;,\n&#34;.join(ret)
+
+        return t.indent(&#39;{{\n{:s}\n}}&#39;.format(ret), level * idt)
+
+    def __str__(self):
+        return self.indent(0)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.schedule_tree.Node" href="#benchbuild.utils.schedule_tree.Node">Node</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.utils.schedule_tree.RootNode.indent"><code class="name flex">
+<span>def <span class="ident">indent</span></span>(<span>self, level=0, idt=' ')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def indent(self, level=0, idt=&#39; &#39;):
+    ret = []
+    ret = [child.indent(level + 2) for child in self.tok[1]]
+    ret = &#34;,\n&#34;.join(ret)
+
+    return t.indent(&#39;{{\n{:s}\n}}&#39;.format(ret), level * idt)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="benchbuild.utils.schedule_tree.SequenceNode"><code class="flex name class">
+<span>class <span class="ident">SequenceNode</span></span>
+<span>(</span><span>tok)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SequenceNode(Node):
+    def indent(self, level=0, idt=&#39; &#39;):
+        ret = &#39;&#34;{:s}&#34;: [\n&#39;.format(self.tok[0])
+        for child in self.tok[3]:
+            ret += child.indent(0) + &#39;,\n&#39;
+        ret += &#39;\n]&#39;
+        return t.indent(ret, level * idt)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="benchbuild.utils.schedule_tree.Node" href="#benchbuild.utils.schedule_tree.Node">Node</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="benchbuild.utils.schedule_tree.SequenceNode.indent"><code class="name flex">
+<span>def <span class="ident">indent</span></span>(<span>self, level=0, idt=' ')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def indent(self, level=0, idt=&#39; &#39;):
+    ret = &#39;&#34;{:s}&#34;: [\n&#39;.format(self.tok[0])
+    for child in self.tok[3]:
+        ret += child.indent(0) + &#39;,\n&#39;
+    ret += &#39;\n]&#39;
+    return t.indent(ret, level * idt)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="benchbuild.utils" href="index.html">benchbuild.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="benchbuild.utils.schedule_tree.parse_schedule_tree" href="#benchbuild.utils.schedule_tree.parse_schedule_tree">parse_schedule_tree</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="benchbuild.utils.schedule_tree.ChildNode" href="#benchbuild.utils.schedule_tree.ChildNode">ChildNode</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.schedule_tree.ChildNode.indent" href="#benchbuild.utils.schedule_tree.ChildNode.indent">indent</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.schedule_tree.CoincidenceNode" href="#benchbuild.utils.schedule_tree.CoincidenceNode">CoincidenceNode</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.schedule_tree.CoincidenceNode.indent" href="#benchbuild.utils.schedule_tree.CoincidenceNode.indent">indent</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.schedule_tree.Node" href="#benchbuild.utils.schedule_tree.Node">Node</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.schedule_tree.Node.indent" href="#benchbuild.utils.schedule_tree.Node.indent">indent</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.schedule_tree.RootNode" href="#benchbuild.utils.schedule_tree.RootNode">RootNode</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.schedule_tree.RootNode.indent" href="#benchbuild.utils.schedule_tree.RootNode.indent">indent</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="benchbuild.utils.schedule_tree.SequenceNode" href="#benchbuild.utils.schedule_tree.SequenceNode">SequenceNode</a></code></h4>
+<ul class="">
+<li><code><a title="benchbuild.utils.schedule_tree.SequenceNode.indent" href="#benchbuild.utils.schedule_tree.SequenceNode.indent">indent</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -7,8 +7,8 @@ loaded automatically. See configuration variables:
  *_PLUGINS_PROJECTS
 
 """
-import logging
 import importlib
+import logging
 
 from benchbuild.settings import CFG
 

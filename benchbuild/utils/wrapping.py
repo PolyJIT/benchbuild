@@ -25,14 +25,16 @@ Runtime Wrappers:
 import logging
 import os
 import sys
+import typing as tp
 
 import dill
+import plumbum as pb
 from plumbum import local
 
 from benchbuild.settings import CFG
+from benchbuild.utils import run
 from benchbuild.utils.cmd import chmod, mv
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.run import run
 from benchbuild.utils.uchroot import no_llvm as uchroot
 
 PROJECT_BIN_F_EXT = ".bin"
@@ -77,13 +79,15 @@ def unpickle(pickle_file):
 
 def __create_jinja_env():
     from jinja2 import Environment, PackageLoader
-    return Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    return Environment(trim_blocks=True,
+                       lstrip_blocks=True,
+                       loader=PackageLoader('benchbuild', 'utils/templates'))
 
 
-def wrap(name, project, sprefix=None, python=sys.executable):
+def wrap(name: str,
+         project: 'benchbuild.project.Project',
+         sprefix: tp.Optional[str] = None,
+         python: str = sys.executable) -> pb.commands.ConcreteCommand:
     """ Wrap the binary :name: with the runtime extension of the project.
 
     This module generates a python tool that replaces :name:
@@ -106,11 +110,12 @@ def wrap(name, project, sprefix=None, python=sys.executable):
     name_absolute = os.path.abspath(name)
     real_f = name_absolute + PROJECT_BIN_F_EXT
     if sprefix:
-        run(uchroot()["/bin/mv",
-                      strip_path_prefix(name_absolute, sprefix),
-                      strip_path_prefix(real_f, sprefix)])
+        _mv = run.watch(uchroot()["/bin/mv"])
+        _mv(strip_path_prefix(name_absolute, sprefix),
+            strip_path_prefix(real_f, sprefix))
     else:
-        run(mv[name_absolute, real_f])
+        _mv = run.watch(mv)
+        _mv(name_absolute, real_f)
 
     project_file = persist(project, suffix=".project")
 
@@ -134,7 +139,8 @@ def wrap(name, project, sprefix=None, python=sys.executable):
                 python=python,
             ))
 
-    run(chmod["+x", name_absolute])
+    _chmod = run.watch(chmod)
+    _chmod("+x", name_absolute)
     return local[name_absolute]
 
 
@@ -188,14 +194,14 @@ def wrap_dynamic(project,
 
     with open(name_absolute, 'w') as wrapper:
         wrapper.write(
-            template.render(
-                runf=strip_path_prefix(real_f, sprefix),
-                project_file=strip_path_prefix(project_file, sprefix),
-                path=str(bin_path),
-                ld_library_path=str(bin_lib_path),
-                home=str(home),
-                python=python,
-                name_filters=name_filters))
+            template.render(runf=strip_path_prefix(real_f, sprefix),
+                            project_file=strip_path_prefix(
+                                project_file, sprefix),
+                            path=str(bin_path),
+                            ld_library_path=str(bin_lib_path),
+                            home=str(home),
+                            python=python,
+                            name_filters=name_filters))
 
     chmod("+x", name_absolute)
     return local[name_absolute]
@@ -234,11 +240,10 @@ def wrap_cc(filepath,
 
     with open(filepath, 'w') as wrapper:
         wrapper.write(
-            template.render(
-                cc_f=cc_f,
-                project_file=project_file,
-                python=python,
-                detect_project=detect_project))
+            template.render(cc_f=cc_f,
+                            project_file=project_file,
+                            python=python,
+                            detect_project=detect_project))
 
     chmod("+x", filepath)
     LOG.debug("Placed wrapper in: %s for compiler %s", local.path(filepath),
@@ -265,8 +270,8 @@ def persist(id_obj, filename=None, suffix=None):
     """
     if suffix is None:
         suffix = ".pickle"
-    if hasattr(id_obj, 'id'):
-        ident = id_obj.id
+    if hasattr(id_obj, 'run_uuid'):
+        ident = id_obj.run_uuid
     else:
         ident = str(id(id_obj))
 

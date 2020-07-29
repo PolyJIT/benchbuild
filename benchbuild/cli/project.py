@@ -1,7 +1,7 @@
 """Subcommand for project handling."""
 from plumbum import cli
 
-from benchbuild import project
+import benchbuild as bb
 from benchbuild.cli.main import BenchBuild
 
 
@@ -20,16 +20,15 @@ class BBProjectView(cli.Application):
 
     groups = None
 
-    @cli.switch(
-        ["-G", "--group"],
-        str,
-        list=True,
-        help="Include projects of this group.")
+    @cli.switch(["-G", "--group"],
+                str,
+                list=True,
+                help="Include projects of this group.")
     def set_group(self, groups):
         self.groups = groups
 
     def main(self, *projects):
-        print_projects(project.populate(projects, self.groups))
+        print_projects(bb.populate(projects, self.groups))
 
 
 def print_projects(projects=None):
@@ -42,8 +41,7 @@ def print_projects(projects=None):
     """
     grouped_by = {}
     if not projects:
-        print(
-            "Your selection didn't include any projects for this experiment.")
+        print("Your selection didn't include any projects for this experiment.")
         return
 
     for name in projects:
@@ -52,11 +50,11 @@ def print_projects(projects=None):
         if prj.GROUP not in grouped_by:
             grouped_by[prj.GROUP] = []
 
-        grouped_by[prj.GROUP].append("{name}/{group}".format(
-            name=prj.NAME, group=prj.GROUP))
+        grouped_by[prj.GROUP].append("{name}/{group}".format(name=prj.NAME,
+                                                             group=prj.GROUP))
 
     for name in grouped_by:
-        print("group: {0}".format(name))
+        print(f'::  group: {name}')
         group_projects = sorted(grouped_by[name])
         for prj in group_projects:
             prj_cls = projects[prj]
@@ -65,17 +63,35 @@ def print_projects(projects=None):
             if hasattr(prj_cls, 'versions'):
                 version_str = ", ".join(prj_cls.versions())
 
-            project_id = "{0}/{1}".format(prj_cls.NAME, prj_cls.GROUP)
+            project_id = f'{prj_cls.NAME}/{prj_cls.GROUP}'
+            project_version = str(bb.source.default(*prj_cls.SOURCE))
 
-            project_str = \
-                "  name: {id:<32} version: {version:<24} source: {src}".format(
-                    id=str(project_id),
-                    version=str(prj_cls.VERSION),
-                    src=str(prj_cls.SRC_FILE))
-            print(project_str)
+            project_lines = [
+                f'::  {project_id}'
+                f'    default: {project_version:<24}'
+            ]
+            for src in prj_cls.SOURCE:
+                source_lines = [
+                    f'\n    * source: {src.local}',
+                ]
+                if isinstance(src.remote, str):
+                    source_lines.append(f' remote: {src.remote}')
+                    source_lines.extend([
+                        f'\n      - {str(version)}'
+                        for version in src.versions()
+                    ])
+                else:
+                    source_lines.extend([
+                        f'\n      - {str(version)} '
+                        f'remote: {src.remote[str(version)]}'
+                        for version in src.versions()
+                    ])
+                project_lines.extend(source_lines)
+
+            print(*project_lines)
             if prj_cls.__doc__:
                 docstr = prj_cls.__doc__.strip("\n ")
-                print("    description: {desc}".format(desc=docstr))
+                print(f'    description: {docstr}')
             if version_str:
-                print("    versions: {versions}".format(versions=version_str))
+                print(f'    versions: {version_str}')
         print()

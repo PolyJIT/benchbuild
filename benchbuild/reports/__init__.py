@@ -14,18 +14,6 @@ from benchbuild.utils import schema
 LOG = logging.getLogger(__name__)
 
 
-def discover():
-    """Import all experiments listed in *_PLUGINS_REPORTS."""
-    if CFG["plugins"]["autoload"]:
-        report_plugins = CFG["plugins"]["reports"].value
-        for plugin in report_plugins:
-            try:
-                importlib.import_module(plugin)
-                LOG.debug("Found report: %s", plugin)
-            except ImportError:
-                LOG.error("Could not find '%s'", plugin)
-
-
 class ReportRegistry(type):
     reports = {}
 
@@ -58,12 +46,13 @@ class Report(metaclass=ReportRegistry):
         new_self = super(Report, cls).__new__(cls)
         if not cls.SUPPORTED_EXPERIMENTS:
             raise AttributeError(
-                "{0} @ {1} does not define a SUPPORTED_EXPERIMENTS attribute"
-                .format(cls.__name__, cls.__module__))
+                "{0} @ {1} does not define a SUPPORTED_EXPERIMENTS attribute".
+                format(cls.__name__, cls.__module__))
 
         if cls.NAME is None:
-            raise AttributeError("{0} @ {1} does not define a NAME attribute"
-                                 .format(cls.__name__, cls.__module__))
+            raise AttributeError(
+                "{0} @ {1} does not define a NAME attribute".format(
+                    cls.__name__, cls.__module__))
         new_self.name = cls.NAME
         return new_self
 
@@ -90,3 +79,8 @@ class Report(metaclass=ReportRegistry):
         else:
             exp_ids = [uuid.UUID(v) for v in self.exp_ids]
         self.experiment_ids = exp_ids
+
+
+def discovered() -> t.Dict[str, Report]:
+    """Return all discovered projects."""
+    return ReportRegistry.reports

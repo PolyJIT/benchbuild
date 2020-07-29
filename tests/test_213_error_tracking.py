@@ -2,18 +2,22 @@
 Test issue 213: Wrong error tracking for failed commands
 """
 import unittest
-import attr
 
+import attr
 from plumbum import ProcessExecutionError
 
-from benchbuild import project as prj
 from benchbuild import experiment
+from benchbuild import project as prj
+from benchbuild.source import nosource
 from benchbuild.utils import actions as a
 from benchbuild.utils import tasks
 
 
 @attr.s
 class Issue213a(a.Step):
+    NAME = "Issue213a"
+    DESCRIPTION = "Issue213a"
+
     @a.notify_step_begin_end
     def __call__(self):
         raise ProcessExecutionError([], 1, "", "")
@@ -21,18 +25,22 @@ class Issue213a(a.Step):
 
 @attr.s
 class Issue213b(a.Step):
+    NAME = "Issue213b"
+    DESCRIPTION = "Issue213b"
+
     @a.notify_step_begin_end
     def __call__(self):
         return a.StepResult.ERROR
 
 
+@attr.s
 class EmptyProject(prj.Project):
     """An empty project that serves as an empty shell for testing."""
 
     NAME = "test_empty"
     DOMAIN = "debug"
     GROUP = "debug"
-    SRC_FILE = "none"
+    SOURCE = [nosource()]
 
     def compile(self):
         pass
@@ -62,8 +70,8 @@ class TrackErrorsTestCase(unittest.TestCase):
 
     def test_exception(self):
         plan = list(
-            tasks.generate_plan({"test_exception": ExceptionExp},
-                                {"test_empty": EmptyProject}))
+            tasks.generate_plan({"test_exception": ExceptionExp}.values(),
+                                {"test_empty": EmptyProject}.values()))
         self.assertEqual(len(plan),
                          1,
                          msg="The test plan must have a length of 1.")
@@ -73,8 +81,8 @@ class TrackErrorsTestCase(unittest.TestCase):
 
     def test_error_state(self):
         plan = list(
-            tasks.generate_plan({"test_error_state": ErrorStateExp},
-                                {"test_empty": EmptyProject}))
+            tasks.generate_plan({"test_error_state": ErrorStateExp}.values(),
+                                {"test_empty": EmptyProject}.values()))
         self.assertEqual(len(plan),
                          1,
                          msg="The test plan must have a length of 1.")

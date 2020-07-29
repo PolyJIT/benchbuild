@@ -5,9 +5,8 @@ os:
 #
 language: python
 python:
-  - "3.5"
-  - "3.6"
   - "3.7"
+  - "3.8"
 
 addons:
   apt:
@@ -18,21 +17,31 @@ addons:
       - clang
 
 install:
+  - mkdir -p ~/bin/ && export PATH="~/bin/:$PATH"
+  - curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b ~/bin 
+
   - pip install .
   - pip install -r requirements.txt
   - pip install codecov
   - pip install pytest-cov
+  - pip install mypy
 
 env:
   - BB_UNIONFS_ENABLE=false BB_PLUGINS_EXPERIMENTS='["benchbuild.experiments.raw", "benchbuild.experiments.empty"]'
 
 script:
-  - coverage run -a `which benchbuild` bootstrap -s
-  - pytest --cov=./ benchbuild tests
-  - coverage run -a `which benchbuild` config view
-  - coverage run -a `which benchbuild` project view
-  - coverage run -a `which benchbuild` experiment view
-  - coverage run -a `which benchbuild` -vvvvv run --full test
+  - reviewdog -conf=.reviewdog.yml -reporter=github-pr-check
+
+  - coverage run -p `which benchbuild` bootstrap -s
+  - pytest --cov-config=./.coveragerc --cov=./ benchbuild tests
+  - coverage run -p `which benchbuild` config view
+  - coverage run -p `which benchbuild` project view
+  - coverage run -p `which benchbuild` experiment view
+  - coverage run -p `which benchbuild` -vvvvv run --full test
+  - coverage combine -a
+  - coverage report
+
+after_success:
   - codecov
 
 branches:

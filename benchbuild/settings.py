@@ -33,26 +33,16 @@ CFG = s.Configuration(
         },
         "build_dir": {
             "desc":
-            "build directory of benchbuild. All intermediate projects will "
-            "be placed here",
-            "default":
-            s.ConfigPath(os.path.join(os.getcwd(), "results"))
-        },
-        "test_dir": {
-            "desc":
-            "Additional test inputs, required for (some) run-time tests."
-            "These can be obtained from the a different repo. Most "
-            "projects don't need it",
-            "default":
-            os.path.join(os.getcwd(), "testinputs")
+                "build directory of benchbuild. All intermediate projects will "
+                "be placed here",
+            "default": s.ConfigPath(os.path.join(os.getcwd(), "results"))
         },
         "tmp_dir": {
             "desc": "Temporary dir. This will be used for caching downloads.",
             "default": s.ConfigPath(os.path.join(os.getcwd(), "tmp"))
         },
         "jobs": {
-            "desc":
-            "Number of jobs that can be used for building and running.",
+            "desc": "Number of jobs that can be used for building and running.",
             "default": str(s.available_cpu_count())
         },
         "parallel_processes": {
@@ -77,8 +67,10 @@ CFG = s.Configuration(
             "default": os.path.join("/", "tmp", "benchbuild-regressions")
         },
         "source_dir": {
-            "default": None,
-            "desc": "Path to a benchbuild source directory. For developers only."
+            "default":
+                None,
+            "desc":
+                "Path to a benchbuild source directory. For developers only."
         },
         "benchbuild_ebuild": {
             "default": ""
@@ -86,29 +78,27 @@ CFG = s.Configuration(
         "cleanup_paths": {
             "default": [],
             "desc":
-            "List of existing paths that benchbuild should delete in addition "
-            "to the default cleanup steps.",
-            "export":
-            False
+                "List of existing paths that benchbuild should delete in addition "
+                "to the default cleanup steps.",
+            "export": False
         },
         "sequence": {
-            "desc":
-            "The name of the sequence that should be used for "
-            "preoptimization.",
-            "default":
-            "no_preperation"
+            "desc": "The name of the sequence that should be used for "
+                    "preoptimization.",
+            "default": "no_preperation"
         }
     })
 
 CFG['bootstrap'] = {
     'packages': {
         'default': [
-            "mkdir", "git", "tar", "mv", "rm", "bash", "rmdir", "time",
-            "chmod", "cp", "ln", "make", "unzip", "cat", "patch", "find",
-            "echo", "grep", "sed", "sh", "autoreconf", "ruby", "curl", "tail",
-            "kill", "virtualenv", "timeout"
+            "mkdir", "git", "tar", "mv", "rm", "bash", "rmdir", "time", "chmod",
+            "cp", "ln", "make", "unzip", "cat", "patch", "find", "echo", "grep",
+            "sed", "sh", "autoreconf", "ruby", "curl", "tail", "kill",
+            "virtualenv", "timeout"
         ],
-        'desc': 'List of packages that we require to be installed on the system.'
+        'desc':
+            'List of packages that we require to be installed on the system.'
     },
     'install': {
         'default': True,
@@ -145,10 +135,8 @@ CFG["env"] = {
 
 CFG['db'] = {
     "connect_string": {
-        "desc":
-        "sqlalchemy connect string",
-        "default":
-        "sqlite://"
+        "desc": "sqlalchemy connect string",
+        "default": "sqlite://"
     },
     "rollback": {
         "desc": "Rollback all operations after benchbuild completes.",
@@ -168,7 +156,7 @@ CFG['gentoo'] = {
     "autotest_use": {
         "default": [],
         "desc":
-        "USE filter for ebuilds. Filters packages without the given use flags."
+            "USE filter for ebuilds. Filters packages without the given use flags."
     },
     "autotest_loc": {
         "default": "/tmp/gentoo-autotest",
@@ -199,32 +187,27 @@ CFG["slurm"] = {
     },
     "script": {
         "desc":
-        "Name of the script that can be passed to SLURM. Used by external "
-        "tools.",
-        "default":
-        "slurm.sh"
+            "Name of the script that can be passed to SLURM. Used by external "
+            "tools.",
+        "default": "slurm.sh"
     },
     "cpus_per_task": {
         "desc":
-        "Number of CPUs that should be requested from SLURM. Used by external "
-        "tools.",
-        "default":
-        10
+            "Number of CPUs that should be requested from SLURM. Used by external "
+            "tools.",
+        "default": 10
     },
     "node_dir": {
-        "desc":
-        "Node directory, when executing on a cluster node. This is not "
-        "used by benchbuild directly, but by external scripts.",
-        "default":
-        os.path.join(os.getcwd(), "results")
+        "desc": "Node directory, when executing on a cluster node. This is not "
+                "used by benchbuild directly, but by external scripts.",
+        "default": os.path.join(os.getcwd(), "results")
     },
     "timelimit": {
         "desc": "The timelimit we want to give to a job",
         "default": "12:00:00"
     },
     "exclusive": {
-        "desc":
-        "Shall we reserve a node exclusively, or share it with others?",
+        "desc": "Shall we reserve a node exclusively, or share it with others?",
         "default": True
     },
     "multithread": {
@@ -274,20 +257,15 @@ CFG["plugins"] = {
         "desc": "Should automatic load of plugins be enabled?"
     },
     "reports": {
-        "default": [
-            "benchbuild.reports.raw",
-            "benchbuild.reports.status"
-        ],
-        "desc":
-        "Report plugins."
+        "default": ["benchbuild.reports.raw", "benchbuild.reports.status"],
+        "desc": "Report plugins."
     },
     "experiments": {
         "default": [
             "benchbuild.experiments.raw",
             "benchbuild.experiments.empty",
         ],
-        "desc":
-        "The experiment plugins we know about."
+        "desc": "The experiment plugins we know about."
     },
     "projects": {
         "default": [
@@ -324,8 +302,7 @@ CFG["plugins"] = {
             "benchbuild.projects.apollo.rodinia",
             "benchbuild.projects.test.test"
         ],
-        "desc":
-        "The project plugins we know about."
+        "desc": "The project plugins we know about."
     }
 }
 
@@ -344,9 +321,8 @@ CFG["container"] = {
     },
     "prefixes": {
         "default": [],
-        "desc":
-        "List of paths that will be treated as an "
-        "existing prefix inside a container."
+        "desc": "List of paths that will be treated as an "
+                "existing prefix inside a container."
     },
     "shell": {
         "default": "/bin/bash",
@@ -354,10 +330,9 @@ CFG["container"] = {
     },
     "known": {
         "default": [],
-        "desc":
-        "List of known containers. Format: "
-        "[{ 'path': <path>,"
-        "   'hash': <hash> }]"
+        "desc": "List of known containers. Format: "
+                "[{ 'path': <path>,"
+                "   'hash': <hash> }]"
     },
     "images": {
         "default": {
@@ -367,10 +342,9 @@ CFG["container"] = {
     },
     "prefered": {
         "default": [],
-        "desc":
-        "List of containers of which the project can chose from."
-        "Format:"
-        "[{ 'path': <path> }]"
+        "desc": "List of containers of which the project can chose from."
+                "Format:"
+                "[{ 'path': <path> }]"
     },
     "strategy": {
         "polyjit": {
@@ -437,8 +411,7 @@ CFG["container"] = {
                         "ACCEPT_KEYWORDS": "~amd64"
                     }
                 }],
-                "desc":
-                "A list of gentoo package atoms that should be merged."
+                "desc": "A list of gentoo package atoms that should be merged."
             }
         }
     }

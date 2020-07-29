@@ -12,6 +12,7 @@ Supported methods:
 """
 import logging
 import os
+from typing import Callable, List, Optional, Type
 
 from plumbum import local
 
@@ -20,8 +21,10 @@ from benchbuild.utils.path import flocked
 
 LOG = logging.getLogger(__name__)
 
+AnyC = Type[object]
 
-def get_hash_of_dirs(directory):
+
+def get_hash_of_dirs(directory: str) -> str:
     """
     Recursively hash the contents of the given directory.
 
@@ -46,7 +49,7 @@ def get_hash_of_dirs(directory):
     return sha.hexdigest()
 
 
-def source_required(src_file):
+def source_required(src_file: str) -> bool:
     """
     Check, if a download is required.
 
@@ -79,7 +82,7 @@ def source_required(src_file):
     return required
 
 
-def update_hash(src_file):
+def update_hash(src_file: str) -> str:
     """
     Update the hash for the given file.
 
@@ -175,6 +178,7 @@ def with_wget(url_dict=None, target_file=None):
     """
 
     def wget_decorator(cls):
+
         def download_impl(self):
             """Download the selected version from the url_dict value."""
             t_file = target_file if target_file else self.SRC_FILE
@@ -218,6 +222,7 @@ def __clone_needed__(repository: str, directory: str) -> bool:
 
     if requires_clone:
         rm('-r', directory)
+    return requires_clone
 
 
 def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
@@ -239,7 +244,7 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
 
     src_dir = local.path(repository_loc) / directory
     tgt_dir = local.path(local.cwd) / directory
-    lock_f = local.path(local.cwd / directory + '.lock')
+    lock_f = local.path(repository_loc + directory + '.lock')
 
     extra_param = []
     if shallow_clone:
@@ -260,14 +265,16 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
     return repository_loc
 
 
-def with_git(repo,
-             target_dir=None,
-             limit=None,
-             refspec="HEAD",
-             clone=True,
-             rev_list_args=None,
-             shallow_clone=True,
-             version_filter=lambda version: True):
+def with_git(
+    repo: str,
+    target_dir: Optional[str] = None,
+    limit: Optional[int] = None,
+    refspec: str = "HEAD",
+    clone: bool = True,
+    rev_list_args: Optional[List[str]] = None,
+    shallow_clone: bool = True,
+    version_filter: Callable[[str], bool] = lambda version: True
+) -> Callable[[AnyC], AnyC]:
     """
     Decorate a project class with git-based version information.
 
@@ -321,7 +328,6 @@ def with_git(repo,
                                refspec, *rev_list_args).strip().split('\n')
                 latest = git("rev-parse", "--short=10",
                              refspec).strip().split('\n')
-                cls.VERSION = latest[0]
 
             if limit:
                 return list(filter(version_filter, rev_list))[:limit]

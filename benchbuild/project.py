@@ -17,23 +17,32 @@ a separate build directory in isolation of one another.
 """
 import copy
 import logging
-from typing import Tuple, Optional, Mapping, Type
+import typing as tp
 import uuid
 from abc import abstractmethod
 from functools import partial
 from os import getenv
 
 import attr
+import yaml
 from plumbum import ProcessExecutionError, local
 from pygtrie import StringTrie
 
-from benchbuild import signals
+from benchbuild import signals, source
 from benchbuild.extensions import compiler
 from benchbuild.extensions import run as ext_run
 from benchbuild.settings import CFG
-from benchbuild.utils import db, run, unionfs, wrapping
+from benchbuild.utils import db, run, unionfs
+from benchbuild.utils.requirements import Requirement
 
 LOG = logging.getLogger(__name__)
+
+MaybeGroupNames = tp.Optional[tp.List[str]]
+ProjectIndex = tp.Mapping[str, tp.Tuple[tp.Type['Project'], tp.Optional[str]]]
+ProjectNames = tp.List[str]
+ProjectT = tp.Type['Project']
+VariantContext = source.VariantContext
+Sources = tp.List[source.BaseSource]
 
 
 class ProjectRegistry(type):
@@ -41,13 +50,20 @@ class ProjectRegistry(type):
 
     projects = StringTrie()
 
-    def __init__(cls, name, bases, attrs):
+    def __new__(mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
+                attrs: tp.Dict[str, tp.Any]) -> tp.Any:
         """Register a project in the registry."""
-        super(ProjectRegistry, cls).__init__(name, bases, attrs)
+        cls = super(ProjectRegistry, mcs).__new__(mcs, name, bases, attrs)
 
-        if None not in {cls.NAME, cls.DOMAIN, cls.GROUP}:
-            key = "{name}/{group}".format(name=cls.NAME, group=cls.GROUP)
+        defined_attrs = all(attr in attrs and attrs[attr] is not None
+                            for attr in ['NAME', 'DOMAIN', 'GROUP'])
+
+        if bases and defined_attrs:
+            key = f"{cls.NAME}/{cls.GROUP}"
+            key_dash = f"{cls.NAME}-{cls.GROUP}"
             ProjectRegistry.projects[key] = cls
+            ProjectRegistry.projects[key_dash] = cls
+        return cls
 
 
 class ProjectDecorator(ProjectRegistry):
@@ -99,8 +115,6 @@ class Project(metaclass=ProjectDecorator):
         run_tests: Wrap any binary that has to be run under the
             runtime_extension wrapper and execute an implementation defined
             set of run-time tests.
-            Defaults to a call of a binary with the name `run_f` in the
-            build directory without arguments.
         clean: Clean the project's build directory. Defaults to
             recursive 'rm' on the build directory and can be disabled
             by setting the environment variable ``BB_CLEAN=false``.
@@ -120,27 +134,20 @@ class Project(metaclass=ProjectDecorator):
             The application domain of this project. Defaults to `DOMAIN`.
         group (str, optional):
             The group this project belongs to. Defaults to `GROUP`.
-        src_file (str, optional):
-            A main src_file this project is assigned to. Defaults to `SRC_FILE`
         container (benchbuild.utils.container.Container, optional):
             A uchroot compatible container that we can use for this project.
             Defaults to `benchbuild.utils.container.Gentoo`.
+        requirements (:obj:`list` of :obj:`Requirement`)
+            A list of specific requirements that are used to configure the
+            execution environment.
         version (str, optional):
             A version information for this project. Defaults to `VERSION`.
         builddir (str, optional):
             The build directory for this project. Auto generated, if not set.
-        testdir (str, optional):
-            The location of any additional test-files for this project,
-            usually stored out of tree. Auto generated, if not set. Usually a
-            project implementation
-            will define this itself.
         cflags (:obj:`list` of :obj:`str`, optional)
             A list of cflags used, for compilation of this project.
         ldflags (:obj:`list` of :obj:`str`, optional)
             A list of ldflags used, for compilation of this project.
-        run_f (str, optional):
-            A filename that points to the binary we want to track.
-            Usually a project implementation will define this itself.
         run_uuid (uuid.UUID, optional):
             An UUID that identifies all binaries executed by a single run of
             this project. In the database schema this is named the 'run_group'.
@@ -155,100 +162,91 @@ class Project(metaclass=ProjectDecorator):
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
-    NAME = None
-    DOMAIN = None
-    GROUP = None
-    VERSION = None
-    SRC_FILE = None
     CONTAINER = None
+    DOMAIN: tp.ClassVar[str] = ""
+    GROUP: tp.ClassVar[str] = ""
+    NAME: tp.ClassVar[str] = ""
+    REQUIREMENTS: tp.ClassVar[tp.List[Requirement]] = []
+    SOURCE: tp.ClassVar[Sources] = []
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
         new_self = super(Project, cls).__new__(cls)
-        if cls.NAME is None:
+        mod_ident = f'{cls.__name__} @ {cls.__module__}'
+        if not cls.NAME:
             raise AttributeError(
-                "{0} @ {1} does not define a NAME class attribute.".format(
-                    cls.__name__, cls.__module__))
-        if cls.DOMAIN is None:
+                f'{mod_ident} does not define a NAME class attribute.')
+        if not cls.DOMAIN:
             raise AttributeError(
-                "{0} @ {1} does not define a DOMAIN class attribute.".format(
-                    cls.__name__, cls.__module__))
-        if cls.GROUP is None:
+                f'{mod_ident} does not define a DOMAIN class attribute.')
+        if not cls.GROUP:
             raise AttributeError(
-                "{0} @ {1} does not define a GROUP class attribute.".format(
-                    cls.__name__, cls.__module__))
+                f'{mod_ident} does not define a GROUP class attribute.')
         return new_self
 
     experiment = attr.ib()
 
-    name = attr.ib(
+    variant: VariantContext = attr.ib()
+
+    @variant.default
+    def __default_variant(self) -> VariantContext:
+        return source.default(*type(self).SOURCE)
+
+    name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
 
-    domain = attr.ib(
+    domain: str = attr.ib(
         default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True))
 
-    group = attr.ib(
+    group: str = attr.ib(
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
 
-    src_file = attr.ib(
-        default=attr.Factory(
-            lambda self: type(self).SRC_FILE, takes_self=True))
+    container = attr.ib(default=attr.Factory(lambda self: type(self).CONTAINER,
+                                             takes_self=True))
 
-    container = attr.ib(
-        default=attr.Factory(
-            lambda self: type(self).CONTAINER, takes_self=True))
+    cflags: tp.List[str] = attr.ib(default=attr.Factory(list))
 
-    version = attr.ib(
-        default=attr.Factory(lambda self: type(self).VERSION, takes_self=True))
+    ldflags: tp.List[str] = attr.ib(default=attr.Factory(list))
 
-    testdir = attr.ib()
-
-    @testdir.default
-    def __default_testdir(self):
-        if self.group:
-            return local.path(str(
-                CFG["test_dir"])) / self.domain / self.group / self.name
-        return local.path(str(CFG["test_dir"])) / self.domain / self.name
-
-    cflags = attr.ib(default=attr.Factory(list))
-
-    ldflags = attr.ib(default=attr.Factory(list))
-
-    run_uuid = attr.ib()
+    run_uuid: uuid.UUID = attr.ib()
 
     @run_uuid.default
-    def __default_run_uuid(self):
+    def __default_run_uuid(self):  # pylint: disable=no-self-use
         run_group = getenv("BB_DB_RUN_GROUP", None)
         if run_group:
             return uuid.UUID(run_group)
         return uuid.uuid4()
 
     @run_uuid.validator
-    def __check_if_uuid(self, _, value):
+    def __check_if_uuid(self, _: tp.Any, value: uuid.UUID) -> None:  # pylint: disable=no-self-use
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
-    builddir = attr.ib(default=attr.Factory(
-        lambda self: local.path(str(CFG["build_dir"])) /
-        "{}-{}".format(
-            self.experiment.name, self.id),
-        takes_self=True))
+    builddir: local.path = attr.ib(default=attr.Factory(lambda self: local.path(
+        str(CFG["build_dir"])) / self.experiment.name / self.id / self.run_uuid,
+                                                        takes_self=True))
 
-    run_f = attr.ib(
-        default=attr.Factory(
-            lambda self: local.path(self.builddir) / self.name,
-            takes_self=True))
+    source: Sources = attr.ib(
+        default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True))
 
-    compiler_extension = attr.ib(default=attr.Factory(
-        lambda self: ext_run.WithTimeout(
-            compiler.RunCompiler(self, self.experiment)), takes_self=True))
+    primary_source: str = attr.ib()
+
+    @primary_source.default
+    def __default_primary_source(self) -> str:
+        return source.primary(*self.source).key
+
+    compiler_extension = attr.ib(
+        default=attr.Factory(lambda self: ext_run.WithTimeout(
+            compiler.RunCompiler(self, self.experiment)),
+                             takes_self=True))
 
     runtime_extension = attr.ib(default=None)
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         db.persist_project(self)
 
-    def run_tests(self, runner):
+    @abstractmethod
+    def run_tests(self) -> None:
         """
         Run the tests of this project.
 
@@ -258,10 +256,8 @@ class Project(metaclass=ProjectDecorator):
             experiment: The experiment we run this project under
             run: A function that takes the run command.
         """
-        exp = wrapping.wrap(self.run_f, self)
-        runner(exp)
 
-    def run(self):
+    def run(self) -> None:
         """Run the tests of this project.
 
         This method initializes the default environment and takes care of
@@ -276,14 +272,13 @@ class Project(metaclass=ProjectDecorator):
         CFG["project"] = self.NAME
         CFG["domain"] = self.DOMAIN
         CFG["group"] = self.GROUP
-        CFG["version"] = self.VERSION
         CFG["db"]["run_group"] = str(self.run_uuid)
 
         group, session = begin_run_group(self)
         signals.handlers.register(fail_run_group, group, session)
 
         try:
-            self.run_tests(run.run)
+            self.run_tests()
             end_run_group(group, session)
         except ProcessExecutionError:
             fail_run_group(group, session)
@@ -294,52 +289,91 @@ class Project(metaclass=ProjectDecorator):
         finally:
             signals.handlers.deregister(fail_run_group)
 
-    def clean(self):
+    def clean(self) -> None:
         """Clean the project build directory."""
         builddir_p = local.path(self.builddir)
         builddir_p.delete()
 
-    def prepare(self):
-        """Prepare the build diretory."""
-        builddir_p = local.path(self.builddir)
-        if not builddir_p.exists():
-            builddir_p.mkdir()
-
-    @abstractmethod
-    def compile(self):
-        """Compile the project."""
-
-    def download(self, version=None):
-        """Auto-generated by with_* decorators."""
-        del version
-        LOG.error("Not implemented.")
-
-    def redirect(self):
-        """Redirect execution to a containerized benchbuild instance."""
-        LOG.error("Redirection not supported by project.")
-
-    def clone(self):
+    def clone(self) -> 'Project':
         """Create a deepcopy of ourself."""
         new_p = copy.deepcopy(self)
         new_p.run_uuid = uuid.uuid4()
         return new_p
 
+    @abstractmethod
+    def compile(self) -> None:
+        """Compile the project."""
+
     @property
-    def id(self):
-        return "{name}-{group}@{version}_uuid_{id}".format(
-            name=self.name,
-            group=self.group,
-            version=self.version,
-            id=self.run_uuid)
+    def id(self) -> str:
+        version_str = source.to_str(*tuple(self.variant.values()))
+        return f'{self.name}-{self.group}@{version_str}'
 
-    @classmethod
-    def versions(cls):
-        """Return all available versions."""
-        if cls.VERSION:
-            return [cls.VERSION]
-        return ["unknown"]
+    def prepare(self) -> None:
+        """Prepare the build diretory."""
+        builddir_p = local.path(self.builddir)
+        if not builddir_p.exists():
+            builddir_p.mkdir()
 
-def __split_project_input__(project_input: str) -> Tuple[str, Optional[str]]:
+    def redirect(self) -> None:
+        """Redirect execution to a containerized benchbuild instance."""
+        LOG.error("Redirection not supported by project.")
+
+    def source_of(self, name: str) -> tp.Optional[str]:
+        """
+        Retrieve source for given index name.
+
+        Args:
+            project (Project): The project to access.
+            name (str): Local name of the source .
+
+        Returns:
+            (Optional[BaseSource]): A source representing this variant.
+        """
+        variant = self.variant
+        if name in variant:
+            return self.builddir / variant[name].owner.local
+        return None
+
+    def version_of(self, name: str) -> tp.Optional[str]:
+        """
+        Retrieve source for given index name.
+
+        Args:
+            project (Project): The project to access.
+            name (str): Local name of the source .
+
+        Returns:
+            (Optional[BaseSource]): A source representing this variant.
+        """
+        variant = self.variant
+        if name in variant:
+            return str(variant[name])
+        return None
+
+    @property
+    def version_of_primary(self) -> str:
+        """
+        Get version of the primary source.
+        """
+        version_str = self.version_of(self.primary_source)
+        if not version_str:
+            raise ValueError('You are expected to have a primary_source.')
+        return version_str
+
+    @property
+    def source_of_primary(self) -> str:
+        """
+        Get source of the primary source.
+        """
+        source_str = self.source_of(self.primary_source)
+        if not source_str:
+            raise ValueError('You are expected to have a primary_source.')
+        return source_str
+
+
+def __split_project_input__(
+        project_input: str) -> tp.Tuple[str, tp.Optional[str]]:
     split_input = project_input.rsplit('@', maxsplit=1)
     first = split_input[0]
     second = split_input[1] if len(split_input) > 1 else None
@@ -347,8 +381,89 @@ def __split_project_input__(project_input: str) -> Tuple[str, Optional[str]]:
     return (first, second)
 
 
-def populate(projects_to_filter=None,
-             group=None) -> Mapping[str, Tuple[Type[Project], Optional[str]]]:
+def discovered() -> tp.Dict[str, Project]:
+    """Return all discovered projects."""
+    return dict(ProjectRegistry.projects)
+
+
+def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
+
+    sources = project.SOURCE
+    victim = sources[0]
+    victim = source.SingleVersionFilter(victim, version)
+    sources[0] = victim
+
+    project.SOURCE = sources
+    return project
+
+
+def __add_indexed_filters__(project: ProjectT,
+                            versions: tp.List[str]) -> ProjectT:
+    sources = project.SOURCE
+    for i in range(min(len(sources), len(versions))):
+        sources[i] = source.SingleVersionFilter(sources[i], versions[i])
+
+    project.SOURCE = sources
+    return project
+
+
+def __add_named_filters__(project: ProjectT,
+                          versions: tp.Dict[str, str]) -> ProjectT:
+    sources = project.SOURCE
+    named_sources = {s.key: s for s in sources}
+    for k, v in versions.items():
+        if k in named_sources:
+            victim = named_sources[k]
+            victim = source.SingleVersionFilter(victim, v)
+            named_sources[k] = victim
+    sources = list(named_sources.values())
+
+    project.SOURCE = sources
+    return project
+
+
+def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
+    """
+    Add a set of version filters to this project's source.
+
+    The version_str argument will be used to make an educated guess about
+    the filters required.
+
+    Example:
+        benchbuild/bzip2@3.5 -> A single version filter will be wrapped around
+            source.
+        benchbuild/bzip2@[3.5,1.0] -> Each element of the input list will
+            generate a version filter that wraps the same index in the
+            project's source.
+    """
+    version_in = yaml.safe_load(version_str)
+    if not project.SOURCE:
+        return project
+
+    def csv(in_str: str) -> bool:
+        if isinstance(in_str, str):
+            return len(in_str.split(',')) > 1
+        return False
+
+    is_csv = csv(version_in)
+
+    if isinstance(version_in, str) and not is_csv:
+        return __add_single_filter__(project, version_in)
+
+    if isinstance(version_in, list) or is_csv:
+        version_in = version_in.split(',') if is_csv else version_in
+        return __add_indexed_filters__(project, version_in)
+
+    if isinstance(version_in, dict):
+        if not all(version_in.values()):
+            return __add_indexed_filters__(project, list(version_in.keys()))
+        return __add_named_filters__(project, version_in)
+
+    raise ValueError('not sure what this version input')
+
+
+def populate(projects_to_filter: ProjectNames,
+             group: MaybeGroupNames = None) -> ProjectIndex:
     """
     Populate the list of projects that belong to this experiment.
 
@@ -367,34 +482,29 @@ def populate(projects_to_filter=None,
     if projects_to_filter is None:
         projects_to_filter = []
 
-    import benchbuild.projects as all_projects
-    all_projects.discover()
-
-    prjs = ProjectRegistry.projects
+    prjs = discovered()
     if projects_to_filter:
         prjs = {}
-        def single_version_impl(version):
-            return lambda: [version]
 
         for filter_project in set(projects_to_filter):
             project_str, version = __split_project_input__(filter_project)
             try:
-                for name, project_type in ProjectRegistry.projects.items(
-                        prefix=project_str):
+                selected = ProjectRegistry.projects.items(prefix=project_str)
+                for name, prj_cls in selected:
                     if version:
-                        project_type.versions = single_version_impl(version)
-                    prjs.update({name: project_type})
+                        prj_cls = __add_filters__(prj_cls, version)
+                    prjs.update({name: prj_cls})
             except KeyError:
                 pass
 
     if group:
         groupkeys = set(group)
         prjs = {
-            name: cls
-            for name, cls in prjs.items() if cls.GROUP in groupkeys
+            name: cls for name, cls in prjs.items() if cls.GROUP in groupkeys
         }
 
     return {
         x: prjs[x]
-        for x in prjs if prjs[x].DOMAIN != "debug" or x in projects_to_filter
+        for x in prjs
+        if prjs[x].DOMAIN != "debug" or x in projects_to_filter
     }

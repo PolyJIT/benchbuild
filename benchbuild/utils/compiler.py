@@ -18,13 +18,17 @@ The wrapper-script generated for both functions can be found inside:
 Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
+import plumbum as pb
 from plumbum import local
 
 from benchbuild.settings import CFG
 from benchbuild.utils.wrapping import wrap_cc
 
+Command = pb.commands.base.BaseCommand
 
-def cc(project, detect_project=False):
+
+def cc(project: 'benchbuild.project.Project',
+       detect_project: bool = False) -> Command:
     """
     Return a clang that hides CFLAGS and LDFLAGS.
 
@@ -49,7 +53,8 @@ def cc(project, detect_project=False):
     return cmd["./{}".format(cc_name)]
 
 
-def cxx(project, detect_project=False):
+def cxx(project: 'benchbuild.project.Project',
+        detect_project: bool = False) -> Command:
     """
     Return a clang++ that hides CFLAGS and LDFLAGS.
 
@@ -70,8 +75,10 @@ def cxx(project, detect_project=False):
     from benchbuild.utils import cmd
 
     cxx_name = str(CFG["compiler"]["cxx"])
-    wrap_cc(
-        cxx_name, compiler(cxx_name), project, detect_project=detect_project)
+    wrap_cc(cxx_name,
+            compiler(cxx_name),
+            project,
+            detect_project=detect_project)
     return cmd["./{name}".format(name=cxx_name)]
 
 
@@ -108,7 +115,7 @@ def compiler(name):
     """
     pinfo = __get_paths()
     _compiler = local[name]
-    _compiler = _compiler.setenv(
-        PATH=pinfo["path"], LD_LIBRARY_PATH=pinfo["ld_library_path"],
-        HOME=pinfo["home"])
+    _compiler = _compiler.setenv(PATH=pinfo["path"],
+                                 LD_LIBRARY_PATH=pinfo["ld_library_path"],
+                                 HOME=pinfo["home"])
     return _compiler

@@ -6,9 +6,10 @@ because we do not want to wipe measurement data.
 
 During downgrade we will make sure to create the table as needed.
 """
-from sqlalchemy import (MetaData, SmallInteger, BigInteger, Numeric, Table,
-                        Column, ForeignKey, Integer, String)
 import sqlalchemy as sa
+from sqlalchemy import (BigInteger, Column, ForeignKey, Integer, MetaData,
+                        Numeric, SmallInteger, String, Table)
+
 from benchbuild.utils.schema import exceptions
 
 META = MetaData()
@@ -34,9 +35,9 @@ def upgrade(migrate_engine):
 
 
 def downgrade(migrate_engine):
+
     @exceptions(error_messages={
-        sa.exc.ProgrammingError:
-        "Adding table 'benchbuild_events' failed."
+        sa.exc.ProgrammingError: "Adding table 'benchbuild_events' failed."
     })
     def do_downgrade():
         META.bind = migrate_engine

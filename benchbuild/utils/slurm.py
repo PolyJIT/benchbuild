@@ -7,14 +7,19 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 import sys
-from typing import Iterable
+from functools import reduce
+from pathlib import Path
+from typing import Iterable, List, cast
 
-from plumbum import local, TF
+from plumbum import TF, local
 
-from benchbuild.settings import CFG
 from benchbuild.experiment import Experiment
+from benchbuild.settings import CFG
+from benchbuild.utils import cmd
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
+from benchbuild.utils.requirements import (get_slurm_options_from_config,
+                                           merge_slurm_options, Requirement)
 
 LOG = logging.getLogger(__name__)
 
@@ -32,7 +37,7 @@ def script(experiment):
     slurm_script = local.cwd / experiment.name + "-" + str(
         CFG['slurm']['script'])
 
-    srun = local["srun"]
+    srun = cmd["srun"]
     srun_args = []
     if not CFG["slurm"]["multithread"]:
         srun_args.append("--hint=nomultithread")
@@ -50,12 +55,9 @@ def __expand_project_versions__(experiment: Experiment) -> Iterable[str]:
     expanded = []
 
     for _, project_type in project_types.items():
-        for version in project_type.versions():
-            project = project_type(experiment, version=version)
-            expanded.append("{name}/{group}@{version}".format(
-                name=project.name,
-                group=project.group,
-                version=project.version))
+        for variant in experiment.sample(project_type):
+            project = project_type(experiment, variant=variant)
+            expanded.append(project.id)
     return expanded
 
 
@@ -73,7 +75,8 @@ def __ld_library_path():
     return os.path.pathsep.join([benchbuild_path, host_path])
 
 
-def __save__(script_name, benchbuild, experiment, projects):
+def __save__(script_name: str, benchbuild, experiment,
+             projects: List[str]) -> str:
     """
     Dump a bash script that can be given to SLURM.
 
@@ -86,13 +89,34 @@ def __save__(script_name, benchbuild, experiment, projects):
     """
     from jinja2 import Environment, PackageLoader
 
-    logs_dir = os.path.dirname(CFG['slurm']['logs'].value)
+    logs_dir = Path(CFG['slurm']['logs'].value)
+    if logs_dir.suffix != '':
+        logs_dir = logs_dir.parent / logs_dir.stem
+        LOG.warning(
+            f"Config slurm:logs should be a folder, defaulting to {logs_dir}.")
+
+    if not logs_dir.exists():
+        logs_dir.mkdir()
+
     node_command = str(benchbuild["-E", experiment.name, "$_project"])
-    env = Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=PackageLoader('benchbuild', 'utils/templates'))
+    env = Environment(trim_blocks=True,
+                      lstrip_blocks=True,
+                      loader=PackageLoader('benchbuild', 'utils/templates'))
     template = env.get_template('slurm.sh.inc')
+    project_types = list(experiment.projects.values())
+    if len(project_types) > 1:
+        project_options = reduce(
+            lambda x, y: merge_slurm_options(x, y.REQUIREMENTS), project_types,
+            cast(List[Requirement], []))
+    elif len(project_types) == 1:
+        project_options = project_types[0].REQUIREMENTS
+    else:
+        project_options = []
+
+    slurm_options = merge_slurm_options(project_options,
+                                        experiment.REQUIREMENTS)
+    slurm_options = merge_slurm_options(slurm_options,
+                                        get_slurm_options_from_config())
 
     with open(script_name, 'w') as slurm2:
         slurm2.write(
@@ -102,21 +126,19 @@ def __save__(script_name, benchbuild, experiment, projects):
                 clean_lockfile=str(CFG["slurm"]["node_dir"]) + \
                     ".clean-in-progress.lock",
                 cpus=int(CFG['slurm']['cpus_per_task']),
-                exclusive=bool(CFG['slurm']['exclusive']),
                 lockfile=str(CFG['slurm']["node_dir"]) + ".lock",
-                log=local.path(logs_dir) / str(experiment.id),
+                log=logs_dir.resolve() / str(experiment.id),
                 max_running=int(CFG['slurm']['max_running']),
                 name=experiment.name,
-                nice=int(CFG['slurm']['nice']),
                 nice_clean=int(CFG["slurm"]["nice_clean"]),
                 node_command=node_command,
-                no_multithreading=not CFG['slurm']['multithread'],
                 ntasks=1,
                 prefix=str(CFG["slurm"]["node_dir"]),
                 projects=projects,
                 slurm_account=str(CFG["slurm"]["account"]),
                 slurm_partition=str(CFG["slurm"]["partition"]),
-                timelimit=str(CFG['slurm']['timelimit']),
+                sbatch_options='\n'.join(
+                    [s_opt.to_option() for s_opt in slurm_options]),
             )
         )
 

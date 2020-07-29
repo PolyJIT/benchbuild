@@ -16,6 +16,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils import bootstrap, container, download, log, run, uchroot
 from benchbuild.utils import user_interface as ui
 from benchbuild.utils.cmd import bash, mkdir, mv, rm, tar
+from benchbuild.utils.settings import get_number_of_jobs
 
 LOG = logging.getLogger(__name__)
 
@@ -62,9 +63,9 @@ def setup_container(builddir, _container):
                           os.path.abspath("."), "--"]
 
         # Check, if we need erlent support for this archive.
-        has_erlent = bash[
-            "-c", "tar --list -f './{0}' | grep --silent '.erlent'".format(
-                container_in)]
+        has_erlent = bash["-c",
+                          "tar --list -f './{0}' | grep --silent '.erlent'".
+                          format(container_in)]
         has_erlent = (has_erlent & TF)
 
         # Unpack input container to: container-in
@@ -222,11 +223,13 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
             gentoo.configure_portage()
 
             sed_in_chroot = uchroot.uchroot()["/bin/sed"]
+            sed_in_chroot = run.watch(sed_in_chroot)
             emerge_in_chroot = uchroot.uchroot()["/usr/bin/emerge"]
+            emerge_in_chroot = run.watch(emerge_in_chroot)
             has_pkg = uchroot.uchroot()["/usr/bin/qlist", "-I"]
 
-            run.run(sed_in_chroot["-i", '/CC=/d', "/etc/portage/make.conf"])
-            run.run(sed_in_chroot["-i", '/CXX=/d', "/etc/portage/make.conf"])
+            sed_in_chroot("-i", '/CC=/d', "/etc/portage/make.conf")
+            sed_in_chroot("-i", '/CXX=/d', "/etc/portage/make.conf")
 
             want_sync = bool(CFG["container"]["strategy"]["polyjit"]["sync"])
             want_upgrade = bool(
@@ -234,20 +237,20 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
 
             packages = \
                 CFG["container"]["strategy"]["polyjit"]["packages"].value
-            with local.env(MAKEOPTS="-j{0}".format(int(CFG["jobs"]))):
+            with local.env(MAKEOPTS="-j{0}".format(get_number_of_jobs(CFG))):
                 if want_sync:
                     LOG.debug("Synchronizing portage.")
-                    run.run(emerge_in_chroot["--sync"])
+                    emerge_in_chroot("--sync")
                 if want_upgrade:
                     LOG.debug("Upgrading world.")
-                    run.run(emerge_in_chroot["--autounmask-only=y", "-uUDN",
-                                             "--with-bdeps=y", "@world"])
+                    emerge_in_chroot("--autounmask-only=y", "-uUDN",
+                                     "--with-bdeps=y", "@world")
                 for pkg in packages:
                     if has_pkg[pkg["name"]] & TF:
                         continue
                     env = pkg["env"]
                     with local.env(**env):
-                        run.run(emerge_in_chroot[pkg["name"]])
+                        emerge_in_chroot(pkg["name"])
 
             gentoo.setup_benchbuild()
 
@@ -279,21 +282,20 @@ class Container(cli.Application):
         """Find and writes the output path of a chroot container."""
         p = local.path(_container)
         if p.exists():
-            if not ui.ask("Path '{0}' already exists."
-                          " Overwrite?".format(p)):
+            if not ui.ask("Path '{0}' already exists." " Overwrite?".format(p)):
                 sys.exit(0)
         CFG["container"]["output"] = str(p)
 
-    @cli.switch(
-        ["-s", "--shell"],
-        str,
-        help="The shell command we invoke inside the container.")
+    @cli.switch(["-s", "--shell"],
+                str,
+                help="The shell command we invoke inside the container.")
     def shell(self, custom_shell):
         """The command to run inside the container."""
         CFG["container"]["shell"] = custom_shell
 
-    @cli.switch(
-        ["-t", "-tmp-dir"], cli.ExistingDirectory, help="Temporary directory")
+    @cli.switch(["-t", "-tmp-dir"],
+                cli.ExistingDirectory,
+                help="Temporary directory")
     def builddir(self, tmpdir):
         """Set the current builddir of the container."""
         CFG["build_dir"] = tmpdir
@@ -359,11 +361,10 @@ class ContainerCreate(cli.Application):
 
     _strategy = BashStrategy()
 
-    @cli.switch(
-        ["-S", "--strategy"],
-        cli.Set("bash", "polyjit", case_sensitive=False),
-        help="Defines the strategy used to create a new container.",
-        mandatory=False)
+    @cli.switch(["-S", "--strategy"],
+                cli.Set("bash", "polyjit", case_sensitive=False),
+                help="Defines the strategy used to create a new container.",
+                mandatory=False)
     def strategy(self, strategy):
         """Select strategy based on key.
 
@@ -393,12 +394,11 @@ class ContainerCreate(cli.Application):
             in_container = setup_container(builddir, in_container)
 
         self._strategy.run(
-            MockObj(
-                builddir=builddir,
-                in_container=in_container,
-                out_container=out_container,
-                mounts=mounts,
-                shell=shell))
+            MockObj(builddir=builddir,
+                    in_container=in_container,
+                    out_container=out_container,
+                    mounts=mounts,
+                    shell=shell))
         clean_directories(builddir, in_is_file, True)
 
 
@@ -417,16 +417,15 @@ class ContainerBootstrap(cli.Application):
         if not bootstrap.find_package("uchroot"):
             if not bootstrap.find_package("cmake"):
                 self.install_cmake_and_exit()
-            bootstrap.install_uchroot()
+            bootstrap.install_uchroot(None)
         print("...OK")
         config_file = str(CFG["config_file"])
         if not (config_file and os.path.exists(config_file)):
             config_file = ".benchbuild.json"
         CFG.store(config_file)
         print("Storing config in {0}".format(os.path.abspath(config_file)))
-        print(
-            "Future container commands from this directory will automatically"
-            " source the config file.")
+        print("Future container commands from this directory will automatically"
+              " source the config file.")
 
 
 @Container.subcommand("list")

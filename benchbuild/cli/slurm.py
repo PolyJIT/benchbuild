@@ -11,14 +11,10 @@ import sys
 
 from plumbum import cli
 
-import benchbuild.projects
-import benchbuild.experiment
-import benchbuild.experiments
-import benchbuild.project
-
+from benchbuild import experiment, plugins, project
+from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
 from benchbuild.utils import slurm
-from benchbuild.cli.main import BenchBuild
 
 
 @BenchBuild.subcommand("slurm")
@@ -31,42 +27,38 @@ class Slurm(cli.Application):
         self._group_names = None
         self._description = None
 
-    @cli.switch(
-        ["-E", "--experiment"],
-        str,
-        mandatory=True,
-        help="Specify experiments to run")
+    @cli.switch(["-E", "--experiment"],
+                str,
+                mandatory=True,
+                help="Specify experiments to run")
     def experiment(self, cfg_experiment):
         """Specify experiments to run"""
         self._experiment = cfg_experiment
 
-    @cli.switch(
-        ["-D", "--description"],
-        str,
-        help="A description for this experiment run")
+    @cli.switch(["-D", "--description"],
+                str,
+                help="A description for this experiment run")
     def experiment_tag(self, description):
         """A description for this experiment run"""
         self._description = description
 
-    @cli.switch(
-        ["-G", "--group"],
-        str,
-        list=True,
-        requires=["--experiment"],
-        help="Run a group of projects under the given experiments")
+    @cli.switch(["-G", "--group"],
+                str,
+                list=True,
+                requires=["--experiment"],
+                help="Run a group of projects under the given experiments")
     def group(self, groups):
         """Run a group of projects under the given experiments"""
         self._group_names = groups
 
-    def main(self, *projects):
+    def main(self, *projects: str) -> None:
         """Main entry point of benchbuild run."""
         exp = [self._experiment]
         group_names = self._group_names
 
-        benchbuild.experiments.discover()
-        benchbuild.projects.discover()
+        plugins.discover()
 
-        all_exps = benchbuild.experiment.ExperimentRegistry.experiments
+        all_exps = experiment.discovered()
 
         if self._description:
             CFG["experiment_description"] = self._description
@@ -84,7 +76,7 @@ class Slurm(cli.Application):
                   ' in the experiment registry.')
             sys.exit(1)
 
-        prjs = benchbuild.project.populate(projects, group_names)
+        prjs = project.populate(list(projects), group_names)
         for exp_cls in exps.values():
             exp = exp_cls(projects=prjs)
             print("Experiment: ", exp.name)

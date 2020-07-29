@@ -6,7 +6,8 @@ import logging
 from plumbum import ProcessExecutionError, local
 
 from benchbuild.projects.gentoo import autoportage
-from benchbuild.utils import container, run, uchroot
+from benchbuild.source import nosource
+from benchbuild.utils import run, uchroot
 
 LOG = logging.getLogger(__name__)
 
@@ -45,7 +46,8 @@ class FuncClass:
             with local.env(CONFIG_PROTECT="-*"):
                 fake_emerge = _uchroot["emerge", "--autounmask-only=y",
                                        "--autounmask-write=y", "--nodeps"]
-                run.run(fake_emerge[package])
+                _fake_emerge = run.watch(fake_emerge)
+                _fake_emerge(package)
 
             emerge_in_chroot = \
                 _uchroot["emerge", "-p", "--nodeps", package]
@@ -97,20 +99,17 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         'DOMAIN'
     """
 
-    def run_not_supported(self, *args, **kwargs):
+    def run_not_supported(_, *args, **kwargs):
         """Dynamic projects don't support a run() test."""
         del args, kwargs  # Unused
 
-        LOG.warning(
-            "Runtime testing not supported on auto-generated projects.")
-        return
+        LOG.warning("Runtime testing not supported on auto-generated projects.")
 
     newclass = type(
-        name, (BaseClass, ), {
+        name, (BaseClass,), {
             "NAME": NAME,
             "DOMAIN": DOMAIN,
-            "SRC_FILE": "none",
-            "VERSION": BaseClass.VERSION,
+            "SOURCE": [nosource()],
             "GROUP": "auto-gentoo",
             "run": run_not_supported,
             "__module__": "__main__"

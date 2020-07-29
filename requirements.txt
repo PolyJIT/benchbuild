@@ -1,5 +1,5 @@
 Jinja2~=2.11
-PyYAML~=5.1
+PyYAML~=5.3
 attrs~=19.3
 dill~=0.3
 pandas~=1.1

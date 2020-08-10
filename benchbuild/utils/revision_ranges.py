@@ -266,10 +266,10 @@ class block_revisions():  # pylint: disable=invalid-name
 
             # trigger caching for BlockedRevisionRanges
             if not git_source.blocked_revisions_initialized:
-                git_source.fetch()
+                cache_path = git_source.fetch()
                 git_source.blocked_revisions_initialized = True
                 for block in self.__blocks:
-                    block.init_cache(git_source.local)
+                    block.init_cache(str(cache_path))
 
             for b_entry in self.__blocks:
                 for b_item in b_entry:

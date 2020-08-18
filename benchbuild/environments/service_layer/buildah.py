@@ -1,3 +1,5 @@
+import json
+
 from plumbum import local
 
 from benchbuild.environments.domain import model
@@ -21,6 +23,7 @@ BB_BUILDAH_ADD = bb_buildah()['add']
 BB_BUILDAH_COMMIT = bb_buildah()['commit']
 BB_BUILDAH_CONFIG = bb_buildah()['config']
 BB_BUILDAH_COPY = bb_buildah()['copy']
+BB_BUILDAH_IMAGES = bb_buildah()['images']
 BB_BUILDAH_RUN = bb_buildah()['run']
 BB_BUILDAH_RM = bb_buildah()['rm']
 BB_BUILDAH_CLEAN = bb_buildah()['clean']
@@ -61,6 +64,16 @@ def spawn_context_layer(container: model.Container,
 def spawn_clear_context_layer(container: model.Container,
                               layer: model.ClearContextLayer) -> None:
     pass
+
+
+def find_image(tag: str) -> model.MaybeImage:
+    results = BB_BUILDAH_IMAGES('--json', tag, retcode=[0, 1])
+    if results:
+        json_results = json.loads(results)
+        if json_results:
+            #json_image = json_results.pop(0)
+            return model.Image(tag, model.FromLayer(tag), [])
+    return None
 
 
 LAYER_HANDLERS = {

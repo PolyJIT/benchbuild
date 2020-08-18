@@ -1,8 +1,8 @@
 import abc
-
-import attr
+import typing as tp
 
 from benchbuild.environments.adapters import repository
+from benchbuild.environments.domain import events
 
 from . import buildah
 
@@ -15,6 +15,11 @@ class AbstractUnitOfWork(abc.ABC):
 
     def __exit__(self, *args) -> None:
         self.rollback()
+
+    def collect_new_events(self) -> tp.Generator[events.Event, None, None]:
+        for image in self.registry.seen:
+            while image.events:
+                yield image.events.pop(0)
 
     @abc.abstractmethod
     def commit(self) -> None:
@@ -31,7 +36,7 @@ class BuildahUnitOfWork(AbstractUnitOfWork):
         self.registry = repository.BuildahRegistry()
 
     def __enter__(self) -> AbstractUnitOfWork:
-        return super.__enter__()
+        return super().__enter__()
 
     def rollback(self) -> None:
         for container in self.registry.containers:

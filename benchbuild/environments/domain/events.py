@@ -9,7 +9,6 @@ class Event:
 @attr.s(frozen=True)
 class LayerCreated(Event):
     name: str = attr.ib()
-    command: str = attr.ib()
 
 
 @attr.s(frozen=True)

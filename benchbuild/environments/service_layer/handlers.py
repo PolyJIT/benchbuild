@@ -2,8 +2,6 @@ import typing as tp
 
 from benchbuild.environments.domain import commands
 from benchbuild.environments.service_layer import unit_of_work
-from benchbuild.experiment import Experiment
-from benchbuild.project import Project
 
 
 def create_project_image(cmd: commands.CreateProjectImage,
@@ -11,7 +9,7 @@ def create_project_image(cmd: commands.CreateProjectImage,
     with uow:
         image = uow.registry.get(cmd.name)
         if image is None:
-            # Build the image.
+            image = uow.registry.create(cmd.name, cmd.layers)
             uow.commit()
         return image.name
 
@@ -21,6 +19,6 @@ def create_experiment_image(cmd: commands.CreateExperimentImage,
     with uow:
         image = uow.registry.get(cmd.name)
         if image is None:
-            # Build the image.
+            image = uow.registry.create(cmd.name, cmd.layers)
             uow.commit()
         return image.name

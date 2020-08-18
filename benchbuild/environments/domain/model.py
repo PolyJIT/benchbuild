@@ -44,11 +44,13 @@ class ClearContextLayer(Layer):
     func: tp.Callable[[], None] = attr.ib()
 
 
-@attr.s
+@attr.s(eq=False)
 class Image:
     name: str = attr.ib()
     from_: FromLayer = attr.ib()
-    layers: tp.List[Layer] = attr.ib(factory=list)
+    layers: tp.List[Layer] = attr.ib()
+
+    events = attr.ib(factory=list)  # type: tp.List[events.Event]
 
     def append(self, layer: Layer) -> None:
         self.layers.append(layer)
@@ -60,9 +62,7 @@ class Image:
 MaybeImage = tp.Optional[Image]
 
 
-@attr.s
+@attr.s(eq=False)
 class Container:
     container_id: str = attr.ib()
     image: Image = attr.ib()
-
-    events = attr.ib(factory=list)  # type: tp.List[events.Event]

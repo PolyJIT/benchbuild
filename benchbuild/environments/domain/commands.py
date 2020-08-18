@@ -14,7 +14,7 @@ class LayerCommand:
 
 
 @attr.s(frozen=True)
-class CreateProjectImage:
+class CreateProjectImage(Command):
     name: str = attr.ib()
     layers: tp.List[LayerCommand] = attr.ib()
 

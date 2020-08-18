@@ -32,10 +32,15 @@ def enumerate_projects(
             yield prj_class(context)
 
 
+def mktag(*versions) -> str:
+    return '-'.join([str(v) for v in versions])
+
+
 def create_project_containers(projects: ProjectIndex) -> None:
     for prj in enumerate_projects(projects):
-        image_tag = f'{prj.name}/{prj.group}:{prj.version}'
-        cmd = commands.CreateProjectImage(image_tag)
+        version = mktag(*prj.variant.values())
+        image_tag = f'{prj.name}/{prj.group}:{version}'
+        cmd = commands.CreateProjectImage(image_tag, prj.container)
         uow = unit_of_work.BuildahUnitOfWork()
         results = messagebus.handle(cmd, uow)
         rich.print(results)

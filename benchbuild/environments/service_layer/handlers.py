@@ -1,5 +1,3 @@
-import typing as tp
-
 from benchbuild.environments.domain import commands
 from benchbuild.environments.service_layer import unit_of_work
 

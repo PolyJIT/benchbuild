@@ -33,6 +33,7 @@ from abc import abstractmethod
 import attr
 
 import benchbuild.utils.actions as actns
+from benchbuild.environments.domain import declarative
 from benchbuild.project import build_dir
 from benchbuild.settings import CFG
 from benchbuild.utils.requirements import Requirement
@@ -88,6 +89,7 @@ class Experiment(metaclass=ExperimentRegistry):
     NAME: tp.ClassVar[str] = ''
     SCHEMA = None
     REQUIREMENTS: tp.List[Requirement] = []
+    CONTAINER: declarative.ContainerImage
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
@@ -129,6 +131,12 @@ class Experiment(metaclass=ExperimentRegistry):
     @schema.default
     def default_schema(self):
         return type(self).SCHEMA
+
+    container = attr.ib()
+
+    @container.default
+    def default_container(self):
+        return type(self).CONTAINER
 
     @schema.validator
     def validate_schema(self, _: tp.Any, new_schema) -> bool:

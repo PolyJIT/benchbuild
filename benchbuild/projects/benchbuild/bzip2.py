@@ -21,7 +21,7 @@ class Bzip2(bb.Project):
              local='compression.tar.gz')
     ]
 
-    CONTAINER: ContainerImage = ContainerImage().from_('alpine:latest')
+    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         bzip2_repo = local.path(self.source_of('bzip2.git'))

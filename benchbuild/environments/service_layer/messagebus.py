@@ -54,5 +54,6 @@ EVENT_HANDLERS = {events.ContextCreated: [], events.LayerCreated: []}
 
 COMMAND_HANDLERS: tp.Dict[tp.Type[commands.Command], tp.Callable] = {
     commands.CreateProjectImage: handlers.create_project_image,
-    commands.CreateExperimentImage: handlers.create_experiment_image
+    commands.CreateExperimentImage: handlers.create_experiment_image,
+    commands.CreateBenchbuildBase: handlers.create_benchbuild_base
 }

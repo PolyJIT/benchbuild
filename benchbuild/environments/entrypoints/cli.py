@@ -5,7 +5,7 @@ from plumbum import cli
 
 from benchbuild import experiment, plugins, project, source
 from benchbuild.cli.main import BenchBuild
-from benchbuild.environments.domain import commands
+from benchbuild.environments.domain import commands, declarative
 from benchbuild.environments.service_layer import messagebus, unit_of_work
 from benchbuild.experiment import ExperimentIndex
 from benchbuild.project import ProjectIndex
@@ -57,6 +57,7 @@ class BenchBuildContainer(cli.Application):
             rich.print("No projects selected.")
             return -2
 
+        create_base_images(wanted_projects)
         create_project_images(wanted_projects)
         create_experiment_images(wanted_experiments, wanted_projects)
 
@@ -77,17 +78,32 @@ def make_image_name(name: str, tag: str) -> str:
     return f'{name}:{tag}'
 
 
+def create_base_images(projects: ProjectIndex) -> None:
+    rich.print("The following base images are available:")
+    for prj in enumerate_projects(projects):
+        image = prj.container
+        if not image.base in declarative.DEFAULT_BASES:
+            continue
+
+        layers = declarative.DEFAULT_BASES[image.base]
+        cmd = commands.CreateBenchbuildBase(image.base, layers)
+        uow = unit_of_work.BuildahUnitOfWork()
+        results = messagebus.handle(cmd, uow)
+
+        for res in results:
+            rich.print('  ', res)
+
+
 def create_project_images(projects: ProjectIndex) -> None:
+    rich.print("The following images are available:")
     for prj in enumerate_projects(projects):
         version = make_version_tag(*prj.variant.values())
         image_tag = make_image_name(f'{prj.name}/{prj.group}', version)
 
         cmd = commands.CreateProjectImage(image_tag, prj.container)
         uow = unit_of_work.BuildahUnitOfWork()
-
         results = messagebus.handle(cmd, uow)
 
-        rich.print("The following images are available:")
         for res in results:
             rich.print('  ', res)
 
@@ -102,18 +118,18 @@ def enumerate_experiments(
 
 def create_experiment_images(experiments: ExperimentIndex,
                              projects: ProjectIndex) -> None:
+    rich.print("The following images are available:")
     for exp in enumerate_experiments(experiments, projects):
         for prj in exp.projects:
             version = make_version_tag(*prj.variant.values())
             base_tag = make_image_name(f'{prj.name}/{prj.group}', version)
             image_tag = make_image_name(f'{exp.name}/{prj.name}/{prj.group}',
                                         version)
+
             cmd = commands.CreateExperimentImage(base_tag, image_tag,
                                                  exp.container)
             uow = unit_of_work.BuildahUnitOfWork()
-
             results = messagebus.handle(cmd, uow)
 
-            rich.print("The following images are available:")
             for res in results:
                 rich.print('  ', res)

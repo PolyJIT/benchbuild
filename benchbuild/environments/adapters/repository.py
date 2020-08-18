@@ -53,12 +53,11 @@ class BuildahRegistry(AbstractRegistry):
 
         for layer in image.layers:
             buildah.spawn_layer(container, layer)
-            image.events.add(events.LayerCreated(str(layer)))
+            image.events.append(events.LayerCreated(str(layer)))
 
     def _get(self, tag: str) -> model.MaybeImage:
         return buildah.find_image(tag)
 
     def _create(self, tag: str, layers: tp.List[commands.LayerCommand]):
-        from_ = [l for l in layers if isinstance(l, commands.CreateFromLayer)
-                ].pop(0)
+        from_ = [l for l in layers if isinstance(l, model.FromLayer)].pop(0)
         return model.Image(tag, from_, layers[1:])

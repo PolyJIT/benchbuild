@@ -1,6 +1,6 @@
 import json
 
-from plumbum import local
+from plumbum import TEE, local
 
 from benchbuild.environments.domain import model
 from benchbuild.settings import CFG
@@ -35,21 +35,24 @@ def create_working_container(from_image: model.FromLayer) -> str:
 
 
 def destroy_working_container(container: model.Container) -> None:
-    BB_BUILDAH_RM(container.container_id)
+    BB_BUILDAH_RM[container.container_id] & TEE
 
 
 def commit_working_container(container: model.Container) -> None:
     image = container.image
-    BB_BUILDAH_COMMIT(container.container_id, image.name)
+    BB_BUILDAH_COMMIT[container.container_id, image.name] & TEE
 
 
 def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
-    BB_BUILDAH_ADD('--add-history', container.container_id, *layer.sources,
-                   layer.destination)
+    cmd = BB_BUILDAH_ADD['--add-history', container.container_id]
+    cmd = cmd[layer.sources]
+    cmd[layer.destination] & TEE
 
 
 def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
-    BB_BUILDAH_RUN(container.container_id, '--', layer.command, *layer.args)
+    cmd = BB_BUILDAH_RUN[container.container_id, '--', layer.command]
+    cmd = cmd[layer.args]
+    cmd & TEE
 
 
 def spawn_context_layer(container: model.Container,

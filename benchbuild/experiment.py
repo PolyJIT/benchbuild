@@ -213,6 +213,9 @@ class Experiment(metaclass=ExperimentRegistry):
         return [actns.Compile(project), actns.Clean(project)]
 
 
+ExperimentIndex = tp.Dict[str, tp.Type[Experiment]]
+
+
 class Configuration:
     """Build a set of experiment actions out of a list of configurations."""
 

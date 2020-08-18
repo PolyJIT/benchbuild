@@ -67,7 +67,7 @@ def spawn_clear_context_layer(container: model.Container,
 
 
 def find_image(tag: str) -> model.MaybeImage:
-    results = BB_BUILDAH_IMAGES('--json', tag, retcode=[0, 1])
+    results = BB_BUILDAH_IMAGES('--json', tag, retcode=[0, 125])
     if results:
         json_results = json.loads(results)
         if json_results:

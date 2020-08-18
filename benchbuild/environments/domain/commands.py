@@ -20,7 +20,8 @@ class CreateProjectImage(Command):
 
 
 @attr.s(frozen=True)
-class CreateExperimentImage:
+class CreateExperimentImage(Command):
+    base: str = attr.ib()
     name: str = attr.ib()
     layers: tp.List[LayerCommand] = attr.ib()
 

@@ -19,6 +19,8 @@ def create_experiment_image(cmd: commands.CreateExperimentImage,
     with uow:
         image = uow.registry.get(cmd.name)
         if image is None:
-            image = uow.registry.create(cmd.name, cmd.layers)
+            merged = [commands.CreateFromLayer(cmd.base)]
+            merged.extend(cmd.layers)
+            image = uow.registry.create(cmd.name, merged)
             uow.commit()
         return image.name

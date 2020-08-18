@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, tar
 
@@ -19,6 +20,8 @@ class Bzip2(bb.Project):
         HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
              local='compression.tar.gz')
     ]
+
+    CONTAINER: ContainerImage = ContainerImage().from_('alpine:latest')
 
     def compile(self):
         bzip2_repo = local.path(self.source_of('bzip2.git'))

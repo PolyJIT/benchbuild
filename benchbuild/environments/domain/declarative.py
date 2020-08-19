@@ -50,8 +50,9 @@ DEFAULT_BASES = {
     'benchbuild:alpine': ContainerImage() \
             .from_("alpine:latest") \
             .run('apk', 'update') \
-            .run('apk', 'add', 'python3', 'python3-dev', 'linux-headers',
-                 'musl-dev', 'git', 'gcc', 'sqlite-libs', 'py3-pip')
+            .run('apk', 'add', 'python3', 'python3-dev', 'postgresql-dev',
+                 'linux-headers', 'musl-dev', 'git', 'gcc', 'sqlite-libs',
+                 'py3-pip')
 }
 
 
@@ -66,6 +67,7 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
         image.run('pip3', 'install', 'setuptools', runtime=crun)
         image.run('pip3',
                   'install',
+                  '--ignore-installed',
                   tgt_dir,
                   mount=f'type=bind,src={src_dir},target={tgt_dir}',
                   runtime=crun)

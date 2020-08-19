@@ -1,4 +1,4 @@
-from benchbuild.environments.domain import commands, declarative, model
+from benchbuild.environments.domain import commands, model
 from benchbuild.environments.service_layer import unit_of_work
 
 

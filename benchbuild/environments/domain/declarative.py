@@ -43,6 +43,7 @@ class ContainerImage(list):
         self.append(model.RunLayer(command, args))
         return self
 
+
 DEFAULT_BASES = {
     'benchbuild:alpine': ContainerImage() \
             .from_("alpine:latest") \

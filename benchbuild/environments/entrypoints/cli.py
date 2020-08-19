@@ -86,6 +86,8 @@ def create_base_images(projects: ProjectIndex) -> None:
             continue
 
         layers = declarative.DEFAULT_BASES[image.base]
+        declarative.add_benchbuild_layers(layers)
+
         cmd = commands.CreateBenchbuildBase(image.base, layers)
         uow = unit_of_work.BuildahUnitOfWork()
         results = messagebus.handle(cmd, uow)

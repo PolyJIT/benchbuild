@@ -1,4 +1,5 @@
 import json
+import typing as tp
 
 from plumbum import TEE, local
 
@@ -12,6 +13,8 @@ BUILDAH_DEFAULT_OPTS = [
     str(CFG['container']['runroot'])
 ]
 
+BUILDAH_DEFAULT_COMMAND_OPTS = ['--add-history']
+
 
 def bb_buildah():
     return buildah[BUILDAH_DEFAULT_OPTS]
@@ -19,12 +22,12 @@ def bb_buildah():
 
 BB_BUILDAH_FROM = bb_buildah()['from']
 BB_BUILDAH_BUD = bb_buildah()['bud']
-BB_BUILDAH_ADD = bb_buildah()['add']
+BB_BUILDAH_ADD = bb_buildah()['add'][BUILDAH_DEFAULT_COMMAND_OPTS]
 BB_BUILDAH_COMMIT = bb_buildah()['commit']
 BB_BUILDAH_CONFIG = bb_buildah()['config']
-BB_BUILDAH_COPY = bb_buildah()['copy']
+BB_BUILDAH_COPY = bb_buildah()['copy'][BUILDAH_DEFAULT_COMMAND_OPTS]
 BB_BUILDAH_IMAGES = bb_buildah()['images']
-BB_BUILDAH_RUN = bb_buildah()['run']
+BB_BUILDAH_RUN = bb_buildah()['run'][BUILDAH_DEFAULT_COMMAND_OPTS]
 BB_BUILDAH_RM = bb_buildah()['rm']
 BB_BUILDAH_CLEAN = bb_buildah()['clean']
 BB_BUILDAH_INSPECT = bb_buildah()['inspect']
@@ -44,14 +47,19 @@ def commit_working_container(container: model.Container) -> None:
 
 
 def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
-    cmd = BB_BUILDAH_ADD['--add-history', container.container_id]
-    cmd = cmd[layer.sources]
-    cmd[layer.destination] & TEE
+    cmd = BB_BUILDAH_ADD[container.container_id][layer.sources][
+        layer.destination]
+    cmd & TEE
 
 
 def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
-    cmd = BB_BUILDAH_RUN[container.container_id, '--', layer.command]
-    cmd = cmd[layer.args]
+    kws = []
+    for name, value in dict(layer.kwargs).items():
+        kws.append(f'--{name}')
+        kws.append(f'{str(value)}')
+
+    cmd = BB_BUILDAH_RUN[kws][container.container_id, '--',
+                              layer.command][layer.args]
     cmd & TEE
 
 

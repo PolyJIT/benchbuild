@@ -32,6 +32,7 @@ class CopyLayer(Layer):
 class RunLayer(Layer):
     command: str = attr.ib()
     args: tp.List[str] = attr.ib()
+    kwargs: tp.Dict[str, str] = attr.ib()
 
 
 @attr.s(frozen=True)

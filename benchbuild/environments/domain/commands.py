@@ -2,7 +2,7 @@ import typing as tp
 
 import attr
 
-from . import model
+from . import declarative
 
 
 @attr.s(frozen=True)
@@ -11,19 +11,18 @@ class Command:
 
 
 @attr.s(frozen=True)
-class CreateProjectImage(Command):
+class CreateImage(Command):
     name: str = attr.ib()
-    layers: tp.List[model.Layer] = attr.ib()
+    layers: declarative.ContainerImage = attr.ib()
 
 
 @attr.s(frozen=True)
-class CreateExperimentImage(Command):
-    base: str = attr.ib()
+class UpdateImage(Command):
     name: str = attr.ib()
-    layers: tp.List[model.Layer] = attr.ib()
+    layers: declarative.ContainerImage = attr.ib()
 
 
 @attr.s(frozen=True)
 class CreateBenchbuildBase(Command):
     name: str = attr.ib()
-    layers: tp.List[model.Layer] = attr.ib()
+    layers: declarative.ContainerImage = attr.ib()

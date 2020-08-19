@@ -3,7 +3,7 @@ import typing as tp
 
 import attr
 
-from benchbuild.environments.domain import commands, events, model
+from benchbuild.environments.domain import events, model
 from benchbuild.environments.service_layer import buildah
 
 
@@ -21,16 +21,14 @@ class AbstractRegistry(abc.ABC):
             self.seen.add(image)
         return image
 
-    def create(self, tag: str,
-               layers: tp.List[commands.LayerCommand]) -> model.Image:
+    def create(self, tag: str, layers: tp.List[model.Layer]) -> model.Image:
         image = self._create(tag, layers)
         if image:
             self.add(image)
         return image
 
     @abc.abstractmethod
-    def _create(self, tag: str,
-                layers: tp.List[commands.LayerCommand]) -> model.Image:
+    def _create(self, tag: str, layers: tp.List[model.Layer]) -> model.Image:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -58,6 +56,6 @@ class BuildahRegistry(AbstractRegistry):
     def _get(self, tag: str) -> model.MaybeImage:
         return buildah.find_image(tag)
 
-    def _create(self, tag: str, layers: tp.List[commands.LayerCommand]):
+    def _create(self, tag: str, layers: tp.List[model.Layer]):
         from_ = [l for l in layers if isinstance(l, model.FromLayer)].pop(0)
         return model.Image(tag, from_, layers[1:])

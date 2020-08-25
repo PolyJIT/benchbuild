@@ -8,7 +8,6 @@ import plumbum as pb
 from plumbum import local
 
 from benchbuild.utils.cmd import git, mkdir
-from benchbuild.utils.path import flocked
 
 from . import base
 

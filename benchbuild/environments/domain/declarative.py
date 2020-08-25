@@ -21,16 +21,16 @@ class ContainerImage(list):
     def layers(self) -> tp.List[model.Layer]:
         pass
 
-    def from_(self, base_image: str) -> 'Environment':
+    def env(self, **kwargs: str) -> 'ContainerImage':
+        self.append(model.UpdateEnv(kwargs))
+        return self
+
+    def from_(self, base_image: str) -> 'ContainerImage':
         self.append(model.FromLayer(base_image))
         return self
 
     def context(self, func: tp.Callable[[], None]) -> 'ContainerImage':
         self.append(model.ContextLayer(func))
-        return self
-
-    def clear_context(self, func: tp.Callable[[], None]) -> 'ContainerImage':
-        self.append(model.ClearContextLayer(func))
         return self
 
     def add(self, sources: tp.Iterable[str], tgt: str) -> 'ContainerImage':

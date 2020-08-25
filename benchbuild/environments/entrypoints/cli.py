@@ -1,6 +1,7 @@
 import typing as tp
+from functools import partial
 
-from plumbum import cli
+from plumbum import cli, local
 
 from benchbuild import experiment, plugins, project, source
 from benchbuild.cli.main import BenchBuild
@@ -95,13 +96,31 @@ def create_base_images(projects: ProjectIndex) -> None:
             print('  ', res)
 
 
+def __pull_sources_in_context(prj: project.Project) -> None:
+    for version in prj.variant.values():
+        src = version.owner
+        src.version(local.cwd, str(version))
+
+
+def __get_container_config(prj: project.Project) -> tp.Dict[str, str]:
+    return {
+        'BB_BUILD_DIR': '/app',
+        'BB_PLUGINS_PROJECTS': f'["{prj.__module__}"]',
+    }
+
+
 def create_project_images(projects: ProjectIndex) -> None:
     print("The following images are available:")
     for prj in enumerate_projects(projects):
         version = make_version_tag(*prj.variant.values())
         image_tag = make_image_name(f'{prj.name}/{prj.group}', version)
 
-        cmd = commands.CreateImage(image_tag, prj.container)
+        layers = prj.container
+        layers.context(partial(__pull_sources_in_context, prj))
+        layers.add('.', '/app')
+        layers.env(**__get_container_config(prj))
+
+        cmd = commands.CreateImage(image_tag, layers)
         uow = unit_of_work.BuildahUnitOfWork()
         results = messagebus.handle(cmd, uow)
 
@@ -129,6 +148,7 @@ def create_experiment_images(experiments: ExperimentIndex,
 
             image = declarative.ContainerImage().from_(base_tag)
             image.extend(exp.container)
+            image.env(BB_PLUGINS_EXPERIMENTS=f'["{exp.__module__}"]')
 
             cmd = commands.CreateImage(image_tag, image)
             uow = unit_of_work.BuildahUnitOfWork()

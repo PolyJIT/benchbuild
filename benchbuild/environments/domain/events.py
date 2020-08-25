@@ -12,10 +12,5 @@ class LayerCreated(Event):
 
 
 @attr.s(frozen=True)
-class ContextCreated(Event):
-    context_dir: str = attr.ib()
-
-
-@attr.s(frozen=True)
 class ImageCreated(Event):
     name: str

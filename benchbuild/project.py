@@ -196,8 +196,8 @@ class Project(metaclass=ProjectDecorator):
     group: str = attr.ib(
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
 
-    container = attr.ib(default=attr.Factory(lambda self: type(self).CONTAINER,
-                                             takes_self=True))
+    container = attr.ib(default=attr.Factory(
+        lambda self: copy.deepcopy(type(self).CONTAINER), takes_self=True))
 
     cflags: tp.List[str] = attr.ib(default=attr.Factory(list))
 

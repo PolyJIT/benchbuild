@@ -1,7 +1,7 @@
 import json
-import typing as tp
 
 from plumbum import TEE, local
+from plumbum.path.utils import delete
 
 from benchbuild.environments.domain import model
 from benchbuild.settings import CFG
@@ -33,6 +33,15 @@ BB_BUILDAH_CLEAN = bb_buildah()['clean']
 BB_BUILDAH_INSPECT = bb_buildah()['inspect']
 
 
+def create_build_context() -> local.path:
+    return local.path(mktemp('-dt', '-p', str(CFG['build_dir'])).strip())
+
+
+def destroy_build_context(context: local.path) -> None:
+    if context.exists():
+        delete(context)
+
+
 def create_working_container(from_image: model.FromLayer) -> str:
     return BB_BUILDAH_FROM(from_image.base).strip()
 
@@ -47,9 +56,14 @@ def commit_working_container(container: model.Container) -> None:
 
 
 def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
-    cmd = BB_BUILDAH_ADD[container.container_id][layer.sources][
-        layer.destination]
-    cmd & TEE
+    with local.cwd(container.context):
+        cmd = BB_BUILDAH_ADD[container.container_id][layer.sources][
+            layer.destination]
+        cmd & TEE
+
+
+def spawn_copy_layer(container: model.Container, layer: model.AddLayer) -> None:
+    spawn_add_layer(container, layer)
 
 
 def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
@@ -63,18 +77,18 @@ def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
     cmd & TEE
 
 
-def spawn_context_layer(container: model.Container,
-                        layer: model.ContextLayer) -> None:
-    tmpdir = mktemp('-dt', '-p', str(CFG['build_dir'])).strip()
-    # Send ContextCreated event.
-
-    with local.cwd(tmpdir):
+def spawn_in_context(container: model.Container,
+                     layer: model.ContextLayer) -> None:
+    with local.cwd(container.context):
         layer.func()
 
 
-def spawn_clear_context_layer(container: model.Container,
-                              layer: model.ClearContextLayer) -> None:
-    pass
+def update_env_layer(container: model.Container,
+                     layer: model.UpdateEnv) -> None:
+    cmd = BB_BUILDAH_CONFIG
+    for key, value in layer.env.items():
+        cmd = cmd['-e', f'{key}={value}']
+    cmd[container.container_id] & TEE
 
 
 def find_image(tag: str) -> model.MaybeImage:
@@ -89,10 +103,10 @@ def find_image(tag: str) -> model.MaybeImage:
 
 LAYER_HANDLERS = {
     model.AddLayer: spawn_add_layer,
-    model.ContextLayer: spawn_context_layer,
-    model.CopyLayer: spawn_context_layer,
+    model.ContextLayer: spawn_in_context,
+    model.CopyLayer: spawn_copy_layer,
     model.RunLayer: spawn_run_layer,
-    model.ClearContextLayer: spawn_clear_context_layer
+    model.UpdateEnv: update_env_layer
 }
 
 

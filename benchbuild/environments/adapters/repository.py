@@ -45,8 +45,9 @@ class BuildahRegistry(AbstractRegistry):
     containers: tp.Set[model.Container] = attr.ib(default=attr.Factory(set))
 
     def _add(self, image: model.Image) -> None:
+        context = buildah.create_build_context()
         container = model.Container(
-            buildah.create_working_container(image.from_), image)
+            buildah.create_working_container(image.from_), image, context)
         self.containers.add(container)
 
         for layer in image.layers:

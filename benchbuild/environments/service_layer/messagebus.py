@@ -50,7 +50,7 @@ def handle_command(command: commands.Command, queue: tp.List[Message],
         raise
 
 
-EVENT_HANDLERS = {events.ContextCreated: [], events.LayerCreated: []}
+EVENT_HANDLERS = {events.LayerCreated: []}
 
 COMMAND_HANDLERS: tp.Dict[tp.Type[commands.Command], tp.Callable] = {
     commands.CreateImage: handlers.create_image,

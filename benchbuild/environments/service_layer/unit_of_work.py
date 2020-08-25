@@ -35,13 +35,12 @@ class BuildahUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
         self.registry = repository.BuildahRegistry()
 
-    def __enter__(self) -> AbstractUnitOfWork:
-        return super().__enter__()
-
     def rollback(self) -> None:
         for container in self.registry.containers:
             buildah.destroy_working_container(container)
+            buildah.destroy_build_context(container.context)
 
     def commit(self) -> None:
         for container in self.registry.containers:
             buildah.commit_working_container(container)
+            buildah.destroy_build_context(container.context)

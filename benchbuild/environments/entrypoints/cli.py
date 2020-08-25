@@ -119,6 +119,7 @@ def create_project_images(projects: ProjectIndex) -> None:
         layers.env(BB_BUILD_DIR='/app',
                    BB_TMP_DIR='/app',
                    BB_PLUGINS_PROJECTS=f'["{prj.__module__}"]')
+        layers.workingdir('/app')
 
         cmd = commands.CreateImage(image_tag, layers)
         uow = unit_of_work.BuildahUnitOfWork()

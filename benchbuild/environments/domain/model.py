@@ -45,6 +45,16 @@ class UpdateEnv(Layer):
     env = attr.ib()  # type: tp.Dict[str, str]
 
 
+@attr.s(frozen=True)
+class WorkingDirectory(Layer):
+    directory: str = attr.ib()
+
+
+@attr.s(frozen=True)
+class EntryPoint(Layer):
+    command: str = attr.ib()
+
+
 @attr.s(eq=False)
 class Image:
     name: str = attr.ib()

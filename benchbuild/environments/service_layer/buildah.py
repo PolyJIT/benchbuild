@@ -91,6 +91,16 @@ def update_env_layer(container: model.Container,
     cmd[container.container_id] & TEE
 
 
+def set_entry_point(container: model.Container,
+                    layer: model.EntryPoint) -> None:
+    BB_BUILDAH_CONFIG('-entrypoint', layer.command, container.container_id)
+
+
+def set_working_directory(container: model.Container,
+                          layer: model.WorkingDirectory) -> None:
+    BB_BUILDAH_CONFIG('-workingdir', layer.directory, container.container_id)
+
+
 def find_image(tag: str) -> model.MaybeImage:
     results = BB_BUILDAH_IMAGES('--json', tag, retcode=[0, 125])
     if results:
@@ -106,7 +116,9 @@ LAYER_HANDLERS = {
     model.ContextLayer: spawn_in_context,
     model.CopyLayer: spawn_copy_layer,
     model.RunLayer: spawn_run_layer,
-    model.UpdateEnv: update_env_layer
+    model.UpdateEnv: update_env_layer,
+    model.EntryPoint: set_entry_point,
+    model.WorkingDirectory: set_working_directory,
 }
 
 

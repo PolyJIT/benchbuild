@@ -45,6 +45,14 @@ class ContainerImage(list):
         self.append(model.RunLayer(command, args, kwargs))
         return self
 
+    def workingdir(self, directory: str) -> 'ContainerImage':
+        self.append(model.WorkingDirectory(directory))
+        return self
+
+    def entrypoint(self, command: str) -> 'ContainerImage':
+        self.append(model.EntryPoint(command))
+        return self
+
 
 DEFAULT_BASES = {
     'benchbuild:alpine': ContainerImage() \
@@ -71,6 +79,7 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
                   tgt_dir,
                   mount=f'type=bind,src={src_dir},target={tgt_dir}',
                   runtime=crun)
+        image.entrypoint('benchbuild')
 
     def from_pip(image: ContainerImage):
         image.run('pip', 'install', 'benchbuild', runtime=crun)

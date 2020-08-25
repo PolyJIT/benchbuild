@@ -80,6 +80,8 @@ def make_image_name(name: str, tag: str) -> str:
 
 def create_base_images(projects: ProjectIndex) -> None:
     print("The following base images are available:")
+    image_commands: tp.Set[commands.Command] = set()
+
     for prj in enumerate_projects(projects):
         image = prj.container
         if not image.base in declarative.DEFAULT_BASES:
@@ -89,6 +91,9 @@ def create_base_images(projects: ProjectIndex) -> None:
         declarative.add_benchbuild_layers(layers)
 
         cmd = commands.CreateBenchbuildBase(image.base, layers)
+        image_commands.add(cmd)
+
+    for cmd in image_commands:
         uow = unit_of_work.BuildahUnitOfWork()
         results = messagebus.handle(cmd, uow)
 
@@ -102,13 +107,6 @@ def __pull_sources_in_context(prj: project.Project) -> None:
         src.version(local.cwd, str(version))
 
 
-def __get_container_config(prj: project.Project) -> tp.Dict[str, str]:
-    return {
-        'BB_BUILD_DIR': '/app',
-        'BB_PLUGINS_PROJECTS': f'["{prj.__module__}"]',
-    }
-
-
 def create_project_images(projects: ProjectIndex) -> None:
     print("The following images are available:")
     for prj in enumerate_projects(projects):
@@ -118,7 +116,9 @@ def create_project_images(projects: ProjectIndex) -> None:
         layers = prj.container
         layers.context(partial(__pull_sources_in_context, prj))
         layers.add('.', '/app')
-        layers.env(**__get_container_config(prj))
+        layers.env(BB_BUILD_DIR='/app',
+                   BB_TMP_DIR='/app',
+                   BB_PLUGINS_PROJECTS=f'["{prj.__module__}"]')
 
         cmd = commands.CreateImage(image_tag, layers)
         uow = unit_of_work.BuildahUnitOfWork()

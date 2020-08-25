@@ -93,12 +93,12 @@ def update_env_layer(container: model.Container,
 
 def set_entry_point(container: model.Container,
                     layer: model.EntryPoint) -> None:
-    BB_BUILDAH_CONFIG('-entrypoint', layer.command, container.container_id)
+    BB_BUILDAH_CONFIG('--entrypoint', layer.command, container.container_id)
 
 
 def set_working_directory(container: model.Container,
                           layer: model.WorkingDirectory) -> None:
-    BB_BUILDAH_CONFIG('-workingdir', layer.directory, container.container_id)
+    BB_BUILDAH_CONFIG('--workingdir', layer.directory, container.container_id)
 
 
 def find_image(tag: str) -> model.MaybeImage:

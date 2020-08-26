@@ -77,27 +77,37 @@ def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
     cmd & TEE
 
 
-def spawn_in_context(container: model.Container,
-                     layer: model.ContextLayer) -> None:
+def spawn_in_context(
+    container: model.Container, layer: model.ContextLayer
+) -> None:
     with local.cwd(container.context):
         layer.func()
 
 
-def update_env_layer(container: model.Container,
-                     layer: model.UpdateEnv) -> None:
+def update_env_layer(
+    container: model.Container, layer: model.UpdateEnv
+) -> None:
     cmd = BB_BUILDAH_CONFIG
     for key, value in layer.env.items():
         cmd = cmd['-e', f'{key}={value}']
     cmd[container.container_id] & TEE
 
 
-def set_entry_point(container: model.Container,
-                    layer: model.EntryPoint) -> None:
-    BB_BUILDAH_CONFIG('--entrypoint', layer.command, container.container_id)
+def set_entry_point(
+    container: model.Container, layer: model.EntryPoint
+) -> None:
+    cmd = BB_BUILDAH_CONFIG['--entrypoint', json.dumps(list(layer.command))]
+    cmd(container.container_id)
 
 
-def set_working_directory(container: model.Container,
-                          layer: model.WorkingDirectory) -> None:
+def set_command(container: model.Container, layer: model.SetCommand) -> None:
+    cmd = BB_BUILDAH_CONFIG['--command', json.dumps(list(layer.command))]
+    cmd(container.container_id)
+
+
+def set_working_directory(
+    container: model.Container, layer: model.WorkingDirectory
+) -> None:
     BB_BUILDAH_CONFIG('--workingdir', layer.directory, container.container_id)
 
 
@@ -119,6 +129,7 @@ LAYER_HANDLERS = {
     model.UpdateEnv: update_env_layer,
     model.EntryPoint: set_entry_point,
     model.WorkingDirectory: set_working_directory,
+    model.SetCommand: set_command
 }
 
 

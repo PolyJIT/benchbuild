@@ -52,7 +52,12 @@ class WorkingDirectory(Layer):
 
 @attr.s(frozen=True)
 class EntryPoint(Layer):
-    command: str = attr.ib()
+    command: tp.Tuple[str] = attr.ib()
+
+
+@attr.s(frozen=True)
+class SetCommand(Layer):
+    command: tp.Tuple[str] = attr.ib()
 
 
 @attr.s(eq=False)

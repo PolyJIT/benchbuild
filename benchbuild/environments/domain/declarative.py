@@ -49,8 +49,12 @@ class ContainerImage(list):
         self.append(model.WorkingDirectory(directory))
         return self
 
-    def entrypoint(self, command: str) -> 'ContainerImage':
-        self.append(model.EntryPoint(command))
+    def entrypoint(self, *args: str) -> 'ContainerImage':
+        self.append(model.EntryPoint(args))
+        return self
+
+    def command(self, *args: str) -> 'ContainerImage':
+        self.append(model.SetCommand(args))
         return self
 
 
@@ -73,13 +77,14 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
         # The image requires git, pip and a working python3.7 or better.
         image.run('mkdir', f'{tgt_dir}', runtime=crun)
         image.run('pip3', 'install', 'setuptools', runtime=crun)
-        image.run('pip3',
-                  'install',
-                  '--ignore-installed',
-                  tgt_dir,
-                  mount=f'type=bind,src={src_dir},target={tgt_dir}',
-                  runtime=crun)
-        image.entrypoint('benchbuild')
+        image.run(
+            'pip3',
+            'install',
+            '--ignore-installed',
+            tgt_dir,
+            mount=f'type=bind,src={src_dir},target={tgt_dir}',
+            runtime=crun
+        )
 
     def from_pip(image: ContainerImage):
         image.run('pip', 'install', 'benchbuild', runtime=crun)

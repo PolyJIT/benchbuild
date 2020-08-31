@@ -1,5 +1,7 @@
 from os import getenv
 
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.source import Git
 from benchbuild.utils.cmd import make
@@ -17,13 +19,13 @@ class LevelDB(bb.Project):
     ]
 
     def compile(self):
-        leveldb_repo = bb.path(self.source_of('leveldb.src'))
+        leveldb_repo = local.path(self.source_of('leveldb.src'))
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
 
-        with bb.cwd(leveldb_repo):
-            with bb.env(CXX=str(clang_cxx), CC=str(clang)):
+        with local.cwd(leveldb_repo):
+            with local.env(CXX=str(clang_cxx), CC=str(clang)):
                 _make = bb.watch(make)
                 _make("clean")
                 _make("all", "-i")
@@ -35,10 +37,10 @@ class LevelDB(bb.Project):
         Args:
             experiment: The experiment's run function.
         """
-        leveldb_repo = bb.path(self.source_of('leveldb.src'))
+        leveldb_repo = local.path(self.source_of('leveldb.src'))
 
         leveldb = bb.wrap(leveldb_repo / "out-static" / "db_bench", self)
         _leveldb = bb.watch(leveldb)
-        with bb.env(LD_LIBRARY_PATH="{}:{}".format(
+        with local.env(LD_LIBRARY_PATH="{}:{}".format(
                 leveldb_repo / "out-shared", getenv("LD_LIBRARY_PATH", ""))):
             _leveldb()

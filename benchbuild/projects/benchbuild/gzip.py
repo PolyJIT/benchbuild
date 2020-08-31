@@ -22,7 +22,7 @@ class Gzip(bb.Project):
 
     def run_tests(self):
         gzip_version = self.version_of('gzip.tar.xz')
-        unpack_dir = bb.path(f'gzip-{gzip_version}.tar.xz')
+        unpack_dir = local.path(f'gzip-{gzip_version}.tar.xz')
 
         gzip = bb.wrap(unpack_dir / "gzip", self)
         _gzip = bb.watch(gzip)
@@ -42,8 +42,8 @@ class Gzip(bb.Project):
         _gzip("-f", "-k", "--decompress", "compression/liberty.jpg.gz")
 
     def compile(self):
-        gzip_source = bb.path(self.source_of('gzip.tar.xz'))
-        compression_source = bb.path(self.source_of('compression.tar.gz'))
+        gzip_source = local.path(self.source_of('gzip.tar.xz'))
+        compression_source = local.path(self.source_of('compression.tar.gz'))
 
         tar('xfJ', gzip_source)
         tar('xf', compression_source)
@@ -52,9 +52,9 @@ class Gzip(bb.Project):
         unpack_dir = "gzip-{0}.tar.xz".format(gzip_version)
 
         clang = bb.compiler.cc(self)
-        with bb.cwd(unpack_dir):
+        with local.cwd(unpack_dir):
             _configure = bb.watch(local["./configure"])
-            with bb.env(CC=str(clang)):
+            with local.env(CC=str(clang)):
                 _configure("--disable-dependency-tracking",
                            "--disable-silent-rules", "--with-gnu-ld")
             _make = bb.watch(make)

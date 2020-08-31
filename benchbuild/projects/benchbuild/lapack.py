@@ -21,9 +21,9 @@ class OpenBlas(bb.Project):
     ]
 
     def compile(self):
-        openblas_repo = bb.path(self.source_of('OpenBLAS'))
+        openblas_repo = local.path(self.source_of('OpenBLAS'))
         clang = bb.compiler.cc(self)
-        with bb.cwd(openblas_repo):
+        with local.cwd(openblas_repo):
             _make = bb.watch(make)
             _make("CC=" + str(clang))
 
@@ -42,7 +42,7 @@ class Lapack(bb.Project):
     ]
 
     def compile(self):
-        clapack_source = bb.path(self.source_of('clapack.tgz'))
+        clapack_source = local.path(self.source_of('clapack.tgz'))
         clapack_version = self.version_of('clapack.tgz')
 
         tar("xfz", clapack_source)
@@ -50,7 +50,7 @@ class Lapack(bb.Project):
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
-        with bb.cwd(unpack_dir):
+        with local.cwd(unpack_dir):
             with open("make.inc", 'w') as makefile:
                 content = [
                     "SHELL     = /bin/sh\n", "PLAT      = _LINUX\n",
@@ -73,14 +73,14 @@ class Lapack(bb.Project):
 
             _make = bb.watch(make)
             _make("-j", get_number_of_jobs(CFG), "f2clib", "blaslib")
-            with bb.cwd(local.path("BLAS") / "TESTING"):
+            with local.cwd(local.path("BLAS") / "TESTING"):
                 _make("-j", get_number_of_jobs(CFG), "-f", "Makeblat2")
                 _make("-j", get_number_of_jobs(CFG), "-f", "Makeblat3")
 
     def run_tests(self):
         clapack_version = self.version_of('clapack.tgz')
-        unpack_dir = bb.path("CLAPACK-{0}".format(clapack_version))
-        with bb.cwd(unpack_dir / "BLAS"):
+        unpack_dir = local.path("CLAPACK-{0}".format(clapack_version))
+        with local.cwd(unpack_dir / "BLAS"):
             xblat2s = bb.wrap("xblat2s", self)
             _xblat2s = bb.watch((xblat2s < "sblat2.in"))
             _xblat2s()

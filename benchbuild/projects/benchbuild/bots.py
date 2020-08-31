@@ -1,3 +1,5 @@
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.source import Git
 from benchbuild.utils.cmd import make, mkdir
@@ -62,7 +64,7 @@ class BOTSGroup(bb.Project):
     }
 
     def compile(self):
-        bots_repo = bb.path(self.source_of('bots.git'))
+        bots_repo = local.path(self.source_of('bots.git'))
         makefile_config = bots_repo / "config" / "make.config"
         clang = bb.compiler.cc(self)
 
@@ -89,13 +91,13 @@ class BOTSGroup(bb.Project):
             lines = [l.format(cc=clang) + "\n" for l in lines]
             config.writelines(lines)
         mkdir(bots_repo / "bin")
-        with bb.cwd(bots_repo):
+        with local.cwd(bots_repo):
             _make = bb.watch(make)
             _make("-C", self.path_dict[self.name])
 
     def run_tests(self):
         binary_name = "{name}.benchbuild.serial".format(name=self.name)
-        bots_repo = bb.path(self.source_of('bots.git'))
+        bots_repo = local.path(self.source_of('bots.git'))
         binary_path = bots_repo / "bin" / binary_name
         exp = bb.wrap(binary_path, self)
         _exp = bb.watch(exp)

@@ -37,16 +37,16 @@ class Crocopat(bb.Project):
                 _crocopat_project(retcode=None)
 
     def compile(self):
-        crocopat_source = bb.path(self.source_of('crocopat.zip'))
+        crocopat_source = local.path(self.source_of('crocopat.zip'))
         crocopat_version = self.version_of('crocopat.zip')
         unzip(crocopat_source)
         unpack_dir = f'crocopat-{crocopat_version}'
 
-        crocopat_dir = bb.path(unpack_dir) / "src"
+        crocopat_dir = local.path(unpack_dir) / "src"
         self.cflags += ["-I.", "-ansi"]
         self.ldflags += ["-L.", "-lrelbdd"]
         clang_cxx = bb.compiler.cxx(self)
 
-        with bb.cwd(crocopat_dir):
+        with local.cwd(crocopat_dir):
             _make = bb.watch(make)
             _make("CXX=" + str(clang_cxx))

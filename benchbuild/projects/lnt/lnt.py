@@ -40,24 +40,24 @@ class LNTGroup(bb.Project):
     binary = None
 
     def compile(self):
-        lnt_repo = bb.path(self.source_of('lnt.git'))
-        test_suite_source = bb.path(self.source_of('test-suite'))
+        lnt_repo = local.path(self.source_of('lnt.git'))
+        test_suite_source = local.path(self.source_of('test-suite'))
 
-        venv_path = bb.cwd / "local"
+        venv_path = local.cwd / "local"
         virtualenv(venv_path, "--python=python2")
-        pip_path = bb.cwd / "local" / "bin" / "pip"
+        pip_path = local.cwd / "local" / "bin" / "pip"
         pip = local[pip_path]
 
-        with bb.cwd(lnt_repo):
+        with local.cwd(lnt_repo):
             pip("install", "--no-cache-dir", "--disable-pip-version-check",
                 "-e", ".")
 
-        self.sandbox_dir = bb.cwd / "run"
+        self.sandbox_dir = local.cwd / "run"
         if self.sandbox_dir.exists():
             rm("-rf", self.sandbox_dir)
         mkdir(self.sandbox_dir)
 
-        self.lnt = local[bb.path("./local/bin/lnt")]
+        self.lnt = local[local.path("./local/bin/lnt")]
         self.clang = bb.compiler.cc(self, detect_project=True)
         self.clang_cxx = bb.compiler.cxx(self, detect_project=True)
 
@@ -70,13 +70,13 @@ class LNTGroup(bb.Project):
 
     @staticmethod
     def after_run_tests(sandbox_dir):
-        logfiles = bb.path(sandbox_dir) // "*" / "test.log"
+        logfiles = local.path(sandbox_dir) // "*" / "test.log"
         for log in logfiles:
             LOG.info("Dumping contents of: %s", log)
             (cat[log] & FG)  # pylint: disable=pointless-statement
 
     def run_tests(self):
-        test_suite_source = bb.path(self.source_of('test-suite'))
+        test_suite_source = local.path(self.source_of('test-suite'))
         binary = bb.wrapping.wrap_dynamic(self,
                                           "lnt_runner",
                                           name_filters=LNTGroup.NAME_FILTERS)

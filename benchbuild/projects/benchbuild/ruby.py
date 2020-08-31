@@ -25,15 +25,15 @@ class Ruby(bb.Project):
     ]
 
     def compile(self):
-        ruby_source = bb.path(self.source_of('ruby.tar.gz'))
+        ruby_source = local.path(self.source_of('ruby.tar.gz'))
         ruby_version = self.version_of('ruby.tar.gz')
         tar("xfz", ruby_source)
-        unpack_dir = bb.path(f'ruby-{ruby_version}')
+        unpack_dir = local.path(f'ruby-{ruby_version}')
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
-        with bb.cwd(unpack_dir):
-            with bb.env(CC=str(clang), CXX=str(clang_cxx)):
+        with local.cwd(unpack_dir):
+            with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 configure = local["./configure"]
                 configure = bb.watch(configure)
                 configure("--with-static-linked-ext", "--disable-shared")
@@ -42,14 +42,14 @@ class Ruby(bb.Project):
 
     def run_tests(self):
         ruby_version = self.version_of('ruby.tar.gz')
-        unpack_dir = bb.path(f'ruby-{ruby_version}')
+        unpack_dir = local.path(f'ruby-{ruby_version}')
         ruby_n = bb.wrap(unpack_dir / "ruby", self)
-        test_dir = bb.path('./ruby/')
+        test_dir = local.path('./ruby/')
 
-        with bb.env(RUBYOPT=""):
+        with local.env(RUBYOPT=""):
             _ = bb.watch(ruby)
             ruby(
                 test_dir / "benchmark" / "run.rb",
                 "--ruby=\"" + str(ruby_n) + "\"",
-                "--opts=\"-I" + test_dir / "lib" + " -I" + test_dir / "." +
-                " -I" + test_dir / ".ext" / "common" + "\"", "-r")
+                "--opts=\"-I" + testdir / "lib" + " -I" + testdir / "." +
+                " -I" + testdir / ".ext" / "common" + "\"", "-r")

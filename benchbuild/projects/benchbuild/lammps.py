@@ -1,3 +1,5 @@
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.source import Git
 from benchbuild.utils.cmd import make
@@ -17,7 +19,7 @@ class Lammps(bb.Project):
     ]
 
     def run_tests(self):
-        lammps_repo = bb.path(self.source_of('lammps.git'))
+        lammps_repo = local.path(self.source_of('lammps.git'))
         src = lammps_repo / 'src'
         examples = lammps_repo / "examples"
 
@@ -26,17 +28,17 @@ class Lammps(bb.Project):
 
         for test in tests:
             dirname = test.dirname
-            with bb.cwd(dirname):
+            with local.cwd(dirname):
                 _lmp_serial = bb.watch((lmp_serial < test))
                 _lmp_serial(retcode=None)
 
     def compile(self):
-        lammps_repo = bb.path(self.source_of('lammps.git'))
+        lammps_repo = local.path(self.source_of('lammps.git'))
         src = lammps_repo / 'src'
 
         self.ldflags += ["-lgomp"]
         clang_cxx = bb.compiler.cxx(self)
-        with bb.cwd(src):
+        with local.cwd(src):
             _make = bb.watch(make)
             _make("CC=" + str(clang_cxx), "LINK=" + str(clang_cxx), "clean",
                   "serial")

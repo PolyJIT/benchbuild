@@ -1,4 +1,5 @@
 import attr
+from plumbum import local
 
 import benchbuild as bb
 from benchbuild.source import HTTP
@@ -26,7 +27,7 @@ class RodiniaGroup(bb.Project):
     def compile(self):
         tar('xf', 'rodinia.tar.bz2')
         rodinia_version = self.version_of('rodinia.tar.bz2')
-        unpack_dir = bb.path(f'rodinia_{rodinia_version}')
+        unpack_dir = local.path(f'rodinia_{rodinia_version}')
 
         c_compiler = bb.compiler.cc(self)
         cxx_compiler = bb.compiler.cxx(self)
@@ -35,7 +36,7 @@ class RodiniaGroup(bb.Project):
         config_src = self.config['src']
         config_flags = self.config['flags']
 
-        with bb.cwd(unpack_dir / config_dir):
+        with local.cwd(unpack_dir / config_dir):
             for outfile, srcfiles in config_src.items():
                 cls = type(self)
                 _cc = cls.select_compiler(c_compiler, cxx_compiler)
@@ -52,13 +53,13 @@ class RodiniaGroup(bb.Project):
 
     def run_tests(self):
         rodinia_version = self.version_of('rodinia.tar.bz2')
-        unpack_dir = bb.path(f'rodinia_{rodinia_version}')
+        unpack_dir = local.path(f'rodinia_{rodinia_version}')
         in_src_dir = unpack_dir / self.config['dir']
 
         for outfile in self.config['src']:
             bb.wrap(in_src_dir / outfile, self)
 
-        with bb.cwd(in_src_dir):
+        with local.cwd(in_src_dir):
             sh_ = bb.watch(sh)
             sh_('./run')
 

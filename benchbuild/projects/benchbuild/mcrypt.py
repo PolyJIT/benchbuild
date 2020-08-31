@@ -42,15 +42,15 @@ class MCrypt(bb.Project):
     mhash_file = mhash_dir + ".tar.gz"
 
     def compile(self):
-        mcrypt_source = bb.path(self.source_of('mcrypt.tar.gz'))
-        libmcrypt_source = bb.path(self.source_of('libmcrypt.tar.gz'))
-        mhash_source = bb.path(self.source_of('mhash.tar.gz'))
+        mcrypt_source = local.path(self.source_of('mcrypt.tar.gz'))
+        libmcrypt_source = local.path(self.source_of('libmcrypt.tar.gz'))
+        mhash_source = local.path(self.source_of('mhash.tar.gz'))
 
         tar('xfz', mcrypt_source)
         tar('xfz', libmcrypt_source)
         tar('xfz', mhash_source)
 
-        builddir = bb.path(self.builddir)
+        builddir = local.path(self.builddir)
         mcrypt_dir = builddir / "mcrypt-2.6.8"
         mhash_dir = builddir / self.mhash_dir
         libmcrypt_dir = builddir / self.libmcrypt_dir
@@ -60,23 +60,23 @@ class MCrypt(bb.Project):
         _make = bb.watch(make)
 
         # Build mhash dependency
-        with bb.cwd(mhash_dir):
+        with local.cwd(mhash_dir):
             configure = local["./configure"]
             _configure = bb.watch(configure)
 
-            with bb.env(CC=_cc, CXX=_cxx):
+            with local.env(CC=_cc, CXX=_cxx):
                 _configure("--prefix=" + builddir)
                 _make("-j", get_number_of_jobs(CFG), "install")
 
         # Builder libmcrypt dependency
-        with bb.cwd(libmcrypt_dir):
+        with local.cwd(libmcrypt_dir):
             configure = local["./configure"]
             _configure = bb.watch(configure)
-            with bb.env(CC=_cc, CXX=_cxx):
+            with local.env(CC=_cc, CXX=_cxx):
                 _configure("--prefix=" + builddir)
                 _make("-j", CFG["jobs"], "install")
 
-        with bb.cwd(mcrypt_dir):
+        with local.cwd(mcrypt_dir):
             configure = local["./configure"]
             _configure = bb.watch(configure)
             lib_dir = builddir / "lib"
@@ -89,14 +89,14 @@ class MCrypt(bb.Project):
                            LDFLAGS="-L" + str(lib_dir),
                            CFLAGS="-I" + str(inc_dir))
             env.update(mod_env)
-            with bb.env(**env):
+            with local.env(**env):
                 _configure("--disable-dependency-tracking", "--disable-shared",
                            "--with-libmcrypt=" + builddir,
                            "--with-libmhash=" + builddir)
             _make("-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
-        mcrypt_dir = bb.path(self.builddir) / "mcrypt-2.6.8"
+        mcrypt_dir = local.path(self.builddir) / "mcrypt-2.6.8"
         mcrypt_libs = mcrypt_dir / "src" / ".libs"
 
         aestest = bb.wrap(mcrypt_libs / "lt-aestest", self)

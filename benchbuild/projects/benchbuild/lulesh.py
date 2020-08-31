@@ -18,17 +18,17 @@ class Lulesh(bb.Project):
     ]
 
     def compile(self):
-        lulesh_repo = bb.path(self.source_of('lulesh.git'))
+        lulesh_repo = local.path(self.source_of('lulesh.git'))
         self.cflags += ["-DUSE_MPI=0"]
 
         cxx_files = local.cwd / lulesh_repo // "*.cc"
         clang = bb.compiler.cxx(self)
-        with bb.cwd(lulesh_repo):
+        with local.cwd(lulesh_repo):
             for src_file in cxx_files:
                 clang("-c", "-o", src_file + '.o', src_file)
 
         obj_files = local.cwd / lulesh_repo // "*.cc.o"
-        with bb.cwd(lulesh_repo):
+        with local.cwd(lulesh_repo):
             clang(obj_files, "-lm", "-o", "../lulesh")
 
     def run_tests(self):
@@ -53,17 +53,17 @@ class LuleshOMP(bb.Project):
     ]
 
     def compile(self):
-        lulesh_repo = bb.path(self.source_of('lulesh.git'))
+        lulesh_repo = local.path(self.source_of('lulesh.git'))
         self.cflags = ['-DUSE_MPI=0', '-fopenmp']
 
-        cxx_files = bb.cwd / lulesh_repo // "*.cc"
+        cxx_files = local.cwd / lulesh_repo // "*.cc"
         clang = bb.compiler.cxx(self)
-        with bb.cwd(lulesh_repo):
+        with local.cwd(lulesh_repo):
             for src_file in cxx_files:
                 clang("-c", "-o", src_file + '.o', src_file)
 
-        obj_files = bb.cwd / lulesh_repo // "*.cc.o"
-        with bb.cwd(lulesh_repo):
+        obj_files = local.cwd / lulesh_repo // "*.cc.o"
+        with local.cwd(lulesh_repo):
             clang(obj_files, "-lm", "-o", "../lulesh")
 
     def run_tests(self):

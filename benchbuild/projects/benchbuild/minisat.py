@@ -1,3 +1,5 @@
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import git, make, tar
@@ -22,13 +24,13 @@ class Minisat(bb.Project):
     ]
 
     def run_tests(self):
-        minisat_repo = bb.path(self.source_of('minisat.git'))
+        minisat_repo = local.path(self.source_of('minisat.git'))
         minisat_build = minisat_repo / 'build' / 'dynamic'
         minisat_lib = minisat_build / 'lib'
         minisat_bin = minisat_build / 'bin'
 
-        test_source = bb.path(self.source_of('inputs.tar.gz'))
-        test_dir = bb.path('./minisat/')
+        test_source = local.path(self.source_of('inputs.tar.gz'))
+        test_dir = local.path('./minisat/')
         tar('xf', test_source)
 
         testfiles = test_dir // "*.cnf.gz"
@@ -40,8 +42,8 @@ class Minisat(bb.Project):
             _minisat()
 
     def compile(self):
-        minisat_repo = bb.path(self.source_of('minisat.git'))
-        with bb.cwd(minisat_repo):
+        minisat_repo = local.path(self.source_of('minisat.git'))
+        with local.cwd(minisat_repo):
             # FIXME: That needs to be modeled with Git() download handlers.
             git("fetch", "origin", "pull/17/head:clang")
             git("checkout", "clang")

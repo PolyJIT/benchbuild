@@ -1,3 +1,5 @@
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
@@ -27,28 +29,29 @@ class Crafty(bb.Project):
     ]
 
     def compile(self):
-        crafty_source = bb.path(self.source_of('crafty.zip'))
-        book_source = bb.path(self.source_of('inputs.tar.gz'))
+        crafty_source = local.path(self.source_of('crafty.zip'))
+        book_source = local.path(self.source_of('inputs.tar.gz'))
 
         unpack_dir = "crafty.src"
         mkdir(unpack_dir)
 
-        with bb.cwd(unpack_dir):
+        from plumbum import local
+        with local.cwd(unpack_dir):
             unzip(crafty_source)
         mv(book_source, unpack_dir)
 
         clang = bb.compiler.cc(self)
-        with bb.cwd(unpack_dir):
+        with local.cwd(unpack_dir):
             target_opts = ["-DCPUS=1", "-DSYZYGY", "-DTEST"]
             _make = bb.watch(make)
             _make("target=UNIX", "CC=" + str(clang),
                   "opt=" + " ".join(target_opts), "crafty-make")
 
     def run_tests(self):
-        unpack_dir = bb.path('crafty.src')
-        test_source = bb.path(self.source_of('inputs.tar.gz'))
+        unpack_dir = local.path('crafty.src')
+        test_source = local.path(self.source_of('inputs.tar.gz'))
 
-        with bb.cwd(unpack_dir):
+        with local.cwd(unpack_dir):
             crafty = bb.wrap("./crafty", self)
             _test1 = bb.watch((cat[test_source / "test1.sh"] | crafty))
             _test2 = bb.watch((cat[test_source / "test2.sh"] | crafty))

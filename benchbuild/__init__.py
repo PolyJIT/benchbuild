@@ -4,8 +4,6 @@ Public API of benchbuild.
 """
 import sys
 
-import plumbum as pb
-
 # Project utilities
 from benchbuild.project import populate as populate
 
@@ -36,13 +34,7 @@ def __init__() -> None:
 
 __init__()
 
-# Forwards to plumbum
-cwd = pb.local.cwd
-env = pb.local.env
-path = pb.local.path
-
 # Clean the namespace
 del sys
-del pb
 del __PLUGINS__
 del __SETTINGS__

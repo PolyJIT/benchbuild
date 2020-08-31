@@ -31,7 +31,7 @@ class LibreSSL(bb.Project):
     ]
 
     def compile(self):
-        libressl_source = bb.path(self.source_of('libressl.tar.gz'))
+        libressl_source = local.path(self.source_of('libressl.tar.gz'))
         libressl_version = self.version_of('libressl.tar.gz')
 
         self.cflags += ["-fPIC"]
@@ -39,13 +39,13 @@ class LibreSSL(bb.Project):
         clang = bb.compiler.cc(self)
 
         tar("xfz", libressl_source)
-        unpack_dir = bb.path(f'libressl-{libressl_version}')
+        unpack_dir = local.path(f'libressl-{libressl_version}')
         configure = local[unpack_dir / "configure"]
         _configure = bb.watch(configure)
         _make = bb.watch(make)
 
-        with bb.cwd(unpack_dir):
-            with bb.env(CC=str(clang)):
+        with local.cwd(unpack_dir):
+            with local.env(CC=str(clang)):
                 _configure("--disable-asm", "--disable-shared",
                            "--enable-static", "--disable-dependency-tracking",
                            "--with-pic=yes")
@@ -57,11 +57,11 @@ class LibreSSL(bb.Project):
 
     def run_tests(self):
         libressl_version = self.version_of('libressl.tar.gz')
-        unpack_dir = bb.path(f'libressl-{libressl_version}')
-        with bb.cwd(unpack_dir / "tests"):
+        unpack_dir = local.path(f'libressl-{libressl_version}')
+        with local.cwd(unpack_dir / "tests"):
             for binary in LibreSSL.BINARIES:
-                bb.wrap(bb.cwd / binary, self)
+                bb.wrap(local.cwd / binary, self)
 
-        with bb.cwd(unpack_dir):
+        with local.cwd(unpack_dir):
             _make = bb.watch(make)
             _make("V=1", "check", "-i")

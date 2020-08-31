@@ -28,28 +28,28 @@ class Rasdaman(bb.Project):
     gdal_uri = "https://github.com/OSGeo/gdal"
 
     def compile(self):
-        rasdaman_repo = bb.path(self.source_of('rasdaman.git'))
-        gdal_repo = bb.path(self.source_of('gdal.git'))
+        rasdaman_repo = local.path(self.source_of('rasdaman.git'))
+        gdal_repo = local.path(self.source_of('gdal.git'))
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
 
-        with bb.cwd(gdal_repo):
+        with local.cwd(gdal_repo):
             configure = local["./configure"]
             _configure = bb.watch(configure)
 
-            with bb.env(CC=str(clang), CXX=str(clang_cxx)):
+            with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 _configure("--with-pic", "--enable-static", "--with-gnu-ld",
                            "--without-ld-shared", "--without-libtool")
                 _make = bb.watch(make)
                 _make("-j", get_number_of_jobs(CFG))
 
-        with bb.cwd(rasdaman_repo):
+        with local.cwd(rasdaman_repo):
             autoreconf("-i")
             configure = local["./configure"]
             _configure = bb.watch(configure)
 
-            with bb.env(CC=str(clang), CXX=str(clang_cxx)):
+            with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 _configure("--without-debug-symbols", "--with-static-libs",
                            "--disable-java", "--with-pic", "--disable-debug",
                            "--without-docs")

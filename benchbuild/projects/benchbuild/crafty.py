@@ -35,7 +35,6 @@ class Crafty(bb.Project):
         unpack_dir = "crafty.src"
         mkdir(unpack_dir)
 
-        from plumbum import local
         with local.cwd(unpack_dir):
             unzip(crafty_source)
         mv(book_source, unpack_dir)

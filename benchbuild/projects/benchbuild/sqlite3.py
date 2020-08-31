@@ -1,3 +1,5 @@
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, unzip
@@ -22,15 +24,15 @@ class SQLite3(bb.Project):
     ]
 
     def compile(self):
-        sqlite_source = bb.path(self.source_of('sqlite.zip'))
+        sqlite_source = local.path(self.source_of('sqlite.zip'))
         sqlite_version = self.version_of('sqlite.zip')
         unzip(sqlite_source)
-        unpack_dir = bb.path(f'sqlite-amalgamation-{sqlite_version}')
+        unpack_dir = local.path(f'sqlite-amalgamation-{sqlite_version}')
 
         clang = bb.compiler.cc(self)
         _clang = bb.watch(clang)
 
-        with bb.cwd(unpack_dir):
+        with local.cwd(unpack_dir):
             _clang("-fPIC", "-I.", "-c", "sqlite3.c")
             _clang("-shared", "-o", "libsqlite3.so", "sqlite3.o", "-ldl")
 
@@ -39,8 +41,8 @@ class SQLite3(bb.Project):
     def build_leveldb(self):
         sqlite_version = self.version_of('sqlite.zip')
 
-        sqlite_dir = bb.path(f'sqlite-amalgamation-{sqlite_version}')
-        leveldb_repo = bb.path(self.source_of('leveldb.src'))
+        sqlite_dir = local.path(f'sqlite-amalgamation-{sqlite_version}')
+        leveldb_repo = local.path(self.source_of('leveldb.src'))
 
         # We need to place sqlite3 in front of all other flags.
         self.ldflags += ["-L{0}".format(sqlite_dir)]
@@ -48,15 +50,15 @@ class SQLite3(bb.Project):
         clang_cxx = bb.compiler.cxx(self)
         clang = bb.compiler.cc(self)
 
-        with bb.cwd(leveldb_repo):
-            with bb.env(CXX=str(clang_cxx), CC=str(clang)):
+        with local.cwd(leveldb_repo):
+            with local.env(CXX=str(clang_cxx), CC=str(clang)):
                 _make = bb.watch(make)
                 _make("clean", "out-static/db_bench_sqlite3")
 
     def run_tests(self):
-        leveldb_repo = bb.path(self.source_of('leveldb.src'))
-        with bb.cwd(leveldb_repo):
-            with bb.env(LD_LIBRARY_PATH=leveldb_repo):
+        leveldb_repo = local.path(self.source_of('leveldb.src'))
+        with local.cwd(leveldb_repo):
+            with local.env(LD_LIBRARY_PATH=leveldb_repo):
                 sqlite = bb.wrap(
                     leveldb_repo / 'out-static' / 'db_bench_sqlite3', self)
                 _sqlite = bb.watch(sqlite)

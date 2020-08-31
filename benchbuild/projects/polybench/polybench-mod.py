@@ -1,3 +1,5 @@
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.projects.polybench.polybench import PolyBenchGroup
 from benchbuild.settings import CFG
@@ -16,7 +18,7 @@ class PolybenchModGroup(PolyBenchGroup):
     ]
 
     def compile(self):
-        polybench_repo = bb.path(self.source_of('polybench.git'))
+        polybench_repo = local.path(self.source_of('polybench.git'))
 
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])

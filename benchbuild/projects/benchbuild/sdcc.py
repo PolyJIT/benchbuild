@@ -20,10 +20,10 @@ class SDCC(bb.Project):
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
 
-        with bb.cwd(self.SRC_FILE):
+        with local.cwd(self.SRC_FILE):
             configure = local["./configure"]
             _configure = bb.watch(configure)
-            with bb.env(CC=str(clang), CXX=str(clang_cxx)):
+            with local.env(CC=str(clang), CXX=str(clang_cxx)):
                 _configure("--without-ccache", "--disable-pic14-port",
                            "--disable-pic16-port")
 

@@ -33,14 +33,14 @@ class Povray(bb.Project):
         boost_src_file
 
     def compile(self):
-        povray_repo = bb.path(self.source_of('povray.git'))
-        boost_source = bb.path(self.source_of('boost.tar.bz2'))
-        inputs_source = bb.path(self.source_of('inputs.tar.gz'))
+        povray_repo = local.path(self.source_of('povray.git'))
+        boost_source = local.path(self.source_of('boost.tar.bz2'))
+        inputs_source = local.path(self.source_of('inputs.tar.gz'))
 
         tar('xf', boost_source)
         tar('xf', inputs_source)
 
-        inputs_dir = bb.path('./povray/')
+        inputs_dir = local.path('./povray/')
 
         cp("-ar", inputs_dir / "cfg", '.')
         cp("-ar", inputs_dir / "etc", '.')
@@ -52,7 +52,7 @@ class Povray(bb.Project):
         clang_cxx = bb.compiler.cxx(self)
         # First we have to prepare boost for lady povray...
         boost_prefix = "boost-install"
-        with bb.cwd(self.boost_src_dir):
+        with local.cwd(self.boost_src_dir):
             mkdir(boost_prefix)
             bootstrap = local["./bootstrap.sh"]
             _bootstrap = bb.watch(bootstrap)
@@ -63,36 +63,36 @@ class Povray(bb.Project):
             _b2("--ignore-site-config", "variant=release", "link=static",
                 "threading=multi", "optimization=speed", "install")
 
-        with bb.cwd(povray_repo):
-            with bb.cwd("unix"):
+        with local.cwd(povray_repo):
+            with local.cwd("unix"):
                 sh("prebuild.sh")
 
             configure = local["./configure"]
             _configure = bb.watch(configure)
-            with bb.env(COMPILED_BY="BB <no@mail.nono>",
-                        CC=str(clang),
-                        CXX=str(clang_cxx)):
+            with local.env(COMPILED_BY="BB <no@mail.nono>",
+                           CC=str(clang),
+                           CXX=str(clang_cxx)):
                 _configure("--with-boost=" + boost_prefix)
             _make = bb.watch(make)
             _make("all")
 
     def run_tests(self):
-        povray_repo = bb.path(self.source_of('povray.git'))
+        povray_repo = local.path(self.source_of('povray.git'))
         povray_binary = povray_repo / 'unix' / self.name
-        tmpdir = bb.path("tmp")
+        tmpdir = local.path("tmp")
         tmpdir.mkdir()
 
-        povini = bb.path("cfg") / ".povray" / "3.6" / "povray.ini"
-        scene_dir = bb.path("share") / "povray-3.6" / "scenes"
+        povini = local.path("cfg") / ".povray" / "3.6" / "povray.ini"
+        scene_dir = local.path("share") / "povray-3.6" / "scenes"
 
         povray = bb.wrap(povray_binary, self)
         _povray = bb.watch(povray)
         pov_files = find(scene_dir, "-name", "*.pov").splitlines()
         for pov_f in pov_files:
-            with bb.env(POVRAY=povray_binary,
-                        INSTALL_DIR='.',
-                        OUTPUT_DIR=tmpdir,
-                        POVINI=povini):
+            with local.env(POVRAY=povray_binary,
+                           INSTALL_DIR='.',
+                           OUTPUT_DIR=tmpdir,
+                           POVINI=povini):
                 options = ((((head["-n", "50", "\"" + pov_f + "\""] |
                               grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]) |
                              head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)

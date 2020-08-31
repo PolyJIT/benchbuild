@@ -20,19 +20,19 @@ class XZ(bb.Project):
     ]
 
     def compile(self):
-        xz_source = bb.path(self.source_of('xz.tar.gz'))
+        xz_source = local.path(self.source_of('xz.tar.gz'))
         xz_version = self.version_of('xz.tar.gz')
-        compression_source = bb.path(self.source_of('compression.tar.gz'))
+        compression_source = local.path(self.source_of('compression.tar.gz'))
 
         tar('xf', xz_source)
         tar('xf', compression_source)
 
-        unpack_dir = bb.path(f'xz-{xz_version}')
+        unpack_dir = local.path(f'xz-{xz_version}')
         clang = bb.compiler.cc(self)
-        with bb.cwd(unpack_dir):
+        with local.cwd(unpack_dir):
             configure = local["./configure"]
             _configure = bb.watch(configure)
-            with bb.env(CC=str(clang)):
+            with local.env(CC=str(clang)):
                 _configure("--enable-threads=no", "--with-gnu-ld=yes",
                            "--disable-shared", "--disable-dependency-tracking",
                            "--disable-xzdec", "--disable-lzmadec",
@@ -44,7 +44,7 @@ class XZ(bb.Project):
 
     def run_tests(self):
         xz_version = self.version_of('xz.tar.gz')
-        unpack_dir = bb.path(f'xz-{xz_version}')
+        unpack_dir = local.path(f'xz-{xz_version}')
         xz = bb.wrap(unpack_dir / "src" / "xz" / "xz", self)
         _xz = bb.watch(xz)
 

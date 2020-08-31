@@ -1,6 +1,8 @@
 """
 bzip2 experiment within gentoo chroot.
 """
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.projects.gentoo.gentoo import GentooGroup
 from benchbuild.utils.cmd import tar
@@ -28,7 +30,7 @@ class BZip2(GentooGroup):
         tar("fxz", test_archive)
 
     def run_tests(self):
-        bzip2 = bb.wrap(bb.path('/bin/bzip2'), self)
+        bzip2 = bb.wrap(local.path('/bin/bzip2'), self)
         bzip2 = bb.watch(bzip2)
 
         # Compress

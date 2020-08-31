@@ -27,14 +27,14 @@ class X264(bb.Project):
     CONFIG = {"tbbt-small": [], "sintel": ["--input-res", "1280x720"]}
 
     def compile(self):
-        x264_repo = bb.path(self.source_of('x264.git'))
+        x264_repo = local.path(self.source_of('x264.git'))
         clang = bb.compiler.cc(self)
 
-        with bb.cwd(x264_repo):
+        with local.cwd(x264_repo):
             configure = local["./configure"]
             _configure = bb.watch(configure)
 
-            with bb.env(CC=str(clang)):
+            with local.env(CC=str(clang)):
                 _configure("--disable-thread", "--disable-opencl",
                            "--enable-pic")
 
@@ -42,7 +42,7 @@ class X264(bb.Project):
             _make("clean", "all", "-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
-        x264_repo = bb.path(self.source_of('x264.git'))
+        x264_repo = local.path(self.source_of('x264.git'))
         inputfiles = [self.source_of('tbbt-small'), self.source_of('sintel')]
 
         x264 = bb.wrap(x264_repo / "x264", self)

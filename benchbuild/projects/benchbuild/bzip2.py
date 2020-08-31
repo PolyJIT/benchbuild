@@ -1,3 +1,5 @@
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, tar
@@ -19,17 +21,17 @@ class Bzip2(bb.Project):
     ]
 
     def compile(self):
-        bzip2_repo = bb.path(self.source_of('bzip2.git'))
-        compression_source = bb.path(self.source_of('compression.tar.gz'))
+        bzip2_repo = local.path(self.source_of('bzip2.git'))
+        compression_source = local.path(self.source_of('compression.tar.gz'))
         tar('xf', compression_source)
 
         clang = bb.compiler.cc(self)
-        with bb.cwd(bzip2_repo):
+        with local.cwd(bzip2_repo):
             make_ = bb.watch(make)
             make_("CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2")
 
     def run_tests(self):
-        bzip2_repo = bb.path(self.source_of('bzip2.git'))
+        bzip2_repo = local.path(self.source_of('bzip2.git'))
         bzip2 = bb.wrap(bzip2_repo / "bzip2", self)
         _bzip2 = bb.watch(bzip2)
 

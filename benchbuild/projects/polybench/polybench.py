@@ -1,5 +1,7 @@
 import logging
 
+from plumbum import local
+
 import benchbuild as bb
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
@@ -103,7 +105,7 @@ class PolyBenchGroup(bb.Project):
         return polybench_opts
 
     def compile(self):
-        polybench_source = bb.path(self.source_of('polybench.tar.gz'))
+        polybench_source = local.path(self.source_of('polybench.tar.gz'))
         polybench_version = self.version_of('polybench.tar.gz')
 
         polybench_opts = CFG["projects"]["polybench"]
@@ -112,7 +114,7 @@ class PolyBenchGroup(bb.Project):
 
         tar('xfz', polybench_source)
 
-        src_dir = bb.path(f'./polybench-c-{polybench_version}')
+        src_dir = local.path(f'./polybench-c-{polybench_version}')
         src_sub = src_dir / self.path_dict[self.name] / self.name
 
         src_file = src_sub / (self.name + ".c")
@@ -145,7 +147,7 @@ class PolyBenchGroup(bb.Project):
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])
 
-        binary = bb.cwd / self.name
+        binary = local.cwd / self.name
         opt_stderr_raw = binary + ".stderr"
         opt_stderr_filtered = opt_stderr_raw + ".filtered"
 
@@ -156,11 +158,11 @@ class PolyBenchGroup(bb.Project):
         filter_stderr(opt_stderr_raw, opt_stderr_filtered)
 
         if verify:
-            binary = bb.cwd / (self.name + ".no-opts")
+            binary = local.cwd / (self.name + ".no-opts")
             noopt_stderr_raw = binary + ".stderr"
             noopt_stderr_filtered = noopt_stderr_raw + ".filtered"
 
-            with bb.env(BB_IS_BASELINE=True):
+            with local.env(BB_IS_BASELINE=True):
                 polybench_bin = bb.wrap(binary, self)
                 _polybench_bin = bb.watch(polybench_bin)
                 _polybench_bin()

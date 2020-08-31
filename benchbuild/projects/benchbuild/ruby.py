@@ -51,5 +51,5 @@ class Ruby(bb.Project):
             ruby(
                 test_dir / "benchmark" / "run.rb",
                 "--ruby=\"" + str(ruby_n) + "\"",
-                "--opts=\"-I" + testdir / "lib" + " -I" + testdir / "." +
-                " -I" + testdir / ".ext" / "common" + "\"", "-r")
+                "--opts=\"-I" + test_dir / "lib" + " -I" + test_dir / "." +
+                " -I" + test_dir / ".ext" / "common" + "\"", "-r")

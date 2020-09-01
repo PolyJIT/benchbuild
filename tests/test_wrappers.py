@@ -6,7 +6,6 @@ import unittest
 from plumbum import local
 from plumbum.cmd import rm
 
-import benchbuild.experiments.empty as empty
 import benchbuild.project as project
 import benchbuild.utils.compiler as compilers
 import benchbuild.utils.wrapping as wrappers
@@ -56,7 +55,7 @@ class RunCompiler(WrapperTests):
 
     def test_create(self):
         with local.cwd(self.tmp_dir):
-            cmd = compilers.cc(EmptyProject(empty.Empty()))
+            cmd = compilers.cc(EmptyProject())
         self.assertTrue(os.path.exists(str(cmd)))
 
 
@@ -64,7 +63,7 @@ class RunStatic(WrapperTests):
 
     def test_create(self):
         with local.cwd(self.tmp_dir):
-            cmd = wrappers.wrap(self.tmp_script, EmptyProject(empty.Empty()))
+            cmd = wrappers.wrap(self.tmp_script, EmptyProject())
             self.assertTrue(os.path.exists("{}.bin".format(self.tmp_script)))
         self.assertTrue(os.path.exists(str(cmd)))
 
@@ -73,6 +72,5 @@ class RunDynamic(WrapperTests):
 
     def test_create(self):
         with local.cwd(self.tmp_dir):
-            cmd = wrappers.wrap_dynamic(EmptyProject(empty.Empty()),
-                                        self.tmp_script)
+            cmd = wrappers.wrap_dynamic(EmptyProject(), self.tmp_script)
         self.assertTrue(os.path.exists(str(cmd)))

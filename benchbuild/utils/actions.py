@@ -30,7 +30,7 @@ from plumbum import ProcessExecutionError
 
 from benchbuild import signals, source
 from benchbuild.settings import CFG
-from benchbuild.utils import container, db
+from benchbuild.utils import container, db, run
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 
 LOG = logging.getLogger(__name__)
@@ -343,27 +343,37 @@ class Compile(Step):
                                indent * " ")
 
 
+@attr.s
 class Run(Step):
     NAME = "RUN"
     DESCRIPTION = "Execute the run action"
 
-    def __init__(self, project):
-        super(Run, self).__init__(obj=project, action_fn=project.run)
+    #FIXME: This cannot be positional/mandatory because we subclass Step.
+    project = attr.ib(default=None)
+    experiment = attr.ib(default=None)
 
     @notify_step_begin_end
-    def __call__(self) -> StepResultVariants:
-        if not self.obj:
-            return StepResult.ERROR
-        if not self.action_fn:
-            return StepResult.ERROR
+    def __call__(self):
+        group, session = run.begin_run_group(self.project, self.experiment)
+        signals.handlers.register(run.fail_run_group, group, session)
+        try:
+            self.project.run_tests()
+            run.end_run_group(group, session)
+        except ProcessExecutionError:
+            run.fail_run_group(group, session)
+            raise
+        except KeyboardInterrupt:
+            run.fail_run_group(group, session)
+            raise
+        finally:
+            signals.handlers.deregister(run.fail_run_group)
 
-        self.action_fn()
         self.status = StepResult.OK
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Execute run-time tests.".format(self.obj.name),
+            "* {0}: Execute run-time tests.".format(self.project.name),
             indent * " ")
 
 

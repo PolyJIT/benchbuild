@@ -27,13 +27,6 @@ class EmptyProject(Project):
         pass
 
 
-class EmptyExperiment(Experiment):
-    NAME = "test_empty"
-
-    def actions_for_project(self, project):
-        del project
-
-
 class FailAlways(a.Step):
     NAME = "FAIL ALWAYS"
     DESCRIPTION = "A Step that guarantees to fail."
@@ -53,11 +46,11 @@ class PassAlways(a.Step):
 class ActionsTestCase(unittest.TestCase):
 
     def test_for_all_pass(self):
-        ep = EmptyProject(EmptyExperiment())
+        ep = EmptyProject()
         actn = a.RequireAll(actions=[PassAlways(ep)])
         self.assertEqual(actn(), [a.StepResult.OK])
 
     def test_for_all_fail(self):
-        ep = EmptyProject(EmptyExperiment())
+        ep = EmptyProject()
         actn = a.RequireAll(actions=[FailAlways(ep)])
         self.assertEqual(actn(), [a.StepResult.ERROR])

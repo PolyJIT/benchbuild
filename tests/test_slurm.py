@@ -1,7 +1,6 @@
 """
 Test the SLURM script generator.
 """
-import os
 import tempfile
 import unittest
 import unittest.mock
@@ -21,7 +20,7 @@ class TestSLURM(unittest.TestCase):
         test.TestProject.__attrs_post_init__ = unittest.mock.MagicMock()
 
         self.exp = Empty()
-        self.prj = test.TestProject(self.exp)
+        self.prj = test.TestProject()
         self.tmp_file = local.path(tempfile.mktemp())
 
     def tearDown(self):

@@ -33,6 +33,7 @@ from abc import abstractmethod
 import attr
 
 import benchbuild.utils.actions as actns
+from benchbuild.project import build_dir
 from benchbuild.settings import CFG
 from benchbuild.utils.requirements import Requirement
 
@@ -160,16 +161,16 @@ class Experiment(metaclass=ExperimentRegistry):
                 var_context = source.context(*variant)
                 version_str = source.to_str(*variant)
 
-                p = prj_cls(self, variant=var_context)
+                p = prj_cls(var_context)
+                p.builddir = build_dir(self, p)
                 atomic_actions: Actions = [
                     actns.Clean(p),
                     actns.MakeBuildDir(p),
                     actns.Echo(message="Selected {0} with version {1}".format(
                         p.name, version_str)),
                     actns.ProjectEnvironment(p),
-                    actns.Containerize(obj=p,
-                                       actions=self.actions_for_project(p))
                 ]
+                atomic_actions.extend(self.actions_for_project(p))
 
                 prj_actions.append(actns.RequireAll(actions=atomic_actions))
             actions.extend(prj_actions)
@@ -199,17 +200,15 @@ class Experiment(metaclass=ExperimentRegistry):
             return [source.context(*variants[0])]
         raise ValueError('At least one variant is rerquired!')
 
-    @staticmethod
-    def default_runtime_actions(project: Project) -> Actions:
+    def default_runtime_actions(self, project: Project) -> Actions:
         """Return a series of actions for a run time experiment."""
         return [
             actns.Compile(project),
-            actns.Run(project),
+            actns.Run(obj=project, project=project, experiment=self),
             actns.Clean(project)
         ]
 
-    @staticmethod
-    def default_compiletime_actions(project: Project) -> Actions:
+    def default_compiletime_actions(self, project: Project) -> Actions:
         """Return a series of actions for a compile time experiment."""
         return [actns.Compile(project), actns.Clean(project)]
 

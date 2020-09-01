@@ -33,11 +33,6 @@ class DummyPrjEmptySource(Project):
         raise NotImplementedError()
 
 
-@pytest.fixture
-def dummy_exp():
-    return attr.make_class('TestExp', {'name': attr.ib(default='TestExp')})
-
-
 @pytest.fixture(params=[['1'], ['1', '2']], ids=['single', 'multi'])
 def mksource(request) -> tp.Callable[[str], BaseSource]:
 
@@ -108,8 +103,8 @@ def project(mkproject, request):
 
 
 @pytest.fixture
-def project_instance(project, dummy_exp):
-    return project(experiment=dummy_exp())
+def project_instance(project):
+    return project()
 
 
 def describe_project():
@@ -127,9 +122,9 @@ def describe_project():
         assert local.path(
             project_instance.source_of_primary).name == 'VersionSource_0'
 
-    def source_must_contain_elements(dummy_exp):  # pylint: disable=unused-variable
+    def source_must_contain_elements():  # pylint: disable=unused-variable
         with pytest.raises(TypeError) as excinfo:
-            DummyPrjEmptySource(experiment=dummy_exp())
+            DummyPrjEmptySource()
         assert "primary()" in str(excinfo)
 
 

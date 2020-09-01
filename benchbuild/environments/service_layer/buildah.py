@@ -1,4 +1,5 @@
 import json
+import os
 
 from plumbum import TEE, local
 from plumbum.path.utils import delete
@@ -9,8 +10,8 @@ from benchbuild.utils.cmd import buildah, mktemp
 
 BUILDAH_DEFAULT_OPTS = [
     '--root',
-    str(CFG['container']['root']), '--runroot',
-    str(CFG['container']['runroot'])
+    os.path.abspath(str(CFG['container']['root'])), '--runroot',
+    os.path.abspath(str(CFG['container']['runroot']))
 ]
 
 BUILDAH_DEFAULT_COMMAND_OPTS = ['--add-history']

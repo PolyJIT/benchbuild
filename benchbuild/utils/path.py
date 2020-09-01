@@ -5,6 +5,8 @@ from contextlib import contextmanager
 from typing import List, Optional
 
 import benchbuild.utils.user_interface as ui
+from benchbuild.utils.cmd import mkdir
+from benchbuild.utils.uchroot import no_args, uretry
 
 
 def list_to_path(pathlist: List[str]) -> str:
@@ -125,7 +127,7 @@ def mkfile_uchroot(filepath, root="."):
     uretry(uchroot["--", "/bin/touch", filepath])
 
 
-def mkdir_uchroot(dirpath: str, root: str = "."):
+def mkdir_uchroot(dirpath: str, root: str = ".") -> None:
     """
     Create a file inside a uchroot env.
 
@@ -140,9 +142,6 @@ def mkdir_uchroot(dirpath: str, root: str = "."):
             The root PATH of the container filesystem as seen outside of
             the container.
     """
-    from benchbuild.utils.uchroot import no_args, uretry
-    from benchbuild.utils.cmd import mkdir
-
     uchroot = no_args()
     uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
     uchroot = uchroot[os.path.abspath(root)]

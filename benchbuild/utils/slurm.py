@@ -102,7 +102,7 @@ def __save__(script_name: str, benchbuild, experiment,
     node_command = str(benchbuild["-E", experiment.name, "$_project"])
     env = Environment(trim_blocks=True,
                       lstrip_blocks=True,
-                      loader=PackageLoader('benchbuild.utils', 'templates'))
+                      loader=PackageLoader('benchbuild', 'res'))
     template = env.get_template('misc/slurm.sh.inc')
     project_types = list(experiment.projects.values())
     if len(project_types) > 1:

@@ -125,8 +125,6 @@ class Project(metaclass=ProjectDecorator):
         TypeError: Validation of properties may throw a TypeError.
 
     Attributes:
-        experiment (benchbuild.experiment.Experiment):
-            The experiment this project is assigned to.
         name (str, optional):
             The name of this project. Defaults to `NAME`.
         domain (str, optional):
@@ -183,8 +181,6 @@ class Project(metaclass=ProjectDecorator):
                 f'{mod_ident} does not define a GROUP class attribute.')
         return new_self
 
-    experiment = attr.ib()
-
     variant: VariantContext = attr.ib()
 
     @variant.default
@@ -222,7 +218,7 @@ class Project(metaclass=ProjectDecorator):
             raise TypeError("{attribute} must be a valid UUID object")
 
     builddir: local.path = attr.ib(default=attr.Factory(lambda self: local.path(
-        str(CFG["build_dir"])) / self.experiment.name / self.id / self.run_uuid,
+        str(CFG["build_dir"])) / self.id / self.run_uuid,
                                                         takes_self=True))
 
     source: Sources = attr.ib(

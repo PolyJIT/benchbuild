@@ -6,7 +6,6 @@ import unittest
 from plumbum import local
 from plumbum.cmd import rm
 
-import benchbuild.experiments.empty as empty
 import benchbuild.project as project
 import benchbuild.utils.compiler as compilers
 import benchbuild.utils.wrapping as wrappers

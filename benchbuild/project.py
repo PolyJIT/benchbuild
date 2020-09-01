@@ -249,7 +249,7 @@ class Project(metaclass=ProjectDecorator):
             run: A function that takes the run command.
         """
 
-    def clean(self):
+    def clean(self) -> None:
         """Clean the project build directory."""
         builddir_p = local.path(self.builddir)
         builddir_p.delete()

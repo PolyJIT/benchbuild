@@ -1,7 +1,6 @@
 """
 Test the SLURM script generator.
 """
-import os
 import tempfile
 import unittest
 import unittest.mock

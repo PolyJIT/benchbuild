@@ -148,7 +148,7 @@ def mkdir_uchroot(dirpath: str, root: str = ".") -> None:
     uretry(uchroot["--", "/bin/mkdir", "-p", dirpath])
 
 
-def mkdir_interactive(dirpath: str):
+def mkdir_interactive(dirpath: str) -> None:
     """
     Create a directory if required.
 

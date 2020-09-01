@@ -89,7 +89,7 @@ class Experiment(metaclass=ExperimentRegistry):
     NAME: tp.ClassVar[str] = ''
     SCHEMA = None
     REQUIREMENTS: tp.List[Requirement] = []
-    CONTAINER: declarative.ContainerImage
+    CONTAINER: declarative.ContainerImage = declarative.ContainerImage()
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""

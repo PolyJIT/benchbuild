@@ -92,7 +92,7 @@ def PortageFactory(name, NAME, DOMAIN, BaseClass=autoportage.AutoPortage):
         >>> c = PortageFactory("test", "NAME", "DOMAIN")
         >>> c
         <class '__main__.test'>
-        >>> i = c(Empty())
+        >>> i = c()
         >>> i.NAME
         'NAME'
         >>> i.DOMAIN

@@ -18,8 +18,9 @@ from benchbuild.settings import CFG
 from benchbuild.utils import cmd
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.requirements import (get_slurm_options_from_config,
-                                           merge_slurm_options, Requirement)
+from benchbuild.utils.requirements import (Requirement,
+                                           get_slurm_options_from_config,
+                                           merge_slurm_options)
 
 LOG = logging.getLogger(__name__)
 
@@ -101,8 +102,8 @@ def __save__(script_name: str, benchbuild, experiment,
     node_command = str(benchbuild["-E", experiment.name, "$_project"])
     env = Environment(trim_blocks=True,
                       lstrip_blocks=True,
-                      loader=PackageLoader('benchbuild', 'utils/templates'))
-    template = env.get_template('slurm.sh.inc')
+                      loader=PackageLoader('benchbuild', 'res'))
+    template = env.get_template('misc/slurm.sh.inc')
     project_types = list(experiment.projects.values())
     if len(project_types) > 1:
         project_options = reduce(

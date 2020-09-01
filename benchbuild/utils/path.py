@@ -2,29 +2,55 @@
 import fcntl
 import os
 from contextlib import contextmanager
+from typing import List, Optional
 
 import benchbuild.utils.user_interface as ui
 
 
-def list_to_path(pathlist):
-    """Convert a list of path elements to a path string."""
+def list_to_path(pathlist: List[str]) -> str:
+    """
+    Convert a list of path elements to a path string.
+
+    Args:
+        pathlist: List of path components to be joined
+
+    Returns:
+        joined path components as single str.
+    """
     return os.path.pathsep.join(pathlist)
 
 
-def path_to_list(pathstr):
-    """Conver a path string to a list of path elements."""
+def path_to_list(pathstr: str) -> List[str]:
+    """
+    Convert a path string to a list of path elements.
+
+    Args:
+        pathstr: path-like string.
+
+    Returns:
+        List of path components as str.
+    """
     return [elem for elem in pathstr.split(os.path.pathsep) if elem]
 
 
-def determine_path():
-    """Borrowed from wxglade.py"""
+def __self__() -> str:
+    """
+    Borrowed from wxglade.py
+
+    Returns:
+        Absolute path of this module
+    """
     root = __file__
     if os.path.islink(root):
         root = os.path.realpath(root)
     return os.path.dirname(os.path.abspath(root))
 
 
-def template_files(path, exts=None):
+__ROOT__ = __self__()
+__RESOURCES_ROOT__ = os.path.join(__ROOT__, '..', 'res')
+
+
+def template_files(path: str, exts: Optional[List[str]] = None) -> List[str]:
     """
     Return a list of filenames found at @path.
 
@@ -38,7 +64,7 @@ def template_files(path, exts=None):
         A list of filenames found in the path.
     """
     if not os.path.isabs(path):
-        _path = os.path.join(determine_path(), path)
+        _path = os.path.join(__RESOURCES_ROOT__, path)
     if not (os.path.exists(_path) and os.path.isdir(_path)):
         return []
     if not exts:
@@ -49,65 +75,34 @@ def template_files(path, exts=None):
     return files
 
 
-def template_path(template):
-    """Return path to template file."""
-    return os.path.join(determine_path(), template)
+def template_path(template: str) -> str:
+    """
+    Return path to template file.
+
+    Args:
+        template: relative template path
+    Returns:
+        absolute path to the given template.
+    """
+    return os.path.join(__RESOURCES_ROOT__, template)
 
 
-def template_str(template):
-    """Read a template file from the resources and return it as str."""
-    tmpl_file = os.path.join(determine_path(), template)
+def template_str(template: str) -> str:
+    """
+    Read a template file from the resources and return it as str.
+
+    Args:
+        template: relative template path
+
+    Returns:
+        template content as a single string.
+    """
+    tmpl_file = template_path(template)
     with open(tmpl_file, mode='r') as tmpl_strm:
         return "".join(tmpl_strm.readlines())
 
 
-def mkfile_uchroot(filepath, root="."):
-    """
-    Create a file inside a uchroot env.
-
-    You will want to use this when you need to create a file with apropriate
-    rights inside a uchroot container with subuid/subgid handling enabled.
-
-    Args:
-        filepath:
-            The filepath that should be created. Absolute inside the
-            uchroot container.
-        root:
-            The root PATH of the container filesystem as seen outside of
-            the container.
-    """
-    from benchbuild.utils.uchroot import no_args, uretry
-
-    uchroot = no_args()
-    uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
-    uchroot = uchroot[os.path.abspath(root)]
-    uretry(uchroot["--", "/bin/touch", filepath])
-
-
-def mkdir_uchroot(dirpath, root="."):
-    """
-    Create a file inside a uchroot env.
-
-    You will want to use this when you need to create a file with apropriate
-    rights inside a uchroot container with subuid/subgid handling enabled.
-
-    Args:
-        dirpath:
-            The dirpath that should be created. Absolute inside the
-            uchroot container.
-        root:
-            The root PATH of the container filesystem as seen outside of
-            the container.
-    """
-    from benchbuild.utils.uchroot import no_args, uretry
-
-    uchroot = no_args()
-    uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
-    uchroot = uchroot[os.path.abspath(root)]
-    uretry(uchroot["--", "/bin/mkdir", "-p", dirpath])
-
-
-def mkdir_interactive(dirpath):
+def mkdir_interactive(dirpath: str) -> None:
     """
     Create a directory if required.
 
@@ -117,6 +112,7 @@ def mkdir_interactive(dirpath):
         dirname: The path to create.
     """
     from benchbuild.utils.cmd import mkdir
+
     if os.path.exists(dirpath):
         return
 
@@ -141,7 +137,7 @@ def flocked(filename: str, lock_type: int = fcntl.LOCK_EX):
                   append mode to this path.
         lock_type: one of fcntl's lock operations
 
-    Returns:
+    Yields:
         the opened file descriptor we hold the lock for.
     """
     with open(filename, 'a') as fd:

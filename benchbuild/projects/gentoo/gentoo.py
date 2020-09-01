@@ -43,7 +43,7 @@ class GentooGroup(bb.Project):
         configure_portage()
 
         self.configure_benchbuild(CFG)
-        path.mkfile_uchroot("/.benchbuild-container")
+        uchroot.mkfile_uchroot("/.benchbuild-container")
         benchbuild = find_benchbuild()
         _benchbuild = run.watch(benchbuild)
         with local.env(BB_VERBOSITY=str(CFG['verbosity'])):
@@ -90,7 +90,7 @@ class GentooGroup(bb.Project):
         uchroot_cfg["tmp_dir"] = "/mnt/distfiles"
         uchroot_cfg["clean"] = False
 
-        path.mkfile_uchroot("/.benchbuild.yml")
+        uchroot.mkfile_uchroot("/.benchbuild.yml")
         uchroot_cfg.store(".benchbuild.yml")
 
         write_sandbox_d("etc/sandbox.conf")
@@ -106,7 +106,7 @@ def emerge(package, *args, env=None):
 
 def setup_networking():
     LOG.debug("Setting up networking...")
-    path.mkfile_uchroot("/etc/resolv.conf")
+    uchroot.mkfile_uchroot("/etc/resolv.conf")
     cp("/etc/resolv.conf", "etc/resolv.conf")
     write_wgetrc("etc/wgetrc")
 
@@ -119,7 +119,7 @@ def configure_portage():
 
 
 def write_sandbox_d(_path):
-    path.mkfile_uchroot(local.path('/') / _path)
+    uchroot.mkfile_uchroot(local.path('/') / _path)
     with open(_path, 'a') as sandbox_conf:
         lines = '''
 SANDBOX_WRITE="/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout"
@@ -148,7 +148,7 @@ def write_makeconfig(_path):
     ftp_proxy = str(CFG["gentoo"]["ftp_proxy"])
     rsync_proxy = str(CFG["gentoo"]["rsync_proxy"])
 
-    path.mkfile_uchroot(local.path('/') / _path)
+    uchroot.mkfile_uchroot(local.path('/') / _path)
     with open(_path, 'w') as makeconf:
         lines = '''
 PORTAGE_USERNAME=root
@@ -195,7 +195,7 @@ def write_bashrc(_path):
     cfg_mounts = CFG["container"]["mounts"].value
     cfg_prefix = CFG["container"]["prefixes"].value
 
-    path.mkfile_uchroot("/etc/portage/bashrc")
+    uchroot.mkfile_uchroot("/etc/portage/bashrc")
     mounts = uchroot.mounts("mnt", cfg_mounts)
     p_paths, p_libs = uchroot.env(cfg_prefix)
     paths, libs = uchroot.env(mounts)
@@ -220,8 +220,8 @@ def write_layout(_path):
         path - The output path of the layout.conf
     """
 
-    path.mkdir_uchroot("/etc/portage/metadata")
-    path.mkfile_uchroot("/etc/portage/metadata/layout.conf")
+    uchroot.mkdir_uchroot("/etc/portage/metadata")
+    uchroot.mkfile_uchroot("/etc/portage/metadata/layout.conf")
     with open(_path, 'w') as layoutconf:
         lines = '''masters = gentoo'''
         layoutconf.write(lines)
@@ -237,7 +237,7 @@ def write_wgetrc(_path):
     http_proxy = str(CFG["gentoo"]["http_proxy"])
     ftp_proxy = str(CFG["gentoo"]["ftp_proxy"])
 
-    path.mkfile_uchroot("/etc/wgetrc")
+    uchroot.mkfile_uchroot("/etc/wgetrc")
     with open(_path, 'w') as wgetrc:
         if http_proxy is not None:
             http_s = "http_proxy = {0}".format(http_proxy)

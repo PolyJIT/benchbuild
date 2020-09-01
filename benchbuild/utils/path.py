@@ -5,8 +5,6 @@ from contextlib import contextmanager
 from typing import List, Optional
 
 import benchbuild.utils.user_interface as ui
-from benchbuild.utils.cmd import mkdir
-from benchbuild.utils.uchroot import no_args, uretry
 
 
 def list_to_path(pathlist: List[str]) -> str:
@@ -104,50 +102,6 @@ def template_str(template: str) -> str:
         return "".join(tmpl_strm.readlines())
 
 
-def mkfile_uchroot(filepath, root="."):
-    """
-    Create a file inside a uchroot env.
-
-    You will want to use this when you need to create a file with apropriate
-    rights inside a uchroot container with subuid/subgid handling enabled.
-
-    Args:
-        filepath:
-            The filepath that should be created. Absolute inside the
-            uchroot container.
-        root:
-            The root PATH of the container filesystem as seen outside of
-            the container.
-    """
-    from benchbuild.utils.uchroot import no_args, uretry
-
-    uchroot = no_args()
-    uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
-    uchroot = uchroot[os.path.abspath(root)]
-    uretry(uchroot["--", "/bin/touch", filepath])
-
-
-def mkdir_uchroot(dirpath: str, root: str = ".") -> None:
-    """
-    Create a file inside a uchroot env.
-
-    You will want to use this when you need to create a file with apropriate
-    rights inside a uchroot container with subuid/subgid handling enabled.
-
-    Args:
-        dirpath:
-            The dirpath that should be created. Absolute inside the
-            uchroot container.
-        root:
-            The root PATH of the container filesystem as seen outside of
-            the container.
-    """
-    uchroot = no_args()
-    uchroot = uchroot["-E", "-A", "-C", "-w", "/", "-r"]
-    uchroot = uchroot[os.path.abspath(root)]
-    uretry(uchroot["--", "/bin/mkdir", "-p", dirpath])
-
-
 def mkdir_interactive(dirpath: str) -> None:
     """
     Create a directory if required.
@@ -157,6 +111,8 @@ def mkdir_interactive(dirpath: str) -> None:
     Args:
         dirname: The path to create.
     """
+    from benchbuild.utils.cmd import mkdir
+
     if os.path.exists(dirpath):
         return
 

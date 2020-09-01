@@ -1,5 +1,6 @@
 import enum
 import logging
+import os
 
 from plumbum import FG, local
 from plumbum.commands import ProcessExecutionError
@@ -154,7 +155,7 @@ def __mounts__(prefix, _mounts):
             src_mount = mount
             tgt_mount = "{0}/{1}".format(prefix, str(i))
             i = i + 1
-        path.mkdir_uchroot(tgt_mount)
+        mkdir_uchroot(tgt_mount)
         uchroot_opts.extend(["-M", "{0}:{1}".format(src_mount, tgt_mount)])
         mntpoints.append(tgt_mount)
     return uchroot_opts, mntpoints
@@ -181,3 +182,45 @@ def env(mounts):
     paths.extend([root / m / "sbin" for m in f_mounts])
     paths.extend([root / m for m in f_mounts])
     return paths, ld_libs
+
+
+def mkdir_uchroot(dirpath: str, root: str = ".") -> None:
+    """
+    Create a file inside a uchroot env.
+
+    You will want to use this when you need to create a file with apropriate
+    rights inside a uchroot container with subuid/subgid handling enabled.
+
+    Args:
+        dirpath:
+            The dirpath that should be created. Absolute inside the
+            uchroot container.
+        root:
+            The root PATH of the container filesystem as seen outside of
+            the container.
+    """
+    _uchroot = no_args()
+    _uchroot = _uchroot["-E", "-A", "-C", "-w", "/", "-r"]
+    _uchroot = _uchroot[os.path.abspath(root)]
+    uretry(_uchroot["--", "/bin/mkdir", "-p", dirpath])
+
+
+def mkfile_uchroot(filepath: str, root: str = ".") -> None:
+    """
+    Create a file inside a uchroot env.
+
+    You will want to use this when you need to create a file with apropriate
+    rights inside a uchroot container with subuid/subgid handling enabled.
+
+    Args:
+        filepath:
+            The filepath that should be created. Absolute inside the
+            uchroot container.
+        root:
+            The root PATH of the container filesystem as seen outside of
+            the container.
+    """
+    _uchroot = no_args()
+    _uchroot = _uchroot["-E", "-A", "-C", "-w", "/", "-r"]
+    _uchroot = _uchroot[os.path.abspath(root)]
+    uretry(_uchroot["--", "/bin/touch", filepath])

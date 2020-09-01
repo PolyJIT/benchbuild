@@ -1,6 +1,6 @@
 Jinja2~=2.11
 PyYAML~=5.3
-attrs~=19.3
+attrs~=20.1
 dill~=0.3
 pandas~=1.1
 parse~=1.16

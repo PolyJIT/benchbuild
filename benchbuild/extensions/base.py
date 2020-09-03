@@ -6,8 +6,6 @@ import logging
 import typing as tp
 from abc import ABCMeta
 
-import attr
-
 from benchbuild.utils import run
 
 LOG = logging.getLogger(__name__)

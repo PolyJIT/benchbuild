@@ -29,7 +29,7 @@ from plumbum import local
 from plumbum.path.local import LocalPath
 from pygtrie import StringTrie
 
-from benchbuild import source
+from benchbuild import extensions, source
 from benchbuild.settings import CFG
 from benchbuild.utils import db, run, unionfs
 from benchbuild.utils.requirements import Requirement
@@ -230,7 +230,8 @@ class Project(metaclass=ProjectDecorator):
     def __default_primary_source(self) -> str:
         return source.primary(*self.source).key
 
-    compiler_extension = attr.ib(default=None)
+    compiler_extension = attr.ib(
+        default=attr.Factory(extensions.MissingExtension, takes_self=False))
 
     runtime_extension = attr.ib(default=None)
 

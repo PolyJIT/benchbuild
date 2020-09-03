@@ -49,6 +49,7 @@ jobs:
         coverage run -p `which benchbuild` project view
         coverage run -p `which benchbuild` experiment view
         coverage run -p `which benchbuild` -vvvvv run --full test
+        coverage run -p `which benchbuild` -vvvvv slurm -E empty test
         coverage combine -a
         coverage xml
 

@@ -57,7 +57,7 @@ def __expand_project_versions__(experiment: Experiment) -> Iterable[str]:
 
     for _, project_type in project_types.items():
         for variant in experiment.sample(project_type):
-            project = project_type(experiment, variant=variant)
+            project = project_type(variant=variant)
             expanded.append(project.id)
     return expanded
 

@@ -3,8 +3,10 @@ Extension base-classes for compile-time and run-time experiments.
 """
 import collections as c
 import logging
-import typing as t
+import typing as tp
 from abc import ABCMeta
+
+import attr
 
 from benchbuild.utils import run
 
@@ -32,13 +34,17 @@ class Extension(metaclass=ABCMeta):
             stored for this extension.
     """
 
-    def __init__(self, *extensions, config=None, **kwargs):
+    def __init__(self,
+                 *extensions: 'Extension',
+                 config: tp.Any = None,
+                 **kwargs: tp.Any):
         """Initialize an extension with an arbitrary number of children."""
         del kwargs
         self.next_extensions = extensions
         self.config = config
 
-    def call_next(self, *args, **kwargs) -> t.List[run.RunInfo]:
+    def call_next(self, *args: tp.Any,
+                  **kwargs: tp.Any) -> tp.List[run.RunInfo]:
         """Call all child extensions with the given arguments.
 
         This calls all child extensions and collects the results for
@@ -66,18 +72,37 @@ class Extension(metaclass=ABCMeta):
 
         return all_results
 
-    def __lshift__(self, rhs):
+    def __lshift__(self, rhs: 'Extension') -> 'Extension':
         rhs.next_extensions = [self]
         return rhs
 
-    def print(self, indent=0):
+    def print(self, indent: int = 0) -> None:
         """Print a structural view of the registered extensions."""
         LOG.info("%s:: %s", indent * " ", self.__class__)
         for ext in self.next_extensions:
             ext.print(indent=indent + 2)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> tp.List[run.RunInfo]:
         return self.call_next(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Extension"
+
+
+class ExtensionRequired(ValueError):
+    pass
+
+
+class MissingExtension(Extension):
+    """
+    Hard fail at runtime, when the user forgets to set an extension.
+
+    This raises an exception as soon as a user forgets to provide an extension
+    for a project from the experiment.
+
+    This should be the earliest possible moment to fail, without restricting
+    existing old experiments.
+    """
+
+    def __call__(self, *args, **kwargs) -> tp.List[run.RunInfo]:
+        raise ExtensionRequired()

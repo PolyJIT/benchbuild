@@ -29,5 +29,7 @@ class NoMeasurement(Experiment):
 
     def actions_for_project(self, project):
         """Execute all actions but don't do anything as extension."""
+        project.compiler_extension = run.WithTimeout(
+            compiler.RunCompiler(project, self))
         project.runtime_extension = run.RuntimeExtension(project, self)
         return self.default_runtime_actions(project)

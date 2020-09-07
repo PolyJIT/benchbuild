@@ -57,7 +57,6 @@ Subcommands:
     experiment      Manage BenchBuild's known experiments.; see 'benchbuild experiment --help' for more info
     log             Frontend command to the benchbuild database. ; see 'benchbuild log --help' for more info
     project         Manage BenchBuild's known projects.; see 'benchbuild project --help' for more info
-    report          Generate Reports from the benchbuild db.; see 'benchbuild report --help' for more info
     run             Frontend for running experiments in the benchbuild study framework.; see 'benchbuild run --help' for more info
     slurm           Generate a SLURM script. ; see 'benchbuild slurm --help' for more info
 ```

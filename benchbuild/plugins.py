@@ -28,10 +28,8 @@ def discover() -> None:
     if CFG["plugins"]["autoload"]:
         experiment_plugins = CFG["plugins"]["experiments"].value
         project_plugins = CFG["plugins"]["projects"].value
-        report_plugins = CFG["plugins"]["reports"].value
 
-        for plugin in itertools.chain(experiment_plugins, project_plugins,
-                                      report_plugins):
+        for plugin in itertools.chain(experiment_plugins, project_plugins):
             try:
                 importlib.import_module(plugin)
                 LOG.info('Found report: %s', str(plugin))

@@ -7,7 +7,6 @@ from benchbuild.settings import CFG
 def test_discovery(caplog):
     caplog.set_level(logging.DEBUG, logger='benchbuild')
     CFG['plugins']['projects'] = []
-    CFG['plugins']['reports'] = []
     CFG["plugins"]["experiments"] = ["benchbuild.non_existing"]
     discover()
     assert caplog.record_tuples == [
@@ -22,8 +21,5 @@ def test_discovery(caplog):
 
     def_prjs = CFG['plugins']['projects'].node['default']
     CFG['plugins']['projects'] = def_prjs
-
-    def_reports = CFG['plugins']['reports'].node['default']
-    CFG['plugins']['reports'] = def_reports
 
     discover()

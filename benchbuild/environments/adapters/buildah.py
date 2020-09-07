@@ -48,19 +48,21 @@ def create_working_container(from_image: model.FromLayer) -> str:
 
 
 def destroy_working_container(container: model.Container) -> None:
-    BB_BUILDAH_RM[container.container_id] & TEE
+    BB_BUILDAH_RM(container.container_id)
 
 
 def commit_working_container(container: model.Container) -> None:
     image = container.image
-    BB_BUILDAH_COMMIT[container.container_id, image.name] & TEE
+    BB_BUILDAH_COMMIT(container.container_id, image.name)
 
 
 def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
     with local.cwd(container.context):
-        cmd = BB_BUILDAH_ADD[container.container_id][layer.sources][
-            layer.destination]
-        cmd & TEE
+        sources = [
+            os.path.join(container.context, source) for source in layer.sources
+        ]
+        cmd = BB_BUILDAH_ADD[container.container_id][sources][layer.destination]
+        cmd()
 
 
 def spawn_copy_layer(container: model.Container, layer: model.AddLayer) -> None:
@@ -75,7 +77,7 @@ def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
 
     cmd = BB_BUILDAH_RUN[kws][container.container_id, '--',
                               layer.command][layer.args]
-    cmd & TEE
+    cmd()
 
 
 def spawn_in_context(
@@ -91,7 +93,7 @@ def update_env_layer(
     cmd = BB_BUILDAH_CONFIG
     for key, value in layer.env.items():
         cmd = cmd['-e', f'{key}={value}']
-    cmd[container.container_id] & TEE
+    cmd(container.container_id)
 
 
 def set_entry_point(

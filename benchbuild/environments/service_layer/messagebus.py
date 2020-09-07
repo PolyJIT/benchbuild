@@ -3,7 +3,7 @@ import typing as tp
 
 from benchbuild.environments.domain import commands, events
 
-from . import handlers, unit_of_work
+from . import handlers, ui, unit_of_work
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +25,10 @@ def handle(message: Message, uow: unit_of_work.AbstractUnitOfWork):
     return results
 
 
-def handle_event(event: events.Event, queue: tp.List[Message],
-                 uow: unit_of_work.AbstractUnitOfWork):
+def handle_event(
+    event: events.Event, queue: tp.List[Message],
+    uow: unit_of_work.AbstractUnitOfWork
+):
     for handler in EVENT_HANDLERS[type(event)]:
         try:
             logger.debug('handling event %s with handler %s', event, handler)
@@ -37,8 +39,10 @@ def handle_event(event: events.Event, queue: tp.List[Message],
             continue
 
 
-def handle_command(command: commands.Command, queue: tp.List[Message],
-                   uow: unit_of_work.AbstractUnitOfWork):
+def handle_command(
+    command: commands.Command, queue: tp.List[Message],
+    uow: unit_of_work.AbstractUnitOfWork
+):
     logger.debug('handling command %s', command)
     try:
         handler = COMMAND_HANDLERS[type(command)]
@@ -50,7 +54,12 @@ def handle_command(command: commands.Command, queue: tp.List[Message],
         raise
 
 
-EVENT_HANDLERS = {events.LayerCreated: []}
+EVENT_HANDLERS = {
+    events.LayerCreated: [ui.progress_print_layer_created],
+    events.ImageCreated: [ui.progress_print_image_created],
+    events.ImageCommitted: [ui.progress_print_image_committed],
+    events.ImageDestroyed: [ui.progress_print_image_destroyed]
+}
 
 COMMAND_HANDLERS: tp.Dict[tp.Type[commands.Command], tp.Callable] = {
     commands.CreateImage: handlers.create_image,

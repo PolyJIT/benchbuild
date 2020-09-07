@@ -39,15 +39,23 @@ class BenchBuildContainer(cli.Application):
 
         discovered_experiments = experiment.discovered()
         wanted_experiments = dict(
-            filter(lambda pair: pair[0] in set(cli_experiments),
-                   discovered_experiments.items()))
+            filter(
+                lambda pair: pair[0] in set(cli_experiments),
+                discovered_experiments.items()
+            )
+        )
         unknown_experiments = list(
-            filter(lambda name: name not in discovered_experiments.keys(),
-                   set(cli_experiments)))
+            filter(
+                lambda name: name not in discovered_experiments.keys(),
+                set(cli_experiments)
+            )
+        )
 
         if unknown_experiments:
-            print('Could not find ', str(unknown_experiments),
-                  ' in the experiment registry.')
+            print(
+                'Could not find ', str(unknown_experiments),
+                ' in the experiment registry.'
+            )
         if not wanted_experiments:
             print("Could not find any experiment. Exiting.")
             return -2
@@ -63,7 +71,8 @@ class BenchBuildContainer(cli.Application):
 
 
 def enumerate_projects(
-        projects: ProjectIndex) -> tp.Generator[project.Project, None, None]:
+    projects: ProjectIndex
+) -> tp.Generator[project.Project, None, None]:
     for prj_class in projects.values():
         for variant in source.product(*prj_class.SOURCE):
             context = source.context(*variant)
@@ -79,7 +88,6 @@ def make_image_name(name: str, tag: str) -> str:
 
 
 def create_base_images(projects: ProjectIndex) -> None:
-    print("The following base images are available:")
     image_commands: tp.Set[commands.Command] = set()
 
     for prj in enumerate_projects(projects):
@@ -95,10 +103,7 @@ def create_base_images(projects: ProjectIndex) -> None:
 
     for cmd in image_commands:
         uow = unit_of_work.BuildahUnitOfWork()
-        results = messagebus.handle(cmd, uow)
-
-        for res in results:
-            print('  ', res)
+        messagebus.handle(cmd, uow)
 
 
 def __pull_sources_in_context(prj: project.Project) -> None:
@@ -108,7 +113,6 @@ def __pull_sources_in_context(prj: project.Project) -> None:
 
 
 def create_project_images(projects: ProjectIndex) -> None:
-    print("The following images are available:")
     for prj in enumerate_projects(projects):
         version = make_version_tag(*prj.variant.values())
         image_tag = make_image_name(f'{prj.name}/{prj.group}', version)
@@ -116,36 +120,36 @@ def create_project_images(projects: ProjectIndex) -> None:
         layers = prj.container
         layers.context(partial(__pull_sources_in_context, prj))
         layers.add('.', '/app')
-        layers.env(BB_BUILD_DIR='/app',
-                   BB_TMP_DIR='/app',
-                   BB_PLUGINS_PROJECTS=f'["{prj.__module__}"]')
+        layers.env(
+            BB_BUILD_DIR='/app',
+            BB_TMP_DIR='/app',
+            BB_PLUGINS_PROJECTS=f'["{prj.__module__}"]'
+        )
         layers.workingdir('/app')
 
         cmd = commands.CreateImage(image_tag, layers)
         uow = unit_of_work.BuildahUnitOfWork()
-        results = messagebus.handle(cmd, uow)
-
-        for res in results:
-            print('  ', res)
+        messagebus.handle(cmd, uow)
 
 
 def enumerate_experiments(
-        experiments: ExperimentIndex, projects: ProjectIndex
+    experiments: ExperimentIndex, projects: ProjectIndex
 ) -> tp.Generator[experiment.Experiment, None, None]:
     for exp_class in experiments.values():
         prjs = list(enumerate_projects(projects))
         yield exp_class(projects=prjs)
 
 
-def create_experiment_images(experiments: ExperimentIndex,
-                             projects: ProjectIndex) -> None:
-    print("The following images are available:")
+def create_experiment_images(
+    experiments: ExperimentIndex, projects: ProjectIndex
+) -> None:
     for exp in enumerate_experiments(experiments, projects):
         for prj in exp.projects:
             version = make_version_tag(*prj.variant.values())
             base_tag = make_image_name(f'{prj.name}/{prj.group}', version)
-            image_tag = make_image_name(f'{exp.name}/{prj.name}/{prj.group}',
-                                        version)
+            image_tag = make_image_name(
+                f'{exp.name}/{prj.name}/{prj.group}', version
+            )
 
             image = declarative.ContainerImage().from_(base_tag)
             image.extend(exp.container)
@@ -155,6 +159,3 @@ def create_experiment_images(experiments: ExperimentIndex,
             uow = unit_of_work.BuildahUnitOfWork()
 
             results = messagebus.handle(cmd, uow)
-
-            for res in results:
-                print('  ', res)

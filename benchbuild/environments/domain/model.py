@@ -65,8 +65,8 @@ class Image:
     name: str = attr.ib()
     from_: FromLayer = attr.ib()
     layers: tp.List[Layer] = attr.ib()
-    events = attr.ib(factory=list)  # type: tp.List[events.Event]
-    env = attr.ib(factory=dict)  # type: tp.Dict[str, str]
+    events = attr.ib(attr.Factory(list))  # type: tp.List[events.Event]
+    env = attr.ib(attr.Factory(dict))  # type: tp.Dict[str, str]
 
     def update_env(self, **kwargs) -> None:
         self.env.update(kwargs)
@@ -87,4 +87,8 @@ class Container:
     image: Image = attr.ib()
     context: str = attr.ib()
 
-    events = attr.ib(factory=list)  # type: tp.List[events.Event]
+    events = attr.ib(attr.Factory(list))  # type: tp.List[events.Event]
+
+    @property
+    def name(self) -> str:
+        return self.image.name

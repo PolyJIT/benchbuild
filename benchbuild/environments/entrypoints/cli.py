@@ -158,4 +158,4 @@ def create_experiment_images(
             cmd = commands.CreateImage(image_tag, image)
             uow = unit_of_work.BuildahUnitOfWork()
 
-            results = messagebus.handle(cmd, uow)
+            messagebus.handle(cmd, uow)

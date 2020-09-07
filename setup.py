@@ -29,8 +29,8 @@ setup(name='benchbuild',
       tests_require=["pytest", "pytest-describe"],
       install_requires=[
           "Jinja2~=2.10", "PyYAML~=5.1", "attrs>=19.3,<21.0", "dill~=0.3",
-          "pandas>=0.25,<2.0", "pathos~=0.2", "parse~=1.14", "pdoc3~=0.8",
-          "plumbum~=1.6", "psutil~=5.6", "psycopg2-binary~=2.8", "pygtrie~=2.3",
+          "pathos~=0.2", "parse~=1.14", "pdoc3~=0.8", "plumbum~=1.6",
+          "psutil~=5.6", "psycopg2-binary~=2.8", "pygtrie~=2.3",
           "pyparsing~=2.4", "sqlalchemy-migrate~=0.13", "virtualenv>=16.7,<21.0"
       ],
       author="Andreas Simbuerger",

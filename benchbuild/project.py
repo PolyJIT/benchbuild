@@ -264,12 +264,12 @@ class Project(metaclass=ProjectDecorator):
 
         # select container image
         if isinstance(type(self).CONTAINER, ContainerImage):
-            self.container = type(self).CONTAINER
+            self.container = copy.deepcopy(type(self).CONTAINER)
         else:
             version = self.version_of_primary
             for rev_range, image in type(self).CONTAINER:
                 if version in rev_range:
-                    self.container = image
+                    self.container = copy.deepcopy(image)
                     break
 
     @abstractmethod

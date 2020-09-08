@@ -104,7 +104,7 @@ def set_entry_point(
 
 
 def set_command(container: model.Container, layer: model.SetCommand) -> None:
-    cmd = BB_BUILDAH_CONFIG['--command', json.dumps(list(layer.command))]
+    cmd = BB_BUILDAH_CONFIG['--cmd', json.dumps(list(layer.command))]
     cmd(container.container_id)
 
 

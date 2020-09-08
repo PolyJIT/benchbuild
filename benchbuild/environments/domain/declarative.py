@@ -64,7 +64,7 @@ DEFAULT_BASES = {
             .run('apk', 'update') \
             .run('apk', 'add', 'python3', 'python3-dev', 'postgresql-dev',
                  'linux-headers', 'musl-dev', 'git', 'gcc', 'sqlite-libs',
-                 'py3-pip')
+                 'libgit2-dev', 'libffi-dev', 'py3-pip')
 }
 
 

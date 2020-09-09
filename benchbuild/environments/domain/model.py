@@ -15,17 +15,28 @@ class Layer(abc.ABC):
 class FromLayer(Layer):
     base: str = attr.ib()
 
+    def __str__(self) -> str:
+        return f'FROM {self.base}'
+
 
 @attr.s(frozen=True)
 class AddLayer(Layer):
     sources: tp.List[str] = attr.ib()
     destination: str = attr.ib()
 
+    def __str__(self) -> str:
+        sources = ' '.join(self.sources)
+        return f'ADD {sources} self.destination'
+
 
 @attr.s(frozen=True)
 class CopyLayer(Layer):
     sources: tp.List[str] = attr.ib()
     destination: str = attr.ib()
+
+    def __str__(self) -> str:
+        sources = ' '.join(self.sources)
+        return f'COPY {sources} self.destination'
 
 
 @attr.s(frozen=True)
@@ -34,30 +45,51 @@ class RunLayer(Layer):
     args: tp.List[str] = attr.ib()
     kwargs: tp.Dict[str, str] = attr.ib()
 
+    def __str__(self) -> str:
+        args = ' '.join(self.args)
+        return f'RUN {self.command} {args}'
+
 
 @attr.s(frozen=True)
 class ContextLayer(Layer):
     func: tp.Callable[[], None] = attr.ib()
+
+    def __str__(self) -> str:
+        return f'CONTEXT custom build context modification'
 
 
 @attr.s(frozen=True)
 class UpdateEnv(Layer):
     env = attr.ib()  # type: tp.Dict[str, str]
 
+    def __str__(self) -> str:
+        return f'ENV {len(self.env)} entries'
+
 
 @attr.s(frozen=True)
 class WorkingDirectory(Layer):
     directory: str = attr.ib()
+
+    def __str__(self) -> str:
+        return f'CWD {self.directory}'
 
 
 @attr.s(frozen=True)
 class EntryPoint(Layer):
     command: tp.Tuple[str] = attr.ib()
 
+    def __str__(self) -> str:
+        command = ' '.join(self.command)
+        return f'ENTRYPOINT {command}'
+
 
 @attr.s(frozen=True)
 class SetCommand(Layer):
     command: tp.Tuple[str] = attr.ib()
+
+    def __str__(self) -> str:
+        command = ' '.join(self.command)
+        return f'CMD {command}'
 
 
 @attr.s(eq=False)
@@ -75,7 +107,8 @@ class Image:
         self.layers.append(layer)
 
     def prepend(self, layer: Layer) -> None:
-        self.layers = [layer].extend(self.layers)
+        self.layers = [layer]
+        self.layers.extend(self.layers)
 
 
 MaybeImage = tp.Optional[Image]

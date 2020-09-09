@@ -1,7 +1,6 @@
-Jinja2~=2.11
-PyYAML~=5.3
 attrs~=20.1
 dill~=0.3
+Jinja2~=2.11
 parse~=1.17
 pathos~=0.2
 pdoc3~=0.8
@@ -11,5 +10,7 @@ psycopg2-binary~=2.8
 pygit2>=1.2
 pygtrie~=2.3
 pyparsing~=2.4
+PyYAML~=5.3
+rich~=6.1
 sqlalchemy-migrate~=0.13
 virtualenv~=20.0

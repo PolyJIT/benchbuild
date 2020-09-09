@@ -7,6 +7,12 @@ class Event:
 
 
 @attr.s(frozen=True)
+class CreatingLayer(Event):
+    name: str = attr.ib()
+    layer: str = attr.ib()
+
+
+@attr.s(frozen=True)
 class LayerCreated(Event):
     name: str = attr.ib()
     layer: str = attr.ib()
@@ -15,6 +21,7 @@ class LayerCreated(Event):
 @attr.s(frozen=True)
 class ImageCreated(Event):
     name: str = attr.ib()
+    from_layer: str = attr.ib()
     num_layers: int = attr.ib()
 
 

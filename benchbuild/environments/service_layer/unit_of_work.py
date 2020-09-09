@@ -21,12 +21,29 @@ class AbstractUnitOfWork(abc.ABC):
             while image.events:
                 yield image.events.pop(0)
 
+    def add_layer(self, container: model.Container, layer: model.Layer) -> None:
+        messagebus.handle(
+            events.CreatingLayer(container.name, str(layer)), self
+        )
+        self._add_layer(container, layer)
+        messagebus.handle(events.LayerCreated(container.name, str(layer)), self)
+
+    def create(self, tag: str, layers: tp.List[model.Layer]) -> model.Container:
+        container = self._create(tag, layers)
+        event = events.ImageCreated(tag, container.image.from_, len(layers))
+        messagebus.handle(event, self)
+        return container
+
     @abc.abstractmethod
-    def create(self, tag: str, layers: tp.List[model.Layer]) -> events.Event:
+    def _create(
+        self, tag: str, layers: tp.List[model.Layer]
+    ) -> model.Container:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_layer(self, container: model.Container, layer: model.Layer) -> None:
+    def _add_layer(
+        self, container: model.Container, layer: model.Layer
+    ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -43,15 +60,15 @@ class BuildahUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
         self.registry = repository.BuildahRegistry()
 
-    def create(self, tag: str, layers: tp.List[model.Layer]) -> events.Event:
-        image = self.registry.create(tag, layers)
-        event = events.ImageCreated(tag, len(layers))
-        messagebus.handle(event, self)
-        return image
+    def _create(
+        self, tag: str, layers: tp.List[model.Layer]
+    ) -> model.Container:
+        return self.registry.create(tag, layers)
 
-    def add_layer(self, container: model.Container, layer: model.Layer) -> None:
+    def _add_layer(
+        self, container: model.Container, layer: model.Layer
+    ) -> None:
         buildah.spawn_layer(container, layer)
-        messagebus.handle(events.LayerCreated(container.name, str(layer)), self)
 
     def rollback(self) -> None:
         for container in self.registry.containers:

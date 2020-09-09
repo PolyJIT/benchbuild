@@ -55,6 +55,7 @@ def handle_command(
 
 
 EVENT_HANDLERS = {
+    events.CreatingLayer: [ui.progress_print_creating_layer],
     events.LayerCreated: [ui.progress_print_layer_created],
     events.ImageCreated: [ui.progress_print_image_created],
     events.ImageCommitted: [ui.progress_print_image_committed],

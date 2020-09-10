@@ -157,13 +157,10 @@ def create_experiment_images(
             image = declarative.ContainerImage().from_(base_tag)
             image.extend(exp.container)
             image.env(BB_PLUGINS_EXPERIMENTS=f'["{exp.__module__}"]')
-            # Run on full verbosity for testing.
             verbosity = int(settings.CFG['verbosity'])
+            image.env(BB_VERBOSITY=f'{verbosity}')
 
-            image.entrypoint(
-                'benchbuild', '-' + verbosity * 'v', 'run', '-E', exp.name,
-                prj.id
-            )
+            image.entrypoint('benchbuild', 'run', '-E', exp.name, prj.id)
 
             cmd = commands.CreateImage(image_tag, image)
             uow = unit_of_work.BuildahUnitOfWork()

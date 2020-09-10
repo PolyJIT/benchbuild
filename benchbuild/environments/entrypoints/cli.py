@@ -3,7 +3,7 @@ from functools import partial
 
 from plumbum import cli, local
 
-from benchbuild import experiment, plugins, project, source
+from benchbuild import experiment, plugins, project, settings, source
 from benchbuild.cli.main import BenchBuild
 from benchbuild.environments.domain import commands, declarative
 from benchbuild.environments.service_layer import messagebus, unit_of_work
@@ -68,6 +68,9 @@ class BenchBuildContainer(cli.Application):
         create_base_images(wanted_projects)
         create_project_images(wanted_projects)
         create_experiment_images(wanted_experiments, wanted_projects)
+        run_experiment_images(wanted_experiments, wanted_projects)
+
+        return 0
 
 
 def enumerate_projects(
@@ -154,8 +157,42 @@ def create_experiment_images(
             image = declarative.ContainerImage().from_(base_tag)
             image.extend(exp.container)
             image.env(BB_PLUGINS_EXPERIMENTS=f'["{exp.__module__}"]')
+            # Run on full verbosity for testing.
+            verbosity = int(settings.CFG['verbosity'])
+
+            image.entrypoint(
+                'benchbuild', '-' + verbosity * 'v', 'run', '-E', exp.name,
+                prj.id
+            )
 
             cmd = commands.CreateImage(image_tag, image)
             uow = unit_of_work.BuildahUnitOfWork()
+
+            messagebus.handle(cmd, uow)
+
+
+def run_experiment_images(
+    experiments: ExperimentIndex, projects: ProjectIndex
+) -> None:
+    """
+    Run experiments on given projects.
+
+    This expects all images to be existent in the repository.
+
+    Args:
+        experiments: Index of experiments to run.
+        projects: Index of projects to run.
+    """
+    for exp in enumerate_experiments(experiments, projects):
+        for prj in exp.projects:
+            version = make_version_tag(*prj.variant.values())
+            image_tag = make_image_name(
+                f'{exp.name}/{prj.name}/{prj.group}', version
+            )
+
+            container_name = f'{exp.name}_{prj.name}_{prj.run_uuid}'
+
+            cmd = commands.RunContainer(image_tag, container_name)
+            uow = unit_of_work.PodmanUnitOfWork()
 
             messagebus.handle(cmd, uow)

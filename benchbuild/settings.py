@@ -83,11 +83,13 @@ CFG = s.Configuration(
             "export": False
         },
         "sequence": {
-            "desc": "The name of the sequence that should be used for "
-                    "preoptimization.",
+            "desc":
+                "The name of the sequence that should be used for "
+                "preoptimization.",
             "default": "no_preperation"
         }
-    })
+    }
+)
 
 CFG['bootstrap'] = {
     'packages': {
@@ -198,8 +200,9 @@ CFG["slurm"] = {
         "default": 10
     },
     "node_dir": {
-        "desc": "Node directory, when executing on a cluster node. This is not "
-                "used by benchbuild directly, but by external scripts.",
+        "desc":
+            "Node directory, when executing on a cluster node. This is not "
+            "used by benchbuild directly, but by external scripts.",
         "default": os.path.join(os.getcwd(), "results")
     },
     "timelimit": {
@@ -303,6 +306,10 @@ CFG["plugins"] = {
 }
 
 CFG["container"] = {
+    "from_source": {
+        "default": False,
+        "desc": "Install benchbuild from source or from pip (default)"
+    },
     "root": {
         "default": s.ConfigPath(os.path.join(os.getcwd(), "containers", "lib")),
         "desc": "Permanent storage for container images"
@@ -333,8 +340,9 @@ CFG["container"] = {
     },
     "prefixes": {
         "default": [],
-        "desc": "List of paths that will be treated as an "
-                "existing prefix inside a container."
+        "desc":
+            "List of paths that will be treated as an "
+            "existing prefix inside a container."
     },
     "shell": {
         "default": "/bin/bash",
@@ -342,9 +350,10 @@ CFG["container"] = {
     },
     "known": {
         "default": [],
-        "desc": "List of known containers. Format: "
-                "[{ 'path': <path>,"
-                "   'hash': <hash> }]"
+        "desc":
+            "List of known containers. Format: "
+            "[{ 'path': <path>,"
+            "   'hash': <hash> }]"
     },
     "images": {
         "default": {
@@ -354,9 +363,10 @@ CFG["container"] = {
     },
     "prefered": {
         "default": [],
-        "desc": "List of containers of which the project can chose from."
-                "Format:"
-                "[{ 'path': <path> }]"
+        "desc":
+            "List of containers of which the project can chose from."
+            "Format:"
+            "[{ 'path': <path> }]"
     },
     "strategy": {
         "polyjit": {

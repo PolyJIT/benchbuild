@@ -65,5 +65,6 @@ EVENT_HANDLERS = {
 COMMAND_HANDLERS: tp.Dict[tp.Type[commands.Command], tp.Callable] = {
     commands.CreateImage: handlers.create_image,
     commands.UpdateImage: handlers.update_image,
-    commands.CreateBenchbuildBase: handlers.create_benchbuild_base
+    commands.CreateBenchbuildBase: handlers.create_benchbuild_base,
+    commands.RunContainer: handlers.run_experiment_images
 }

@@ -33,3 +33,9 @@ class CreateBenchbuildBase(Command):
 
     def __hash__(self) -> int:
         return hash(self.name)
+
+
+@attr.s(frozen=True, hash=False)
+class RunContainer(Command):
+    image: str = attr.ib()
+    name: str = attr.ib()

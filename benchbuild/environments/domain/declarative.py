@@ -1,3 +1,4 @@
+import logging
 import typing as tp
 
 import attr
@@ -5,6 +6,8 @@ import attr
 from benchbuild.settings import CFG
 
 from . import model
+
+LOG = logging.getLogger(__name__)
 
 
 @attr.s
@@ -74,6 +77,9 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
     tgt_dir = '/benchbuild'
 
     def from_source(image: ContainerImage):
+        LOG.debug('installing benchbuild from source.')
+        LOG.debug(f'src_dir: {src_dir} tgt_dir: {tgt_dir}')
+
         # The image requires git, pip and a working python3.7 or better.
         image.run('mkdir', f'{tgt_dir}', runtime=crun)
         image.run('pip3', 'install', 'setuptools', runtime=crun)
@@ -87,6 +93,7 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
         )
 
     def from_pip(image: ContainerImage):
+        LOG.debug('installing benchbuild from pip release.')
         image.run('pip', 'install', 'benchbuild', runtime=crun)
 
     if bool(CFG['container']['from_source']):

@@ -17,6 +17,7 @@ import attr
 from plumbum import ProcessExecutionError, local
 
 import benchbuild as bb
+from benchbuild.environments.domain import declarative
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, container, path, run, uchroot
 from benchbuild.utils.cmd import cp, ln
@@ -29,8 +30,10 @@ class GentooGroup(bb.Project):
     """Gentoo ProjectGroup is the base class for every portage build."""
 
     GROUP = 'gentoo'
-    CONTAINER = container.Gentoo()
     SRC_FILE = None
+
+    # FIXME: These have to be replaced with a gentoo base image.
+    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
     emerge_env = attr.ib(default={}, repr=False, cmp=False)
 
@@ -51,8 +54,9 @@ class GentooGroup(bb.Project):
             _benchbuild("run", "-E", self.experiment.name, project_id)
 
     def compile(self):
-        package_atom = "{domain}/{name}".format(domain=self.domain,
-                                                name=self.name)
+        package_atom = "{domain}/{name}".format(
+            domain=self.domain, name=self.name
+        )
 
         LOG.debug('Installing dependencies.')
         emerge(package_atom, '--onlydeps', env=self.emerge_env)
@@ -321,8 +325,10 @@ def setup_benchbuild():
 def __upgrade_from_pip(venv_dir):
     LOG.debug("Upgrading from pip")
     uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
-    uchroot.uretry(uchrt_cmd[venv_dir / "bin" / "pip3", "install", "--upgrade",
-                             "benchbuild"])
+    uchroot.uretry(
+        uchrt_cmd[venv_dir / "bin" / "pip3", "install", "--upgrade",
+                  "benchbuild"]
+    )
 
 
 def __mount_source(src_dir):

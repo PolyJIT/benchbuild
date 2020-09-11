@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, unzip
 
@@ -13,9 +14,12 @@ class SciMark(bb.Project):
     GROUP = 'apollo'
 
     SOURCE = [
-        HTTP(remote={'2.1c': 'http://math.nist.gov/scimark2/scimark2_1c.zip'},
-             local='scimark.zip')
+        HTTP(
+            remote={'2.1c': 'http://math.nist.gov/scimark2/scimark2_1c.zip'},
+            local='scimark.zip'
+        )
     ]
+    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         scimark_source = local.path(self.source_of('scimark.zip'))

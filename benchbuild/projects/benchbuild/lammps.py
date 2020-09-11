@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import Git
 from benchbuild.utils.cmd import make
 
@@ -12,11 +13,14 @@ class Lammps(bb.Project):
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     SOURCE = [
-        Git(remote='https://github.com/lammps/lammps',
+        Git(
+            remote='https://github.com/lammps/lammps',
             local='lammps.git',
             limit=5,
-            refspec='HEAD')
+            refspec='HEAD'
+        )
     ]
+    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         lammps_repo = local.path(self.source_of('lammps.git'))
@@ -40,5 +44,7 @@ class Lammps(bb.Project):
         clang_cxx = bb.compiler.cxx(self)
         with local.cwd(src):
             _make = bb.watch(make)
-            _make("CC=" + str(clang_cxx), "LINK=" + str(clang_cxx), "clean",
-                  "serial")
+            _make(
+                "CC=" + str(clang_cxx), "LINK=" + str(clang_cxx), "clean",
+                "serial"
+            )

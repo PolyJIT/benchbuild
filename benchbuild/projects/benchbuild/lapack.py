@@ -3,6 +3,7 @@ import logging
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, tar
@@ -14,11 +15,14 @@ class OpenBlas(bb.Project):
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     SOURCE = [
-        Git(remote='https://github.com/xianyi/OpenBLAS',
+        Git(
+            remote='https://github.com/xianyi/OpenBLAS',
             local='OpenBLAS',
             limit=5,
-            refspec='HEAD')
+            refspec='HEAD'
+        )
     ]
+    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         openblas_repo = local.path(self.source_of('OpenBLAS'))
@@ -37,9 +41,12 @@ class Lapack(bb.Project):
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={'3.2.1': 'http://www.netlib.org/clapack/clapack.tgz'},
-             local='clapack.tgz')
+        HTTP(
+            remote={'3.2.1': 'http://www.netlib.org/clapack/clapack.tgz'},
+            local='clapack.tgz'
+        )
     ]
+    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         clapack_source = local.path(self.source_of('clapack.tgz'))

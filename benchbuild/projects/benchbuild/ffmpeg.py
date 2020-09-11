@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
@@ -15,8 +16,10 @@ class LibAV(bb.Project):
     SOURCE = [
         HTTP(
             remote={'3.1.3': 'http://ffmpeg.org/releases/ffmpeg-3.1.3.tar.bz2'},
-            local='ffmpeg.tar.bz2')
+            local='ffmpeg.tar.bz2'
+        )
     ]
+    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
 
     fate_dir = "fate-samples"
     fate_uri = "rsync://fate-suite.libav.org/fate-suite/"
@@ -43,8 +46,10 @@ class LibAV(bb.Project):
             _configure = bb.watch(configure)
             _make = bb.watch(make)
 
-            _configure("--disable-shared", "--cc=" + str(clang),
-                       "--extra-ldflags=" + " ".join(self.ldflags),
-                       "--samples=" + self.fate_dir)
+            _configure(
+                "--disable-shared", "--cc=" + str(clang),
+                "--extra-ldflags=" + " ".join(self.ldflags),
+                "--samples=" + self.fate_dir
+            )
             _make("clean")
             _make("-j{0}".format(str(get_number_of_jobs(CFG))), "all")

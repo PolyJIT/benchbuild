@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, unzip
 
@@ -12,16 +13,21 @@ class SQLite3(bb.Project):
     DOMAIN = 'database'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={
-            '3080900':
-                'http://www.sqlite.org/2015/sqlite-amalgamation-3080900.zip'
-        },
-             local='sqlite.zip'),
-        Git(remote='https://github.com/google/leveldb',
+        HTTP(
+            remote={
+                '3080900':
+                    'http://www.sqlite.org/2015/sqlite-amalgamation-3080900.zip'
+            },
+            local='sqlite.zip'
+        ),
+        Git(
+            remote='https://github.com/google/leveldb',
             local='leveldb.src',
             refspec='HEAD',
-            limit=5)
+            limit=5
+        )
     ]
+    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         sqlite_source = local.path(self.source_of('sqlite.zip'))
@@ -60,6 +66,7 @@ class SQLite3(bb.Project):
         with local.cwd(leveldb_repo):
             with local.env(LD_LIBRARY_PATH=leveldb_repo):
                 sqlite = bb.wrap(
-                    leveldb_repo / 'out-static' / 'db_bench_sqlite3', self)
+                    leveldb_repo / 'out-static' / 'db_bench_sqlite3', self
+                )
                 _sqlite = bb.watch(sqlite)
                 _sqlite()

@@ -29,6 +29,7 @@ class DummyPrj(Project):
     DOMAIN = 'TestDom'
     GROUP = 'TestGrp'
     SOURCE = [nosource()]
+    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         raise NotImplementedError()
@@ -39,6 +40,7 @@ class DummyPrjEmptySource(Project):
     DOMAIN = 'TestDom'
     GROUP = 'TestGrp'
     SOURCE = []
+    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         raise NotImplementedError()
@@ -82,6 +84,7 @@ def mkproject(mksource):
             SOURCE = [
                 mksource(f'VersionSource_{i}') for i in range(num_sources)
             ]
+            CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
         return VersionedProject
 

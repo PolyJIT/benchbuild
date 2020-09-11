@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
 from benchbuild.utils import path
@@ -20,20 +21,24 @@ class MCrypt(bb.Project):
                 '2.6.8':
                     'http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz'  # pylint: disable=line-too-long
             },
-            local='mcrypt.tar.gz'),
+            local='mcrypt.tar.gz'
+        ),
         HTTP(
             remote={
                 '2.5.8':
                     'http://sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz'  # pylint: disable=line-too-long
             },
-            local='libmcrypt.tar.gz'),
+            local='libmcrypt.tar.gz'
+        ),
         HTTP(
             remote={
                 '0.9.9.9':
                     'http://sourceforge.net/projects/mhash/files/mhash/0.9.9.9/mhash-0.9.9.9.tar.gz'  # pylint: disable=line-too-long
             },
-            local='mhash.tar.gz')
+            local='mhash.tar.gz'
+        )
     ]
+    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
 
     libmcrypt_dir = "libmcrypt-2.5.8"
     libmcrypt_file = libmcrypt_dir + ".tar.gz"
@@ -82,17 +87,21 @@ class MCrypt(bb.Project):
             lib_dir = builddir / "lib"
             inc_dir = builddir / "include"
             env = CFG["env"].value
-            mod_env = dict(CC=_cc,
-                           CXX=_cxx,
-                           LD_LIBRARY_PATH=path.list_to_path(
-                               [str(lib_dir)] + env.get("LD_LIBRARY_PATH", [])),
-                           LDFLAGS="-L" + str(lib_dir),
-                           CFLAGS="-I" + str(inc_dir))
+            mod_env = dict(
+                CC=_cc,
+                CXX=_cxx,
+                LD_LIBRARY_PATH=path.
+                list_to_path([str(lib_dir)] + env.get("LD_LIBRARY_PATH", [])),
+                LDFLAGS="-L" + str(lib_dir),
+                CFLAGS="-I" + str(inc_dir)
+            )
             env.update(mod_env)
             with local.env(**env):
-                _configure("--disable-dependency-tracking", "--disable-shared",
-                           "--with-libmcrypt=" + builddir,
-                           "--with-libmhash=" + builddir)
+                _configure(
+                    "--disable-dependency-tracking", "--disable-shared",
+                    "--with-libmcrypt=" + builddir,
+                    "--with-libmhash=" + builddir
+                )
             _make("-j", get_number_of_jobs(CFG))
 
     def run_tests(self):

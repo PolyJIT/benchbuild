@@ -3,6 +3,7 @@ from os import getenv
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import Git
 from benchbuild.utils.cmd import make
 
@@ -12,11 +13,14 @@ class LevelDB(bb.Project):
     DOMAIN = 'database'
     GROUP = 'benchbuild'
     SOURCE = [
-        Git(remote='https://github.com/google/leveldb',
+        Git(
+            remote='https://github.com/google/leveldb',
             local='leveldb.src',
             limit=5,
-            refspec='HEAD')
+            refspec='HEAD'
+        )
     ]
+    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         leveldb_repo = local.path(self.source_of('leveldb.src'))
@@ -41,6 +45,8 @@ class LevelDB(bb.Project):
 
         leveldb = bb.wrap(leveldb_repo / "out-static" / "db_bench", self)
         _leveldb = bb.watch(leveldb)
-        with local.env(LD_LIBRARY_PATH="{}:{}".format(
-                leveldb_repo / "out-shared", getenv("LD_LIBRARY_PATH", ""))):
+        with local.env(
+            LD_LIBRARY_PATH="{}:{}".
+            format(leveldb_repo / "out-shared", getenv("LD_LIBRARY_PATH", ""))
+        ):
             _leveldb()

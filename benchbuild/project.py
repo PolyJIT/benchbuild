@@ -168,7 +168,7 @@ class Project(metaclass=ProjectDecorator):
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
-    CONTAINER = tp.ClassVar[ContainerDeclaration]
+    CONTAINER: tp.ClassVar[ContainerDeclaration]
     DOMAIN: tp.ClassVar[str] = ""
     GROUP: tp.ClassVar[str] = ""
     NAME: tp.ClassVar[str] = ""

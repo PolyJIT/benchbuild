@@ -1,6 +1,7 @@
 import pytest
 
 from benchbuild import extensions, project, source
+from benchbuild.environments.domain.declarative import ContainerImage
 
 
 class DummyPrj(project.Project):
@@ -8,6 +9,7 @@ class DummyPrj(project.Project):
     GROUP: str = 'TestMissingExtension'
     DOMAIN: str = 'TestMissingExtension'
     SOURCE = [source.nosource()]
+    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         raise NotImplementedError()

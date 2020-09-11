@@ -9,6 +9,7 @@ from plumbum.cmd import rm
 import benchbuild.project as project
 import benchbuild.utils.compiler as compilers
 import benchbuild.utils.wrapping as wrappers
+from benchbuild.environments.domain import declarative
 from benchbuild.source.base import nosource
 
 
@@ -17,6 +18,7 @@ class EmptyProject(project.Project):
     DOMAIN = "debug"
     GROUP = "debug"
     SOURCE = [nosource()]
+    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
     def __attrs_post_init__(self):
         pass

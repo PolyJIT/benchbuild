@@ -1,5 +1,6 @@
-import rich
-from rich.progress import Progress, BarColumn
+import typing as tp
+
+from rich.progress import Task, Progress, BarColumn
 
 from benchbuild.environments.domain import events
 from benchbuild.environments.service_layer import unit_of_work
@@ -45,4 +46,4 @@ __progress__ = Progress(
     "[progress.percentage]{task.percentage:>3.0f}%"
 )
 __progress__ = Progress()
-__tasks__ = {}
+__tasks__: tp.Dict[str, Task] = {}

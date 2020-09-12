@@ -27,7 +27,7 @@ class SQLite3(bb.Project):
             limit=5
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         sqlite_source = local.path(self.source_of('sqlite.zip'))

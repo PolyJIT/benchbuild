@@ -30,7 +30,7 @@ class Povray(bb.Project):
             local='inputs.tar.gz'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     boost_src_dir = "boost_1_59_0"
     boost_src_file = boost_src_dir + ".tar.bz2"

@@ -21,7 +21,7 @@ class Ccrypt(bb.Project):
             local='ccrypt.tar.gz'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         ccrypt_source = local.path(self.source_of('ccrypt.tar.gz'))

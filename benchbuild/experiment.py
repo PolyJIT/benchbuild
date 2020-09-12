@@ -51,8 +51,10 @@ class ExperimentRegistry(type):
 
     experiments = {}
 
-    def __new__(mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
-                attrs: tp.Dict[str, tp.Any]) -> tp.Any:
+    def __new__(
+        mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
+        attrs: tp.Dict[str, tp.Any]
+    ) -> tp.Any:
         """Register a project in the registry."""
         cls = super(ExperimentRegistry, mcs).__new__(mcs, name, bases, attrs)
         if bases and 'NAME' in attrs:
@@ -89,7 +91,8 @@ class Experiment(metaclass=ExperimentRegistry):
     NAME: tp.ClassVar[str] = ''
     SCHEMA = None
     REQUIREMENTS: tp.List[Requirement] = []
-    CONTAINER: declarative.ContainerImage = declarative.ContainerImage()
+    CONTAINER: tp.ClassVar[declarative.ContainerImage
+                          ] = declarative.ContainerImage()
 
     def __new__(cls, *args, **kwargs):
         """Create a new experiment instance and set some defaults."""
@@ -98,11 +101,14 @@ class Experiment(metaclass=ExperimentRegistry):
         if not cls.NAME:
             raise AttributeError(
                 "{0} @ {1} does not define a NAME class attribute.".format(
-                    cls.__name__, cls.__module__))
+                    cls.__name__, cls.__module__
+                )
+            )
         return new_self
 
     name: str = attr.ib(
-        default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
+        default=attr.Factory(lambda self: type(self).NAME, takes_self=True)
+    )
 
     projects: Projects = \
         attr.ib(default=attr.Factory(dict))
@@ -123,8 +129,10 @@ class Experiment(metaclass=ExperimentRegistry):
     @id.validator
     def validate_id(self, _: tp.Any, new_id: uuid.UUID) -> None:
         if not isinstance(new_id, uuid.UUID):
-            raise TypeError("%s expected to be '%s' but got '%s'" %
-                            (str(new_id), str(uuid.UUID), str(type(new_id))))
+            raise TypeError(
+                "%s expected to be '%s' but got '%s'" %
+                (str(new_id), str(uuid.UUID), str(type(new_id)))
+            )
 
     schema = attr.ib()
 
@@ -132,10 +140,10 @@ class Experiment(metaclass=ExperimentRegistry):
     def default_schema(self):
         return type(self).SCHEMA
 
-    container = attr.ib()
+    container: declarative.ContainerImage = attr.ib()
 
     @container.default
-    def default_container(self):
+    def default_container(self) -> declarative.ContainerImage:
         return type(self).CONTAINER
 
     @schema.validator
@@ -174,8 +182,10 @@ class Experiment(metaclass=ExperimentRegistry):
                 atomic_actions: Actions = [
                     actns.Clean(p),
                     actns.MakeBuildDir(p),
-                    actns.Echo(message="Selected {0} with version {1}".format(
-                        p.name, version_str)),
+                    actns.Echo(
+                        message="Selected {0} with version {1}".
+                        format(p.name, version_str)
+                    ),
                     actns.ProjectEnvironment(p),
                 ]
                 atomic_actions.extend(self.actions_for_project(p))

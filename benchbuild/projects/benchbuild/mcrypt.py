@@ -38,7 +38,7 @@ class MCrypt(bb.Project):
             local='mhash.tar.gz'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     libmcrypt_dir = "libmcrypt-2.5.8"
     libmcrypt_file = libmcrypt_dir + ".tar.gz"

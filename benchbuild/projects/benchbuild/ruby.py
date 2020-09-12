@@ -28,7 +28,7 @@ class Ruby(bb.Project):
             local='inputs.tar.gz'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         ruby_source = local.path(self.source_of('ruby.tar.gz'))

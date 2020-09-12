@@ -24,7 +24,7 @@ class Gzip(bb.Project):
             local='compression.tar.gz'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         gzip_version = self.version_of('gzip.tar.xz')

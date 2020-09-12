@@ -12,7 +12,7 @@ class SDCC(bb.Project):
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     SRC_FILE = 'sdcc'
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     src_uri = "svn://svn.code.sf.net/p/sdcc/code/trunk/" + SRC_FILE
 

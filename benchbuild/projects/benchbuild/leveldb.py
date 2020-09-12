@@ -20,7 +20,7 @@ class LevelDB(bb.Project):
             refspec='HEAD'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         leveldb_repo = local.path(self.source_of('leveldb.src'))

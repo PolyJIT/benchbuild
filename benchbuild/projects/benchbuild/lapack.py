@@ -22,7 +22,7 @@ class OpenBlas(bb.Project):
             refspec='HEAD'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         openblas_repo = local.path(self.source_of('OpenBLAS'))
@@ -46,7 +46,7 @@ class Lapack(bb.Project):
             local='clapack.tgz'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         clapack_source = local.path(self.source_of('clapack.tgz'))

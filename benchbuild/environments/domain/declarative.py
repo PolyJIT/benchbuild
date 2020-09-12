@@ -40,7 +40,7 @@ class ContainerImage(list):
         self.append(model.AddLayer(sources, tgt))
         return self
 
-    def copy(self, sources: tp.Iterable[str], tgt: str) -> 'ContainerImage':
+    def copy_(self, sources: tp.Iterable[str], tgt: str) -> 'ContainerImage':
         self.append(model.CopyLayer(sources, tgt))
         return self
 
@@ -61,7 +61,7 @@ class ContainerImage(list):
         return self
 
 
-DEFAULT_BASES = {
+DEFAULT_BASES: tp.Dict[str, ContainerImage] = {
     'benchbuild:alpine': ContainerImage() \
             .from_("alpine:latest") \
             .run('apk', 'update') \
@@ -72,13 +72,29 @@ DEFAULT_BASES = {
 
 
 def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
+    """
+    Add benchbuild into the given container image.
+
+    This assumes all necessary depenencies are available in the image already.
+    The installation is done, either using pip from a remote mirror, or using
+    the source checkout of benchbuild.
+
+    A source installation requires your buildah/podman installation to be
+    able to complete a bind-mount as the user that runs benchbuild.
+
+    Args:
+        layers: a container image we will add our install layers to.
+
+    Returns:
+        the modified container image.
+    """
     crun = str(CFG['container']['runtime'])
     src_dir = str(CFG['container']['source'])
     tgt_dir = '/benchbuild'
 
-    def from_source(image: ContainerImage):
+    def from_source(image: ContainerImage) -> None:
         LOG.debug('installing benchbuild from source.')
-        LOG.debug(f'src_dir: {src_dir} tgt_dir: {tgt_dir}')
+        LOG.debug('src_dir: %s tgt_dir: %s', src_dir, tgt_dir)
 
         # The image requires git, pip and a working python3.7 or better.
         image.run('mkdir', f'{tgt_dir}', runtime=crun)
@@ -92,7 +108,7 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
             runtime=crun
         )
 
-    def from_pip(image: ContainerImage):
+    def from_pip(image: ContainerImage) -> None:
         LOG.debug('installing benchbuild from pip release.')
         image.run('pip', 'install', 'benchbuild', runtime=crun)
 

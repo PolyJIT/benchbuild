@@ -60,7 +60,7 @@ class BenchBuildContainer(cli.Application):
             print("Could not find any experiment. Exiting.")
             return -2
 
-        wanted_projects = project.populate(projects, cli_groups)
+        wanted_projects = project.populate(list(projects), cli_groups)
         if not wanted_projects:
             print("No projects selected.")
             return -2
@@ -82,7 +82,7 @@ def enumerate_projects(
             yield prj_class(context)
 
 
-def make_version_tag(*versions) -> str:
+def make_version_tag(*versions: source.Variant) -> str:
     return '-'.join([str(v) for v in versions])
 
 

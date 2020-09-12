@@ -22,7 +22,7 @@ class SevenZip(bb.Project):
             local='p7zip.tar.bz2'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         sevenzip_source = local.path(self.source_of('p7zip.tar.bz2'))

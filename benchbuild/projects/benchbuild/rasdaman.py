@@ -28,7 +28,7 @@ class Rasdaman(bb.Project):
             refspec='HEAD'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     gdal_dir = "gdal"
     gdal_uri = "https://github.com/OSGeo/gdal"

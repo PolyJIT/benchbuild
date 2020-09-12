@@ -211,7 +211,7 @@ class Project(metaclass=ProjectDecorator):
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True)
     )
 
-    container = attr.ib(
+    container: ContainerDeclaration = attr.ib(
         default=attr.Factory(
             lambda self: copy.deepcopy(type(self).CONTAINER), takes_self=True
         )

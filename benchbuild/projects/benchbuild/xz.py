@@ -23,7 +23,7 @@ class XZ(bb.Project):
             local='compression.tar.gz'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         xz_source = local.path(self.source_of('xz.tar.gz'))

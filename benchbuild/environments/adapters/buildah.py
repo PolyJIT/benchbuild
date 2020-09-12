@@ -1,7 +1,9 @@
 import json
 import os
+import typing as tp
 
-from plumbum import TEE, local
+from plumbum import local
+from plumbum.commands.base import BaseCommand
 from plumbum.path.utils import delete
 
 from benchbuild.environments.domain import model
@@ -17,21 +19,22 @@ BUILDAH_DEFAULT_OPTS = [
 BUILDAH_DEFAULT_COMMAND_OPTS = ['--add-history']
 
 
-def bb_buildah():
+def bb_buildah() -> BaseCommand:
     return buildah[BUILDAH_DEFAULT_OPTS]
 
 
-BB_BUILDAH_FROM = bb_buildah()['from']
-BB_BUILDAH_BUD = bb_buildah()['bud']
-BB_BUILDAH_ADD = bb_buildah()['add'][BUILDAH_DEFAULT_COMMAND_OPTS]
-BB_BUILDAH_COMMIT = bb_buildah()['commit']
-BB_BUILDAH_CONFIG = bb_buildah()['config']
-BB_BUILDAH_COPY = bb_buildah()['copy'][BUILDAH_DEFAULT_COMMAND_OPTS]
-BB_BUILDAH_IMAGES = bb_buildah()['images']
-BB_BUILDAH_RUN = bb_buildah()['run'][BUILDAH_DEFAULT_COMMAND_OPTS]
-BB_BUILDAH_RM = bb_buildah()['rm']
-BB_BUILDAH_CLEAN = bb_buildah()['clean']
-BB_BUILDAH_INSPECT = bb_buildah()['inspect']
+BB_BUILDAH_FROM: BaseCommand = bb_buildah()['from']
+BB_BUILDAH_BUD: BaseCommand = bb_buildah()['bud']
+BB_BUILDAH_ADD: BaseCommand = bb_buildah()['add'][BUILDAH_DEFAULT_COMMAND_OPTS]
+BB_BUILDAH_COMMIT: BaseCommand = bb_buildah()['commit']
+BB_BUILDAH_CONFIG: BaseCommand = bb_buildah()['config']
+BB_BUILDAH_COPY: BaseCommand = bb_buildah(
+)['copy'][BUILDAH_DEFAULT_COMMAND_OPTS]
+BB_BUILDAH_IMAGES: BaseCommand = bb_buildah()['images']
+BB_BUILDAH_RUN: BaseCommand = bb_buildah()['run'][BUILDAH_DEFAULT_COMMAND_OPTS]
+BB_BUILDAH_RM: BaseCommand = bb_buildah()['rm']
+BB_BUILDAH_CLEAN: BaseCommand = bb_buildah()['clean']
+BB_BUILDAH_INSPECT: BaseCommand = bb_buildah()['inspect']
 
 
 def create_build_context() -> local.path:
@@ -44,7 +47,7 @@ def destroy_build_context(context: local.path) -> None:
 
 
 def create_working_container(from_image: model.FromLayer) -> str:
-    return BB_BUILDAH_FROM(from_image.base).strip()
+    return str(BB_BUILDAH_FROM(from_image.base)).strip()
 
 
 def destroy_working_container(container: model.Container) -> None:
@@ -124,7 +127,9 @@ def find_image(tag: str) -> model.MaybeImage:
     return None
 
 
-LAYER_HANDLERS = {
+LayerHandlerT = tp.Callable[[model.Container, model.Layer], None]
+
+LAYER_HANDLERS: tp.Dict[tp.Type[model.Layer], LayerHandlerT] = {
     model.AddLayer: spawn_add_layer,
     model.ContextLayer: spawn_in_context,
     model.CopyLayer: spawn_copy_layer,

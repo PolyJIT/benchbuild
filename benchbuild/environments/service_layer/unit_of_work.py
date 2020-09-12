@@ -13,7 +13,7 @@ class AbstractUnitOfWork(abc.ABC):
     def __enter__(self) -> 'AbstractUnitOfWork':
         return self
 
-    def __exit__(self, *args) -> None:
+    def __exit__(self, *args: tp.Any) -> None:
         self.rollback()
 
     def collect_new_events(self) -> tp.Generator[events.Event, None, None]:
@@ -30,7 +30,9 @@ class AbstractUnitOfWork(abc.ABC):
 
     def create(self, tag: str, layers: tp.List[model.Layer]) -> model.Container:
         container = self._create(tag, layers)
-        event = events.ImageCreated(tag, container.image.from_, len(layers))
+        event = events.ImageCreated(
+            tag, str(container.image.from_), len(layers)
+        )
         messagebus.handle(event, self)
         return container
 
@@ -57,7 +59,7 @@ class AbstractUnitOfWork(abc.ABC):
 
 class BuildahUnitOfWork(AbstractUnitOfWork):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.registry = repository.BuildahRegistry()
 
     def _create(
@@ -85,26 +87,24 @@ class BuildahUnitOfWork(AbstractUnitOfWork):
 
 class PodmanUnitOfWork(AbstractUnitOfWork):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.registry = repository.BuildahRegistry()
 
     def _create(
         self, tag: str, layers: tp.List[model.Layer]
     ) -> model.Container:
         image = self.registry.get(tag)
-        if not image:
-            # FIXME: raise error event/exception
-            pass
-
-        container_id = podman.create_container(image.name, 'test')
-        return model.Container(container_id, image, '')
+        if image:
+            container_id = podman.create_container(image.name, 'test')
+            return model.Container(container_id, image, '')
+        raise ValueError('Image not found. Try building it first.')
 
     def _add_layer(
         self, container: model.Container, layer: model.Layer
     ) -> None:
         # Maybe derive a new image from the existing container and add the
         # gicen layer? TODO
-        pass
+        raise NotImplementedError()
 
     def run_container(self, container: model.Container) -> None:
         podman.run_container(container.name)

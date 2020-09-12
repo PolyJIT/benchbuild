@@ -13,15 +13,19 @@ class Bzip2(bb.Project):
     DOMAIN = 'compression'
     GROUP = 'benchbuild'
     SOURCE = [
-        Git(remote='https://github.com/PolyJIT/bzip2',
+        Git(
+            remote='https://github.com/PolyJIT/bzip2',
             local='bzip2.git',
             limit=1,
-            refspec='HEAD'),
-        HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
-             local='compression.tar.gz')
+            refspec='HEAD'
+        ),
+        HTTP(
+            remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
+            local='compression.tar.gz'
+        )
     ]
 
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         bzip2_repo = local.path(self.source_of('bzip2.git'))

@@ -31,7 +31,7 @@ class LibreSSL(bb.Project):
             local='libressl.tar.gz'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         libressl_source = local.path(self.source_of('libressl.tar.gz'))

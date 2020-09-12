@@ -1,5 +1,7 @@
 import os
 
+from plumbum.commands.base import BaseCommand
+
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import podman
 
@@ -10,16 +12,17 @@ PODMAN_DEFAULT_OPTS = [
 ]
 
 
-def bb_podman():
+def bb_podman() -> BaseCommand:
     return podman[PODMAN_DEFAULT_OPTS]
 
 
-BB_PODMAN_RUN = bb_podman()['run']
-BB_PODMAN_CREATE = bb_podman()['create']
+BB_PODMAN_RUN: BaseCommand = bb_podman()['run']
+BB_PODMAN_CREATE: BaseCommand = bb_podman()['create']
 
 
 def create_container(image_id: str, container_name: str) -> str:
-    container_id = BB_PODMAN_CREATE('--name', container_name, image_id).strip()
+    container_id = str(BB_PODMAN_CREATE('--name', container_name,
+                                        image_id)).strip()
     return container_id
 
 

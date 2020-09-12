@@ -20,7 +20,7 @@ class Lammps(bb.Project):
             refspec='HEAD'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         lammps_repo = local.path(self.source_of('lammps.git'))

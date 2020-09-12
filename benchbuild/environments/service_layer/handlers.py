@@ -20,12 +20,12 @@ def create_image(
     with uow:
         image = uow.registry.get(cmd.name)
         if image:
-            return image.name
+            return str(image.name)
 
         image = _create_container(cmd.name, cmd.layers, uow)
         uow.commit()
 
-        return image.name
+        return str(image.name)
 
 
 def update_image(
@@ -35,7 +35,7 @@ def update_image(
         image = _create_container(cmd.name, cmd.layers, uow)
         uow.commit()
 
-        return image.name
+        return str(image.name)
 
 
 def create_benchbuild_base(
@@ -44,17 +44,17 @@ def create_benchbuild_base(
     with uow:
         image = uow.registry.get(cmd.name)
         if image:
-            return image.name
+            return str(image.name)
 
         image = _create_container(cmd.name, cmd.layers, uow)
         uow.commit()
 
-        return image.name
+        return str(image.name)
 
 
 def run_experiment_images(
     cmd: commands.RunContainer, uow: unit_of_work.AbstractUnitOfWork
-) -> str:
+) -> None:
     if not isinstance(uow, unit_of_work.PodmanUnitOfWork):
         raise TypeError('I need a Podman UOW to complete this request.')
 

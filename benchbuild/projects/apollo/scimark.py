@@ -19,7 +19,7 @@ class SciMark(bb.Project):
             local='scimark.zip'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         scimark_source = local.path(self.source_of('scimark.zip'))

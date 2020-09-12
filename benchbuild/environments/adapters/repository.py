@@ -31,7 +31,7 @@ class AbstractRegistry(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _get(self, tag: str) -> model.Image:
+    def _get(self, tag: str) -> model.MaybeImage:
         raise NotImplementedError
 
 

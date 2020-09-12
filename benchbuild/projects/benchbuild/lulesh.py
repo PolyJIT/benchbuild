@@ -19,7 +19,7 @@ class Lulesh(bb.Project):
             refspec='HEAD'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         lulesh_repo = local.path(self.source_of('lulesh.git'))
@@ -57,7 +57,7 @@ class LuleshOMP(bb.Project):
             refspec='HEAD'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         lulesh_repo = local.path(self.source_of('lulesh.git'))

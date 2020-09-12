@@ -21,7 +21,7 @@ class Python(bb.Project):
             local='python.tar.xz'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         python_source = local.path(self.source_of('python.tar.xz'))

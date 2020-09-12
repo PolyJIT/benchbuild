@@ -27,7 +27,7 @@ class Crocopat(bb.Project):
             local='inputs.tar.gz'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         crocopat = bb.wrap('crocopat', self)

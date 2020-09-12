@@ -21,7 +21,7 @@ class Linpack(bb.Project):
             local='linpack.c'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self) -> None:
         lp_patch = path.template_path("../projects/patches/linpack.patch")

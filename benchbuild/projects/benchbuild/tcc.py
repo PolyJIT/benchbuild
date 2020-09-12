@@ -22,7 +22,7 @@ class TCC(bb.Project):
             local='tcc.tar.bz2'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         tcc_source = local.path(self.source_of('tcc.tar.bz2'))

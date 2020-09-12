@@ -10,7 +10,7 @@ class TestProject(project.Project):
     DOMAIN = "test"
     GROUP = "test"
     SOURCE = [nosource()]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         with open('test.cpp', 'w') as test_source:
@@ -42,7 +42,7 @@ class TestProjectRuntimeFail(project.Project):
     GROUP = "test"
     SRC_FILE = "test.cpp"
     SOURCE = [nosource()]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         with open('test.cpp', 'w') as test_source:

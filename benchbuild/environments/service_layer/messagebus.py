@@ -5,12 +5,21 @@ from benchbuild.environments.domain import commands, events
 
 from . import handlers, ui, unit_of_work
 
-logger = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 Message = tp.Union[commands.Command, events.Event]
+Messages = tp.List[Message]
+
+EventHandlerT = tp.Callable[[events.Event, unit_of_work.AbstractUnitOfWork],
+                            None]
+CommandHandlerT = tp.Callable[
+    [commands.Command, unit_of_work.AbstractUnitOfWork], str]
+CommandResults = tp.List[str]
 
 
-def handle(message: Message, uow: unit_of_work.AbstractUnitOfWork):
+def handle(
+    message: Message, uow: unit_of_work.AbstractUnitOfWork
+) -> CommandResults:
     results = []
     queue = [message]
     while queue:
@@ -26,35 +35,34 @@ def handle(message: Message, uow: unit_of_work.AbstractUnitOfWork):
 
 
 def handle_event(
-    event: events.Event, queue: tp.List[Message],
-    uow: unit_of_work.AbstractUnitOfWork
-):
+    event: events.Event, queue: Messages, uow: unit_of_work.AbstractUnitOfWork
+) -> None:
     for handler in EVENT_HANDLERS[type(event)]:
         try:
-            logger.debug('handling event %s with handler %s', event, handler)
-            handler(event, uow=uow)
+            LOG.debug('handling event %s with handler %s', event, handler)
+            handler(event, uow)
             queue.extend(uow.collect_new_events())
         except Exception:
-            logger.exception('Exception handling event %s', event)
+            LOG.exception('Exception handling event %s', event)
             continue
 
 
 def handle_command(
-    command: commands.Command, queue: tp.List[Message],
+    command: commands.Command, queue: Messages,
     uow: unit_of_work.AbstractUnitOfWork
-):
-    logger.debug('handling command %s', command)
+) -> str:
+    LOG.debug('handling command %s', command)
     try:
         handler = COMMAND_HANDLERS[type(command)]
-        result = handler(command, uow=uow)
+        result = handler(command, uow)
         queue.extend(uow.collect_new_events())
         return result
     except Exception:
-        logger.exception('Exception handling command %s', command)
+        LOG.exception('Exception handling command %s', command)
         raise
 
 
-EVENT_HANDLERS = {
+EVENT_HANDLERS: tp.Dict[tp.Type[events.Event], tp.List[EventHandlerT]] = {
     events.CreatingLayer: [ui.progress_print_creating_layer],
     events.LayerCreated: [ui.progress_print_layer_created],
     events.ImageCreated: [ui.progress_print_image_created],
@@ -62,7 +70,7 @@ EVENT_HANDLERS = {
     events.ImageDestroyed: [ui.progress_print_image_destroyed]
 }
 
-COMMAND_HANDLERS: tp.Dict[tp.Type[commands.Command], tp.Callable] = {
+COMMAND_HANDLERS: tp.Dict[tp.Type[commands.Command], CommandHandlerT] = {
     commands.CreateImage: handlers.create_image,
     commands.UpdateImage: handlers.update_image,
     commands.CreateBenchbuildBase: handlers.create_benchbuild_base,

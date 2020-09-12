@@ -19,7 +19,7 @@ class LibAV(bb.Project):
             local='ffmpeg.tar.bz2'
         )
     ]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     fate_dir = "fate-samples"
     fate_uri = "rsync://fate-suite.libav.org/fate-suite/"

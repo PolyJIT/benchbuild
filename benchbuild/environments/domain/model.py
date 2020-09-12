@@ -21,7 +21,7 @@ class FromLayer(Layer):
 
 @attr.s(frozen=True)
 class AddLayer(Layer):
-    sources: tp.List[str] = attr.ib()
+    sources: tp.Iterable[str] = attr.ib()
     destination: str = attr.ib()
 
     def __str__(self) -> str:
@@ -31,7 +31,7 @@ class AddLayer(Layer):
 
 @attr.s(frozen=True)
 class CopyLayer(Layer):
-    sources: tp.List[str] = attr.ib()
+    sources: tp.Iterable[str] = attr.ib()
     destination: str = attr.ib()
 
     def __str__(self) -> str:
@@ -42,7 +42,7 @@ class CopyLayer(Layer):
 @attr.s(frozen=True)
 class RunLayer(Layer):
     command: str = attr.ib()
-    args: tp.List[str] = attr.ib()
+    args: tp.Tuple[str, ...] = attr.ib()
     kwargs: tp.Dict[str, str] = attr.ib()
 
     def __str__(self) -> str:
@@ -76,7 +76,7 @@ class WorkingDirectory(Layer):
 
 @attr.s(frozen=True)
 class EntryPoint(Layer):
-    command: tp.Tuple[str] = attr.ib()
+    command: tp.Tuple[str, ...] = attr.ib()
 
     def __str__(self) -> str:
         command = ' '.join(self.command)
@@ -85,7 +85,7 @@ class EntryPoint(Layer):
 
 @attr.s(frozen=True)
 class SetCommand(Layer):
-    command: tp.Tuple[str] = attr.ib()
+    command: tp.Tuple[str, ...] = attr.ib()
 
     def __str__(self) -> str:
         command = ' '.join(self.command)
@@ -100,7 +100,7 @@ class Image:
     events = attr.ib(attr.Factory(list))  # type: tp.List[events.Event]
     env = attr.ib(attr.Factory(dict))  # type: tp.Dict[str, str]
 
-    def update_env(self, **kwargs) -> None:
+    def update_env(self, **kwargs: tp.Dict[str, str]) -> None:
         self.env.update(kwargs)
 
     def append(self, layer: Layer) -> None:

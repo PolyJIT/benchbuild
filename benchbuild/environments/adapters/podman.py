@@ -1,5 +1,6 @@
 import os
 
+from plumbum import TEE
 from plumbum.commands.base import BaseCommand
 
 from benchbuild.settings import CFG
@@ -27,4 +28,4 @@ def create_container(image_id: str, container_name: str) -> str:
 
 
 def run_container(name: str) -> None:
-    BB_PODMAN_RUN('-it', name)
+    BB_PODMAN_RUN['-it', name] & TEE

@@ -26,6 +26,12 @@ class ImageCreated(Event):
 
 
 @attr.s(frozen=True)
+class ContainerCreated(Event):
+    image_id: str = attr.ib()
+    name: str = attr.ib()
+
+
+@attr.s(frozen=True)
 class ImageCommitted(Event):
     name: str = attr.ib()
 

@@ -53,11 +53,11 @@ def create_benchbuild_base(
 
 
 def run_experiment_images(
-    cmd: commands.RunContainer, uow: unit_of_work.AbstractUnitOfWork
+    cmd: commands.RunContainer, uow: unit_of_work.AbstractContainerUOW
 ) -> None:
     if not isinstance(uow, unit_of_work.PodmanUnitOfWork):
         raise TypeError('I need a Podman UOW to complete this request.')
 
     with uow:
-        container = uow.create(cmd.image, [])
+        container = uow.create(cmd.image, cmd.name)
         uow.run_container(container)

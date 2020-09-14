@@ -10,16 +10,33 @@ from . import messagebus
 class AbstractUnitOfWork(abc.ABC):
     registry: repository.AbstractRegistry
 
+    def collect_new_events(self) -> tp.Generator[events.Event, None, None]:
+        for image in self.registry.images:
+            while image.events:
+                yield image.events.pop(0)
+
     def __enter__(self) -> 'AbstractUnitOfWork':
         return self
 
     def __exit__(self, *args: tp.Any) -> None:
         self.rollback()
 
-    def collect_new_events(self) -> tp.Generator[events.Event, None, None]:
-        for image in self.registry.images:
-            while image.events:
-                yield image.events.pop(0)
+    @abc.abstractmethod
+    def _create(
+        self, tag: str, layers: tp.List[model.Layer]
+    ) -> model.Container:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def commit(self) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def rollback(self) -> None:
+        raise NotImplementedError
+
+
+class AbstractImageUnitOfWork(AbstractUnitOfWork):
 
     def add_layer(self, container: model.Container, layer: model.Layer) -> None:
         messagebus.handle(
@@ -37,23 +54,9 @@ class AbstractUnitOfWork(abc.ABC):
         return container
 
     @abc.abstractmethod
-    def _create(
-        self, tag: str, layers: tp.List[model.Layer]
-    ) -> model.Container:
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def _add_layer(
         self, container: model.Container, layer: model.Layer
     ) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def commit(self) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def rollback(self) -> None:
         raise NotImplementedError
 
 
@@ -85,26 +88,27 @@ class BuildahUnitOfWork(AbstractUnitOfWork):
             messagebus.handle(events.ImageCommitted(container.name), self)
 
 
-class PodmanUnitOfWork(AbstractUnitOfWork):
+class AbstractContainerUOW(AbstractUnitOfWork):
+    registry: repository.AbstractRegistry
+
+    def create(self, image_id: str, container_name: str) -> model.Container:
+        container = self._create(image_id, container_name)
+        event = events.ContainerCreated(image_id, container_name)
+        messagebus.handle(event, self)
+        return container
+
+
+class PodmanUnitOfWork(AbstractContainerUOW):
 
     def __init__(self) -> None:
         self.registry = repository.BuildahRegistry()
 
-    def _create(
-        self, tag: str, layers: tp.List[model.Layer]
-    ) -> model.Container:
-        image = self.registry.get(tag)
+    def _create(self, image_id: str, container_name: str) -> model.Container:
+        image = self.registry.get(image_id)
         if image:
-            container_id = podman.create_container(image.name, 'test')
+            container_id = podman.create_container(image.name, container_name)
             return model.Container(container_id, image, '')
         raise ValueError('Image not found. Try building it first.')
-
-    def _add_layer(
-        self, container: model.Container, layer: model.Layer
-    ) -> None:
-        # Maybe derive a new image from the existing container and add the
-        # gicen layer? TODO
-        raise NotImplementedError()
 
     def run_container(self, container: model.Container) -> None:
         podman.run_container(container.name)

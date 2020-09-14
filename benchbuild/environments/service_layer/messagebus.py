@@ -67,7 +67,8 @@ EVENT_HANDLERS: tp.Dict[tp.Type[events.Event], tp.List[EventHandlerT]] = {
     events.LayerCreated: [ui.progress_print_layer_created],
     events.ImageCreated: [ui.progress_print_image_created],
     events.ImageCommitted: [ui.progress_print_image_committed],
-    events.ImageDestroyed: [ui.progress_print_image_destroyed]
+    events.ImageDestroyed: [ui.progress_print_image_destroyed],
+    events.ContainerCreated: [ui.progress_print_container_created]
 }
 
 COMMAND_HANDLERS: tp.Dict[tp.Type[commands.Command], CommandHandlerT] = {

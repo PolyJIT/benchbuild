@@ -41,6 +41,14 @@ def progress_print_image_destroyed(
     pass
 
 
+def progress_print_container_created(
+    event: events.ContainerCreated, uow: unit_of_work.AbstractContainerUOW
+):
+    __progress__.console.print(
+        f'Created {event.name} for image: {event.image_id}'
+    )
+
+
 __progress__ = Progress(
     "[progress.description]{task.description}", BarColumn(),
     "[progress.percentage]{task.percentage:>3.0f}%"

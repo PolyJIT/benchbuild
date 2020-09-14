@@ -187,7 +187,7 @@ def run_experiment_images(
                 f'{exp.name}/{prj.name}/{prj.group}', version
             )
 
-            container_name = f'{exp.name}_{prj.name}_{prj.run_uuid}'
+            container_name = f'{exp.name}_{prj.name}_{prj.group}'
 
             cmd = commands.RunContainer(image_tag, container_name)
             uow = unit_of_work.PodmanUnitOfWork()

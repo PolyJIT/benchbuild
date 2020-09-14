@@ -90,10 +90,13 @@ class BuildahUnitOfWork(AbstractUnitOfWork):
 
 class AbstractContainerUOW(AbstractUnitOfWork):
     registry: repository.AbstractRegistry
+    containers: tp.Set[str]
 
     def create(self, image_id: str, container_name: str) -> model.Container:
         container = self._create(image_id, container_name)
-        event = events.ContainerCreated(image_id, container_name)
+        if container:
+            self.containers.add(container.container_id)
+        event = events.ContainerCreated(image_id, container.container_id)
         messagebus.handle(event, self)
         return container
 
@@ -102,6 +105,7 @@ class PodmanUnitOfWork(AbstractContainerUOW):
 
     def __init__(self) -> None:
         self.registry = repository.BuildahRegistry()
+        self.containers = set()
 
     def _create(self, image_id: str, container_name: str) -> model.Container:
         image = self.registry.get(image_id)
@@ -111,11 +115,12 @@ class PodmanUnitOfWork(AbstractContainerUOW):
         raise ValueError('Image not found. Try building it first.')
 
     def run_container(self, container: model.Container) -> None:
-        podman.run_container(container.name)
+        podman.run_container(container.container_id)
 
     def rollback(self) -> None:
-        # Remove container.
-        pass
+        while self.containers:
+            container = self.containers.pop()
+            podman.remove_container(container)
 
     def commit(self) -> None:
         # Commit completed container as a result image, if the user wants it.

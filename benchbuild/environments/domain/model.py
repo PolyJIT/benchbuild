@@ -100,7 +100,7 @@ class Image:
     events = attr.ib(attr.Factory(list))  # type: tp.List[events.Event]
     env = attr.ib(attr.Factory(dict))  # type: tp.Dict[str, str]
 
-    def update_env(self, **kwargs: tp.Dict[str, str]) -> None:
+    def update_env(self, **kwargs: str) -> None:
         self.env.update(kwargs)
 
     def append(self, layer: Layer) -> None:

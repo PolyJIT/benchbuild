@@ -39,11 +39,10 @@ from benchbuild.utils.revision_ranges import RevisionRange
 LOG = logging.getLogger(__name__)
 
 MaybeGroupNames = tp.Optional[tp.List[str]]
-ProjectIndex = tp.Mapping[str, tp.Tuple[tp.Type['Project'], tp.Optional[str]]]
+ProjectIndex = tp.Mapping[str, tp.Type['Project']]
 ProjectNames = tp.List[str]
-ProjectT = tp.Type['Project']
 VariantContext = source.VariantContext
-Sources = tp.List[source.BaseSource]
+Sources = tp.List[source.base.ISource]
 ContainerDeclaration = tp.Union[ContainerImage,
                                 tp.List[tp.Tuple[RevisionRange,
                                                  ContainerImage]]]
@@ -67,8 +66,8 @@ class ProjectRegistry(type):
         )
 
         if bases and defined_attrs:
-            key = f"{cls.NAME}/{cls.GROUP}"
-            key_dash = f"{cls.NAME}-{cls.GROUP}"
+            key = f'{attrs["NAME"]}/{attrs["GROUP"]}'
+            key_dash = f'{attrs["NAME"]}-{attrs["GROUP"]}'
             ProjectRegistry.projects[key] = cls
             ProjectRegistry.projects[key_dash] = cls
         return cls
@@ -211,10 +210,8 @@ class Project(metaclass=ProjectDecorator):
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True)
     )
 
-    container: ContainerDeclaration = attr.ib(
-        default=attr.Factory(
-            lambda self: copy.deepcopy(type(self).CONTAINER), takes_self=True
-        )
+    container: ContainerImage = attr.ib(
+        default=attr.Factory(lambda: ContainerImage())
     )
 
     cflags: tp.List[str] = attr.ib(default=attr.Factory(list))
@@ -327,7 +324,7 @@ class Project(metaclass=ProjectDecorator):
         """
         variant = self.variant
         if name in variant:
-            return self.builddir / variant[name].owner.local
+            return str(self.builddir / variant[name].owner.local)
         return None
 
     def version_of(self, name: str) -> tp.Optional[str]:
@@ -367,6 +364,9 @@ class Project(metaclass=ProjectDecorator):
         return source_str
 
 
+ProjectT = tp.Type['Project']
+
+
 def __split_project_input__(
     project_input: str
 ) -> tp.Tuple[str, tp.Optional[str]]:
@@ -377,7 +377,7 @@ def __split_project_input__(
     return (first, second)
 
 
-def discovered() -> tp.Dict[str, Project]:
+def discovered() -> tp.Dict[str, ProjectT]:
     """Return all discovered projects."""
     return dict(ProjectRegistry.projects)
 
@@ -408,10 +408,11 @@ def __add_named_filters__(
     project: ProjectT, versions: tp.Dict[str, str]
 ) -> ProjectT:
     sources = project.SOURCE
-    named_sources = {s.key: s for s in sources}
+    named_sources: tp.Dict[str,
+                           source.base.ISource] = {s.key: s for s in sources}
     for k, v in versions.items():
         if k in named_sources:
-            victim = named_sources[k]
+            victim: source.base.ISource = named_sources[k]
             victim = source.SingleVersionFilter(victim, v)
             named_sources[k] = victim
     sources = list(named_sources.values())
@@ -479,9 +480,6 @@ def populate(
     Returns:
         a dictionary of (project name, project class) pairs.
     """
-    if projects_to_filter is None:
-        projects_to_filter = []
-
     prjs = discovered()
     if projects_to_filter:
         prjs = {}

@@ -22,12 +22,6 @@ class AbstractUnitOfWork(abc.ABC):
         self.rollback()
 
     @abc.abstractmethod
-    def _create(
-        self, tag: str, layers: tp.List[model.Layer]
-    ) -> model.Container:
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def commit(self) -> None:
         raise NotImplementedError
 
@@ -45,6 +39,12 @@ class AbstractImageUnitOfWork(AbstractUnitOfWork):
         self._add_layer(container, layer)
         messagebus.handle(events.LayerCreated(container.name, str(layer)), self)
 
+    @abc.abstractmethod
+    def _create(
+        self, tag: str, layers: tp.List[model.Layer]
+    ) -> model.Container:
+        raise NotImplementedError
+
     def create(self, tag: str, layers: tp.List[model.Layer]) -> model.Container:
         container = self._create(tag, layers)
         event = events.ImageCreated(
@@ -60,7 +60,7 @@ class AbstractImageUnitOfWork(AbstractUnitOfWork):
         raise NotImplementedError
 
 
-class BuildahUnitOfWork(AbstractUnitOfWork):
+class BuildahUnitOfWork(AbstractImageUnitOfWork):
 
     def __init__(self) -> None:
         self.registry = repository.BuildahRegistry()
@@ -91,6 +91,10 @@ class BuildahUnitOfWork(AbstractUnitOfWork):
 class AbstractContainerUOW(AbstractUnitOfWork):
     registry: repository.AbstractRegistry
     containers: tp.Set[str]
+
+    @abc.abstractmethod
+    def _create(self, image_id: str, container_name: str) -> model.Container:
+        raise NotImplementedError
 
     def create(self, image_id: str, container_name: str) -> model.Container:
         container = self._create(image_id, container_name)

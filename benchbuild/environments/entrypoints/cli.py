@@ -101,7 +101,9 @@ def create_base_images(projects: ProjectIndex) -> None:
         layers = declarative.DEFAULT_BASES[image.base]
         declarative.add_benchbuild_layers(layers)
 
-        cmd = commands.CreateBenchbuildBase(image.base, layers)
+        cmd: commands.Command = commands.CreateBenchbuildBase(
+            image.base, layers
+        )
         image_commands.add(cmd)
 
     for cmd in image_commands:
@@ -160,7 +162,7 @@ def create_experiment_images(
             verbosity = int(settings.CFG['verbosity'])
             image.env(BB_VERBOSITY=f'{verbosity}')
 
-            image.entrypoint('benchbuild', 'run', '-E', exp.name, prj.id)
+            image.entrypoint('benchbuild', 'run', '-E', exp.name, str(prj.id))
 
             cmd = commands.CreateImage(image_tag, image)
             uow = unit_of_work.BuildahUnitOfWork()

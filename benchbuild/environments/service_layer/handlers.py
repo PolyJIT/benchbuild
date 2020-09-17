@@ -5,7 +5,8 @@ from benchbuild.environments.service_layer import unit_of_work
 
 
 def _create_container(
-    name: str, layers: tp.List[tp.Any], uow: unit_of_work.AbstractUnitOfWork
+    name: str, layers: tp.List[tp.Any],
+    uow: unit_of_work.AbstractImageUnitOfWork
 ) -> model.Image:
     container = uow.create(name, layers)
     image = container.image
@@ -15,7 +16,7 @@ def _create_container(
 
 
 def create_image(
-    cmd: commands.CreateImage, uow: unit_of_work.AbstractUnitOfWork
+    cmd: commands.CreateImage, uow: unit_of_work.AbstractImageUnitOfWork
 ) -> str:
     with uow:
         image = uow.registry.get(cmd.name)
@@ -29,7 +30,7 @@ def create_image(
 
 
 def update_image(
-    cmd: commands.UpdateImage, uow: unit_of_work.AbstractUnitOfWork
+    cmd: commands.UpdateImage, uow: unit_of_work.AbstractImageUnitOfWork
 ) -> str:
     with uow:
         image = _create_container(cmd.name, cmd.layers, uow)
@@ -39,7 +40,8 @@ def update_image(
 
 
 def create_benchbuild_base(
-    cmd: commands.CreateBenchbuildBase, uow: unit_of_work.AbstractUnitOfWork
+    cmd: commands.CreateBenchbuildBase,
+    uow: unit_of_work.AbstractImageUnitOfWork
 ) -> str:
     with uow:
         image = uow.registry.get(cmd.name)

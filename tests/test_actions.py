@@ -16,7 +16,7 @@ class EmptyProject(Project):
     DOMAIN = "debug"
     GROUP = "debug"
     SOURCE = [nosource()]
-    CONTAINER: ContainerImage = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def build(self):
         pass

@@ -1,8 +1,6 @@
 import logging
 import typing as tp
 
-import attr
-
 from benchbuild.settings import CFG
 
 from . import model
@@ -10,7 +8,6 @@ from . import model
 LOG = logging.getLogger(__name__)
 
 
-@attr.s
 class ContainerImage(list):
 
     @property

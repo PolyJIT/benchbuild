@@ -262,12 +262,15 @@ class Project(metaclass=ProjectDecorator):
 
         # select container image
         if isinstance(type(self).CONTAINER, ContainerImage):
-            self.container = copy.deepcopy(type(self).CONTAINER)
+            self.container = tp.cast(
+                copy.deepcopy(type(self).CONTAINER), ContainerImage
+            )
         else:
             if not isinstance(primary(*self.SOURCE), Git):
-                raise AssertionError("Container selection by version is only"
-                                     "allowed if the primary source is a git"
-                                     "repository.")
+                raise AssertionError(
+                    "Container selection by version is only allowed if the"
+                    "primary source is a git repository."
+                )
             version = self.version_of_primary
             for rev_range, image in type(self).CONTAINER:
                 if version in rev_range:

@@ -32,6 +32,7 @@ from pygtrie import StringTrie
 from benchbuild import extensions, source
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
+from benchbuild.source import primary, Git
 from benchbuild.utils import db, run, unionfs
 from benchbuild.utils.requirements import Requirement
 from benchbuild.utils.revision_ranges import RevisionRange
@@ -263,6 +264,10 @@ class Project(metaclass=ProjectDecorator):
         if isinstance(type(self).CONTAINER, ContainerImage):
             self.container = copy.deepcopy(type(self).CONTAINER)
         else:
+            if not isinstance(primary(*self.SOURCE), Git):
+                raise AssertionError("Container selection by version is only"
+                                     "allowed if the primary source is a git"
+                                     "repository.")
             version = self.version_of_primary
             for rev_range, image in type(self).CONTAINER:
                 if version in rev_range:

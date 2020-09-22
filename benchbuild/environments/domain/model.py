@@ -107,8 +107,9 @@ class Image:
         self.layers.append(layer)
 
     def prepend(self, layer: Layer) -> None:
+        old_layers = self.layers
         self.layers = [layer]
-        self.layers.extend(self.layers)
+        self.layers.extend(old_layers)
 
 
 MaybeImage = tp.Optional[Image]

@@ -18,6 +18,9 @@ def _create_container(
 def create_image(
     cmd: commands.CreateImage, uow: unit_of_work.AbstractImageUnitOfWork
 ) -> str:
+    """
+    Create a container image using a registry.
+    """
     with uow:
         image = uow.registry.get(cmd.name)
         if image:
@@ -32,6 +35,9 @@ def create_image(
 def update_image(
     cmd: commands.UpdateImage, uow: unit_of_work.AbstractImageUnitOfWork
 ) -> str:
+    """
+    Update a benchbuild image.
+    """
     with uow:
         image = _create_container(cmd.name, cmd.layers, uow)
         uow.commit()
@@ -43,6 +49,9 @@ def create_benchbuild_base(
     cmd: commands.CreateBenchbuildBase,
     uow: unit_of_work.AbstractImageUnitOfWork
 ) -> str:
+    """
+    Create a benchbuild base image.
+    """
     with uow:
         image = uow.registry.get(cmd.name)
         if image:

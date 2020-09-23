@@ -20,6 +20,16 @@ CommandResults = tp.List[str]
 def handle(
     message: Message, uow: unit_of_work.AbstractUnitOfWork
 ) -> CommandResults:
+    """
+    Distribute the given message to the required handlers.
+
+    Args:
+        message: A command/event to dispatch.
+        uow: The unit of work used to handle this bus invocation.
+
+    Returns:
+        CommandResults
+    """
     results = []
     queue = [message]
     while queue:
@@ -37,6 +47,15 @@ def handle(
 def handle_event(
     event: events.Event, queue: Messages, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
+    """
+    Invokes all registered event handlers for this event.
+
+    Args:
+        event: The event to handle
+        queue: The message queue to hold  new events/commands that spawn from
+               this handler.
+        uow: The unit of work to handle this command.
+    """
     for handler in tp.cast(tp.List[EventHandlerT], EVENT_HANDLERS[type(event)]):
         try:
             LOG.debug('handling event %s with handler %s', event, handler)
@@ -51,6 +70,18 @@ def handle_command(
     command: commands.Command, queue: Messages,
     uow: unit_of_work.AbstractUnitOfWork
 ) -> str:
+    """
+    Invokes a registered command handler.
+
+    Args:
+        command: The command to handler
+        queue: The message queue to hold new events/commands that spawn
+               from this handler.
+        uow: The unit of work to handle this command.
+
+    Returns:
+        str
+    """
     LOG.debug('handling command %s', command)
     try:
         handler = tp.cast(CommandHandlerT, COMMAND_HANDLERS[type(command)])

@@ -6,9 +6,13 @@ import attr
 from benchbuild.environments.domain import events
 
 
+# pylint: disable=too-few-public-methods
 @attr.s
 class Layer(abc.ABC):
     pass
+
+
+# pylint: enable=too-few-public-methods
 
 
 @attr.s(frozen=True)

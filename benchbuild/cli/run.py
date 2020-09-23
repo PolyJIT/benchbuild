@@ -8,6 +8,7 @@ See the output of benchbuild run --help for more information.
 import logging
 import sys
 import time
+import typing as tp
 
 from plumbum import cli
 
@@ -20,7 +21,7 @@ LOG = logging.getLogger(__name__)
 class BenchBuildRun(cli.Application):
     """Frontend for running experiments in the benchbuild study framework."""
 
-    experiment_names = []
+    experiment_names: tp.List[str] = []
     group_names = None
 
     test_full = cli.Flag(["-F", "--full"],
@@ -50,7 +51,7 @@ class BenchBuildRun(cli.Application):
 
     pretend = cli.Flag(['p', 'pretend'], default=False)
 
-    def main(self, *projects):
+    def main(self, *projects: str):
         """Main entry point of benchbuild run."""
         experiment_names = self.experiment_names
         group_names = self.group_names
@@ -78,7 +79,7 @@ class BenchBuildRun(cli.Application):
                 'Could not find ', str(unknown_exps),
                 ' in the experiment registry.'
             )
-        prjs = project.populate(projects, group_names)
+        prjs = project.populate(list(projects), group_names)
         if not prjs:
             print("Could not find any project. Exiting.")
             return 1

@@ -15,8 +15,10 @@ class Ruby(bb.Project):
     SOURCE = [
         HTTP(
             remote={
-                '2.2.2':
-                    'http://cache.ruby-lang.org/pub/ruby/2.2.2/ruby-2.2.2.tar.gz'
+                '2.2.2': (
+                    'http://cache.ruby-lang.org/pub/ruby/2.2.2/'
+                    'ruby-2.2.2.tar.gz'
+                )
             },
             local='ruby.tar.gz'
         ),

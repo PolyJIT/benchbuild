@@ -1,6 +1,11 @@
 import attr
 
+#
+# Dataclasses are perfectly valid without public methods
+#
 
+
+# pylint: disable=too-few-public-methods
 @attr.s(frozen=True)
 class Event:
     pass
@@ -39,3 +44,6 @@ class ImageCommitted(Event):
 @attr.s(frozen=True)
 class ImageDestroyed(Event):
     name: str = attr.ib()
+
+
+# pylint: enable=too-few-public-methods

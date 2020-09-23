@@ -15,8 +15,10 @@ class Python(bb.Project):
     SOURCE = [
         HTTP(
             remote={
-                '3.4.3':
-                    'https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz'
+                '3.4.3': (
+                    'https://www.python.org/ftp/python/3.4.3/'
+                    'Python-3.4.3.tar.xz'
+                )
             },
             local='python.tar.xz'
         )

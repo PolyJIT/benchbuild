@@ -15,8 +15,10 @@ class Crafty(bb.Project):
     SOURCE = [
         HTTP(
             remote={
-                '25.2':
-                    'http://www.craftychess.com/downloads/source/crafty-25.2.zip'
+                '25.2': (
+                    'http://www.craftychess.com/downloads/source/'
+                    'crafty-25.2.zip'
+                )
             },
             local='crafty.zip'
         ),

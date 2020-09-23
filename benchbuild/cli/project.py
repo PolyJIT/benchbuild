@@ -1,4 +1,6 @@
 """Subcommand for project handling."""
+import typing as tp
+
 from plumbum import cli
 
 import benchbuild as bb
@@ -25,8 +27,8 @@ class BBProjectView(cli.Application):
     def set_group(self, groups):
         self.groups = groups
 
-    def main(self, *projects):
-        print_projects(bb.populate(projects, self.groups))
+    def main(self, *projects: str):
+        print_projects(bb.populate(list(projects), self.groups))
 
 
 def print_projects(projects=None):
@@ -37,7 +39,7 @@ def print_projects(projects=None):
         exp: The experiment to print all projects for.
 
     """
-    grouped_by = {}
+    grouped_by: tp.Dict[str, tp.List[str]] = {}
     if not projects:
         print("Your selection didn't include any projects for this experiment.")
         return

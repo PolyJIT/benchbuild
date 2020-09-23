@@ -2,7 +2,12 @@ import attr
 
 from . import declarative
 
+#
+# Dataclasses are perfectly valid without public methods
+#
 
+
+# pylint: disable=too-few-public-methods
 @attr.s(frozen=True)
 class Command:
     pass
@@ -39,3 +44,6 @@ class CreateBenchbuildBase(Command):
 class RunContainer(Command):
     image: str = attr.ib()
     name: str = attr.ib()
+
+
+# pylint: enable=too-few-public-methods

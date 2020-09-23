@@ -9,6 +9,7 @@ from benchbuild.environments.service_layer import unit_of_work
 def progress_print_image_created(
     event: events.ImageCreated, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
+    del uow
     __progress__.console.print(f'Building {event.name}')
     # __tasks__[event.name
     #          ] = __progress__.add_task(event.name, total=event.num_layers - 1)
@@ -17,33 +18,35 @@ def progress_print_image_created(
 def progress_print_creating_layer(
     event: events.CreatingLayer, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
+    del uow
     __progress__.console.print(event.layer)
 
 
 def progress_print_layer_created(
     event: events.LayerCreated, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
-    # __progress__.update(__tasks__[event.name], advance=1)
-    # __progress__.refresh()
-    pass
+    del event
+    del uow
 
 
 def progress_print_image_committed(
     event: events.ImageCommitted, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
+    del uow
     __progress__.console.print(f'Finished {event.name}')
 
 
 def progress_print_image_destroyed(
     event: events.ImageCommitted, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
-    # del __tasks__[event.name]
-    pass
+    del event
+    del uow
 
 
 def progress_print_container_created(
     event: events.ContainerCreated, uow: unit_of_work.AbstractContainerUOW
-):
+) -> None:
+    del uow
     __progress__.console.print(
         f'Created {event.name} for image: {event.image_id}'
     )

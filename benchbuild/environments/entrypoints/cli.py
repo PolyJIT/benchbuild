@@ -4,14 +4,12 @@ from functools import partial
 from plumbum import cli, local
 
 from benchbuild import experiment, plugins, project, settings, source
-from benchbuild.cli.main import BenchBuild
 from benchbuild.environments.domain import commands, declarative
 from benchbuild.environments.service_layer import messagebus, unit_of_work
 from benchbuild.experiment import ExperimentIndex
 from benchbuild.project import ProjectIndex
 
 
-@BenchBuild.subcommand("container")
 class BenchBuildContainer(cli.Application):
     experiment_args: tp.List[str] = []
     group_args: tp.List[str] = []

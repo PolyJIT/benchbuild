@@ -129,7 +129,7 @@ def find_image(tag: str) -> model.MaybeImage:
 
 LayerHandlerT = tp.Callable[[model.Container, model.Layer], None]
 
-LAYER_HANDLERS: tp.Dict[tp.Type[model.Layer], LayerHandlerT] = {
+LAYER_HANDLERS = {
     model.AddLayer: spawn_add_layer,
     model.ContextLayer: spawn_in_context,
     model.CopyLayer: spawn_copy_layer,
@@ -142,5 +142,5 @@ LAYER_HANDLERS: tp.Dict[tp.Type[model.Layer], LayerHandlerT] = {
 
 
 def spawn_layer(container: model.Container, layer: model.Layer) -> None:
-    handler = LAYER_HANDLERS[type(layer)]
+    handler: LayerHandlerT = tp.cast(LayerHandlerT, LAYER_HANDLERS[type(layer)])
     handler(container, layer)

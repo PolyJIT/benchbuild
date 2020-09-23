@@ -3,13 +3,11 @@ import os
 from plumbum import cli
 
 from benchbuild import settings
-from benchbuild.cli.main import BenchBuild
 from benchbuild.utils import bootstrap
 
 CFG = settings.CFG
 
 
-@BenchBuild.subcommand("bootstrap")
 class BenchBuildBootstrap(cli.Application):
     """Bootstrap benchbuild external dependencies, if possible."""
 
@@ -24,8 +22,9 @@ class BenchBuildBootstrap(cli.Application):
         bootstrap.provide_package("cmake")
         bootstrap.provide_package("fusermount")
         bootstrap.provide_package("unionfs")
-        bootstrap.provide_package('uchroot',
-                                  installer=bootstrap.install_uchroot)
+        bootstrap.provide_package(
+            'uchroot', installer=bootstrap.install_uchroot
+        )
         bootstrap.provide_packages(CFG['bootstrap']['packages'].value)
 
         if self.store_config:

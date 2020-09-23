@@ -211,9 +211,7 @@ class Project(metaclass=ProjectDecorator):
         default=attr.Factory(lambda self: type(self).GROUP, takes_self=True)
     )
 
-    container: ContainerImage = attr.ib(
-        default=attr.Factory(lambda: ContainerImage())
-    )
+    container: ContainerImage = attr.ib(default=attr.Factory(ContainerImage))
 
     cflags: tp.List[str] = attr.ib(default=attr.Factory(list))
 
@@ -263,7 +261,7 @@ class Project(metaclass=ProjectDecorator):
         # select container image
         if isinstance(type(self).CONTAINER, ContainerImage):
             self.container = tp.cast(
-                copy.deepcopy(type(self).CONTAINER), ContainerImage
+                ContainerImage, copy.deepcopy(type(self).CONTAINER)
             )
         else:
             if not isinstance(primary(*self.SOURCE), Git):

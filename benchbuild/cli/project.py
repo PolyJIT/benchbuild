@@ -2,10 +2,8 @@
 from plumbum import cli
 
 import benchbuild as bb
-from benchbuild.cli.main import BenchBuild
 
 
-@BenchBuild.subcommand("project")
 class BBProject(cli.Application):
     """Manage BenchBuild's known projects."""
 
@@ -50,8 +48,9 @@ def print_projects(projects=None):
         if prj.GROUP not in grouped_by:
             grouped_by[prj.GROUP] = []
 
-        grouped_by[prj.GROUP].append("{name}/{group}".format(name=prj.NAME,
-                                                             group=prj.GROUP))
+        grouped_by[prj.GROUP].append(
+            "{name}/{group}".format(name=prj.NAME, group=prj.GROUP)
+        )
 
     for name in grouped_by:
         print(f'::  group: {name}')

@@ -37,7 +37,7 @@ def handle(
 def handle_event(
     event: events.Event, queue: Messages, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
-    for handler in EVENT_HANDLERS[type(event)]:
+    for handler in tp.cast(tp.List[EventHandlerT], EVENT_HANDLERS[type(event)]):
         try:
             LOG.debug('handling event %s with handler %s', event, handler)
             handler(event, uow)
@@ -53,7 +53,7 @@ def handle_command(
 ) -> str:
     LOG.debug('handling command %s', command)
     try:
-        handler = COMMAND_HANDLERS[type(command)]
+        handler = tp.cast(CommandHandlerT, COMMAND_HANDLERS[type(command)])
         result = handler(command, uow)
         queue.extend(uow.collect_new_events())
         return result
@@ -62,7 +62,7 @@ def handle_command(
         raise
 
 
-EVENT_HANDLERS: tp.Dict[tp.Type[events.Event], tp.List[EventHandlerT]] = {
+EVENT_HANDLERS = {
     events.CreatingLayer: [ui.progress_print_creating_layer],
     events.LayerCreated: [ui.progress_print_layer_created],
     events.ImageCreated: [ui.progress_print_image_created],
@@ -71,7 +71,7 @@ EVENT_HANDLERS: tp.Dict[tp.Type[events.Event], tp.List[EventHandlerT]] = {
     events.ContainerCreated: [ui.progress_print_container_created]
 }
 
-COMMAND_HANDLERS: tp.Dict[tp.Type[commands.Command], CommandHandlerT] = {
+COMMAND_HANDLERS = {
     commands.CreateImage: handlers.create_image,
     commands.UpdateImage: handlers.update_image,
     commands.CreateBenchbuildBase: handlers.create_benchbuild_base,

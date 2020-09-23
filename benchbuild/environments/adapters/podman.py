@@ -1,7 +1,6 @@
 import logging
 import os
 
-from plumbum import TEE
 from plumbum.commands.base import BaseCommand
 
 from benchbuild.settings import CFG
@@ -34,7 +33,7 @@ def create_container(image_id: str, container_name: str) -> str:
 
 def run_container(name: str) -> None:
     LOG.debug('running container: %s', name)
-    BB_PODMAN_CONTAINER_START['-ai', name] & TEE
+    BB_PODMAN_CONTAINER_START['-ai', name].run_tee()
 
 
 def remove_container(container_id: str) -> None:

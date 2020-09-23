@@ -4,6 +4,7 @@ import typing as tp
 from plumbum import cli
 
 import benchbuild as bb
+from benchbuild.project import ProjectIndex
 
 
 class BBProject(cli.Application):
@@ -31,12 +32,12 @@ class BBProjectView(cli.Application):
         print_projects(bb.populate(list(projects), self.groups))
 
 
-def print_projects(projects=None):
+def print_projects(projects: ProjectIndex) -> None:
     """
-    Print a list of projects registered for that experiment.
+    Print the information about available projects.
 
     Args:
-        exp: The experiment to print all projects for.
+        projects: The populated project index to print.
 
     """
     grouped_by: tp.Dict[str, tp.List[str]] = {}
@@ -57,8 +58,8 @@ def print_projects(projects=None):
     for name in grouped_by:
         print(f'::  group: {name}')
         group_projects = sorted(grouped_by[name])
-        for prj in group_projects:
-            prj_cls = projects[prj]
+        for prj_name in group_projects:
+            prj_cls = projects[prj_name]
 
             project_id = f'{prj_cls.NAME}/{prj_cls.GROUP}'
             project_version = str(bb.source.default(*prj_cls.SOURCE))

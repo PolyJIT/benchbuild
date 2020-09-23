@@ -28,7 +28,7 @@ class BBProjectView(cli.Application):
     def set_group(self, groups):
         self.groups = groups
 
-    def main(self, *projects: str):
+    def main(self, *projects: str) -> None:
         print_projects(bb.populate(list(projects), self.groups))
 
 

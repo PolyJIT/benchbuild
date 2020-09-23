@@ -9,7 +9,7 @@ def describe_image():
     def image_requires_name_and_base():
         img = model.Image('name', model.FromLayer('base'), [])
         assert img.name == 'name'
-        assert img.from_ == 'base'
+        assert img.from_ == model.FromLayer('base')
         assert len(img.layers) == 0
 
     def can_append_layers_to_image():

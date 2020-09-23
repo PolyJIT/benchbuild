@@ -12,6 +12,15 @@ from plumbum.commands.base import BaseCommand
 
 from benchbuild import settings, signals
 
+CommandResult = t.Tuple[int, str, str]
+
+
+class WatchableCommand(te.Protocol):
+
+    def __call__(self, *args: t.Any, **kwargs: t.Any) -> CommandResult:
+        ...
+
+
 CFG = settings.CFG
 LOG = logging.getLogger(__name__)
 
@@ -37,7 +46,7 @@ class RunInfo:
         session ():
     """
 
-    def __begin(self, command, project, experiment, group):
+    def __begin(self, command: BaseCommand, project, experiment, group):
         """
         Begin a run in the database log.
 
@@ -307,15 +316,6 @@ def track_execution(cmd, project, experiment, **kwargs):
     runner = RunInfo(cmd=cmd, project=project, experiment=experiment, **kwargs)
     yield runner
     runner.commit()
-
-
-CommandResult = t.Tuple[int, str, str]
-
-
-class WatchableCommand(te.Protocol):
-
-    def __call__(self, *args: t.Any, **kwargs: t.Any) -> CommandResult:
-        ...
 
 
 def watch(command: BaseCommand) -> WatchableCommand:

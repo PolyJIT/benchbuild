@@ -59,7 +59,7 @@ class ContextLayer(Layer):
     func: tp.Callable[[], None] = attr.ib()
 
     def __str__(self) -> str:
-        return f'CONTEXT custom build context modification'
+        return 'CONTEXT custom build context modification'
 
 
 @attr.s(frozen=True)

@@ -89,6 +89,17 @@ def make_image_name(name: str, tag: str) -> str:
 
 
 def create_base_images(projects: ProjectIndex) -> None:
+    """
+    Create base images requested by all selected projects.
+
+    The images will contain benchbuild and requirer all dependencies to be
+    installed during construction. BenchBuild will insert itself at the end
+    of the layer sequence.
+
+    Args:
+        projects: A project index that contains all reqquested (name, project)
+                  Tuples.
+    """
     image_commands: tp.Set[commands.Command] = set()
 
     for prj in enumerate_projects(projects):
@@ -116,6 +127,15 @@ def __pull_sources_in_context(prj: project.Project) -> None:
 
 
 def create_project_images(projects: ProjectIndex) -> None:
+    """
+    Create project images for all selected projects.
+
+    The image will contain all sources the project requires.
+
+    Args:
+        projects: A project index that contains all reqquested (name, project)
+                  Tuples.
+    """
     for prj in enumerate_projects(projects):
         version = make_version_tag(*prj.variant.values())
         image_tag = make_image_name(f'{prj.name}/{prj.group}', version)
@@ -146,6 +166,22 @@ def enumerate_experiments(
 def create_experiment_images(
     experiments: ExperimentIndex, projects: ProjectIndex
 ) -> None:
+    """
+    Create experiment images for all selected experiments.
+
+    This spawns new container images for each project assigned to the
+    experiment. The project image becomes the new base for the experiment
+    image.
+
+    The image will be prepared to run only the given experiment/project
+    combination by default.
+
+    Args:
+        experiments: An experiment index that contains all requested
+                     (name, experiment) Tuples.
+        projects: A project index that contains all reqquested (name, project)
+                  Tuples.
+    """
     for exp in enumerate_experiments(experiments, projects):
         for prj in exp.projects:
             version = make_version_tag(*prj.variant.values())

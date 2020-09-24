@@ -7,7 +7,7 @@ from benchbuild import experiment
 class BBExperiment(cli.Application):
     """Manage BenchBuild's known experiments."""
 
-    def main(self, *args) -> int:
+    def main(self, *args: str) -> int:
         del args
 
         if not self.nested_command:

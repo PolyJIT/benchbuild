@@ -230,9 +230,8 @@ def primary(*sources: ISource) -> ISource:
     If you define a new project and rely on the existence of a 'main'
     source code repository, make sure to define it as the first one.
     """
-    del sources
-
-    return source
+    (head, *_) = sources
+    return head
 
 
 def product(*sources: ISource) -> NestedVariants:

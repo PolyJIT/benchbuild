@@ -145,9 +145,9 @@ def describe_project():
         ).name == 'VersionSource_0'
 
     def source_must_contain_elements():  # pylint: disable=unused-variable
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(ValueError) as excinfo:
             DummyPrjEmptySource()
-        assert "primary()" in str(excinfo)
+        assert "not enough values to unpack" in str(excinfo)
 
 
 def describe_filters():

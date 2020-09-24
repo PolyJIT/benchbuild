@@ -51,7 +51,7 @@ class BenchBuildRun(cli.Application):
 
     pretend = cli.Flag(['p', 'pretend'], default=False)
 
-    def main(self, *projects: str):
+    def main(self, *projects: str) -> int:
         """Main entry point of benchbuild run."""
         experiment_names = self.experiment_names
         group_names = self.group_names

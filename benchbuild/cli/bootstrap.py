@@ -15,7 +15,7 @@ class BenchBuildBootstrap(cli.Application):
                             help="Save benchbuild's configuration.",
                             default=False)
 
-    def main(self, *args):
+    def main(self, *args: str) -> int:
         del args  # Unused
 
         print("Checking benchbuild binary dependencies...")
@@ -31,4 +31,4 @@ class BenchBuildBootstrap(cli.Application):
             config_path = ".benchbuild.yml"
             CFG.store(config_path)
             print("Storing config in {0}".format(os.path.abspath(config_path)))
-            exit(0)
+        return 0

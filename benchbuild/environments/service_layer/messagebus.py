@@ -94,12 +94,12 @@ def handle_command(
 
 
 EVENT_HANDLERS = {
-    events.CreatingLayer: [ui.progress_print_creating_layer],
-    events.LayerCreated: [ui.progress_print_layer_created],
-    events.ImageCreated: [ui.progress_print_image_created],
-    events.ImageCommitted: [ui.progress_print_image_committed],
-    events.ImageDestroyed: [ui.progress_print_image_destroyed],
-    events.ContainerCreated: [ui.progress_print_container_created]
+    events.CreatingLayer: [ui.print_creating_layer],
+    events.LayerCreated: [ui.print_layer_created],
+    events.ImageCreated: [ui.print_image_created],
+    events.ImageCommitted: [ui.print_image_committed],
+    events.ImageDestroyed: [ui.print_image_destroyed],
+    events.ContainerCreated: [ui.print_container_created]
 }
 
 COMMAND_HANDLERS = {

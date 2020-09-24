@@ -221,7 +221,7 @@ def default(*sources: ISource) -> VariantContext:
     return context(*first)
 
 
-def primary(source: ISource, *sources: ISource) -> ISource:
+def primary(*sources: ISource) -> ISource:
     """
     Return the implicit 'main' source of a project.
 

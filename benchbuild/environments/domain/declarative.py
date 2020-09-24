@@ -107,7 +107,7 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
 
     def from_pip(image: ContainerImage) -> None:
         LOG.debug('installing benchbuild from pip release.')
-        image.run('pip', 'install', 'benchbuild', runtime=crun)
+        image.run('pip3', 'install', 'benchbuild', runtime=crun)
 
     if bool(CFG['container']['from_source']):
         from_source(layers)

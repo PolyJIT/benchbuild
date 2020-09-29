@@ -9,7 +9,20 @@ from benchbuild.environments.domain import events
 # pylint: disable=too-few-public-methods
 @attr.s
 class Layer(abc.ABC):
-    pass
+    """
+    A layer represents a filesystem layer in a container image.
+
+    Layers can be 'virtual' in the sense that they do not lead to changes
+    in the container image filesystem, e.g. setting up the build context.
+
+    This more or less represents commands/statements available in buildah
+    or Dockerfiles.
+
+    Examples:
+        buildah add -> AddLayer
+        buildah copy -> CopyLayer
+        buildah from -> FromLayer
+    """
 
 
 # pylint: enable=too-few-public-methods

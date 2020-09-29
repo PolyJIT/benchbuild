@@ -17,10 +17,6 @@ class ContainerImage(list):
             return layers.pop(0).base
         return ''
 
-    @property
-    def layers(self) -> tp.List[model.Layer]:
-        pass
-
     def env(self, **kwargs: str) -> 'ContainerImage':
         self.append(model.UpdateEnv(kwargs))
         return self

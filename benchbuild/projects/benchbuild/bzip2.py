@@ -25,7 +25,9 @@ class Bzip2(bb.Project):
         )
     ]
 
-    CONTAINER = ContainerImage().from_('benchbuild:alpine')
+    CONTAINER = ContainerImage() \
+        .from_('benchbuild:alpine') \
+        .run('apk', 'add', 'make')
 
     def compile(self):
         bzip2_repo = local.path(self.source_of('bzip2.git'))
@@ -43,15 +45,15 @@ class Bzip2(bb.Project):
         _bzip2 = bb.watch(bzip2)
 
         # Compress
-        _bzip2("-f", "-z", "-k", "--best", "text.html")
-        _bzip2("-f", "-z", "-k", "--best", "chicken.jpg")
-        _bzip2("-f", "-z", "-k", "--best", "control")
-        _bzip2("-f", "-z", "-k", "--best", "input.source")
-        _bzip2("-f", "-z", "-k", "--best", "liberty.jpg")
+        _bzip2("-f", "-z", "-k", "--best", "compression/text.html")
+        _bzip2("-f", "-z", "-k", "--best", "compression/chicken.jpg")
+        _bzip2("-f", "-z", "-k", "--best", "compression/control")
+        _bzip2("-f", "-z", "-k", "--best", "compression/input.source")
+        _bzip2("-f", "-z", "-k", "--best", "compression/liberty.jpg")
 
         # Decompress
-        _bzip2("-f", "-k", "--decompress", "text.html.bz2")
-        _bzip2("-f", "-k", "--decompress", "chicken.jpg.bz2")
-        _bzip2("-f", "-k", "--decompress", "control.bz2")
-        _bzip2("-f", "-k", "--decompress", "input.source.bz2")
-        _bzip2("-f", "-k", "--decompress", "liberty.jpg.bz2")
+        _bzip2("-f", "-k", "--decompress", "compression/text.html.bz2")
+        _bzip2("-f", "-k", "--decompress", "compression/chicken.jpg.bz2")
+        _bzip2("-f", "-k", "--decompress", "compression/control.bz2")
+        _bzip2("-f", "-k", "--decompress", "compression/input.source.bz2")
+        _bzip2("-f", "-k", "--decompress", "compression/liberty.jpg.bz2")

@@ -37,18 +37,16 @@ class BenchBuildContainer(cli.Application):  # type: ignore
         cli_groups = self.group_args
 
         discovered_experiments = experiment.discovered()
-        wanted_experiments = dict(
-            filter(
-                lambda pair: pair[0] in set(cli_experiments),
-                discovered_experiments.items()
-            )
-        )
-        unknown_experiments = list(
-            filter(
-                lambda name: name not in discovered_experiments.keys(),
-                set(cli_experiments)
-            )
-        )
+        wanted_experiments = {
+            item[0]: item[1]
+            for item in discovered_experiments.items()
+            if item[0] in set(cli_experiments)
+        }
+        unknown_experiments = {
+            item[0]: item[1]
+            for item in discovered_experiments
+            if item in set(cli_experiments)
+        }
 
         if unknown_experiments:
             print(

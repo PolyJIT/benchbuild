@@ -3,6 +3,7 @@ import logging
 import os
 import platform
 import sys
+import typing as tp
 from getpass import getuser
 
 from plumbum import FG, TF, ProcessExecutionError, local
@@ -15,7 +16,7 @@ CFG = settings.CFG
 LOG = logging.getLogger(__name__)
 
 
-def find_package(binary):
+def find_package(binary: str) -> bool:
     from benchbuild.utils import cmd
     c = cmd.__getattr__(binary)
 
@@ -99,13 +100,15 @@ def install_uchroot(_):
             cmake("../")
             make()
 
-    os.environ["PATH"] = os.path.pathsep.join(
-        [erlent_build, os.environ["PATH"]])
+    os.environ["PATH"] = os.path.pathsep.join([
+        erlent_build, os.environ["PATH"]
+    ])
     local.env.update(PATH=os.environ["PATH"])
 
     if not find_package("uchroot"):
-        LOG.error('uchroot not found, after updating PATH to %s',
-                  os.environ['PATH'])
+        LOG.error(
+            'uchroot not found, after updating PATH to %s', os.environ['PATH']
+        )
         sys.exit(-1)
 
     env = CFG['env'].value
@@ -123,11 +126,15 @@ def check_uchroot_config():
     if not (fuse_grep["^user_allow_other", "/etc/fuse.conf"] & TF):
         print("uchroot needs 'user_allow_other' enabled in '/etc/fuse.conf'.")
     if not (fuse_grep["^{0}".format(username), "/etc/subuid"] & TF):
-        print("uchroot needs an entry for user '{0}' in '/etc/subuid'.".format(
-            username))
+        print(
+            "uchroot needs an entry for user '{0}' in '/etc/subuid'.".
+            format(username)
+        )
     if not (fuse_grep["^{0}".format(username), "/etc/subgid"] & TF):
-        print("uchroot needs an entry for user '{0}' in '/etc/subgid'.".format(
-            username))
+        print(
+            "uchroot needs an entry for user '{0}' in '/etc/subgid'.".
+            format(username)
+        )
 
 
 def linux_distribution_major():
@@ -151,7 +158,7 @@ def linux_distribution_major():
     return None
 
 
-def install_package(pkg_name):
+def install_package(pkg_name: str) -> bool:
     if not bool(CFG['bootstrap']['install']):
         return False
 
@@ -180,11 +187,14 @@ def install_package(pkg_name):
     return ret
 
 
-def provide_package(pkg_name, installer=install_package):
+def provide_package(
+    pkg_name: str,
+    installer: tp.Callable[[str], bool] = install_package
+) -> None:
     if not find_package(pkg_name):
         installer(pkg_name)
 
 
-def provide_packages(pkg_names):
+def provide_packages(pkg_names: tp.List[str]) -> None:
     for pkg_name in pkg_names:
         provide_package(pkg_name)

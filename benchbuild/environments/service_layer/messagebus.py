@@ -17,9 +17,7 @@ CommandHandlerT = tp.Callable[
 CommandResults = tp.List[str]
 
 
-def handle(
-    message: Message, uow: unit_of_work.AbstractUnitOfWork
-) -> CommandResults:
+def handle(message: Message, uow: unit_of_work.AbstractUnitOfWork) -> None:
     """
     Distribute the given message to the required handlers.
 
@@ -30,18 +28,15 @@ def handle(
     Returns:
         CommandResults
     """
-    results = []
     queue = [message]
     while queue:
         message = queue.pop(0)
         if isinstance(message, events.Event):
             handle_event(message, queue, uow)
         elif isinstance(message, commands.Command):
-            cmd_result = handle_command(message, queue, uow)
-            results.append(cmd_result)
+            handle_command(message, queue, uow)
         else:
             raise Exception(f'{message} was not an Event or Command')
-    return results
 
 
 def handle_event(
@@ -69,7 +64,7 @@ def handle_event(
 def handle_command(
     command: commands.Command, queue: Messages,
     uow: unit_of_work.AbstractUnitOfWork
-) -> str:
+) -> None:
     """
     Invokes a registered command handler.
 
@@ -87,7 +82,6 @@ def handle_command(
         handler = tp.cast(CommandHandlerT, COMMAND_HANDLERS[type(command)])
         result = handler(command, uow)
         queue.extend(uow.collect_new_events())
-        return result
     except Exception:
         LOG.exception('Exception handling command %s', command)
         raise

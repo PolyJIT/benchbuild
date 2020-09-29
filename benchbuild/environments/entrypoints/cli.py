@@ -10,23 +10,24 @@ from benchbuild.experiment import ExperimentIndex
 from benchbuild.project import ProjectIndex
 
 
-class BenchBuildContainer(cli.Application):
+class BenchBuildContainer(cli.Application):  # type: ignore
     experiment_args: tp.List[str] = []
     group_args: tp.List[str] = []
 
     @cli.switch(["-E", "--experiment"],
                 str,
                 list=True,
-                help="Specify experiments to run")
-    def set_experiments(self, names: tp.List[str]) -> None:
+                help="Specify experiments to run")  # type: ignore
+    def set_experiments(self, names: tp.List[str]) -> None:  # type: ignore
         self.experiment_args = names
 
     @cli.switch(["-G", "--group"],
                 str,
                 list=True,
                 requires=["--experiment"],
-                help="Run a group of projects under the given experiments")
-    def set_group(self, groups: tp.List[str]) -> None:
+                help="Run a group of projects under the given experiments"
+               )  # type: ignore
+    def set_group(self, groups: tp.List[str]) -> None:  # type: ignore
         self.group_args = groups
 
     def main(self, *projects: str) -> int:

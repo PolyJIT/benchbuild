@@ -12,6 +12,7 @@ the gentoo image in benchbuild's source directory.
 
 """
 import logging
+import typing as tp
 
 import attr
 from plumbum import ProcessExecutionError, local
@@ -33,7 +34,7 @@ class GentooGroup(bb.Project):
     SRC_FILE = None
     CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
-    emerge_env = attr.ib(
+    emerge_env: tp.Dict[str, tp.Any] = attr.ib(
         default=attr.Factory(dict), repr=False, eq=False, order=False
     )
 

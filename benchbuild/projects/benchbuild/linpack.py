@@ -24,7 +24,7 @@ class Linpack(bb.Project):
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self) -> None:
-        lp_patch = path.template_path("../projects/patches/linpack.patch")
+        lp_patch = path.template_path("patches/linpack.patch")
         (patch["-p0"] < lp_patch)()
 
         self.ldflags += ["-lm"]

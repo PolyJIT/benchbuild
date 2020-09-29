@@ -33,7 +33,9 @@ class GentooGroup(bb.Project):
     SRC_FILE = None
     CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
-    emerge_env = attr.ib(default={}, repr=False, cmp=False)
+    emerge_env = attr.ib(
+        default=attr.Factory(dict), repr=False, eq=False, order=False
+    )
 
     def redirect(self):
         if not CFG["unionfs"]["enable"]:

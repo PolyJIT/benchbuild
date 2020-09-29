@@ -6,17 +6,20 @@ import uuid
 
 import yaml
 
-from benchbuild.utils.settings import (uuid_add_implicit_resolver,
-                                       uuid_constructor, uuid_representer)
+from benchbuild.utils.settings import (
+    uuid_add_implicit_resolver,
+    uuid_constructor,
+    uuid_representer,
+)
 
 
-class TestLoader(yaml.SafeLoader):
-    """TestLoader for unit-testing."""
+class FakeLoader(yaml.SafeLoader):
+    """FaketLoader for unit-testing."""
     pass
 
 
-class TestDumper(yaml.SafeDumper):
-    """TestDumper for unit-testing."""
+class FakeDumper(yaml.SafeDumper):
+    """FakeDumper for unit-testing."""
     pass
 
 
@@ -35,13 +38,16 @@ class TestUUID(unittest.TestCase):
 
         uuid_in = {'test': uuid.UUID(TEST_UUID)}
 
-        yaml.add_representer(uuid.UUID, uuid_representer, Dumper=TestDumper)
-        uuid_add_implicit_resolver(loader=TestLoader, dumper=TestDumper)
+        yaml.add_representer(uuid.UUID, uuid_representer, Dumper=FakeDumper)
+        uuid_add_implicit_resolver(loader=FakeLoader, dumper=FakeDumper)
 
-        self.assertEqual(yaml.dump(uuid_in, Dumper=TestDumper),
-                         'test: cc3702ca-699a-4aa6-8226-4c938f294d9b\n')
-        self.assertEqual(yaml.load(UUID_OUT, Loader=TestLoader),
-                         EXPECTED_UUID_OBJ)
+        self.assertEqual(
+            yaml.dump(uuid_in, Dumper=FakeDumper),
+            'test: cc3702ca-699a-4aa6-8226-4c938f294d9b\n'
+        )
+        self.assertEqual(
+            yaml.load(UUID_OUT, Loader=FakeLoader), EXPECTED_UUID_OBJ
+        )
 
     def test_uuid_construction(self):
         """Test uuid construction from scalar YAML nodes."""
@@ -52,8 +58,9 @@ class TestUUID(unittest.TestCase):
     def test_uuid_representer(self):
         """Test uuid representation as a scalar YAML node."""
 
-        yaml.add_representer(uuid.UUID,
-                             uuid_representer,
-                             Dumper=yaml.SafeDumper)
-        self.assertEqual(yaml.safe_dump(EXPECTED_UUID_OBJ),
-                         EXPECTED_UUID_SCALAR)
+        yaml.add_representer(
+            uuid.UUID, uuid_representer, Dumper=yaml.SafeDumper
+        )
+        self.assertEqual(
+            yaml.safe_dump(EXPECTED_UUID_OBJ), EXPECTED_UUID_SCALAR
+        )

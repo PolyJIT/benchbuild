@@ -161,17 +161,12 @@ def linux_distribution_major() -> tp.Optional[str]:
 
     # python > 3.7
     lsb_release = local["lsb_release"]
-    distribution = lsb_release["-ds"]()
-    if "SUSE" in distribution or "SuSE" in distribution:
-        return "suse"
-    if "Debian" in distribution:
-        return "debian"
-    if "Ubuntu" in distribution:
-        return "ubuntu"
-    if "Ubuntu" in distribution:
-        return "ubuntu"
-    if "Gentoo" in distribution:
-        return "gentoo"
+    distribution = lsb_release["-ds"]().strip().lower()
+    known_distributions = ["suse", "debian", "ubuntu", "gentoo"]
+
+    for known in known_distributions:
+        if known in distribution:
+            return known
 
     return None
 

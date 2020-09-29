@@ -80,11 +80,10 @@ def handle_command(
     LOG.debug('handling command %s', command)
     try:
         handler = tp.cast(CommandHandlerT, COMMAND_HANDLERS[type(command)])
-        result = handler(command, uow)
+        handler(command, uow)
         queue.extend(uow.collect_new_events())
     except Exception:
         LOG.exception('Exception handling command %s', command)
-        raise
 
 
 EVENT_HANDLERS = {

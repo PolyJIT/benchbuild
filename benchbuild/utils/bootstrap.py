@@ -17,6 +17,15 @@ LOG = logging.getLogger(__name__)
 
 
 def find_package(binary: str) -> bool:
+    """
+    Find the binary as a usable python object in the system.
+
+    Args:
+        binary: The binary name to look for.
+
+    Returns:
+        True, if the binary name can be imported by benchbuild.
+    """
     from benchbuild.utils import cmd
     c = cmd.__getattr__(binary)
 
@@ -117,7 +126,10 @@ def install_uchroot(_):
     env['PATH'].append(str(erlent_build))
 
 
-def check_uchroot_config():
+def check_uchroot_config() -> None:
+    """
+    Check, if the configuration of uchroot is valid for benchbuild.
+    """
     print("Checking configuration of 'uchroot'")
 
     fuse_grep = grep['-q', '-e']
@@ -137,7 +149,13 @@ def check_uchroot_config():
         )
 
 
-def linux_distribution_major():
+def linux_distribution_major() -> tp.Optional[str]:
+    """
+    Get the used linux distribution.
+
+    Returns:
+        The name of the linux distribution, if known.
+    """
     if not platform.system() == 'Linux':
         return None
 
@@ -159,6 +177,14 @@ def linux_distribution_major():
 
 
 def install_package(pkg_name: str) -> bool:
+    """
+    Install the given package.
+
+    This makes use of the systems package manager, if known.
+
+    Args:
+        pkg_name: The package name to install.
+    """
     if not bool(CFG['bootstrap']['install']):
         return False
 
@@ -191,10 +217,24 @@ def provide_package(
     pkg_name: str,
     installer: tp.Callable[[str], bool] = install_package
 ) -> None:
+    """
+    Make sure the package is provided by the system, if required.
+
+    Args:
+        pkg_name: The package name to provide.
+        installer: An installer function that is used,
+            if the package needs to be installed.
+    """
     if not find_package(pkg_name):
         installer(pkg_name)
 
 
 def provide_packages(pkg_names: tp.List[str]) -> None:
+    """
+    Provide all given packages in the system.
+
+    Args:
+        pkg_names: A list of package names to provide in the system.
+    """
     for pkg_name in pkg_names:
         provide_package(pkg_name)

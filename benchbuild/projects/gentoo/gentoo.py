@@ -31,8 +31,6 @@ class GentooGroup(bb.Project):
 
     GROUP = 'gentoo'
     SRC_FILE = None
-
-    # FIXME: These have to be replaced with a gentoo base image.
     CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
     emerge_env = attr.ib(default={}, repr=False, cmp=False)

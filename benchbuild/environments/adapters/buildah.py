@@ -56,7 +56,7 @@ def destroy_working_container(container: model.Container) -> None:
 
 def commit_working_container(container: model.Container) -> None:
     image = container.image
-    BB_BUILDAH_COMMIT(container.container_id, image.name)
+    BB_BUILDAH_COMMIT(container.container_id, image.name.lower())
 
 
 def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
@@ -118,7 +118,7 @@ def set_working_directory(
 
 
 def find_image(tag: str) -> model.MaybeImage:
-    results = BB_BUILDAH_IMAGES('--json', tag, retcode=[0, 125])
+    results = BB_BUILDAH_IMAGES('--json', tag.lower(), retcode=[0, 125])
     if results:
         json_results = json.loads(results)
         if json_results:

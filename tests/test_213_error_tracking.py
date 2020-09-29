@@ -8,6 +8,7 @@ from plumbum import ProcessExecutionError
 
 from benchbuild import experiment
 from benchbuild import project as prj
+from benchbuild.environments.domain import declarative
 from benchbuild.source import nosource
 from benchbuild.utils import actions as a
 from benchbuild.utils import tasks
@@ -41,6 +42,7 @@ class EmptyProject(prj.Project):
     DOMAIN = "debug"
     GROUP = "debug"
     SOURCE = [nosource()]
+    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         pass
@@ -71,10 +73,11 @@ class TrackErrorsTestCase(unittest.TestCase):
     def test_exception(self):
         plan = list(
             tasks.generate_plan({"test_exception": ExceptionExp}.values(),
-                                {"test_empty": EmptyProject}.values()))
-        self.assertEqual(len(plan),
-                         1,
-                         msg="The test plan must have a length of 1.")
+                                {"test_empty": EmptyProject}.values())
+        )
+        self.assertEqual(
+            len(plan), 1, msg="The test plan must have a length of 1."
+        )
 
         failed = tasks.execute_plan(plan)
         self.assertEqual(len(failed), 1, msg="One step must fail!")
@@ -82,10 +85,11 @@ class TrackErrorsTestCase(unittest.TestCase):
     def test_error_state(self):
         plan = list(
             tasks.generate_plan({"test_error_state": ErrorStateExp}.values(),
-                                {"test_empty": EmptyProject}.values()))
-        self.assertEqual(len(plan),
-                         1,
-                         msg="The test plan must have a length of 1.")
+                                {"test_empty": EmptyProject}.values())
+        )
+        self.assertEqual(
+            len(plan), 1, msg="The test plan must have a length of 1."
+        )
 
         failed = tasks.execute_plan(plan)
         self.assertEqual(len(failed), 1, msg="One step must fail!")

@@ -8,7 +8,6 @@ import plumbum as pb
 from plumbum import local
 
 from benchbuild.utils.cmd import git, mkdir
-from benchbuild.utils.path import flocked
 
 from . import base
 
@@ -73,14 +72,14 @@ class Git(base.BaseSource):
         """
         src_loc = self.fetch()
         tgt_loc = local.path(target_dir) / self.local
-        lock_file = local.path(target_dir) / self.local + '.lock'
+        clone = git['clone']
+        checkout = git['checkout']
 
-        worktree = git['worktree']
-        with local.cwd(src_loc):
-            mkdir('-p', tgt_loc)
-            with flocked(lock_file):
-                worktree('prune')
-                worktree('add', '--detach', tgt_loc, version)
+        mkdir('-p', tgt_loc)
+        with local.cwd(tgt_loc):
+            clone('--dissociate', '--reference', src_loc, self.remote, '.')
+            checkout('--detach', version)
+
         return tgt_loc
 
     def versions(self) -> tp.List[base.Variant]:

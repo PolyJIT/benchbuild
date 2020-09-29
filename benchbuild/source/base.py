@@ -68,12 +68,14 @@ class ISource(abc.ABC):
         """
         The source location (path-like) after fetching it from its remote.
         """
+        raise NotImplementedError()
 
     @abc.abstractproperty
     def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
         """
         The source location in the remote location.
         """
+        raise NotImplementedError()
 
     @abc.abstractproperty
     def key(self) -> str:
@@ -86,12 +88,14 @@ class ISource(abc.ABC):
         While this make no further assumption, but a good candidate is a
         file-system name/path.
         """
+        raise NotImplementedError()
 
     @abc.abstractproperty
     def default(self) -> Variant:
         """
         The default version for this source.
         """
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
@@ -107,6 +111,7 @@ class ISource(abc.ABC):
         Returns:
             str: [description]
         """
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def versions(self) -> tp.Iterable[Variant]:
@@ -116,6 +121,7 @@ class ISource(abc.ABC):
         Returns:
             List[str]: The list of all available versions.
         """
+        raise NotImplementedError()
 
 
 @attr.s
@@ -144,6 +150,7 @@ class BaseSource(ISource):
         """
         The default version for this source.
         """
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
@@ -159,6 +166,7 @@ class BaseSource(ISource):
         Returns:
             str: [description]
         """
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def versions(self) -> tp.Iterable[Variant]:
@@ -168,6 +176,7 @@ class BaseSource(ISource):
         Returns:
             List[str]: The list of all available versions.
         """
+        raise NotImplementedError()
 
 
 Sources = tp.List['BaseSource']
@@ -201,7 +210,7 @@ def target_prefix() -> str:
     return str(CFG['tmp_dir'])
 
 
-def default(*sources: BaseSource) -> VariantContext:
+def default(*sources: ISource) -> VariantContext:
     """
     Return the collective 'default' version for the given sources.
 
@@ -212,7 +221,7 @@ def default(*sources: BaseSource) -> VariantContext:
     return context(*first)
 
 
-def primary(source: BaseSource, *sources: BaseSource) -> BaseSource:
+def primary(*sources: ISource) -> ISource:
     """
     Return the implicit 'main' source of a project.
 
@@ -221,12 +230,11 @@ def primary(source: BaseSource, *sources: BaseSource) -> BaseSource:
     If you define a new project and rely on the existence of a 'main'
     source code repository, make sure to define it as the first one.
     """
-    del sources
+    (head, *_) = sources
+    return head
 
-    return source
 
-
-def product(*sources: BaseSource) -> NestedVariants:
+def product(*sources: ISource) -> NestedVariants:
     """
     Return the cross product of the given sources.
 

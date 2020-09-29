@@ -3,6 +3,7 @@ import logging
 import os
 import platform
 import sys
+import typing as tp
 from getpass import getuser
 
 from plumbum import FG, TF, ProcessExecutionError, local
@@ -15,7 +16,16 @@ CFG = settings.CFG
 LOG = logging.getLogger(__name__)
 
 
-def find_package(binary):
+def find_package(binary: str) -> bool:
+    """
+    Find the binary as a usable python object in the system.
+
+    Args:
+        binary: The binary name to look for.
+
+    Returns:
+        True, if the binary name can be imported by benchbuild.
+    """
     from benchbuild.utils import cmd
     c = cmd.__getattr__(binary)
 
@@ -99,13 +109,15 @@ def install_uchroot(_):
             cmake("../")
             make()
 
-    os.environ["PATH"] = os.path.pathsep.join(
-        [erlent_build, os.environ["PATH"]])
+    os.environ["PATH"] = os.path.pathsep.join([
+        erlent_build, os.environ["PATH"]
+    ])
     local.env.update(PATH=os.environ["PATH"])
 
     if not find_package("uchroot"):
-        LOG.error('uchroot not found, after updating PATH to %s',
-                  os.environ['PATH'])
+        LOG.error(
+            'uchroot not found, after updating PATH to %s', os.environ['PATH']
+        )
         sys.exit(-1)
 
     env = CFG['env'].value
@@ -114,7 +126,10 @@ def install_uchroot(_):
     env['PATH'].append(str(erlent_build))
 
 
-def check_uchroot_config():
+def check_uchroot_config() -> None:
+    """
+    Check, if the configuration of uchroot is valid for benchbuild.
+    """
     print("Checking configuration of 'uchroot'")
 
     fuse_grep = grep['-q', '-e']
@@ -123,35 +138,48 @@ def check_uchroot_config():
     if not (fuse_grep["^user_allow_other", "/etc/fuse.conf"] & TF):
         print("uchroot needs 'user_allow_other' enabled in '/etc/fuse.conf'.")
     if not (fuse_grep["^{0}".format(username), "/etc/subuid"] & TF):
-        print("uchroot needs an entry for user '{0}' in '/etc/subuid'.".format(
-            username))
+        print(
+            "uchroot needs an entry for user '{0}' in '/etc/subuid'.".
+            format(username)
+        )
     if not (fuse_grep["^{0}".format(username), "/etc/subgid"] & TF):
-        print("uchroot needs an entry for user '{0}' in '/etc/subgid'.".format(
-            username))
+        print(
+            "uchroot needs an entry for user '{0}' in '/etc/subgid'.".
+            format(username)
+        )
 
 
-def linux_distribution_major():
+def linux_distribution_major() -> tp.Optional[str]:
+    """
+    Get the used linux distribution.
+
+    Returns:
+        The name of the linux distribution, if known.
+    """
     if not platform.system() == 'Linux':
         return None
 
     # python > 3.7
     lsb_release = local["lsb_release"]
-    distribution = lsb_release["-ds"]()
-    if "SUSE" in distribution or "SuSE" in distribution:
-        return "suse"
-    if "Debian" in distribution:
-        return "debian"
-    if "Ubuntu" in distribution:
-        return "ubuntu"
-    if "Ubuntu" in distribution:
-        return "ubuntu"
-    if "Gentoo" in distribution:
-        return "gentoo"
+    distribution = lsb_release["-ds"]().strip().lower()
+    known_distributions = ["suse", "debian", "ubuntu", "gentoo"]
+
+    for known in known_distributions:
+        if known in distribution:
+            return known
 
     return None
 
 
-def install_package(pkg_name):
+def install_package(pkg_name: str) -> bool:
+    """
+    Install the given package.
+
+    This makes use of the systems package manager, if known.
+
+    Args:
+        pkg_name: The package name to install.
+    """
     if not bool(CFG['bootstrap']['install']):
         return False
 
@@ -180,11 +208,28 @@ def install_package(pkg_name):
     return ret
 
 
-def provide_package(pkg_name, installer=install_package):
+def provide_package(
+    pkg_name: str,
+    installer: tp.Callable[[str], bool] = install_package
+) -> None:
+    """
+    Make sure the package is provided by the system, if required.
+
+    Args:
+        pkg_name: The package name to provide.
+        installer: An installer function that is used,
+            if the package needs to be installed.
+    """
     if not find_package(pkg_name):
         installer(pkg_name)
 
 
-def provide_packages(pkg_names):
+def provide_packages(pkg_names: tp.List[str]) -> None:
+    """
+    Provide all given packages in the system.
+
+    Args:
+        pkg_names: A list of package names to provide in the system.
+    """
     for pkg_name in pkg_names:
         provide_package(pkg_name)

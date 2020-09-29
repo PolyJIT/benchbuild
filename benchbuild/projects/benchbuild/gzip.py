@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
@@ -14,11 +15,16 @@ class Gzip(bb.Project):
     DOMAIN = 'compression'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={'1.6': 'http://ftpmirror.gnu.org/gzip/gzip-1.6.tar.xz'},
-             local='gzip.tar.xz'),
-        HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
-             local='compression.tar.gz')
+        HTTP(
+            remote={'1.6': 'http://ftpmirror.gnu.org/gzip/gzip-1.6.tar.xz'},
+            local='gzip.tar.xz'
+        ),
+        HTTP(
+            remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
+            local='compression.tar.gz'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         gzip_version = self.version_of('gzip.tar.xz')
@@ -55,7 +61,9 @@ class Gzip(bb.Project):
         with local.cwd(unpack_dir):
             _configure = bb.watch(local["./configure"])
             with local.env(CC=str(clang)):
-                _configure("--disable-dependency-tracking",
-                           "--disable-silent-rules", "--with-gnu-ld")
+                _configure(
+                    "--disable-dependency-tracking", "--disable-silent-rules",
+                    "--with-gnu-ld"
+                )
             _make = bb.watch(make)
             _make("-j" + str(get_number_of_jobs(CFG)), "clean", "all")

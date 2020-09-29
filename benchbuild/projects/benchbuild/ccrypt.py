@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
 
@@ -12,11 +13,15 @@ class Ccrypt(bb.Project):
     DOMAIN = 'encryption'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={
-            '1.10': "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
-        },
-             local='ccrypt.tar.gz')
+        HTTP(
+            remote={
+                '1.10':
+                    "http://ccrypt.sourceforge.net/download/ccrypt-1.10.tar.gz"
+            },
+            local='ccrypt.tar.gz'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         ccrypt_source = local.path(self.source_of('ccrypt.tar.gz'))

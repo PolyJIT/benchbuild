@@ -16,7 +16,7 @@ class BenchBuild(cli.Application):
     verbosity = cli.CountOf('-v', help="Enable verbose output")
     debug = cli.Flag('-d', help="Enable debugging output")
 
-    def main(self, *args):
+    def main(self, *args: str) -> int:
         cfg = settings.CFG
 
         self.verbosity = self.verbosity if self.verbosity < 6 else 5
@@ -41,3 +41,5 @@ class BenchBuild(cli.Application):
             return 1
         if not self.nested_command:
             self.help()
+
+        return 0

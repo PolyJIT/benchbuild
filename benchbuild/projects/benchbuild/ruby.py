@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, ruby, tar
@@ -12,17 +13,24 @@ class Ruby(bb.Project):
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={
-            '2.2.2':
-                'http://cache.ruby-lang.org/pub/ruby/2.2.2/ruby-2.2.2.tar.gz'
-        },
-             local='ruby.tar.gz'),
-        HTTP(remote={
-            '2016-11-ruby-inputs.tar.gz':
-                'http://lairosiel.de/dist/2016-11-ruby-inputs.tar.gz'
-        },
-             local='inputs.tar.gz')
+        HTTP(
+            remote={
+                '2.2.2': (
+                    'http://cache.ruby-lang.org/pub/ruby/2.2.2/'
+                    'ruby-2.2.2.tar.gz'
+                )
+            },
+            local='ruby.tar.gz'
+        ),
+        HTTP(
+            remote={
+                '2016-11-ruby-inputs.tar.gz':
+                    'http://lairosiel.de/dist/2016-11-ruby-inputs.tar.gz'
+            },
+            local='inputs.tar.gz'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         ruby_source = local.path(self.source_of('ruby.tar.gz'))
@@ -52,4 +60,5 @@ class Ruby(bb.Project):
                 test_dir / "benchmark" / "run.rb",
                 "--ruby=\"" + str(ruby_n) + "\"",
                 "--opts=\"-I" + test_dir / "lib" + " -I" + test_dir / "." +
-                " -I" + test_dir / ".ext" / "common" + "\"", "-r")
+                " -I" + test_dir / ".ext" / "common" + "\"", "-r"
+            )

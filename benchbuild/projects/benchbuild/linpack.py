@@ -1,6 +1,7 @@
 import logging
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils import path
 from benchbuild.utils.cmd import patch
@@ -15,12 +16,15 @@ class Linpack(bb.Project):
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={'5_88': 'http://www.netlib.org/benchmark/linpackc.new'},
-             local='linpack.c')
+        HTTP(
+            remote={'5_88': 'http://www.netlib.org/benchmark/linpackc.new'},
+            local='linpack.c'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self) -> None:
-        lp_patch = path.template_path("../projects/patches/linpack.patch")
+        lp_patch = path.template_path("patches/linpack.patch")
         (patch["-p0"] < lp_patch)()
 
         self.ldflags += ["-lm"]

@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import cat, make, tar, unzip
 
@@ -12,15 +13,21 @@ class Crocopat(bb.Project):
     DOMAIN = 'verification'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={
-            '2.1.4': 'http://crocopat.googlecode.com/files/crocopat-2.1.4.zip'
-        },
-             local='crocopat.zip'),
-        HTTP(remote={
-            '2014-10': 'http://lairosiel.de/dist/2014-10-crocopat.tar.gz'
-        },
-             local='inputs.tar.gz')
+        HTTP(
+            remote={
+                '2.1.4':
+                    'http://crocopat.googlecode.com/files/crocopat-2.1.4.zip'
+            },
+            local='crocopat.zip'
+        ),
+        HTTP(
+            remote={
+                '2014-10': 'http://lairosiel.de/dist/2014-10-crocopat.tar.gz'
+            },
+            local='inputs.tar.gz'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         crocopat = bb.wrap('crocopat', self)
@@ -33,7 +40,8 @@ class Crocopat(bb.Project):
         for program in programs:
             for _project in projects:
                 _crocopat_project = bb.watch(
-                    (cat[_project] | crocopat[program]))
+                    (cat[_project] | crocopat[program])
+                )
                 _crocopat_project(retcode=None)
 
     def compile(self):

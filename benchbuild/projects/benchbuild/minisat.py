@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import git, make, tar
 
@@ -12,16 +13,21 @@ class Minisat(bb.Project):
     DOMAIN = 'verification'
     GROUP = 'benchbuild'
     SOURCE = [
-        Git(remote='https://github.com/niklasso/minisat',
+        Git(
+            remote='https://github.com/niklasso/minisat',
             local='minisat.git',
             limit=5,
-            refspec='HEAD'),
-        HTTP(remote={
-            '2016-11-minisat.tar.gz':
-                'http://lairosiel.de/dist/2016-11-minisat.tar.gz'
-        },
-             local='inputs.tar.gz')
+            refspec='HEAD'
+        ),
+        HTTP(
+            remote={
+                '2016-11-minisat.tar.gz':
+                    'http://lairosiel.de/dist/2016-11-minisat.tar.gz'
+            },
+            local='inputs.tar.gz'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         minisat_repo = local.path(self.source_of('minisat.git'))
@@ -38,7 +44,8 @@ class Minisat(bb.Project):
         minisat = bb.wrap(minisat_bin / "minisat", self)
         for test_f in testfiles:
             _minisat = bb.watch(
-                (minisat.with_env(LD_LIBRARY_PATH=minisat_lib) < test_f))
+                (minisat.with_env(LD_LIBRARY_PATH=minisat_lib) < test_f)
+            )
             _minisat()
 
     def compile(self):
@@ -55,5 +62,7 @@ class Minisat(bb.Project):
             clang = bb.compiler.cc(self)
             clang_cxx = bb.compiler.cxx(self)
 
-            _make("CC=" + str(clang), "CXX=" + str(clang_cxx), "clean", "lsh",
-                  "sh")
+            _make(
+                "CC=" + str(clang), "CXX=" + str(clang_cxx), "clean", "lsh",
+                "sh"
+            )

@@ -1,5 +1,6 @@
 import benchbuild as bb
 from benchbuild import project
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import nosource
 
 
@@ -9,6 +10,7 @@ class TestProject(project.Project):
     DOMAIN = "test"
     GROUP = "test"
     SOURCE = [nosource()]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         with open('test.cpp', 'w') as test_source:
@@ -40,6 +42,7 @@ class TestProjectRuntimeFail(project.Project):
     GROUP = "test"
     SRC_FILE = "test.cpp"
     SOURCE = [nosource()]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         with open('test.cpp', 'w') as test_source:

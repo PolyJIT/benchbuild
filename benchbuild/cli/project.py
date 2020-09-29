@@ -1,11 +1,12 @@
 """Subcommand for project handling."""
+import typing as tp
+
 from plumbum import cli
 
 import benchbuild as bb
-from benchbuild.cli.main import BenchBuild
+from benchbuild.project import ProjectIndex
 
 
-@BenchBuild.subcommand("project")
 class BBProject(cli.Application):
     """Manage BenchBuild's known projects."""
 
@@ -27,19 +28,20 @@ class BBProjectView(cli.Application):
     def set_group(self, groups):
         self.groups = groups
 
-    def main(self, *projects):
-        print_projects(bb.populate(projects, self.groups))
+    def main(self, *projects: str) -> int:
+        print_projects(bb.populate(list(projects), self.groups))
+        return 0
 
 
-def print_projects(projects=None):
+def print_projects(projects: ProjectIndex) -> None:
     """
-    Print a list of projects registered for that experiment.
+    Print the information about available projects.
 
     Args:
-        exp: The experiment to print all projects for.
+        projects: The populated project index to print.
 
     """
-    grouped_by = {}
+    grouped_by: tp.Dict[str, tp.List[str]] = {}
     if not projects:
         print("Your selection didn't include any projects for this experiment.")
         return
@@ -50,14 +52,15 @@ def print_projects(projects=None):
         if prj.GROUP not in grouped_by:
             grouped_by[prj.GROUP] = []
 
-        grouped_by[prj.GROUP].append("{name}/{group}".format(name=prj.NAME,
-                                                             group=prj.GROUP))
+        grouped_by[prj.GROUP].append(
+            "{name}/{group}".format(name=prj.NAME, group=prj.GROUP)
+        )
 
     for name in grouped_by:
         print(f'::  group: {name}')
         group_projects = sorted(grouped_by[name])
-        for prj in group_projects:
-            prj_cls = projects[prj]
+        for prj_name in group_projects:
+            prj_cls = projects[prj_name]
 
             project_id = f'{prj_cls.NAME}/{prj_cls.GROUP}'
             project_version = str(bb.source.default(*prj_cls.SOURCE))

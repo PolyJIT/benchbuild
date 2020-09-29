@@ -30,18 +30,23 @@ from plumbum.path.local import LocalPath
 from pygtrie import StringTrie
 
 from benchbuild import extensions, source
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
+from benchbuild.source import primary, Git
 from benchbuild.utils import db, run, unionfs
 from benchbuild.utils.requirements import Requirement
+from benchbuild.utils.revision_ranges import RevisionRange
 
 LOG = logging.getLogger(__name__)
 
 MaybeGroupNames = tp.Optional[tp.List[str]]
-ProjectIndex = tp.Mapping[str, tp.Tuple[tp.Type['Project'], tp.Optional[str]]]
+ProjectIndex = tp.Mapping[str, tp.Type['Project']]
 ProjectNames = tp.List[str]
-ProjectT = tp.Type['Project']
 VariantContext = source.VariantContext
-Sources = tp.List[source.BaseSource]
+Sources = tp.List[source.base.ISource]
+ContainerDeclaration = tp.Union[ContainerImage,
+                                tp.List[tp.Tuple[RevisionRange,
+                                                 ContainerImage]]]
 
 
 class ProjectRegistry(type):
@@ -49,17 +54,21 @@ class ProjectRegistry(type):
 
     projects = StringTrie()
 
-    def __new__(mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
-                attrs: tp.Dict[str, tp.Any]) -> tp.Any:
+    def __new__(
+        mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
+        attrs: tp.Dict[str, tp.Any]
+    ) -> tp.Any:
         """Register a project in the registry."""
         cls = super(ProjectRegistry, mcs).__new__(mcs, name, bases, attrs)
 
-        defined_attrs = all(attr in attrs and attrs[attr] is not None
-                            for attr in ['NAME', 'DOMAIN', 'GROUP'])
+        defined_attrs = all(
+            attr in attrs and attrs[attr] is not None
+            for attr in ['NAME', 'DOMAIN', 'GROUP']
+        )
 
         if bases and defined_attrs:
-            key = f"{cls.NAME}/{cls.GROUP}"
-            key_dash = f"{cls.NAME}-{cls.GROUP}"
+            key = f'{attrs["NAME"]}/{attrs["GROUP"]}'
+            key_dash = f'{attrs["NAME"]}-{attrs["GROUP"]}'
             ProjectRegistry.projects[key] = cls
             ProjectRegistry.projects[key_dash] = cls
         return cls
@@ -159,7 +168,7 @@ class Project(metaclass=ProjectDecorator):
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
-    CONTAINER = None
+    CONTAINER: tp.ClassVar[ContainerDeclaration]
     DOMAIN: tp.ClassVar[str] = ""
     GROUP: tp.ClassVar[str] = ""
     NAME: tp.ClassVar[str] = ""
@@ -172,13 +181,16 @@ class Project(metaclass=ProjectDecorator):
         mod_ident = f'{cls.__name__} @ {cls.__module__}'
         if not cls.NAME:
             raise AttributeError(
-                f'{mod_ident} does not define a NAME class attribute.')
+                f'{mod_ident} does not define a NAME class attribute.'
+            )
         if not cls.DOMAIN:
             raise AttributeError(
-                f'{mod_ident} does not define a DOMAIN class attribute.')
+                f'{mod_ident} does not define a DOMAIN class attribute.'
+            )
         if not cls.GROUP:
             raise AttributeError(
-                f'{mod_ident} does not define a GROUP class attribute.')
+                f'{mod_ident} does not define a GROUP class attribute.'
+            )
         return new_self
 
     variant: VariantContext = attr.ib()
@@ -188,16 +200,18 @@ class Project(metaclass=ProjectDecorator):
         return source.default(*type(self).SOURCE)
 
     name: str = attr.ib(
-        default=attr.Factory(lambda self: type(self).NAME, takes_self=True))
+        default=attr.Factory(lambda self: type(self).NAME, takes_self=True)
+    )
 
     domain: str = attr.ib(
-        default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True))
+        default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True)
+    )
 
     group: str = attr.ib(
-        default=attr.Factory(lambda self: type(self).GROUP, takes_self=True))
+        default=attr.Factory(lambda self: type(self).GROUP, takes_self=True)
+    )
 
-    container = attr.ib(default=attr.Factory(lambda self: type(self).CONTAINER,
-                                             takes_self=True))
+    container: ContainerImage = attr.ib(default=attr.Factory(ContainerImage))
 
     cflags: tp.List[str] = attr.ib(default=attr.Factory(list))
 
@@ -217,12 +231,17 @@ class Project(metaclass=ProjectDecorator):
         if not isinstance(value, uuid.UUID):
             raise TypeError("{attribute} must be a valid UUID object")
 
-    builddir: local.path = attr.ib(default=attr.Factory(lambda self: local.path(
-        str(CFG["build_dir"])) / self.id / self.run_uuid,
-                                                        takes_self=True))
+    builddir: local.path = attr.ib(
+        default=attr.Factory(
+            lambda self: local.path(str(CFG["build_dir"])) / self.id / self.
+            run_uuid,
+            takes_self=True
+        )
+    )
 
     source: Sources = attr.ib(
-        default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True))
+        default=attr.Factory(lambda self: type(self).SOURCE, takes_self=True)
+    )
 
     primary_source: str = attr.ib()
 
@@ -231,12 +250,30 @@ class Project(metaclass=ProjectDecorator):
         return source.primary(*self.source).key
 
     compiler_extension = attr.ib(
-        default=attr.Factory(extensions.MissingExtension, takes_self=False))
+        default=attr.Factory(extensions.MissingExtension, takes_self=False)
+    )
 
     runtime_extension = attr.ib(default=None)
 
     def __attrs_post_init__(self) -> None:
         db.persist_project(self)
+
+        # select container image
+        if isinstance(type(self).CONTAINER, ContainerImage):
+            self.container = tp.cast(
+                ContainerImage, copy.deepcopy(type(self).CONTAINER)
+            )
+        else:
+            if not isinstance(primary(*self.SOURCE), Git):
+                raise AssertionError(
+                    "Container selection by version is only allowed if the"
+                    "primary source is a git repository."
+                )
+            version = self.version_of_primary
+            for rev_range, image in type(self).CONTAINER:
+                if version in rev_range:
+                    self.container = copy.deepcopy(image)
+                    break
 
     @abstractmethod
     def run_tests(self) -> None:
@@ -293,7 +330,7 @@ class Project(metaclass=ProjectDecorator):
         """
         variant = self.variant
         if name in variant:
-            return self.builddir / variant[name].owner.local
+            return str(self.builddir / variant[name].owner.local)
         return None
 
     def version_of(self, name: str) -> tp.Optional[str]:
@@ -333,8 +370,12 @@ class Project(metaclass=ProjectDecorator):
         return source_str
 
 
+ProjectT = tp.Type['Project']
+
+
 def __split_project_input__(
-        project_input: str) -> tp.Tuple[str, tp.Optional[str]]:
+    project_input: str
+) -> tp.Tuple[str, tp.Optional[str]]:
     split_input = project_input.rsplit('@', maxsplit=1)
     first = split_input[0]
     second = split_input[1] if len(split_input) > 1 else None
@@ -342,7 +383,7 @@ def __split_project_input__(
     return (first, second)
 
 
-def discovered() -> tp.Dict[str, Project]:
+def discovered() -> tp.Dict[str, ProjectT]:
     """Return all discovered projects."""
     return dict(ProjectRegistry.projects)
 
@@ -358,8 +399,9 @@ def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
     return project
 
 
-def __add_indexed_filters__(project: ProjectT,
-                            versions: tp.List[str]) -> ProjectT:
+def __add_indexed_filters__(
+    project: ProjectT, versions: tp.List[str]
+) -> ProjectT:
     sources = project.SOURCE
     for i in range(min(len(sources), len(versions))):
         sources[i] = source.SingleVersionFilter(sources[i], versions[i])
@@ -368,13 +410,15 @@ def __add_indexed_filters__(project: ProjectT,
     return project
 
 
-def __add_named_filters__(project: ProjectT,
-                          versions: tp.Dict[str, str]) -> ProjectT:
+def __add_named_filters__(
+    project: ProjectT, versions: tp.Dict[str, str]
+) -> ProjectT:
     sources = project.SOURCE
-    named_sources = {s.key: s for s in sources}
+    named_sources: tp.Dict[str,
+                           source.base.ISource] = {s.key: s for s in sources}
     for k, v in versions.items():
         if k in named_sources:
-            victim = named_sources[k]
+            victim: source.base.ISource = named_sources[k]
             victim = source.SingleVersionFilter(victim, v)
             named_sources[k] = victim
     sources = list(named_sources.values())
@@ -423,8 +467,10 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
     raise ValueError('not sure what this version input')
 
 
-def populate(projects_to_filter: ProjectNames,
-             group: MaybeGroupNames = None) -> ProjectIndex:
+def populate(
+    projects_to_filter: ProjectNames,
+    group: MaybeGroupNames = None
+) -> ProjectIndex:
     """
     Populate the list of projects that belong to this experiment.
 
@@ -440,9 +486,6 @@ def populate(projects_to_filter: ProjectNames,
     Returns:
         a dictionary of (project name, project class) pairs.
     """
-    if projects_to_filter is None:
-        projects_to_filter = []
-
     prjs = discovered()
     if projects_to_filter:
         prjs = {}

@@ -5,7 +5,7 @@ import unittest
 
 from plumbum import ProcessExecutionError
 
-from benchbuild.experiment import Experiment
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.project import Project
 from benchbuild.source import nosource
 from benchbuild.utils import actions as a
@@ -16,6 +16,7 @@ class EmptyProject(Project):
     DOMAIN = "debug"
     GROUP = "debug"
     SOURCE = [nosource()]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def build(self):
         pass

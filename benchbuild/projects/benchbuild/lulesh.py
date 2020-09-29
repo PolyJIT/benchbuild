@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import Git
 
 
@@ -11,11 +12,14 @@ class Lulesh(bb.Project):
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     SOURCE = [
-        Git(remote='https://github.com/LLNL/LULESH/',
+        Git(
+            remote='https://github.com/LLNL/LULESH/',
             local='lulesh.git',
             limit=5,
-            refspec='HEAD')
+            refspec='HEAD'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         lulesh_repo = local.path(self.source_of('lulesh.git'))
@@ -46,11 +50,14 @@ class LuleshOMP(bb.Project):
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     SOURCE = [
-        Git(remote='https://github.com/LLNL/LULESH/',
+        Git(
+            remote='https://github.com/LLNL/LULESH/',
             local='lulesh.git',
             limit=5,
-            refspec='HEAD')
+            refspec='HEAD'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         lulesh_repo = local.path(self.source_of('lulesh.git'))

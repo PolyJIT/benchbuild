@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import cat, make, mkdir, mv, unzip
 
@@ -12,21 +13,30 @@ class Crafty(bb.Project):
     DOMAIN = 'scientific'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={
-            '25.2':
-                'http://www.craftychess.com/downloads/source/crafty-25.2.zip'
-        },
-             local='crafty.zip'),
-        HTTP(remote={
-            '1.0': 'http://www.craftychess.com/downloads/book/book.bin'
-        },
-             local='book.bin'),
-        HTTP(remote={
-            '2016-11-crafty.tar.gz':
-                'http://lairosiel.de/dist/2016-11-crafty.tar.gz'
-        },
-             local='inputs.tar.gz')
+        HTTP(
+            remote={
+                '25.2': (
+                    'http://www.craftychess.com/downloads/source/'
+                    'crafty-25.2.zip'
+                )
+            },
+            local='crafty.zip'
+        ),
+        HTTP(
+            remote={
+                '1.0': 'http://www.craftychess.com/downloads/book/book.bin'
+            },
+            local='book.bin'
+        ),
+        HTTP(
+            remote={
+                '2016-11-crafty.tar.gz':
+                    'http://lairosiel.de/dist/2016-11-crafty.tar.gz'
+            },
+            local='inputs.tar.gz'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         crafty_source = local.path(self.source_of('crafty.zip'))
@@ -43,8 +53,10 @@ class Crafty(bb.Project):
         with local.cwd(unpack_dir):
             target_opts = ["-DCPUS=1", "-DSYZYGY", "-DTEST"]
             _make = bb.watch(make)
-            _make("target=UNIX", "CC=" + str(clang),
-                  "opt=" + " ".join(target_opts), "crafty-make")
+            _make(
+                "target=UNIX", "CC=" + str(clang),
+                "opt=" + " ".join(target_opts), "crafty-make"
+            )
 
     def run_tests(self):
         unpack_dir = local.path('crafty.src')

@@ -5,18 +5,24 @@ import typing as t
 from contextlib import contextmanager
 
 import attr
+import typing_extensions as te
 from plumbum import TEE, local
 from plumbum.commands import ProcessExecutionError
+from plumbum.commands.base import BaseCommand
 
 from benchbuild import settings, signals
 
-if t.TYPE_CHECKING:
-    import mypy_extensions as mypy  # pylint: disable=unused-import
+CommandResult = t.Tuple[int, str, str]
+
+
+class WatchableCommand(te.Protocol):
+
+    def __call__(self, *args: t.Any, **kwargs: t.Any) -> CommandResult:
+        ...
+
 
 CFG = settings.CFG
 LOG = logging.getLogger(__name__)
-
-Command = t.Callable[['mypy.VarArg(str)'], t.Any]
 
 
 @attr.s(eq=False)
@@ -40,7 +46,7 @@ class RunInfo:
         session ():
     """
 
-    def __begin(self, command, project, experiment, group):
+    def __begin(self, command: BaseCommand, project, experiment, group):
         """
         Begin a run in the database log.
 
@@ -143,8 +149,9 @@ class RunInfo:
     payload = attr.ib(init=False, default=None, repr=False)
 
     def __attrs_post_init__(self):
-        self.__begin(self.cmd, self.project, self.experiment,
-                     self.project.run_uuid)
+        self.__begin(
+            self.cmd, self.project, self.experiment, self.project.run_uuid
+        )
         signals.handlers.register(self.__fail, 15, "SIGTERM", "SIGTERM")
 
         run_id = self.db_run.id
@@ -311,18 +318,18 @@ def track_execution(cmd, project, experiment, **kwargs):
     runner.commit()
 
 
-def watch(
-    command: Command
-) -> t.Callable[['mypy.VarArg', 'mypy.DefaultArg'], Command]:
+def watch(command: BaseCommand) -> WatchableCommand:
     """Execute a plumbum command, depending on the user's settings.
 
     Args:
         command: The plumbumb command to execute.
     """
 
-    def f(*args: t.Any, retcode: int = 0) -> Command:
+    def f(*args: t.Any, retcode: int = 0, **kwargs: t.Any) -> CommandResult:
         final_command = command[args]
-        return final_command & TEE(retcode=retcode)
+        return t.cast(
+            CommandResult, final_command.run_tee(retcode=retcode, **kwargs)
+        )
 
     return f
 

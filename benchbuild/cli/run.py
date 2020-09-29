@@ -8,21 +8,20 @@ See the output of benchbuild run --help for more information.
 import logging
 import sys
 import time
+import typing as tp
 
 from plumbum import cli
 
 from benchbuild import engine, experiment, plugins, project
-from benchbuild.cli.main import BenchBuild
 from benchbuild.settings import CFG
 
 LOG = logging.getLogger(__name__)
 
 
-@BenchBuild.subcommand("run")
 class BenchBuildRun(cli.Application):
     """Frontend for running experiments in the benchbuild study framework."""
 
-    experiment_names = []
+    experiment_names: tp.List[str] = []
     group_names = None
 
     test_full = cli.Flag(["-F", "--full"],
@@ -52,7 +51,7 @@ class BenchBuildRun(cli.Application):
 
     pretend = cli.Flag(['p', 'pretend'], default=False)
 
-    def main(self, *projects):
+    def main(self, *projects: str) -> int:
         """Main entry point of benchbuild run."""
         experiment_names = self.experiment_names
         group_names = self.group_names
@@ -64,16 +63,23 @@ class BenchBuildRun(cli.Application):
             exps = all_exps
         else:
             exps = dict(
-                filter(lambda pair: pair[0] in set(experiment_names),
-                       all_exps.items()))
+                filter(
+                    lambda pair: pair[0] in set(experiment_names),
+                    all_exps.items()
+                )
+            )
 
         unknown_exps = list(
-            filter(lambda name: name not in all_exps.keys(),
-                   set(experiment_names)))
+            filter(
+                lambda name: name not in all_exps.keys(), set(experiment_names)
+            )
+        )
         if unknown_exps:
-            print('Could not find ', str(unknown_exps),
-                  ' in the experiment registry.')
-        prjs = project.populate(projects, group_names)
+            print(
+                'Could not find ', str(unknown_exps),
+                ' in the experiment registry.'
+            )
+        prjs = project.populate(list(projects), group_names)
         if not prjs:
             print("Could not find any project. Exiting.")
             return 1
@@ -82,8 +88,9 @@ class BenchBuildRun(cli.Application):
             print("Could not find any experiment. Exiting.")
             return -2
 
-        ngn = engine.Experimentator(experiments=list(exps.values()),
-                                    projects=list(prjs.values()))
+        ngn = engine.Experimentator(
+            experiments=list(exps.values()), projects=list(prjs.values())
+        )
         num_actions = ngn.num_actions
         ngn.print_plan()
 
@@ -108,12 +115,14 @@ def print_summary(num_actions, failed, duration):
         duration: Time we spent executing the plan.
     """
     num_failed = len(failed)
-    print("""
+    print(
+        """
 Summary:
 {num_total} actions were in the queue.
 {num_failed} actions failed to execute.
 
 This run took: {elapsed_time:8.3f} seconds.
-    """.format(num_total=num_actions,
-               num_failed=num_failed,
-               elapsed_time=duration))
+    """.format(
+            num_total=num_actions, num_failed=num_failed, elapsed_time=duration
+        )
+    )

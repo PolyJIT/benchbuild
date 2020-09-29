@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
 
@@ -13,11 +14,16 @@ class XZ(bb.Project):
     GROUP = 'benchbuild'
 
     SOURCE = [
-        HTTP(remote={'5.2.1': 'http://tukaani.org/xz/xz-5.2.1.tar.gz'},
-             local='xz.tar.gz'),
-        HTTP(remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
-             local='compression.tar.gz')
+        HTTP(
+            remote={'5.2.1': 'http://tukaani.org/xz/xz-5.2.1.tar.gz'},
+            local='xz.tar.gz'
+        ),
+        HTTP(
+            remote={'1.0': 'http://lairosiel.de/dist/compression.tar.gz'},
+            local='compression.tar.gz'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         xz_source = local.path(self.source_of('xz.tar.gz'))
@@ -33,11 +39,13 @@ class XZ(bb.Project):
             configure = local["./configure"]
             _configure = bb.watch(configure)
             with local.env(CC=str(clang)):
-                _configure("--enable-threads=no", "--with-gnu-ld=yes",
-                           "--disable-shared", "--disable-dependency-tracking",
-                           "--disable-xzdec", "--disable-lzmadec",
-                           "--disable-lzmainfo", "--disable-lzma-links",
-                           "--disable-scripts", "--disable-doc")
+                _configure(
+                    "--enable-threads=no", "--with-gnu-ld=yes",
+                    "--disable-shared", "--disable-dependency-tracking",
+                    "--disable-xzdec", "--disable-lzmadec",
+                    "--disable-lzmainfo", "--disable-lzma-links",
+                    "--disable-scripts", "--disable-doc"
+                )
 
             _make = bb.watch(make)
             _make("CC=" + str(clang), "clean", "all")

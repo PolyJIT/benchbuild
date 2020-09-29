@@ -3,6 +3,7 @@ from os import path
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, mkdir, tar
 
@@ -18,8 +19,10 @@ class TCC(bb.Project):
                 '0.9.26':
                     'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'  # pylint: disable=line-too-long
             },
-            local='tcc.tar.bz2')
+            local='tcc.tar.bz2'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         tcc_source = local.path(self.source_of('tcc.tar.bz2'))

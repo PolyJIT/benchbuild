@@ -15,6 +15,7 @@ Measurements
     time.system_s - The time spent in kernel space in seconds (aka system time)
     time.real_s - The time spent overall in seconds (aka Wall clock)
 """
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.experiment import Experiment
 from benchbuild.extensions import compiler, run, time
 
@@ -23,6 +24,7 @@ class RawRuntime(Experiment):
     """The polyjit experiment."""
 
     NAME = "raw"
+    CONTAINER = ContainerImage()
 
     def actions_for_project(self, project):
         """Compile & Run the experiment with -O3 enabled."""

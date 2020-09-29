@@ -2,6 +2,7 @@ from plumbum import local
 
 import benchbuild as bb
 from benchbuild import CFG
+from benchbuild.environments.domain import declarative
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make
 from benchbuild.utils.settings import get_number_of_jobs
@@ -25,6 +26,7 @@ class X264(bb.Project):
     ]
 
     CONFIG = {"tbbt-small": [], "sintel": ["--input-res", "1280x720"]}
+    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         x264_repo = local.path(self.source_of('x264.git'))

@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
 
@@ -12,12 +13,17 @@ class Python(bb.Project):
     DOMAIN = 'compilation'
     GROUP = 'benchbuild'
     SOURCE = [
-        HTTP(remote={
-            '3.4.3':
-                'https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz'
-        },
-             local='python.tar.xz')
+        HTTP(
+            remote={
+                '3.4.3': (
+                    'https://www.python.org/ftp/python/3.4.3/'
+                    'Python-3.4.3.tar.xz'
+                )
+            },
+            local='python.tar.xz'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         python_source = local.path(self.source_of('python.tar.xz'))

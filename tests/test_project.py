@@ -7,10 +7,21 @@ import yaml
 from plumbum import local
 
 from benchbuild import Project
-from benchbuild.project import (__add_filters__, __add_indexed_filters__,
-                                __add_named_filters__, __add_single_filter__)
-from benchbuild.source import (BaseSource, SingleVersionFilter, Variant,
-                               nosource, primary)
+from benchbuild.environments.domain import declarative
+from benchbuild.project import (
+    discovered,
+    __add_filters__,
+    __add_indexed_filters__,
+    __add_named_filters__,
+    __add_single_filter__,
+)
+from benchbuild.source import (
+    BaseSource,
+    SingleVersionFilter,
+    Variant,
+    nosource,
+    primary,
+)
 
 
 class DummyPrj(Project):
@@ -18,6 +29,7 @@ class DummyPrj(Project):
     DOMAIN = 'TestDom'
     GROUP = 'TestGrp'
     SOURCE = [nosource()]
+    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         raise NotImplementedError()
@@ -28,6 +40,7 @@ class DummyPrjEmptySource(Project):
     DOMAIN = 'TestDom'
     GROUP = 'TestGrp'
     SOURCE = []
+    CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
     def run_tests(self):
         raise NotImplementedError()
@@ -54,7 +67,8 @@ def mksource(request) -> tp.Callable[[str], BaseSource]:
         cls = attr.make_class(
             name,
             attrs={'test_versions': attr.ib(default=request.param)},
-            bases=(VersionSource,))
+            bases=(VersionSource,)
+        )
         return cls(local=name, remote='')
 
     return source_factory
@@ -70,6 +84,7 @@ def mkproject(mksource):
             SOURCE = [
                 mksource(f'VersionSource_{i}') for i in range(num_sources)
             ]
+            CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
         return VersionedProject
 
@@ -84,19 +99,25 @@ class TI:
     t_expect = attr.ib()
 
 
-@pytest.fixture(params=[
-    TI(__add_single_filter__, "1", "ni", '1'),
-    TI(__add_indexed_filters__, ["1"], ["ni"], '1'),
-    TI(__add_named_filters__, {"VersionSource_0": "1"},
-       {"VersionSource_0": "ni"}, '1'),
-],
-                ids=['single-1', 'indexed-1', 'named-1'])
+@pytest.fixture(
+    params=[
+        TI(__add_single_filter__, "1", "ni", '1'),
+        TI(__add_indexed_filters__, ["1"], ["ni"], '1'),
+        TI(
+            __add_named_filters__, {"VersionSource_0": "1"},
+            {"VersionSource_0": "ni"}, '1'
+        ),
+    ],
+    ids=['single-1', 'indexed-1', 'named-1']
+)
 def filter_test(request):
     return request.param
 
 
-@pytest.fixture(params=[('SingleSource', 1), ('MultiSource', 2)],
-                ids=['SingleSource', 'MultiSource'])
+@pytest.fixture(
+    params=[('SingleSource', 1), ('MultiSource', 2)],
+    ids=['SingleSource', 'MultiSource']
+)
 def project(mkproject, request):
     name, num = request.param
     return mkproject(name, num)
@@ -120,19 +141,21 @@ def describe_project():
 
     def has_source_of_primary(project_instance):  # pylint: disable=unused-variable
         assert local.path(
-            project_instance.source_of_primary).name == 'VersionSource_0'
+            project_instance.source_of_primary
+        ).name == 'VersionSource_0'
 
     def source_must_contain_elements():  # pylint: disable=unused-variable
-        with pytest.raises(TypeError) as excinfo:
+        with pytest.raises(ValueError) as excinfo:
             DummyPrjEmptySource()
-        assert "primary()" in str(excinfo)
+        assert "not enough values to unpack" in str(excinfo)
 
 
 def describe_filters():
 
     def is_generated_by_add_filters(project, filter_test):  # pylint: disable=unused-variable
-        filtered_prj = __add_filters__(project,
-                                       yaml.safe_dump(filter_test.t_input))
+        filtered_prj = __add_filters__(
+            project, yaml.safe_dump(filter_test.t_input)
+        )
         assert isinstance(primary(*filtered_prj.SOURCE), SingleVersionFilter)
 
     def wraps_primary(project, filter_test):  # pylint: disable=unused-variable
@@ -160,3 +183,14 @@ def describe_filters():
 
         for src in filtered.SOURCE:
             assert not isinstance(src, SingleVersionFilter)
+
+
+def describe_default_projects():
+
+    @pytest.fixture(scope='class', params=discovered().values())
+    def prj_cls(request):
+        return request.param
+
+    def all_have_container_classvar(prj_cls):
+        assert isinstance(prj_cls.CONTAINER, declarative.ContainerImage)
+        assert prj_cls.CONTAINER is not None

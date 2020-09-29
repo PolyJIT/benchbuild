@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
 
@@ -27,8 +28,10 @@ class LibreSSL(bb.Project):
                 '2.1.6.':
                     'http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz'  # pylint: disable=line-too-long
             },
-            local='libressl.tar.gz')
+            local='libressl.tar.gz'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     def compile(self):
         libressl_source = local.path(self.source_of('libressl.tar.gz'))
@@ -46,9 +49,10 @@ class LibreSSL(bb.Project):
 
         with local.cwd(unpack_dir):
             with local.env(CC=str(clang)):
-                _configure("--disable-asm", "--disable-shared",
-                           "--enable-static", "--disable-dependency-tracking",
-                           "--with-pic=yes")
+                _configure(
+                    "--disable-asm", "--disable-shared", "--enable-static",
+                    "--disable-dependency-tracking", "--with-pic=yes"
+                )
 
             _make("-j8")
             make_tests = make["-Ctests", "-j8"]

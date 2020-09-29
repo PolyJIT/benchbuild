@@ -1,9 +1,9 @@
 from plumbum import FG, local
 
 import benchbuild as bb
+from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP, Git
-from benchbuild.utils.cmd import (cp, find, grep, head, make, mkdir, sed, sh,
-                                  tar)
+from benchbuild.utils.cmd import cp, find, grep, head, make, mkdir, sed, sh, tar
 
 
 class Povray(bb.Project):
@@ -14,17 +14,23 @@ class Povray(bb.Project):
     GROUP = 'benchbuild'
     SOURCE = [
         Git(remote='https://github.com/POV-Ray/povray', local='povray.git'),
-        HTTP(remote={
-            '1.59.0':
-                'http://sourceforge.net/projects/boost/files/boost/1.59.0/'
-                'boost_1_59_0.tar.bz2'
-        },
-             local='boost.tar.bz2'),
-        HTTP(remote={
-            '2016-05-povray': 'http://lairosiel.de/dist/2016-05-povray.tar.gz'
-        },
-             local='inputs.tar.gz')
+        HTTP(
+            remote={
+                '1.59.0':
+                    'http://sourceforge.net/projects/boost/files/boost/1.59.0/'
+                    'boost_1_59_0.tar.bz2'
+            },
+            local='boost.tar.bz2'
+        ),
+        HTTP(
+            remote={
+                '2016-05-povray':
+                    'http://lairosiel.de/dist/2016-05-povray.tar.gz'
+            },
+            local='inputs.tar.gz'
+        )
     ]
+    CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
     boost_src_dir = "boost_1_59_0"
     boost_src_file = boost_src_dir + ".tar.bz2"
@@ -56,12 +62,15 @@ class Povray(bb.Project):
             mkdir(boost_prefix)
             bootstrap = local["./bootstrap.sh"]
             _bootstrap = bb.watch(bootstrap)
-            _bootstrap("--with-toolset=clang",
-                       "--prefix=\"{0}\"".format(boost_prefix))
+            _bootstrap(
+                "--with-toolset=clang", "--prefix=\"{0}\"".format(boost_prefix)
+            )
 
             _b2 = bb.watch(local["./b2"])
-            _b2("--ignore-site-config", "variant=release", "link=static",
-                "threading=multi", "optimization=speed", "install")
+            _b2(
+                "--ignore-site-config", "variant=release", "link=static",
+                "threading=multi", "optimization=speed", "install"
+            )
 
         with local.cwd(povray_repo):
             with local.cwd("unix"):
@@ -69,9 +78,11 @@ class Povray(bb.Project):
 
             configure = local["./configure"]
             _configure = bb.watch(configure)
-            with local.env(COMPILED_BY="BB <no@mail.nono>",
-                           CC=str(clang),
-                           CXX=str(clang_cxx)):
+            with local.env(
+                COMPILED_BY="BB <no@mail.nono>",
+                CC=str(clang),
+                CXX=str(clang_cxx)
+            ):
                 _configure("--with-boost=" + boost_prefix)
             _make = bb.watch(make)
             _make("all")
@@ -89,17 +100,22 @@ class Povray(bb.Project):
         _povray = bb.watch(povray)
         pov_files = find(scene_dir, "-name", "*.pov").splitlines()
         for pov_f in pov_files:
-            with local.env(POVRAY=povray_binary,
-                           INSTALL_DIR='.',
-                           OUTPUT_DIR=tmpdir,
-                           POVINI=povini):
-                options = ((((head["-n", "50", "\"" + pov_f + "\""] |
-                              grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]) |
-                             head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
-                _povray("+L" + scene_dir,
-                        "+L" + tmpdir,
-                        "-i" + pov_f,
-                        "-o" + tmpdir,
-                        options,
-                        "-p",
-                        retcode=None)
+            with local.env(
+                POVRAY=povray_binary,
+                INSTALL_DIR='.',
+                OUTPUT_DIR=tmpdir,
+                POVINI=povini
+            ):
+                options = ((((
+                    head["-n", "50", "\"" + pov_f + "\""] |
+                    grep["-E", "'^//[ ]+[-+]{1}[^ -]'"]
+                ) | head["-n", "1"]) | sed["s?^//[ ]*??"]) & FG)
+                _povray(
+                    "+L" + scene_dir,
+                    "+L" + tmpdir,
+                    "-i" + pov_f,
+                    "-o" + tmpdir,
+                    options,
+                    "-p",
+                    retcode=None
+                )

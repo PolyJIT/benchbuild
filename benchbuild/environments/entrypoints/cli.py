@@ -116,7 +116,7 @@ def create_base_images(projects: ProjectIndex) -> None:
         image_commands.add(cmd)
 
     for cmd in image_commands:
-        uow = unit_of_work.BuildahUnitOfWork()
+        uow = unit_of_work.ContainerImagesUOW()
         messagebus.handle(cmd, uow)
 
 
@@ -151,7 +151,7 @@ def create_project_images(projects: ProjectIndex) -> None:
         layers.workingdir('/app')
 
         cmd = commands.CreateImage(image_tag, layers)
-        uow = unit_of_work.BuildahUnitOfWork()
+        uow = unit_of_work.ContainerImagesUOW()
         messagebus.handle(cmd, uow)
 
 
@@ -199,7 +199,7 @@ def create_experiment_images(
             image.entrypoint('benchbuild', 'run', '-E', exp.name, str(prj.id))
 
             cmd = commands.CreateImage(image_tag, image)
-            uow = unit_of_work.BuildahUnitOfWork()
+            uow = unit_of_work.ContainerImagesUOW()
 
             messagebus.handle(cmd, uow)
 
@@ -226,6 +226,6 @@ def run_experiment_images(
             container_name = f'{exp.name}_{prj.name}_{prj.group}'
 
             cmd = commands.RunContainer(image_tag, container_name)
-            uow = unit_of_work.PodmanUnitOfWork()
+            uow = unit_of_work.ContainerImagesUOW()
 
             messagebus.handle(cmd, uow)

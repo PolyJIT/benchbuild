@@ -42,7 +42,7 @@ def print_image_destroyed(
 
 
 def print_container_created(
-    event: events.ContainerCreated, uow: unit_of_work.AbstractContainerUOW
+    event: events.ContainerCreated, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
     del uow
     __progress__.console.print(

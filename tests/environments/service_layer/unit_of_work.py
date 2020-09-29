@@ -8,7 +8,7 @@ from benchbuild.environments.service_layer import unit_of_work as uow
 from tests.environments.adapters import repository
 
 
-class FakeImageUnitOfWork(uow.AbstractImageUnitOfWork):
+class FakeImageUnitOfWork(uow.AbstractUnitOfWork):
 
     def __init__(self):
         self.registry = repository.FakeRegistry()
@@ -30,7 +30,7 @@ class FakeImageUnitOfWork(uow.AbstractImageUnitOfWork):
         pass
 
 
-class FakeContainerUnitOfWork(uow.AbstractContainerUOW):
+class FakeContainerUnitOfWork(uow.AbstractUnitOfWork):
 
     def __init__(self):
         self.registry = repository.FakeRegistry()

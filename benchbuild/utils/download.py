@@ -10,6 +10,7 @@ found in BB_TMP_DIR, nothing will be downloaded at all.
 Supported methods:
         Copy, CopyNoFail, Wget, Git, Svn, Rsync
 """
+import hashlib
 import logging
 import os
 from typing import Callable, List, Optional, Type
@@ -34,10 +35,9 @@ def get_hash_of_dirs(directory: str) -> str:
     Returns:
         A hash of all the contents in the directory.
     """
-    import hashlib
     sha = hashlib.sha512()
     if not os.path.exists(directory):
-        return -1
+        raise ValueError('Directory does not exist')
 
     for root, _, files in os.walk(directory):
         for name in files:
@@ -49,7 +49,7 @@ def get_hash_of_dirs(directory: str) -> str:
     return sha.hexdigest()
 
 
-def source_required(src_file: str) -> bool:
+def source_required(src_file: local.path) -> bool:
     """
     Check, if a download is required.
 
@@ -84,7 +84,7 @@ def source_required(src_file: str) -> bool:
     return required
 
 
-def update_hash(src_file: str) -> str:
+def update_hash(src_file: local.path) -> str:
     """
     Update the hash for the given file.
 
@@ -93,7 +93,6 @@ def update_hash(src_file: str) -> str:
         root: The path of the given file.
     """
     hash_file = local.path(src_file) + ".hash"
-    new_hash = 0
     with open(hash_file, 'w') as h_file:
         new_hash = get_hash_of_dirs(src_file)
         h_file.write(str(new_hash))
@@ -227,7 +226,13 @@ def __clone_needed__(repository: str, directory: str) -> bool:
     return requires_clone
 
 
-def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
+def Git(
+    repository: str,
+    directory: str,
+    rev: str = '',
+    prefix: str = '',
+    shallow_clone: bool = True
+) -> str:
     """
     Get a clone of the given repo
 
@@ -241,7 +246,7 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
             Defaults to true
     """
     repository_loc = str(prefix)
-    if prefix is None:
+    if not prefix:
         repository_loc = str(CFG["tmp_dir"])
 
     src_dir = local.path(repository_loc) / directory

@@ -617,20 +617,22 @@ class Containerize(RequireAll):
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
 
         if container.in_container():
             return textwrap.indent(
-                "* Running inside container:\n" + sub_actns, indent * " "
+                '\n'.join(['* Running inside container:'] + sub_actns),
+                indent * " "
             )
 
         if self.requires_redirect():
             return textwrap.indent(
-                "* Continue inside container:\n" + sub_actns, indent * " "
+                '\n'.join(["* Continue inside container:"] + sub_actns),
+                indent * " "
             )
 
         return textwrap.indent(
-            "* Running without container:\n" + sub_actns, indent * " "
+            '\n'.join(['* Running without container:'] + sub_actns),
+            indent * " "
         )
 
 

@@ -119,7 +119,7 @@ class Experiment(metaclass=ExperimentRegistry):
     def default_id(self) -> uuid.UUID:
         cfg_exps = CFG["experiments"].value
         if self.name in cfg_exps:
-            _id = cfg_exps[self.name]
+            _id: uuid.UUID = cfg_exps[self.name]
         else:
             _id = uuid.uuid4()
             cfg_exps[self.name] = _id
@@ -167,7 +167,7 @@ class Experiment(metaclass=ExperimentRegistry):
         """
         Common setup required to run this experiment on all projects.
         """
-        actions = []
+        actions: Actions = []
 
         for prj_cls in self.projects:
             prj_actions: Actions = []

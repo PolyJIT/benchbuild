@@ -328,7 +328,7 @@ def watch(command: BaseCommand) -> WatchableCommand:
     return f
 
 
-def with_env_recursive(cmd, **envvars):
+def with_env_recursive(cmd: BaseCommand, **envvars: str) -> BaseCommand:
     """
     Recursively updates the environment of cmd and all its subcommands.
 
@@ -348,7 +348,7 @@ def with_env_recursive(cmd, **envvars):
     return cmd
 
 
-def in_builddir(sub='.'):
+def in_builddir(sub: str = '.'):
     """
     Decorate a project phase with a local working directory change.
 

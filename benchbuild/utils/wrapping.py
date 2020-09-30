@@ -62,7 +62,7 @@ def strip_path_prefix(ipath: str, prefix: str) -> str:
         '/foo/bar'
 
     """
-    if prefix is None:
+    if not prefix:
         return ipath
 
     return ipath[len(prefix):] if ipath.startswith(prefix) else ipath

@@ -45,7 +45,11 @@ def query_yes_no(question, default="yes"):
         )
 
 
-def ask(question, default_answer=False, default_answer_str="no"):
+def ask(
+    question: str,
+    default_answer: bool = False,
+    default_answer_str: str = "no"
+) -> bool:
     """
     Ask for user input.
 

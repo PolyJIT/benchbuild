@@ -43,7 +43,7 @@ PROJECT_BLOB_F_EXT = ".postproc"
 LOG = logging.getLogger(__name__)
 
 
-def strip_path_prefix(ipath, prefix):
+def strip_path_prefix(ipath: str, prefix: str) -> str:
     """
     Strip prefix from path.
 
@@ -68,7 +68,7 @@ def strip_path_prefix(ipath, prefix):
     return ipath[len(prefix):] if ipath.startswith(prefix) else ipath
 
 
-def unpickle(pickle_file):
+def unpickle(pickle_file: str) -> tp.Any:
     """Unpickle a python object from the given path."""
     pickle = None
     with open(pickle_file, "rb") as pickle_f:
@@ -78,7 +78,7 @@ def unpickle(pickle_file):
     return pickle
 
 
-def __create_jinja_env():
+def __create_jinja_env() -> jinja2.Environment:
     return jinja2.Environment(
         trim_blocks=True,
         lstrip_blocks=True,

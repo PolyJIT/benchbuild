@@ -17,7 +17,7 @@ class Minisat(bb.Project):
             remote='https://github.com/niklasso/minisat',
             local='minisat.git',
             limit=5,
-            refspec='pull/17/head:clang'
+            refspec='HEAD'
         ),
         HTTP(
             remote={

@@ -22,7 +22,7 @@ class XZ(GentooGroup):
     ]
 
     def compile(self):
-        super(XZ, self).compile()
+        super().compile()
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive

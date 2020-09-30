@@ -3,7 +3,7 @@ from plumbum import local
 import benchbuild as bb
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP, Git
-from benchbuild.utils.cmd import git, make, tar
+from benchbuild.utils.cmd import make, tar
 
 
 class Minisat(bb.Project):
@@ -51,11 +51,6 @@ class Minisat(bb.Project):
     def compile(self):
         minisat_repo = local.path(self.source_of('minisat.git'))
         with local.cwd(minisat_repo):
-            # FIXME: That needs to be modeled with Git() download handlers.
-            git("fetch", "origin", "pull/17/head:clang")
-            git("checkout", "clang")
-            #
-
             _make = bb.watch(make)
             _make("config")
 

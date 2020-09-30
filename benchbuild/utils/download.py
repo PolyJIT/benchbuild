@@ -10,6 +10,7 @@ found in BB_TMP_DIR, nothing will be downloaded at all.
 Supported methods:
         Copy, CopyNoFail, Wget, Git, Svn, Rsync
 """
+import hashlib
 import logging
 import os
 from typing import Callable, List, Optional, Type
@@ -34,10 +35,9 @@ def get_hash_of_dirs(directory: str) -> str:
     Returns:
         A hash of all the contents in the directory.
     """
-    import hashlib
     sha = hashlib.sha512()
     if not os.path.exists(directory):
-        return -1
+        raise ValueError('Directory does not exist')
 
     for root, _, files in os.walk(directory):
         for name in files:
@@ -49,7 +49,7 @@ def get_hash_of_dirs(directory: str) -> str:
     return sha.hexdigest()
 
 
-def source_required(src_file: str) -> bool:
+def source_required(src_file: local.path) -> bool:
     """
     Check, if a download is required.
 
@@ -77,12 +77,14 @@ def source_required(src_file: str) -> bool:
             rm(hash_file)
     if required:
         LOG.info("Source required for: %s", src_file)
-        LOG.debug("Reason: src-exists: %s hash-exists: %s", src_file.exists(),
-                  hash_file.exists())
+        LOG.debug(
+            "Reason: src-exists: %s hash-exists: %s", src_file.exists(),
+            hash_file.exists()
+        )
     return required
 
 
-def update_hash(src_file: str) -> str:
+def update_hash(src_file: local.path) -> str:
     """
     Update the hash for the given file.
 
@@ -91,7 +93,6 @@ def update_hash(src_file: str) -> str:
         root: The path of the given file.
     """
     hash_file = local.path(src_file) + ".hash"
-    new_hash = 0
     with open(hash_file, 'w') as h_file:
         new_hash = get_hash_of_dirs(src_file)
         h_file.write(str(new_hash))
@@ -225,7 +226,13 @@ def __clone_needed__(repository: str, directory: str) -> bool:
     return requires_clone
 
 
-def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
+def Git(
+    repository: str,
+    directory: str,
+    rev: str = '',
+    prefix: str = '',
+    shallow_clone: bool = True
+) -> str:
     """
     Get a clone of the given repo
 
@@ -239,7 +246,7 @@ def Git(repository, directory, rev=None, prefix=None, shallow_clone=True):
             Defaults to true
     """
     repository_loc = str(prefix)
-    if prefix is None:
+    if not prefix:
         repository_loc = str(CFG["tmp_dir"])
 
     src_dir = local.path(repository_loc) / directory
@@ -324,10 +331,11 @@ def with_git(
                 git("clone", repo, repo_loc)
 
             with local.cwd(repo_loc):
-                rev_list = git("rev-list", "--abbrev-commit", "--abbrev=10",
-                               refspec, *rev_list_args).strip().split('\n')
-                latest = git("rev-parse", "--short=10",
-                             refspec).strip().split('\n')
+                rev_list = git(
+                    "rev-list", "--abbrev-commit", "--abbrev=10", refspec,
+                    *rev_list_args
+                ).strip().split('\n')
+                git("rev-parse", "--short=10", refspec).strip().split('\n')
 
             if limit:
                 return list(filter(version_filter, rev_list))[:limit]
@@ -338,10 +346,12 @@ def with_git(
             """Download the selected version."""
             nonlocal target_dir, git
             directory = cls.SRC_FILE if target_dir is None else target_dir
-            Git(self.repository,
+            Git(
+                self.repository,
                 directory,
                 self.version,
-                shallow_clone=shallow_clone)
+                shallow_clone=shallow_clone
+            )
 
         cls.versions = versions_impl
         cls.download = download_impl

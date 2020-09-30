@@ -16,8 +16,10 @@ class TCC(bb.Project):
     SOURCE = [
         HTTP(
             remote={
-                '0.9.26':
-                    'http://download-mirror.savannah.gnu.org/releases/tinycc/tcc-0.9.26.tar.bz2'  # pylint: disable=line-too-long
+                '0.9.26': (
+                    'http://download-mirror.savannah.gnu.org/releases/'
+                    'tinycc/tcc-0.9.26.tar.bz2'
+                )
             },
             local='tcc.tar.bz2'
         )

@@ -2,12 +2,13 @@
 Experiments module.
 
 Experiments are discovered automatically by benchbuild.
-You can configure the modules we search for experiments with the settings:
+You can configure the modules we search for experiments with the
+settings:
     BB_PLUGINS_AUTOLOAD=True
     BB_PLUGINS_EXPERIMENTS=[...]
 
-Any subclass of benchbuild.experiments.Experiment will be automatically registered and
-made available on the command line.
+Any subclass of benchbuild.experiments.Experiment will be
+automatically registered and made available on the command line.
 """
 import importlib
 import logging

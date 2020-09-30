@@ -23,26 +23,31 @@ class RuntimeExtension(base.Extension):
         self.project = project
         self.experiment = experiment
 
-        super(RuntimeExtension, self).__init__(*extensions, config=config)
+        super().__init__(*extensions, config=config)
 
     def __call__(self, binary_command, *args, **kwargs):
         self.project.name = kwargs.get("project_name", self.project.name)
 
         cmd = binary_command[args]
-        with run.track_execution(cmd, self.project, self.experiment,
-                                 **kwargs) as _run:
+        with run.track_execution(
+            cmd, self.project, self.experiment, **kwargs
+        ) as _run:
             run_info = _run()
             if self.config:
                 run_info.add_payload("config", self.config)
                 LOG.info(
-                    yaml.dump(self.config,
-                              width=40,
-                              indent=4,
-                              default_flow_style=False))
+                    yaml.dump(
+                        self.config,
+                        width=40,
+                        indent=4,
+                        default_flow_style=False
+                    )
+                )
                 self.config['baseline'] = \
                     os.getenv("BB_IS_BASELINE", "False")
-                db.persist_config(run_info.db_run, run_info.session,
-                                  self.config)
+                db.persist_config(
+                    run_info.db_run, run_info.session, self.config
+                )
         res = self.call_next(binary_command, *args, **kwargs)
         res.append(run_info)
         return res
@@ -60,13 +65,14 @@ class WithTimeout(base.Extension):
     """
 
     def __init__(self, *extensions, limit="10m", **kwargs):
-        super(WithTimeout, self).__init__(*extensions, **kwargs)
+        super().__init__(*extensions, **kwargs)
         self.limit = limit
 
     def __call__(self, binary_command, *args, **kwargs):
         from benchbuild.utils.cmd import timeout
-        return self.call_next(timeout[self.limit, binary_command], *args,
-                              **kwargs)
+        return self.call_next(
+            timeout[self.limit, binary_command], *args, **kwargs
+        )
 
 
 class SetThreadLimit(base.Extension):

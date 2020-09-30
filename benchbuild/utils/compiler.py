@@ -18,17 +18,24 @@ The wrapper-script generated for both functions can be found inside:
 Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
-import plumbum as pb
+import os
+import typing as tp
+from typing import TYPE_CHECKING
+
 from plumbum import local
+from plumbum.commands.base import BoundCommand
 
 from benchbuild.settings import CFG
+from benchbuild.utils import cmd
+from benchbuild.utils.path import list_to_path
 from benchbuild.utils.wrapping import wrap_cc
 
-Command = pb.commands.base.BaseCommand
+if TYPE_CHECKING:
+    from benchbuild.project import Project
+    from benchbuild.experiment import Experiment
 
 
-def cc(project: 'benchbuild.project.Project',
-       detect_project: bool = False) -> Command:
+def cc(project: 'Project', detect_project: bool = False) -> BoundCommand:
     """
     Return a clang that hides CFLAGS and LDFLAGS.
 
@@ -46,15 +53,12 @@ def cc(project: 'benchbuild.project.Project',
     Returns (benchbuild.utils.cmd):
         Path to the new clang command.
     """
-    from benchbuild.utils import cmd
-
     cc_name = str(CFG["compiler"]["c"])
     wrap_cc(cc_name, compiler(cc_name), project, detect_project=detect_project)
     return cmd["./{}".format(cc_name)]
 
 
-def cxx(project: 'benchbuild.project.Project',
-        detect_project: bool = False) -> Command:
+def cxx(project: 'Project', detect_project: bool = False) -> BoundCommand:
     """
     Return a clang++ that hides CFLAGS and LDFLAGS.
 
@@ -72,22 +76,17 @@ def cxx(project: 'benchbuild.project.Project',
     Returns (benchbuild.utils.cmd):
         Path to the new clang command.
     """
-    from benchbuild.utils import cmd
 
     cxx_name = str(CFG["compiler"]["cxx"])
-    wrap_cc(cxx_name,
-            compiler(cxx_name),
-            project,
-            detect_project=detect_project)
+    wrap_cc(
+        cxx_name, compiler(cxx_name), project, detect_project=detect_project
+    )
     return cmd["./{name}".format(name=cxx_name)]
 
 
-def __get_paths():
-    from os import getenv
-    from benchbuild.utils.path import list_to_path
-
-    path = getenv("PATH", "")
-    lib_path = getenv("LD_LIBRARY_PATH", "")
+def __get_paths() -> tp.Dict[str, str]:
+    path = os.getenv("PATH", "")
+    lib_path = os.getenv("LD_LIBRARY_PATH", "")
     env = CFG["env"].value
 
     _lib_path = env.get("LD_LIBRARY_PATH", "")
@@ -99,12 +98,12 @@ def __get_paths():
     path = list_to_path([_path, path])
     lib_path = list_to_path([_lib_path, lib_path])
 
-    home = env.get("HOME", getenv("HOME", ""))
+    home = env.get("HOME", os.getenv("HOME", ""))
 
     return {"ld_library_path": lib_path, "path": path, "home": home}
 
 
-def compiler(name):
+def compiler(name: str) -> BoundCommand:
     """
     Get a usable clang++ plumbum command.
 
@@ -115,7 +114,9 @@ def compiler(name):
     """
     pinfo = __get_paths()
     _compiler = local[name]
-    _compiler = _compiler.setenv(PATH=pinfo["path"],
-                                 LD_LIBRARY_PATH=pinfo["ld_library_path"],
-                                 HOME=pinfo["home"])
+    _compiler = _compiler.setenv(
+        PATH=pinfo["path"],
+        LD_LIBRARY_PATH=pinfo["ld_library_path"],
+        HOME=pinfo["home"]
+    )
     return _compiler

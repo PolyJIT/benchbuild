@@ -16,12 +16,14 @@ import typing as tp
 
 import attr
 from plumbum import ProcessExecutionError, local
+from plumbum.commands.base import BoundCommand
 
 import benchbuild as bb
 from benchbuild.environments.domain import declarative
 from benchbuild.settings import CFG
 from benchbuild.utils import compiler, container, path, run, uchroot
 from benchbuild.utils.cmd import cp, ln
+from benchbuild.utils.settings import Configuration
 
 LOG = logging.getLogger(__name__)
 
@@ -38,7 +40,7 @@ class GentooGroup(bb.Project):
         default=attr.Factory(dict), repr=False, eq=False, order=False
     )
 
-    def redirect(self):
+    def redirect(self) -> None:
         if not CFG["unionfs"]["enable"]:
             container.unpack(self.container, self.builddir)
 
@@ -54,7 +56,7 @@ class GentooGroup(bb.Project):
             project_id = "{0}/{1}".format(self.name, self.group)
             _benchbuild("run", "-E", self.experiment.name, project_id)
 
-    def compile(self):
+    def compile(self) -> None:
         package_atom = "{domain}/{name}".format(
             domain=self.domain, name=self.name
         )
@@ -71,7 +73,7 @@ class GentooGroup(bb.Project):
         LOG.debug('Installing %s.', package_atom)
         emerge(package_atom, env=self.emerge_env)
 
-    def configure_benchbuild(self, cfg):
+    def configure_benchbuild(self, cfg: Configuration) -> None:
         config_file = local.path("/.benchbuild.yml")
         paths, libs = \
                 uchroot.env(
@@ -101,7 +103,7 @@ class GentooGroup(bb.Project):
         write_sandbox_d("etc/sandbox.conf")
 
 
-def emerge(package, *args, env=None):
+def emerge(package: str, *args: str, **env: str) -> None:
     from benchbuild.utils.cmd import emerge as gentoo_emerge
 
     with local.env(env):
@@ -109,21 +111,21 @@ def emerge(package, *args, env=None):
         _emerge("--autounmask-continue", args, package)
 
 
-def setup_networking():
+def setup_networking() -> None:
     LOG.debug("Setting up networking...")
     uchroot.mkfile_uchroot("/etc/resolv.conf")
     cp("/etc/resolv.conf", "etc/resolv.conf")
     write_wgetrc("etc/wgetrc")
 
 
-def configure_portage():
+def configure_portage() -> None:
     LOG.debug("Setting up Gentoo Portage...")
     write_makeconfig("etc/portage/make.conf")
     write_layout("etc/portage/metadata/layout.conf")
     write_bashrc("etc/portage/bashrc")
 
 
-def write_sandbox_d(_path):
+def write_sandbox_d(_path: str) -> None:
     uchroot.mkfile_uchroot(local.path('/') / _path)
     with open(_path, 'a') as sandbox_conf:
         lines = '''
@@ -132,7 +134,7 @@ SANDBOX_WRITE="/clang.stderr:/clang++.stderr:/clang.stdout:/clang++.stdout"
         sandbox_conf.write(lines)
 
 
-def setup_compilers(_path):
+def setup_compilers(_path: str) -> None:
     LOG.debug("Arming compiler symlinks.")
     with open(_path, 'a') as makeconf:
         lines = '''
@@ -142,7 +144,7 @@ CXX="/clang++"
         makeconf.write(lines)
 
 
-def write_makeconfig(_path):
+def write_makeconfig(_path: str) -> None:
     """
     Write a valid gentoo make.conf file to :path:.
 
@@ -190,7 +192,7 @@ PKGDIR="${PORTDIR}/packages"
             makeconf.write(rp_s + "\n")
 
 
-def write_bashrc(_path):
+def write_bashrc(_path: str) -> None:
     """
     Write a valid gentoo bashrc file to :path:.
 
@@ -217,7 +219,7 @@ export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
         bashrc.write(lines)
 
 
-def write_layout(_path):
+def write_layout(_path: str) -> None:
     """
     Write a valid gentoo layout file to :path:.
 
@@ -232,7 +234,7 @@ def write_layout(_path):
         layoutconf.write(lines)
 
 
-def write_wgetrc(_path):
+def write_wgetrc(_path: str) -> None:
     """
     Write a valid gentoo wgetrc file to :path:.
 
@@ -256,7 +258,7 @@ def write_wgetrc(_path):
             wgetrc.write(fp_s + "\n")
 
 
-def setup_virtualenv(_path="/benchbuild"):
+def setup_virtualenv(_path: str = "/benchbuild") -> None:
     LOG.debug("Setting up Benchbuild virtualenv...")
     env = uchroot.uchroot()["/usr/bin/env"]
     env = env['-i', '--']
@@ -264,7 +266,7 @@ def setup_virtualenv(_path="/benchbuild"):
     venv = venv("-p", "/usr/bin/python3", _path)
 
 
-def find_benchbuild():
+def find_benchbuild() -> tp.Optional[BoundCommand]:
     try:
         uchrt = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
         benchbuild_loc = uchrt("which", "benchbuild").strip()
@@ -276,7 +278,7 @@ def find_benchbuild():
     return None
 
 
-def requires_update(benchbuild):
+def requires_update(benchbuild: BoundCommand) -> bool:
     try:
         c_version = benchbuild("--version").strip().split()[-1]
         h_version = str(CFG["version"])
@@ -291,7 +293,7 @@ def requires_update(benchbuild):
     return True
 
 
-def setup_benchbuild():
+def setup_benchbuild() -> None:
     """
     Setup benchbuild inside a container.
 
@@ -323,7 +325,7 @@ def setup_benchbuild():
         __upgrade_from_pip(venv_dir)
 
 
-def __upgrade_from_pip(venv_dir):
+def __upgrade_from_pip(venv_dir: local.path) -> None:
     LOG.debug("Upgrading from pip")
     uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
     uchroot.uretry(
@@ -332,7 +334,7 @@ def __upgrade_from_pip(venv_dir):
     )
 
 
-def __mount_source(src_dir):
+def __mount_source(src_dir: str) -> None:
     src_dir = local.path(str(src_dir))
     mounts = CFG["container"]["mounts"].value
     mount = {"src": src_dir, "tgt": "/mnt/benchbuild"}
@@ -340,7 +342,7 @@ def __mount_source(src_dir):
     CFG["container"]["mounts"] = mounts
 
 
-def __upgrade_from_source(venv_dir, with_deps=True):
+def __upgrade_from_source(venv_dir: local.path, with_deps: bool = True) -> None:
     LOG.debug("Upgrading from source")
     uchrt_cmd = uchroot.clean_env(uchroot.uchroot(), ['HOME'])
     opts = ["--upgrade"]

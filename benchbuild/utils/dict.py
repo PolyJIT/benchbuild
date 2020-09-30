@@ -30,7 +30,7 @@ class ExtensibleDict:
 
     def __init__(self, extender_fn=None):
         self._extender_fn = extender_fn
-        super(ExtensibleDict, self).__init__()
+        super().__init__()
 
     @contextmanager
     def __call__(self, *args, extender_fn=None, **kwargs):

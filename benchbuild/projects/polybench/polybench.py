@@ -1,4 +1,5 @@
 import logging
+import typing as tp
 
 from plumbum import local
 
@@ -22,7 +23,7 @@ CFG['projects'] = {
 }
 
 
-def get_dump_arrays_output(data):
+def get_dump_arrays_output(data: tp.List[str]) -> tp.List[str]:
     start_tag = "==BEGIN"
     end_tag = "==END"
 
@@ -80,10 +81,13 @@ class PolyBenchGroup(bb.Project):
     SOURCE = [
         HTTP(
             remote={
-                '4.2':
-                    'http://downloads.sourceforge.net/project/polybench/polybench-c-4.2.tar.gz'  # pylint: disable=line-too-long
+                '4.2': (
+                    'http://downloads.sourceforge.net/project/'
+                    'polybench/polybench-c-4.2.tar.gz'
+                )
             },
-            local='polybench.tar.gz')
+            local='polybench.tar.gz'
+        )
     ]
 
     def compile_verify(self, compiler_args, polybench_opts):
@@ -100,8 +104,9 @@ class PolyBenchGroup(bb.Project):
 
         self.cflags = cflags
         self.ldflags = ldflags
-        _clang_no_opts(polybench_opts, compiler_args, "-o",
-                       self.name + ".no-opts", "-lm")
+        _clang_no_opts(
+            polybench_opts, compiler_args, "-o", self.name + ".no-opts", "-lm"
+        )
         return polybench_opts
 
     def compile(self):
@@ -132,8 +137,10 @@ class PolyBenchGroup(bb.Project):
             ], polybench_opts)
         clang = bb.compiler.cc(self)
         _clang = bb.watch(clang)
-        _clang("-I", utils_dir, "-I", src_sub, polybench_opts,
-               utils_dir / "polybench.c", src_file, "-lm", "-o", self.name)
+        _clang(
+            "-I", utils_dir, "-I", src_sub, polybench_opts,
+            utils_dir / "polybench.c", src_file, "-lm", "-o", self.name
+        )
 
     def run_tests(self):
 
@@ -142,7 +149,8 @@ class PolyBenchGroup(bb.Project):
             with open(stderr_raw, 'r') as stderr:
                 with open(stderr_filtered, 'w') as stderr_filt:
                     stderr_filt.writelines(
-                        get_dump_arrays_output(stderr.readlines()))
+                        get_dump_arrays_output(stderr.readlines())
+                    )
 
         polybench_opts = CFG["projects"]["polybench"]
         verify = bool(polybench_opts["verify"])

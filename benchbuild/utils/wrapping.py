@@ -26,10 +26,13 @@ import logging
 import os
 import sys
 import typing as tp
+from typing import TYPE_CHECKING
 
 import dill
+import jinja2
 import plumbum as pb
 from plumbum import local
+from plumbum.commands.base import BoundCommand
 
 from benchbuild.settings import CFG
 from benchbuild.utils import run
@@ -41,8 +44,12 @@ PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
 LOG = logging.getLogger(__name__)
 
+if TYPE_CHECKING:
+    from benchbuild.project import Project
+    from benchbuild.experiment import Experiment
 
-def strip_path_prefix(ipath, prefix):
+
+def strip_path_prefix(ipath: str, prefix: str) -> str:
     """
     Strip prefix from path.
 
@@ -61,13 +68,13 @@ def strip_path_prefix(ipath, prefix):
         '/foo/bar'
 
     """
-    if prefix is None:
+    if not prefix:
         return ipath
 
     return ipath[len(prefix):] if ipath.startswith(prefix) else ipath
 
 
-def unpickle(pickle_file):
+def unpickle(pickle_file: str) -> tp.Any:
     """Unpickle a python object from the given path."""
     pickle = None
     with open(pickle_file, "rb") as pickle_f:
@@ -77,17 +84,20 @@ def unpickle(pickle_file):
     return pickle
 
 
-def __create_jinja_env():
-    from jinja2 import Environment, PackageLoader
-    return Environment(trim_blocks=True,
-                       lstrip_blocks=True,
-                       loader=PackageLoader('benchbuild', 'res'))
+def __create_jinja_env() -> jinja2.Environment:
+    return jinja2.Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=jinja2.PackageLoader('benchbuild', 'res')
+    )
 
 
-def wrap(name: str,
-         project: 'benchbuild.project.Project',
-         sprefix: tp.Optional[str] = None,
-         python: str = sys.executable) -> pb.commands.ConcreteCommand:
+def wrap(
+    name: str,
+    project: 'Project',
+    sprefix: str = '',
+    python: str = sys.executable
+) -> pb.commands.ConcreteCommand:
     """ Wrap the binary :name: with the runtime extension of the project.
 
     This module generates a python tool that replaces :name:
@@ -111,8 +121,10 @@ def wrap(name: str,
     real_f = name_absolute + PROJECT_BIN_F_EXT
     if sprefix:
         _mv = run.watch(uchroot()["/bin/mv"])
-        _mv(strip_path_prefix(name_absolute, sprefix),
-            strip_path_prefix(real_f, sprefix))
+        _mv(
+            strip_path_prefix(name_absolute, sprefix),
+            strip_path_prefix(real_f, sprefix)
+        )
     else:
         _mv = run.watch(mv)
         _mv(name_absolute, real_f)
@@ -137,18 +149,21 @@ def wrap(name: str,
                 ld_library_path=str(bin_lib_path),
                 home=str(home),
                 python=python,
-            ))
+            )
+        )
 
     _chmod = run.watch(chmod)
     _chmod("+x", name_absolute)
     return local[name_absolute]
 
 
-def wrap_dynamic(project,
-                 name,
-                 sprefix=None,
-                 python=sys.executable,
-                 name_filters=None):
+def wrap_dynamic(
+    project: 'Project',
+    name: str,
+    sprefix: str = '',
+    python: str = sys.executable,
+    name_filters: tp.Optional[tp.List[str]] = None
+) -> BoundCommand:
     """
     Wrap the binary :name with the function :runner.
 
@@ -181,37 +196,41 @@ def wrap_dynamic(project,
 
     project_file = persist(project, suffix=".project")
 
-    env = CFG['env'].value
+    cfg_env = CFG['env'].value
 
-    bin_path = list_to_path(env.get('PATH', []))
+    bin_path = list_to_path(cfg_env.get('PATH', []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
     bin_lib_path = \
-        list_to_path(env.get('LD_LIBRARY_PATH', []))
+        list_to_path(cfg_env.get('LD_LIBRARY_PATH', []))
     bin_lib_path = \
         list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
-    home = env.get("HOME", os.getenv("HOME", ""))
+    home = cfg_env.get("HOME", os.getenv("HOME", ""))
 
     with open(name_absolute, 'w') as wrapper:
         wrapper.write(
-            template.render(runf=strip_path_prefix(real_f, sprefix),
-                            project_file=strip_path_prefix(
-                                project_file, sprefix),
-                            path=str(bin_path),
-                            ld_library_path=str(bin_lib_path),
-                            home=str(home),
-                            python=python,
-                            name_filters=name_filters))
+            template.render(
+                runf=strip_path_prefix(real_f, sprefix),
+                project_file=strip_path_prefix(project_file, sprefix),
+                path=str(bin_path),
+                ld_library_path=str(bin_lib_path),
+                home=str(home),
+                python=python,
+                name_filters=name_filters
+            )
+        )
 
     chmod("+x", name_absolute)
     return local[name_absolute]
 
 
-def wrap_cc(filepath,
-            compiler,
-            project,
-            python=sys.executable,
-            detect_project=False):
+def wrap_cc(
+    filepath: str,
+    compiler: BoundCommand,
+    project: 'Project',
+    python: str = sys.executable,
+    detect_project: bool = False
+) -> BoundCommand:
     """
     Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
 
@@ -240,14 +259,19 @@ def wrap_cc(filepath,
 
     with open(filepath, 'w') as wrapper:
         wrapper.write(
-            template.render(cc_f=cc_f,
-                            project_file=project_file,
-                            python=python,
-                            detect_project=detect_project))
+            template.render(
+                cc_f=cc_f,
+                project_file=project_file,
+                python=python,
+                detect_project=detect_project
+            )
+        )
 
     chmod("+x", filepath)
-    LOG.debug("Placed wrapper in: %s for compiler %s", local.path(filepath),
-              str(compiler))
+    LOG.debug(
+        "Placed wrapper in: %s for compiler %s", local.path(filepath),
+        str(compiler)
+    )
     LOG.debug("Placed project in: %s", local.path(project_file))
     LOG.debug("Placed compiler command in: %s", local.path(cc_f))
     return local[filepath]
@@ -283,10 +307,11 @@ def persist(id_obj, filename=None, suffix=None):
     return os.path.abspath(filename)
 
 
-def load(filename):
+def load(filename: str) -> tp.Optional[tp.Any]:
     """Load a pickled obj from the filesystem.
 
-    You better know what you expect from the given pickle, because we don't check it.
+    You better know what you expect from the given pickle, because we don't
+    check it.
 
     Args:
         filename (str): The filename we load the object from.

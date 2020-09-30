@@ -37,13 +37,19 @@ def query_yes_no(question, default="yes"):
         choice = input().lower()
         if default is not None and choice == '':
             return valid[default]
-        elif choice in valid:
+        if choice in valid:
             return valid[choice]
-        sys.stdout.write("Please respond with 'yes' or 'no' "
-                         "(or 'y' or 'n').\n")
+        sys.stdout.write(
+            "Please respond with 'yes' or 'no' "
+            "(or 'y' or 'n').\n"
+        )
 
 
-def ask(question, default_answer=False, default_answer_str="no"):
+def ask(
+    question: str,
+    default_answer: bool = False,
+    default_answer_str: str = "no"
+) -> bool:
     """
     Ask for user input.
 

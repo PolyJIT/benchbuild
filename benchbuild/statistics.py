@@ -28,7 +28,7 @@ class Statistics(Extension):
         self.project = project
         self.experiment = experiment
 
-        super(Statistics, self).__init__(*extensions, config=config)
+        super().__init__(*extensions, config=config)
 
     def t_test(self, *results, significance=0.95):
         """
@@ -76,7 +76,8 @@ class Statistics(Extension):
                 #check if this was the last iteration
                 if iterator == (timeout - 1):
                     LOG.warning(
-                        "No significant run happened before the timeout!")
+                        "No significant run happened before the timeout!"
+                    )
                 iterator += 1
 
             # no need to repeat the run without a result function

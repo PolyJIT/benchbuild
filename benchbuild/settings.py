@@ -77,9 +77,10 @@ CFG = s.Configuration(
         },
         "cleanup_paths": {
             "default": [],
-            "desc":
-                "List of existing paths that benchbuild should delete in addition "
-                "to the default cleanup steps.",
+            "desc": (
+                'List of existing paths that benchbuild should delete '
+                'in addition to the default cleanup steps.'
+            ),
             "export": False
         },
         "sequence": {
@@ -157,8 +158,10 @@ CFG['gentoo'] = {
     },
     "autotest_use": {
         "default": [],
-        "desc":
-            "USE filter for ebuilds. Filters packages without the given use flags."
+        "desc": (
+            'USE filter for ebuilds. Filters packages without the given '
+            'use flags.'
+        )
     },
     "autotest_loc": {
         "default": "/tmp/gentoo-autotest",
@@ -194,9 +197,10 @@ CFG["slurm"] = {
         "default": "slurm.sh"
     },
     "cpus_per_task": {
-        "desc":
-            "Number of CPUs that should be requested from SLURM. Used by external "
-            "tools.",
+        "desc": (
+            'Number of CPUs that should be requested from SLURM.'
+            ' Used by external tools.'
+        ),
         "default": 10
     },
     "node_dir": {

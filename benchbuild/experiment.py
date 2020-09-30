@@ -58,7 +58,7 @@ class ExperimentRegistry(type):
         """Register a project in the registry."""
         cls = super(ExperimentRegistry, mcs).__new__(mcs, name, bases, attrs)
         if bases and 'NAME' in attrs:
-            ExperimentRegistry.experiments[cls.NAME] = cls
+            ExperimentRegistry.experiments[attrs['NAME']] = cls
         return cls
 
 
@@ -111,7 +111,7 @@ class Experiment(metaclass=ExperimentRegistry):
     )
 
     projects: Projects = \
-        attr.ib(default=attr.Factory(dict))
+        attr.ib(default=attr.Factory(list))
 
     id = attr.ib()
 
@@ -119,7 +119,7 @@ class Experiment(metaclass=ExperimentRegistry):
     def default_id(self) -> uuid.UUID:
         cfg_exps = CFG["experiments"].value
         if self.name in cfg_exps:
-            _id = cfg_exps[self.name]
+            _id: uuid.UUID = cfg_exps[self.name]
         else:
             _id = uuid.uuid4()
             cfg_exps[self.name] = _id
@@ -167,7 +167,7 @@ class Experiment(metaclass=ExperimentRegistry):
         """
         Common setup required to run this experiment on all projects.
         """
-        actions = []
+        actions: Actions = []
 
         for prj_cls in self.projects:
             prj_actions: Actions = []
@@ -247,6 +247,6 @@ class Configuration:
         self.config.update(rhs.config)
 
 
-def discovered() -> tp.Dict[str, Experiment]:
+def discovered() -> tp.Dict[str, tp.Type[Experiment]]:
     """Return all discovered experiments."""
     return ExperimentRegistry.experiments

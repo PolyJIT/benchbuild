@@ -98,9 +98,10 @@ def run_in_container(command, container_dir):
 
         cmd_path = container_p / command[0].lstrip('/')
         if not cmd_path.exists():
-            LOG.error("The command does not exist inside the container! %s",
-                      cmd_path)
-            return
+            LOG.error(
+                "The command does not exist inside the container! %s", cmd_path
+            )
+            raise ValueError('The command does not exist inside the container!')
 
         cmd = uchrt[command]
         return cmd & FG
@@ -140,9 +141,11 @@ def setup_bash_in_container(builddir, _container, outfile, shell):
     """
     with local.cwd(builddir):
         # Switch to bash inside uchroot
-        print("Entering bash inside User-Chroot. Prepare your image and "
-              "type 'exit' when you are done. If bash exits with a non-zero"
-              "exit code, no new container will be stored.")
+        print(
+            "Entering bash inside User-Chroot. Prepare your image and "
+            "type 'exit' when you are done. If bash exits with a non-zero"
+            "exit code, no new container will be stored."
+        )
         store_new_container = True
         try:
             run_in_container(shell, _container)
@@ -195,17 +198,20 @@ class ContainerStrategy:
         Args:
             context: A context object with attributes used for the strategy.
         """
-        pass
 
 
 class BashStrategy(ContainerStrategy):
     """The user interface for setting up a bash inside the container."""
 
     def run(self, context):
-        print("Entering a shell in the container.\nUse the exit "
-              "command to leave the container.")
-        setup_bash_in_container(context.builddir, context.in_container,
-                                context.out_container, context.shell)
+        print(
+            "Entering a shell in the container.\nUse the exit "
+            "command to leave the container."
+        )
+        setup_bash_in_container(
+            context.builddir, context.in_container, context.out_container,
+            context.shell
+        )
 
 
 class SetupPolyJITGentooStrategy(ContainerStrategy):
@@ -233,7 +239,8 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
 
             want_sync = bool(CFG["container"]["strategy"]["polyjit"]["sync"])
             want_upgrade = bool(
-                CFG["container"]["strategy"]["polyjit"]["upgrade"])
+                CFG["container"]["strategy"]["polyjit"]["upgrade"]
+            )
 
             packages = \
                 CFG["container"]["strategy"]["polyjit"]["packages"].value
@@ -243,8 +250,10 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
                     emerge_in_chroot("--sync")
                 if want_upgrade:
                     LOG.debug("Upgrading world.")
-                    emerge_in_chroot("--autounmask-only=y", "-uUDN",
-                                     "--with-bdeps=y", "@world")
+                    emerge_in_chroot(
+                        "--autounmask-only=y", "-uUDN", "--with-bdeps=y",
+                        "@world"
+                    )
                 for pkg in packages:
                     if has_pkg[pkg["name"]] & TF:
                         continue
@@ -304,7 +313,8 @@ class Container(cli.Application):
         ["m", "--mount"],
         cli.ExistingDirectory,
         list=True,
-        help="Mount the given directory under / inside the uchroot container")
+        help="Mount the given directory under / inside the uchroot container"
+    )
     def mounts(self, user_mount):
         """Save the current mount of the container into the settings."""
         CFG["container"]["mounts"] = user_mount
@@ -317,7 +327,8 @@ class Container(cli.Application):
         if not builddir.exists():
             response = ui.ask(
                 "The build directory {dirname} does not exist yet. "
-                "Should I create it?".format(dirname=builddir))
+                "Should I create it?".format(dirname=builddir)
+            )
 
             if response:
                 mkdir("-p", builddir)
@@ -394,11 +405,14 @@ class ContainerCreate(cli.Application):
             in_container = setup_container(builddir, in_container)
 
         self._strategy.run(
-            MockObj(builddir=builddir,
-                    in_container=in_container,
-                    out_container=out_container,
-                    mounts=mounts,
-                    shell=shell))
+            MockObj(
+                builddir=builddir,
+                in_container=in_container,
+                out_container=out_container,
+                mounts=mounts,
+                shell=shell
+            )
+        )
         clean_directories(builddir, in_is_file, True)
 
 
@@ -408,8 +422,10 @@ class ContainerBootstrap(cli.Application):
 
     def install_cmake_and_exit(self):
         """Tell the user to install cmake and aborts the current process."""
-        print("You need to  install cmake via your package manager manually."
-              " Exiting.")
+        print(
+            "You need to  install cmake via your package manager manually."
+            " Exiting."
+        )
         sys.exit(-1)
 
     def main(self, *args):
@@ -424,8 +440,10 @@ class ContainerBootstrap(cli.Application):
             config_file = ".benchbuild.json"
         CFG.store(config_file)
         print("Storing config in {0}".format(os.path.abspath(config_file)))
-        print("Future container commands from this directory will automatically"
-              " source the config file.")
+        print(
+            "Future container commands from this directory will automatically"
+            " source the config file."
+        )
 
 
 @Container.subcommand("list")

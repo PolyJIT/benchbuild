@@ -40,7 +40,6 @@ from benchbuild.utils.revision_ranges import RevisionRange
 LOG = logging.getLogger(__name__)
 
 MaybeGroupNames = tp.Optional[tp.List[str]]
-ProjectIndex = tp.Mapping[str, tp.Type['Project']]
 ProjectNames = tp.List[str]
 VariantContext = source.VariantContext
 Sources = tp.List[source.base.ISource]
@@ -177,6 +176,8 @@ class Project(metaclass=ProjectDecorator):
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
+        del args, kwargs
+
         new_self = super(Project, cls).__new__(cls)
         mod_ident = f'{cls.__name__} @ {cls.__module__}'
         if not cls.NAME:
@@ -370,7 +371,7 @@ class Project(metaclass=ProjectDecorator):
         return source_str
 
 
-ProjectT = tp.Type['Project']
+ProjectT = tp.Type[Project]
 
 
 def __split_project_input__(
@@ -445,7 +446,7 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
     if not project.SOURCE:
         return project
 
-    def csv(in_str: str) -> bool:
+    def csv(in_str: tp.Union[tp.Any, str]) -> bool:
         if isinstance(in_str, str):
             return len(in_str.split(',')) > 1
         return False
@@ -465,6 +466,9 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
         return __add_named_filters__(project, version_in)
 
     raise ValueError('not sure what this version input')
+
+
+ProjectIndex = tp.Mapping[str, ProjectT]
 
 
 def populate(

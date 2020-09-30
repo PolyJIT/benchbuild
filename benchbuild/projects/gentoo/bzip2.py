@@ -22,7 +22,7 @@ class BZip2(GentooGroup):
     ]
 
     def compile(self):
-        super(BZip2, self).compile()
+        super().compile()
 
         test_archive = self.test_archive
         test_url = self.test_url + test_archive

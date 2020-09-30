@@ -64,7 +64,8 @@ def step_has_failed(step_results, error_status=None):
 
 
 def to_step_result(
-        func: DecoratedFunction[StepResultVariants]) -> StepResultList:
+    func: DecoratedFunction[StepResultVariants]
+) -> StepResultList:
     """Convert a function return to a list of StepResults.
 
     All Step subclasses automatically wrap the result of their
@@ -121,8 +122,9 @@ def notify_step_begin_end(
     """Print the beginning and the end of a `func`."""
 
     @ft.wraps(func)
-    def wrapper(self: 'Step', *args: tp.Any,
-                **kwargs: tp.Any) -> StepResultVariants:
+    def wrapper(
+        self: 'Step', *args: tp.Any, **kwargs: tp.Any
+    ) -> StepResultVariants:
         """Wrapper stub."""
         cls = self.__class__
         on_step_begin = cls.ON_STEP_BEGIN
@@ -141,8 +143,8 @@ def notify_step_begin_end(
 
 
 def log_before_after(
-        name: str,
-        desc: str) -> FunctionDecorator[StepResultVariants, StepResultVariants]:
+    name: str, desc: str
+) -> FunctionDecorator[StepResultVariants, StepResultVariants]:
     """Log customized string before & after running func."""
 
     def func_decorator(
@@ -169,16 +171,19 @@ def log_before_after(
 class StepClass(type):
     """Decorate `steps` with logging and result conversion."""
 
-    def __new__(mcs: tp.Type['StepClass'], name: str,
-                bases: tp.Tuple[type, ...], attrs: tp.Dict[str,
-                                                           tp.Any]) -> tp.Any:
+    def __new__(
+        mcs: tp.Type['StepClass'], name: str, bases: tp.Tuple[type, ...],
+        attrs: tp.Dict[str, tp.Any]
+    ) -> tp.Any:
         if not 'NAME' in attrs:
             raise AttributeError(
-                f'{name} does not define a NAME class attribute.')
+                f'{name} does not define a NAME class attribute.'
+            )
 
         if not 'DESCRIPTION' in attrs:
             raise AttributeError(
-                f'{name} does not define a DESCRIPTION class attribute.')
+                f'{name} does not define a DESCRIPTION class attribute.'
+            )
 
         base_has_call = any([hasattr(bt, '__call__') for bt in bases])
         if not (base_has_call or '__call__' in attrs):
@@ -201,14 +206,15 @@ class StepClass(type):
 
         if name_ and description_:
             attrs['__call__'] = log_before_after(name_, description_)(
-                to_step_result(original_call))
+                to_step_result(original_call)
+            )
         else:
             original_call = attrs['__call__']
             attrs['__call__'] = to_step_result(original_call)
 
         attrs['__str__'] = prepend_status(original_str)
 
-        return super(StepClass, mcs).__new__(mcs, name, bases, attrs)
+        return super().__new__(mcs, name, bases, attrs)
 
 
 @attr.s(eq=False)
@@ -252,7 +258,8 @@ class Step(metaclass=StepClass):
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
             "* {name}: Execute configured action.".format(name=self.obj.name),
-            indent * " ")
+            indent * " "
+        )
 
     def onerror(self):
         Clean(self.obj)()
@@ -307,9 +314,10 @@ class Clean(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Clean the directory: {1}".format(self.obj.name,
-                                                     self.obj.builddir),
-            indent * " ")
+            "* {0}: Clean the directory: {1}".format(
+                self.obj.name, self.obj.builddir
+            ), indent * " "
+        )
 
 
 class MakeBuildDir(Step):
@@ -328,7 +336,8 @@ class MakeBuildDir(Step):
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
             "* {0}: Create the build directory".format(self.obj.name),
-            indent * " ")
+            indent * " "
+        )
 
 
 class Compile(Step):
@@ -336,11 +345,12 @@ class Compile(Step):
     DESCRIPTION = "Compile the project"
 
     def __init__(self, project):
-        super(Compile, self).__init__(obj=project, action_fn=project.compile)
+        super().__init__(obj=project, action_fn=project.compile)
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent("* {0}: Compile".format(self.obj.name),
-                               indent * " ")
+        return textwrap.indent(
+            "* {0}: Compile".format(self.obj.name), indent * " "
+        )
 
 
 @attr.s
@@ -374,7 +384,8 @@ class Run(Step):
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
             "* {0}: Execute run-time tests.".format(self.project.name),
-            indent * " ")
+            indent * " "
+        )
 
 
 @attr.s
@@ -466,8 +477,9 @@ class Experiment(Any):
             LOG.error("Transaction isolation level caused a StaleDataError")
 
         # React to external signals
-        signals.handlers.register(Experiment.end_transaction, experiment,
-                                  session)
+        signals.handlers.register(
+            Experiment.end_transaction, experiment, session
+        )
 
         return experiment, session
 
@@ -491,7 +503,9 @@ class Experiment(Any):
             with mp.Pool(num_processes) as pool:
                 results = list(
                     itertools.chain.from_iterable(
-                        pool.map(run_any_child, actions)))
+                        pool.map(run_any_child, actions)
+                    )
+                )
         except KeyboardInterrupt:
             LOG.info("Experiment aborting by user request")
             results.append(StepResult.ERROR)
@@ -521,7 +535,8 @@ class Experiment(Any):
         sub_actns = "\n".join(sub_actns)
         return textwrap.indent(
             "\nExperiment: {0}\n".format(self.obj.name) + sub_actns,
-            indent * " ")
+            indent * " "
+        )
 
 
 @attr.s
@@ -545,8 +560,9 @@ class RequireAll(Step):
                 results.extend(action())
             except ProcessExecutionError as proc_ex:
                 LOG.error("\n==== ERROR ====")
-                LOG.error("Execution of a binary failed in step: %s",
-                          str(action))
+                LOG.error(
+                    "Execution of a binary failed in step: %s", str(action)
+                )
                 LOG.error(str(proc_ex))
                 LOG.error("==== ERROR ====\n")
                 results.append(StepResult.ERROR)
@@ -556,10 +572,12 @@ class RequireAll(Step):
                 results.append(StepResult.ERROR)
                 raise
             except OSError:
-                LOG.error("Exception in step #%d: %s",
-                          i,
-                          str(action),
-                          exc_info=sys.exc_info())
+                LOG.error(
+                    "Exception in step #%d: %s",
+                    i,
+                    str(action),
+                    exc_info=sys.exc_info()
+                )
                 results.append(StepResult.ERROR)
 
             if StepResult.ERROR in results:
@@ -595,22 +613,27 @@ class Containerize(RequireAll):
             project.redirect()
             self.status = StepResult.OK
             return self.status
-        return super(Containerize, self).__call__()
+        return super().__call__()
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
 
         if container.in_container():
-            return textwrap.indent("* Running inside container:\n" + sub_actns,
-                                   indent * " ")
+            return textwrap.indent(
+                '\n'.join(['* Running inside container:'] + sub_actns),
+                indent * " "
+            )
 
         if self.requires_redirect():
-            return textwrap.indent("* Continue inside container:\n" + sub_actns,
-                                   indent * " ")
+            return textwrap.indent(
+                '\n'.join(["* Continue inside container:"] + sub_actns),
+                indent * " "
+            )
 
-        return textwrap.indent("* Running without container:\n" + sub_actns,
-                               indent * " ")
+        return textwrap.indent(
+            '\n'.join(['* Running without container:'] + sub_actns),
+            indent * " "
+        )
 
 
 class CleanExtra(Step):
@@ -634,8 +657,10 @@ class CleanExtra(Step):
         lines = []
         for p in paths:
             lines.append(
-                textwrap.indent("* Clean the directory: {0}".format(p),
-                                indent * " "))
+                textwrap.indent(
+                    "* Clean the directory: {0}".format(p), indent * " "
+                )
+            )
         return "\n".join(lines)
 
 
@@ -659,6 +684,7 @@ class ProjectEnvironment(Step):
         version_str = source.to_str(tuple(variant.values()))
 
         return textwrap.indent(
-            "* Project environment for: {} @ {}".format(project.name,
-                                                        version_str),
-            indent * " ")
+            "* Project environment for: {} @ {}".format(
+                project.name, version_str
+            ), indent * " "
+        )

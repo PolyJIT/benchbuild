@@ -6,6 +6,8 @@ import logging
 import typing as tp
 from abc import ABCMeta
 
+from plumbum.commands.base import BoundCommand
+
 from benchbuild.utils import run
 
 LOG = logging.getLogger(__name__)
@@ -32,10 +34,12 @@ class Extension(metaclass=ABCMeta):
             stored for this extension.
     """
 
-    def __init__(self,
-                 *extensions: 'Extension',
-                 config: tp.Any = None,
-                 **kwargs: tp.Any):
+    def __init__(
+        self,
+        *extensions: 'Extension',
+        config: tp.Optional[tp.Dict[str, str]] = None,
+        **kwargs: tp.Any
+    ):
         """Initialize an extension with an arbitrary number of children."""
         del kwargs
         self.next_extensions = extensions
@@ -80,7 +84,8 @@ class Extension(metaclass=ABCMeta):
         for ext in self.next_extensions:
             ext.print(indent=indent + 2)
 
-    def __call__(self, *args, **kwargs) -> tp.List[run.RunInfo]:
+    def __call__(self, command: BoundCommand, *args: str,
+                 **kwargs: tp.Any) -> tp.List[run.RunInfo]:
         return self.call_next(*args, **kwargs)
 
     def __str__(self) -> str:

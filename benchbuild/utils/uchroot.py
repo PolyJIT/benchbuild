@@ -1,9 +1,11 @@
 import enum
 import logging
 import os
+import typing as tp
 
-from plumbum import FG, local
+from plumbum import local
 from plumbum.commands import ProcessExecutionError
+from plumbum.commands.base import BoundCommand
 
 from benchbuild.settings import CFG
 from benchbuild.utils import path, run
@@ -43,6 +45,7 @@ def no_llvm(*args, uid=0, gid=0, **kwargs):
     Return:
         chroot_cmd
     """
+    del kwargs
     uchroot_cmd = no_args()
     uchroot_cmd = uchroot_cmd[__default_opts__(uid, gid)]
     return uchroot_cmd[args]
@@ -50,33 +53,38 @@ def no_llvm(*args, uid=0, gid=0, **kwargs):
 
 def no_args(**kwargs):
     """Return the uchroot command without any customizations."""
+    del kwargs
+
     from benchbuild.utils.cmd import uchroot as uchrt
 
     prefixes = CFG["container"]["prefixes"].value
     p_paths, p_libs = env(prefixes)
-    uchrt = run.with_env_recursive(uchrt,
-                                   LD_LIBRARY_PATH=path.list_to_path(p_libs),
-                                   PATH=path.list_to_path(p_paths))
+    uchrt = run.with_env_recursive(
+        uchrt,
+        LD_LIBRARY_PATH=path.list_to_path(p_libs),
+        PATH=path.list_to_path(p_paths)
+    )
 
     return uchrt
 
 
 def with_mounts(*args, uchroot_cmd_fn=no_args, **kwargs):
     """Return a uchroot command with all mounts enabled."""
-    mounts = CFG["container"]["mounts"].value
+    _mounts = CFG["container"]["mounts"].value
     prefixes = CFG["container"]["prefixes"].value
 
-    uchroot_opts, mounts = __mounts__("mnt", mounts)
+    uchroot_opts, _mounts = __mounts__("mnt", _mounts)
     uchroot_cmd = uchroot_cmd_fn(**kwargs)
     uchroot_cmd = uchroot_cmd[uchroot_opts]
     uchroot_cmd = uchroot_cmd[args]
-    paths, libs = env(mounts)
+    paths, libs = env(_mounts)
     prefix_paths, prefix_libs = env(prefixes)
 
     uchroot_cmd = run.with_env_recursive(
         uchroot_cmd,
         LD_LIBRARY_PATH=path.list_to_path(libs + prefix_libs),
-        PATH=path.list_to_path(paths + prefix_paths))
+        PATH=path.list_to_path(paths + prefix_paths)
+    )
     return uchroot_cmd
 
 
@@ -88,42 +96,54 @@ class UchrootEC(enum.Enum):
     MNT_PTS_FAILED = 251
 
 
-def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
+def retry(
+    pb_cmd: BoundCommand,
+    retries: int = 0,
+    max_retries: int = 10,
+    retcode: int = 0,
+    retry_retcodes: tp.Optional[tp.List[int]] = None
+) -> None:
     try:
-        pb_cmd & FG(retcode=retcode)
+        pb_cmd.run_fg(retcode=retcode)
     except ProcessExecutionError as proc_ex:
         new_retcode = proc_ex.retcode
         if retries > max_retries:
             LOG.error("Retried %d times. No change. Abort", retries)
             raise
 
-        if new_retcode in retry_retcodes:
-            retry(pb_cmd,
-                  retries=retries + 1,
-                  max_retries=max_retries,
-                  retcode=retcode,
-                  retry_retcodes=retry_retcodes)
+        if retry_retcodes and new_retcode in retry_retcodes:
+            retry(
+                pb_cmd,
+                retries=retries + 1,
+                max_retries=max_retries,
+                retcode=retcode,
+                retry_retcodes=retry_retcodes
+            )
         else:
             raise
 
 
-def uretry(cmd, retcode=0):
-    retry(cmd,
-          retcode=retcode,
-          retry_retcodes=[
-              UchrootEC.MNT_PROC_FAILED.value, UchrootEC.MNT_DEV_FAILED.value,
-              UchrootEC.MNT_SYS_FAILED.value, UchrootEC.MNT_PTS_FAILED.value
-          ])
+def uretry(cmd: BoundCommand, retcode: int = 0) -> None:
+    retry(
+        cmd,
+        retcode=retcode,
+        retry_retcodes=[
+            UchrootEC.MNT_PROC_FAILED.value, UchrootEC.MNT_DEV_FAILED.value,
+            UchrootEC.MNT_SYS_FAILED.value, UchrootEC.MNT_PTS_FAILED.value
+        ]
+    )
 
 
-def clean_env(uchroot_cmd, varnames):
+def clean_env(
+    uchroot_cmd: BoundCommand, varnames: tp.List[str]
+) -> BoundCommand:
     """Returns a uchroot cmd that runs inside a filtered environment."""
-    env = uchroot_cmd["/usr/bin/env"]
-    __clean_env = env["-u", ",".join(varnames)]
+    _env = uchroot_cmd["/usr/bin/env"]
+    __clean_env = _env["-u", ",".join(varnames)]
     return __clean_env
 
 
-def mounts(prefix, __mounts):
+def mounts(prefix: str, __mounts: tp.List) -> tp.List[str]:
     """
     Compute the mountpoints of the current user.
 
@@ -143,7 +163,8 @@ def mounts(prefix, __mounts):
     return mntpoints
 
 
-def __mounts__(prefix, _mounts):
+def __mounts__(prefix: str,
+               _mounts: tp.List) -> tp.Tuple[tp.List[str], tp.List[str]]:
     i = 0
     mntpoints = []
     uchroot_opts = []
@@ -161,17 +182,19 @@ def __mounts__(prefix, _mounts):
     return uchroot_opts, mntpoints
 
 
-def env(mounts):
+def env(
+    uchroot_mounts: tp.List[str]
+) -> tp.Tuple[tp.List[local.path], tp.List[local.path]]:
     """
     Compute the environment of the change root for the user.
 
     Args:
-        mounts: The mountpoints of the current user.
+        uchroot_mounts: The mountpoints of the current user.
     Return:
         paths
         ld_libs
     """
-    f_mounts = [m.strip("/") for m in mounts]
+    f_mounts = [m.strip("/") for m in uchroot_mounts]
 
     root = local.path("/")
 

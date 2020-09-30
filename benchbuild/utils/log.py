@@ -41,7 +41,8 @@ def configure():
     root_logger = logging.getLogger()
     if settings.CFG["debug"]:
         details_format = logging.Formatter(
-            '%(name)s (%(filename)s:%(lineno)s) [%(levelname)s] %(message)s')
+            '%(name)s (%(filename)s:%(lineno)s) [%(levelname)s] %(message)s'
+        )
         details_hdl = logging.StreamHandler()
         details_hdl.setFormatter(details_format)
         root_logger.addHandler(details_hdl)
@@ -59,4 +60,3 @@ def configure():
 
 def set_defaults():
     """Configure the loggers default settings."""
-    pass

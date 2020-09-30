@@ -25,8 +25,10 @@ class LibreSSL(bb.Project):
     SOURCE = [
         HTTP(
             remote={
-                '2.1.6.':
-                    'http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz'  # pylint: disable=line-too-long
+                '2.1.6.': (
+                    'http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/'
+                    'libressl-2.1.6.tar.gz'
+                )
             },
             local='libressl.tar.gz'
         )

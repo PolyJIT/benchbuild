@@ -20,7 +20,7 @@ class Postgresql(GentooGroup):
 
     def compile(self):
         self.emerge_env = dict(USE="server")
-        super(Postgresql, self).compile()
+        super().compile()
 
         pg_socketdir = local.path("/run/postgresql")
         if not pg_socketdir.exists():

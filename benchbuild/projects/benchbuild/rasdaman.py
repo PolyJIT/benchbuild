@@ -1,3 +1,5 @@
+import logging
+
 from plumbum import local
 
 import benchbuild as bb
@@ -67,6 +69,5 @@ class Rasdaman(bb.Project):
             _make("clean", "all", "-j", get_number_of_jobs(CFG))
 
     def run_tests(self):
-        import logging
         log = logging.getLogger(__name__)
         log.warning('Not implemented')

@@ -1,5 +1,7 @@
+import functools
 import logging
 import os
+import signal
 import subprocess
 
 import psutil
@@ -29,7 +31,7 @@ def unionfs(rw='rw', ro=None, union='union'):
         ro: read-only storage area for the unified fuse filesystem.
         union: mountpoint of the unified fuse filesystem.
     """
-    from functools import wraps
+    del ro
 
     def wrap_in_union_fs(func):
         """
@@ -41,7 +43,7 @@ def unionfs(rw='rw', ro=None, union='union'):
             The file system with the function wrapped inside.
         """
 
-        @wraps(func)
+        @functools.wraps(func)
         def wrap_in_union_fs_func(project, *args, **kwargs):
             """
             Wrap the func in the UnionFS mount stack.
@@ -59,7 +61,8 @@ def unionfs(rw='rw', ro=None, union='union'):
             if __unionfs_is_active(root=build_dir):
                 LOG.debug(
                     "UnionFS already active in %s, nesting not supported.",
-                    build_dir)
+                    build_dir
+                )
                 return func(project, *args, **kwargs)
 
             ro_dir = local.path(container.local)
@@ -84,11 +87,10 @@ def unionfs(rw='rw', ro=None, union='union'):
                 finally:
                     project.builddir = project_builddir_bak
 
-                    from signal import SIGINT
                     is_running = proc.poll() is None
                     while __unionfs_is_active(root=un_dir) and is_running:
                         try:
-                            proc.send_signal(SIGINT)
+                            proc.send_signal(signal.SIGINT)
                             proc.wait(timeout=3)
                         except subprocess.TimeoutExpired:
                             proc.kill()
@@ -151,8 +153,9 @@ def __unionfs_set_up(ro_dir, rw_dir, mount_dir):
         raise ValueError("Base directory does not exist")
 
     from benchbuild.utils.cmd import unionfs as unionfs_cmd
-    LOG.debug("Mounting UnionFS on %s with RO:%s RW:%s", mount_dir, ro_dir,
-              rw_dir)
+    LOG.debug(
+        "Mounting UnionFS on %s with RO:%s RW:%s", mount_dir, ro_dir, rw_dir
+    )
     return unionfs_cmd["-f", "-o", "auto_unmount,allow_other,cow",
                        rw_dir + "=RW:" + ro_dir + "=RO", mount_dir]
 

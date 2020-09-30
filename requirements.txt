@@ -1,4 +1,4 @@
-attrs~=20.1
+attrs~=20.2
 dill~=0.3
 Jinja2~=2.11
 parse~=1.18

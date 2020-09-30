@@ -1,6 +1,7 @@
 import logging
+import typing as tp
 
-from parse import parse
+import parse
 
 from benchbuild.extensions import base
 from benchbuild.utils import db
@@ -42,7 +43,8 @@ class RunWithTime(base.Extension):
         return "Time execution of wrapped binary"
 
 
-def fetch_time_output(marker, format_s, ins):
+def fetch_time_output(marker: str, format_s: str,
+                      ins: tp.List[str]) -> tp.List[parse.Match]:
     """
     Fetch the output /usr/bin/time from a.
 
@@ -55,5 +57,5 @@ def fetch_time_output(marker, format_s, ins):
         A list of timing tuples
     """
     timings = [x for x in ins if marker in x]
-    res = [parse(format_s, t) for t in timings]
+    res = [parse.parse(format_s, t) for t in timings]
     return [_f for _f in res if _f]

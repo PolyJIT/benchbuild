@@ -26,11 +26,13 @@ import logging
 import os
 import sys
 import typing as tp
+from typing import TYPE_CHECKING
 
 import dill
 import jinja2
 import plumbum as pb
 from plumbum import local
+from plumbum.commands.base import BoundCommand
 
 from benchbuild.settings import CFG
 from benchbuild.utils import run
@@ -41,6 +43,10 @@ from benchbuild.utils.uchroot import no_llvm as uchroot
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
 LOG = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from benchbuild.project import Project
+    from benchbuild.experiment import Experiment
 
 
 def strip_path_prefix(ipath: str, prefix: str) -> str:
@@ -88,8 +94,8 @@ def __create_jinja_env() -> jinja2.Environment:
 
 def wrap(
     name: str,
-    project: 'benchbuild.project.Project',
-    sprefix: tp.Optional[str] = None,
+    project: 'Project',
+    sprefix: str = '',
     python: str = sys.executable
 ) -> pb.commands.ConcreteCommand:
     """ Wrap the binary :name: with the runtime extension of the project.
@@ -152,8 +158,12 @@ def wrap(
 
 
 def wrap_dynamic(
-    project, name, sprefix=None, python=sys.executable, name_filters=None
-):
+    project: 'Project',
+    name: str,
+    sprefix: str = '',
+    python: str = sys.executable,
+    name_filters: tp.Optional[tp.List[str]] = None
+) -> BoundCommand:
     """
     Wrap the binary :name with the function :runner.
 
@@ -186,16 +196,16 @@ def wrap_dynamic(
 
     project_file = persist(project, suffix=".project")
 
-    env = CFG['env'].value
+    cfg_env = CFG['env'].value
 
-    bin_path = list_to_path(env.get('PATH', []))
+    bin_path = list_to_path(cfg_env.get('PATH', []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
     bin_lib_path = \
-        list_to_path(env.get('LD_LIBRARY_PATH', []))
+        list_to_path(cfg_env.get('LD_LIBRARY_PATH', []))
     bin_lib_path = \
         list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
-    home = env.get("HOME", os.getenv("HOME", ""))
+    home = cfg_env.get("HOME", os.getenv("HOME", ""))
 
     with open(name_absolute, 'w') as wrapper:
         wrapper.write(
@@ -215,8 +225,12 @@ def wrap_dynamic(
 
 
 def wrap_cc(
-    filepath, compiler, project, python=sys.executable, detect_project=False
-):
+    filepath: str,
+    compiler: BoundCommand,
+    project: 'Project',
+    python: str = sys.executable,
+    detect_project: bool = False
+) -> BoundCommand:
     """
     Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
 
@@ -293,7 +307,7 @@ def persist(id_obj, filename=None, suffix=None):
     return os.path.abspath(filename)
 
 
-def load(filename):
+def load(filename: str) -> tp.Optional[tp.Any]:
     """Load a pickled obj from the filesystem.
 
     You better know what you expect from the given pickle, because we don't

@@ -24,6 +24,7 @@ paths for you.
 import functools
 import logging
 import sys
+import typing as tp
 import uuid
 
 import migrate.versioning.api as migrate
@@ -55,7 +56,10 @@ def metadata():
     return BASE.metadata
 
 
-def exceptions(error_is_fatal=True, error_messages=None):
+def exceptions(
+    error_is_fatal: bool = True,
+    error_messages: tp.Optional[tp.Dict[Exception, str]] = None
+) -> tp.Callable:
     """
     Handle SQLAlchemy exceptions in a sane way.
 
@@ -342,7 +346,7 @@ def needed_schema(connection, meta):
     try:
         meta.create_all(connection, checkfirst=False)
     except sa.exc.CompileError as cerr:
-        LOG.fatal("Schema could not be created! Details: %s", str(cerr))
+        LOG.critical("Schema could not be created! Details: %s", str(cerr))
         sys.exit(-4)
     except sa.exc.OperationalError:
         # SQLite throws an OperationalError

@@ -1,9 +1,11 @@
 import enum
 import logging
 import os
+import typing as tp
 
-from plumbum import FG, local
+from plumbum import local
 from plumbum.commands import ProcessExecutionError
+from plumbum.commands.base import BoundCommand
 
 from benchbuild.settings import CFG
 from benchbuild.utils import path, run
@@ -94,16 +96,22 @@ class UchrootEC(enum.Enum):
     MNT_PTS_FAILED = 251
 
 
-def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
+def retry(
+    pb_cmd: BoundCommand,
+    retries: int = 0,
+    max_retries: int = 10,
+    retcode: int = 0,
+    retry_retcodes: tp.Optional[tp.List[int]] = None
+) -> None:
     try:
-        pb_cmd & FG(retcode=retcode)
+        pb_cmd.run_fg(retcode=retcode)
     except ProcessExecutionError as proc_ex:
         new_retcode = proc_ex.retcode
         if retries > max_retries:
             LOG.error("Retried %d times. No change. Abort", retries)
             raise
 
-        if new_retcode in retry_retcodes:
+        if retry_retcodes and new_retcode in retry_retcodes:
             retry(
                 pb_cmd,
                 retries=retries + 1,
@@ -115,7 +123,7 @@ def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
             raise
 
 
-def uretry(cmd, retcode=0):
+def uretry(cmd: BoundCommand, retcode: int = 0) -> None:
     retry(
         cmd,
         retcode=retcode,
@@ -126,14 +134,16 @@ def uretry(cmd, retcode=0):
     )
 
 
-def clean_env(uchroot_cmd, varnames):
+def clean_env(
+    uchroot_cmd: BoundCommand, varnames: tp.List[str]
+) -> BoundCommand:
     """Returns a uchroot cmd that runs inside a filtered environment."""
     _env = uchroot_cmd["/usr/bin/env"]
     __clean_env = _env["-u", ",".join(varnames)]
     return __clean_env
 
 
-def mounts(prefix, __mounts):
+def mounts(prefix: str, __mounts: tp.List) -> tp.List[str]:
     """
     Compute the mountpoints of the current user.
 
@@ -153,7 +163,8 @@ def mounts(prefix, __mounts):
     return mntpoints
 
 
-def __mounts__(prefix, _mounts):
+def __mounts__(prefix: str,
+               _mounts: tp.List) -> tp.Tuple[tp.List[str], tp.List[str]]:
     i = 0
     mntpoints = []
     uchroot_opts = []
@@ -171,7 +182,9 @@ def __mounts__(prefix, _mounts):
     return uchroot_opts, mntpoints
 
 
-def env(uchroot_mounts):
+def env(
+    uchroot_mounts: tp.List[str]
+) -> tp.Tuple[tp.List[local.path], tp.List[local.path]]:
     """
     Compute the environment of the change root for the user.
 

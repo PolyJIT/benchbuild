@@ -20,13 +20,13 @@ class X264(GentooGroup):
         "Sintel.2010.720p.raw": ["--input-res", "1280x720"]
     }
 
-    def compile(self):
+    def compile(self) -> None:
         super().compile()
 
         for testfile in self.inputfiles:
             download.Wget(self.test_url + testfile, testfile)
 
-    def run_tests(self):
+    def run_tests(self) -> None:
         x264 = wrapping.wrap(local.path('/usr/bin/x264'), self)
         _x264 = run.watch(x264)
 

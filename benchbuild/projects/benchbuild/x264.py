@@ -55,8 +55,6 @@ class X264(bb.Project):
         inputfiles = [self.source_of('tbbt-small'), self.source_of('sintel')]
 
         x264 = bb.wrap(x264_repo / "x264", self)
-        _x264 = bb.watch(x264)
-
         tests = [
             (
                 '--crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal '
@@ -85,7 +83,10 @@ class X264(bb.Project):
 
         for testfile in inputfiles:
             for _, test in enumerate(tests):
-                _x264(
-                    testfile, self.CONFIG[testfile], "--threads", "1", "-o",
-                    "/dev/null", test.split(" ")
-                )
+                _x264 = x264[testfile]
+                if testfile in self.CONFIG:
+                    _x264 = _x264[self.CONFIG[testfile]]
+                _x264 = _x264["--threads", "1", "-o", "/dev/null"]
+                _x264 = _x264[test.split(" ")]
+                _x264 = bb.watch(_x264)
+                _x264()

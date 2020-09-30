@@ -399,12 +399,12 @@ class Configuration(Indexable):
 
     def to_env_dict(self) -> tp.Mapping[str, tp.Any]:
         """Convert configuration object to a flat dictionary."""
-        entries = {}
         if self.has_value():
             return {self.__to_env_var__(): self.node['value']}
         if self.has_default():
             return {self.__to_env_var__(): self.node['default']}
 
+        entries: tp.Dict[str, str] = {}
         for k in self.node:
             entries.update(self[k].to_env_dict())
 

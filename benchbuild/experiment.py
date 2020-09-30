@@ -58,7 +58,7 @@ class ExperimentRegistry(type):
         """Register a project in the registry."""
         cls = super(ExperimentRegistry, mcs).__new__(mcs, name, bases, attrs)
         if bases and 'NAME' in attrs:
-            ExperimentRegistry.experiments[cls.NAME] = cls
+            ExperimentRegistry.experiments[attrs['NAME']] = cls
         return cls
 
 
@@ -111,7 +111,7 @@ class Experiment(metaclass=ExperimentRegistry):
     )
 
     projects: Projects = \
-        attr.ib(default=attr.Factory(dict))
+        attr.ib(default=attr.Factory(list))
 
     id = attr.ib()
 

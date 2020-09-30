@@ -19,22 +19,23 @@ Are just convencience methods that can be used when interacting with the
 configured llvm/clang source directories.
 """
 import os
+import typing as tp
+from typing import TYPE_CHECKING
 
-import plumbum as pb
 from plumbum import local
+from plumbum.commands.base import BoundCommand
 
 from benchbuild.settings import CFG
 from benchbuild.utils import cmd
 from benchbuild.utils.path import list_to_path
 from benchbuild.utils.wrapping import wrap_cc
 
-Command = pb.commands.base.BaseCommand
+if TYPE_CHECKING:
+    from benchbuild.project import Project
+    from benchbuild.experiment import Experiment
 
 
-def cc(
-    project: 'benchbuild.project.Project',
-    detect_project: bool = False
-) -> Command:
+def cc(project: 'Project', detect_project: bool = False) -> BoundCommand:
     """
     Return a clang that hides CFLAGS and LDFLAGS.
 
@@ -57,10 +58,7 @@ def cc(
     return cmd["./{}".format(cc_name)]
 
 
-def cxx(
-    project: 'benchbuild.project.Project',
-    detect_project: bool = False
-) -> Command:
+def cxx(project: 'Project', detect_project: bool = False) -> BoundCommand:
     """
     Return a clang++ that hides CFLAGS and LDFLAGS.
 
@@ -86,7 +84,7 @@ def cxx(
     return cmd["./{name}".format(name=cxx_name)]
 
 
-def __get_paths():
+def __get_paths() -> tp.Dict[str, str]:
     path = os.getenv("PATH", "")
     lib_path = os.getenv("LD_LIBRARY_PATH", "")
     env = CFG["env"].value
@@ -105,7 +103,7 @@ def __get_paths():
     return {"ld_library_path": lib_path, "path": path, "home": home}
 
 
-def compiler(name):
+def compiler(name: str) -> BoundCommand:
     """
     Get a usable clang++ plumbum command.
 

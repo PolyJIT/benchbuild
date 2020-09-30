@@ -7,12 +7,13 @@ the SLURM controller either as batch or interactive script.
 import logging
 import os
 import sys
+import typing as tp
 from functools import reduce
 from pathlib import Path
-from typing import Iterable, List, cast
 
 import jinja2
-from plumbum import TF, local
+from plumbum import local
+from plumbum.commands.base import BoundCommand
 
 from benchbuild.experiment import Experiment
 from benchbuild.settings import CFG
@@ -28,7 +29,7 @@ from benchbuild.utils.requirements import (
 LOG = logging.getLogger(__name__)
 
 
-def script(experiment):
+def script(experiment: 'Experiment'):
     """
     Prepare a slurm script that executes the experiment for a given project.
 
@@ -55,11 +56,11 @@ def script(experiment):
     return __save__(slurm_script, srun, experiment, projects)
 
 
-def __expand_project_versions__(experiment: Experiment) -> Iterable[str]:
+def __expand_project_versions__(experiment: Experiment) -> tp.Iterable[str]:
     project_types = experiment.projects
     expanded = []
 
-    for _, project_type in project_types.items():
+    for project_type in project_types:
         for variant in experiment.sample(project_type):
             project = project_type(variant=variant)
             expanded.append(project.id)
@@ -81,7 +82,8 @@ def __ld_library_path():
 
 
 def __save__(
-    script_name: str, benchbuild, experiment, projects: List[str]
+    script_name: str, benchbuild: BoundCommand, experiment: 'Experiment',
+    projects: tp.Iterable[str]
 ) -> str:
     """
     Dump a bash script that can be given to SLURM.
@@ -110,14 +112,13 @@ def __save__(
         loader=jinja2.PackageLoader('benchbuild', 'res')
     )
     template = env.get_template('misc/slurm.sh.inc')
-    project_types = list(experiment.projects.values())
-    if len(project_types) > 1:
+    if len(experiment.projects) > 1:
         project_options = reduce(
-            lambda x, y: merge_slurm_options(x, y.REQUIREMENTS), project_types,
-            cast(List[Requirement], [])
+            lambda x, y: merge_slurm_options(x, y.REQUIREMENTS),
+            experiment.projects, tp.cast(tp.List[Requirement], [])
         )
-    elif len(project_types) == 1:
-        project_options = project_types[0].REQUIREMENTS
+    elif len(experiment.projects) == 1:
+        project_options = experiment.projects[0].REQUIREMENTS
     else:
         project_options = []
 
@@ -159,11 +160,11 @@ def __save__(
     return script_name
 
 
-def __verify__(script_name):
+def __verify__(script_name: str) -> tp.Any:
     """
     Verify a generated script.
 
     Args:
         script_name: Path to the generated script.
     """
-    return (bash["-n", script_name] & TF)
+    return bash["-n", script_name].run_tf()

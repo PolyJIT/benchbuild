@@ -6,12 +6,12 @@ import typing as tp
 import attr
 import plumbum as pb
 from plumbum import local
+from plumbum.commands.base import BoundCommand
 
 from benchbuild.utils.cmd import git, mkdir
 
 from . import base
 
-Command = pb.commands.base.BaseCommand
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
 
@@ -96,7 +96,7 @@ class Git(base.BaseSource):
         return revs
 
 
-def maybe_shallow(cmd: Command, enable: bool) -> Command:
+def maybe_shallow(cmd: BoundCommand, enable: bool) -> BoundCommand:
     """
     Conditionally add the shallow clone to the given git command.
 

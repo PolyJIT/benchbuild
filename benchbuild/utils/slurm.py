@@ -29,7 +29,7 @@ from benchbuild.utils.requirements import (
 LOG = logging.getLogger(__name__)
 
 
-def script(experiment: 'Experiment'):
+def script(experiment: 'Experiment') -> str:
     """
     Prepare a slurm script that executes the experiment for a given project.
 

@@ -75,7 +75,7 @@ def with_mounts(*args, uchroot_cmd_fn=no_args, **kwargs):
     uchroot_cmd = uchroot_cmd_fn(**kwargs)
     uchroot_cmd = uchroot_cmd[uchroot_opts]
     uchroot_cmd = uchroot_cmd[args]
-    paths, libs = env(__mounts)
+    paths, libs = env(_mounts)
     prefix_paths, prefix_libs = env(prefixes)
 
     uchroot_cmd = run.with_env_recursive(

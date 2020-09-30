@@ -214,7 +214,7 @@ class StepClass(type):
 
         attrs['__str__'] = prepend_status(original_str)
 
-        return super(StepClass, mcs).__new__(mcs, name, bases, attrs)
+        return super().__new__(mcs, name, bases, attrs)
 
 
 @attr.s(eq=False)
@@ -345,7 +345,7 @@ class Compile(Step):
     DESCRIPTION = "Compile the project"
 
     def __init__(self, project):
-        super(Compile, self).__init__(obj=project, action_fn=project.compile)
+        super().__init__(obj=project, action_fn=project.compile)
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(

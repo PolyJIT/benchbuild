@@ -75,7 +75,7 @@ def with_mounts(*args, uchroot_cmd_fn=no_args, **kwargs):
     uchroot_cmd = uchroot_cmd_fn(**kwargs)
     uchroot_cmd = uchroot_cmd[uchroot_opts]
     uchroot_cmd = uchroot_cmd[args]
-    paths, libs = env(mounts)
+    paths, libs = env(__mounts)
     prefix_paths, prefix_libs = env(prefixes)
 
     uchroot_cmd = run.with_env_recursive(
@@ -171,17 +171,17 @@ def __mounts__(prefix, _mounts):
     return uchroot_opts, mntpoints
 
 
-def env(mounts):
+def env(uchroot_mounts):
     """
     Compute the environment of the change root for the user.
 
     Args:
-        mounts: The mountpoints of the current user.
+        uchroot_mounts: The mountpoints of the current user.
     Return:
         paths
         ld_libs
     """
-    f_mounts = [m.strip("/") for m in mounts]
+    f_mounts = [m.strip("/") for m in uchroot_mounts]
 
     root = local.path("/")
 

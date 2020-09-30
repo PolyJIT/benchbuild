@@ -21,7 +21,7 @@ class X264(GentooGroup):
     }
 
     def compile(self):
-        super(X264, self).compile()
+        super().compile()
 
         for testfile in self.inputfiles:
             download.Wget(self.test_url + testfile, testfile)

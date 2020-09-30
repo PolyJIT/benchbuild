@@ -177,6 +177,8 @@ class Project(metaclass=ProjectDecorator):
 
     def __new__(cls, *args, **kwargs):
         """Create a new project instance and set some defaults."""
+        del args, kwargs
+
         new_self = super(Project, cls).__new__(cls)
         mod_ident = f'{cls.__name__} @ {cls.__module__}'
         if not cls.NAME:

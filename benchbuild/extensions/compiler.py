@@ -20,14 +20,11 @@ class RunCompiler(base.Extension):
         self.project = project
         self.experiment = experiment
 
-        super(RunCompiler, self).__init__(*extensions, config=config)
+        super().__init__(*extensions, config=config)
 
-    def __call__(self,
-                 command,
-                 *args,
-                 project=None,
-                 rerun_on_error=True,
-                 **kwargs):
+    def __call__(
+        self, command, *args, project=None, rerun_on_error=True, **kwargs
+    ):
         if project:
             self.project = project
 
@@ -37,21 +34,27 @@ class RunCompiler(base.Extension):
         new_command = new_command[self.project.cflags]
         new_command = new_command[self.project.ldflags]
 
-        with run.track_execution(new_command, self.project, self.experiment,
-                                 **kwargs) as _run:
+        with run.track_execution(
+            new_command, self.project, self.experiment, **kwargs
+        ) as _run:
             run_info = _run()
             if self.config:
                 LOG.info(
-                    yaml.dump(self.config,
-                              width=40,
-                              indent=4,
-                              default_flow_style=False))
-                db.persist_config(run_info.db_run, run_info.session,
-                                  self.config)
+                    yaml.dump(
+                        self.config,
+                        width=40,
+                        indent=4,
+                        default_flow_style=False
+                    )
+                )
+                db.persist_config(
+                    run_info.db_run, run_info.session, self.config
+                )
 
             if run_info.has_failed:
-                with run.track_execution(original_command, self.project,
-                                         self.experiment, **kwargs) as _run:
+                with run.track_execution(
+                    original_command, self.project, self.experiment, **kwargs
+                ) as _run:
                     LOG.warning("Fallback to: %s", str(original_command))
                     run_info = _run()
 

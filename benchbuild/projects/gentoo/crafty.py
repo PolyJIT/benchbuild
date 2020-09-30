@@ -16,7 +16,7 @@ class Crafty(GentooGroup):
     DOMAIN = "games-board"
 
     def compile(self):
-        super(Crafty, self).compile()
+        super().compile()
 
         book_file = "book.bin"
         book_bin = "http://www.craftychess.com/" + book_file

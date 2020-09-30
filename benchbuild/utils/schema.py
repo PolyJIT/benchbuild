@@ -109,7 +109,7 @@ class GUID(TypeDecorator):
 
     def __init__(self, *args, as_uuid=False, **kwargs):
         self.as_uuid = as_uuid
-        super(GUID, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def load_dialect_impl(self, dialect):
         if dialect.name == 'postgresql':

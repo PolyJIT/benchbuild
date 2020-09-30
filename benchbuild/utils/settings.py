@@ -615,7 +615,7 @@ def uuid_constructor(loader, node):
 
 def uuid_add_implicit_resolver(loader=ConfigLoader, dumper=ConfigDumper):
     """Attach an implicit pattern resolver for UUID objects."""
-    uuid_regex = r'^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$'  # pylint: disable=line-too-long
+    uuid_regex = r'^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$'
     pattern = re.compile(uuid_regex)
     yaml.add_implicit_resolver('!uuid', pattern, Loader=loader, Dumper=dumper)
 

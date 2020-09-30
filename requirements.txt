@@ -11,6 +11,6 @@ pygit2>=1.2
 pygtrie~=2.3
 pyparsing~=2.4
 PyYAML~=5.3
-rich~=6.1
+rich~=7.1
 sqlalchemy-migrate~=0.13
 virtualenv~=20.0

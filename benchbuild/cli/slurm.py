@@ -53,12 +53,12 @@ class Slurm(cli.Application):
 
     def main(self, *projects: str) -> None:
         """Main entry point of benchbuild run."""
-        exp = [self._experiment]
+        cli_experiment = [self._experiment]
         group_names = self._group_names
 
         plugins.discover()
 
-        all_exps = experiment.discovered()
+        discovered_experiments = experiment.discovered()
 
         if self._description:
             CFG["experiment_description"] = self._description
@@ -69,20 +69,26 @@ class Slurm(cli.Application):
 
         CFG["build_dir"] = str(CFG["slurm"]["node_dir"])
 
-        exps = dict(filter(lambda pair: pair[0] in set(exp), all_exps.items()))
-        unknown_exps = list(
-            filter(lambda name: name not in all_exps.keys(), set(exp))
-        )
-        if unknown_exps:
+        wanted_experiments = {
+            name: cls
+            for name, cls in discovered_experiments.items()
+            if name in set(cli_experiment)
+        }
+        unknown_experiments = [
+            name for name in cli_experiment
+            if name not in set(discovered_experiments.keys())
+        ]
+
+        if unknown_experiments:
             print(
-                'Could not find ', str(unknown_exps),
+                'Could not find ', str(unknown_experiments),
                 ' in the experiment registry.'
             )
             sys.exit(1)
 
         prjs = project.populate(list(projects), group_names)
-        for exp_cls in exps.values():
-            exp = exp_cls(projects=prjs)
+        for exp_cls in wanted_experiments.values():
+            exp = exp_cls(projects=list(prjs.values()))
             print("Experiment: ", exp.name)
             CFG["slurm"]["node_dir"] = os.path.abspath(
                 os.path.join(str(CFG["slurm"]["node_dir"]), str(exp.id))

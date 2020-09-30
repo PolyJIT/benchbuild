@@ -458,7 +458,7 @@ class SessionManager:
             self.connection = self.engine.connect()
             return True
         except sa.exc.OperationalError as opex:
-            LOG.fatal(
+            LOG.critical(
                 "Could not connect to the database. The error was: '%s'",
                 str(opex)
             )

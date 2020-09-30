@@ -38,15 +38,14 @@ class BenchBuildContainer(cli.Application):  # type: ignore
 
         discovered_experiments = experiment.discovered()
         wanted_experiments = {
-            item[0]: item[1]
-            for item in discovered_experiments.items()
-            if item[0] in set(cli_experiments)
+            name: cls
+            for name, cls in discovered_experiments.items()
+            if name in set(cli_experiments)
         }
-        unknown_experiments = {
-            item[0]: item[1]
-            for item in discovered_experiments
-            if item in set(cli_experiments)
-        }
+        unknown_experiments = [
+            name for name in cli_experiments
+            if name in set(discovered_experiments.keys())
+        ]
 
         if unknown_experiments:
             print(

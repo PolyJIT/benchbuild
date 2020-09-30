@@ -1,5 +1,7 @@
 import logging
 
+from parse import parse
+
 from benchbuild.extensions import base
 from benchbuild.utils import db
 from benchbuild.utils.cmd import time
@@ -22,9 +24,10 @@ class RunWithTime(base.Extension):
             session = s.Session()
             for run_info in run_infos:
                 if may_wrap:
-                    timings = fetch_time_output(time_tag,
-                                                time_tag + "{:g}-{:g}-{:g}",
-                                                run_info.stderr.split("\n"))
+                    timings = fetch_time_output(
+                        time_tag, time_tag + "{:g}-{:g}-{:g}",
+                        run_info.stderr.split("\n")
+                    )
                     if timings:
                         db.persist_time(run_info.db_run, session, timings)
                     else:
@@ -51,8 +54,6 @@ def fetch_time_output(marker, format_s, ins):
     Returns:
         A list of timing tuples
     """
-    from parse import parse
-
     timings = [x for x in ins if marker in x]
     res = [parse(format_s, t) for t in timings]
     return [_f for _f in res if _f]

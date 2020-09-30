@@ -43,6 +43,7 @@ def no_llvm(*args, uid=0, gid=0, **kwargs):
     Return:
         chroot_cmd
     """
+    del kwargs
     uchroot_cmd = no_args()
     uchroot_cmd = uchroot_cmd[__default_opts__(uid, gid)]
     return uchroot_cmd[args]
@@ -50,23 +51,27 @@ def no_llvm(*args, uid=0, gid=0, **kwargs):
 
 def no_args(**kwargs):
     """Return the uchroot command without any customizations."""
+    del kwargs
+
     from benchbuild.utils.cmd import uchroot as uchrt
 
     prefixes = CFG["container"]["prefixes"].value
     p_paths, p_libs = env(prefixes)
-    uchrt = run.with_env_recursive(uchrt,
-                                   LD_LIBRARY_PATH=path.list_to_path(p_libs),
-                                   PATH=path.list_to_path(p_paths))
+    uchrt = run.with_env_recursive(
+        uchrt,
+        LD_LIBRARY_PATH=path.list_to_path(p_libs),
+        PATH=path.list_to_path(p_paths)
+    )
 
     return uchrt
 
 
 def with_mounts(*args, uchroot_cmd_fn=no_args, **kwargs):
     """Return a uchroot command with all mounts enabled."""
-    mounts = CFG["container"]["mounts"].value
+    _mounts = CFG["container"]["mounts"].value
     prefixes = CFG["container"]["prefixes"].value
 
-    uchroot_opts, mounts = __mounts__("mnt", mounts)
+    uchroot_opts, _mounts = __mounts__("mnt", _mounts)
     uchroot_cmd = uchroot_cmd_fn(**kwargs)
     uchroot_cmd = uchroot_cmd[uchroot_opts]
     uchroot_cmd = uchroot_cmd[args]
@@ -76,7 +81,8 @@ def with_mounts(*args, uchroot_cmd_fn=no_args, **kwargs):
     uchroot_cmd = run.with_env_recursive(
         uchroot_cmd,
         LD_LIBRARY_PATH=path.list_to_path(libs + prefix_libs),
-        PATH=path.list_to_path(paths + prefix_paths))
+        PATH=path.list_to_path(paths + prefix_paths)
+    )
     return uchroot_cmd
 
 
@@ -98,28 +104,32 @@ def retry(pb_cmd, retries=0, max_retries=10, retcode=0, retry_retcodes=None):
             raise
 
         if new_retcode in retry_retcodes:
-            retry(pb_cmd,
-                  retries=retries + 1,
-                  max_retries=max_retries,
-                  retcode=retcode,
-                  retry_retcodes=retry_retcodes)
+            retry(
+                pb_cmd,
+                retries=retries + 1,
+                max_retries=max_retries,
+                retcode=retcode,
+                retry_retcodes=retry_retcodes
+            )
         else:
             raise
 
 
 def uretry(cmd, retcode=0):
-    retry(cmd,
-          retcode=retcode,
-          retry_retcodes=[
-              UchrootEC.MNT_PROC_FAILED.value, UchrootEC.MNT_DEV_FAILED.value,
-              UchrootEC.MNT_SYS_FAILED.value, UchrootEC.MNT_PTS_FAILED.value
-          ])
+    retry(
+        cmd,
+        retcode=retcode,
+        retry_retcodes=[
+            UchrootEC.MNT_PROC_FAILED.value, UchrootEC.MNT_DEV_FAILED.value,
+            UchrootEC.MNT_SYS_FAILED.value, UchrootEC.MNT_PTS_FAILED.value
+        ]
+    )
 
 
 def clean_env(uchroot_cmd, varnames):
     """Returns a uchroot cmd that runs inside a filtered environment."""
-    env = uchroot_cmd["/usr/bin/env"]
-    __clean_env = env["-u", ",".join(varnames)]
+    _env = uchroot_cmd["/usr/bin/env"]
+    __clean_env = _env["-u", ",".join(varnames)]
     return __clean_env
 
 

@@ -28,6 +28,7 @@ import sys
 import typing as tp
 
 import dill
+import jinja2
 import plumbum as pb
 from plumbum import local
 
@@ -78,16 +79,19 @@ def unpickle(pickle_file):
 
 
 def __create_jinja_env():
-    from jinja2 import Environment, PackageLoader
-    return Environment(trim_blocks=True,
-                       lstrip_blocks=True,
-                       loader=PackageLoader('benchbuild', 'res'))
+    return jinja2.Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=jinja2.PackageLoader('benchbuild', 'res')
+    )
 
 
-def wrap(name: str,
-         project: 'benchbuild.project.Project',
-         sprefix: tp.Optional[str] = None,
-         python: str = sys.executable) -> pb.commands.ConcreteCommand:
+def wrap(
+    name: str,
+    project: 'benchbuild.project.Project',
+    sprefix: tp.Optional[str] = None,
+    python: str = sys.executable
+) -> pb.commands.ConcreteCommand:
     """ Wrap the binary :name: with the runtime extension of the project.
 
     This module generates a python tool that replaces :name:
@@ -111,8 +115,10 @@ def wrap(name: str,
     real_f = name_absolute + PROJECT_BIN_F_EXT
     if sprefix:
         _mv = run.watch(uchroot()["/bin/mv"])
-        _mv(strip_path_prefix(name_absolute, sprefix),
-            strip_path_prefix(real_f, sprefix))
+        _mv(
+            strip_path_prefix(name_absolute, sprefix),
+            strip_path_prefix(real_f, sprefix)
+        )
     else:
         _mv = run.watch(mv)
         _mv(name_absolute, real_f)
@@ -137,18 +143,17 @@ def wrap(name: str,
                 ld_library_path=str(bin_lib_path),
                 home=str(home),
                 python=python,
-            ))
+            )
+        )
 
     _chmod = run.watch(chmod)
     _chmod("+x", name_absolute)
     return local[name_absolute]
 
 
-def wrap_dynamic(project,
-                 name,
-                 sprefix=None,
-                 python=sys.executable,
-                 name_filters=None):
+def wrap_dynamic(
+    project, name, sprefix=None, python=sys.executable, name_filters=None
+):
     """
     Wrap the binary :name with the function :runner.
 
@@ -194,24 +199,24 @@ def wrap_dynamic(project,
 
     with open(name_absolute, 'w') as wrapper:
         wrapper.write(
-            template.render(runf=strip_path_prefix(real_f, sprefix),
-                            project_file=strip_path_prefix(
-                                project_file, sprefix),
-                            path=str(bin_path),
-                            ld_library_path=str(bin_lib_path),
-                            home=str(home),
-                            python=python,
-                            name_filters=name_filters))
+            template.render(
+                runf=strip_path_prefix(real_f, sprefix),
+                project_file=strip_path_prefix(project_file, sprefix),
+                path=str(bin_path),
+                ld_library_path=str(bin_lib_path),
+                home=str(home),
+                python=python,
+                name_filters=name_filters
+            )
+        )
 
     chmod("+x", name_absolute)
     return local[name_absolute]
 
 
-def wrap_cc(filepath,
-            compiler,
-            project,
-            python=sys.executable,
-            detect_project=False):
+def wrap_cc(
+    filepath, compiler, project, python=sys.executable, detect_project=False
+):
     """
     Substitute a compiler with a script that hides CFLAGS & LDFLAGS.
 
@@ -240,14 +245,19 @@ def wrap_cc(filepath,
 
     with open(filepath, 'w') as wrapper:
         wrapper.write(
-            template.render(cc_f=cc_f,
-                            project_file=project_file,
-                            python=python,
-                            detect_project=detect_project))
+            template.render(
+                cc_f=cc_f,
+                project_file=project_file,
+                python=python,
+                detect_project=detect_project
+            )
+        )
 
     chmod("+x", filepath)
-    LOG.debug("Placed wrapper in: %s for compiler %s", local.path(filepath),
-              str(compiler))
+    LOG.debug(
+        "Placed wrapper in: %s for compiler %s", local.path(filepath),
+        str(compiler)
+    )
     LOG.debug("Placed project in: %s", local.path(project_file))
     LOG.debug("Placed compiler command in: %s", local.path(cc_f))
     return local[filepath]
@@ -286,7 +296,8 @@ def persist(id_obj, filename=None, suffix=None):
 def load(filename):
     """Load a pickled obj from the filesystem.
 
-    You better know what you expect from the given pickle, because we don't check it.
+    You better know what you expect from the given pickle, because we don't
+    check it.
 
     Args:
         filename (str): The filename we load the object from.

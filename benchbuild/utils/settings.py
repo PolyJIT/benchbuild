@@ -57,8 +57,10 @@ def available_cpu_count() -> int:
     # cpuset
     # cpuset may restrict the number of *available* processors
     try:
-        match = re.search(r'(?m)^Cpus_allowed:\s*(.*)$',
-                          open('/proc/self/status').read())
+        match = re.search(
+            r'(?m)^Cpus_allowed:\s*(.*)$',
+            open('/proc/self/status').read()
+        )
         if match:
             res = bin(int(match.group(1).replace(',', ''), 16)).count('1')
             if res > 0:
@@ -199,11 +201,13 @@ class Configuration(Indexable):
     The configuration can be stored/loaded as YAML.
     """
 
-    def __init__(self,
-                 parent_key: str,
-                 node: tp.Optional[InnerNode] = None,
-                 parent: tp.Optional['Configuration'] = None,
-                 init: bool = True):
+    def __init__(
+        self,
+        parent_key: str,
+        node: tp.Optional[InnerNode] = None,
+        parent: tp.Optional['Configuration'] = None,
+        init: bool = True
+    ):
         self.parent = parent
         self.parent_key = parent_key
         self.node = node if node is not None else {}
@@ -233,18 +237,21 @@ class Configuration(Indexable):
         selfcopy.filter_exports()
 
         with open(config_file, 'w') as outf:
-            yaml.dump(selfcopy.node,
-                      outf,
-                      width=80,
-                      indent=4,
-                      default_flow_style=False,
-                      Dumper=ConfigDumper)
+            yaml.dump(
+                selfcopy.node,
+                outf,
+                width=80,
+                indent=4,
+                default_flow_style=False,
+                Dumper=ConfigDumper
+            )
 
     def load(self, _from: LocalPath) -> None:
         """Load the configuration dictionary from file."""
 
-        def load_rec(inode: tp.Dict[str, tp.Any],
-                     config: Configuration) -> None:
+        def load_rec(
+            inode: tp.Dict[str, tp.Any], config: Configuration
+        ) -> None:
             """Recursive part of loading."""
             for k in config:
                 if isinstance(config[k], dict) and \
@@ -292,8 +299,9 @@ class Configuration(Indexable):
                 env_val = self.node['default']
             env_val = os.getenv(env_var, to_yaml(env_val))
             try:
-                self.node['value'] = yaml.load(str(env_val),
-                                               Loader=ConfigLoader)
+                self.node['value'] = yaml.load(
+                    str(env_val), Loader=ConfigLoader
+                )
             except ValueError:
                 self.node['value'] = env_val
         else:
@@ -319,7 +327,8 @@ class Configuration(Indexable):
             warnings.warn(
                 "Access to non-existing config element: {0}".format(key),
                 category=InvalidConfigKey,
-                stacklevel=2)
+                stacklevel=2
+            )
             return Configuration(key, init=False)
         return Configuration(key, parent=self, node=self.node[key], init=False)
 
@@ -348,7 +357,8 @@ class Configuration(Indexable):
         """Convert the node's value to int, if available."""
         if not self.has_value():
             raise ValueError(
-                'Inner configuration nodes cannot be converted to int.')
+                'Inner configuration nodes cannot be converted to int.'
+            )
         return int(self.value)
 
     def __bool__(self) -> bool:
@@ -425,9 +435,11 @@ class ConfigPath:
 
         if not path.exists():
             print("The path '%s' is required by your configuration." % path)
-            yes = ui.ask("Should I create '%s' for you?" % path,
-                         default_answer=True,
-                         default_answer_str="yes")
+            yes = ui.ask(
+                "Should I create '%s' for you?" % path,
+                default_answer=True,
+                default_answer_str="yes"
+            )
             if yes:
                 path.mkdir()
             else:
@@ -460,9 +472,11 @@ def path_constructor(loader, node):
     return ConfigPath(value)
 
 
-def find_config(test_file: tp.Optional[str] = None,
-                defaults: tp.Optional[tp.List[str]] = None,
-                root: str = os.curdir) -> tp.Optional[LocalPath]:
+def find_config(
+    test_file: tp.Optional[str] = None,
+    defaults: tp.Optional[tp.List[str]] = None,
+    root: str = os.curdir
+) -> tp.Optional[LocalPath]:
     """
     Find the path to the default config file.
 
@@ -493,17 +507,19 @@ def find_config(test_file: tp.Optional[str] = None,
     if test_file is not None:
         return walk_rec(test_file, root)
 
-    for test_file in defaults:
-        ret = walk_rec(test_file, root)
+    for test_f in defaults:
+        ret = walk_rec(test_f, root)
         if ret is not None:
             return ret
 
     return None
 
 
-def setup_config(cfg: Configuration,
-                 config_filenames: tp.Optional[tp.List[str]] = None,
-                 env_var_name: tp.Optional[str] = None) -> None:
+def setup_config(
+    cfg: Configuration,
+    config_filenames: tp.Optional[tp.List[str]] = None,
+    env_var_name: tp.Optional[str] = None
+) -> None:
     """
     This will initialize the given configuration object.
 
@@ -545,8 +561,9 @@ def update_env(cfg: Configuration) -> None:
     lib_path = env.get("LD_LIBRARY_PATH", "")
     lib_path = os.path.pathsep.join(lib_path)
     if "LD_LIBRARY_PATH" in os.environ:
-        lib_path = os.path.pathsep.join(
-            [lib_path, os.environ["LD_LIBRARY_PATH"]])
+        lib_path = os.path.pathsep.join([
+            lib_path, os.environ["LD_LIBRARY_PATH"]
+        ])
     os.environ["LD_LIBRARY_PATH"] = lib_path
 
     home = env.get("HOME", None)
@@ -568,9 +585,11 @@ def upgrade(cfg: Configuration) -> None:
     has_old_db_elems = [x in db_node for x in old_db_elems]
 
     if any(has_old_db_elems):
-        print("Old database configuration found. "
-              "Converting to new connect_string. "
-              "This will *not* be stored in the configuration automatically.")
+        print(
+            "Old database configuration found. "
+            "Converting to new connect_string. "
+            "This will *not* be stored in the configuration automatically."
+        )
         cfg["db"]["connect_string"] = \
             "{dialect}://{user}:{password}@{host}:{port}/{name}".format(
                 dialect=cfg["db"]["dialect"]["value"],
@@ -596,7 +615,7 @@ def uuid_constructor(loader, node):
 
 def uuid_add_implicit_resolver(loader=ConfigLoader, dumper=ConfigDumper):
     """Attach an implicit pattern resolver for UUID objects."""
-    uuid_regex = r'^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$'
+    uuid_regex = r'^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$'  # pylint: disable=line-too-long
     pattern = re.compile(uuid_regex)
     yaml.add_implicit_resolver('!uuid', pattern, Loader=loader, Dumper=dumper)
 
@@ -605,9 +624,9 @@ def __init_module__() -> None:
     yaml.add_representer(uuid.UUID, uuid_representer, Dumper=ConfigDumper)
     yaml.add_representer(ConfigPath, path_representer, Dumper=ConfigDumper)
     yaml.add_constructor('!uuid', uuid_constructor, Loader=ConfigLoader)
-    yaml.add_constructor('!create-if-needed',
-                         path_constructor,
-                         Loader=ConfigLoader)
+    yaml.add_constructor(
+        '!create-if-needed', path_constructor, Loader=ConfigLoader
+    )
     uuid_add_implicit_resolver()
 
 

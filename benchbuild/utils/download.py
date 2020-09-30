@@ -77,8 +77,10 @@ def source_required(src_file: str) -> bool:
             rm(hash_file)
     if required:
         LOG.info("Source required for: %s", src_file)
-        LOG.debug("Reason: src-exists: %s hash-exists: %s", src_file.exists(),
-                  hash_file.exists())
+        LOG.debug(
+            "Reason: src-exists: %s hash-exists: %s", src_file.exists(),
+            hash_file.exists()
+        )
     return required
 
 
@@ -324,10 +326,11 @@ def with_git(
                 git("clone", repo, repo_loc)
 
             with local.cwd(repo_loc):
-                rev_list = git("rev-list", "--abbrev-commit", "--abbrev=10",
-                               refspec, *rev_list_args).strip().split('\n')
-                latest = git("rev-parse", "--short=10",
-                             refspec).strip().split('\n')
+                rev_list = git(
+                    "rev-list", "--abbrev-commit", "--abbrev=10", refspec,
+                    *rev_list_args
+                ).strip().split('\n')
+                git("rev-parse", "--short=10", refspec).strip().split('\n')
 
             if limit:
                 return list(filter(version_filter, rev_list))[:limit]
@@ -338,10 +341,12 @@ def with_git(
             """Download the selected version."""
             nonlocal target_dir, git
             directory = cls.SRC_FILE if target_dir is None else target_dir
-            Git(self.repository,
+            Git(
+                self.repository,
                 directory,
                 self.version,
-                shallow_clone=shallow_clone)
+                shallow_clone=shallow_clone
+            )
 
         cls.versions = versions_impl
         cls.download = download_impl

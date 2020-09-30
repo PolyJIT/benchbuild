@@ -1,4 +1,6 @@
 """Experiment helpers."""
+import datetime
+import functools
 import logging
 import sys
 import typing as t
@@ -62,14 +64,13 @@ class RunInfo:
         """
         from benchbuild.utils.db import create_run
         from benchbuild.utils import schema as s
-        from datetime import datetime
 
         db_run, session = create_run(command, project, experiment, group)
-        db_run.begin = datetime.now()
+        db_run.begin = datetime.datetime.now()
         db_run.status = 'running'
         log = s.RunLog()
         log.run_id = db_run.id
-        log.begin = datetime.now()
+        log.begin = datetime.datetime.now()
         log.config = repr(CFG)
         session.add(log)
         session.add(db_run)
@@ -91,7 +92,6 @@ class RunInfo:
             stderr: The stderr we capture of the run.
         """
         from benchbuild.utils.schema import RunLog
-        from datetime import datetime
 
         run_id = self.db_run.id
 
@@ -99,9 +99,9 @@ class RunInfo:
         log.stderr = stderr
         log.stdout = stdout
         log.status = 0
-        log.end = datetime.now()
+        log.end = datetime.datetime.now()
 
-        self.db_run.end = datetime.now()
+        self.db_run.end = datetime.datetime.now()
         self.db_run.status = 'completed'
         self.session.add(log)
         self.session.add(self.db_run)
@@ -121,16 +121,15 @@ class RunInfo:
             stderr: The stderr we capture of the run.
         """
         from benchbuild.utils.schema import RunLog
-        from datetime import datetime
         run_id = self.db_run.id
 
         log = self.session.query(RunLog).filter(RunLog.run_id == run_id).one()
         log.stderr = stderr
         log.stdout = stdout
         log.status = retcode
-        log.end = datetime.now()
+        log.end = datetime.datetime.now()
 
-        self.db_run.end = datetime.now()
+        self.db_run.end = datetime.datetime.now()
         self.db_run.status = 'failed'
         self.failed = True
         self.session.add(log)
@@ -229,10 +228,9 @@ def begin_run_group(project, experiment):
         database and session is the database session this group lives in.
     """
     from benchbuild.utils.db import create_run_group
-    from datetime import datetime
 
     group, session = create_run_group(project, experiment)
-    group.begin = datetime.now()
+    group.begin = datetime.datetime.now()
     group.status = 'running'
 
     session.commit()
@@ -247,9 +245,7 @@ def end_run_group(group, session):
         group: The run_group we want to complete.
         session: The database transaction we will finish.
     """
-    from datetime import datetime
-
-    group.end = datetime.now()
+    group.end = datetime.datetime.now()
     group.status = 'completed'
     session.commit()
 
@@ -262,9 +258,7 @@ def fail_run_group(group, session):
         group: The run_group we want to complete.
         session: The database transaction we will finish.
     """
-    from datetime import datetime
-
-    group.end = datetime.now()
+    group.end = datetime.datetime.now()
     group.status = 'failed'
     session.commit()
 
@@ -361,12 +355,11 @@ def in_builddir(sub='.'):
     Args:
         sub: An optional subdirectory to change into.
     """
-    from functools import wraps
 
     def wrap_in_builddir(func):
         """Wrap the function for the new build directory."""
 
-        @wraps(func)
+        @functools.wraps(func)
         def wrap_in_builddir_func(self, *args, **kwargs):
             """The actual function inside the wrapper for the new builddir."""
             p = local.path(self.builddir) / sub
@@ -386,9 +379,8 @@ def in_builddir(sub='.'):
 
 def store_config(func):
     """Decorator for storing the configuration in the project's builddir."""
-    from functools import wraps
 
-    @wraps(func)
+    @functools.wraps(func)
     def wrap_store_config(self, *args, **kwargs):
         """Wrapper that contains the actual storage call for the config."""
         CFG.store(local.path(self.builddir) / ".benchbuild.yml")

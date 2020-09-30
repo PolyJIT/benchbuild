@@ -38,7 +38,8 @@ def _get_all_revisions_between(c_start: str, c_end: str,
     result = [c_start]
     result.extend(
         git("log", "--pretty=%H", "--ancestry-path",
-            f"{c_start}..{c_end}").strip().split())
+            f"{c_start}..{c_end}").strip().split()
+    )
     return result
 
 
@@ -77,7 +78,6 @@ class AbstractRevisionRange(abc.ABC):
         Returns:
             An iterator over the revisions contained in this revision range.
         """
-        pass
 
 
 class SingleRevision(AbstractRevisionRange):
@@ -111,10 +111,9 @@ class RevisionRange(AbstractRevisionRange):
         comment: See :func:`AbstractRevisionRange.comment()`.
     """
 
-    def __init__(self,
-                 id_start: str,
-                 id_end: str,
-                 comment: tp.Optional[str] = None):
+    def __init__(
+        self, id_start: str, id_end: str, comment: tp.Optional[str] = None
+    ):
         super().__init__(comment)
         self.__id_start = id_start
         self.__id_end = id_end
@@ -124,7 +123,8 @@ class RevisionRange(AbstractRevisionRange):
     def init_cache(self, repo_path: str) -> None:
         git = _get_git_for_path(repo_path)
         self.__revision_list = _get_all_revisions_between(
-            self.__id_start, self.__id_end, git)
+            self.__id_start, self.__id_end, git
+        )
 
     def __iter__(self) -> tp.Iterator[str]:
         if self.__revision_list is None:
@@ -140,8 +140,9 @@ class CommitState(IntFlag):
 
 
 def _find_blocked_commits(
-        commit: pygit2.Commit, good: tp.List[pygit2.Commit],
-        bad: tp.List[pygit2.Commit]) -> tp.List[pygit2.Commit]:
+    commit: pygit2.Commit, good: tp.List[pygit2.Commit],
+    bad: tp.List[pygit2.Commit]
+) -> tp.List[pygit2.Commit]:
     """
     Find all commits affected by a bad commit and not yet "fixed" by a
     good commit. This is done by performing a backwards search starting
@@ -178,7 +179,8 @@ def _find_blocked_commits(
         # if all parents are already handled, determine whether
         # the current commit is blocked or not.
         if current_commit not in blocked.keys() and all(
-                parent in blocked.keys() for parent in current_commit.parents):
+            parent in blocked.keys() for parent in current_commit.parents
+        ):
             blocked[current_commit] = CommitState.BOT
             for parent in current_commit.parents:
                 if blocked[parent] & CommitState.GOOD:
@@ -206,10 +208,12 @@ class GoodBadSubgraph(AbstractRevisionRange):
         comment: See :func:`AbstractRevisionRange.comment()`.
     """
 
-    def __init__(self,
-                 bad_commits: tp.List[str],
-                 good_commits: tp.List[str],
-                 comment: tp.Optional[str] = None):
+    def __init__(
+        self,
+        bad_commits: tp.List[str],
+        good_commits: tp.List[str],
+        comment: tp.Optional[str] = None
+    ):
         super().__init__(comment)
         self.__bad_commit_ids = bad_commits
         self.__good_commit_ids = good_commits
@@ -229,7 +233,8 @@ class GoodBadSubgraph(AbstractRevisionRange):
         for head in heads:
             self.__revision_list.extend([
                 str(commit.id) for commit in _find_blocked_commits(
-                    repo.get(head), good_commits, bad_commits)
+                    repo.get(head), good_commits, bad_commits
+                )
             ])
 
     def __iter__(self) -> tp.Iterator[str]:
@@ -256,7 +261,8 @@ class block_revisions():  # pylint: disable=invalid-name
     def __call__(self, git_source: Git) -> Git:
 
         def is_blocked_revision_impl(
-                rev_id: str) -> tp.Tuple[bool, tp.Optional[str]]:
+            rev_id: str
+        ) -> tp.Tuple[bool, tp.Optional[str]]:
             """
             Checks whether a revision is blocked or not. Also returns the
             reason for the block if available.

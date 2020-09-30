@@ -28,8 +28,16 @@ import uuid
 
 import migrate.versioning.api as migrate
 import sqlalchemy as sa
-from sqlalchemy import (Column, DateTime, Enum, ForeignKey,
-                        ForeignKeyConstraint, Integer, String, create_engine)
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    ForeignKeyConstraint,
+    Integer,
+    String,
+    create_engine,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -54,8 +62,8 @@ def exceptions(error_is_fatal=True, error_messages=None):
     Args:
         func: An arbitrary function to wrap.
         error_is_fatal: Should we exit the program on exception?
-        reraise: Should we reraise the exception, after logging? Only makes sense
-            if error_is_fatal is False.
+        reraise: Should we reraise the exception, after logging?
+            Only makes sense if error_is_fatal is False.
         error_messages: A dictionary that assigns an exception class to a
             customized error message.
     """
@@ -80,7 +88,8 @@ def exceptions(error_is_fatal=True, error_messages=None):
                 if error_is_fatal:
                     sys.exit("Abort, SQL operation failed.")
                 if not ui.ask(
-                        "I can continue at your own risk, do you want that?"):
+                    "I can continue at your own risk, do you want that?"
+                ):
                     raise err
             return result
 
@@ -105,8 +114,7 @@ class GUID(TypeDecorator):
     def load_dialect_impl(self, dialect):
         if dialect.name == 'postgresql':
             return dialect.type_descriptor(UUID(as_uuid=self.as_uuid))
-        else:
-            return dialect.type_descriptor(CHAR(32))
+        return dialect.type_descriptor(CHAR(32))
 
     def process_bind_param(self, value, dialect):
         return str(value)
@@ -122,11 +130,12 @@ class Run(BASE):
     """Store a run for each executed test binary."""
 
     __tablename__ = 'run'
-    __table_args__ = (ForeignKeyConstraint(
-        ['project_name', 'project_group'],
-        ['project.name', 'project.group_name'],
-        onupdate="CASCADE",
-        ondelete="CASCADE"),)
+    __table_args__ = (
+        ForeignKeyConstraint(['project_name', 'project_group'],
+                             ['project.name', 'project.group_name'],
+                             onupdate="CASCADE",
+                             ondelete="CASCADE"),
+    )
 
     id = Column(Integer, primary_key=True)
     command = Column(String)
@@ -134,36 +143,44 @@ class Run(BASE):
     project_group = Column(String, index=True)
     experiment_name = Column(String, index=True)
     run_group = Column(GUID(as_uuid=True), index=True)
-    experiment_group = Column(GUID(as_uuid=True),
-                              ForeignKey("experiment.id",
-                                         ondelete="CASCADE",
-                                         onupdate="CASCADE"),
-                              index=True)
+    experiment_group = Column(
+        GUID(as_uuid=True),
+        ForeignKey("experiment.id", ondelete="CASCADE", onupdate="CASCADE"),
+        index=True
+    )
 
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Enum('completed', 'running', 'failed', name="run_state"))
 
-    metrics = sa.orm.relationship("Metric",
-                                  cascade="all, delete-orphan",
-                                  passive_deletes=True,
-                                  passive_updates=True)
-    logs = sa.orm.relationship("RunLog",
-                               cascade="all, delete-orphan",
-                               passive_deletes=True,
-                               passive_updates=True)
-    stored_data = sa.orm.relationship("Metadata",
-                                      cascade="all, delete-orphan",
-                                      passive_deletes=True,
-                                      passive_updates=True)
-    configurations = sa.orm.relationship("Config",
-                                         cascade="all, delete-orphan",
-                                         passive_deletes=True,
-                                         passive_updates=True)
+    metrics = sa.orm.relationship(
+        "Metric",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True
+    )
+    logs = sa.orm.relationship(
+        "RunLog",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True
+    )
+    stored_data = sa.orm.relationship(
+        "Metadata",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True
+    )
+    configurations = sa.orm.relationship(
+        "Config",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True
+    )
 
     def __repr__(self):
-        return ("<Run: {0} status={1} run={2}>").format(self.project_name,
-                                                        self.status, self.id)
+        return ("<Run: {0} status={1} run={2}>"
+               ).format(self.project_name, self.status, self.id)
 
 
 class RunGroup(BASE):
@@ -172,11 +189,11 @@ class RunGroup(BASE):
     __tablename__ = 'rungroup'
 
     id = Column(GUID(as_uuid=True), primary_key=True, index=True)
-    experiment = Column(GUID(as_uuid=True),
-                        ForeignKey("experiment.id",
-                                   ondelete="CASCADE",
-                                   onupdate="CASCADE"),
-                        index=True)
+    experiment = Column(
+        GUID(as_uuid=True),
+        ForeignKey("experiment.id", ondelete="CASCADE", onupdate="CASCADE"),
+        index=True
+    )
 
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
@@ -194,14 +211,18 @@ class Experiment(BASE):
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
 
-    runs = sa.orm.relationship("Run",
-                               cascade="all, delete-orphan",
-                               passive_deletes=True,
-                               passive_updates=True)
-    run_groups = sa.orm.relationship("RunGroup",
-                                     cascade="all, delete-orphan",
-                                     passive_deletes=True,
-                                     passive_updates=True)
+    runs = sa.orm.relationship(
+        "Run",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True
+    )
+    run_groups = sa.orm.relationship(
+        "RunGroup",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True
+    )
 
     def __repr__(self):
         return "<Experiment {name}>".format(name=self.name)
@@ -219,17 +240,20 @@ class Project(BASE):
     group_name = Column(String, primary_key=True)
     version = Column(String)
 
-    runs = sa.orm.relationship("Run",
-                               cascade="all, delete-orphan",
-                               passive_deletes=True,
-                               passive_updates=True)
+    runs = sa.orm.relationship(
+        "Run",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        passive_updates=True
+    )
 
     def __repr__(self):
         return "<Project {group}@{domain}/{name} V:{version}>".format(
             group=self.group_name,
             domain=self.domain,
             name=self.name,
-            version=self.version)
+            version=self.version
+        )
 
 
 class Metric(BASE):
@@ -239,11 +263,12 @@ class Metric(BASE):
 
     name = Column(String, primary_key=True, index=True, nullable=False)
     value = Column(Float)
-    run_id = Column(Integer,
-                    ForeignKey("run.id", onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True
+    )
 
     def __repr__(self):
         return "{0} - {1}".format(self.name, self.value)
@@ -259,11 +284,12 @@ class RunLog(BASE):
 
     __tablename__ = 'log'
 
-    run_id = Column(Integer,
-                    ForeignKey("run.id", onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True
+    )
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
     status = Column(Integer)
@@ -282,11 +308,12 @@ class Metadata(BASE):
 
     __tablename__ = "metadata"
 
-    run_id = Column(Integer,
-                    ForeignKey("run.id", onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True
+    )
     name = Column(String)
     value = Column(String)
 
@@ -301,11 +328,12 @@ class Config(BASE):
 
     __tablename__ = 'config'
 
-    run_id = Column(Integer,
-                    ForeignKey("run.id", onupdate="CASCADE",
-                               ondelete="CASCADE"),
-                    index=True,
-                    primary_key=True)
+    run_id = Column(
+        Integer,
+        ForeignKey("run.id", onupdate="CASCADE", ondelete="CASCADE"),
+        index=True,
+        primary_key=True
+    )
     name = Column(String, primary_key=True)
     value = Column(String)
 
@@ -340,15 +368,19 @@ def get_version_data():
 
 @exceptions(
     error_messages={
-        sa.exc.ProgrammingError:
-            "Could not enforce versioning. Are you allowed to modify the database?"
-    })
+        sa.exc.ProgrammingError: (
+            'Could not enforce versioning. Are you allowed to modify '
+            'the database?'
+        )
+    }
+)
 def enforce_versioning(force=False):
     """Install versioning on the db."""
     connect_str, repo_url = get_version_data()
     LOG.debug("Your database uses an unversioned benchbuild schema.")
     if not force and not ui.ask(
-            "Should I enforce version control on your schema?"):
+        "Should I enforce version control on your schema?"
+    ):
         LOG.error("User declined schema versioning.")
         return None
     repo_version = migrate.version(repo_url, url=connect_str)
@@ -377,19 +409,26 @@ def setup_versioning():
         sa.exc.ProgrammingError:
             "Update failed."
             " Base schema version diverged from the expected structure."
-    })
+    }
+)
 def maybe_update_db(repo_version, db_version):
     if db_version is None:
         return
     if db_version == repo_version:
         return
 
-    LOG.warning("Your database contains version '%s' of benchbuild's schema.",
-                db_version)
-    LOG.warning("Benchbuild currently requires version '%s' to work correctly.",
-                repo_version)
-    if not ui.ask("Should I attempt to update your schema to version '{0}'?".
-                  format(repo_version)):
+    LOG.warning(
+        "Your database contains version '%s' of benchbuild's schema.",
+        db_version
+    )
+    LOG.warning(
+        "Benchbuild currently requires version '%s' to work correctly.",
+        repo_version
+    )
+    if not ui.ask(
+        "Should I attempt to update your schema to version '{0}'?".
+        format(repo_version)
+    ):
         LOG.error("User declined schema upgrade.")
         return
 
@@ -415,8 +454,10 @@ class SessionManager:
             self.connection = self.engine.connect()
             return True
         except sa.exc.OperationalError as opex:
-            LOG.fatal("Could not connect to the database. The error was: '%s'",
-                      str(opex))
+            LOG.fatal(
+                "Could not connect to the database. The error was: '%s'",
+                str(opex)
+            )
         return False
 
     def configure_engine(self):
@@ -434,9 +475,12 @@ class SessionManager:
             LOG.debug("Unable to set isolation level to SERIALIZABLE")
         return True
 
-    @exceptions(error_messages={
-        sa.exc.NoSuchModuleError: "Connect string contained an invalid backend."
-    })
+    @exceptions(
+        error_messages={
+            sa.exc.NoSuchModuleError:
+                "Connect string contained an invalid backend."
+        }
+    )
     def __init__(self):
         self.__test_mode = bool(settings.CFG['db']['rollback'])
         self.engine = create_engine(str(settings.CFG["db"]["connect_string"]))

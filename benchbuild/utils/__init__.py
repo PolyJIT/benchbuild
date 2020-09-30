@@ -4,6 +4,7 @@ to plumbum. The built modules are only active during a run of an experiment and
 get deleted afterwards.
 """
 import logging
+import os
 import sys
 import typing as tp
 from types import ModuleType
@@ -47,7 +48,6 @@ class CommandAlias(ModuleType):
 
     def __getattr__(self, command: str) -> pb.commands.ConcreteCommand:
         """Proxy getter for plumbum commands."""
-        from os import getenv
         from benchbuild.settings import CFG
         from benchbuild.utils.path import list_to_path
         from benchbuild.utils.path import path_to_list
@@ -60,13 +60,13 @@ class CommandAlias(ModuleType):
         check.extend(__ALIASES__.get(command, [command]))
 
         env = CFG["env"].value
-        path = path_to_list(getenv("PATH", ""))
+        path = path_to_list(os.getenv("PATH", ""))
         path.extend(env.get("PATH", []))
 
-        libs_path = path_to_list(getenv("LD_LIBRARY_PATH", ""))
+        libs_path = path_to_list(os.getenv("LD_LIBRARY_PATH", ""))
         libs_path.extend(env.get("LD_LIBRARY_PATH", []))
 
-        home = env.get("HOME", getenv("HOME", ""))
+        home = env.get("HOME", os.getenv("HOME", ""))
 
         if self.__override_all__ is not None:
             check = [self.__override_all__]
@@ -77,7 +77,8 @@ class CommandAlias(ModuleType):
                 alias_cmd = alias_cmd.with_env(
                     PATH=list_to_path(path),
                     LD_LIBRARY_PATH=list_to_path(libs_path),
-                    HOME=home)
+                    HOME=home
+                )
                 return alias_cmd
             except AttributeError:
                 pass

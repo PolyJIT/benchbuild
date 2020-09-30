@@ -11,6 +11,7 @@ from functools import reduce
 from pathlib import Path
 from typing import Iterable, List, cast
 
+import jinja2
 from plumbum import TF, local
 
 from benchbuild.experiment import Experiment
@@ -18,9 +19,11 @@ from benchbuild.settings import CFG
 from benchbuild.utils import cmd
 from benchbuild.utils.cmd import bash, chmod
 from benchbuild.utils.path import list_to_path
-from benchbuild.utils.requirements import (Requirement,
-                                           get_slurm_options_from_config,
-                                           merge_slurm_options)
+from benchbuild.utils.requirements import (
+    Requirement,
+    get_slurm_options_from_config,
+    merge_slurm_options,
+)
 
 LOG = logging.getLogger(__name__)
 
@@ -36,7 +39,8 @@ def script(experiment):
     projects = __expand_project_versions__(experiment)
     benchbuild_c = local[local.path(sys.argv[0])]
     slurm_script = local.cwd / experiment.name + "-" + str(
-        CFG['slurm']['script'])
+        CFG['slurm']['script']
+    )
 
     srun = cmd["srun"]
     srun_args = []
@@ -76,8 +80,9 @@ def __ld_library_path():
     return os.path.pathsep.join([benchbuild_path, host_path])
 
 
-def __save__(script_name: str, benchbuild, experiment,
-             projects: List[str]) -> str:
+def __save__(
+    script_name: str, benchbuild, experiment, projects: List[str]
+) -> str:
     """
     Dump a bash script that can be given to SLURM.
 
@@ -88,36 +93,40 @@ def __save__(script_name: str, benchbuild, experiment,
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
     """
-    from jinja2 import Environment, PackageLoader
-
     logs_dir = Path(CFG['slurm']['logs'].value)
     if logs_dir.suffix != '':
         logs_dir = logs_dir.parent / logs_dir.stem
         LOG.warning(
-            f"Config slurm:logs should be a folder, defaulting to {logs_dir}.")
+            'Config slurm:logs should be a folder, defaulting to %s.', logs_dir
+        )
 
     if not logs_dir.exists():
         logs_dir.mkdir()
 
     node_command = str(benchbuild["-E", experiment.name, "$_project"])
-    env = Environment(trim_blocks=True,
-                      lstrip_blocks=True,
-                      loader=PackageLoader('benchbuild', 'res'))
+    env = jinja2.Environment(
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=jinja2.PackageLoader('benchbuild', 'res')
+    )
     template = env.get_template('misc/slurm.sh.inc')
     project_types = list(experiment.projects.values())
     if len(project_types) > 1:
         project_options = reduce(
             lambda x, y: merge_slurm_options(x, y.REQUIREMENTS), project_types,
-            cast(List[Requirement], []))
+            cast(List[Requirement], [])
+        )
     elif len(project_types) == 1:
         project_options = project_types[0].REQUIREMENTS
     else:
         project_options = []
 
-    slurm_options = merge_slurm_options(project_options,
-                                        experiment.REQUIREMENTS)
-    slurm_options = merge_slurm_options(slurm_options,
-                                        get_slurm_options_from_config())
+    slurm_options = merge_slurm_options(
+        project_options, experiment.REQUIREMENTS
+    )
+    slurm_options = merge_slurm_options(
+        slurm_options, get_slurm_options_from_config()
+    )
 
     with open(script_name, 'w') as slurm2:
         slurm2.write(

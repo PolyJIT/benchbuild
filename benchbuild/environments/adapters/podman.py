@@ -26,7 +26,7 @@ BB_PODMAN_RM: BaseCommand = bb_podman()['rm']
 def create_container(image_id: str, container_name: str) -> str:
     container_id = str(
         BB_PODMAN_CREATE(
-            '--replace', '--name', container_name.lower(), image_id
+            '--replace', '--name', container_name.lower(), image_id.lower()
         )
     ).strip()
 

@@ -496,8 +496,8 @@ def find_config(
     if defaults is None:
         defaults = [".benchbuild.yml", ".benchbuild.yaml"]
 
-    def walk_rec(cur_path: LocalPath, root: str) -> LocalPath:
-        cur_path = local.path(root) / test_file
+    def walk_rec(cfg_name: str, root: str) -> LocalPath:
+        cur_path = local.path(root) / cfg_name
         if cur_path.exists():
             return cur_path
 

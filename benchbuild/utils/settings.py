@@ -502,7 +502,7 @@ def find_config(
             return cur_path
 
         new_root = local.path(root) / os.pardir
-        return walk_rec(cur_path, new_root) if new_root != root else None
+        return walk_rec(cfg_name, new_root) if new_root != root else None
 
     if test_file is not None:
         return walk_rec(test_file, root)

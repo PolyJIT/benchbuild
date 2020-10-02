@@ -44,7 +44,7 @@ class BenchBuildContainer(cli.Application):  # type: ignore
         }
         unknown_experiments = [
             name for name in cli_experiments
-            if name in set(discovered_experiments.keys())
+            if name not in set(discovered_experiments.keys())
         ]
 
         if unknown_experiments:

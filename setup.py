@@ -34,7 +34,7 @@ setup(
         "Jinja2~=2.10", "PyYAML~=5.1", "attrs>=19.3,<21.0", "dill~=0.3",
         "pathos~=0.2", "parse~=1.14", "pdoc3~=0.8", "plumbum~=1.6",
         "psutil~=5.6", "psycopg2-binary~=2.8", "pygit2>=1.2.1,<1.4.0", "pygtrie~=2.3",
-        "pyparsing~=2.4", "rich>=6.1,<8.0", "sqlalchemy-migrate~=0.13",
+        "pyparsing~=2.4", "rich>=6.1,<9.0", "sqlalchemy-migrate~=0.13",
         "virtualenv>=16.7,<21.0"
     ],
     author="Andreas Simbuerger",

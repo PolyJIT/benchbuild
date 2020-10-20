@@ -1,5 +1,6 @@
 import logging
 import os
+import typing as tp
 
 from plumbum.commands.base import BaseCommand
 
@@ -23,12 +24,24 @@ BB_PODMAN_CREATE: BaseCommand = bb_podman()['create']
 BB_PODMAN_RM: BaseCommand = bb_podman()['rm']
 
 
-def create_container(image_id: str, container_name: str) -> str:
-    container_id = str(
-        BB_PODMAN_CREATE(
-            '--replace', '--name', container_name.lower(), image_id.lower()
-        )
-    ).strip()
+def create_container(
+    image_id: str,
+    container_name: str,
+    mounts: tp.Optional[tp.List[str]] = None
+) -> str:
+    create_cmd = BB_PODMAN_CREATE['--replace', '--name']
+
+    if mounts:
+        for mount in mounts:
+            create_cmd = create_cmd['--mount', mount]
+
+    cfg_mounts = CFG['container']['mounts'].value()
+    if cfg_mounts:
+        for source, target in cfg_mounts:
+            create_cmd = create_cmd['--mount', f'{source}:{target}']
+
+    container_id = str(create_cmd(container_name.lower(),
+                                  image_id.lower())).strip()
 
     LOG.debug('created container: %s', container_id)
     return container_id

@@ -29,7 +29,18 @@ def create_container(
     container_name: str,
     mounts: tp.Optional[tp.List[str]] = None
 ) -> str:
-    create_cmd = BB_PODMAN_CREATE['--replace']
+    """
+    Create, but do not start, an OCI container.
+
+    Refer to 'buildah create --help' for details about mount
+    specifications and '--replace'.
+
+    Args:
+        image_id: The container image used as template.
+        container_name: The name the container will be given.
+        mounts: A list of mount specifications for the OCI runtime.
+    """
+    create_cmd = BB_PODMAN_CREATE['--replace', '--name']
 
     if mounts:
         for mount in mounts:

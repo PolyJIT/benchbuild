@@ -99,7 +99,17 @@ def update_env_layer(
     cmd(container.container_id)
 
 
-def fetch_image_env(image: model.Image):
+def fetch_image_env(image: model.Image) -> None:
+    """
+    Fetch the configured environment vars for this image.
+
+    Reconstructs an environment dictionary from the configured container
+    image enviornment. The image will be updated in-place. Existing values
+    will be overwritten.
+
+    Args:
+        image: The image to fetch the env for.
+    """
     results = json.loads(BB_BUILDAH_INSPECT(image.name))
     oci_config = {}
 

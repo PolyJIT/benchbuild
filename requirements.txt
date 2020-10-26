@@ -13,4 +13,4 @@ pyparsing~=2.4
 PyYAML~=5.3
 rich~=7.1
 sqlalchemy-migrate~=0.13
-virtualenv~=20.0
+virtualenv~=20.1

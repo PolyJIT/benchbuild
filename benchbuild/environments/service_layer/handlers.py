@@ -61,9 +61,13 @@ def create_benchbuild_base(
         return str(image.name)
 
 
-def run_experiment_images(
-    cmd: commands.RunContainer, uow: unit_of_work.AbstractUnitOfWork
+def run_project_container(
+    cmd: commands.RunProjectContainer, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
     with uow:
+        build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
+        uow.registry.temporary_mount(
+            cmd.image, cmd.build_dir, build_dir if build_dir else '.'
+        )
         container = uow.create_container(cmd.image, cmd.name)
         uow.run_container(container)

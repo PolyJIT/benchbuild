@@ -9,7 +9,7 @@ class AbstractUnitOfWork(abc.ABC):
     registry: repository.AbstractRegistry
 
     def collect_new_events(self) -> tp.Generator[events.Event, None, None]:
-        for image in self.registry.images:
+        for image in self.registry.images.values():
             while image.events:
                 yield image.events.pop(0)
 

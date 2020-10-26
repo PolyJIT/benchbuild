@@ -1,5 +1,6 @@
 import logging
 import os
+import typing as tp
 
 from plumbum.commands.base import BaseCommand
 
@@ -23,11 +24,35 @@ BB_PODMAN_CREATE: BaseCommand = bb_podman()['create']
 BB_PODMAN_RM: BaseCommand = bb_podman()['rm']
 
 
-def create_container(image_id: str, container_name: str) -> str:
+def create_container(
+    image_id: str,
+    container_name: str,
+    mounts: tp.Optional[tp.List[str]] = None
+) -> str:
+    """
+    Create, but do not start, an OCI container.
+
+    Refer to 'buildah create --help' for details about mount
+    specifications and '--replace'.
+
+    Args:
+        image_id: The container image used as template.
+        container_name: The name the container will be given.
+        mounts: A list of mount specifications for the OCI runtime.
+    """
+    create_cmd = BB_PODMAN_CREATE['--replace', '--name']
+
+    if mounts:
+        for mount in mounts:
+            create_cmd = create_cmd['--mount', mount]
+
+    cfg_mounts = list(CFG['container']['mounts'].value)
+    if cfg_mounts:
+        for source, target in cfg_mounts:
+            create_cmd = create_cmd['--mount', f'{source}:{target}']
+
     container_id = str(
-        BB_PODMAN_CREATE(
-            '--replace', '--name', container_name.lower(), image_id.lower()
-        )
+        create_cmd('--name', container_name.lower(), image_id.lower())
     ).strip()
 
     LOG.debug('created container: %s', container_id)

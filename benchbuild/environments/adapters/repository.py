@@ -9,16 +9,28 @@ from benchbuild.environments.domain import model
 
 @attr.s
 class AbstractRegistry(abc.ABC):
-    images: tp.Set[model.Image] = attr.ib(default=attr.Factory(set))
+    images: tp.Dict[str, model.Image] = attr.ib(default=attr.Factory(dict))
     build_containers: tp.Set[model.Container
                             ] = attr.ib(default=attr.Factory(set))
     containers: tp.Set[model.Container] = attr.ib(default=attr.Factory(set))
 
     def get_image(self, tag: str) -> model.MaybeImage:
-        image = self._get_image(tag)
+        if tag not in self.images:
+            image = self._get_image(tag)
+            if image:
+                self.images[tag] = image
+        return self.images[tag]
+
+    def temporary_mount(self, tag: str, source: str, target: str) -> None:
+        image = self.get_image(tag)
         if image:
-            self.images.add(image)
-        return image
+            image.mounts.append(model.Mount(source, target))
+
+    def env(self, tag: str, name: str) -> tp.Optional[str]:
+        image = self.get_image(tag)
+        if image:
+            return image.env.get(name)
+        return None
 
     def create_image(
         self, tag: str, layers: tp.List[model.Layer]
@@ -72,5 +84,10 @@ class BuildahRegistry(AbstractRegistry):
     def _create_container(
         self, image: model.Image, name: str
     ) -> model.Container:
-        container_id = podman.create_container(image.name, name)
+        mounts = [
+            f'type=bind,src={mnt.source},target={mnt.target}'
+            for mnt in image.mounts
+        ]
+
+        container_id = podman.create_container(image.name, name, mounts)
         return model.Container(container_id, image, '')

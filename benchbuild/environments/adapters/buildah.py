@@ -31,10 +31,10 @@ BB_BUILDAH_CONFIG: BaseCommand = bb_buildah()['config']
 BB_BUILDAH_COPY: BaseCommand = bb_buildah(
 )['copy'][BUILDAH_DEFAULT_COMMAND_OPTS]
 BB_BUILDAH_IMAGES: BaseCommand = bb_buildah()['images']
+BB_BUILDAH_INSPECT: BaseCommand = bb_buildah()['inspect']
 BB_BUILDAH_RUN: BaseCommand = bb_buildah()['run'][BUILDAH_DEFAULT_COMMAND_OPTS]
 BB_BUILDAH_RM: BaseCommand = bb_buildah()['rm']
 BB_BUILDAH_CLEAN: BaseCommand = bb_buildah()['clean']
-BB_BUILDAH_INSPECT: BaseCommand = bb_buildah()['inspect']
 
 
 def create_build_context() -> local.path:
@@ -99,6 +99,35 @@ def update_env_layer(
     cmd(container.container_id)
 
 
+def fetch_image_env(image: model.Image) -> None:
+    """
+    Fetch the configured environment vars for this image.
+
+    Reconstructs an environment dictionary from the configured container
+    image enviornment. The image will be updated in-place. Existing values
+    will be overwritten.
+
+    Args:
+        image: The image to fetch the env for.
+    """
+    results = json.loads(BB_BUILDAH_INSPECT(image.name))
+    oci_config = {}
+
+    try:
+        if results:
+            oci_config = results['OCIv1']['config']
+
+        if oci_config:
+            env_list = oci_config.get('Env')
+            if env_list:
+                for env_item in env_list:
+                    k, v = env_item.split('=')
+                    image.env[k] = v
+
+    except KeyError:
+        return
+
+
 def set_entry_point(
     container: model.Container, layer: model.EntryPoint
 ) -> None:
@@ -123,7 +152,9 @@ def find_image(tag: str) -> model.MaybeImage:
         json_results = json.loads(results)
         if json_results:
             #json_image = json_results.pop(0)
-            return model.Image(tag, model.FromLayer(tag), [])
+            image = model.Image(tag, model.FromLayer(tag), [])
+            fetch_image_env(image)
+            return image
     return None
 
 

@@ -8,6 +8,7 @@ from benchbuild.environments.domain import commands, declarative
 from benchbuild.environments.service_layer import messagebus, unit_of_work
 from benchbuild.experiment import ExperimentIndex
 from benchbuild.project import ProjectIndex
+from benchbuild.settings import CFG
 
 
 class BenchBuildContainer(cli.Application):  # type: ignore
@@ -124,6 +125,9 @@ def __pull_sources_in_context(prj: project.Project) -> None:
         src.version(local.cwd, str(version))
 
 
+BB_APP_ROOT: str = '/app'
+
+
 def create_project_images(projects: ProjectIndex) -> None:
     """
     Create project images for all selected projects.
@@ -134,19 +138,22 @@ def create_project_images(projects: ProjectIndex) -> None:
         projects: A project index that contains all reqquested (name, project)
                   Tuples.
     """
+    build_dir = local.path(BB_APP_ROOT) / 'results'
+
     for prj in enumerate_projects(projects):
         version = make_version_tag(*prj.variant.values())
         image_tag = make_image_name(f'{prj.name}/{prj.group}', version)
 
         layers = prj.container
         layers.context(partial(__pull_sources_in_context, prj))
-        layers.add('.', '/app')
+        layers.add('.', BB_APP_ROOT)
+        layers.run('mkdir', str(build_dir))
         layers.env(
-            BB_BUILD_DIR='/app',
-            BB_TMP_DIR='/app',
+            BB_BUILD_DIR=str(build_dir),
+            BB_TMP_DIR=BB_APP_ROOT,
             BB_PLUGINS_PROJECTS=f'["{prj.__module__}"]'
         )
-        layers.workingdir('/app')
+        layers.workingdir(BB_APP_ROOT)
 
         cmd = commands.CreateImage(image_tag, layers)
         uow = unit_of_work.ContainerImagesUOW()
@@ -223,7 +230,10 @@ def run_experiment_images(
 
             container_name = f'{exp.name}_{prj.name}_{prj.group}'
 
-            cmd = commands.RunContainer(image_tag, container_name)
+            build_dir = str(CFG['build_dir'])
+            cmd = commands.RunProjectContainer(
+                image_tag, container_name, build_dir
+            )
             uow = unit_of_work.ContainerImagesUOW()
 
             messagebus.handle(cmd, uow)

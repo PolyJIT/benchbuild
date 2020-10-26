@@ -109,6 +109,15 @@ class SetCommand(Layer):
         return f'CMD {command}'
 
 
+@attr.s(frozen=True)
+class Mount:
+    source: str = attr.ib()
+    target: str = attr.ib()
+
+    def __str__(self) -> str:
+        return f'{self.source}:{self.target}'
+
+
 @attr.s(eq=False)
 class Image:
     name: str = attr.ib()
@@ -116,6 +125,7 @@ class Image:
     layers: tp.List[Layer] = attr.ib()
     events = attr.ib(attr.Factory(list))  # type: tp.List[events.Event]
     env = attr.ib(attr.Factory(dict))  # type: tp.Dict[str, str]
+    mounts: tp.List[Mount] = attr.ib(attr.Factory(list))
 
     def update_env(self, **kwargs: str) -> None:
         self.env.update(kwargs)

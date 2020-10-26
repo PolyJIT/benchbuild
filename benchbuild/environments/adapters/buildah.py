@@ -126,7 +126,6 @@ def fetch_image_env(image: model.Image) -> None:
 
     except KeyError:
         return
-    print(image.env)
 
 
 def set_entry_point(

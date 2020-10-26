@@ -1,5 +1,3 @@
-import typing as tp
-
 import attr
 
 from . import declarative

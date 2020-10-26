@@ -1,3 +1,5 @@
+import typing as tp
+
 import attr
 
 from . import declarative
@@ -41,9 +43,11 @@ class CreateBenchbuildBase(Command):
 
 
 @attr.s(frozen=True, hash=False)
-class RunContainer(Command):
+class RunProjectContainer(Command):
     image: str = attr.ib()
     name: str = attr.ib()
+
+    build_dir: str = attr.ib()
 
 
 # pylint: enable=too-few-public-methods

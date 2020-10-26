@@ -99,5 +99,5 @@ COMMAND_HANDLERS = {
     commands.CreateImage: handlers.create_image,
     commands.UpdateImage: handlers.update_image,
     commands.CreateBenchbuildBase: handlers.create_benchbuild_base,
-    commands.RunContainer: handlers.run_experiment_images
+    commands.RunProjectContainer: handlers.run_project_container
 }

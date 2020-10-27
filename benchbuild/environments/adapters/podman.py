@@ -49,7 +49,8 @@ def create_container(
     cfg_mounts = list(CFG['container']['mounts'].value)
     if cfg_mounts:
         for source, target in cfg_mounts:
-            create_cmd = create_cmd['--mount', f'{source}:{target}']
+            create_cmd = create_cmd['--mount',
+                                    f'type=bind,src={source},target={target}']
 
     container_id = str(
         create_cmd('--name', container_name.lower(), image_id.lower())

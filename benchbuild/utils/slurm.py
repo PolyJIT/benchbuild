@@ -29,13 +29,13 @@ from benchbuild.utils.requirements import (
 LOG = logging.getLogger(__name__)
 
 
-def script(experiment: 'Experiment') -> str:
+def script(experiment: 'Experiment', *subcommands: str) -> str:
     """
     Prepare a slurm script that executes the experiment for a given project.
 
     Args:
         experiment: The experiment we want to execute
-        projects: All projects we generate an array job for.
+        *subcommands: The subcommands to call on each SLURM node.
     """
     projects = __expand_project_versions__(experiment)
     benchbuild_c = local[local.path(sys.argv[0])]
@@ -51,7 +51,7 @@ def script(experiment: 'Experiment') -> str:
         srun_args.append("--pstate-turbo=off")
 
     srun = srun[srun_args]
-    srun = srun[benchbuild_c["run"]]
+    srun = srun[benchbuild_c[subcommands]]
 
     return __save__(slurm_script, srun, experiment, projects)
 

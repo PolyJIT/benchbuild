@@ -51,6 +51,12 @@ class Slurm(cli.Application):
         """Run a group of projects under the given experiments"""
         self._group_names = groups
 
+    subcommand = cli.SwitchAttr(['-S', '--subcommand'],
+                                str,
+                                requires=['--experiment'],
+                                default='run',
+                                help='Provide a subcommand for benchbuild.')
+
     def main(self, *projects: str) -> None:
         """Main entry point of benchbuild run."""
         cli_experiment = [self._experiment]
@@ -93,4 +99,4 @@ class Slurm(cli.Application):
             CFG["slurm"]["node_dir"] = os.path.abspath(
                 os.path.join(str(CFG["slurm"]["node_dir"]), str(exp.id))
             )
-            slurm.script(exp)
+            slurm.script(exp, self.subcommand)

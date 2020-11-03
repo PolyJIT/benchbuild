@@ -40,7 +40,7 @@ def create_container(
         container_name: The name the container will be given.
         mounts: A list of mount specifications for the OCI runtime.
     """
-    create_cmd = BB_PODMAN_CREATE['--replace', '--name']
+    create_cmd = BB_PODMAN_CREATE['--replace']
 
     if mounts:
         for mount in mounts:

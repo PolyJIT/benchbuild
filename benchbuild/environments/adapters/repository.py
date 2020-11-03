@@ -15,11 +15,15 @@ class AbstractRegistry(abc.ABC):
     containers: tp.Set[model.Container] = attr.ib(default=attr.Factory(set))
 
     def get_image(self, tag: str) -> model.MaybeImage:
-        if tag not in self.images:
-            image = self._get_image(tag)
-            if image:
-                self.images[tag] = image
-        return self.images[tag]
+        if tag in self.images:
+            return self.images[tag]
+
+        image = self._get_image(tag)
+        if image:
+            self.images[tag] = image
+            return image
+
+        return None
 
     def temporary_mount(self, tag: str, source: str, target: str) -> None:
         image = self.get_image(tag)

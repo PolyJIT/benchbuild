@@ -52,9 +52,7 @@ def create_container(
             create_cmd = create_cmd['--mount',
                                     f'type=bind,src={source},target={target}']
 
-    container_id = str(
-        create_cmd('--name', container_name.lower(), image_id.lower())
-    ).strip()
+    container_id = str(create_cmd('--name', container_name, image_id)).strip()
 
     LOG.debug('created container: %s', container_id)
     return container_id

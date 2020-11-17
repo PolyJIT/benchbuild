@@ -1,7 +1,10 @@
+import logging
 import typing as tp
 
 from benchbuild.environments.domain import commands, model
 from benchbuild.environments.service_layer import unit_of_work
+
+LOG = logging.getLogger(__name__)
 
 
 def _create_build_container(
@@ -66,8 +69,13 @@ def run_project_container(
 ) -> None:
     with uow:
         build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
-        uow.registry.temporary_mount(
-            cmd.image, cmd.build_dir, build_dir if build_dir else '.'
-        )
+        if build_dir:
+            uow.registry.temporary_mount(cmd.image, cmd.build_dir, build_dir)
+        else:
+            LOG.warning(
+                'The image misses a configured "BB_BUILD_DIR" variable.'
+            )
+            LOG.warning('No result artifacts will be copied out.')
+
         container = uow.create_container(cmd.image, cmd.name)
         uow.run_container(container)

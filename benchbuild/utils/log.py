@@ -13,12 +13,12 @@ def configure_plumbum_log():
     plumbum_format = logging.Formatter('$> %(message)s')
     plumbum_hdl = logging.StreamHandler()
     plumbum_hdl.setFormatter(plumbum_format)
+
     plumbum_local = logging.getLogger("plumbum.local")
+    plumbum_local.propagate = False
     if settings.CFG["debug"]:
         plumbum_local.setLevel(logging.DEBUG)
     plumbum_local.addHandler(plumbum_hdl)
-    plumbum_format = logging.Formatter('$> %(message)s')
-    plumbum_hdl.setFormatter(plumbum_format)
 
 
 def configure_parse_log():

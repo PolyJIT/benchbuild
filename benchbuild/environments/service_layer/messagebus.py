@@ -84,6 +84,7 @@ def handle_command(
         queue.extend(uow.collect_new_events())
     except Exception:
         LOG.exception('Exception handling command %s', command)
+        raise
 
 
 EVENT_HANDLERS = {

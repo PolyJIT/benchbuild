@@ -9,7 +9,7 @@ else:
 
 
 class ImageNotFound(Exception):
-    ...
+    pass
 
 
 class NamedCommand(Protocol):

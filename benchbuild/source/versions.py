@@ -1,16 +1,15 @@
 import abc
-import itertools
 import typing as tp
 
-import attr
 import plumbum as pb
 
 from . import base
 
 
-@attr.s
-class BaseVersionGroup(base.ISource):
-    children: tp.List[base.ISource] = attr.ib()
+class BaseVersionGroup(base.Versioned):
+
+    def __init__(self, children: tp.List[base.FetchableSource]):
+        self.children = children
 
     @property
     def local(self) -> str:
@@ -45,21 +44,13 @@ class BaseVersionGroup(base.ISource):
         """
 
 
-@attr.s
-class BaseVersionFilter(base.ISource):
-    child: base.ISource = attr.ib()
+class BaseVersionFilter(base.FetchableSource):
+    child: base.FetchableSource
 
-    @property
-    def local(self) -> str:
-        return self.child.local
+    def __init__(self, child: base.FetchableSource):
+        super().__init__(child.local, child.remote)
 
-    @property
-    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
-        return self.child.remote
-
-    @property
-    def key(self) -> str:
-        return self.child.key
+        self.child = child
 
     @property
     def default(self) -> base.Variant:
@@ -85,45 +76,16 @@ class BaseVersionFilter(base.ISource):
         """
 
 
-@attr.s
 class SingleVersionFilter(BaseVersionFilter):
     """
     A simple single versions only filter.
     """
-    filter_version: str = attr.ib()
+
+    def __init__(self, child: base.FetchableSource, filter_version: str):
+        super().__init__(child)
+        self.filter_version = filter_version
 
     def versions(self) -> tp.List[base.Variant]:
         return [
             v for v in self.child.versions() if str(v) == self.filter_version
         ]
-
-
-@attr.s
-class CartesianProduct(BaseVersionGroup):
-
-    @property
-    def default(self) -> base.Variant:
-        raise NotImplementedError('No default version for cartesian product')
-
-    def version(self, target_dir: str,
-                version: tp.Iterable[str]) -> pb.LocalPath:
-        ret = []
-        for i, vers in enumerate(version):
-            child = self.children[i]
-            ret.append(child.version(target_dir, vers))
-
-        return str(ret)
-
-    def versions(self) -> tp.List[base.Variant]:
-        child_versions = [child.versions() for child in self.children]
-        return list(itertools.product(*child_versions))
-
-
-def product(*sources: base.ISource) -> base.ISource:
-    """
-    Generate cartesian product of all given variants.
-
-    Returns:
-        CartesianProduct: The cartesian product of all given variants
-    """
-    return CartesianProduct(children=list(sources))

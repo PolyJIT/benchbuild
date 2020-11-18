@@ -3,9 +3,7 @@ Declare a git source.
 """
 import typing as tp
 
-import attr
 import plumbum as pb
-from plumbum import local
 from plumbum.commands.base import BoundCommand
 
 from benchbuild.utils.cmd import git, mkdir
@@ -16,18 +14,28 @@ VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
 
 
-@attr.s
-class Git(base.BaseSource):
+class Git(base.FetchableSource):
     """
     Fetch the downloadable source via git.
     """
 
-    clone: bool = attr.ib(default=True)
-    limit: tp.Optional[int] = attr.ib(default=10)
-    refspec: str = attr.ib(default='HEAD')
-    shallow: bool = attr.ib(default=True)
-    version_filter: tp.Callable[[str],
-                                bool] = attr.ib(default=lambda version: True)
+    def __init__(
+        self,
+        remote: str,
+        local: str,
+        clone: bool = True,
+        limit: int = 10,
+        refspec: str = 'HEAD',
+        shallow: bool = True,
+        version_filter: tp.Callable[[str], bool] = lambda version: True
+    ):
+        super().__init__(local, remote)
+
+        self.clone = clone
+        self.limit = limit
+        self.refspec = refspec
+        self.shallow = shallow
+        self.version_filter = version_filter
 
     @property
     def default(self) -> base.Variant:
@@ -50,7 +58,7 @@ class Git(base.BaseSource):
         """
         prefix = base.target_prefix()
         clone = maybe_shallow(git['clone'], self.shallow)
-        cache_path = local.path(prefix) / self.local
+        cache_path = pb.local.path(prefix) / self.local
 
         if clone_needed(self.remote, cache_path):
             clone(self.remote, cache_path)
@@ -71,12 +79,12 @@ class Git(base.BaseSource):
             str: [description]
         """
         src_loc = self.fetch()
-        tgt_loc = local.path(target_dir) / self.local
+        tgt_loc = pb.local.path(target_dir) / self.local
         clone = git['clone']
         checkout = git['checkout']
 
         mkdir('-p', tgt_loc)
-        with local.cwd(tgt_loc):
+        with pb.local.cwd(tgt_loc):
             clone('--dissociate', '--reference', src_loc, self.remote, '.')
             checkout('--detach', version)
 
@@ -87,13 +95,21 @@ class Git(base.BaseSource):
         git_rev_list = git['rev-list', '--abbrev-commit', '--abbrev=10']
 
         rev_list: tp.List[str] = []
-        with local.cwd(cache_path):
+        with pb.local.cwd(cache_path):
             rev_list = list(git_rev_list(self.refspec).strip().split('\n'))
 
         rev_list = list(filter(self.version_filter, rev_list))
         rev_list = rev_list[:self.limit] if self.limit else rev_list
         revs = [base.Variant(version=rev, owner=self) for rev in rev_list]
         return revs
+
+
+class GitSubmodule(Git):
+
+    @property
+    def is_expandable(self) -> bool:
+        """Submodules will not participate in version expansion."""
+        return False
 
 
 def maybe_shallow(cmd: BoundCommand, enable: bool) -> BoundCommand:

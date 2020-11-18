@@ -42,7 +42,7 @@ LOG = logging.getLogger(__name__)
 MaybeGroupNames = tp.Optional[tp.List[str]]
 ProjectNames = tp.List[str]
 VariantContext = source.VariantContext
-Sources = tp.List[source.base.ISource]
+Sources = tp.List[source.FetchableSource]
 ContainerDeclaration = tp.Union[ContainerImage,
                                 tp.List[tp.Tuple[RevisionRange,
                                                  ContainerImage]]]
@@ -327,7 +327,7 @@ class Project(metaclass=ProjectDecorator):
             name (str): Local name of the source .
 
         Returns:
-            (Optional[BaseSource]): A source representing this variant.
+            (Optional[FetchableSource]): A source representing this variant.
         """
         variant = self.variant
         if name in variant:
@@ -343,7 +343,7 @@ class Project(metaclass=ProjectDecorator):
             name (str): Local name of the source .
 
         Returns:
-            (Optional[BaseSource]): A source representing this variant.
+            (Optional[FetchableSource]): A source representing this variant.
         """
         variant = self.variant
         if name in variant:
@@ -415,11 +415,12 @@ def __add_named_filters__(
     project: ProjectT, versions: tp.Dict[str, str]
 ) -> ProjectT:
     sources = project.SOURCE
-    named_sources: tp.Dict[str,
-                           source.base.ISource] = {s.key: s for s in sources}
+    named_sources: tp.Dict[str, source.base.FetchableSource] = {
+        s.key: s for s in sources
+    }
     for k, v in versions.items():
         if k in named_sources:
-            victim: source.base.ISource = named_sources[k]
+            victim: source.base.FetchableSource = named_sources[k]
             victim = source.SingleVersionFilter(victim, v)
             named_sources[k] = victim
     sources = list(named_sources.values())

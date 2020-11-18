@@ -29,7 +29,7 @@ class Variant:
     same way as a program variant like a specific configuraiton.
     """
 
-    owner: 'BaseSource' = attr.ib(eq=False, repr=False)
+    owner: 'FetchableSource' = attr.ib(eq=False, repr=False)
     version: str = attr.ib()
 
     def __str__(self) -> str:
@@ -61,23 +61,9 @@ def to_str(*variants: Variant) -> str:
     return ",".join([str(i) for i in variants])
 
 
-class ISource(abc.ABC):
+class Fetchable(tp.Protocol):
 
-    @abc.abstractproperty
-    def local(self) -> str:
-        """
-        The source location (path-like) after fetching it from its remote.
-        """
-        raise NotImplementedError()
-
-    @abc.abstractproperty
-    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
-        """
-        The source location in the remote location.
-        """
-        raise NotImplementedError()
-
-    @abc.abstractproperty
+    @property
     def key(self) -> str:
         """
         Return the source's key property.
@@ -88,16 +74,54 @@ class ISource(abc.ABC):
         While this make no further assumption, but a good candidate is a
         file-system name/path.
         """
-        raise NotImplementedError()
+        ...
 
-    @abc.abstractproperty
+    @property
+    def local(self) -> str:
+        """
+        The source location (path-like) after fetching it from its remote.
+        """
+        ...
+
+    @property
+    def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
+        """
+        The source location in the remote location.
+        """
+        ...
+
+
+class Expandable(tp.Protocol):
+
+    @property
+    def is_expandable(self) -> bool:
+        """
+        Returns true, if this source should take part in version expansion.
+
+        Some sources may only be treated as virtual and would not take part
+        in the version expansion of an associated project.
+        """
+        ...
+
+    def versions(self) -> tp.Iterable[Variant]:
+        """
+        List all available versions of this source.
+
+        Returns:
+            List[str]: The list of all available versions.
+        """
+        ...
+
+
+class Versioned(tp.Protocol):
+
+    @property
     def default(self) -> Variant:
         """
         The default version for this source.
         """
-        raise NotImplementedError()
+        ...
 
-    @abc.abstractmethod
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         """
         Fetch the requested version and place it in the target_dir
@@ -111,9 +135,9 @@ class ISource(abc.ABC):
         Returns:
             str: [description]
         """
-        raise NotImplementedError()
+        ...
 
-    @abc.abstractmethod
+    @property
     def versions(self) -> tp.Iterable[Variant]:
         """
         List all available versions of this source.
@@ -121,17 +145,25 @@ class ISource(abc.ABC):
         Returns:
             List[str]: The list of all available versions.
         """
-        raise NotImplementedError()
+        ...
 
 
-@attr.s
-class BaseSource(ISource):
+class FetchableSource(Fetchable, Expandable, Versioned):
     """
-    Base class for downloadable sources.
+    Base class for fetchable sources.
+
+    Subclasses have to provide the following protocols:
+      - Expandable
+      - Fetchable
+      - Versioned
     """
 
-    _local: str = attr.ib()
-    _remote: tp.Union[str, tp.Dict[str, str]] = attr.ib()
+    _local: str
+    _remote: tp.Union[str, tp.Dict[str, str]]
+
+    def __init__(self, local: str, remote: tp.Union[str, tp.Dict[str, str]]):
+        self._local = local
+        self._remote = remote
 
     @property
     def local(self) -> str:
@@ -178,12 +210,15 @@ class BaseSource(ISource):
         """
         raise NotImplementedError()
 
+    @property
+    def is_expandable(self) -> bool:
+        return True
 
-Sources = tp.List['BaseSource']
+
+Sources = tp.List['FetchableSource']
 
 
-@attr.s
-class NoSource(BaseSource):
+class NoSource(FetchableSource):
 
     @property
     def default(self) -> Variant:
@@ -197,7 +232,7 @@ class NoSource(BaseSource):
 
 
 def nosource() -> NoSource:
-    return NoSource(local='NoSource', remote='NoSource')
+    return NoSource('NoSource', 'NoSource')
 
 
 def target_prefix() -> str:
@@ -210,7 +245,7 @@ def target_prefix() -> str:
     return str(CFG['tmp_dir'])
 
 
-def default(*sources: ISource) -> VariantContext:
+def default(*sources: Versioned) -> VariantContext:
     """
     Return the collective 'default' version for the given sources.
 
@@ -221,7 +256,10 @@ def default(*sources: ISource) -> VariantContext:
     return context(*first)
 
 
-def primary(*sources: ISource) -> ISource:
+T = tp.TypeVar('T')
+
+
+def primary(*sources: T) -> T:
     """
     Return the implicit 'main' source of a project.
 
@@ -234,12 +272,12 @@ def primary(*sources: ISource) -> ISource:
     return head
 
 
-def product(*sources: ISource) -> NestedVariants:
+def product(*sources: Expandable) -> NestedVariants:
     """
     Return the cross product of the given sources.
 
     Returns:
         An iterable containing the cross product of all source variants.
     """
-    siblings = [source.versions() for source in sources]
+    siblings = [source.versions() for source in sources if source.is_expandable]
     return itertools.product(*siblings)

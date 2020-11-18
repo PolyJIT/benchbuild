@@ -2,7 +2,7 @@
 """
 Declarative API for downloading sources required by benchbuild.
 """
-from .base import BaseSource as BaseSource
+from .base import FetchableSource as FetchableSource
 from .base import Variant as Variant
 from .base import VariantContext as VariantContext
 from .base import context as context

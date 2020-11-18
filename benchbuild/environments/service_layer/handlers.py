@@ -4,6 +4,8 @@ import typing as tp
 from benchbuild.environments.domain import commands, model
 from benchbuild.environments.service_layer import unit_of_work
 
+from . import ensure
+
 LOG = logging.getLogger(__name__)
 
 
@@ -41,6 +43,8 @@ def update_image(
     Update a benchbuild image.
     """
     with uow:
+        ensure.image_exists(cmd, uow)
+
         image = _create_build_container(cmd.name, cmd.layers, uow)
         uow.commit()
 
@@ -67,7 +71,12 @@ def create_benchbuild_base(
 def run_project_container(
     cmd: commands.RunProjectContainer, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
+    """
+    Run a project container.
+    """
     with uow:
+        ensure.image_exists(cmd, uow)
+
         build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
         if build_dir:
             uow.registry.temporary_mount(cmd.image, cmd.build_dir, build_dir)

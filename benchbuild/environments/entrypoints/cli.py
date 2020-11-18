@@ -221,6 +221,10 @@ def run_experiment_images(
         experiments: Index of experiments to run.
         projects: Index of projects to run.
     """
+
+    build_dir = str(CFG['build_dir'])
+    uow = unit_of_work.ContainerImagesUOW()
+
     for exp in enumerate_experiments(experiments, projects):
         for prj in exp.projects:
             version = make_version_tag(*prj.variant.values())
@@ -230,10 +234,8 @@ def run_experiment_images(
 
             container_name = f'{exp.name}_{prj.name}_{prj.group}'
 
-            build_dir = str(CFG['build_dir'])
             cmd = commands.RunProjectContainer(
                 image_tag, container_name, build_dir
             )
-            uow = unit_of_work.ContainerImagesUOW()
 
             messagebus.handle(cmd, uow)

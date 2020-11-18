@@ -1,0 +1,26 @@
+"""Test command validation & conversion."""
+from benchbuild.environments.domain import commands, declarative
+
+
+def describe_image_commands():
+
+    def name_is_lowercase():
+        expected = ['test-1', 'test-2', 'test-3']
+
+        cmd_1 = commands.CreateBenchbuildBase(
+            'TEST-1', declarative.ContainerImage()
+        )
+        cmd_2 = commands.UpdateImage('TEST-2', declarative.ContainerImage())
+        cmd_3 = commands.CreateImage('TEST-3', declarative.ContainerImage())
+
+        assert [cmd_1.name, cmd_2.name, cmd_3.name] == expected
+
+
+def describe_container_commands():
+
+    def image_name_is_lowercase():
+        expected = ['test-1', 'containername1']
+
+        cmd_1 = commands.RunProjectContainer('TEST-1', 'ContainerName1', '')
+
+        assert [cmd_1.image, cmd_1.name] == expected

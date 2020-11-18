@@ -71,6 +71,9 @@ def create_benchbuild_base(
 def run_project_container(
     cmd: commands.RunProjectContainer, uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
+    """
+    Run a project container.
+    """
     with uow:
         ensure.image_exists(cmd, uow)
 

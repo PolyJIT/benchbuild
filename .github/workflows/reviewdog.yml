@@ -19,12 +19,11 @@ jobs:
         pip install mypy
         pip install pylint
 
-
     - name: Setup reviewdog
       run: |
         mkdir -p $HOME/bin && curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b $HOME/bin
-        echo ::add-path::$HOME/bin
-        echo ::add-path::$(go env GOPATH)/bin # for Go projects
+        echo "$HOME/bin" >> $GITHUB_PATH
+        echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
     - name: Run reviewdog
       env:

@@ -10,6 +10,15 @@ def oci_compliant_name(name: str) -> str:
     For now, we just make sure it is lower-case. This is depending on
     the implementation of your container registry. podman/buildah require
     lower-case repository names for now.
+
+    Args:
+        name: the name to convert
+
+    Examples:
+        >>> oci_compliant_name("foo")
+        'foo'
+        >>> oci_compliant_name("FoO")
+        'FoO'
     """
     # OCI Spec requires image names to be lowercase
     return name.lower()

@@ -18,7 +18,7 @@ def oci_compliant_name(name: str) -> str:
         >>> oci_compliant_name("foo")
         'foo'
         >>> oci_compliant_name("FoO")
-        'FoO'
+        'foo'
     """
     # OCI Spec requires image names to be lowercase
     return name.lower()

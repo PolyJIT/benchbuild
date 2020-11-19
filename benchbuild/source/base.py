@@ -3,12 +3,18 @@ Provide a base interface for downloadable sources.
 """
 import abc
 import itertools
+import sys
 import typing as tp
 
 import attr
 import plumbum as pb
 
 from benchbuild.settings import CFG
+
+if sys.version_info <= (3, 8):
+    from typing_extensions import Protocol
+else:
+    from typing import Protocol
 
 NestedVariants = tp.Iterable[tp.Tuple[tp.Any, ...]]
 
@@ -61,7 +67,7 @@ def to_str(*variants: Variant) -> str:
     return ",".join([str(i) for i in variants])
 
 
-class Fetchable(tp.Protocol):
+class Fetchable(Protocol):
 
     @property
     def key(self) -> str:
@@ -91,7 +97,7 @@ class Fetchable(tp.Protocol):
         ...
 
 
-class Expandable(tp.Protocol):
+class Expandable(Protocol):
 
     @property
     def is_expandable(self) -> bool:
@@ -113,7 +119,7 @@ class Expandable(tp.Protocol):
         ...
 
 
-class Versioned(tp.Protocol):
+class Versioned(Protocol):
 
     @property
     def default(self) -> Variant:

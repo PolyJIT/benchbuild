@@ -1,5 +1,6 @@
 # pylint: disable=redefined-outer-name
 import typing as tp
+from unittest import mock
 
 import attr
 import plumbum as pb
@@ -176,3 +177,22 @@ def test_single_versions_filter(make_source):
 
 def test_versions_product():
     pass
+
+
+def describe_git_submodules():
+
+    def versions_do_not_get_expanded():
+        git_repo = source.Git('remote.git', 'local.git', clone=False)
+        git_repo.versions = mock.MagicMock(name='versions')
+        git_repo.versions.return_value = ['1', '2', '3']
+
+        git_repo_sub = source.GitSubmodule(
+            'remote.sub.git', 'local.git/sub', clone=False
+        )
+        git_repo_sub.versions = mock.MagicMock(name='versions')
+        git_repo_sub.versions.return_value = ['sub1', 'sub2', 'sub3']
+
+        variants = list(source.product(git_repo, git_repo_sub))
+        expected_variants = [('1',), ('2',), ('3',)]
+
+        assert variants == expected_variants

@@ -168,6 +168,8 @@ class FetchableSource(Fetchable, Expandable, Versioned):
     _remote: tp.Union[str, tp.Dict[str, str]]
 
     def __init__(self, local: str, remote: tp.Union[str, tp.Dict[str, str]]):
+        super().__init__()
+
         self._local = local
         self._remote = remote
 

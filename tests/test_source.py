@@ -6,14 +6,21 @@ import plumbum as pb
 import pytest
 
 from benchbuild import source
-from benchbuild.source import BaseSource, Variant
+from benchbuild.source import FetchableSource, Variant
 
 Variants = tp.Iterable[Variant]
 
 
-@attr.s
-class SimpleSource(BaseSource):
+class SimpleSource(FetchableSource):
     test_versions: tp.List[str] = attr.ib()
+
+    def __init__(
+        self, local: str, remote: tp.Union[str, tp.Dict[str, str]],
+        test_versions: tp.List[str]
+    ):
+        super().__init__(local, remote)
+
+        self.test_versions = test_versions
 
     @property
     def default(self) -> Variant:
@@ -38,16 +45,16 @@ def versions_b():
 
 @pytest.fixture
 def src_a(versions_a):
-    return SimpleSource(local='src_A_local',
-                        remote='src_A_remote',
-                        test_versions=versions_a)
+    return SimpleSource(
+        local='src_A_local', remote='src_A_remote', test_versions=versions_a
+    )
 
 
 @pytest.fixture
 def src_b(versions_b):
-    return SimpleSource(local='src_B_local',
-                        remote='src_B_remote',
-                        test_versions=versions_b)
+    return SimpleSource(
+        local='src_B_local', remote='src_B_remote', test_versions=versions_b
+    )
 
 
 def test_base_context(src_a):
@@ -114,13 +121,20 @@ def test_http_download_required():
     pass
 
 
-@attr.s
-class VersionSource(source.BaseSource):
-    known_versions: tp.List[int] = attr.ib()
+class VersionSource(FetchableSource):
+    known_versions: tp.List[str]
+
+    def __init__(
+        self, local: str, remote: tp.Union[str, tp.Dict[str, str]],
+        known_versions: tp.List[str]
+    ):
+        super().__init__(local, remote)
+
+        self.known_versions = known_versions
 
     @property
     def default(self) -> Variant:
-        return Variant(owner=self, versin='1')
+        return Variant(owner=self, version='1')
 
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         return '.'
@@ -134,7 +148,7 @@ def make_source():
 
     def _make_version_source(versions: tp.List[int]):
         str_versions = [str(v) for v in versions]
-        return VersionSource('ls', 'rs', known_versions=str_versions)
+        return VersionSource('ls', 'rs', str_versions)
 
     return _make_version_source
 

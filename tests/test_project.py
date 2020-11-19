@@ -16,7 +16,7 @@ from benchbuild.project import (
     __add_single_filter__,
 )
 from benchbuild.source import (
-    BaseSource,
+    FetchableSource,
     SingleVersionFilter,
     Variant,
     nosource,
@@ -47,11 +47,18 @@ class DummyPrjEmptySource(Project):
 
 
 @pytest.fixture(params=[['1'], ['1', '2']], ids=['single', 'multi'])
-def mksource(request) -> tp.Callable[[str], BaseSource]:
+def mksource(request) -> tp.Callable[[str], FetchableSource]:
 
-    @attr.s
-    class VersionSource(BaseSource):
-        test_versions = attr.ib()
+    class VersionSource(FetchableSource):
+        test_versions: tp.List[str]
+
+        def __init__(
+            self, local: str, remote: tp.Union[str, tp.Dict[str, str]],
+            test_versions: tp.List[str]
+        ):
+            super().__init__(local, remote)
+
+            self.test_versions = test_versions
 
         @property
         def default(self):
@@ -63,13 +70,9 @@ def mksource(request) -> tp.Callable[[str], BaseSource]:
         def versions(self):
             return [Variant(self, version) for version in self.test_versions]
 
-    def source_factory(name: str = 'VersionSource') -> BaseSource:
-        cls = attr.make_class(
-            name,
-            attrs={'test_versions': attr.ib(default=request.param)},
-            bases=(VersionSource,)
-        )
-        return cls(local=name, remote='')
+    def source_factory(name: str = 'VersionSource') -> FetchableSource:
+        cls = type(name, (VersionSource,), {})
+        return cls(local=name, remote='', test_versions=request.param)
 
     return source_factory
 

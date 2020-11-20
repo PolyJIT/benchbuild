@@ -10,6 +10,7 @@ from .base import default as default
 from .base import nosource as nosource
 from .base import primary as primary
 from .base import product as product
+from .base import sources_as_dict as sources_as_dict
 from .base import to_str as to_str
 from .git import Git as Git
 from .git import GitSubmodule as GitSubmodule

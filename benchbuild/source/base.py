@@ -289,3 +289,18 @@ def product(*sources: Expandable) -> NestedVariants:
     """
     siblings = [source.versions() for source in sources if source.is_expandable]
     return itertools.product(*siblings)
+
+
+SourceContext = tp.Dict[str, Fetchable]
+
+
+def sources_as_dict(*sources: Fetchable) -> SourceContext:
+    """
+    Convert fetchables to a dictionary.
+
+    The dictionary will be indexed by the Fetchable's local attribute.
+
+    Args:
+        *sources: Fetchables stored in the dictionary.
+    """
+    return {src.local: src for src in sources}

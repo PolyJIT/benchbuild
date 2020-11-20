@@ -322,6 +322,11 @@ class Project(metaclass=ProjectDecorator):
         """
         Retrieve source for given index name.
 
+        First we try to find the given source in the configured variant index.
+        If unsuccessful, we try to find them in our configured sources. The
+        second variant picks up all sources that did not take part in
+        version expansion.
+
         Args:
             project (Project): The project to access.
             name (str): Local name of the source .
@@ -332,6 +337,11 @@ class Project(metaclass=ProjectDecorator):
         variant = self.variant
         if name in variant:
             return str(self.builddir / variant[name].owner.local)
+
+        all_sources = source.sources_as_dict(*self.source)
+        if name in all_sources:
+            return str(self.builddir / all_sources[name].local)
+
         return None
 
     def version_of(self, name: str) -> tp.Optional[str]:

@@ -85,7 +85,10 @@ class Git(base.FetchableSource):
 
         mkdir('-p', tgt_loc)
         with pb.local.cwd(tgt_loc):
-            clone('--dissociate', '--reference', src_loc, self.remote, '.')
+            clone(
+                '--dissociate', '--reference', '--recurse-submodules', src_loc,
+                self.remote, '.'
+            )
             checkout('--detach', version)
 
         return tgt_loc

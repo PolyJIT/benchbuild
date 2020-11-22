@@ -258,3 +258,31 @@ def describe_git():
         expected_variants = [('1',), ('2',), ('3',)]
 
         assert variants == expected_variants
+
+    @mock.patch('benchbuild.source.git.base.target_prefix')
+    def repo_can_be_fetched(mocked_prefix, simple_repo):
+        base_dir, repo = simple_repo
+        mocked_prefix.return_value = str(base_dir)
+
+        a_repo = source.Git(remote=repo.git_dir, local='test.git')
+        cache_path = a_repo.fetch()
+
+        assert (base_dir / 'test.git').exists()
+        assert cache_path == str(base_dir / 'test.git')
+
+    @mock.patch('benchbuild.source.git.base.target_prefix')
+    def repo_clones_submodules(mocked_prefix, repo_with_submodule):
+        base_dir, repo = repo_with_submodule
+        mocked_prefix.return_value = str(base_dir)
+
+        a_repo = source.Git(remote=repo.git_dir, local='test.git')
+        a_repo.fetch()
+
+        for submodule in repo.submodules:
+            expected_sm_path = base_dir / 'test.git' / submodule.path
+            assert expected_sm_path.exists()
+            assert expected_sm_path.list() != []
+
+    @mock.patch('benchbuild.source.git.base.target_prefix')
+    def submodule_can_coexist_with_main(mocked_prefix, repo_with_submodule):
+        pass

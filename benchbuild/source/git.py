@@ -57,7 +57,9 @@ class Git(base.FetchableSource):
             str: [description]
         """
         prefix = base.target_prefix()
-        clone = maybe_shallow(git['clone'], self.shallow)
+        clone = maybe_shallow(
+            git['clone', '--recurse-submodules'], self.shallow
+        )
         cache_path = pb.local.path(prefix) / self.local
 
         if clone_needed(self.remote, cache_path):

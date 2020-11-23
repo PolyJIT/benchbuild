@@ -284,5 +284,54 @@ def describe_git():
             assert expected_sm_path.list() != []
 
     @mock.patch('benchbuild.source.git.base.target_prefix')
-    def submodule_can_coexist_with_main(mocked_prefix, repo_with_submodule):
-        pass
+    def submodule_can_be_fetched_outside_main(
+        mocked_prefix, repo_with_submodule
+    ):
+        base_dir, repo = repo_with_submodule
+        mocked_prefix.return_value = str(base_dir)
+
+        a_repo = source.Git(remote=repo.git_dir, local='test.git')
+        a_repo.fetch()
+
+        for submodule in repo.submodules:
+            expected_sub_path = base_dir / 'outside_main.git'
+            a_sub_repo = source.GitSubmodule(
+                remote=submodule.url, local='outside_main.git'
+            )
+            a_sub_repo.fetch()
+
+            assert expected_sub_path.exists()
+            assert expected_sub_path.list() != []
+
+    @mock.patch('benchbuild.source.git.base.target_prefix')
+    def submodule_can_be_fetched_inside_fetched_main(
+        mocked_prefix, repo_with_submodule
+    ):
+        base_dir, repo = repo_with_submodule
+        mocked_prefix.return_value = str(base_dir)
+
+        a_repo = source.Git(remote=repo.git_dir, local='test.git')
+        a_repo.fetch()
+
+        for submodule in repo.submodules:
+            expected_sub_path = base_dir / 'test.git' / submodule.path
+            sub_path = f'test.git/{submodule.path}'
+            a_sub_repo = source.GitSubmodule(
+                remote=submodule.url, local=str(sub_path)
+            )
+            a_sub_repo.fetch()
+
+            assert expected_sub_path.exists()
+            assert expected_sub_path.list() != []
+
+    @mock.patch('benchbuild.source.git.base.target_prefix')
+    def repo_can_list_versions(mocked_prefix, simple_repo):
+        base_dir, repo = simple_repo
+        mocked_prefix.return_value = str(base_dir)
+        master = repo.head.reference
+
+        a_repo = source.Git(remote=repo.git_dir, local='test.git')
+        expected_versions = [v.newhexsha[0:a_repo.limit] for v in master.log()]
+        found_versions = [str(v) for v in reversed(a_repo.versions())]
+
+        assert expected_versions == found_versions

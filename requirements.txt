@@ -14,4 +14,4 @@ PyYAML~=5.3
 rich~=9.2
 sqlalchemy-migrate~=0.13
 typing-extensions~=3.7.4.3
-virtualenv~=20.1
+virtualenv~=20.2

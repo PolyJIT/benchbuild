@@ -31,10 +31,6 @@ jobs:
         pip install .
         pip install -r requirements.txt
         pip install -r test-requirements.txt
-        pip install codecov
-        pip install pytest
-        pip install pytest-cov
-        pip install pytest-describe
 
     - name: Test bootstrapping
       run: |

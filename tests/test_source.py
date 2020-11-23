@@ -294,14 +294,19 @@ def describe_git():
         a_repo.fetch()
 
         for submodule in repo.submodules:
-            expected_sub_path = base_dir / 'outside_main.git'
+            expected_sub_path_outside = base_dir / 'outside_main.git'
+            expected_sub_path_inside = base_dir / 'test.git' / submodule.path
+
             a_sub_repo = source.GitSubmodule(
                 remote=submodule.url, local='outside_main.git'
             )
             a_sub_repo.fetch()
 
-            assert expected_sub_path.exists()
-            assert expected_sub_path.list() != []
+            assert expected_sub_path_outside.exists()
+            assert expected_sub_path_outside.list() != []
+
+            assert expected_sub_path_inside.exists()
+            assert expected_sub_path_inside.list() != []
 
     @mock.patch('benchbuild.source.git.base.target_prefix')
     def submodule_can_be_fetched_inside_fetched_main(

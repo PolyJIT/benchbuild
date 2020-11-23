@@ -29,7 +29,6 @@ setup(
     package_data={"benchbuild": RESOURCES},
     include_package_data=True,
     setup_requires=["pytest-runner", "setuptools_scm"],
-    tests_require=["pytest", "pytest-describe", "testdata", "gitpython"],
     install_requires=[
         "Jinja2~=2.10", "PyYAML~=5.1", "attrs>=19.3,<21.0", "dill~=0.3",
         "pathos~=0.2", "parse~=1.14", "pdoc3~=0.8", "plumbum~=1.6",

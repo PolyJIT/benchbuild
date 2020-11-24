@@ -1,6 +1,7 @@
 """
 Declare a git source.
 """
+import os
 import typing as tp
 
 import plumbum as pb
@@ -60,7 +61,8 @@ class Git(base.FetchableSource):
         clone = maybe_shallow(
             git['clone', '--recurse-submodules'], self.shallow
         )
-        cache_path = pb.local.path(prefix) / self.local
+        flat_local = self.local.replace(os.sep, '-')
+        cache_path = pb.local.path(prefix) / flat_local
 
         if clone_needed(self.remote, cache_path):
             clone(self.remote, cache_path)

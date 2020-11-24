@@ -320,14 +320,19 @@ def describe_git():
 
         for submodule in repo.submodules:
             expected_sub_path = base_dir / 'test.git' / submodule.path
+            expected_flat_sub_path = base_dir / f'test.git-{submodule.path}'
+
             sub_path = f'test.git/{submodule.path}'
             a_sub_repo = source.GitSubmodule(
                 remote=submodule.url, local=str(sub_path)
             )
-            a_sub_repo.fetch()
+            cache_patch = a_sub_repo.fetch()
 
             assert expected_sub_path.exists()
+            assert expected_flat_sub_path.exists()
             assert expected_sub_path.list() != []
+            assert expected_flat_sub_path.list() != []
+            assert cache_patch == expected_flat_sub_path
 
     @mock.patch('benchbuild.source.git.base.target_prefix')
     def repo_can_list_versions(mocked_prefix, simple_repo):

@@ -1,6 +1,5 @@
 import tempfile as tf
 import typing as tp
-from unittest import mock
 
 import git
 import plumbum as pb

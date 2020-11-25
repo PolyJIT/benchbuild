@@ -51,6 +51,9 @@ class GitSubmoduleTestProject(bb.Project):
 def project_cls(repo_with_submodule):
     base_dir, repo = repo_with_submodule
 
+    build_dir = str(CFG['build_dir'])
+    tmp_dir = str(CFG['tmp_dir'])
+
     CFG['build_dir'] = str(base_dir)
     CFG['tmp_dir'] = str(base_dir)
 
@@ -58,7 +61,10 @@ def project_cls(repo_with_submodule):
         Git(remote=repo.git_dir, local='test.git'),
         GitSubmodule(remote=repo.submodules[0].url, local='test.git/sub.git')
     ]
-    return GitSubmoduleTestProject
+    yield GitSubmoduleTestProject
+
+    CFG['build_dir'] = build_dir
+    CFG['tmp_dir'] = tmp_dir
 
 
 def test_project_creates_variants(project_cls):

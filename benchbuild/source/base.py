@@ -264,10 +264,10 @@ def default(*sources: Versioned) -> VariantContext:
     return context(*first)
 
 
-T = tp.TypeVar('T')
+SourceT = tp.TypeVar('T')
 
 
-def primary(*sources: T) -> T:
+def primary(*sources: SourceT) -> SourceT:
     """
     Return the implicit 'main' source of a project.
 

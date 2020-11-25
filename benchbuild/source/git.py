@@ -90,7 +90,7 @@ class Git(base.FetchableSource):
         mkdir('-p', tgt_loc)
         with pb.local.cwd(tgt_loc):
             clone(
-                '--dissociate', '--reference', '--recurse-submodules', src_loc,
+                '--dissociate', '--recurse-submodules', '--reference', src_loc,
                 self.remote, '.'
             )
             checkout('--detach', version)

@@ -9,6 +9,8 @@ from . import base
 class BaseVersionGroup(base.Versioned):
 
     def __init__(self, children: tp.List[base.FetchableSource]):
+        super().__init__()
+
         self.children = children
 
     @property

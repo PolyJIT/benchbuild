@@ -264,7 +264,7 @@ def default(*sources: Versioned) -> VariantContext:
     return context(*first)
 
 
-SourceT = tp.TypeVar('T')
+SourceT = tp.TypeVar('SourceT')
 
 
 def primary(*sources: SourceT) -> SourceT:

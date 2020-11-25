@@ -56,7 +56,7 @@ evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / stateme
 bad-functions=map,filter
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=a,c,d,e,f,i,j,k,p,q,r,v,bb,cc,ex,fd,id,qr,ri,ro,rw,to,xz,cmd,cwd,env,path,Copy,CopyNoFail,From,Git,OK,Rsync,Run,Session,Svn,To,Wget,_
+good-names=a,c,d,e,f,i,j,k,p,q,r,v,bb,cc,ex,fd,id,qr,ri,ro,rw,to,xz,cmd,cwd,env,path,Copy,CopyNoFail,From,Git,OK,Rsync,Run,Session,Svn,To,Wget,_,T
 
 # Bad variable names which should always be refused, separated by a comma
 bad-names=foo,bar,baz,toto,tutu,tata
@@ -264,7 +264,7 @@ callbacks=cb_,_cb
 [CLASSES]
 
 # List of method names used to declare (i.e. assign) instance attributes.
-defining-attr-methods=__init__,__new__,setUp
+defining-attr-methods=__init__,__new__,__attrs_post_init__,setUp
 
 # List of valid names for the first argument in a class method.
 valid-classmethod-first-arg=cls
@@ -279,13 +279,13 @@ exclude-protected=_asdict,_fields,_replace,_source,_make
 
 [DESIGN]
 
-max-args=5
+max-args=8
 ignored-argument-names=_.*
 max-locals=15
 max-returns=6
 max-branches=12
 max-statements=50
-max-parents=7
+max-parents=10
 max-attributes=7
 min-public-methods=1
 max-public-methods=20

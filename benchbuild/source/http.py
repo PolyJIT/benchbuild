@@ -3,9 +3,7 @@ Declare a http source.
 """
 import typing as tp
 
-import attr
 import plumbum as pb
-from plumbum import local
 
 from benchbuild.source import base
 from benchbuild.utils.cmd import cp, wget
@@ -14,8 +12,7 @@ VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
 
 
-@attr.s
-class HTTP(base.BaseSource):
+class HTTP(base.FetchableSource):
     """
     Fetch the downloadable source via http.
     """
@@ -30,12 +27,12 @@ class HTTP(base.BaseSource):
 
         url = remotes[version]
         target_name = versioned_target_name(self.local, version)
-        cache_path = local.path(prefix) / target_name
+        cache_path = pb.local.path(prefix) / target_name
         download_single_version(url, cache_path)
 
         # FIXME: Belongs to environment code.
 
-        target_path = local.path(target_dir) / self.local
+        target_path = pb.local.path(target_dir) / self.local
         cp('-ar', cache_path, target_path)
         return target_path
 

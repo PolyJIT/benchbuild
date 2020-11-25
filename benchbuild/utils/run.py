@@ -7,17 +7,21 @@ import typing as t
 from contextlib import contextmanager
 
 import attr
-import typing_extensions as te
 from plumbum import TEE, local
 from plumbum.commands import ProcessExecutionError
 from plumbum.commands.base import BaseCommand
 
 from benchbuild import settings, signals
 
+if sys.version_info <= (3, 8):
+    from typing_extensions import Protocol
+else:
+    from typing import Protocol
+
 CommandResult = t.Tuple[int, str, str]
 
 
-class WatchableCommand(te.Protocol):
+class WatchableCommand(Protocol):
 
     def __call__(self, *args: t.Any, **kwargs: t.Any) -> CommandResult:
         ...

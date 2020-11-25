@@ -1,0 +1,6 @@
+codecov
+gitpython
+pytest
+pytest-cov
+pytest-describe
+testdata

@@ -264,7 +264,7 @@ callbacks=cb_,_cb
 [CLASSES]
 
 # List of method names used to declare (i.e. assign) instance attributes.
-defining-attr-methods=__init__,__new__,setUp
+defining-attr-methods=__init__,__new__,__attrs_post_init__,setUp
 
 # List of valid names for the first argument in a class method.
 valid-classmethod-first-arg=cls
@@ -279,13 +279,13 @@ exclude-protected=_asdict,_fields,_replace,_source,_make
 
 [DESIGN]
 
-max-args=5
+max-args=8
 ignored-argument-names=_.*
 max-locals=15
 max-returns=6
 max-branches=12
 max-statements=50
-max-parents=7
+max-parents=10
 max-attributes=7
 min-public-methods=1
 max-public-methods=20

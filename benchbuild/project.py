@@ -42,7 +42,7 @@ LOG = logging.getLogger(__name__)
 MaybeGroupNames = tp.Optional[tp.List[str]]
 ProjectNames = tp.List[str]
 VariantContext = source.VariantContext
-Sources = tp.List[source.base.ISource]
+Sources = tp.List[source.FetchableSource]
 ContainerDeclaration = tp.Union[ContainerImage,
                                 tp.List[tp.Tuple[RevisionRange,
                                                  ContainerImage]]]
@@ -322,16 +322,26 @@ class Project(metaclass=ProjectDecorator):
         """
         Retrieve source for given index name.
 
+        First we try to find the given source in the configured variant index.
+        If unsuccessful, we try to find them in our configured sources. The
+        second variant picks up all sources that did not take part in
+        version expansion.
+
         Args:
             project (Project): The project to access.
             name (str): Local name of the source .
 
         Returns:
-            (Optional[BaseSource]): A source representing this variant.
+            (Optional[FetchableSource]): A source representing this variant.
         """
         variant = self.variant
         if name in variant:
             return str(self.builddir / variant[name].owner.local)
+
+        all_sources = source.sources_as_dict(*self.source)
+        if name in all_sources:
+            return str(self.builddir / all_sources[name].local)
+
         return None
 
     def version_of(self, name: str) -> tp.Optional[str]:
@@ -343,7 +353,7 @@ class Project(metaclass=ProjectDecorator):
             name (str): Local name of the source .
 
         Returns:
-            (Optional[BaseSource]): A source representing this variant.
+            (Optional[FetchableSource]): A source representing this variant.
         """
         variant = self.variant
         if name in variant:
@@ -415,11 +425,12 @@ def __add_named_filters__(
     project: ProjectT, versions: tp.Dict[str, str]
 ) -> ProjectT:
     sources = project.SOURCE
-    named_sources: tp.Dict[str,
-                           source.base.ISource] = {s.key: s for s in sources}
+    named_sources: tp.Dict[str, source.base.FetchableSource] = {
+        s.key: s for s in sources
+    }
     for k, v in versions.items():
         if k in named_sources:
-            victim: source.base.ISource = named_sources[k]
+            victim: source.base.FetchableSource = named_sources[k]
             victim = source.SingleVersionFilter(victim, v)
             named_sources[k] = victim
     sources = list(named_sources.values())

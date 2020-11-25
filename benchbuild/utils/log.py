@@ -34,7 +34,7 @@ def configure():
         3: logging.INFO,
         2: logging.WARNING,
         1: logging.ERROR,
-        0: logging.CRITICAL
+        0: logging.ERROR
     }
 
     logging.captureWarnings(True)

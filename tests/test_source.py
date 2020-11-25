@@ -1,19 +1,30 @@
 # pylint: disable=redefined-outer-name
+import tempfile as tf
 import typing as tp
+from unittest import mock
 
 import attr
+import git
 import plumbum as pb
 import pytest
+import testdata as td
 
 from benchbuild import source
-from benchbuild.source import BaseSource, Variant
+from benchbuild.source import FetchableSource, Variant
 
 Variants = tp.Iterable[Variant]
 
 
-@attr.s
-class SimpleSource(BaseSource):
+class SimpleSource(FetchableSource):
     test_versions: tp.List[str] = attr.ib()
+
+    def __init__(
+        self, local: str, remote: tp.Union[str, tp.Dict[str, str]],
+        test_versions: tp.List[str]
+    ):
+        super().__init__(local, remote)
+
+        self.test_versions = test_versions
 
     @property
     def default(self) -> Variant:
@@ -38,16 +49,16 @@ def versions_b():
 
 @pytest.fixture
 def src_a(versions_a):
-    return SimpleSource(local='src_A_local',
-                        remote='src_A_remote',
-                        test_versions=versions_a)
+    return SimpleSource(
+        local='src_A_local', remote='src_A_remote', test_versions=versions_a
+    )
 
 
 @pytest.fixture
 def src_b(versions_b):
-    return SimpleSource(local='src_B_local',
-                        remote='src_B_remote',
-                        test_versions=versions_b)
+    return SimpleSource(
+        local='src_B_local', remote='src_B_remote', test_versions=versions_b
+    )
 
 
 def test_base_context(src_a):
@@ -114,13 +125,20 @@ def test_http_download_required():
     pass
 
 
-@attr.s
-class VersionSource(source.BaseSource):
-    known_versions: tp.List[int] = attr.ib()
+class VersionSource(FetchableSource):
+    known_versions: tp.List[str]
+
+    def __init__(
+        self, local: str, remote: tp.Union[str, tp.Dict[str, str]],
+        known_versions: tp.List[str]
+    ):
+        super().__init__(local, remote)
+
+        self.known_versions = known_versions
 
     @property
     def default(self) -> Variant:
-        return Variant(owner=self, versin='1')
+        return Variant(owner=self, version='1')
 
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         return '.'
@@ -134,7 +152,7 @@ def make_source():
 
     def _make_version_source(versions: tp.List[int]):
         str_versions = [str(v) for v in versions]
-        return VersionSource('ls', 'rs', known_versions=str_versions)
+        return VersionSource('ls', 'rs', str_versions)
 
     return _make_version_source
 
@@ -162,3 +180,109 @@ def test_single_versions_filter(make_source):
 
 def test_versions_product():
     pass
+
+
+def describe_git():
+
+    def submodule_versions_do_not_get_expanded():
+        git_repo = source.Git('remote.git', 'local.git', clone=False)
+        git_repo.versions = mock.MagicMock(name='versions')
+        git_repo.versions.return_value = ['1', '2', '3']
+
+        git_repo_sub = source.GitSubmodule(
+            'remote.sub.git', 'local.git/sub', clone=False
+        )
+        git_repo_sub.versions = mock.MagicMock(name='versions')
+        git_repo_sub.versions.return_value = ['sub1', 'sub2', 'sub3']
+
+        variants = list(source.product(git_repo, git_repo_sub))
+        expected_variants = [('1',), ('2',), ('3',)]
+
+        assert variants == expected_variants
+
+    @mock.patch('benchbuild.source.git.base.target_prefix')
+    def repo_can_be_fetched(mocked_prefix, simple_repo):
+        base_dir, repo = simple_repo
+        mocked_prefix.return_value = str(base_dir)
+
+        a_repo = source.Git(remote=repo.git_dir, local='test.git')
+        cache_path = a_repo.fetch()
+
+        assert (base_dir / 'test.git').exists()
+        assert cache_path == str(base_dir / 'test.git')
+
+    @mock.patch('benchbuild.source.git.base.target_prefix')
+    def repo_clones_submodules(mocked_prefix, repo_with_submodule):
+        base_dir, repo = repo_with_submodule
+        mocked_prefix.return_value = str(base_dir)
+
+        a_repo = source.Git(remote=repo.git_dir, local='test.git')
+        a_repo.fetch()
+
+        for submodule in repo.submodules:
+            expected_sm_path = base_dir / 'test.git' / submodule.path
+            assert expected_sm_path.exists()
+            assert expected_sm_path.list() != []
+
+    @mock.patch('benchbuild.source.git.base.target_prefix')
+    def submodule_can_be_fetched_outside_main(
+        mocked_prefix, repo_with_submodule
+    ):
+        base_dir, repo = repo_with_submodule
+        mocked_prefix.return_value = str(base_dir)
+
+        a_repo = source.Git(remote=repo.git_dir, local='test.git')
+        a_repo.fetch()
+
+        for submodule in repo.submodules:
+            expected_sub_path_outside = base_dir / 'outside_main.git'
+            expected_sub_path_inside = base_dir / 'test.git' / submodule.path
+
+            a_sub_repo = source.GitSubmodule(
+                remote=submodule.url, local='outside_main.git'
+            )
+            a_sub_repo.fetch()
+
+            assert expected_sub_path_outside.exists()
+            assert expected_sub_path_outside.list() != []
+
+            assert expected_sub_path_inside.exists()
+            assert expected_sub_path_inside.list() != []
+
+    @mock.patch('benchbuild.source.git.base.target_prefix')
+    def submodule_can_be_fetched_inside_fetched_main(
+        mocked_prefix, repo_with_submodule
+    ):
+        base_dir, repo = repo_with_submodule
+        mocked_prefix.return_value = str(base_dir)
+
+        a_repo = source.Git(remote=repo.git_dir, local='test.git')
+        a_repo.fetch()
+
+        for submodule in repo.submodules:
+            expected_sub_path = base_dir / 'test.git' / submodule.path
+            expected_flat_sub_path = base_dir / f'test.git-{submodule.path}'
+
+            sub_path = f'test.git/{submodule.path}'
+            a_sub_repo = source.GitSubmodule(
+                remote=submodule.url, local=str(sub_path)
+            )
+            cache_patch = a_sub_repo.fetch()
+
+            assert expected_sub_path.exists()
+            assert expected_flat_sub_path.exists()
+            assert expected_sub_path.list() != []
+            assert expected_flat_sub_path.list() != []
+            assert cache_patch == expected_flat_sub_path
+
+    @mock.patch('benchbuild.source.git.base.target_prefix')
+    def repo_can_list_versions(mocked_prefix, simple_repo):
+        base_dir, repo = simple_repo
+        mocked_prefix.return_value = str(base_dir)
+        master = repo.head.reference
+
+        a_repo = source.Git(remote=repo.git_dir, local='test.git')
+        expected_versions = [v.newhexsha[0:a_repo.limit] for v in master.log()]
+        found_versions = [str(v) for v in reversed(a_repo.versions())]
+
+        assert expected_versions == found_versions

@@ -172,12 +172,10 @@ class Experiment(metaclass=ExperimentRegistry):
         for prj_cls in self.projects:
             prj_actions: Actions = []
 
-            project_variants = source.product(*prj_cls.SOURCE)
-            for variant in project_variants:
-                var_context = source.context(*variant)
-                version_str = source.to_str(*variant)
+            for variant_context in self.sample(prj_cls):
+                version_str = source.to_str(*variant_context.values())
 
-                p = prj_cls(var_context)
+                p = prj_cls(variant_context)
                 p.builddir = build_dir(self, p)
                 atomic_actions: Actions = [
                     actns.Clean(p),
@@ -216,7 +214,7 @@ class Experiment(metaclass=ExperimentRegistry):
 
         if len(variants) > 0:
             return [source.context(*variants[0])]
-        raise ValueError('At least one variant is rerquired!')
+        raise ValueError('At least one variant is required!')
 
     def default_runtime_actions(self, project: Project) -> Actions:
         """Return a series of actions for a run time experiment."""

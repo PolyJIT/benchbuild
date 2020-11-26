@@ -1,5 +1,6 @@
 codecov
 gitpython
+mock
 pytest
 pytest-cov
 pytest-describe

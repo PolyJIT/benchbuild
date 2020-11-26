@@ -96,7 +96,7 @@ def test_experiment_can_sample(project_cls):
 @mock.patch('tests.e2e.test_experiment_sampling.SampleExperiment.sample')
 def test_sampling_is_used_by_benchbuild_run(mocked_sample, project_cls):
     """
-    Check, if a generate plan has used the experiment's sample method.
+    Check, if a generated plan has used the experiment's sample method.
 
     This is the path used by 'benchbuild run'
     """
@@ -115,7 +115,7 @@ def test_sampling_is_used_by_benchbuild_slurm(
     mocked_sample, tmp_path, project_cls
 ):
     """
-    Check, if a generate plan has used the experiment's sample method.
+    Check, if a generated plan has used the experiment's sample method.
 
     This is the path used by 'benchbuild slurm'
     """

@@ -1,0 +1,37 @@
+site_name: BenchBuild
+repo_url: https://github.com/PolyJIT/benchbuild
+nav:
+  - Home: index.md
+  - Basic Usage:
+      - basics/index.md
+      - basics/configuration.md
+  - Concepts:
+      - concepts/source.md
+      - concepts/environments.md
+      - concepts/projects.md
+      - concepts/experiments.md
+  - Advanced Usage:
+      - advanced/index.md
+  - API: mkapi/api/benchbuild|upper|strict
+  - About:
+    - Release Notes: CHANGELOG.md
+
+plugins:
+  - search
+  - pheasant
+  - mkapi
+
+markdown_extensions:
+  - footnotes
+  - pymdownx.details
+  - pymdownx.highlight:
+      linenums: true
+  - pymdownx.superfences
+  - admonition
+
+theme:
+  name: ivory
+  highlightjs: true
+  hljs_languages:
+    - yaml
+    - python

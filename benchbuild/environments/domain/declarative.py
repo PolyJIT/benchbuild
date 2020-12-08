@@ -1,3 +1,18 @@
+"""
+BenchBuild supports containerized execution of all experiments. This gives you
+full control about the environment your [projects](/concepts/projects/) and
+[experiments](/concepts/experiments/) may run in.
+
+Example:
+
+The following example uses the latest ``alpine:latest``
+```python
+ContainerImage().from_('alpine:latest')
+    .run('apk', 'update')
+    .run('apk', 'add', 'python3')
+```
+"""
+
 import logging
 import typing as tp
 
@@ -9,6 +24,12 @@ LOG = logging.getLogger(__name__)
 
 
 class ContainerImage(list):
+    """
+    Define a container image declaratively.
+
+    Start a new image using the ``.from_`` method and provide a base image.
+    Each method creates a new layer in the container image.
+    """
 
     @property
     def base(self) -> str:
@@ -18,38 +39,126 @@ class ContainerImage(list):
         return ''
 
     def env(self, **kwargs: str) -> 'ContainerImage':
+        """
+        Create an environment layer in this image.
+
+        Dockerfile syntax: ENV
+
+        Args:
+            kwargs (str): a dictionary containing name/value pairings to be
+                set as environment variables.
+        """
         self.append(model.UpdateEnv(kwargs))
         return self
 
     def from_(self, base_image: str) -> 'ContainerImage':
+        """
+        Specify a new base layer for this image.
+
+        Dockerfile syntax: FROM <image>
+
+        Args:
+            base_image (str): The base image for our new container image.
+        """
         self.append(model.FromLayer(base_image))
         return self
 
     def context(self, func: tp.Callable[[], None]) -> 'ContainerImage':
+        """
+        Interact with the build context of the container.
+
+        Sometimes you have to interact with the build context of a container
+        image. For example, you need to add artifacts to the build context
+        before you can add the to the container image.
+        BenchBuild uses this to add the sources to the container image
+        automatically.
+
+        Args:
+            func (tp.Callable[[], None]): A callable that is executed in the
+                build-context directory.
+        """
         self.append(model.ContextLayer(func))
         return self
 
     def add(self, sources: tp.Iterable[str], tgt: str) -> 'ContainerImage':
+        """
+        Add given files from the source to the container image.
+
+        Dockerfile syntax: ADD <source> [<source>...] <target>
+
+        Args:
+            sources (tp.Iterable[str]): Source path to add to the target
+            tgt (str): Absolute target path.
+        """
         self.append(model.AddLayer(sources, tgt))
         return self
 
     def copy_(self, sources: tp.Iterable[str], tgt: str) -> 'ContainerImage':
+        """
+        Copy given files from the source to the container image.
+
+        Dockerfile syntax: COPY <source> [<source>...] <target>
+
+        Args:
+            sources (tp.Iterable[str]): Source path to add to the target
+            tgt (str): Absolute target path.
+        """
         self.append(model.CopyLayer(sources, tgt))
         return self
 
     def run(self, command: str, *args: str, **kwargs: str) -> 'ContainerImage':
+        """
+        Run a command in the container image.
+
+        Dockerfile syntax: RUN <command>
+
+        Args:
+            command (str): The binary to execute in the container.
+            *args (str): Arguments that will be passed to the container.
+            **kwargs (str): Additional options that will be passed to the
+                backend run command.
+        """
         self.append(model.RunLayer(command, args, kwargs))
         return self
 
     def workingdir(self, directory: str) -> 'ContainerImage':
+        """
+        Change the working directory in the container.
+
+        Dockerfile syntax: WORKINGDIR <absolute-path>
+
+        All layers that follow this layer will be run with their working
+        directory set to ``directory``.
+
+        Args:
+            directory (str): The target directory to set our cwd to.
+        """
         self.append(model.WorkingDirectory(directory))
         return self
 
     def entrypoint(self, *args: str) -> 'ContainerImage':
+        """
+        Set the entrypoint of the container.
+
+        Dockerfile syntax: ENTRYPOINT <command>
+
+        This sets the default binary to run to the given command.
+
+        Args:
+            *args (str): A list of command components.
+        """
         self.append(model.EntryPoint(args))
         return self
 
     def command(self, *args: str) -> 'ContainerImage':
+        """
+        Set the default command the container runs.
+
+        Dockerfile syntax: CMD <command>
+
+        Args:
+            *args (str): A list of command components.
+        """
         self.append(model.SetCommand(args))
         return self
 

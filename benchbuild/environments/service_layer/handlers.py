@@ -43,7 +43,7 @@ def update_image(
     Update a benchbuild image.
     """
     with uow:
-        ensure.image_exists(cmd, uow)
+        ensure.image_exists(cmd.name, uow)
 
         image = _create_build_container(cmd.name, cmd.layers, uow)
         uow.commit()
@@ -75,7 +75,7 @@ def run_project_container(
     Run a project container.
     """
     with uow:
-        ensure.image_exists(cmd, uow)
+        ensure.image_exists(cmd.image, uow)
 
         build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
         if build_dir:

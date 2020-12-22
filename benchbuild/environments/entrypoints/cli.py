@@ -62,8 +62,8 @@ class BenchBuildContainer(cli.Application):  # type: ignore
             print("No projects selected.")
             return -2
 
-        create_base_images(wanted_projects)
-        create_project_images(wanted_projects)
+        create_base_images(wanted_experiments, wanted_projects)
+        create_project_images(wanted_experiments, wanted_projects)
         create_experiment_images(wanted_experiments, wanted_projects)
         run_experiment_images(wanted_experiments, wanted_projects)
 
@@ -71,12 +71,12 @@ class BenchBuildContainer(cli.Application):  # type: ignore
 
 
 def enumerate_projects(
-    projects: ProjectIndex
+    experiments: ExperimentIndex, projects: ProjectIndex
 ) -> tp.Generator[project.Project, None, None]:
-    for prj_class in projects.values():
-        for variant in source.product(*prj_class.SOURCE):
-            context = source.context(*variant)
-            yield prj_class(context)
+    for exp_class in experiments.values():
+        for prj_class in projects.values():
+            for context in exp_class.sample(prj_class):
+                yield prj_class(context)
 
 
 def make_version_tag(*versions: source.Variant) -> str:
@@ -87,7 +87,9 @@ def make_image_name(name: str, tag: str) -> str:
     return f'{name}:{tag}'
 
 
-def create_base_images(projects: ProjectIndex) -> None:
+def create_base_images(
+    experiments: ExperimentIndex, projects: ProjectIndex
+) -> None:
     """
     Create base images requested by all selected projects.
 
@@ -101,7 +103,7 @@ def create_base_images(projects: ProjectIndex) -> None:
     """
     image_commands: tp.Set[commands.Command] = set()
 
-    for prj in enumerate_projects(projects):
+    for prj in enumerate_projects(experiments, projects):
         image = prj.container
         if not image.base in declarative.DEFAULT_BASES:
             continue
@@ -128,7 +130,9 @@ def __pull_sources_in_context(prj: project.Project) -> None:
 BB_APP_ROOT: str = '/app'
 
 
-def create_project_images(projects: ProjectIndex) -> None:
+def create_project_images(
+    experiments: ExperimentIndex, projects: ProjectIndex
+) -> None:
     """
     Create project images for all selected projects.
 
@@ -140,7 +144,7 @@ def create_project_images(projects: ProjectIndex) -> None:
     """
     build_dir = local.path(BB_APP_ROOT) / 'results'
 
-    for prj in enumerate_projects(projects):
+    for prj in enumerate_projects(experiments, projects):
         version = make_version_tag(*prj.variant.values())
         image_tag = make_image_name(f'{prj.name}/{prj.group}', version)
 
@@ -164,7 +168,7 @@ def enumerate_experiments(
     experiments: ExperimentIndex, projects: ProjectIndex
 ) -> tp.Generator[experiment.Experiment, None, None]:
     for exp_class in experiments.values():
-        prjs = list(enumerate_projects(projects))
+        prjs = list(enumerate_projects(experiments, projects))
         yield exp_class(projects=prjs)
 
 

@@ -23,19 +23,23 @@ class ErrorCommand(LocalCommand):
     without the entire study to crash.
     The experiment will fail anyway, but without the entire programm crashing.
     """
+    EXE = __name__ + ".error_cmd"
 
     def run(self, *args, **kwargs):
         """Simply raises the AttributeError for a missing command."""
         LOG.error("Unable to import a needed module.")
-        raise AttributeError(__name__ + ".cmd")
+        raise AttributeError(self.EXE)
 
     def popen(self, *args, **kwargs):
         """Simply raises the AttributeError for a missing command."""
         LOG.error("Unable to import a needed module.")
-        raise AttributeError(__name__ + ".cmd")
+        raise AttributeError(self.EXE)
+
+    def __len__(self) -> int:
+        return len(self.EXE)
 
 
-ERROR = ErrorCommand(__name__ + ".cmd", ErrorCommand.__doc__)
+ERROR = ErrorCommand(__name__ + ".cmd")
 
 
 class CommandAlias(ModuleType):

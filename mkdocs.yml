@@ -1,0 +1,44 @@
+site_name: BenchBuild
+site_description: Empirical-Research Toolkit
+site_author: simbuerg
+site_url: https://polyjit.github.io/benchbuild
+repo_url: https://github.com/PolyJIT/benchbuild
+edit_uri: ""
+
+nav:
+  - index.md
+  - Getting Started:
+      - basics/index.md
+      - basics/configuration.md
+  - Concepts:
+      - concepts/source.md
+      - concepts/environments.md
+      - concepts/projects.md
+      - concepts/experiments.md
+  - Advanced Usage:
+      - advanced/index.md
+  #- API: mkapi/api/benchbuild
+  - About:
+    - Release Notes: CHANGELOG.md
+
+plugins:
+  - search
+  - pheasant
+  - mkapi
+
+markdown_extensions:
+  - footnotes
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - admonition
+
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_style: github
+  hljs_languages:
+    - bash
+    - json
+    - python
+    - yaml

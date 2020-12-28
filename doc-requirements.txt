@@ -1,0 +1,4 @@
+-e git+https://github.com/simbuerg/mkapi#egg=mkapi
+mkdocs
+pheasant
+pymdown-extensions

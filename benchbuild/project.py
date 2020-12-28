@@ -167,7 +167,7 @@ class Project(metaclass=ProjectDecorator):
             implementation using `benchbuild.utils.wrapping.wrap`.
             Defaults to None.
     """
-    CONTAINER: tp.ClassVar[ContainerDeclaration]
+    CONTAINER: tp.ClassVar[ContainerDeclaration] = ContainerImage()
     DOMAIN: tp.ClassVar[str] = ""
     GROUP: tp.ClassVar[str] = ""
     NAME: tp.ClassVar[str] = ""
@@ -192,6 +192,7 @@ class Project(metaclass=ProjectDecorator):
             raise AttributeError(
                 f'{mod_ident} does not define a GROUP class attribute.'
             )
+
         return new_self
 
     variant: VariantContext = attr.ib()

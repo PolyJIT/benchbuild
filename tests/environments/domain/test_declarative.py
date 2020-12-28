@@ -7,6 +7,15 @@ from benchbuild.environments.domain import model as m
 
 def describe_container_image():
 
+    def default_is_false():
+        img = decl.ContainerImage()
+        assert not bool(img)
+
+    def layer_is_true():
+        img = decl.ContainerImage()
+        img.from_('base')
+        assert bool(img)
+
     def can_model_from():
         img = decl.ContainerImage()
         img.from_('base')

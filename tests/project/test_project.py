@@ -46,6 +46,16 @@ class DummyPrjEmptySource(Project):
         raise NotImplementedError()
 
 
+class DummyPrjNoContainerImage(Project):
+    NAME = 'TestPrjNoContainer'
+    DOMAIN = 'TestDom'
+    GROUP = 'TestGrp'
+    SOURCE = [nosource()]
+
+    def run_tests(self):
+        raise NotImplementedError()
+
+
 @pytest.fixture(params=[['1'], ['1', '2']], ids=['single', 'multi'])
 def mksource(request) -> tp.Callable[[str], FetchableSource]:
 
@@ -194,6 +204,7 @@ def describe_default_projects():
     def prj_cls(request):
         return request.param
 
-    def all_have_container_classvar(prj_cls):
-        assert isinstance(prj_cls.CONTAINER, declarative.ContainerImage)
-        assert prj_cls.CONTAINER is not None
+    def containerimage_is_optional_on_subclass(prj_cls):
+        if not hasattr(prj_cls, 'CONTAINER'):
+            prj = prj_cls()
+            assert prj.container is not None

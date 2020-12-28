@@ -76,7 +76,9 @@ def enumerate_projects(
     for exp_class in experiments.values():
         for prj_class in projects.values():
             for context in exp_class.sample(prj_class):
-                yield prj_class(context)
+                prj = prj_class(context)
+                if prj.container:
+                    yield prj
 
 
 def make_version_tag(*versions: source.Variant) -> str:

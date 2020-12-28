@@ -106,9 +106,10 @@ jobs:
         path: ./.coverage.integration
 
     - run: |
+        ls -a .
         python -m pip install --upgrade pip wheel
         pip install coverage
-        coverage combine .coverage.integration .coverage.unittests
+        coverage combine ./.coverage.integration ./.coverage.unittests
         coverage xml
 
     - name: Upload coverage report

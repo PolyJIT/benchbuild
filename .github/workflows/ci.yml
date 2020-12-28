@@ -33,7 +33,7 @@ jobs:
 
     - name: Test bootstrapping
       run: |
-        coverage run benchbuild bootstrap -s
+        coverage run `which benchbuild` bootstrap -s
 
     - name: Run unittests
       run: |

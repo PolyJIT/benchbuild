@@ -72,17 +72,13 @@ jobs:
         name: coverage-data
         path: ./.coverage
 
-    - name: Test bootstrapping
+    - name: Run integration tests
+        #coverage run -p `which benchbuild` config view
+        #coverage run -p `which benchbuild` project view
+        #coverage run -p `which benchbuild` experiment view
+        #coverage run -p `which benchbuild` -vvvvv run --full test
       run: |
         coverage run -p `which benchbuild` bootstrap -s
-
-    - name: Run integration tests
-      run: |
-
-        coverage run -p `which benchbuild` config view
-        coverage run -p `which benchbuild` project view
-        coverage run -p `which benchbuild` experiment view
-        coverage run -p `which benchbuild` -vvvvv run --full test
         coverage run -p `which benchbuild` -vvvvv slurm -E empty test
         coverage combine -a
 

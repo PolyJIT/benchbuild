@@ -31,10 +31,6 @@ jobs:
         pip install -r requirements.txt
         pip install -r test-requirements.txt
 
-    - name: Test bootstrapping
-      run: |
-        coverage run `which benchbuild` bootstrap -s
-
     - name: Run unittests
       run: |
         pytest --cov-append --cov-config=./.coveragerc --cov=benchbuild benchbuild tests
@@ -76,8 +72,13 @@ jobs:
         name: coverage-data
         path: ./.coverage
 
+    - name: Test bootstrapping
+      run: |
+        coverage run -p `which benchbuild` bootstrap -s
+
     - name: Run integration tests
       run: |
+
         coverage run -p `which benchbuild` config view
         coverage run -p `which benchbuild` project view
         coverage run -p `which benchbuild` experiment view

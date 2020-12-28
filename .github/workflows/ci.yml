@@ -1,5 +1,4 @@
-name: Python CI
-
+name: ci
 on:
   push:
     branches: [ master ]
@@ -7,7 +6,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
     strategy:
       matrix:

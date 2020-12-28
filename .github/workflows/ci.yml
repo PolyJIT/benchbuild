@@ -106,7 +106,7 @@ jobs:
         path: ./.coverage.integration
 
     - run: |
-        ls -a .
+        ls -lah .
         python -m pip install --upgrade pip wheel
         pip install coverage
         coverage combine ./.coverage.integration ./.coverage.unittests

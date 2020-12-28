@@ -17,8 +17,7 @@ nav:
       - concepts/experiments.md
   - Advanced Usage:
       - advanced/index.md
-
-  - API: mkapi/api/benchbuild
+  #- API: mkapi/api/benchbuild
   - About:
     - Release Notes: CHANGELOG.md
 

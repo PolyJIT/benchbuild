@@ -12,3 +12,6 @@ __pycache__/
 .ipynb_checkpoints/
 .mypy_cache/
 .pytest_cache/
+.python-version
+.vim/coc-settings.json
+.pheasant_cache/

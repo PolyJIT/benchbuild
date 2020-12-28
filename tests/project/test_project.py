@@ -47,7 +47,7 @@ class DummyPrjEmptySource(Project):
 
 
 class DummyPrjNoContainerImage(Project):
-    NAME = 'TestPrj'
+    NAME = 'TestPrjNoContainer'
     DOMAIN = 'TestDom'
     GROUP = 'TestGrp'
     SOURCE = [nosource()]

@@ -38,7 +38,6 @@ jobs:
     - name: Run unittests
       run: |
         pytest --cov-append --cov-config=./.coveragerc --cov=benchbuild benchbuild tests
-        coverage combine -a
 
     - uses: actions/upload-artifact@master
       with:

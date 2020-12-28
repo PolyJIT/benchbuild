@@ -92,7 +92,7 @@ jobs:
         path: ./coverage
 
   upload_coverage:
-    needs: [unittest, integration]
+    needs: [unittests, integration]
     runs-on: ubuntu-latest
     strategy:
       matrix:

@@ -25,7 +25,7 @@ class Git(base.FetchableSource):
         remote: str,
         local: str,
         clone: bool = True,
-        limit: int = 10,
+        limit: tp.Optional[int] = 10,
         refspec: str = 'HEAD',
         shallow: bool = True,
         version_filter: tp.Callable[[str], bool] = lambda version: True

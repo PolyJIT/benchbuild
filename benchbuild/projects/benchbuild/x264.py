@@ -52,7 +52,10 @@ class X264(bb.Project):
 
     def run_tests(self):
         x264_repo = local.path(self.source_of('x264.git'))
-        inputfiles = [self.source_of('tbbt-small'), self.source_of('sintel')]
+        inputfiles = [
+            self.source_of('tbbt-small.y4m'),
+            self.source_of('sintel.raw')
+        ]
 
         x264 = bb.wrap(x264_repo / "x264", self)
         tests = [

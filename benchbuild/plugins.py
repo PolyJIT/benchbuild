@@ -32,7 +32,6 @@ def discover() -> None:
         for plugin in itertools.chain(experiment_plugins, project_plugins):
             try:
                 importlib.import_module(plugin)
-                LOG.info('Found report: %s', str(plugin))
             except ImportError as import_error:
                 LOG.error("Could not find '%s'", import_error.name)
                 LOG.debug("ImportError: %s", import_error)

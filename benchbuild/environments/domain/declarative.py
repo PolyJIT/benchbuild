@@ -165,7 +165,7 @@ class ContainerImage(list):
 
 DEFAULT_BASES: tp.Dict[str, ContainerImage] = {
     'benchbuild:alpine': ContainerImage() \
-            .from_("alpine:latest") \
+            .from_("alpine:edge") \
             .run('apk', 'update') \
             .run('apk', 'add', 'python3', 'python3-dev', 'postgresql-dev',
                  'linux-headers', 'musl-dev', 'git', 'gcc', 'sqlite-libs',

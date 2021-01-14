@@ -1,7 +1,7 @@
 attrs~=20.3
 dill~=0.3
 Jinja2~=2.11
-parse~=1.18
+parse~=1.19
 pathos~=0.2
 plumbum~=1.6
 psutil~=5.8

@@ -31,6 +31,13 @@ class BenchBuildContainer(cli.Application):  # type: ignore
     def set_group(self, groups: tp.List[str]) -> None:  # type: ignore
         self.group_args = groups
 
+    image_export = cli.Flag(['export'],
+                            default=False,
+                            help="Export container images to EXPORT_DIR")
+    image_import = cli.Flag(['import'],
+                            default=False,
+                            help="Import container images from EXPORT_DIR")
+
     def main(self, *projects: str) -> int:
         plugins.discover()
 
@@ -62,7 +69,10 @@ class BenchBuildContainer(cli.Application):  # type: ignore
             print("No projects selected.")
             return -2
 
-        create_base_images(wanted_experiments, wanted_projects)
+        create_base_images(
+            wanted_experiments, wanted_projects, self.image_export,
+            self.image_import
+        )
         create_project_images(wanted_experiments, wanted_projects)
         create_experiment_images(wanted_experiments, wanted_projects)
         run_experiment_images(wanted_experiments, wanted_projects)
@@ -89,8 +99,35 @@ def make_image_name(name: str, tag: str) -> str:
     return f'{name}:{tag}'
 
 
+def export_image(image_name: str) -> None:
+    """
+    Export the image layers to the filesystem.
+    """
+    uow = unit_of_work.ContainerImagesUOW()
+    export_name = commands.fs_compliant_name(image_name)
+    export_path = local.path(
+        CFG["container"]["export"].value
+    ) / export_name + ".tar"
+    export_cmd = commands.ExportImage(image_name, str(export_path))
+    messagebus.handle(export_cmd, uow)
+
+
+def import_image(image_name: str) -> None:
+    """
+    Import the image layers to the registry.
+    """
+    uow = unit_of_work.ContainerImagesUOW()
+    import_name = commands.fs_compliant_name(image_name)
+    import_path = local.path(
+        CFG["container"]["import"].value
+    ) / import_name + ".tar"
+    import_cmd = commands.ImportImage(image_name, str(import_path))
+    messagebus.handle(import_cmd, uow)
+
+
 def create_base_images(
-    experiments: ExperimentIndex, projects: ProjectIndex
+    experiments: ExperimentIndex, projects: ProjectIndex, do_export: bool,
+    do_import: bool
 ) -> None:
     """
     Create base images requested by all selected projects.
@@ -103,7 +140,7 @@ def create_base_images(
         projects: A project index that contains all reqquested (name, project)
                   Tuples.
     """
-    image_commands: tp.Set[commands.Command] = set()
+    image_commands: tp.Set[commands.CreateBenchbuildBase] = set()
 
     for prj in enumerate_projects(experiments, projects):
         image = prj.container
@@ -113,14 +150,17 @@ def create_base_images(
         layers = declarative.DEFAULT_BASES[image.base]
         declarative.add_benchbuild_layers(layers)
 
-        cmd: commands.Command = commands.CreateBenchbuildBase(
-            image.base, layers
-        )
-        image_commands.add(cmd)
+        image_commands.add(commands.CreateBenchbuildBase(image.base, layers))
 
     for cmd in image_commands:
         uow = unit_of_work.ContainerImagesUOW()
+        if do_import:
+            import_image(cmd.name)
+
         messagebus.handle(cmd, uow)
+
+        if do_export:
+            export_image(cmd.name)
 
 
 def __pull_sources_in_context(prj: project.Project) -> None:

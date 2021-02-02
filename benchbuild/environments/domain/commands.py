@@ -1,6 +1,21 @@
+import re
+import unicodedata
+
 import attr
 
 from . import declarative
+
+
+def fs_compliant_name(name: str) -> str:
+    """
+    Convert a name to a valid filename.
+    """
+    value = str(name)
+    value = unicodedata.normalize('NFKD',
+                                  value).encode('ascii',
+                                                'ignore').decode('ascii')
+    value = re.sub(r'[^\w\s-]', '', value.lower())
+    return re.sub(r'[-\s]+', '-', value).strip('-_')
 
 
 def oci_compliant_name(name: str) -> str:
@@ -68,6 +83,18 @@ class RunProjectContainer(Command):
     name: str = attr.ib(converter=oci_compliant_name)
 
     build_dir: str = attr.ib()
+
+
+@attr.s(frozen=True, hash=False)
+class ExportImage(Command):
+    image: str = attr.ib(converter=oci_compliant_name)
+    out_name: str = attr.ib()
+
+
+@attr.s(frozen=True, hash=False)
+class ImportImage(Command):
+    image: str = attr.ib(converter=oci_compliant_name)
+    in_path: str = attr.ib()
 
 
 # pylint: enable=too-few-public-methods

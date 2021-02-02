@@ -2,10 +2,11 @@ import logging
 import os
 import typing as tp
 
+from plumbum import local
 from plumbum.commands.base import BaseCommand
 
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import podman
+from benchbuild.utils.cmd import podman, rm
 
 LOG = logging.getLogger(__name__)
 
@@ -52,6 +53,16 @@ def create_container(
 
     LOG.debug('created container: %s', container_id)
     return container_id
+
+
+def save(image_id: str, out_path: str) -> None:
+    if local.path(out_path).exists():
+        rm(out_path)
+    bb_podman('save')('-o', out_path, image_id)
+
+
+def load(image_name: str, load_path: str) -> None:
+    bb_podman('load')('-i', load_path, image_name)
 
 
 def run_container(name: str) -> None:

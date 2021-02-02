@@ -69,6 +69,18 @@ class AbstractRegistry(abc.ABC):
         raise NotImplementedError
 
 
+class ImageRegistry:
+
+    def create(self, tag: str, layers: tp.List[model.Layer]) -> model.Container:
+        from_ = [l for l in layers if isinstance(l, model.FromLayer)].pop(0)
+        image = model.Image(tag, from_, [])
+
+        container_id = buildah.create_working_container(image.from_)
+        context = buildah.create_build_context()
+
+        return model.Container(container_id, image, context)
+
+
 @attr.s
 class BuildahRegistry(AbstractRegistry):
 

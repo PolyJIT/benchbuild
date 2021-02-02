@@ -88,3 +88,25 @@ def run_project_container(
 
         container = uow.create_container(cmd.image, cmd.name)
         uow.run_container(container)
+
+
+def export_image_handler(
+    cmd: commands.ExportImage, uow: unit_of_work.AbstractUnitOfWork
+) -> None:
+    """
+    Export a container image.
+    """
+    with uow:
+        ensure.image_exists(cmd.image, uow)
+        image = uow.registry.get_image(cmd.image)
+        uow.export_image(image.name, cmd.out_name)
+
+
+def import_image_handler(
+    cmd: commands.ImportImage, uow: unit_of_work.AbstractUnitOfWork
+) -> None:
+    """
+    Import a container image.
+    """
+    with uow:
+        uow.import_image(cmd.image, cmd.in_path)

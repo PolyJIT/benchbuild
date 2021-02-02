@@ -310,6 +310,18 @@ CFG["plugins"] = {
 }
 
 CFG["container"] = {
+    "export": {
+        "default":
+            s.ConfigPath(os.path.join(os.getcwd(), "containers", "export")),
+        "desc":
+            "Export path for container images."
+    },
+    "import": {
+        "default":
+            s.ConfigPath(os.path.join(os.getcwd(), "containers", "export")),
+        "desc":
+            "Import path for container images."
+    },
     "from_source": {
         "default": False,
         "desc": "Install benchbuild from source or from pip (default)"

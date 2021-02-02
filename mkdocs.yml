@@ -10,6 +10,7 @@ nav:
   - Getting Started:
       - basics/index.md
       - basics/configuration.md
+      - basics/containers.md
   - Concepts:
       - concepts/source.md
       - concepts/environments.md

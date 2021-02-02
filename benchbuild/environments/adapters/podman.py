@@ -8,20 +8,16 @@ from benchbuild.settings import CFG
 from benchbuild.utils.cmd import podman
 
 LOG = logging.getLogger(__name__)
-PODMAN_DEFAULT_OPTS = [
-    '--root',
-    os.path.abspath(str(CFG['container']['root'])), '--runroot',
-    os.path.abspath(str(CFG['container']['runroot']))
-]
 
 
-def bb_podman() -> BaseCommand:
-    return podman[PODMAN_DEFAULT_OPTS]
-
-
-BB_PODMAN_CONTAINER_START: BaseCommand = bb_podman()['container', 'start']
-BB_PODMAN_CREATE: BaseCommand = bb_podman()['create']
-BB_PODMAN_RM: BaseCommand = bb_podman()['rm']
+def bb_podman(*args: str) -> BaseCommand:
+    opts = [
+        '--root',
+        os.path.abspath(str(CFG['container']['root'])), '--runroot',
+        os.path.abspath(str(CFG['container']['runroot']))
+    ]
+    cmd = podman[opts]
+    return cmd[args]
 
 
 def create_container(
@@ -40,11 +36,11 @@ def create_container(
         container_name: The name the container will be given.
         mounts: A list of mount specifications for the OCI runtime.
     """
-    create_cmd = BB_PODMAN_CREATE['--replace']
+    podman_create = bb_podman('create', '--replace')
 
     if mounts:
         for mount in mounts:
-            create_cmd = create_cmd['--mount', mount]
+            create_cmd = podman_create['--mount', mount]
 
     cfg_mounts = list(CFG['container']['mounts'].value)
     if cfg_mounts:
@@ -60,8 +56,10 @@ def create_container(
 
 def run_container(name: str) -> None:
     LOG.debug('running container: %s', name)
-    BB_PODMAN_CONTAINER_START['-ai', name].run_tee()
+    container_start = bb_podman('container', 'start')
+    container_start['-ai', name].run_tee()
 
 
 def remove_container(container_id: str) -> None:
-    BB_PODMAN_RM(container_id)
+    podman_rm = bb_podman('rm')
+    podman_rm(container_id)

@@ -10,31 +10,15 @@ from benchbuild.environments.domain import model
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import buildah, mktemp
 
-BUILDAH_DEFAULT_OPTS = [
-    '--root',
-    os.path.abspath(str(CFG['container']['root'])), '--runroot',
-    os.path.abspath(str(CFG['container']['runroot']))
-]
 
-BUILDAH_DEFAULT_COMMAND_OPTS = ['--add-history']
-
-
-def bb_buildah() -> BaseCommand:
-    return buildah[BUILDAH_DEFAULT_OPTS]
-
-
-BB_BUILDAH_FROM: BaseCommand = bb_buildah()['from']
-BB_BUILDAH_BUD: BaseCommand = bb_buildah()['bud']
-BB_BUILDAH_ADD: BaseCommand = bb_buildah()['add'][BUILDAH_DEFAULT_COMMAND_OPTS]
-BB_BUILDAH_COMMIT: BaseCommand = bb_buildah()['commit']
-BB_BUILDAH_CONFIG: BaseCommand = bb_buildah()['config']
-BB_BUILDAH_COPY: BaseCommand = bb_buildah(
-)['copy'][BUILDAH_DEFAULT_COMMAND_OPTS]
-BB_BUILDAH_IMAGES: BaseCommand = bb_buildah()['images']
-BB_BUILDAH_INSPECT: BaseCommand = bb_buildah()['inspect']
-BB_BUILDAH_RUN: BaseCommand = bb_buildah()['run'][BUILDAH_DEFAULT_COMMAND_OPTS]
-BB_BUILDAH_RM: BaseCommand = bb_buildah()['rm']
-BB_BUILDAH_CLEAN: BaseCommand = bb_buildah()['clean']
+def bb_buildah(*args: str) -> BaseCommand:
+    opts = [
+        '--root',
+        os.path.abspath(str(CFG['container']['root'])), '--runroot',
+        os.path.abspath(str(CFG['container']['runroot']))
+    ]
+    cmd = buildah[opts]
+    return cmd[args]
 
 
 def create_build_context() -> local.path:
@@ -47,16 +31,16 @@ def destroy_build_context(context: local.path) -> None:
 
 
 def create_working_container(from_image: model.FromLayer) -> str:
-    return str(BB_BUILDAH_FROM(from_image.base)).strip()
+    return str(bb_buildah('from')(from_image.base)).strip()
 
 
 def destroy_working_container(container: model.Container) -> None:
-    BB_BUILDAH_RM(container.container_id)
+    bb_buildah('rm')(container.container_id)
 
 
 def commit_working_container(container: model.Container) -> None:
     image = container.image
-    BB_BUILDAH_COMMIT(container.container_id, image.name.lower())
+    bb_buildah('commit')(container.container_id, image.name.lower())
 
 
 def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
@@ -64,8 +48,10 @@ def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
         sources = [
             os.path.join(container.context, source) for source in layer.sources
         ]
-        cmd = BB_BUILDAH_ADD[container.container_id][sources][layer.destination]
-        cmd()
+        buildah_add = bb_buildah('add', '--add-history')
+        buildah_add = buildah_add[container.container_id][sources][
+            layer.destination]
+        buildah_add()
 
 
 def spawn_copy_layer(container: model.Container, layer: model.AddLayer) -> None:
@@ -78,9 +64,10 @@ def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
         kws.append(f'--{name}')
         kws.append(f'{str(value)}')
 
-    cmd = BB_BUILDAH_RUN[kws][container.container_id, '--',
-                              layer.command][layer.args]
-    cmd()
+    buildah_run = bb_buildah('run', '--add-history')
+    buildah_run = buildah_run[kws][container.container_id, '--',
+                                   layer.command][layer.args]
+    buildah_run()
 
 
 def spawn_in_context(
@@ -93,10 +80,10 @@ def spawn_in_context(
 def update_env_layer(
     container: model.Container, layer: model.UpdateEnv
 ) -> None:
-    cmd = BB_BUILDAH_CONFIG
+    buildah_config = bb_buildah('config')
     for key, value in layer.env.items():
-        cmd = cmd['-e', f'{key}={value}']
-    cmd(container.container_id)
+        buildah_config = buildah_config['-e', f'{key}={value}']
+    buildah_config(container.container_id)
 
 
 def fetch_image_env(image: model.Image) -> None:
@@ -110,7 +97,8 @@ def fetch_image_env(image: model.Image) -> None:
     Args:
         image: The image to fetch the env for.
     """
-    results = json.loads(BB_BUILDAH_INSPECT(image.name))
+    buildah_inspect = bb_buildah('inspect')
+    results = json.loads(buildah_inspect(image.name))
     oci_config = {}
 
     try:
@@ -131,23 +119,24 @@ def fetch_image_env(image: model.Image) -> None:
 def set_entry_point(
     container: model.Container, layer: model.EntryPoint
 ) -> None:
-    cmd = BB_BUILDAH_CONFIG['--entrypoint', json.dumps(list(layer.command))]
+    cmd = bb_buildah('config')['--entrypoint', json.dumps(list(layer.command))]
     cmd(container.container_id)
 
 
 def set_command(container: model.Container, layer: model.SetCommand) -> None:
-    cmd = BB_BUILDAH_CONFIG['--cmd', json.dumps(list(layer.command))]
+    cmd = bb_buildah('config')['--cmd', json.dumps(list(layer.command))]
     cmd(container.container_id)
 
 
 def set_working_directory(
     container: model.Container, layer: model.WorkingDirectory
 ) -> None:
-    BB_BUILDAH_CONFIG('--workingdir', layer.directory, container.container_id)
+    bb_buildah('config'
+              )('--workingdir', layer.directory, container.container_id)
 
 
 def find_image(tag: str) -> model.MaybeImage:
-    results = BB_BUILDAH_IMAGES('--json', tag.lower(), retcode=[0, 125])
+    results = bb_buildah('images')('--json', tag.lower(), retcode=[0, 125])
     if results:
         json_results = json.loads(results)
         if json_results:

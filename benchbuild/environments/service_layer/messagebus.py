@@ -100,5 +100,7 @@ COMMAND_HANDLERS = {
     commands.CreateImage: handlers.create_image,
     commands.UpdateImage: handlers.update_image,
     commands.CreateBenchbuildBase: handlers.create_benchbuild_base,
-    commands.RunProjectContainer: handlers.run_project_container
+    commands.RunProjectContainer: handlers.run_project_container,
+    commands.ExportImage: handlers.export_image_handler,
+    commands.ImportImage: handlers.import_image_handler
 }

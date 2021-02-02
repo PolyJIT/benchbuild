@@ -32,6 +32,12 @@ class AbstractUnitOfWork(abc.ABC):
     ) -> model.Container:
         return self._create_container(image_id, container_name)
 
+    def export_image(self, image_id: str, out_path: str) -> None:
+        return self._export_image(image_id, out_path)
+
+    def import_image(self, image_name: str, import_path: str) -> None:
+        return self._import_image(image_name, import_path)
+
     def run_container(self, container: model.Container) -> None:
         podman.run_container(container.container_id)
 
@@ -61,6 +67,14 @@ class AbstractUnitOfWork(abc.ABC):
     ) -> model.Container:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def _export_image(self, image_id: str, out_path: str) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def _import_image(self, image_name: str, import_path: str) -> None:
+        raise NotImplementedError
+
 
 class ContainerImagesUOW(AbstractUnitOfWork):
 
@@ -84,6 +98,12 @@ class ContainerImagesUOW(AbstractUnitOfWork):
         self, container: model.Container, layer: model.Layer
     ) -> None:
         buildah.spawn_layer(container, layer)
+
+    def _export_image(self, image_id: str, out_path: str) -> None:
+        podman.save(image_id, out_path)
+
+    def _import_image(self, image_name: str, import_path: str) -> None:
+        podman.load(image_name, import_path)
 
     def rollback(self) -> None:
         while self.registry.build_containers:

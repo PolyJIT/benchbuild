@@ -24,6 +24,33 @@ This will run the following stages:
      not require any knowledge about the environment to run properly.
      For anything else, consider using a custom base image.
 
+## Configuration
+
+You can configure the container environment using the following config variables.
+
+- ``BB_CONTAINER_EXPORT``: Path where benchbuild stores exported container
+  images. By default we store it in ``./containers/export``. Will be created
+  automatically, if needed.
+- ``BB_CONTAINER_IMPORT``: Path where to input images from into the registry.
+  By default we load from ``./containers/export``.
+- ``BB_CONTAINER_FROM_SOURCE``: Determine, if we should use benchbuild from the
+  current source checkout, or from pip.
+- ``BB_CONTAINER_ROOT``: Where we store our image layers. This is the image
+  registry. Cannot be stored on filesystems that do not support subuid/-gid
+  mapping, e.g. NFS.
+  The default location is ``./containers/lib``.
+- ``BB_CONTAINER_RUNROOT``: Where we store temporary image layers of running
+  containers. See ``BB_CONTAINER_ROOT`` for restrictions.
+  The default location is: ``./containers/run``.
+- ``BB_CONTAINER_RUNTIME``: Podman can use any standard OCI-container runtime to
+  launch containers. We use [crun](https://github.com/containers/crun) by
+  default. Depending on your system, this one has already been installed with
+  ``podman``.
+  The default runtime is: ``/usr/bin/crun``
+- ``BB_CONTAINER_MOUNTS``: A list of mountpoint definitions that should be added
+  to all containers. With this you can add arbitrary tools into all containers.
+  Default: ``[]``
+
 ## Definition
 
 A project that wants to use a container image needs to define it in the

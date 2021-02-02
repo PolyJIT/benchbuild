@@ -99,7 +99,8 @@ def export_image_handler(
     with uow:
         ensure.image_exists(cmd.image, uow)
         image = uow.registry.get_image(cmd.image)
-        uow.export_image(image.name, cmd.out_name)
+        if image:
+            uow.export_image(image.name, cmd.out_name)
 
 
 def import_image_handler(

@@ -144,6 +144,10 @@ def create_base_images(
 
     for prj in enumerate_projects(experiments, projects):
         image = prj.container
+
+        if do_import:
+            import_image(image.base)
+
         if not image.base in declarative.DEFAULT_BASES:
             continue
 
@@ -154,8 +158,6 @@ def create_base_images(
 
     for cmd in image_commands:
         uow = unit_of_work.ContainerImagesUOW()
-        if do_import:
-            import_image(cmd.name)
 
         messagebus.handle(cmd, uow)
 

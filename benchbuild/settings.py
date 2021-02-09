@@ -310,6 +310,10 @@ CFG["plugins"] = {
 }
 
 CFG["container"] = {
+    "replace": {
+        "default": False,
+        "desc": "Replace existing container images."
+    },
     "export": {
         "default":
             s.ConfigPath(os.path.join(os.getcwd(), "containers", "export")),

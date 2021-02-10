@@ -24,6 +24,20 @@ This will run the following stages:
      not require any knowledge about the environment to run properly.
      For anything else, consider using a custom base image.
 
+### Replace Images
+
+Benchbuild will reuse any existing images it can find in your image registry.
+The only relevant information is the image tag, e.g., ``benchbuild:alpine``.
+If you want to avoid reuse and force to rebuild images unconditionally, you can
+use the ``--replace`` flag when running the ``containers`` subcommand.
+
+Example:
+```
+benchbuild container --replace -E raw linpack
+```
+
+This will ignore **any** required image for the given experiments and projects.
+
 ## Configuration
 
 You can configure the container environment using the following config variables.

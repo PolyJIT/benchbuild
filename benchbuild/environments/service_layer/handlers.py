@@ -3,6 +3,7 @@ import typing as tp
 
 from benchbuild.environments.domain import commands, model
 from benchbuild.environments.service_layer import unit_of_work
+from benchbuild.settings import CFG
 
 from . import ensure
 
@@ -25,9 +26,28 @@ def create_image(
     """
     Create a container image using a registry.
     """
+    replace = CFG['container']['replace']
     with uow:
         image = uow.registry.get_image(cmd.name)
-        if image:
+        if image and not replace:
+            return str(image.name)
+
+        image = _create_build_container(cmd.name, cmd.layers, uow)
+        uow.commit()
+
+        return str(image.name)
+
+
+def create_benchbuild_base(
+    cmd: commands.CreateBenchbuildBase, uow: unit_of_work.AbstractUnitOfWork
+) -> str:
+    """
+    Create a benchbuild base image.
+    """
+    replace = CFG['container']['replace']
+    with uow:
+        image = uow.registry.get_image(cmd.name)
+        if image and not replace:
             return str(image.name)
 
         image = _create_build_container(cmd.name, cmd.layers, uow)
@@ -44,23 +64,6 @@ def update_image(
     """
     with uow:
         ensure.image_exists(cmd.name, uow)
-
-        image = _create_build_container(cmd.name, cmd.layers, uow)
-        uow.commit()
-
-        return str(image.name)
-
-
-def create_benchbuild_base(
-    cmd: commands.CreateBenchbuildBase, uow: unit_of_work.AbstractUnitOfWork
-) -> str:
-    """
-    Create a benchbuild base image.
-    """
-    with uow:
-        image = uow.registry.get_image(cmd.name)
-        if image:
-            return str(image.name)
 
         image = _create_build_container(cmd.name, cmd.layers, uow)
         uow.commit()

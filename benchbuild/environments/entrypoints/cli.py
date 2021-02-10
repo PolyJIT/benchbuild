@@ -38,8 +38,16 @@ class BenchBuildContainer(cli.Application):  # type: ignore
                             default=False,
                             help="Import container images from EXPORT_DIR")
 
+    replace = cli.Flag(['replace'],
+                       default=False,
+                       requires=['experiment'],
+                       help='Replace existing container images.')
+
     def main(self, *projects: str) -> int:
         plugins.discover()
+
+        if self.replace:
+            CFG['container']['replace'] = True
 
         cli_experiments = self.experiment_args
         cli_groups = self.group_args

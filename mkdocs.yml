@@ -25,7 +25,7 @@ nav:
 plugins:
   - search
   - pheasant
-  - mkapi
+    #- mkapi
 
 markdown_extensions:
   - footnotes

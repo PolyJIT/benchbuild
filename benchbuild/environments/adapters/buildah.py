@@ -1,3 +1,4 @@
+import abc
 import json
 import os
 import typing as tp
@@ -19,23 +20,6 @@ def bb_buildah(*args: str) -> BaseCommand:
     ]
     cmd = buildah[opts]
     return cmd[args]
-
-
-def create_build_context() -> local.path:
-    return local.path(mktemp('-dt', '-p', str(CFG['build_dir'])).strip())
-
-
-def destroy_build_context(context: local.path) -> None:
-    if context.exists():
-        delete(context)
-
-
-def create_working_container(from_image: model.FromLayer) -> str:
-    return str(bb_buildah('from')(from_image.base)).strip()
-
-
-def destroy_working_container(container: model.Container) -> None:
-    bb_buildah('rm')(container.container_id)
 
 
 def commit_working_container(container: model.Container) -> None:
@@ -135,18 +119,6 @@ def set_working_directory(
               )('--workingdir', layer.directory, container.container_id)
 
 
-def find_image(tag: str) -> model.MaybeImage:
-    results = bb_buildah('images')('--json', tag.lower(), retcode=[0, 125])
-    if results:
-        json_results = json.loads(results)
-        if json_results:
-            #json_image = json_results.pop(0)
-            image = model.Image(tag, model.FromLayer(tag), [])
-            fetch_image_env(image)
-            return image
-    return None
-
-
 LayerHandlerT = tp.Callable[[model.Container, model.Layer], None]
 
 LAYER_HANDLERS = {
@@ -164,3 +136,72 @@ LAYER_HANDLERS = {
 def spawn_layer(container: model.Container, layer: model.Layer) -> None:
     handler: LayerHandlerT = tp.cast(LayerHandlerT, LAYER_HANDLERS[type(layer)])
     handler(container, layer)
+
+
+class ImageRegistry(abc.ABC):
+    images: tp.Dict[str, model.Image]
+    containers: tp.Set[model.Container]
+
+    def find(self, tag: str) -> model.MaybeImage:
+        if tag in self.images:
+            return self.images[tag]
+
+        image = self._find(tag)
+        if image:
+            self.images[tag] = image
+            return image
+
+        return None
+
+    @abc.abstractmethod
+    def _find(self, tag: str) -> model.MaybeImage:
+        return NotImplementedError
+
+    def create(self, tag: str, layers: tp.List[model.Layer]) -> model.Container:
+        from_ = [l for l in layers if isinstance(l, model.FromLayer)].pop(0)
+        image = model.Image(tag, from_, [])
+        container = self._create(tag, image)
+
+        self.containers.add(container)
+
+        return container
+
+    @abc.abstractmethod
+    def _create(
+        self, tag: str, layers: tp.List[model.Layer]
+    ) -> model.Container:
+        return NotImplementedError
+
+
+class BuildahImageRegistry:
+
+    def __init__(self):
+        self.images = {}
+        self.containers: {}
+
+    def _create(self, image: model.Image) -> model.Container:
+        container_id = str(bb_buildah('from')(image.from_.base)).strip()
+        context = local.path(mktemp('-dt', '-p', str(CFG['build_dir'])).strip())
+
+        return model.Container(container_id, image, context)
+
+    def destroy(self, container: model.Container) -> None:
+        bb_buildah('rm')(container.container_id)
+        context_path = local.path(container.context)
+        if context_path.exists():
+            delete(context_path)
+
+    def _find(self, tag: str) -> model.MaybeImage:
+        results = bb_buildah('images')('--json', tag.lower(), retcode=[0, 125])
+        if results:
+            json_results = json.loads(results)
+            if json_results:
+                #json_image = json_results.pop(0)
+                image = model.Image(tag, model.FromLayer(tag), [])
+                fetch_image_env(image)
+                return image
+        return None
+
+    def commit(self, container: model.Container) -> None:
+        image = container.image
+        bb_buildah('commit')(container.container_id, image.name.lower())

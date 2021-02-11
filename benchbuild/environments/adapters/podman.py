@@ -14,8 +14,8 @@ LOG = logging.getLogger(__name__)
 def bb_podman(*args: str) -> BaseCommand:
     opts = [
         '--root',
-        os.path.abspath(str(CFG['container']['root'])), '--runroot',
-        os.path.abspath(str(CFG['container']['runroot']))
+        str(CFG['container']['root']), '--runroot',
+        str(CFG['container']['runroot'])
     ]
     cmd = podman[opts]
     return cmd[args]

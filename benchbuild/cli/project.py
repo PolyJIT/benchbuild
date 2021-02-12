@@ -5,7 +5,8 @@ from functools import reduce
 from plumbum import cli
 
 import benchbuild as bb
-from benchbuild.project import ProjectIndex
+from benchbuild.environments.domain.declarative import ContainerImage
+from benchbuild.project import ProjectIndex, Project
 
 
 class BBProject(cli.Application):
@@ -32,6 +33,40 @@ class BBProjectView(cli.Application):
     def main(self, *projects: str) -> int:
         print_projects(bb.populate(list(projects), self.groups))
         return 0
+
+
+@BBProject.subcommand("details")
+class BBProjectDetails(cli.Application):
+    """Show details for a project."""
+
+    def main(self, project: str) -> int:
+        index = bb.populate([project], [])
+        if not index.values():
+            print(f'Project named {project} not found in the registry.')
+            print('Maybe it is not configured to be loaded.')
+            return -1
+        for project in index.values():
+            print_project(project)
+        return 0
+
+
+def print_project(project: tp.Type[Project]) -> None:
+    print(f'project: {project.NAME}')
+    print('source:')
+    for source in project.SOURCE:
+        print(' ', f'{source.remote}')
+        print('versions')
+        for v in source.versions():
+            print(' ', v)
+    containers = []
+    if isinstance(project.CONTAINER, ContainerImage):
+        containers.append(project.CONTAINER)
+    else:
+        containers.extend(containers)
+
+    print('container:')
+    for container in containers:
+        print(' ', container)
 
 
 def print_projects(projects: ProjectIndex) -> None:

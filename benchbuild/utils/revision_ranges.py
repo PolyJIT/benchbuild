@@ -93,11 +93,18 @@ class SingleRevision(AbstractRevisionRange):
         super().__init__(comment)
         self.__id = rev_id
 
+    @property
+    def rev_id(self) -> str:
+        return self.__id
+
     def init_cache(self, repo_path: str) -> None:
         pass
 
     def __iter__(self) -> tp.Iterator[str]:
         return [self.__id].__iter__()
+
+    def __str__(self) -> str:
+        return self.__id
 
 
 class RevisionRange(AbstractRevisionRange):
@@ -120,6 +127,14 @@ class RevisionRange(AbstractRevisionRange):
         # cache for commit hashes
         self.__revision_list: tp.Optional[tp.List[str]] = None
 
+    @property
+    def id_start(self) -> str:
+        return self.__id_start
+
+    @property
+    def id_end(self) -> str:
+        return self.__id_end
+
     def init_cache(self, repo_path: str) -> None:
         git = _get_git_for_path(repo_path)
         self.__revision_list = _get_all_revisions_between(
@@ -130,6 +145,9 @@ class RevisionRange(AbstractRevisionRange):
         if self.__revision_list is None:
             raise AssertionError
         return self.__revision_list.__iter__()
+
+    def __str__(self) -> str:
+        return f"{self.id_start}:{self.id_end}"
 
 
 class CommitState(IntFlag):
@@ -237,10 +255,23 @@ class GoodBadSubgraph(AbstractRevisionRange):
                 )
             ])
 
+    @property
+    def good_commits(self) -> tp.List[str]:
+        return self.__good_commit_ids
+
+    @property
+    def bad_commits(self) -> tp.List[str]:
+        return self.__bad_commit_ids
+
     def __iter__(self) -> tp.Iterator[str]:
         if self.__revision_list is None:
             raise AssertionError
         return self.__revision_list.__iter__()
+
+    def __str__(self) -> str:
+        # the separator "\" should resemble a setminus, because we include all
+        # commits that have a bad ancestor, but no good one.
+        return f"{','.join(self.bad_commits)}\\{','.join(self.good_commits)}"
 
 
 class block_revisions():  # pylint: disable=invalid-name

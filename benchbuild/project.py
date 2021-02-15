@@ -59,17 +59,18 @@ class ProjectRegistry(type):
     ) -> tp.Any:
         """Register a project in the registry."""
         cls = super(ProjectRegistry, mcs).__new__(mcs, name, bases, attrs)
+        name = attrs["NAME"] if "NAME" in attrs else cls.NAME
+        domain = attrs["DOMAIN"] if "DOMAIN" in attrs else cls.DOMAIN
+        group = attrs["GROUP"] if "GROUP" in attrs else cls.GROUP
 
-        defined_attrs = all(
-            attr in attrs and attrs[attr] is not None
-            for attr in ['NAME', 'DOMAIN', 'GROUP']
-        )
+        defined_attrs = all(bool(attr) for attr in [name, domain, group])
 
         if bases and defined_attrs:
-            key = f'{attrs["NAME"]}/{attrs["GROUP"]}'
-            key_dash = f'{attrs["NAME"]}-{attrs["GROUP"]}'
+            key = f'{name}/{group}'
+            key_dash = f'{name}-{group}'
             ProjectRegistry.projects[key] = cls
             ProjectRegistry.projects[key_dash] = cls
+
         return cls
 
 

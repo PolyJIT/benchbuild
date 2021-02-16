@@ -97,7 +97,10 @@ def print_projects(projects: ProjectIndex) -> None:
         "{name_header:<{width}} | {source_header:^15} | "
         "{version_header:^15} | {description_header}"
     )
-    project_row_format = "{name:<{width}} | {num_sources:^15} | {num_combinations:^15} | {description}"
+    project_row_format = (
+        "{name:<{width}} | {num_sources:^15} | "
+        "{num_combinations:^15} | {description}"
+    )
 
     for name in grouped_by:
         group_projects = sorted(grouped_by[name])

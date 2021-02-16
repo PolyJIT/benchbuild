@@ -60,6 +60,13 @@ class BBProjectDetails(cli.Application):
 
 
 def print_project(project: tp.Type[Project], limit: int) -> None:
+    """
+    Print details for a single project.
+
+    Args:
+        project: The project to print.
+        limit: The maximal number of versions to print.
+    """
     tmp_dir = CFG['tmp_dir']
 
     print(f'project: {project.NAME}')

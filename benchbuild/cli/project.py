@@ -7,6 +7,7 @@ from plumbum import cli
 import benchbuild as bb
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.project import ProjectIndex, Project
+from benchbuild.settings import CFG
 
 
 class BBProject(cli.Application):
@@ -51,13 +52,21 @@ class BBProjectDetails(cli.Application):
 
 
 def print_project(project: tp.Type[Project]) -> None:
+    tmp_dir = CFG['tmp_dir']
+
     print(f'project: {project.NAME}')
+    print(f'group: {project.GROUP}')
+    print(f'domain: {project.DOMAIN}')
     print('source:')
     for source in project.SOURCE:
-        print(' ', f'{source.remote}')
-        print('versions')
-        for v in source.versions():
-            print(' ', v)
+        num_versions = len(source.versions())
+
+        print(' -', f'{source.remote}')
+        print('  ', 'default:', source.default)
+        print('  ', f'versions: {num_versions}')
+        print('  ', 'local:', f'{tmp_dir}/{source.local}')
+        for v in list(source.versions()):
+            print('  ' * 2, v)
     containers = []
     if isinstance(project.CONTAINER, ContainerImage):
         containers.append(project.CONTAINER)

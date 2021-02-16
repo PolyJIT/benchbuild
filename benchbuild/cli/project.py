@@ -1,10 +1,13 @@
 """Subcommand for project handling."""
 import typing as tp
+from functools import reduce
 
 from plumbum import cli
 
 import benchbuild as bb
-from benchbuild.project import ProjectIndex
+from benchbuild.environments.domain.declarative import ContainerImage
+from benchbuild.project import ProjectIndex, Project
+from benchbuild.settings import CFG
 
 
 class BBProject(cli.Application):
@@ -33,6 +36,63 @@ class BBProjectView(cli.Application):
         return 0
 
 
+@BBProject.subcommand("details")
+class BBProjectDetails(cli.Application):
+    """Show details for a project."""
+
+    limit: int = 10
+
+    @cli.switch(["-l", "--limit"],
+                int,
+                help="Limit the number of versions to display")
+    def set_limit(self, limit: int) -> None:
+        self.limit = limit
+
+    def main(self, project: str) -> int:
+        index = bb.populate([project], [])
+        if not index.values():
+            print(f'Project named {project} not found in the registry.')
+            print('Maybe it is not configured to be loaded.')
+            return -1
+        for project_cls in index.values():
+            print_project(project_cls, self.limit)
+        return 0
+
+
+def print_project(project: tp.Type[Project], limit: int) -> None:
+    """
+    Print details for a single project.
+
+    Args:
+        project: The project to print.
+        limit: The maximal number of versions to print.
+    """
+    tmp_dir = CFG['tmp_dir']
+
+    print(f'project: {project.NAME}')
+    print(f'group: {project.GROUP}')
+    print(f'domain: {project.DOMAIN}')
+    print('source:')
+    for source in project.SOURCE:
+        num_versions = len(source.versions())
+
+        print(' -', f'{source.remote}')
+        print('  ', 'default:', source.default)
+        print('  ', f'versions: {num_versions}')
+        print('  ', 'local:', f'{tmp_dir}/{source.local}')
+        for v in list(source.versions())[:limit]:
+            print('  ' * 2, v)
+    containers = []
+    if isinstance(project.CONTAINER, ContainerImage):
+        containers.append(project.CONTAINER)
+    else:
+        containers.extend(containers)
+
+    print('container:')
+    for container in containers:
+        print(' ', str(container))
+
+
 def print_projects(projects: ProjectIndex) -> None:
     """
     Print the information about available projects.
@@ -41,14 +101,12 @@ def print_projects(projects: ProjectIndex) -> None:
         projects: The populated project index to print.
 
     """
-    grouped_by: tp.Dict[str, tp.List[str]] = {}
     if not projects:
         print("Your selection didn't include any projects for this experiment.")
         return
 
-    for name in projects:
-        prj = projects[name]
-
+    grouped_by: tp.Dict[str, tp.List[str]] = {}
+    for prj in set(projects.values()):
         if prj.GROUP not in grouped_by:
             grouped_by[prj.GROUP] = []
 
@@ -56,39 +114,47 @@ def print_projects(projects: ProjectIndex) -> None:
             "{name}/{group}".format(name=prj.NAME, group=prj.GROUP)
         )
 
+    project_column_width = max([
+        len(f'{p.NAME}/{p.GROUP}') for p in projects.values()
+    ])
+    project_header_format = (
+        "{name_header:<{width}} | {source_header:^15} | "
+        "{version_header:^15} | {description_header}"
+    )
+    project_row_format = (
+        "{name:<{width}} | {num_sources:^15} | "
+        "{num_combinations:^15} | {description}"
+    )
+
     for name in grouped_by:
-        print(f'::  group: {name}')
         group_projects = sorted(grouped_by[name])
+        print(
+            project_header_format.format(
+                name_header=f'{name}',
+                source_header="# Sources",
+                version_header="# Versions",
+                description_header="Description",
+                width=project_column_width
+            )
+        )
         for prj_name in group_projects:
             prj_cls = projects[prj_name]
-
             project_id = f'{prj_cls.NAME}/{prj_cls.GROUP}'
-            project_version = str(bb.source.default(*prj_cls.SOURCE))
-
-            project_lines = [
-                f'::  {project_id}'
-                f'    default: {project_version:<24}'
-            ]
-            for src in prj_cls.SOURCE:
-                source_lines = [
-                    f'\n    * source: {src.local}',
-                ]
-                if isinstance(src.remote, str):
-                    source_lines.append(f' remote: {src.remote}')
-                    source_lines.extend([
-                        f'\n      - {str(version)}'
-                        for version in src.versions()
-                    ])
-                else:
-                    source_lines.extend([
-                        f'\n      - {str(version)} '
-                        f'remote: {src.remote[str(version)]}'
-                        for version in src.versions()
-                    ])
-                project_lines.extend(source_lines)
-
-            print(*project_lines)
+            num_project_sources = len(prj_cls.SOURCE)
+            num_combinations = reduce(
+                lambda x, y: x * y,
+                [len(list(src.versions())) for src in prj_cls.SOURCE]
+            )
+            docstr = ""
             if prj_cls.__doc__:
                 docstr = prj_cls.__doc__.strip("\n ")
-                print(f'    description: {docstr}')
+            print(
+                project_row_format.format(
+                    name=project_id,
+                    num_sources=num_project_sources,
+                    num_combinations=num_combinations,
+                    description=docstr,
+                    width=project_column_width
+                )
+            )
         print()

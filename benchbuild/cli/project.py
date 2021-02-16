@@ -45,8 +45,8 @@ class BBProjectDetails(cli.Application):
             print(f'Project named {project} not found in the registry.')
             print('Maybe it is not configured to be loaded.')
             return -1
-        for project in index.values():
-            print_project(project)
+        for project_cls in index.values():
+            print_project(project_cls)
         return 0
 
 
@@ -114,7 +114,7 @@ def print_projects(projects: ProjectIndex) -> None:
             num_project_sources = len(prj_cls.SOURCE)
             num_combinations = reduce(
                 lambda x, y: x * y,
-                [len(src.versions()) for src in prj_cls.SOURCE]
+                [len(list(src.versions())) for src in prj_cls.SOURCE]
             )
             docstr = ""
             if prj_cls.__doc__:

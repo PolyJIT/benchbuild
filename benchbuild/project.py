@@ -54,7 +54,7 @@ class ProjectRegistry(type):
     projects = StringTrie()
 
     def __new__(
-        mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
+        mcs: tp.Type['Project'], name: str, bases: tp.Tuple[type, ...],
         attrs: tp.Dict[str, tp.Any]
     ) -> tp.Any:
         """Register a project in the registry."""

@@ -93,21 +93,23 @@ def print_projects(projects: ProjectIndex) -> None:
     project_column_width = max([
         len(f'{p.NAME}/{p.GROUP}') for p in projects.values()
     ])
-    project_header_format = "{:<{width}} | {:^15} | {:^15} | {}"
-    project_row_format = "{:<{width}} | {:^15} | {:^15} | {}"
+    project_header_format = (
+        "{name_header:<{width}} | {source_header:^15} | "
+        "{version_header:^15} | {description_header}"
+    )
+    project_row_format = "{name:<{width}} | {num_sources:^15} | {num_combinations:^15} | {description}"
 
     for name in grouped_by:
         group_projects = sorted(grouped_by[name])
         print(
             project_header_format.format(
-                f'{name}',
-                "# Sources",
-                "# Versions",
-                "Description",
+                name_header=f'{name}',
+                source_header="# Sources",
+                version_header="# Versions",
+                description_header="Description",
                 width=project_column_width
             )
         )
-        print()
         for prj_name in group_projects:
             prj_cls = projects[prj_name]
             project_id = f'{prj_cls.NAME}/{prj_cls.GROUP}'
@@ -121,10 +123,10 @@ def print_projects(projects: ProjectIndex) -> None:
                 docstr = prj_cls.__doc__.strip("\n ")
             print(
                 project_row_format.format(
-                    project_id,
-                    num_project_sources,
-                    num_combinations,
-                    docstr,
+                    name=project_id,
+                    num_sources=num_project_sources,
+                    num_combinations=num_combinations,
+                    description=docstr,
                     width=project_column_width
                 )
             )

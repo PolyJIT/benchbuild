@@ -90,7 +90,7 @@ def print_project(project: tp.Type[Project], limit: int) -> None:
 
     print('container:')
     for container in containers:
-        print(' ', container)
+        print(' ', str(container))
 
 
 def print_projects(projects: ProjectIndex) -> None:

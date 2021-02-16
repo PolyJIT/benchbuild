@@ -104,7 +104,7 @@ class SingleRevision(AbstractRevisionRange):
         return [self.__id].__iter__()
 
     def __str__(self) -> str:
-        return self.__id
+        return self.rev_id
 
 
 class RevisionRange(AbstractRevisionRange):

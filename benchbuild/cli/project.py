@@ -40,6 +40,14 @@ class BBProjectView(cli.Application):
 class BBProjectDetails(cli.Application):
     """Show details for a project."""
 
+    limit: int = 10
+
+    @cli.switch(["-l", "--limit"],
+                int,
+                help="Limit the number of versions to display")
+    def set_limit(self, limit):
+        self.limit = limit
+
     def main(self, project: str) -> int:
         index = bb.populate([project], [])
         if not index.values():
@@ -47,11 +55,11 @@ class BBProjectDetails(cli.Application):
             print('Maybe it is not configured to be loaded.')
             return -1
         for project_cls in index.values():
-            print_project(project_cls)
+            print_project(project_cls, self.limit)
         return 0
 
 
-def print_project(project: tp.Type[Project]) -> None:
+def print_project(project: tp.Type[Project], limit: int) -> None:
     tmp_dir = CFG['tmp_dir']
 
     print(f'project: {project.NAME}')
@@ -65,7 +73,7 @@ def print_project(project: tp.Type[Project]) -> None:
         print('  ', 'default:', source.default)
         print('  ', f'versions: {num_versions}')
         print('  ', 'local:', f'{tmp_dir}/{source.local}')
-        for v in list(source.versions()):
+        for v in list(source.versions())[:limit]:
             print('  ' * 2, v)
     containers = []
     if isinstance(project.CONTAINER, ContainerImage):

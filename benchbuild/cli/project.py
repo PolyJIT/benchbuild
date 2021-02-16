@@ -45,7 +45,7 @@ class BBProjectDetails(cli.Application):
     @cli.switch(["-l", "--limit"],
                 int,
                 help="Limit the number of versions to display")
-    def set_limit(self, limit):
+    def set_limit(self, limit: int) -> None:
         self.limit = limit
 
     def main(self, project: str) -> int:

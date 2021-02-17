@@ -190,6 +190,10 @@ CFG["slurm"] = {
         "desc": "The SLURM partition to use by default.",
         "default": "chimaira"
     },
+    "template": {
+        "desc": "Template used to generate a SLURM script.",
+        "default": "misc/slurm.sh.inc"
+    },
     "script": {
         "desc":
             "Name of the script that can be passed to SLURM. Used by external "

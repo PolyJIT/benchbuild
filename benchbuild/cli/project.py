@@ -143,7 +143,7 @@ def print_projects(projects: ProjectIndex) -> None:
             num_project_sources = len(prj_cls.SOURCE)
             num_combinations = reduce(
                 lambda x, y: x * y,
-                [len(list(src.versions())) for src in prj_cls.SOURCE]
+                [len(list(src.versions())) for src in prj_cls.SOURCE], 1
             )
             docstr = ""
             if prj_cls.__doc__:

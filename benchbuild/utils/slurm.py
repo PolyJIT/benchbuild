@@ -94,6 +94,9 @@ def __save__(
             List of plumbum commands to write to the bash script.
         **kwargs: Dictionary with all environment variable bindings we should
             map in the bash script.
+    Raises:
+        jinja2.exceptions.TemplateNotFound:
+            If the modified template location does not exist.
     """
     logs_dir = Path(CFG['slurm']['logs'].value)
     if logs_dir.suffix != '':
@@ -106,12 +109,19 @@ def __save__(
         logs_dir.mkdir()
 
     node_command = str(benchbuild["-E", experiment.name, "$_project"])
+    template_name = str(CFG["slurm"]["template"])
+
+    if local.path(template_name).exists():
+        template_path = local.path(template_name).dirname
+        template_name = local.path(template_name).basename
+        loader = jinja2.FileSystemLoader(template_path)
+    else:
+        loader = jinja2.PackageLoader('benchbuild', 'res')
+
     env = jinja2.Environment(
-        trim_blocks=True,
-        lstrip_blocks=True,
-        loader=jinja2.PackageLoader('benchbuild', 'res')
+        trim_blocks=True, lstrip_blocks=True, loader=loader
     )
-    template = env.get_template('misc/slurm.sh.inc')
+    template = env.get_template(template_name)
     if len(experiment.projects) > 1:
         project_options = reduce(
             lambda x, y: merge_slurm_options(x, y.REQUIREMENTS),

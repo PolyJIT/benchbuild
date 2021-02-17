@@ -82,15 +82,18 @@ def print_project(project: tp.Type[Project], limit: int) -> None:
         print('  ', 'local:', f'{tmp_dir}/{source.local}')
         for v in list(source.versions())[:limit]:
             print('  ' * 2, v)
-    containers = []
-    if isinstance(project.CONTAINER, ContainerImage):
-        containers.append(project.CONTAINER)
-    else:
-        containers.extend(containers)
+
+    def print_layers(container: ContainerImage, indent: int = 1):
+        for layer in project.CONTAINER:
+            print('  ' * indent, str(layer))
 
     print('container:')
-    for container in containers:
-        print(' ', str(container))
+    if isinstance(project.CONTAINER, ContainerImage):
+        print_layers(project.CONTAINER, 1)
+    else:
+        for k, container in project.CONTAINER:
+            print('  ', str(k))
+            print_layers(container, 2)
 
 
 def print_projects(projects: ProjectIndex) -> None:
@@ -118,12 +121,12 @@ def print_projects(projects: ProjectIndex) -> None:
         len(f'{p.NAME}/{p.GROUP}') for p in projects.values()
     ])
     project_header_format = (
-        "{name_header:<{width}} | {source_header:^15} | "
-        "{version_header:^15} | {description_header}"
+        "{name_header:<{width}} | {domain_header:^15} | "
+        "{source_header:^15} | {description_header}"
     )
     project_row_format = (
-        "{name:<{width}} | {num_sources:^15} | "
-        "{num_combinations:^15} | {description}"
+        "{name:<{width}} | {domain:^15} | "
+        "{num_sources:^15} | {description}"
     )
 
     for name in grouped_by:
@@ -131,8 +134,8 @@ def print_projects(projects: ProjectIndex) -> None:
         print(
             project_header_format.format(
                 name_header=f'{name}',
+                domain_header="Domain",
                 source_header="# Sources",
-                version_header="# Versions",
                 description_header="Description",
                 width=project_column_width
             )
@@ -141,18 +144,14 @@ def print_projects(projects: ProjectIndex) -> None:
             prj_cls = projects[prj_name]
             project_id = f'{prj_cls.NAME}/{prj_cls.GROUP}'
             num_project_sources = len(prj_cls.SOURCE)
-            num_combinations = reduce(
-                lambda x, y: x * y,
-                [len(list(src.versions())) for src in prj_cls.SOURCE], 1
-            )
             docstr = ""
             if prj_cls.__doc__:
                 docstr = prj_cls.__doc__.strip("\n ")
             print(
                 project_row_format.format(
                     name=project_id,
+                    domain=prj_cls.DOMAIN,
                     num_sources=num_project_sources,
-                    num_combinations=num_combinations,
                     description=docstr,
                     width=project_column_width
                 )

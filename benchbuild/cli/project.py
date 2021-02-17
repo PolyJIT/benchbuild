@@ -83,8 +83,8 @@ def print_project(project: tp.Type[Project], limit: int) -> None:
         for v in list(source.versions())[:limit]:
             print('  ' * 2, v)
 
-    def print_layers(container: ContainerImage, indent: int = 1):
-        for layer in project.CONTAINER:
+    def print_layers(container: ContainerImage, indent: int = 1) -> None:
+        for layer in container:
             print('  ' * indent, str(layer))
 
     print('container:')

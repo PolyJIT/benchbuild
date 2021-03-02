@@ -168,8 +168,12 @@ class PodmanRegistry(ContainerRegistry):
                     '--mount', f'type=bind,src={source},target={target}']
 
         container_id = run(create_cmd['--name', name, image.name])
+        # If we had to replace an existing container (bug?), we get 2 IDs.
+        # The first ID is the old (replaced) container.
+        # The second ID is the new container.
+        new_container_id = container_id.split('\n')[-1]
 
-        return model.Container(container_id, image, '', name)
+        return model.Container(new_container_id, image, '', name)
 
     def _start(self, container_id: str) -> None:
         container_start = bb_podman('container', 'start')

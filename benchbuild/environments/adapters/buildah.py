@@ -61,7 +61,7 @@ def spawn_copy_layer(container: model.Container, layer: model.AddLayer) -> None:
 
 def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
     kws = []
-    for name, value in dict(layer.kwargs).items():
+    for name, value in layer.kwargs:
         kws.append(f'--{name}')
         kws.append(f'{str(value)}')
 
@@ -82,7 +82,7 @@ def update_env_layer(
     container: model.Container, layer: model.UpdateEnv
 ) -> None:
     buildah_config = bb_buildah('config')
-    for key, value in layer.env.items():
+    for key, value in layer.env:
         buildah_config = buildah_config['-e', f'{key}={value}']
     run(buildah_config[container.container_id])
 

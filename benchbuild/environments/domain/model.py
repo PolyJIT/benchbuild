@@ -72,11 +72,21 @@ class CopyLayer(Layer):
         return f'COPY {sources} self.destination'
 
 
+def immutable_kwargs(
+    kwargs: tp.Dict[str, str]
+) -> tp.Tuple[tp.Tuple[str, str], ...]:
+    """
+    Convert str-typed kwargs into a hashable tuple.
+    """
+    return tuple((k, v) for k, v in kwargs.items())
+
+
 @attr.s(frozen=True)
 class RunLayer(Layer):
     command: str = attr.ib()
     args: tp.Tuple[str, ...] = attr.ib()
-    kwargs: tp.Dict[str, str] = attr.ib()
+    kwargs: tp.Tuple[tp.Tuple[str, str],
+                     ...] = attr.ib(converter=immutable_kwargs)
 
     def __str__(self) -> str:
         args = ' '.join(self.args)
@@ -93,7 +103,7 @@ class ContextLayer(Layer):
 
 @attr.s(frozen=True)
 class UpdateEnv(Layer):
-    env = attr.ib()  # type: tp.Dict[str, str]
+    env: tp.Tuple[tp.Tuple[str, str], ...] = attr.ib(converter=immutable_kwargs)
 
     def __str__(self) -> str:
         return f'ENV {len(self.env)} entries'

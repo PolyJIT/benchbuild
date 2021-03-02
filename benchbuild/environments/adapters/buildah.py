@@ -153,6 +153,8 @@ LAYER_HANDLERS = {
 
 
 def spawn_layer(container: model.Container, layer: model.Layer) -> None:
+    if layer == container.image.from_:
+        return
     handler: LayerHandlerT = tp.cast(LayerHandlerT, LAYER_HANDLERS[type(layer)])
     handler(container, layer)
 

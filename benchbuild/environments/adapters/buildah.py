@@ -31,14 +31,10 @@ OnErrorHandler = tp.Callable[[ProcessExecutionError], None]
 def run(cmd: BaseCommand, *on_errors: OnErrorHandler, **kwargs: tp.Any) -> str:
     result = ""
     try:
-        LOG.warning("BUILDAH:: Command: %s", str(cmd))
         result = str(cmd(**kwargs).strip())
-        LOG.warning("BUILDAH:: Command: %s completed", str(cmd))
     except ProcessExecutionError as err:
-        LOG.warning("BUILDAH:: Handling error: %s", str(err))
         for on_error in on_errors:
             on_error(err)
-        LOG.warning("BUILDAH:: Complete")
     return result
 
 

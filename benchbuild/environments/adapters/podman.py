@@ -30,14 +30,10 @@ OnErrorHandler = tp.Callable[[ProcessExecutionError], None]
 def run(cmd: BaseCommand, *on_errors: OnErrorHandler, **kwargs: tp.Any) -> str:
     result = ""
     try:
-        LOG.warning("PODMAN:: Command: %s", str(cmd))
         result = str(cmd(**kwargs)).strip()
-        LOG.warning("PODMAN:: Command: %s completed", str(cmd))
     except ProcessExecutionError as err:
-        LOG.warning("PODMAN:: Handling error: %s", str(err))
         for on_error in on_errors:
             on_error(err)
-        LOG.warning("PODMAN:: Complete")
     return result
 
 
@@ -86,7 +82,6 @@ def load(image_name: str, load_path: str) -> None:
 
 
 def run_container(name: str) -> None:
-    LOG.debug('running container: %s', name)
     container_start = bb_podman('container', 'start')
     container_start['-ai', name].run_tee()
 
@@ -173,7 +168,6 @@ class PodmanRegistry(ContainerRegistry):
                     '--mount', f'type=bind,src={source},target={target}']
 
         container_id = run(create_cmd['--name', name, image.name])
-        LOG.debug('created container: %s', container_id)
 
         return model.Container(container_id, image, '', name)
 

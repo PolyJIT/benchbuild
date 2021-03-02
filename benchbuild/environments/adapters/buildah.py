@@ -163,11 +163,20 @@ def spawn_layer(container: model.Container, layer: model.Layer) -> None:
 
 class ImageRegistry(abc.ABC):
     images: tp.Dict[str, model.Image]
-    containers: tp.Set[model.Container]
+    containers: tp.Dict[model.Container, bool]
 
     def __init__(self) -> None:
         self.images = dict()
-        self.containers = set()
+        self.containers = dict()
+
+    def hold(self, container: model.Container) -> None:
+        self.containers[container] = True
+
+    def unhold(self, container: model.Container) -> None:
+        self.containers[container] = False
+
+    def is_held(self, container: model.Container) -> bool:
+        return container in self.containers and self.containers[container]
 
     def find(self, tag: str) -> model.MaybeImage:
         if tag in self.images:
@@ -180,12 +189,19 @@ class ImageRegistry(abc.ABC):
 
         return None
 
+    def container(self, container_id: str) -> model.MaybeContainer:
+        for container in self.containers:
+            if container.container_id == container_id:
+                return container
+        return None
+
     @abc.abstractmethod
     def _find(self, tag: str) -> model.MaybeImage:
         raise NotImplementedError
 
     def destroy(self, container: model.Container) -> None:
-        return self._destroy(container)
+        if container in self.containers and self.containers[container]:
+            self._destroy(container)
 
     @abc.abstractmethod
     def _destroy(self, container: model.Container) -> None:
@@ -199,24 +215,36 @@ class ImageRegistry(abc.ABC):
         raise NotImplementedError
 
     def commit(self, container: model.Container) -> None:
-        return self._commit(container)
+        self._commit(container)
+        self.unhold(container)
 
     @abc.abstractmethod
     def _commit(self, container: model.Container) -> None:
         raise NotImplementedError
 
-    def create(self, tag: str, layers: tp.List[model.Layer]) -> model.Container:
-        from_ = [l for l in layers if isinstance(l, model.FromLayer)].pop(0)
+    def create(self, tag: str, from_: model.FromLayer) -> model.Container:
         image = model.Image(tag, from_, [])
         container = self._create(image)
-
-        self.containers.add(container)
+        self.images[image.name] = image
+        self.unhold(container)
 
         return container
 
     @abc.abstractmethod
     def _create(self, image: model.Image) -> model.Container:
         raise NotImplementedError
+
+    def add(self, image: model.Image, container: model.MaybeContainer) -> None:
+        if image.name not in self.images:
+            self.images[image.name] = image
+
+        if container is None:
+            return
+
+        for layer in image.layers:
+            if not image.is_present(layer):
+                spawn_layer(container, layer)
+                image.present(layer)
 
     def temporary_mount(self, tag: str, source: str, target: str) -> None:
         image = self.find(tag)

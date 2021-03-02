@@ -1,28 +1,28 @@
 import logging
 import typing as tp
 
-from benchbuild.environments.domain import commands, events
+from benchbuild.environments.domain import model
 
 LOG = logging.getLogger(__name__)
 
-Message = tp.Union[commands.Command, events.Event]
+Message = tp.Union[model.Command, model.Event]
 Messages = tp.List[Message]
 
 #EventHandlerT = tp.Callable[[events.Event, unit_of_work.AbstractUnitOfWork],
-EventHandlerT = tp.Callable[[events.Event], tp.Generator[events.Event, None,
-                                                         None]]
+EventHandlerT = tp.Callable[[model.Event], tp.Generator[model.Event, None,
+                                                        None]]
 #CommandHandlerT = tp.Callable[
 #    [commands.Command, unit_of_work.AbstractUnitOfWork], str]
-CommandHandlerT = tp.Callable[[commands.Command], tp.Generator[events.Event,
-                                                               None, None]]
+CommandHandlerT = tp.Callable[[model.Command], tp.Generator[model.Event, None,
+                                                            None]]
 
-MessageT = tp.Union[tp.Type[commands.Command], tp.Type[events.Event]]
+MessageT = tp.Union[tp.Type[model.Command], tp.Type[model.Event]]
 
 MessageHandler = tp.Callable[[Message], tp.Generator]
 MessageHandlers = tp.Dict[MessageT, MessageHandler]
 
-EventHandlers = tp.Dict[tp.Type[events.Event], EventHandlerT]
-CommandHandlers = tp.Dict[tp.Type[commands.Command], CommandHandlerT]
+EventHandlers = tp.Dict[tp.Type[model.Event], EventHandlerT]
+CommandHandlers = tp.Dict[tp.Type[model.Command], CommandHandlerT]
 
 
 def handle(
@@ -38,18 +38,16 @@ def handle(
     queue = [message]
     while queue:
         message = queue.pop(0)
-        print('BUS MSG TYPE', type(message))
-        print('BUS MSG', message)
-        if isinstance(message, events.Event):
+        if isinstance(message, model.Event):
             _handle_event(evt_handlers, message, queue)
-        elif isinstance(message, commands.Command):
+        elif isinstance(message, model.Command):
             _handle_command(cmd_handlers, message, queue)
         else:
             raise Exception(f'{message} was not an Event or Command')
 
 
 def _handle_event(
-    handlers: EventHandlers, event: events.Event, queue: Messages
+    handlers: EventHandlers, event: model.Event, queue: Messages
 ) -> None:
     """
     Invokes all registered event handlers for this event.
@@ -62,7 +60,6 @@ def _handle_event(
     """
     for handler in tp.cast(tp.List[EventHandlerT], handlers[type(event)]):
         try:
-            LOG.debug('handling event %s with handler %s', event, handler)
             queue.extend(handler(event))
         except Exception:
             LOG.exception('Exception handling event %s', event)
@@ -70,7 +67,7 @@ def _handle_event(
 
 
 def _handle_command(
-    handlers: CommandHandlers, command: commands.Command, queue: Messages
+    handlers: CommandHandlers, command: model.Command, queue: Messages
 ) -> None:
     """
     Invokes a registered command handler.
@@ -81,7 +78,6 @@ def _handle_command(
         queue: The message queue to hold new events/commands that spawn
                from this handler.
     """
-    LOG.debug('handling command %s', command)
     try:
         handler = handlers[type(command)]
         queue.extend(handler(command))

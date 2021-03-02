@@ -1,5 +1,6 @@
 import typing as tp
 
+import rich
 from rich.progress import Task, Progress, BarColumn
 
 from benchbuild.environments.domain import events
@@ -7,44 +8,38 @@ from benchbuild.environments.service_layer import unit_of_work
 
 
 def print_image_created(
-    event: events.ImageCreated, uow: unit_of_work.AbstractUnitOfWork
+    _: unit_of_work.ImageUnitOfWork, event: events.ImageCreated
 ) -> None:
-    del uow
     __progress__.console.print(f'Building {event.name}')
 
 
 def print_creating_layer(
-    event: events.CreatingLayer, uow: unit_of_work.AbstractUnitOfWork
+    _: unit_of_work.ImageUnitOfWork, event: events.CreatingLayer
 ) -> None:
-    del uow
     __progress__.console.print(event.layer)
 
 
 def print_layer_created(
-    event: events.LayerCreated, uow: unit_of_work.AbstractUnitOfWork
+    _: unit_of_work.ImageUnitOfWork, event: events.LayerCreated
 ) -> None:
-    del event
-    del uow
+    print(f'[bold]{event.name}[/bold] {event.layer}')
 
 
 def print_image_committed(
-    event: events.ImageCommitted, uow: unit_of_work.AbstractUnitOfWork
+    _: unit_of_work.ImageUnitOfWork, event: events.ImageCommitted
 ) -> None:
-    del uow
     __progress__.console.print(f'Finished {event.name}')
 
 
 def print_image_destroyed(
-    event: events.ImageCommitted, uow: unit_of_work.AbstractUnitOfWork
+    _: unit_of_work.ImageUnitOfWork, event: events.ImageCommitted
 ) -> None:
     del event
-    del uow
 
 
 def print_container_created(
-    event: events.ContainerCreated, uow: unit_of_work.AbstractUnitOfWork
+    _: unit_of_work.ContainerUnitOfWork, event: events.ContainerCreated
 ) -> None:
-    del uow
     __progress__.console.print(
         f'Created {event.name} for image: {event.image_id}'
     )

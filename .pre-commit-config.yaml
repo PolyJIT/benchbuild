@@ -1,11 +1,11 @@
 repos:
 -   repo: https://github.com/commitizen-tools/commitizen
-    rev: master
+    rev: v2.15.3
     hooks:
       - id: commitizen
         stages: [commit-msg]
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v3.4.0
     hooks:
     -   id: check-yaml
     -   id: end-of-file-fixer
@@ -16,11 +16,11 @@ repos:
     hooks:
     -   id: seed-isort-config
 -   repo: https://github.com/timothycrosley/isort.git
-    rev: 4.3.21
+    rev: 5.7.0
     hooks:
       - id: isort
         args: ['-nis']
 -   repo: https://github.com/pre-commit/mirrors-yapf
-    rev: 'v0.29.0'
+    rev: 'v0.30.0'
     hooks:
       - id: yapf

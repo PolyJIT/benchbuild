@@ -1,7 +1,7 @@
 import logging
 import typing as tp
 
-from benchbuild.environments.domain import commands, model, events
+from benchbuild.environments.domain import commands, model
 from benchbuild.environments.service_layer import unit_of_work
 from benchbuild.settings import CFG
 
@@ -9,21 +9,21 @@ from . import ensure
 
 LOG = logging.getLogger(__name__)
 
-
-class EventCollector(tp.Protocol):
-
-    def collect_new_events(self) -> tp.Generator[events.Event, None, None]:
-        ...
+MessageHandler = tp.Callable[[unit_of_work.EventCollector, model.Message], None]
+MessageHandlerWithUOW = tp.Callable[[model.Message], tp.Generator[model.Message,
+                                                                  None, None]]
 
 
-Message = tp.Union[commands.Command, events.Event]
-MessageT = tp.Union[tp.Type[commands.Command], tp.Type[events.Event]]
-MessageHandler = tp.Callable[[EventCollector, Message], None]
+def bootstrap(
+    handler: MessageHandler, uow: unit_of_work.EventCollector
+) -> MessageHandlerWithUOW:
+    """
+    Bootstrap prepares a message handler with a unit of work.
+    """
 
-
-def bootstrap(handler: MessageHandler, uow: EventCollector):
-
-    def wrapped_handler(msg: Message) -> tp.Generator[events.Event, None, None]:
+    def wrapped_handler(
+        msg: model.Message
+    ) -> tp.Generator[model.Message, None, None]:
         handler(uow, msg)
         return uow.collect_new_events()
 
@@ -45,6 +45,10 @@ def create_image(
 ) -> None:
     """
     Create a container image using a registry.
+
+    This will first add the layers to our model image. The image layers will
+    be spawned by subsequent commands over the messagebus.
+    This is *not* an atomic operation.
     """
     replace = CFG['container']['replace']
     with uow:
@@ -52,7 +56,33 @@ def create_image(
         if image and not replace:
             return
 
-        image = _create_build_container(cmd.name, cmd.layers, uow)
+        from_ = cmd.layers.base
+        container = uow.create(cmd.name, from_)
+        for layer in cmd.layers:
+            uow.add_layer(container, layer)
+
+        if cmd.layers:
+            uow.registry.hold(container)
+        uow.commit()
+
+
+def create_layer(
+    uow: unit_of_work.ImageUnitOfWork, cmd: commands.CreateLayer
+) -> None:
+    """
+    Spawn a layer in an image container.
+
+    """
+    with uow:
+        image = uow.registry.find(cmd.name)
+        if not image:
+            LOG.error("create_layer: image not found")
+            return
+
+        container = uow.registry.container(cmd.container_id)
+        image.append(cmd.layer)
+        uow.registry.add(image, container)
+        uow.registry.hold(container)
         uow.commit()
 
 
@@ -62,14 +92,7 @@ def create_benchbuild_base(
     """
     Create a benchbuild base image.
     """
-    replace = CFG['container']['replace']
-    with uow:
-        image = uow.registry.find(cmd.name)
-        if image and not replace:
-            return
-
-        image = _create_build_container(cmd.name, cmd.layers, uow)
-        uow.commit()
+    create_image(uow, commands.CreateImage(cmd.name, cmd.layers))
 
 
 def update_image(
@@ -96,7 +119,7 @@ def run_project_container(
 
         build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
         if build_dir:
-            uow.registry.temporary_mount(cmd.image, cmd.build_dir, build_dir)
+            uow.registry.mount(cmd.image, cmd.build_dir, build_dir)
         else:
             LOG.warning(
                 'The image misses a configured "BB_BUILD_DIR" variable.'
@@ -104,9 +127,8 @@ def run_project_container(
             LOG.warning('No result artifacts will be copied out.')
 
         container = uow.create(cmd.image, cmd.name)
+        print(container)
         uow.start(container)
-
-    return uow.collect_new_events()
 
 
 def export_image_handler(

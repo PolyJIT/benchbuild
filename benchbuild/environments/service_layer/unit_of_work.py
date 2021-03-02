@@ -2,7 +2,13 @@ import abc
 import typing as tp
 
 from benchbuild.environments.adapters import buildah, podman
-from benchbuild.environments.domain import events, model
+from benchbuild.environments.domain import commands, events, model
+
+
+class EventCollector(tp.Protocol):
+
+    def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
+        ...
 
 
 class UnitOfWork(abc.ABC):
@@ -19,12 +25,10 @@ class UnitOfWork(abc.ABC):
 class ImageUnitOfWork(UnitOfWork):
     registry: buildah.ImageRegistry
 
-    def collect_new_events(self) -> tp.Generator[events.Event, None, None]:
+    def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
         for image in self.registry.images.values():
             while image.events:
                 evt = image.events.pop(0)
-                print('NEW_EVT_TYPE', type(evt))
-                print('NEW_EVT: ', evt)
                 yield evt
 
     def __enter__(self) -> 'ImageUnitOfWork':
@@ -33,17 +37,17 @@ class ImageUnitOfWork(UnitOfWork):
     def __exit__(self, *args: tp.Any) -> None:
         self.rollback()
 
-    def create(self, tag: str, layers: tp.List[model.Layer]) -> model.Container:
-        return self._create(tag, layers)
+    def create(self, tag: str, from_: str) -> model.Container:
+        return self._create(tag, from_)
 
     @abc.abstractmethod
-    def _create(
-        self, tag: str, layers: tp.List[model.Layer]
-    ) -> model.Container:
+    def _create(self, tag: str, from_: str) -> model.Container:
         raise NotImplementedError
 
     def add_layer(self, container: model.Container, layer: model.Layer) -> None:
+        image = container.image
         self._add_layer(container, layer)
+        image.events.append(events.LayerCreated(image.name, str(layer)))
 
     @abc.abstractmethod
     def _add_layer(
@@ -66,15 +70,30 @@ class ImageUnitOfWork(UnitOfWork):
         return self._import_image(image_name, import_path)
 
     def rollback(self) -> None:
-        while self.registry.containers:
-            container = self.registry.containers.pop()
+        containers = self.registry.containers
+        delete_containers = [
+            c for c in containers
+            if self.registry.is_held(c) or c.image.is_complete()
+        ]
+
+        keep_containers = [
+            c for c in containers if not self.registry.is_held(c)
+        ]
+
+        for container in delete_containers:
             self.registry.destroy(container)
 
+        for container in keep_containers:
+            self.registry.unhold(container)
+
+        self.registry.containers = containers
+
     def commit(self) -> None:
-        while self.registry.containers:
-            container = self.registry.containers.pop()
+        containers = self.registry.containers
+        for container in containers:
             self.registry.commit(container)
-            self.registry.destroy(container)
+            if not self.registry.is_held(container):
+                self.registry.destroy(container)
 
 
 class BuildahImageUOW(ImageUnitOfWork):
@@ -82,15 +101,17 @@ class BuildahImageUOW(ImageUnitOfWork):
     def __init__(self) -> None:
         self.registry = buildah.BuildahImageRegistry()
 
-    def _create(
-        self, tag: str, layers: tp.List[model.Layer]
-    ) -> model.Container:
-        return self.registry.create(tag, layers)
+    def _create(self, tag: str, from_: str) -> model.Container:
+        from_layer = model.FromLayer(from_)
+        return self.registry.create(tag, from_layer)
 
     def _add_layer(
         self, container: model.Container, layer: model.Layer
     ) -> None:
-        buildah.spawn_layer(container, layer)
+        image = container.image
+        image.events.append(
+            commands.CreateLayer(image.name, container.container_id, layer)
+        )
 
     def _export_image(self, image_id: str, out_path: str) -> None:
         podman.save(image_id, out_path)
@@ -108,7 +129,7 @@ class ContainerUnitOfWork(UnitOfWork):
     def __exit__(self, *args: tp.Any) -> None:
         self.rollback()
 
-    def collect_new_events(self) -> tp.Generator[events.Event, None, None]:
+    def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
         for container in self.registry.containers.values():
             while container.events:
                 yield container.events.pop(0)
@@ -149,7 +170,7 @@ class PodmanContainerUOW(ContainerUnitOfWork):
 class AbstractUnitOfWork(abc.ABC):
     registry: buildah.ImageRegistry
 
-    def collect_new_events(self) -> tp.Generator[events.Event, None, None]:
+    def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
         for image in self.registry.images.values():
             while image.events:
                 yield image.events.pop(0)

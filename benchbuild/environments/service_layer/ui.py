@@ -22,7 +22,7 @@ def print_creating_layer(
 def print_layer_created(
     _: unit_of_work.ImageUnitOfWork, event: events.LayerCreated
 ) -> None:
-    print(f'[bold]{event.name}[/bold] {event.layer}')
+    rich.print(f'[bold]{event.name}[/bold] {event.layer}')
 
 
 def print_image_committed(

@@ -139,27 +139,29 @@ def __save__(
         slurm_options, get_slurm_options_from_config()
     )
 
+    prefix = local.path(str(CFG['slurm']['node_dir']), str(experiment.id))
+
     with open(script_name, 'w') as slurm2:
         slurm2.write(
             template.render(
                 config=["export " + x for x in repr(CFG).split('\n')],
-                clean_lockdir=str(CFG["slurm"]["node_dir"]),
-                clean_lockfile=str(CFG["slurm"]["node_dir"]) + \
-                    ".clean-in-progress.lock",
+                clean_lockdir=str(prefix),
+                clean_lockfile=prefix.with_suffix('.clean-in-progress.lock'),
                 cpus=int(CFG['slurm']['cpus_per_task']),
-                lockfile=str(CFG['slurm']["node_dir"]) + ".lock",
+                lockfile=prefix.with_suffix('.lock'),
                 log=logs_dir.resolve() / str(experiment.id),
                 max_running=int(CFG['slurm']['max_running']),
                 name=experiment.name,
                 nice_clean=int(CFG["slurm"]["nice_clean"]),
                 node_command=node_command,
                 ntasks=1,
-                prefix=str(CFG["slurm"]["node_dir"]),
+                prefix=prefix,
                 projects=projects,
                 slurm_account=str(CFG["slurm"]["account"]),
                 slurm_partition=str(CFG["slurm"]["partition"]),
-                sbatch_options='\n'.join(
-                    [s_opt.to_option() for s_opt in slurm_options]),
+                sbatch_options='\n'.join([
+                    s_opt.to_option() for s_opt in slurm_options
+                ]),
             )
         )
 

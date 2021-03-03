@@ -96,7 +96,4 @@ class Slurm(cli.Application):
         for exp_cls in wanted_experiments.values():
             exp = exp_cls(projects=list(prjs.values()))
             print("Experiment: ", exp.name)
-            CFG["slurm"]["node_dir"] = os.path.abspath(
-                os.path.join(str(CFG["slurm"]["node_dir"]), str(exp.id))
-            )
             slurm.script(exp, self.subcommand)

@@ -30,16 +30,6 @@ def bootstrap(
     return wrapped_handler
 
 
-def _create_build_container(
-    name: str, layers: tp.List[tp.Any], uow: unit_of_work.ImageUnitOfWork
-) -> model.Image:
-    container = uow.create(name, layers)
-    image = container.image
-    for layer in image.layers:
-        uow.add_layer(container, layer)
-    return image
-
-
 def create_image(
     uow: unit_of_work.ImageUnitOfWork, cmd: commands.CreateImage
 ) -> None:
@@ -93,19 +83,6 @@ def create_benchbuild_base(
     Create a benchbuild base image.
     """
     create_image(uow, commands.CreateImage(cmd.name, cmd.layers))
-
-
-def update_image(
-    uow: unit_of_work.ImageUnitOfWork, cmd: commands.UpdateImage
-) -> None:
-    """
-    Update a benchbuild image.
-    """
-    with uow:
-        ensure.image_exists(cmd.name, uow)
-
-        _create_build_container(cmd.name, cmd.layers, uow)
-        uow.commit()
 
 
 def run_project_container(

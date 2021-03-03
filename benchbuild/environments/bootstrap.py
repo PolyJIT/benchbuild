@@ -37,8 +37,6 @@ def bus() -> Messagebus:
     cmd_handlers = {
         commands.CreateImage:
             handlers.bootstrap(handlers.create_image, images_uow),
-        commands.UpdateImage:
-            handlers.bootstrap(handlers.update_image, images_uow),
         commands.CreateBenchbuildBase:
             handlers.bootstrap(handlers.create_benchbuild_base, images_uow),
         commands.RunProjectContainer:

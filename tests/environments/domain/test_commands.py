@@ -5,15 +5,14 @@ from benchbuild.environments.domain import commands, declarative
 def describe_image_commands():
 
     def name_is_lowercase():
-        expected = ['test-1', 'test-2', 'test-3']
+        expected = ['test-1', 'test-2']
 
         cmd_1 = commands.CreateBenchbuildBase(
             'TEST-1', declarative.ContainerImage()
         )
-        cmd_2 = commands.UpdateImage('TEST-2', declarative.ContainerImage())
-        cmd_3 = commands.CreateImage('TEST-3', declarative.ContainerImage())
+        cmd_2 = commands.CreateImage('TEST-2', declarative.ContainerImage())
 
-        assert [cmd_1.name, cmd_2.name, cmd_3.name] == expected
+        assert [cmd_1.name, cmd_2.name] == expected
 
 
 def describe_container_commands():

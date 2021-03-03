@@ -62,15 +62,6 @@ class CreateLayer(model.Command):
 
 
 @attr.s(frozen=True, hash=False)
-class UpdateImage(model.Command):
-    name: str = attr.ib(converter=oci_compliant_name)
-    layers: declarative.ContainerImage = attr.ib()
-
-    def __hash__(self) -> int:
-        return hash(self.name)
-
-
-@attr.s(frozen=True, hash=False)
 class CreateBenchbuildBase(model.Command):
     name: str = attr.ib(converter=oci_compliant_name, eq=True)
     layers: declarative.ContainerImage = attr.ib()

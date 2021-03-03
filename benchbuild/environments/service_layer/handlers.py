@@ -70,6 +70,9 @@ def create_layer(
             return
 
         container = uow.registry.container(cmd.container_id)
+        if container is None:
+            #FIXME: Add a custom error.
+            raise ValueError(f'no container with id: {cmd.container_id} found')
         image.append(cmd.layer)
         uow.registry.add(image, container)
         uow.registry.hold(container)

@@ -1,4 +1,5 @@
 import abc
+import sys
 import typing as tp
 
 from benchbuild.environments.adapters import buildah, podman

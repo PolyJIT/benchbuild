@@ -4,8 +4,13 @@ import typing as tp
 from benchbuild.environments.adapters import buildah, podman
 from benchbuild.environments.domain import commands, events, model
 
+if sys.version_info <= (3, 8):
+    from typing_extensions import Protocol
+else:
+    from typing import Protocol
 
-class EventCollector(tp.Protocol):
+
+class EventCollector(Protocol):
 
     def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
         ...

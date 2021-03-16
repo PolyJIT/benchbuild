@@ -16,8 +16,9 @@ class CreatingLayer(model.Event):
 
 @attr.s(frozen=True)
 class LayerCreated(model.Event):
-    name: str = attr.ib()
     layer: str = attr.ib()
+    container_id: str = attr.ib()
+    image_tag: str = attr.ib()
 
 
 @attr.s(frozen=True)

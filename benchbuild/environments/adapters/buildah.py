@@ -8,7 +8,7 @@ from plumbum import local, ProcessExecutionError
 from plumbum.commands.base import BaseCommand
 from plumbum.path.utils import delete
 
-from benchbuild.environments.domain import model
+from benchbuild.environments.domain import model, events
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import buildah, mktemp
 
@@ -155,8 +155,13 @@ LAYER_HANDLERS = {
 def spawn_layer(container: model.Container, layer: model.Layer) -> None:
     if layer == container.image.from_:
         return
+
+    image = container.image
     handler: LayerHandlerT = tp.cast(LayerHandlerT, LAYER_HANDLERS[type(layer)])
     handler(container, layer)
+    image.events.append(
+        events.LayerCreated(str(layer), container.container_id, image.name)
+    )
 
 
 class ImageRegistry(abc.ABC):

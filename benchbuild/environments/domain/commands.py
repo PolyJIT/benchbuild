@@ -55,13 +55,6 @@ class CreateImage(model.Command):
 
 
 @attr.s(frozen=True, hash=False)
-class CreateLayer(model.Command):
-    name: str = attr.ib(converter=oci_compliant_name)
-    container_id: str = attr.ib(converter=oci_compliant_name)
-    layer: model.Layer = attr.ib()
-
-
-@attr.s(frozen=True, hash=False)
 class CreateBenchbuildBase(model.Command):
     name: str = attr.ib(converter=oci_compliant_name, eq=True)
     layers: declarative.ContainerImage = attr.ib()

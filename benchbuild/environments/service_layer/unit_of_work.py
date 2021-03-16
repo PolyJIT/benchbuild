@@ -2,8 +2,11 @@ import abc
 import sys
 import typing as tp
 
+from plumbum import local
+from plumbum.path.utils import delete
+
 from benchbuild.environments.adapters import buildah, podman
-from benchbuild.environments.domain import commands, events, model
+from benchbuild.environments.domain import model
 
 if sys.version_info <= (3, 8):
     from typing_extensions import Protocol
@@ -50,17 +53,6 @@ class ImageUnitOfWork(UnitOfWork):
     def _create(self, tag: str, from_: str) -> model.Container:
         raise NotImplementedError
 
-    def add_layer(self, container: model.Container, layer: model.Layer) -> None:
-        image = container.image
-        self._add_layer(container, layer)
-        image.events.append(events.LayerCreated(image.name, str(layer)))
-
-    @abc.abstractmethod
-    def _add_layer(
-        self, container: model.Container, layer: model.Layer
-    ) -> None:
-        raise NotImplementedError
-
     @abc.abstractmethod
     def _export_image(self, image_id: str, out_path: str) -> None:
         raise NotImplementedError
@@ -77,29 +69,21 @@ class ImageUnitOfWork(UnitOfWork):
 
     def rollback(self) -> None:
         containers = self.registry.containers
-        delete_containers = [
-            c for c in containers
-            if self.registry.is_held(c) or c.image.is_complete()
-        ]
+        for container in containers.values():
+            self._rollback(container)
 
-        keep_containers = [
-            c for c in containers if not self.registry.is_held(c)
-        ]
-
-        for container in delete_containers:
-            self.registry.destroy(container)
-
-        for container in keep_containers:
-            self.registry.unhold(container)
-
-        self.registry.containers = containers
+    @abc.abstractmethod
+    def _rollback(self, container: model.Container) -> None:
+        raise NotImplementedError
 
     def commit(self) -> None:
         containers = self.registry.containers
-        for container in containers:
-            self.registry.commit(container)
-            if not self.registry.is_held(container):
-                self.registry.destroy(container)
+        for container in containers.values():
+            self._commit(container)
+
+    @abc.abstractmethod
+    def _commit(self, container: model.Container) -> None:
+        raise NotImplementedError
 
 
 class BuildahImageUOW(ImageUnitOfWork):
@@ -111,19 +95,24 @@ class BuildahImageUOW(ImageUnitOfWork):
         from_layer = model.FromLayer(from_)
         return self.registry.create(tag, from_layer)
 
-    def _add_layer(
-        self, container: model.Container, layer: model.Layer
-    ) -> None:
-        image = container.image
-        image.events.append(
-            commands.CreateLayer(image.name, container.container_id, layer)
-        )
-
     def _export_image(self, image_id: str, out_path: str) -> None:
         podman.save(image_id, out_path)
 
     def _import_image(self, image_name: str, import_path: str) -> None:
         podman.load(image_name, import_path)
+
+    def _commit(self, container: model.Container) -> None:
+        image = container.image
+        buildah.run(
+            buildah.bb_buildah('commit')[container.container_id,
+                                         image.name.lower()]
+        )
+
+    def _rollback(self, container: model.Container) -> None:
+        buildah.run(buildah.bb_buildah('rm')[container.container_id])
+        context_path = local.path(container.context)
+        if context_path.exists():
+            delete(context_path)
 
 
 class ContainerUnitOfWork(UnitOfWork):

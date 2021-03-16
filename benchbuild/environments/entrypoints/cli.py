@@ -7,7 +7,6 @@ from rich import traceback as tb
 from benchbuild import experiment, plugins, project, settings, source
 from benchbuild.environments import bootstrap
 from benchbuild.environments.domain import commands, declarative
-from benchbuild.environments.service_layer import messagebus, unit_of_work
 from benchbuild.experiment import ExperimentIndex
 from benchbuild.project import ProjectIndex
 from benchbuild.settings import CFG
@@ -142,7 +141,7 @@ def create_base_images(
     """
     Create base images requested by all selected projects.
 
-    The images will contain benchbuild and requirer all dependencies to be
+    The images will contain benchbuild and require all dependencies to be
     installed during construction. BenchBuild will insert itself at the end
     of the layer sequence.
 

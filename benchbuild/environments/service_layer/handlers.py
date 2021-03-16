@@ -34,11 +34,7 @@ def create_image(
     uow: unit_of_work.ImageUnitOfWork, cmd: commands.CreateImage
 ) -> None:
     """
-    Create a container image using a registry.
-
-    This will first add the layers to our model image. The image layers will
-    be spawned by subsequent commands over the messagebus.
-    This is *not* an atomic operation.
+    Create a container image using a pre-configured registry.
     """
     replace = CFG['container']['replace']
     with uow:
@@ -46,36 +42,11 @@ def create_image(
         if image and not replace:
             return
 
-        from_ = cmd.layers.base
-        container = uow.create(cmd.name, from_)
-        for layer in cmd.layers:
-            uow.add_layer(container, layer)
+        container = uow.create(cmd.name, cmd.layers.base)
+        image = container.image
+        image.append(*cmd.layers)
 
-        if cmd.layers:
-            uow.registry.hold(container)
-        uow.commit()
-
-
-def create_layer(
-    uow: unit_of_work.ImageUnitOfWork, cmd: commands.CreateLayer
-) -> None:
-    """
-    Spawn a layer in an image container.
-
-    """
-    with uow:
-        image = uow.registry.find(cmd.name)
-        if not image:
-            LOG.error("create_layer: image not found")
-            return
-
-        container = uow.registry.container(cmd.container_id)
-        if container is None:
-            #FIXME: Add a custom error.
-            raise ValueError(f'no container with id: {cmd.container_id} found')
-        image.append(cmd.layer)
-        uow.registry.add(image, container)
-        uow.registry.hold(container)
+        uow.registry.add(image)
         uow.commit()
 
 

@@ -45,8 +45,6 @@ def bus() -> Messagebus:
             handlers.bootstrap(handlers.export_image_handler, images_uow),
         commands.ImportImage:
             handlers.bootstrap(handlers.import_image_handler, images_uow),
-        commands.CreateLayer:
-            handlers.bootstrap(handlers.create_layer, images_uow)
     }
 
     return partial(messagebus.handle, cmd_handlers, evt_handlers)

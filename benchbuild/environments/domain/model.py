@@ -54,7 +54,7 @@ class FromLayer(Layer):
 
 @attr.s(frozen=True)
 class AddLayer(Layer):
-    sources: tp.Iterable[str] = attr.ib()
+    sources: tp.Tuple[str, ...] = attr.ib()
     destination: str = attr.ib()
 
     def __str__(self) -> str:
@@ -64,7 +64,7 @@ class AddLayer(Layer):
 
 @attr.s(frozen=True)
 class CopyLayer(Layer):
-    sources: tp.Iterable[str] = attr.ib()
+    sources: tp.Tuple[str, ...] = attr.ib()
     destination: str = attr.ib()
 
     def __str__(self) -> str:

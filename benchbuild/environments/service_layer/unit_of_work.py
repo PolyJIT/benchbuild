@@ -133,7 +133,7 @@ class ContainerUnitOfWork(UnitOfWork):
         return self._create(image_id, name)
 
     @abc.abstractmethod
-    def _create(self, tag: str, container_name: str) -> model.Container:
+    def _create(self, tag: str, name: str) -> model.Container:
         raise NotImplementedError
 
     def start(self, container: model.Container) -> None:

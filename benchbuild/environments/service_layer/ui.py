@@ -13,28 +13,10 @@ def print_image_created(
     __progress__.console.print(f'Building {event.name}')
 
 
-def print_creating_layer(
-    _: unit_of_work.ImageUnitOfWork, event: events.CreatingLayer
-) -> None:
-    __progress__.console.print(event.layer)
-
-
 def print_layer_created(
     _: unit_of_work.ImageUnitOfWork, event: events.LayerCreated
 ) -> None:
-    rich.print(f'[bold]{event.name}[/bold] {event.layer}')
-
-
-def print_image_committed(
-    _: unit_of_work.ImageUnitOfWork, event: events.ImageCommitted
-) -> None:
-    __progress__.console.print(f'Finished {event.name}')
-
-
-def print_image_destroyed(
-    _: unit_of_work.ImageUnitOfWork, event: events.ImageCommitted
-) -> None:
-    del event
+    rich.print(f'[bold]{event.image_tag}[/bold] {event.name}')
 
 
 def print_container_created(

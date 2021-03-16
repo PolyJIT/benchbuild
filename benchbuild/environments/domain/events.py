@@ -9,14 +9,8 @@ from . import model
 
 # pylint: disable=too-few-public-methods
 @attr.s(frozen=True)
-class CreatingLayer(model.Event):
-    name: str = attr.ib()
-    layer: str = attr.ib()
-
-
-@attr.s(frozen=True)
 class LayerCreated(model.Event):
-    layer: str = attr.ib()
+    name: str = attr.ib()
     container_id: str = attr.ib()
     image_tag: str = attr.ib()
 
@@ -30,18 +24,8 @@ class ImageCreated(model.Event):
 
 @attr.s(frozen=True)
 class ContainerCreated(model.Event):
+    name: str = attr.ib()
     image_id: str = attr.ib()
-    name: str = attr.ib()
-
-
-@attr.s(frozen=True)
-class ImageCommitted(model.Event):
-    name: str = attr.ib()
-
-
-@attr.s(frozen=True)
-class ImageDestroyed(model.Event):
-    name: str = attr.ib()
 
 
 # pylint: enable=too-few-public-methods

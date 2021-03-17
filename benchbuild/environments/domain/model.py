@@ -5,21 +5,25 @@ import typing as tp
 import attr
 
 
-@attr.s(frozen=True)
-class Event:
-    pass
-
-
-@attr.s(frozen=True)
-class Command:
-    pass
-
-
-Message = tp.Union[Command, Event]
-MessageT = tp.Union[tp.Type[Command], tp.Type[Event]]
-
-
 # pylint: disable=too-few-public-methods
+@attr.s(frozen=True)
+class Message:
+    pass
+
+
+MessageT = tp.Type[Message]
+
+
+@attr.s(frozen=True)
+class Event(Message):
+    pass
+
+
+@attr.s(frozen=True)
+class Command(Message):
+    pass
+
+
 class LayerState(enum.Enum):
     PRESENT = 1
     ABSENT = 2

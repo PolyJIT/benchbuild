@@ -15,7 +15,7 @@ MessageHandlerWithUOW = tp.Callable[[model.Message], tp.Generator[model.Message,
 
 
 def bootstrap(
-    handler: MessageHandler, uow: unit_of_work.EventCollector
+    handler, uow: unit_of_work.EventCollector
 ) -> MessageHandlerWithUOW:
     """
     Bootstrap prepares a message handler with a unit of work.

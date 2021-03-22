@@ -9,70 +9,58 @@ from . import ensure
 
 LOG = logging.getLogger(__name__)
 
+MessageHandler = tp.Callable[[unit_of_work.EventCollector, model.Message], None]
+MessageHandlerWithUOW = tp.Callable[[model.Message], tp.Generator[model.Message,
+                                                                  None, None]]
 
-def _create_build_container(
-    name: str, layers: tp.List[tp.Any], uow: unit_of_work.AbstractUnitOfWork
-) -> model.Image:
-    container = uow.create_image(name, layers)
-    image = container.image
-    for layer in image.layers:
-        uow.add_layer(container, layer)
-    return image
+
+def bootstrap(
+    handler, uow: unit_of_work.EventCollector
+) -> MessageHandlerWithUOW:
+    """
+    Bootstrap prepares a message handler with a unit of work.
+    """
+
+    def wrapped_handler(
+        msg: model.Message
+    ) -> tp.Generator[model.Message, None, None]:
+        handler(uow, msg)
+        return uow.collect_new_events()
+
+    return wrapped_handler
 
 
 def create_image(
-    cmd: commands.CreateImage, uow: unit_of_work.AbstractUnitOfWork
-) -> str:
+    uow: unit_of_work.ImageUnitOfWork, cmd: commands.CreateImage
+) -> None:
     """
-    Create a container image using a registry.
+    Create a container image using a pre-configured registry.
     """
     replace = CFG['container']['replace']
     with uow:
-        image = uow.registry.get_image(cmd.name)
+        image = uow.registry.find(cmd.name)
         if image and not replace:
-            return str(image.name)
+            return
 
-        image = _create_build_container(cmd.name, cmd.layers, uow)
+        container = uow.create(cmd.name, cmd.layers.base)
+        image = container.image
+        image.append(*cmd.layers)
+
+        uow.registry.add(image)
         uow.commit()
-
-        return str(image.name)
 
 
 def create_benchbuild_base(
-    cmd: commands.CreateBenchbuildBase, uow: unit_of_work.AbstractUnitOfWork
-) -> str:
+    uow: unit_of_work.ImageUnitOfWork, cmd: commands.CreateBenchbuildBase
+) -> None:
     """
     Create a benchbuild base image.
     """
-    replace = CFG['container']['replace']
-    with uow:
-        image = uow.registry.get_image(cmd.name)
-        if image and not replace:
-            return str(image.name)
-
-        image = _create_build_container(cmd.name, cmd.layers, uow)
-        uow.commit()
-
-        return str(image.name)
-
-
-def update_image(
-    cmd: commands.UpdateImage, uow: unit_of_work.AbstractUnitOfWork
-) -> str:
-    """
-    Update a benchbuild image.
-    """
-    with uow:
-        ensure.image_exists(cmd.name, uow)
-
-        image = _create_build_container(cmd.name, cmd.layers, uow)
-        uow.commit()
-
-        return str(image.name)
+    create_image(uow, commands.CreateImage(cmd.name, cmd.layers))
 
 
 def run_project_container(
-    cmd: commands.RunProjectContainer, uow: unit_of_work.AbstractUnitOfWork
+    uow: unit_of_work.ContainerUnitOfWork, cmd: commands.RunProjectContainer
 ) -> None:
     """
     Run a project container.
@@ -82,32 +70,32 @@ def run_project_container(
 
         build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
         if build_dir:
-            uow.registry.temporary_mount(cmd.image, cmd.build_dir, build_dir)
+            uow.registry.mount(cmd.image, cmd.build_dir, build_dir)
         else:
             LOG.warning(
                 'The image misses a configured "BB_BUILD_DIR" variable.'
             )
             LOG.warning('No result artifacts will be copied out.')
 
-        container = uow.create_container(cmd.image, cmd.name)
-        uow.run_container(container)
+        container = uow.create(cmd.image, cmd.name)
+        uow.start(container)
 
 
 def export_image_handler(
-    cmd: commands.ExportImage, uow: unit_of_work.AbstractUnitOfWork
+    uow: unit_of_work.ImageUnitOfWork, cmd: commands.ExportImage
 ) -> None:
     """
     Export a container image.
     """
     with uow:
         ensure.image_exists(cmd.image, uow)
-        image = uow.registry.get_image(cmd.image)
+        image = uow.registry.find(cmd.image)
         if image:
             uow.export_image(image.name, cmd.out_name)
 
 
 def import_image_handler(
-    cmd: commands.ImportImage, uow: unit_of_work.AbstractUnitOfWork
+    uow: unit_of_work.ImageUnitOfWork, cmd: commands.ImportImage
 ) -> None:
     """
     Import a container image.

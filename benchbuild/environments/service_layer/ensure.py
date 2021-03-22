@@ -6,8 +6,8 @@ class ImageNotFound(Exception):
 
 
 def image_exists(
-    image_name: str, uow: unit_of_work.AbstractUnitOfWork
+    image_name: str, uow: unit_of_work.ContainerUnitOfWork
 ) -> None:
-    image = uow.registry.get_image(image_name)
+    image = uow.registry.find_image(image_name)
     if not image:
         raise ImageNotFound(image_name)

@@ -1,106 +1,86 @@
 import logging
 import typing as tp
 
-from benchbuild.environments.domain import commands, events
-
-from . import handlers, ui, unit_of_work
+from benchbuild.environments.domain import model
 
 LOG = logging.getLogger(__name__)
 
-Message = tp.Union[commands.Command, events.Event]
+Message = tp.Union[model.Command, model.Event]
 Messages = tp.List[Message]
 
-EventHandlerT = tp.Callable[[events.Event, unit_of_work.AbstractUnitOfWork],
-                            None]
-CommandHandlerT = tp.Callable[
-    [commands.Command, unit_of_work.AbstractUnitOfWork], str]
-CommandResults = tp.List[str]
+#EventHandlerT = tp.Callable[[events.Event, unit_of_work.AbstractUnitOfWork],
+EventHandlerT = tp.Callable[[model.Event], tp.Generator[model.Event, None,
+                                                        None]]
+#CommandHandlerT = tp.Callable[
+#    [commands.Command, unit_of_work.AbstractUnitOfWork], str]
+CommandHandlerT = tp.Callable[[model.Command], tp.Generator[model.Event, None,
+                                                            None]]
+
+MessageT = tp.Union[tp.Type[model.Command], tp.Type[model.Event]]
+
+MessageHandler = tp.Callable[[Message], tp.Generator]
+MessageHandlers = tp.Dict[MessageT, MessageHandler]
+
+EventHandlers = tp.Dict[tp.Type[model.Event], EventHandlerT]
+CommandHandlers = tp.Dict[tp.Type[model.Command], CommandHandlerT]
 
 
-def handle(message: Message, uow: unit_of_work.AbstractUnitOfWork) -> None:
+def handle(
+    cmd_handlers: CommandHandlers, evt_handlers: EventHandlers, message: Message
+) -> None:
     """
     Distribute the given message to the required handlers.
 
     Args:
         message: A command/event to dispatch.
         uow: The unit of work used to handle this bus invocation.
-
-    Returns:
-        CommandResults
     """
     queue = [message]
     while queue:
         message = queue.pop(0)
-        if isinstance(message, events.Event):
-            handle_event(message, queue, uow)
-        elif isinstance(message, commands.Command):
-            handle_command(message, queue, uow)
+        if isinstance(message, model.Event):
+            _handle_event(evt_handlers, message, queue)
+        elif isinstance(message, model.Command):
+            _handle_command(cmd_handlers, message, queue)
         else:
             raise Exception(f'{message} was not an Event or Command')
 
 
-def handle_event(
-    event: events.Event, queue: Messages, uow: unit_of_work.AbstractUnitOfWork
+def _handle_event(
+    handlers: EventHandlers, event: model.Event, queue: Messages
 ) -> None:
     """
     Invokes all registered event handlers for this event.
 
     Args:
+        handlers:
         event: The event to handle
         queue: The message queue to hold  new events/commands that spawn from
                this handler.
-        uow: The unit of work to handle this command.
     """
-    for handler in tp.cast(tp.List[EventHandlerT], EVENT_HANDLERS[type(event)]):
+    for handler in tp.cast(tp.List[EventHandlerT], handlers[type(event)]):
         try:
-            LOG.debug('handling event %s with handler %s', event, handler)
-            handler(event, uow)
-            queue.extend(uow.collect_new_events())
+            queue.extend(handler(event))
         except Exception:
             LOG.exception('Exception handling event %s', event)
             continue
 
 
-def handle_command(
-    command: commands.Command, queue: Messages,
-    uow: unit_of_work.AbstractUnitOfWork
+def _handle_command(
+    handlers: CommandHandlers, command: model.Command, queue: Messages
 ) -> None:
     """
     Invokes a registered command handler.
 
     Args:
+        handlers:
         command: The command to handler
         queue: The message queue to hold new events/commands that spawn
                from this handler.
-        uow: The unit of work to handle this command.
-
-    Returns:
-        str
     """
-    LOG.debug('handling command %s', command)
     try:
-        handler = tp.cast(CommandHandlerT, COMMAND_HANDLERS[type(command)])
-        handler(command, uow)
-        queue.extend(uow.collect_new_events())
+        handler = handlers[type(command)]
+        queue.extend(handler(command))
     except Exception:
         LOG.exception('Exception handling command %s', command)
         raise
-
-
-EVENT_HANDLERS = {
-    events.CreatingLayer: [ui.print_creating_layer],
-    events.LayerCreated: [ui.print_layer_created],
-    events.ImageCreated: [ui.print_image_created],
-    events.ImageCommitted: [ui.print_image_committed],
-    events.ImageDestroyed: [ui.print_image_destroyed],
-    events.ContainerCreated: [ui.print_container_created]
-}
-
-COMMAND_HANDLERS = {
-    commands.CreateImage: handlers.create_image,
-    commands.UpdateImage: handlers.update_image,
-    commands.CreateBenchbuildBase: handlers.create_benchbuild_base,
-    commands.RunProjectContainer: handlers.run_project_container,
-    commands.ExportImage: handlers.export_image_handler,
-    commands.ImportImage: handlers.import_image_handler
-}

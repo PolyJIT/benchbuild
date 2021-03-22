@@ -1,13 +1,35 @@
 import abc
+import enum
 import typing as tp
 
 import attr
 
-from benchbuild.environments.domain import events
-
 
 # pylint: disable=too-few-public-methods
-@attr.s
+@attr.s(frozen=True)
+class Message:
+    pass
+
+
+MessageT = tp.Type[Message]
+
+
+@attr.s(frozen=True)
+class Event(Message):
+    pass
+
+
+@attr.s(frozen=True)
+class Command(Message):
+    pass
+
+
+class LayerState(enum.Enum):
+    PRESENT = 1
+    ABSENT = 2
+
+
+@attr.s(frozen=True)
 class Layer(abc.ABC):
     """
     A layer represents a filesystem layer in a container image.
@@ -26,8 +48,6 @@ class Layer(abc.ABC):
 
 
 # pylint: enable=too-few-public-methods
-
-
 @attr.s(frozen=True)
 class FromLayer(Layer):
     base: str = attr.ib()
@@ -38,7 +58,7 @@ class FromLayer(Layer):
 
 @attr.s(frozen=True)
 class AddLayer(Layer):
-    sources: tp.Iterable[str] = attr.ib()
+    sources: tp.Tuple[str, ...] = attr.ib()
     destination: str = attr.ib()
 
     def __str__(self) -> str:
@@ -48,7 +68,7 @@ class AddLayer(Layer):
 
 @attr.s(frozen=True)
 class CopyLayer(Layer):
-    sources: tp.Iterable[str] = attr.ib()
+    sources: tp.Tuple[str, ...] = attr.ib()
     destination: str = attr.ib()
 
     def __str__(self) -> str:
@@ -56,11 +76,21 @@ class CopyLayer(Layer):
         return f'COPY {sources} self.destination'
 
 
+def immutable_kwargs(
+    kwargs: tp.Dict[str, str]
+) -> tp.Tuple[tp.Tuple[str, str], ...]:
+    """
+    Convert str-typed kwargs into a hashable tuple.
+    """
+    return tuple((k, v) for k, v in kwargs.items())
+
+
 @attr.s(frozen=True)
 class RunLayer(Layer):
     command: str = attr.ib()
     args: tp.Tuple[str, ...] = attr.ib()
-    kwargs: tp.Dict[str, str] = attr.ib()
+    kwargs: tp.Tuple[tp.Tuple[str, str],
+                     ...] = attr.ib(converter=immutable_kwargs)
 
     def __str__(self) -> str:
         args = ' '.join(self.args)
@@ -77,7 +107,7 @@ class ContextLayer(Layer):
 
 @attr.s(frozen=True)
 class UpdateEnv(Layer):
-    env = attr.ib()  # type: tp.Dict[str, str]
+    env: tp.Tuple[tp.Tuple[str, str], ...] = attr.ib(converter=immutable_kwargs)
 
     def __str__(self) -> str:
         return f'ENV {len(self.env)} entries'
@@ -123,20 +153,37 @@ class Image:
     name: str = attr.ib()
     from_: FromLayer = attr.ib()
     layers: tp.List[Layer] = attr.ib()
-    events = attr.ib(attr.Factory(list))  # type: tp.List[events.Event]
-    env = attr.ib(attr.Factory(dict))  # type: tp.Dict[str, str]
+    events: tp.List[Message] = attr.ib(attr.Factory(list))
+    env: tp.Dict[str, str] = attr.ib(attr.Factory(dict))
     mounts: tp.List[Mount] = attr.ib(attr.Factory(list))
+    layer_index: tp.Dict[Layer, LayerState] = attr.ib(attr.Factory(dict))
 
     def update_env(self, **kwargs: str) -> None:
         self.env.update(kwargs)
 
-    def append(self, layer: Layer) -> None:
-        self.layers.append(layer)
+    def append(self, *layers: Layer) -> None:
+        for layer in layers:
+            self.layers.append(layer)
+            self.layer_index[layer] = LayerState.ABSENT
+
+    def present(self, layer: Layer) -> None:
+        if layer in self.layer_index:
+            self.layer_index[layer] = LayerState.PRESENT
+
+    def is_present(self, layer: Layer) -> bool:
+        return layer in self.layer_index and self.layer_index[
+            layer] == LayerState.PRESENT
+
+    def is_complete(self) -> bool:
+        return all([
+            state == LayerState.PRESENT for state in self.layer_index.values()
+        ])
 
     def prepend(self, layer: Layer) -> None:
         old_layers = self.layers
         self.layers = [layer]
         self.layers.extend(old_layers)
+        self.layer_index[layer] = LayerState.ABSENT
 
 
 MaybeImage = tp.Optional[Image]
@@ -147,9 +194,9 @@ class Container:
     container_id: str = attr.ib()
     image: Image = attr.ib()
     context: str = attr.ib()
+    name: str = attr.ib()
 
-    events = attr.ib(attr.Factory(list))  # type: tp.List[events.Event]
+    events: tp.List[Message] = attr.ib(attr.Factory(list))
 
-    @property
-    def name(self) -> str:
-        return self.image.name
+
+MaybeContainer = tp.Optional[Container]

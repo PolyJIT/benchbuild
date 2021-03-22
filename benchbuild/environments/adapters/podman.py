@@ -1,10 +1,12 @@
+import abc
 import logging
-import os
 import typing as tp
 
-from plumbum import local
+from plumbum import local, ProcessExecutionError
 from plumbum.commands.base import BaseCommand
 
+from benchbuild.environments.adapters import buildah
+from benchbuild.environments.domain import model
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import podman, rm
 
@@ -14,11 +16,24 @@ LOG = logging.getLogger(__name__)
 def bb_podman(*args: str) -> BaseCommand:
     opts = [
         '--root',
-        os.path.abspath(str(CFG['container']['root'])), '--runroot',
-        os.path.abspath(str(CFG['container']['runroot']))
+        str(CFG['container']['root']), '--runroot',
+        str(CFG['container']['runroot'])
     ]
     cmd = podman[opts]
     return cmd[args]
+
+
+OnErrorHandler = tp.Callable[[ProcessExecutionError], None]
+
+
+def run(cmd: BaseCommand, *on_errors: OnErrorHandler, **kwargs: tp.Any) -> str:
+    result = ""
+    try:
+        result = str(cmd(**kwargs)).strip()
+    except ProcessExecutionError as err:
+        for on_error in on_errors:
+            on_error(err)
+    return result
 
 
 def create_container(
@@ -66,7 +81,6 @@ def load(image_name: str, load_path: str) -> None:
 
 
 def run_container(name: str) -> None:
-    LOG.debug('running container: %s', name)
     container_start = bb_podman('container', 'start')
     container_start['-ai', name].run_tee()
 
@@ -74,3 +88,95 @@ def run_container(name: str) -> None:
 def remove_container(container_id: str) -> None:
     podman_rm = bb_podman('rm')
     podman_rm(container_id)
+
+
+class ContainerRegistry(abc.ABC):
+    containers: tp.Dict[str, model.Container]
+    ro_images: buildah.BuildahImageRegistry
+
+    def __init__(self) -> None:
+        self.containers = dict()
+        self.ro_images = buildah.BuildahImageRegistry()
+
+    def find(self, container_id: str) -> model.MaybeContainer:
+        if container_id in self.containers:
+            return self.containers[container_id]
+
+        container = self._find(container_id)
+        if container is not None:
+            self.containers[container_id] = container
+            return container
+
+        return None
+
+    def find_image(self, tag: str) -> model.MaybeImage:
+        return self.ro_images.find(tag)
+
+    def env(self, tag: str, env_name: str) -> tp.Optional[str]:
+        return self.ro_images.env(tag, env_name)
+
+    def mount(self, tag: str, src: str, tgt: str) -> None:
+        self.ro_images.temporary_mount(tag, src, tgt)
+
+    @abc.abstractmethod
+    def _find(self, tag: str) -> model.MaybeContainer:
+        raise NotImplementedError
+
+    def create(self, image_id: str, name: str) -> model.Container:
+        image = self.find_image(image_id)
+        assert image
+
+        container = self._create(image, name)
+        if container is not None:
+            self.containers[name] = container
+        return container
+
+    @abc.abstractmethod
+    def _create(self, image: model.Image, name: str) -> model.Container:
+        raise NotImplementedError
+
+    def start(self, container: model.Container) -> None:
+        if container.name not in self.containers:
+            raise ValueError('container must be created first')
+
+        self._start(container.container_id)
+
+    @abc.abstractmethod
+    def _start(self, container_id: str) -> None:
+        raise NotImplementedError
+
+
+class PodmanRegistry(ContainerRegistry):
+
+    def _create(self, image: model.Image, name: str) -> model.Container:
+        mounts = [
+            f'type=bind,src={mnt.source},target={mnt.target}'
+            for mnt in image.mounts
+        ]
+
+        create_cmd = bb_podman('create', '--replace')
+
+        if mounts:
+            for mount in mounts:
+                create_cmd = create_cmd['--mount', mount]
+
+        cfg_mounts = list(CFG['container']['mounts'].value)
+        if cfg_mounts:
+            for source, target in cfg_mounts:
+                create_cmd = create_cmd[
+                    '--mount', f'type=bind,src={source},target={target}']
+
+        container_id = run(create_cmd['--name', name, image.name])
+        # If we had to replace an existing container (bug?), we get 2 IDs.
+        # The first ID is the old (replaced) container.
+        # The second ID is the new container.
+        new_container_id = container_id.split('\n')[-1]
+
+        return model.Container(new_container_id, image, '', name)
+
+    def _start(self, container_id: str) -> None:
+        container_start = bb_podman('container', 'start')
+        container_start['-ai', container_id].run_tee()
+
+    def _find(self, tag: str) -> model.MaybeContainer:
+        return None

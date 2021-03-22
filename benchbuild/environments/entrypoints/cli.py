@@ -2,13 +2,16 @@ import typing as tp
 from functools import partial
 
 from plumbum import cli, local
+from rich import traceback as tb
 
 from benchbuild import experiment, plugins, project, settings, source
+from benchbuild.environments import bootstrap
 from benchbuild.environments.domain import commands, declarative
-from benchbuild.environments.service_layer import messagebus, unit_of_work
 from benchbuild.experiment import ExperimentIndex
 from benchbuild.project import ProjectIndex
 from benchbuild.settings import CFG
+
+tb.install()
 
 
 class BenchBuildContainer(cli.Application):  # type: ignore
@@ -111,26 +114,24 @@ def export_image(image_name: str) -> None:
     """
     Export the image layers to the filesystem.
     """
-    uow = unit_of_work.ContainerImagesUOW()
+    publish = bootstrap.bus()
     export_name = commands.fs_compliant_name(image_name)
     export_path = local.path(
         CFG["container"]["export"].value
     ) / export_name + ".tar"
-    export_cmd = commands.ExportImage(image_name, str(export_path))
-    messagebus.handle(export_cmd, uow)
+    publish(commands.ExportImage(image_name, str(export_path)))
 
 
 def import_image(image_name: str) -> None:
     """
     Import the image layers to the registry.
     """
-    uow = unit_of_work.ContainerImagesUOW()
+    publish = bootstrap.bus()
     import_name = commands.fs_compliant_name(image_name)
     import_path = local.path(
         CFG["container"]["import"].value
     ) / import_name + ".tar"
-    import_cmd = commands.ImportImage(image_name, str(import_path))
-    messagebus.handle(import_cmd, uow)
+    publish(commands.ImportImage(image_name, str(import_path)))
 
 
 def create_base_images(
@@ -140,7 +141,7 @@ def create_base_images(
     """
     Create base images requested by all selected projects.
 
-    The images will contain benchbuild and requirer all dependencies to be
+    The images will contain benchbuild and require all dependencies to be
     installed during construction. BenchBuild will insert itself at the end
     of the layer sequence.
 
@@ -148,6 +149,7 @@ def create_base_images(
         projects: A project index that contains all reqquested (name, project)
                   Tuples.
     """
+    publish = bootstrap.bus()
     image_commands: tp.Set[commands.CreateBenchbuildBase] = set()
 
     for prj in enumerate_projects(experiments, projects):
@@ -165,9 +167,7 @@ def create_base_images(
         image_commands.add(commands.CreateBenchbuildBase(image.base, layers))
 
     for cmd in image_commands:
-        uow = unit_of_work.ContainerImagesUOW()
-
-        messagebus.handle(cmd, uow)
+        publish(cmd)
 
         if do_export:
             export_image(cmd.name)
@@ -195,6 +195,7 @@ def create_project_images(
                   Tuples.
     """
     build_dir = local.path(BB_APP_ROOT) / 'results'
+    publish = bootstrap.bus()
 
     for prj in enumerate_projects(experiments, projects):
         version = make_version_tag(*prj.variant.values())
@@ -212,8 +213,7 @@ def create_project_images(
         layers.workingdir(BB_APP_ROOT)
 
         cmd = commands.CreateImage(image_tag, layers)
-        uow = unit_of_work.ContainerImagesUOW()
-        messagebus.handle(cmd, uow)
+        publish(cmd)
 
 
 def enumerate_experiments(
@@ -243,6 +243,7 @@ def create_experiment_images(
         projects: A project index that contains all reqquested (name, project)
                   Tuples.
     """
+    publish = bootstrap.bus()
     for exp in enumerate_experiments(experiments, projects):
         for prj in exp.projects:
             version = make_version_tag(*prj.variant.values())
@@ -259,10 +260,7 @@ def create_experiment_images(
 
             image.entrypoint('benchbuild', 'run', '-E', exp.name, str(prj.id))
 
-            cmd = commands.CreateImage(image_tag, image)
-            uow = unit_of_work.ContainerImagesUOW()
-
-            messagebus.handle(cmd, uow)
+            publish(commands.CreateImage(image_tag, image))
 
 
 def run_experiment_images(
@@ -277,9 +275,8 @@ def run_experiment_images(
         experiments: Index of experiments to run.
         projects: Index of projects to run.
     """
-
     build_dir = str(CFG['build_dir'])
-    uow = unit_of_work.ContainerImagesUOW()
+    publish = bootstrap.bus()
 
     for exp in enumerate_experiments(experiments, projects):
         for prj in exp.projects:
@@ -290,8 +287,8 @@ def run_experiment_images(
 
             container_name = f'{exp.name}_{prj.name}_{prj.group}'
 
-            cmd = commands.RunProjectContainer(
-                image_tag, container_name, build_dir
+            publish(
+                commands.RunProjectContainer(
+                    image_tag, container_name, build_dir
+                )
             )
-
-            messagebus.handle(cmd, uow)

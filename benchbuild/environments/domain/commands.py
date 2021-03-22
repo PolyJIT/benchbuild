@@ -3,7 +3,7 @@ import unicodedata
 
 import attr
 
-from . import declarative
+from . import declarative, model
 
 
 def fs_compliant_name(name: str) -> str:
@@ -45,13 +45,8 @@ def oci_compliant_name(name: str) -> str:
 
 
 # pylint: disable=too-few-public-methods
-@attr.s(frozen=True)
-class Command:
-    pass
-
-
 @attr.s(frozen=True, hash=False)
-class CreateImage(Command):
+class CreateImage(model.Command):
     name: str = attr.ib(converter=oci_compliant_name)
     layers: declarative.ContainerImage = attr.ib()
 
@@ -60,16 +55,7 @@ class CreateImage(Command):
 
 
 @attr.s(frozen=True, hash=False)
-class UpdateImage(Command):
-    name: str = attr.ib(converter=oci_compliant_name)
-    layers: declarative.ContainerImage = attr.ib()
-
-    def __hash__(self) -> int:
-        return hash(self.name)
-
-
-@attr.s(frozen=True, hash=False)
-class CreateBenchbuildBase(Command):
+class CreateBenchbuildBase(model.Command):
     name: str = attr.ib(converter=oci_compliant_name, eq=True)
     layers: declarative.ContainerImage = attr.ib()
 
@@ -78,7 +64,7 @@ class CreateBenchbuildBase(Command):
 
 
 @attr.s(frozen=True, hash=False)
-class RunProjectContainer(Command):
+class RunProjectContainer(model.Command):
     image: str = attr.ib(converter=oci_compliant_name)
     name: str = attr.ib(converter=oci_compliant_name)
 
@@ -86,13 +72,13 @@ class RunProjectContainer(Command):
 
 
 @attr.s(frozen=True, hash=False)
-class ExportImage(Command):
+class ExportImage(model.Command):
     image: str = attr.ib(converter=oci_compliant_name)
     out_name: str = attr.ib()
 
 
 @attr.s(frozen=True, hash=False)
-class ImportImage(Command):
+class ImportImage(model.Command):
     image: str = attr.ib(converter=oci_compliant_name)
     in_path: str = attr.ib()
 

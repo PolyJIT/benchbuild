@@ -31,12 +31,3 @@ def describe_image():
             model.FromLayer('base'),
             model.WorkingDirectory('abc')
         ]
-
-
-def describe_container():
-
-    def name_is_derived_from_image():
-        img = model.Image('image_name', model.FromLayer(''), [])
-        container = model.Container('', img, '')
-
-        assert container.name == img.name

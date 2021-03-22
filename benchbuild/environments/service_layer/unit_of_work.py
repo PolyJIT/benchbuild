@@ -1,14 +1,171 @@
 import abc
+import sys
 import typing as tp
 
-from benchbuild.environments.adapters import buildah, podman, repository
-from benchbuild.environments.domain import events, model
+from plumbum import local
+from plumbum.path.utils import delete
+
+from benchbuild.environments.adapters import buildah, podman
+from benchbuild.environments.domain import model
+
+if sys.version_info <= (3, 8):
+    from typing_extensions import Protocol
+else:
+    from typing import Protocol
+
+
+class EventCollector(Protocol):
+
+    def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
+        ...
+
+
+class UnitOfWork(abc.ABC):
+
+    @abc.abstractmethod
+    def commit(self) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def rollback(self) -> None:
+        raise NotImplementedError
+
+
+class ImageUnitOfWork(UnitOfWork):
+    registry: buildah.ImageRegistry
+
+    def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
+        for image in self.registry.images.values():
+            while image.events:
+                evt = image.events.pop(0)
+                yield evt
+
+    def __enter__(self) -> 'ImageUnitOfWork':
+        return self
+
+    def __exit__(self, *args: tp.Any) -> None:
+        self.rollback()
+
+    def create(self, tag: str, from_: str) -> model.Container:
+        return self._create(tag, from_)
+
+    @abc.abstractmethod
+    def _create(self, tag: str, from_: str) -> model.Container:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def _export_image(self, image_id: str, out_path: str) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def _import_image(self, image_name: str, import_path: str) -> None:
+        raise NotImplementedError
+
+    def export_image(self, image_id: str, out_path: str) -> None:
+        return self._export_image(image_id, out_path)
+
+    def import_image(self, image_name: str, import_path: str) -> None:
+        return self._import_image(image_name, import_path)
+
+    def rollback(self) -> None:
+        containers = self.registry.containers
+        for container in containers.values():
+            self._rollback(container)
+
+    @abc.abstractmethod
+    def _rollback(self, container: model.Container) -> None:
+        raise NotImplementedError
+
+    def commit(self) -> None:
+        containers = self.registry.containers
+        for container in containers.values():
+            self._commit(container)
+
+    @abc.abstractmethod
+    def _commit(self, container: model.Container) -> None:
+        raise NotImplementedError
+
+
+class BuildahImageUOW(ImageUnitOfWork):
+
+    def __init__(self) -> None:
+        self.registry = buildah.BuildahImageRegistry()
+
+    def _create(self, tag: str, from_: str) -> model.Container:
+        from_layer = model.FromLayer(from_)
+        return self.registry.create(tag, from_layer)
+
+    def _export_image(self, image_id: str, out_path: str) -> None:
+        podman.save(image_id, out_path)
+
+    def _import_image(self, image_name: str, import_path: str) -> None:
+        podman.load(image_name, import_path)
+
+    def _commit(self, container: model.Container) -> None:
+        image = container.image
+        buildah.run(
+            buildah.bb_buildah('commit')[container.container_id,
+                                         image.name.lower()]
+        )
+
+    def _rollback(self, container: model.Container) -> None:
+        buildah.run(buildah.bb_buildah('rm')[container.container_id])
+        context_path = local.path(container.context)
+        if context_path.exists():
+            delete(context_path)
+
+
+class ContainerUnitOfWork(UnitOfWork):
+    registry: podman.ContainerRegistry
+
+    def __enter__(self) -> 'ContainerUnitOfWork':
+        return self
+
+    def __exit__(self, *args: tp.Any) -> None:
+        self.rollback()
+
+    def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
+        for container in self.registry.containers.values():
+            while container.events:
+                yield container.events.pop(0)
+
+    def create(self, image_id: str, name: str) -> model.Container:
+        return self._create(image_id, name)
+
+    @abc.abstractmethod
+    def _create(self, tag: str, name: str) -> model.Container:
+        raise NotImplementedError
+
+    def start(self, container: model.Container) -> None:
+        self._start(container)
+
+    @abc.abstractmethod
+    def _start(self, container: model.Container) -> None:
+        raise NotImplementedError
+
+    def rollback(self) -> None:
+        pass
+
+    def commit(self) -> None:
+        pass
+
+
+class PodmanContainerUOW(ContainerUnitOfWork):
+
+    def __init__(self) -> None:
+        self.registry = podman.PodmanRegistry()
+
+    def _create(self, tag: str, name: str) -> model.Container:
+        return self.registry.create(tag, name)
+
+    def _start(self, container: model.Container) -> None:
+        self.registry.start(container)
 
 
 class AbstractUnitOfWork(abc.ABC):
-    registry: repository.AbstractRegistry
+    registry: buildah.ImageRegistry
 
-    def collect_new_events(self) -> tp.Generator[events.Event, None, None]:
+    def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
         for image in self.registry.images.values():
             while image.events:
                 yield image.events.pop(0)
@@ -74,53 +231,3 @@ class AbstractUnitOfWork(abc.ABC):
     @abc.abstractmethod
     def _import_image(self, image_name: str, import_path: str) -> None:
         raise NotImplementedError
-
-
-class ContainerImagesUOW(AbstractUnitOfWork):
-
-    def __init__(self) -> None:
-        self.registry = repository.BuildahRegistry()
-
-    def _create_image(
-        self, tag: str, layers: tp.List[model.Layer]
-    ) -> model.Container:
-        return self.registry.create_image(tag, layers)
-
-    def _create_container(
-        self, image_id: str, container_name: str
-    ) -> model.Container:
-        image = self.registry.get_image(image_id)
-        if image:
-            return self.registry.create_container(image, container_name)
-        raise ValueError('Image not found. Try building it first.')
-
-    def _add_layer(
-        self, container: model.Container, layer: model.Layer
-    ) -> None:
-        buildah.spawn_layer(container, layer)
-
-    def _export_image(self, image_id: str, out_path: str) -> None:
-        podman.save(image_id, out_path)
-
-    def _import_image(self, image_name: str, import_path: str) -> None:
-        podman.load(image_name, import_path)
-
-    def rollback(self) -> None:
-        while self.registry.build_containers:
-            container = self.registry.build_containers.pop()
-            buildah.destroy_working_container(container)
-            buildah.destroy_build_context(container.context)
-
-        while self.registry.containers:
-            container = self.registry.containers.pop()
-            podman.remove_container(container.container_id)
-
-    def commit(self) -> None:
-        while self.registry.build_containers:
-            container = self.registry.build_containers.pop()
-            buildah.commit_working_container(container)
-            buildah.destroy_build_context(container.context)
-
-        #for container in self.registry.containers:
-        #    podman.commit(container)
-        #    podman.destroy(container)

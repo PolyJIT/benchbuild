@@ -90,7 +90,7 @@ class ContainerImage(list):
             sources (tp.Iterable[str]): Source path to add to the target
             tgt (str): Absolute target path.
         """
-        self.append(model.AddLayer(sources, tgt))
+        self.append(model.AddLayer(tuple(sources), tgt))
         return self
 
     def copy_(self, sources: tp.Iterable[str], tgt: str) -> 'ContainerImage':
@@ -103,7 +103,7 @@ class ContainerImage(list):
             sources (tp.Iterable[str]): Source path to add to the target
             tgt (str): Absolute target path.
         """
-        self.append(model.CopyLayer(sources, tgt))
+        self.append(model.CopyLayer(tuple(sources), tgt))
         return self
 
     def run(self, command: str, *args: str, **kwargs: str) -> 'ContainerImage':

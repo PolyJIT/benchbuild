@@ -1,13 +1,10 @@
 # pylint: disable=redefined-outer-name
-import tempfile as tf
 import typing as tp
 from unittest import mock
 
 import attr
-import git
 import plumbum as pb
 import pytest
-import testdata as td
 
 from benchbuild import source
 from benchbuild.source import FetchableSource, Variant

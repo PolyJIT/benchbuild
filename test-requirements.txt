@@ -1,7 +1,7 @@
 codecov
+faker
 gitpython
 mock
 pytest
 pytest-cov
 pytest-describe
-testdata

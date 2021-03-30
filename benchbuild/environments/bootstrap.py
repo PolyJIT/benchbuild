@@ -24,6 +24,19 @@ def bus() -> Messagebus:
         ]
     }
 
+    evt_handlers[events.ContainerStartFailed] = [
+        handlers.bootstrap(ui.print_container_start_failed, containers_uow)
+    ]
+    evt_handlers[events.ContainerStarted] = [
+        handlers.bootstrap(ui.print_container_started, containers_uow)
+    ]
+
+    evt_handlers[events.LayerCreationFailed] = [
+        handlers.bootstrap(ui.print_layer_creation_failed, images_uow)
+    ]
+    evt_handlers[events.LayerCreated
+                ] = [handlers.bootstrap(ui.print_layer_created, images_uow)]
+
     cmd_handlers = {
         commands.CreateImage:
             handlers.bootstrap(handlers.create_image, images_uow),

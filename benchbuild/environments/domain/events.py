@@ -16,6 +16,14 @@ class LayerCreated(model.Event):
 
 
 @attr.s(frozen=True)
+class LayerCreationFailed(model.Event):
+    name: str = attr.ib()
+    container_id: str = attr.ib()
+    image_tag: str = attr.ib()
+    message: str = attr.ib()
+
+
+@attr.s(frozen=True)
 class ImageCreated(model.Event):
     name: str = attr.ib()
     from_layer: str = attr.ib()
@@ -26,6 +34,18 @@ class ImageCreated(model.Event):
 class ContainerCreated(model.Event):
     name: str = attr.ib()
     image_id: str = attr.ib()
+
+
+@attr.s(frozen=True)
+class ContainerStartFailed(model.Event):
+    name: str = attr.ib()
+    container_id: str = attr.ib()
+    message: str = attr.ib()
+
+
+@attr.s(frozen=True)
+class ContainerStarted(model.Event):
+    container_id: str = attr.ib()
 
 
 # pylint: enable=too-few-public-methods

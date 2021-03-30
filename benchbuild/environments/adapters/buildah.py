@@ -4,47 +4,39 @@ import logging
 import os
 import typing as tp
 
-from plumbum import local, ProcessExecutionError
-from plumbum.commands.base import BaseCommand
+from plumbum import local
 from plumbum.path.utils import delete
 
+from benchbuild.environments.adapters.common import (
+    run,
+    run_tee,
+    bb_buildah,
+    MaybeCommandError,
+)
 from benchbuild.environments.domain import model, events
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import buildah, mktemp
+from benchbuild.utils.cmd import mktemp
 
 LOG = logging.getLogger(__name__)
 
 
-def bb_buildah(*args: str) -> BaseCommand:
-    opts = [
-        '--root',
-        os.path.abspath(str(CFG['container']['root'])), '--runroot',
-        os.path.abspath(str(CFG['container']['runroot']))
-    ]
-    cmd = buildah[opts]
-    return cmd[args]
+class ImageCreateError(Exception):
+
+    def __init__(self, name: str, message: str):
+        self.name = name
+        self.message = message
 
 
-OnErrorHandler = tp.Callable[[ProcessExecutionError], None]
-
-
-def run(cmd: BaseCommand, *on_errors: OnErrorHandler, **kwargs: tp.Any) -> str:
-    result = ""
-    try:
-        result = str(cmd(**kwargs).strip())
-    except ProcessExecutionError as err:
-        for on_error in on_errors:
-            on_error(err)
-    return result
-
-
-def commit_working_container(container: model.Container) -> None:
+def commit_working_container(container: model.Container) -> MaybeCommandError:
     image = container.image
     commit = bb_buildah('commit')[container.container_id, image.name.lower()]
-    run(commit)
+    _, err = run(commit)
+    return err
 
 
-def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
+def spawn_add_layer(
+    container: model.Container, layer: model.AddLayer
+) -> MaybeCommandError:
     with local.cwd(container.context):
         sources = [
             os.path.join(container.context, source) for source in layer.sources
@@ -52,14 +44,20 @@ def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
         buildah_add = bb_buildah('add', '--add-history')
         buildah_add = buildah_add[container.container_id][sources][
             layer.destination]
-        run(buildah_add)
+        _, err = run(buildah_add)
+        return err
 
 
-def spawn_copy_layer(container: model.Container, layer: model.AddLayer) -> None:
-    spawn_add_layer(container, layer)
+def spawn_copy_layer(
+    container: model.Container, layer: model.AddLayer
+) -> MaybeCommandError:
+    _, err = spawn_add_layer(container, layer)
+    return err
 
 
-def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
+def spawn_run_layer(
+    container: model.Container, layer: model.RunLayer
+) -> MaybeCommandError:
     kws = []
     for name, value in layer.kwargs:
         kws.append(f'--{name}')
@@ -68,23 +66,26 @@ def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
     buildah_run = bb_buildah('run', '--add-history')
     buildah_run = buildah_run[kws][container.container_id, '--',
                                    layer.command][layer.args]
-    run(buildah_run)
+    _, err = run(buildah_run)
+    return err
 
 
 def spawn_in_context(
     container: model.Container, layer: model.ContextLayer
-) -> None:
+) -> MaybeCommandError:
     with local.cwd(container.context):
         layer.func()
+    return None
 
 
 def update_env_layer(
     container: model.Container, layer: model.UpdateEnv
-) -> None:
+) -> MaybeCommandError:
     buildah_config = bb_buildah('config')
     for key, value in layer.env:
         buildah_config = buildah_config['-e', f'{key}={value}']
-    run(buildah_config[container.container_id])
+    _, err = run(buildah_config[container.container_id])
+    return err
 
 
 def fetch_image_env(image: model.Image) -> None:
@@ -119,23 +120,28 @@ def fetch_image_env(image: model.Image) -> None:
 
 def set_entry_point(
     container: model.Container, layer: model.EntryPoint
-) -> None:
+) -> MaybeCommandError:
     cmd = bb_buildah('config')['--entrypoint', json.dumps(list(layer.command))]
-    run(cmd[container.container_id])
+    _, err = run(cmd[container.container_id])
+    return err
 
 
-def set_command(container: model.Container, layer: model.SetCommand) -> None:
+def set_command(
+    container: model.Container, layer: model.SetCommand
+) -> MaybeCommandError:
     cmd = bb_buildah('config')['--cmd', json.dumps(list(layer.command))]
-    run(cmd[container.container_id])
+    _, err = run(cmd[container.container_id])
+    return err
 
 
 def set_working_directory(
     container: model.Container, layer: model.WorkingDirectory
-) -> None:
-    run(
+) -> MaybeCommandError:
+    _, err = run(
         bb_buildah('config')['--workingdir', layer.directory,
                              container.container_id]
     )
+    return err
 
 
 LayerHandlerT = tp.Callable[[model.Container, model.Layer], None]
@@ -158,10 +164,17 @@ def spawn_layer(container: model.Container, layer: model.Layer) -> None:
 
     image = container.image
     handler: LayerHandlerT = tp.cast(LayerHandlerT, LAYER_HANDLERS[type(layer)])
-    handler(container, layer)
-    image.events.append(
-        events.LayerCreated(str(layer), container.container_id, image.name)
-    )
+    err = handler(container, layer)
+    if err:
+        image.events.append(
+            events.LayerCreationFailed(
+                str(layer), container.container_id, image.name, str(err)
+            )
+        )
+    else:
+        image.events.append(
+            events.LayerCreated(str(layer), container.container_id, image.name)
+        )
 
 
 class ImageRegistry(abc.ABC):
@@ -331,7 +344,7 @@ class BuildahImageRegistry(ImageRegistry):
             delete(context_path)
 
     def _find(self, tag: str) -> model.MaybeImage:
-        results = run(
+        results, err = run(
             bb_buildah('images')['--json', tag.lower()], retcode=[0, 125]
         )
         if results:

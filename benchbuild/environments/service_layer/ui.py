@@ -27,6 +27,32 @@ def print_container_created(
     )
 
 
+def print_layer_creation_failed(
+    _: unit_of_work.ImageUnitOfWork, event: events.LayerCreationFailed
+) -> None:
+    rich.print((
+        f'[bold]{event.name}[/bold] {event.image_tag} '
+        f'container: {event.container_id}'
+    ))
+    rich.print(f'[red]{event.message}[/red]')
+
+
+def print_container_start_failed(
+    _: unit_of_work.ContainerUnitOfWork, event: events.ContainerStartFailed
+) -> None:
+    rich.print(
+        f'[bold]{event.name}[/bold] [red]start of container failed.[/red]\n'
+    )
+    rich.print(f'container: {event.container_id}')
+    rich.print(f'command: {event.message}')
+
+
+def print_container_started(
+    _: unit_of_work.ContainerUnitOfWork, event: events.ContainerStarted
+) -> None:
+    rich.print(f'[bold]{event.container_id}[/bold] started')
+
+
 __progress__ = Progress(
     "[progress.description]{task.description}", BarColumn(),
     "[progress.percentage]{task.percentage:>3.0f}%"

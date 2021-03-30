@@ -172,9 +172,6 @@ class ImageRegistry(abc.ABC):
         self.images = dict()
         self.containers = dict()
 
-
-## New
-
     def create(self, tag: str, from_: model.FromLayer) -> model.Container:
         """
         Create prepares an empty image hull for further customization.

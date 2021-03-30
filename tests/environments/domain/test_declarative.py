@@ -1,6 +1,8 @@
 """
 Test declarative API
 """
+from collections.abc import Hashable
+
 from benchbuild.environments.domain import declarative as decl
 from benchbuild.environments.domain import model as m
 
@@ -80,3 +82,20 @@ def describe_container_image():
             'arg0',
             'arg1',
         ))]
+
+    def is_hashable():
+        layers = decl.ContainerImage() \
+            .from_('a') \
+            .add(['a', 'b', 'c'], 'd') \
+            .add(('a', 'b', 'c'), 'd') \
+            .copy_(['a', 'b', 'c'], 'd') \
+            .copy_(('a', 'b', 'c'), 'd') \
+            .run('cmd', 'a', 'b', 'c', a='a', b='b', c='c') \
+            .context(lambda: None).env(a='a', b='b', c='c') \
+            .workingdir('a') \
+            .entrypoint('a', 'b', 'c') \
+            .command('a', 'b', 'c')
+
+        img = m.Image('a', layers.base, layers)
+
+        assert isinstance(img, Hashable)

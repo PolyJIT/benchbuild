@@ -18,9 +18,8 @@ def container_cmd(base: BaseCommand, *args: str) -> BaseCommand:
     return cmd[args]
 
 
-bb_podman: tp.Callable[[str, ...], BaseCommand] = partial(container_cmd, podman)
-bb_buildah: tp.Callable[[str, ...],
-                        BaseCommand] = partial(container_cmd, buildah)
+bb_podman: tp.Callable[[...], BaseCommand] = partial(container_cmd, podman)
+bb_buildah: tp.Callable[[...], BaseCommand] = partial(container_cmd, buildah)
 
 MaybeCommandError = tp.Optional[ProcessExecutionError]
 

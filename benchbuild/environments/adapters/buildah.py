@@ -51,8 +51,7 @@ def spawn_add_layer(
 def spawn_copy_layer(
     container: model.Container, layer: model.AddLayer
 ) -> MaybeCommandError:
-    _, err = spawn_add_layer(container, layer)
-    return err
+    return spawn_add_layer(container, layer)
 
 
 def spawn_run_layer(
@@ -144,7 +143,7 @@ def set_working_directory(
     return err
 
 
-LayerHandlerT = tp.Callable[[model.Container, model.Layer], None]
+LayerHandlerT = tp.Callable[[model.Container, model.Layer], MaybeCommandError]
 
 LAYER_HANDLERS = {
     model.AddLayer: spawn_add_layer,

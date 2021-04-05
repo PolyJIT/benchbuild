@@ -31,8 +31,9 @@ def print_layer_creation_failed(
     _: unit_of_work.ImageUnitOfWork, event: events.LayerCreationFailed
 ) -> None:
     rich.print((
-        f'[bold]{event.name}[/bold] {event.image_tag} '
+        f'[bold]{event.name}[/bold] [red]layer creation failed.[/red]\n'
         f'container: {event.container_id}'
+        f'command: {event.message}'
     ))
     rich.print(f'[red]{event.message}[/red]')
 

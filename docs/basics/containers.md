@@ -4,12 +4,12 @@ all experiment runs run in for a given project.
 ## Usage
 
 If you want to run an experiment inside the project's container, simply replace
-the usual ``run`` subcommand with the ``container`` subcommand. Project and
+the usual ``run`` subcommand with the ``container run`` subcommand. Project and
 experiment selection are done in the same way.
 
 Example:
 ```
-benchbuild container -E raw linpack
+benchbuild container run -E raw linpack
 ```
 
 This will run the following stages:
@@ -33,7 +33,7 @@ use the ``--replace`` flag when running the ``containers`` subcommand.
 
 Example:
 ```
-benchbuild container --replace -E raw linpack
+benchbuild container run --replace -E raw linpack
 ```
 
 This will ignore **any** required image for the given experiments and projects.
@@ -89,6 +89,8 @@ For containers to work properly, you need a few systems set up beforehand.
 Image construction requires the [Buildah](https://buildah.io) tool. All image
 construction tasks are formulated as buildah command calls in the backend.
 
+Buildah is supported up to version 1.19.8.
+
 ### Podman
 
 Container construction and execution is handed off to [Podman](https://podman.io).
@@ -99,3 +101,5 @@ users other than the root user to filesystem permissions inside the container.
 
 Please refer to podman's documentation on how to setup podman properly on your
 system.
+
+Podman is supported up to version 2.2.1

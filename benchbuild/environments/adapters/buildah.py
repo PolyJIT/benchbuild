@@ -9,7 +9,6 @@ from plumbum.path.utils import delete
 
 from benchbuild.environments.adapters.common import (
     run,
-    run_tee,
     bb_buildah,
     MaybeCommandError,
 )
@@ -345,7 +344,7 @@ class BuildahImageRegistry(ImageRegistry):
             delete(context_path)
 
     def _find(self, tag: str) -> model.MaybeImage:
-        results, err = run(
+        results, _ = run(
             bb_buildah('images')['--json', tag.lower()], retcode=[0, 125]
         )
         if results:

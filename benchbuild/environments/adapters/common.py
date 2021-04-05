@@ -7,7 +7,7 @@ from benchbuild.settings import CFG
 from benchbuild.utils.cmd import podman, buildah
 
 
-def container_cmd(base: BaseCommand, *args: str) -> BaseCommand:
+def container_cmd(base: BaseCommand) -> BaseCommand:
 
     def wrapped_cmd(*args: str):
         opts = [

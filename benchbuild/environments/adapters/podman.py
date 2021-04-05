@@ -2,7 +2,7 @@ import abc
 import logging
 import typing as tp
 
-from plumbum import local, ProcessExecutionError
+from plumbum import local
 
 from benchbuild.environments.adapters import buildah
 from benchbuild.environments.adapters.common import (
@@ -13,7 +13,7 @@ from benchbuild.environments.adapters.common import (
 )
 from benchbuild.environments.domain import model, events
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import podman, rm
+from benchbuild.utils.cmd import rm
 
 LOG = logging.getLogger(__name__)
 
@@ -21,6 +21,8 @@ LOG = logging.getLogger(__name__)
 class ContainerCreateError(Exception):
 
     def __init__(self, name: str, message: str):
+        super().__init__()
+
         self.name = name
         self.message = message
 

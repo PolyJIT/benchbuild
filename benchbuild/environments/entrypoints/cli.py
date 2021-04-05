@@ -15,6 +15,17 @@ tb.install()
 
 
 class BenchBuildContainer(cli.Application):  # type: ignore
+    """
+    Top-level command for benchbuild containers.
+    """
+
+    def main(self):
+        if not self.nested_command:
+            self.help()
+
+
+@BenchBuildContainer.subcommand("run")
+class BenchBuildContainerRun(cli.Application):  # type: ignore
     experiment_args: tp.List[str] = []
     group_args: tp.List[str] = []
 
@@ -87,6 +98,76 @@ class BenchBuildContainer(cli.Application):  # type: ignore
         create_project_images(wanted_experiments, wanted_projects)
         create_experiment_images(wanted_experiments, wanted_projects)
         run_experiment_images(wanted_experiments, wanted_projects)
+
+        return 0
+
+
+@BenchBuildContainer.subcommand("bases")
+class BenchBuildContainerBase(cli.Application):
+    """
+    Prepare all base images for the selected projects and experiments.
+    """
+    experiment_args: tp.List[str] = []
+    group_args: tp.List[str] = []
+
+    @cli.switch(["-E", "--experiment"],
+                str,
+                list=True,
+                help="Specify experiments to run")  # type: ignore
+    def set_experiments(self, names: tp.List[str]) -> None:  # type: ignore
+        self.experiment_args = names
+
+    @cli.switch(["-G", "--group"],
+                str,
+                list=True,
+                requires=["--experiment"],
+                help="Run a group of projects under the given experiments"
+               )  # type: ignore
+    def set_group(self, groups: tp.List[str]) -> None:  # type: ignore
+        self.group_args = groups
+
+    image_export = cli.Flag(['export'],
+                            default=False,
+                            help="Export container images to EXPORT_DIR")
+    image_import = cli.Flag(['import'],
+                            default=False,
+                            help="Import container images from EXPORT_DIR")
+
+    def main(self, *projects: str) -> int:
+        plugins.discover()
+
+        cli_experiments = self.experiment_args
+        cli_groups = self.group_args
+
+        discovered_experiments = experiment.discovered()
+        wanted_experiments = {
+            name: cls
+            for name, cls in discovered_experiments.items()
+            if name in set(cli_experiments)
+        }
+        unknown_experiments = [
+            name for name in cli_experiments
+            if name not in set(discovered_experiments.keys())
+        ]
+
+        if unknown_experiments:
+            print(
+                'Could not find ', str(unknown_experiments),
+                ' in the experiment registry.'
+            )
+        if not wanted_experiments:
+            print("Could not find any experiment. Exiting.")
+            return -2
+
+        wanted_projects = project.populate(list(projects), cli_groups)
+        if not wanted_projects:
+            print("No projects selected.")
+            return -2
+
+        create_base_images(
+            wanted_experiments, wanted_projects, self.image_export,
+            self.image_import
+        )
 
         return 0
 

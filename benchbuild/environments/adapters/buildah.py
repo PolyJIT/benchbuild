@@ -320,7 +320,9 @@ class BuildahImageRegistry(ImageRegistry):
 
     def _create(self, tag: str, from_: model.FromLayer) -> model.Container:
         image = model.Image(tag, from_, [])
-        container_id = run(bb_buildah('from')[from_.base])
+        container_id, err = run(bb_buildah('from')[from_.base])
+        if err:
+            raise err
         context = local.path(mktemp('-dt', '-p', str(CFG['build_dir'])).strip())
 
         return model.Container(container_id, image, context, image.name)

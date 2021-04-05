@@ -168,8 +168,8 @@ DEFAULT_BASES: tp.Dict[str, ContainerImage] = {
             .from_("docker.io/alpine:edge") \
             .run('apk', 'update') \
             .run('apk', 'add', 'python3', 'python3-dev', 'postgresql-dev',
-                 'linux-headers', 'musl-dev', 'git', 'gcc', 'sqlite-libs',
-                 'libgit2-dev', 'libffi-dev', 'py3-pip')
+                 'linux-headers', 'musl-dev', 'git', 'gcc', 'g++',
+                 'sqlite-libs', 'libgit2-dev', 'libffi-dev', 'py3-pip')
 }
 
 

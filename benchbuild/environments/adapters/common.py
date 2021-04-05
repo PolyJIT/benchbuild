@@ -1,5 +1,4 @@
 import typing as tp
-from functools import partial
 
 from plumbum import ProcessExecutionError
 from plumbum.commands.base import BaseCommand
@@ -9,17 +8,21 @@ from benchbuild.utils.cmd import podman, buildah
 
 
 def container_cmd(base: BaseCommand, *args: str) -> BaseCommand:
-    opts = [
-        '--root',
-        str(CFG['container']['root']), '--runroot',
-        str(CFG['container']['runroot'])
-    ]
-    cmd = base[opts]
-    return cmd[args]
+
+    def wrapped_cmd(*args: str):
+        opts = [
+            '--root',
+            str(CFG['container']['root']), '--runroot',
+            str(CFG['container']['runroot'])
+        ]
+        cmd = base[opts]
+        return cmd[args]
+
+    return wrapped_cmd
 
 
-bb_podman: tp.Callable[[...], BaseCommand] = partial(container_cmd, podman)
-bb_buildah: tp.Callable[[...], BaseCommand] = partial(container_cmd, buildah)
+bb_podman = container_cmd(podman)
+bb_buildah = container_cmd(buildah)
 
 MaybeCommandError = tp.Optional[ProcessExecutionError]
 

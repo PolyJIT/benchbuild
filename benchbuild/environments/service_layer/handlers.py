@@ -66,7 +66,7 @@ def run_project_container(
     Run a project container.
     """
     with uow:
-        ensure.image_exists(cmd.image, uow)
+        ensure.container_image_exists(cmd.image, uow)
 
         build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
         if build_dir:

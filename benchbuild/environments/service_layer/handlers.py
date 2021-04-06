@@ -102,3 +102,15 @@ def import_image_handler(
     """
     with uow:
         uow.import_image(cmd.image, cmd.in_path)
+
+
+def delete_image_handler(
+    uow: unit_of_work.ImageUnitOfWork, cmd: commands.DeleteImage
+):
+    """
+    Delete a contaienr image.
+    """
+    with uow:
+        image = uow.registry.find(cmd.name)
+        if image:
+            uow.destroy(image)

@@ -53,6 +53,13 @@ class ImageUnitOfWork(UnitOfWork):
     def _create(self, tag: str, from_: str) -> model.Container:
         raise NotImplementedError
 
+    def destroy(self, image: model.Image) -> None:
+        self._destroy(image.name)
+
+    @abc.abstractmethod
+    def _destroy(self, tag: str) -> None:
+        raise NotImplementedError
+
     @abc.abstractmethod
     def _export_image(self, image_id: str, out_path: str) -> None:
         raise NotImplementedError
@@ -94,6 +101,9 @@ class BuildahImageUOW(ImageUnitOfWork):
     def _create(self, tag: str, from_: str) -> model.Container:
         from_layer = model.FromLayer(from_)
         return self.registry.create(tag, from_layer)
+
+    def _destroy(self, tag: str) -> None:
+        buildah.run(buildah.bb_buildah('rmi')['-f', tag])
 
     def _export_image(self, image_id: str, out_path: str) -> None:
         podman.save(image_id, out_path)

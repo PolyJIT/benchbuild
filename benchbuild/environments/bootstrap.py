@@ -48,6 +48,8 @@ def bus() -> Messagebus:
             handlers.bootstrap(handlers.export_image_handler, images_uow),
         commands.ImportImage:
             handlers.bootstrap(handlers.import_image_handler, images_uow),
+        commands.DeleteImage:
+            handlers.bootstrap(handlers.delete_image_handler, images_uow),
     }
 
     return partial(messagebus.handle, cmd_handlers, evt_handlers)

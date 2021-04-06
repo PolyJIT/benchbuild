@@ -66,27 +66,14 @@ class BenchBuildContainerRun(cli.Application):  # type: ignore
         cli_experiments = self.experiment_args
         cli_groups = self.group_args
 
-        discovered_experiments = experiment.discovered()
-        wanted_experiments = {
-            name: cls
-            for name, cls in discovered_experiments.items()
-            if name in set(cli_experiments)
-        }
-        unknown_experiments = [
-            name for name in cli_experiments
-            if name not in set(discovered_experiments.keys())
-        ]
+        wanted_experiments, wanted_projects = cli_process(
+            cli_experiments, projects, cli_groups
+        )
 
-        if unknown_experiments:
-            print(
-                'Could not find ', str(unknown_experiments),
-                ' in the experiment registry.'
-            )
         if not wanted_experiments:
             print("Could not find any experiment. Exiting.")
             return -2
 
-        wanted_projects = project.populate(list(projects), cli_groups)
         if not wanted_projects:
             print("No projects selected.")
             return -2
@@ -139,27 +126,14 @@ class BenchBuildContainerBase(cli.Application):
         cli_experiments = self.experiment_args
         cli_groups = self.group_args
 
-        discovered_experiments = experiment.discovered()
-        wanted_experiments = {
-            name: cls
-            for name, cls in discovered_experiments.items()
-            if name in set(cli_experiments)
-        }
-        unknown_experiments = [
-            name for name in cli_experiments
-            if name not in set(discovered_experiments.keys())
-        ]
+        wanted_experiments, wanted_projects = cli_process(
+            cli_experiments, projects, cli_groups
+        )
 
-        if unknown_experiments:
-            print(
-                'Could not find ', str(unknown_experiments),
-                ' in the experiment registry.'
-            )
         if not wanted_experiments:
             print("Could not find any experiment. Exiting.")
             return -2
 
-        wanted_projects = project.populate(list(projects), cli_groups)
         if not wanted_projects:
             print("No projects selected.")
             return -2
@@ -170,6 +144,85 @@ class BenchBuildContainerBase(cli.Application):
         )
 
         return 0
+
+
+@BenchBuildContainer.subcommand("rmi")
+class BenchBuildContainerRemoveImages(cli.Application):
+    """
+    Prepare all base images for the selected projects and experiments.
+    """
+    experiment_args: tp.List[str] = []
+    group_args: tp.List[str] = []
+
+    @cli.switch(["-E", "--experiment"],
+                str,
+                list=True,
+                help="Specify experiments to run")  # type: ignore
+    def set_experiments(self, names: tp.List[str]) -> None:  # type: ignore
+        self.experiment_args = names
+
+    @cli.switch(["-G", "--group"],
+                str,
+                list=True,
+                requires=["--experiment"],
+                help="Run a group of projects under the given experiments"
+               )  # type: ignore
+    def set_group(self, groups: tp.List[str]) -> None:  # type: ignore
+        self.group_args = groups
+
+    delete_project_images = cli.Flag(['with-projects'],
+                                     default=False,
+                                     help="Delete project images too")
+
+    def main(self, *projects: str) -> int:
+        plugins.discover()
+
+        cli_experiments = self.experiment_args
+        cli_groups = self.group_args
+
+        wanted_experiments, wanted_projects = cli_process(
+            cli_experiments, projects, cli_groups
+        )
+
+        if not wanted_experiments:
+            print("Could not find any experiment. Exiting.")
+            return -2
+
+        if not wanted_projects:
+            print("No projects selected.")
+            return -2
+
+        return remove_images(
+            wanted_experiments, wanted_projects, self.delete_project_images
+        )
+
+
+def cli_process(
+    cli_experiments: tp.Iterable[str], cli_projects: tp.Iterable[str],
+    cli_groups: tp.Iterable[str]
+) -> tp.Tuple[ExperimentIndex, ProjectIndex]:
+    """
+    Shared CLI processing of projects/experiment selection.
+    """
+    discovered_experiments = experiment.discovered()
+    wanted_experiments = {
+        name: cls
+        for name, cls in discovered_experiments.items()
+        if name in set(cli_experiments)
+    }
+    unknown_experiments = [
+        name for name in cli_experiments
+        if name not in set(discovered_experiments.keys())
+    ]
+    if unknown_experiments:
+        print(
+            'Could not find ', str(unknown_experiments),
+            ' in the experiment registry.'
+        )
+
+    wanted_projects = project.populate(list(cli_projects), cli_groups)
+
+    return (wanted_experiments, wanted_projects)
 
 
 def enumerate_projects(
@@ -373,3 +426,28 @@ def run_experiment_images(
                     image_tag, container_name, build_dir
                 )
             )
+
+
+def remove_images(
+    experiments: ExperimentIndex, projects: ProjectIndex,
+    delete_project_images: bool
+) -> int:
+    """
+    Remove all selected images from benchbuild's image registry.
+    """
+    publish = bootstrap.bus()
+
+    for exp in enumerate_experiments(experiments, projects):
+        for prj in exp.projects:
+            version = make_version_tag(*prj.variant.values())
+            image_tag = make_image_name(
+                f'{exp.name}/{prj.name}/{prj.group}', version
+            )
+            publish(commands.DeleteImage(image_tag))
+
+    if delete_project_images:
+        for prj in enumerate_projects(experiments, projects):
+            version = make_version_tag(*prj.variant.values())
+            image_tag = make_image_name(f'{prj.name}/{prj.group}', version)
+
+            publish(commands.DeleteImage(image_tag))

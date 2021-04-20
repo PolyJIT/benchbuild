@@ -20,9 +20,13 @@ class BenchBuildContainer(cli.Application):  # type: ignore
     Top-level command for benchbuild containers.
     """
 
-    def main(self):
+    def main(self, *args: str) -> int:
+        del args
+
         if not self.nested_command:
             self.help()
+
+        return 0
 
 
 @BenchBuildContainer.subcommand("run")

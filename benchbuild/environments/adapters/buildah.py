@@ -70,11 +70,12 @@ def _spawn_run_layer(
     return err
 
 
-def _spawn_in_context(
+def _spawn_in_context( # pylint: disable=useless-return
     container: model.Container, layer: model.ContextLayer
 ) -> MaybeCommandError:
     with local.cwd(container.context):
         layer.func()
+    return None
 
 
 def _update_env_layer(

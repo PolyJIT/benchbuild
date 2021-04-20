@@ -31,6 +31,9 @@ class ContainerImage(list):
     Each method creates a new layer in the container image.
     """
 
+    def __str__(self) -> str:
+        return "\n".join([str(elt) for elt in self])
+
     @property
     def base(self) -> str:
         layers = [l for l in self if isinstance(l, model.FromLayer)]
@@ -195,8 +198,7 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
     tgt_dir = '/benchbuild'
 
     def from_source(image: ContainerImage) -> None:
-        LOG.debug('installing benchbuild from source.')
-        LOG.debug('src_dir: %s tgt_dir: %s', src_dir, tgt_dir)
+        LOG.debug('BenchBuild will be installed from  source.')
 
         # The image requires git, pip and a working python3.7 or better.
         image.run('mkdir', f'{tgt_dir}', runtime=crun)

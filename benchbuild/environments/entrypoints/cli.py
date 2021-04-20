@@ -1,8 +1,9 @@
 import typing as tp
 from functools import partial
 
+import rich
 from plumbum import cli, local
-from rich import traceback as tb
+from rich import print
 
 from benchbuild import experiment, plugins, project, settings, source
 from benchbuild.environments import bootstrap
@@ -11,7 +12,7 @@ from benchbuild.experiment import ExperimentIndex
 from benchbuild.project import ProjectIndex
 from benchbuild.settings import CFG
 
-tb.install()
+rich.traceback.install()
 
 
 class BenchBuildContainer(cli.Application):  # type: ignore
@@ -48,6 +49,7 @@ class BenchBuildContainerRun(cli.Application):  # type: ignore
     image_export = cli.Flag(['export'],
                             default=False,
                             help="Export container images to EXPORT_DIR")
+
     image_import = cli.Flag(['import'],
                             default=False,
                             help="Import container images from EXPORT_DIR")
@@ -78,13 +80,39 @@ class BenchBuildContainerRun(cli.Application):  # type: ignore
             print("No projects selected.")
             return -2
 
-        create_base_images(
-            wanted_experiments, wanted_projects, self.image_export,
-            self.image_import
-        )
-        create_project_images(wanted_experiments, wanted_projects)
-        create_experiment_images(wanted_experiments, wanted_projects)
-        run_experiment_images(wanted_experiments, wanted_projects)
+        tasks = {
+            "Base images":
+                partial(
+                    create_base_images, wanted_experiments, wanted_projects,
+                    self.image_export, self.image_import
+                ),
+            "Project images":
+                partial(
+                    create_project_images, wanted_experiments, wanted_projects
+                ),
+            "Experiment images":
+                partial(
+                    create_experiment_images, wanted_experiments,
+                    wanted_projects
+                ),
+            "Run":
+                partial(
+                    run_experiment_images, wanted_experiments, wanted_projects
+                )
+        }
+
+        console = rich.get_console()
+
+        def run_tasks():
+            for name, task in tasks.items():
+                print(f'Working on: {name}')
+                task()
+
+        if not self.debug:
+            with console.status("[bold green]Preparing container run."):
+                run_tasks()
+        else:
+            run_tasks()
 
         return 0
 

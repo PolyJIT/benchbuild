@@ -1,7 +1,10 @@
 import logging
 import typing as tp
 
+from rich import print
+
 from benchbuild.environments.domain import model
+from benchbuild.environments.service_layer import ensure
 
 LOG = logging.getLogger(__name__)
 
@@ -81,6 +84,11 @@ def _handle_command(
     try:
         handler = handlers[type(command)]
         queue.extend(handler(command))
+    except ensure.ImageNotFound as ex:
+        print((
+            'Command could not be executed, because I could not find a required'
+            f' image: {ex}'
+        ))
     except Exception:
         LOG.exception('Exception handling command %s', command)
         raise

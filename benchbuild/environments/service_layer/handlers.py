@@ -108,7 +108,7 @@ def import_image_handler(
 
 def delete_image_handler(
     uow: unit_of_work.ImageUnitOfWork, cmd: commands.DeleteImage
-):
+) -> None:
     """
     Delete a contaienr image.
     """

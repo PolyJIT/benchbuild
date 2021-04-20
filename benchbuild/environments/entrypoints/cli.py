@@ -108,7 +108,7 @@ class BenchBuildContainerRun(cli.Application):  # type: ignore
 
         console = rich.get_console()
 
-        def run_tasks():
+        def run_tasks() -> None:
             for name, task in tasks.items():
                 print(f'Working on: {name}')
                 task()
@@ -225,15 +225,16 @@ class BenchBuildContainerRemoveImages(cli.Application):
 
         if not wanted_experiments:
             print("Could not find any experiment. Exiting.")
-            return -2
+            return -1
 
         if not wanted_projects:
             print("No projects selected.")
-            return -2
+            return -1
 
-        return remove_images(
+        remove_images(
             wanted_experiments, wanted_projects, self.delete_project_images
         )
+        return 0
 
 
 def cli_process(
@@ -259,7 +260,7 @@ def cli_process(
             ' in the experiment registry.'
         )
 
-    wanted_projects = project.populate(list(cli_projects), cli_groups)
+    wanted_projects = project.populate(list(cli_projects), list(cli_groups))
 
     return (wanted_experiments, wanted_projects)
 
@@ -470,7 +471,7 @@ def run_experiment_images(
 def remove_images(
     experiments: ExperimentIndex, projects: ProjectIndex,
     delete_project_images: bool
-) -> int:
+) -> None:
     """
     Remove all selected images from benchbuild's image registry.
     """

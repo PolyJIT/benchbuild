@@ -5,7 +5,6 @@ import os
 import typing as tp
 
 from plumbum import local
-from plumbum.path.utils import delete
 
 from benchbuild.environments.adapters.common import (
     run,
@@ -23,6 +22,8 @@ LOG = logging.getLogger(__name__)
 class ImageCreateError(Exception):
 
     def __init__(self, name: str, message: str):
+        super().__init__()
+
         self.name = name
         self.message = message
 
@@ -34,7 +35,7 @@ def commit_working_container(container: model.Container) -> MaybeCommandError:
     return err
 
 
-def spawn_add_layer(
+def _spawn_add_layer(
     container: model.Container, layer: model.AddLayer
 ) -> MaybeCommandError:
     with local.cwd(container.context):
@@ -48,13 +49,13 @@ def spawn_add_layer(
         return err
 
 
-def spawn_copy_layer(
+def _spawn_copy_layer(
     container: model.Container, layer: model.AddLayer
 ) -> MaybeCommandError:
-    return spawn_add_layer(container, layer)
+    return _spawn_add_layer(container, layer)
 
 
-def spawn_run_layer(
+def _spawn_run_layer(
     container: model.Container, layer: model.RunLayer
 ) -> MaybeCommandError:
     kws = []
@@ -69,15 +70,14 @@ def spawn_run_layer(
     return err
 
 
-def spawn_in_context(
+def _spawn_in_context(
     container: model.Container, layer: model.ContextLayer
 ) -> MaybeCommandError:
     with local.cwd(container.context):
         layer.func()
-    return None
 
 
-def update_env_layer(
+def _update_env_layer(
     container: model.Container, layer: model.UpdateEnv
 ) -> MaybeCommandError:
     buildah_config = bb_buildah('config')
@@ -117,7 +117,7 @@ def fetch_image_env(image: model.Image) -> None:
         return
 
 
-def set_entry_point(
+def _set_entry_point(
     container: model.Container, layer: model.EntryPoint
 ) -> MaybeCommandError:
     cmd = bb_buildah('config')['--entrypoint', json.dumps(list(layer.command))]
@@ -125,7 +125,7 @@ def set_entry_point(
     return err
 
 
-def set_command(
+def _set_command(
     container: model.Container, layer: model.SetCommand
 ) -> MaybeCommandError:
     cmd = bb_buildah('config')['--cmd', json.dumps(list(layer.command))]
@@ -133,7 +133,7 @@ def set_command(
     return err
 
 
-def set_working_directory(
+def _set_working_directory(
     container: model.Container, layer: model.WorkingDirectory
 ) -> MaybeCommandError:
     _, err = run(
@@ -145,15 +145,15 @@ def set_working_directory(
 
 LayerHandlerT = tp.Callable[[model.Container, model.Layer], MaybeCommandError]
 
-LAYER_HANDLERS = {
-    model.AddLayer: spawn_add_layer,
-    model.ContextLayer: spawn_in_context,
-    model.CopyLayer: spawn_copy_layer,
-    model.RunLayer: spawn_run_layer,
-    model.UpdateEnv: update_env_layer,
-    model.EntryPoint: set_entry_point,
-    model.WorkingDirectory: set_working_directory,
-    model.SetCommand: set_command
+_LAYER_HANDLERS = {
+    model.AddLayer: _spawn_add_layer,
+    model.ContextLayer: _spawn_in_context,
+    model.CopyLayer: _spawn_copy_layer,
+    model.RunLayer: _spawn_run_layer,
+    model.UpdateEnv: _update_env_layer,
+    model.EntryPoint: _set_entry_point,
+    model.WorkingDirectory: _set_working_directory,
+    model.SetCommand: _set_command
 }
 
 
@@ -161,15 +161,28 @@ def spawn_layer(
     container: model.Container, layer: model.Layer
 ) -> MaybeCommandError:
     if layer == container.image.from_:
-        return
+        return None
 
-    handler: LayerHandlerT = tp.cast(LayerHandlerT, LAYER_HANDLERS[type(layer)])
+    handler: LayerHandlerT = tp.cast(
+        LayerHandlerT, _LAYER_HANDLERS[type(layer)]
+    )
     return handler(container, layer)
 
 
 def handle_layer_error(
     err: CommandError, container: model.Container, layer: model.Layer
 ) -> None:
+    """
+    Process a layer error gracefully.
+
+    Annotate the image with an event that signals a failed layer.
+    Persist the current build container for later debugging, if necessary.
+
+    Args:
+        err: the command error that contains details about the error.
+        container: the container we are working on.
+        layer: the layer we tried to build.
+    """
     image = container.image
     image.events.append(
         events.LayerCreationFailed(str(layer), image.name, str(err))
@@ -193,6 +206,16 @@ def handle_layer_error(
 
 def store_failed_build(tag: str,
                        container_id: str) -> tp.Tuple[str, MaybeCommandError]:
+    """
+    Store a failed build container.
+
+    Args:
+        tag: the original image tag name.
+        container_id: the failed build container.
+
+    Returns:
+        A tuple of the new image tag and the command error state
+    """
     suffix = str(CFG['container']['keep_suffix'])
     failed_tag = f'{tag}-{suffix}'
 

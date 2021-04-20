@@ -5,7 +5,7 @@ import typing as tp
 from plumbum import local
 from plumbum.path.utils import delete
 
-from benchbuild.environments.adapters import buildah, podman
+from benchbuild.environments.adapters import common, buildah, podman
 from benchbuild.environments.domain import model
 
 if sys.version_info <= (3, 8):
@@ -103,7 +103,7 @@ class BuildahImageUOW(ImageUnitOfWork):
         return self.registry.create(tag, from_layer)
 
     def _destroy(self, tag: str) -> None:
-        buildah.run(buildah.bb_buildah('rmi')['-f', tag])
+        common.run(common.bb_buildah('rmi')['-f', tag])
 
     def _export_image(self, image_id: str, out_path: str) -> None:
         podman.save(image_id, out_path)
@@ -113,9 +113,9 @@ class BuildahImageUOW(ImageUnitOfWork):
 
     def _commit(self, container: model.Container) -> None:
         image = container.image
-        buildah.run(
-            buildah.bb_buildah('commit')[container.container_id,
-                                         image.name.lower()]
+        common.run(
+            common.bb_buildah('commit')[container.container_id,
+                                        image.name.lower()]
         )
 
     def _rollback(self, container: model.Container) -> None:

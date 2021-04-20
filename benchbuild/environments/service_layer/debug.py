@@ -2,8 +2,7 @@ from plumbum import ProcessExecutionError
 from rich import print
 from rich.markdown import Markdown
 
-from benchbuild.environments.adapters.buildah import bb_buildah
-from benchbuild.environments.adapters.common import run
+from benchbuild.environments.adapters.common import bb_buildah
 from benchbuild.environments.domain import events
 from benchbuild.environments.service_layer import unit_of_work
 
@@ -28,6 +27,8 @@ def debug_image_kept(
     """
     with uow:
         container = uow.create(event.image_name, event.failed_image_name)
+        if container is None:
+            raise ValueError('Unable to create debug session.')
 
         print(
             Markdown(

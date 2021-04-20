@@ -8,8 +8,20 @@ from benchbuild.utils.cmd import podman, buildah
 
 
 def container_cmd(base: BaseCommand) -> BaseCommand:
+    """
+    Capture a plumbum command and apply common options.
 
-    def wrapped_cmd(*args: str):
+    This adds options for container root and runroot storage locations
+    to the plumbum command. Useful for podman/buildah commands.
+
+    Args:
+        base: A plumbum base command.
+
+    Returns:
+        A plumbum base command augmented by root/runroot parameters.
+    """
+
+    def wrapped_cmd(*args: str) -> BaseCommand:
         opts = [
             '--root',
             str(CFG['container']['root']), '--runroot',

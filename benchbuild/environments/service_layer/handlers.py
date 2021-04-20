@@ -43,11 +43,13 @@ def create_image(
             return
 
         container = uow.create(cmd.name, cmd.layers.base)
-        image = container.image
-        image.append(*cmd.layers)
+        if container:
+            image = container.image
+            image.append(*cmd.layers)
 
-        uow.registry.add(image)
-        uow.commit()
+            success = uow.registry.add(image)
+            if success:
+                uow.commit()
 
 
 def create_benchbuild_base(

@@ -46,11 +46,11 @@ class ImageUnitOfWork(UnitOfWork):
     def __exit__(self, *args: tp.Any) -> None:
         self.rollback()
 
-    def create(self, tag: str, from_: str) -> model.Container:
+    def create(self, tag: str, from_: str) -> model.MaybeContainer:
         return self._create(tag, from_)
 
     @abc.abstractmethod
-    def _create(self, tag: str, from_: str) -> model.Container:
+    def _create(self, tag: str, from_: str) -> model.MaybeContainer:
         raise NotImplementedError
 
     def destroy(self, image: model.Image) -> None:
@@ -98,7 +98,7 @@ class BuildahImageUOW(ImageUnitOfWork):
     def __init__(self) -> None:
         self.registry = buildah.BuildahImageRegistry()
 
-    def _create(self, tag: str, from_: str) -> model.Container:
+    def _create(self, tag: str, from_: str) -> model.MaybeContainer:
         from_layer = model.FromLayer(from_)
         return self.registry.create(tag, from_layer)
 

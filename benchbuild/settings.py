@@ -314,6 +314,14 @@ CFG["plugins"] = {
 }
 
 CFG["container"] = {
+    "keep": {
+        "default": False,
+        "desc": "Keep failed image builds at their last known good state."
+    },
+    "keep_suffix": {
+        "default": "failed",
+        "desc": "Suffix to add to failed image builds, if we keep them."
+    },
     "replace": {
         "default": False,
         "desc": "Replace existing container images."

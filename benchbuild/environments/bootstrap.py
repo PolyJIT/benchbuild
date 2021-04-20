@@ -2,7 +2,12 @@ import typing as tp
 from functools import partial
 
 from benchbuild.environments.domain import events, commands
-from benchbuild.environments.service_layer import messagebus, ui, handlers
+from benchbuild.environments.service_layer import (
+    messagebus,
+    ui,
+    handlers,
+    debug,
+)
 from benchbuild.environments.service_layer import unit_of_work as uow
 
 Messagebus = tp.Callable[[messagebus.Message], None]
@@ -36,6 +41,9 @@ def bus() -> Messagebus:
     ]
     evt_handlers[events.LayerCreated
                 ] = [handlers.bootstrap(ui.print_layer_created, images_uow)]
+
+    evt_handlers[events.DebugImageKept
+                ] = [handlers.bootstrap(debug.debug_image_kept, images_uow)]
 
     cmd_handlers = {
         commands.CreateImage:

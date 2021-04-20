@@ -59,11 +59,16 @@ class BenchBuildContainerRun(cli.Application):  # type: ignore
                        requires=['experiment'],
                        help='Replace existing container images.')
 
+    debug = cli.Flag(['debug'],
+                     default=False,
+                     requires=['experiment'],
+                     help='Debug failed image builds interactively.')
+
     def main(self, *projects: str) -> int:
         plugins.discover()
 
-        if self.replace:
-            CFG['container']['replace'] = True
+        CFG['container']['replace'] = self.replace
+        CFG['container']['keep'] = self.debug
 
         cli_experiments = self.experiment_args
         cli_groups = self.group_args
@@ -147,9 +152,15 @@ class BenchBuildContainerBase(cli.Application):
     image_import = cli.Flag(['import'],
                             default=False,
                             help="Import container images from EXPORT_DIR")
+    debug = cli.Flag(['debug'],
+                     default=False,
+                     requires=['experiment'],
+                     help='Debug failed image builds interactively.')
 
     def main(self, *projects: str) -> int:
         plugins.discover()
+
+        CFG['container']['keep'] = self.debug
 
         cli_experiments = self.experiment_args
         cli_groups = self.group_args

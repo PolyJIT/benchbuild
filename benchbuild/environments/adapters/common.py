@@ -25,6 +25,7 @@ bb_podman = container_cmd(podman)
 bb_buildah = container_cmd(buildah)
 
 MaybeCommandError = tp.Optional[ProcessExecutionError]
+CommandError = ProcessExecutionError
 
 
 def run(cmd: BaseCommand, **kwargs: tp.Any) -> tp.Tuple[str, MaybeCommandError]:

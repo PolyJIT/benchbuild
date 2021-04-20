@@ -11,6 +11,7 @@ from benchbuild.environments.adapters.common import (
     run,
     bb_buildah,
     MaybeCommandError,
+    CommandError,
 )
 from benchbuild.environments.domain import model, events
 from benchbuild.settings import CFG
@@ -156,23 +157,48 @@ LAYER_HANDLERS = {
 }
 
 
-def spawn_layer(container: model.Container, layer: model.Layer) -> None:
+def spawn_layer(
+    container: model.Container, layer: model.Layer
+) -> MaybeCommandError:
     if layer == container.image.from_:
         return
 
-    image = container.image
     handler: LayerHandlerT = tp.cast(LayerHandlerT, LAYER_HANDLERS[type(layer)])
-    err = handler(container, layer)
-    if err:
-        image.events.append(
-            events.LayerCreationFailed(
-                str(layer), container.container_id, image.name, str(err)
-            )
+    return handler(container, layer)
+
+
+def handle_layer_error(
+    err: CommandError, container: model.Container, layer: model.Layer
+) -> None:
+    image = container.image
+    image.events.append(
+        events.LayerCreationFailed(str(layer), image.name, str(err))
+    )
+
+    def can_keep(layer: model.Layer) -> bool:
+        keep = bool(CFG['container']['keep'])
+        return keep and not isinstance(layer, model.FromLayer)
+
+    if can_keep(layer):
+        failed_tag, keep_err = store_failed_build(
+            image.name, container.container_id
         )
-    else:
+        if keep_err:
+            raise keep_err
+
         image.events.append(
-            events.LayerCreated(str(layer), container.container_id, image.name)
+            events.DebugImageKept(image.name, failed_tag, str(layer))
         )
+
+
+def store_failed_build(tag: str,
+                       container_id: str) -> tp.Tuple[str, MaybeCommandError]:
+    suffix = str(CFG['container']['keep_suffix'])
+    failed_tag = f'{tag}-{suffix}'
+
+    commit = bb_buildah('commit')[container_id, failed_tag.lower()]
+    _, err = run(commit)
+    return failed_tag, err
 
 
 class ImageRegistry(abc.ABC):
@@ -183,7 +209,7 @@ class ImageRegistry(abc.ABC):
         self.images = dict()
         self.containers = dict()
 
-    def create(self, tag: str, from_: model.FromLayer) -> model.Container:
+    def create(self, tag: str, from_: model.FromLayer) -> model.MaybeContainer:
         """
         Create prepares an empty image hull for further customization.
 
@@ -195,16 +221,16 @@ class ImageRegistry(abc.ABC):
             A build container to further customize our image.
         """
         container = self._create(tag, from_)
+        if container:
+            image = container.image
 
-        image = container.image
-
-        self.images[image.name] = image
-        self.containers[image.name] = container
+            self.images[image.name] = image
+            self.containers[image.name] = container
 
         return container
 
     @abc.abstractmethod
-    def _create(self, tag: str, from_: model.FromLayer) -> model.Container:
+    def _create(self, tag: str, from_: model.FromLayer) -> model.MaybeContainer:
         """
         Implementation hook for subclasses.
 
@@ -248,7 +274,7 @@ class ImageRegistry(abc.ABC):
         """
         raise NotImplementedError
 
-    def add(self, image: model.Image) -> None:
+    def add(self, image: model.Image) -> bool:
         """
         Add registers an image for storage in the repository.
 
@@ -256,14 +282,18 @@ class ImageRegistry(abc.ABC):
 
         Args:
             image: An image to be stored in the registry.
+
+        Returns:
+            True, if the image was added successfully.
         """
+        success = self._add(image)
         if image.name not in self.images:
             self.images[image.name] = image
 
-        self._add(image)
+        return success
 
     @abc.abstractmethod
-    def _add(self, image: model.Image) -> None:
+    def _add(self, image: model.Image) -> bool:
         """
         Implementation hook for subclasses.
 
@@ -317,31 +347,48 @@ class ImageRegistry(abc.ABC):
 
 class BuildahImageRegistry(ImageRegistry):
 
-    def _create(self, tag: str, from_: model.FromLayer) -> model.Container:
+    def _create(self, tag: str, from_: model.FromLayer) -> model.MaybeContainer:
         image = model.Image(tag, from_, [])
+
         container_id, err = run(bb_buildah('from')[from_.base])
+
         if err:
-            raise err
+            # FIXME: This will most likely cause issues, because we don't
+            # have a working container to enter debug mode.
+            # handle_layer_error(err, container, from_)
+            # FIXME: The user won't get any notification that his command did
+            # not work here.
+            return None
+
         context = local.path(mktemp('-dt', '-p', str(CFG['build_dir'])).strip())
+        container = model.Container(container_id, image, context, image.name)
 
-        return model.Container(container_id, image, context, image.name)
+        return container
 
-    def _add(self, image: model.Image) -> None:
+    def _add(self, image: model.Image) -> bool:
         required_layers = [l for l in image.layers if not image.is_present(l)]
+        required_layers.reverse()
         if image.name not in self.containers and required_layers:
             # Recreate build container from image tag
             raise ValueError("No build container found. Create one first.")
 
-        for layer in required_layers:
+        err: MaybeCommandError = None
+        while required_layers and err is None:
+            layer = required_layers.pop()
+            LOG.info(layer)
             container = self.containers[image.name]
-            spawn_layer(container, layer)
-            image.present(layer)
+            err = spawn_layer(container, layer)
+            if err:
+                handle_layer_error(err, container, layer)
+            else:
+                image.events.append(
+                    events.LayerCreated(
+                        str(layer), container.container_id, image.name
+                    )
+                )
+                image.present(layer)
 
-    def _destroy(self, container: model.Container) -> None:
-        run(bb_buildah('rm')[container.container_id])
-        context_path = local.path(container.context)
-        if context_path.exists():
-            delete(context_path)
+        return err is None
 
     def _find(self, tag: str) -> model.MaybeImage:
         results, _ = run(
@@ -361,14 +408,6 @@ class BuildahImageRegistry(ImageRegistry):
         if image:
             return image.env.get(name)
         return None
-
-    #def _prune(self, remove_all: bool) -> None:
-    #    rm_cmd = bb_buildah('rmi')
-    #    if remove_all:
-    #        rm_cmd = rm_cmd['-a', '-f']
-    #    else:
-    #        rm_cmd = rm_cmd['-p']
-    #    run(rm_cmd)
 
     def _remove(self, image: model.Image) -> None:
         pass

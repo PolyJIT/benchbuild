@@ -13,14 +13,16 @@ def configure_migrate_log():
 
 def configure_plumbum_log():
     plumbum_format = logging.Formatter('$> %(message)s')
-    plumbum_hdl = RichHandler(rich_tracebacks=True)
-    plumbum_hdl.setFormatter(plumbum_format)
+    handler = RichHandler(
+        rich_tracebacks=True, show_time=False, show_level=False
+    )
+    handler.setFormatter(plumbum_format)
 
     plumbum_local = logging.getLogger("plumbum.local")
     plumbum_local.propagate = False
     if settings.CFG["debug"]:
         plumbum_local.setLevel(logging.DEBUG)
-    plumbum_local.addHandler(plumbum_hdl)
+    plumbum_local.addHandler(handler)
 
 
 def configure_parse_log():
@@ -39,18 +41,21 @@ def configure():
         0: logging.ERROR
     }
 
+    handler = RichHandler(
+        rich_tracebacks=True, show_time=False, show_level=False
+    )
     logging.captureWarnings(True)
     root_logger = logging.getLogger()
     if settings.CFG["debug"]:
         details_format = logging.Formatter(
             '%(name)s (%(filename)s:%(lineno)s) [%(levelname)s] %(message)s'
         )
-        details_hdl = RichHandler(rich_tracebacks=True)
+        details_hdl = handler
         details_hdl.setFormatter(details_format)
         root_logger.addHandler(details_hdl)
     else:
         brief_format = logging.Formatter('%(message)s')
-        console_hdl = RichHandler(rich_tracebacks=True)
+        console_hdl = handler
         console_hdl.setFormatter(brief_format)
         root_logger.addHandler(console_hdl)
     root_logger.setLevel(log_levels[int(settings.CFG["verbosity"])])

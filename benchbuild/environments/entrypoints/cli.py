@@ -181,10 +181,26 @@ class BenchBuildContainerBase(cli.Application):
             print("No projects selected.")
             return -2
 
-        create_base_images(
-            wanted_experiments, wanted_projects, self.image_export,
-            self.image_import
-        )
+        tasks = {
+            "Base images":
+                partial(
+                    create_base_images, wanted_experiments, wanted_projects,
+                    self.image_export, self.image_import
+                ),
+        }
+
+        console = rich.get_console()
+
+        def run_tasks() -> None:
+            for name, task in tasks.items():
+                print(f'Working on: {name}')
+                task()
+
+        if not self.debug:
+            with console.status("[bold green]Preparing container base images."):
+                run_tasks()
+        else:
+            run_tasks()
 
         return 0
 
@@ -235,9 +251,24 @@ class BenchBuildContainerRemoveImages(cli.Application):
             print("No projects selected.")
             return -1
 
-        remove_images(
-            wanted_experiments, wanted_projects, self.delete_project_images
-        )
+        tasks = {
+            "Remove selected images":
+                partial(
+                    remove_images, wanted_experiments, wanted_projects,
+                    self.delete_project_images
+                )
+        }
+
+        console = rich.get_console()
+
+        def run_tasks() -> None:
+            for name, task in tasks.items():
+                print(f'Working on: {name}')
+                task()
+
+        with console.status("[bold green]Deleting images."):
+            run_tasks()
+
         return 0
 
 

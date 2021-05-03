@@ -12,5 +12,5 @@ pyparsing~=2.4
 PyYAML~=5.4
 rich~=10.0
 sqlalchemy-migrate~=0.13
-typing-extensions~=3.7.4.3
+typing-extensions~=3.10.0.0
 virtualenv~=20.4

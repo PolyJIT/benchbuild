@@ -56,7 +56,7 @@ class Slurm(cli.Application):
         """Run a group of projects under the given experiments"""
         self.group_args = groups
 
-    def main(self, *args: str) -> None:
+    def main(self, *args: str) -> int:
         """Main entry point of benchbuild run."""
         plugins.discover()
 
@@ -89,11 +89,11 @@ class Slurm(cli.Application):
             exp = exp_cls(projects=list(wanted_projects.values()))
             print("Experiment: ", exp.name)
             slurm.script(exp, *cli_subcommand)
+        return 0
 
 
 def split_args(
-    args: tp.Iterable[str],
-    subcommands: tp.Set[str] = {'run', 'container'}
+    args: tp.Iterable[str]
 ) -> tp.Tuple[tp.Iterable[str], tp.Iterable[str]]:
     """
     Split our CLI arguments at the '--' into two groups.
@@ -101,6 +101,7 @@ def split_args(
     The first group will be our projects. The second (optional) group
     will be a custom slurm command to use as subcommand to benchbuild.
     """
+    subcommands: tp.Set[str] = {'run', 'container'}
     prj_or_slurm = list(args)
     cli_projects = list(
         itertools.takewhile(lambda x: x not in subcommands, prj_or_slurm)

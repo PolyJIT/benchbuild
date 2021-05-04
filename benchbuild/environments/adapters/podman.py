@@ -68,8 +68,8 @@ def save(image_id: str, out_path: str) -> MaybeCommandError:
     return err
 
 
-def load(image_name: str, load_path: str) -> MaybeCommandError:
-    _, err = run(bb_podman('load')['-i', load_path, image_name])
+def load(load_path: str) -> MaybeCommandError:
+    _, err = run(bb_podman('load')['-i', load_path])
     return err
 
 

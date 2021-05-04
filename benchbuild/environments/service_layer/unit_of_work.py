@@ -65,14 +65,14 @@ class ImageUnitOfWork(UnitOfWork):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _import_image(self, image_name: str, import_path: str) -> None:
+    def _import_image(self, import_path: str) -> None:
         raise NotImplementedError
 
     def export_image(self, image_id: str, out_path: str) -> None:
         return self._export_image(image_id, out_path)
 
-    def import_image(self, image_name: str, import_path: str) -> None:
-        return self._import_image(image_name, import_path)
+    def import_image(self, import_path: str) -> None:
+        return self._import_image(import_path)
 
     def rollback(self) -> None:
         containers = self.registry.containers
@@ -108,8 +108,8 @@ class BuildahImageUOW(ImageUnitOfWork):
     def _export_image(self, image_id: str, out_path: str) -> None:
         podman.save(image_id, out_path)
 
-    def _import_image(self, image_name: str, import_path: str) -> None:
-        podman.load(image_name, import_path)
+    def _import_image(self, import_path: str) -> None:
+        podman.load(import_path)
 
     def _commit(self, container: model.Container) -> None:
         image = container.image
@@ -202,8 +202,8 @@ class AbstractUnitOfWork(abc.ABC):
     def export_image(self, image_id: str, out_path: str) -> None:
         return self._export_image(image_id, out_path)
 
-    def import_image(self, image_name: str, import_path: str) -> None:
-        return self._import_image(image_name, import_path)
+    def import_image(self, import_path: str) -> None:
+        return self._import_image(import_path)
 
     def run_container(self, container: model.Container) -> None:
         podman.run_container(container.container_id)
@@ -239,5 +239,5 @@ class AbstractUnitOfWork(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _import_image(self, image_name: str, import_path: str) -> None:
+    def _import_image(self, import_path: str) -> None:
         raise NotImplementedError

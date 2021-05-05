@@ -63,7 +63,8 @@ def create_container(
 
 def save(image_id: str, out_path: str) -> MaybeCommandError:
     if local.path(out_path).exists():
-        rm(out_path)
+        LOG.warning("No image exported. Image exists.")
+        return None
     _, err = run(bb_podman('save')['-o', out_path, image_id])
     return err
 

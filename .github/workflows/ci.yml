@@ -33,7 +33,8 @@ jobs:
 
     - name: Run unittests
       run: |
-        pytest --cov-config=./.coveragerc --cov=benchbuild benchbuild tests
+        pytest --cov-config=./.coveragerc --cov=benchbuild --ignore=tests/integration benchbuild tests
+        pytest --cov-config=./.coveragerc --cov=benchbuild tests/integration
 
     - uses: actions/upload-artifact@master
       with:

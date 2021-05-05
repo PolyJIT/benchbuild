@@ -75,7 +75,7 @@ jobs:
         coverage run -p `which benchbuild` project view
         coverage run -p `which benchbuild` -vvvvv run --full test
         coverage run -p `which benchbuild` -vvvvv slurm -E empty test
-        coverage run -p `which benchbuild` -vvvvv slurm -E rzw bzip2/benchbuild -- container --runroot /foo/bar
+        coverage run -p `which benchbuild` -vvvvv slurm -E raw bzip2/benchbuild -- container --runroot /foo/bar
         coverage run -p `which benchbuild` container run -E raw bzip2/benchbuild
         coverage run -p `which benchbuild` container rmi --with-projects -E raw bzip2/benchbuild
         coverage combine

@@ -28,7 +28,7 @@ class Slurm(cli.Application):
 
     def __init__(self, executable):
         super().__init__(executable)
-        self._experiment = None
+        self._experiment: str = ''
         self._description = None
 
     @cli.switch(["-E", "--experiment"],
@@ -59,7 +59,7 @@ class Slurm(cli.Application):
         """Main entry point of benchbuild run."""
         plugins.discover()
 
-        cli_experiments = [self._experiment]
+        cli_experiments: tp.List[str] = [self._experiment]
         cli_groups = self.group_args
         cli_projects, cli_subcommand = split_args(args)
 

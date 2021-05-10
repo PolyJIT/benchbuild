@@ -85,7 +85,14 @@ class Git(base.FetchableSource):
         src_loc = self.fetch()
         tgt_loc = pb.local.path(target_dir) / self.local
         clone = git['clone']
+        pull = git['pull']
+        rev_parse = git['rev-parse']
         checkout = git['checkout']
+
+        with pb.local.cwd(src_loc):
+            is_shallow = rev_parse('--is-shallow-repository').strip()
+            if is_shallow == 'true':
+                pull('--unshallow')
 
         mkdir('-p', tgt_loc)
         with pb.local.cwd(tgt_loc):

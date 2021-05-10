@@ -4,47 +4,40 @@ import logging
 import os
 import typing as tp
 
-from plumbum import local, ProcessExecutionError
-from plumbum.commands.base import BaseCommand
-from plumbum.path.utils import delete
+from plumbum import local
 
+from benchbuild.environments.adapters.common import (
+    run,
+    bb_buildah,
+    MaybeCommandError,
+    CommandError,
+)
 from benchbuild.environments.domain import model, events
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import buildah, mktemp
+from benchbuild.utils.cmd import mktemp
 
 LOG = logging.getLogger(__name__)
 
 
-def bb_buildah(*args: str) -> BaseCommand:
-    opts = [
-        '--root',
-        os.path.abspath(str(CFG['container']['root'])), '--runroot',
-        os.path.abspath(str(CFG['container']['runroot']))
-    ]
-    cmd = buildah[opts]
-    return cmd[args]
+class ImageCreateError(Exception):
+
+    def __init__(self, name: str, message: str):
+        super().__init__()
+
+        self.name = name
+        self.message = message
 
 
-OnErrorHandler = tp.Callable[[ProcessExecutionError], None]
-
-
-def run(cmd: BaseCommand, *on_errors: OnErrorHandler, **kwargs: tp.Any) -> str:
-    result = ""
-    try:
-        result = str(cmd(**kwargs).strip())
-    except ProcessExecutionError as err:
-        for on_error in on_errors:
-            on_error(err)
-    return result
-
-
-def commit_working_container(container: model.Container) -> None:
+def commit_working_container(container: model.Container) -> MaybeCommandError:
     image = container.image
     commit = bb_buildah('commit')[container.container_id, image.name.lower()]
-    run(commit)
+    _, err = run(commit)
+    return err
 
 
-def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
+def _spawn_add_layer(
+    container: model.Container, layer: model.AddLayer
+) -> MaybeCommandError:
     with local.cwd(container.context):
         sources = [
             os.path.join(container.context, source) for source in layer.sources
@@ -52,14 +45,19 @@ def spawn_add_layer(container: model.Container, layer: model.AddLayer) -> None:
         buildah_add = bb_buildah('add', '--add-history')
         buildah_add = buildah_add[container.container_id][sources][
             layer.destination]
-        run(buildah_add)
+        _, err = run(buildah_add)
+        return err
 
 
-def spawn_copy_layer(container: model.Container, layer: model.AddLayer) -> None:
-    spawn_add_layer(container, layer)
+def _spawn_copy_layer(
+    container: model.Container, layer: model.AddLayer
+) -> MaybeCommandError:
+    return _spawn_add_layer(container, layer)
 
 
-def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
+def _spawn_run_layer(
+    container: model.Container, layer: model.RunLayer
+) -> MaybeCommandError:
     kws = []
     for name, value in layer.kwargs:
         kws.append(f'--{name}')
@@ -68,23 +66,26 @@ def spawn_run_layer(container: model.Container, layer: model.RunLayer) -> None:
     buildah_run = bb_buildah('run', '--add-history')
     buildah_run = buildah_run[kws][container.container_id, '--',
                                    layer.command][layer.args]
-    run(buildah_run)
+    _, err = run(buildah_run)
+    return err
 
 
-def spawn_in_context(
+def _spawn_in_context( # pylint: disable=useless-return
     container: model.Container, layer: model.ContextLayer
-) -> None:
+) -> MaybeCommandError:
     with local.cwd(container.context):
         layer.func()
+    return None
 
 
-def update_env_layer(
+def _update_env_layer(
     container: model.Container, layer: model.UpdateEnv
-) -> None:
+) -> MaybeCommandError:
     buildah_config = bb_buildah('config')
     for key, value in layer.env:
         buildah_config = buildah_config['-e', f'{key}={value}']
-    run(buildah_config[container.container_id])
+    _, err = run(buildah_config[container.container_id])
+    return err
 
 
 def fetch_image_env(image: model.Image) -> None:
@@ -117,51 +118,111 @@ def fetch_image_env(image: model.Image) -> None:
         return
 
 
-def set_entry_point(
+def _set_entry_point(
     container: model.Container, layer: model.EntryPoint
-) -> None:
+) -> MaybeCommandError:
     cmd = bb_buildah('config')['--entrypoint', json.dumps(list(layer.command))]
-    run(cmd[container.container_id])
+    _, err = run(cmd[container.container_id])
+    return err
 
 
-def set_command(container: model.Container, layer: model.SetCommand) -> None:
+def _set_command(
+    container: model.Container, layer: model.SetCommand
+) -> MaybeCommandError:
     cmd = bb_buildah('config')['--cmd', json.dumps(list(layer.command))]
-    run(cmd[container.container_id])
+    _, err = run(cmd[container.container_id])
+    return err
 
 
-def set_working_directory(
+def _set_working_directory(
     container: model.Container, layer: model.WorkingDirectory
-) -> None:
-    run(
+) -> MaybeCommandError:
+    _, err = run(
         bb_buildah('config')['--workingdir', layer.directory,
                              container.container_id]
     )
+    return err
 
 
-LayerHandlerT = tp.Callable[[model.Container, model.Layer], None]
+LayerHandlerT = tp.Callable[[model.Container, model.Layer], MaybeCommandError]
 
-LAYER_HANDLERS = {
-    model.AddLayer: spawn_add_layer,
-    model.ContextLayer: spawn_in_context,
-    model.CopyLayer: spawn_copy_layer,
-    model.RunLayer: spawn_run_layer,
-    model.UpdateEnv: update_env_layer,
-    model.EntryPoint: set_entry_point,
-    model.WorkingDirectory: set_working_directory,
-    model.SetCommand: set_command
+_LAYER_HANDLERS = {
+    model.AddLayer: _spawn_add_layer,
+    model.ContextLayer: _spawn_in_context,
+    model.CopyLayer: _spawn_copy_layer,
+    model.RunLayer: _spawn_run_layer,
+    model.UpdateEnv: _update_env_layer,
+    model.EntryPoint: _set_entry_point,
+    model.WorkingDirectory: _set_working_directory,
+    model.SetCommand: _set_command
 }
 
 
-def spawn_layer(container: model.Container, layer: model.Layer) -> None:
+def spawn_layer(
+    container: model.Container, layer: model.Layer
+) -> MaybeCommandError:
     if layer == container.image.from_:
-        return
+        return None
 
-    image = container.image
-    handler: LayerHandlerT = tp.cast(LayerHandlerT, LAYER_HANDLERS[type(layer)])
-    handler(container, layer)
-    image.events.append(
-        events.LayerCreated(str(layer), container.container_id, image.name)
+    handler: LayerHandlerT = tp.cast(
+        LayerHandlerT, _LAYER_HANDLERS[type(layer)]
     )
+    return handler(container, layer)
+
+
+def handle_layer_error(
+    err: CommandError, container: model.Container, layer: model.Layer
+) -> None:
+    """
+    Process a layer error gracefully.
+
+    Annotate the image with an event that signals a failed layer.
+    Persist the current build container for later debugging, if necessary.
+
+    Args:
+        err: the command error that contains details about the error.
+        container: the container we are working on.
+        layer: the layer we tried to build.
+    """
+    image = container.image
+    image.events.append(
+        events.LayerCreationFailed(str(layer), image.name, str(err))
+    )
+
+    def can_keep(layer: model.Layer) -> bool:
+        keep = bool(CFG['container']['keep'])
+        return keep and not isinstance(layer, model.FromLayer)
+
+    if can_keep(layer):
+        failed_tag, keep_err = store_failed_build(
+            image.name, container.container_id
+        )
+        if keep_err:
+            raise keep_err
+
+        image.events.append(
+            events.DebugImageKept(image.name, failed_tag, str(layer))
+        )
+
+
+def store_failed_build(tag: str,
+                       container_id: str) -> tp.Tuple[str, MaybeCommandError]:
+    """
+    Store a failed build container.
+
+    Args:
+        tag: the original image tag name.
+        container_id: the failed build container.
+
+    Returns:
+        A tuple of the new image tag and the command error state
+    """
+    suffix = str(CFG['container']['keep_suffix'])
+    failed_tag = f'{tag}-{suffix}'
+
+    commit = bb_buildah('commit')[container_id, failed_tag.lower()]
+    _, err = run(commit)
+    return failed_tag, err
 
 
 class ImageRegistry(abc.ABC):
@@ -172,7 +233,7 @@ class ImageRegistry(abc.ABC):
         self.images = dict()
         self.containers = dict()
 
-    def create(self, tag: str, from_: model.FromLayer) -> model.Container:
+    def create(self, tag: str, from_: model.FromLayer) -> model.MaybeContainer:
         """
         Create prepares an empty image hull for further customization.
 
@@ -184,16 +245,16 @@ class ImageRegistry(abc.ABC):
             A build container to further customize our image.
         """
         container = self._create(tag, from_)
+        if container:
+            image = container.image
 
-        image = container.image
-
-        self.images[image.name] = image
-        self.containers[image.name] = container
+            self.images[image.name] = image
+            self.containers[image.name] = container
 
         return container
 
     @abc.abstractmethod
-    def _create(self, tag: str, from_: model.FromLayer) -> model.Container:
+    def _create(self, tag: str, from_: model.FromLayer) -> model.MaybeContainer:
         """
         Implementation hook for subclasses.
 
@@ -237,7 +298,7 @@ class ImageRegistry(abc.ABC):
         """
         raise NotImplementedError
 
-    def add(self, image: model.Image) -> None:
+    def add(self, image: model.Image) -> bool:
         """
         Add registers an image for storage in the repository.
 
@@ -245,14 +306,18 @@ class ImageRegistry(abc.ABC):
 
         Args:
             image: An image to be stored in the registry.
+
+        Returns:
+            True, if the image was added successfully.
         """
+        success = self._add(image)
         if image.name not in self.images:
             self.images[image.name] = image
 
-        self._add(image)
+        return success
 
     @abc.abstractmethod
-    def _add(self, image: model.Image) -> None:
+    def _add(self, image: model.Image) -> bool:
         """
         Implementation hook for subclasses.
 
@@ -306,32 +371,51 @@ class ImageRegistry(abc.ABC):
 
 class BuildahImageRegistry(ImageRegistry):
 
-    def _create(self, tag: str, from_: model.FromLayer) -> model.Container:
+    def _create(self, tag: str, from_: model.FromLayer) -> model.MaybeContainer:
         image = model.Image(tag, from_, [])
-        container_id = run(bb_buildah('from')[from_.base])
+
+        container_id, err = run(bb_buildah('from')[from_.base])
+
+        if err:
+            # FIXME: This will most likely cause issues, because we don't
+            # have a working container to enter debug mode.
+            # handle_layer_error(err, container, from_)
+            # FIXME: The user won't get any notification that his command did
+            # not work here.
+            return None
+
         context = local.path(mktemp('-dt', '-p', str(CFG['build_dir'])).strip())
+        container = model.Container(container_id, image, context, image.name)
 
-        return model.Container(container_id, image, context, image.name)
+        return container
 
-    def _add(self, image: model.Image) -> None:
+    def _add(self, image: model.Image) -> bool:
         required_layers = [l for l in image.layers if not image.is_present(l)]
+        required_layers.reverse()
         if image.name not in self.containers and required_layers:
             # Recreate build container from image tag
             raise ValueError("No build container found. Create one first.")
 
-        for layer in required_layers:
+        err: MaybeCommandError = None
+        while required_layers and err is None:
+            layer = required_layers.pop()
+            LOG.info(layer)
             container = self.containers[image.name]
-            spawn_layer(container, layer)
-            image.present(layer)
+            err = spawn_layer(container, layer)
+            if err:
+                handle_layer_error(err, container, layer)
+            else:
+                image.events.append(
+                    events.LayerCreated(
+                        str(layer), container.container_id, image.name
+                    )
+                )
+                image.present(layer)
 
-    def _destroy(self, container: model.Container) -> None:
-        run(bb_buildah('rm')[container.container_id])
-        context_path = local.path(container.context)
-        if context_path.exists():
-            delete(context_path)
+        return err is None
 
     def _find(self, tag: str) -> model.MaybeImage:
-        results = run(
+        results, _ = run(
             bb_buildah('images')['--json', tag.lower()], retcode=[0, 125]
         )
         if results:
@@ -348,14 +432,6 @@ class BuildahImageRegistry(ImageRegistry):
         if image:
             return image.env.get(name)
         return None
-
-    #def _prune(self, remove_all: bool) -> None:
-    #    rm_cmd = bb_buildah('rmi')
-    #    if remove_all:
-    #        rm_cmd = rm_cmd['-a', '-f']
-    #    else:
-    #        rm_cmd = rm_cmd['-p']
-    #    run(rm_cmd)
 
     def _remove(self, image: model.Image) -> None:
         pass

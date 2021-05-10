@@ -5,7 +5,7 @@ import typing as tp
 from plumbum import local
 from plumbum.path.utils import delete
 
-from benchbuild.environments.adapters import buildah, podman
+from benchbuild.environments.adapters import common, buildah, podman
 from benchbuild.environments.domain import model
 
 if sys.version_info <= (3, 8):
@@ -46,11 +46,18 @@ class ImageUnitOfWork(UnitOfWork):
     def __exit__(self, *args: tp.Any) -> None:
         self.rollback()
 
-    def create(self, tag: str, from_: str) -> model.Container:
+    def create(self, tag: str, from_: str) -> model.MaybeContainer:
         return self._create(tag, from_)
 
     @abc.abstractmethod
-    def _create(self, tag: str, from_: str) -> model.Container:
+    def _create(self, tag: str, from_: str) -> model.MaybeContainer:
+        raise NotImplementedError
+
+    def destroy(self, image: model.Image) -> None:
+        self._destroy(image.name)
+
+    @abc.abstractmethod
+    def _destroy(self, tag: str) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -58,14 +65,14 @@ class ImageUnitOfWork(UnitOfWork):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _import_image(self, image_name: str, import_path: str) -> None:
+    def _import_image(self, import_path: str) -> None:
         raise NotImplementedError
 
     def export_image(self, image_id: str, out_path: str) -> None:
         return self._export_image(image_id, out_path)
 
-    def import_image(self, image_name: str, import_path: str) -> None:
-        return self._import_image(image_name, import_path)
+    def import_image(self, import_path: str) -> None:
+        return self._import_image(import_path)
 
     def rollback(self) -> None:
         containers = self.registry.containers
@@ -91,21 +98,24 @@ class BuildahImageUOW(ImageUnitOfWork):
     def __init__(self) -> None:
         self.registry = buildah.BuildahImageRegistry()
 
-    def _create(self, tag: str, from_: str) -> model.Container:
+    def _create(self, tag: str, from_: str) -> model.MaybeContainer:
         from_layer = model.FromLayer(from_)
         return self.registry.create(tag, from_layer)
+
+    def _destroy(self, tag: str) -> None:
+        common.run(common.bb_buildah('rmi')['-f', tag])
 
     def _export_image(self, image_id: str, out_path: str) -> None:
         podman.save(image_id, out_path)
 
-    def _import_image(self, image_name: str, import_path: str) -> None:
-        podman.load(image_name, import_path)
+    def _import_image(self, import_path: str) -> None:
+        podman.load(import_path)
 
     def _commit(self, container: model.Container) -> None:
         image = container.image
-        buildah.run(
-            buildah.bb_buildah('commit')[container.container_id,
-                                         image.name.lower()]
+        common.run(
+            common.bb_buildah('commit')[container.container_id,
+                                        image.name.lower()]
         )
 
     def _rollback(self, container: model.Container) -> None:
@@ -192,8 +202,8 @@ class AbstractUnitOfWork(abc.ABC):
     def export_image(self, image_id: str, out_path: str) -> None:
         return self._export_image(image_id, out_path)
 
-    def import_image(self, image_name: str, import_path: str) -> None:
-        return self._import_image(image_name, import_path)
+    def import_image(self, import_path: str) -> None:
+        return self._import_image(import_path)
 
     def run_container(self, container: model.Container) -> None:
         podman.run_container(container.container_id)
@@ -229,5 +239,5 @@ class AbstractUnitOfWork(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _import_image(self, image_name: str, import_path: str) -> None:
+    def _import_image(self, import_path: str) -> None:
         raise NotImplementedError

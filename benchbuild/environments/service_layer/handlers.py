@@ -43,11 +43,13 @@ def create_image(
             return
 
         container = uow.create(cmd.name, cmd.layers.base)
-        image = container.image
-        image.append(*cmd.layers)
+        if container:
+            image = container.image
+            image.append(*cmd.layers)
 
-        uow.registry.add(image)
-        uow.commit()
+            success = uow.registry.add(image)
+            if success:
+                uow.commit()
 
 
 def create_benchbuild_base(
@@ -66,7 +68,7 @@ def run_project_container(
     Run a project container.
     """
     with uow:
-        ensure.image_exists(cmd.image, uow)
+        ensure.container_image_exists(cmd.image, uow)
 
         build_dir = uow.registry.env(cmd.image, 'BB_BUILD_DIR')
         if build_dir:
@@ -101,4 +103,16 @@ def import_image_handler(
     Import a container image.
     """
     with uow:
-        uow.import_image(cmd.image, cmd.in_path)
+        uow.import_image(cmd.in_path)
+
+
+def delete_image_handler(
+    uow: unit_of_work.ImageUnitOfWork, cmd: commands.DeleteImage
+) -> None:
+    """
+    Delete a contaienr image.
+    """
+    with uow:
+        image = uow.registry.find(cmd.name)
+        if image:
+            uow.destroy(image)

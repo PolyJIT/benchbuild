@@ -68,6 +68,9 @@ jobs:
         pip install -r test-requirements.txt
 
     - name: Run integration tests
+      env:
+        BB_CONTAINER_RUN: '/tmp'
+        BB_CONTAINER_RUNROOT: '/tmp'
       run: |
         coverage run -p `which benchbuild` bootstrap -s
         coverage run -p `which benchbuild` config view

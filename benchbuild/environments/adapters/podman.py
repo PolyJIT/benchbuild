@@ -45,6 +45,7 @@ def create_container(
     """
     podman_create = bb_podman('create', '--replace')
 
+    create_cmd = podman_create
     if mounts:
         for mount in mounts:
             create_cmd = podman_create['--mount', mount]

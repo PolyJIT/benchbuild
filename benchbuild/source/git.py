@@ -85,7 +85,11 @@ class Git(base.FetchableSource):
         src_loc = self.fetch()
         tgt_loc = pb.local.path(target_dir) / self.local
         clone = git['clone']
+        pull = git['pull']
         checkout = git['checkout']
+
+        with pb.local.cwd(src_loc):
+            pull('--unshallow')
 
         mkdir('-p', tgt_loc)
         with pb.local.cwd(tgt_loc):

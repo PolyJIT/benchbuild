@@ -37,10 +37,10 @@ def container_cmd(base: BaseCommand) -> BaseCommand:
         runroot = CFG['container']['runroot']
 
         if path_longer_than_50_chars(str(root)):
-            LOG.error(root.to_env_dict(), __MSG_SHORTER_PATH_REQUIRED)
+            LOG.error(root.__to_env_var__(), __MSG_SHORTER_PATH_REQUIRED)
 
         if path_longer_than_50_chars(str(runroot)):
-            LOG.error(runroot.to_env_dict(), __MSG_SHORTER_PATH_REQUIRED)
+            LOG.error(runroot.__to_env_var__(), __MSG_SHORTER_PATH_REQUIRED)
 
         opts = ['--root', root, '--runroot', runroot]
 

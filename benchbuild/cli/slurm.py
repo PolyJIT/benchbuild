@@ -8,7 +8,6 @@ on a configurable SLURM cluster.
 """
 import itertools
 import os
-import sys
 import typing as tp
 
 from plumbum import cli

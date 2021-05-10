@@ -103,7 +103,7 @@ def import_image_handler(
     Import a container image.
     """
     with uow:
-        uow.import_image(cmd.image, cmd.in_path)
+        uow.import_image(cmd.in_path)
 
 
 def delete_image_handler(

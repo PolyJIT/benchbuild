@@ -47,6 +47,9 @@ ContainerDeclaration = tp.Union[ContainerImage,
                                 tp.List[tp.Tuple[RevisionRange,
                                                  ContainerImage]]]
 
+__REGISTRATION_SEPARATOR = '/'
+__REGISTRATION_OPTIONALS = ['/', '-']
+
 
 class ProjectRegistry(type):
     """Registry for benchbuild projects."""
@@ -67,9 +70,7 @@ class ProjectRegistry(type):
 
         if bases and defined_attrs:
             key = f'{name}/{group}'
-            key_dash = f'{name}-{group}'
             ProjectRegistry.projects[key] = cls
-            ProjectRegistry.projects[key_dash] = cls
 
         return cls
 
@@ -504,10 +505,20 @@ def populate(
         a dictionary of (project name, project class) pairs.
     """
     prjs = discovered()
+
+    def normalize_key(key: str) -> str:
+        newkey = key
+        for opt in __REGISTRATION_OPTIONALS:
+            newkey = newkey.replace(opt, __REGISTRATION_SEPARATOR, 1)
+        return newkey
+
+    p2f = projects_to_filter
+
     if projects_to_filter:
         prjs = {}
+        p2f = [normalize_key(k) for k in projects_to_filter]
 
-        for filter_project in set(projects_to_filter):
+        for filter_project in set(p2f):
             project_str, version = __split_project_input__(filter_project)
             try:
                 selected = ProjectRegistry.projects.items(prefix=project_str)
@@ -524,11 +535,10 @@ def populate(
             name: cls for name, cls in prjs.items() if cls.GROUP in groupkeys
         }
 
-    return {
-        x: prjs[x]
-        for x in prjs
-        if prjs[x].DOMAIN != "debug" or x in projects_to_filter
+    populated = {
+        x: prjs[x] for x in prjs if prjs[x].DOMAIN != "debug" or x in p2f
     }
+    return populated
 
 
 def build_dir(e, p) -> LocalPath:

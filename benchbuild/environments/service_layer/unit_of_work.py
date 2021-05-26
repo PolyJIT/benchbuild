@@ -6,7 +6,7 @@ from plumbum import local
 from plumbum.path.utils import delete
 
 from benchbuild.environments.adapters import common, buildah, podman
-from benchbuild.environments.domain import model
+from benchbuild.environments.domain import model, events
 
 if sys.version_info <= (3, 8):
     from typing_extensions import Protocol
@@ -33,12 +33,17 @@ class UnitOfWork(abc.ABC):
 
 class ImageUnitOfWork(UnitOfWork):
     registry: buildah.ImageRegistry
+    events: tp.List[model.Message] = []
 
     def collect_new_events(self) -> tp.Generator[model.Message, None, None]:
         for image in self.registry.images.values():
             while image.events:
                 evt = image.events.pop(0)
                 yield evt
+
+        while self.events:
+            evt = self.events.pop(0)
+            yield evt
 
     def __enter__(self) -> 'ImageUnitOfWork':
         return self
@@ -47,7 +52,11 @@ class ImageUnitOfWork(UnitOfWork):
         self.rollback()
 
     def create(self, tag: str, from_: str) -> model.MaybeContainer:
-        return self._create(tag, from_)
+        try:
+            return self._create(tag, from_)
+        except common.ImageCreateError as ex:
+            self.events.append(events.ImageCreationFailed(tag, ex.message))
+        return None
 
     @abc.abstractmethod
     def _create(self, tag: str, from_: str) -> model.MaybeContainer:

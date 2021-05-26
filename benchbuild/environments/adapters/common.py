@@ -57,6 +57,15 @@ MaybeCommandError = tp.Optional[ProcessExecutionError]
 CommandError = ProcessExecutionError
 
 
+class ImageCreateError(Exception):
+
+    def __init__(self, name: str, message: str):
+        super().__init__()
+
+        self.name = name
+        self.message = message
+
+
 def run(cmd: BaseCommand, **kwargs: tp.Any) -> tp.Tuple[str, MaybeCommandError]:
     result = ""
     try:

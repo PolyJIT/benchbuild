@@ -399,75 +399,82 @@ CFG["container"] = {
             "List of containers of which the project can chose from."
             "Format:"
             "[{ 'path': <path> }]"
+    }
+}
+
+# This is needed to generate a valid benchbuild configuration schema.
+CFG['container']['strategy'] = {
+    "dummy": {
+        'default': None,
+        'desc': 'dummy value'
+    }
+}
+
+CFG['container']['strategy']['polyjit'] = {
+    "sync": {
+        "default": True,
+        "desc": "Update portage tree?"
     },
-    "strategy": {
-        "polyjit": {
-            "sync": {
-                "default": True,
-                "desc": "Update portage tree?"
-            },
-            "upgrade": {
-                "default": True,
-                "desc": "Upgrade all packages?"
-            },
-            "packages": {
-                "default": [{
-                    "name": "sys-devel/gcc:5.4.0",
-                    "env": {
-                        "ACCEPT_KEYWORDS": "~amd64",
-                        "USE": "-filecaps"
-                    }
-                }, {
-                    "name": "dev-db/postgresql:9.5",
-                    "env": {}
-                }, {
-                    "name": "dev-python/pip",
-                    "env": {}
-                }, {
-                    "name": "net-misc/curl",
-                    "env": {}
-                }, {
-                    "name": "sys-apps/likwid",
-                    "env": {
-                        "USE": "-filecaps",
-                        "ACCEPT_KEYWORDS": "~amd64"
-                    }
-                }, {
-                    "name": "dev-libs/libpfm",
-                    "env": {
-                        "USE": "static-libs",
-                        "ACCEPT_KEYWORDS": "~amd64"
-                    }
-                }, {
-                    "name": "sys-process/time",
-                    "env": {}
-                }, {
-                    "name": "=dev-util/boost-build-1.58.0",
-                    "env": {
-                        "ACCEPT_KEYWORDS": "~amd64"
-                    }
-                }, {
-                    "name": "=dev-libs/boost-1.62-r1",
-                    "env": {
-                        "ACCEPT_KEYWORDS": "~amd64"
-                    }
-                }, {
-                    "name": "dev-libs/libpqxx",
-                    "env": {}
-                }, {
-                    "name": "dev-lang/python-3.5.3",
-                    "env": {
-                        "ACCEPT_KEYWORDS": "~amd64"
-                    }
-                }, {
-                    "name": "dev-python/dill",
-                    "env": {
-                        "ACCEPT_KEYWORDS": "~amd64"
-                    }
-                }],
-                "desc": "A list of gentoo package atoms that should be merged."
+    "upgrade": {
+        "default": True,
+        "desc": "Upgrade all packages?"
+    },
+    "packages": {
+        "default": [{
+            "name": "sys-devel/gcc:5.4.0",
+            "env": {
+                "ACCEPT_KEYWORDS": "~amd64",
+                "USE": "-filecaps"
             }
-        }
+        }, {
+            "name": "dev-db/postgresql:9.5",
+            "env": {}
+        }, {
+            "name": "dev-python/pip",
+            "env": {}
+        }, {
+            "name": "net-misc/curl",
+            "env": {}
+        }, {
+            "name": "sys-apps/likwid",
+            "env": {
+                "USE": "-filecaps",
+                "ACCEPT_KEYWORDS": "~amd64"
+            }
+        }, {
+            "name": "dev-libs/libpfm",
+            "env": {
+                "USE": "static-libs",
+                "ACCEPT_KEYWORDS": "~amd64"
+            }
+        }, {
+            "name": "sys-process/time",
+            "env": {}
+        }, {
+            "name": "=dev-util/boost-build-1.58.0",
+            "env": {
+                "ACCEPT_KEYWORDS": "~amd64"
+            }
+        }, {
+            "name": "=dev-libs/boost-1.62-r1",
+            "env": {
+                "ACCEPT_KEYWORDS": "~amd64"
+            }
+        }, {
+            "name": "dev-libs/libpqxx",
+            "env": {}
+        }, {
+            "name": "dev-lang/python-3.5.3",
+            "env": {
+                "ACCEPT_KEYWORDS": "~amd64"
+            }
+        }, {
+            "name": "dev-python/dill",
+            "env": {
+                "ACCEPT_KEYWORDS": "~amd64"
+            }
+        }],
+        "desc": "A list of gentoo package atoms that should be merged."
     }
 }
 

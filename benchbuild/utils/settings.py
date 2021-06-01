@@ -184,12 +184,29 @@ def to_env_var(env_var: str, value: tp.Any) -> str:
 
 
 InnerNode = tp.Dict[str, tp.Any]
-_INNER_NODE_VALUE = schema.Schema({schema.Or('default', 'value'): object})
 
+# This schema allows a configuration to be initialized/set from a standard
+# dictionary. If you want to nest a new configuration node deeper than 1 level,
+# you have to use dummy nodes to help benchbuild validate your nodes as
+# Configuration nodes instead of plain dictionary values.
+#
+# Example:
+#  CFG['container'] = {
+#    'strategy': {
+#      'dummy': { 'default': True, 'desc': 'Update portage tree' }
+#    }
+#  }
+#  This opens the 'strategy' node up for deeper nesting in a second step:
+#
+#  CFG['container']['strategy']['polyjit'] = {
+#    'sync': { 'default': True', 'desc': '...' }
+#  }
+_INNER_NODE_VALUE = schema.Schema({schema.Or('default', 'value'): object})
 _INNER_NODE_SCHEMA = schema.Schema({
     schema.And(str, len): {
         schema.Or('default', 'value'): object,
-        schema.Optional('desc'): str
+        schema.Optional('desc'): str,
+        schema.Optional(str): dict
     }
 })
 

@@ -19,6 +19,7 @@ import uuid
 import warnings
 
 import attr
+import schema
 import six
 import yaml
 from pkg_resources import DistributionNotFound, get_distribution
@@ -183,6 +184,14 @@ def to_env_var(env_var: str, value: tp.Any) -> str:
 
 
 InnerNode = tp.Dict[str, tp.Any]
+_INNER_NODE_VALUE = schema.Schema({schema.Or('default', 'value'): object})
+
+_INNER_NODE_SCHEMA = schema.Schema({
+    schema.And(str, len): {
+        schema.Or('default', 'value'): object,
+        schema.Optional('desc'): str
+    }
+})
 
 
 class Configuration(Indexable):
@@ -333,13 +342,12 @@ class Configuration(Indexable):
         return Configuration(key, parent=self, node=self.node[key], init=False)
 
     def __setitem__(self, key: str, val: tp.Any) -> None:
-        if key in self.node:
+        if _INNER_NODE_SCHEMA.is_valid(val) or _INNER_NODE_VALUE.is_valid(val):
+            self.node[key] = val
+        elif key in self.node:
             self.node[key]['value'] = val
         else:
-            if isinstance(val, dict):
-                self.node[key] = val
-            else:
-                self.node[key] = {'value': val}
+            self.node[key] = {'value': val}
 
     def __iadd__(self, rhs: tp.Any) -> tp.Any:
         """Append a value to a list value."""

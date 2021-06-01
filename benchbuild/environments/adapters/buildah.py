@@ -11,21 +11,13 @@ from benchbuild.environments.adapters.common import (
     bb_buildah,
     MaybeCommandError,
     CommandError,
+    ImageCreateError,
 )
 from benchbuild.environments.domain import model, events
 from benchbuild.settings import CFG
 from benchbuild.utils.cmd import mktemp
 
 LOG = logging.getLogger(__name__)
-
-
-class ImageCreateError(Exception):
-
-    def __init__(self, name: str, message: str):
-        super().__init__()
-
-        self.name = name
-        self.message = message
 
 
 def commit_working_container(container: model.Container) -> MaybeCommandError:
@@ -243,6 +235,10 @@ class ImageRegistry(abc.ABC):
 
         Returns:
             A build container to further customize our image.
+
+        Raises:
+            ImageCreateError: If there was an error during initial construction
+                of a working container.
         """
         container = self._create(tag, from_)
         if container:
@@ -377,12 +373,7 @@ class BuildahImageRegistry(ImageRegistry):
         container_id, err = run(bb_buildah('from')[from_.base])
 
         if err:
-            # FIXME: This will most likely cause issues, because we don't
-            # have a working container to enter debug mode.
-            # handle_layer_error(err, container, from_)
-            # FIXME: The user won't get any notification that his command did
-            # not work here.
-            return None
+            raise ImageCreateError(tag, message=str(err))
 
         context = local.path(mktemp('-dt', '-p', str(CFG['build_dir'])).strip())
         container = model.Container(container_id, image, context, image.name)

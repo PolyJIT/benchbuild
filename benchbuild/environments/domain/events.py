@@ -30,6 +30,12 @@ class ImageCreated(model.Event):
 
 
 @attr.s(frozen=True)
+class ImageCreationFailed(model.Event):
+    name: str = attr.ib()
+    reason: str = attr.ib()
+
+
+@attr.s(frozen=True)
 class ContainerCreated(model.Event):
     name: str = attr.ib()
     image_id: str = attr.ib()

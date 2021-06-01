@@ -45,6 +45,10 @@ def bus() -> Messagebus:
     evt_handlers[events.DebugImageKept
                 ] = [handlers.bootstrap(debug.debug_image_kept, images_uow)]
 
+    evt_handlers[events.ImageCreationFailed] = [
+        handlers.bootstrap(ui.print_image_creation_failed, images_uow)
+    ]
+
     cmd_handlers = {
         commands.CreateImage:
             handlers.bootstrap(handlers.create_image, images_uow),

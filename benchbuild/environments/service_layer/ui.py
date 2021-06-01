@@ -10,6 +10,13 @@ def print_image_created(
     print(f'Building {event.name}')
 
 
+def print_image_creation_failed(
+    _: unit_of_work.ImageUnitOfWork, event: events.ImageCreationFailed
+) -> None:
+    print(f'[red]Image creation failed for [bold]{event.name}[/bold][/red]')
+    print(f'[red]Reason given: {event.reason}[/red]')
+
+
 def print_layer_created(
     _: unit_of_work.ImageUnitOfWork, event: events.LayerCreated
 ) -> None:

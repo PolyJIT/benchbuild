@@ -35,7 +35,7 @@ setup(
         "psycopg2-binary~=2.8", "pygit2>=1.2.1,<1.6.0", "pygtrie~=2.3",
         "pyparsing~=2.4", "rich>=6.1,<11.0", "sqlalchemy-migrate~=0.13",
         "typing-extensions>=3.7.4.3,<3.10.1.0", "virtualenv>=16.7,<21.0",
-        "schema~=0.7.6"
+        "schema~=0.7.4"
     ],
     author="Andreas Simbuerger",
     author_email="simbuerg@fim.uni-passau.de",

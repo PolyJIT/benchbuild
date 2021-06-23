@@ -77,10 +77,20 @@ def run(cmd: BaseCommand, **kwargs: tp.Any) -> tp.Tuple[str, MaybeCommandError]:
 
 
 def run_tee(cmd: BaseCommand,
-            **kwargs: tp.Any) -> tp.Tuple[str, MaybeCommandError]:
+            **kwargs: tp.Any) -> tp.Tuple[tp.Any, MaybeCommandError]:
     result = ""
     try:
         result = cmd.run_tee(**kwargs)
+    except ProcessExecutionError as err:
+        return result, err
+    return result, None
+
+
+def run_fg(cmd: BaseCommand,
+           **kwargs: tp.Any) -> tp.Tuple[tp.Any, MaybeCommandError]:
+    result = ""
+    try:
+        result = cmd.run_fg(**kwargs)
     except ProcessExecutionError as err:
         return result, err
     return result, None

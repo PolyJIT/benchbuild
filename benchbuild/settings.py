@@ -314,6 +314,10 @@ CFG["plugins"] = {
 }
 
 CFG["container"] = {
+    "interactive": {
+        "default": False,
+        "desc": "Drop into an interactive shell for all container runs"
+    },
     "keep": {
         "default": False,
         "desc": "Keep failed image builds at their last known good state."

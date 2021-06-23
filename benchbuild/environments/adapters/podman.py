@@ -3,11 +3,14 @@ import logging
 import typing as tp
 
 from plumbum import local
+from rich import print
+from rich.markdown import Markdown
 
 from benchbuild.environments.adapters import buildah
 from benchbuild.environments.adapters.common import (
     run,
     run_tee,
+    run_fg,
     bb_podman,
     MaybeCommandError,
 )
@@ -143,6 +146,21 @@ class ContainerRegistry(abc.ABC):
         raise NotImplementedError
 
 
+_DEBUG_CONTAINER_SESSION_INTRO = """
+# Debug Session
+Your are running in an interactive session of **{container_name}**.
+
+The container's entrypoint has been replaced with a default shell.
+The original entrypoint would be:
+
+    {entrypoint}
+
+You can exit this mode by leaving the shell using `exit`. If your last
+command did not return an exit code of ``0``, benchbuild will report an
+error.
+"""
+
+
 class PodmanRegistry(ContainerRegistry):
 
     def _create(self, image: model.Image, name: str) -> model.Container:
@@ -150,8 +168,11 @@ class PodmanRegistry(ContainerRegistry):
             f'type=bind,src={mnt.source},target={mnt.target}'
             for mnt in image.mounts
         ]
+        interactive = bool(CFG['container']['interactive'])
 
         create_cmd = bb_podman('create', '--replace')
+        if interactive:
+            create_cmd = create_cmd['-it', '--entrypoint', '/bin/sh']
 
         if mounts:
             for mount in mounts:
@@ -179,7 +200,22 @@ class PodmanRegistry(ContainerRegistry):
     def _start(self, container: model.Container) -> None:
         container_id = container.container_id
         container_start = bb_podman('container', 'start')
-        _, err = run_tee(container_start['-ai', container_id])
+        interactive = bool(CFG['container']['interactive'])
+
+        if interactive:
+            entrypoint = buildah.find_entrypoint(container.image.name)
+            print(
+                Markdown(
+                    _DEBUG_CONTAINER_SESSION_INTRO.format(
+                        container_name=container.name,
+                        entrypoint=entrypoint,
+                    )
+                )
+            )
+
+            _, err = run_fg(container_start['-ai', container_id])
+        else:
+            _, err = run_tee(container_start['-ai', container_id])
 
         if err:
             container.events.append(

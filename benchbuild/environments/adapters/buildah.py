@@ -217,6 +217,29 @@ def store_failed_build(tag: str,
     return failed_tag, err
 
 
+def find_entrypoint(tag: str) -> str:
+    """
+    Find and return the entrypoint of a container image.
+
+    This assumes an image tag configured by benchbuild as input.
+
+    Args:
+        tag: the image tage.
+
+    Returns:
+        A tuple of the configured entrypoint joined with whitespace and the
+        command's error state.
+    """
+    inspect_str = bb_buildah('inspect')(tag)
+    json_output = json.loads(inspect_str)
+
+    config = json_output['OCIv1']['config']
+    if not config:
+        raise ValueError("Could not find the container image config")
+
+    return ' '.join(config['Entrypoint'])
+
+
 class ImageRegistry(abc.ABC):
     images: tp.Dict[str, model.Image]
     containers: tp.Dict[str, model.Container]

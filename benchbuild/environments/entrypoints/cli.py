@@ -68,11 +68,17 @@ class BenchBuildContainerRun(cli.Application):  # type: ignore
                      requires=['experiment'],
                      help='Debug failed image builds interactively.')
 
+    interactive = cli.Flag(['interactive'],
+                           default=False,
+                           requires=['experiment', 'debug'],
+                           help='Run a container interactively.')
+
     def main(self, *projects: str) -> int:
         plugins.discover()
 
         CFG['container']['replace'] = self.replace
         CFG['container']['keep'] = self.debug
+        CFG['container']['interactive'] = self.interactive
 
         cli_experiments = self.experiment_args
         cli_groups = self.group_args

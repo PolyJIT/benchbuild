@@ -201,7 +201,10 @@ InnerNode = tp.Dict[str, tp.Any]
 #  CFG['container']['strategy']['polyjit'] = {
 #    'sync': { 'default': True', 'desc': '...' }
 #  }
-_INNER_NODE_VALUE = schema.Schema({schema.Or('default', 'value'): object})
+_INNER_NODE_VALUE = schema.Schema({
+    schema.Or('default', 'value'): object,
+    schema.Optional('desc'): str
+})
 _INNER_NODE_SCHEMA = schema.Schema({
     schema.And(str, len): {
         schema.Or('default', 'value'): object,

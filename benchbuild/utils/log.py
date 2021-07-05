@@ -1,5 +1,6 @@
 import logging
 
+from rich.console import Console
 from rich.logging import RichHandler
 
 from benchbuild import settings
@@ -14,7 +15,10 @@ def configure_migrate_log():
 def configure_plumbum_log():
     plumbum_format = logging.Formatter('$> %(message)s')
     handler = RichHandler(
-        rich_tracebacks=True, show_time=False, show_level=False
+        rich_tracebacks=True,
+        show_time=False,
+        show_level=False,
+        console=Console(stderr=True)
     )
     handler.setFormatter(plumbum_format)
 
@@ -42,7 +46,10 @@ def configure():
     }
 
     handler = RichHandler(
-        rich_tracebacks=True, show_time=False, show_level=False
+        rich_tracebacks=True,
+        show_time=False,
+        show_level=False,
+        console=Console(stderr=True)
     )
     logging.captureWarnings(True)
     root_logger = logging.getLogger()

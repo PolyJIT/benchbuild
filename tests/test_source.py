@@ -200,7 +200,7 @@ def describe_git():
     @mock.patch('benchbuild.source.git.base.target_prefix')
     def repo_can_be_fetched(mocked_prefix, simple_repo):
         base_dir, repo = simple_repo
-        mocked_prefix.return_value = str(base_dir)
+        mocked_prefix.return_value = pb.local.path(base_dir)
 
         a_repo = source.Git(remote=repo.git_dir, local='test.git')
         cache_path = a_repo.fetch()
@@ -211,7 +211,7 @@ def describe_git():
     @mock.patch('benchbuild.source.git.base.target_prefix')
     def repo_clones_submodules(mocked_prefix, repo_with_submodule):
         base_dir, repo = repo_with_submodule
-        mocked_prefix.return_value = str(base_dir)
+        mocked_prefix.return_value = pb.local.path(base_dir)
 
         a_repo = source.Git(remote=repo.git_dir, local='test.git')
         a_repo.fetch()
@@ -226,7 +226,7 @@ def describe_git():
         mocked_prefix, repo_with_submodule
     ):
         base_dir, repo = repo_with_submodule
-        mocked_prefix.return_value = str(base_dir)
+        mocked_prefix.return_value = pb.local.path(base_dir)
 
         a_repo = source.Git(remote=repo.git_dir, local='test.git')
         a_repo.fetch()
@@ -251,7 +251,7 @@ def describe_git():
         mocked_prefix, repo_with_submodule
     ):
         base_dir, repo = repo_with_submodule
-        mocked_prefix.return_value = str(base_dir)
+        mocked_prefix.return_value = pb.local.path(base_dir)
 
         a_repo = source.Git(remote=repo.git_dir, local='test.git')
         a_repo.fetch()
@@ -275,7 +275,7 @@ def describe_git():
     @mock.patch('benchbuild.source.git.base.target_prefix')
     def repo_can_list_versions(mocked_prefix, simple_repo):
         base_dir, repo = simple_repo
-        mocked_prefix.return_value = str(base_dir)
+        mocked_prefix.return_value = pb.local.path(base_dir)
         master = repo.head.reference
 
         a_repo = source.Git(remote=repo.git_dir, local='test.git')

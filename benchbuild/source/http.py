@@ -27,7 +27,7 @@ class HTTP(base.FetchableSource):
 
         url = remotes[version]
         target_name = versioned_target_name(self.local, version)
-        cache_path = pb.local.path(prefix) / target_name
+        cache_path = prefix / target_name
         download_single_version(url, cache_path)
 
         # FIXME: Belongs to environment code.

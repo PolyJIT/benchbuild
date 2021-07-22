@@ -243,14 +243,19 @@ def nosource() -> NoSource:
     return NoSource('NoSource', 'NoSource')
 
 
-def target_prefix() -> str:
+def target_prefix() -> pb.LocalPath:
     """
     Return the prefix directory for all downloads.
 
     Returns:
         str: the prefix where we download everything to.
     """
-    return str(CFG['tmp_dir'])
+    prefix = pb.local.path(".")
+    bb_root = str(CFG['config_file'])
+    if bb_root:
+        prefix = pb.local.path(bb_root)
+
+    return prefix / str(CFG['tmp_dir'])
 
 
 def default(*sources: Versioned) -> VariantContext:

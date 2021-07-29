@@ -166,9 +166,7 @@ def describe_project():
 def describe_filters():
 
     def is_generated_by_add_filters(project, filter_test):  # pylint: disable=unused-variable
-        filtered_prj = __add_filters__(
-            project, yaml.safe_dump(filter_test.t_input)
-        )
+        filtered_prj = __add_filters__(project, str(filter_test.t_input))
         assert isinstance(primary(*filtered_prj.SOURCE), SingleVersionFilter)
 
     def wraps_primary(project, filter_test):  # pylint: disable=unused-variable

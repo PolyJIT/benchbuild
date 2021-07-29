@@ -466,9 +466,10 @@ def __add_filters__(project: ProjectT, version_str: str) -> ProjectT:
         return False
 
     is_csv = csv(version_in)
+    is_scalar = isinstance(version_in, (str, int))
 
-    if isinstance(version_in, str) and not is_csv:
-        return __add_single_filter__(project, version_in)
+    if not is_csv and is_scalar:
+        return __add_single_filter__(project, str(version_in))
 
     if isinstance(version_in, list) or is_csv:
         version_in = version_in.split(',') if is_csv else version_in

@@ -14,7 +14,7 @@ def cmd_mock() -> tp.Callable[[str], None]:
         cmd.__overrides__[name] = ['/bin/true']
 
     yield _cmd_mock
-    cmd.__overrides__ = []
+    cmd.__overrides__ = {}
 
 
 def test_slurm_command(tmp_path, cmd_mock):

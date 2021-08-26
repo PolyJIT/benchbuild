@@ -9,7 +9,10 @@ from benchbuild.utils.cmd import podman, buildah
 
 LOG = logging.getLogger(__name__)
 
-__MSG_SHORTER_PATH_REQUIRED = 'needs to be shorter than 50 chars.'
+__MSG_SHORTER_PATH_REQUIRED = (
+    'needs to be shorter than 50 chars, if you '
+    'experience errors with the following command.'
+)
 
 
 def container_cmd(base: BaseCommand) -> BaseCommand:
@@ -28,7 +31,7 @@ def container_cmd(base: BaseCommand) -> BaseCommand:
 
     def path_longer_than_50_chars(path: str) -> bool:
         if len(path) > 50:
-            LOG.debug('A path-length > 50 are not supported by libpod')
+            LOG.debug('A path-length > 50 is not supported by libpod.')
             return True
         return False
 
@@ -37,10 +40,14 @@ def container_cmd(base: BaseCommand) -> BaseCommand:
         runroot = CFG['container']['runroot']
 
         if path_longer_than_50_chars(str(root)):
-            LOG.error(root.__to_env_var__(), __MSG_SHORTER_PATH_REQUIRED)
+            LOG.error(
+                '%s - %s', root.__to_env_var__(), __MSG_SHORTER_PATH_REQUIRED
+            )
 
         if path_longer_than_50_chars(str(runroot)):
-            LOG.error(runroot.__to_env_var__(), __MSG_SHORTER_PATH_REQUIRED)
+            LOG.error(
+                '%s - %s', runroot.__to_env_var__(), __MSG_SHORTER_PATH_REQUIRED
+            )
 
         opts = ['--root', root, '--runroot', runroot]
 

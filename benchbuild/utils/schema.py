@@ -110,6 +110,7 @@ class GUID(TypeDecorator):
     """
     impl = CHAR
     as_uuid = False
+    cache_ok = False
 
     def __init__(self, *args, as_uuid=False, **kwargs):
         self.as_uuid = as_uuid

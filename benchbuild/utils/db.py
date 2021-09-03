@@ -96,7 +96,7 @@ def persist_project(project):
 
     name = project.name
     desc = project.__doc__
-    domain = project.domain
+    domain = str(project.domain)
     group_name = project.group
     version = str(project.variant)
     try:

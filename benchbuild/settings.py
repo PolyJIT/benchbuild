@@ -41,6 +41,10 @@ CFG = s.Configuration(
             "desc": "Temporary dir. This will be used for caching downloads.",
             "default": s.ConfigPath(os.path.join(os.getcwd(), "tmp"))
         },
+        "force_tty": {
+            "desc": "Assume an active TTY.",
+            "default": False
+        },
         "jobs": {
             "desc": "Number of jobs that can be used for building and running.",
             "default": str(s.available_cpu_count())

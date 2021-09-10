@@ -61,11 +61,16 @@ class Git(base.FetchableSource):
         clone = maybe_shallow(
             git['clone', '--recurse-submodules'], self.shallow
         )
+        fetch = git['fetch', '--update-shallow', '--all']
         flat_local = self.local.replace(os.sep, '-')
         cache_path = pb.local.path(prefix) / flat_local
 
         if clone_needed(self.remote, cache_path):
             clone(self.remote, cache_path)
+        else:
+            with pb.local.cwd(cache_path):
+                fetch()
+
         return cache_path
 
     def version(self, target_dir: str, version: str = 'HEAD') -> pb.LocalPath:

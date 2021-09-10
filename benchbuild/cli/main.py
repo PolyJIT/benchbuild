@@ -15,6 +15,7 @@ class BenchBuild(cli.Application):
 
     verbosity = cli.CountOf('-v', help="Enable verbose output")
     debug = cli.Flag('-d', help="Enable debugging output")
+    force_tty = cli.Flag('--force-tty', help="Assume an available tty")
 
     def main(self, *args: str) -> int:
         cfg = settings.CFG
@@ -26,6 +27,7 @@ class BenchBuild(cli.Application):
 
         cfg["verbosity"] = verbosity
         cfg["debug"] = self.debug
+        cfg["force_tty"] = self.force_tty
 
         log.configure()
         log.set_defaults()

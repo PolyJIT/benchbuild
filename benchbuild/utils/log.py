@@ -6,6 +6,17 @@ from rich.logging import RichHandler
 from benchbuild import settings
 
 
+def __create_handler__() -> RichHandler:
+    force_terminal = bool(settings.CFG['force_tty'])
+
+    return RichHandler(
+        rich_tracebacks=True,
+        show_time=False,
+        show_level=False,
+        console=Console(stderr=True, force_terminal=force_terminal)
+    )
+
+
 def configure_migrate_log():
     migrate_log = logging.getLogger("migrate.versioning")
     migrate_log.setLevel(logging.ERROR)
@@ -14,12 +25,7 @@ def configure_migrate_log():
 
 def configure_plumbum_log():
     plumbum_format = logging.Formatter('$> %(message)s')
-    handler = RichHandler(
-        rich_tracebacks=True,
-        show_time=False,
-        show_level=False,
-        console=Console(stderr=True)
-    )
+    handler = __create_handler__()
     handler.setFormatter(plumbum_format)
 
     plumbum_local = logging.getLogger("plumbum.local")
@@ -45,12 +51,7 @@ def configure():
         0: logging.ERROR
     }
 
-    handler = RichHandler(
-        rich_tracebacks=True,
-        show_time=False,
-        show_level=False,
-        console=Console(stderr=True)
-    )
+    handler = __create_handler__()
     logging.captureWarnings(True)
     root_logger = logging.getLogger()
     if settings.CFG["debug"]:

@@ -66,8 +66,8 @@ class RunInfo:
             (run, session), where run is the generated run instance and
             session the associated transaction for later use.
         """
-        from benchbuild.utils.db import create_run
         from benchbuild.utils import schema as s
+        from benchbuild.utils.db import create_run
 
         db_run, session = create_run(command, project, experiment, group)
         db_run.begin = datetime.datetime.now()
@@ -325,8 +325,10 @@ def watch(command: BaseCommand) -> WatchableCommand:
 
     def f(*args: t.Any, retcode: int = 0, **kwargs: t.Any) -> CommandResult:
         final_command = command[args]
+        buffered = not bool(CFG['force_watch_unbuffered'])
         return t.cast(
-            CommandResult, final_command.run_tee(retcode=retcode, **kwargs)
+            CommandResult,
+            final_command.run_tee(retcode=retcode, buffered=buffered, **kwargs)
         )
 
     return f

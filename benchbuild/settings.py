@@ -45,6 +45,10 @@ CFG = s.Configuration(
             "desc": "Assume an active TTY.",
             "default": False
         },
+        "force_watch_unbuffered": {
+            "desc": "Force watched commands to output unbuffered.",
+            "default": False
+        },
         "jobs": {
             "desc": "Number of jobs that can be used for building and running.",
             "default": str(s.available_cpu_count())

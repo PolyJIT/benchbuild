@@ -1,4 +1,25 @@
 <a name=""></a>
+##  6.3 (2021-09-15)
+
+
+#### Features
+
+* **environments:**  add an interactive mode for container runs. ([c03738cd](https://github.com/polybench/benchbuild/commit/c03738cd90b9ea0ecc683b6c3785cfc6ce940f50))
+* **log:**  add force_tty switch to control RichHandler. (#435) ([fe91f81c](https://github.com/polybench/benchbuild/commit/fe91f81c3199ca8f5361827a669ba4dc8123567b))
+* **source:**  update git remote revisions. (#434) ([6899f2de](https://github.com/polybench/benchbuild/commit/6899f2de941e926760bbd2f7abce77d1aabb8f80))
+* **utils/run:**  add unbuffered watch commands ([0b4bd04c](https://github.com/polybench/benchbuild/commit/0b4bd04c0f18c1f794620bff3319b95a6345a18a))
+
+#### Bug Fixes
+
+* **environments:**  pass format string to logging call (#427) ([bf52f27e](https://github.com/polybench/benchbuild/commit/bf52f27ee9b6a03b3599dd8538d2360776200c8c))
+* **logging:**  make rich log to stderr by default (#415) ([7a59868e](https://github.com/polybench/benchbuild/commit/7a59868ec9f72fbd561dd6b246d3887687890c76), closes [#412](https://github.com/polybench/benchbuild/issues/412))
+* **schema:**  silence SAWarning about caching (#428) ([f9d6ecab](https://github.com/polybench/benchbuild/commit/f9d6ecabf9b59a5a82d2de0032d6058e65cce9d9))
+* **settings:**  BB_ENV is ignored when no config file is loaded" (#414) ([28d4c52f](https://github.com/polybench/benchbuild/commit/28d4c52f4409e5ad7a78b0edc117cb2c92e760d3))
+* **sources:**  do not use protocol class as ABC ([2545684c](https://github.com/polybench/benchbuild/commit/2545684c6811e410b34957135fdb4b1402d58e11))
+
+
+
+<a name=""></a>
 ##  6.2
 
 

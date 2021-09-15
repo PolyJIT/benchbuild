@@ -154,7 +154,7 @@ class Versioned(Protocol):
         ...
 
 
-class FetchableSource(Fetchable, Expandable, Versioned):
+class FetchableSource:
     """
     Base class for fetchable sources.
 

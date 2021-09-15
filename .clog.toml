@@ -1,4 +1,4 @@
 [clog]
-repository = "https://github.com/polybench/benchbuild"
+repository = "https://github.com/PolyJIT/benchbuild"
 changelog = "docs/CHANGELOG.md"
 from-latest-tag = true

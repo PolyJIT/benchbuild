@@ -1,3 +1,70 @@
+<a name=""></a>
+##  6.1
+
+
+#### Bug Fixes
+
+*   do not use global state to conffigure buildah/podman ([34d0aa26](https://github.com/polybench/benchbuild/commit/34d0aa266e55544c310c3387595553d8c8c3337e))
+* **ci:**  typo. ([93ca8ee4](https://github.com/polybench/benchbuild/commit/93ca8ee4857a9dc65f909e7c5c81b6f6e1bf5dcb))
+* **cli/project:**
+  *  annotate print_layers ([8d3b1531](https://github.com/polybench/benchbuild/commit/8d3b1531fa8c521898a790e41ac63dc61c41e714))
+  *  add neutral element for multiplication with reduce ([0bbf5664](https://github.com/polybench/benchbuild/commit/0bbf5664efb9dd1c20373b2c00f44c0f4f518630))
+* **environments:**
+  *  unshallow git clones before dissociating ([21aac7ce](https://github.com/polybench/benchbuild/commit/21aac7ce199b479b694c610a158650e605e583ea))
+  *  remove left-over parameters ([6f3b2a8e](https://github.com/polybench/benchbuild/commit/6f3b2a8e057eee41fa33456e13b6d63da1dc5c5b))
+  *  do not overwrite exported images. ([31da2ad7](https://github.com/polybench/benchbuild/commit/31da2ad7a31a4ebed7c8d02a8e261522a8e1a845), closes [#397](https://github.com/polybench/benchbuild/issues/397))
+  *  remove optional image name argument from podman load ([c9bb2357](https://github.com/polybench/benchbuild/commit/c9bb2357a7f1b10c6ca9578a921c6a82f114746b), closes [#398](https://github.com/polybench/benchbuild/issues/398))
+  *  reuse same status bar structure for all other cli subcommands ([256252f8](https://github.com/polybench/benchbuild/commit/256252f8daebc8ec51bd01b24d12873c320e746e))
+  *  mypy warnings ([8f016d17](https://github.com/polybench/benchbuild/commit/8f016d17407d62e12b8d9258de4f3f172772e783))
+  *  fix mypy/pylint annotations. ([379114c3](https://github.com/polybench/benchbuild/commit/379114c3b09812992a4043f7dd327ace3bfa7002))
+  *  split return turple and baild out on error ([57d8e84c](https://github.com/polybench/benchbuild/commit/57d8e84c0b7245d8d73f97fb86314c9fd23d5731))
+  *  mypy warnings ([b514cc56](https://github.com/polybench/benchbuild/commit/b514cc56e27b8250732cd3ce516256e993d16b16))
+  *  add missing type conversion ([5211858c](https://github.com/polybench/benchbuild/commit/5211858c00b5c1d715148e8afce021c5f31907c2), closes [#388](https://github.com/polybench/benchbuild/issues/388))
+  *  rework typing annotations for handlers ([100773ca](https://github.com/polybench/benchbuild/commit/100773ca2bac7d10e128149efd12a55a5876c2e9))
+  *  fix linter/mypy warnings ([6d1b5e35](https://github.com/polybench/benchbuild/commit/6d1b5e35e9171d3079b6f86985fed4e6c8ba851b))
+  *  make Add & Copy layers hashable ([2a38dced](https://github.com/polybench/benchbuild/commit/2a38dced58a8c4a658774aaabb7758ee762a2dc1))
+  *  add missing sys import ([8ca2cb37](https://github.com/polybench/benchbuild/commit/8ca2cb37f10c71144f644bfd10202822e8b95203))
+  *  import Protocol from typing_extensions, if python <= 3.8 ([5d3577a7](https://github.com/polybench/benchbuild/commit/5d3577a70e483c3f9940656fe0b266d6a5a1c364))
+  *  handle 'None' for MaybeContainer return type ([1dc0aeef](https://github.com/polybench/benchbuild/commit/1dc0aeef0334570fecad6ac17d3ad7d08c770116))
+  *  deal with multi-line container ids ([fdfd5342](https://github.com/polybench/benchbuild/commit/fdfd53422ce0fd4f7e8935c3ff37afaaabc0ba8f))
+  *  do not spawn the FromLayer ([265c623e](https://github.com/polybench/benchbuild/commit/265c623ee707bfd5a2a76814bb9e620b78381125))
+  *  explicitly state remote registry location ([84a591cc](https://github.com/polybench/benchbuild/commit/84a591cc80d76beaebb2b968bba03c75581ee46f))
+* **project:**  project registration for groups ([6383d13e](https://github.com/polybench/benchbuild/commit/6383d13edd6cbd638b30dea6842b6fc480113b5e))
+* **slurm:**
+  *  fix pylint/mypy ([ddc06db9](https://github.com/polybench/benchbuild/commit/ddc06db941eecbe2b4c34a911fbd0712949eee65))
+  *  do not modify slurm_node_dir ([be33d9a8](https://github.com/polybench/benchbuild/commit/be33d9a8bdd25f949ae7525d7cad88f6d6737743))
+* **sources:**  unshallow only when needed ([6e0ae20c](https://github.com/polybench/benchbuild/commit/6e0ae20ce8fe3936d24368b66123e3bc3b1df131))
+* **x264:**  use local name of source for lookup ([754718fc](https://github.com/polybench/benchbuild/commit/754718fc5f65d6197d8dadace620b0f19706f9bf), closes [#356](https://github.com/polybench/benchbuild/issues/356))
+
+#### Features
+
+*   tune down rich's custom log format ([04fbe347](https://github.com/polybench/benchbuild/commit/04fbe347cb3739893336d007e6376804576bc202))
+*   add support for --export and --import flags in containers ([c18b7199](https://github.com/polybench/benchbuild/commit/c18b71991949efc79ea432828f23e29b999a687e))
+* **cli/project:**
+  *  add details view for a single project ([87c53e8d](https://github.com/polybench/benchbuild/commit/87c53e8d214eb47012546e0174f52c1350b61c36))
+  *  change project view to a condensed format ([7af65f19](https://github.com/polybench/benchbuild/commit/7af65f194227f68b876ecd7f7f38b59e6edc4c0f))
+* **environments:**
+  *  just print env var name as error message ([b9044ef3](https://github.com/polybench/benchbuild/commit/b9044ef332a2d04df110b40b27e9c172c505a856))
+  *  warn the user about too long paths for libpod ([325b5003](https://github.com/polybench/benchbuild/commit/325b5003dcb564e11153cb9ba01c2bf97493b5ff))
+  *  enable debugging of failed image builds ([4c0e5ccd](https://github.com/polybench/benchbuild/commit/4c0e5ccd922c8061f0b58f1d74812ac5c1b03e74))
+  *  provide more consistent output through rich ([3982228d](https://github.com/polybench/benchbuild/commit/3982228d2bbdb93a3130ce660e485c4f519e9563))
+  *  add 'rmi' subcommand to delete images. ([80e239c6](https://github.com/polybench/benchbuild/commit/80e239c6663e628c6e14e1a09a73f7531d084041))
+  *  make an error message stand out more clearly ([c5248f8a](https://github.com/polybench/benchbuild/commit/c5248f8a8584086973b7ea0c66d6bffc6221499f))
+  *  add g++ to base image ([e20c572c](https://github.com/polybench/benchbuild/commit/e20c572cb7580e94d19776f476748fc8f494c45e))
+  *  split image_exists into 2 implementations ([73d76d38](https://github.com/polybench/benchbuild/commit/73d76d38d63c5ac3792aee04c5454a83c82ac91c))
+  *  split containers cli into 2 entitie ([6c3167d6](https://github.com/polybench/benchbuild/commit/6c3167d6f1a747e0e50638e3a9fd4204f23cea9e))
+  *  add basic error handling to environments ([b711386e](https://github.com/polybench/benchbuild/commit/b711386ec0e31485d65e9c12c8dee68178e11dd9))
+  *  emit layer creation events ([9a7fa149](https://github.com/polybench/benchbuild/commit/9a7fa1492e102f77c300a5487c03c7484ea26436))
+  *  print layer construction progress ([404ac07e](https://github.com/polybench/benchbuild/commit/404ac07edbf408b41ec6282d40af5078dd36bd75))
+  *  make layers hashable ([36432f02](https://github.com/polybench/benchbuild/commit/36432f02c7818ebefc18955bc2da4f85201845f5))
+  *  step-wise image construction ([f5100ec8](https://github.com/polybench/benchbuild/commit/f5100ec8b5fa20047278bacb328b75cd39b05797))
+  *  split Repositories and Unit of Work into 2 entities each ([6b9b9cd2](https://github.com/polybench/benchbuild/commit/6b9b9cd2be512facffa088faaa08e37e953ed989))
+  *  add option to replace container images ([33cdac30](https://github.com/polybench/benchbuild/commit/33cdac30e752271614dd6c6363d61fa9a3534fe4), closes [#372](https://github.com/polybench/benchbuild/issues/372))
+* **slurm:**  support variable number of subcommand arguments ([3df4cbd3](https://github.com/polybench/benchbuild/commit/3df4cbd3c7afbbe00a8c37f1391e2dfe60e4858e), closes [#396](https://github.com/polybench/benchbuild/issues/396))
+* **utils/slurm:**  add customizable SLURM templates ([31022284](https://github.com/polybench/benchbuild/commit/31022284f2f492cb0f799309eb893b1a2b599b78))
+
+
+
 <a name="6.0.1"></a>
 ### 6.0.1 (2020-12-29)
 

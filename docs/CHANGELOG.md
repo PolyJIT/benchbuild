@@ -1,4 +1,19 @@
 <a name=""></a>
+##  6.2
+
+
+#### Bug Fixes
+
+*   use correct schema version ([beb9907e](https://github.com/polybench/benchbuild/commit/beb9907e291df020c39f0ca364fedfde669bb01b))
+* **environments:**  notify the user, if image creation fails ([ab43787e](https://github.com/polybench/benchbuild/commit/ab43787e9f3cb1dd12b42469e9eabd1dcb721753))
+* **project:**  do not track project classes twice ([4991ed99](https://github.com/polybench/benchbuild/commit/4991ed99015fe64ba347add1e1081ae884c47d4b), closes [#390](https://github.com/polybench/benchbuild/issues/390))
+* **settings:**
+  *  unbreak test cases. ([02745c46](https://github.com/polybench/benchbuild/commit/02745c46ce1a8d27d5f92b737b002c9fb9240e21))
+  *  consistent settings behavior. ([25bfdd80](https://github.com/polybench/benchbuild/commit/25bfdd80e2ff4ab8e6fb85c2de75cf8b72c5b4b2))
+
+
+
+<a name=""></a>
 ##  6.1
 
 

@@ -94,17 +94,16 @@ class Experiment(metaclass=ExperimentRegistry):
     CONTAINER: tp.ClassVar[declarative.ContainerImage
                           ] = declarative.ContainerImage()
 
-    def __new__(cls, *args, **kwargs):
-        """Create a new experiment instance and set some defaults."""
-        del args, kwargs  # Temporarily unused
-        new_self = super(Experiment, cls).__new__(cls)
+    @classmethod
+    def __init_subclass__(cls, *args: tp.Any, **kwargs: tp.Any) -> None:
+        """Check sub classes for experiment correctly set their name."""
+        super().__init_subclass__(*args, **kwargs)
         if not cls.NAME:
             raise AttributeError(
                 "{0} @ {1} does not define a NAME class attribute.".format(
                     cls.__name__, cls.__module__
                 )
             )
-        return new_self
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True)

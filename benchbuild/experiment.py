@@ -53,10 +53,11 @@ class ExperimentRegistry(type):
 
     def __new__(
         mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any]
+        attrs: tp.Dict[str, tp.Any], *args: tp.Any, **kwargs: tp.Any
     ) -> tp.Any:
         """Register a project in the registry."""
-        cls = super(ExperimentRegistry, mcs).__new__(mcs, name, bases, attrs)
+        cls = super(ExperimentRegistry,
+                    mcs).__new__(mcs, name, bases, attrs, *args, **kwargs)
         if bases and 'NAME' in attrs:
             ExperimentRegistry.experiments[attrs['NAME']] = cls
         return cls

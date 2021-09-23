@@ -52,16 +52,14 @@ class EmptyProject(prj.Project):
 
 
 @attr.s
-class ExceptionExp(experiment.Experiment):
-    NAME = "test_exception"
+class ExceptionExp(experiment.Experiment, entity_name='test_exception'):
 
     def actions_for_project(self, project):
         return [Issue213a(obj=project)]
 
 
 @attr.s
-class ErrorStateExp(experiment.Experiment):
-    NAME = "test_error_state"
+class ErrorStateExp(experiment.Experiment, entity_name='test_error_state'):
 
     def actions_for_project(self, project):
         return [Issue213b(obj=project)]

@@ -20,8 +20,7 @@ class NoopExtension(Extension):
         return [run.RunInfo()]
 
 
-class ExperimentTest(bb.Experiment):
-    NAME = 'test-experiment'
+class ExperimentTest(bb.Experiment, entity_name='test-experiment'):
     CONTAINER = ContainerImage()
 
     def actions_for_project(self, project):

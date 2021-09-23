@@ -28,6 +28,7 @@ import collections
 import copy
 import typing as tp
 import uuid
+import warnings
 from abc import abstractmethod
 
 import attr
@@ -46,25 +47,17 @@ ProjectT = tp.Type[Project]
 Projects = tp.List[ProjectT]
 
 
-class ExperimentRegistry(type):
-    """Registry for benchbuild experiments."""
+class NamedEntity:
 
-    experiments = {}
+    @classmethod
+    def __init_subclass__(cls, *args: tp.Any, entity_name: str, **kwargs):
+        super(NamedEntity, cls).__init_subclass__(*args, **kwargs)
 
-    def __new__(
-        mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
-        attrs: tp.Dict[str, tp.Any], *args: tp.Any, **kwargs: tp.Any
-    ) -> tp.Any:
-        """Register a project in the registry."""
-        cls = super(ExperimentRegistry,
-                    mcs).__new__(mcs, name, bases, attrs, *args, **kwargs)
-        if bases and 'NAME' in attrs:
-            ExperimentRegistry.experiments[attrs['NAME']] = cls
-        return cls
+        cls.NAME = entity_name
 
 
 @attr.s(eq=False)
-class Experiment(metaclass=ExperimentRegistry):
+class Experiment(NamedEntity, entity_name=''):
     """
     A series of commands executed on a project that form an experiment.
 
@@ -89,23 +82,18 @@ class Experiment(metaclass=ExperimentRegistry):
             in the database scheme.
     """
 
-    NAME: tp.ClassVar[str] = ''
     SCHEMA = None
     REQUIREMENTS: tp.List[Requirement] = []
     CONTAINER: tp.ClassVar[declarative.ContainerImage
                           ] = declarative.ContainerImage()
 
-    def __new__(cls, *args, **kwargs):
-        """Create a new experiment instance and set some defaults."""
-        del args, kwargs  # Temporarily unused
-        new_self = super(Experiment, cls).__new__(cls)
-        if not cls.NAME:
-            raise AttributeError(
-                "{0} @ {1} does not define a NAME class attribute.".format(
-                    cls.__name__, cls.__module__
-                )
-            )
-        return new_self
+    @classmethod
+    def __init_subclass__(cls, *args, **kwargs):
+        """Init a new experiment subclass and register it."""
+        super(Experiment, cls).__init_subclass__(*args, **kwargs)
+
+        if cls.NAME:
+            __REGISTRY__[cls.NAME] = cls
 
     name: str = attr.ib(
         default=attr.Factory(lambda self: type(self).NAME, takes_self=True)
@@ -246,6 +234,11 @@ class Configuration:
         self.config.update(rhs.config)
 
 
-def discovered() -> tp.Dict[str, tp.Type[Experiment]]:
+ExperimentRegistry = tp.Dict[str, tp.Type[Experiment]]
+
+__REGISTRY__: ExperimentRegistry = {}
+
+
+def discovered() -> ExperimentRegistry:
     """Return all discovered experiments."""
-    return ExperimentRegistry.experiments
+    return __REGISTRY__

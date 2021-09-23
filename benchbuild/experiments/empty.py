@@ -10,26 +10,24 @@ from benchbuild.extensions import compiler, run
 from benchbuild.utils.actions import Clean, Compile, MakeBuildDir
 
 
-class Empty(Experiment):
+class Empty(Experiment, entity_name='empty'):
     """The empty experiment."""
-
-    NAME = "empty"
 
     def actions_for_project(self, project):
         """ Do nothing. """
         project.compiler_extension = run.WithTimeout(
-            compiler.RunCompiler(project, self))
+            compiler.RunCompiler(project, self)
+        )
         return [MakeBuildDir(project), Compile(project), Clean(project)]
 
 
-class NoMeasurement(Experiment):
+class NoMeasurement(Experiment, entity_name='no-measurement'):
     """Run everything but do not measure anything."""
-
-    NAME = "no-measurement"
 
     def actions_for_project(self, project):
         """Execute all actions but don't do anything as extension."""
         project.compiler_extension = run.WithTimeout(
-            compiler.RunCompiler(project, self))
+            compiler.RunCompiler(project, self)
+        )
         project.runtime_extension = run.RuntimeExtension(project, self)
         return self.default_runtime_actions(project)

@@ -4,8 +4,7 @@ import typing as tp
 
 import pytest
 
-from benchbuild import Experiment, Project
-from benchbuild.experiment import ExperimentRegistry
+from benchbuild import experiment, Experiment, Project
 from benchbuild.project import ProjectRegistry
 from benchbuild.utils import actions
 
@@ -25,10 +24,10 @@ def empty_compile(prj: Project) -> None:
 
 @pytest.fixture
 def registry():
-    restore = copy.deepcopy(ExperimentRegistry.experiments)
-    ExperimentRegistry.experiments.clear()
-    yield ExperimentRegistry
-    ExperimentRegistry.experiments = restore
+    restore = copy.deepcopy(experiment.discovered())
+    experiment.__REGISTRY__.clear()
+    yield experiment.discovered()
+    experiment.__REGISTRY__ = restore
 
 
 @pytest.fixture
@@ -37,22 +36,27 @@ def project_registry():
     return ProjectRegistry
 
 
-def make_experiment(cls_name: str,
-                    name: tp.Optional[str] = None,
-                    bases: tp.Tuple[type, ...] = (Experiment,),
-                    always_set: bool = True) -> tp.Type[Experiment]:
+def make_experiment(
+    cls_name: str,
+    name: tp.Optional[str] = None,
+    bases: tp.Tuple[type, ...] = (Experiment,),
+    always_set: bool = True
+) -> tp.Type[Experiment]:
     """
     Dynamically create a subclass of Experiment to test registration.
     """
     if name or always_set:
-        return type(cls_name, bases, {
-            'actions_for_project': empty_afp,
-            'NAME': name
-        })
+        return type(
+            cls_name,
+            bases, {'actions_for_project': empty_afp},
+            entity_name=name
+        )
 
-    return type(cls_name, bases, {
-        'actions_for_project': empty_afp,
-    })
+    return type(
+        cls_name, bases, {
+            'actions_for_project': empty_afp,
+        }, entity_name=''
+    )
 
 
 def make_project(
@@ -74,13 +78,13 @@ def make_project(
     return type(cls_name, bases, interface)
 
 
-def test_experiment_registry_named(registry: ExperimentRegistry):
+def test_experiment_registry_named(registry: experiment.ExperimentRegistry):
     """
     An experiment must have a NAME to be registered.
     """
     cls = make_experiment('Child', 'Child')
-    assert 'Child' in registry.experiments
-    assert registry.experiments['Child'] == cls
+    assert 'Child' in registry
+    assert registry['Child'] == cls
 
 
 def test_project_registry_named(project_registry: ProjectRegistry):
@@ -96,12 +100,12 @@ def test_project_registry_named(project_registry: ProjectRegistry):
     assert project_registry.projects['C/CG'].GROUP == 'CG'
 
 
-def test_registry_unnamed(registry: ExperimentRegistry):
+def test_registry_unnamed(registry: experiment.ExperimentRegistry):
     """
     An experiment must not lack a NAME attribute to be registered.
     """
     cls = make_experiment('UnnamedChild', always_set=False)
-    assert cls not in registry.experiments.values()
+    assert cls not in registry.values()
 
 
 def test_project_registry_unnamed(project_registry: ProjectRegistry):
@@ -113,7 +117,7 @@ def test_project_registry_unnamed(project_registry: ProjectRegistry):
     assert cls not in project_registry.projects.values()
 
 
-def test_registry_named_from_unnamed(registry: ExperimentRegistry):
+def test_registry_named_from_unnamed(registry: experiment.ExperimentRegistry):
     """
     Derive an experiment from an incomplete (e.g., abstract) experiment.
 
@@ -122,9 +126,9 @@ def test_registry_named_from_unnamed(registry: ExperimentRegistry):
     """
     unnamed = make_experiment('UnnamedChild', always_set=False)
     named = make_experiment('NamedFromUnnamed', 'Named', (unnamed,))
-    assert 'Named' in registry.experiments
-    assert registry.experiments['Named'] == named
-    assert unnamed not in registry.experiments.values()
+    assert 'Named' in registry
+    assert registry['Named'] == named
+    assert unnamed not in registry.values()
 
 
 def test_project_registry_named_from_unnamed(project_registry: ProjectRegistry):
@@ -135,10 +139,9 @@ def test_project_registry_named_from_unnamed(project_registry: ProjectRegistry):
     to be included in the registry.
     """
     unnamed = make_project('UnnamedChild', always_set=False)
-    named = make_project('NamedFromUnnamed', (unnamed,),
-                         NAME='NC',
-                         GROUP='NCG',
-                         DOMAIN='NCD')
+    named = make_project(
+        'NamedFromUnnamed', (unnamed,), NAME='NC', GROUP='NCG', DOMAIN='NCD'
+    )
     assert 'NC/NCG' in project_registry.projects
     assert project_registry.projects['NC/NCG'] == named
     assert project_registry.projects['NC/NCG'].NAME == 'NC'
@@ -147,7 +150,7 @@ def test_project_registry_named_from_unnamed(project_registry: ProjectRegistry):
     assert unnamed not in project_registry.projects.values()
 
 
-def test_registry_unnamed_from_named(registry: ExperimentRegistry):
+def test_registry_unnamed_from_named(registry: experiment.ExperimentRegistry):
     """
     Derive from an existing valid experiment and forget to set a NAME attr.
 
@@ -155,12 +158,11 @@ def test_registry_unnamed_from_named(registry: ExperimentRegistry):
     forbidden.
     """
     named = make_experiment('Child', 'Child')
-    unnamed = make_experiment('UnnamedFromNamed',
-                              name=None,
-                              bases=(named,),
-                              always_set=False)
+    unnamed = make_experiment(
+        'UnnamedFromNamed', name=None, bases=(named,), always_set=False
+    )
 
-    assert unnamed not in registry.experiments.values()
+    assert unnamed not in registry.values()
 
 
 def test_project_registry_unnamed_from_named(project_registry: ProjectRegistry):
@@ -170,10 +172,12 @@ def test_project_registry_unnamed_from_named(project_registry: ProjectRegistry):
     This would overwrite an existing project in the registry and is forbidden.
     """
     named = make_project('Child', NAME='C', DOMAIN='CD', GROUP='CG')
-    unnamed = make_project('UnnamedFromNamed', (named,),
-                           NAME=None,
-                           DOMAIN=None,
-                           GROUP=None,
-                           always_set=False)
+    unnamed = make_project(
+        'UnnamedFromNamed', (named,),
+        NAME=None,
+        DOMAIN=None,
+        GROUP=None,
+        always_set=False
+    )
 
     assert unnamed not in project_registry.projects.values()

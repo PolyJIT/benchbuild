@@ -28,7 +28,6 @@ import collections
 import copy
 import typing as tp
 import uuid
-import warnings
 from abc import abstractmethod
 
 import attr

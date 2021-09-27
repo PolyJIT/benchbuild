@@ -46,7 +46,7 @@ ProjectT = tp.Type[Project]
 Projects = tp.List[ProjectT]
 
 
-class NamedEntity:
+class NamedEntity:  # pylint: disable=too-few-public-methods
 
     @classmethod
     def __init_subclass__(cls, *args: tp.Any, entity_name: str, **kwargs):

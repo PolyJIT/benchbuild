@@ -10,6 +10,7 @@ from benchbuild.project import populate as populate
 # Export: Source Code handling
 from . import plugins as __PLUGINS__
 from . import source as source
+from . import workload as workload
 from .experiment import Experiment as Experiment
 # Export: Project
 from .project import Project as Project

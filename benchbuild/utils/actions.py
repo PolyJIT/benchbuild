@@ -27,7 +27,7 @@ import pathos.multiprocessing as mp
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
 
-from benchbuild import signals, source
+from benchbuild import signals, source, workload
 from benchbuild.settings import CFG
 from benchbuild.utils import container, db, run
 from benchbuild.utils.cmd import mkdir, rm, rmdir
@@ -352,6 +352,18 @@ class Compile(Step):
     def __init__(self, project):
         super().__init__(project, action_fn=project.compile)
 
+    @notify_step_begin_end
+    def __call__(self):
+
+        def run_workload(workload: workload.WorkloadFunction) -> StepResult:
+            workload(self.obj)
+            self.status = StepResult.OK
+            return self.status
+
+        workloads = self.obj.by_phase(workload.Phase.COMPILE)
+        results = [run_workload(workload) for workload in workloads]
+        return results
+
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
             "* {0}: Compile".format(self.obj.name), indent * " "
@@ -373,22 +385,29 @@ class Run(Step):
 
     @notify_step_begin_end
     def __call__(self):
-        group, session = run.begin_run_group(self.obj, self.experiment)
-        signals.handlers.register(run.fail_run_group, group, session)
-        try:
-            self.obj.run_tests()
-            run.end_run_group(group, session)
-        except ProcessExecutionError:
-            run.fail_run_group(group, session)
-            raise
-        except KeyboardInterrupt:
-            run.fail_run_group(group, session)
-            raise
-        finally:
-            signals.handlers.deregister(run.fail_run_group)
 
-        self.status = StepResult.OK
-        return self.status
+        workloads = self.project.by_phase(workload.Phase.RUN)
+
+        def run_workload(workload: workload.WorkloadFunction) -> StepResult:
+            group, session = run.begin_run_group(self.project, self.experiment)
+            signals.handlers.register(run.fail_run_group, group, session)
+            try:
+                workload(self.project)
+                run.end_run_group(group, session)
+            except ProcessExecutionError:
+                run.fail_run_group(group, session)
+                raise
+            except KeyboardInterrupt:
+                run.fail_run_group(group, session)
+                raise
+            finally:
+                signals.handlers.deregister(run.fail_run_group)
+
+            self.status = StepResult.OK
+            return self.status
+
+        results = [run_workload(workload) for workload in workloads]
+        return results
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(

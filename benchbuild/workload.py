@@ -1,5 +1,6 @@
 import enum
 import typing as tp
+from types import MethodType
 
 from benchbuild.utils import run
 
@@ -21,6 +22,11 @@ class WorkloadMixin:
         cls.workloads: tp.Dict[WorkloadFunction, None] = {}
 
         super().__init_subclass__(*args, **kwargs)
+
+    @classmethod
+    def has_workloads(cls) -> bool:
+        """Check, if this class has workloads defined."""
+        return bool(cls.workloads)
 
     @classmethod
     def workload(cls, func: WorkloadFunction) -> WorkloadFunction:

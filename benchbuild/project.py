@@ -319,18 +319,6 @@ class Project(MultiVersioned, workload.WorkloadMixin, metaclass=ProjectDecorator
                     self.container = copy.deepcopy(image)
                     break
 
-    @abstractmethod
-    def run_tests(self) -> None:
-        """
-        Run the tests of this project.
-
-        Clients override this method to provide customized run-time tests.
-
-        Args:
-            experiment: The experiment we run this project under
-            run: A function that takes the run command.
-        """
-
     def clean(self) -> None:
         """Clean the project build directory."""
         builddir_p = local.path(self.builddir)
@@ -341,10 +329,6 @@ class Project(MultiVersioned, workload.WorkloadMixin, metaclass=ProjectDecorator
         new_p = copy.deepcopy(self)
         new_p.run_uuid = uuid.uuid4()
         return new_p
-
-    @abstractmethod
-    def compile(self) -> None:
-        """Compile the project."""
 
     @property
     def id(self) -> str:

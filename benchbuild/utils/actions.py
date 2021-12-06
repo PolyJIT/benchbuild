@@ -23,7 +23,6 @@ import traceback
 import typing as tp
 from datetime import datetime
 
-import attr
 import pathos.multiprocessing as mp
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
@@ -217,7 +216,6 @@ class StepClass(type):
         return super().__new__(mcs, name, bases, attrs)
 
 
-@attr.s(eq=False)
 class Step(metaclass=StepClass):
     """Base class of a step.
 
@@ -234,9 +232,15 @@ class Step(metaclass=StepClass):
     ON_STEP_BEGIN = []
     ON_STEP_END = []
 
-    obj = attr.ib(default=None, repr=False)
-    action_fn = attr.ib(default=None, repr=False)
-    status = attr.ib(default=StepResult.UNSET)
+    def __init__(
+        self,
+        obj: tp.Any = None,
+        action_fn: tp.Callable[[], tp.Any] = None,
+        status: StepResult = StepResult.UNSET
+    ) -> None:
+        self.obj = obj
+        self.action_fn = action_fn
+        self.status = status
 
     def __len__(self) -> int:
         return 1
@@ -265,12 +269,19 @@ class Step(metaclass=StepClass):
         Clean(self.obj)()
 
 
-@attr.s
 class Clean(Step):
     NAME = "CLEAN"
     DESCRIPTION = "Cleans the build directory"
 
-    check_empty = attr.ib(default=False)
+    def __init__(
+        self,
+        obj: tp.Any = None,
+        action_fn: tp.Callable[[], tp.Any] = None,
+        status: StepResult = StepResult.UNSET,
+        check_empty: bool = False
+    ) -> None:
+        super().__init__(obj, action_fn, status)
+        self.check_empty = check_empty
 
     @staticmethod
     def clean_mountpoints(root: str):
@@ -353,7 +364,6 @@ class Compile(Step):
         )
 
 
-@attr.s
 class Run(Step):
     NAME = "RUN"
     DESCRIPTION = "Execute the run action"
@@ -361,6 +371,19 @@ class Run(Step):
     #FIXME: This cannot be positional/mandatory because we subclass Step.
     project = attr.ib(default=None)
     experiment = attr.ib(default=None)
+
+    def __init__(
+        self,
+        obj: tp.Any = None,
+        action_fn: tp.Callable[[], tp.Any] = None,
+        status: StepResult = StepResult.UNSET,
+        project: tp.Any = None,  # benchbuild.project.Project
+        experiment: tp.Any = None  # benchbuild.experiment.Experiment
+    ) -> None:
+        super().__init__(obj, action_fn, status)
+
+        self.project = project
+        self.experiment = experiment
 
     @notify_step_begin_end
     def __call__(self):
@@ -388,12 +411,19 @@ class Run(Step):
         )
 
 
-@attr.s
 class Echo(Step):
     NAME = 'ECHO'
     DESCRIPTION = 'Print a message.'
 
-    message = attr.ib(default="")
+    def __init__(
+        self,
+        obj: tp.Any = None,
+        action_fn: tp.Callable[[], tp.Any] = None,
+        status: StepResult = StepResult.UNSET,
+        message: str = ""
+    ) -> None:
+        super().__init__(obj, action_fn, status)
+        self.message = message
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent("* echo: {0}".format(self.message), indent * " ")
@@ -414,12 +444,19 @@ def run_any_child(child: Step) -> tp.List[StepResult]:
     return child()
 
 
-@attr.s(eq=False)
 class Any(Step):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    actions = attr.ib(default=attr.Factory(list), repr=False, eq=False)
+    def __init__(
+        self,
+        obj: tp.Any = None,
+        action_fn: tp.Callable[[], tp.Any] = None,
+        status: StepResult = StepResult.UNSET,
+        actions: tp.List[Step] = []
+    ) -> None:
+        super().__init__(obj, action_fn, status)
+        self.actions = actions
 
     def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
@@ -450,19 +487,23 @@ class Any(Step):
         return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
 
 
-@attr.s(eq=False, hash=True)
 class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
 
-    def __attrs_post_init__(self):
-        if not self.actions:
-            return
+    def __init__(
+        self,
+        obj: tp.Any = None,
+        action_fn: tp.Callable[[], tp.Any] = None,
+        status: StepResult = StepResult.UNSET,
+        actions: tp.List[Step] = []
+    ) -> None:
+        _actions = \
+            [Echo(message="Start experiment: {0}".format(obj.name))] + \
+            actions + \
+            [Echo(message="Completed experiment: {0}".format(obj.name))]
 
-        self.actions = \
-            [Echo(message="Start experiment: {0}".format(self.obj.name))] + \
-            self.actions + \
-            [Echo(message="Completed experiment: {0}".format(self.obj.name))]
+        super().__init__(obj, action_fn, status, _actions)
 
     def begin_transaction(self):
         experiment, session = db.persist_experiment(self.obj)
@@ -539,12 +580,20 @@ class Experiment(Any):
         )
 
 
-@attr.s
 class RequireAll(Step):
     NAME = "REQUIRE ALL"
     DESCRIPTION = "All child steps need to succeed"
 
-    actions = attr.ib(default=attr.Factory(list))
+    def __init__(
+        self,
+        obj: tp.Any = None,
+        action_fn: tp.Callable[[], tp.Any] = None,
+        status: StepResult = StepResult.UNSET,
+        actions: tp.List[Step] = []
+    ) -> None:
+        super().__init__(obj, action_fn, status)
+
+        self.actions = actions if actions else []
 
     def __len__(self):
         return sum([len(x) for x in self.actions]) + 1
@@ -595,45 +644,6 @@ class RequireAll(Step):
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
         sub_actns = "\n".join(sub_actns)
         return textwrap.indent("* All required:\n" + sub_actns, indent * " ")
-
-
-@attr.s
-class Containerize(RequireAll):
-    NAME = "CONTAINERIZE"
-    DESCRIPTION = "Redirect into container"
-
-    def requires_redirect(self) -> bool:
-        project = self.obj
-        return not container.in_container() and (project.container is not None)
-
-    @notify_step_begin_end
-    def __call__(self) -> StepResultVariants:
-        project = self.obj
-        if self.requires_redirect():
-            project.redirect()
-            self.status = StepResult.OK
-            return self.status
-        return super().__call__()
-
-    def __str__(self, indent: int = 0) -> str:
-        sub_actns = [a.__str__(indent + 1) for a in self.actions]
-
-        if container.in_container():
-            return textwrap.indent(
-                '\n'.join(['* Running inside container:'] + sub_actns),
-                indent * " "
-            )
-
-        if self.requires_redirect():
-            return textwrap.indent(
-                '\n'.join(["* Continue inside container:"] + sub_actns),
-                indent * " "
-            )
-
-        return textwrap.indent(
-            '\n'.join(['* Running without container:'] + sub_actns),
-            indent * " "
-        )
 
 
 class CleanExtra(Step):

@@ -14,7 +14,6 @@ from benchbuild.utils import actions as a
 from benchbuild.utils import tasks
 
 
-@attr.s
 class Issue213a(a.Step):
     NAME = "Issue213a"
     DESCRIPTION = "Issue213a"
@@ -24,7 +23,6 @@ class Issue213a(a.Step):
         raise ProcessExecutionError([], 1, "", "")
 
 
-@attr.s
 class Issue213b(a.Step):
     NAME = "Issue213b"
     DESCRIPTION = "Issue213b"

@@ -221,7 +221,7 @@ class Experiment(metaclass=ExperimentRegistry):
         """Return a series of actions for a run time experiment."""
         return [
             actns.Compile(project),
-            actns.Run(obj=project, project=project, experiment=self),
+            actns.Run(project, experiment=self),
             actns.Clean(project)
         ]
 

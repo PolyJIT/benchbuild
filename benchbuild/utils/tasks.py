@@ -42,5 +42,5 @@ def generate_plan(exps: ExperimentTs, prjs: ProjectTs) -> Actions:
     actions = []
     for exp_cls in exps:
         exp = exp_cls(projects=prjs)
-        actions.append(actns.Experiment(obj=exp, actions=exp.actions()))
+        actions.append(actns.Experiment(exp, actions=exp.actions()))
     return actions

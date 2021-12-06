@@ -54,7 +54,7 @@ class ExceptionExp(experiment.Experiment):
     NAME = "test_exception"
 
     def actions_for_project(self, project):
-        return [Issue213a(obj=project)]
+        return [Issue213a(project)]
 
 
 @attr.s
@@ -62,7 +62,7 @@ class ErrorStateExp(experiment.Experiment):
     NAME = "test_error_state"
 
     def actions_for_project(self, project):
-        return [Issue213b(obj=project)]
+        return [Issue213b(project)]
 
 
 class TrackErrorsTestCase(unittest.TestCase):

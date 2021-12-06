@@ -273,14 +273,8 @@ class Clean(Step):
     NAME = "CLEAN"
     DESCRIPTION = "Cleans the build directory"
 
-    def __init__(
-        self,
-        obj: tp.Any = None,
-        action_fn: tp.Callable[[], tp.Any] = None,
-        status: StepResult = StepResult.UNSET,
-        check_empty: bool = False
-    ) -> None:
-        super().__init__(obj, action_fn, status)
+    def __init__(self, obj: tp.Any = None, check_empty: bool = False) -> None:
+        super().__init__(obj, action_fn=None, status=StepResult.UNSET)
         self.check_empty = check_empty
 
     @staticmethod
@@ -356,7 +350,7 @@ class Compile(Step):
     DESCRIPTION = "Compile the project"
 
     def __init__(self, project):
-        super().__init__(obj=project, action_fn=project.compile)
+        super().__init__(project, action_fn=project.compile)
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
@@ -368,29 +362,21 @@ class Run(Step):
     NAME = "RUN"
     DESCRIPTION = "Execute the run action"
 
-    #FIXME: This cannot be positional/mandatory because we subclass Step.
-    project = attr.ib(default=None)
-    experiment = attr.ib(default=None)
-
     def __init__(
         self,
-        obj: tp.Any = None,
-        action_fn: tp.Callable[[], tp.Any] = None,
-        status: StepResult = StepResult.UNSET,
         project: tp.Any = None,  # benchbuild.project.Project
-        experiment: tp.Any = None  # benchbuild.experiment.Experiment
+        experiment: tp.Any = None,  # benchbuild.experiment.Experiment
     ) -> None:
-        super().__init__(obj, action_fn, status)
+        super().__init__(project, None, StepResult.UNSET)
 
-        self.project = project
         self.experiment = experiment
 
     @notify_step_begin_end
     def __call__(self):
-        group, session = run.begin_run_group(self.project, self.experiment)
+        group, session = run.begin_run_group(self.obj, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
         try:
-            self.project.run_tests()
+            self.obj.run_tests()
             run.end_run_group(group, session)
         except ProcessExecutionError:
             run.fail_run_group(group, session)
@@ -406,8 +392,7 @@ class Run(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Execute run-time tests.".format(self.project.name),
-            indent * " "
+            "* {0}: Execute run-time tests.".format(self.obj.name), indent * " "
         )
 
 
@@ -415,14 +400,8 @@ class Echo(Step):
     NAME = 'ECHO'
     DESCRIPTION = 'Print a message.'
 
-    def __init__(
-        self,
-        obj: tp.Any = None,
-        action_fn: tp.Callable[[], tp.Any] = None,
-        status: StepResult = StepResult.UNSET,
-        message: str = ""
-    ) -> None:
-        super().__init__(obj, action_fn, status)
+    def __init__(self, message: str = "") -> None:
+        super().__init__(None, None, StepResult.UNSET)
         self.message = message
 
     def __str__(self, indent: int = 0) -> str:
@@ -448,14 +427,8 @@ class Any(Step):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    def __init__(
-        self,
-        obj: tp.Any = None,
-        action_fn: tp.Callable[[], tp.Any] = None,
-        status: StepResult = StepResult.UNSET,
-        actions: tp.List[Step] = []
-    ) -> None:
-        super().__init__(obj, action_fn, status)
+    def __init__(self, experiment: tp.Any, actions: tp.List[Step] = []) -> None:
+        super().__init__(experiment, None, StepResult.UNSET)
         self.actions = actions
 
     def __len__(self) -> int:
@@ -491,19 +464,13 @@ class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
 
-    def __init__(
-        self,
-        obj: tp.Any = None,
-        action_fn: tp.Callable[[], tp.Any] = None,
-        status: StepResult = StepResult.UNSET,
-        actions: tp.List[Step] = []
-    ) -> None:
+    def __init__(self, experiment: tp.Any, actions: tp.List[Step] = []) -> None:
         _actions = \
-            [Echo(message="Start experiment: {0}".format(obj.name))] + \
+            [Echo(message="Start experiment: {0}".format(experiment.name))] + \
             actions + \
-            [Echo(message="Completed experiment: {0}".format(obj.name))]
+            [Echo(message="Completed experiment: {0}".format(experiment.name))]
 
-        super().__init__(obj, action_fn, status, _actions)
+        super().__init__(experiment, _actions)
 
     def begin_transaction(self):
         experiment, session = db.persist_experiment(self.obj)
@@ -584,14 +551,8 @@ class RequireAll(Step):
     NAME = "REQUIRE ALL"
     DESCRIPTION = "All child steps need to succeed"
 
-    def __init__(
-        self,
-        obj: tp.Any = None,
-        action_fn: tp.Callable[[], tp.Any] = None,
-        status: StepResult = StepResult.UNSET,
-        actions: tp.List[Step] = []
-    ) -> None:
-        super().__init__(obj, action_fn, status)
+    def __init__(self, actions: tp.List[Step] = []) -> None:
+        super().__init__(None, None, StepResult.UNSET)
 
         self.actions = actions if actions else []
 

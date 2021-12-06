@@ -32,7 +32,7 @@ class HTTP(base.FetchableSource):
 
         # FIXME: Belongs to environment code.
 
-        target_path = pb.local.path(target_dir) / self.local
+        target_path = pb.local.path(target_dir) / f'{self.local}-{version}'
         cp('-ar', cache_path, target_path)
         return target_path
 

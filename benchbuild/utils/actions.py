@@ -659,3 +659,32 @@ class ProjectEnvironment(Step):
                 project.name, version_str
             ), indent * " "
         )
+
+
+class AddProjectVersion(Step):
+    NAME = 'SET PROJECT VERSION'
+    DESCRIPTION = 'Checkout a project version'
+
+    def __init__(self, project: tp.Any, variant: source.Variant) -> None:
+        super().__init__(project, None, StepResult.UNSET)
+        self.variant = variant
+
+    @notify_step_begin_end
+    def __call__(self) -> None:
+        project = self.obj
+        prj_vars = self.variant
+
+        for name, variant in prj_vars.items():
+            LOG.info("Fetching %s @ %s", str(name), variant.version)
+            src = variant.owner
+            src.version(project.builddir, variant.version)
+
+    def __str__(self, indent: int = 0) -> str:
+        project = self.obj
+        version_str = source.to_str(tuple(self.variant.values()))
+
+        return textwrap.indent(
+            '* Add project version {} for: {}'.format(
+                version_str, project.name
+            ), indent * ' '
+        )

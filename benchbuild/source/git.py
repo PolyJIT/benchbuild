@@ -88,7 +88,8 @@ class Git(base.FetchableSource):
             str: [description]
         """
         src_loc = self.fetch()
-        tgt_loc = pb.local.path(target_dir) / self.local
+        tgt_loc = pb.local.path(target_dir) / f'{self.local}-{version}'
+
         clone = git['clone']
         pull = git['pull']
         rev_parse = git['rev-parse']

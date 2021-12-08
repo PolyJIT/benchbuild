@@ -661,7 +661,7 @@ class ProjectEnvironment(Step):
         )
 
 
-class AddProjectVersion(Step):
+class SetProjectVersion(Step):
     NAME = 'SET PROJECT VERSION'
     DESCRIPTION = 'Checkout a project version'
 

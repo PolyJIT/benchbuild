@@ -6,7 +6,7 @@ import typing as tp
 import plumbum as pb
 
 from benchbuild.source import base
-from benchbuild.utils.cmd import cp, wget
+from benchbuild.utils.cmd import cp, ln, wget
 
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
@@ -32,8 +32,12 @@ class HTTP(base.FetchableSource):
 
         # FIXME: Belongs to environment code.
 
-        target_path = pb.local.path(target_dir) / f'{self.local}-{version}'
+        target_path = pb.local.path(target_dir) / target_name
+        active_loc = pb.local.path(target_dir) / self.local
+
         cp('-ar', cache_path, target_path)
+        ln('-sf', target_name, active_loc)
+
         return target_path
 
     def versions(self) -> tp.List[base.Variant]:

@@ -88,7 +88,7 @@ class Git(base.FetchableSource):
             str: [description]
         """
         src_loc = self.fetch()
-        active_loc = pb.local.path(target_dir) / f'{self.local}'
+        active_loc = pb.local.path(target_dir) / self.local
         tgt_subdir = f'{self.local}-{version}'
         tgt_loc = pb.local.path(target_dir) / tgt_subdir
 

@@ -130,7 +130,7 @@ class MultiVersioned:
 
     @active_variant.setter
     def active_variant(self, variant: VariantContext) -> None:
-        self._active_variants.add(variant)
+        self._active_variants.append(variant)
         self._active_variant = variant
 
     @property

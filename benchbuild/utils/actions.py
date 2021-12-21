@@ -665,7 +665,7 @@ class SetProjectVersion(Step):
     NAME = 'SET PROJECT VERSION'
     DESCRIPTION = 'Checkout a project version'
 
-    def __init__(self, project: tp.Any, variant: source.Variant) -> None:
+    def __init__(self, project: tp.Any, variant: source.VariantContext) -> None:
         super().__init__(project, None, StepResult.UNSET)
         self.variant = variant
 

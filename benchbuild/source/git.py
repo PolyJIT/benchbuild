@@ -110,7 +110,7 @@ class Git(base.FetchableSource):
             )
             checkout('--detach', version)
 
-        ln('-sf', tgt_subdir, active_loc)
+        ln('-nsf', tgt_subdir, active_loc)
         return tgt_loc
 
     def versions(self) -> tp.List[base.Variant]:

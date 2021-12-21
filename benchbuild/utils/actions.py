@@ -679,7 +679,7 @@ class SetProjectVersion(Step):
             src = variant.owner
             src.version(project.builddir, variant.version)
 
-        project.active_variant(prj_vars)
+        project.active_variant = prj_vars
 
     def __str__(self, indent: int = 0) -> str:
         project = self.obj

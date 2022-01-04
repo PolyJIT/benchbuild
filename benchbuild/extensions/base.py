@@ -1,7 +1,6 @@
 """
 Extension base-classes for compile-time and run-time experiments.
 """
-import collections as c
 import logging
 import typing as tp
 from abc import ABCMeta
@@ -66,7 +65,7 @@ class Extension(metaclass=ABCMeta):
                 LOG.warning("No result from: %s", ext)
                 continue
             result_list = []
-            if isinstance(results, c.Iterable):
+            if isinstance(results, tp.Iterable):
                 result_list.extend(results)
             else:
                 result_list.append(results)

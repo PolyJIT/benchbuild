@@ -34,7 +34,7 @@ setup(
         "pathos~=0.2", "parse~=1.14", "plumbum~=1.6", "psutil~=5.6",
         "psycopg2-binary~=2.8", "pygit2>=1.2.1,<1.8.0", "pygtrie~=2.3",
         "pyparsing~=2.4", "rich>=6.1,<12.0", "sqlalchemy-migrate~=0.13",
-        "typing-extensions>=3.7.4.3,<3.10.1.0", "virtualenv>=16.7,<21.0",
+        "typing-extensions>=3.7.4.3,<4.0.2.0", "virtualenv>=16.7,<21.0",
         "schema~=0.7.4"
     ],
     author="Andreas Simbuerger",

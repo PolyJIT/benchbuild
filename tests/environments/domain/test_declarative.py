@@ -1,7 +1,7 @@
 """
 Test declarative API
 """
-from collections.abc import Hashable
+from typing import Hashable
 
 from benchbuild.environments.domain import declarative as decl
 from benchbuild.environments.domain import model as m

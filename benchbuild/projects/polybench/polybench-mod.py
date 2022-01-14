@@ -11,10 +11,12 @@ class PolybenchModGroup(PolyBenchGroup):
     GROUP = 'polybench-mod'
     DOMAIN = 'polybench'
     SOURCE = [
-        Git(remote='https://github.com/simbuerg/polybench-c-4.2-1.git',
+        Git(
+            remote='https://github.com/simbuerg/polybench-c-4.2-1.git',
             local='polybench.git',
             limit=5,
-            refspec='HEAD')
+            refspec='HEAD'
+        )
     ]
 
     def compile(self):
@@ -31,22 +33,24 @@ class PolybenchModGroup(PolyBenchGroup):
         kernel_file = src_sub / (self.name + "_kernel.c")
         utils_dir = src_dir / "utilities"
 
-        polybench_opts = [
+        polybench_compile_options = [
             "-D" + str(workload), "-DPOLYBENCH_USE_C99_PROTO",
             "-DPOLYBENCH_USE_RESTRICT"
         ]
 
         if verify:
-            polybench_opts = self.compile_verify([
+            polybench_compile_options = self.compile_verify([
                 "-I", utils_dir, "-I", src_sub, utils_dir / "polybench.c",
                 kernel_file, src_file, "-lm"
-            ], polybench_opts)
+            ], polybench_compile_options)
 
         clang = bb.compiler.cc(self)
         _clang = bb.watch(clang)
-        _clang("-I", utils_dir, "-I", src_sub, polybench_opts,
-               utils_dir / "polybench.c", kernel_file, src_file, "-lm", "-o",
-               self.name)
+        _clang(
+            "-I", utils_dir, "-I", src_sub, polybench_compile_options,
+            utils_dir / "polybench.c", kernel_file, src_file, "-lm", "-o",
+            self.name
+        )
 
 
 class Correlation(PolybenchModGroup):

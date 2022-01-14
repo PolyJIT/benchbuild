@@ -1,6 +1,8 @@
 """
 Extension base-classes for compile-time and run-time experiments.
 """
+from __future__ import annotations
+
 import logging
 import typing as tp
 from abc import ABCMeta
@@ -35,7 +37,7 @@ class Extension(metaclass=ABCMeta):
 
     def __init__(
         self,
-        *extensions: 'Extension',
+        *extensions: Extension,
         config: tp.Optional[tp.Dict[str, str]] = None,
         **kwargs: tp.Any
     ):
@@ -73,8 +75,8 @@ class Extension(metaclass=ABCMeta):
 
         return all_results
 
-    def __lshift__(self, rhs: 'Extension') -> 'Extension':
-        rhs.next_extensions = [self]
+    def __lshift__(self, rhs: Extension) -> Extension:
+        rhs.next_extensions = tuple([self])
         return rhs
 
     def print(self, indent: int = 0) -> None:

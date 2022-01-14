@@ -1,8 +1,13 @@
 """An extensible dictionary."""
+import typing as tp
 from contextlib import contextmanager
 
 
-def extend_as_list(original_dict, **kwargs):
+def extend_as_list(original_dict: tp.MutableMapping[tp.Any, tp.Any],
+                   **kwargs) -> tp.Dict[tp.Any, tp.Any]:
+    """
+    Extend values in a map by treating them as a list.
+    """
     new_dict = original_dict
     for k, v in kwargs.items():
         if k in original_dict:
@@ -19,13 +24,13 @@ def extend_as_list(original_dict, **kwargs):
             new_dict[k] = oldv
         else:
             new_dict[k] = v
-    return new_dict
+    return dict(new_dict)
 
 
 class ExtensibleDict:
     """A dictionary that provides temporary modification."""
 
-    _current = dict()
+    _current: tp.MutableMapping[tp.Any, tp.Any] = {}
     _extender_fn = None
 
     def __init__(self, extender_fn=None):

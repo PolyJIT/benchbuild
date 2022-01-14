@@ -12,6 +12,8 @@ TODO
 ```python
 ```
 """
+from __future__ import annotations
+
 import enum
 import functools as ft
 import itertools
@@ -98,11 +100,11 @@ def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
     """Prepends the output of `func` with the status."""
 
     @tp.overload
-    def wrapper(self: 'Step', indent: int) -> str:
+    def wrapper(self: Step, indent: int) -> str:
         ...
 
     @tp.overload
-    def wrapper(self: 'Step') -> str:
+    def wrapper(self: Step) -> str:
         ...
 
     @ft.wraps(func)
@@ -123,7 +125,7 @@ def notify_step_begin_end(
 
     @ft.wraps(func)
     def wrapper(
-        self: 'Step', *args: tp.Any, **kwargs: tp.Any
+        self: Step, *args: tp.Any, **kwargs: tp.Any
     ) -> StepResultVariants:
         """Wrapper stub."""
         cls = self.__class__
@@ -172,7 +174,7 @@ class StepClass(type):
     """Decorate `steps` with logging and result conversion."""
 
     def __new__(
-        mcs: tp.Type['StepClass'], name: str, bases: tp.Tuple[type, ...],
+        mcs: tp.Type[StepClass], name: str, bases: tp.Tuple[type, ...],
         attrs: tp.Dict[str, tp.Any]
     ) -> tp.Any:
         if not 'NAME' in attrs:
@@ -231,8 +233,9 @@ class Step(metaclass=StepClass):
     NAME: tp.ClassVar[str] = ""
     DESCRIPTION: tp.ClassVar[str] = ""
 
-    ON_STEP_BEGIN = []
-    ON_STEP_END = []
+    ON_STEP_BEGIN: tp.List[tp.Callable[[Step], None]] = []
+    ON_STEP_END: tp.List[tp.Callable[[Step, tp.Callable[[Step], None]],
+                                     None]] = []
 
     obj = attr.ib(default=None, repr=False)
     action_fn = attr.ib(default=None, repr=False)
@@ -421,7 +424,7 @@ class Any(Step):
 
     actions = attr.ib(default=attr.Factory(list), repr=False, eq=False)
 
-    def __len__(self) -> int:
+    def __len__(self):
         return sum([len(x) for x in self.actions]) + 1
 
     def __iter__(self):
@@ -446,8 +449,10 @@ class Any(Step):
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
-        return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
+        sub_actns_str = "\n".join(sub_actns)
+        return textwrap.indent(
+            "* Execute all of:\n" + sub_actns_str, indent * " "
+        )
 
 
 @attr.s(eq=False, hash=True)
@@ -510,7 +515,8 @@ class Experiment(Any):
             LOG.info("Experiment aborting by user request")
             results.append(StepResult.ERROR)
         except Exception:
-            LOG.error("Experiment terminates " "because we got an exception:")
+            LOG.error("Experiment terminates "
+                      "because we got an exception:")
             e_type, e_value, e_traceb = sys.exc_info()
             lines = traceback.format_exception(e_type, e_value, e_traceb)
             LOG.error("".join(lines))
@@ -532,9 +538,9 @@ class Experiment(Any):
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
+        sub_actns_str = "\n".join(sub_actns)
         return textwrap.indent(
-            "\nExperiment: {0}\n".format(self.obj.name) + sub_actns,
+            "\nExperiment: {0}\n".format(self.obj.name) + sub_actns_str,
             indent * " "
         )
 
@@ -546,7 +552,7 @@ class RequireAll(Step):
 
     actions = attr.ib(default=attr.Factory(list))
 
-    def __len__(self):
+    def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
 
     def __iter__(self):
@@ -593,8 +599,10 @@ class RequireAll(Step):
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
-        return textwrap.indent("* All required:\n" + sub_actns, indent * " ")
+        sub_actns_str = "\n".join(sub_actns)
+        return textwrap.indent(
+            "* All required:\n" + sub_actns_str, indent * " "
+        )
 
 
 @attr.s
@@ -681,7 +689,7 @@ class ProjectEnvironment(Step):
     def __str__(self, indent: int = 0) -> str:
         project = self.obj
         variant = project.variant
-        version_str = source.to_str(tuple(variant.values()))
+        version_str = source.to_str(*tuple(variant.values()))
 
         return textwrap.indent(
             "* Project environment for: {} @ {}".format(

@@ -9,6 +9,8 @@ Inner nodes in the dictionary tree can be any dictionary.
 A leaf node in the dictionary tree is represented by an inner node that
 contains a value key.
 """
+from __future__ import annotations
+
 import copy
 import logging
 import os
@@ -102,7 +104,7 @@ def current_available_threads() -> int:
     return len(os.sched_getaffinity(0))
 
 
-def get_number_of_jobs(config: 'Configuration') -> int:
+def get_number_of_jobs(config: Configuration) -> int:
     """Returns the number of jobs set in the config."""
     jobs_configured = int(config["jobs"])
     if jobs_configured == 0:
@@ -234,7 +236,7 @@ class Configuration(Indexable):
         self,
         parent_key: str,
         node: tp.Optional[InnerNode] = None,
-        parent: tp.Optional['Configuration'] = None,
+        parent: tp.Optional[Configuration] = None,
         init: bool = True
     ):
         self.parent = parent
@@ -279,7 +281,7 @@ class Configuration(Indexable):
         """Load the configuration dictionary from file."""
 
         def load_rec(
-            inode: tp.Dict[str, tp.Any], config: Configuration
+            inode: tp.MutableMapping[str, tp.Any], config: Configuration
         ) -> None:
             """Recursive part of loading."""
             for k in config:
@@ -351,7 +353,7 @@ class Configuration(Indexable):
             return validate(self.node['value'])
         return self
 
-    def __getitem__(self, key: str) -> 'Configuration':
+    def __getitem__(self, key: str) -> Configuration:
         if key not in self.node:
             warnings.warn(
                 "Access to non-existing config element: {0}".format(key),
@@ -455,7 +457,7 @@ def convert_components(value: tp.Union[str, tp.List[str]]) -> tp.List[str]:
 @attr.s(str=False, frozen=True)
 class ConfigPath:
     """Wrapper around paths represented as list of strings."""
-    components = attr.ib(converter=convert_components)
+    components: tp.List[str] = attr.ib(converter=convert_components)
 
     def validate(self) -> None:
         """Make sure this configuration path exists."""

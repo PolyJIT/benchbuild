@@ -267,7 +267,9 @@ def fail_run_group(group, session):
     session.commit()
 
 
-def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
+def exit_code_from_run_infos(
+    run_infos: t.Union[RunInfo, t.List[RunInfo]]
+) -> int:
     """Generate a single exit code from a list of RunInfo objects.
 
     Takes a list of RunInfos and returns the exit code that is furthest away
@@ -281,7 +283,7 @@ def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
     """
     assert run_infos is not None
 
-    if not hasattr(run_infos, "__iter__"):
+    if isinstance(run_infos, RunInfo):
         return run_infos.retcode
 
     rcs = [ri.retcode for ri in run_infos]

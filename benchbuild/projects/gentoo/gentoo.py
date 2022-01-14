@@ -36,7 +36,7 @@ class GentooGroup(bb.Project):
     SRC_FILE = None
     CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
-    emerge_env: tp.Dict[str, tp.Any] = attr.ib(
+    emerge_env: tp.MutableMapping[str, tp.Any] = attr.ib(
         default=attr.Factory(dict), repr=False, eq=False, order=False
     )
 
@@ -62,7 +62,7 @@ class GentooGroup(bb.Project):
         )
 
         LOG.debug('Installing dependencies.')
-        emerge(package_atom, '--onlydeps', env=self.emerge_env)
+        emerge(package_atom, '--onlydeps', **self.emerge_env)
         c_compiler = local.path(str(compiler.cc(self)))
         cxx_compiler = local.path(str(compiler.cxx(self)))
 
@@ -71,7 +71,7 @@ class GentooGroup(bb.Project):
         ln('-sf', str(cxx_compiler), local.path('/') / cxx_compiler.basename)
 
         LOG.debug('Installing %s.', package_atom)
-        emerge(package_atom, env=self.emerge_env)
+        emerge(package_atom, **self.emerge_env)
 
     def configure_benchbuild(self, cfg: Configuration) -> None:
         config_file = local.path("/.benchbuild.yml")

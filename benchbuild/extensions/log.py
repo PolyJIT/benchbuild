@@ -1,4 +1,5 @@
 import logging
+import typing as tp
 
 from benchbuild.extensions import base
 from benchbuild.utils import run
@@ -9,9 +10,9 @@ LOG = logging.getLogger(__name__)
 
 class LogTrackingMixin:
     """Add log-registering capabilities to extensions."""
-    _logs = []
+    _logs: tp.MutableSequence[str] = []
 
-    def add_log(self, path):
+    def add_log(self, path: str):
         """
         Add a log to the tracked list.
 

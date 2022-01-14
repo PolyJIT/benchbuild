@@ -67,7 +67,7 @@ def step_has_failed(step_results, error_status=None):
 
 def to_step_result(
     func: DecoratedFunction[StepResultVariants]
-) -> StepResultList:
+) -> tp.Callable[..., StepResultList]:
     """Convert a function return to a list of StepResults.
 
     All Step subclasses automatically wrap the result of their
@@ -83,7 +83,7 @@ def to_step_result(
     """
 
     @ft.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> StepResultList:
         """Wrapper stub."""
         res = func(*args, **kwargs)
         if not res:
@@ -112,7 +112,7 @@ def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
         """Wrapper stub."""
         res = func(self, *args, **kwargs)
         if self.status is not StepResult.UNSET:
-            res = "[{status}]".format(status=self.status.name) + res
+            res = f'[{self.status.name}] {res}'
         return res
 
     return wrapper

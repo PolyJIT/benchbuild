@@ -114,7 +114,7 @@ def __save__(
     if local.path(template_name).exists():
         template_path = local.path(template_name).dirname
         template_name = local.path(template_name).basename
-        loader = jinja2.FileSystemLoader(template_path)
+        loader: jinja2.BaseLoader = jinja2.FileSystemLoader(template_path)
     else:
         loader = jinja2.PackageLoader('benchbuild', 'res')
 

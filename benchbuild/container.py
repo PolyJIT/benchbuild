@@ -8,6 +8,7 @@ to have a fixed way of creating a user-space environment.
 import logging
 import os
 import sys
+import typing as tp
 from abc import abstractmethod
 
 from plumbum import FG, TF, ProcessExecutionError, cli, local
@@ -291,7 +292,10 @@ class Container(cli.Application):
         """Find and writes the output path of a chroot container."""
         p = local.path(_container)
         if p.exists():
-            if not ui.ask("Path '{0}' already exists." " Overwrite?".format(p)):
+            if not ui.ask(
+                "Path '{0}' already exists."
+                " Overwrite?".format(p)
+            ):
                 sys.exit(0)
         CFG["container"]["output"] = str(p)
 
@@ -370,13 +374,13 @@ class ContainerCreate(cli.Application):
     exit the bash and pack up the result.
     """
 
-    _strategy = BashStrategy()
+    _strategy: ContainerStrategy = BashStrategy()
 
     @cli.switch(["-S", "--strategy"],
                 cli.Set("bash", "polyjit", case_sensitive=False),
                 help="Defines the strategy used to create a new container.",
                 mandatory=False)
-    def strategy(self, strategy):
+    def strategy(self, strategy: str):
         """Select strategy based on key.
 
         Args:

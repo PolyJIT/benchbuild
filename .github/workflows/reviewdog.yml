@@ -18,6 +18,11 @@ jobs:
         pip install .
         pip install mypy
         pip install pylint
+        pip install sqlalchemy[mypy]
+        pip install types-Jinja2
+        pip install types-PyYAML
+        pip install types-six
+        pip install types-setuptools
 
     - name: Setup reviewdog
       run: |

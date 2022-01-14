@@ -5,3 +5,5 @@ mock
 pytest
 pytest-cov
 pytest-describe
+sqlalchemy[mypy]
+yapf

@@ -260,8 +260,7 @@ class Step(metaclass=StepClass):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {name}: Execute configured action.".format(name=self.obj.name),
-            indent * " "
+            f'* {self.obj.name}: Execute configured action.', indent * " "
         )
 
     def onerror(self):
@@ -317,9 +316,8 @@ class Clean(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Clean the directory: {1}".format(
-                self.obj.name, self.obj.builddir
-            ), indent * " "
+            f'* {self.obj.name}: Clean the directory: {self.obj.builddir}',
+            indent * " "
         )
 
 
@@ -338,8 +336,7 @@ class MakeBuildDir(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Create the build directory".format(self.obj.name),
-            indent * " "
+            f'* {self.obj.name}: Create the build directory', indent * " "
         )
 
 
@@ -351,9 +348,7 @@ class Compile(Step):
         super().__init__(obj=project, action_fn=project.compile)
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent(
-            "* {0}: Compile".format(self.obj.name), indent * " "
-        )
+        return textwrap.indent(f'* {self.obj.name}: Compile', indent * " ")
 
 
 @attr.s
@@ -386,8 +381,7 @@ class Run(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Execute run-time tests.".format(self.project.name),
-            indent * " "
+            f'* {self.project.name}: Execute run-time tests.', indent * " "
         )
 
 
@@ -399,7 +393,7 @@ class Echo(Step):
     message = attr.ib(default="")
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent("* echo: {0}".format(self.message), indent * " ")
+        return textwrap.indent(f'* echo: {self.message}', indent * " ")
 
     @notify_step_begin_end
     def __call__(self) -> StepResultVariants:
@@ -422,7 +416,9 @@ class Any(Step):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    actions = attr.ib(default=attr.Factory(list), repr=False, eq=False)
+    actions: tp.List[Step] = attr.ib(
+        default=attr.Factory(list), repr=False, eq=False
+    )
 
     def __len__(self):
         return sum([len(x) for x in self.actions]) + 1
@@ -465,9 +461,9 @@ class Experiment(Any):
             return
 
         self.actions = \
-            [Echo(message="Start experiment: {0}".format(self.obj.name))] + \
+            [Echo(message=f'Start experiment: {self.obj.name}')] + \
             self.actions + \
-            [Echo(message="Completed experiment: {0}".format(self.obj.name))]
+            [Echo(message=f'Completed experiment: {self.obj.name}')]
 
     def begin_transaction(self):
         experiment, session = db.persist_experiment(self.obj)
@@ -540,8 +536,7 @@ class Experiment(Any):
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
         sub_actns_str = "\n".join(sub_actns)
         return textwrap.indent(
-            "\nExperiment: {0}\n".format(self.obj.name) + sub_actns_str,
-            indent * " "
+            f'\nExperiment: {self.obj.name}\n' + sub_actns_str, indent * " "
         )
 
 
@@ -550,7 +545,7 @@ class RequireAll(Step):
     NAME = "REQUIRE ALL"
     DESCRIPTION = "All child steps need to succeed"
 
-    actions = attr.ib(default=attr.Factory(list))
+    actions: tp.List[Step] = attr.ib(default=attr.Factory(list))
 
     def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
@@ -665,9 +660,7 @@ class CleanExtra(Step):
         lines = []
         for p in paths:
             lines.append(
-                textwrap.indent(
-                    "* Clean the directory: {0}".format(p), indent * " "
-                )
+                textwrap.indent(f'* Clean the directory: {p}', indent * " ")
             )
         return "\n".join(lines)
 
@@ -692,7 +685,6 @@ class ProjectEnvironment(Step):
         version_str = source.to_str(*tuple(variant.values()))
 
         return textwrap.indent(
-            "* Project environment for: {} @ {}".format(
-                project.name, version_str
-            ), indent * " "
+            f'* Project environment for: {project.name} @ {version_str}',
+            indent * " "
         )

@@ -74,7 +74,7 @@ def print_project(project: tp.Type[Project], limit: int) -> None:
     print(f'domain: {project.DOMAIN}')
     print('source:')
     for source in project.SOURCE:
-        num_versions = len(source.versions())
+        num_versions = len(list(source.versions()))
 
         print(' -', f'{source.remote}')
         print('  ', 'default:', source.default)

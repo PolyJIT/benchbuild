@@ -107,7 +107,8 @@ class Experiment(metaclass=ExperimentRegistry):
         return new_self
 
     name: str = attr.ib(
-        default=attr.Factory(lambda self: type(self).NAME, takes_self=True)
+        default=attr.
+        Factory(lambda self: str(type(self).NAME), takes_self=True)
     )
 
     projects: Projects = \

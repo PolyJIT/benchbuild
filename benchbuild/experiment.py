@@ -24,6 +24,8 @@ class HelloExperiment(Experiment):
 ```
 
 """
+from __future__ import annotations
+
 import copy
 import typing as tp
 import uuid
@@ -48,7 +50,7 @@ Projects = tp.List[ProjectT]
 class ExperimentRegistry(type):
     """Registry for benchbuild experiments."""
 
-    experiments = {}
+    experiments: ExperimentIndex = {}
 
     def __new__(
         mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],

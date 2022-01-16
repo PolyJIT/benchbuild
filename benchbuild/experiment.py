@@ -181,8 +181,7 @@ class Experiment(metaclass=ExperimentRegistry):
                     actns.Clean(p),
                     actns.MakeBuildDir(p),
                     actns.Echo(
-                        message="Selected {0} with version {1}".
-                        format(p.name, version_str)
+                        message=f'Selected {p.name} with version {version_str}'
                     ),
                     actns.ProjectEnvironment(p),
                 ]

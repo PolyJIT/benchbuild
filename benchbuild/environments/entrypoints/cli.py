@@ -432,8 +432,7 @@ def enumerate_experiments(
     experiments: ExperimentIndex, projects: ProjectIndex
 ) -> tp.Generator[experiment.Experiment, None, None]:
     for exp_class in experiments.values():
-        prjs = list(enumerate_projects(experiments, projects))
-        yield exp_class(projects=prjs)
+        yield exp_class(projects=list(projects.values()))
 
 
 def create_experiment_images(
@@ -516,7 +515,7 @@ def remove_images(
     publish = bootstrap.bus()
 
     for exp in enumerate_experiments(experiments, projects):
-        for prj in exp.projects:
+        for prj in enumerate_projects(experiments, projects):
             version = make_version_tag(*prj.variant.values())
             image_tag = make_image_name(
                 f'{exp.name}/{prj.name}/{prj.group}', version

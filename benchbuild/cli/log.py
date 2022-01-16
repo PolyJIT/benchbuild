@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """ Analyze the BB database. """
+import typing as tp
 
 from plumbum import cli
 
@@ -13,9 +14,12 @@ def print_runs(query):
         return
 
     for tup in query:
-        print(("{0} @ {1} - {2} id: {3} group: {4}".format(
-            tup.end, tup.experiment_name, tup.project_name,
-            tup.experiment_group, tup.run_group)))
+        print((
+            "{0} @ {1} - {2} id: {3} group: {4}".format(
+                tup.end, tup.experiment_name, tup.project_name,
+                tup.experiment_group, tup.run_group
+            )
+        ))
 
 
 def print_logs(query, types=None):
@@ -24,9 +28,12 @@ def print_logs(query, types=None):
         return
 
     for run, log in query:
-        print(("{0} @ {1} - {2} id: {3} group: {4} status: {5}".format(
-            run.end, run.experiment_name, run.project_name,
-            run.experiment_group, run.run_group, log.status)))
+        print((
+            "{0} @ {1} - {2} id: {3} group: {4} status: {5}".format(
+                run.end, run.experiment_name, run.project_name,
+                run.experiment_group, run.run_group, log.status
+            )
+        ))
         print(("command: {0}".format(run.command)))
         if "stderr" in types:
             print("StdErr:")
@@ -73,10 +80,10 @@ class BenchBuildLog(cli.Application):
         """ Set the output types to print. """
         self._types = types
 
-    _experiments = None
-    _experiment_ids = None
-    _project_ids = None
-    _types = None
+    _experiments: tp.Optional[tp.List[str]] = None
+    _experiment_ids: tp.Optional[tp.List[str]] = None
+    _project_ids: tp.Optional[tp.List[str]] = None
+    _types: tp.Optional[tp.List[str]] = None
 
     def main(self, *projects):
         """ Run the log command. """

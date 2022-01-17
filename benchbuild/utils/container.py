@@ -77,12 +77,14 @@ class Gentoo(Container):
             Latest src_uri from gentoo's distfiles mirror.
         """
         try:
-            src_uri = (curl[Gentoo._LATEST_TXT] | tail["-n", "+3"] |
-                       cut["-f1", "-d "])().strip()
+            src_uri = (
+                curl[Gentoo._LATEST_TXT] | tail["-n", "+3"] | cut["-f1", "-d "]
+            )().strip()
         except ProcessExecutionError as proc_ex:
             src_uri = "NOT-FOUND"
-            LOG.error("Could not determine latest stage3 src uri: %s",
-                      str(proc_ex))
+            LOG.error(
+                "Could not determine latest stage3 src uri: %s", str(proc_ex)
+            )
         return src_uri
 
     @property
@@ -103,8 +105,7 @@ class Gentoo(Container):
     @property
     def remote(self):
         """Get a remote URL of the requested container."""
-        return "http://distfiles.gentoo.org/releases/amd64/autobuilds/{0}" \
-            .format(self.src_file)
+        return f'http://distfiles.gentoo.org/releases/amd64/autobuilds/{self.src_file}'
 
 
 def is_valid(container, path):
@@ -164,8 +165,7 @@ def unpack(container, path):
 
         # Check, if we need erlent support for this archive.
         has_erlent = bash[
-            "-c",
-            "tar --list -f './{0}' | grep --silent '.erlent'".format(name)]
+            "-c", f'tar --list -f \'./{name}\' | grep --silent \'.erlent\'']
         has_erlent = (has_erlent & TF)
 
         untar = local["/bin/tar"]["xf", "./" + name]
@@ -177,8 +177,9 @@ def unpack(container, path):
         if not os.path.samefile(name, container.filename):
             rm(name)
         else:
-            LOG.warning("File contents do not match: %s != %s", name,
-                        container.filename)
+            LOG.warning(
+                "File contents do not match: %s != %s", name, container.filename
+            )
         cp(container.filename + ".hash", path)
 
 

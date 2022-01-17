@@ -356,7 +356,7 @@ class Configuration(Indexable):
     def __getitem__(self, key: str) -> Configuration:
         if key not in self.node:
             warnings.warn(
-                "Access to non-existing config element: {0}".format(key),
+                f'Access to non-existing config element: {key}',
                 category=InvalidConfigKey,
                 stacklevel=2
             )

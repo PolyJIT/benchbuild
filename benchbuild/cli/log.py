@@ -14,12 +14,9 @@ def print_runs(query):
         return
 
     for tup in query:
-        print((
-            "{0} @ {1} - {2} id: {3} group: {4}".format(
-                tup.end, tup.experiment_name, tup.project_name,
-                tup.experiment_group, tup.run_group
-            )
-        ))
+        print(
+            f'{tup.end} @ {tup.experiment_name} - {tup.project_name} id: {tup.experiment_group} group: {tup.run_group}'
+        )
 
 
 def print_logs(query, types=None):
@@ -28,13 +25,10 @@ def print_logs(query, types=None):
         return
 
     for run, log in query:
-        print((
-            "{0} @ {1} - {2} id: {3} group: {4} status: {5}".format(
-                run.end, run.experiment_name, run.project_name,
-                run.experiment_group, run.run_group, log.status
-            )
-        ))
-        print(("command: {0}".format(run.command)))
+        print(
+            f'{run.end} @ {run.experiment_name} - {run.project_name} id: {run.experiment_group} group: {run.run_group} status: {log.status}'
+        )
+        print(f'command: {run.command}')
         if "stderr" in types:
             print("StdErr:")
             print((log.stderr))

@@ -45,8 +45,8 @@ PROJECT_BLOB_F_EXT = ".postproc"
 LOG = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from benchbuild.project import Project
     from benchbuild.experiment import Experiment
+    from benchbuild.project import Project
 
 
 def strip_path_prefix(ipath: str, prefix: str) -> str:
@@ -300,7 +300,7 @@ def persist(id_obj, filename=None, suffix=None):
         ident = str(id(id_obj))
 
     if filename is None:
-        filename = "{obj_id}{suffix}".format(obj_id=ident, suffix=suffix)
+        filename = f'{ident}{suffix}'
 
     with open(filename, 'wb') as obj_file:
         dill.dump(id_obj, obj_file)

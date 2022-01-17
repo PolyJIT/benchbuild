@@ -157,7 +157,7 @@ def mounts(prefix: str, __mounts: tp.List) -> tp.List[str]:
     mntpoints = []
     for mount in __mounts:
         if not isinstance(mount, dict):
-            mntpoint = "{0}/{1}".format(prefix, str(i))
+            mntpoint = f'{prefix}/{str(i)}'
             mntpoints.append(mntpoint)
             i = i + 1
     return mntpoints
@@ -174,10 +174,10 @@ def __mounts__(prefix: str,
             tgt_mount = mount["tgt"]
         else:
             src_mount = mount
-            tgt_mount = "{0}/{1}".format(prefix, str(i))
+            tgt_mount = f'{prefix}/{str(i)}'
             i = i + 1
         mkdir_uchroot(tgt_mount)
-        uchroot_opts.extend(["-M", "{0}:{1}".format(src_mount, tgt_mount)])
+        uchroot_opts.extend(["-M", f'{src_mount}:{tgt_mount}'])
         mntpoints.append(tgt_mount)
     return uchroot_opts, mntpoints
 

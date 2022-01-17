@@ -62,9 +62,7 @@ class Povray(bb.Project):
             mkdir(boost_prefix)
             bootstrap = local["./bootstrap.sh"]
             _bootstrap = bb.watch(bootstrap)
-            _bootstrap(
-                "--with-toolset=clang", "--prefix=\"{0}\"".format(boost_prefix)
-            )
+            _bootstrap("--with-toolset=clang", f'--prefix="{boost_prefix}"')
 
             _b2 = bb.watch(local["./b2"])
             _b2(

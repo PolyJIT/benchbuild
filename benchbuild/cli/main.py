@@ -44,7 +44,7 @@ class BenchBuild(cli.Application):
             init_functions(Session())
 
         if args:
-            print("Unknown command {0!r}".format(args[0]))
+            print(f'Unknown command {args[0]!r}')
             return 1
         if not self.nested_command:
             self.help()

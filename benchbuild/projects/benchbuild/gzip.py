@@ -55,7 +55,7 @@ class Gzip(bb.Project):
         tar('xf', compression_source)
 
         gzip_version = self.version_of('gzip.tar.xz')
-        unpack_dir = "gzip-{0}.tar.xz".format(gzip_version)
+        unpack_dir = f'gzip-{gzip_version}.tar.xz'
 
         clang = bb.compiler.cc(self)
         with local.cwd(unpack_dir):

@@ -40,8 +40,7 @@ def __initialize_dynamic_projects__(autotest_path):
                 domain = ebuild_data_list[0]
                 name = ebuild_data_list[1]
                 PortageFactory(
-                    "Auto{0}{1}".format(domain, name), domain + "_" + name,
-                    domain
+                    f'Auto{domain}{name}', domain + "_" + name, domain
                 )
 
 

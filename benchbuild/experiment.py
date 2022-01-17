@@ -102,9 +102,7 @@ class Experiment(metaclass=ExperimentRegistry):
         new_self = super(Experiment, cls).__new__(cls)
         if not cls.NAME:
             raise AttributeError(
-                "{0} @ {1} does not define a NAME class attribute.".format(
-                    cls.__name__, cls.__module__
-                )
+                f'{cls.__name__} @ {cls.__module__} does not define a NAME class attribute.'
             )
         return new_self
 

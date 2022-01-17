@@ -116,13 +116,11 @@ def print_summary(num_actions, failed, duration):
     """
     num_failed = len(failed)
     print(
-        """
+        f'''
 Summary:
-{num_total} actions were in the queue.
+{num_actions} actions were in the queue.
 {num_failed} actions failed to execute.
 
-This run took: {elapsed_time:8.3f} seconds.
-    """.format(
-            num_total=num_actions, num_failed=num_failed, elapsed_time=duration
-        )
+This run took: {duration:8.3f} seconds.
+    '''
     )

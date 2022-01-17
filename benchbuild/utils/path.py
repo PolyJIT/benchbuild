@@ -116,14 +116,16 @@ def mkdir_interactive(dirpath: str) -> None:
     if os.path.exists(dirpath):
         return
 
-    response = ui.ask("The directory {dirname} does not exist yet. "
-                      "Should I create it?".format(dirname=dirpath),
-                      default_answer=True,
-                      default_answer_str="yes")
+    response = ui.ask(
+        f'The directory {dirpath} does not exist yet. '
+        "Should I create it?",
+        default_answer=True,
+        default_answer_str="yes"
+    )
 
     if response:
         mkdir("-p", dirpath)
-        print("Created directory {0}.".format(dirpath))
+        print(f'Created directory {dirpath}.')
 
 
 @contextmanager

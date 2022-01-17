@@ -53,4 +53,4 @@ class TCC(bb.Project):
                 bb.wrap("tcc", self)
                 inc_path = path.abspath("..")
                 _make = bb.watch(make)
-                _make("TCCFLAGS=-B{}".format(inc_path), "test", "-i")
+                _make(f'TCCFLAGS=-B{inc_path}', "test", "-i")

@@ -12,17 +12,20 @@ import typing as tp
 from abc import abstractmethod
 
 from plumbum import FG, TF, ProcessExecutionError, cli, local
+from plumbum.path.local import LocalPath
 
 from benchbuild.settings import CFG
 from benchbuild.utils import bootstrap, container, download, log, run, uchroot
 from benchbuild.utils import user_interface as ui
 from benchbuild.utils.cmd import bash, mkdir, mv, rm, tar
-from benchbuild.utils.settings import get_number_of_jobs
+from benchbuild.utils.settings import get_number_of_jobs, Configuration
 
 LOG = logging.getLogger(__name__)
 
 
-def clean_directories(builddir, in_dir=True, out_dir=True):
+def clean_directories(
+    builddir: str, in_dir: bool = True, out_dir: bool = True
+) -> None:
     """Remove the in and out of the container if confirmed by the user."""
     container_in = local.path(builddir) / "container-in"
     container_out = local.path(builddir) / "container-out"
@@ -35,7 +38,7 @@ def clean_directories(builddir, in_dir=True, out_dir=True):
             container_out.delete()
 
 
-def setup_directories(builddir):
+def setup_directories(builddir: str) -> None:
     """Create the in and out directories of the container."""
     build_dir = local.path(builddir)
     in_dir = build_dir / "container-in"
@@ -47,7 +50,7 @@ def setup_directories(builddir):
         out_dir.mkdir()
 
 
-def setup_container(builddir, _container):
+def setup_container(builddir: str, _container: str) -> LocalPath:
     """Prepare the container and returns the path where it can be found."""
     build_dir = local.path(builddir)
     in_dir = build_dir / "container-in"
@@ -83,7 +86,7 @@ def setup_container(builddir, _container):
     return in_dir
 
 
-def run_in_container(command, container_dir):
+def run_in_container(command, container_dir: str):
     """
     Run a given command inside a container.
 
@@ -108,7 +111,7 @@ def run_in_container(command, container_dir):
         return cmd & FG
 
 
-def pack_container(in_container, out_file):
+def pack_container(in_container: str, out_file: str) -> None:
     """
     Pack a container image into a .tar.bz2 archive.
 
@@ -133,7 +136,9 @@ def pack_container(in_container, out_file):
     CFG["container"]["known"] += new_container
 
 
-def setup_bash_in_container(builddir, _container, outfile, shell):
+def setup_bash_in_container(
+    builddir: str, _container: str, outfile: str, shell
+) -> None:
     """
     Setup a bash environment inside a container.
 
@@ -162,7 +167,7 @@ def setup_bash_in_container(builddir, _container, outfile, shell):
             print(f'Storing config in {store_path}')
 
 
-def find_hash(container_db, key):
+def find_hash(container_db, key: str):
     """Find the first container in the database with the given key."""
     for keyvalue in container_db:
         if keyvalue["hash"].startswith(key):
@@ -170,7 +175,7 @@ def find_hash(container_db, key):
     return None
 
 
-def set_input_container(_container, cfg):
+def set_input_container(_container: LocalPath, cfg: Configuration) -> bool:
     """Save the input for the container in the configurations."""
     if not _container:
         return False
@@ -219,7 +224,7 @@ class BashStrategy(ContainerStrategy):
 class SetupPolyJITGentooStrategy(ContainerStrategy):
     """Interface of using gentoo as a container for an experiment."""
 
-    def run(self, context):
+    def run(self, context) -> None:
         """Setup a gentoo container suitable for PolyJIT."""
         # Don't do something when running non-interactive.
         if not sys.stdout.isatty():
@@ -274,23 +279,23 @@ class SetupPolyJITGentooStrategy(ContainerStrategy):
 class Container(cli.Application):
     """Manage uchroot containers."""
 
-    VERSION = str(CFG["version"])
+    VERSION: str = str(CFG["version"])
 
     @cli.switch(["-i", "--input-file"], str, help="Input container path")
-    def input_file(self, _container):
+    def input_file(self, _container: str) -> None:
         """Find the input path of a uchroot container."""
         p = local.path(_container)
         if set_input_container(p, CFG):
             return
 
-        p = find_hash(CFG["container"]["known"].value, container)
+        p = find_hash(CFG["container"]["known"].value, _container)
         if set_input_container(p, CFG):
             return
 
         raise ValueError(f'The path \'{p}\' does not exist.')
 
     @cli.switch(["-o", "--output-file"], str, help="Output container path")
-    def output_file(self, _container):
+    def output_file(self, _container: str) -> None:
         """Find and writes the output path of a chroot container."""
         p = local.path(_container)
         if p.exists():
@@ -302,14 +307,14 @@ class Container(cli.Application):
     @cli.switch(["-s", "--shell"],
                 str,
                 help="The shell command we invoke inside the container.")
-    def shell(self, custom_shell):
+    def shell(self, custom_shell: str) -> None:
         """The command to run inside the container."""
         CFG["container"]["shell"] = custom_shell
 
     @cli.switch(["-t", "-tmp-dir"],
                 cli.ExistingDirectory,
                 help="Temporary directory")
-    def builddir(self, tmpdir):
+    def builddir(self, tmpdir: str) -> None:
         """Set the current builddir of the container."""
         CFG["build_dir"] = tmpdir
 
@@ -319,13 +324,13 @@ class Container(cli.Application):
         list=True,
         help="Mount the given directory under / inside the uchroot container"
     )
-    def mounts(self, user_mount):
+    def mounts(self, user_mount: str) -> None:
         """Save the current mount of the container into the settings."""
         CFG["container"]["mounts"] = user_mount
 
-    verbosity = cli.CountOf('-v', help="Enable verbose output")
+    verbosity: int = cli.CountOf('-v', help="Enable verbose output")
 
-    def main(self, *args):
+    def main(self, *args) -> None:
         log.configure()
         builddir = local.path(str(CFG["build_dir"]))
         if not builddir.exists():
@@ -345,7 +350,7 @@ class Container(cli.Application):
 class ContainerRun(cli.Application):
     """Execute commannds inside a prebuilt container."""
 
-    def main(self, *args):
+    def main(self, *args) -> None:
         builddir = str(CFG["build_dir"])
         in_container = str(CFG["container"]["input"])
 
@@ -394,7 +399,7 @@ class ContainerCreate(cli.Application):
             "polyjit": SetupPolyJITGentooStrategy()
         }[strategy]
 
-    def main(self, *args):
+    def main(self, *args) -> None:
         builddir = str(CFG["build_dir"])
         in_container = str(CFG["container"]["input"])
         out_container = str(CFG["container"]["output"])
@@ -424,7 +429,7 @@ class ContainerCreate(cli.Application):
 class ContainerBootstrap(cli.Application):
     """Check for the needed files."""
 
-    def install_cmake_and_exit(self):
+    def install_cmake_and_exit(self) -> None:
         """Tell the user to install cmake and aborts the current process."""
         print(
             "You need to  install cmake via your package manager manually."
@@ -432,7 +437,7 @@ class ContainerBootstrap(cli.Application):
         )
         sys.exit(-1)
 
-    def main(self, *args):
+    def main(self, *args) -> None:
         print("Checking container binary dependencies...")
         if not bootstrap.find_package("uchroot"):
             if not bootstrap.find_package("cmake"):
@@ -455,7 +460,7 @@ class ContainerBootstrap(cli.Application):
 class ContainerList(cli.Application):
     """Prints a list of the known containers."""
 
-    def main(self, *args):
+    def main(self, *args) -> None:
         containers = CFG["container"]["known"].value
         for c in containers:
             c_path = c["path"]

@@ -104,7 +104,7 @@ def current_available_threads() -> int:
     return len(os.sched_getaffinity(0))
 
 
-def get_number_of_jobs(config: Configuration) -> int:
+def get_number_of_jobs(config: Configuration | tp.Dict[str, tp.Any]) -> int:
     """Returns the number of jobs set in the config."""
     jobs_configured = int(config["jobs"])
     if jobs_configured == 0:

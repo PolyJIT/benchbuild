@@ -131,14 +131,14 @@ def wrap(
 
     project_file = persist(project, suffix=".project")
 
-    env = CFG['env'].value
+    cfg_env = dict(CFG['env'].value)
 
-    bin_path = list_to_path(env.get('PATH', []))
+    bin_path = list_to_path(cfg_env.get('PATH', []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
-    bin_lib_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
+    bin_lib_path = list_to_path(cfg_env.get('LD_LIBRARY_PATH', []))
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
-    home = env.get("HOME", os.getenv("HOME", ""))
+    home = cfg_env.get("HOME", os.getenv("HOME", ""))
 
     with open(name_absolute, 'w') as wrapper:
         wrapper.write(

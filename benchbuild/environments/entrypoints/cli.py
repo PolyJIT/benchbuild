@@ -456,7 +456,7 @@ def create_experiment_images(
     """
     publish = bootstrap.bus()
     for exp in enumerate_experiments(experiments, projects):
-        for prj in exp.projects:
+        for prj in enumerate_projects(experiments, projects):
             version = make_version_tag(*prj.variant.values())
             base_tag = make_image_name(f'{prj.name}/{prj.group}', version)
             image_tag = make_image_name(
@@ -490,7 +490,7 @@ def run_experiment_images(
     publish = bootstrap.bus()
 
     for exp in enumerate_experiments(experiments, projects):
-        for prj in exp.projects:
+        for prj in enumerate_projects(experiments, projects):
             version = make_version_tag(*prj.variant.values())
             image_tag = make_image_name(
                 f'{exp.name}/{prj.name}/{prj.group}', version

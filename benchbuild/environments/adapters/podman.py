@@ -190,7 +190,7 @@ class PodmanRegistry(ContainerRegistry):
                 create_cmd = create_cmd[
                     '--mount', f'type=bind,src={source},target={target}']
 
-        container_id, err = run(create_cmd['--name', name, image.name, args])
+        container_id, err = run(create_cmd['--name', name, image.name][args])
         if err:
             raise ContainerCreateError(
                 container_id, " ".join(err.argv)

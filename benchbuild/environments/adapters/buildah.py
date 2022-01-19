@@ -448,4 +448,4 @@ class BuildahImageRegistry(ImageRegistry):
         return None
 
     def _remove(self, image: model.Image) -> None:
-        pass
+        run(bb_buildah('rmi')[image.name.lower()], retcode=[0])

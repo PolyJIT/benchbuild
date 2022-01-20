@@ -1,4 +1,3 @@
-import logging
 import typing as tp
 from functools import partial
 
@@ -13,9 +12,16 @@ from benchbuild.environments.domain import declarative as decl
 from benchbuild.environments.domain import commands, events
 from benchbuild.environments.service_layer import messagebus, handlers
 from benchbuild.environments.service_layer import unit_of_work as uow
+from benchbuild.settings import CFG
+from benchbuild.utils import settings
 from benchbuild.utils.cmd import cp, which
 
-LOG = logging.getLogger(__name__)
+
+@pytest.fixture
+def config():
+    settings.setup_config(CFG)
+    yield CFG
+    settings.setup_config(CFG)
 
 
 @pytest.fixture
@@ -82,6 +88,20 @@ def true_image() -> decl.ContainerImage:
         .entrypoint('/true')
 
 
+@pytest.fixture
+def no_entrypoint() -> decl.ContainerImage:
+
+    def prepare_container() -> None:
+        true_path = which('true').strip()
+        cp(true_path, 'true')
+
+    return decl.ContainerImage() \
+        .from_('scratch') \
+        .context(prepare_container) \
+        .workingdir('/') \
+        .command('/true')
+
+
 def test_image_creation(true_image, publish, image_uow) -> None:
     name = 'benchbuild-e2e-test_image_creation'
 
@@ -119,6 +139,24 @@ def test_image_run_args(true_image, publish) -> None:
     run_cmd_args = commands.RunProjectContainer(
         name, name, '/', ('arg1', 'arg2')
     )
+    try:
+        publish(run_cmd_args)
+    except ContainerCreateError:
+        assert False, "RunProjectContainer was unable to create a container."
+    except ProcessExecutionError:
+        assert False, "RunProjectContainer raised an unexpected exception"
+
+
+def test_interactive_without_entrypoint(no_entrypoint, publish, config) -> None:
+    name = 'benchbuild-e2e-test_interactive_without_entrypoint'
+
+    cmd = commands.CreateImage(name, no_entrypoint)
+    publish(cmd)
+
+    run_cmd_args = commands.RunProjectContainer(
+        name, name, '/', ('arg1', 'arg2')
+    )
+    config["container"]["interactive"] = True
     try:
         publish(run_cmd_args)
     except ContainerCreateError:

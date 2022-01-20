@@ -32,6 +32,11 @@ jobs:
         pip install -r test-requirements.txt
 
     - name: Run unittests
+      env:
+        # Avoid 50 char hard-limit of podman. These are enforced because of
+        # a kernel limit of 128-chars for socket paths.
+        BB_CONTAINER_RUNROOT: "/tmp"
+        BB_CONTAINER_ROOT: "/tmp"
       run: |
         pytest --cov-config=./.coveragerc --cov=benchbuild --ignore=tests/integration benchbuild tests
         pytest --cov-config=./.coveragerc --cov=benchbuild tests/integration

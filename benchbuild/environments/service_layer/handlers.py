@@ -79,7 +79,7 @@ def run_project_container(
             )
             LOG.warning('No result artifacts will be copied out.')
 
-        container = uow.create(cmd.image, cmd.name)
+        container = uow.create(cmd.image, cmd.name, cmd.args)
         uow.start(container)
 
 

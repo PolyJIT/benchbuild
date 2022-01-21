@@ -237,7 +237,7 @@ def find_entrypoint(tag: str) -> str:
     if not config:
         raise ValueError("Could not find the container image config")
 
-    return ' '.join(config['Entrypoint'])
+    return str(config.get('Entrypoint', ''))
 
 
 class ImageRegistry(abc.ABC):
@@ -448,4 +448,4 @@ class BuildahImageRegistry(ImageRegistry):
         return None
 
     def _remove(self, image: model.Image) -> None:
-        pass
+        run(bb_buildah('rmi')[image.name.lower()], retcode=[0])

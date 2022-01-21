@@ -122,17 +122,21 @@ class ContainerRegistry(abc.ABC):
     def _find(self, tag: str) -> model.MaybeContainer:
         raise NotImplementedError
 
-    def create(self, image_id: str, name: str) -> model.Container:
+    def create(
+        self, image_id: str, name: str, args: tp.Sequence[str]
+    ) -> model.Container:
         image = self.find_image(image_id)
         assert image
 
-        container = self._create(image, name)
+        container = self._create(image, name, args)
         if container is not None:
             self.containers[name] = container
         return container
 
     @abc.abstractmethod
-    def _create(self, image: model.Image, name: str) -> model.Container:
+    def _create(
+        self, image: model.Image, name: str, args: tp.Sequence[str]
+    ) -> model.Container:
         raise NotImplementedError
 
     def start(self, container: model.Container) -> None:
@@ -163,7 +167,9 @@ error.
 
 class PodmanRegistry(ContainerRegistry):
 
-    def _create(self, image: model.Image, name: str) -> model.Container:
+    def _create(
+        self, image: model.Image, name: str, args: tp.Sequence[str]
+    ) -> model.Container:
         mounts = [
             f'type=bind,src={mnt.source},target={mnt.target}'
             for mnt in image.mounts
@@ -184,7 +190,7 @@ class PodmanRegistry(ContainerRegistry):
                 create_cmd = create_cmd[
                     '--mount', f'type=bind,src={source},target={target}']
 
-        container_id, err = run(create_cmd['--name', name, image.name])
+        container_id, err = run(create_cmd['--name', name, image.name][args])
         if err:
             raise ContainerCreateError(
                 container_id, " ".join(err.argv)

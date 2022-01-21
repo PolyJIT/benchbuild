@@ -148,11 +148,15 @@ class ContainerUnitOfWork(UnitOfWork):
             while container.events:
                 yield container.events.pop(0)
 
-    def create(self, image_id: str, name: str) -> model.Container:
-        return self._create(image_id, name)
+    def create(
+        self, image_id: str, name: str, args: tp.Sequence[str]
+    ) -> model.Container:
+        return self._create(image_id, name, args)
 
     @abc.abstractmethod
-    def _create(self, tag: str, name: str) -> model.Container:
+    def _create(
+        self, tag: str, name: str, args: tp.Sequence[str]
+    ) -> model.Container:
         raise NotImplementedError
 
     def start(self, container: model.Container) -> None:
@@ -174,8 +178,10 @@ class PodmanContainerUOW(ContainerUnitOfWork):
     def __init__(self) -> None:
         self.registry = podman.PodmanRegistry()
 
-    def _create(self, tag: str, name: str) -> model.Container:
-        return self.registry.create(tag, name)
+    def _create(
+        self, tag: str, name: str, args: tp.Sequence[str]
+    ) -> model.Container:
+        return self.registry.create(tag, name, args)
 
     def _start(self, container: model.Container) -> None:
         self.registry.start(container)

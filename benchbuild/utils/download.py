@@ -13,7 +13,8 @@ Supported methods:
 import hashlib
 import logging
 import os
-from typing import Callable, List, Optional, Type
+import typing as tp
+from typing import Type
 
 from plumbum import local
 
@@ -22,7 +23,7 @@ from benchbuild.utils.path import flocked
 
 LOG = logging.getLogger(__name__)
 
-AnyC = Type[object]
+AnyC = tp.Type[object]
 
 
 def get_hash_of_dirs(directory: str) -> str:
@@ -99,7 +100,7 @@ def update_hash(src_file: local.path) -> str:
     return new_hash
 
 
-def Copy(From, To):
+def Copy(From: str, To: str) -> None:
     """
     Small copy wrapper.
 
@@ -111,7 +112,7 @@ def Copy(From, To):
     cp("-ar", "--reflink=auto", From, To)
 
 
-def CopyNoFail(src, root=None):
+def CopyNoFail(src: str, root: tp.Optional[str] = None) -> bool:
     """
     Just copy fName into the current working directory, if it exists.
 
@@ -135,7 +136,9 @@ def CopyNoFail(src, root=None):
     return False
 
 
-def Wget(src_url, tgt_name, tgt_root=None):
+def Wget(
+    src_url: str, tgt_name: str, tgt_root: tp.Optional[str] = None
+) -> None:
     """
     Download url, if required.
 
@@ -158,44 +161,6 @@ def Wget(src_url, tgt_name, tgt_root=None):
     wget(src_url, "-O", tgt_file)
     update_hash(tgt_file)
     Copy(tgt_file, ".")
-
-
-def with_wget(url_dict=None, target_file=None):
-    """
-    Decorate a project class with wget-based version information.
-
-    This adds two attributes to a project class:
-        - A `versions` method that returns a list of available versions
-          for this project.
-        - A `repository` attribute that provides a repository string to
-          download from later.
-    We use the `git rev-list` subcommand to list available versions.
-
-    Args:
-        url_dict (dict): A dictionary that assigns a version to a download URL.
-        target_file (str): An optional path where we should put the clone.
-            If unspecified, we will use the `SRC_FILE` attribute of
-            the decorated class.
-    """
-
-    def wget_decorator(cls):
-
-        def download_impl(self):
-            """Download the selected version from the url_dict value."""
-            t_file = target_file if target_file else self.SRC_FILE
-            t_version = url_dict[self.version]
-            Wget(t_version, t_file)
-
-        @staticmethod
-        def versions_impl():
-            """Return a list of versions from the url_dict keys."""
-            return list(url_dict.keys())
-
-        cls.versions = versions_impl
-        cls.download = download_impl
-        return cls
-
-    return wget_decorator
 
 
 def __clone_needed__(repository: str, directory: str) -> bool:
@@ -272,96 +237,7 @@ def Git(
     return repository_loc
 
 
-def with_git(
-    repo: str,
-    target_dir: Optional[str] = None,
-    limit: Optional[int] = None,
-    refspec: str = "HEAD",
-    clone: bool = True,
-    rev_list_args: Optional[List[str]] = None,
-    shallow_clone: bool = True,
-    version_filter: Callable[[str], bool] = lambda version: True
-) -> Callable[[AnyC], AnyC]:
-    """
-    Decorate a project class with git-based version information.
-
-    This adds two attributes to a project class:
-        - A `versions` method that returns a list of available versions
-          for this project.
-        - A `repository` attribute that provides a repository string to
-          download from later.
-    We use the `git rev-list` subcommand to list available versions.
-
-    Args:
-        repo (str): Repository to download from, this will be stored
-            in the `repository` attribute of the decorated class.
-        target_dir (str): An optional path where we should put the clone.
-            If unspecified, we will use the `SRC_FILE` attribute of
-            the decorated class.
-        limit (int): Limit the number of commits to consider for available
-            versions. Versions are 'ordered' from latest to oldest.
-        refspec (str): A git refspec string to start listing the versions from.
-        clone (bool): Should we clone the repo if it isn't already available
-            in our tmp dir? Defaults to `True`. You can set this to False to
-            avoid time consuming clones, when the project has not been accessed
-            at least once in your installation.
-        ref_list_args (list of str): Additional arguments you want to pass to
-            `git rev-list`.
-        shallow_clone (bool): Only clone the repository shallow
-            Defaults to true
-        version_filter (class filter): Filter function to remove unwanted
-            project versions.
-
-    """
-    if not rev_list_args:
-        rev_list_args = []
-
-    def git_decorator(cls):
-        from benchbuild.utils.cmd import git
-
-        @staticmethod
-        def versions_impl():
-            """Return a list of versions from the git hashes up to :limit:."""
-            directory = cls.SRC_FILE if target_dir is None else target_dir
-            repo_prefix = local.path(str(CFG["tmp_dir"]))
-            repo_loc = local.path(repo_prefix) / directory
-            if __clone_needed__(repo, repo_loc):
-                if not clone:
-                    return []
-                git("clone", repo, repo_loc)
-
-            with local.cwd(repo_loc):
-                rev_list = git(
-                    "rev-list", "--abbrev-commit", "--abbrev=10", refspec,
-                    *rev_list_args
-                ).strip().split('\n')
-                git("rev-parse", "--short=10", refspec).strip().split('\n')
-
-            if limit:
-                return list(filter(version_filter, rev_list))[:limit]
-
-            return list(filter(version_filter, rev_list))
-
-        def download_impl(self):
-            """Download the selected version."""
-            nonlocal target_dir, git
-            directory = cls.SRC_FILE if target_dir is None else target_dir
-            Git(
-                self.repository,
-                directory,
-                self.version,
-                shallow_clone=shallow_clone
-            )
-
-        cls.versions = versions_impl
-        cls.download = download_impl
-        cls.repository = repo
-        return cls
-
-    return git_decorator
-
-
-def Svn(url, fname, to=None):
+def Svn(url: str, fname: str, to: tp.Optional[str] = None) -> None:
     """
     Checkout the SVN repo.
 
@@ -385,7 +261,7 @@ def Svn(url, fname, to=None):
     Copy(src_dir, ".")
 
 
-def Rsync(url, tgt_name, tgt_root=None):
+def Rsync(url: str, tgt_name: str, tgt_root: tp.Optional[str] = None) -> None:
     """
     RSync a folder.
 

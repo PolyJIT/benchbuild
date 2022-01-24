@@ -1,6 +1,7 @@
 """ Path utilities for benchbuild. """
 import fcntl
 import os
+import typing as tp
 from contextlib import contextmanager
 from typing import List, Optional
 
@@ -129,7 +130,10 @@ def mkdir_interactive(dirpath: str) -> None:
 
 
 @contextmanager
-def flocked(filename: str, lock_type: int = fcntl.LOCK_EX):
+def flocked(
+    filename: str,
+    lock_type: int = fcntl.LOCK_EX
+) -> tp.Generator[tp.TextIO, None, None]:
     """
     Lock a section using fcntl.
 

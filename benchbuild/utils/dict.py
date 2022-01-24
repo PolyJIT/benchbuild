@@ -3,8 +3,9 @@ import typing as tp
 from contextlib import contextmanager
 
 
-def extend_as_list(original_dict: tp.MutableMapping[tp.Any, tp.Any],
-                   **kwargs) -> tp.Dict[tp.Any, tp.Any]:
+def extend_as_list(
+    original_dict: tp.MutableMapping[tp.Any, tp.Any], **kwargs: tp.Any
+) -> tp.Dict[tp.Any, tp.Any]:
     """
     Extend values in a map by treating them as a list.
     """
@@ -27,18 +28,26 @@ def extend_as_list(original_dict: tp.MutableMapping[tp.Any, tp.Any],
     return dict(new_dict)
 
 
+AnyDictTy = tp.Dict[tp.Any, tp.Any]
+ExtenderFnTy = tp.Callable[[AnyDictTy], AnyDictTy]
+
+
 class ExtensibleDict:
     """A dictionary that provides temporary modification."""
 
-    _current: tp.MutableMapping[tp.Any, tp.Any] = {}
+    _current: AnyDictTy = {}
     _extender_fn = None
 
-    def __init__(self, extender_fn=None):
+    def __init__(self, extender_fn: tp.Optional[ExtenderFnTy] = None):
         self._extender_fn = extender_fn
         super().__init__()
 
     @contextmanager
-    def __call__(self, *args, extender_fn=None, **kwargs):
+    def __call__(
+        self,
+        extender_fn: tp.Optional[ExtenderFnTy] = None,
+        **kwargs: tp.Any
+    ) -> tp.Generator[None, None, None]:
         """
         A context manager to temporarily modify the content of dict.
 
@@ -67,16 +76,16 @@ class ExtensibleDict:
         finally:
             self._current = previous
 
-    def __iter__(self):
+    def __iter__(self) -> tp.Iterator[tp.Tuple[tp.Any, tp.Any]]:
         return iter(self._current.items())
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._current)
 
-    def __contains__(self, name):
+    def __contains__(self, name: tp.Any) -> bool:
         return name in self._current
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> tp.Any:
         return self._current[name]
 
     def keys(self):
@@ -88,32 +97,35 @@ class ExtensibleDict:
     def items(self):
         return self._current.items()
 
-    def get(self, name, *default):
+    def get(self, name: tp.Any, *default: tp.Any) -> tp.Any:
         return self._current.get(name, *default)
 
-    def __delitem__(self, name):
+    def __delitem__(self, name: tp.Any) -> None:
         del self._current[name]
 
-    def __setitem__(self, name, value):
+    def __setitem__(self, name: tp.Any, value: tp.Any) -> None:
         self._current[name] = value
 
-    def pop(self, name, *default):
+    def pop(self, name: tp.Any, *default: tp.Any) -> tp.Any:
         return self._current.pop(name, *default)
 
-    def clear(self):
+    def clear(self) -> None:
         self._current.clear()
 
-    def update(self, extender_fn, *args, **kwargs):
+    def update(
+        self, extender_fn: tp.Optional[ExtenderFnTy], *args: tp.Any,
+        **kwargs: tp.Any
+    ) -> None:
         if extender_fn is not None:
             self._current.update(*args, **extender_fn(self._current, **kwargs))
         else:
             self._current.update(*args, **kwargs)
 
-    def getdict(self):
+    def getdict(self) -> tp.Dict[tp.Any, tp.Any]:
         return dict((k, str(v)) for k, v in self._current.items())
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self._current)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self._current)

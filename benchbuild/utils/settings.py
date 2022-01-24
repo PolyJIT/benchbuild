@@ -12,6 +12,7 @@ contains a value key.
 from __future__ import annotations
 
 import copy
+import io
 import logging
 import os
 import re
@@ -154,8 +155,10 @@ class ConfigDumper(yaml.SafeDumper):
 
 def to_yaml(value: tp.Any) -> tp.Optional[str]:
     """Convert a given value to a YAML string."""
-    stream = yaml.io.StringIO()
-    dumper = ConfigDumper(stream, default_flow_style=True, width=sys.maxsize)
+    stream = io.StringIO()
+    dumper = ConfigDumper(
+        tp.cast(tp.IO, stream), default_flow_style=True, width=sys.maxsize
+    )
     val = None
     try:
         dumper.open()
@@ -371,6 +374,9 @@ class Configuration(Indexable):
         else:
             self.node[key] = {'value': val}
 
+    def __iter__(self) -> tp.Iterator[str]:
+        return iter(self.node)
+
     def __iadd__(self, rhs: tp.Any) -> tp.Any:
         """Append a value to a list value."""
         if not self.has_value():
@@ -487,19 +493,23 @@ class ConfigPath:
         return ConfigPath.path_to_str(self.components)
 
 
-def path_representer(dumper, data):
+def path_representer(
+    dumper: yaml.SafeDumper, data: ConfigPath
+) -> yaml.ScalarNode:
     """
     Represent a ConfigPath object as a scalar YAML node.
     """
-    return dumper.represent_scalar('!create-if-needed', '%s' % data)
+    return dumper.represent_scalar('!create-if-needed', str(data))
 
 
-def path_constructor(loader, node):
+def path_constructor(loader: yaml.SafeLoader, node: yaml.Node) -> ConfigPath:
     """"
     Construct a ConfigPath object form a scalar YAML node.
     """
+    assert isinstance(node, yaml.ScalarNode)
+
     value = loader.construct_scalar(node)
-    return ConfigPath(value)
+    return ConfigPath(str(value))
 
 
 def find_config(
@@ -630,24 +640,32 @@ def upgrade(cfg: Configuration) -> None:
                 name=cfg["db"]["name"]["value"])
 
 
-def uuid_representer(dumper, data):
+def uuid_representer(
+    dumper: yaml.SafeDumper, data: uuid.UUID
+) -> yaml.ScalarNode:
     """Represent a uuid.UUID object as a scalar YAML node."""
 
-    return dumper.represent_scalar('!uuid', '%s' % data)
+    return dumper.represent_scalar('!uuid', str(data))
 
 
-def uuid_constructor(loader, node):
+def uuid_constructor(loader: yaml.SafeLoader, node: yaml.Node) -> uuid.UUID:
     """"Construct a uuid.UUID object form a scalar YAML node."""
+    assert isinstance(node, yaml.ScalarNode)
 
     value = loader.construct_scalar(node)
-    return uuid.UUID(value)
+    return uuid.UUID(str(value))
 
 
-def uuid_add_implicit_resolver(loader=ConfigLoader, dumper=ConfigDumper):
+def uuid_add_implicit_resolver(
+    loader_cls: tp.Type[ConfigLoader] = ConfigLoader,
+    dumper_cls: tp.Type[ConfigDumper] = ConfigDumper
+) -> None:
     """Attach an implicit pattern resolver for UUID objects."""
     uuid_regex = r'^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$'
     pattern = re.compile(uuid_regex)
-    yaml.add_implicit_resolver('!uuid', pattern, Loader=loader, Dumper=dumper)
+    yaml.add_implicit_resolver(
+        '!uuid', pattern, Loader=loader_cls, Dumper=dumper_cls
+    )
 
 
 def __init_module__() -> None:

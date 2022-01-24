@@ -128,7 +128,12 @@ def read_tables(
         table = read_table(fstream)
 
 
-def get_measurements(region: str, core_info, data, extra_offset: int = 0):
+def get_measurements(
+    region: str,
+    core_info,
+    data,
+    extra_offset: int = 0
+) -> tp.List[tp.Tuple[str, str, str, str]]:
     """
     Get the complete measurement info from likwid's region info.
 

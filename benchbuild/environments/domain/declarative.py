@@ -23,7 +23,7 @@ from . import model
 LOG = logging.getLogger(__name__)
 
 
-class ContainerImage(list[model.Layer]):
+class ContainerImage(list):
     """
     Define a container image declaratively.
 

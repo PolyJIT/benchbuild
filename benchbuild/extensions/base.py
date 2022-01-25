@@ -108,5 +108,5 @@ class MissingExtension(Extension):
     existing old experiments.
     """
 
-    def __call__(self, *args, **kwargs) -> tp.List[run.RunInfo]:
+    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> tp.List[run.RunInfo]:
         raise ExtensionRequired()

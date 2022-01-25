@@ -20,6 +20,7 @@ a new version that you are interested in.
 As soon as we have alembic running, we can provide automatic up/downgrade
 paths for you.
 """
+from __future__ import annotations
 
 import functools
 import logging
@@ -50,6 +51,23 @@ from benchbuild.utils import user_interface as ui
 
 BASE = declarative_base()
 LOG = logging.getLogger(__name__)
+
+
+# Type extensions for sqlalchemy are not hooked up properly yet.
+@tp.runtime_checkable
+class CanCommit(tp.Protocol):
+
+    def commit(self) -> None:
+        ...
+
+    def rollback(self) -> None:
+        ...
+
+    def add(self, val: BASE) -> None:
+        ...
+
+    def get(self) -> tp.Callable[[], CanCommit]:
+        ...
 
 
 def metadata():
@@ -508,12 +526,12 @@ class SessionManager:
             self.__transaction.rollback()
 
 
-def __lazy_session__():
+def __lazy_session__() -> tp.Callable[[], CanCommit]:
     """Initialize the connection manager lazily."""
-    connection_manager = None
+    connection_manager: tp.Optional[CanCommit] = None
     session = None
 
-    def __lazy_session_wrapped():
+    def __lazy_session_wrapped() -> CanCommit:
         nonlocal connection_manager
         nonlocal session
         if connection_manager is None:

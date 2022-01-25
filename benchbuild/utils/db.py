@@ -1,16 +1,29 @@
 """Database support module for the benchbuild study."""
+from __future__ import annotations
+
 import logging
+import typing as tp
 
 from sqlalchemy.exc import IntegrityError
 
 from benchbuild.settings import CFG
 
+if tp.TYPE_CHECKING:
+    import uuid
+
+    from plumbum.commands import BaseCommand
+
+    from benchbuild.utils import schema
+
 LOG = logging.getLogger(__name__)
 
 
-def validate(func):
+def validate(func: tp.Callable[..., tp.Any]) -> tp.Callable[..., tp.Any]:
 
-    def validate_run_func(run, session, *args, **kwargs):
+    def validate_run_func(
+        run: 'schema.Run', session: 'schema.CanCommit', *args: tp.Any,
+        **kwargs: tp.Any
+    ) -> tp.Any:
         if run.status == 'failed':
             LOG.debug("Run failed. Execution of '%s' cancelled", str(func))
             return None
@@ -20,7 +33,8 @@ def validate(func):
     return validate_run_func
 
 
-def create_run(cmd, project, exp, grp):
+def create_run(cmd: 'BaseCommand', project, exp,
+               grp: uuid.UUID) -> tp.Tuple['schema.Run', 'schema.CanCommit']:
     """
     Create a new 'run' in the database.
 
@@ -42,19 +56,23 @@ def create_run(cmd, project, exp, grp):
     from benchbuild.utils import schema as s
 
     session = s.Session()
-    run = s.Run(command=str(cmd),
-                project_name=project.name,
-                project_group=project.group,
-                experiment_name=exp.name,
-                run_group=str(grp),
-                experiment_group=exp.id)
+    run = s.Run(
+        command=str(cmd),
+        project_name=project.name,
+        project_group=project.group,
+        experiment_name=exp.name,
+        run_group=str(grp),
+        experiment_group=exp.id
+    )
     session.add(run)
     session.commit()
 
     return (run, session)
 
 
-def create_run_group(prj, experiment):
+def create_run_group(
+    prj, experiment
+) -> tp.Tuple['schema.RunGroup', 'schema.CanCommit']:
     """
     Create a new 'run_group' in the database.
 
@@ -166,7 +184,10 @@ def persist_experiment(experiment):
 
 
 @validate
-def persist_time(run, session, timings):
+def persist_time(
+    run: schema.Run, session: schema.CanCommit,
+    timings: tp.Sequence[tp.Tuple[float, float, float]]
+) -> None:
     """
     Persist the run results in the database.
 
@@ -178,15 +199,20 @@ def persist_time(run, session, timings):
     from benchbuild.utils import schema as s
 
     for timing in timings:
-        session.add(s.Metric(name="time.user_s", value=timing[0],
-                             run_id=run.id))
         session.add(
-            s.Metric(name="time.system_s", value=timing[1], run_id=run.id))
-        session.add(s.Metric(name="time.real_s", value=timing[2],
-                             run_id=run.id))
+            s.Metric(name="time.user_s", value=timing[0], run_id=run.id)
+        )
+        session.add(
+            s.Metric(name="time.system_s", value=timing[1], run_id=run.id)
+        )
+        session.add(
+            s.Metric(name="time.real_s", value=timing[2], run_id=run.id)
+        )
 
 
-def persist_perf(run, session, svg_path):
+def persist_perf(
+    run: schema.Run, session: schema.CanCommit, svg_path: str
+) -> None:
     """
     Persist the flamegraph in the database.
 
@@ -203,10 +229,18 @@ def persist_perf(run, session, svg_path):
     with open(svg_path, 'r') as svg_file:
         svg_data = svg_file.read()
         session.add(
-            s.Metadata(name="perf.flamegraph", value=svg_data, run_id=run.id))
+            s.Metadata(name="perf.flamegraph", value=svg_data, run_id=run.id)
+        )
 
 
-def persist_compilestats(run, session, stats):
+@tp.runtime_checkable
+class HasRunId(tp.Protocol):
+    run_id: int
+
+
+def persist_compilestats(
+    run: schema.Run, session: schema.CanCommit, stats: tp.Sequence[HasRunId]
+) -> None:
     """
     Persist the run results in the database.
 
@@ -216,11 +250,16 @@ def persist_compilestats(run, session, stats):
         stats: The stats we want to store in the database.
     """
     for stat in stats:
+        # FIXME: Why does sqlalchemy assume Optional[int] on a pk attribute?
+        assert run.id is not None
+
         stat.run_id = run.id
         session.add(stat)
 
 
-def persist_config(run, session, cfg):
+def persist_config(
+    run: schema.Run, session: schema.CanCommit, cfg: tp.Mapping[str, str]
+) -> None:
     """
     Persist the configuration in as key-value pairs.
 

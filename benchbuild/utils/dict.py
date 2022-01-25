@@ -88,13 +88,13 @@ class ExtensibleDict:
     def __getitem__(self, name: str) -> tp.Any:
         return self._current[name]
 
-    def keys(self):
+    def keys(self) -> tp.KeysView[tp.Any]:
         return self._current.keys()
 
-    def values(self):
+    def values(self) -> tp.ValuesView[tp.Any]:
         return self._current.values()
 
-    def items(self):
+    def items(self) -> tp.ItemsView[tp.Any, tp.Any]:
         return self._current.items()
 
     def get(self, name: tp.Any, *default: tp.Any) -> tp.Any:

@@ -26,6 +26,7 @@ import logging
 import os
 import sys
 import typing as tp
+import uuid
 from typing import TYPE_CHECKING
 
 import dill
@@ -277,7 +278,16 @@ def wrap_cc(
     return local[filepath]
 
 
-def persist(id_obj, filename=None, suffix=None):
+@tp.runtime_checkable
+class Identifiable(tp.Protocol):
+    run_uuid: uuid.UUID
+
+
+def persist(
+    id_obj: Identifiable,
+    filename: tp.Optional[str] = None,
+    suffix: tp.Optional[str] = None
+) -> str:
     """Persist an object in the filesystem.
 
     This will generate a pickled version of the given obj in the filename path.
@@ -295,7 +305,7 @@ def persist(id_obj, filename=None, suffix=None):
     if suffix is None:
         suffix = ".pickle"
     if hasattr(id_obj, 'run_uuid'):
-        ident = id_obj.run_uuid
+        ident = str(id_obj.run_uuid)
     else:
         ident = str(id(id_obj))
 

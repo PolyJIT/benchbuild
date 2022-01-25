@@ -54,7 +54,6 @@ LOG = logging.getLogger(__name__)
 
 
 # Type extensions for sqlalchemy are not hooked up properly yet.
-@tp.runtime_checkable
 class CanCommit(tp.Protocol):
 
     def commit(self) -> None:

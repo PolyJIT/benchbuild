@@ -233,7 +233,6 @@ def persist_perf(
         )
 
 
-@tp.runtime_checkable
 class HasRunId(tp.Protocol):
     run_id: int
 

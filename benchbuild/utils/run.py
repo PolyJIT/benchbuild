@@ -378,7 +378,6 @@ def with_env_recursive(cmd: BaseCommand, **envvars: str) -> BaseCommand:
     return cmd
 
 
-@tp.runtime_checkable
 class HasBuilddir(tp.Protocol):
     builddir: local.path
 

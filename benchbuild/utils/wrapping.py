@@ -278,7 +278,6 @@ def wrap_cc(
     return local[filepath]
 
 
-@tp.runtime_checkable
 class Identifiable(tp.Protocol):
     run_uuid: uuid.UUID
 

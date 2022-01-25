@@ -41,13 +41,18 @@ from benchbuild.utils.cmd import chmod, mv
 from benchbuild.utils.path import list_to_path
 from benchbuild.utils.uchroot import no_llvm as uchroot
 
-PROJECT_BIN_F_EXT = ".bin"
-PROJECT_BLOB_F_EXT = ".postproc"
-LOG = logging.getLogger(__name__)
+if sys.version_info <= (3, 8):
+    from typing_extensions import Protocol
+else:
+    from typing import Protocol
 
 if TYPE_CHECKING:
     from benchbuild.experiment import Experiment
     from benchbuild.project import Project
+
+PROJECT_BIN_F_EXT = ".bin"
+PROJECT_BLOB_F_EXT = ".postproc"
+LOG = logging.getLogger(__name__)
 
 
 def strip_path_prefix(ipath: str, prefix: str) -> str:
@@ -278,7 +283,7 @@ def wrap_cc(
     return local[filepath]
 
 
-class Identifiable(tp.Protocol):
+class Identifiable(Protocol):
     run_uuid: uuid.UUID
 
 

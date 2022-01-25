@@ -8,6 +8,11 @@ from sqlalchemy.exc import IntegrityError
 
 from benchbuild.settings import CFG
 
+if sys.version_info <= (3, 8):
+    from typing_extensions import Protocol
+else:
+    from typing import Protocol
+
 if tp.TYPE_CHECKING:
     import uuid
 
@@ -233,7 +238,7 @@ def persist_perf(
         )
 
 
-class HasRunId(tp.Protocol):
+class HasRunId(Protocol):
     run_id: int
 
 

@@ -49,12 +49,17 @@ from benchbuild import settings
 from benchbuild.utils import path
 from benchbuild.utils import user_interface as ui
 
+if sys.version_info <= (3, 8):
+    from typing_extensions import Protocol
+else:
+    from typing import Protocol
+
 BASE = declarative_base()
 LOG = logging.getLogger(__name__)
 
 
 # Type extensions for sqlalchemy are not hooked up properly yet.
-class CanCommit(tp.Protocol):
+class CanCommit(Protocol):
 
     def commit(self) -> None:
         ...

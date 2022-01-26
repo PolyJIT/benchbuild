@@ -1,8 +1,10 @@
 import logging
 import os
+import typing as tp
 
 import yaml
 from plumbum import local
+from plumbum.commands.base import BoundCommand
 
 from benchbuild.extensions import base
 from benchbuild.utils import db, run
@@ -19,16 +21,19 @@ class RuntimeExtension(base.Extension):
     tracked execution of a wrapped binary.
     """
 
-    def __init__(self, project, experiment, *extensions, config=None):
+    def __init__(
+        self, project, experiment, *extensions: base.Extension, config=None
+    ):
         self.project = project
         self.experiment = experiment
 
         super().__init__(*extensions, config=config)
 
-    def __call__(self, binary_command, *args, **kwargs):
+    def __call__(self, command: BoundCommand, *args: str,
+                 **kwargs: tp.Any) -> tp.List[run.RunInfo]:
         self.project.name = kwargs.get("project_name", self.project.name)
 
-        cmd = binary_command[args]
+        cmd = command[args]
         with run.track_execution(
             cmd, self.project, self.experiment, **kwargs
         ) as _run:
@@ -48,11 +53,11 @@ class RuntimeExtension(base.Extension):
                 db.persist_config(
                     run_info.db_run, run_info.session, self.config
                 )
-        res = self.call_next(binary_command, *args, **kwargs)
+        res = self.call_next(command, *args, **kwargs)
         res.append(run_info)
         return res
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Run wrapped binary"
 
 
@@ -64,15 +69,19 @@ class WithTimeout(base.Extension):
     the limit to a given value on extension construction.
     """
 
-    def __init__(self, *extensions, limit="10m", **kwargs):
+    def __init__(
+        self,
+        *extensions: base.Extension,
+        limit: str = "10m",
+        **kwargs: tp.Any
+    ):
         super().__init__(*extensions, **kwargs)
         self.limit = limit
 
-    def __call__(self, binary_command, *args, **kwargs):
+    def __call__(self, command: BoundCommand, *args: str,
+                 **kwargs: tp.Any) -> tp.List[run.RunInfo]:
         from benchbuild.utils.cmd import timeout
-        return self.call_next(
-            timeout[self.limit, binary_command], *args, **kwargs
-        )
+        return self.call_next(timeout[self.limit, command], *args, **kwargs)
 
 
 class SetThreadLimit(base.Extension):
@@ -82,7 +91,8 @@ class SetThreadLimit(base.Extension):
     variable OMP_NUM_THREADS.
     """
 
-    def __call__(self, binary_command, *args, **kwargs):
+    def __call__(self, command: BoundCommand, *args: str,
+                 **kwargs: tp.Any) -> tp.List[run.RunInfo]:
         from benchbuild.settings import CFG
 
         config = self.config
@@ -94,10 +104,10 @@ class SetThreadLimit(base.Extension):
 
         ret = None
         with local.env(OMP_NUM_THREADS=str(jobs)):
-            ret = self.call_next(binary_command, *args, **kwargs)
+            ret = self.call_next(command, *args, **kwargs)
         return ret
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Limit number of OpenMP threads"
 
 

@@ -86,7 +86,7 @@ class Extension(metaclass=ABCMeta):
             ext.print(indent=indent + 2)
 
     def __call__(self, command: BoundCommand, *args: str,
-                 **kwargs: tp.Any) -> tp.Optional[tp.List[run.RunInfo]]:
+                 **kwargs: tp.Any) -> tp.List[run.RunInfo]:
         return self.call_next(*args, **kwargs)
 
     def __str__(self) -> str:

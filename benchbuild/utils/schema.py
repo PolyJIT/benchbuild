@@ -78,10 +78,13 @@ def metadata():
     return BASE.metadata
 
 
+ET = tp.TypeVar('ET', bound=sa.exc.SQLAlchemyError)
+
+
 def exceptions(
     error_is_fatal: bool = True,
-    error_messages: tp.Optional[tp.Dict[Exception, str]] = None
-) -> tp.Callable:
+    error_messages: tp.Optional[tp.Dict[tp.Type[ET], str]] = None
+) -> tp.Callable[..., tp.Any]:
     """
     Handle SQLAlchemy exceptions in a sane way.
 
@@ -94,18 +97,20 @@ def exceptions(
             customized error message.
     """
 
-    def exception_decorator(func):
+    def exception_decorator(
+        func: tp.Callable[..., tp.Any]
+    ) -> tp.Callable[..., tp.Any]:
         nonlocal error_messages
 
         @functools.wraps(func)
-        def exc_wrapper(*args, **kwargs):
+        def exc_wrapper(*args: tp.Any, **kwargs: tp.Any) -> tp.Optional[tp.Any]:
             nonlocal error_messages
             try:
                 result = func(*args, **kwargs)
             except sa.exc.SQLAlchemyError as err:
                 result = None
                 details = None
-                err_type = err.__class__
+                err_type = type(err)
                 if error_messages and err_type in error_messages:
                     details = error_messages[err_type]
                 if details:
@@ -131,10 +136,12 @@ class GUID(TypeDecorator):
     CHAR(32), storing as stringified hex values.
     """
     impl = CHAR
-    as_uuid = False
-    cache_ok = False
+    as_uuid: bool = False
+    cache_ok: bool = False
 
-    def __init__(self, *args, as_uuid=False, **kwargs):
+    def __init__(
+        self, *args: tp.Any, as_uuid: bool = False, **kwargs: tp.Any
+    ) -> None:
         self.as_uuid = as_uuid
         super().__init__(*args, **kwargs)
 
@@ -143,10 +150,12 @@ class GUID(TypeDecorator):
             return dialect.type_descriptor(UUID(as_uuid=self.as_uuid))
         return dialect.type_descriptor(CHAR(32))
 
-    def process_bind_param(self, value, dialect):
+    def process_bind_param(self, value, dialect) -> str:
         return str(value)
 
-    def process_result_value(self, value, dialect):
+    def process_result_value(
+        self, value: tp.Union[uuid.UUID, str], dialect
+    ) -> uuid.UUID:
         if isinstance(value, uuid.UUID):
             return value
 
@@ -180,32 +189,32 @@ class Run(BASE):
     end = Column(DateTime(timezone=False))
     status = Column(Enum('completed', 'running', 'failed', name="run_state"))
 
-    metrics = sa.orm.relationship(
+    metrics: Metric = sa.orm.relationship(
         "Metric",
         cascade="all, delete-orphan",
         passive_deletes=True,
         passive_updates=True
     )
-    logs = sa.orm.relationship(
+    logs: RunLog = sa.orm.relationship(
         "RunLog",
         cascade="all, delete-orphan",
         passive_deletes=True,
         passive_updates=True
     )
-    stored_data = sa.orm.relationship(
+    stored_data: Metadata = sa.orm.relationship(
         "Metadata",
         cascade="all, delete-orphan",
         passive_deletes=True,
         passive_updates=True
     )
-    configurations = sa.orm.relationship(
+    configurations: Config = sa.orm.relationship(
         "Config",
         cascade="all, delete-orphan",
         passive_deletes=True,
         passive_updates=True
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'<Run: {self.project_name} status={self.status} run={self.id}>'
         )
@@ -239,20 +248,20 @@ class Experiment(BASE):
     begin = Column(DateTime(timezone=False))
     end = Column(DateTime(timezone=False))
 
-    runs = sa.orm.relationship(
+    runs: Run = sa.orm.relationship(
         "Run",
         cascade="all, delete-orphan",
         passive_deletes=True,
         passive_updates=True
     )
-    run_groups = sa.orm.relationship(
+    run_groups: RunGroup = sa.orm.relationship(
         "RunGroup",
         cascade="all, delete-orphan",
         passive_deletes=True,
         passive_updates=True
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<Experiment {self.name}>'
 
 
@@ -268,14 +277,14 @@ class Project(BASE):
     group_name = Column(String, primary_key=True)
     version = Column(String)
 
-    runs = sa.orm.relationship(
+    runs: Run = sa.orm.relationship(
         "Run",
         cascade="all, delete-orphan",
         passive_deletes=True,
         passive_updates=True
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<Project {self.group_name}@{self.domain}/{self.name} V:{self.version}>'
 
 
@@ -293,7 +302,7 @@ class Metric(BASE):
         primary_key=True
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.name} - {self.value}'
 
 
@@ -361,7 +370,7 @@ class Config(BASE):
     value = Column(String)
 
 
-def needed_schema(connection, meta):
+def needed_schema(connection, meta) -> bool:
     try:
         meta.create_all(connection, checkfirst=False)
     except sa.exc.CompileError as cerr:
@@ -382,7 +391,7 @@ def needed_schema(connection, meta):
     return True
 
 
-def get_version_data():
+def get_version_data() -> tp.Tuple[migrate.VerNum, migrate.VerNum]:
     """Retreive migration information."""
     connect_str = str(settings.CFG["db"]["connect_string"])
     repo_url = path.template_path("../db/")
@@ -397,7 +406,7 @@ def get_version_data():
         )
     }
 )
-def enforce_versioning(force=False):
+def enforce_versioning(force: bool = False) -> tp.Optional[str]:
     """Install versioning on the db."""
     connect_str, repo_url = get_version_data()
     LOG.debug("Your database uses an unversioned benchbuild schema.")
@@ -406,12 +415,12 @@ def enforce_versioning(force=False):
     ):
         LOG.error("User declined schema versioning.")
         return None
-    repo_version = migrate.version(repo_url, url=connect_str)
+    repo_version: str = migrate.version(repo_url, url=connect_str)
     migrate.version_control(connect_str, repo_url, version=repo_version)
     return repo_version
 
 
-def setup_versioning():
+def setup_versioning() -> tp.Tuple[migrate.VerNum, migrate.VerNum]:
     connect_str, repo_url = get_version_data()
     repo_version = migrate.version(repo_url, url=connect_str)
     db_version = None
@@ -434,7 +443,9 @@ def setup_versioning():
             " Base schema version diverged from the expected structure."
     }
 )
-def maybe_update_db(repo_version, db_version):
+def maybe_update_db(
+    repo_version: str, db_version: tp.Optional[str] = None
+) -> None:
     if db_version is None:
         return
     if db_version == repo_version:
@@ -463,7 +474,7 @@ def maybe_update_db(repo_version, db_version):
 
 class SessionManager:
 
-    def connect_engine(self):
+    def connect_engine(self) -> bool:
         """
         Establish a connection to the database.
 
@@ -482,7 +493,7 @@ class SessionManager:
             )
         return False
 
-    def configure_engine(self):
+    def configure_engine(self) -> bool:
         """
         Configure the databse connection.
 
@@ -503,7 +514,7 @@ class SessionManager:
                 "Connect string contained an invalid backend."
         }
     )
-    def __init__(self):
+    def __init__(self) -> None:
         self.__test_mode = bool(settings.CFG['db']['rollback'])
         self.engine = create_engine(str(settings.CFG["db"]["connect_string"]))
 
@@ -525,7 +536,7 @@ class SessionManager:
     def get(self):
         return sessionmaker(bind=self.connection)
 
-    def __del__(self):
+    def __del__(self) -> None:
         if hasattr(self, '__transaction') and self.__transaction:
             self.__transaction.rollback()
 
@@ -547,10 +558,10 @@ def __lazy_session__() -> tp.Callable[[], CanCommit]:
     return __lazy_session_wrapped
 
 
-Session = __lazy_session__()
+Session: tp.Callable[[], CanCommit] = __lazy_session__()
 
 
-def init_functions(connection):
+def init_functions(connection) -> None:
     """Initialize all SQL functions in the database."""
     if settings.CFG["db"]["create_functions"]:
         print("Refreshing SQL functions...")

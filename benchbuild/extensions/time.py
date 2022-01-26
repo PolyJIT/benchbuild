@@ -1,11 +1,23 @@
+from __future__ import annotations
+
 import logging
+import sys
 import typing as tp
 
 import parse
+from plumbum.commands.base import BoundCommand
 
 from benchbuild.extensions import base
 from benchbuild.utils import db
 from benchbuild.utils.cmd import time
+
+if sys.version_info <= (3, 8):
+    from typing_extensions import Protocol
+else:
+    from typing import Protocol
+
+if tp.TYPE_CHECKING:
+    from benchbuild.utils import run
 
 LOG = logging.getLogger(__name__)
 
@@ -13,12 +25,20 @@ LOG = logging.getLogger(__name__)
 class RunWithTime(base.Extension):
     """Wrap a command with time and store the timings in the database."""
 
-    def __call__(self, binary_command, *args, may_wrap=True, **kwargs):
+    def __call__(
+        self,
+        command: BoundCommand,
+        *args: str,
+        may_wrap: bool = True,
+        **kwargs: tp.Any
+    ) -> tp.List['run.RunInfo']:
         time_tag = "BENCHBUILD: "
         if may_wrap:
-            run_cmd = time["-f", time_tag + "%U-%S-%e", binary_command]
+            run_cmd = time["-f", time_tag + "%U-%S-%e", command]
 
-        def handle_timing(run_infos):
+        def handle_timing(
+            run_infos: tp.List['run.RunInfo']
+        ) -> tp.List['run.RunInfo']:
             """Takes care of the formating for the timing statistics."""
             from benchbuild.utils import schema as s
 
@@ -39,7 +59,7 @@ class RunWithTime(base.Extension):
         res = self.call_next(run_cmd, *args, **kwargs)
         return handle_timing(res)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Time execution of wrapped binary"
 
 

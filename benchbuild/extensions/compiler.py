@@ -9,8 +9,8 @@ from benchbuild.extensions import base
 from benchbuild.utils import db, run
 
 if TYPE_CHECKING:
-    from benchbuild.project import Project
     from benchbuild.experiment import Experiment
+    from benchbuild.project import Project
 
 LOG = logging.getLogger(__name__)
 
@@ -80,5 +80,5 @@ class RunCompiler(base.Extension):
         res.append(run_info)
         return res
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Compile /w fallback"

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import sys
 import typing as tp
 
 from sqlalchemy.exc import IntegrityError

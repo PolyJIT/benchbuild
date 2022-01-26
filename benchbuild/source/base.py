@@ -334,7 +334,7 @@ def context_from_revisions(revs: tp.Sequence[RevisionStr],
     for source in sources:
         found.extend([
             variant for variant in source.versions() for rev in revs
-            if variant.version == rev
+            if variant.version == rev.value
         ])
 
     ctx = context(*found)

@@ -1,6 +1,7 @@
 """ Path utilities for benchbuild. """
 import fcntl
 import os
+import typing as tp
 from contextlib import contextmanager
 from typing import List, Optional
 
@@ -116,18 +117,23 @@ def mkdir_interactive(dirpath: str) -> None:
     if os.path.exists(dirpath):
         return
 
-    response = ui.ask("The directory {dirname} does not exist yet. "
-                      "Should I create it?".format(dirname=dirpath),
-                      default_answer=True,
-                      default_answer_str="yes")
+    response = ui.ask(
+        f'The directory {dirpath} does not exist yet. '
+        "Should I create it?",
+        default_answer=True,
+        default_answer_str="yes"
+    )
 
     if response:
         mkdir("-p", dirpath)
-        print("Created directory {0}.".format(dirpath))
+        print(f'Created directory {dirpath}.')
 
 
 @contextmanager
-def flocked(filename: str, lock_type: int = fcntl.LOCK_EX):
+def flocked(
+    filename: str,
+    lock_type: int = fcntl.LOCK_EX
+) -> tp.Generator[tp.TextIO, None, None]:
     """
     Lock a section using fcntl.
 

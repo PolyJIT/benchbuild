@@ -51,7 +51,7 @@ class Slurm(cli.Application):
                 list=True,
                 requires=["--experiment"],
                 help="Run a group of projects under the given experiments")
-    def group(self, groups: tp.List[str]) -> None:  # type: ignore
+    def group(self, groups: tp.List[str]) -> None:
         """Run a group of projects under the given experiments"""
         self.group_args = groups
 

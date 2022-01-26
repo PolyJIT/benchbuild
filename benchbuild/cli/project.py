@@ -74,7 +74,7 @@ def print_project(project: tp.Type[Project], limit: int) -> None:
     print(f'domain: {project.DOMAIN}')
     print('source:')
     for source in project.SOURCE:
-        num_versions = len(source.versions())
+        num_versions = len(list(source.versions()))
 
         print(' -', f'{source.remote}')
         print('  ', 'default:', source.default)
@@ -113,9 +113,7 @@ def print_projects(projects: ProjectIndex) -> None:
         if prj.GROUP not in grouped_by:
             grouped_by[prj.GROUP] = []
 
-        grouped_by[prj.GROUP].append(
-            "{name}/{group}".format(name=prj.NAME, group=prj.GROUP)
-        )
+        grouped_by[prj.GROUP].append(f'{prj.NAME}/{prj.GROUP}')
 
     project_column_width = max([
         len(f'{p.NAME}/{p.GROUP}') for p in projects.values()

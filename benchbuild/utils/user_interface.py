@@ -4,12 +4,13 @@ User interface helpers for benchbuild.
 import logging
 import os
 import sys
+import typing as tp
 
 LOG = logging.getLogger(__name__)
 
 
 # Taken from the following recipe: http://code.activestate.com/recipes/577058/
-def query_yes_no(question, default="yes"):
+def query_yes_no(question: str, default: str = "yes") -> bool:
     """
     Ask a yes/no question via raw_input() and return their answer.
 
@@ -23,14 +24,12 @@ def query_yes_no(question, default="yes"):
         True, if 'yes', False otherwise.
     """
     valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
-    if default is None:
-        prompt = " [y/n] "
-    elif default == "yes":
+    if default == "yes":
         prompt = " [Y/n] "
     elif default == "no":
         prompt = " [y/N] "
     else:
-        raise ValueError("invalid default answer: '{0!s}'".format(default))
+        raise ValueError(f'invalid default answer: \'{default!s}\'')
 
     while True:
         sys.stdout.write(question + prompt)
@@ -65,7 +64,7 @@ def ask(
     """
     response = default_answer
 
-    def should_ignore_tty():
+    def should_ignore_tty() -> bool:
         """
         Check, if we want to ignore an opened tty result.
         """

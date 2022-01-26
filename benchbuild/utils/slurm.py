@@ -114,7 +114,7 @@ def __save__(
     if local.path(template_name).exists():
         template_path = local.path(template_name).dirname
         template_name = local.path(template_name).basename
-        loader = jinja2.FileSystemLoader(template_path)
+        loader: jinja2.BaseLoader = jinja2.FileSystemLoader(template_path)
     else:
         loader = jinja2.PackageLoader('benchbuild', 'res')
 
@@ -168,7 +168,7 @@ def __save__(
     chmod("+x", script_name)
     if not __verify__(script_name):
         LOG.error("SLURM script failed verification.")
-    print("SLURM script written to {0}".format(script_name))
+    print(f'SLURM script written to {script_name}')
     return script_name
 
 

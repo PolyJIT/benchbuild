@@ -31,9 +31,9 @@ def find_package(binary: str) -> bool:
 
     found = not isinstance(c, utils.ErrorCommand)
     if found:
-        print("Checking for {} - Yes [{}]".format(binary, str(c)))
+        print(f'Checking for {binary} - Yes [{str(c)}]')
     else:
-        print("Checking for {}  - No".format(binary))
+        print(f'Checking for {binary}  - No')
 
     return found
 
@@ -137,15 +137,13 @@ def check_uchroot_config() -> None:
 
     if not (fuse_grep["^user_allow_other", "/etc/fuse.conf"] & TF):
         print("uchroot needs 'user_allow_other' enabled in '/etc/fuse.conf'.")
-    if not (fuse_grep["^{0}".format(username), "/etc/subuid"] & TF):
+    if not (fuse_grep[f'^{username}', "/etc/subuid"] & TF):
         print(
-            "uchroot needs an entry for user '{0}' in '/etc/subuid'.".
-            format(username)
+            f'uchroot needs an entry for user \'{username}\' in \'/etc/subuid\'.'
         )
-    if not (fuse_grep["^{0}".format(username), "/etc/subgid"] & TF):
+    if not (fuse_grep[f'^{username}', "/etc/subgid"] & TF):
         print(
-            "uchroot needs an entry for user '{0}' in '/etc/subgid'.".
-            format(username)
+            f'uchroot needs an entry for user \'{username}\' in \'/etc/subgid\'.'
         )
 
 
@@ -184,24 +182,30 @@ def install_package(pkg_name: str) -> bool:
         return False
 
     if pkg_name not in PACKAGES:
-        print("No bootstrap support for package '{0}'".format(pkg_name))
+        print(f'No bootstrap support for package "{pkg_name}"')
     linux = linux_distribution_major()
+    if linux is None:
+        print(f'No bootstrap support for {linux}')
+        return False
+
     package_manager = PACKAGE_MANAGER[linux]
     packages = PACKAGES[pkg_name][linux]
+
+    ret = True
     for pkg_name_on_host in packages:
-        print("You are missing the package: '{0}'".format(pkg_name_on_host))
+        print(f'You are missing the package: "{pkg_name_on_host}"')
         cmd = local["sudo"]
         cmd = cmd[package_manager["cmd"], package_manager["args"],
                   pkg_name_on_host]
         cmd_str = str(cmd)
 
-        ret = False
-        if ui.ask("Run '{cmd}' to install it?".format(cmd=cmd_str)):
-            print("Running: '{cmd}'".format(cmd=cmd_str))
+        if ui.ask(f'Run "{cmd_str}" to install it?'):
+            print(f'Running: "{cmd_str}"')
 
         try:
             (cmd & FG(retcode=0))
         except ProcessExecutionError:
+            ret = False
             print("NOT INSTALLED")
         else:
             print("OK")

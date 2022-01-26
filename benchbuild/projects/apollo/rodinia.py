@@ -1,3 +1,5 @@
+import typing as tp
+
 import attr
 from plumbum import local
 
@@ -12,17 +14,22 @@ class RodiniaGroup(bb.Project):
     DOMAIN = 'rodinia'
     GROUP = 'rodinia'
     SOURCE = [
-        HTTP(remote={
-            '3.1': 'http://www.cs.virginia.edu/'
-                   '~kw5na/lava/Rodinia/Packages/Current/3.1/'
-                   'rodinia_3.1.tar.bz2'
-        },
-             local='rodinia.tar.bz2')
+        HTTP(
+            remote={
+                '3.1':
+                    'http://www.cs.virginia.edu/'
+                    '~kw5na/lava/Rodinia/Packages/Current/3.1/'
+                    'rodinia_3.1.tar.bz2'
+            },
+            local='rodinia.tar.bz2'
+        )
     ]
-    CONFIG = {}
+    CONFIG: tp.ClassVar[tp.Dict[str, tp.Any]] = {}
 
     config = attr.ib(
-        default=attr.Factory(lambda self: type(self).CONFIG, takes_self=True))
+        default=attr.
+        Factory(lambda self: dict(type(self).CONFIG), takes_self=True)
+    )
 
     def compile(self):
         tar('xf', 'rodinia.tar.bz2')

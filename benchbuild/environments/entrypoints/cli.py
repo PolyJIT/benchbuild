@@ -15,7 +15,7 @@ from benchbuild.settings import CFG
 rich.traceback.install()
 
 
-class BenchBuildContainer(cli.Application):  # type: ignore
+class BenchBuildContainer(cli.Application):
     """
     Top-level command for benchbuild containers.
     """
@@ -30,24 +30,23 @@ class BenchBuildContainer(cli.Application):  # type: ignore
 
 
 @BenchBuildContainer.subcommand("run")
-class BenchBuildContainerRun(cli.Application):  # type: ignore
+class BenchBuildContainerRun(cli.Application):
     experiment_args: tp.List[str] = []
     group_args: tp.List[str] = []
 
     @cli.switch(["-E", "--experiment"],
                 str,
                 list=True,
-                help="Specify experiments to run")  # type: ignore
-    def set_experiments(self, names: tp.List[str]) -> None:  # type: ignore
+                help="Specify experiments to run")
+    def set_experiments(self, names: tp.List[str]) -> None:
         self.experiment_args = names
 
     @cli.switch(["-G", "--group"],
                 str,
                 list=True,
                 requires=["--experiment"],
-                help="Run a group of projects under the given experiments"
-               )  # type: ignore
-    def set_group(self, groups: tp.List[str]) -> None:  # type: ignore
+                help="Run a group of projects under the given experiments")
+    def set_group(self, groups: tp.List[str]) -> None:
         self.group_args = groups
 
     image_export = cli.Flag(['export'],
@@ -143,17 +142,16 @@ class BenchBuildContainerBase(cli.Application):
     @cli.switch(["-E", "--experiment"],
                 str,
                 list=True,
-                help="Specify experiments to run")  # type: ignore
-    def set_experiments(self, names: tp.List[str]) -> None:  # type: ignore
+                help="Specify experiments to run")
+    def set_experiments(self, names: tp.List[str]) -> None:
         self.experiment_args = names
 
     @cli.switch(["-G", "--group"],
                 str,
                 list=True,
                 requires=["--experiment"],
-                help="Run a group of projects under the given experiments"
-               )  # type: ignore
-    def set_group(self, groups: tp.List[str]) -> None:  # type: ignore
+                help="Run a group of projects under the given experiments")
+    def set_group(self, groups: tp.List[str]) -> None:
         self.group_args = groups
 
     image_export = cli.Flag(['export'],
@@ -222,17 +220,16 @@ class BenchBuildContainerRemoveImages(cli.Application):
     @cli.switch(["-E", "--experiment"],
                 str,
                 list=True,
-                help="Specify experiments to run")  # type: ignore
-    def set_experiments(self, names: tp.List[str]) -> None:  # type: ignore
+                help="Specify experiments to run")
+    def set_experiments(self, names: tp.List[str]) -> None:
         self.experiment_args = names
 
     @cli.switch(["-G", "--group"],
                 str,
                 list=True,
                 requires=["--experiment"],
-                help="Run a group of projects under the given experiments"
-               )  # type: ignore
-    def set_group(self, groups: tp.List[str]) -> None:  # type: ignore
+                help="Run a group of projects under the given experiments")
+    def set_group(self, groups: tp.List[str]) -> None:
         self.group_args = groups
 
     delete_project_images = cli.Flag(['with-projects'],
@@ -435,8 +432,7 @@ def enumerate_experiments(
     experiments: ExperimentIndex, projects: ProjectIndex
 ) -> tp.Generator[experiment.Experiment, None, None]:
     for exp_class in experiments.values():
-        prjs = list(enumerate_projects(experiments, projects))
-        yield exp_class(projects=prjs)
+        yield exp_class(projects=list(projects.values()))
 
 
 def create_experiment_images(
@@ -460,7 +456,7 @@ def create_experiment_images(
     """
     publish = bootstrap.bus()
     for exp in enumerate_experiments(experiments, projects):
-        for prj in exp.projects:
+        for prj in enumerate_projects(experiments, projects):
             version = make_version_tag(*prj.variant.values())
             base_tag = make_image_name(f'{prj.name}/{prj.group}', version)
             image_tag = make_image_name(
@@ -494,7 +490,7 @@ def run_experiment_images(
     publish = bootstrap.bus()
 
     for exp in enumerate_experiments(experiments, projects):
-        for prj in exp.projects:
+        for prj in enumerate_projects(experiments, projects):
             version = make_version_tag(*prj.variant.values())
             image_tag = make_image_name(
                 f'{exp.name}/{prj.name}/{prj.group}', version
@@ -519,7 +515,7 @@ def remove_images(
     publish = bootstrap.bus()
 
     for exp in enumerate_experiments(experiments, projects):
-        for prj in exp.projects:
+        for prj in enumerate_projects(experiments, projects):
             version = make_version_tag(*prj.variant.values())
             image_tag = make_image_name(
                 f'{exp.name}/{prj.name}/{prj.group}', version

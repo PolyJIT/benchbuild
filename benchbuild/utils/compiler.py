@@ -31,8 +31,8 @@ from benchbuild.utils.path import list_to_path
 from benchbuild.utils.wrapping import wrap_cc
 
 if TYPE_CHECKING:
-    from benchbuild.project import Project
     from benchbuild.experiment import Experiment
+    from benchbuild.project import Project
 
 
 def cc(project: 'Project', detect_project: bool = False) -> BoundCommand:
@@ -55,7 +55,7 @@ def cc(project: 'Project', detect_project: bool = False) -> BoundCommand:
     """
     cc_name = str(CFG["compiler"]["c"])
     wrap_cc(cc_name, compiler(cc_name), project, detect_project=detect_project)
-    return cmd["./{}".format(cc_name)]
+    return cmd[f'./{cc_name}']
 
 
 def cxx(project: 'Project', detect_project: bool = False) -> BoundCommand:
@@ -81,7 +81,7 @@ def cxx(project: 'Project', detect_project: bool = False) -> BoundCommand:
     wrap_cc(
         cxx_name, compiler(cxx_name), project, detect_project=detect_project
     )
-    return cmd["./{name}".format(name=cxx_name)]
+    return cmd[f'./{cxx_name}']
 
 
 def __get_paths() -> tp.Dict[str, str]:

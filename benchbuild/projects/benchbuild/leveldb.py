@@ -45,8 +45,7 @@ class LevelDB(bb.Project):
 
         leveldb = bb.wrap(leveldb_repo / "out-static" / "db_bench", self)
         _leveldb = bb.watch(leveldb)
-        with local.env(
-            LD_LIBRARY_PATH="{}:{}".
-            format(leveldb_repo / "out-shared", getenv("LD_LIBRARY_PATH", ""))
-        ):
+        out_shared = leveldb_repo / "out-shared"
+        lib_path = getenv("LD_LIBRARY_PATH", "")
+        with local.env(LD_LIBRARY_PATH=f'{out_shared}:{lib_path}'):
             _leveldb()

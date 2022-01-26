@@ -26,6 +26,7 @@ import logging
 import os
 import sys
 import typing as tp
+import uuid
 from typing import TYPE_CHECKING
 
 import dill
@@ -40,13 +41,18 @@ from benchbuild.utils.cmd import chmod, mv
 from benchbuild.utils.path import list_to_path
 from benchbuild.utils.uchroot import no_llvm as uchroot
 
+if sys.version_info <= (3, 8):
+    from typing_extensions import Protocol
+else:
+    from typing import Protocol
+
+if TYPE_CHECKING:
+    from benchbuild.experiment import Experiment
+    from benchbuild.project import Project
+
 PROJECT_BIN_F_EXT = ".bin"
 PROJECT_BLOB_F_EXT = ".postproc"
 LOG = logging.getLogger(__name__)
-
-if TYPE_CHECKING:
-    from benchbuild.project import Project
-    from benchbuild.experiment import Experiment
 
 
 def strip_path_prefix(ipath: str, prefix: str) -> str:
@@ -131,14 +137,14 @@ def wrap(
 
     project_file = persist(project, suffix=".project")
 
-    env = CFG['env'].value
+    cfg_env = dict(CFG['env'].value)
 
-    bin_path = list_to_path(env.get('PATH', []))
+    bin_path = list_to_path(cfg_env.get('PATH', []))
     bin_path = list_to_path([bin_path, os.environ["PATH"]])
 
-    bin_lib_path = list_to_path(env.get('LD_LIBRARY_PATH', []))
+    bin_lib_path = list_to_path(cfg_env.get('LD_LIBRARY_PATH', []))
     bin_lib_path = list_to_path([bin_lib_path, os.environ["LD_LIBRARY_PATH"]])
-    home = env.get("HOME", os.getenv("HOME", ""))
+    home = cfg_env.get("HOME", os.getenv("HOME", ""))
 
     with open(name_absolute, 'w') as wrapper:
         wrapper.write(
@@ -277,7 +283,15 @@ def wrap_cc(
     return local[filepath]
 
 
-def persist(id_obj, filename=None, suffix=None):
+class Identifiable(Protocol):
+    run_uuid: uuid.UUID
+
+
+def persist(
+    id_obj: Identifiable,
+    filename: tp.Optional[str] = None,
+    suffix: tp.Optional[str] = None
+) -> str:
     """Persist an object in the filesystem.
 
     This will generate a pickled version of the given obj in the filename path.
@@ -295,12 +309,12 @@ def persist(id_obj, filename=None, suffix=None):
     if suffix is None:
         suffix = ".pickle"
     if hasattr(id_obj, 'run_uuid'):
-        ident = id_obj.run_uuid
+        ident = str(id_obj.run_uuid)
     else:
         ident = str(id(id_obj))
 
     if filename is None:
-        filename = "{obj_id}{suffix}".format(obj_id=ident, suffix=suffix)
+        filename = f'{ident}{suffix}'
 
     with open(filename, 'wb') as obj_file:
         dill.dump(id_obj, obj_file)

@@ -53,7 +53,7 @@ class Lapack(bb.Project):
         clapack_version = self.version_of('clapack.tgz')
 
         tar("xfz", clapack_source)
-        unpack_dir = "CLAPACK-{0}".format(clapack_version)
+        unpack_dir = f'CLAPACK-{clapack_version}'
 
         clang = bb.compiler.cc(self)
         clang_cxx = bb.compiler.cxx(self)
@@ -86,7 +86,7 @@ class Lapack(bb.Project):
 
     def run_tests(self):
         clapack_version = self.version_of('clapack.tgz')
-        unpack_dir = local.path("CLAPACK-{0}".format(clapack_version))
+        unpack_dir = local.path(f'CLAPACK-{clapack_version}')
         with local.cwd(unpack_dir / "BLAS"):
             xblat2s = bb.wrap("xblat2s", self)
             _xblat2s = bb.watch((xblat2s < "sblat2.in"))

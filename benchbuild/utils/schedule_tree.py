@@ -1,6 +1,7 @@
 """ Parsing utilities for Polly's ScheduleTree representation. """
 import logging
 import textwrap as t
+import typing as tp
 
 import attr
 import pyparsing as p
@@ -12,32 +13,32 @@ LOG = logging.getLogger(__name__)
 class Node:
     tok = attr.ib()
 
-    def indent(self, level=0, idt=' '):
+    def indent(self, level: int = 0, idt: str = ' ') -> str:
         val = self.tok[2]
         if not isinstance(self.tok[2], str):
             val = self.tok[2].indent(1)
-        return t.indent('"{:s}": "{:s}"'.format(self.tok[0], val), level * idt)
+        return t.indent(f'"{self.tok[0]}": "{val}"', level * idt)
 
 
 @attr.s
 class CoincidenceNode(Node):
 
-    def indent(self, level=0, idt=' '):
+    def indent(self, level: int = 0, idt: str = ' ') -> str:
         ret = [str(child) for child in self.tok[3]]
-        ret = ",".join(ret)
+        ret_str = ",".join(ret)
 
-        return t.indent('"{:s}": [{:s}]'.format(self.tok[0], ret), level * idt)
+        return t.indent(f'"{self.tok[0]}": [{ret_str}]', level * idt)
 
 
 @attr.s
 class RootNode(Node):
 
-    def indent(self, level=0, idt=' '):
+    def indent(self, level: int = 0, idt: str = ' ') -> str:
         ret = []
         ret = [child.indent(level + 2) for child in self.tok[1]]
-        ret = ",\n".join(ret)
+        ret_str = ",\n".join(ret)
 
-        return t.indent('{{\n{:s}\n}}'.format(ret), level * idt)
+        return t.indent(f'{{\n{ret_str}\n}}', level * idt)
 
     def __str__(self):
         return self.indent(0)
@@ -46,7 +47,7 @@ class RootNode(Node):
 @attr.s
 class ChildNode(Node):
 
-    def indent(self, level=0, idt=' '):
+    def indent(self, level: int = 0, idt: str = ' ') -> str:
         ret = self.tok[0].indent(level)
         return ret
 
@@ -54,8 +55,8 @@ class ChildNode(Node):
 @attr.s
 class SequenceNode(Node):
 
-    def indent(self, level=0, idt=' '):
-        ret = '"{:s}": [\n'.format(self.tok[0])
+    def indent(self, level: int = 0, idt: str = ' ') -> str:
+        ret = f'"{self.tok[0]}": [\n'
         for child in self.tok[3]:
             ret += child.indent(0) + ',\n'
         ret += '\n]'
@@ -93,8 +94,10 @@ EXTENSION = KW_EXTENSION + ":" + STR
 SEQ_ELEM_LIST = p.delimitedList(ROOT)
 SEQUENCE = KW_SEQUENCE + ":" + "[" + p.Group(p.delimitedList(ROOT)) + "]"
 CHILD = KW_CHILD + ":" + ROOT
-CHILD_NODE << (CHILD | COINCIDENT | DOMAIN | EXTENSION | FILTER | MARK |
-               OPTIONS | PERMUTABLE | SCHEDULE | SEQUENCE)
+CHILD_NODE << (
+    CHILD | COINCIDENT | DOMAIN | EXTENSION | FILTER | MARK | OPTIONS |
+    PERMUTABLE | SCHEDULE | SEQUENCE
+)
 ROOT << ("{" + p.Group(p.delimitedList(CHILD_NODE)) + "}")
 
 CHILD.addParseAction(Node)
@@ -111,7 +114,7 @@ SCHEDULE.addParseAction(Node)
 SEQUENCE.addParseAction(SequenceNode)
 
 
-def parse_schedule_tree(tree_str):
+def parse_schedule_tree(tree_str: tp.Optional[str]) -> tp.Optional[str]:
     if tree_str is None:
         return "No Input"
 

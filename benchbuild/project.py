@@ -204,15 +204,18 @@ class Project(metaclass=ProjectDecorator):
         return source.default(*type(self).SOURCE)
 
     name: str = attr.ib(
-        default=attr.Factory(lambda self: type(self).NAME, takes_self=True)
+        default=attr.
+        Factory(lambda self: str(type(self).NAME), takes_self=True)
     )
 
     domain: str = attr.ib(
-        default=attr.Factory(lambda self: type(self).DOMAIN, takes_self=True)
+        default=attr.
+        Factory(lambda self: str(type(self).DOMAIN), takes_self=True)
     )
 
     group: str = attr.ib(
-        default=attr.Factory(lambda self: type(self).GROUP, takes_self=True)
+        default=attr.
+        Factory(lambda self: str(type(self).GROUP), takes_self=True)
     )
 
     container: ContainerImage = attr.ib(default=attr.Factory(ContainerImage))

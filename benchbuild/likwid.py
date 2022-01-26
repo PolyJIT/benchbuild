@@ -3,9 +3,10 @@ Likwid helper functions.
 
 Extract information from likwid's CSV output.
 """
+import typing as tp
 
 
-def fetch_cols(fstream, split_char=','):
+def fetch_cols(fstream: tp.IO[str], split_char: str = ',') -> tp.List[str]:
     """
     Fetch columns from likwid's output stream.
 
@@ -20,7 +21,7 @@ def fetch_cols(fstream, split_char=','):
     return fstream.readline().strip().split(split_char)
 
 
-def read_struct(fstream):
+def read_struct(fstream: tp.IO[str]) -> tp.Optional[tp.Dict[str, tp.List[str]]]:
     """
     Read a likwid struct from the text stream.
 
@@ -33,7 +34,7 @@ def read_struct(fstream):
     line = fstream.readline().strip()
     fragments = line.split(",")
     fragments = [x for x in fragments if x is not None]
-    partition = dict()
+    partition = {}
     if not len(fragments) >= 3:
         return None
 
@@ -51,7 +52,7 @@ def read_struct(fstream):
     return struct
 
 
-def read_table(fstream):
+def read_table(fstream: tp.IO[str]) -> tp.Optional[tp.Dict[str, tp.List[str]]]:
     """
     Read a likwid table info from the text stream.
 
@@ -65,7 +66,7 @@ def read_table(fstream):
     line = fstream.readline().strip()
     fragments = line.split(",")
     fragments = [x for x in fragments if x is not None]
-    partition = dict()
+    partition = {}
     if not len(fragments) >= 4:
         return None
 
@@ -90,7 +91,9 @@ def read_table(fstream):
     return struct
 
 
-def read_structs(fstream):
+def read_structs(
+    fstream: tp.IO[str]
+) -> tp.Generator[tp.Optional[tp.Dict[str, tp.List[str]]], None, None]:
     """
     Read all structs from likwid's file stream.
 
@@ -107,7 +110,9 @@ def read_structs(fstream):
         struct = read_struct(fstream)
 
 
-def read_tables(fstream):
+def read_tables(
+    fstream: tp.IO[str]
+) -> tp.Generator[tp.Optional[tp.Dict[str, tp.List[str]]], None, None]:
     """
     Read all tables from likwid's file stream.
 
@@ -123,7 +128,12 @@ def read_tables(fstream):
         table = read_table(fstream)
 
 
-def get_measurements(region, core_info, data, extra_offset=0):
+def get_measurements(
+    region: str,
+    core_info,
+    data,
+    extra_offset: int = 0
+) -> tp.List[tp.Tuple[str, str, str, str]]:
     """
     Get the complete measurement info from likwid's region info.
 
@@ -152,7 +162,7 @@ def get_measurements(region, core_info, data, extra_offset=0):
     return measurements
 
 
-def perfcounters(infile):
+def perfcounters(infile: str) -> tp.List[tp.Tuple[str, str, str, str]]:
     """
     Get a complete list of all measurements.
 
@@ -165,21 +175,25 @@ def perfcounters(infile):
     measurements = []
     with open(infile, 'r') as in_file:
         read_struct(in_file)
-        for region_struct in read_structs(in_file):
+        structs = [rs for rs in read_structs(in_file) if rs is not None]
+        for region_struct in structs:
             region = region_struct["1"][1]
             core_info = region_struct["Region Info"]
             measurements += \
                 get_measurements(region, core_info, region_struct)
 
-            for table_struct in read_tables(in_file):
-                core_info = None
+            tables = [ts for ts in read_tables(in_file) if ts is not None]
+            for table_struct in tables:
+                evt_core_info: tp.Optional[tp.List[str]] = None
                 if "Event" in table_struct:
                     offset = 1
-                    core_info = table_struct["Event"][offset:]
-                    measurements += get_measurements(region, core_info,
-                                                     table_struct, offset)
+                    evt_core_info = table_struct["Event"][offset:]
+                    measurements += get_measurements(
+                        region, evt_core_info, table_struct, offset
+                    )
                 elif "Metric" in table_struct:
-                    core_info = table_struct["Metric"]
-                    measurements += get_measurements(region, core_info,
-                                                     table_struct)
+                    evt_core_info = table_struct["Metric"]
+                    measurements += get_measurements(
+                        region, evt_core_info, table_struct
+                    )
     return measurements

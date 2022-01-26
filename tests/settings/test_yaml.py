@@ -39,7 +39,7 @@ class TestUUID(unittest.TestCase):
         uuid_in = {'test': uuid.UUID(TEST_UUID)}
 
         yaml.add_representer(uuid.UUID, uuid_representer, Dumper=FakeDumper)
-        uuid_add_implicit_resolver(loader=FakeLoader, dumper=FakeDumper)
+        uuid_add_implicit_resolver(loader_cls=FakeLoader, dumper_cls=FakeDumper)
 
         self.assertEqual(
             yaml.dump(uuid_in, Dumper=FakeDumper),

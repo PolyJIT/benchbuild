@@ -12,6 +12,8 @@ TODO
 ```python
 ```
 """
+from __future__ import annotations
+
 import enum
 import functools as ft
 import itertools
@@ -65,7 +67,7 @@ def step_has_failed(step_results, error_status=None):
 
 def to_step_result(
     func: DecoratedFunction[StepResultVariants]
-) -> StepResultList:
+) -> tp.Callable[..., StepResultList]:
     """Convert a function return to a list of StepResults.
 
     All Step subclasses automatically wrap the result of their
@@ -81,7 +83,7 @@ def to_step_result(
     """
 
     @ft.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> StepResultList:
         """Wrapper stub."""
         res = func(*args, **kwargs)
         if not res:
@@ -98,11 +100,11 @@ def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
     """Prepends the output of `func` with the status."""
 
     @tp.overload
-    def wrapper(self: 'Step', indent: int) -> str:
+    def wrapper(self: Step, indent: int) -> str:
         ...
 
     @tp.overload
-    def wrapper(self: 'Step') -> str:
+    def wrapper(self: Step) -> str:
         ...
 
     @ft.wraps(func)
@@ -110,7 +112,7 @@ def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
         """Wrapper stub."""
         res = func(self, *args, **kwargs)
         if self.status is not StepResult.UNSET:
-            res = "[{status}]".format(status=self.status.name) + res
+            res = f'[{self.status.name}] {res}'
         return res
 
     return wrapper
@@ -123,7 +125,7 @@ def notify_step_begin_end(
 
     @ft.wraps(func)
     def wrapper(
-        self: 'Step', *args: tp.Any, **kwargs: tp.Any
+        self: Step, *args: tp.Any, **kwargs: tp.Any
     ) -> StepResultVariants:
         """Wrapper stub."""
         cls = self.__class__
@@ -172,7 +174,7 @@ class StepClass(type):
     """Decorate `steps` with logging and result conversion."""
 
     def __new__(
-        mcs: tp.Type['StepClass'], name: str, bases: tp.Tuple[type, ...],
+        mcs: tp.Type[StepClass], name: str, bases: tp.Tuple[type, ...],
         attrs: tp.Dict[str, tp.Any]
     ) -> tp.Any:
         if not 'NAME' in attrs:
@@ -231,8 +233,9 @@ class Step(metaclass=StepClass):
     NAME: tp.ClassVar[str] = ""
     DESCRIPTION: tp.ClassVar[str] = ""
 
-    ON_STEP_BEGIN = []
-    ON_STEP_END = []
+    ON_STEP_BEGIN: tp.List[tp.Callable[[Step], None]] = []
+    ON_STEP_END: tp.List[tp.Callable[[Step, tp.Callable[[Step], None]],
+                                     None]] = []
 
     obj = attr.ib(default=None, repr=False)
     action_fn = attr.ib(default=None, repr=False)
@@ -257,8 +260,7 @@ class Step(metaclass=StepClass):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {name}: Execute configured action.".format(name=self.obj.name),
-            indent * " "
+            f'* {self.obj.name}: Execute configured action.', indent * " "
         )
 
     def onerror(self):
@@ -314,9 +316,8 @@ class Clean(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Clean the directory: {1}".format(
-                self.obj.name, self.obj.builddir
-            ), indent * " "
+            f'* {self.obj.name}: Clean the directory: {self.obj.builddir}',
+            indent * " "
         )
 
 
@@ -335,8 +336,7 @@ class MakeBuildDir(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Create the build directory".format(self.obj.name),
-            indent * " "
+            f'* {self.obj.name}: Create the build directory', indent * " "
         )
 
 
@@ -348,9 +348,7 @@ class Compile(Step):
         super().__init__(obj=project, action_fn=project.compile)
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent(
-            "* {0}: Compile".format(self.obj.name), indent * " "
-        )
+        return textwrap.indent(f'* {self.obj.name}: Compile', indent * " ")
 
 
 @attr.s
@@ -383,8 +381,7 @@ class Run(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Execute run-time tests.".format(self.project.name),
-            indent * " "
+            f'* {self.project.name}: Execute run-time tests.', indent * " "
         )
 
 
@@ -396,7 +393,7 @@ class Echo(Step):
     message = attr.ib(default="")
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent("* echo: {0}".format(self.message), indent * " ")
+        return textwrap.indent(f'* echo: {self.message}', indent * " ")
 
     @notify_step_begin_end
     def __call__(self) -> StepResultVariants:
@@ -419,9 +416,11 @@ class Any(Step):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    actions = attr.ib(default=attr.Factory(list), repr=False, eq=False)
+    actions: tp.List[Step] = attr.ib(
+        default=attr.Factory(list), repr=False, eq=False
+    )
 
-    def __len__(self) -> int:
+    def __len__(self):
         return sum([len(x) for x in self.actions]) + 1
 
     def __iter__(self):
@@ -446,8 +445,10 @@ class Any(Step):
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
-        return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
+        sub_actns_str = "\n".join(sub_actns)
+        return textwrap.indent(
+            "* Execute all of:\n" + sub_actns_str, indent * " "
+        )
 
 
 @attr.s(eq=False, hash=True)
@@ -460,9 +461,9 @@ class Experiment(Any):
             return
 
         self.actions = \
-            [Echo(message="Start experiment: {0}".format(self.obj.name))] + \
+            [Echo(message=f'Start experiment: {self.obj.name}')] + \
             self.actions + \
-            [Echo(message="Completed experiment: {0}".format(self.obj.name))]
+            [Echo(message=f'Completed experiment: {self.obj.name}')]
 
     def begin_transaction(self):
         experiment, session = db.persist_experiment(self.obj)
@@ -510,7 +511,8 @@ class Experiment(Any):
             LOG.info("Experiment aborting by user request")
             results.append(StepResult.ERROR)
         except Exception:
-            LOG.error("Experiment terminates " "because we got an exception:")
+            LOG.error("Experiment terminates "
+                      "because we got an exception:")
             e_type, e_value, e_traceb = sys.exc_info()
             lines = traceback.format_exception(e_type, e_value, e_traceb)
             LOG.error("".join(lines))
@@ -532,10 +534,9 @@ class Experiment(Any):
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
+        sub_actns_str = "\n".join(sub_actns)
         return textwrap.indent(
-            "\nExperiment: {0}\n".format(self.obj.name) + sub_actns,
-            indent * " "
+            f'\nExperiment: {self.obj.name}\n' + sub_actns_str, indent * " "
         )
 
 
@@ -544,9 +545,9 @@ class RequireAll(Step):
     NAME = "REQUIRE ALL"
     DESCRIPTION = "All child steps need to succeed"
 
-    actions = attr.ib(default=attr.Factory(list))
+    actions: tp.List[Step] = attr.ib(default=attr.Factory(list))
 
-    def __len__(self):
+    def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
 
     def __iter__(self):
@@ -593,8 +594,10 @@ class RequireAll(Step):
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
-        return textwrap.indent("* All required:\n" + sub_actns, indent * " ")
+        sub_actns_str = "\n".join(sub_actns)
+        return textwrap.indent(
+            "* All required:\n" + sub_actns_str, indent * " "
+        )
 
 
 @attr.s
@@ -657,9 +660,7 @@ class CleanExtra(Step):
         lines = []
         for p in paths:
             lines.append(
-                textwrap.indent(
-                    "* Clean the directory: {0}".format(p), indent * " "
-                )
+                textwrap.indent(f'* Clean the directory: {p}', indent * " ")
             )
         return "\n".join(lines)
 
@@ -681,10 +682,9 @@ class ProjectEnvironment(Step):
     def __str__(self, indent: int = 0) -> str:
         project = self.obj
         variant = project.variant
-        version_str = source.to_str(tuple(variant.values()))
+        version_str = source.to_str(*tuple(variant.values()))
 
         return textwrap.indent(
-            "* Project environment for: {} @ {}".format(
-                project.name, version_str
-            ), indent * " "
+            f'* Project environment for: {project.name} @ {version_str}',
+            indent * " "
         )

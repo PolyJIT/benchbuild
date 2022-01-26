@@ -52,4 +52,5 @@ class LibAV(bb.Project):
                 "--samples=" + self.fate_dir
             )
             _make("clean")
-            _make("-j{0}".format(str(get_number_of_jobs(CFG))), "all")
+            num_jobs = str(get_number_of_jobs(CFG))
+            _make(f'-j{num_jobs}', "all")

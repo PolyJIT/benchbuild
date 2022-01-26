@@ -51,8 +51,8 @@ class SQLite3(bb.Project):
         leveldb_repo = local.path(self.source_of('leveldb.src'))
 
         # We need to place sqlite3 in front of all other flags.
-        self.ldflags += ["-L{0}".format(sqlite_dir)]
-        self.cflags += ["-I{0}".format(sqlite_dir)]
+        self.ldflags += [f'-L{sqlite_dir}']
+        self.cflags += [f'-I{sqlite_dir}']
         clang_cxx = bb.compiler.cxx(self)
         clang = bb.compiler.cc(self)
 

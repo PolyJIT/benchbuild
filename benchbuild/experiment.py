@@ -24,6 +24,8 @@ class HelloExperiment(Experiment):
 ```
 
 """
+from __future__ import annotations
+
 import copy
 import typing as tp
 import uuid
@@ -48,7 +50,7 @@ Projects = tp.List[ProjectT]
 class ExperimentRegistry(type):
     """Registry for benchbuild experiments."""
 
-    experiments = {}
+    experiments: ExperimentIndex = {}
 
     def __new__(
         mcs: tp.Type[tp.Any], name: str, bases: tp.Tuple[type, ...],
@@ -100,14 +102,13 @@ class Experiment(metaclass=ExperimentRegistry):
         new_self = super(Experiment, cls).__new__(cls)
         if not cls.NAME:
             raise AttributeError(
-                "{0} @ {1} does not define a NAME class attribute.".format(
-                    cls.__name__, cls.__module__
-                )
+                f'{cls.__name__} @ {cls.__module__} does not define a NAME class attribute.'
             )
         return new_self
 
     name: str = attr.ib(
-        default=attr.Factory(lambda self: type(self).NAME, takes_self=True)
+        default=attr.
+        Factory(lambda self: str(type(self).NAME), takes_self=True)
     )
 
     projects: Projects = \
@@ -181,8 +182,7 @@ class Experiment(metaclass=ExperimentRegistry):
                     actns.Clean(p),
                     actns.MakeBuildDir(p),
                     actns.Echo(
-                        message="Selected {0} with version {1}".
-                        format(p.name, version_str)
+                        message=f'Selected {p.name} with version {version_str}'
                     ),
                     actns.ProjectEnvironment(p),
                 ]

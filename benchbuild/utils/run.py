@@ -1,9 +1,11 @@
 """Experiment helpers."""
+from __future__ import annotations
+
 import datetime
 import functools
 import logging
 import sys
-import typing as t
+import typing as tp
 from contextlib import contextmanager
 
 import attr
@@ -18,12 +20,17 @@ if sys.version_info <= (3, 8):
 else:
     from typing import Protocol
 
-CommandResult = t.Tuple[int, str, str]
+if tp.TYPE_CHECKING:
+    import uuid
+
+    from benchbuild.utils import db, schema
+
+CommandResult = tp.Tuple[int, str, str]
 
 
 class WatchableCommand(Protocol):
 
-    def __call__(self, *args: t.Any, **kwargs: t.Any) -> CommandResult:
+    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> CommandResult:
         ...
 
 
@@ -52,7 +59,9 @@ class RunInfo:
         session ():
     """
 
-    def __begin(self, command: BaseCommand, project, experiment, group):
+    def __begin(
+        self, command: BaseCommand, project, experiment, group: uuid.UUID
+    ) -> None:
         """
         Begin a run in the database log.
 
@@ -82,7 +91,7 @@ class RunInfo:
         self.db_run = db_run
         self.session = session
 
-    def __end(self, stdout, stderr):
+    def __end(self, stdout: str, stderr: str) -> None:
         """
         End a run in the database log (Successfully).
 
@@ -95,6 +104,9 @@ class RunInfo:
             stdout: The stdout we captured of the run.
             stderr: The stderr we capture of the run.
         """
+        # FIXME: This needs a separate PR. Remove attrs from this module.
+        assert self.session is not None
+
         from benchbuild.utils.schema import RunLog
 
         run_id = self.db_run.id
@@ -107,10 +119,11 @@ class RunInfo:
 
         self.db_run.end = datetime.datetime.now()
         self.db_run.status = 'completed'
+
         self.session.add(log)
         self.session.add(self.db_run)
 
-    def __fail(self, retcode, stdout, stderr):
+    def __fail(self, retcode: int, stdout: str, stderr: str) -> None:
         """
         End a run in the database log (Unsuccessfully).
 
@@ -124,6 +137,10 @@ class RunInfo:
             stdout: The stdout we captured of the run.
             stderr: The stderr we capture of the run.
         """
+
+        # FIXME: This needs a separate PR. Remove attrs from this module.
+        assert self.session is not None
+
         from benchbuild.utils.schema import RunLog
         run_id = self.db_run.id
 
@@ -139,19 +156,21 @@ class RunInfo:
         self.session.add(log)
         self.session.add(self.db_run)
 
-    cmd = attr.ib(default=None, repr=False)
-    failed = attr.ib(default=False)
+    cmd: tp.Optional[BaseCommand] = attr.ib(default=None, repr=False)
+    failed: bool = attr.ib(default=False)
     project = attr.ib(default=None, repr=False)
     experiment = attr.ib(default=None, repr=False)
-    retcode = attr.ib(default=0)
-    stdout = attr.ib(default=attr.Factory(list), repr=False)
-    stderr = attr.ib(default=attr.Factory(list), repr=False)
+    retcode: int = attr.ib(default=0)
+    stdout: str = attr.ib(default=attr.Factory(str), repr=False)
+    stderr: str = attr.ib(default=attr.Factory(str), repr=False)
 
     db_run = attr.ib(init=False, default=None)
-    session = attr.ib(init=False, default=None, repr=False)
-    payload = attr.ib(init=False, default=None, repr=False)
+    session: tp.Optional[schema.CanCommit
+                        ] = attr.ib(init=False, default=None, repr=False)
+    payload: tp.Optional[tp.Dict[str, tp.Any]
+                        ] = attr.ib(init=False, default=None, repr=False)
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         self.__begin(
             self.cmd, self.project, self.experiment, self.project.run_uuid
         )
@@ -160,20 +179,18 @@ class RunInfo:
         run_id = self.db_run.id
         settings.CFG["db"]["run_id"] = run_id
 
-    def add_payload(self, name, payload):
-        if self == payload:
-            return
+    def add_payload(self, name: str, payload: tp.Dict[str, tp.Any]) -> None:
         if not self.payload:
             self.payload = {name: payload}
         else:
             self.payload.update({name: payload})
 
     @property
-    def has_failed(self):
+    def has_failed(self) -> bool:
         """Check, whether this run failed."""
         return self.failed
 
-    def __call__(self, *args, expected_retcode=0, ri=None, **kwargs):
+    def __call__(self, expected_retcode: int = 0) -> RunInfo:
         cmd_env = settings.CFG.to_env_dict()
 
         with local.env(**cmd_env):
@@ -213,11 +230,15 @@ class RunInfo:
 
         return self
 
-    def commit(self):
+    def commit(self) -> None:
+        # FIXME: This needs a separate PR. Remove attrs from this module.
+        assert self.session is not None
+
         self.session.commit()
 
 
-def begin_run_group(project, experiment):
+def begin_run_group(project,
+                    experiment) -> tp.Tuple[schema.RunGroup, schema.CanCommit]:
     """
     Begin a run_group in the database.
 
@@ -241,7 +262,7 @@ def begin_run_group(project, experiment):
     return group, session
 
 
-def end_run_group(group, session):
+def end_run_group(group: schema.RunGroup, session: schema.CanCommit) -> None:
     """
     End the run_group successfully.
 
@@ -254,7 +275,7 @@ def end_run_group(group, session):
     session.commit()
 
 
-def fail_run_group(group, session):
+def fail_run_group(group: schema.RunGroup, session: schema.CanCommit) -> None:
     """
     End the run_group unsuccessfully.
 
@@ -267,21 +288,23 @@ def fail_run_group(group, session):
     session.commit()
 
 
-def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
+def exit_code_from_run_infos(
+    run_infos: tp.Union[RunInfo, tp.List[RunInfo]]
+) -> int:
     """Generate a single exit code from a list of RunInfo objects.
 
     Takes a list of RunInfos and returns the exit code that is furthest away
     from 0.
 
     Args:
-        run_infos (t.List[RunInfo]): [description]
+        run_infos (tp.List[RunInfo]): [description]
 
     Returns:
         int: [description]
     """
     assert run_infos is not None
 
-    if not hasattr(run_infos, "__iter__"):
+    if isinstance(run_infos, RunInfo):
         return run_infos.retcode
 
     rcs = [ri.retcode for ri in run_infos]
@@ -293,7 +316,8 @@ def exit_code_from_run_infos(run_infos: t.List[RunInfo]) -> int:
 
 
 @contextmanager
-def track_execution(cmd, project, experiment, **kwargs):
+def track_execution(cmd: BaseCommand, project, experiment,
+                    **kwargs: tp.Any) -> tp.Generator[RunInfo, None, None]:
     """Guard the execution of the given command.
 
     The given command (`cmd`) will be executed inside a database context.
@@ -323,10 +347,10 @@ def watch(command: BaseCommand) -> WatchableCommand:
         command: The plumbumb command to execute.
     """
 
-    def f(*args: t.Any, retcode: int = 0, **kwargs: t.Any) -> CommandResult:
+    def f(*args: tp.Any, retcode: int = 0, **kwargs: tp.Any) -> CommandResult:
         final_command = command[args]
         buffered = not bool(CFG['force_watch_unbuffered'])
-        return t.cast(
+        return tp.cast(
             CommandResult,
             final_command.run_tee(retcode=retcode, buffered=buffered, **kwargs)
         )
@@ -354,7 +378,11 @@ def with_env_recursive(cmd: BaseCommand, **envvars: str) -> BaseCommand:
     return cmd
 
 
-def in_builddir(sub: str = '.'):
+class HasBuilddir(Protocol):
+    builddir: local.path
+
+
+def in_builddir(sub: str = '.') -> tp.Callable[..., tp.Any]:
     """
     Decorate a project phase with a local working directory change.
 
@@ -362,11 +390,15 @@ def in_builddir(sub: str = '.'):
         sub: An optional subdirectory to change into.
     """
 
-    def wrap_in_builddir(func):
+    def wrap_in_builddir(
+        func: tp.Callable[..., tp.Any]
+    ) -> tp.Callable[..., tp.Any]:
         """Wrap the function for the new build directory."""
 
         @functools.wraps(func)
-        def wrap_in_builddir_func(self, *args, **kwargs):
+        def wrap_in_builddir_func(
+            self: HasBuilddir, *args: tp.Any, **kwargs: tp.Any
+        ) -> tp.Any:
             """The actual function inside the wrapper for the new builddir."""
             p = local.path(self.builddir) / sub
             if not p.exists():
@@ -383,11 +415,13 @@ def in_builddir(sub: str = '.'):
     return wrap_in_builddir
 
 
-def store_config(func):
+def store_config(func: tp.Callable[..., tp.Any]) -> tp.Callable[..., tp.Any]:
     """Decorator for storing the configuration in the project's builddir."""
 
     @functools.wraps(func)
-    def wrap_store_config(self, *args, **kwargs):
+    def wrap_store_config(
+        self: HasBuilddir, *args: tp.Any, **kwargs: tp.Any
+    ) -> tp.Any:
         """Wrapper that contains the actual storage call for the config."""
         CFG.store(local.path(self.builddir) / ".benchbuild.yml")
         return func(self, *args, **kwargs)

@@ -52,7 +52,7 @@ def normalize_remotes(remote: VarRemotes) -> Remotes:
 
 
 def versioned_target_name(target_name: str, version: str) -> str:
-    return "{}-{}".format(version, target_name)
+    return f'{version}-{target_name}'
 
 
 def download_single_version(url: str, target_path: str) -> str:

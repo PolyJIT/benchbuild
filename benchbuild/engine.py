@@ -43,5 +43,5 @@ class Experimentator:
 
     def print_plan(self) -> None:
         p = self.plan()
-        print("Number of actions to execute: {}".format(self.num_actions))
+        print(f'Number of actions to execute: {self.num_actions}')
         print(*p)

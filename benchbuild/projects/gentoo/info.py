@@ -40,7 +40,7 @@ class Info(ap.AutoPortage):
             for line in output.split('\n'):
                 if "ebuild" in line:
                     parts = line.split('.ebuild')[0].split('/')
-                    package_atom = '{0}/{1}'.format(parts[0], parts[1])
+                    package_atom = f'{parts[0]}/{parts[1]}'
                     ebuilds.add(package_atom)
 
         for use in use_flags:

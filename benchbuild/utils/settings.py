@@ -9,7 +9,10 @@ Inner nodes in the dictionary tree can be any dictionary.
 A leaf node in the dictionary tree is represented by an inner node that
 contains a value key.
 """
+from __future__ import annotations
+
 import copy
+import io
 import logging
 import os
 import re
@@ -102,7 +105,7 @@ def current_available_threads() -> int:
     return len(os.sched_getaffinity(0))
 
 
-def get_number_of_jobs(config: 'Configuration') -> int:
+def get_number_of_jobs(config: Configuration | tp.Dict[str, tp.Any]) -> int:
     """Returns the number of jobs set in the config."""
     jobs_configured = int(config["jobs"])
     if jobs_configured == 0:
@@ -152,8 +155,10 @@ class ConfigDumper(yaml.SafeDumper):
 
 def to_yaml(value: tp.Any) -> tp.Optional[str]:
     """Convert a given value to a YAML string."""
-    stream = yaml.io.StringIO()
-    dumper = ConfigDumper(stream, default_flow_style=True, width=sys.maxsize)
+    stream = io.StringIO()
+    dumper = ConfigDumper(
+        tp.cast(tp.IO, stream), default_flow_style=True, width=sys.maxsize
+    )
     val = None
     try:
         dumper.open()
@@ -234,7 +239,7 @@ class Configuration(Indexable):
         self,
         parent_key: str,
         node: tp.Optional[InnerNode] = None,
-        parent: tp.Optional['Configuration'] = None,
+        parent: tp.Optional[Configuration] = None,
         init: bool = True
     ):
         self.parent = parent
@@ -279,7 +284,7 @@ class Configuration(Indexable):
         """Load the configuration dictionary from file."""
 
         def load_rec(
-            inode: tp.Dict[str, tp.Any], config: Configuration
+            inode: tp.MutableMapping[str, tp.Any], config: Configuration
         ) -> None:
             """Recursive part of loading."""
             for k in config:
@@ -351,10 +356,10 @@ class Configuration(Indexable):
             return validate(self.node['value'])
         return self
 
-    def __getitem__(self, key: str) -> 'Configuration':
+    def __getitem__(self, key: str) -> Configuration:
         if key not in self.node:
             warnings.warn(
-                "Access to non-existing config element: {0}".format(key),
+                f'Access to non-existing config element: {key}',
                 category=InvalidConfigKey,
                 stacklevel=2
             )
@@ -368,6 +373,9 @@ class Configuration(Indexable):
             self.node[key]['value'] = val
         else:
             self.node[key] = {'value': val}
+
+    def __iter__(self) -> tp.Iterator[str]:
+        return iter(self.node)
 
     def __iadd__(self, rhs: tp.Any) -> tp.Any:
         """Append a value to a list value."""
@@ -455,7 +463,7 @@ def convert_components(value: tp.Union[str, tp.List[str]]) -> tp.List[str]:
 @attr.s(str=False, frozen=True)
 class ConfigPath:
     """Wrapper around paths represented as list of strings."""
-    components = attr.ib(converter=convert_components)
+    components: tp.List[str] = attr.ib(converter=convert_components)
 
     def validate(self) -> None:
         """Make sure this configuration path exists."""
@@ -485,19 +493,23 @@ class ConfigPath:
         return ConfigPath.path_to_str(self.components)
 
 
-def path_representer(dumper, data):
+def path_representer(
+    dumper: yaml.SafeDumper, data: ConfigPath
+) -> yaml.ScalarNode:
     """
     Represent a ConfigPath object as a scalar YAML node.
     """
-    return dumper.represent_scalar('!create-if-needed', '%s' % data)
+    return dumper.represent_scalar('!create-if-needed', str(data))
 
 
-def path_constructor(loader, node):
+def path_constructor(loader: yaml.SafeLoader, node: yaml.Node) -> ConfigPath:
     """"
     Construct a ConfigPath object form a scalar YAML node.
     """
+    assert isinstance(node, yaml.ScalarNode)
+
     value = loader.construct_scalar(node)
-    return ConfigPath(value)
+    return ConfigPath(str(value))
 
 
 def find_config(
@@ -628,24 +640,32 @@ def upgrade(cfg: Configuration) -> None:
                 name=cfg["db"]["name"]["value"])
 
 
-def uuid_representer(dumper, data):
+def uuid_representer(
+    dumper: yaml.SafeDumper, data: uuid.UUID
+) -> yaml.ScalarNode:
     """Represent a uuid.UUID object as a scalar YAML node."""
 
-    return dumper.represent_scalar('!uuid', '%s' % data)
+    return dumper.represent_scalar('!uuid', str(data))
 
 
-def uuid_constructor(loader, node):
+def uuid_constructor(loader: yaml.SafeLoader, node: yaml.Node) -> uuid.UUID:
     """"Construct a uuid.UUID object form a scalar YAML node."""
+    assert isinstance(node, yaml.ScalarNode)
 
     value = loader.construct_scalar(node)
-    return uuid.UUID(value)
+    return uuid.UUID(str(value))
 
 
-def uuid_add_implicit_resolver(loader=ConfigLoader, dumper=ConfigDumper):
+def uuid_add_implicit_resolver(
+    loader_cls: tp.Type[ConfigLoader] = ConfigLoader,
+    dumper_cls: tp.Type[ConfigDumper] = ConfigDumper
+) -> None:
     """Attach an implicit pattern resolver for UUID objects."""
     uuid_regex = r'^\b[a-f0-9]{8}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{4}-\b[a-f0-9]{12}$'
     pattern = re.compile(uuid_regex)
-    yaml.add_implicit_resolver('!uuid', pattern, Loader=loader, Dumper=dumper)
+    yaml.add_implicit_resolver(
+        '!uuid', pattern, Loader=loader_cls, Dumper=dumper_cls
+    )
 
 
 def __init_module__() -> None:

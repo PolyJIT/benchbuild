@@ -36,7 +36,7 @@ class GentooGroup(bb.Project):
     SRC_FILE = None
     CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
-    emerge_env: tp.Dict[str, tp.Any] = attr.ib(
+    emerge_env: tp.MutableMapping[str, tp.Any] = attr.ib(
         default=attr.Factory(dict), repr=False, eq=False, order=False
     )
 
@@ -53,16 +53,14 @@ class GentooGroup(bb.Project):
         benchbuild = find_benchbuild()
         _benchbuild = run.watch(benchbuild)
         with local.env(BB_VERBOSITY=str(CFG['verbosity'])):
-            project_id = "{0}/{1}".format(self.name, self.group)
+            project_id = f'{self.name}/{self.group}'
             _benchbuild("run", "-E", self.experiment.name, project_id)
 
     def compile(self) -> None:
-        package_atom = "{domain}/{name}".format(
-            domain=self.domain, name=self.name
-        )
+        package_atom = f'{self.domain}/{self.name}'
 
         LOG.debug('Installing dependencies.')
-        emerge(package_atom, '--onlydeps', env=self.emerge_env)
+        emerge(package_atom, '--onlydeps', **self.emerge_env)
         c_compiler = local.path(str(compiler.cc(self)))
         cxx_compiler = local.path(str(compiler.cxx(self)))
 
@@ -71,7 +69,7 @@ class GentooGroup(bb.Project):
         ln('-sf', str(cxx_compiler), local.path('/') / cxx_compiler.basename)
 
         LOG.debug('Installing %s.', package_atom)
-        emerge(package_atom, env=self.emerge_env)
+        emerge(package_atom, **self.emerge_env)
 
     def configure_benchbuild(self, cfg: Configuration) -> None:
         config_file = local.path("/.benchbuild.yml")
@@ -178,17 +176,17 @@ PKGDIR="${PORTDIR}/packages"
         CFG["container"]["mounts"] = mounts
 
         if http_proxy is not None:
-            http_s = "http_proxy={0}".format(http_proxy)
-            https_s = "https_proxy={0}".format(http_proxy)
+            http_s = f'http_proxy={http_proxy}'
+            https_s = f'https_proxy={http_proxy}'
             makeconf.write(http_s + "\n")
             makeconf.write(https_s + "\n")
 
         if ftp_proxy is not None:
-            fp_s = "ftp_proxy={0}".format(ftp_proxy)
+            fp_s = f'ftp_proxy={ftp_proxy}'
             makeconf.write(fp_s + "\n")
 
         if rsync_proxy is not None:
-            rp_s = "RSYNC_PROXY={0}".format(rsync_proxy)
+            rp_s = f'RSYNC_PROXY={rsync_proxy}'
             makeconf.write(rp_s + "\n")
 
 
@@ -211,10 +209,12 @@ def write_bashrc(_path: str) -> None:
     libs = libs + p_libs
 
     with open(_path, 'w') as bashrc:
-        lines = '''
-export PATH="{0}:${{PATH}}"
-export LD_LIBRARY_PATH="{1}:${{LD_LIBRARY_PATH}}"
-'''.format(path.list_to_path(paths), path.list_to_path(libs))
+        path_var = path.list_to_path(paths)
+        lib_path_var = path.list_to_path(libs)
+        lines = f'''
+export PATH="{path_var}:${{PATH}}"
+export LD_LIBRARY_PATH="{lib_path_var}:${{LD_LIBRARY_PATH}}"
+'''
 
         bashrc.write(lines)
 
@@ -247,14 +247,14 @@ def write_wgetrc(_path: str) -> None:
     uchroot.mkfile_uchroot("/etc/wgetrc")
     with open(_path, 'w') as wgetrc:
         if http_proxy is not None:
-            http_s = "http_proxy = {0}".format(http_proxy)
-            https_s = "https_proxy = {0}".format(http_proxy)
+            http_s = f'http_proxy = {http_proxy}'
+            https_s = f'https_proxy = {http_proxy}'
             wgetrc.write("use_proxy = on\n")
             wgetrc.write(http_s + "\n")
             wgetrc.write(https_s + "\n")
 
         if ftp_proxy is not None:
-            fp_s = "ftp_proxy={0}".format(ftp_proxy)
+            fp_s = f'ftp_proxy={ftp_proxy}'
             wgetrc.write(fp_s + "\n")
 
 

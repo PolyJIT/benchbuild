@@ -27,10 +27,12 @@ class BOTSGroup(bb.Project):
     DOMAIN = 'bots'
     GROUP = 'bots'
     SOURCE = [
-        Git(remote='https://github.com/bsc-pm/bots',
+        Git(
+            remote='https://github.com/bsc-pm/bots',
             local='bots.git',
             limit=5,
-            refspec='HEAD')
+            refspec='HEAD'
+        )
     ]
 
     path_dict = {
@@ -96,7 +98,7 @@ class BOTSGroup(bb.Project):
             _make("-C", self.path_dict[self.name])
 
     def run_tests(self):
-        binary_name = "{name}.benchbuild.serial".format(name=self.name)
+        binary_name = f'{self.name}.benchbuild.serial'
         bots_repo = local.path(self.source_of('bots.git'))
         binary_path = bots_repo / "bin" / binary_name
         exp = bb.wrap(binary_path, self)

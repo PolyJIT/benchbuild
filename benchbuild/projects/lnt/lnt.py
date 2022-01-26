@@ -20,16 +20,20 @@ class LNTGroup(bb.Project):
         r'(?P<name>.+)\.simple',
         r'(?P<name>.+)-(dbl|flt)',
     ]
-    SUBDIR = None
+    SUBDIR = ''
     SOURCE = [
-        Git(remote='http://llvm.org/git/lnt',
+        Git(
+            remote='http://llvm.org/git/lnt',
             local='lnt.git',
             refspec='HEAD',
-            limit=5),
-        Git(remote='http://llvm.org/git/test-suite',
+            limit=5
+        ),
+        Git(
+            remote='http://llvm.org/git/test-suite',
             local='test-suite',
             refspec='HEAD',
-            limit=5)
+            limit=5
+        )
     ]
 
     # Will be set by configure.
@@ -49,8 +53,10 @@ class LNTGroup(bb.Project):
         pip = local[pip_path]
 
         with local.cwd(lnt_repo):
-            pip("install", "--no-cache-dir", "--disable-pip-version-check",
-                "-e", ".")
+            pip(
+                "install", "--no-cache-dir", "--disable-pip-version-check",
+                "-e", "."
+            )
 
         self.sandbox_dir = local.cwd / "run"
         if self.sandbox_dir.exists():
@@ -62,11 +68,12 @@ class LNTGroup(bb.Project):
         self.clang_cxx = bb.compiler.cxx(self, detect_project=True)
 
         _runtest = bb.watch(self.lnt)
-        _runtest("runtest", "test-suite", "-v", "-j1", "--sandbox",
-                 self.sandbox_dir, "--benchmarking-only",
-                 "--only-compile", "--cc", str(self.clang), "--cxx",
-                 str(self.clang_cxx), "--test-suite", test_suite_source,
-                 "--only-test=" + self.SUBDIR)
+        _runtest(
+            "runtest", "test-suite", "-v", "-j1", "--sandbox",
+            self.sandbox_dir, "--benchmarking-only", "--only-compile", "--cc",
+            str(self.clang), "--cxx", str(self.clang_cxx), "--test-suite",
+            test_suite_source, "--only-test=" + self.SUBDIR
+        )
 
     @staticmethod
     def after_run_tests(sandbox_dir):
@@ -77,17 +84,18 @@ class LNTGroup(bb.Project):
 
     def run_tests(self):
         test_suite_source = local.path(self.source_of('test-suite'))
-        binary = bb.wrapping.wrap_dynamic(self,
-                                          "lnt_runner",
-                                          name_filters=LNTGroup.NAME_FILTERS)
+        binary = bb.wrapping.wrap_dynamic(
+            self, "lnt_runner", name_filters=LNTGroup.NAME_FILTERS
+        )
 
         _runtest = bb.watch(self.lnt)
-        _runtest("runtest", "nt", "-v", "-j1", "--sandbox", self.sandbox_dir,
-                 "--benchmarking-only", "--cc", str(self.clang), "--cxx",
-                 str(self.clang_cxx), "--test-suite", test_suite_source,
-                 "--test-style", "simple", "--test-externals", self.builddir,
-                 "--make-param=RUNUNDER=" + str(binary),
-                 "--only-test=" + self.SUBDIR)
+        _runtest(
+            "runtest", "nt", "-v", "-j1", "--sandbox", self.sandbox_dir,
+            "--benchmarking-only", "--cc", str(self.clang), "--cxx",
+            str(self.clang_cxx), "--test-suite", test_suite_source,
+            "--test-style", "simple", "--test-externals", self.builddir,
+            "--make-param=RUNUNDER=" + str(binary), "--only-test=" + self.SUBDIR
+        )
 
         LNTGroup.after_run_tests(self.sandbox_dir)
 
@@ -120,8 +128,10 @@ class SPEC2006(LNTGroup):
             super(SPEC2006, self).compile()
         else:
             print('======================================================')
-            print(('SPECCPU2006 not found in %s. This project will fail.',
-                   CFG['tmp_dir']))
+            print((
+                'SPECCPU2006 not found in %s. This project will fail.',
+                CFG['tmp_dir']
+            ))
             print('======================================================')
 
 
@@ -130,16 +140,22 @@ class Povray(LNTGroup):
     DOMAIN = 'LNT (Ext)'
     SUBDIR = "External/Povray"
     SOURCE = [
-        Git(remote='http://llvm.org/git/lnt',
+        Git(
+            remote='http://llvm.org/git/lnt',
             local='lnt.git',
             refspec='HEAD',
-            limit=5),
-        Git(remote='http://llvm.org/git/test-suite',
+            limit=5
+        ),
+        Git(
+            remote='http://llvm.org/git/test-suite',
             local='test-suite',
             refspec='HEAD',
-            limit=5),
-        Git(remote='https://github.com/POV-Ray/povray',
+            limit=5
+        ),
+        Git(
+            remote='https://github.com/POV-Ray/povray',
             local='povray.git',
             refspec='HEAD',
-            limit=5)
+            limit=5
+        )
     ]

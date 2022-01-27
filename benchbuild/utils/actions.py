@@ -392,7 +392,7 @@ class Run(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Execute run-time tests.".format(self.obj.name), indent * " "
+            f'* {self.obj.name}: Execute run-time tests.', indent * ' '
         )
 
 
@@ -405,7 +405,7 @@ class Echo(Step):
         self.message = message
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent("* echo: {0}".format(self.message), indent * " ")
+        return textwrap.indent(f'* echo: {self.message}', indent * ' ')
 
     @notify_step_begin_end
     def __call__(self) -> StepResultVariants:
@@ -423,13 +423,16 @@ def run_any_child(child: Step) -> tp.List[StepResult]:
     return child()
 
 
+DefaultList = tp.Optional[tp.List[Step]]
+
+
 class Any(Step):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    def __init__(self, experiment: tp.Any, actions: tp.List[Step] = []) -> None:
+    def __init__(self, experiment: tp.Any, actions: DefaultList) -> None:
         super().__init__(experiment, None, StepResult.UNSET)
-        self.actions = actions
+        self.actions = actions if actions else []
 
     def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
@@ -464,11 +467,11 @@ class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
 
-    def __init__(self, experiment: tp.Any, actions: tp.List[Step] = []) -> None:
-        _actions = \
-            [Echo(message="Start experiment: {0}".format(experiment.name))] + \
-            actions + \
-            [Echo(message="Completed experiment: {0}".format(experiment.name))]
+    def __init__(self, experiment: tp.Any, actions: DefaultList) -> None:
+        _actions: DefaultList = \
+            [Echo(message=f'Start experiment: {experiment.name}')] + \
+            actions if actions else [] + \
+            [Echo(message=f'Completed experiment: {experiment.name}')]
 
         super().__init__(experiment, _actions)
 
@@ -551,7 +554,7 @@ class RequireAll(Step):
     NAME = "REQUIRE ALL"
     DESCRIPTION = "All child steps need to succeed"
 
-    def __init__(self, actions: tp.List[Step] = []) -> None:
+    def __init__(self, actions: DefaultList) -> None:
         super().__init__(None, None, StepResult.UNSET)
 
         self.actions = actions if actions else []
@@ -655,9 +658,8 @@ class ProjectEnvironment(Step):
         version_str = source.to_str(tuple(variant.values()))
 
         return textwrap.indent(
-            "* Project environment for: {} @ {}".format(
-                project.name, version_str
-            ), indent * " "
+            f'* Project environment for: {project.name} @ {version_str}',
+            indent * ' '
         )
 
 
@@ -692,7 +694,6 @@ class SetProjectVersion(Step):
         version_str = source.to_str(tuple(self.variant.values()))
 
         return textwrap.indent(
-            '* Add project version {} for: {}'.format(
-                version_str, project.name
-            ), indent * ' '
+            f'* Add project version {version_str} for: {project.name}',
+            indent * ' '
         )

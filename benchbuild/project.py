@@ -111,16 +111,19 @@ class MultiVersioned:
     _active_variant: tp.Optional[VariantContext]
     _active_variants: tp.List[VariantContext]
 
+    variant: VariantContext
+
     def __init_subclass__(cls, *args, **kwargs):
         super().__init_subclass__(*args, **kwargs)
 
         cls._active_variant = None
-        cls._active_variants = list()
+        cls._active_variants = []
 
     @property
     def active_variant(self) -> VariantContext:
-        # FIXME: Requires object that has a variant attribute.
-        assert hasattr(self, 'variant')
+        assert hasattr(
+            self, 'variant'
+        ), 'Variant attribute missing from subclass.'
 
         if self._active_variant is None:
             self._active_variant = self.variant

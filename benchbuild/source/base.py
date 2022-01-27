@@ -330,20 +330,11 @@ def context_from_revisions(revs: tp.Sequence[RevisionStr],
     Returns:
         A variant context.
     """
-    found: tp.List[VariantContext] = []
+    found: tp.List[Variant] = []
     for source in sources:
         found.extend([
             variant for variant in source.versions() for rev in revs
             if variant.version == rev.value
         ])
 
-    ctx = context(*found)
-
-    assert len(revs) == len(
-        found
-    ), "Not all revision strings have been found in source versions."
-    assert len(revs) == len(
-        ctx
-    ), "Not all revision strings have been found in the same source."
-
-    return ctx
+    return context(*found)

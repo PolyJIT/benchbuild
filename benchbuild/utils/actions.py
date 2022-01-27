@@ -666,24 +666,19 @@ class SetProjectVersion(Step):
     DESCRIPTION = 'Checkout a project version'
 
     def __init__(
-        self,
-        project: tp.Any,
-        *revision_strings: source.base.RevisionStr,
-        variant: tp.Optional[source.VariantContext] = None
+        self, project: tp.Any, *revision_strings: source.base.RevisionStr
     ) -> None:
         super().__init__(project, None, StepResult.UNSET)
 
-        if variant is not None:
-            self.variant = variant
-        else:
-            self.variant = source.base.context_from_revisions(
-                revision_strings, *project.source
-            )
+        self.variant = source.base.context_from_revisions(
+            revision_strings, *project.source
+        )
 
     @notify_step_begin_end
     def __call__(self) -> None:
         project = self.obj
-        prj_vars = self.variant
+        prj_vars = project.active_variant
+        prj_vars.update(self.variant)
 
         for name, variant in prj_vars.items():
             LOG.info("Fetching %s @ %s", str(name), variant.version)

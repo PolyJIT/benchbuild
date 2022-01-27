@@ -121,6 +121,12 @@ class MultiVersioned:
 
     @property
     def active_variant(self) -> VariantContext:
+        """
+        Get the active variant.
+
+        Returns:
+            Active variant context.
+        """
         assert hasattr(
             self, 'variant'
         ), 'Variant attribute missing from subclass.'
@@ -142,7 +148,7 @@ class MultiVersioned:
 
 
 @attr.s
-class Project(MultiVersioned, metaclass=ProjectDecorator):
+class Project(MultiVersioned, metaclass=ProjectDecorator):  # pylint: disable=too-many-instance-attributes
     """Abstract class for benchbuild projects.
 
     A project is an arbitrary software system usable by benchbuild in

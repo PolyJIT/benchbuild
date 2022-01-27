@@ -20,7 +20,7 @@ NestedVariants = tp.Iterable[tp.Tuple[tp.Any, ...]]
 
 
 @attr.s(frozen=True, eq=True)
-class RevisionStr:
+class RevisionStr:  # pylint: disable=too-few-public-methods
     value: str = attr.ib()
 
 

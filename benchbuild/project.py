@@ -107,8 +107,48 @@ class ProjectDecorator(ProjectRegistry):
         super(ProjectDecorator, cls).__init__(name, bases, attrs)
 
 
+class MultiVersioned:
+    _active_variant: tp.Optional[VariantContext]
+    _active_variants: tp.List[VariantContext]
+
+    variant: VariantContext
+
+    def __init_subclass__(cls, *args, **kwargs):
+        super().__init_subclass__(*args, **kwargs)
+
+        cls._active_variant = None
+        cls._active_variants = []
+
+    @property
+    def active_variant(self) -> VariantContext:
+        """
+        Get the active variant.
+
+        Returns:
+            Active variant context.
+        """
+        assert hasattr(
+            self, 'variant'
+        ), 'Variant attribute missing from subclass.'
+
+        if self._active_variant is None:
+            self._active_variant = self.variant
+            self._active_variants.append(self.variant)
+
+        return self._active_variant
+
+    @active_variant.setter
+    def active_variant(self, variant: VariantContext) -> None:
+        self._active_variants.append(variant)
+        self._active_variant = variant
+
+    @property
+    def active_variants(self) -> tp.List[VariantContext]:
+        return self._active_variants
+
+
 @attr.s
-class Project(metaclass=ProjectDecorator):
+class Project(MultiVersioned, metaclass=ProjectDecorator):  # pylint: disable=too-many-instance-attributes
     """Abstract class for benchbuild projects.
 
     A project is an arbitrary software system usable by benchbuild in

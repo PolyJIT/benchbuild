@@ -23,7 +23,6 @@ import traceback
 import typing as tp
 from datetime import datetime
 
-import attr
 import pathos.multiprocessing as mp
 import sqlalchemy as sa
 from plumbum import ProcessExecutionError
@@ -217,7 +216,6 @@ class StepClass(type):
         return super().__new__(mcs, name, bases, attrs)
 
 
-@attr.s(eq=False)
 class Step(metaclass=StepClass):
     """Base class of a step.
 
@@ -234,9 +232,15 @@ class Step(metaclass=StepClass):
     ON_STEP_BEGIN = []
     ON_STEP_END = []
 
-    obj = attr.ib(default=None, repr=False)
-    action_fn = attr.ib(default=None, repr=False)
-    status = attr.ib(default=StepResult.UNSET)
+    def __init__(
+        self,
+        obj: tp.Any = None,
+        action_fn: tp.Callable[[], tp.Any] = None,
+        status: StepResult = StepResult.UNSET
+    ) -> None:
+        self.obj = obj
+        self.action_fn = action_fn
+        self.status = status
 
     def __len__(self) -> int:
         return 1
@@ -265,12 +269,13 @@ class Step(metaclass=StepClass):
         Clean(self.obj)()
 
 
-@attr.s
 class Clean(Step):
     NAME = "CLEAN"
     DESCRIPTION = "Cleans the build directory"
 
-    check_empty = attr.ib(default=False)
+    def __init__(self, obj: tp.Any = None, check_empty: bool = False) -> None:
+        super().__init__(obj, action_fn=None, status=StepResult.UNSET)
+        self.check_empty = check_empty
 
     @staticmethod
     def clean_mountpoints(root: str):
@@ -345,7 +350,7 @@ class Compile(Step):
     DESCRIPTION = "Compile the project"
 
     def __init__(self, project):
-        super().__init__(obj=project, action_fn=project.compile)
+        super().__init__(project, action_fn=project.compile)
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
@@ -353,21 +358,25 @@ class Compile(Step):
         )
 
 
-@attr.s
 class Run(Step):
     NAME = "RUN"
     DESCRIPTION = "Execute the run action"
 
-    #FIXME: This cannot be positional/mandatory because we subclass Step.
-    project = attr.ib(default=None)
-    experiment = attr.ib(default=None)
+    def __init__(
+        self,
+        project: tp.Any = None,  # benchbuild.project.Project
+        experiment: tp.Any = None,  # benchbuild.experiment.Experiment
+    ) -> None:
+        super().__init__(project, None, StepResult.UNSET)
+
+        self.experiment = experiment
 
     @notify_step_begin_end
     def __call__(self):
-        group, session = run.begin_run_group(self.project, self.experiment)
+        group, session = run.begin_run_group(self.obj, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
         try:
-            self.project.run_tests()
+            self.obj.run_tests()
             run.end_run_group(group, session)
         except ProcessExecutionError:
             run.fail_run_group(group, session)
@@ -383,20 +392,20 @@ class Run(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Execute run-time tests.".format(self.project.name),
-            indent * " "
+            f'* {self.obj.name}: Execute run-time tests.', indent * ' '
         )
 
 
-@attr.s
 class Echo(Step):
     NAME = 'ECHO'
     DESCRIPTION = 'Print a message.'
 
-    message = attr.ib(default="")
+    def __init__(self, message: str = "") -> None:
+        super().__init__(None, None, StepResult.UNSET)
+        self.message = message
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent("* echo: {0}".format(self.message), indent * " ")
+        return textwrap.indent(f'* echo: {self.message}', indent * ' ')
 
     @notify_step_begin_end
     def __call__(self) -> StepResultVariants:
@@ -414,12 +423,16 @@ def run_any_child(child: Step) -> tp.List[StepResult]:
     return child()
 
 
-@attr.s(eq=False)
+DefaultList = tp.Optional[tp.List[Step]]
+
+
 class Any(Step):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
 
-    actions = attr.ib(default=attr.Factory(list), repr=False, eq=False)
+    def __init__(self, experiment: tp.Any, actions: DefaultList) -> None:
+        super().__init__(experiment, None, StepResult.UNSET)
+        self.actions = actions if actions else []
 
     def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
@@ -450,19 +463,17 @@ class Any(Step):
         return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
 
 
-@attr.s(eq=False, hash=True)
 class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
 
-    def __attrs_post_init__(self):
-        if not self.actions:
-            return
+    def __init__(self, experiment: tp.Any, actions: DefaultList) -> None:
+        _actions: DefaultList = \
+            [Echo(message=f'Start experiment: {experiment.name}')] + \
+            actions if actions else [] + \
+            [Echo(message=f'Completed experiment: {experiment.name}')]
 
-        self.actions = \
-            [Echo(message="Start experiment: {0}".format(self.obj.name))] + \
-            self.actions + \
-            [Echo(message="Completed experiment: {0}".format(self.obj.name))]
+        super().__init__(experiment, _actions)
 
     def begin_transaction(self):
         experiment, session = db.persist_experiment(self.obj)
@@ -539,12 +550,14 @@ class Experiment(Any):
         )
 
 
-@attr.s
 class RequireAll(Step):
     NAME = "REQUIRE ALL"
     DESCRIPTION = "All child steps need to succeed"
 
-    actions = attr.ib(default=attr.Factory(list))
+    def __init__(self, actions: DefaultList) -> None:
+        super().__init__(None, None, StepResult.UNSET)
+
+        self.actions = actions if actions else []
 
     def __len__(self):
         return sum([len(x) for x in self.actions]) + 1
@@ -597,45 +610,6 @@ class RequireAll(Step):
         return textwrap.indent("* All required:\n" + sub_actns, indent * " ")
 
 
-@attr.s
-class Containerize(RequireAll):
-    NAME = "CONTAINERIZE"
-    DESCRIPTION = "Redirect into container"
-
-    def requires_redirect(self) -> bool:
-        project = self.obj
-        return not container.in_container() and (project.container is not None)
-
-    @notify_step_begin_end
-    def __call__(self) -> StepResultVariants:
-        project = self.obj
-        if self.requires_redirect():
-            project.redirect()
-            self.status = StepResult.OK
-            return self.status
-        return super().__call__()
-
-    def __str__(self, indent: int = 0) -> str:
-        sub_actns = [a.__str__(indent + 1) for a in self.actions]
-
-        if container.in_container():
-            return textwrap.indent(
-                '\n'.join(['* Running inside container:'] + sub_actns),
-                indent * " "
-            )
-
-        if self.requires_redirect():
-            return textwrap.indent(
-                '\n'.join(["* Continue inside container:"] + sub_actns),
-                indent * " "
-            )
-
-        return textwrap.indent(
-            '\n'.join(['* Running without container:'] + sub_actns),
-            indent * " "
-        )
-
-
 class CleanExtra(Step):
     NAME = "CLEAN EXTRA"
     DESCRIPTION = "Cleans the extra directories."
@@ -684,7 +658,42 @@ class ProjectEnvironment(Step):
         version_str = source.to_str(tuple(variant.values()))
 
         return textwrap.indent(
-            "* Project environment for: {} @ {}".format(
-                project.name, version_str
-            ), indent * " "
+            f'* Project environment for: {project.name} @ {version_str}',
+            indent * ' '
+        )
+
+
+class SetProjectVersion(Step):
+    NAME = 'SET PROJECT VERSION'
+    DESCRIPTION = 'Checkout a project version'
+
+    def __init__(
+        self, project: tp.Any, *revision_strings: source.base.RevisionStr
+    ) -> None:
+        super().__init__(project, None, StepResult.UNSET)
+
+        self.variant = source.base.context_from_revisions(
+            revision_strings, *project.source
+        )
+
+    @notify_step_begin_end
+    def __call__(self) -> None:
+        project = self.obj
+        prj_vars = project.active_variant
+        prj_vars.update(self.variant)
+
+        for name, variant in prj_vars.items():
+            LOG.info("Fetching %s @ %s", str(name), variant.version)
+            src = variant.owner
+            src.version(project.builddir, variant.version)
+
+        project.active_variant = prj_vars
+
+    def __str__(self, indent: int = 0) -> str:
+        project = self.obj
+        version_str = source.to_str(tuple(self.variant.values()))
+
+        return textwrap.indent(
+            f'* Add project version {version_str} for: {project.name}',
+            indent * ' '
         )

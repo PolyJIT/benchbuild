@@ -20,6 +20,11 @@ NestedVariants = tp.Iterable[tp.Tuple[tp.Any, ...]]
 
 
 @attr.s(frozen=True, eq=True)
+class RevisionStr:  # pylint: disable=too-few-public-methods
+    value: str = attr.ib()
+
+
+@attr.s(frozen=True, eq=True)
 class Variant:
     """
     Provide a 'string'-like wrapper around source version information.
@@ -304,3 +309,33 @@ def sources_as_dict(*sources: Fetchable) -> SourceContext:
         *sources: Fetchables stored in the dictionary.
     """
     return {src.local: src for src in sources}
+
+
+def context_from_revisions(revs: tp.Sequence[RevisionStr],
+                           *sources: SourceT) -> tp.Optional[VariantContext]:
+    """
+    Create a VariantContext from a sequence of revision strings.
+
+    A valid VariantContext can only be created, if the number of valid revision
+    strings is equivalent to the number of sources.
+    A valid revision string is one that has been found in the a source's
+    version.
+    It is required that each revision string is found in a different source
+    version.
+
+    Args:
+        revs: sequence of revision strings, e.g. a commit-hash.
+        *sources: sources of a project.
+
+    Returns:
+        A variant context.
+    """
+    found: tp.List[Variant] = []
+    for source in sources:
+        if source.is_expandable:
+            found.extend([
+                variant for variant in source.versions() for rev in revs
+                if variant.version == rev.value
+            ])
+
+    return context(*found)

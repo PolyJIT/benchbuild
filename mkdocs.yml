@@ -11,6 +11,7 @@ nav:
       - basics/index.md
       - basics/configuration.md
       - basics/containers.md
+      - basics/actions.md
   - Concepts:
       - concepts/source.md
       - concepts/environments.md

@@ -7,7 +7,7 @@ import typing as tp
 import plumbum as pb
 from plumbum.commands.base import BoundCommand
 
-from benchbuild.utils.cmd import git, mkdir
+from benchbuild.utils.cmd import git, ln, mkdir
 
 from . import base
 
@@ -88,7 +88,10 @@ class Git(base.FetchableSource):
             str: [description]
         """
         src_loc = self.fetch()
-        tgt_loc = pb.local.path(target_dir) / self.local
+        active_loc = pb.local.path(target_dir) / self.local
+        tgt_subdir = f'{self.local}-{version}'
+        tgt_loc = pb.local.path(target_dir) / tgt_subdir
+
         clone = git['clone']
         pull = git['pull']
         rev_parse = git['rev-parse']
@@ -107,6 +110,7 @@ class Git(base.FetchableSource):
             )
             checkout('--detach', version)
 
+        ln('-nsf', tgt_subdir, active_loc)
         return tgt_loc
 
     def versions(self) -> tp.List[base.Variant]:

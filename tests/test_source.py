@@ -58,6 +58,43 @@ def src_b(versions_b):
     )
 
 
+def describe_context_from_revisions():
+
+    def can_link_revision_from_single(versions_a, src_a) -> None:
+        select = [source.base.RevisionStr(versions_a[0])]
+        context = source.base.context_from_revisions(select, src_a)
+
+        assert context, "No context has been created."
+        assert src_a.local in context.keys(), "wrong source in context."
+
+    def can_select_revision_from_multiple(src_a, src_b) -> None:
+        select = [source.base.RevisionStr('1.0b')]
+        context = source.base.context_from_revisions(select, src_a, src_b)
+
+        assert context, "No context has been created."
+        assert src_a.local not in context.keys(), "src_a in context."
+        assert src_b.local in context.keys(), "src_b not in context."
+
+    def finds_all_requested_revisions(src_a, src_b) -> None:
+        select = [
+            source.base.RevisionStr('1.0a'),
+            source.base.RevisionStr('1.0b')
+        ]
+        context = source.base.context_from_revisions(select, src_a, src_b)
+
+        assert context, "No context has been created."
+        assert src_a.local in context.keys(), "src_a not in context."
+        assert src_b.local in context.keys(), "src_b not in context."
+
+        select_2 = [
+            source.base.RevisionStr('1.0a'),
+            source.base.RevisionStr('not-in')
+        ]
+        context = source.base.context_from_revisions(select_2, src_a, src_b)
+        assert src_a.local in context.keys(), "src_a not in context."
+        assert src_b.local not in context.keys(), "src_b in context."
+
+
 def test_base_context(src_a):
     var = src_a.default
     ctx = source.context(var)

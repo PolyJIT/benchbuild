@@ -24,7 +24,6 @@ class HelloExperiment(Experiment):
 ```
 
 """
-import collections
 import copy
 import typing as tp
 import uuid
@@ -151,7 +150,7 @@ class Experiment(metaclass=ExperimentRegistry):
     def validate_schema(self, _: tp.Any, new_schema) -> bool:
         if new_schema is None:
             return True
-        if isinstance(new_schema, collections.abc.Iterable):
+        if isinstance(new_schema, tp.Iterable):
             return True
         return False
 

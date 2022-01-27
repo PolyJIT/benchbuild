@@ -332,9 +332,10 @@ def context_from_revisions(revs: tp.Sequence[RevisionStr],
     """
     found: tp.List[Variant] = []
     for source in sources:
-        found.extend([
-            variant for variant in source.versions() for rev in revs
-            if variant.version == rev.value
-        ])
+        if source.is_expandable:
+            found.extend([
+                variant for variant in source.versions() for rev in revs
+                if variant.version == rev.value
+            ])
 
     return context(*found)

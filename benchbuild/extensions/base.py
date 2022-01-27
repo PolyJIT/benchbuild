@@ -4,7 +4,6 @@ Extension base-classes for compile-time and run-time experiments.
 import logging
 import typing as tp
 from abc import ABCMeta
-from collections.abc import Iterable
 
 from plumbum.commands.base import BoundCommand
 

@@ -100,6 +100,7 @@ def describe_SetProjectVersion():
         spv = SetProjectVersion(prj, RevisionStr('v2a'))
         with pytest.raises(ProcessExecutionError):
             spv()
+
         assert prj.active_variant['src-a'].version == 'v2a'
 
     def can_update_full() -> None:

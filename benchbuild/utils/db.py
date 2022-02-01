@@ -97,7 +97,7 @@ def persist_project(project):
     name = project.name
     desc = project.__doc__
     domain = str(project.domain)
-    group_name = project.group
+    group_name = str(project.group)
     version = str(project.variant)
     try:
         src_url = project.src_uri

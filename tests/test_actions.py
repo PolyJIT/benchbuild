@@ -1,6 +1,7 @@
 """
 Test the actions module.
 """
+import typing as tp
 import unittest
 
 import pytest
@@ -60,12 +61,16 @@ class ActionsTestCase(unittest.TestCase):
 
 
 def describe_SetProjectVersion():
-    from benchbuild.projects.benchbuild import x264
+    from benchbuild.project import __add_single_filter__, Project
     from benchbuild.source.base import RevisionStr
     from benchbuild.utils.actions import SetProjectVersion
 
     class TestExperiment(Experiment):
         NAME = '-'
+
+        def actions_for_project(self,
+                                project: Project) -> tp.MutableSequence[a.Step]:
+            return []
 
     class TestProject(Project):
         NAME = '-'
@@ -132,3 +137,19 @@ def describe_SetProjectVersion():
 
         assert prj.active_variant['src-a'].version == 'v3'
         assert prj.active_variant['src-b'].version == 'v3'
+
+    def can_set_revision_through_filter() -> None:
+        project_cls = __add_single_filter__(TestProject, 'v3')
+        exp = TestExperiment(projects=[project_cls])
+        context = exp.sample(project_cls)[0]
+        prj = project_cls(variant=context)
+
+        assert prj.active_variant['src-a'].version == 'v3'
+        assert prj.active_variant['src-b'].version == 'v1b'
+
+        spv = SetProjectVersion(prj, RevisionStr('v1a'))
+        with pytest.raises(ProcessExecutionError):
+            spv()
+
+        assert prj.active_variant['src-a'].version == 'v1a'
+        assert prj.active_variant['src-b'].version == 'v1b'

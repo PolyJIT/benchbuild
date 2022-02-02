@@ -353,4 +353,7 @@ def context_from_revisions(revs: tp.Sequence[RevisionStr],
                 if variant.version == rev.value
             ])
 
+    if len(found) == 0:
+        raise ValueError(f'Revisions {revs} not found in any available source.')
+
     return context(*found)

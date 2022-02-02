@@ -443,7 +443,6 @@ def discovered() -> tp.Dict[str, ProjectT]:
 
 
 def __add_single_filter__(project: ProjectT, version: str) -> ProjectT:
-
     sources = project.SOURCE
     victim = sources[0]
     victim = source.SingleVersionFilter(victim, version)

@@ -212,6 +212,22 @@ def test_single_versions_filter(make_source):
     assert [] == src_vs
 
 
+def test_explore_with_filter(make_source):
+    """
+    Make sure we can access revisions that would have been filtered.
+
+    Source.explore should not filter anything.
+    """
+    src_1 = make_source(range(2))
+
+    src = source.SingleVersionFilter(src_1, '0')
+    src_vs = [str(v) for v in src.versions()]
+    src_explore = [str(v) for v in src.explore()]
+
+    assert ['0'] == src_vs
+    assert ['0', '1'] == src_explore
+
+
 def test_versions_product():
     pass
 

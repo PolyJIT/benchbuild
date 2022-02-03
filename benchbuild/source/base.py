@@ -214,7 +214,7 @@ class FetchableSource:
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def versions(self) -> tp.Iterable[Variant]:
+    def versions(self) -> tp.List[Variant]:
         """
         List all available versions of this source.
 
@@ -222,6 +222,21 @@ class FetchableSource:
             List[str]: The list of all available versions.
         """
         raise NotImplementedError()
+
+    def explore(self) -> tp.Iterable[Variant]:
+        """
+        Explore revisions of this source.
+
+        This provides access to all revisions this source can offer.
+        BenchBuild own filters will not block any revision here.
+
+        Custom sources or source filters can opt in to block revisions
+        anyways.
+
+        Returns:
+            List[str]: The list of versions to explore.
+        """
+        return self.versions()
 
     @property
     def is_expandable(self) -> bool:
@@ -334,8 +349,11 @@ def context_from_revisions(revs: tp.Sequence[RevisionStr],
     for source in sources:
         if source.is_expandable:
             found.extend([
-                variant for variant in source.versions() for rev in revs
+                variant for variant in source.explore() for rev in revs
                 if variant.version == rev.value
             ])
+
+    if len(found) == 0:
+        raise ValueError(f'Revisions {revs} not found in any available source.')
 
     return context(*found)

@@ -1,6 +1,10 @@
 """
 Test the actions module.
 """
+import copy
+import importlib
+import sys
+import typing as tp
 import unittest
 
 import pytest
@@ -8,7 +12,7 @@ from plumbum import ProcessExecutionError
 
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.experiment import Experiment
-from benchbuild.project import Project
+from benchbuild.project import __add_single_filter__, Project
 from benchbuild.source import nosource, HTTP
 from benchbuild.utils import actions as a
 
@@ -59,36 +63,46 @@ class ActionsTestCase(unittest.TestCase):
         self.assertEqual(actn(), [a.StepResult.ERROR])
 
 
+class TestProject(Project):
+    NAME = '-'
+    DOMAIN = '-'
+    GROUP = '-'
+    SOURCE = [
+        HTTP(local='src-a', remote={
+            'v1a': '-',
+            'v2a': '-',
+            'v3': '-'
+        }),
+        HTTP(local='src-b', remote={
+            'v1b': '-',
+            'v2b': '-',
+            'v3': '-'
+        })
+    ]
+
+    def compile(self):
+        pass
+
+    def run_tests(self):
+        pass
+
+
+@pytest.fixture
+def t_project() -> tp.Type[Project]:
+    yield TestProject
+    importlib.reload(sys.modules[__name__])
+
+
 def describe_SetProjectVersion():
-    from benchbuild.projects.benchbuild import x264
     from benchbuild.source.base import RevisionStr
     from benchbuild.utils.actions import SetProjectVersion
 
     class TestExperiment(Experiment):
         NAME = '-'
 
-    class TestProject(Project):
-        NAME = '-'
-        DOMAIN = '-'
-        GROUP = '-'
-        SOURCE = [
-            HTTP(local='src-a', remote={
-                'v1a': '-',
-                'v2a': '-',
-                'v3': '-'
-            }),
-            HTTP(local='src-b', remote={
-                'v1b': '-',
-                'v2b': '-',
-                'v3': '-'
-            })
-        ]
-
-        def compile(self):
-            pass
-
-        def run_tests(self):
-            pass
+        def actions_for_project(self,
+                                project: Project) -> tp.MutableSequence[a.Step]:
+            return []
 
     def can_partially_update() -> None:
         exp = TestExperiment(projects=[TestProject])
@@ -132,3 +146,41 @@ def describe_SetProjectVersion():
 
         assert prj.active_variant['src-a'].version == 'v3'
         assert prj.active_variant['src-b'].version == 'v3'
+
+    def can_set_revision_through_filter(t_project) -> None:
+        """
+        Check, if we can set a filtered version.
+        """
+        source_backup = copy.deepcopy(t_project.SOURCE)
+
+        project_cls = __add_single_filter__(t_project, 'v3')
+        exp = TestExperiment(projects=[project_cls])
+        context = exp.sample(project_cls)[0]
+        prj = project_cls(variant=context)
+
+        assert prj.active_variant['src-a'].version == 'v3'
+        assert prj.active_variant['src-b'].version == 'v1b'
+
+        spv = SetProjectVersion(prj, RevisionStr('v1a'))
+        with pytest.raises(ProcessExecutionError):
+            spv()
+
+        assert prj.active_variant['src-a'].version == 'v1a'
+        assert prj.active_variant['src-b'].version == 'v1b'
+
+    def raises_error_when_no_revision_is_found() -> None:
+        """
+        Raise error, if no RevisionStr can be matched with a source.
+        """
+        exp = TestExperiment(projects=[TestProject])
+        context = exp.sample(TestProject)[0]
+        prj = TestProject(variant=context)
+
+        assert prj.active_variant['src-a'].version == 'v1a'
+        assert prj.active_variant['src-b'].version == 'v1b'
+
+        with pytest.raises(
+            ValueError,
+            match='Revisions (.+) not found in any available source.'
+        ):
+            spv = SetProjectVersion(prj, RevisionStr('does-not-exist'))

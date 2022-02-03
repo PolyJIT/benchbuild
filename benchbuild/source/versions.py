@@ -77,6 +77,17 @@ class BaseVersionFilter(base.FetchableSource):
             List[str]: The list of all available versions.
         """
 
+    def explore(self) -> tp.List[base.Variant]:
+        """
+        Explore all revisions of the child source.
+
+        This bypasses the filter by default.
+
+        Returns:
+            List[str]: The list of all available versions.
+        """
+        return self.child.versions()
+
 
 class SingleVersionFilter(BaseVersionFilter):
     """

@@ -386,10 +386,10 @@ class Run(Step):
         self.experiment = experiment
 
     def run_workload(self, workload: workload.WorkloadFunction) -> StepResult:
-        group, session = run.begin_run_group(self.project, self.experiment)
+        group, session = run.begin_run_group(self.obj, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
         try:
-            workload(self.project)
+            workload(self.obj)
             run.end_run_group(group, session)
         except ProcessExecutionError:
             run.fail_run_group(group, session)
@@ -404,14 +404,14 @@ class Run(Step):
         return self.status
 
     def run_workloads(self):
-        workloads = self.project.by_phase(workload.Phase.RUN)
+        workloads = self.obj.by_phase(workload.Phase.RUN)
         results = [self.run_workload(workload) for workload in workloads]
 
         return results
 
     @notify_step_begin_end
     def __call__(self):
-        if self.project.has_workloads():
+        if self.obj.has_workloads():
             return self.run_workloads()
 
     def __str__(self, indent: int = 0) -> str:
@@ -545,7 +545,8 @@ class Experiment(Any):
             LOG.info("Experiment aborting by user request")
             results.append(StepResult.ERROR)
         except Exception:
-            LOG.error("Experiment terminates " "because we got an exception:")
+            LOG.error("Experiment terminates "
+                      "because we got an exception:")
             e_type, e_value, e_traceb = sys.exc_info()
             lines = traceback.format_exception(e_type, e_value, e_traceb)
             LOG.error("".join(lines))

@@ -237,7 +237,7 @@ def find_entrypoint(tag: str) -> str:
     if not config:
         raise ValueError("Could not find the container image config")
 
-    return str(config.get('Entrypoint', ''))
+    return str(' '.join(config.get('Entrypoint', [])))
 
 
 class ImageRegistry(abc.ABC):

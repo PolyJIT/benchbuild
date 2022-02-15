@@ -16,7 +16,6 @@ from benchbuild.environments.adapters.common import (
 )
 from benchbuild.environments.domain import model, events
 from benchbuild.settings import CFG
-from benchbuild.utils.cmd import rm
 
 LOG = logging.getLogger(__name__)
 
@@ -155,9 +154,9 @@ _DEBUG_CONTAINER_SESSION_INTRO = """
 Your are running in an interactive session of **{container_name}**.
 
 The container's entrypoint has been replaced with a default shell.
-The original entrypoint would be:
+The original entrypoint (with arguments) would be:
 
-    {entrypoint}
+    {entrypoint} {arguments}
 
 You can exit this mode by leaving the shell using `exit`. If your last
 command did not return an exit code of ``0``, benchbuild will report an
@@ -190,7 +189,24 @@ class PodmanRegistry(ContainerRegistry):
                 create_cmd = create_cmd[
                     '--mount', f'type=bind,src={source},target={target}']
 
-        container_id, err = run(create_cmd['--name', name, image.name][args])
+        if interactive:
+            entrypoint = buildah.find_entrypoint(image.name)
+            print(
+                Markdown(
+                    _DEBUG_CONTAINER_SESSION_INTRO.format(
+                        container_name=name,
+                        entrypoint=entrypoint,
+                        arguments=' '.join(args)
+                    )
+                )
+            )
+
+            container_id, err = run(create_cmd['--name', name, image.name])
+        else:
+            container_id, err = run(
+                create_cmd['--name', name, image.name][args]
+            )
+
         if err:
             raise ContainerCreateError(
                 container_id, " ".join(err.argv)
@@ -209,16 +225,6 @@ class PodmanRegistry(ContainerRegistry):
         interactive = bool(CFG['container']['interactive'])
 
         if interactive:
-            entrypoint = buildah.find_entrypoint(container.image.name)
-            print(
-                Markdown(
-                    _DEBUG_CONTAINER_SESSION_INTRO.format(
-                        container_name=container.name,
-                        entrypoint=entrypoint,
-                    )
-                )
-            )
-
             _, err = run_fg(container_start['-ai', container_id])
         else:
             _, err = run_tee(container_start['-ai', container_id])

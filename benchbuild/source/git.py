@@ -9,7 +9,7 @@ from pathlib import Path
 import plumbum as pb
 from plumbum.commands.base import BoundCommand
 
-from benchbuild.utils.cmd import git, ln, mkdir, rm
+from benchbuild.utils.cmd import git, ln, mkdir
 
 from . import base
 

@@ -208,7 +208,7 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
             'install',
             '--ignore-installed',
             tgt_dir,
-            mount=f'type=bind,src={src_dir},target={tgt_dir}',
+            mount=f'type=bind,src={src_dir},target={tgt_dir},rw',
             runtime=crun
         )
 

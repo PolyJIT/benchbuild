@@ -31,9 +31,7 @@ class Gzip(bb.Project):
     def compression_test(self):
         gzip_version = self.version_of('gzip.tar.xz')
         unpack_dir = local.path(f'gzip-{gzip_version}.tar.xz')
-
-        _gzip = bb.wrap(unpack_dir / "gzip", self)
-        _gzip = bb.watch(self)
+        _gzip = bb.watch(bb.wrap(unpack_dir / "gzip", self))
 
         # Compress
         _gzip("-f", "-k", "--best", "compression/text.html")

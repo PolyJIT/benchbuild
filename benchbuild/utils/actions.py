@@ -352,19 +352,10 @@ class Compile(Step):
     def __init__(self, project):
         super().__init__(project, action_fn=project.compile)
 
-    def run_workload(self, workload: workload.WorkloadFunction) -> StepResult:
-        workload(self.obj)
-        self.status = StepResult.OK
-        return self.status
-        workloads = self.obj.by_phase(workload.Phase.COMPILE)
-        results = [self.run_workload(workload) for workload in workloads]
-
-        return results
-
     @notify_step_begin_end
     def __call__(self):
-        if self.obj.has_workloads():
-            return self.run_workloads()
+        workloads = type(self.obj).workloads(workload.COMPILE)
+        return max([work(self.obj) for work in workloads])
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
@@ -385,34 +376,31 @@ class Run(Step):
 
         self.experiment = experiment
 
-    def run_workload(self, workload: workload.WorkloadFunction) -> StepResult:
+    def run_workload(self, work: workload.Workload) -> StepResult:
         group, session = run.begin_run_group(self.obj, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
         try:
-            workload(self.obj)
+            work(self.obj)
             run.end_run_group(group, session)
+            self.status = StepResult.OK
         except ProcessExecutionError:
             run.fail_run_group(group, session)
+            self.status = StepResult.ERROR
             raise
         except KeyboardInterrupt:
             run.fail_run_group(group, session)
+            self.status = StepResult.ERROR
             raise
         finally:
             signals.handlers.deregister(run.fail_run_group)
 
-        self.status = StepResult.OK
         return self.status
 
-    def run_workloads(self):
-        workloads = self.obj.by_phase(workload.Phase.RUN)
-        results = [self.run_workload(workload) for workload in workloads]
-
-        return results
-
     @notify_step_begin_end
-    def __call__(self):
-        if self.obj.has_workloads():
-            return self.run_workloads()
+    def __call__(self) -> StepResult:
+        workloads = type(self.obj).workloads(workload.RUN)
+        self.status = max([self.run_workload(work) for work in workloads])
+        return self.status
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(

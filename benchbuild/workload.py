@@ -1,6 +1,5 @@
 import enum
 import typing as tp
-from types import MethodType
 
 from benchbuild.utils import run
 
@@ -15,11 +14,20 @@ class WorkloadProperty:  # pylint: disable=too-few-public-methods
 
 class EnumProperty(WorkloadProperty, enum.Enum):
     """
-    Encode workload properties as enums.
+    Empty base classt to encode workload properties as enums.
     """
 
 
 class Phase(EnumProperty):
+    """
+    Encode time phases of a project. There is no particular order in
+    the sense that benchbuild will not run them in a particular order
+    by default.
+    Using proper actions that filter by Phase, you can provide an order.
+    There is no dependencies between Phases, therefore, make sure that
+    the build directory is in the correct state for the Phase you want to
+    run.
+    """
     COMPILE = 1
     RUN = 2
 
@@ -28,43 +36,13 @@ COMPILE = Phase.COMPILE
 RUN = Phase.RUN
 
 
-class Workloads:
-    """
-    Stores all workloads in an index.
-    """
-    index: tp.Set[WorkloadFunction]
-
-    # TODO: Misses iterable protocol
-
-    def __init__(self) -> None:
-        self.index = set()
-
-    def add(self, func: WorkloadFunction) -> None:
-        self.index.add(func)
-
-
-class WorkloadMixin:
-    workloads: tp.ClassVar[Workloads]
-
-    @classmethod
-    def __init_subclass__(cls, *args, **kwargs):
-        """Create a workloads registry in the subclass only."""
-        super().__init_subclass__(*args, **kwargs)
-
-        cls.workloads = Workloads()
-        attributes = cls.__dict__.values()
-
-        for wl_func in attributes:
-            if isinstance(wl_func, Workload):
-                cls.workloads.add(wl_func)
-
-    @classmethod
-    def filter(cls) -> Workloads:
-        """Filter our own workloads."""
-        return cls.workloads
-
-
 class Workload:  # pylint: disable=too-few-public-methods
+    """
+    Convert a workload function into a Workload class.
+
+    This adds tagging and guarantees that this workload is run within
+    the proper directories (build directory) with the correct config.
+    """
     tags: tp.Set[WorkloadProperty]
 
     def __init__(self, func: WorkloadFunction, *args: WorkloadProperty) -> None:
@@ -75,10 +53,73 @@ class Workload:  # pylint: disable=too-few-public-methods
 
         self.__call__ = wl_func
 
+    def __repr__(self) -> str:
+        return f'Workload({self.__call__}) Properties: {self.tags}'
 
-def add(*args: WorkloadProperty) -> tp.Callable[[WorkloadFunction], Workload]:
+
+class Workloads:
     """
-    Add a workload function to our registry.
+    Stores all workloads in an index.
+    """
+    index: tp.Set[Workload]
+
+    def __iter__(self) -> tp.Iterator[Workload]:
+        return self.index.__iter__()
+
+    def __init__(self, *args: Workload) -> None:
+        self.index = set(args)
+
+    def add(self, func: Workload) -> None:
+        self.index.add(func)
+
+    def __repr__(self) -> str:
+        return f'{self.index}'
+
+
+class WorkloadMixin:
+    """
+    Manage workloads in a class.
+
+    This mixin can be used to provide support for workloads in deriving
+    classes. For BenchBuild that would be all descendants of Projects.
+
+    Workloads have to be decorated using the workload.add function first.
+    During class definition, this mixin will collect all decorated functions
+    and add them to our set of workloads.
+    """
+    __workloads: tp.ClassVar[Workloads]
+
+    @classmethod
+    def __init_subclass__(cls, *args, **kwargs):
+        """Create a workloads registry in the subclass only."""
+        super().__init_subclass__(*args, **kwargs)
+
+        cls.__workloads = Workloads()
+        attributes = cls.__dict__.values()
+
+        for wl_func in attributes:
+            if isinstance(wl_func, Workload):
+                cls.__workloads.add(wl_func)
+
+    @classmethod
+    def workloads(cls, *properties: WorkloadProperty) -> Workloads:
+        """Filter our own workloads."""
+        matches = [
+            wl for wl in cls.__workloads
+            if set(properties).intersection(wl.tags)
+        ]
+
+        return Workloads(*matches)
+
+
+def define(
+    *args: WorkloadProperty
+) -> tp.Callable[[WorkloadFunction], Workload]:
+    """
+    Define a workload function.
+
+    Decorate a member function of a project class with this and it will be
+    registered as a workload for experiment actions.
     """
 
     def tag_workload(func: WorkloadFunction) -> Workload:

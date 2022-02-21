@@ -30,7 +30,7 @@ class Bzip2(bb.Project):
         .from_('benchbuild:alpine') \
         .run('apk', 'add', 'make')
 
-    @workload.add(workload.COMPILE)
+    @workload.define(workload.COMPILE)
     def compile_project(self):
         bzip2_repo = local.path(self.source_of('bzip2.git'))
         compression_source = local.path(self.source_of('compression.tar.gz'))
@@ -41,7 +41,7 @@ class Bzip2(bb.Project):
             make_ = bb.watch(make)
             make_("CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2")
 
-    @workload.add(workload.RUN)
+    @workload.define(workload.RUN)
     def compression_test(self):
         bzip2_repo = local.path(self.source_of('bzip2.git'))
         _bzip2 = bb.watch(bb.wrap(bzip2_repo / "bzip2", self))

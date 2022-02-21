@@ -1,12 +1,12 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild import workload
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.settings import CFG
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
 from benchbuild.utils.settings import get_number_of_jobs
-from benchbuild.workload import Phase
 
 
 class Gzip(bb.Project):
@@ -27,48 +27,46 @@ class Gzip(bb.Project):
     ]
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
+    @workload.add(workload.RUN)
+    def compression_test(self):
+        gzip_version = self.version_of('gzip.tar.xz')
+        unpack_dir = local.path(f'gzip-{gzip_version}.tar.xz')
 
-@Gzip.phase(Phase.RUN)
-def compression_test(gzip):
-    gzip_version = gzip.version_of('gzip.tar.xz')
-    unpack_dir = local.path(f'gzip-{gzip_version}.tar.xz')
+        _gzip = bb.wrap(unpack_dir / "gzip", self)
+        _gzip = bb.watch(self)
 
-    _gzip = bb.wrap(unpack_dir / "gzip", gzip)
-    _gzip = bb.watch(gzip)
+        # Compress
+        _gzip("-f", "-k", "--best", "compression/text.html")
+        _gzip("-f", "-k", "--best", "compression/chicken.jpg")
+        _gzip("-f", "-k", "--best", "compression/control")
+        _gzip("-f", "-k", "--best", "compression/input.source")
+        _gzip("-f", "-k", "--best", "compression/liberty.jpg")
 
-    # Compress
-    _gzip("-f", "-k", "--best", "compression/text.html")
-    _gzip("-f", "-k", "--best", "compression/chicken.jpg")
-    _gzip("-f", "-k", "--best", "compression/control")
-    _gzip("-f", "-k", "--best", "compression/input.source")
-    _gzip("-f", "-k", "--best", "compression/liberty.jpg")
+        # Decompress
+        _gzip("-f", "-k", "--decompress", "compression/text.html.gz")
+        _gzip("-f", "-k", "--decompress", "compression/chicken.jpg.gz")
+        _gzip("-f", "-k", "--decompress", "compression/control.gz")
+        _gzip("-f", "-k", "--decompress", "compression/input.source.gz")
+        _gzip("-f", "-k", "--decompress", "compression/liberty.jpg.gz")
 
-    # Decompress
-    _gzip("-f", "-k", "--decompress", "compression/text.html.gz")
-    _gzip("-f", "-k", "--decompress", "compression/chicken.jpg.gz")
-    _gzip("-f", "-k", "--decompress", "compression/control.gz")
-    _gzip("-f", "-k", "--decompress", "compression/input.source.gz")
-    _gzip("-f", "-k", "--decompress", "compression/liberty.jpg.gz")
+    @workload.add(workload.COMPILE)
+    def compile_project(self):
+        gzip_source = local.path(self.source_of('gzip.tar.xz'))
+        compression_source = local.path(self.source_of('compression.tar.gz'))
 
+        tar('xfJ', gzip_source)
+        tar('xf', compression_source)
 
-@Gzip.phase(Phase.COMPILE)
-def compile_project(gzip):
-    gzip_source = local.path(gzip.source_of('gzip.tar.xz'))
-    compression_source = local.path(gzip.source_of('compression.tar.gz'))
+        gzip_version = self.version_of('gzip.tar.xz')
+        unpack_dir = "gzip-{0}.tar.xz".format(gzip_version)
 
-    tar('xfJ', gzip_source)
-    tar('xf', compression_source)
-
-    gzip_version = gzip.version_of('gzip.tar.xz')
-    unpack_dir = "gzip-{0}.tar.xz".format(gzip_version)
-
-    clang = bb.compiler.cc(gzip)
-    with local.cwd(unpack_dir):
-        _configure = bb.watch(local["./configure"])
-        with local.env(CC=str(clang)):
-            _configure(
-                "--disable-dependency-tracking", "--disable-silent-rules",
-                "--with-gnu-ld"
-            )
-        _make = bb.watch(make)
-        _make("-j" + str(get_number_of_jobs(CFG)), "clean", "all")
+        clang = bb.compiler.cc(self)
+        with local.cwd(unpack_dir):
+            _configure = bb.watch(local["./configure"])
+            with local.env(CC=str(clang)):
+                _configure(
+                    "--disable-dependency-tracking", "--disable-silent-rules",
+                    "--with-gnu-ld"
+                )
+            _make = bb.watch(make)
+            _make("-j" + str(get_number_of_jobs(CFG)), "clean", "all")

@@ -7,63 +7,85 @@ from benchbuild.utils import run
 WorkloadFunction = tp.Callable[[tp.Any], None]
 
 
-class Phase(enum.Enum):
+class WorkloadProperty:  # pylint: disable=too-few-public-methods
+    """
+    Empty base class to encode workload properties.
+    """
+
+
+class EnumProperty(WorkloadProperty, enum.Enum):
+    """
+    Encode workload properties as enums.
+    """
+
+
+class Phase(EnumProperty):
     COMPILE = 1
     RUN = 2
 
 
+COMPILE = Phase.COMPILE
+RUN = Phase.RUN
+
+
+class Workloads:
+    """
+    Stores all workloads in an index.
+    """
+    index: tp.Set[WorkloadFunction]
+
+    # TODO: Misses iterable protocol
+
+    def __init__(self) -> None:
+        self.index = set()
+
+    def add(self, func: WorkloadFunction) -> None:
+        self.index.add(func)
+
+
 class WorkloadMixin:
+    workloads: tp.ClassVar[Workloads]
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
         """Create a workloads registry in the subclass only."""
-
-        # Python 3.6's dict is insertion ordered by default.
-        cls.workloads: tp.Dict[WorkloadFunction, None] = {}
-
         super().__init_subclass__(*args, **kwargs)
 
-    @classmethod
-    def has_workloads(cls) -> bool:
-        """Check, if this class has workloads defined."""
-        return bool(cls.workloads)
+        cls.workloads = Workloads()
+        attributes = cls.__dict__.values()
+
+        for wl_func in attributes:
+            if isinstance(wl_func, Workload):
+                cls.workloads.add(wl_func)
 
     @classmethod
-    def workload(cls, func: WorkloadFunction) -> WorkloadFunction:
-        """Register a new workload in the subclass."""
+    def filter(cls) -> Workloads:
+        """Filter our own workloads."""
+        return cls.workloads
+
+
+class Workload:  # pylint: disable=too-few-public-methods
+    tags: tp.Set[WorkloadProperty]
+
+    def __init__(self, func: WorkloadFunction, *args: WorkloadProperty) -> None:
+        self.tags = set(args)
+
         wl_func = run.store_config(func)
         wl_func = run.in_builddir()(wl_func)
 
-        cls.workloads[wl_func] = None
+        self.__call__ = wl_func
 
+
+def add(*args: WorkloadProperty) -> tp.Callable[[WorkloadFunction], Workload]:
+    """
+    Add a workload function to our registry.
+    """
+
+    def tag_workload(func: WorkloadFunction) -> Workload:
+        """
+        Tag the memeber function as a workload.
+        """
+        wl_func = Workload(func, *args)
         return wl_func
 
-    @classmethod
-    def phase(cls, tag: Phase) -> tp.Any:
-        """
-        Tag a workload function with the given phase tag.
-
-        Args:
-            tag - The tag to add to the workload function.
-
-        Returns:
-            The decorated workload function.
-        """
-
-        def tag_workload(func: WorkloadFunction) -> WorkloadFunction:
-            if func not in cls.workloads:
-                func = cls.workload(func)
-
-            if not hasattr(func, 'phases'):
-                func.phases = set()
-            func.phases.add(tag)
-            return func
-
-        return tag_workload
-
-    def by_phase(self, tag: Phase) -> tp.List[WorkloadFunction]:
-        all_phases = self.workloads.keys()
-
-        return [
-            p for p in all_phases if hasattr(p, 'phases') and tag in p.phases
-        ]
+    return tag_workload

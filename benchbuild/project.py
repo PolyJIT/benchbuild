@@ -75,38 +75,6 @@ class ProjectRegistry(type):
         return cls
 
 
-class ProjectDecorator(ProjectRegistry):
-    """
-    Decorate the interface of a project with the in_builddir decorator.
-
-    This is just a small safety net for benchbuild users, because we make
-    sure to run every project method in the project's build directory.
-    """
-
-    decorated_methods = ["redirect", "compile", "run_tests"]
-
-    def __init__(cls, name, bases, attrs):
-        unionfs_deco = None
-        if CFG["unionfs"]["enable"]:
-            rw_dir = str(CFG["unionfs"]["rw"])
-            unionfs_deco = partial(unionfs.unionfs, rw=rw_dir)
-        config_deco = run.store_config
-
-        methods = ProjectDecorator.decorated_methods
-        for key, value in attrs.items():
-            if (key in methods) and hasattr(cls, key):
-                wrapped_fun = value
-                wrapped_fun = config_deco(wrapped_fun)
-
-                if unionfs_deco is not None:
-                    wrapped_fun = unionfs_deco()(wrapped_fun)
-
-                wrapped_fun = run.in_builddir('.')(wrapped_fun)
-                setattr(cls, key, wrapped_fun)
-
-        super(ProjectDecorator, cls).__init__(name, bases, attrs)
-
-
 class MultiVersioned:
     _active_variant: tp.Optional[VariantContext]
     _active_variants: tp.List[VariantContext]
@@ -148,7 +116,9 @@ class MultiVersioned:
 
 
 @attr.s
-class Project(MultiVersioned, workload.WorkloadMixin, metaclass=ProjectDecorator):  # pylint: disable=too-many-instance-attributes
+class Project(
+    MultiVersioned, workload.WorkloadMixin, metaclass=ProjectRegistry
+):  # pylint: disable=too-many-instance-attributes
     """Abstract class for benchbuild projects.
 
     A project is an arbitrary software system usable by benchbuild in

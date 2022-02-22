@@ -1,7 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
-from benchbuild import CFG
+from benchbuild import CFG, workload
 from benchbuild.environments.domain import declarative
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make
@@ -34,6 +34,7 @@ class X264(bb.Project):
     CONFIG = {"tbbt-small": [], "sintel": ["--input-res", "1280x720"]}
     CONTAINER = declarative.ContainerImage().from_('benchbuild:alpine')
 
+    @workload.define(workload.COMPILE)
     def compile(self):
         x264_repo = local.path(self.source_of('x264.git'))
         clang = bb.compiler.cc(self)
@@ -50,6 +51,7 @@ class X264(bb.Project):
             _make = bb.watch(make)
             _make("clean", "all", "-j", get_number_of_jobs(CFG))
 
+    @workload.define(workload.RUN)
     def run_tests(self):
         x264_repo = local.path(self.source_of('x264.git'))
         inputfiles = [

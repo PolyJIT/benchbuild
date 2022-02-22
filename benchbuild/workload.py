@@ -43,37 +43,72 @@ class Workload:  # pylint: disable=too-few-public-methods
     This adds tagging and guarantees that this workload is run within
     the proper directories (build directory) with the correct config.
     """
+    name: str
     tags: tp.Set[WorkloadProperty]
+    instance: tp.Any
 
-    def __init__(self, func: WorkloadFunction, *args: WorkloadProperty) -> None:
-        self.tags = set(args)
+    def __init__(
+        self, name: str, func: WorkloadFunction, tags: tp.Set[WorkloadProperty],
+        instance: tp.Any
+    ) -> None:
+        self.name = name
+        self.tags = tags
+        self.instance = instance
 
+        # Workloads have to be constrained to a config and a build directory.
         wl_func = run.store_config(func)
         wl_func = run.in_builddir()(wl_func)
 
-        self.__call__ = wl_func
+        self.func = wl_func
+
+    def __call__(self) -> None:
+        self.func(self.instance)
 
     def __repr__(self) -> str:
-        return f'Workload({self.__call__}) Properties: {self.tags}'
+        return f'Workload({self.name}, {self.tags})'
 
 
-class Workloads:
+class WorkloadDescriptor:
     """
-    Stores all workloads in an index.
+    A descriptor that initializes a pre-configured workload.
+
+    This field descriptor is set to all attributes the user has declared a
+    workload. Direct accesses to the instance attribute will generate a new
+    workload instance upon first use. This way we can communicate the instance
+    we bind this workload to.
     """
-    index: tp.Set[Workload]
+    name: tp.Optional[str]
 
-    def __iter__(self) -> tp.Iterator[Workload]:
-        return self.index.__iter__()
+    def __init__(self, func: WorkloadFunction, *args: WorkloadProperty) -> None:
+        self.name = None
+        self.func = func
+        self.tags = set(args)
 
-    def __init__(self, *args: Workload) -> None:
-        self.index = set(args)
+    def __set_name__(self, _, name) -> None:
+        """
+        Remember the attribute name.
+        """
+        self.name = name
 
-    def add(self, func: Workload) -> None:
-        self.index.add(func)
+    def __get__(self, instance, _) -> tp.Any:
+        """
+        Get or create the workload bound to this attribute name.
+        """
+        if self.name not in instance.__dict__:
+            instance.__dict__[
+                self.name
+            ] = Workload(self.name, self.func, self.tags, instance)
+        return instance.__dict__[self.name]
 
-    def __repr__(self) -> str:
-        return f'{self.index}'
+    def __set__(self, instance, value) -> None:
+        """
+        Bind the workload to this instance with the remembered attribute name.
+        """
+        instance.__dict__[self.name
+                         ] = Workload(self.name, value, self.tags, instance)
+
+
+Workloads = tp.Set[Workload]
 
 
 class WorkloadMixin:
@@ -88,33 +123,39 @@ class WorkloadMixin:
     and add them to our set of workloads.
     """
     __workloads: tp.ClassVar[Workloads]
+    __workload_names: tp.ClassVar[tp.Set[str]]
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
         """Create a workloads registry in the subclass only."""
         super().__init_subclass__(*args, **kwargs)
 
-        cls.__workloads = Workloads()
-        attributes = cls.__dict__.values()
+        cls.__workloads = set()
+        cls.__workload_names = set()
 
-        for wl_func in attributes:
-            if isinstance(wl_func, Workload):
-                cls.__workloads.add(wl_func)
+        for name, wl_func in cls.__dict__.items():
+            if isinstance(wl_func, WorkloadDescriptor):
+                cls.__workload_names.add(name)
 
-    @classmethod
-    def workloads(cls, *properties: WorkloadProperty) -> Workloads:
-        """Filter our own workloads."""
+    def workloads(self, *properties: WorkloadProperty) -> Workloads:
+        """
+        Filter our own workloads.
+
+        The given properties are intersected with the registered workload
+        properties.
+        """
+        wl_attrs = [getattr(self, name) for name in type(self).__workload_names]
+
         matches = [
-            wl for wl in cls.__workloads
-            if set(properties).intersection(wl.tags)
+            wl for wl in wl_attrs if set(properties).intersection(wl.tags)
         ]
 
-        return Workloads(*matches)
+        return set(matches)
 
 
 def define(
     *args: WorkloadProperty
-) -> tp.Callable[[WorkloadFunction], Workload]:
+) -> tp.Callable[[WorkloadFunction], WorkloadDescriptor]:
     """
     Define a workload function.
 
@@ -122,11 +163,11 @@ def define(
     registered as a workload for experiment actions.
     """
 
-    def tag_workload(func: WorkloadFunction) -> Workload:
+    def tag_workload(func: WorkloadFunction) -> WorkloadDescriptor:
         """
         Tag the memeber function as a workload.
         """
-        wl_func = Workload(func, *args)
+        wl_func = WorkloadDescriptor(func, *args)
         return wl_func
 
     return tag_workload

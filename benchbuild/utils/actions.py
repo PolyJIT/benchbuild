@@ -29,7 +29,7 @@ from plumbum import ProcessExecutionError
 
 from benchbuild import signals, source, workload
 from benchbuild.settings import CFG
-from benchbuild.utils import container, db, run
+from benchbuild.utils import db, run
 from benchbuild.utils.cmd import mkdir, rm, rmdir
 
 LOG = logging.getLogger(__name__)
@@ -40,6 +40,10 @@ ReturnTypeB = tp.TypeVar('ReturnTypeB')
 DecoratedFunction = tp.Callable[..., ReturnType]
 FunctionDecorator = tp.Callable[[DecoratedFunction[ReturnTypeA]],
                                 DecoratedFunction[ReturnTypeB]]
+
+if tp.TYPE_CHECKING:
+    import benchbuild.experiment.Experiment  # pylint: disable=unused-import
+    import benchbuild.project.Project  # pylint: disable=unused-import
 
 
 @enum.unique
@@ -217,7 +221,8 @@ class StepClass(type):
 
 
 class Step(metaclass=StepClass):
-    """Base class of a step.
+    """
+    Base class of a step.
 
     This stores all common attributes for step classes.
         metaclass ([type], optional): Defaults to StepClass. Takes
@@ -232,14 +237,9 @@ class Step(metaclass=StepClass):
     ON_STEP_BEGIN = []
     ON_STEP_END = []
 
-    def __init__(
-        self,
-        obj: tp.Any = None,
-        action_fn: tp.Callable[[], tp.Any] = None,
-        status: StepResult = StepResult.UNSET
-    ) -> None:
-        self.obj = obj
-        self.action_fn = action_fn
+    status: StepResult
+
+    def __init__(self, status: StepResult) -> None:
         self.status = status
 
     def __len__(self) -> int:
@@ -251,30 +251,84 @@ class Step(metaclass=StepClass):
     def __next__(self):
         raise StopIteration
 
-    @notify_step_begin_end
     def __call__(self) -> StepResultVariants:
-        if not self.action_fn:
-            return StepResult.ERROR
-        self.action_fn()
-        self.status = StepResult.OK
-        return StepResult.OK
+        raise NotImplementedError
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent(
-            "* {name}: Execute configured action.".format(name=self.obj.name),
-            indent * " "
-        )
+        raise NotImplementedError
 
     def onerror(self):
-        Clean(self.obj)()
+        raise NotImplementedError
 
 
-class Clean(Step):
+class ProjectStep(Step):
+    """
+    Base class of a project step.
+
+    Adds a project attribute to the Step base class and some defaults.
+
+    Raises:
+        StopIteration: If we do not encapsulate more substeps.
+    """
+    NAME: tp.ClassVar[str] = ""
+    DESCRIPTION: tp.ClassVar[str] = ""
+
+    project: 'benchbuild.project.Project'
+
+    def __init__(self, project: 'benchbuild.project.Project') -> None:
+        super().__init__(StepResult.UNSET)
+        self.project = project
+
+    def __str__(self, indent: int = 0) -> str:
+        return textwrap.indent('* Execute configured action.', indent * ' ')
+
+    def __call__(self) -> StepResultVariants:
+        raise NotImplementedError
+
+    def onerror(self):
+        Clean(self.project)()
+
+
+class MultiStep(Step):
+    """
+    Group multiple actions into one step.
+
+    Usually used to define behavior on error, e.g., execute everything
+    regardless of any errors, or fail everything upon first error.
+    """
+    NAME: tp.ClassVar[str] = ""
+    DESCRIPTION: tp.ClassVar[str] = ""
+
+    actions: tp.List[Step]
+
+    def __init__(self, actions: tp.Optional[tp.List[Step]] = None) -> None:
+        super().__init__(StepResult.UNSET)
+
+        self.actions = actions if actions else []
+
+    def __len__(self):
+        return sum([len(x) for x in self.actions]) + 1
+
+    def __iter__(self):
+        return self.actions.__iter__()
+
+    def __call__(self) -> StepResultVariants:
+        raise NotImplementedError
+
+    def __str__(self, indent: int = 0) -> str:
+        raise NotImplementedError
+
+
+class Clean(ProjectStep):
     NAME = "CLEAN"
     DESCRIPTION = "Cleans the build directory"
 
-    def __init__(self, obj: tp.Any = None, check_empty: bool = False) -> None:
-        super().__init__(obj, action_fn=None, status=StepResult.UNSET)
+    def __init__(
+        self,
+        project: 'benchbuild.project.Project',
+        check_empty: bool = False
+    ) -> None:
+        super().__init__(project)
         self.check_empty = check_empty
 
     @staticmethod
@@ -301,10 +355,10 @@ class Clean(Step):
         if not CFG['clean']:
             LOG.warning("Clean disabled by config.")
             return StepResult.OK
-        if not self.obj:
+        if not self.project:
             LOG.warning("No object assigned to this action.")
             return StepResult.ERROR
-        obj_builddir = os.path.abspath(self.obj.builddir)
+        obj_builddir = os.path.abspath(self.project.builddir)
         if os.path.exists(obj_builddir):
             LOG.debug("Path %s exists", obj_builddir)
             Clean.clean_mountpoints(obj_builddir)
@@ -319,68 +373,74 @@ class Clean(Step):
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Clean the directory: {1}".format(
-                self.obj.name, self.obj.builddir
-            ), indent * " "
+            f'* {self.project.name}: Clean the directory: {self.project.builddir}',
+            indent * ' '
         )
 
 
-class MakeBuildDir(Step):
+class MakeBuildDir(ProjectStep):
     NAME = "MKDIR"
     DESCRIPTION = "Create the build directory"
 
     @notify_step_begin_end
     def __call__(self) -> StepResultVariants:
-        if not self.obj:
+        if not self.project:
             return StepResult.ERROR
-        if not os.path.exists(self.obj.builddir):
-            mkdir("-p", self.obj.builddir)
+        if not os.path.exists(self.project.builddir):
+            mkdir("-p", self.project.builddir)
         self.status = StepResult.OK
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            "* {0}: Create the build directory".format(self.obj.name),
-            indent * " "
+            f'* {self.project.name}: Create the build directory', indent * ' '
         )
 
 
-class Compile(Step):
+class Compile(ProjectStep):
     NAME = "COMPILE"
     DESCRIPTION = "Compile the project"
 
-    def __init__(self, project):
-        super().__init__(project, action_fn=project.compile)
+    def run_workload(self, work: workload.Workload) -> StepResult:
+        try:
+            work()
+        except ProcessExecutionError:
+            self.status = StepResult.ERROR
+        self.status = StepResult.OK
+        return self.status
 
     @notify_step_begin_end
     def __call__(self):
-        workloads = type(self.obj).workloads(workload.COMPILE)
-        return max([work(self.obj) for work in workloads])
+        workloads = self.project.workloads(workload.COMPILE)
+        if workloads:
+            self.status = max([self.run_workload(work) for work in workloads])
+        LOG.warn("No workload found.")
+        return self.status
 
     def __str__(self, indent: int = 0) -> str:
-        return textwrap.indent(
-            "* {0}: Compile".format(self.obj.name), indent * " "
-        )
+        return textwrap.indent(f'* {self.project.name}: Compile', indent * ' ')
 
 
-class Run(Step):
+class Run(ProjectStep):
     NAME = "RUN"
     DESCRIPTION = "Execute the run action"
 
+    experiment: 'benchbuild.experiment.Experiment'
+
     def __init__(
         self,
-        project: tp.Any = None,  # benchbuild.project.Project
-        experiment: tp.Any = None,  # benchbuild.experiment.Experiment
+        project: 'benchbuild.project.Project',
+        experiment: 'benchbuild.experiment.Experiment',
     ) -> None:
-        super().__init__(project, None, StepResult.UNSET)
+        super().__init__(project)
 
         self.experiment = experiment
 
     def run_workload(self, work: workload.Workload) -> StepResult:
-        group, session = run.begin_run_group(self.obj, self.experiment)
+        group, session = run.begin_run_group(self.project, self.experiment)
         signals.handlers.register(run.fail_run_group, group, session)
         try:
-            work(self.obj)
+            work()
             run.end_run_group(group, session)
             self.status = StepResult.OK
         except ProcessExecutionError:
@@ -398,13 +458,16 @@ class Run(Step):
 
     @notify_step_begin_end
     def __call__(self) -> StepResult:
-        workloads = type(self.obj).workloads(workload.RUN)
-        self.status = max([self.run_workload(work) for work in workloads])
+        workloads = self.project.workloads(workload.RUN)
+        if workloads:
+            self.status = max([self.run_workload(work) for work in workloads])
+
+        LOG.warn("No workload found.")
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent(
-            f'* {self.obj.name}: Execute run-time tests.', indent * ' '
+            f'* {self.project.name}: Execute run-time tests.', indent * ' '
         )
 
 
@@ -412,8 +475,10 @@ class Echo(Step):
     NAME = 'ECHO'
     DESCRIPTION = 'Print a message.'
 
+    message: str
+
     def __init__(self, message: str = "") -> None:
-        super().__init__(None, None, StepResult.UNSET)
+        super().__init__(StepResult.UNSET)
         self.message = message
 
     def __str__(self, indent: int = 0) -> str:
@@ -435,22 +500,9 @@ def run_any_child(child: Step) -> tp.List[StepResult]:
     return child()
 
 
-DefaultList = tp.Optional[tp.List[Step]]
-
-
-class Any(Step):
+class Any(MultiStep):
     NAME = "ANY"
     DESCRIPTION = "Just run all actions, no questions asked."
-
-    def __init__(self, experiment: tp.Any, actions: DefaultList) -> None:
-        super().__init__(experiment, None, StepResult.UNSET)
-        self.actions = actions if actions else []
-
-    def __len__(self) -> int:
-        return sum([len(x) for x in self.actions]) + 1
-
-    def __iter__(self):
-        return self.actions.__iter__()
 
     @notify_step_begin_end
     def __call__(self) -> tp.List[StepResult]:
@@ -470,8 +522,7 @@ class Any(Step):
         return results
 
     def __str__(self, indent: int = 0) -> str:
-        sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
+        sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
         return textwrap.indent("* Execute all of:\n" + sub_actns, indent * " ")
 
 
@@ -479,16 +530,22 @@ class Experiment(Any):
     NAME = "EXPERIMENT"
     DESCRIPTION = "Run a experiment, wrapped in a db transaction"
 
-    def __init__(self, experiment: tp.Any, actions: DefaultList) -> None:
-        _actions: DefaultList = \
+    experiment: 'benchbuild.experiment.Experiment'
+
+    def __init__(
+        self, experiment: 'benchbuild.experiment.Experiment',
+        actions: tp.Optional[tp.List[Step]]
+    ) -> None:
+        _actions: tp.List[Step] = \
             [Echo(message=f'Start experiment: {experiment.name}')] + \
             actions if actions else [] + \
             [Echo(message=f'Completed experiment: {experiment.name}')]
 
-        super().__init__(experiment, _actions)
+        super().__init__(_actions)
+        self.experiment = experiment
 
     def begin_transaction(self):
-        experiment, session = db.persist_experiment(self.obj)
+        experiment, session = db.persist_experiment(self.experiment)
         if experiment.begin is None:
             experiment.begin = datetime.now()
         else:
@@ -555,32 +612,19 @@ class Experiment(Any):
         return results
 
     def __str__(self, indent: int = 0) -> str:
-        sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
+        sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
         return textwrap.indent(
-            "\nExperiment: {0}\n".format(self.obj.name) + sub_actns,
-            indent * " "
+            f'\nExperiment: {self.experiment.name}\n{sub_actns}', indent * " "
         )
 
 
-class RequireAll(Step):
+class RequireAll(MultiStep):
     NAME = "REQUIRE ALL"
     DESCRIPTION = "All child steps need to succeed"
 
-    def __init__(self, actions: DefaultList) -> None:
-        super().__init__(None, None, StepResult.UNSET)
-
-        self.actions = actions if actions else []
-
-    def __len__(self):
-        return sum([len(x) for x in self.actions]) + 1
-
-    def __iter__(self):
-        return self.actions.__iter__()
-
     @notify_step_begin_end
     def __call__(self) -> StepResultVariants:
-        results = []
+        results: tp.List[StepResult] = []
         for i, action in enumerate(self.actions):
             try:
                 results.extend(action())
@@ -618,9 +662,8 @@ class RequireAll(Step):
         return results
 
     def __str__(self, indent: int = 0) -> str:
-        sub_actns = [a.__str__(indent + 1) for a in self.actions]
-        sub_actns = "\n".join(sub_actns)
-        return textwrap.indent("* All required:\n" + sub_actns, indent * " ")
+        sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
+        return textwrap.indent(f'* All required:\n{sub_actns}', indent * " ")
 
 
 class CleanExtra(Step):
@@ -644,20 +687,18 @@ class CleanExtra(Step):
         lines = []
         for p in paths:
             lines.append(
-                textwrap.indent(
-                    "* Clean the directory: {0}".format(p), indent * " "
-                )
+                textwrap.indent(f'* Clean the directory: {p}', indent * " ")
             )
         return "\n".join(lines)
 
 
-class ProjectEnvironment(Step):
+class ProjectEnvironment(ProjectStep):
     NAME = 'ENV'
     DESCRIPTION = 'Prepare the project environment.'
 
     @notify_step_begin_end
     def __call__(self) -> None:
-        project = self.obj
+        project = self.project
         prj_vars = project.variant
 
         for name, variant in prj_vars.items():
@@ -666,7 +707,7 @@ class ProjectEnvironment(Step):
             src.version(project.builddir, variant.version)
 
     def __str__(self, indent: int = 0) -> str:
-        project = self.obj
+        project = self.project
         variant = project.variant
         version_str = source.to_str(tuple(variant.values()))
 
@@ -676,14 +717,17 @@ class ProjectEnvironment(Step):
         )
 
 
-class SetProjectVersion(Step):
+class SetProjectVersion(ProjectStep):
     NAME = 'SET PROJECT VERSION'
     DESCRIPTION = 'Checkout a project version'
 
+    variant: source.base.VariantContext
+
     def __init__(
-        self, project: tp.Any, *revision_strings: source.base.RevisionStr
+        self, project: 'benchbuild.project.Project',
+        *revision_strings: source.base.RevisionStr
     ) -> None:
-        super().__init__(project, None, StepResult.UNSET)
+        super().__init__(project)
 
         self.variant = source.base.context_from_revisions(
             revision_strings, *project.source
@@ -691,7 +735,7 @@ class SetProjectVersion(Step):
 
     @notify_step_begin_end
     def __call__(self) -> None:
-        project = self.obj
+        project = self.project
         prj_vars = project.active_variant
         prj_vars.update(self.variant)
 
@@ -703,8 +747,8 @@ class SetProjectVersion(Step):
         project.active_variant = prj_vars
 
     def __str__(self, indent: int = 0) -> str:
-        project = self.obj
-        version_str = source.to_str(tuple(self.variant.values()))
+        project = self.project
+        version_str = source.to_str(*tuple(self.variant.values()))
 
         return textwrap.indent(
             f'* Add project version {version_str} for: {project.name}',

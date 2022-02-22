@@ -34,7 +34,7 @@ class EmptyProject(Project):
         pass
 
 
-class FailAlways(a.Step):
+class FailAlways(a.ProjectStep):
     NAME = "FAIL ALWAYS"
     DESCRIPTION = "A Step that guarantees to fail."
 
@@ -42,7 +42,7 @@ class FailAlways(a.Step):
         raise ProcessExecutionError([], 1, "", "")
 
 
-class PassAlways(a.Step):
+class PassAlways(a.ProjectStep):
     NAME = "PASS ALWAYS"
     DESCRIPTION = "A Step that guarantees to succeed."
 

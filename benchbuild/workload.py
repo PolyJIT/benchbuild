@@ -14,7 +14,7 @@ class WorkloadProperty:  # pylint: disable=too-few-public-methods
 
 class EnumProperty(WorkloadProperty, enum.Enum):
     """
-    Empty base classt to encode workload properties as enums.
+    Empty base class to encode workload properties as enums.
     """
 
 

@@ -36,7 +36,7 @@ COMPILE = Phase.COMPILE
 RUN = Phase.RUN
 
 
-class Workload:  # pylint: disable=too-few-public-methods
+class Workload:
     """
     Convert a workload function into a Workload class.
 
@@ -77,10 +77,10 @@ class WorkloadDescriptor:
     workload instance upon first use. This way we can communicate the instance
     we bind this workload to.
     """
-    name: tp.Optional[str]
+    name: str
 
     def __init__(self, func: WorkloadFunction, *args: WorkloadProperty) -> None:
-        self.name = None
+        self.name = ''
         self.func = func
         self.tags = set(args)
 
@@ -122,7 +122,6 @@ class WorkloadMixin:
     During class definition, this mixin will collect all decorated functions
     and add them to our set of workloads.
     """
-    __workloads: tp.ClassVar[Workloads]
     __workload_names: tp.ClassVar[tp.Set[str]]
 
     @classmethod
@@ -130,7 +129,6 @@ class WorkloadMixin:
         """Create a workloads registry in the subclass only."""
         super().__init_subclass__(*args, **kwargs)
 
-        cls.__workloads = set()
         cls.__workload_names = set()
 
         for name, wl_func in cls.__dict__.items():

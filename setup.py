@@ -32,7 +32,7 @@ setup(
     install_requires=[
         "Jinja2>=2.10,<4.0", "PyYAML>=5.1,<7.0", "attrs>=19.3,<22.0", "dill~=0.3",
         "pathos~=0.2", "parse~=1.14", "plumbum~=1.6", "psutil~=5.6",
-        "psycopg2-binary~=2.8", "pygit2>=1.2.1,<1.8.0", "pygtrie~=2.3",
+        "psycopg2-binary~=2.8", "pygit2>=1.2.1,<1.10.0", "pygtrie~=2.3",
         "pyparsing>=2.4,<4.0", "rich>=6.1,<12.0", "sqlalchemy-migrate~=0.13",
         "typing-extensions>=3.7.4.3,<4.0.2.0", "virtualenv>=16.7,<21.0",
         "schema~=0.7.4"

@@ -15,6 +15,16 @@ __MSG_SHORTER_PATH_REQUIRED = (
 )
 
 
+def buildah_version() -> tp.Tuple[int, int, int]:
+    """
+    Returns the local buildah version.
+    """
+    raw_version_string = buildah("version")
+    version_str = raw_version_string.split('\n')[0].split(":")[1].strip()
+    major, minor, patch = version_str.split('.')
+    return (int(major), int(minor), int(patch))
+
+
 def container_cmd(base: BaseCommand) -> BaseCommand:
     """
     Capture a plumbum command and apply common options.

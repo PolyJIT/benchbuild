@@ -12,6 +12,8 @@ TODO
 ```python
 ```
 """
+from __future__ import annotations
+
 import enum
 import functools as ft
 import itertools
@@ -44,6 +46,7 @@ FunctionDecorator = tp.Callable[[DecoratedFunction[ReturnTypeA]],
 if tp.TYPE_CHECKING:
     import benchbuild.experiment.Experiment  # pylint: disable=unused-import
     import benchbuild.project.Project  # pylint: disable=unused-import
+    import benchbuild.utils.schema.Experiment  # pylint: disable=unused-import
 
 
 @enum.unique
@@ -56,45 +59,16 @@ class StepResult(enum.IntEnum):
 
 
 StepResultList = tp.List[StepResult]
-StepResultVariants = tp.Optional[tp.Union[StepResult, StepResultList]]
 
 
-def step_has_failed(step_results, error_status=None):
+def step_has_failed(
+    result: StepResult,
+    error_status: tp.Optional[tp.List[StepResult]] = None
+) -> bool:
     if not error_status:
         error_status = [StepResult.ERROR, StepResult.CAN_CONTINUE]
 
-    return len(list(filter(lambda res: res in error_status, step_results))) > 0
-
-
-def to_step_result(
-    func: DecoratedFunction[StepResultVariants]
-) -> StepResultList:
-    """Convert a function return to a list of StepResults.
-
-    All Step subclasses automatically wrap the result of their
-    __call__ method's result with this wrapper.
-    If the result is not a list of StepResult values, one will
-    be generated.
-
-    result of `[StepResult.OK]`, or convert the given result into
-    a list.
-
-    Args:
-        func: The function to wrap.
-    """
-
-    @ft.wraps(func)
-    def wrapper(*args, **kwargs):
-        """Wrapper stub."""
-        res = func(*args, **kwargs)
-        if not res:
-            res = [StepResult.OK]
-
-        if not hasattr(res, "__iter__"):
-            res = [res]
-        return res
-
-    return wrapper
+    return result in error_status
 
 
 def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
@@ -109,25 +83,23 @@ def prepend_status(func: DecoratedFunction[str]) -> DecoratedFunction[str]:
         ...
 
     @ft.wraps(func)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self: 'Step', *args: tp.Any, **kwargs: tp.Any) -> str:
         """Wrapper stub."""
         res = func(self, *args, **kwargs)
         if self.status is not StepResult.UNSET:
-            res = "[{status}]".format(status=self.status.name) + res
+            res = f'[{self.status.name}]{res}'
         return res
 
     return wrapper
 
 
 def notify_step_begin_end(
-    func: DecoratedFunction[StepResultVariants]
-) -> DecoratedFunction[StepResultVariants]:
+    func: DecoratedFunction[StepResult]
+) -> DecoratedFunction[StepResult]:
     """Print the beginning and the end of a `func`."""
 
     @ft.wraps(func)
-    def wrapper(
-        self: 'Step', *args: tp.Any, **kwargs: tp.Any
-    ) -> StepResultVariants:
+    def wrapper(self: 'Step', *args: tp.Any, **kwargs: tp.Any) -> StepResult:
         """Wrapper stub."""
         cls = self.__class__
         on_step_begin = cls.ON_STEP_BEGIN
@@ -145,22 +117,21 @@ def notify_step_begin_end(
     return wrapper
 
 
-def log_before_after(
-    name: str, desc: str
-) -> FunctionDecorator[StepResultVariants, StepResultVariants]:
+def log_before_after(name: str,
+                     desc: str) -> FunctionDecorator[StepResult, StepResult]:
     """Log customized string before & after running func."""
 
     def func_decorator(
-        func: DecoratedFunction[StepResultVariants]
-    ) -> DecoratedFunction[StepResultVariants]:
+        func: DecoratedFunction[StepResult]
+    ) -> DecoratedFunction[StepResult]:
         """Wrapper stub."""
 
         @ft.wraps(func)
-        def wrapper(*args: tp.Any, **kwargs: tp.Any) -> tp.List[StepResult]:
+        def wrapper(*args: tp.Any, **kwargs: tp.Any) -> StepResult:
             """Wrapper stub."""
             LOG.info("\n%s - %s", name, desc)
             res = func(*args, **kwargs)
-            if StepResult.ERROR not in res:
+            if res == StepResult.ERROR:
                 LOG.info("%s - OK\n", name)
             else:
                 LOG.error("%s - ERROR\n", name)
@@ -208,12 +179,11 @@ class StepClass(type):
         original_str = base_attr('__str__')
 
         if name_ and description_:
-            attrs['__call__'] = log_before_after(name_, description_)(
-                to_step_result(original_call)
-            )
+            attrs['__call__'] = log_before_after(name_,
+                                                 description_)(original_call)
         else:
             original_call = attrs['__call__']
-            attrs['__call__'] = to_step_result(original_call)
+            attrs['__call__'] = original_call
 
         attrs['__str__'] = prepend_status(original_str)
 
@@ -245,19 +215,19 @@ class Step(metaclass=StepClass):
     def __len__(self) -> int:
         return 1
 
-    def __iter__(self):
+    def __iter__(self) -> tp.Iterator[Step]:
         return self
 
-    def __next__(self):
+    def __next__(self) -> Step:  # pylint: disable=no-self-use
         raise StopIteration
 
-    def __call__(self) -> StepResultVariants:
+    def __call__(self) -> StepResult:
         raise NotImplementedError
 
     def __str__(self, indent: int = 0) -> str:
         raise NotImplementedError
 
-    def onerror(self):
+    def onerror(self) -> None:
         raise NotImplementedError
 
 
@@ -282,10 +252,10 @@ class ProjectStep(Step):
     def __str__(self, indent: int = 0) -> str:
         return textwrap.indent('* Execute configured action.', indent * ' ')
 
-    def __call__(self) -> StepResultVariants:
+    def __call__(self) -> StepResult:
         raise NotImplementedError
 
-    def onerror(self):
+    def onerror(self) -> None:
         Clean(self.project)()
 
 
@@ -306,17 +276,20 @@ class MultiStep(Step):
 
         self.actions = actions if actions else []
 
-    def __len__(self):
+    def __len__(self) -> int:
         return sum([len(x) for x in self.actions]) + 1
 
-    def __iter__(self):
+    def __iter__(self) -> tp.Iterator[Step]:
         return self.actions.__iter__()
 
-    def __call__(self) -> StepResultVariants:
+    def __call__(self) -> StepResult:
         raise NotImplementedError
 
     def __str__(self, indent: int = 0) -> str:
         raise NotImplementedError
+
+    def onerror(self) -> None:
+        pass
 
 
 class Clean(ProjectStep):
@@ -332,7 +305,7 @@ class Clean(ProjectStep):
         self.check_empty = check_empty
 
     @staticmethod
-    def clean_mountpoints(root: str):
+    def clean_mountpoints(root: str) -> None:
         """
         Unmount any remaining mountpoints under :root.
 
@@ -351,7 +324,7 @@ class Clean(ProjectStep):
                     umount_paths.append(part.mountpoint)
 
     @notify_step_begin_end
-    def __call__(self) -> StepResultVariants:
+    def __call__(self) -> StepResult:
         if not CFG['clean']:
             LOG.warning("Clean disabled by config.")
             return StepResult.OK
@@ -372,8 +345,9 @@ class Clean(ProjectStep):
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
+        project = self.project
         return textwrap.indent(
-            f'* {self.project.name}: Clean the directory: {self.project.builddir}',
+            f'* {project.name}: Clean the directory: {project.builddir}',
             indent * ' '
         )
 
@@ -383,7 +357,7 @@ class MakeBuildDir(ProjectStep):
     DESCRIPTION = "Create the build directory"
 
     @notify_step_begin_end
-    def __call__(self) -> StepResultVariants:
+    def __call__(self) -> StepResult:
         if not self.project:
             return StepResult.ERROR
         if not os.path.exists(self.project.builddir):
@@ -410,11 +384,12 @@ class Compile(ProjectStep):
         return self.status
 
     @notify_step_begin_end
-    def __call__(self):
+    def __call__(self) -> StepResult:
         workloads = self.project.workloads(workload.COMPILE)
         if workloads:
             self.status = max([self.run_workload(work) for work in workloads])
-        LOG.warn("No workload found.")
+        else:
+            LOG.warning("No workload found.")
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
@@ -461,8 +436,8 @@ class Run(ProjectStep):
         workloads = self.project.workloads(workload.RUN)
         if workloads:
             self.status = max([self.run_workload(work) for work in workloads])
-
-        LOG.warn("No workload found.")
+        else:
+            LOG.warning("No workload found.")
         return self.status
 
     def __str__(self, indent: int = 0) -> str:
@@ -485,12 +460,12 @@ class Echo(Step):
         return textwrap.indent(f'* echo: {self.message}', indent * ' ')
 
     @notify_step_begin_end
-    def __call__(self) -> StepResultVariants:
+    def __call__(self) -> StepResult:
         LOG.info(self.message)
         return StepResult.OK
 
 
-def run_any_child(child: Step) -> tp.List[StepResult]:
+def run_any_child(child: Step) -> StepResult:
     """
     Execute child step.
 
@@ -505,7 +480,7 @@ class Any(MultiStep):
     DESCRIPTION = "Just run all actions, no questions asked."
 
     @notify_step_begin_end
-    def __call__(self) -> tp.List[StepResult]:
+    def __call__(self) -> StepResult:
         length = len(self.actions)
         cnt = 0
         results = [StepResult.OK]
@@ -514,12 +489,13 @@ class Any(MultiStep):
             result = a()
             results.append(result)
 
-            if StepResult.ERROR in result:
+            if result == StepResult.ERROR:
                 LOG.warning("%d actions left in queue", length - cnt)
+
         self.status = StepResult.OK
         if StepResult.ERROR in results:
             self.status = StepResult.CAN_CONTINUE
-        return results
+        return self.status
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
@@ -544,10 +520,13 @@ class Experiment(Any):
         super().__init__(_actions)
         self.experiment = experiment
 
-    def begin_transaction(self):
+    def begin_transaction(
+        self
+    ) -> tp.Tuple['benchbuild.utils.schema.Experiment', tp.Any]:
         experiment, session = db.persist_experiment(self.experiment)
         if experiment.begin is None:
             experiment.begin = datetime.now()
+            experiment.end = experiment.begin
         else:
             experiment.begin = min(experiment.begin, datetime.now())
         session.add(experiment)
@@ -564,12 +543,11 @@ class Experiment(Any):
         return experiment, session
 
     @staticmethod
-    def end_transaction(experiment, session):
+    def end_transaction(
+        experiment: 'benchbuild.utils.schema.Experiment', session: tp.Any
+    ) -> None:
         try:
-            if experiment.end is None:
-                experiment.end = datetime.now()
-            else:
-                experiment.end = max(experiment.end, datetime.now())
+            experiment.end = max(experiment.end, datetime.now())
             session.add(experiment)
             session.commit()
         except sa.exc.InvalidRequestError as inv_req:
@@ -581,11 +559,7 @@ class Experiment(Any):
 
         try:
             with mp.Pool(num_processes) as pool:
-                results = list(
-                    itertools.chain.from_iterable(
-                        pool.map(run_any_child, actions)
-                    )
-                )
+                results = pool.map(run_any_child, actions)
         except KeyboardInterrupt:
             LOG.info("Experiment aborting by user request")
             results.append(StepResult.ERROR)
@@ -599,7 +573,7 @@ class Experiment(Any):
         return results
 
     @notify_step_begin_end
-    def __call__(self) -> tp.List[StepResult]:
+    def __call__(self) -> StepResult:
         results = []
         session = None
         experiment, session = self.begin_transaction()
@@ -609,7 +583,7 @@ class Experiment(Any):
             self.end_transaction(experiment, session)
             signals.handlers.deregister(self.end_transaction)
         self.status = max(results) if results else StepResult.OK
-        return results
+        return self.status
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
@@ -623,11 +597,18 @@ class RequireAll(MultiStep):
     DESCRIPTION = "All child steps need to succeed"
 
     @notify_step_begin_end
-    def __call__(self) -> StepResultVariants:
+    def __call__(self) -> StepResult:
         results: tp.List[StepResult] = []
-        for i, action in enumerate(self.actions):
+
+        total_steps = len(self.actions)
+
+        def no_fail(*args: tp.Any, **kwargs: tp.Any):
+            return StepResult.ERROR not in results
+
+        for i, action in itertools.takewhile(no_fail, enumerate(self.actions)):
+            result = StepResult.UNSET
             try:
-                results.extend(action())
+                result = action()
             except ProcessExecutionError as proc_ex:
                 LOG.error("\n==== ERROR ====")
                 LOG.error(
@@ -635,31 +616,32 @@ class RequireAll(MultiStep):
                 )
                 LOG.error(str(proc_ex))
                 LOG.error("==== ERROR ====\n")
-                results.append(StepResult.ERROR)
+                result = StepResult.ERROR
             except KeyboardInterrupt:
                 LOG.info("User requested termination.")
                 action.onerror()
-                results.append(StepResult.ERROR)
+                action.status = StepResult.ERROR
                 raise
-            except OSError:
+            except Exception:
                 LOG.error(
-                    "Exception in step #%d: %s",
+                    "Exception in step #%d/%d: %s",
                     i,
+                    total_steps,
                     str(action),
                     exc_info=sys.exc_info()
                 )
-                results.append(StepResult.ERROR)
+                result = StepResult.ERROR
 
-            if StepResult.ERROR in results:
-                LOG.error("Execution of #%d: '%s' failed.", i, str(action))
+            results.append(result)
+            action.status = result
+            is_failed = StepResult.ERROR in results
+            if is_failed:
+                LOG.error("Execution of: '%s' failed.", str(action))
                 LOG.error("'%s' cannot continue.", str(self))
-                action.status = StepResult.ERROR
                 action.onerror()
-                self.status = StepResult.ERROR
-                return results
 
-        self.status = StepResult.OK
-        return results
+        self.status = max(results) if results else StepResult.UNSET
+        return self.status
 
     def __str__(self, indent: int = 0) -> str:
         sub_actns = "\n".join([a.__str__(indent + 1) for a in self.actions])
@@ -697,7 +679,7 @@ class ProjectEnvironment(ProjectStep):
     DESCRIPTION = 'Prepare the project environment.'
 
     @notify_step_begin_end
-    def __call__(self) -> None:
+    def __call__(self) -> StepResult:
         project = self.project
         prj_vars = project.variant
 
@@ -706,10 +688,13 @@ class ProjectEnvironment(ProjectStep):
             src = variant.owner
             src.version(project.builddir, variant.version)
 
+        self.status = StepResult.OK
+        return self.status
+
     def __str__(self, indent: int = 0) -> str:
         project = self.project
         variant = project.variant
-        version_str = source.to_str(tuple(variant.values()))
+        version_str = source.to_str(*tuple(variant.values()))
 
         return textwrap.indent(
             f'* Project environment for: {project.name} @ {version_str}',
@@ -734,7 +719,7 @@ class SetProjectVersion(ProjectStep):
         )
 
     @notify_step_begin_end
-    def __call__(self) -> None:
+    def __call__(self) -> StepResult:
         project = self.project
         prj_vars = project.active_variant
         prj_vars.update(self.variant)
@@ -745,6 +730,8 @@ class SetProjectVersion(ProjectStep):
             src.version(project.builddir, variant.version)
 
         project.active_variant = prj_vars
+        self.status = StepResult.OK
+        return self.status
 
     def __str__(self, indent: int = 0) -> str:
         project = self.project

@@ -1,6 +1,7 @@
 from plumbum import local
 
 import benchbuild as bb
+from benchbuild import CFG, workload
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP
 from benchbuild.utils.cmd import make, tar
@@ -25,6 +26,7 @@ class XZ(bb.Project):
     ]
     CONTAINER = ContainerImage().from_('benchbuild:alpine')
 
+    @workload.define(workload.COMPILE)
     def compile(self):
         xz_source = local.path(self.source_of('xz.tar.gz'))
         xz_version = self.version_of('xz.tar.gz')
@@ -50,6 +52,7 @@ class XZ(bb.Project):
             _make = bb.watch(make)
             _make("CC=" + str(clang), "clean", "all")
 
+    @workload.define(workload.COMPILE)
     def run_tests(self):
         xz_version = self.version_of('xz.tar.gz')
         unpack_dir = local.path(f'xz-{xz_version}')

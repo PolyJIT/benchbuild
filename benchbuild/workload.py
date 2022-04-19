@@ -3,7 +3,7 @@ import typing as tp
 
 from benchbuild.utils import run
 
-WorkloadFunction = tp.Callable[[tp.Any], None]
+WorkloadFunction = tp.Callable[..., None]
 
 
 class WorkloadProperty:  # pylint: disable=too-few-public-methods
@@ -61,8 +61,8 @@ class Workload:
 
         self.func = wl_func
 
-    def __call__(self) -> None:
-        self.func(self.instance)
+    def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> None:
+        self.func(self.instance, *args, **kwargs)
 
     def __repr__(self) -> str:
         return f'Workload({self.name}, {self.tags})'
@@ -134,6 +134,26 @@ class WorkloadMixin:
         for name, wl_func in cls.__dict__.items():
             if isinstance(wl_func, WorkloadDescriptor):
                 cls.__workload_names.add(name)
+
+    def properties(self) -> tp.Set[WorkloadProperty]:
+        """
+        Get all known properties.
+        """
+        wl_attrs = [getattr(self, name) for name in type(self).__workload_names]
+        props: tp.Set[WorkloadProperty] = set()
+        for func in wl_attrs:
+            props.update(func.tags)
+        return props
+
+    def tags(self, name: str) -> tp.Set[WorkloadProperty]:
+        """
+        Get a workload's tags by name.
+        """
+        if name not in self.__workload_names:
+            raise ValueError('Given name not a registered workload')
+
+        func = tp.cast(Workload, getattr(self, name))
+        return func.tags
 
     def workloads(self, *properties: WorkloadProperty) -> Workloads:
         """

@@ -17,6 +17,7 @@ import logging
 import typing as tp
 
 from benchbuild.settings import CFG
+from benchbuild.environments.adapters.common import buildah_version
 
 from . import model
 
@@ -200,6 +201,10 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
     def from_source(image: ContainerImage) -> None:
         LOG.debug('BenchBuild will be installed from  source.')
 
+        mount = f'type=bind,src={src_dir},target={tgt_dir}'
+        if buildah_version() >= (1, 24, 0):
+            mount += ',rw'
+
         # The image requires git, pip and a working python3.7 or better.
         image.run('mkdir', f'{tgt_dir}', runtime=crun)
         image.run('pip3', 'install', 'setuptools', runtime=crun)
@@ -208,7 +213,7 @@ def add_benchbuild_layers(layers: ContainerImage) -> ContainerImage:
             'install',
             '--ignore-installed',
             tgt_dir,
-            mount=f'type=bind,src={src_dir},target={tgt_dir}',
+            mount=mount,
             runtime=crun
         )
 

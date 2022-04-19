@@ -21,7 +21,22 @@ class HTTP(base.FetchableSource):
     def default(self) -> base.Variant:
         return self.versions()[0]
 
-    def version(self, target_dir: str, version: str) -> pb.LocalPath:
+    def fetch(self) -> pb.LocalPath:
+        """
+        Fetch via http using default version string.
+        """
+        return self.fetch_version(self.default.version)
+
+    def fetch_version(self, version: str) -> pb.LocalPath:
+        """
+        Fetch via http using given version string.
+
+        Args:
+            version: the version string to pull via http.
+
+        Returns:
+            local path to fetched version.
+        """
         prefix = base.target_prefix()
         remotes = normalize_remotes(self.remote)
 
@@ -30,7 +45,11 @@ class HTTP(base.FetchableSource):
         cache_path = pb.local.path(prefix) / target_name
         download_single_version(url, cache_path)
 
-        # FIXME: Belongs to environment code.
+        return cache_path
+
+    def version(self, target_dir: str, version: str) -> pb.LocalPath:
+        target_name = versioned_target_name(self.local, version)
+        cache_path = self.fetch_version(version)
 
         target_path = pb.local.path(target_dir) / target_name
         active_loc = pb.local.path(target_dir) / self.local

@@ -85,27 +85,23 @@ class Fetchable(Protocol):
         While this make no further assumption, but a good candidate is a
         file-system name/path.
         """
-        ...
 
     @property
     def local(self) -> str:
         """
         The source location (path-like) after fetching it from its remote.
         """
-        ...
 
     @property
     def remote(self) -> tp.Union[str, tp.Dict[str, str]]:
         """
         The source location in the remote location.
         """
-        ...
 
     def fetch(self) -> pb.LocalPath:
         """
         Fetch the necessary source files into benchbuild's cache.
         """
-        ...
 
 
 class Expandable(Protocol):
@@ -118,7 +114,6 @@ class Expandable(Protocol):
         Some sources may only be treated as virtual and would not take part
         in the version expansion of an associated project.
         """
-        ...
 
     def versions(self) -> tp.Iterable[Variant]:
         """
@@ -127,7 +122,6 @@ class Expandable(Protocol):
         Returns:
             List[str]: The list of all available versions.
         """
-        ...
 
 
 class Versioned(Protocol):
@@ -137,7 +131,6 @@ class Versioned(Protocol):
         """
         The default version for this source.
         """
-        ...
 
     def version(self, target_dir: str, version: str) -> pb.LocalPath:
         """
@@ -152,7 +145,6 @@ class Versioned(Protocol):
         Returns:
             str: [description]
         """
-        ...
 
     @property
     def versions(self) -> tp.Iterable[Variant]:
@@ -162,7 +154,6 @@ class Versioned(Protocol):
         Returns:
             List[str]: The list of all available versions.
         """
-        ...
 
 
 class FetchableSource:

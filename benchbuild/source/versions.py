@@ -88,6 +88,12 @@ class BaseVersionFilter(base.FetchableSource):
         """
         return self.child.versions()
 
+    def fetch(self) -> pb.LocalPath:
+        """
+        Delegate fetch call to child source.
+        """
+        return self.child.fetch()
+
 
 class SingleVersionFilter(BaseVersionFilter):
     """

@@ -101,6 +101,12 @@ class Fetchable(Protocol):
         """
         ...
 
+    def fetch(self) -> pb.LocalPath:
+        """
+        Fetch the necessary source files into benchbuild's cache.
+        """
+        ...
+
 
 class Expandable(Protocol):
 
@@ -242,6 +248,13 @@ class FetchableSource:
     def is_expandable(self) -> bool:
         return True
 
+    @abc.abstractmethod
+    def fetch(self) -> pb.LocalPath:
+        """
+        Fetch the necessary source files into benchbuild's cache.
+        """
+        raise NotImplementedError()
+
 
 Sources = tp.List['FetchableSource']
 
@@ -257,6 +270,9 @@ class NoSource(FetchableSource):
 
     def versions(self) -> tp.List[Variant]:
         return [Variant(owner=self, version='None')]
+
+    def fetch(self) -> pb.LocalPath:
+        return 'None'
 
 
 def nosource() -> NoSource:

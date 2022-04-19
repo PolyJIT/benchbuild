@@ -52,7 +52,7 @@ class XZ(bb.Project):
             _make = bb.watch(make)
             _make("CC=" + str(clang), "clean", "all")
 
-    @workload.define(workload.COMPILE)
+    @workload.define(workload.RUN)
     def run_tests(self):
         xz_version = self.version_of('xz.tar.gz')
         unpack_dir = local.path(f'xz-{xz_version}')

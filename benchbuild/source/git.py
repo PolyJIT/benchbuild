@@ -3,6 +3,8 @@ Declare a git source.
 """
 import os
 import typing as tp
+import logging
+from pathlib import Path
 
 import plumbum as pb
 from plumbum.commands.base import BoundCommand
@@ -10,6 +12,8 @@ from plumbum.commands.base import BoundCommand
 from benchbuild.utils.cmd import git, ln, mkdir
 
 from . import base
+
+LOG = logging.getLogger(__name__)
 
 VarRemotes = tp.Union[str, tp.Dict[str, str]]
 Remotes = tp.Dict[str, str]
@@ -102,13 +106,19 @@ class Git(base.FetchableSource):
             if is_shallow == 'true':
                 pull('--unshallow')
 
-        mkdir('-p', tgt_loc)
-        with pb.local.cwd(tgt_loc):
-            clone(
-                '--dissociate', '--recurse-submodules', '--reference', src_loc,
-                self.remote, '.'
+        if Path(tgt_loc).exists():
+            LOG.info(
+                'Found target location %s. Going to skip creation and '
+                'repository cloning.', str(tgt_loc)
             )
-            checkout('--detach', version)
+        else:
+            mkdir('-p', tgt_loc)
+            with pb.local.cwd(tgt_loc):
+                clone(
+                    '--dissociate', '--recurse-submodules', '--reference',
+                    src_loc, self.remote, '.'
+                )
+                checkout('--detach', version)
 
         ln('-nsf', tgt_subdir, active_loc)
         return tgt_loc

@@ -2,6 +2,7 @@ from plumbum import local
 
 import benchbuild as bb
 from benchbuild import workload
+from benchbuild.command import Command, SourceRoot
 from benchbuild.environments.domain.declarative import ContainerImage
 from benchbuild.source import HTTP, Git
 from benchbuild.utils.cmd import make, tar
@@ -30,7 +31,62 @@ class Bzip2(bb.Project):
         .from_('benchbuild:alpine') \
         .run('apk', 'add', 'make')
 
-    @workload.define(workload.COMPILE)
+    STAGES = ["compression", "decompression"]
+
+    JOBS = {
+        "compression": [
+            Command(
+                SourceRoot('bzip2.git') / 'bzip2',
+                '-f',
+                '-z',
+                '-k',
+                '--best',
+                'compression/text.html',
+                output_param=['--output', '{output}'],
+                output="foo.bar"
+            ),
+            Command(
+                SourceRoot('bzip2.git') / 'bzip2', '-f', '-z', '-k', '--best',
+                'compression/chicken.jpg'
+            ),
+            Command(
+                SourceRoot('bzip2.git') / 'bzip2', '-f', '-z', '-k', '--best',
+                'compression/control'
+            ),
+            Command(
+                SourceRoot('bzip2.git') / 'bzip2', '-f', '-z', '-k', '--best',
+                'compression/input.source'
+            ),
+            Command(
+                SourceRoot('bzip2.git') / 'bzip2', '-f', '-z', '-k', '--best',
+                'compression/liberty.jpg'
+            )
+        ],
+        WorkloadSet(name="decompression", tags={Size.Large}): [
+            #"decompression": [
+            Command(
+                SourceRoot('bzip2.git') / 'bzip2', '-f', '-k', '--decompress',
+                'compression/text.html.bz2'
+            ),
+            Command(
+                SourceRoot('bzip2.git') / 'bzip2', '-f', '-k', '--decompress',
+                'compression/chicken.jpg.bz2'
+            ),
+            Command(
+                SourceRoot('bzip2.git') / 'bzip2', '-f', '-k', '--decompress',
+                'compression/control.bz2'
+            ),
+            Command(
+                SourceRoot('bzip2.git') / 'bzip2', '-f', '-k', '--decompress',
+                'compression/input.source.bz2'
+            ),
+            Command(
+                SourceRoot('bzip2.git') / 'bzip2', '-f', '-k', '--decompress',
+                'compression/liberty.jpg.bz2'
+            )
+        ]
+    }
+
     def compile_project(self):
         bzip2_repo = local.path(self.source_of('bzip2.git'))
         compression_source = local.path(self.source_of('compression.tar.gz'))
@@ -40,22 +96,3 @@ class Bzip2(bb.Project):
         with local.cwd(bzip2_repo):
             make_ = bb.watch(make)
             make_("CFLAGS=-O3", "CC=" + str(clang), "clean", "bzip2")
-
-    @workload.define(workload.RUN)
-    def compression_test(self):
-        bzip2_repo = local.path(self.source_of('bzip2.git'))
-        _bzip2 = bb.watch(bb.wrap(bzip2_repo / "bzip2", self))
-
-        # Compress
-        _bzip2("-f", "-z", "-k", "--best", "compression/text.html")
-        _bzip2("-f", "-z", "-k", "--best", "compression/chicken.jpg")
-        _bzip2("-f", "-z", "-k", "--best", "compression/control")
-        _bzip2("-f", "-z", "-k", "--best", "compression/input.source")
-        _bzip2("-f", "-z", "-k", "--best", "compression/liberty.jpg")
-
-        # Decompress
-        _bzip2("-f", "-k", "--decompress", "compression/text.html.bz2")
-        _bzip2("-f", "-k", "--decompress", "compression/chicken.jpg.bz2")
-        _bzip2("-f", "-k", "--decompress", "compression/control.bz2")
-        _bzip2("-f", "-k", "--decompress", "compression/input.source.bz2")
-        _bzip2("-f", "-k", "--decompress", "compression/liberty.jpg.bz2")

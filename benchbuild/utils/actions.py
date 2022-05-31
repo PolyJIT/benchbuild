@@ -648,6 +648,47 @@ class RequireAll(MultiStep):
         return textwrap.indent(f'* All required:\n{sub_actns}', indent * " ")
 
 
+class RunJob(ProjectStep):
+    NAME = "RUN JOB"
+    DESCRIPTION = "Run a project's job"
+
+    job: 'benchbuild.command.Command'
+
+    def __init__(
+        self, project: 'benchbuild.project.Project',
+        job: 'benchbuild.command.Command'
+    ) -> None:
+        super().__init__(project)
+        self.job = job
+
+    def __call__(self) -> StepResult:
+        # Deal with process execution errors and signals(?)
+        self.job()
+
+
+class RunJobs(Any):
+    NAME = "RUN JOBS"
+    DESCRIPTION = "Generic run all project jobs"
+
+    project: 'benchbuild.project.Project'
+
+    def __init__(
+        self,
+        project: 'benchbuild.project.Project',
+        stage: tp.Optional[str] = None
+    ) -> None:
+        super().__init__()
+
+        self.project = project
+
+        for job in project.jobs(stage):
+            self.actions.append(RunJob(project, job))
+
+    def __call__(self) -> StepResult:
+        # Override __call__ of  Any and support begin/end of rungroup
+        pass
+
+
 class CleanExtra(Step):
     NAME = "CLEAN EXTRA"
     DESCRIPTION = "Cleans the extra directories."

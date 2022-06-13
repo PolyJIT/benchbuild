@@ -25,7 +25,7 @@ class Command:
         *args: tp.Any,
         output: Path = None,
         output_param: tp.List[str] = None,
-        env: tp.Dict[str, str] = None,
+        **kwargs: str,
     ) -> None:
 
         self._path = path
@@ -33,7 +33,7 @@ class Command:
         self._output = output
 
         self._output_param = output_param if output_param is not None else []
-        self._env = env if env is not None else {}
+        self._env = kwargs
 
     @property
     def name(self) -> str:
@@ -61,21 +61,30 @@ class Command:
     def env(self, **kwargs: str) -> None:
         self._env.update(kwargs)
 
-    def __getitem__(self, *args: tp.Any) -> "Command":
-        return Command(
-            self._path, *(*self._args, *args), output=self._output, env=self._env
-        )
+    def __getitem__(self, args: tp.Tuple[tp.Any, ...]) -> "Command":
+        return Command(self._path, *self._args, *args, output=self._output, **self._env)
 
     def __call__(self, *args: tp.Any) -> tp.Any:
-        if self.exists():
-            cmd = local[str(self.path)]
-            output_params = [
-                arg.format(output=self.output) for arg in self._output_param
-            ]
-            cmd_w_output = cmd[output_params]
+        assert self.exists()
+        cmd = local[str(self.path)]
+        output_params = [arg.format(output=self.output) for arg in self._output_param]
+        cmd_w_output = cmd[output_params]
 
-            return cmd_w_output(*args)
-        return None
+        return cmd_w_output(*args)
+
+    def __repr__(self) -> str:
+        repr_str = f"path={self._path}"
+
+        if self._args:
+            repr_str += f" args={self._args}"
+        if self._env:
+            repr_str += f" env={self._env}"
+        if self._output:
+            repr_str += f" output={self._output}"
+        if self._output_param:
+            repr_str += f" output_param={self._output_param}"
+
+        return f"Command({repr_str})"
 
     def __str__(self) -> str:
         env_str = " ".join([f"{k}={v}" for k, v in self._env.items()])
